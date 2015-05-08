@@ -10,7 +10,7 @@ import org.junit.Test;
 public class BlockParsingTests {
 
 	@Test
-	public void testParserProducesSensibleBlocks() {
+	public void testBlockerProducesSensibleBlocks() {
 		List<Block> blocks = Blocker.block("\tpackage org.ziniki\n\t\tfib n = fib (n-1) + fib (n-2)\n");
 		assertEquals(1, blocks.size());
 		Block b = blocks.get(0);
@@ -30,7 +30,7 @@ public class BlockParsingTests {
 	}
 
 	@Test
-	public void testParserCanHandleContinuations() {
+	public void testBlockerCanHandleContinuations() {
 		List<Block> blocks = Blocker.block("\tpackage org.ziniki\n\t\tfib n = fib (n-1)\n\t\t  + fib (n-2)\n");
 		assertEquals(1, blocks.size());
 		Block b = blocks.get(0);
@@ -89,7 +89,7 @@ public class BlockParsingTests {
 	}
 
 	@Test
-	public void testParserCanHandleExdenting() {
+	public void testBlockerCanHandleExdenting() {
 		List<Block> blocks = Blocker.block("\tpackage org.ziniki\n\t\tfib n = fib (n-1) + fib (n-2)\n\tpackage org.cardstack\n");
 		assertEquals(2, blocks.size());
 		Block b = blocks.get(0);
@@ -116,7 +116,7 @@ public class BlockParsingTests {
 	}
 
 	@Test
-	public void testParserCanHandleMultipleDefnsAtSameScope() {
+	public void testBlockerCanHandleMultipleDefnsAtSameScope() {
 		List<Block> blocks = Blocker.block("\tpackage org.ziniki\n\t\tfib n = fib (n-1) + fib (n-2)\n\t\tg n a b = g (n-1) (a+b) a\n");
 		showBlocks(0, blocks);
 		assertEquals(1, blocks.size());
