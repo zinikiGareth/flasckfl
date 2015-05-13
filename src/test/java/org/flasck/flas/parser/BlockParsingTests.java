@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import org.flasck.flas.parsedForm.Block;
+import org.flasck.flas.parsedForm.SingleLine;
 import org.junit.Test;
 
 public class BlockParsingTests {
@@ -143,20 +144,22 @@ public class BlockParsingTests {
 		assertEquals(0, nb.nested.size());
 	}
 
-	private void showBlocks(int ind, List<Block> blocks) {
+	public static void showBlocks(int ind, List<Block> blocks) {
 		for (Block b : blocks) {
 			showBlock(ind, b);
 		}
 	}
 
-	private void showBlock(int ind, Block b) {
-		for (int i=0;i<ind;i++) {
-			System.out.print(' ');
+	public static void showBlock(int ind, Block b) {
+		for (SingleLine sl : b.line.lines) {
+			for (int i=0;i<ind;i++) {
+				System.out.print(' ');
+			}
+			System.out.print(sl.lineNo);
+			System.out.print(": ");
+			System.out.print(sl.line);
+			System.out.println();
 		}
-		System.out.print(b.line.lines.get(0).lineNo);
-		System.out.print(": ");
-		System.out.print(b.line.lines.get(0).line);
-		System.out.println();
 		showBlocks(ind+2, b.nested);
 	}
 }
