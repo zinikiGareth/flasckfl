@@ -25,6 +25,19 @@ public class BlockTestData {
 			.build();
 	}
 
+	public static Block fibBlock2() {
+		return builder()
+			.line("fib 1 = 1")
+			.build();
+	}
+
+	public static Block fibBlockN() {
+		return builder()
+//			.line("fib n = fib (n-1) + fib (n-2)")
+				.line("fib n = + (fib (- n 1)) (fib (- n 2))")
+			.build();
+	}
+	
 	public static Block packageAndFibN() {
 		return builder()
 			.line("package org.ziniki")

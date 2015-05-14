@@ -37,4 +37,8 @@ public class ExprToken {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "ET[" + type + ":" + text + "]";
+	}
 }
