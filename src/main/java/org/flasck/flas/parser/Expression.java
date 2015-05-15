@@ -49,9 +49,9 @@ public class Expression implements TryParsing {
 				mark = line.at();
 				s = ExprToken.from(line);
 				System.out.println("Inner " + s);
-				if (s.type == ExprToken.PUNC && s.text.equals("(")) {
-					args.add(parseParenthetical(line));
-				} else if (s.type == ExprToken.PUNC && s.text.equals(")")) {
+				if (s.type == ExprToken.PUNC && s.text.equals("(")) { // I think this probably could be "[" as well
+					args.add(parseParenthetical(line, ")"));
+				} else if (s.type == ExprToken.PUNC && (s.text.equals(")") || s.text.equals(",") || s.text.equals("]"))) {
 					line.reset(mark);
 					break;
 				} else if (s.type == ExprToken.PUNC) {
@@ -64,8 +64,16 @@ public class Expression implements TryParsing {
 				return deparen(args.get(0));
 			else
 				return deparen(opstack(args));
-		} else if (s.type == ExprToken.PUNC && s.text.equals("(")) {
-			return parseParenthetical(line);
+		} else if (s.type == ExprToken.PUNC) {
+			if (s.text.equals("(") || s.text.equals("[")) {
+				return parseParenthetical(line, s.text.equals("(")?")":"]");
+			} else if (s.text.equals(")") || s.text.equals("]") || s.text.equals(",")) {
+				line.reset(mark);
+				return null;
+			} else {
+				System.out.println("What was this punc? " + s);
+				return null;
+			}
 		} else {
 			// error reporting - some sort of syntax error
 			System.out.println("What was this? " + s);
@@ -216,12 +224,37 @@ public class Expression implements TryParsing {
 		return new ItemExpr(new ExprToken(ExprToken.SYMBOL, ((ItemExpr)o).tok.text+"_"));
 	}
 
-	private Object parseParenthetical(Tokenizable line) {
-		System.out.println("nested");
-		Object ret = tryParsing(line);
-		ExprToken crb = ExprToken.from(line);
-		if (crb.type != ExprToken.PUNC || !crb.text.equals(")"))
-			System.out.println("this would be an error");
-		return new ParenExpr(ret);
+	private Object parseParenthetical(Tokenizable line, String endsWith) {
+		List<Object> objs = new ArrayList<Object>();
+		while (true) {
+			// TODO: I'm not sure about this way of doing it
+			// It seems to me that [,,] might end up not an error but []
+			Object expr = tryParsing(line);
+			if (expr != null)
+				objs.add(expr);
+			ExprToken crb = ExprToken.from(line);
+			if (crb.type == ExprToken.PUNC) {
+				if (crb.text.equals(endsWith)) {
+					if (endsWith.equals(")")) {
+						if (objs.size() == 1)
+							return new ParenExpr(objs.get(0));
+					}
+					else if (endsWith.equals("]")) {
+						Object base = new ItemExpr(new ExprToken(ExprToken.SYMBOL, "[]"));
+						for (int i=objs.size()-1;i>=0;i--)
+							base = new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.SYMBOL, ":")), objs.get(i), base);
+						return base;
+					} else {
+						System.out.println("huh?");
+						return null;
+					}
+				} else if (crb.text.equals(",")) {
+				} else {
+					System.out.println("this is an error");
+					return null;
+				}
+			} else
+				System.out.println("this would be an error");
+		}
 	}
 }

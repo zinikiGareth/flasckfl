@@ -1,5 +1,7 @@
 package org.flasck.flas.parser;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.junit.Test;
@@ -87,7 +89,30 @@ public class OperatorParsingTests {
 		ExprTester.assertExpr(o, "(", "map", "*", "l", ")");
 	}
 	
-	// TODO: still need to support lists
+	@Test
+	public void testEmptyList() {
+		Object o = new Expression().tryParsing(new Tokenizable(new StringBuilder("[]")));
+		assertNotNull(o);
+//		((ApplyExpr)o).showTree(0);
+		ExprTester.assertExpr(o, "[]");
+	}
+
+	@Test
+	public void testSingleItemList() {
+		Object o = new Expression().tryParsing(new Tokenizable(new StringBuilder("[x]")));
+		assertNotNull(o);
+		((ApplyExpr)o).showTree(0);
+		ExprTester.assertExpr(o, "(", ":", "x", "[]", ")");
+	}
+
+	@Test
+	public void testTwoItemList() {
+		Object o = new Expression().tryParsing(new Tokenizable(new StringBuilder("[x,y]")));
+		assertNotNull(o);
+		((ApplyExpr)o).showTree(0);
+		ExprTester.assertExpr(o, "(", ":", "x", "(", ":", "y", "[]", ")", ")");
+	}
+
 	// TODO: still need to support tuples, which look a lot like parens
 	// TODO: do we want to have JSON-like object syntax?
 }
