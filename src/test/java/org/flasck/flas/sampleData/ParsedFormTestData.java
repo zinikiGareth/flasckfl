@@ -88,7 +88,7 @@ public class ParsedFormTestData {
 	}
 
 	private static void assertApplyExprsEqual(ApplyExpr eae, ApplyExpr aae) {
-		assertItemExprsEqual(eae.fn, aae.fn);
+		assertExprsEqual(eae.fn, aae.fn);
 		assertEquals(eae.args.size(), aae.args.size());
 		for (int i=0;i<eae.args.size();i++)
 			assertExprsEqual(eae.args.get(i), aae.args.get(i));

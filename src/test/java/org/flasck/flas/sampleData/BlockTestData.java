@@ -33,8 +33,8 @@ public class BlockTestData {
 
 	public static Block fibBlockN() {
 		return builder()
-//			.line("fib n = fib (n-1) + fib (n-2)")
-				.line("fib n = + (fib (- n 1)) (fib (- n 2))")
+			.line("fib n = fib (n-1) + fib (n-2)")
+//				.line("fib n = + (fib (- n 1)) (fib (- n 2))")
 			.build();
 	}
 	

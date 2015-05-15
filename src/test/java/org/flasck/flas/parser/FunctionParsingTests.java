@@ -35,6 +35,7 @@ public class FunctionParsingTests {
 		assertTrue("Return was not an FCD", pf instanceof FunctionCaseDefn);
 		FunctionCaseDefn fcd = (FunctionCaseDefn) pf;
 		assertTrue("Parsed form was not an apply", fcd.expr instanceof ApplyExpr);
+		((ApplyExpr)ParsedFormTestData.fibDefnN().expr).showTree(0);
 		((ApplyExpr)fcd.expr).showTree(0);
 		ParsedFormTestData.assertFormsEqual(ParsedFormTestData.fibDefnN(), pf);
 	}

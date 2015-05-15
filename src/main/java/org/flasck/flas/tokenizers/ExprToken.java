@@ -30,7 +30,7 @@ public class ExprToken {
 			line.advance();
 			return new ExprToken(PUNC, line.fromMark(mark));
 		} else {
-			while ("!$%^&|*/+-=:".indexOf(line.nextChar()) != -1) {
+			while ("~!$%^&|*/+-=:<>".indexOf(line.nextChar()) != -1) {
 				line.advance();
 			}
 			return new ExprToken(SYMBOL, line.fromMark(mark));
