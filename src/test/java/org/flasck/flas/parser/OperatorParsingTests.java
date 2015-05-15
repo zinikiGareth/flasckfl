@@ -93,7 +93,6 @@ public class OperatorParsingTests {
 	public void testEmptyList() {
 		Object o = new Expression().tryParsing(new Tokenizable(new StringBuilder("[]")));
 		assertNotNull(o);
-//		((ApplyExpr)o).showTree(0);
 		ExprTester.assertExpr(o, "[]");
 	}
 
@@ -113,6 +112,21 @@ public class OperatorParsingTests {
 		ExprTester.assertExpr(o, "(", ":", "x", "(", ":", "y", "[]", ")", ")");
 	}
 
-	// TODO: still need to support tuples, which look a lot like parens
+	@Test
+	public void testTupleTwo() {
+		Object o = new Expression().tryParsing(new Tokenizable(new StringBuilder("(x,y)")));
+		assertNotNull(o);
+		((ApplyExpr)o).showTree(0);
+		ExprTester.assertExpr(o, "(", "()", "x", "y", ")");
+	}
+
+	@Test
+	public void testTupleThree() {
+		Object o = new Expression().tryParsing(new Tokenizable(new StringBuilder("(x,y,z)")));
+		assertNotNull(o);
+		((ApplyExpr)o).showTree(0);
+		ExprTester.assertExpr(o, "(", "()", "x", "y", "z", ")");
+	}
+
 	// TODO: do we want to have JSON-like object syntax?
 }

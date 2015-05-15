@@ -236,8 +236,16 @@ public class Expression implements TryParsing {
 			if (crb.type == ExprToken.PUNC) {
 				if (crb.text.equals(endsWith)) {
 					if (endsWith.equals(")")) {
-						if (objs.size() == 1)
+						if (objs.size() == 0) {
+							System.out.println("()?");
+							return null;
+						}
+						else if (objs.size() == 1)
 							return new ParenExpr(objs.get(0));
+						else {
+							// The tuple case
+							return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.SYMBOL, "()")), objs);
+						}
 					}
 					else if (endsWith.equals("]")) {
 						Object base = new ItemExpr(new ExprToken(ExprToken.SYMBOL, "[]"));
