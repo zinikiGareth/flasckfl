@@ -10,9 +10,6 @@ import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class SingleLineFunctionCase implements TryParsing {
 
-	// Random notes:
-	// 1. We need a separate phase of the compiler that pulls together these separate definitions and makes a single function
-	// 2. That single function then needs to take NEW arguments and add an HSIE switch statement
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		// Read the function name
@@ -26,6 +23,7 @@ public class SingleLineFunctionCase implements TryParsing {
 		while (true) {
 			int mark = line.at();
 			Object o = pp.tryParsing(line);
+			System.out.println(o);
 			if (o != null) {
 				args.add(o);
 			} else {

@@ -9,28 +9,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.ItemExpr;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.ExprToken;
 
 public class ParsedFormTestData {
 	public static FunctionCaseDefn fibDefn1() {
 		List<Object> args = new ArrayList<Object>();
-		args.add("0");
+		args.add(new ConstPattern(ConstPattern.INTEGER, "0"));
 		ItemExpr ie = new ItemExpr(new ExprToken(ExprToken.NUMBER, "1"));
 		return new FunctionCaseDefn("fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefn2() {
 		List<Object> args = new ArrayList<Object>();
-		args.add("1");
+		args.add(new ConstPattern(ConstPattern.INTEGER, "1"));
 		ItemExpr ie = new ItemExpr(new ExprToken(ExprToken.NUMBER, "1"));
 		return new FunctionCaseDefn("fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefnN() {
 		List<Object> args = new ArrayList<Object>();
-		args.add("n");
+		args.add(new VarPattern("n"));
 		
 		ApplyExpr minus1 = new ApplyExpr(se("-"), ie("n"), ne("1"));
 		ApplyExpr lhs = new ApplyExpr(ie("fib"), minus1);
@@ -67,8 +69,21 @@ public class ParsedFormTestData {
 		assertEquals(expected.name, actual.name);
 		assertEquals(expected.args.size(), actual.args.size());
 		for (int i=0;i<expected.args.size();i++)
-			assertEquals(expected.args.get(i), actual.args.get(i));
+			assertPatternsEqual(expected.args.get(i), actual.args.get(i));
 		assertExprsEqual(expected.expr, actual.expr);
+	}
+
+	private static void assertPatternsEqual(Object expected, Object actual) {
+		if (expected instanceof ConstPattern) {
+			assertTrue(actual instanceof ConstPattern);
+			assertEquals(((ConstPattern)expected).type, ((ConstPattern)actual).type);
+			assertEquals(((ConstPattern)expected).value, ((ConstPattern)actual).value);
+		} else if (expected instanceof VarPattern) {
+			assertTrue(actual instanceof VarPattern);
+//			assertEquals(((VarPattern)expected).type, ((VarPattern)actual).type);
+			assertEquals(((VarPattern)expected).var, ((VarPattern)actual).var);
+		} else
+			fail("Don't understand " + expected.getClass());
 	}
 
 	private static void assertExprsEqual(Object expected, Object actual) {
