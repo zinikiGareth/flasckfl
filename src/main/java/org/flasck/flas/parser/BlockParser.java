@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.parsedForm.Block;
 import org.flasck.flas.tokenizers.Tokenizable;
 
+@Deprecated
 public class BlockParser {
 	private final List<Class<? extends TryParsing>> choices = new ArrayList<Class<? extends TryParsing>>();
 	

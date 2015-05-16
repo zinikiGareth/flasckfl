@@ -44,6 +44,16 @@ public class Tokenizable {
 		return input.substring(mark, pos);
 	}
 
+	public String getTo(int length) {
+		if (pos+length > input.length())
+			length = input.length()-pos;
+		if (length <= 0)
+			return null;
+		String ret = input.substring(pos, pos+length);
+		pos += length;
+		return ret;
+	}
+
 	public void reset(int mark) {
 		pos = mark;
 	}

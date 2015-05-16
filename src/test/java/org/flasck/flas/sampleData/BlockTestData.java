@@ -71,6 +71,28 @@ public class BlockTestData {
 			.build();
 	}
 	
+	public static Block structIntroBlock() {
+		return builder()
+			.line("struct Nil")
+			.build();
+	}
+
+	public static Block structBlockWithParametersAndFields() {
+		return builder()
+			.line("struct Cons A")
+			.indent()
+			.line("A head")
+			.line("(List A) tail")
+			.build();
+	}
+	
+	public static Block typeBlock() {
+		return builder()
+			.line("type List E = Nil | Cons E")
+			.build();
+	}
+
+
 	public static Block contractIntroBlock() {
 		return builder()
 			.line("contract ctr")
