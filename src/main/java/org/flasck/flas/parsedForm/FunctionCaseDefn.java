@@ -12,4 +12,9 @@ public class FunctionCaseDefn {
 		this.args = args;
 		this.expr = expr;
 	}
+	
+	@Override
+	public String toString() {
+		return "FCD[" + name + "/" + args.size() + "]";
+	}
 }

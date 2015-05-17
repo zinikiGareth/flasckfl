@@ -3,6 +3,9 @@ package org.flasck.flas.sampleData;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.parsedForm.Block;
 import org.flasck.flas.parsedForm.SingleLine;
 import org.flasck.flas.parser.BlockParsingTests;
@@ -55,6 +58,15 @@ public class BlockTestData {
 			.build();
 	}
 	
+
+	public static List<Block> allFib() {
+		List<Block> ret = new ArrayList<Block>();
+		ret.add(builder().line("fib 0 = 1").build());
+		ret.add(builder().line("fib 1 = 1").build());
+		ret.add(builder().line("fib n = fib (n-1) + fib (n-2)").build());
+		return ret;
+	}
+
 	public static Block packageCardStack() {
 		return builder()
 			.lineNo(3)
