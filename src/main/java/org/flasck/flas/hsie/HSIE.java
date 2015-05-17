@@ -13,6 +13,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 public class HSIE {
 	public static HSIEForm handle(FunctionDefinition defn) {
 		List<FunctionCaseDefn> cases = defn.cases;
+		System.out.println(defn.nargs);
 		return new HSIEForm(0, 0, new ArrayList<String>());
 	}
 

@@ -34,6 +34,7 @@ public class FLASStory implements StoryProcessor {
 		}
 		ListMap<String, FunctionCaseDefn> groups = new ListMap<String, FunctionCaseDefn>();
 		String cfn = null;
+		int pnargs = 0;
 		for (Object o : fndefns) {
 			if (o instanceof FunctionCaseDefn) {
 				// group together all function defns for a given function
@@ -41,16 +42,18 @@ public class FLASStory implements StoryProcessor {
 				String n = fcd.name;
 				if (cfn == null || !cfn.equals(n)) {
 					cfn = n;
+					pnargs = fcd.args.size();
 					if (groups.contains(cfn))
 						return null; // duplicate name
 					else if (ret.contains(cfn))
 						return null; // duplicate name
-				}
+				} else if (fcd.args.size() != pnargs)
+					return null; // different numbers of args
 				groups.add(cfn, fcd);
 			}
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			FunctionDefinition hsie = new FunctionDefinition(x.getValue());
+			FunctionDefinition hsie = new FunctionDefinition(x.getValue().get(0).args.size(), x.getValue());
 			if (hsie != null)
 				ret.define(x.getKey(), hsie);
 			// else handle errors

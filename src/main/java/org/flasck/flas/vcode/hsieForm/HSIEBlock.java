@@ -24,6 +24,12 @@ public class HSIEBlock {
 		commands.add(ret);
 		return ret;
 	}
+
+	public HSIEBlock bindCmd(Var bind, Var from, String field) {
+		BindCmd ret = new BindCmd(bind, from, field);
+		commands.add(ret);
+		return ret;
+	}
 	
 	public HSIEBlock closure(Var var) {
 		ClosureCmd ret = new ClosureCmd(var);
@@ -59,6 +65,12 @@ public class HSIEBlock {
 			throw new UtilException("Invalid object to return");
 		commands.add(ret);
 		return ret;
+	}
+
+
+	public void caseError() {
+		ErrorCmd ret = new ErrorCmd();
+		commands.add(ret);
 	}
 
 	public List<HSIEBlock> nestedCommands() {
