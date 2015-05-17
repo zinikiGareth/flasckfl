@@ -10,4 +10,9 @@ public class ConstPattern {
 		this.type = type;
 		this.value = value;
 	}
+	
+	@Override
+	public String toString() {
+		return value;
+	}
 }

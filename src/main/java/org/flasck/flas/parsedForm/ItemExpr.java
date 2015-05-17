@@ -9,4 +9,8 @@ public class ItemExpr {
 		this.tok = tok;
 	}
 
+	@Override
+	public String toString() {
+		return tok.text;
+	}
 }

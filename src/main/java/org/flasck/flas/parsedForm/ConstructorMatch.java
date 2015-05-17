@@ -20,4 +20,17 @@ public class ConstructorMatch {
 	public ConstructorMatch(String ctor) {
 		this.ctor = ctor;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder ret = new StringBuilder(ctor);
+		if (!args.isEmpty()) {
+			ret.append(" { ");
+			for (Field f : args) {
+				ret.append(f.field + ": " + f.patt + " ");
+			}
+			ret.append("}");
+		}
+		return ret.toString();
+	}
 }

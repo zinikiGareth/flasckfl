@@ -34,4 +34,17 @@ public class ApplyExpr {
 		else
 			((ApplyExpr)o).showTree(ind);
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder ret = new StringBuilder();
+		ret.append("(");
+		ret.append(fn);
+		for (Object o : args) {
+			ret.append(" ");
+			ret.append(o);
+		}
+		ret.append(")");
+		return ret.toString();
+	}
 }

@@ -6,4 +6,9 @@ public class VarPattern {
 	public VarPattern(String text) {
 		this.var = text;
 	}
+	
+	@Override
+	public String toString() {
+		return var;
+	}
 }
