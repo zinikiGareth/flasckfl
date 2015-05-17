@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.flasck.flas.hsieForm.FunctionDefinition;
-import org.flasck.flas.hsieForm.Scope;
 import org.flasck.flas.parsedForm.Block;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.SingleLineFunctionCase;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.collections.ListMap;

@@ -3,14 +3,14 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.hsieForm.FunctionDefinition;
-import org.flasck.flas.hsieForm.HSIEBlock;
-import org.flasck.flas.hsieForm.HSIEForm;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.vcode.hsieForm.HSIEBlock;
+import org.flasck.flas.vcode.hsieForm.HSIEForm;
 
 public class HSIETestData {
 
-	public static FunctionDefinition fib() {
-		HSIEForm ret = thingy(1, 5, new ArrayList<String>(),
+	public static HSIEForm fib() {
+		return thingy(1, 5, new ArrayList<String>(),
 			"HEAD 0",
 			"SWITCH 0 Number", "{",
 				"IF 0 0", "{",
@@ -38,11 +38,6 @@ public class HSIETestData {
 			"}",
 			"RETURN var 5"
 		);
-		return form(ret);
-	}
-
-	private static FunctionDefinition form(HSIEForm ret) {
-		return new FunctionDefinition(null).setHSIE(ret);
 	}
 
 	private static HSIEForm thingy(int nformal, int nbound, List<String> dependsOn, String... commands) {
@@ -96,7 +91,7 @@ public class HSIETestData {
 			return ps[from];
 	}
 	
-	public static void assertHSIE(FunctionDefinition expected, FunctionDefinition actual) {
-		expected.get().dump();
+	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {
+		expected.dump();
 	}
 }

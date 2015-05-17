@@ -3,7 +3,7 @@ package org.flasck.flas.stories;
 import static org.junit.Assert.*;
 
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.hsieForm.Scope;
+import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.junit.Test;
 
