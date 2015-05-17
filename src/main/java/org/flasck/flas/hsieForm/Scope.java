@@ -1,11 +1,14 @@
 package org.flasck.flas.hsieForm;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.zinutils.exceptions.UtilException;
 
-public class Scope {
+public class Scope implements Iterable<Entry<String, Object>> {
 	private final Map<String, Object> defns = new TreeMap<String, Object>();
 
 	public boolean contains(String name) {
@@ -20,6 +23,11 @@ public class Scope {
 
 	public int size() {
 		return defns.size();
+	}
+
+	@Override
+	public Iterator<Entry<String, Object>> iterator() {
+		return defns.entrySet().iterator();
 	}
 
 }

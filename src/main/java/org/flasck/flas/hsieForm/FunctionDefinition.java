@@ -1,19 +1,28 @@
 package org.flasck.flas.hsieForm;
 
+import java.util.List;
+
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.zinutils.exceptions.UtilException;
+
 public class FunctionDefinition {
-	// So, basically an HSIE definition consists of
-	// Fn "name" [formal-args] [external-vars]
-	//   HEAD var
-	//   SWITCH var Type/Constructor|Type|Type/Constructor
-	//     BIND new-var var "field"
-	//     IF boolean-expr
-	//       EVAL En
-	//   Er
-	// If there is no general case, then add "E?" to indicate an error in switching
+	public final List<FunctionCaseDefn> cases;
+	private HSIEForm hsie;
+
+	public FunctionDefinition(List<FunctionCaseDefn> defns) {
+		this.cases = defns;
+	}
 	
-	// There is no notion of "Else", you just drop down to the next statement at a not-indented level and pick up from there.
+	public FunctionDefinition setHSIE(HSIEForm form) {
+		if (hsie != null)
+			throw new UtilException("Multiple specifications of HSIE");
+		this.hsie = form;
+		return this;
+	}
 	
-	// Each of the Expressions En is modified to be just a simple apply-tree
+	public HSIEForm get() {
+		return hsie;
+	}
 	
 	// FunctionDefinition also has nested Scope
 }

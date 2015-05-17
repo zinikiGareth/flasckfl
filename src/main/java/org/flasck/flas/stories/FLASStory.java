@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsieForm.FunctionDefinition;
 import org.flasck.flas.hsieForm.Scope;
 import org.flasck.flas.parsedForm.Block;
@@ -51,7 +50,7 @@ public class FLASStory implements StoryProcessor {
 			}
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			FunctionDefinition hsie = HSIE.handle(x.getValue());
+			FunctionDefinition hsie = new FunctionDefinition(x.getValue());
 			if (hsie != null)
 				ret.define(x.getKey(), hsie);
 			// else handle errors
