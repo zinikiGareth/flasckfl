@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
+import org.zinutils.exceptions.UtilException;
 
 public class SubstExpr {
 	private final Object expr;
@@ -12,6 +13,15 @@ public class SubstExpr {
 
 	public SubstExpr(Object expr) {
 		this.expr = expr;
+	}
+
+	public SubstExpr cloneWith(String varToSubst, Var var) {
+		if (substs.containsKey(varToSubst))
+			throw new UtilException("Duplicate var in patterns: " + varToSubst); // TODO: this should be proper error handling
+		SubstExpr ret = new SubstExpr(expr);
+		ret.substs.putAll(substs);
+		ret.substs.put(varToSubst, var);
+		return ret;
 	}
 	
 	@Override

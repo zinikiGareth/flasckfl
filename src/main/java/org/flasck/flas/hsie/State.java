@@ -1,13 +1,14 @@
 package org.flasck.flas.hsie;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
 
-public class State {
+public class State implements Iterable<Entry<Var,PattExpr>> {
 	private final Map<Var, PattExpr> mapping = new HashMap<Var, PattExpr>();
 	private final HSIEBlock writeTo;
 	
@@ -27,6 +28,11 @@ public class State {
 			System.out.println(e.getKey() + " -> ");
 			e.getValue().dump();
 		}
+	}
+
+	@Override
+	public Iterator<Entry<Var, PattExpr>> iterator() {
+		return mapping.entrySet().iterator();
 	}
 
 }

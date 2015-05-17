@@ -5,13 +5,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.flasck.flas.parsedForm.ConstPattern;
+import org.flasck.flas.parsedForm.ConstructorMatch;
+import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
+import org.zinutils.exceptions.UtilException;
 
 public class HSIE {
 	public static HSIEForm handle(FunctionDefinition defn) {
@@ -40,10 +45,33 @@ public class HSIE {
 		return s;
 	}
 
-	private static Collection<State> recurse(MetaState ms, State f) {
-		List<State> ret = new ArrayList<State>();
-		// TODO Auto-generated method stub
-		return ret;
+	private static void recurse(MetaState ms, State s) {
+		Table t = buildDecisionTable(s);
+		t.dump();
+	}
+
+	private static Table buildDecisionTable(State s) {
+		Table t = new Table();
+		for (Entry<Var, PattExpr> e : s) {
+			Option o = t.createOption(e.getKey());
+			for (Entry<Object, SubstExpr> pe : e.getValue()) {
+				Object patt = pe.getKey();
+				if (patt instanceof VarPattern) {
+					o.anything(pe.getValue(), ((VarPattern)patt).var);
+				} else if (patt instanceof ConstructorMatch) {
+					ConstructorMatch cm = (ConstructorMatch) patt;
+					o.ifCtor(cm.ctor, cm.args, pe.getValue());
+				} else if (patt instanceof ConstPattern) {
+					ConstPattern cp = (ConstPattern) patt;
+					if (cp.type == ConstPattern.INTEGER) {
+						o.ifCtor("Number", new ArrayList<Field>(), pe.getValue()); // somewhere we need to attach an "IF" but that's for later
+					} else
+						throw new UtilException("Cannot handle constant pattern for " + cp.type);
+				} else
+					System.out.println("Cannot handle pattern " + patt.getClass());
+			}
+		}
+		return t;
 	}
 
 	public static void applyTo(Scope s) {
