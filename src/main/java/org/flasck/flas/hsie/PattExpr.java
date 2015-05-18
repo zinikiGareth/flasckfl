@@ -19,7 +19,7 @@ public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 		PattExpr ret = new PattExpr();
 		for (Entry<Object, SubstExpr> m : mapping.entrySet()) {
 			System.out.println("Consider " + m.getKey() + " as " + m.getValue());
-			if (possibles.contains(m.getValue()))
+			if (possibles == null || possibles.contains(m.getValue()))
 				ret.mapping.put(m.getKey(), m.getValue());
 		}
 		if (ret.mapping.isEmpty())
@@ -27,15 +27,16 @@ public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 		return ret;
 	}
 	
-	public SubstExpr singleExpr() {
-		if (mapping.size() > 1) {
-			System.out.println("---error");
-			dump();
-			throw new UtilException("There is more than one remaining expression");
-		}
-		if (mapping.isEmpty())
-			return null;
-		return mapping.entrySet().iterator().next().getValue();
+	public SubstExpr singleExpr(Set<SubstExpr> onlyCases) {
+		SubstExpr ret = null;
+		for (SubstExpr e : mapping.values())
+			if (!onlyCases.contains(e))
+				continue;
+			else if (ret != null)
+				throw new UtilException("There is more than one remaining expression");
+			else
+				ret = e;
+		return ret;
 	}
 	
 	@Override

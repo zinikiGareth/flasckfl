@@ -53,10 +53,10 @@ public class HSIEBlock {
 		return ret;
 	}
 
-	public HSIEBlock doReturn(Object o) {
+	public HSIEBlock doReturn(Object o, List<Var> deps) {
 		ReturnCmd ret;
 		if (o instanceof Var)
-			ret = new ReturnCmd((Var)o);
+			ret = new ReturnCmd((Var)o, deps);
 		else if (o instanceof Integer)
 			ret = new ReturnCmd((Integer)o);
 		else if (o instanceof String)

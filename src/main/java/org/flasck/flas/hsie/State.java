@@ -46,6 +46,15 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 		return ret;
 	}
 	
+
+	public State duplicate(HSIEBlock into) {
+		State ret = new State(into);
+		for (Entry<Var, PattExpr> x : mapping.entrySet())
+			ret.mapping.put(x.getKey(), x.getValue().duplicate(null));
+		ret.result = result;
+		return ret;
+	}
+
 	public void eliminate(Var var) {
 		if (!mapping.containsKey(var))
 			throw new UtilException("Cannot eliminate " +var + " which is not present");
@@ -58,12 +67,12 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 		return !mapping.isEmpty();
 	}
 
-	public SubstExpr singleExpr() {
+	public SubstExpr singleExpr(Set<SubstExpr> onlyCases) {
 		System.out.println("Result = " + result);
 		if (result == null)
 			return null;
 //			throw new UtilException("Didn't resolve to single result");
-		return result.singleExpr();
+		return result.singleExpr(onlyCases);
 	}
 
 	public PattExpr get(Var var) {

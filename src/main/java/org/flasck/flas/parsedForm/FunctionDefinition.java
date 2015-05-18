@@ -3,10 +3,12 @@ package org.flasck.flas.parsedForm;
 import java.util.List;
 
 public class FunctionDefinition {
-	public final List<FunctionCaseDefn> cases;
+	public final String name;
 	public final int nargs;
+	public final List<FunctionCaseDefn> cases;
 
-	public FunctionDefinition(int nargs, List<FunctionCaseDefn> defns) {
+	public FunctionDefinition(String name, int nargs, List<FunctionCaseDefn> defns) {
+		this.name = name;
 		this.nargs = nargs;
 		this.cases = defns;
 	}

@@ -14,10 +14,11 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class MetaState {
-	final List<State> allStates = new ArrayList<State>();
 	private final HSIEForm form;
+	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<SubstExpr, Object> retValues = new HashMap<SubstExpr, Object>();
+	private final Map<Var, List<Var>> closureDepends = new HashMap<Var, List<Var>>();
 
 	public MetaState(HSIEForm form) {
 		this.form = form;
@@ -68,6 +69,7 @@ public class MetaState {
 					return substs.get(e2.tok.text);
 				else {
 					// TODO: resolve these to the global scope
+					form.dependsOn(e2.tok.text);
 					return e2.tok.text;
 				}
 			} else
@@ -82,14 +84,26 @@ public class MetaState {
 			// TODO: check this doesn't already exist
 			Var var = allocateVar();
 			HSIEBlock closure = form.closure(var);
+			List<Var> mydeps = new ArrayList<Var>();
 			for (Object o : ops) {
 				closure.push(o);
+				if (o instanceof Var && closureDepends.containsKey(o)) {
+					mydeps.addAll(closureDepends.get(o));
+					mydeps.add((Var) o);
+				}
 			}
+			closureDepends.put(var, mydeps);
 			return var;
 		}
 		else {
 			System.out.println(expr.getClass());
 			throw new UtilException("Cannot handle " + expr.getClass());
 		}
+	}
+
+	public List<Var> closureDependencies(Object ret) {
+		if (!(ret instanceof Var))
+			return null;
+		return closureDepends.get(ret);
 	}
 }

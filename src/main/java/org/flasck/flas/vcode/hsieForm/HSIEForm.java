@@ -2,6 +2,8 @@ package org.flasck.flas.vcode.hsieForm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class HSIEForm extends HSIEBlock {
 	public static class Var {
@@ -17,26 +19,28 @@ public class HSIEForm extends HSIEBlock {
 		}
 	}
 
+	public final String fnName;
+	private final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();
 
-	// The "dependsOn" should really be objects, not names of objects
-	private final List<String> dependsOn = new ArrayList<String>();
-
-	private final int nformal;
+	// This should really be objects, not names of objects
+	public final Set<String> externals = new TreeSet<String>();
 
 	// This constructor is the one for real code
-	public HSIEForm(int nformal) {
+	public HSIEForm(String name, int nformal) {
+		this.fnName = name;
 		this.nformal = nformal;
 	}
 
 	// This constructor is for testing
-	public HSIEForm(int nformal, int nbound, List<String> dependsOn) {
+	public HSIEForm(String name, int nformal, int nbound, List<String> dependsOn) {
+		fnName = name;
 		this.nformal = nformal;
 		for (int i=0;i<nformal;i++)
 			vars.add(new Var(i));
 		for (int i=0;i<nbound;i++)
 			vars.add(new Var(nformal + i));
-		this.dependsOn.addAll(dependsOn);
+		this.externals.addAll(dependsOn);
 	}
 
 	public Var var(int v) {
@@ -44,8 +48,13 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	public void dump() {
-		System.out.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal) + " externals: ??");
+		System.out.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal) + " externals: " + externals);
 		dump(0);
+	}
+
+	public void dependsOn(String text) {
+		if (!text.equals(this.fnName))
+			externals.add(text);
 	}
 	
 	// So, basically an HSIE definition consists of

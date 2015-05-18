@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
 import org.zinutils.collections.ListMap;
@@ -20,6 +21,10 @@ public class Option {
 
 	public void ifCtor(String ctor, List<Field> args, SubstExpr substExpr) {
 		ctorCases.add(ctor, new NestedBinds(args, substExpr));
+	}
+
+	public void ifConst(String ctor, ConstPattern cp, SubstExpr substExpr) {
+		ctorCases.add(ctor, new NestedBinds(cp, substExpr));
 	}
 
 	public void anything(SubstExpr value, String varToSubst) {

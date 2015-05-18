@@ -53,7 +53,7 @@ public class FLASStory implements StoryProcessor {
 			}
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			FunctionDefinition hsie = new FunctionDefinition(x.getValue().get(0).args.size(), x.getValue());
+			FunctionDefinition hsie = new FunctionDefinition(cfn, x.getValue().get(0).args.size(), x.getValue());
 			if (hsie != null)
 				ret.define(x.getKey(), hsie);
 			// else handle errors

@@ -29,5 +29,4 @@ public class Table implements Iterable<Option> {
 	public Iterator<Option> iterator() {
 		return options.iterator();
 	}
-
 }

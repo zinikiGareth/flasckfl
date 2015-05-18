@@ -5,11 +5,12 @@ import java.util.List;
 
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
 
 public class HSIETestData {
 
 	public static HSIEForm fib() {
-		return thingy(1, 5, new ArrayList<String>(),
+		return thingy("fib", 1, 5, new ArrayList<String>(),
 			"HEAD 0",
 			"SWITCH 0 Number", "{",
 				"IF 0 0", "{",
@@ -40,7 +41,7 @@ public class HSIETestData {
 	}
 
 	public static HSIEForm take() {
-		return thingy(2, 5, new ArrayList<String>(),
+		return thingy("take", 2, 5, new ArrayList<String>(),
 			"HEAD 1",
 			"SWITCH 1 Nil", "{",
 				"HEAD 0",
@@ -60,7 +61,7 @@ public class HSIETestData {
 						"RETURN Nil", // expr E1
 					"}",
 				"}",
-				"RETURN var 6", // expr E0
+				"RETURN var 6 4 5", // expr E0
 			"}",
 			// when we get here, we know that Arg#1 is NOT Nil or Cons - thus only E1 _could_ match
 			"HEAD 0",
@@ -82,8 +83,8 @@ public class HSIETestData {
 		);
 	}
 
-	private static HSIEForm thingy(int nformal, int nbound, List<String> dependsOn, String... commands) {
-		HSIEForm ret = new HSIEForm(nformal, nbound, dependsOn);
+	private static HSIEForm thingy(String name, int nformal, int nbound, List<String> dependsOn, String... commands) {
+		HSIEForm ret = new HSIEForm(name, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;
 		List<HSIEBlock> stack = new ArrayList<HSIEBlock>();
 		stack.add(0, ret);
@@ -113,7 +114,14 @@ public class HSIETestData {
 			} else if (ps[0].equals("CLOSURE")) {
 				prev = b.closure(ret.var(Integer.parseInt(ps[1])));
 			} else if (ps[0].equals("RETURN")) {
-				prev = b.doReturn(analyze(ret, ps, 1));
+				Object tmp = analyze(ret, ps, 1);
+				List<Var> deps = null;
+				if (tmp instanceof Var) {
+					deps = new ArrayList<Var>();
+					for (int j=3;j<ps.length;j++)
+						deps.add(ret.var(Integer.parseInt(ps[j])));
+				}
+				prev = b.doReturn(tmp, deps);
 			} else if (ps[0].equals("ERROR")) {
 				b.caseError();
 				prev = null;
