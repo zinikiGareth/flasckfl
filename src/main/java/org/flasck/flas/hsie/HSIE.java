@@ -67,8 +67,10 @@ public class HSIE {
 		}
 		for (Option o : dulls)
 			t.remove(o);
-		if (!needChoice)
-			return;
+		if (!needChoice) {
+			throw new UtilException("I actually happen to think this is a perfectly valid case, just one that isn't exercised.");
+//			return;
+		}
 		t.dump();
 		Option elim = chooseBest(t);
 		System.out.println("Choosing " + elim.var);
@@ -100,7 +102,8 @@ public class HSIE {
 				System.out.println("Adding state ");
 				s1.dump();
 				ms.allStates.add(s1);
-			}
+			} else
+				evalExpr(s1);
 		}
 		{
 			State s2 = s.cloneEliminate(elim.var, s.writeTo);
@@ -108,8 +111,17 @@ public class HSIE {
 				System.out.println("Adding default state ");
 				s2.dump();
 				ms.allStates.add(s2);
-			}
+			} else
+				evalExpr(s2);
 		}
+	}
+
+	private static void evalExpr(State s) {
+		SubstExpr e = s.singleExpr();
+		if (s.writeTo instanceof HSIEForm)
+			s.writeTo.caseError();
+		else
+			s.writeTo.doReturn("FallThrough");
 	}
 
 	private static Table buildDecisionTable(State s) {

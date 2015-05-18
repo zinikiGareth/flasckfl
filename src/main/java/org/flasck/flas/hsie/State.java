@@ -12,6 +12,7 @@ import org.zinutils.exceptions.UtilException;
 public class State implements Iterable<Entry<Var,PattExpr>> {
 	private final Map<Var, PattExpr> mapping = new HashMap<Var, PattExpr>();
 	public final HSIEBlock writeTo;
+	private PattExpr result;
 	
 	public State(HSIEBlock b) {
 		this.writeTo = b;
@@ -29,19 +30,32 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 	public State cloneEliminate(Var var, HSIEBlock into) {
 		State ret = new State(into);
 		for (Entry<Var, PattExpr> x : mapping.entrySet()) {
-			if (x.getKey().equals(var))
+			if (x.getKey().equals(var)) {
+				if (mapping.size() == 1)
+					ret.result = x.getValue();
 				continue;
+			}
 			ret.mapping.put(x.getKey(), x.getValue().duplicate());
 		}
 		return ret;
 	}
 	
 	public void eliminate(Var var) {
+		if (!mapping.containsKey(var))
+			throw new UtilException("Cannot eliminate " +var + " which is not present");
+		if (mapping.size() == 1)
+			result = mapping.get(var);
 		mapping.remove(var);
 	}
 
 	public boolean hasNeeds() {
 		return !mapping.isEmpty();
+	}
+
+	public SubstExpr singleExpr() {
+		if (result == null)
+			throw new UtilException("Didn't resolve to single result");
+		return result.singleExpr();
 	}
 
 	public PattExpr get(Var var) {
