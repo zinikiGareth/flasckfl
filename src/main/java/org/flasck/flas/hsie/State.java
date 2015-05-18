@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
@@ -27,15 +28,20 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 		mapping.get(v).associate(patt, expr);
 	}
 
-	public State cloneEliminate(Var var, HSIEBlock into) {
+	public State cloneEliminate(Var var, HSIEBlock into, Set<SubstExpr> possibles) {
+		System.out.println("Eliminating " + var + " and allowing " + possibles);
 		State ret = new State(into);
 		for (Entry<Var, PattExpr> x : mapping.entrySet()) {
+			System.out.println("Considering " + x.getKey());
 			if (x.getKey().equals(var)) {
 				if (mapping.size() == 1)
 					ret.result = x.getValue();
 				continue;
 			}
-			ret.mapping.put(x.getKey(), x.getValue().duplicate());
+			PattExpr pe = x.getValue().duplicate(possibles);
+			System.out.println("Duplicated value is " + pe);
+			if (pe != null)
+				ret.mapping.put(x.getKey(), pe);
 		}
 		return ret;
 	}
@@ -54,7 +60,8 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 
 	public SubstExpr singleExpr() {
 		if (result == null)
-			throw new UtilException("Didn't resolve to single result");
+			return null;
+//			throw new UtilException("Didn't resolve to single result");
 		return result.singleExpr();
 	}
 

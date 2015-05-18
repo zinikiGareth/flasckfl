@@ -8,23 +8,16 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class SubstExpr {
+	private static int idx = 0;
 	private final Object expr;
 	private final Map<String, Var> substs = new HashMap<String, Var>();
+	private String me;
 
 	public SubstExpr(Object expr) {
 		this.expr = expr;
+		this.me = "E" + (idx++);
 	}
 
-	public SubstExpr cloneWith(String varToSubst, Var var) {
-		return duplicate().subst(varToSubst, var);
-	}
-
-	public SubstExpr duplicate() {
-		SubstExpr ret = new SubstExpr(expr);
-		ret.substs.putAll(substs);
-		return ret;
-	}
-	
 	public SubstExpr subst(String varToSubst, Var var) {
 		if (substs.containsKey(varToSubst))
 			throw new UtilException("Duplicate var in patterns: " + varToSubst); // TODO: this should be proper error handling
@@ -34,7 +27,7 @@ public class SubstExpr {
 
 	@Override
 	public String toString() {
-		return expr.toString() + substsString();
+		return me + " " + expr.toString() + substsString();
 	}
 
 	private String substsString() {

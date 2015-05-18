@@ -1,8 +1,9 @@
 package org.flasck.flas.hsie;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
@@ -11,7 +12,7 @@ import org.zinutils.collections.ListMap;
 public class Option {
 	public final Var var;
 	public final ListMap<String, NestedBinds> ctorCases = new ListMap<String, NestedBinds>();
-	public final List<SubstExpr> undecidedCases = new ArrayList<SubstExpr>();
+	public final Set<SubstExpr> undecidedCases = new HashSet<SubstExpr>();
 
 	public Option(Var var) {
 		this.var = var;
@@ -22,7 +23,7 @@ public class Option {
 	}
 
 	public void anything(SubstExpr value, String varToSubst) {
-		undecidedCases.add(value.cloneWith(varToSubst, var));
+		undecidedCases.add(value);
 	}
 
 	public boolean dull() {

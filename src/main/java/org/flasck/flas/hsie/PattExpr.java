@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.zinutils.exceptions.UtilException;
 
@@ -14,11 +15,15 @@ public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 		mapping.put(patt, expr);
 	}
 	
-	public PattExpr duplicate() {
+	public PattExpr duplicate(Set<SubstExpr> possibles) {
 		PattExpr ret = new PattExpr();
 		for (Entry<Object, SubstExpr> m : mapping.entrySet()) {
-			ret.mapping.put(m.getKey(), m.getValue().duplicate());
+			System.out.println("Consider " + m.getKey() + " as " + m.getValue());
+			if (possibles.contains(m.getValue()))
+				ret.mapping.put(m.getKey(), m.getValue());
 		}
+		if (ret.mapping.isEmpty())
+			return null;
 		return ret;
 	}
 	
@@ -42,5 +47,10 @@ public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 		for (Entry<Object, SubstExpr> e : mapping.entrySet()) {
 			System.out.println("  " + e.getKey() + " -> " + e.getValue());
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return mapping.toString();
 	}
 }

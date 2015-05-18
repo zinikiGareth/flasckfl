@@ -1,6 +1,8 @@
 package org.flasck.flas.hsie;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,7 +31,6 @@ public class HSIE {
 		ms.add(buildFundamentalState(ms, ret, defn.nargs, defn.cases));
 		while (!ms.allDone()) {
 			State f = ms.first();
-			f.dump();
 			recurse(ms, f);
 		}
 		ret.dump();
@@ -38,14 +39,45 @@ public class HSIE {
 
 	private static State buildFundamentalState(MetaState ms, HSIEBlock block, int nargs, List<FunctionCaseDefn> cases) {
 		State s = new State(block);
+		List<Var> formals = new ArrayList<Var>();
+		for (int i=0;i<nargs;i++)
+			formals.add(ms.allocateVar());
+		Map<Object, SubstExpr> exprs = new HashMap<Object, SubstExpr>();
+		for (FunctionCaseDefn c : cases) {
+			SubstExpr ex = new SubstExpr(c.expr);
+			createSubsts(ms, c.args, formals, ex);
+			exprs.put(c.expr, ex);
+		}
 		for (int i=0;i<nargs;i++) {
-			Var v = ms.allocateVar();
-			for (FunctionCaseDefn c : cases) {
-				Object patt = c.args.get(i);
-				s.associate(v, patt, new SubstExpr(c.expr));
-			}
+			for (FunctionCaseDefn c : cases)
+				s.associate(formals.get(i), c.args.get(i), exprs.get(c.expr));
 		}
 		return s;
+	}
+
+	private static void createSubsts(MetaState ms, List<Object> args, List<Var> formals, SubstExpr expr) {
+		for (int i=0;i<args.size();i++) {
+			Object arg = args.get(i);
+			if (arg instanceof VarPattern)
+				expr.subst(((VarPattern)arg).var, formals.get(i));
+			else if (arg instanceof ConstructorMatch)
+				ctorSub((ConstructorMatch) arg, ms, formals.get(i), expr);
+			else
+				System.out.println("Not substituting into " + arg.getClass());
+		}
+	}
+
+	private static void ctorSub(ConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
+		for (Field x : cm.args) {
+			Var v = ms.varFor(from, x.field);
+			if (x.patt instanceof VarPattern)
+				expr.subst(((VarPattern)x.patt).var, v);
+			else if (x.patt instanceof ConstructorMatch)
+				ctorSub((ConstructorMatch)x.patt, ms, v, expr);
+			else
+				System.out.println("Not substituting into " + x.patt.getClass());
+				
+		}
 	}
 
 	private static void recurse(MetaState ms, State s) {
@@ -56,10 +88,6 @@ public class HSIE {
 		for (Option o : t) {
 			if (o.dull()) {
 				System.out.println(o.var + " is dull");
-				for (Entry<Object, SubstExpr> k : s.get(o.var)) {
-					VarPattern vp = (VarPattern) k.getKey();
-					k.getValue().subst(vp.var, o.var);
-				}
 				s.eliminate(o.var);
 				dulls.add(o);
 			} else
@@ -68,24 +96,27 @@ public class HSIE {
 		for (Option o : dulls)
 			t.remove(o);
 		if (!needChoice) {
-			throw new UtilException("I actually happen to think this is a perfectly valid case, just one that isn't exercised.");
-//			return;
+			evalExpr(s);
+			return;
 		}
 		t.dump();
 		Option elim = chooseBest(t);
-		System.out.println("Choosing " + elim.var);
+		System.out.println("Switching on " + elim.var);
 		s.writeTo.head(elim.var);
 		for (String ctor : elim.ctorCases) {
+			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
 			HSIEBlock blk = s.writeTo.switchCmd(elim.var, ctor);
-			State s1 = s.cloneEliminate(elim.var, blk);
 			Set<String> binds = new TreeSet<String>();
+			Set<SubstExpr> possibles = new HashSet<SubstExpr>();
 			for (NestedBinds nb : elim.ctorCases.get(ctor)) {
 				for (Field f : nb.args)
 					binds.add(f.field);
+				possibles.add(nb.substExpr);
 			}
+			State s1 = s.cloneEliminate(elim.var, blk, possibles);
 			Map<String, Var> mapFieldNamesToVars = new TreeMap<String, Var>();
 			for (String b : binds) {
-				Var v = ms.allocateVar();
+				Var v = ms.varFor(elim.var, b);
 				blk.bindCmd(v, elim.var, b);
 				mapFieldNamesToVars.put(b, v);
 			}
@@ -93,31 +124,41 @@ public class HSIE {
 				for (String b : binds) {
 					Object patt = nb.matchField(b);
 					if (patt != null) {
-						s1.associate(mapFieldNamesToVars.get(b), patt, nb.substExpr);
+						s1.associate(ms.varFor(elim.var, b), patt, nb.substExpr);
 					}
-					System.out.println(b);
 				}
 			}
 			if (s1.hasNeeds()) {
-				System.out.println("Adding state ");
+				System.out.println("Adding state ---");
 				s1.dump();
+				System.out.println("---");
 				ms.allStates.add(s1);
-			} else
+			} else {
+				System.out.println("Resolving to ---");
 				evalExpr(s1);
+				s1.dump();
+				System.out.println("---");
+			}
 		}
 		{
-			State s2 = s.cloneEliminate(elim.var, s.writeTo);
+			System.out.println(elim.var + " is none of the above");
+			State s2 = s.cloneEliminate(elim.var, s.writeTo, elim.undecidedCases);
 			if (s2.hasNeeds()) {
-				System.out.println("Adding default state ");
+				System.out.println("Adding default state ---");
 				s2.dump();
+				System.out.println("---");
 				ms.allStates.add(s2);
-			} else
+			} else {
+				System.out.println("Default resolution ---");
 				evalExpr(s2);
+				System.out.println("---");
+			}
 		}
 	}
 
 	private static void evalExpr(State s) {
 		SubstExpr e = s.singleExpr();
+		System.out.println("Have expr " + e);
 		if (s.writeTo instanceof HSIEForm)
 			s.writeTo.caseError();
 		else
