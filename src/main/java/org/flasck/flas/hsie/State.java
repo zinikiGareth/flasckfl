@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
+import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class State implements Iterable<Entry<Var,PattExpr>> {

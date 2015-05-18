@@ -6,19 +6,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class HSIEForm extends HSIEBlock {
-	public static class Var {
-		public final int idx;
-
-		public Var(int i) {
-			this.idx = i;
-		}
-		
-		@Override
-		public String toString() {
-			return "v" + idx;
-		}
-	}
-
 	public final String fnName;
 	private final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();

@@ -1,6 +1,5 @@
 package org.flasck.flas.vcode.hsieForm;
 
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
 
 public class Switch extends HSIEBlock {
 	private final Var var;

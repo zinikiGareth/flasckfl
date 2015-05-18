@@ -2,8 +2,6 @@ package org.flasck.flas.vcode.hsieForm;
 
 import java.util.List;
 
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
-
 public class ReturnCmd extends HSIEBlock {
 	private final Var var;
 	private final List<Var> deps;

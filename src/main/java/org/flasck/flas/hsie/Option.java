@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
+import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.ListMap;
 
 public class Option {

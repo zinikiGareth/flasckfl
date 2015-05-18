@@ -20,7 +20,7 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
+import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIE {

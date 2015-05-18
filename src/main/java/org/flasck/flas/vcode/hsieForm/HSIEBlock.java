@@ -3,7 +3,6 @@ package org.flasck.flas.vcode.hsieForm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIEBlock {

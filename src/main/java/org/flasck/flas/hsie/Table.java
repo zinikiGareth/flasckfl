@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
+import org.flasck.flas.vcode.hsieForm.Var;
 
 public class Table implements Iterable<Option> {
 	private final List<Option> options = new ArrayList<Option>();
