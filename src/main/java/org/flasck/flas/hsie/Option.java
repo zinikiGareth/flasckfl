@@ -25,8 +25,15 @@ public class Option {
 		undecidedCases.add(value.cloneWith(varToSubst, var));
 	}
 
+	public double valuation() {
+		double tot = 0;
+		for (String x : ctorCases.keySet())
+			tot += ctorCases.size(x);
+		return tot/ctorCases.keySet().size() + undecidedCases.size();
+	}
+	
 	public void dump() {
-		System.out.println("Option " + var + " ->");
+		System.out.println("Option " + var + "[" + valuation() + "] ->");
 		for (Entry<String, List<NestedBinds>> e : ctorCases.entrySet()) {
 			System.out.println("  " + e.getKey() + " ->");
 			for (NestedBinds nb : e.getValue())

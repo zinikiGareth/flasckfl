@@ -48,6 +48,8 @@ public class HSIE {
 	private static void recurse(MetaState ms, State s) {
 		Table t = buildDecisionTable(s);
 		t.dump();
+		Option elim = chooseBest(t);
+		elim.dump();
 	}
 
 	private static Table buildDecisionTable(State s) {
@@ -72,6 +74,15 @@ public class HSIE {
 			}
 		}
 		return t;
+	}
+
+	private static Option chooseBest(Table t) {
+		Option best = null;
+		for (Option o : t) {
+			if (best == null || o.valuation() < best.valuation())
+				best = o;
+		}
+		return best;
 	}
 
 	public static void applyTo(Scope s) {
