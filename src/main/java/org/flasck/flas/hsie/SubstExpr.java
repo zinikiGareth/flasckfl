@@ -16,14 +16,22 @@ public class SubstExpr {
 	}
 
 	public SubstExpr cloneWith(String varToSubst, Var var) {
-		if (substs.containsKey(varToSubst))
-			throw new UtilException("Duplicate var in patterns: " + varToSubst); // TODO: this should be proper error handling
+		return duplicate().subst(varToSubst, var);
+	}
+
+	public SubstExpr duplicate() {
 		SubstExpr ret = new SubstExpr(expr);
 		ret.substs.putAll(substs);
-		ret.substs.put(varToSubst, var);
 		return ret;
 	}
 	
+	public SubstExpr subst(String varToSubst, Var var) {
+		if (substs.containsKey(varToSubst))
+			throw new UtilException("Duplicate var in patterns: " + varToSubst); // TODO: this should be proper error handling
+		substs.put(varToSubst, var);
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		return expr.toString() + substsString();

@@ -9,9 +9,9 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
 import org.zinutils.collections.ListMap;
 
 public class Option {
-	private final Var var;
-	private final ListMap<String, NestedBinds> ctorCases = new ListMap<String, NestedBinds>();
-	private final List<SubstExpr> undecidedCases = new ArrayList<SubstExpr>();
+	public final Var var;
+	public final ListMap<String, NestedBinds> ctorCases = new ListMap<String, NestedBinds>();
+	public final List<SubstExpr> undecidedCases = new ArrayList<SubstExpr>();
 
 	public Option(Var var) {
 		this.var = var;
@@ -25,6 +25,10 @@ public class Option {
 		undecidedCases.add(value.cloneWith(varToSubst, var));
 	}
 
+	public boolean dull() {
+		return ctorCases.isEmpty();
+	}
+	
 	public double valuation() {
 		double tot = 0;
 		for (String x : ctorCases.keySet())

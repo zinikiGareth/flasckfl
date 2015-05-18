@@ -1,9 +1,12 @@
 package org.flasck.flas.hsie;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -20,8 +23,8 @@ import org.zinutils.exceptions.UtilException;
 
 public class HSIE {
 	public static HSIEForm handle(FunctionDefinition defn) {
-		MetaState ms = new MetaState();
-		HSIEForm ret = new HSIEForm();
+		HSIEForm ret = new HSIEForm(defn.nargs);
+		MetaState ms = new MetaState(ret);
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
 		ms.add(buildFundamentalState(ms, ret, defn.nargs, defn.cases));
 		while (!ms.allDone()) {
@@ -46,10 +49,67 @@ public class HSIE {
 	}
 
 	private static void recurse(MetaState ms, State s) {
+		System.out.println("------ Entering recurse");
 		Table t = buildDecisionTable(s);
+		boolean needChoice = false;
+		List<Option> dulls = new ArrayList<Option>();
+		for (Option o : t) {
+			if (o.dull()) {
+				System.out.println(o.var + " is dull");
+				for (Entry<Object, SubstExpr> k : s.get(o.var)) {
+					VarPattern vp = (VarPattern) k.getKey();
+					k.getValue().subst(vp.var, o.var);
+				}
+				s.eliminate(o.var);
+				dulls.add(o);
+			} else
+				needChoice = true;
+		}
+		for (Option o : dulls)
+			t.remove(o);
+		if (!needChoice)
+			return;
 		t.dump();
 		Option elim = chooseBest(t);
-		elim.dump();
+		System.out.println("Choosing " + elim.var);
+		s.writeTo.head(elim.var);
+		for (String ctor : elim.ctorCases) {
+			HSIEBlock blk = s.writeTo.switchCmd(elim.var, ctor);
+			State s1 = s.cloneEliminate(elim.var, blk);
+			Set<String> binds = new TreeSet<String>();
+			for (NestedBinds nb : elim.ctorCases.get(ctor)) {
+				for (Field f : nb.args)
+					binds.add(f.field);
+			}
+			Map<String, Var> mapFieldNamesToVars = new TreeMap<String, Var>();
+			for (String b : binds) {
+				Var v = ms.allocateVar();
+				blk.bindCmd(v, elim.var, b);
+				mapFieldNamesToVars.put(b, v);
+			}
+			for (NestedBinds nb : elim.ctorCases.get(ctor)) {
+				for (String b : binds) {
+					Object patt = nb.matchField(b);
+					if (patt != null) {
+						s1.associate(mapFieldNamesToVars.get(b), patt, nb.substExpr);
+					}
+					System.out.println(b);
+				}
+			}
+			if (s1.hasNeeds()) {
+				System.out.println("Adding state ");
+				s1.dump();
+				ms.allStates.add(s1);
+			}
+		}
+		{
+			State s2 = s.cloneEliminate(elim.var, s.writeTo);
+			if (s2.hasNeeds()) {
+				System.out.println("Adding default state ");
+				s2.dump();
+				ms.allStates.add(s2);
+			}
+		}
 	}
 
 	private static Table buildDecisionTable(State s) {
@@ -79,6 +139,8 @@ public class HSIE {
 	private static Option chooseBest(Table t) {
 		Option best = null;
 		for (Option o : t) {
+			if (o.dull())
+				continue;
 			if (best == null || o.valuation() < best.valuation())
 				best = o;
 		}

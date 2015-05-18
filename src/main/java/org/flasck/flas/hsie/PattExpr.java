@@ -22,4 +22,12 @@ public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 	public Iterator<Entry<Object, SubstExpr>> iterator() {
 		return mapping.entrySet().iterator();
 	}
+
+	public PattExpr duplicate() {
+		PattExpr ret = new PattExpr();
+		for (Entry<Object, SubstExpr> m : mapping.entrySet()) {
+			ret.mapping.put(m.getKey(), m.getValue().duplicate());
+		}
+		return ret;
+	}
 }

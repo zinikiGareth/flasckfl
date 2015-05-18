@@ -5,12 +5,20 @@ import java.util.List;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 
 public class NestedBinds {
-	private final List<Field> args;
-	private final SubstExpr substExpr;
+	public final List<Field> args;
+	public final SubstExpr substExpr;
 
 	public NestedBinds(List<Field> args, SubstExpr substExpr) {
 		this.args = args;
 		this.substExpr = substExpr;
+	}
+
+	public Object matchField(String b) {
+		for (Field f : args) {
+			if (f.field.equals(b))
+				return f.patt;
+		}
+		return null;
 	}
 
 	public void dump() {

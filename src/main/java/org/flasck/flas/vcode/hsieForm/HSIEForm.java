@@ -17,17 +17,21 @@ public class HSIEForm extends HSIEBlock {
 		}
 	}
 
-	private final List<Var> vars = new ArrayList<Var>();
+	public final List<Var> vars = new ArrayList<Var>();
 
 	// The "dependsOn" should really be objects, not names of objects
 	private final List<String> dependsOn = new ArrayList<String>();
 
+	private final int nformal;
+
 	// This constructor is the one for real code
-	public HSIEForm() {
+	public HSIEForm(int nformal) {
+		this.nformal = nformal;
 	}
 
 	// This constructor is for testing
 	public HSIEForm(int nformal, int nbound, List<String> dependsOn) {
+		this.nformal = nformal;
 		for (int i=0;i<nformal;i++)
 			vars.add(new Var(i));
 		for (int i=0;i<nbound;i++)
@@ -40,6 +44,7 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	public void dump() {
+		System.out.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal) + " externals: ??");
 		dump(0);
 	}
 	

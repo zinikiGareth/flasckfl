@@ -100,14 +100,14 @@ public class HSIETestData {
 				b = stack.remove(0);
 //				System.out.println(stack.size());
 			} else if (ps[0].equals("HEAD")) {
-				b.head(ret, Integer.parseInt(ps[1]));
+				b.head(ret.var(Integer.parseInt(ps[1])));
 				prev = null;
 			} else if (ps[0].equals("SWITCH")) {
-				prev = b.switchCmd(ret, Integer.parseInt(ps[1]), ps[2]);
+				prev = b.switchCmd(ret.var(Integer.parseInt(ps[1])), ps[2]);
 			} else if (ps[0].equals("IF")) {
 				// TODO: the final arg here needs to be any constant
 				// TODO: this whole thing needs to handle a general user-specified test
-				prev = b.ifCmd(ret, Integer.parseInt(ps[1]), Integer.parseInt(ps[2]));
+				prev = b.ifCmd(ret.var(Integer.parseInt(ps[1])), Integer.parseInt(ps[2]));
 			} else if (ps[0].equals("BIND")) {
 				prev = b.bindCmd(ret.var(Integer.parseInt(ps[1])), ret.var(Integer.parseInt(ps[2])), ps[3]);
 			} else if (ps[0].equals("CLOSURE")) {

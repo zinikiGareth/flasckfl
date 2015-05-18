@@ -15,6 +15,10 @@ public class Table implements Iterable<Option> {
 		return ret;
 	}
 
+	public void remove(Option o) {
+		options.remove(o);
+	}
+
 	public void dump() {
 		for (Option o : options) {
 			o.dump();

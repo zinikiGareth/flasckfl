@@ -9,18 +9,18 @@ import org.zinutils.exceptions.UtilException;
 public class HSIEBlock {
 	private final List<HSIEBlock> commands = new ArrayList<HSIEBlock>();
 
-	public void head(HSIEForm form, int v) {
-		commands.add(new Head(form.var(v)));
+	public void head(Var v) {
+		commands.add(new Head(v));
 	}
 
-	public HSIEBlock switchCmd(HSIEForm form, int v, String ctor) {
-		Switch ret = new Switch(form.var(v), ctor);
+	public HSIEBlock switchCmd(Var v, String ctor) {
+		Switch ret = new Switch(v, ctor);
 		commands.add(ret);
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(HSIEForm form, int v, int value) {
-		IFCmd ret = new IFCmd(form.var(v), value);
+	public HSIEBlock ifCmd(Var v, int value) {
+		IFCmd ret = new IFCmd(v, value);
 		commands.add(ret);
 		return ret;
 	}
