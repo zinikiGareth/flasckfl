@@ -9,8 +9,8 @@ import org.zinutils.exceptions.UtilException;
 
 public class SubstExpr {
 	private static int idx = 0;
-	private final Object expr;
-	private final Map<String, Var> substs = new HashMap<String, Var>();
+	public final Object expr;
+	public final Map<String, Var> substs = new HashMap<String, Var>();
 	private String me;
 
 	public SubstExpr(Object expr) {

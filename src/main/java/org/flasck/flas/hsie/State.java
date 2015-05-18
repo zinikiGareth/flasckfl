@@ -33,12 +33,12 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 		State ret = new State(into);
 		for (Entry<Var, PattExpr> x : mapping.entrySet()) {
 			System.out.println("Considering " + x.getKey());
+			PattExpr pe = x.getValue().duplicate(possibles);
 			if (x.getKey().equals(var)) {
 				if (mapping.size() == 1)
-					ret.result = x.getValue();
+					ret.result = pe;
 				continue;
 			}
-			PattExpr pe = x.getValue().duplicate(possibles);
 			System.out.println("Duplicated value is " + pe);
 			if (pe != null)
 				ret.mapping.put(x.getKey(), pe);
@@ -59,6 +59,7 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 	}
 
 	public SubstExpr singleExpr() {
+		System.out.println("Result = " + result);
 		if (result == null)
 			return null;
 //			throw new UtilException("Didn't resolve to single result");

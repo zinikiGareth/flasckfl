@@ -5,13 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.ItemExpr;
+import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Var;
+import org.zinutils.exceptions.UtilException;
 
 public class MetaState {
 	final List<State> allStates = new ArrayList<State>();
-	final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final HSIEForm form;
+	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
+	private final Map<SubstExpr, Object> retValues = new HashMap<SubstExpr, Object>();
 
 	public MetaState(HSIEForm form) {
 		this.form = form;
@@ -43,5 +49,47 @@ public class MetaState {
 		Var ret = fieldVars.get(from).get(field);
 		System.out.println("Allocating " + ret + " for " + from + "." + field);
 		return ret;
+	}
+
+	public Object getValueFor(SubstExpr e) {
+		if (!retValues.containsKey(e)) {
+			retValues.put(e, convertValue(e.substs, e.expr));
+		}
+		return retValues.get(e);
+	}
+
+	private Object convertValue(Map<String, Var> substs, Object expr) {
+		if (expr instanceof ItemExpr) {
+			ItemExpr e2 = (ItemExpr) expr;
+			if (e2.tok.type == ExprToken.NUMBER)
+				return Integer.parseInt(e2.tok.text); // what about floats?
+			else if (e2.tok.type == ExprToken.IDENTIFIER || e2.tok.type == ExprToken.SYMBOL) {
+				if (substs.containsKey(e2.tok.text))
+					return substs.get(e2.tok.text);
+				else {
+					// TODO: resolve these to the global scope
+					return e2.tok.text;
+				}
+			} else
+				return null;
+		}
+		else if (expr instanceof ApplyExpr) {
+			ApplyExpr e2 = (ApplyExpr) expr;
+			List<Object> ops = new ArrayList<Object>();
+			ops.add(convertValue(substs, e2.fn));
+			for (Object o : e2.args)
+				ops.add(convertValue(substs, o));
+			// TODO: check this doesn't already exist
+			Var var = allocateVar();
+			HSIEBlock closure = form.closure(var);
+			for (Object o : ops) {
+				closure.push(o);
+			}
+			return var;
+		}
+		else {
+			System.out.println(expr.getClass());
+			throw new UtilException("Cannot handle " + expr.getClass());
+		}
 	}
 }

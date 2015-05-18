@@ -96,7 +96,7 @@ public class HSIE {
 		for (Option o : dulls)
 			t.remove(o);
 		if (!needChoice) {
-			evalExpr(s);
+			evalExpr(ms, s);
 			return;
 		}
 		t.dump();
@@ -135,7 +135,7 @@ public class HSIE {
 				ms.allStates.add(s1);
 			} else {
 				System.out.println("Resolving to ---");
-				evalExpr(s1);
+				evalExpr(ms, s1);
 				s1.dump();
 				System.out.println("---");
 			}
@@ -150,19 +150,22 @@ public class HSIE {
 				ms.allStates.add(s2);
 			} else {
 				System.out.println("Default resolution ---");
-				evalExpr(s2);
+				evalExpr(ms, s2);
 				System.out.println("---");
 			}
 		}
 	}
 
-	private static void evalExpr(State s) {
+	private static void evalExpr(MetaState ms, State s) {
 		SubstExpr e = s.singleExpr();
 		System.out.println("Have expr " + e);
-		if (s.writeTo instanceof HSIEForm)
-			s.writeTo.caseError();
-		else
-			s.writeTo.doReturn("FallThrough");
+		if (e != null) {
+			Object ret = ms.getValueFor(e);
+			s.writeTo.doReturn(ret);
+		} else {
+			if (s.writeTo instanceof HSIEForm)
+				s.writeTo.caseError();
+		}
 	}
 
 	private static Table buildDecisionTable(State s) {
