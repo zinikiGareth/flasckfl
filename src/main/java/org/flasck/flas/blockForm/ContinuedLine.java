@@ -1,4 +1,4 @@
-package org.flasck.flas.parsedForm;
+package org.flasck.flas.blockForm;
 
 import java.util.ArrayList;
 import java.util.List;

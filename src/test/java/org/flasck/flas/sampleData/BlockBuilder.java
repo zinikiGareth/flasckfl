@@ -3,10 +3,10 @@ package org.flasck.flas.sampleData;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.Block;
-import org.flasck.flas.parsedForm.ContinuedLine;
-import org.flasck.flas.parsedForm.SingleLine;
-import org.flasck.flas.parser.Indent;
+import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.ContinuedLine;
+import org.flasck.flas.blockForm.Indent;
+import org.flasck.flas.blockForm.SingleLine;
 
 public class BlockBuilder {
 	private Block block = new Block();

@@ -1,6 +1,5 @@
-package org.flasck.flas.parsedForm;
+package org.flasck.flas.blockForm;
 
-import org.flasck.flas.parser.Indent;
 
 public class SingleLine {
 	public int lineNo;

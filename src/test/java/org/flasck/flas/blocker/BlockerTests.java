@@ -1,15 +1,15 @@
-package org.flasck.flas.parser;
+package org.flasck.flas.blocker;
 
 import static org.junit.Assert.*;
 
 import java.util.List;
 
-import org.flasck.flas.parsedForm.Block;
-import org.flasck.flas.parsedForm.SingleLine;
+import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.SingleLine;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.junit.Test;
 
-public class BlockParsingTests {
+public class BlockerTests {
 
 	@Test
 	public void testBlockerProducesSensibleBlocks() {

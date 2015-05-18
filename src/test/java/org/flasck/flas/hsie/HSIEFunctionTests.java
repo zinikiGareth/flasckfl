@@ -7,12 +7,14 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parser.SingleLineFunctionCase;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
 public class HSIEFunctionTests {
 
 	@Test
+	@Ignore
 	public void testConvertingFib() {
 		SingleLineFunctionCase p = new SingleLineFunctionCase();
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("fib 0 = 1")));

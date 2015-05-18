@@ -1,11 +1,13 @@
-package org.flasck.flas.parser;
+package org.flasck.flas.blocker;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.Block;
-import org.flasck.flas.parsedForm.ContinuedLine;
-import org.flasck.flas.parsedForm.SingleLine;
+import org.flasck.flas.FLASError;
+import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.ContinuedLine;
+import org.flasck.flas.blockForm.Indent;
+import org.flasck.flas.blockForm.SingleLine;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 

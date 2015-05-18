@@ -1,4 +1,4 @@
-package org.flasck.flas.parser;
+package org.flasck.flas.blockForm;
 
 public class Indent {
 	public final int tabs;

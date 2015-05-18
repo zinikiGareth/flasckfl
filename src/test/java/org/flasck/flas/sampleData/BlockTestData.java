@@ -6,9 +6,9 @@ import static org.junit.Assert.assertNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.Block;
-import org.flasck.flas.parsedForm.SingleLine;
-import org.flasck.flas.parser.BlockParsingTests;
+import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.SingleLine;
+import org.flasck.flas.blocker.BlockerTests;
 
 public class BlockTestData {
 	public static Block packageWithComments() {
@@ -129,8 +129,8 @@ public class BlockTestData {
 	}
 
 	public static void assertBlocksEqual(Block expected, Block actual) {
-		BlockParsingTests.showBlock(0, expected);
-		BlockParsingTests.showBlock(0, actual);
+		BlockerTests.showBlock(0, expected);
+		BlockerTests.showBlock(0, actual);
 		int lines = expected.line.lines.size();
 		assertEquals(expected.line.lines.size(), actual.line.lines.size());
 		for (int i=0;i<lines;i++) {
