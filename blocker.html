@@ -1,0 +1,14 @@
+<h1>The Blocker</h1>
+The <tt>Blocker</tt> is the first stage in the compilation pipeline.  Functional programs are generally laid out in terms of simple statements with nested statements below them in "blocks".
+<p>
+Unlike other languages such as Miranda and Haskell, I decided to be very strict about this, in large part because it enables me to have many different syntaxes in the same file without having to worry too much about what the layout is.
+<p>
+The rules for blocking are basically fairly simple:
+<ul>
+<li>The indentation is measured using a combination of tabs and spaces;
+<li>Any line with no indentation is considered a comment;
+<li>The first line must have exactly one tab;
+<li>Any subsequent line must either have the same number of tabs, in which case it is in the same block; exactly one more tab, in which case it is the first statement in a nested block; if it has less tabs, it reverts to an outer block;
+<li>Any line with the same number of tabs as the previous line but also with one or more spaces is a continuation line.
+</ul>
+Once the <tt>Blocker</tt> has run, the output is a list of <tt>Block</tt> objects, each of which has exactly one <tt>ContinuedLine</tt> consisting of multiple <tt>SingleLine</tt> objects, and may have nested <tt>Block</tt> objects.

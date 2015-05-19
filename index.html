@@ -1,0 +1,22 @@
+<h1>Flasck Front-End parser/code generator</h1>
+This is a parser and code-generator for flasck-like definitions in a functional context.
+<p>
+A specification will be found in a (missing) word doc.
+<p>
+The basic idea is to be able to build "cards" in a cardstack.org sense using functional definitions that are then converted into JavaScript by this compiler.
+<p>
+The input to the compiler is a set of files which are structured purely using indentation (there are no line terminators or block start and end characters).  A new block is introduced with an "extra" tab, and lines are continued by having the same number of tabs and one or more spaces.  This is all handled by the <a href='blocker.html'><tt>Blocker</tt></a>.
+<p>
+The output of the <tt>Blocker</tt> consists of a set of blocks, each of which has one <tt>ContinuedLine</tt> consisting in turn of one or more physical lines.  The physical lines are concatenated (with a space inserted) to make a single line definition (which could have been presented as one line in the first place).  A <a href='story.html'><tt>Story</tt></a> navigates the tree of blocks calling "potential" line parsers as appropriate and seeing which of these match and then operating accordingly on nested blocks.  This produces a tree of <a href='scope.html'><tt>Scope</tt></a>, each of which is a mapping from a name to a definition; each definition in turn may have a nested <tt>Scope</tt>.  This is described in the <a href='parser.html'><tt>Parser</tt></a>.
+<p>
+This is then translated into "virtual code" for a "virtual machine".  The exact translation and what gets left depends on the individual definitions, but the idea is that the final virtual code is mainly function definitions, together with enough information to understand how objects are laid out and how the functions exist within the overall environment (by which I basically mean types and interfaces).
+<p>
+So far, only the case for normal "functions" has been handled in the <a href='hsie.html'><tt>HSIE</tt></a> engine.
+<p>
+There needs to be a phase which then resolves the dependency graph.  Each function knows what objects it depends on, but these need to be ordered so that operations such as type checking can work in an orderly fashion.
+<p>
+Still to come is the type checker, which is supposed to operate on this virtual form.
+<p>
+Still to come is the code generator, which takes the virtual form, generates JavaScript for the functions, and defines all the necessary setup logic to connect it to the broader Card Environment.
+<p>
+The JavaScript runtime is a separate project, see <a href='http://github.com/zinikiGareth/flasjs'><tt>http://github.com/zinikiGareth/flasjs</tt></a>. 

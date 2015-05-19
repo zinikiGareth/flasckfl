@@ -1,0 +1,162 @@
+<h1>HSIE</h1>
+The main part of a lazy functional program (and the thing that really drives evaluation), is the constant need for pattern matching.
+<p>
+Although functions are written mathematically in different cases, they obviously can't be evaluated like that: in a real machine, actual instructions have to be evaluated in an actual order.
+<p>
+In order to make this a reality, there is a "virtual machine" of sorts that has essentially four instructions: <tt>HEAD</tt>, <tt>SWITCH</tt>, <tt>IF</tt> and <tt>EVAL</tt>.  The core algorithm in generating functional code is to convert systems of equations into this abstract code.
+<h2>The intuitive overview</h2>
+Consider this definition of take:
+<blockquote>
+<pre>
+take n [] = []
+take 0 Cons = []
+take n (a:b) = a:(take (n-1) b)
+</pre>
+</blockquote>
+How to proceed?  It's possible to just work your way down the equations, trying each one in turn, but that's not actually sound.  Apart from anything else, it's possible to end up evaluating an argument that doesn't terminate but was not needed to resolve which equation to use.  While you can never be sure - any argument you choose to evaluate could never terminate, it's best to analyze the equations and try and choose a variable to evaluate which gives the greatest diversity of outcome.
+<p>
+Ideally, the system would check that either you have given complete equations or any overlap is consistent.  While planned, this is not yet implemented.  (example as before)
+<p>
+As humans, it seems intuitive that the second argument offers better payback than the first: if the argument evaluates to Nil, we can immediately select the first equation; if Cons, either of the other two may apply; and if neither of these, the code is in error.
+<p>
+If we were to select the first argument, on the other hand, even if the value is a number we gain no information.  We need to do a second test - that it is zero - in order to conclude that we could choose the second equation.  Otherwise, (i.e. a non-zero number or some other type), either of the other equations may apply equally.
+<p>
+(As an aside, it's worth pointing out that, even before we get on to discussions of how types can be handled, the HSIE transformation is done BEFORE typechecking, so this is basically a syntactic transformation - we know that Nil and Cons are constructors and/or types because of their literal names (i.e. beginning with a capital) and not because we have any information about their types.  The knowledge about constants such as 0 is built into the compiler and the language.)
+<p>
+Continuing with the example, we decide to first <tt>HEAD</tt> evaluate the second argument and then switch on the result.  If it is <tt>Nil</tt>, we return the first equation (<tt>Nil</tt>) because that equation holds regardless of the value of the first argument.  If it is <tt>Cons</tt>, then we <tt>HEAD</tt> evaluate the first argument and, if it is an integer, test it for zero.  If true, then we return the second equation (again <tt>Nil</tt>).  In all other cases, we return the third equation.  If the second argument is neither <tt>Nil</tt> nor <tt>Cons</tt>, then no equations match and we can only conclude that the definition of <tt>take</tt> is incomplete and return an error (it would, of course, be possible to override this behavior by adding an extra case <tt>take n l = ...</tt>; it is left as an exercise to the reader to prove that using the algorithm described here that case would <i>only</i> be selected if none of the others matched).
+<p>
+The outcome of this process would then be some virtual HSIE code not dissimilar to the following, noting that I have used <tt>v0</tt> for the first argument and <tt>v1</tt> for the second, and have likewise numbered the equations from 0:
+<blockquote>
+<pre>
+HEAD v1
+SWITCH v1 Nil
+  EXPR 0
+SWITCH v1 Cons
+  HEAD v0
+  SWITCH v0 Number
+    IF v0 = 0
+      EXPR 1
+  EXPR 2
+ERROR
+</pre>
+</blockquote>
+<p>
+In interpreting this code, the instructions are executed sequentially until an <tt>EXPR</tt> line is reached.  That expression is then evaluated and execution ceases.  Nested blocks are <i>only</i> examined if the leading statement is true, otherwise they are skipped and the next statement is tested.  Note that while a set of <tt>SWITCH</tt> statements could, logically, be considered as a single block, there is no need for them to be listed in that way.  At the end the <tt>ERROR</tt> statement stands in for a default <tt>EXPR</tt> case.
+<h2>The actual algorithm</h2>
+Since the key to functional evaluation is head evaluation, we have to have a knowledge of what variables we can evaluate and what possible values we expect them to have.  We will work with a set of possible <tt>State</tt>s where each state contains at least a mapping from variables to a list of pattern/expression pairs (we will come back to other elements of the <tt>State</tt> as we need them.
+<p>
+Continuing our example of <tt>take</tt>, we can construct the following initial state.  We know that we have two arguments, thus have two possible variables <tt>v0</tt> and <tt>v1</tt>.  They can each take three possible patterns (one for each equation).
+<blockquote>
+<pre>
+v0 => 
+   n => E0
+   0 => E1
+   n => E2
+v1 =>
+   Nil => E0
+   (Cons) => E1
+   (Cons { head: a, tail: b}) => E2
+</pre>
+</blockquote>
+Now, we also need to be aware that while we have used the same variable (<tt>n</tt>) in both equations E0 and E2, there's no real need for the user to do that; it could be anything.  But as we unify these equations into a single piece of code (possibly reducing shared terms), we need to be sure we use the same set of variables everywhere.  In order to do that, we substitute these arbitrary <tt>vN</tt> variables for the declared variables, being very clear where they came from, and introducing new "temporary" variables for nested patterns we may encounter along the way.
+<p>
+Since the first two expressions are free of variables, they do not need to be rewritten in this way.  The third equation, however, depends on both <tt>v0</tt> (as <tt>n</tt>) and the inner-bound variables <tt>a</tt> and <tt>b</tt> (for which we will introduce new variables <tt>v2</tt> and <tt>v3</tt>).  It thus becomes:
+<blockquote>
+<pre>
+Cons v2 (take (- v0 1) v3))
+</pre>
+</blockquote>
+Having built all of this initial state, we are now ready to start recursing.  We will keep a list of such states, and as we process each one in turn it may produce more states that need processing.  The algorithm will continue until all the states are processed.  That the algorithm terminates is clear from the fact that new states are generated by matching constructors with arguments, and there must be a finite number of these.
+<p>
+The first step is to build a "decision table" which looks at each variable in the current <tt>State</tt> and analyzes what rewards would come from switching on that variable.  We can visualize this table as something like this:
+<blockquote>
+<pre>
+v0 ->
+  Number ->
+    0 -> E1
+    E0
+    E2
+  * ->
+    E0
+    E2
+v1 ->
+  Nil ->
+    {} -> E0
+  Cons ->
+    { head: v2 tail: v3 } ->
+      E1
+      E2
+</pre>
+</blockquote>
+In other words, we can see that if we select <tt>v0</tt>, we can divide the world into two cases, and if we select <tt>v1</tt>, it is divided into three cases.  Moreover, we can see that in the first case, no selection will immediately render unique results, while in the second we can see more partitioning.
+<p>
+We then apply a "scoring" algorithm to this that returns the average number of cases that still apply based on our constructor switching options, and then choose the variable that scores "lowest" (i.e. has least amount of confusion remaining).
+<p>
+In this case, that choice is <tt>v1</tt>.  In choosing this, we need to write the <tt>HEAD 1</tt> instruction somewhere.  Each <tt>State</tt> also needs to carry with it a location in which to write its instructions.  The initial state writes to the start of the body.
+<p>
+We then generate new <tt>State</tt> objects, one for each of the constructor cases, and write a <tt>SWITCH</tt> instruction for each of the actual constructors.  The new <tt>State</tt> objects for these have there "instruction pointer" set to the inside of this block.  The "default" case (i.e. for no matching constructor) takes the "leftover" instruction pointer after writing the <tt>SWITCH</tt> statements.
+<p>
+Finally, before moving on, we need to process any variables that were matched in the patterns for the cases that they matched.  In this case, that only applies to the <tt>Cons</tt> case.  We need to do two things.  First, we need to issue additional instructions inside the <tt>SWITCH</tt> block to bind the new variables at runtime, like so:
+<blockquote>
+<pre>
+SWITCH Cons
+  BIND v2 v1.head
+  BIND v3 v1.tail
+</pre>
+</blockquote>
+(this was deliberately omitted earlier for clarity).  Secondly, we need to add these variables to the state that is handling the <tt>Cons</tt> case to make sure they are later resolved.
+<blockquote>
+<pre>
+v2 -> 
+  a -> E2
+v3 -> 
+  b -> E2
+</blockquote>
+</pre>
+In fact, because these are simple variables and not patterns, they are very simply resolved and, in fact, just dismissed by the algorithm, which has already done the most important thing which is to bind them.
+<h2>Expressions</h2>
+That just leaves us with the thorny issue of what do those "EXPR" statements actually mean?
+<p>
+Well, by the time the code gets to the point where it wants to execute one of those statements, is must have bound all the variables in the patterns on the left hand side.  Thus the only free variables in the expression are the ones that are "globally" scoped (i.e. defined in some scope, not in a lambda form).  Assuming that we have some way of resolving those around about now, we can see that everything on the right hand side is one of:
+<ul>
+<li>a variable we introduced during the pattern matching process
+<li>the name of something in a scope somewhere
+<li>a constant built into the language
+<li>an application of one of these to one or more arguments, each of which is one of these.
+</ul>
+This being a lazy functional language, all we need to do is return the concept of doing this calculation - it will be evaluated when needed.
+<p>
+We can thus create (at the end of the code block) a set of closures which represent each of the function applications, introducing yet more locally bound variables to represent the values of these closures.
+<p>
+Finally, we can replace the "EXPR" statements with "RETURN" and an expression to return, which may be any of the first three forms above - any expression that wants to return an application needs to return the variable associated with the closure for that expression.  For ease of additional steps, the RETURN expression should include all the nested closures that need to be created to support the closure being returned.
+<p>
+This leads to the following final code:
+<blockquote>
+<pre>
+HEAD v1
+SWITCH v1 Nil
+  RETURN []
+SWITCH v1 Cons
+  BIND v2 v1.head
+  BIND v3 v1.tail
+  HEAD v0
+  SWITCH v0 Number
+    IF v0 0
+      RETURN []
+  RETURN v6 [v4, v5]
+ERROR
+CLOSURE v4
+  PUSH -
+  PUSH v0
+  PUSH 1
+CLOSURE v5
+  PUSH take
+  PUSH v4
+  PUSH v3
+CLOSURE v6
+  PUSH :
+  PUSH v2
+  PUSH v5
+</pre>
+</blockquote>
+Note that one of the features of a side-effect free language is that any two expressions which are the same will always have the same value.  We can therefore at this stage reduce both code size and execution time by throwing away any closures which have exactly the same arguments in the same order.  This doesn't occur in this case, but it is not hard to see that there are cases where it could occur either in a single equation or across a system of equations.

@@ -1,0 +1,14 @@
+<h1>The Story Approach</h1>
+I want to use the same basic compiler for a number of different projects, each of which has slightly different input formats and different runtimes.  By having the <tt>Blocker</tt> reduce the original input into a tree of "lines", each of which stands by itself.
+<p>
+A <tt>Story</tt> takes a list of <tt>Block</tt> objects and processes them as a tree (or more technically, an orchard).  For each <tt>Block</tt>, it first tries to analyze the line specifically associated with the <tt>Block</tt>.  It does so by calling, in order, all of the possible candidate parsers for that line in that context (it is specifically the <tt>Story</tt>'s job to decide which parsers, in which order, are appropriate for the context).
+<p>
+For each parser, there are three possible outcomes: a valid parse tree for the kind of object(s) that the parser can recognize; <tt>null</tt> reflecting the fact that the parser does not recognize the "shape" of the line and cannot handle it; or a set of errors which reflects the notion that the parser things it should be able to parse the statement but it has issues.
+<p>
+The story works through all the parsers it considers appropriate for the context until either it obtains a valid parse tree from one parser or receives <tt>null</tt> or an error object for every parser.  If every parser returns <tt>null</tt>, then there is no valid interpretation of the line - a generic syntax error.  Otherwise, the first valid parse tree or error object is used.
+<p>
+Once a line has been parsed, it is up to the <tt>Story</tt> to decide whether or not any nested definitions are allowed and, if they are, which ones may be used.
+<p>
+A story may use multiple phases if needed to achieve its goals.  For example, functions in a functional language are normally defined over multiple lines in the same block (one line for each of several cases).  These need to be first collected in a list (so that the same name may appear multiple times) and then reduced to a single definition that can be inserted into the <tt>Scope</tt>.
+<p>
+The output of a <tt>Story</tt> is a list of <tt>Scope</tt> objects, each of which provides a mapping from a set of names to a set of valid definitions, possibly with nested <tt>Scope</tt>s.
