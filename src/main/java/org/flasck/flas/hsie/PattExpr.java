@@ -30,7 +30,7 @@ public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 	public SubstExpr singleExpr(Set<SubstExpr> onlyCases) {
 		SubstExpr ret = null;
 		for (SubstExpr e : mapping.values())
-			if (!onlyCases.contains(e))
+			if (onlyCases != null && !onlyCases.contains(e))
 				continue;
 			else if (ret != null)
 				throw new UtilException("There is more than one remaining expression");

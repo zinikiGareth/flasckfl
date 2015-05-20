@@ -81,6 +81,15 @@ public class Expression implements TryParsing {
 		}
 	}
 
+	private Object rehash(Object o) {
+		if (o instanceof ItemExpr) {
+			ExprToken pe = ((ItemExpr)o).tok;
+			if (pe.type == ExprToken.SYMBOL && pe.text.equals(":"))
+				return new ItemExpr (new ExprToken(ExprToken.IDENTIFIER, "Cons"));
+		}
+		return o;
+	}
+
 	// By the time we get here, all the inner parentheses should have been resolved.
 	// But we may have any combination of symbols, names and constants in any order
 	// We now need to resolve those by operator precedence parsing
@@ -182,7 +191,7 @@ public class Expression implements TryParsing {
 	private Object deparen(Object pe) {
 		while (pe instanceof ParenExpr)
 			pe = ((ParenExpr)pe).nested;
-		return pe;
+		return rehash(pe);
 	}
 
 	private int compareActions(int prec, int myprec) {
@@ -248,9 +257,9 @@ public class Expression implements TryParsing {
 						}
 					}
 					else if (endsWith.equals("]")) {
-						Object base = new ItemExpr(new ExprToken(ExprToken.SYMBOL, "[]"));
+						Object base = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
 						for (int i=objs.size()-1;i>=0;i--)
-							base = new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.SYMBOL, ":")), objs.get(i), base);
+							base = new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Cons")), objs.get(i), base);
 						return base;
 					} else {
 						System.out.println("huh?");

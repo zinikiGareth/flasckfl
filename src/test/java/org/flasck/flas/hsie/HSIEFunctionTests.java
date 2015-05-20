@@ -30,7 +30,7 @@ public class HSIEFunctionTests {
 	public void testConvertingTake() {
 		SingleLineFunctionCase p = new SingleLineFunctionCase();
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take n [] = []")));
-		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take 0 l = []")));
+		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take 0 Cons = []")));
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take n (a:b) = a:(take (n-1) b)")));
 		FunctionDefinition take = new FunctionDefinition("take", 2, CollectionUtils.listOf(c1, c2, c3));
 		HSIEForm takeForm = HSIE.handle(take);
