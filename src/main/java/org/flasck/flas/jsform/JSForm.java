@@ -1,5 +1,9 @@
 package org.flasck.flas.jsform;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,14 +43,22 @@ public class JSForm {
 		return this;
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder ret = new StringBuilder();
-		this.toString(ret, 0);
-		return ret.toString();
+	public void writeTo(Writer w) throws IOException {
+		toString(w, 0);
 	}
 
-	private void toString(StringBuilder ret, int ind) {
+	@Override
+	public String toString() {
+		try {
+			StringWriter ret = new StringWriter();
+			this.toString(ret, 0);
+			return ret.toString();
+		} catch (IOException ex) {
+			return null;
+		}
+	}
+
+	private void toString(Writer ret, int ind) throws IOException {
 		indent(ret, ind);
 		ret.append(text);
 		if (block != null) {
@@ -59,7 +71,7 @@ public class JSForm {
 			ret.append(";\n");
 	}
 	
-	private void indent(StringBuilder ret, int ind) {
+	private void indent(Writer ret, int ind) throws IOException {
 		for (int i=0;i<ind;i++)
 			ret.append(' ');
 	}

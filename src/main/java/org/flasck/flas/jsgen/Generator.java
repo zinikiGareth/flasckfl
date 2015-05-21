@@ -12,9 +12,9 @@ import org.flasck.flas.vcode.hsieForm.Switch;
 
 public class Generator {
 
-	public JSForm generate(String fn, HSIEForm input) {
+	public JSForm generate(HSIEForm input) {
 		JSForm ret = JSForm.function(input.fnName, input.nformal);
-		generateBlock(fn, input, ret, input);
+		generateBlock(input.fnName, input, ret, input);
 		return ret;
 	}
 

@@ -69,7 +69,7 @@ public class HSIEBlock {
 		return commands;
 	}
 
-	private void dump(int ind) {
+	protected void dump(int ind) {
 		for (HSIEBlock c : commands)
 			c.dumpOne(ind);
 	}

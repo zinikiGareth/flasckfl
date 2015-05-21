@@ -1,5 +1,8 @@
 package org.flasck.flas.blocker;
 
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,5 +100,19 @@ public class Blocker {
 	public static List<Block> block(String input) {
 		List<String> lines = CollectionUtils.listOf(input.split("\n"));
 		return block(lines);
+	}
+
+	public static List<Block> block(Reader reader) {
+		LineNumberReader lnr = new LineNumberReader(reader);
+		Blocker blocker = new Blocker();
+		try {
+			String s;
+			while ((s = lnr.readLine()) != null)
+				blocker.accept(s);
+			return blocker.stack.get(0).nested;
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			return null;
+		}
 	}
 }
