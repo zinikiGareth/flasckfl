@@ -33,7 +33,7 @@ public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 			if (onlyCases != null && !onlyCases.contains(e))
 				continue;
 			else if (ret != null)
-				throw new UtilException("There is more than one remaining expression");
+				throw new UtilException("There is more than one remaining expression " + ret + " and " + e);
 			else
 				ret = e;
 		return ret;

@@ -135,7 +135,7 @@ public class HSIE {
 					s3.dump();
 					System.out.println("---");
 					
-					addState(ms, s3, mycases);
+					addState(ms, s3, casesForConst(elim.ctorCases.get(ctor), nb.ifConst.value));
 				} else {
 					for (String b : binds) {
 						Object patt = nb.matchField(b);
@@ -153,6 +153,15 @@ public class HSIE {
 			System.out.println(elim.var + " is none of the above");
 			addState(ms, s.cloneEliminate(elim.var, s.writeTo, elim.undecidedCases), elim.undecidedCases);
 		}
+	}
+
+	private static Set<SubstExpr> casesForConst(List<NestedBinds> nbs, String value) {
+		Set<SubstExpr> possibles = new HashSet<SubstExpr>();
+		for (NestedBinds nb : nbs) {
+			if (nb.ifConst == null || nb.ifConst.value.equals(value))
+			possibles.add(nb.substExpr);
+		}
+		return possibles;
 	}
 
 	private static void addState(MetaState ms, State s, Set<SubstExpr> mycases) {
