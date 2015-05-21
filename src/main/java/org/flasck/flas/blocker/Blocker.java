@@ -6,7 +6,6 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.FLASError;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
@@ -16,7 +15,7 @@ import org.zinutils.exceptions.UtilException;
 
 public class Blocker {
 	private int lineNo = 0;
-	private final List<FLASError> errors = new ArrayList<FLASError>();
+//	private final List<FLASError> errors = new ArrayList<FLASError>();
 	private final List<Block> stack = new ArrayList<Block>();
 	
 	private Blocker() {

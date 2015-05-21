@@ -1,11 +1,10 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.VarNameToken;
 
-public class StructFieldParser implements TryParsing {
+public class FieldParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {

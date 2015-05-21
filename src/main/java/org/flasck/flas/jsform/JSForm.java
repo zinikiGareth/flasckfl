@@ -1,6 +1,5 @@
 package org.flasck.flas.jsform;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;

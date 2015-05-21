@@ -8,7 +8,7 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
-public class SingleLineFunctionCase implements TryParsing {
+public class FunctionParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {

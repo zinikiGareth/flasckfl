@@ -93,7 +93,7 @@ public class OperatorParsingTests {
 	public void testEmptyList() {
 		Object o = new Expression().tryParsing(new Tokenizable(new StringBuilder("[]")));
 		assertNotNull(o);
-		ExprTester.assertExpr(o, "[]");
+		ExprTester.assertExpr(o, "Nil");
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class OperatorParsingTests {
 		Object o = new Expression().tryParsing(new Tokenizable(new StringBuilder("[x]")));
 		assertNotNull(o);
 		((ApplyExpr)o).showTree(0);
-		ExprTester.assertExpr(o, "(", ":", "x", "[]", ")");
+		ExprTester.assertExpr(o, "(", "Cons", "x", "Nil", ")");
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class OperatorParsingTests {
 		Object o = new Expression().tryParsing(new Tokenizable(new StringBuilder("[x,y]")));
 		assertNotNull(o);
 		((ApplyExpr)o).showTree(0);
-		ExprTester.assertExpr(o, "(", ":", "x", "(", ":", "y", "[]", ")", ")");
+		ExprTester.assertExpr(o, "(", "Cons", "x", "(", "Cons", "y", "Nil", ")", ")");
 	}
 
 	@Test

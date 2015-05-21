@@ -10,7 +10,6 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.zinutils.exceptions.UtilException;
 
 public class PatternParser implements TryParsing {
 

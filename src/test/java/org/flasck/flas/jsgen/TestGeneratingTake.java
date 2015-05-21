@@ -1,6 +1,6 @@
 package org.flasck.flas.jsgen;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.jsform.JSForm;
@@ -72,7 +72,7 @@ StdLib.take = function(v0, v1) {
 	public void test() {
 		HSIEForm input = HSIETestData.take();
 		JSForm output = new Generator().generate(input);
+		assertNotNull(output);
 		System.out.println(output);
 	}
-
 }

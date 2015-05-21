@@ -8,7 +8,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parser.SingleLineFunctionCase;
+import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
@@ -24,7 +24,7 @@ public class FLASStory implements StoryProcessor {
 		List<Object> fndefns = new ArrayList<Object>();
 		for (Block b : blocks) {
 			// if it's a "package", deal with that ... and all blocks must either be or not be packages
-			Object o = new SingleLineFunctionCase().tryParsing(new Tokenizable(b.line.text()));
+			Object o = new FunctionParser().tryParsing(new Tokenizable(b.line.text()));
 			if (o != null)
 				fndefns.add(o);
 			else

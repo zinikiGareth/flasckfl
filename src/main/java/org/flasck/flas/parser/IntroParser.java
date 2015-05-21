@@ -5,7 +5,7 @@ import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
-public class StructIntroParser implements TryParsing {
+public class IntroParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {

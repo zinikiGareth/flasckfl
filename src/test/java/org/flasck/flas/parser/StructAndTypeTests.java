@@ -13,7 +13,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningNil() {
-		StructIntroParser p = new StructIntroParser();
+		IntroParser p = new IntroParser();
 		Object o = p.tryParsing(new Tokenizable(new StringBuilder("struct Nil")));
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);
@@ -24,7 +24,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningConsIntro() {
-		StructIntroParser p = new StructIntroParser();
+		IntroParser p = new IntroParser();
 		Object o = p.tryParsing(new Tokenizable(new StringBuilder("struct Cons A")));
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);
@@ -36,7 +36,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningConsHeadArg() {
-		StructFieldParser p = new StructFieldParser();
+		FieldParser p = new FieldParser();
 		Object o = p.tryParsing(new Tokenizable(new StringBuilder("A head")));
 		assertNotNull(o);
 		assertTrue(o instanceof StructField);
@@ -49,7 +49,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningConsTailListA() {
-		StructFieldParser p = new StructFieldParser();
+		FieldParser p = new FieldParser();
 		Object o = p.tryParsing(new Tokenizable(new StringBuilder("(List A) tail")));
 		assertNotNull(o);
 		assertTrue(o instanceof StructField);

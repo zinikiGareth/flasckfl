@@ -1,13 +1,12 @@
 package org.flasck.flas.hsie;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parser.SingleLineFunctionCase;
+import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
@@ -15,7 +14,7 @@ public class HSIEFunctionTests {
 
 	@Test
 	public void testConvertingFib() {
-		SingleLineFunctionCase p = new SingleLineFunctionCase();
+		FunctionParser p = new FunctionParser();
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("fib 0 = 1")));
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("fib 1 = 1")));
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("fib n = fib (n-1) + fib (n-2)")));
@@ -27,7 +26,7 @@ public class HSIEFunctionTests {
 
 	@Test
 	public void testConvertingTake() {
-		SingleLineFunctionCase p = new SingleLineFunctionCase();
+		FunctionParser p = new FunctionParser();
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take n [] = []")));
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take 0 Cons = []")));
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take n (a:b) = a:(take (n-1) b)")));
