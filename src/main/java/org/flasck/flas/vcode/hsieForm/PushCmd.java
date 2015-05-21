@@ -2,9 +2,9 @@ package org.flasck.flas.vcode.hsieForm;
 
 
 public class PushCmd extends HSIEBlock {
-	private final Var var;
-	private final Integer ival;
-	private final String fn;
+	public final Var var;
+	public final Integer ival;
+	public final String fn;
 
 	public PushCmd(Var var) {
 		this.var = var;

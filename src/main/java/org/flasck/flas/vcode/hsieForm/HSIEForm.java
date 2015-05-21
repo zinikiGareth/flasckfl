@@ -1,17 +1,20 @@
 package org.flasck.flas.vcode.hsieForm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class HSIEForm extends HSIEBlock {
 	public final String fnName;
-	private final int nformal;
+	public final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();
 
 	// This should really be objects, not names of objects
 	public final Set<String> externals = new TreeSet<String>();
+	private final Map<Var, HSIEBlock> closures = new HashMap<Var, HSIEBlock>();
 
 	// This constructor is the one for real code
 	public HSIEForm(String name, int nformal) {
@@ -34,9 +37,21 @@ public class HSIEForm extends HSIEBlock {
 		return vars.get(v);
 	}
 
+	public HSIEBlock closure(Var var) {
+		ClosureCmd ret = new ClosureCmd(var);
+		closures.put(var, ret);
+		return ret;
+	}
+
+	public HSIEBlock getClosure(Var v) {
+		return closures.get(v);
+	}
+
 	public void dump() {
 		System.out.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal) + " externals: " + externals);
 		dump(0);
+		for (HSIEBlock c : closures.values())
+			c.dumpOne(0);
 	}
 
 	public void dependsOn(String text) {

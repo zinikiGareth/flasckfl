@@ -45,16 +45,11 @@ public class HSIETestData {
 			"HEAD 1",
 			"SWITCH 1 Nil", "{",
 				"HEAD 0",
-				"SWITCH 0 Number", "{",
-					"IF 0 0", "{",
-						"RETURN Nil", // expr E1
-					"}",
-				"}",
 				"RETURN Nil", // expr E0
 			"}",
 			"SWITCH 1 Cons", "{",
-				"BIND 2 0 head",
-				"BIND 3 0 tail",
+				"BIND 2 1 head",
+				"BIND 3 1 tail",
 				"HEAD 0",
 				"SWITCH 0 Number", "{",
 					"IF 0 0", "{",
@@ -64,12 +59,6 @@ public class HSIETestData {
 				"RETURN var 6 4 5", // expr E0
 			"}",
 			// when we get here, we know that Arg#1 is NOT Nil or Cons - thus only E1 _could_ match
-			"HEAD 0",
-			"SWITCH 0 Number", "{",
-				"IF 0 0", "{",
-					"RETURN Nil", // expr E1
-				"}",
-			"}",
 			"ERROR",  // it would seem that none of the cases match
 			"CLOSURE 4", "{",
 				"-", "var 0", "1",
@@ -112,7 +101,7 @@ public class HSIETestData {
 			} else if (ps[0].equals("BIND")) {
 				prev = b.bindCmd(ret.var(Integer.parseInt(ps[1])), ret.var(Integer.parseInt(ps[2])), ps[3]);
 			} else if (ps[0].equals("CLOSURE")) {
-				prev = b.closure(ret.var(Integer.parseInt(ps[1])));
+				prev = ret.closure(ret.var(Integer.parseInt(ps[1])));
 			} else if (ps[0].equals("RETURN")) {
 				Object tmp = analyze(ret, ps, 1);
 				List<Var> deps = null;

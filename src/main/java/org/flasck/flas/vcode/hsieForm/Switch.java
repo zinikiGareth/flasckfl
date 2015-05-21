@@ -2,8 +2,8 @@ package org.flasck.flas.vcode.hsieForm;
 
 
 public class Switch extends HSIEBlock {
-	private final Var var;
-	private final String ctor;
+	public final Var var;
+	public final String ctor;
 
 	public Switch(Var var, String ctor) {
 		this.var = var;

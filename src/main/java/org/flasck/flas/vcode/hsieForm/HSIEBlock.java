@@ -7,7 +7,6 @@ import org.zinutils.exceptions.UtilException;
 
 public class HSIEBlock {
 	private final List<HSIEBlock> commands = new ArrayList<HSIEBlock>();
-	private final List<HSIEBlock> closures = new ArrayList<HSIEBlock>();
 
 	public void head(Var v) {
 		commands.add(new Head(v));
@@ -31,12 +30,6 @@ public class HSIEBlock {
 		return ret;
 	}
 	
-	public HSIEBlock closure(Var var) {
-		ClosureCmd ret = new ClosureCmd(var);
-		closures.add(ret);
-		return ret;
-	}
-
 	public HSIEBlock push(Object o) {
 		PushCmd ret;
 		if (o instanceof Var)
@@ -76,14 +69,12 @@ public class HSIEBlock {
 		return commands;
 	}
 
-	protected void dump(int ind) {
+	private void dump(int ind) {
 		for (HSIEBlock c : commands)
-			c.dumpOne(ind);
-		for (HSIEBlock c : closures)
 			c.dumpOne(ind);
 	}
 
-	private void dumpOne(int ind) {
+	public void dumpOne(int ind) {
 		for (int i=0;i<ind;i++)
 			System.out.print(' ');
 		System.out.println(this);

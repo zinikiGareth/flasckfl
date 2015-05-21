@@ -3,10 +3,10 @@ package org.flasck.flas.vcode.hsieForm;
 import java.util.List;
 
 public class ReturnCmd extends HSIEBlock {
-	private final Var var;
-	private final List<Var> deps;
-	private final Integer ival;
-	private final String fn;
+	public final Var var;
+	public final List<Var> deps;
+	public final Integer ival;
+	public final String fn;
 
 	public ReturnCmd(Var var, List<Var> deps) {
 		this.var = var;
