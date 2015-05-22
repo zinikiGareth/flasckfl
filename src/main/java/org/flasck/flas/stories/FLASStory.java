@@ -9,9 +9,11 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.CardDefiniton;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.FieldDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parser.FieldParser;
@@ -40,7 +42,7 @@ public class FLASStory implements StoryProcessor {
 			Object o = new MultiParser(IntroParser.class, FunctionParser.class).parse(b);
 			if (o == null) {
 				System.out.println("Could not parse " + b.line.text());
-				er.message(new Tokenizable(b.line.text()), "syntax error");
+				er.message(new Tokenizable(b), "syntax error");
 				continue;
 			}
 			else if (o instanceof ErrorResult) {
@@ -112,7 +114,7 @@ public class FLASStory implements StoryProcessor {
 		for (Block b : fields) {
 			if (b.isComment())
 				continue;
-			Tokenizable tkz = new Tokenizable(b.line.text());
+			Tokenizable tkz = new Tokenizable(b);
 			Object sf = fp.tryParsing(tkz);
 			if (sf == null)
 				er.message(tkz, "syntax error");
@@ -129,7 +131,7 @@ public class FLASStory implements StoryProcessor {
 		for (Block b : methods) {
 			if (b.isComment())
 				continue;
-			Tokenizable tkz = new Tokenizable(b.line.text());
+			Tokenizable tkz = new Tokenizable(b);
 			Object md = mp.tryParsing(tkz);
 			if (md == null)
 				er.message(tkz, "syntax error");
@@ -146,7 +148,7 @@ public class FLASStory implements StoryProcessor {
 		for (Block b : components) {
 			if (b.isComment())
 				continue;
-			Tokenizable tkz = new Tokenizable(b.line.text());
+			Tokenizable tkz = new Tokenizable(b);
 			Object o = ip.tryParsing(tkz);
 			if (o == null)
 				er.message(tkz, "must have valid card component definition here");
@@ -172,8 +174,21 @@ public class FLASStory implements StoryProcessor {
 	}	
 
 	private void doCardState(ErrorResult er, CardDefiniton cd, List<Block> nested) {
-		// TODO Auto-generated method stub
-		
+		if (cd.state != null)
+			er.message((Block)null, "duplicate state definition in card");
+		cd.state = new StateDefinition();
+		FieldParser fp = new FieldParser();
+		for (Block q : nested)
+			if (!q.isComment()) {
+				Object o = fp.tryParsing(new Tokenizable(q));
+				if (o == null)
+					er.message(q, "syntax error");
+				else if (o instanceof ErrorResult)
+					er.merge((ErrorResult) o);
+				else if (o instanceof FieldDefinition)
+					cd.state.addField((FieldDefinition)o);
+			}
+				
 	}
 
 	private void doCardTemplate(ErrorResult er, CardDefiniton cd, List<Block> nested) {
@@ -182,8 +197,6 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	private void assertNoNonCommentNestedLines(ErrorResult er, Block b) {
-		if (b.nested.isEmpty())
-			return;
 		for (Block q : b.nested)
 			if (!q.isComment())
 				er.message(q, "method declarations may not have inner blocks");

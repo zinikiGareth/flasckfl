@@ -1,14 +1,28 @@
 package org.flasck.flas.tokenizers;
 
+import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.InputPosition;
 
 public class Tokenizable {
+	private final ContinuedLine line;
 	private final StringBuilder input;
 	private int pos;
 
+	public Tokenizable(Block b) {
+		this(b.line);
+	}
+	
+	public Tokenizable(ContinuedLine l) {
+		this.input = l.text();
+		this.line = l;
+	}
+	
+	@Deprecated // actually, I want to keep it for testing
 	public Tokenizable(StringBuilder input) {
 		this.input = input;
 		this.pos = 0;
+		this.line = null;
 	}
 
 	public int at() {
@@ -61,8 +75,9 @@ public class Tokenizable {
 	}
 
 	public InputPosition realinfo() {
-		// TODO Auto-generated method stub
-		return null;
+		if (line == null)
+			return null;
+		return line.locationAtText(pos);
 	}
 	
 	@Override

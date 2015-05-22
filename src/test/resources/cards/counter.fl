@@ -12,14 +12,14 @@
   
 	card CounterCard
 		state	
-#		Number counter <- 0
+			Number counter <- 0
 
 		template
 #		counter : format
 
 #	implements org.cardstack.Init
 #		load (CounterObj c)
-#			timer.requestTicks (OnCounter c.inc) 1000
+#			<- timer.requestTicks (OnCounter c.inc) 1000
       
 #	implements Timer timer
   

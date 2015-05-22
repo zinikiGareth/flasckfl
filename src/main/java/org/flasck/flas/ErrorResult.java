@@ -18,7 +18,7 @@ public class ErrorResult {
 	}
 
 	public ErrorResult message(Block b, String msg) {
-		return message(new Tokenizable(b.line.text()), msg);
+		return message(new Tokenizable(b), msg);
 	}
 
 	public void merge(ErrorResult from) {
@@ -32,7 +32,9 @@ public class ErrorResult {
 	public void showTo(Writer pw) throws IOException {
 		pw.write(errors.size() + " error" + (errors.size() != 1?"s":"" + " encountered\n"));
 		for (FLASError e : errors) {
-			pw.write(e.toString());
+			pw.write(e.loc + ": " + e.loc.text);
+			pw.write('\n');
+			pw.write(e.msg);
 			pw.write('\n');
 		}
 		pw.flush();
