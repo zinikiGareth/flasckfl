@@ -8,10 +8,8 @@ public class KeywordToken {
 			return null;
 
 		int mark = line.at();
-		char c = line.nextChar();
-		while (line.hasMore() && Character.isLowerCase(c)) {
+		while (line.hasMore() && Character.isLowerCase(line.nextChar())) {
 			line.advance();
-			c = line.nextChar();
 		}
 
 		return line.fromMark(mark);

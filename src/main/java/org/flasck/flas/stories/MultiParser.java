@@ -17,7 +17,6 @@ public class MultiParser {
 
 	public Object parse(Block b) {
 		Tokenizable line = new Tokenizable(b.line.text());
-		System.out.println("hello " + line);
 		ErrorResult firstError = null;
 		for (Class<? extends TryParsing> k : klz) {
 			line.reset(0);

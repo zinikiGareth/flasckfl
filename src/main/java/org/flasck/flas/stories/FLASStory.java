@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.parsedForm.CardDefiniton;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -54,14 +55,23 @@ public class FLASStory implements StoryProcessor {
 				StructDefn sd = (StructDefn)o;
 				if (ret.contains(sd.typename))
 					er.message(b, "duplicate definition for name " + sd.typename);
-				ret.define(sd.typename, sd);
+				else
+					ret.define(sd.typename, sd);
 				doStructFields(er, sd, b.nested);
 			} else if (o instanceof ContractDecl) {
 				ContractDecl cd = (ContractDecl) o;
 				if (ret.contains(cd.contractName))
 					er.message(b, "duplicate definition for name " + cd.contractName);
-				ret.define(cd.contractName, cd);
+				else
+					ret.define(cd.contractName, cd);
 				doContractMethods(er, cd, b.nested);
+			} else if (o instanceof CardDefiniton) {
+				CardDefiniton cd = (CardDefiniton) o;
+				if (ret.contains(cd.name))
+					er.message(b, "duplicate definition for name " + cd.name);
+				else
+					ret.define(cd.name, cd);
+				doCardDefinition(er, cd, b.nested);
 			} else
 				throw new UtilException("Need to handle " + o.getClass());
 		}
@@ -129,6 +139,46 @@ public class FLASStory implements StoryProcessor {
 				cd.addMethod((ContractMethodDecl)md);
 			assertNoNonCommentNestedLines(er, b);
 		}
+	}
+
+	private void doCardDefinition(ErrorResult er, CardDefiniton cd, List<Block> components) {
+		IntroParser ip = new IntroParser();
+		for (Block b : components) {
+			if (b.isComment())
+				continue;
+			Tokenizable tkz = new Tokenizable(b.line.text());
+			Object o = ip.tryParsing(tkz);
+			if (o == null)
+				er.message(tkz, "must have valid card component definition here");
+			else if (o instanceof ErrorResult)
+				er.merge((ErrorResult)o);
+			else if (o instanceof String) {
+				switch ((String)o) {
+				case "state": {
+					doCardState(er, cd, b.nested);
+					break;
+				}
+				case "template": {
+					doCardTemplate(er, cd, b.nested);
+					break;
+				}
+				default: {
+					throw new UtilException("Cannot handle " + o);
+				}
+				}
+			} else
+				throw new UtilException("Cannot handle " + o.getClass());
+		}
+	}	
+
+	private void doCardState(ErrorResult er, CardDefiniton cd, List<Block> nested) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void doCardTemplate(ErrorResult er, CardDefiniton cd, List<Block> nested) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private void assertNoNonCommentNestedLines(ErrorResult er, Block b) {

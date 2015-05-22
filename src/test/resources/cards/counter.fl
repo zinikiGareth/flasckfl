@@ -10,11 +10,11 @@
 	contract Timer
 		up requestTicks (OnCounter h) (Number msInterval) 
   
-#card CounterCard
-#	state	
+	card CounterCard
+		state	
 #		Number counter <- 0
 
-#	template
+		template
 #		counter : format
 
 #	implements org.cardstack.Init
