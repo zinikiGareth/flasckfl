@@ -11,6 +11,9 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
 import org.flasck.flas.parser.MethodParser;
@@ -47,6 +50,12 @@ public class FLASStory implements StoryProcessor {
 				fndefns.add(o);
 				if (!b.nested.isEmpty())
 					throw new UtilException("Need to handle nested function defns");
+			} else if (o instanceof StructDefn) {
+				StructDefn sd = (StructDefn)o;
+				if (ret.contains(sd.typename))
+					er.message(b, "duplicate definition for name " + sd.typename);
+				ret.define(sd.typename, sd);
+				doStructFields(er, sd, b.nested);
 			} else if (o instanceof ContractDecl) {
 				ContractDecl cd = (ContractDecl) o;
 				if (ret.contains(cd.contractName))
@@ -88,9 +97,28 @@ public class FLASStory implements StoryProcessor {
 		return ret;
 	}
 
+	private void doStructFields(ErrorResult er, StructDefn sd, List<Block> fields) {
+		FieldParser fp = new FieldParser();
+		for (Block b : fields) {
+			if (b.isComment())
+				continue;
+			Tokenizable tkz = new Tokenizable(b.line.text());
+			Object sf = fp.tryParsing(tkz);
+			if (sf == null)
+				er.message(tkz, "syntax error");
+			else if (sf instanceof ErrorResult)
+				er.merge((ErrorResult) sf);
+			else
+				sd.addField((StructField)sf);
+			assertNoNonCommentNestedLines(er, b);
+		}
+	}
+
 	private void doContractMethods(ErrorResult er, ContractDecl cd, List<Block> methods) {
 		MethodParser mp = new MethodParser();
 		for (Block b : methods) {
+			if (b.isComment())
+				continue;
 			Tokenizable tkz = new Tokenizable(b.line.text());
 			Object md = mp.tryParsing(tkz);
 			if (md == null)

@@ -1,5 +1,5 @@
-#	struct CounterObj
-#		Number inc
+	struct CounterObj
+		Number inc
 
 	contract Init
 		down init (Any obj)
