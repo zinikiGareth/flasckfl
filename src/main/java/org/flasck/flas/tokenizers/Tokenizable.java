@@ -1,5 +1,7 @@
 package org.flasck.flas.tokenizers;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class Tokenizable {
 	private final StringBuilder input;
 	private int pos;
@@ -56,5 +58,10 @@ public class Tokenizable {
 
 	public void reset(int mark) {
 		pos = mark;
+	}
+
+	public InputPosition realinfo() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

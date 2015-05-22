@@ -107,13 +107,13 @@ public class BlockTestData {
 
 	public static Block contractIntroBlock() {
 		return builder()
-			.line("contract ctr")
+			.line("contract OnTick")
 			.build();
 	}
 
 	public static Block contractWithMethodBlock() {
 		return builder()
-			.line("contract ctr")
+			.line("contract OnTick")
 			.indent()
 			.line("up call x")
 			.build();
