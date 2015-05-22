@@ -14,6 +14,8 @@ public class FunctionParser implements TryParsing {
 	public Object tryParsing(Tokenizable line) {
 		// Read the function name
 		String name = ValidIdentifierToken.from(line);
+		if (name == null)
+			return null;
 		
 		// Collect patterns into an argument
 		List<Object> args = new ArrayList<Object>();

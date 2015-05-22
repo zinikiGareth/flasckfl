@@ -97,7 +97,7 @@ public class MetaState {
 		}
 		else {
 			System.out.println(expr.getClass());
-			throw new UtilException("Cannot handle " + expr.getClass());
+			throw new UtilException("HSIE Cannot handle " + expr.getClass());
 		}
 	}
 

@@ -11,4 +11,8 @@ public class FLASError {
 		this.msg = msg;
 	}
 
+	@Override
+	public String toString() {
+		return "" + loc + ": " + msg;
+	}
 }

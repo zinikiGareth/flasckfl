@@ -206,9 +206,9 @@ public class HSIE {
 					if (cp.type == ConstPattern.INTEGER) {
 						o.ifConst("Number", cp, pe.getValue());
 					} else
-						throw new UtilException("Cannot handle constant pattern for " + cp.type);
+						throw new UtilException("HSIE Cannot handle constant pattern for " + cp.type);
 				} else
-					System.out.println("Cannot handle pattern " + patt.getClass());
+					System.out.println("HSIE Cannot handle pattern " + patt.getClass());
 			}
 		}
 		return t;

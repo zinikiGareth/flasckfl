@@ -1,0 +1,28 @@
+#	struct CounterObj
+#		Number inc
+
+	contract Init
+		down init (Any obj)
+  
+	contract OnCounter
+		down onTick 
+  
+	contract Timer
+		up requestTicks (OnCounter h) (Number msInterval) 
+  
+#card CounterCard
+#	state	
+#		Number counter <- 0
+
+#	template
+#		counter : format
+
+#	implements org.cardstack.Init
+#		load (CounterObj c)
+#			timer.requestTicks (OnCounter c.inc) 1000
+      
+#	implements Timer timer
+  
+#	handler OnCounter inc 
+#		onTick
+#			counter <- counter + inc

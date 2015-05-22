@@ -64,4 +64,9 @@ public class Tokenizable {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public String toString() {
+		return "Tkz["+input.substring(0, pos)+"__"+input.substring(pos)+"]";
+	}
 }

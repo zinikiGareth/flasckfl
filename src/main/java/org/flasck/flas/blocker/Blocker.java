@@ -31,7 +31,7 @@ public class Blocker {
 		lineNo++;
 		Indent ind = getIndent(l);
 		String text = l.trim();
-		if (ind.tabs == 0 && ind.spaces == 0) {
+		if (ind == null || (ind.tabs == 0 && ind.spaces == 0)) {
 			System.out.println("Adding comment " + text);
 			// this is a comment
 			pushBlock(null, text, true, false);
@@ -81,12 +81,15 @@ public class Blocker {
 		int tabs = 0;
 		int spaces = 0;
 		
-		while (l.charAt(tabs) == '\t')
+		while (tabs < l.length() && l.charAt(tabs) == '\t')
 			tabs++;
-		while (l.charAt(tabs+spaces) == ' ')
+		while (tabs+spaces < l.length() && l.charAt(tabs+spaces) == ' ')
 			spaces++;
 		
-		return new Indent(tabs, spaces);
+		if (tabs+spaces < l.length())
+			return new Indent(tabs, spaces);
+		else
+			return null;
 	}
 
 	public static List<Block> block(List<String> lines) {

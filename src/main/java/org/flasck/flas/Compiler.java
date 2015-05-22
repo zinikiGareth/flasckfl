@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -37,16 +38,15 @@ public class Compiler {
 			List<Block> blocks = Blocker.block(r);
 			Object obj = new FLASStory().process(blocks);
 			if (obj instanceof Scope) {
-				System.out.println(obj);
 				for (Entry<String, Object> x : (Scope)obj) {
 					if (x.getValue() instanceof FunctionDefinition) {
 						HSIEForm hsie = HSIE.handle((FunctionDefinition) x.getValue());
 						JSForm js = gen.generate(hsie);
 						js.writeTo(w);
 					}
-					else
-						System.out.println("Cannot handle " + x);
 				}
+			} else if (obj instanceof ErrorResult) {
+				((ErrorResult)obj).showTo(new PrintWriter(System.out));
 			} else
 				System.err.println("Failed to parse; got " + obj);
 		} catch (IOException ex) {

@@ -1,2 +1,2 @@
 bin/
-src/test/resources/*.js
+src/test/resources/**/*.js
