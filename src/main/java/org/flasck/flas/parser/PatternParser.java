@@ -15,7 +15,6 @@ public class PatternParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
-		System.out.println("parse pattern");
 		PattToken tok = PattToken.from(line);
 		if (tok == null)
 			return null;

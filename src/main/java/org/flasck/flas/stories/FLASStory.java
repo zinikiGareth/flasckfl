@@ -8,10 +8,14 @@ import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.CardDefiniton;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FieldDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -168,6 +172,12 @@ public class FLASStory implements StoryProcessor {
 					throw new UtilException("Cannot handle " + o);
 				}
 				}
+			} else if (o instanceof ContractImplements) {
+				cd.addContractImplementation((ContractImplements)o);
+				doImplementation(er, (Implements)o, b.nested);
+			} else if (o instanceof HandlerImplements) {
+				cd.addHandlerImplementation((HandlerImplements)o);
+				doImplementation(er, (Implements)o, b.nested);
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
@@ -194,6 +204,23 @@ public class FLASStory implements StoryProcessor {
 	private void doCardTemplate(ErrorResult er, CardDefiniton cd, List<Block> nested) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	private void doImplementation(ErrorResult er, Implements impl, List<Block> nested) {
+		FunctionParser fp = new FunctionParser();
+		for (Block b : nested) {
+			if (b.isComment())
+				continue;
+			Object o = fp.tryParsing(new Tokenizable(b));
+			if (o == null)
+				er.message(b, "syntax error");
+			else if (o instanceof ErrorResult)
+				er.merge((ErrorResult) o);
+			else if (o instanceof FunctionIntro)
+				impl.addFn((FunctionIntro)o);
+			else
+				er.message(b, "cannot handle " + o.getClass());
+		}
 	}
 
 	private void assertNoNonCommentNestedLines(ErrorResult er, Block b) {

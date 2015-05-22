@@ -17,12 +17,12 @@
 		template
 #		counter : format
 
-#	implements org.cardstack.Init
-#		load (CounterObj c)
+		implements org.cardstack.Init
+			load (CounterObj c)
 #			<- timer.requestTicks (OnCounter c.inc) 1000
       
-#	implements Timer timer
+		implements Timer timer
   
-#	handler OnCounter inc 
-#		onTick
+		handler OnCounter inc 
+			onTick
 #			counter <- counter + inc

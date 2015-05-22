@@ -3,7 +3,9 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -25,7 +27,6 @@ public class FunctionParser implements TryParsing {
 		while (line.hasMore()) {
 			int mark = line.at();
 			Object o = pp.tryParsing(line);
-			System.out.println(o);
 			if (o != null) {
 				args.add(o);
 			} else {
@@ -39,15 +40,15 @@ public class FunctionParser implements TryParsing {
 		}
 		
 		if (!line.hasMore())
-			return null; // TODO: should return just a function intro
+			return new FunctionIntro(name, args);
 		
 		ExprToken tok = ExprToken.from(line);
-		if (tok == null || tok.text.equals("="))
-			return null; // some kind of syntax error
+		if (tok == null || !tok.text.equals("="))
+			return ErrorResult.oneMessage(line, "= expected");
 		// Now parse the expression on the right hand side
 		Object expr = new Expression().tryParsing(line);
 		if (line.hasMore())
-			return null; // should return error
+			return ErrorResult.oneMessage(line, "unexpected tokens at end of line");
 
 		// Build a response object
 		return new FunctionCaseDefn(name, args, expr);

@@ -15,9 +15,9 @@ public class HSIEFunctionTests {
 	@Test
 	public void testConvertingFib() {
 		FunctionParser p = new FunctionParser();
-		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("fib 0 = 1")));
-		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("fib 1 = 1")));
-		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("fib n = fib (n-1) + fib (n-2)")));
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 0 = 1"));
+		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 1 = 1"));
+		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib n = fib (n-1) + fib (n-2)"));
 		FunctionDefinition fib = new FunctionDefinition("fib", 1, CollectionUtils.listOf(c1, c2, c3));
 		HSIEForm fibForm = HSIE.handle(fib);
 		assertNotNull(fibForm);
@@ -27,9 +27,9 @@ public class HSIEFunctionTests {
 	@Test
 	public void testConvertingTake() {
 		FunctionParser p = new FunctionParser();
-		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take n [] = []")));
-		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take 0 Cons = []")));
-		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable(new StringBuilder("take n (a:b) = a:(take (n-1) b)")));
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n [] = []"));
+		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take 0 Cons = []"));
+		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n (a:b) = a:(take (n-1) b)"));
 		FunctionDefinition take = new FunctionDefinition("take", 2, CollectionUtils.listOf(c1, c2, c3));
 		HSIEForm takeForm = HSIE.handle(take);
 		assertNotNull(takeForm);

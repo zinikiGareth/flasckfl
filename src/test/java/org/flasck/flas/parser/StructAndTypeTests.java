@@ -14,7 +14,7 @@ public class StructAndTypeTests {
 	@Test
 	public void testDefiningNil() {
 		IntroParser p = new IntroParser();
-		Object o = p.tryParsing(new Tokenizable(new StringBuilder("struct Nil")));
+		Object o = p.tryParsing(new Tokenizable("struct Nil"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);
 		StructDefn sd = (StructDefn)o;
@@ -25,7 +25,7 @@ public class StructAndTypeTests {
 	@Test
 	public void testDefiningConsIntro() {
 		IntroParser p = new IntroParser();
-		Object o = p.tryParsing(new Tokenizable(new StringBuilder("struct Cons A")));
+		Object o = p.tryParsing(new Tokenizable("struct Cons A"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);
 		StructDefn sd = (StructDefn)o;
@@ -37,7 +37,7 @@ public class StructAndTypeTests {
 	@Test
 	public void testDefiningConsHeadArg() {
 		FieldParser p = new FieldParser();
-		Object o = p.tryParsing(new Tokenizable(new StringBuilder("A head")));
+		Object o = p.tryParsing(new Tokenizable("A head"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructField);
 		StructField sf = (StructField)o;
@@ -50,7 +50,7 @@ public class StructAndTypeTests {
 	@Test
 	public void testDefiningConsTailListA() {
 		FieldParser p = new FieldParser();
-		Object o = p.tryParsing(new Tokenizable(new StringBuilder("(List A) tail")));
+		Object o = p.tryParsing(new Tokenizable("(List A) tail"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructField);
 		StructField sf = (StructField)o;
@@ -67,7 +67,7 @@ public class StructAndTypeTests {
 	@Test
 	public void testDefiningTypeListA() {
 		TypeDefnParser p = new TypeDefnParser();
-		Object o = p.tryParsing(new Tokenizable(new StringBuilder("type List A = Nil | Cons A")));
+		Object o = p.tryParsing(new Tokenizable("type List A = Nil | Cons A"));
 		assertNotNull(o);
 		assertTrue(o instanceof TypeDefn);
 		TypeDefn sf = (TypeDefn)o;

@@ -17,10 +17,10 @@ public class Tokenizable {
 		this.input = l.text();
 		this.line = l;
 	}
-	
-	@Deprecated // actually, I want to keep it for testing
-	public Tokenizable(StringBuilder input) {
-		this.input = input;
+
+	// This is really only for testing
+	public Tokenizable(String input) {
+		this.input = new StringBuilder(input);
 		this.pos = 0;
 		this.line = null;
 	}

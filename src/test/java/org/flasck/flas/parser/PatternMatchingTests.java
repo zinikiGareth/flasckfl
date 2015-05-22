@@ -15,7 +15,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testSimpleVar() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("x")));
+		Object patt = pp.tryParsing(new Tokenizable("x"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof VarPattern);
 		assertEquals("x", ((VarPattern)patt).var);
@@ -24,7 +24,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testTypedVar() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("(List l)")));
+		Object patt = pp.tryParsing(new Tokenizable("(List l)"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof TypedPattern);
 		assertEquals("List", ((TypedPattern)patt).type);
@@ -36,7 +36,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testConstantConstructor() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("Nil")));
+		Object patt = pp.tryParsing(new Tokenizable("Nil"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof ConstructorMatch);
 		assertEquals("Nil", ((ConstructorMatch)patt).ctor);
@@ -46,7 +46,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testConstructor() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("(Cons { tail: Nil })")));
+		Object patt = pp.tryParsing(new Tokenizable("(Cons { tail: Nil })"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof ConstructorMatch);
 		assertEquals("Cons", ((ConstructorMatch)patt).ctor);
@@ -64,7 +64,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testTuple2Vars() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("(l, m)")));
+		Object patt = pp.tryParsing(new Tokenizable("(l, m)"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof TuplePattern);
 		assertEquals(2, ((TuplePattern)patt).args.size());
@@ -75,7 +75,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testTuple2() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("(List l, m)")));
+		Object patt = pp.tryParsing(new Tokenizable("(List l, m)"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof TuplePattern);
 		assertEquals(2, ((TuplePattern)patt).args.size());
@@ -90,7 +90,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testMagicNil() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("[]")));
+		Object patt = pp.tryParsing(new Tokenizable("[]"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof ConstructorMatch);
 		assertEquals("Nil", ((ConstructorMatch)patt).ctor);
@@ -100,7 +100,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testMagicOneItemList() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("[a]")));
+		Object patt = pp.tryParsing(new Tokenizable("[a]"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof ConstructorMatch);
 		assertEquals("Cons", ((ConstructorMatch)patt).ctor);
@@ -119,7 +119,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testMagicTwoItemList() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("[a,b]")));
+		Object patt = pp.tryParsing(new Tokenizable("[a,b]"));
 		assertNotNull(patt);
 		
 		ConstructorMatch p2;
@@ -158,7 +158,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testMagicHeadTailList() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("(a:l)")));
+		Object patt = pp.tryParsing(new Tokenizable("(a:l)"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof ConstructorMatch);
 		assertEquals("Cons", ((ConstructorMatch)patt).ctor);
@@ -178,7 +178,7 @@ public class PatternMatchingTests {
 	@Test
 	public void testIntegerConstant() {
 		PatternParser pp = new PatternParser();
-		Object patt = pp.tryParsing(new Tokenizable(new StringBuilder("0")));
+		Object patt = pp.tryParsing(new Tokenizable("0"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof ConstPattern);
 		assertEquals(ConstPattern.INTEGER, ((ConstPattern)patt).type);

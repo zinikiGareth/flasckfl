@@ -18,21 +18,21 @@ public class FunctionParsingTests {
 	public void testParsingFibBlock1() {
 		Block b = BlockTestData.fibBlock1();
 		BlockerTests.showBlock(0, b);
-		ParsedFormTestData.assertFormsEqual(ParsedFormTestData.fibDefn1(), new FunctionParser().tryParsing(new Tokenizable(b.line.text())));
+		ParsedFormTestData.assertFormsEqual(ParsedFormTestData.fibDefn1(), new FunctionParser().tryParsing(new Tokenizable(b)));
 	}
 
 	@Test
 	public void testParsingFibBlock2() {
 		Block b = BlockTestData.fibBlock2();
 		BlockerTests.showBlock(0, b);
-		ParsedFormTestData.assertFormsEqual(ParsedFormTestData.fibDefn2(), new FunctionParser().tryParsing(new Tokenizable(b.line.text())));
+		ParsedFormTestData.assertFormsEqual(ParsedFormTestData.fibDefn2(), new FunctionParser().tryParsing(new Tokenizable(b)));
 	}
 
 	@Test
 	public void testParsingFibBlockN() {
 		Block b = BlockTestData.fibBlockN();
 		BlockerTests.showBlock(0, b);
-		Object pf = new FunctionParser().tryParsing(new Tokenizable(b.line.text()));
+		Object pf = new FunctionParser().tryParsing(new Tokenizable(b));
 		assertNotNull(pf);
 		assertTrue("Return was not an FCD", pf instanceof FunctionCaseDefn);
 		FunctionCaseDefn fcd = (FunctionCaseDefn) pf;

@@ -41,14 +41,12 @@ public class Expression implements TryParsing {
 	public Object tryParsing(Tokenizable line) {
 		int mark = line.at(); // do this now in case we need it later
 		ExprToken s = ExprToken.from(line);
-		System.out.println("Start " + s);
 		if (s.type == ExprToken.NUMBER || s.type == ExprToken.IDENTIFIER || s.type == ExprToken.SYMBOL) {
 			List<Object> args = new ArrayList<Object>();
 			args.add(new ItemExpr(s));
 			while (line.hasMore()) {
 				mark = line.at();
 				s = ExprToken.from(line);
-				System.out.println("Inner " + s);
 				if (s.type == ExprToken.PUNC && s.text.equals("(")) { // I think this probably could be "[" as well
 					args.add(parseParenthetical(line, ")"));
 				} else if (s.type == ExprToken.PUNC && (s.text.equals(")") || s.text.equals(",") || s.text.equals("]"))) {
@@ -96,17 +94,13 @@ public class Expression implements TryParsing {
 	private Object opstack(List<Object> args) {
 		// Step 1.  The trickiest thing is to handle all the straightforward function calls, so do that first
 		for (int i=0,j=0;i<=args.size();i++) {
-			System.out.println("with " + j + " and " + i + " of " + args.size());
 			if (i == args.size() || isSymbol(args.get(i))) {
 				if (i>j+1) { // collapse a fn defn to the left
-					System.out.println("Collapsing " + j + " to " + i);
 					List<Object> inargs = new ArrayList<Object>();
 					for (int k=j+1;k<i;k++) {
-						System.out.println("Removing " + (j+1));
 						inargs.add(deparen(args.remove(j+1)));
 					}
 					Object op = args.remove(j);
-					System.out.println("Op = " + ((ItemExpr)op).tok.text);
 					ApplyExpr ae = new ApplyExpr(deparen(op), inargs);
 					args.add(j, ae);
 				}
@@ -122,9 +116,7 @@ public class Expression implements TryParsing {
 		// We now do straightforward precedence/associate shift-reduce
 		List<OpState> stack = new ArrayList<OpState>();
 		for (int i=0;i<=args.size();i++) {
-			System.out.println("i="+i +";" + (i<args.size()?args.get(i):"") + " stack: " + stack);
 			if (i == args.size() || isSymbol(args.get(i))) {
-				System.out.println("Considering " + i);
 				// we either need to shift this symbol OR reduce what's to the left
 				int action = SHIFT;
 				do {
@@ -151,24 +143,19 @@ public class Expression implements TryParsing {
 							action = compareActions(prev.prec, myprec);
 						}
 					}
-					System.out.println("i="+i+"; op = " + op + "; myprec=" + myprec + "; action="+action+"; prev="+prev);
 					if (action == SHIFT)
 						stack.add(0, new OpState(i, prefix, myprec));
 					else if (prev.prefix) {
-						System.out.println("prefix:"+i+"/"+args.size());
 						if (stack.size() > 0)
 							stack.remove(0);
-						System.out.println("Stack is now " + stack);
 						Object o1 = deparen(args.remove(i-2));
 						Object o2 = deparen(args.remove(i-2));
 						args.add(i-2, new ApplyExpr(o1, o2));
 						i--;
 					}
 					else {
-						System.out.println("infix:" +i+"/"+args.size());
 						if (stack.size() > 0)
 							stack.remove(0);
-						System.out.println("Stack is now " + stack);
 						Object o1 = deparen(args.remove(i-3));
 						Object o2 = deparen(args.remove(i-3));
 						Object o3 = deparen(args.remove(i-3));

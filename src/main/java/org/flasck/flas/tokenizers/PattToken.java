@@ -21,7 +21,6 @@ public class PattToken {
 	public PattToken(int type, String text) {
 		this.type = type;
 		this.text = text;
-		System.out.println(type +":"+text);
 	}
 
 	public static PattToken from(Tokenizable line) {

@@ -16,7 +16,7 @@ public class ContractDeclarationParsingTests {
 
 	@Test
 	public void testParsingAContractIntroduction() {
-		Object o = new IntroParser().tryParsing(new Tokenizable(BlockTestData.contractIntroBlock().line.text()));
+		Object o = new IntroParser().tryParsing(new Tokenizable(BlockTestData.contractIntroBlock()));
 		assertNotNull(o);
 		assertTrue(o instanceof ContractDecl);
 		ContractDecl cd = (ContractDecl) o;
@@ -25,17 +25,17 @@ public class ContractDeclarationParsingTests {
 
 	@Test
 	public void testParsingAContractDeclarationWithFields() {
-		Object o = new IntroParser().tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().line.text()));
+		Object o = new IntroParser().tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock()));
 		assertNotNull(o);
 		assertTrue(o instanceof ContractDecl);
 		ContractDecl cd = (ContractDecl) o;
 		assertEquals("OnTick", cd.contractName);
-		new FieldParser().tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().nested.get(0).line.text()));
+		new FieldParser().tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().nested.get(0)));
 	}
 
 	@Test
 	public void testParsingAContractDeclarationField() {
-		Object o = new MethodParser().tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().nested.get(0).line.text()));
+		Object o = new MethodParser().tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().nested.get(0)));
 		assertNotNull(o);
 		assertTrue(o instanceof ContractMethodDecl);
 		ContractMethodDecl cd = (ContractMethodDecl) o;
