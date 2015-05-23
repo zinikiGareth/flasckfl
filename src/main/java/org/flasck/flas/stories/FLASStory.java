@@ -15,6 +15,9 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.MethodDefinition;
+import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -229,6 +232,7 @@ public class FLASStory implements StoryProcessor {
 
 	private void doImplementation(ErrorResult er, Implements impl, List<Block> nested) {
 		FunctionParser fp = new FunctionParser();
+		List<MethodCaseDefn> cases = new ArrayList<MethodCaseDefn>();
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;
@@ -239,15 +243,37 @@ public class FLASStory implements StoryProcessor {
 				er.merge((ErrorResult) o);
 			else if (o instanceof FunctionIntro) {
 				FunctionIntro meth = (FunctionIntro)o;
-				impl.addFn(meth);
+				MethodCaseDefn mcd = new MethodCaseDefn(meth);
+				cases.add(mcd);
 				assertSomeNonCommentNestedLines(er, b);
-				handleMessageMethods(er, meth, b.nested);
+				handleMessageMethods(er, mcd, b.nested);
 			} else
 				er.message(b, "cannot handle " + o.getClass());
 		}
+
+		ListMap<String, MethodCaseDefn> groups = new ListMap<String, MethodCaseDefn>();
+		String cfn = null;
+		int pnargs = 0;
+		for (MethodCaseDefn fcd : cases) {
+			String n = fcd.intro.name;
+			if (cfn == null || !cfn.equals(n)) {
+				cfn = n;
+				pnargs = fcd.intro.args.size();
+				if (groups.contains(cfn))
+					er.message((Tokenizable)null, "split definition of function " + cfn);
+			} else if (fcd.intro.args.size() != pnargs)
+				er.message((Tokenizable)null, "inconsistent numbers of arguments in definitions of " + cfn);
+			groups.add(cfn, fcd);
+		}
+		for (Entry<String, List<MethodCaseDefn>> x : groups.entrySet()) {
+			impl.addMethod(new MethodDefinition(x.getValue().get(0).intro, x.getValue()));
+		}
+
+		// TODO: somewhere (possibly not here) they need to be rewritten to functions and thus to HSIE
+		// Oh, and we probably want to do that in a phase that converts templates to functions too
 	}
 
-	private void handleMessageMethods(ErrorResult er, FunctionIntro meth, List<Block> nested) {
+	private void handleMessageMethods(ErrorResult er, MethodCaseDefn mcd, List<Block> nested) {
 		MethodMessageParser mm = new MethodMessageParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -257,8 +283,10 @@ public class FLASStory implements StoryProcessor {
 				er.message(b, "syntax error");
 			else if (o instanceof ErrorResult)
 				er.merge((ErrorResult)o);
+			else if (o instanceof MethodMessage)
+				mcd.addMessage((MethodMessage) o);
 			else
-				meth.addMessage(o);
+				throw new UtilException("What is " + o + "?");
 		}
 	}
 
