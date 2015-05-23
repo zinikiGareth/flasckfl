@@ -39,8 +39,10 @@ public class HSIEBlock {
 		else if (o instanceof String)
 			// TODO: check it's a defined name
 			ret = new PushCmd((String)o);
+		else if (o == null)
+			throw new UtilException("Cannot push null");
 		else
-			throw new UtilException("Invalid object to push");
+			throw new UtilException("Invalid object to push " + o.getClass());
 		commands.add(ret);
 		return ret;
 	}

@@ -64,7 +64,7 @@ public class MetaState {
 			ItemExpr e2 = (ItemExpr) expr;
 			if (e2.tok.type == ExprToken.NUMBER)
 				return Integer.parseInt(e2.tok.text); // what about floats?
-			else if (e2.tok.type == ExprToken.IDENTIFIER || e2.tok.type == ExprToken.SYMBOL) {
+			else if (e2.tok.type == ExprToken.IDENTIFIER || e2.tok.type == ExprToken.SYMBOL || e2.tok.type == ExprToken.PUNC) {
 				if (substs.containsKey(e2.tok.text))
 					return substs.get(e2.tok.text);
 				else {
@@ -73,7 +73,7 @@ public class MetaState {
 					return e2.tok.text;
 				}
 			} else
-				return null;
+				throw new UtilException("Cannot handle " + e2.tok);
 		}
 		else if (expr instanceof ApplyExpr) {
 			ApplyExpr e2 = (ApplyExpr) expr;

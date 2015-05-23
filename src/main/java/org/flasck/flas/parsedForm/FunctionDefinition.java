@@ -12,6 +12,12 @@ public class FunctionDefinition {
 		this.nargs = nargs;
 		this.cases = list;
 	}
+
+	public FunctionDefinition(FunctionIntro intro, List<FunctionCaseDefn> list) {
+		this.name = intro.name;
+		this.nargs = intro.args.size();
+		this.cases = list;
+	}
 	
 	// FunctionDefinition also has nested Scope
 }

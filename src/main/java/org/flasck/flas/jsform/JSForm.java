@@ -153,6 +153,8 @@ public class JSForm {
 		// Something like this will need to happen for builtin operators
 		case "-":
 			return "FLEval.minus";
+		case ".":
+			return "FLEval.field";
 			
 		// This is a hack
 		case "Cons":
