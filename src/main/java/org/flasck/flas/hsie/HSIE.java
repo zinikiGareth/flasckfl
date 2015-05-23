@@ -39,6 +39,13 @@ public class HSIE {
 		return ret;
 	}
 
+	public static HSIEForm handleExpr(Object expr) {
+		MetaState ms = new MetaState(new HSIEForm("", 0));
+		Object ret = ms.getValueFor(new SubstExpr(expr));
+		ms.form.doReturn(ret, ms.closureDependencies(ret));
+		return ms.form;
+	}
+
 	private static HSIEForm handleConstant(MetaState ms, FunctionDefinition defn) {
 		if (defn.cases.size() != 1)
 			throw new UtilException("Constants can only have one case");

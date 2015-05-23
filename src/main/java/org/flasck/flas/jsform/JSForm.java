@@ -109,6 +109,24 @@ public class JSForm {
 		return new JSForm("return FLEval.error(\""+fnName +": case not handled\")");
 	}
 
+	public static void assign(JSForm into, String assgn, HSIEForm form) {
+		ReturnCmd r = (ReturnCmd) form.nestedCommands().get(0);
+		if (r.fn != null)
+			into.add(new JSForm(assgn + " = " + r.fn));
+		else if (r.var != null) {
+			if (r.deps != null) {
+				for (Var v : r.deps) {
+					into.add(new JSForm("var v" + v.idx + " = " + closure(form.getClosure(v))));
+				}
+			}
+			into.add(new JSForm(assgn + " = " + closure(form.getClosure(r.var))));
+		}
+		else if (r.ival != null)
+			into.add(new JSForm(assgn + " = " + r.ival));
+		else
+			throw new UtilException("What are you returning " + r);
+	}
+
 	public static List<JSForm> ret(ReturnCmd r, HSIEForm form) {
 		List<JSForm> ret = new ArrayList<JSForm>();
 		if (r.fn != null)

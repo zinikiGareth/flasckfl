@@ -3,6 +3,7 @@ package org.flasck.flas.jsgen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -41,26 +42,21 @@ public class Generator {
 				if (x.init != null) {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
-					generateField(defass, x, "0");
-					generateField(elseBlock, x, "0");
-					// TODO: x.init should be E of HSIE (i.e. just a RETURN + closures)
-					// TODO: generate closures and then assign final result
-					
-					defass.add(new JSForm("this."+ x.name + " = 0"));
-					// TODO: this needs to add EXACTLY the same statements in a different place
-					elseBlock.add(new JSForm("this."+ x.name + " = 0"));
+					HSIEForm form = HSIE.handleExpr(x.init);
+					form.dump();
+					generateField(defass, x, form);
+					generateField(elseBlock, x, form);
 				}
 			}
 		}
 		return ret;
 	}
 
-	private void generateField(JSForm defass, StructField x, String hackValue) {
-		// TODO: x.init should be E of HSIE (i.e. just a RETURN + closures)
-		// TODO: generate closures and then assign final result
-		// TODO: remove hackValue parameter
-		
-		defass.add(new JSForm("this."+ x.name + " = " + hackValue));
+	private void generateField(JSForm defass, StructField x, HSIEForm form) {
+		if (form == null)
+			defass.add(new JSForm("this."+ x.name + " = undefined"));
+		else
+			JSForm.assign(defass, "this." + x.name, form);
 	}
 
 	public List<JSForm> generate(CardDefinition card) {
@@ -70,7 +66,7 @@ public class Generator {
 		cf.add(new JSForm("this.parent = v0.parent"));
 		if (card.state != null) {
 			for (StructField fd : card.state.fields)
-				generateField(cf, fd, "undefined");
+				generateField(cf, fd, null);
 		}
 		cf.add(new JSForm("this.contracts = {}"));
 		for (ContractImplements ci : card.contracts) {

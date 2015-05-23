@@ -38,7 +38,7 @@ public class MethodConvertor {
 	private static Object convert(MethodMessage mm) {
 		if (mm.slot != null) {
 			// we want an assign message
-			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Assign")), mm.slot.get(0), mm.expr);
+			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Assign")), new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, mm.slot.get(0))), mm.expr);
 		} else {
 			// we want some kind of invoke message
 			ApplyExpr root = (ApplyExpr) mm.expr;
