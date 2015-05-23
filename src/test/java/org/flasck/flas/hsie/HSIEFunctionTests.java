@@ -13,6 +13,16 @@ import org.zinutils.collections.CollectionUtils;
 public class HSIEFunctionTests {
 
 	@Test
+	public void testConvertingConstant() {
+		FunctionParser p = new FunctionParser();
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
+		FunctionDefinition primes = new FunctionDefinition("primes", 0, CollectionUtils.listOf(c1));
+		HSIEForm primesForm = HSIE.handle(primes);
+		assertNotNull(primesForm);
+		HSIETestData.assertHSIE(HSIETestData.testPrimes(), primesForm);
+	}
+	
+	@Test
 	public void testConvertingFib() {
 		FunctionParser p = new FunctionParser();
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 0 = 1"));

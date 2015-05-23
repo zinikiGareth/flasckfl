@@ -14,7 +14,7 @@ import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class MetaState {
-	private final HSIEForm form;
+	public final HSIEForm form;
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<SubstExpr, Object> retValues = new HashMap<SubstExpr, Object>();

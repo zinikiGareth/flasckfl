@@ -16,7 +16,6 @@ import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -28,6 +27,8 @@ public class HSIE {
 	public static HSIEForm handle(FunctionDefinition defn) {
 		HSIEForm ret = new HSIEForm(defn.name, defn.nargs);
 		MetaState ms = new MetaState(ret);
+		if (defn.nargs == 0)
+			return handleConstant(ms, defn);
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
 		ms.add(buildFundamentalState(ms, ret, defn.nargs, defn.cases));
 		while (!ms.allDone()) {
@@ -36,6 +37,14 @@ public class HSIE {
 		}
 		ret.dump();
 		return ret;
+	}
+
+	private static HSIEForm handleConstant(MetaState ms, FunctionDefinition defn) {
+		if (defn.cases.size() != 1)
+			throw new UtilException("Constants can only have one case");
+		Object ret = ms.getValueFor(new SubstExpr(defn.cases.get(0).expr));
+		ms.form.doReturn(ret, ms.closureDependencies(ret));
+		return ms.form;
 	}
 
 	private static State buildFundamentalState(MetaState ms, HSIEBlock block, int nargs, List<FunctionCaseDefn> cases) {

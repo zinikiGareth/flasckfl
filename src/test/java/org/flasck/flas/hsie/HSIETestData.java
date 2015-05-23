@@ -1,7 +1,10 @@
 package org.flasck.flas.hsie;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -9,8 +12,29 @@ import org.flasck.flas.vcode.hsieForm.Var;
 
 public class HSIETestData {
 
+	public static HSIEForm testPrimes() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("Cons");
+		externals.add("Nil");
+		return thingy("primes", 0, 3, externals,
+			"RETURN var 2 0 1",
+			"CLOSURE 0", "{",
+				"Cons", "5", "Nil",
+			"}",
+			"CLOSURE 1", "{",
+				"Cons", "3", "var 0",
+			"}",
+			"CLOSURE 2", "{",
+				"Cons", "2", "var 1",
+			"}"
+		);
+	}
+
 	public static HSIEForm fib() {
-		return thingy("fib", 1, 5, new ArrayList<String>(),
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("+");
+		externals.add("-");
+		return thingy("fib", 1, 5, externals,
 			"HEAD 0",
 			"SWITCH 0 Number", "{",
 				"IF 0 0", "{",
@@ -20,6 +44,7 @@ public class HSIETestData {
 					"RETURN 1",
 				"}",
 			"}",
+			"RETURN var 5 1 2 3 4",
 			// Since we do this before type checking, there is no guarantee var 0 is an integer
 			"CLOSURE 1", "{",
 				"-", "var 0", "1",
@@ -35,18 +60,17 @@ public class HSIETestData {
 			"}",
 			"CLOSURE 5", "{",
 				"+", "var 2", "var 4",
-			"}",
-			"RETURN var 5"
+			"}"
 		);
 	}
 
 	public static HSIEForm take() {
-		return thingy("take", 2, 5, new ArrayList<String>(),
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("Cons");
+		externals.add("Nil");
+		externals.add("-");
+		return thingy("take", 2, 5, externals,
 			"HEAD 1",
-			"SWITCH 1 Nil", "{",
-				"HEAD 0",
-				"RETURN Nil", // expr E0
-			"}",
 			"SWITCH 1 Cons", "{",
 				"BIND 2 1 head",
 				"BIND 3 1 tail",
@@ -57,6 +81,10 @@ public class HSIETestData {
 					"}",
 				"}",
 				"RETURN var 6 4 5", // expr E0
+			"}",
+			"SWITCH 1 Nil", "{",
+				"HEAD 0",
+				"RETURN Nil", // expr E0
 			"}",
 			// when we get here, we know that Arg#1 is NOT Nil or Cons - thus only E1 _could_ match
 			"ERROR",  // it would seem that none of the cases match
@@ -136,6 +164,33 @@ public class HSIETestData {
 	}
 	
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {
-//		expected.dump();
+		expected.dump();
+		actual.dump();
+		assertEquals(expected.fnName, actual.fnName);
+		assertEquals(expected.nformal, actual.nformal);
+		assertEquals(expected.vars.size(), actual.vars.size());
+		assertEquals(expected.externals.size(), actual.externals.size());
+		Iterator<String> ee = expected.externals.iterator();
+		Iterator<String> ae = actual.externals.iterator();
+		while (ee.hasNext())
+			assertEquals(ee.next(), ae.next());
+		List<HSIEBlock> ecmds = expected.nestedCommands();
+		List<HSIEBlock> acmds = actual.nestedCommands();
+		assertEquals(ecmds.size(), acmds.size());
+		for (int i=0;i<ecmds.size();i++) {
+			assertEquals(ecmds.get(i).toString(), acmds.get(i).toString());
+		}
+		for (int i=expected.nformal;i<expected.vars.size();i++) {
+			HSIEBlock ec = expected.getClosure(expected.vars.get(i));
+			HSIEBlock ac = actual.getClosure(actual.vars.get(i));
+			if (ec == null && ac == null)
+				continue; // it was a bound var
+			assertNotNull("Did not find expected closure " + i, ec);
+			assertNotNull("Did not find actual closure " + i, ac);
+			assertEquals(ec.nestedCommands().size(), ac.nestedCommands().size());
+			for (int j=0;j<ac.nestedCommands().size();j++) {
+				assertEquals(ec.nestedCommands().get(j).toString(), ac.nestedCommands().get(j).toString());
+			}
+		}
 	}
 }
