@@ -29,7 +29,6 @@ public class MethodParser implements TryParsing {
 		PatternParser pp = new PatternParser();
 		while (line.hasMore()) {
 			Object o = pp.tryParsing(line);
-			System.out.println(o);
 			if (o instanceof ErrorResult)
 				return o;
 			else if (o == null)

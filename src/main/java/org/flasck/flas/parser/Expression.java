@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -53,8 +54,12 @@ public class Expression implements TryParsing {
 					line.reset(mark);
 					break;
 				} else if (s.type == ExprToken.PUNC) {
-					System.out.println("Random PUNC");
-					return null; // an error
+					if (s.text.equals("."))
+						args.add(new ItemExpr(s));
+					else {
+						System.out.println("Random PUNC");
+						return ErrorResult.oneMessage(line, "unrecognized punctuation");
+					}
 				} else
 					args.add(new ItemExpr(s));
 			}
@@ -92,7 +97,19 @@ public class Expression implements TryParsing {
 	// But we may have any combination of symbols, names and constants in any order
 	// We now need to resolve those by operator precedence parsing
 	private Object opstack(List<Object> args) {
-		// Step 1.  The trickiest thing is to handle all the straightforward function calls, so do that first
+		// Step 1. Reduce all the "." operators before ANYTHING else
+		for (int i=0;i<args.size()-1;i++) {
+			if (isDot(args.get(i))) {
+				--i;
+				Object left = args.remove(i);
+				Object dot = args.remove(i);
+				Object right = args.remove(i);
+				ApplyExpr ae = new ApplyExpr(dot, left, right);
+				args.add(i, ae);
+			}
+		}
+		
+		// Step 2.  The trickiest thing is to handle all the straightforward function calls, so do that next
 		for (int i=0,j=0;i<=args.size();i++) {
 			if (i == args.size() || isSymbol(args.get(i))) {
 				if (i>j+1) { // collapse a fn defn to the left
@@ -108,7 +125,6 @@ public class Expression implements TryParsing {
 					j=i+1;
 				else
 					j=i=j+2;
-				
 			}
 		}
 		// Now everything should be in the form A op B op C, i.e. with interleaved expressions and operators
@@ -175,6 +191,10 @@ public class Expression implements TryParsing {
 		return args.remove(0);
 	}
 
+	private boolean isDot(Object tok) {
+		return tok instanceof ItemExpr && ((ItemExpr)tok).tok.text.equals(".");
+	}
+
 	private Object deparen(Object pe) {
 		while (pe instanceof ParenExpr)
 			pe = ((ParenExpr)pe).nested;
@@ -191,7 +211,9 @@ public class Expression implements TryParsing {
 	}
 
 	private int precedence(String text) {
-		if (text.equals("^"))
+		if (text.equals("."))
+			return 1;
+		else if (text.equals("^"))
 			return 3;
 		else if (text.equals("*") || text.equals("/"))
 			return 5;

@@ -11,6 +11,10 @@ public class FunctionIntro {
 		this.args = args;
 	}
 	
+	public void addMessage(Object o) {
+		
+	}
+	
 	@Override
 	public String toString() {
 		return "FI[" + name + "/" + args.size() + "]";

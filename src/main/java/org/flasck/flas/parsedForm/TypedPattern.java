@@ -8,4 +8,9 @@ public class TypedPattern {
 		this.type = type;
 		this.var = var;
 	}
+	
+	@Override
+	public String toString() {
+		return "TypedPattern[" + type + ":" + var +"]";
+	}
 }

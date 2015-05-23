@@ -15,7 +15,6 @@ public class TypeExprToken {
 	public TypeExprToken(int type, String text) {
 		this.type = type;
 		this.text = text;
-		System.out.println(type +":"+text);
 	}
 
 	public static TypeExprToken from(Tokenizable line) {

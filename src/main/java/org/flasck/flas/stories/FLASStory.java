@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
+import org.flasck.flas.parser.MethodMessageParser;
 import org.flasck.flas.parser.MethodParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.collections.ListMap;
@@ -216,16 +217,41 @@ public class FLASStory implements StoryProcessor {
 				er.message(b, "syntax error");
 			else if (o instanceof ErrorResult)
 				er.merge((ErrorResult) o);
-			else if (o instanceof FunctionIntro)
-				impl.addFn((FunctionIntro)o);
-			else
+			else if (o instanceof FunctionIntro) {
+				FunctionIntro meth = (FunctionIntro)o;
+				impl.addFn(meth);
+				assertSomeNonCommentNestedLines(er, b);
+				handleMessageMethods(er, meth, b.nested);
+			} else
 				er.message(b, "cannot handle " + o.getClass());
+		}
+	}
+
+	private void handleMessageMethods(ErrorResult er, FunctionIntro meth, List<Block> nested) {
+		MethodMessageParser mm = new MethodMessageParser();
+		for (Block b : nested) {
+			if (b.isComment())
+				continue;
+			Object o = mm.tryParsing(new Tokenizable(b));
+			if (o == null)
+				er.message(b, "syntax error");
+			else if (o instanceof ErrorResult)
+				er.merge((ErrorResult)o);
+			else
+				meth.addMessage(o);
 		}
 	}
 
 	private void assertNoNonCommentNestedLines(ErrorResult er, Block b) {
 		for (Block q : b.nested)
 			if (!q.isComment())
-				er.message(q, "method declarations may not have inner blocks");
+				er.message(q, "nested declarations prohibited");
+	}
+
+	private void assertSomeNonCommentNestedLines(ErrorResult er, Block b) {
+		for (Block q : b.nested)
+			if (!q.isComment())
+				return;
+		er.message(b, "nested declarations required");
 	}
 }

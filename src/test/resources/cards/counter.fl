@@ -19,10 +19,10 @@
 
 		implements org.cardstack.Init
 			load (CounterObj c)
-#			<- timer.requestTicks (OnCounter c.inc) 1000
+				<- timer.requestTicks (OnCounter c.inc) 1000
       
 		implements Timer timer
   
 		handler OnCounter inc 
 			onTick
-#			counter <- counter + inc
+				counter <- counter + inc

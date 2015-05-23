@@ -13,7 +13,6 @@ public class ApplyExpr {
 	}
 
 	public ApplyExpr(Object op, Object... args) {
-		System.out.println("Applying " + op);
 		this.fn = op;
 		for (Object o : args)
 			this.args.add(o);

@@ -1,7 +1,6 @@
 package org.flasck.flas;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class ErrorResult {
 	}
 
 	public void showTo(Writer pw) throws IOException {
-		pw.write(errors.size() + " error" + (errors.size() != 1?"s":"" + " encountered\n"));
+		pw.write(errors.size() + " error" + (errors.size() != 1?"s":"") + " encountered\n");
 		for (FLASError e : errors) {
 			pw.write(e.loc + ": " + e.loc.text);
 			pw.write('\n');
