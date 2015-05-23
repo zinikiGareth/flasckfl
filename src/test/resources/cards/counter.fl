@@ -17,7 +17,9 @@
 		template
 			counter : format
 
-		implements org.cardstack.Init
+I would like this to be org.cardstack.Init, but for now, compromise
+
+		implements Init
 			load (CounterObj c)
 				<- timer.requestTicks (OnCounter c.inc) 1000
       

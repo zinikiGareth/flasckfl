@@ -49,11 +49,13 @@ public class Compiler {
 						HSIEForm hsie = HSIE.handle((FunctionDefinition) x.getValue());
 						JSForm js = gen.generate(hsie);
 						js.writeTo(w);
+						w.write("\n");
 					} else if (x.getValue() instanceof StructDefn) {
 						StructDefn sd = (StructDefn) x.getValue();
 						JSForm js = gen.generate(sd);
 						w.write("PKG.");
 						js.writeTo(w);
+						w.write("\n");
 					} else if (x.getValue() instanceof ContractDecl) {
 						// currently, I don't think anything needs to be written in this case
 						continue;
@@ -63,10 +65,10 @@ public class Compiler {
 						for (JSForm js : forms) {
 							w.write("PKG.");
 							js.writeTo(w);
+							w.write("\n");
 						}
 					} else
 						throw new UtilException("Need to handle " + x.getKey() + " of type " + x.getValue().getClass());
-					w.write("\n");
 				}
 				w.write("PKG;\n");
 			} else if (obj instanceof ErrorResult) {

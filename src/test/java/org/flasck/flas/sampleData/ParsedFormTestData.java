@@ -66,10 +66,10 @@ public class ParsedFormTestData {
 	}
 
 	private static void assertFCDsEqual(FunctionCaseDefn expected, FunctionCaseDefn actual) {
-		assertEquals(expected.name, actual.name);
-		assertEquals(expected.args.size(), actual.args.size());
-		for (int i=0;i<expected.args.size();i++)
-			assertPatternsEqual(expected.args.get(i), actual.args.get(i));
+		assertEquals(expected.intro.name, actual.intro.name);
+		assertEquals(expected.intro.args.size(), actual.intro.args.size());
+		for (int i=0;i<expected.intro.args.size();i++)
+			assertPatternsEqual(expected.intro.args.get(i), actual.intro.args.get(i));
 		assertExprsEqual(expected.expr, actual.expr);
 	}
 

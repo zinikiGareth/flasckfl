@@ -7,10 +7,10 @@ public class FunctionDefinition {
 	public final int nargs;
 	public final List<FunctionCaseDefn> cases;
 
-	public FunctionDefinition(String name, int nargs, List<FunctionCaseDefn> defns) {
+	public FunctionDefinition(String name, int nargs, List<FunctionCaseDefn> list) {
 		this.name = name;
 		this.nargs = nargs;
-		this.cases = defns;
+		this.cases = list;
 	}
 	
 	// FunctionDefinition also has nested Scope

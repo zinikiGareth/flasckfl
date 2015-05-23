@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -45,12 +46,13 @@ public class HSIE {
 		Map<Object, SubstExpr> exprs = new HashMap<Object, SubstExpr>();
 		for (FunctionCaseDefn c : cases) {
 			SubstExpr ex = new SubstExpr(c.expr);
-			createSubsts(ms, c.args, formals, ex);
+			createSubsts(ms, c.intro.args, formals, ex);
 			exprs.put(c.expr, ex);
 		}
 		for (int i=0;i<nargs;i++) {
-			for (FunctionCaseDefn c : cases)
-				s.associate(formals.get(i), c.args.get(i), exprs.get(c.expr));
+			for (FunctionCaseDefn c : cases) {
+				s.associate(formals.get(i), c.intro.args.get(i), exprs.get(c.expr));
+			}
 		}
 		return s;
 	}

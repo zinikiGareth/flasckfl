@@ -93,21 +93,21 @@ public class FLASStory implements StoryProcessor {
 			if (o instanceof FunctionCaseDefn) {
 				// group together all function defns for a given function
 				FunctionCaseDefn fcd = (FunctionCaseDefn)o;
-				String n = fcd.name;
+				String n = fcd.intro.name;
 				if (cfn == null || !cfn.equals(n)) {
 					cfn = n;
-					pnargs = fcd.args.size();
+					pnargs = fcd.intro.args.size();
 					if (groups.contains(cfn))
 						er.message((Tokenizable)null, "split definition of function " + cfn);
 					else if (ret.contains(cfn))
 						er.message((Tokenizable)null, "duplicate definition of " + cfn);
-				} else if (fcd.args.size() != pnargs)
+				} else if (fcd.intro.args.size() != pnargs)
 					er.message((Tokenizable)null, "inconsistent numbers of arguments in definitions of " + cfn);
 				groups.add(cfn, fcd);
 			}
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			ret.define(x.getKey(), new FunctionDefinition(cfn, x.getValue().get(0).args.size(), x.getValue()));
+			ret.define(x.getKey(), new FunctionDefinition(cfn, x.getValue().get(0).intro.args.size(), x.getValue()));
 		}
 		
 		if (er.hasErrors())

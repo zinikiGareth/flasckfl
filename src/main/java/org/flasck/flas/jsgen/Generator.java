@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -69,7 +72,23 @@ public class Generator {
 			for (StructField fd : card.state.fields)
 				generateField(cf, fd, "undefined");
 		}
+		cf.add(new JSForm("this.contracts = {}"));
+		for (ContractImplements ci : card.contracts) {
+			cf.add(new JSForm("this.contracts['" + ci.type +"'] = new PKG."+ card.name +"." +ci.type + "()"));
+			if (ci.referAsVar != null)
+				cf.add(new JSForm("this." + ci.referAsVar + " = this.contracts['" + ci.type + "']"));
+			
+			generateImplements(ret, card.name, ci);
+		}
+		for (HandlerImplements ci : card.handlers) {
+			generateImplements(ret, card.name, ci);
+		}
 		return ret;
+	}
+
+	private void generateImplements(List<JSForm> ret, String name, Implements ci) {
+		JSForm impl = JSForm.function(name +"."+ci.type, 0);
+		ret.add(impl);
 	}
 
 	private void generateBlock(String fn, HSIEForm form, JSForm into, HSIEBlock input) {
