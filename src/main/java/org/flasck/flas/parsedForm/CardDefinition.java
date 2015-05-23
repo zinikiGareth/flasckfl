@@ -2,12 +2,12 @@ package org.flasck.flas.parsedForm;
 
 import java.util.List;
 
-public class CardDefiniton {
+public class CardDefinition {
 	public final String name;
 	public StateDefinition state;
 	public List<TemplateLine> template;
 
-	public CardDefiniton(String name) {
+	public CardDefinition(String name) {
 		this.name = name;
 	}
 

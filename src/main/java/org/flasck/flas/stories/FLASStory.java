@@ -6,11 +6,10 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
-import org.flasck.flas.parsedForm.CardDefiniton;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.FieldDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -74,8 +73,8 @@ public class FLASStory implements StoryProcessor {
 				else
 					ret.define(cd.contractName, cd);
 				doContractMethods(er, cd, b.nested);
-			} else if (o instanceof CardDefiniton) {
-				CardDefiniton cd = (CardDefiniton) o;
+			} else if (o instanceof CardDefinition) {
+				CardDefinition cd = (CardDefinition) o;
 				if (ret.contains(cd.name))
 					er.message(b, "duplicate definition for name " + cd.name);
 				else
@@ -150,7 +149,7 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
-	private void doCardDefinition(ErrorResult er, CardDefiniton cd, List<Block> components) {
+	private void doCardDefinition(ErrorResult er, CardDefinition cd, List<Block> components) {
 		IntroParser ip = new IntroParser();
 		for (Block b : components) {
 			if (b.isComment())
@@ -189,7 +188,7 @@ public class FLASStory implements StoryProcessor {
 		}
 	}	
 
-	private void doCardState(ErrorResult er, CardDefiniton cd, List<Block> nested) {
+	private void doCardState(ErrorResult er, CardDefinition cd, List<Block> nested) {
 		if (cd.state != null)
 			er.message((Block)null, "duplicate state definition in card");
 		cd.state = new StateDefinition();
@@ -201,8 +200,10 @@ public class FLASStory implements StoryProcessor {
 					er.message(q, "syntax error");
 				else if (o instanceof ErrorResult)
 					er.merge((ErrorResult) o);
-				else if (o instanceof FieldDefinition)
-					cd.state.addField((FieldDefinition)o);
+				else if (o instanceof StructField)
+					cd.state.addField((StructField)o);
+				else
+					er.message(q, "cannot handle " + o.getClass());
 			}
 				
 	}

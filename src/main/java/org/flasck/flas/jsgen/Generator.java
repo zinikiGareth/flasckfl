@@ -1,6 +1,12 @@
 package org.flasck.flas.jsgen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.jsform.JSForm;
+import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -15,6 +21,54 @@ public class Generator {
 	public JSForm generate(HSIEForm input) {
 		JSForm ret = JSForm.function(input.fnName, input.nformal);
 		generateBlock(input.fnName, input, ret, input);
+		return ret;
+	}
+
+	public JSForm generate(StructDefn sd) {
+		JSForm ret = JSForm.function(sd.typename, 1);
+		if (!sd.fields.isEmpty()) {
+			JSForm ifBlock = new JSForm("if (v0)");
+			ret.add(ifBlock);
+			JSForm elseBlock = new JSForm("else").needBlock();
+			ret.add(elseBlock);
+			for (StructField x : sd.fields) {
+				JSForm assign = new JSForm("if (v0."+x.name+")");
+				assign.add(new JSForm("this."+x.name+" = v0."+x.name));
+				ifBlock.add(assign);
+				if (x.init != null) {
+					JSForm defass = new JSForm("else");
+					ifBlock.add(defass);
+					generateField(defass, x, "0");
+					generateField(elseBlock, x, "0");
+					// TODO: x.init should be E of HSIE (i.e. just a RETURN + closures)
+					// TODO: generate closures and then assign final result
+					
+					defass.add(new JSForm("this."+ x.name + " = 0"));
+					// TODO: this needs to add EXACTLY the same statements in a different place
+					elseBlock.add(new JSForm("this."+ x.name + " = 0"));
+				}
+			}
+		}
+		return ret;
+	}
+
+	private void generateField(JSForm defass, StructField x, String hackValue) {
+		// TODO: x.init should be E of HSIE (i.e. just a RETURN + closures)
+		// TODO: generate closures and then assign final result
+		// TODO: remove hackValue parameter
+		
+		defass.add(new JSForm("this."+ x.name + " = " + hackValue));
+	}
+
+	public List<JSForm> generate(CardDefinition card) {
+		List<JSForm> ret = new ArrayList<JSForm>();
+		JSForm cf = JSForm.function(card.name, 1);
+		ret.add(cf);
+		cf.add(new JSForm("this.parent = v0.parent"));
+		if (card.state != null) {
+			for (StructField fd : card.state.fields)
+				generateField(cf, fd, "undefined");
+		}
 		return ret;
 	}
 
@@ -44,5 +98,4 @@ public class Generator {
 				h.dumpOne(0);
 		}
 	}
-
 }

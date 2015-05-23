@@ -1,14 +1,14 @@
 	struct CounterObj
-		Number inc
+		Number inc <- 0
 
 	contract Init
-		down init (Any obj)
-  
-	contract OnCounter
-		down onTick 
+		down load (Any obj)
   
 	contract Timer
 		up requestTicks (OnCounter h) (Number msInterval) 
+  
+	contract OnCounter
+		down onTick 
   
 	card CounterCard
 		state	

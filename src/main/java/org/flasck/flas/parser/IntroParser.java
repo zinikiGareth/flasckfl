@@ -3,7 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 
 import org.flasck.flas.ErrorResult;
-import org.flasck.flas.parsedForm.CardDefiniton;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -80,7 +80,7 @@ public class IntroParser implements TryParsing {
 			String tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract name");
-			return new CardDefiniton(tn);
+			return new CardDefinition(tn);
 		}
 		case "state":
 			return "state";

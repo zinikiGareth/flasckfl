@@ -24,7 +24,7 @@ public class JSForm {
 		this.text = text;
 	}
 
-	private JSForm needBlock() {
+	public JSForm needBlock() {
 		if (block == null)
 			block = new ArrayList<JSForm>();
 		return this;
