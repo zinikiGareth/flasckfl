@@ -15,7 +15,7 @@
 			Number counter <- 0
 
 		template
-#		counter : format
+			counter : format
 
 		implements org.cardstack.Init
 			load (CounterObj c)

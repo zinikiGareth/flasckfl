@@ -20,11 +20,13 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
 import org.flasck.flas.parser.MethodMessageParser;
 import org.flasck.flas.parser.MethodParser;
+import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
@@ -166,7 +168,10 @@ public class FLASStory implements StoryProcessor {
 					break;
 				}
 				case "template": {
-					doCardTemplate(er, cd, b.nested);
+					List<TemplateLine> items = doCardTemplate(er, b.nested);
+					if (cd.template != null)
+						er.message((Block)null, "duplicate template definition in card");
+					cd.template = items;
 					break;
 				}
 				default: {
@@ -202,9 +207,23 @@ public class FLASStory implements StoryProcessor {
 				
 	}
 
-	private void doCardTemplate(ErrorResult er, CardDefiniton cd, List<Block> nested) {
-		// TODO Auto-generated method stub
-		
+	private List<TemplateLine> doCardTemplate(ErrorResult er, List<Block> nested) {
+		TemplateLineParser tlp = new TemplateLineParser();
+		List<TemplateLine> ret = new ArrayList<TemplateLine>();
+		for (Block b : nested) {
+			if (b.isComment())
+				continue;
+			Object o = tlp.tryParsing(new Tokenizable(b));
+			if (o == null)
+				er.message(b, "syntax error");
+			else if (o instanceof ErrorResult)
+				er.merge((ErrorResult) o);
+			else if (o instanceof TemplateLine)
+				ret.add((TemplateLine)o);
+			else
+				er.message(b, "invalid type");
+		}
+		return ret;
 	}
 
 	private void doImplementation(ErrorResult er, Implements impl, List<Block> nested) {
