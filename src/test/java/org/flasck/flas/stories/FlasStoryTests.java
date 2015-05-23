@@ -11,7 +11,7 @@ public class FlasStoryTests {
 
 	@Test
 	public void test() {
-		Object o = new FLASStory().process(BlockTestData.allFib());
+		Object o = new FLASStory().process("MathLib", BlockTestData.allFib());
 		assertNotNull(o);
 		assertTrue(o instanceof Scope);
 		Scope s = (Scope) o;

@@ -7,8 +7,10 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.QualifiedNameToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -25,6 +27,12 @@ public class IntroParser implements TryParsing {
 			return null; // in the "nothing doing" sense
 		
 		switch (kw) {
+		case "package": {
+			String pn = QualifiedNameToken.from(line);
+			if (line.hasMore())
+				return ErrorResult.oneMessage(line, "extra tokens at end of line");
+			return new PackageDefn(pn);
+		}
 		case "struct": {
 			String tn = TypeNameToken.from(line);
 			if (tn == null)

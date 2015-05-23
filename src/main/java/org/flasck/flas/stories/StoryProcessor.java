@@ -5,5 +5,5 @@ import java.util.List;
 import org.flasck.flas.blockForm.Block;
 
 public interface StoryProcessor {
-	Object process(List<Block> b);
+	Object process(String pkg, List<Block> b);
 }

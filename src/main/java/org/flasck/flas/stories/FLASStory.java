@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -35,13 +36,33 @@ import org.zinutils.exceptions.UtilException;
 
 public class FLASStory implements StoryProcessor {
 
+	public class State {
+		private String pkg;
+
+		public State(String pkg) {
+			this.pkg = pkg;
+		}
+
+		public String withPkg(String name) {
+			if (pkg == null || pkg.length() == 0)
+				return name;
+			return pkg +"." + name;
+		}
+	}
+
 	@Override
-	public Object process(List<Block> blocks) {
+	public Object process(String pkg, List<Block> blocks) {
+		State s = new State(pkg);
+		ErrorResult er = new ErrorResult();
+		return doScope(er, s, blocks);
+	}
+	
+	private Object doScope(ErrorResult er, State s, List<Block> blocks) {
 		if (blocks.isEmpty())
 			return null;
 
-		ErrorResult er = new ErrorResult();
 		Scope ret = new Scope();
+		Boolean usingPackages = null;
 		List<Object> fndefns = new ArrayList<Object>();
 		for (Block b : blocks) {
 			if (b.isComment())
@@ -58,6 +79,25 @@ public class FLASStory implements StoryProcessor {
 				er.merge((ErrorResult)o);
 				continue;
 			}
+			if (o instanceof PackageDefn) {
+				if (usingPackages == null)
+					usingPackages = true;
+				else if (!usingPackages)
+					er.message(b, "inconsistent use of packages: first definition must be a package in order to use packages");
+				PackageDefn p = (PackageDefn) o;
+				if (ret.contains(p.name))
+					er.message(b, "duplicate definition for name " + p.name);
+				s.pkg = p.name;
+				ret.define(p.name, doScope(er, s, b.nested));
+				continue;
+			} else {
+				if (usingPackages == null)
+					usingPackages = false;
+				else if (usingPackages) {
+					er.message(b,  "inconsistent use of packages: all top-level definitions must be packages once started");
+					continue;
+				}
+			}
 			if (o instanceof FunctionCaseDefn) {
 				fndefns.add(o);
 				if (!b.nested.isEmpty())
@@ -67,22 +107,22 @@ public class FLASStory implements StoryProcessor {
 				if (ret.contains(sd.typename))
 					er.message(b, "duplicate definition for name " + sd.typename);
 				else
-					ret.define(sd.typename, sd);
+					ret.define(s.withPkg(sd.typename), sd);
 				doStructFields(er, sd, b.nested);
 			} else if (o instanceof ContractDecl) {
 				ContractDecl cd = (ContractDecl) o;
 				if (ret.contains(cd.contractName))
 					er.message(b, "duplicate definition for name " + cd.contractName);
 				else
-					ret.define(cd.contractName, cd);
+					ret.define(s.withPkg(cd.contractName), cd);
 				doContractMethods(er, cd, b.nested);
 			} else if (o instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) o;
 				if (ret.contains(cd.name))
 					er.message(b, "duplicate definition for name " + cd.name);
 				else
-					ret.define(cd.name, cd);
-				doCardDefinition(er, cd, b.nested);
+					ret.define(s.withPkg(cd.name), cd);
+				doCardDefinition(er, s, cd, b.nested);
 			} else
 				throw new UtilException("Need to handle " + o.getClass());
 		}
@@ -152,7 +192,7 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
-	private void doCardDefinition(ErrorResult er, CardDefinition cd, List<Block> components) {
+	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
 		IntroParser ip = new IntroParser();
 		for (Block b : components) {
 			if (b.isComment())
@@ -166,7 +206,7 @@ public class FLASStory implements StoryProcessor {
 			else if (o instanceof String) {
 				switch ((String)o) {
 				case "state": {
-					doCardState(er, cd, b.nested);
+					doCardState(er, s, cd, b.nested);
 					break;
 				}
 				case "template": {
@@ -191,7 +231,7 @@ public class FLASStory implements StoryProcessor {
 		}
 	}	
 
-	private void doCardState(ErrorResult er, CardDefinition cd, List<Block> nested) {
+	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {
 		if (cd.state != null)
 			er.message((Block)null, "duplicate state definition in card");
 		cd.state = new StateDefinition();

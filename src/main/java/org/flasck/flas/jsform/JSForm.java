@@ -75,6 +75,10 @@ public class JSForm {
 			ret.append(' ');
 	}
 
+	public static JSForm packageForm(String key) {
+		return new JSForm(key + " = function()").needBlock();
+	}
+
 	public static JSForm function(String fnName, int nformal) {
 		List<String> vars = new ArrayList<String>();
 		for (int i=0;i<nformal;i++)
@@ -171,6 +175,8 @@ public class JSForm {
 		// Something like this will need to happen for builtin operators
 		case "-":
 			return "FLEval.minus";
+		case "+":
+			return "FLEval.plus";
 		case ".":
 			return "FLEval.field";
 			

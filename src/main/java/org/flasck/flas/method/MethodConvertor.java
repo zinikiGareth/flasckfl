@@ -15,12 +15,12 @@ import org.zinutils.exceptions.UtilException;
 
 public class MethodConvertor {
 
-	public static FunctionDefinition convert(String type, MethodDefinition m) {
+	public static FunctionDefinition convert(String card, String type, MethodDefinition m) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		for (MethodCaseDefn mcd : m.cases) {
-			cases.add(new FunctionCaseDefn(mcd.intro.name, mcd.intro.args, convert(mcd.messages)));
+			cases.add(new FunctionCaseDefn(card +"." +type+"."+mcd.intro.name, mcd.intro.args, convert(mcd.messages)));
 		}
-		return new FunctionDefinition(m.intro, cases);
+		return new FunctionDefinition(card +"." +type+"."+m.intro.name, m.intro.args.size(), cases);
 	}
 
 	// TODO: this is more complicated than I make it appear here, but the proper thing requires typechecking

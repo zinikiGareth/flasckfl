@@ -28,8 +28,8 @@ public class Generator {
 		return ret;
 	}
 
-	public JSForm generate(StructDefn sd) {
-		JSForm ret = JSForm.function(sd.typename, 1);
+	public JSForm generate(String name, StructDefn sd) {
+		JSForm ret = JSForm.function(name, 1);
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
 			ret.add(ifBlock);
@@ -59,10 +59,8 @@ public class Generator {
 			JSForm.assign(defass, "this." + x.name, form);
 	}
 
-	public List<JSForm> generate(CardDefinition card) {
-		List<JSForm> ret = new ArrayList<JSForm>();
-		JSForm cf = JSForm.function(card.name, 1);
-		ret.add(cf);
+	public JSForm generate(String name, CardDefinition card) {
+		JSForm cf = JSForm.function(name, 1);
 		cf.add(new JSForm("this.parent = v0.parent"));
 		if (card.state != null) {
 			for (StructField fd : card.state.fields)
@@ -74,17 +72,16 @@ public class Generator {
 			if (ci.referAsVar != null)
 				cf.add(new JSForm("this." + ci.referAsVar + " = this.contracts['" + ci.type + "']"));
 			
-			generateImplements(ret, card.name, ci);
+//			generateImplements(ret, card.name, ci);
 		}
-		for (HandlerImplements ci : card.handlers) {
-			generateImplements(ret, card.name, ci);
-		}
-		return ret;
+//		for (HandlerImplements ci : card.handlers) {
+//			generateImplements(ret, card.name, ci);
+//		}
+		return cf;
 	}
 
-	private void generateImplements(List<JSForm> ret, String name, Implements ci) {
-		JSForm impl = JSForm.function(name +"."+ci.type, 0);
-		ret.add(impl);
+	public JSForm generateImplements(String name, Implements ci) {
+		return JSForm.function(name +"."+ci.type, 0);
 	}
 
 	private void generateBlock(String fn, HSIEForm form, JSForm into, HSIEBlock input) {
