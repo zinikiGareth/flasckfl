@@ -8,25 +8,63 @@ import java.util.TreeMap;
 import org.zinutils.exceptions.UtilException;
 
 public class Scope implements Iterable<Entry<String, Object>> {
-	private final Map<String, Object> defns = new TreeMap<String, Object>();
+	public class ScopeEntry implements Entry<String, Object> {
+		private final String name;
+		private Object defn;
 
-	public boolean contains(String name) {
-		return defns.containsKey(name);
+		public ScopeEntry(String name, Object defn) {
+			this.name = name;
+			this.defn = defn;
+		}
+
+		@Override
+		public String getKey() {
+			return name;
+		}
+
+		@Override
+		public Object getValue() {
+			return defn;
+		}
+
+		@Override
+		public Object setValue(Object value) {
+			return defn;
+		}
 	}
 
-	public void define(String name, Object defn) {
-		if (defns.containsKey(name))
+	private final Scope outer = null;
+	private final Map<String, Map.Entry<String, Object>> defns = new TreeMap<String, Map.Entry<String, Object>>();
+
+	public boolean contains(String key) {
+		return defns.containsKey(key);
+	}
+
+	public void define(String key, String name, Object defn) {
+		if (defns.containsKey(key))
 			throw new UtilException("Cannot provide multiple definitions of " + name);
-		defns.put(name,  defn);
+		System.out.println("Defining " + key + " with name " + name);
+		defns.put(key, new ScopeEntry(name, defn));
 	}
 
 	public int size() {
 		return defns.size();
 	}
 
+	public String resolve(String name) {
+		if (name.contains("."))
+			throw new UtilException("Cannot have '.' in name: " + name);
+		if (defns.containsKey(name))
+			return defns.get(name).getKey();
+		if (outer != null)
+			return outer.resolve(name);
+		System.out.println("Could not resolve name " + name + " in " + defns.keySet());
+		return "BUILTIN."+name;
+	}
+
 	@Override
 	public Iterator<Entry<String, Object>> iterator() {
-		return defns.entrySet().iterator();
+		return defns.values().iterator();
 	}
 
 }

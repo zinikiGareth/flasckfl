@@ -88,7 +88,7 @@ public class FLASStory implements StoryProcessor {
 				if (ret.contains(p.name))
 					er.message(b, "duplicate definition for name " + p.name);
 				s.pkg = p.name;
-				ret.define(p.name, doScope(er, s, b.nested));
+				ret.define(p.name, s.withPkg(p.name), doScope(er, s, b.nested));
 				continue;
 			} else {
 				if (usingPackages == null)
@@ -107,21 +107,21 @@ public class FLASStory implements StoryProcessor {
 				if (ret.contains(sd.typename))
 					er.message(b, "duplicate definition for name " + sd.typename);
 				else
-					ret.define(s.withPkg(sd.typename), sd);
+					ret.define(sd.typename, s.withPkg(sd.typename), sd);
 				doStructFields(er, sd, b.nested);
 			} else if (o instanceof ContractDecl) {
 				ContractDecl cd = (ContractDecl) o;
 				if (ret.contains(cd.contractName))
 					er.message(b, "duplicate definition for name " + cd.contractName);
 				else
-					ret.define(s.withPkg(cd.contractName), cd);
+					ret.define(cd.contractName, s.withPkg(cd.contractName), cd);
 				doContractMethods(er, cd, b.nested);
 			} else if (o instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) o;
 				if (ret.contains(cd.name))
 					er.message(b, "duplicate definition for name " + cd.name);
 				else
-					ret.define(s.withPkg(cd.name), cd);
+					ret.define(cd.name, s.withPkg(cd.name), cd);
 				doCardDefinition(er, s, cd, b.nested);
 			} else
 				throw new UtilException("Need to handle " + o.getClass());
@@ -150,7 +150,7 @@ public class FLASStory implements StoryProcessor {
 			}
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			ret.define(x.getKey(), new FunctionDefinition(x.getValue().get(0).intro, x.getValue()));
+			ret.define(x.getKey(), s.withPkg(x.getKey()), new FunctionDefinition(x.getValue().get(0).intro, x.getValue()));
 		}
 		
 		if (er.hasErrors())

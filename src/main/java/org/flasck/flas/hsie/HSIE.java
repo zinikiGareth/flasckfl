@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -80,8 +81,12 @@ public class HSIE {
 				expr.subst(((VarPattern)arg).var, formals.get(i));
 			else if (arg instanceof ConstructorMatch)
 				ctorSub((ConstructorMatch) arg, ms, formals.get(i), expr);
+			else if (arg instanceof ConstPattern)
+				;
+			else if (arg instanceof TypedPattern)
+				expr.subst(((TypedPattern)arg).var, formals.get(i));
 			else
-				System.out.println("Not substituting into " + arg.getClass());
+				throw new UtilException("Not substituting into " + arg.getClass());
 		}
 	}
 
@@ -92,8 +97,10 @@ public class HSIE {
 				expr.subst(((VarPattern)x.patt).var, v);
 			else if (x.patt instanceof ConstructorMatch)
 				ctorSub((ConstructorMatch)x.patt, ms, v, expr);
+			else if (x.patt instanceof ConstPattern)
+				;
 			else
-				System.out.println("Not substituting into " + x.patt.getClass());
+				throw new UtilException("Not substituting into " + x.patt.getClass());
 				
 		}
 	}

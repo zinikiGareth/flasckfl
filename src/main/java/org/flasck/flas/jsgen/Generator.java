@@ -63,25 +63,31 @@ public class Generator {
 		JSForm cf = JSForm.function(name, 1);
 		cf.add(new JSForm("this.parent = v0.parent"));
 		if (card.state != null) {
-			for (StructField fd : card.state.fields)
-				generateField(cf, fd, null);
+			for (StructField fd : card.state.fields) {
+				HSIEForm form = null;
+				if (fd.init != null) {
+					form = HSIE.handleExpr(fd.init);
+					form.dump();
+				}
+
+				generateField(cf, fd, form);
+			}
 		}
 		cf.add(new JSForm("this.contracts = {}"));
+		int pos = 0;
 		for (ContractImplements ci : card.contracts) {
-			cf.add(new JSForm("this.contracts['" + ci.type +"'] = new PKG."+ card.name +"." +ci.type + "()"));
+			cf.add(new JSForm("this.contracts['" + ci.type +"'] = new "+ name +"._C" +pos + "(this)"));
 			if (ci.referAsVar != null)
 				cf.add(new JSForm("this." + ci.referAsVar + " = this.contracts['" + ci.type + "']"));
-			
-//			generateImplements(ret, card.name, ci);
+			pos++;
 		}
-//		for (HandlerImplements ci : card.handlers) {
-//			generateImplements(ret, card.name, ci);
-//		}
 		return cf;
 	}
 
-	public JSForm generateImplements(String name, Implements ci) {
-		return JSForm.function(name +"."+ci.type, 0);
+	public JSForm generateImplements(String name, Implements ci, int pos) {
+		JSForm ret = JSForm.function(name +"._"+(ci instanceof ContractImplements?"C":"H")+pos, 1);
+		ret.add(new JSForm("this.card = v0"));
+		return ret;
 	}
 
 	private void generateBlock(String fn, HSIEForm form, JSForm into, HSIEBlock input) {
