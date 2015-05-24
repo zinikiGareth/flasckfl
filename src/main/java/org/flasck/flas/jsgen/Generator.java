@@ -1,14 +1,11 @@
 package org.flasck.flas.jsgen;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.flasck.flas.Rewriter;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -61,7 +58,7 @@ public class Generator {
 
 	public JSForm generate(String name, CardDefinition card) {
 		JSForm cf = JSForm.function(name, 1);
-		cf.add(new JSForm("this.parent = v0.parent"));
+		cf.add(new JSForm("this._parentCard = v0.parentCard"));
 		if (card.state != null) {
 			for (StructField fd : card.state.fields) {
 				HSIEForm form = null;
@@ -81,12 +78,26 @@ public class Generator {
 				cf.add(new JSForm("this." + ci.referAsVar + " = this.contracts['" + ci.type + "']"));
 			pos++;
 		}
+		pos = 0;
+		for (HandlerImplements hi : card.handlers) {
+			cf.add(new JSForm("this."+Rewriter.basename(hi.type) + " = "+name +"._H" +pos));
+			pos++;
+		}
 		return cf;
 	}
 
-	public JSForm generateImplements(String name, Implements ci, int pos) {
-		JSForm ret = JSForm.function(name +"._"+(ci instanceof ContractImplements?"C":"H")+pos, 1);
-		ret.add(new JSForm("this.card = v0"));
+	public JSForm generateContract(String name, ContractImplements ci, int pos) {
+		JSForm ret = JSForm.function(name +"._C"+pos, 1);
+		ret.add(new JSForm("this._card = v0"));
+		return ret;
+	}
+
+	public JSForm generateHandler(String name, HandlerImplements ci, int pos) {
+		JSForm ret = JSForm.function(name +"._H"+pos, ci.boundVars.size() + 1);
+		ret.add(new JSForm("this._card = v0"));
+		int v = 1;
+		for (String s : ci.boundVars) 
+			ret.add(new JSForm("this." + s + " = v" + v++));
 		return ret;
 	}
 

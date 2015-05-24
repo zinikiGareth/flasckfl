@@ -171,6 +171,11 @@ public class JSForm {
 	}
 
 	private static String mapName(String fn) {
+		System.out.println("Need to map " + fn);
+		if (fn.startsWith("_card"))
+			return "this."+fn;
+		else if (fn.startsWith("_handler"))
+			return "this"+fn.substring(8);
 		switch (fn) {
 		// Something like this will need to happen for builtin operators
 		case "-":

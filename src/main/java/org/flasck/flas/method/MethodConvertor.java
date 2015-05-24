@@ -44,7 +44,7 @@ public class MethodConvertor {
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr fn = (ApplyExpr)root.fn;
 			if (!((ItemExpr)fn.fn).tok.text.equals(".")) throw new UtilException("unhandled case");
-			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Invoke")), fn.args.get(0), fn.args.get(1), asList(root.args));
+			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Send")), fn.args.get(0), fn.args.get(1), asList(root.args));
 		}
 	}
 
