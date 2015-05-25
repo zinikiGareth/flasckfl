@@ -1,5 +1,8 @@
 package org.flasck.flas.jsgen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.Rewriter;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
@@ -58,6 +61,8 @@ public class Generator {
 
 	public JSForm generate(String name, CardDefinition card) {
 		JSForm cf = JSForm.function(name, 1);
+		cf.add(new JSForm("var _self = this"));
+		cf.add(new JSForm("this._ctor = '" + name + "'"));
 		cf.add(new JSForm("this._parentCard = v0.parentCard"));
 		if (card.state != null) {
 			for (StructField fd : card.state.fields) {
@@ -80,20 +85,30 @@ public class Generator {
 		}
 		pos = 0;
 		for (HandlerImplements hi : card.handlers) {
-			cf.add(new JSForm("this."+Rewriter.basename(hi.type) + " = "+name +"._H" +pos));
+			List<String> tmp = new ArrayList<String>();
+			for (int i=0;i<hi.boundVars.size();i++)
+				tmp.add("v" +i);
+			JSForm ctor = new JSForm("this."+Rewriter.basename(hi.type) + " = function(" + String.join(",",tmp) + ")").strict();
+			cf.add(ctor);
+			tmp.add(0, "_self");
+			ctor.add(new JSForm("return new "+name +"._H" +pos+"(" + String.join(",", tmp) +")"));
 			pos++;
 		}
 		return cf;
 	}
 
 	public JSForm generateContract(String name, ContractImplements ci, int pos) {
-		JSForm ret = JSForm.function(name +"._C"+pos, 1);
+		String myname = name +"._C"+pos;
+		JSForm ret = JSForm.function(myname, 1);
+		ret.add(new JSForm("this._ctor = '" + myname + "'"));
 		ret.add(new JSForm("this._card = v0"));
 		return ret;
 	}
 
 	public JSForm generateHandler(String name, HandlerImplements ci, int pos) {
-		JSForm ret = JSForm.function(name +"._H"+pos, ci.boundVars.size() + 1);
+		String myname = name +"._H"+pos;
+		JSForm ret = JSForm.function(myname, ci.boundVars.size() + 1);
+		ret.add(new JSForm("this._ctor = '" + myname + "'"));
 		ret.add(new JSForm("this._card = v0"));
 		int v = 1;
 		for (String s : ci.boundVars) 

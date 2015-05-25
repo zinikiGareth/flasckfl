@@ -30,6 +30,11 @@ public class JSForm {
 		return this;
 	}
 
+	public JSForm strict() {
+		needBlock().add(new JSForm("\"use strict\""));
+		return this;
+	}
+
 	public JSForm add(JSForm inner) {
 		needBlock();
 		block.add(inner);
@@ -89,7 +94,7 @@ public class JSForm {
 		List<String> vars = new ArrayList<String>();
 		for (int i=0;i<nformal;i++)
 			vars.add("v"+i);
-		return new JSForm(fnName + " = function(" + String.join(", ", vars) + ")").needBlock();
+		return new JSForm(fnName + " = function(" + String.join(", ", vars) + ")").strict();
 	}
 
 	public static List<JSForm> head(Var v) {
