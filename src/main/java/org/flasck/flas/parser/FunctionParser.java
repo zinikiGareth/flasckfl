@@ -6,12 +6,17 @@ import java.util.List;
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class FunctionParser implements TryParsing {
 
+	public FunctionParser(Scope scope) {
+		
+	}
+	
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		// Read the function name

@@ -38,8 +38,10 @@ public class FLASStory implements StoryProcessor {
 
 	public class State {
 		private String pkg;
+		public final Scope scope;
 
-		public State(String pkg) {
+		public State(Scope scope, String pkg) {
+			this.scope = scope;
 			this.pkg = pkg;
 		}
 
@@ -52,7 +54,7 @@ public class FLASStory implements StoryProcessor {
 
 	@Override
 	public Object process(String pkg, List<Block> blocks) {
-		State s = new State(pkg);
+		State s = new State(builtinScope(), pkg);
 		ErrorResult er = new ErrorResult();
 		return doScope(er, s, blocks);
 	}
@@ -61,7 +63,7 @@ public class FLASStory implements StoryProcessor {
 		if (blocks.isEmpty())
 			return null;
 
-		Scope ret = new Scope();
+		Scope ret = new Scope(s.scope);
 		Boolean usingPackages = null;
 		List<Object> fndefns = new ArrayList<Object>();
 		for (Block b : blocks) {
@@ -69,7 +71,7 @@ public class FLASStory implements StoryProcessor {
 				continue;
 			
 			// TODO: if it's a "package", deal with that ... and all blocks must either be or not be packages
-			Object o = new MultiParser(IntroParser.class, FunctionParser.class).parse(b);
+			Object o = new MultiParser(ret, IntroParser.class, FunctionParser.class).parse(b);
 			if (o == null) {
 				System.out.println("Could not parse " + b.line.text());
 				er.message(new Tokenizable(b), "syntax error");
@@ -158,6 +160,30 @@ public class FLASStory implements StoryProcessor {
 		return ret;
 	}
 
+	private Scope builtinScope() {
+		Scope ret = new Scope(null);
+		{ // core
+			ret.define(".", "FLEval.field", null);
+		}
+		{ // math
+			ret.define("Number", "Number", null);
+			ret.define("+", "FLEval.plus", null);
+			ret.define("-", "FLEval.minus", null);
+		}
+		{ // lists
+			ret.define("List", "List", null);
+			ret.define("Nil", "Nil", null);
+			ret.define("Cons", "Cons", null);
+		}
+		{ // messaging
+			ret.define("Message", "Message", null);
+			ret.define("Assign", "Assign", null);
+			ret.define("Send", "Send", null);
+			ret.define("JSNI", "JSNI", null);
+		}
+		return ret;
+	}
+
 	private void doStructFields(ErrorResult er, StructDefn sd, List<Block> fields) {
 		FieldParser fp = new FieldParser();
 		for (Block b : fields) {
@@ -193,7 +219,7 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
-		IntroParser ip = new IntroParser();
+		IntroParser ip = new IntroParser(s.scope);
 		for (Block b : components) {
 			if (b.isComment())
 				continue;
@@ -222,10 +248,10 @@ public class FLASStory implements StoryProcessor {
 				}
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
-				doImplementation(er, (Implements)o, b.nested);
+				doImplementation(s, er, (Implements)o, b.nested);
 			} else if (o instanceof HandlerImplements) {
 				cd.addHandlerImplementation((HandlerImplements)o);
-				doImplementation(er, (Implements)o, b.nested);
+				doImplementation(s, er, (Implements)o, b.nested);
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
@@ -270,8 +296,8 @@ public class FLASStory implements StoryProcessor {
 		return ret;
 	}
 
-	private void doImplementation(ErrorResult er, Implements impl, List<Block> nested) {
-		FunctionParser fp = new FunctionParser();
+	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested) {
+		FunctionParser fp = new FunctionParser(s.scope);
 		List<MethodCaseDefn> cases = new ArrayList<MethodCaseDefn>();
 		for (Block b : nested) {
 			if (b.isComment())

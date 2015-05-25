@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.QualifiedNameToken;
@@ -17,7 +18,12 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
 public class IntroParser implements TryParsing {
+	private final Scope scope;
 
+	public IntroParser(Scope scope) {
+		this.scope = scope;
+	}
+	
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		if (!line.hasMore())
@@ -31,7 +37,7 @@ public class IntroParser implements TryParsing {
 			String pn = QualifiedNameToken.from(line);
 			if (line.hasMore())
 				return ErrorResult.oneMessage(line, "extra tokens at end of line");
-			return new PackageDefn(pn);
+			return new PackageDefn(scope, pn);
 		}
 		case "struct": {
 			String tn = TypeNameToken.from(line);

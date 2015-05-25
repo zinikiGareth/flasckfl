@@ -237,16 +237,15 @@ public class Rewriter {
 	private Object rewriteExpr(NamingContext scope, Object expr) {
 		if (expr instanceof ItemExpr) {
 			ItemExpr ie = (ItemExpr) expr;
+			System.out.println("Want to rewrite " + ie);
 			if (ie.tok.type == ExprToken.NUMBER)
 				return ie;
-			else if (ie.tok.type == ExprToken.IDENTIFIER)
+			else // id, symbol or punc
 				return new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, scope.resolve(ie.tok.text)));
-			else
-				return ie;  // symbol or punc
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			if (ae.fn instanceof ItemExpr && ((ItemExpr)ae.fn).tok.text.equals(".")) {
-				return new ApplyExpr(ae.fn, rewriteExpr(scope, ae.args.get(0)), ae.args.get(1));
+				return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "FLEval.field")), rewriteExpr(scope, ae.args.get(0)), ae.args.get(1));
 			}
 			List<Object> args = new ArrayList<Object>();
 			for (Object o : ae.args)

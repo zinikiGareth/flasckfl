@@ -33,9 +33,13 @@ public class Scope implements Iterable<Entry<String, Object>> {
 		}
 	}
 
-	private final Scope outer = null;
+	private final Scope outer;
 	private final Map<String, Map.Entry<String, Object>> defns = new TreeMap<String, Map.Entry<String, Object>>();
 
+	public Scope(Scope inside) {
+		this.outer = inside;
+	}
+	
 	public boolean contains(String key) {
 		return defns.containsKey(key);
 	}

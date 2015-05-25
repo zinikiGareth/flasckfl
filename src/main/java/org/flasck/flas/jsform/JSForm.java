@@ -75,6 +75,12 @@ public class JSForm {
 			ret.append(' ');
 	}
 
+	// TODO: replace this with an FLEVAL function that creates a package & returns it
+	// then we can store that in a variable and return that to the user
+	// the one thing would be what do we call the variable?  I think we just want
+	// to use the top level name & then it gives us that package and the others are
+	// nested inside it
+	@Deprecated
 	public static JSForm packageForm(String key) {
 		return new JSForm(key + " = function()").needBlock();
 	}
@@ -152,19 +158,31 @@ public class JSForm {
 
 	private static String closure(HSIEBlock closure) {
 		StringBuilder sb = new StringBuilder("FLEval.closure(");
-		String sep = "";
+		int pos = 0;
+		boolean isField = false;
 		for (HSIEBlock b : closure.nestedCommands()) {
 			PushCmd c = (PushCmd) b;
-			sb.append(sep);
-			if (c.fn != null)
-				sb.append(mapName(c.fn));
-			else if (c.ival != null)
+			if (pos > 0)
+				sb.append(", ");
+			if (c.fn != null) {
+				if (pos == 0) {
+					isField = "FLEval.field".equals(c.fn);
+					// handle ctor
+//					int idx = c.fn.lastIndexOf('.')+1;
+//					if (Character.isUpperCase(c.fn.charAt(idx)))
+//						sb.append("FLEval.makeNew, ");
+				}
+				if (isField && pos == 2)
+					sb.append("'" + c.fn + "'");
+				else
+					sb.append(mapName(c.fn));
+			} else if (c.ival != null)
 				sb.append(c.ival);
 			else if (c.var != null)
 				sb.append("v"+ c.var.idx);
 			else
 				throw new UtilException("What are you pushing? " + c);
-			sep = ", ";
+			pos++;
 		}
 		sb.append(")");
 		return sb.toString();
@@ -176,20 +194,6 @@ public class JSForm {
 			return "this."+fn;
 		else if (fn.startsWith("_handler"))
 			return "this"+fn.substring(8);
-		switch (fn) {
-		// Something like this will need to happen for builtin operators
-		case "-":
-			return "FLEval.minus";
-		case "+":
-			return "FLEval.plus";
-		case ".":
-			return "FLEval.field";
-			
-		// This is a hack
-		case "Cons":
-			return "List.cons";
-		default:
-			return fn;
-		}
+		return fn;
 	}
 }

@@ -20,7 +20,9 @@ public class MethodConvertor {
 		for (MethodCaseDefn mcd : m.cases) {
 			cases.add(new FunctionCaseDefn(card +"." +type+"."+mcd.intro.name, mcd.intro.args, convert(mcd.messages)));
 		}
-		return new FunctionDefinition(card +"." +type+"."+m.intro.name, m.intro.args.size(), cases);
+		// This feels very much hackishly the wrong place to put ".prototype."
+		// Should we have a MethodDefinition as well which we can generate differently?
+		return new FunctionDefinition(card +"." +type+".prototype."+m.intro.name, m.intro.args.size(), cases);
 	}
 
 	// TODO: this is more complicated than I make it appear here, but the proper thing requires typechecking
@@ -43,8 +45,13 @@ public class MethodConvertor {
 			// we want some kind of invoke message
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr fn = (ApplyExpr)root.fn;
-			if (!((ItemExpr)fn.fn).tok.text.equals(".")) throw new UtilException("unhandled case");
-			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Send")), fn.args.get(0), fn.args.get(1), asList(root.args));
+			if (!((ItemExpr)fn.fn).tok.text.equals("FLEval.field")) throw new UtilException("unhandled case");
+			if (((ItemExpr)fn.args.get(1)).tok.type != ExprToken.IDENTIFIER) throw new UtilException("unhandled case");
+			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Send")),
+					fn.args.get(0),
+					// TODO: I think this is actually a string
+					new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "'" + ((ItemExpr)fn.args.get(1)).tok.text + "'")),
+					asList(root.args));
 		}
 	}
 

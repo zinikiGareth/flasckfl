@@ -13,7 +13,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningNil() {
-		IntroParser p = new IntroParser();
+		IntroParser p = new IntroParser(null);
 		Object o = p.tryParsing(new Tokenizable("struct Nil"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);
@@ -24,7 +24,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningConsIntro() {
-		IntroParser p = new IntroParser();
+		IntroParser p = new IntroParser(null);
 		Object o = p.tryParsing(new Tokenizable("struct Cons A"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);

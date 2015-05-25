@@ -2,10 +2,11 @@ package org.flasck.flas.parsedForm;
 
 public class PackageDefn implements ContainsScope {
 	public final String name;
-	public final Scope scope = new Scope();
+	public final Scope scope;
 
-	public PackageDefn(String pn) {
+	public PackageDefn(Scope scope, String pn) {
 		this.name = pn;
+		this.scope = new Scope(scope);
 	}
 
 	@Override
