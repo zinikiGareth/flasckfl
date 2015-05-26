@@ -40,7 +40,11 @@ public class MethodConvertor {
 	private static Object convert(MethodMessage mm) {
 		if (mm.slot != null) {
 			// we want an assign message
-			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Assign")), new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, mm.slot.get(0))), mm.expr);
+			String slot = mm.slot.get(0);
+			if (!slot.startsWith("_card."))
+				throw new UtilException("slots must be in the card state");
+			slot = slot.substring(6);
+			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Assign")), new ItemExpr(new ExprToken(ExprToken.STRING, slot)), mm.expr);
 		} else {
 			// we want some kind of invoke message
 			ApplyExpr root = (ApplyExpr) mm.expr;

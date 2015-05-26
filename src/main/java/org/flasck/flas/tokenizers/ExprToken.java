@@ -5,6 +5,7 @@ public class ExprToken {
 	public static final int NUMBER = 2;
 	public static final int PUNC = 3;
 	public static final int SYMBOL = 4;
+	public static final int STRING = 5;
 	public final int type;
 	public final String text;
 

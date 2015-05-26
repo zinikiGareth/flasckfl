@@ -170,7 +170,7 @@ public class Rewriter {
 	}
 
 	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi) {
-		HandlerImplements ret = new HandlerImplements(cx.resolve(hi.type), hi.boundVars);
+		HandlerImplements ret = new HandlerImplements(cx.nested.resolve(hi.type), hi.boundVars);
 		NamingContext c2 = new HandlerContext(cx);
 		c2.defines.addAll(hi.boundVars);
 		rewrite(c2, ret, hi);
@@ -237,11 +237,13 @@ public class Rewriter {
 	private Object rewriteExpr(NamingContext scope, Object expr) {
 		if (expr instanceof ItemExpr) {
 			ItemExpr ie = (ItemExpr) expr;
-			System.out.println("Want to rewrite " + ie);
-			if (ie.tok.type == ExprToken.NUMBER)
+			System.out.println("Want to rewrite " + ie.tok);
+			if (ie.tok.type == ExprToken.NUMBER || ie.tok.type == ExprToken.STRING)
 				return ie;
-			else // id, symbol or punc
+			else if (ie.tok.type == ExprToken.IDENTIFIER || ie.tok.type == ExprToken.SYMBOL || ie.tok.type == ExprToken.PUNC)
 				return new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, scope.resolve(ie.tok.text)));
+			else
+				throw new UtilException("Cannot handle " + ie.tok);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			if (ae.fn instanceof ItemExpr && ((ItemExpr)ae.fn).tok.text.equals(".")) {

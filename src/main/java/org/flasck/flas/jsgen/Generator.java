@@ -63,7 +63,8 @@ public class Generator {
 		JSForm cf = JSForm.function(name, 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
-		cf.add(new JSForm("this._parentCard = v0.parentCard"));
+		cf.add(new JSForm("this._wrapper = v0.wrapper"));
+		cf.add(new JSForm("this._special = 'card'"));
 		if (card.state != null) {
 			for (StructField fd : card.state.fields) {
 				HSIEForm form = null;
@@ -102,16 +103,22 @@ public class Generator {
 		JSForm ret = JSForm.function(myname, 1);
 		ret.add(new JSForm("this._ctor = '" + myname + "'"));
 		ret.add(new JSForm("this._card = v0"));
+		ret.add(new JSForm("this._special = 'contract'"));
+		ret.add(new JSForm("this._contract = '" + ci.type + "'"));
+		ret.add(new JSForm("this._onchan = null"));
 		return ret;
 	}
 
-	public JSForm generateHandler(String name, HandlerImplements ci, int pos) {
+	public JSForm generateHandler(String name, HandlerImplements hi, int pos) {
 		String myname = name +"._H"+pos;
-		JSForm ret = JSForm.function(myname, ci.boundVars.size() + 1);
+		JSForm ret = JSForm.function(myname, hi.boundVars.size() + 1);
 		ret.add(new JSForm("this._ctor = '" + myname + "'"));
 		ret.add(new JSForm("this._card = v0"));
+		ret.add(new JSForm("this._special = 'handler'"));
+		ret.add(new JSForm("this._contract = '" + hi.type + "'"));
+		ret.add(new JSForm("this._onchan = null"));
 		int v = 1;
-		for (String s : ci.boundVars) 
+		for (String s : hi.boundVars) 
 			ret.add(new JSForm("this." + s + " = v" + v++));
 		return ret;
 	}
