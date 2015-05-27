@@ -1,2 +1,12 @@
 <h1>Building a Typechecker</h1>
-Not done yet :-)
+So, as per my understanding of the process, the first step is to create a TypeChecker class, which we'll put in a new package, org.flasck.flas.typechecker.  I don't think we're going to need a separate package for the "type checked form" because it can easily just fit inside the parsed form, if needed at all.  The initial definition of this class is just going to have a constructor, a typecheck method, and an <tt>ErrorResult</tt> to handle any errors.  To go with that, we obviously need a test case class.
+<p>
+Testing a function up front is just more complex than I want to try.  So first, let's deal with some expressions that (hopefully) are associated with known outputs.  Because of the way that he approaches his data model, PH sees everything as "an expression" and, interestingly enough, doesn't specifically deal with the "constant" case, which seems the simplest to me.
+<p>
+Since I'm dealing with a different data model, I'm going to introduce a new method to my TypeChecker class - <tt>tcExpr</tt> - which is responsible for attempting to determine the type of a single expression given everything it knows about the current state of the world.  I'm not sure that this is going to work out in the long run - it could be too big a deviation from the overall plan - but I'm sure we can refactor back to where we need to be.
+<p>
+In doing this, it becomes clear that we need a return type for <tt>tcExpr</tt>.  Since we're putting any errors we find in the <tt>ErrorResult</tt> object, the only real option here is the "valid" type of the expression - or null if typechecking fails.  It's easy enough to create "TypeExpr", but what goes into it?
+<p>
+PH discusses his representation of type expressions in PH9.2 and it seems easy enough to copy his definition and map it over into Java.  Basically, what he suggests is keeping track of types in much the way they are usually represented: a type "name" and a list of "type expression" arguments - for those types that need arguments.  There are then a couple of special types (which seem more common because of the presentation) for handling functions and tuples.  We will represent these by the types <tt>-></tt> and <tt>()</tt> to avoid clashing with any "normal" names; a type such as "Cons" would need one argument - the type of its <tt>head</tt> element.
+<p>
+There is also the option to typecheck something to just be a "type variable".  Since this is a completely different beast, we will use two different classes and have the tcExpr method return <tt>Object</tt>.  We can then wire up our typechecker to just directly say that any expression which has a numeric constant returns <tt>Number</tt> and voila! We're done. 
