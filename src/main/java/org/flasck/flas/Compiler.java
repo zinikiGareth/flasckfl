@@ -14,6 +14,7 @@ import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsgen.Generator;
+import org.flasck.flas.jsgen.TemplateRenderState;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -24,6 +25,7 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
@@ -119,6 +121,12 @@ public class Compiler {
 						forms.add(gen.generate(hsie));
 					}
 					pos++;
+				}
+				
+				if (card.template != null) {
+					TemplateRenderState trs = new TemplateRenderState(name);
+					for (TemplateLine tl : card.template)
+						forms.add(gen.generateTemplateLine(trs, tl));
 				}
 			} else
 				throw new UtilException("Need to handle " + x.getKey() + " of type " + val.getClass());

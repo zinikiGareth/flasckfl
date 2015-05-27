@@ -18,10 +18,16 @@ import org.zinutils.exceptions.UtilException;
 
 public class JSForm {
 	private final String text;
+	private String endWith = ";";
 	private List<JSForm> block = null;
 
 	public JSForm(String text) {
 		this.text = text;
+	}
+
+	public JSForm comma() {
+		endWith = ",";
+		return this;
 	}
 
 	public JSForm needBlock() {
@@ -72,7 +78,7 @@ public class JSForm {
 			indent(ret, ind);
 			ret.append("}\n");
 		} else
-			ret.append(";\n");
+			ret.append(endWith + "\n");
 	}
 	
 	private void indent(Writer ret, int ind) throws IOException {

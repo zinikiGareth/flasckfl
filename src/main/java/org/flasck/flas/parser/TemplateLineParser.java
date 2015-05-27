@@ -21,7 +21,8 @@ public class TemplateLineParser implements TryParsing{
 			if (tt.type == TemplateToken.COLON || tt.type == TemplateToken.HASH) {
 				line.reset(mark);
 				break;
-			}
+			} else if (tt.type == TemplateToken.IDENTIFIER)
+				contents.add(tt);
 		}
 		List<String> formats = new ArrayList<String>();
 		if (line.hasMore()) {

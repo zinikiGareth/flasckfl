@@ -11,6 +11,8 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -120,6 +122,25 @@ public class Generator {
 		int v = 1;
 		for (String s : hi.boundVars) 
 			ret.add(new JSForm("this." + s + " = v" + v++));
+		return ret;
+	}
+
+	/* We want something like this:
+
+test.ziniki.CounterCard.prototype._templateLine1 = {
+	tag: 'span',
+	render: function(doc, myblock) {
+		myblock.appendChild(doc.createTextNode(this.counter));
+	}
+}
+
+	 */
+	public JSForm generateTemplateLine(TemplateRenderState trs, TemplateLine tl) {
+		JSForm ret = new JSForm(trs.name + ".prototype._templateLine"+trs.lineNo() + " =").needBlock();
+		ret.add(new JSForm("tag: 'span'").comma());
+		JSForm render = new JSForm("render: function(doc, myblock)").strict();
+		ret.add(render);
+		render.add(new JSForm("myblock.appendChild(doc.createTextNode(this." + ((TemplateToken)tl.contents.get(0)).text + "))"));
 		return ret;
 	}
 
