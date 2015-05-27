@@ -9,10 +9,11 @@ import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.ListMap;
+import org.zinutils.utils.StringComparator;
 
 public class Option {
 	public final Var var;
-	public final ListMap<String, NestedBinds> ctorCases = new ListMap<String, NestedBinds>();
+	public final ListMap<String, NestedBinds> ctorCases = new ListMap<String, NestedBinds>(new StringComparator());
 	public final Set<SubstExpr> undecidedCases = new HashSet<SubstExpr>();
 
 	public Option(Var var) {
