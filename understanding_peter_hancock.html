@@ -48,9 +48,24 @@ class TypeChecker {
 Obviously, since my implementation is intended for Java, I'm not going to stray too far from that, but since none of the code presented here is actually being run through a compiler I'm (a) not going to stick too close to the syntax; and (b) there are probably going to be errors and typos creeping in.
 <p>
 This presentation is to be compared to the function <tt>tc</tt> in PH9.7.  The TypeChecker will be instantiated with a set of known types and expressions that will go into the "type environment" (I think it may actually need more work than this to get the appropriate struct and type definitions where we need them, e.g. for field access).   As the typechecker proceeds, it will add to that store of knowledge.  This is equivalent to the parameter <tt>gamma</tt>.
-<p>
+<p id='variableFactory'>
 In lieu of the (somewhat convoluted) system of a "supply of unique type variable names" (<tt>ns</tt>) necessary in a functional language, I have used a type variable factory to generate a stream of unique names as they are demanded by the type checker.
 <p>
 The <tt>workToDo</tt> variable is instantiated with the set of dependency-analyzed groups of function definitions, where a function is, at the very least, resolved to HSIE form before processing.  Each of these will be presented to the internal typechecking function in the same way as the expression <tt>e</tt> is used in PH9.7.
 <p>
 The function <tt>typecheck()</tt> is called exactly once to do all the work.  Any errors will be collected and stored in <tt>errors</tt>; no exceptions should be thrown.  The typechecker may cease functioning after the first block of function definitions which have any errors, although all the errors detected for that block will be returned.  The reason for this is simply that since any subsequent blocks may be dependent on this block, if this block fails to typecheck, those blocks will not be capable of being typechecked.  If this condition does not hold (i.e. they are independent, they just happen to be later), they should be typechecked and errors reported.
+<h2 id='typeSchemes'>Type Schemes</h2>
+In order to represent types, we can fairly simply store a value which is either just a type variable or is the name of a type together with its polymorphic arguments.  However, when dealing with variables inside an expression, the variables need to be associated with a <tt>type scheme</tt> for some reason.  This is described in PH9.5.  The idea (and name) seem to be basically to say that in some dimensions the type is constrained, and in others it is free.  We wish to be explicit about the ways in which it is constrained, and then to maintain a list of variables which are, specifically, free.  We will then "solve" (using unification) for those variables.
+<p>
+The approach is thus to have a structure of the following form:
+<pre>
+<blockquote>
+class TypeScheme {
+  List<TypeVar> schematicVars;
+  Object typeExpr;
+  // some method to return all the unknowns in typeExpr
+  // some method to apply a substitution to just the unknowns in typeExpr
+}
+</blockquote>
+</pre>
+On pages 172 and 173 he defines two functions (unknowns_scheme and sub_scheme) which are responsible for obtaining a list of all the unknown type variables in the expression and to apply a substitution to the scheme in such a way that only the unknowns are affected.  It seems reasonable that we would want both of these methods to be defined on the type scheme.  I believe the remainder of PH9.5 (9.5.3 about association lists) can be simply replaced with the word <tt>Map</tt>.
