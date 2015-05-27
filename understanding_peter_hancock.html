@@ -1,0 +1,56 @@
+<h1>Understanding Peter Hancock</h2>
+Two chapters of SLPJ's "The Implementation of Functional Programming Languages" (Chapters 8 and 9) were contributed by Peter Hancock on the topic of "Polymorphic Type Checking".  Chapter 8 is an "informal" presentation of the concepts, of which the first half is an approximately intuitive description of the topic; the second half, while not formal, digs deep into the mathematical concepts of the lambda calculus.  Chapter 9 presents a fully-functional type checker built in Miranda.
+<p>
+While constructing the type checker in Miranda demonstrates a desire to "eat his own dog food" (and moreover, in those days was considerably easier than doing so in, say, C), it adds a certain amount to the complexity of the overall approach due to the absence of state.  In the "modern era", it would be possible to use monads to compensate for this "deficiency", but obviously when implementing in an OO language such as Java or C# this is not a challenge.
+<p>
+Furthermore, while it is instructive to build up from the bottom, it is (to me) more intuitive to always break a problem down from the top.  The actual section on implementing the type checker is merely the final six pages of a 43 page exposition.  For me at least, the first few times I read this chapter, I had lost the plot before I reached section 9.7.
+<p>
+But given the facts that it <i>is</i> an explanation of the algorithm, and it provides working code, it seems an excellent place to start from, once the complexities are unravelled.  Furthermore, in part simply because of the detail, it is probably not possible to make sense of the explanation that I will now present except in the context of his work, which is <a href='http://research.microsoft.com/en-us/um/people/simonpj/papers/slpj-book-1987/slpj-book-1987.pdf'>available for download from SLPJ's site</a>.  That being the case, the one intent I have to be meticulous in detail is to reference his work by section number everywhere I take a step.
+<p>
+There are a few extra wrinkles that are introduced into this approach because of my personal tinkering.  I'm not sure what effects they will have yet, and since I am attempting to explain this to myself as much as to anybody else at the moment, we'll have to see what effects they end up having.
+<p>
+The main one is that - based on my own PhD thesis - I have deliberately designed the Flasck type system to not be strictly algebraic types, but to accept the notion that there is a single set of values which has a "Constructor" and a set of (tagged) values.  Numbers, booleans, characters and strings are somewhat "forced" into this system at the "code" level, although they are implemented natively in JavaScript.  But, for example, <tt>Nil</tt> and <tt>Cons</tt> are considered separate entities, but the type <tt>List</tt> is "later" introduced to unify the set of values which is in either of them.  The mathematical concept of non-evaluation (&bottom;) is (has to be) included in every type, but the notion of error values (which is often associated with &bottom; is hopefully excluded, although it will frequently end up being present in the function definitions.
+<p>
+The introduction of cards, state, methods and actors cannot, I feel, go unnoticed by the type system, although by dint of translating almost all of this away - or else externalizing it - I cannot actually see where the impact will be.
+<p>
+The object-oriented convention of field access - and tagged names - that I have used for "simplicity", while it should not have any effect on the overall validity of the program (it could always be translated away) may have impacts on some of the information we need to store and check.
+<p>
+Given that the context of this work is the Flasck compiler, for which is the full source code is available in this repository, the "input" to the type checker is a set of function definitions grouped (basically) into scopes.  At the point at which the type checker is invoked, the following steps have all been completed:
+<ul>
+<li>the lines have been grouped into blocks to indicate scope, and there were no alignment errors;
+<li>the individual lines have been parsed and categorized, and no syntax errors remain;
+<li>the function definitions have been grouped and HSIE transformation has taken place, with no definitional errors;
+<li>the methods inside a card have been converted to functions, again without error;
+<li>all the definitions have been grouped into scopes, with references being bound appropriately, and all references were found
+</ul>
+Upon entering the type checker, we are basically provided with two sets of information: a set of symbols for which there are already well-known types (because they are builtin or because they have been previously compiled as different modules and the type information has been stored) and a set of scopes containing struct, type, card and function definitions.  Although the card state is "thought of" by developers as being mutable, from the perspective of a functional language implementation, it is simply an immutable struct for the duration of one "iteration" of the event loop.
+<p>
+Thus, in comparison to PH9.1, I would define a program as a pair of a map of function names to type expressions for the externals, and a scope of new definitions.  Note that this scope encompasses both the concept of a list of definitions and the concept of nested <tt>LET</tt> and <tt>LETREC</tt> definitions from nested scopes.
+<p>
+The first step in the algorithm (see PH8.4) is to rework this form into a set of either standalone or grouped definitions which can be individually typechecked by doing dependency analysis across the definitions.  The idea is to try and identify the dependencies between definitions so that "more free" definitions can be processed and added to our "store of knowledge" before subsequent definitions are attempted.
+<p>
+It will be noted from the description of a program in PH9.1 that such a program is basically a single expression with all of its dependencies resolved through the use of <tt>LET</tt> and <tt>LETREC</tt> expressions.  I propose to take the same approach in a piecemeal fashion by saying that for every function definition we will say that this is "the program" with all its dependencies introduced in these forms.  However, we will, as much as possible, have tried to already resolve these.  I'm somewhat concerned about the extent to which this is possible, because of the comment in PH8.4 about doing type checking <b>before</b> lambda lifting, which would be a process which would remove some of these mutual dependencies.  I (currently) believe that the issue here is that lifting would cause some bound-in-the-same-context lambda variables to become unbound, which would change the set of programs which would be allowed to pass (see the long discussion in PH8.5.1, particularly starting near the bottom of p152).
+<p>
+<h2>The TypeChecker</h2>
+So, without further ado, I want to introduce the pseudo-code that I intend to use to describe my type checker:
+<blockquote>
+<pre>
+class TypeChecker {
+  ErrorResult errors;
+  Map<String, TypeScheme> environment;
+  VariableFactory tvFactory;
+  List<Set<Function>> workToDo;
+  
+  void typecheck();
+}
+</pre>
+</blockquote>
+Obviously, since my implementation is intended for Java, I'm not going to stray too far from that, but since none of the code presented here is actually being run through a compiler I'm (a) not going to stick too close to the syntax; and (b) there are probably going to be errors and typos creeping in.
+<p>
+This presentation is to be compared to the function <tt>tc</tt> in PH9.7.  The TypeChecker will be instantiated with a set of known types and expressions that will go into the "type environment" (I think it may actually need more work than this to get the appropriate struct and type definitions where we need them, e.g. for field access).   As the typechecker proceeds, it will add to that store of knowledge.  This is equivalent to the parameter <tt>gamma</tt>.
+<p>
+In lieu of the (somewhat convoluted) system of a "supply of unique type variable names" (<tt>ns</tt>) necessary in a functional language, I have used a type variable factory to generate a stream of unique names as they are demanded by the type checker.
+<p>
+The <tt>workToDo</tt> variable is instantiated with the set of dependency-analyzed groups of function definitions, where a function is, at the very least, resolved to HSIE form before processing.  Each of these will be presented to the internal typechecking function in the same way as the expression <tt>e</tt> is used in PH9.7.
+<p>
+The function <tt>typecheck()</tt> is called exactly once to do all the work.  Any errors will be collected and stored in <tt>errors</tt>; no exceptions should be thrown.  The typechecker may cease functioning after the first block of function definitions which have any errors, although all the errors detected for that block will be returned.  The reason for this is simply that since any subsequent blocks may be dependent on this block, if this block fails to typecheck, those blocks will not be capable of being typechecked.  If this condition does not hold (i.e. they are independent, they just happen to be later), they should be typechecked and errors reported.

@@ -15,8 +15,10 @@ So far, only the case for normal "functions" has been handled in the <a href='hs
 <p>
 There needs to be a phase which then resolves the dependency graph.  Each function knows what objects it depends on, but these need to be ordered so that operations such as type checking can work in an orderly fashion.
 <p>
-Still to come is the type checker, which is supposed to operate on this virtual form.
+With this virtual form in place, we are in a position to do type checking.  Our type checking algorithm is based on the "standard" inference engine first fully described by Hindley and Milner in 1978, but our version owes much more to the detailed implementation given by Peter Hancock in SLPJ's seminal work "The Implementation of Functional Programming Languages".  Since the original text is rather formal, significantly mathematical and very "computer science-y", it is somewhat translated in the section <a href='understanding_peter_hancock.html'>Understanding Peter Hancock</a>. 
 <p>
-Still to come is the code generator, which takes the virtual form, generates JavaScript for the functions, and defines all the necessary setup logic to connect it to the broader Card Environment.
+With that understanding in place, I intend to go back and <a href='building_a_typechecker.html'>build a typechecker using TDD</a>, building up from the simplest cases (such as a simple, standalone lambda function) to the more complex cases (such as <tt>LETREC</tt>s).
+<p>
+With the necessary annotations from the type checker, it is then possible to <a href='codegen.html'>generate actual JavaScript</a> for the functions and cards, and connect to the broader card environment.
 <p>
 The JavaScript runtime is a separate project, see <a href='http://github.com/zinikiGareth/flasjs'><tt>http://github.com/zinikiGareth/flasjs</tt></a>. 
