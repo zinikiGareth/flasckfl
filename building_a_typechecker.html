@@ -33,4 +33,68 @@ I think the simple answer is that we just throw it away.  I think we need to kno
 <p>
 Which brings me on to the other thing that's been bothering me.  I'm very concerned about the union types (e.g. <tt>List = Nil|Cons</tt>).  It's not clear if we can distinguish such a beast from a type error (this appears to be <tt>Nil</tt> here and <tt>Cons</tt> there - can we unify that).  Having studied <tt>TypeExpr</tt> in a bit more detail, it seems reasonable that we could <i>represent</i> a union type by the constructor <tt>||</tt> across a set of types.  But that still leaves the question of how to unify them.  I'm not even really sure where in the algorithm this pops up.  One possibility would be to "always" allow it, but I think that would allow too many invalid programs; one possibility would be to allow it whenever there was a suitable pre-defined union type (such as <tt>List</tt>), but I think that would too often devolve to <tt>Any</tt>; one possibility would be only allow it if there was a type which exactly matched the union when it was fully resolved at a "top level", but contrariwise I think that might have too many false negatives.
 <h2>PHI</h2>
-So, that leads us to what the appropriate return value should be from typechecking.  It seems intuitive to me that the correct thing to get back is a type, at least from an expression.  But somewhere in between, we have a logical deduction to make.  We start off by saying "we know what the type is, it is T7 or whatever".  We then have to solve this set of simultaneous equations to deduce what we mean by T7.  This is done in part of a larger computation of this magical function PHI.  This takes me back to trying to understand Mr. Hancock more thoroughly again.
+So, that leads us to what the appropriate return value should be from typechecking.  It seems intuitive to me that the correct thing to get back is a type, at least from an expression.  But somewhere in between, we have a logical deduction to make.  We start off by saying "we know what the type is, it is T7 or whatever".  We then have to solve this set of simultaneous equations to deduce what we mean by T7.  This is done in part of a larger computation of this magical function PHI.  This takes me back to <a href='understanding_peter_hancock.html#phi'>trying to understand Mr. Hancock more thoroughly again</a>.
+<p>
+So, in light of that exploration, what we're basically saying is that the result of typechecking an expression is two items: a <tt>PhiSolution</tt> that contains a mapping from type variables to type expressions and the exact type of that sub-expression.  Given what I think I understand about the roles of these two, I propose to return the type of the expression and to use an accumulator for the <tt>PhiSolution</tt>.  I think the important thing is to make sure that at all times we are passing around expressions that have had the "existing" solution applied to them and all the variables mapped by the solution removed.
+<p>
+That appears to be sufficient to typecheck both of these functions:
+<blockquote>
+<pre>
+simple x = 1
+id x = x
+</pre>
+</blockquote>
+<h2>Function Application</h2>
+The next task is to try and apply a function.  I think in order to do this, I want to put a "pre-defined" function into the scope with an already established type.  I'm not quite sure how this shows up in Hancock's algorithm, but he starts his sentence with the phrase "let's assume that we already know the types of e1 and e2".  So if we know that we have a function which does something like <tt>+1 :: Number->Number</tt> and a number, say <tt>1</tt>, then when we do the application we should end up with <tt>Number</tt>.
+<p>
+After <a href='understanding_peter_hancock.html#application'>further review and investigation</a>, it seems like this assumption is not as clear cut as it would seem.  What it basically means is that the first step is to determine an "expression" for the types of both Tf and Tx.  But, as we look at this recursively, we see we get to a point where we want to typecheck "f", which is a constant.  When this happens, we can return the type for it from our existing pool of such things.
+<p>
+So our next test case should be one that if we put something in the "externals" pool and then we have a function which returns that, can we see that we get the right type back?
+<h2>Returning to random thoughts</h2>
+Having thought about these things some more, it seems like the SWITCH/BIND thing is very much like function application and lambda.
+<p>
+That is, it seems like SWITCH is very much like a function <tt>s :: T0 -> T1</tt> where T0 is the type of the variable being switched and <tt>T1</tt> is the desired type (e.g. <tt>Cons</tt>).  And <tt>BIND</tt> is much like a lambda expression, in that it binds a variable in the nested statement.
+<p>
+All the switch cases are then grouped together in some way so that all their (result) types get unified together.
+<p>
+On the subject of which, I now propose a solution to the other problem.  The type unification seems to happen at the last line of Hancock's algorithm (in which he raises an error because you wouldn't be able to unify <tt>Nil</tt> with <tt>Cons A</tt>).  We can return a union type here <tt>|| (Nil, Cons A)</tt>.  When we reach the top level of any given function, we can then see if one of two cases holds:
+<ul>
+<li>This is exactly a well-recognized type;
+<li>The user has provided an explicit type definition which happens to exactly match this definition
+</ul>
+The first handles the most common case (<tt>List</tt>), many similar cases (i.e. any with exactly two sub-types, since if only one is specified there is no union; and if both then it will be an exact match) and probably many more; while the second case catches all the esoteric cases.
+<h2>Emerging API</h2>
+I said I'd flip flop on the API.  I'm increasingly feeling that what I want to do is have the <tt>Scope</tt> and dependency analysis be outside of the typechecker.  This could just be an artifact of TDD, but it feels like the constructor is getting awkward.  So, instead I propose a simple, default constructor and the following two methods:
+<blockquote>
+<pre>
+void addPredefined(String symbol, type_expression type);
+void typecheck(Set<FunctionDefinition> functions);
+</pre>
+</blockquote>
+I'm thinking that the second one cannot usefully return anything and the process of typechecking will update the internal state so that it is possible to ask for the type of any given symbol after the typechecking is complete.
+<p>
+I still think it is necessary for the typechecker to be able to handle multiple function definitions at once in order to handle mutual recursion.  I think this grouping is just like grouping the cases for a function and much like a <tt>LETREC</tt>: it involves us unifying a set of things that we can build up individually.
+<h2>OK, function application - let's do it</h2>
+Let's start by creating a new test case (<tt>testWeCanTypecheckSimpleFunctionApplication</tt>).  This is going to be the thing that forces the API change described above, so there will be a bit of a refactoring that goes along with it.  What we're going to do is to try and apply the function <tt>plus1</tt> (which is intended to be the curried function <tt>(_+1)</tt> of type <tt>Number->Number</tt>) to the number <tt>1</tt>.
+<p>
+From our investigation, it seems that actually the first thing we want to do is to be able to treat that as a constant.  So I'm briefly going to insert another test case (<tt>testExternalPlus1HasExpectedType</tt>) to check that.  Yeah, and, as we might expect, we haven't considered the case that we might return an identifier.  Let's do that.
+<p>
+OK, that wasn't too hard.  Let's get back to the real matter at hand.
+<p>
+The first step in checking function application is to try and determine the types of the items at hand.  Now, we have a closure which has a set of entries (for now - simple function application - we're just going to consider two), the first of which is the function and the other are the arguments.  So let's determine their types.
+<p>
+OK, fair enough.  The next step is to create the artificial type Tx->T? where Tx is the type of the argument and T? is a newly minted type variable.  And now we need to unify them.  Ho, ho!
+<h2>Implementing the unification algorithm</h2>
+As presented in <a href='understanding_peter_hancock.html#unification'>Hancock's work</a>, unification is a process of extending a substitution function <tt>phi</tt> which is the solution of the set of type expressions. It thus makes sense to me to make our unification algorithm be a stateful method on the <tt>PhiSolution</tt> object.  That's fairly easy to create.
+<p>
+As described, there are three cases.  The case for unifying a two type expressions is fairly straightforward and requires the nested method unifyl, so let's do that first.  OK.
+<p>
+Now, the case for unifying two variables.  This requires the method <tt>extend</tt>, so let's implement that.  The three cases are simple enough when written in Java, so let's call that easy as well (it does require adding <tt>containsVar</tt> to the <tt>TypeExpr</tt> class).  Calling it isn't too hard either; we need to call <tt>subst</tt> on the second var and then pass the var and the substituted expression to extend.  There's no need to return anything because this is just <tt>unify</tt>.
+<p>
+Finally, the case for a variable and a type expression.  We need to apply <tt>subst</tt> on the type expression, <tt>meaning</tt> on the variable, and then unify the two results.
+<p>
+OK, I think that's unification done.
+<h2>Back to checking function application</h2>
+Having done unification, we now have a "new" (extended) solution <tt>phi'</tt> which we want to apply to our freshly introduced variable T? and return that.
+<p>
+Uh, yes, that's it.

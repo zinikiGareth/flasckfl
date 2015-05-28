@@ -69,3 +69,43 @@ class TypeScheme {
 </blockquote>
 </pre>
 On pages 172 and 173 he defines two functions (unknowns_scheme and sub_scheme) which are responsible for obtaining a list of all the unknown type variables in the expression and to apply a substitution to the scheme in such a way that only the unknowns are affected.  It seems reasonable that we would want both of these methods to be defined on the type scheme.  I believe the remainder of PH9.5 (9.5.3 about association lists) can be simply replaced with the word <tt>Map</tt>.
+<h2 id='phi'>PHI and Unification</h2>
+It seems to me that quite a bit of time is given to explaining and working through a very mathematical version of the Unification Algorithm in Section 9.4.  When I first read this, I thought it <i>was</i> the type checking algorithm.  But, in fact, I think it is a very long-winded way of discussing the fact that it's possible to work out the solution to a system of equations one step at a time.
+<p>
+The use of a function <tt>phi</tt> to do all the hard work appears to be just a convenience for describing what amounts to a mapping from type variables to types.  This appears to be approximately equivalent to constructing a <tt>Map</tt> to do the same thing.  In short, <tt>phi</tt> <i>is</i> the solution to the problem of unifying a system of equations.
+<p>
+The unification algorithm itself seems to progress one step at a time, unifying two equations at a time.  The only places in the whole typechecking algorithm where it appears to actually be invoked is buried in function application to try and unify the types of <tt>(A->B)</tt> and <tt>C</tt> in the expression <tt>(f x)</tt>; and during the processing of letrecs where it appears to be responsible for trying to bring together a set of equations.  This is actually done by using the function <tt>unifyl</tt> (p170), which takes a list of equations and simply does a <tt>foldr</tt> over them starting with the initial value being a pre-determined "solution" or <tt>phi</tt>.
+<p>
+It seems reasonable to me to define such a solution to a set of equations as a new class <tt>Solution</tt>, but to keep the link to the original text, for now at least (it may disappear in a refactoring), I think I'm going to call it <tt>PhiSolution</tt>.  Each element of the solution is a "substitution" which is basically a <tt>Map.Entry</tt> from type variables to type expressions.  I think it <i>probably</i> also makes sense to put methods such as <tt>extend</tt>, <tt>unify</tt> and <tt>unifyl</tt> on the <tt>PhiSolution</tt> class.
+<h2 id='application'>Type Checking Application</h2>
+In section 9.7.3, PH discusses how to type check application.  This only covers the case of one variable functions, but all other cases can be reduced to this case, so it's not that big of a deal.  The basic assumption is that it is <b>already known</b> what the types of the two parts of the apply node are.  That is, it is (f x) where f :: Tf and x :: Tx.  Thus we can say that Tf = Tx -> T? and then we can unify Tf and (Tx -> T?).  There appear to be about three steps in this process.
+<p>
+Given that we don't actually know what the types of f and x are, the first thing to do is to apply the type checking algorithm recursively to each of them.
+<p>
+Assuming all of that goes well, we next apply the unification algorithm based on the existing solution phi and the types Tf and (Tx -> T?) where T? is a new type variable.
+<p>
+Finally, if that all goes well, we return the result of applying the substitution phi to the newly introducted type variable T?, since this is the return type, i.e. the type of the application, which is what we want.
+<p>
+Can we directly expand this to a multi-application scenario easily, or is it better to just break it down per application?
+<p>
+I think it's probably easiest to do it one step at a time, but to do it WITHIN a single block.
+<p>
+Finally, the way in which we store apply nodes is in <tt>Closure</tt> objects.  The closure object consists of a set of values, each of which is a variable or a constant.  One possible value for a variable is another closure, in which case that needs to be evaluated.  I'm not quite sure where that leaves us.  But hopefully it will all come out in the wash.
+<h2>Unification Revisited</h2>
+Above in the discussion of the function <tt>phi</tt>, we briefly touched on the unification algorithm presented in PH9.4.2.  It's time to go back and look at that in more detail.  Remember that the first page of that section dealt with the construction of <tt>phi</tt> and substitutions, which we've already dealt with.  p169 mainly deals with the helper function <tt>extend</tt>, which we'll return to in a moment.
+<p>
+Jumping forward to p170, the unification algorithm is presented as three cases, but the second is basically the same as the first (indeed, it calls the first with the arguments in the reversed order), while the first case seems to me to really be two separate cases.
+<p>
+So, this is how I read the unification algorithm.  Look at the two type expressions that come in and then:
+<ul>
+<li>If both are type variables, call the "extend" function (presented before in PH; discussed below);
+<li>If one is a type variable and the other is a more solid type (PH cases 1b and 2) then get the current type expr associated with the type variable, apply phi to the type expression and then (attempt to) unify the two results;
+<li>If both are solid type expressions, then check that they have the same "basic" type (e.g. both <tt>List</tt>) and thus by implication have the same number of type variables, and then unify the lists of type variables (using the helper method <tt>unifyl</tt>).
+</ul>
+<tt>unifyl</tt> is really nothing special: it just keeps repeatedly calling <tt>unify</tt> with an ever-updating function <tt>phi</tt> and the pairs of type expressions from the two lists.
+The <tt>extend</tt> function (presented on p169) is used to try and bind an additional variable to the solution.  There are three basic cases for this function:
+<ul>
+<li>We are trying to bind the variable Tn to be the same variable Tn.  This is kind of obvious, so we do nothing.
+<li>We are trying to bind the variable Tn to be an expression which contains Tn.  This is a circularity and so we report an error.
+<li>In any other case, Tn == expr is a solution for one of the variables, so we add it.
+</ul>
