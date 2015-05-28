@@ -102,3 +102,23 @@ Uh, yes, that's it.
 Moving on to multi-variable function application.  We want to proceed from the left and apply the "current" function to the next argument until we're done.  Let's create a new test case for plus applied to two arguments.  As expected, that fails, and with a reasonable complaint: just applying + to the first argument returns a curried function (<tt>2+_</tt> in this case).  Let's fix that.
 <p>
 First I'm going to refactor 90% of what we just did into <tt>checkSingleApplication</tt>.  Then we can easily call this with the first pair of arguments and then repeatedly call it with the result (which we "assume" to be a curried function) and the next argument.  Either this will fail at some point (returning null) or we will succeed in obtaining the "real type". Simples.
+<h2>LET expressions</h2>
+As noted in <a href='understanding_peter_hancock.html#let'>my commentary</a>, I don't really use <tt>LET</tt>s at all.  Instead, I'm interpreting this as meaning that it is possible to recover type information from the store of knowledge (which links back to the complementary question above about when we get this knowledge).  But what I didn't do before was to allocate fresh variables.  So let's try something very similar to the example from PH:
+<blockquote>
+<pre>
+f = id (decode (id 32))
+</pre>
+</blockquote>
+This is similar but easier, since we do not currently handle character constants.  The typechecking challenge is the same.
+<p>
+Interestingly enough, with the test in place (<tt>testWeCanUseIDTwiceWithDifferentInstantiationsOfItsSchematicVar</tt>) the typechecking seems to proceed OK but then returns a schematic variable at the end, suggesting that some level of typechecking or unification has not been done.  First back to Mr. Hancock to see if there's a step I've missed, then look into the code.
+<p>
+So this seems to depend on a method <tt>sub_te</tt> which in turn depends on <tt>sub_scheme</tt> (p173) which in turn depends on <tt>exclude</tt> (p173).  So let's implement those.  <tt>exclude</tt> goes on <tt>PhiSolution</tt> and (I think) returns a new, temporary version of <tt>phi</tt>.  <tt>sub_scheme</tt> goes on <tt>TypeScheme</tt> and pretty definitely returns a new object.  The "obvious" definition of <tt>sub_te</tt> (p175) presumably wants to go on <tt>TypeEnvironment</tt>.  For good measure, I implemented it in "the obvious way".  Having done that, I'm not sure I'm going to use any of it (at least not right now).
+<p>
+What I'm going to try and do is just to introduce the name with a new set of variables replacing the old ones and see if that does the trick.  Basically, this is a question of implementing a method <tt>freshVarsIn</tt> in the type checker which <i>consistently</i> replaces the current schematic variables with new ones.
+<p>
+Although this is obviously a theoretical improvement, it still ends up with the wrong answer, but I think the fundamental problem is that we have unified tv_1 with tv_5 and tv_1 with "Char" but have simply not returned the right thing, possibly just as simple as not applying phi to the result.
+<p>
+Actually, not <i>quite</i> that simple.  The problem was in mapping PH's three cases of unification to my three, I'd failed to realize that I need to apply <tt>phi</tt> to the var in case 1 <i>before<i> doing extend.  As it happened, with <tt>tv_1</tt> already having a value, I needed to select case 1b, not case 1a.
+<p>
+Assuming that I didn't so dramatically cheat that it worked for the wrong reasons (and looking at the tracing, that doesn't appear to be the case), that was not too bad.  Basically, that just leaves us with <tt>LETREC</tt> and handling pattern matching (<tt>SWITCH</tt> and <tt>BIND</tt>).  

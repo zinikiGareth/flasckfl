@@ -109,3 +109,11 @@ The <tt>extend</tt> function (presented on p169) is used to try and bind an addi
 <li>We are trying to bind the variable Tn to be an expression which contains Tn.  This is a circularity and so we report an error.
 <li>In any other case, Tn == expr is a solution for one of the variables, so we add it.
 </ul>
+<h2 id='let'>Typechecking LET</h2>
+So, I don't think about programs as having <tt>LET</tt> and <tt>LETREC</tt> in them.  So I'm going to go out on a limb (and hopefully it won't break!) and say that <tt>LET x e</tt> should be taken to mean "and you already have a definition for x which is e" and, more importantly, there is already knowledge about the <i>type</i> of <tt>e</tt>.
+<p>
+Now, we have already seen in laying our hands on a function definition, that we need to be able to resolve this; the tricky thing is making sure that we can type check things correctly even in the face of a schematic definition popping up multiple times in different contexts and thus with different instantiated types.  This is discussed in the "informal" presentation in PH8.5.3 and more clearly exampled on p144 (PH8.2.1) with <tt>id (code (id 'a'))</tt> in which <tt>id</tt> clearly has both the type <tt>int->int</tt> and <tt>char->char</tt> so that we need to make sure that we do an appropriate substitution of <tt>A</tt> in the "formal" type <tt>A->A</tt>.
+<p>
+The "first step" is to typecheck all the sub-expressions <tt>es</tt>, rendered <tt>tcl gamma ns1 es</tt>.  Because of the different way we have ordered this, we only have one at a time; because we already have them "in stock" type checking them is just a question of looking the type up.
+<p>
+The next step is to apply <tt>tclet1</tt> to the "actual" expression, which of course, we don't really have.  This repeated mismatch is starting to make me think that maybe I should take advantage of the fact that I do know up front which the externals are and rewrite in favor of using <tt>LET</tt>.  But let's keep going for now.  Basically, we seem to want to get a new, substituted type environment under the current <tt>phi</tt> and then use that to add a bunch of declarations for the variables.
