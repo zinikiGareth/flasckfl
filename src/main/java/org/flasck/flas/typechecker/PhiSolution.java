@@ -1,7 +1,10 @@
 package org.flasck.flas.typechecker;
 
+import java.nio.MappedByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.zinutils.exceptions.UtilException;
 
 public class PhiSolution {
 	private final Map<TypeVar, Object> phi = new HashMap<TypeVar, Object>();
@@ -13,16 +16,18 @@ public class PhiSolution {
 			return tv;
 	}
 
-	/*
-	public Object subst(TypeVar tv, Object in) {
-		if (!phi.containsKey(tv))
-			return in;
-		
-		return doSubst(tv, phi.get(tv), in);
+	public void bind(TypeVar tv, Object val) {
+		phi.put(tv, val);
 	}
 
-	private Object doSubst(TypeVar tv, Object typeExpr, Object in) {
-		return null;
+	public Object subst(Object in) {
+		if (in instanceof TypeVar) {
+			TypeVar tv = (TypeVar) in;
+			if (phi.containsKey(tv))
+				return phi.get(tv);
+			else
+				return tv;
+		}
+		throw new UtilException("Missing cases");
 	}
-	*/
 }

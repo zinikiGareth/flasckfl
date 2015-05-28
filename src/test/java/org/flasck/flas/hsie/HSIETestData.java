@@ -37,6 +37,13 @@ public class HSIETestData {
 		);
 	}
 
+	public static HSIEForm idFn() {
+		ArrayList<String> externals = new ArrayList<String>();
+		return thingy("simple", 1, 0, externals,
+			"RETURN var 0"
+		);
+	}
+
 	public static HSIEForm fib() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("+");

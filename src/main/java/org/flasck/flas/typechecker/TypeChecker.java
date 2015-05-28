@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.ErrorResult;
-import org.flasck.flas.parsedForm.ItemExpr;
-import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
+import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker {
 	public final ErrorResult errors = new ErrorResult();
@@ -38,7 +37,7 @@ public class TypeChecker {
 		}
 		System.out.println(gamma);
 		// what we need to do is to apply tcExpr to the right hand side with the new gamma
-		Object rhs = checkBlock(hsie);
+		Object rhs = checkBlock(phi, gamma, hsie);
 		if (rhs == null)
 			return null;
 		// then we need to build an expr tv0 -> tv1 -> tv2 -> E with all the vars substituted
@@ -47,20 +46,29 @@ public class TypeChecker {
 		return rhs;
 	}
 
-	private Object checkBlock(HSIEBlock hsie) {
+	private Object checkBlock(PhiSolution phi, TypeEnvironment gamma, HSIEBlock hsie) {
 		for (HSIEBlock o : hsie.nestedCommands()) {
-			// Obviously, we should only actually return when we're done, but for now this will work while I figure it out ...
-			return tcExpr(o);
+			if (o instanceof ReturnCmd)
+				return tcExpr(phi, gamma, o);
+			throw new UtilException("Missing cases");
 		}
-		return null;
+		throw new UtilException("We shouldn't get here");
 	}
 
-	Object tcExpr(HSIEBlock cmd) {
+	Object tcExpr(PhiSolution phi, TypeEnvironment gamma, HSIEBlock cmd) {
 		if (cmd instanceof ReturnCmd) {
 			ReturnCmd r = (ReturnCmd) cmd;
 			if (r.ival != null)
 				return new TypeExpr("Number");
+			if (r.var != null) {
+				// phi is not updated
+				TypeScheme old = gamma.valueOf(r.var);
+				PhiSolution temp = new PhiSolution();
+				for (TypeVar tv : old.schematicVars)
+					temp.bind(tv, factory.next());
+				return temp.subst(old.typeExpr);
+			}
 		}
-		return null;
+		throw new UtilException("Missing cases");
 	}
 }
