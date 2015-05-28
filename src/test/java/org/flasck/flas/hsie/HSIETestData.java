@@ -114,6 +114,26 @@ public class HSIETestData {
 		);
 	}
 
+
+	public static HSIEForm returnPlus1() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("plus1");
+		return thingy("f", 0, 1, externals,
+			"RETURN plus1"
+		);
+	}
+
+	public static HSIEForm plus1Of1() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("plus1");
+		return thingy("f", 0, 1, externals,
+			"RETURN var 0",
+			"CLOSURE 0", "{",
+				"plus1", "1",
+			"}"
+		);
+	}
+
 	private static HSIEForm thingy(String name, int nformal, int nbound, List<String> dependsOn, String... commands) {
 		HSIEForm ret = new HSIEForm(name, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;

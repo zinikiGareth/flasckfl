@@ -1,27 +1,18 @@
 package org.flasck.flas.vcode.hsieForm;
 
 
-public class PushCmd extends HSIEBlock {
-	public final Var var;
-	public final Integer ival;
-	public final String fn;
+public class PushCmd extends PushReturn {
 
 	public PushCmd(Var var) {
-		this.var = var;
-		this.ival = null;
-		this.fn = null;
+		super(var);
 	}
 
 	public PushCmd(int i) {
-		this.var = null;
-		this.ival = i;
-		this.fn = null;
+		super(i);
 	}
 
 	public PushCmd(String fn) {
-		this.var = null;
-		this.ival = null;
-		this.fn = fn;
+		super(fn);
 	}
 
 	@Override

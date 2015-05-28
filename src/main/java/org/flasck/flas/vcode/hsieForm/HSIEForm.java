@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.zinutils.exceptions.UtilException;
+
 public class HSIEForm extends HSIEBlock {
 	public final String fnName;
 	public final int nformal;

@@ -21,4 +21,20 @@ public class TypeExpr {
 		for (Object o : exprs)
 			args.add(o);
 	}
+	
+	@Override
+	public String toString() {
+		return "TE["+type+"("+args+")]";
+	}
+
+	public boolean containsVar(TypeVar tv) {
+		boolean ret = false;
+		for (Object o : args) {
+			if (o instanceof TypeVar && tv.equals(o))
+				return true;
+			else if (o instanceof TypeExpr)
+				ret |= ((TypeExpr) o).containsVar(tv);
+		}
+		return ret;
+	}
 }

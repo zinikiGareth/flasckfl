@@ -1,31 +1,40 @@
 package org.flasck.flas.typechecker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.flasck.flas.ErrorResult;
+import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker {
 	public final ErrorResult errors = new ErrorResult();
 	private final VariableFactory factory = new VariableFactory();
-	private final List<HSIEForm> functionsToCheck;
+	private final Map<String, Object> knowledge = new HashMap<String, Object>();
 
-	// TODO: I think this wants to become yet more complex: List<Set<HSIE>> to reflect the dependency management and simultaneous functions
-	public TypeChecker(List<HSIEForm> functionsToCheck) {
-		this.functionsToCheck = functionsToCheck;
+	public TypeChecker() {
 	}
 	
-	public void typecheck() {
+	public void addExternal(String name, Object type) {
+		knowledge.put(name, type);
+	}
+
+	public void typecheck(Set<HSIEForm> functionsToCheck) {
 		TypeEnvironment gamma = new TypeEnvironment(); // should be based on everything we already know
-		PhiSolution phi = new PhiSolution();
+		PhiSolution phi = new PhiSolution(errors);
 		for (HSIEForm hsie : functionsToCheck) {
 			// This is the alleged type of the function, which, if non-null, we should store
 			Object te = checkHSIE(phi, gamma, hsie);
 		}
+		// TODO: I think we now need to do some level of unification on the remaining solution
+		// TODO: Then we probably need to re-apply the solution to all of the types we just had
 	}
 
 	Object checkHSIE(PhiSolution phi, TypeEnvironment gamma, HSIEForm hsie) {
@@ -37,7 +46,7 @@ public class TypeChecker {
 		}
 		System.out.println(gamma);
 		// what we need to do is to apply tcExpr to the right hand side with the new gamma
-		Object rhs = checkBlock(phi, gamma, hsie);
+		Object rhs = checkBlock(phi, gamma, hsie, hsie);
 		if (rhs == null)
 			return null;
 		// then we need to build an expr tv0 -> tv1 -> tv2 -> E with all the vars substituted
@@ -46,29 +55,61 @@ public class TypeChecker {
 		return rhs;
 	}
 
-	private Object checkBlock(PhiSolution phi, TypeEnvironment gamma, HSIEBlock hsie) {
+	private Object checkBlock(PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock hsie) {
 		for (HSIEBlock o : hsie.nestedCommands()) {
 			if (o instanceof ReturnCmd)
-				return tcExpr(phi, gamma, o);
+				return checkExpr(phi, gamma, form, o);
 			throw new UtilException("Missing cases");
 		}
 		throw new UtilException("We shouldn't get here");
 	}
 
-	Object tcExpr(PhiSolution phi, TypeEnvironment gamma, HSIEBlock cmd) {
-		if (cmd instanceof ReturnCmd) {
-			ReturnCmd r = (ReturnCmd) cmd;
+	Object checkExpr(PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock cmd) {
+		if (cmd instanceof PushReturn) {
+			PushReturn r = (PushReturn) cmd;
 			if (r.ival != null)
 				return new TypeExpr("Number");
-			if (r.var != null) {
+			else if (r.var != null) {
+				HSIEBlock c = form.getClosure(r.var);
+				if (c == null) {
+					// phi is not updated
+					// assume it must be a bound var; we will fail to get the existing type scheme if not
+					TypeScheme old = gamma.valueOf(r.var);
+					PhiSolution temp = new PhiSolution(errors);
+					for (TypeVar tv : old.schematicVars)
+						temp.bind(tv, factory.next());
+					return temp.subst(old.typeExpr);
+				} else {
+					// c is a closure, which must be a function application
+					List<Object> args = new ArrayList<Object>();
+					for (HSIEBlock b : c.nestedCommands()) {
+						Object te = checkExpr(phi, gamma, form, b);
+						args.add(te);
+					}
+					Object Tf = args.get(0);
+					Object Tx = args.get(1);
+					TypeVar Tr = factory.next();
+					TypeExpr Tf2 = new TypeExpr("->", Tx, Tr);
+					phi.unify(Tf, Tf2);
+					if (errors.hasErrors())
+						return null;
+					return phi.meaning(Tr);
+				}
+			} else if (r.fn != null) {
 				// phi is not updated
-				TypeScheme old = gamma.valueOf(r.var);
-				PhiSolution temp = new PhiSolution();
-				for (TypeVar tv : old.schematicVars)
-					temp.bind(tv, factory.next());
-				return temp.subst(old.typeExpr);
-			}
-		}
-		throw new UtilException("Missing cases");
+				// I am going to say that by getting here, we know that it must be an external
+				// all lambdas should be variables by now
+				Object te = knowledge.get(r.fn);
+				if (te == null) {
+					// This is probably a failure on our part rather than user error
+					// We should not be able to get here if r.fn is not already an external which has been resolved
+					errors.message((Block)null, "There is no type for " + r.fn); // We need some way to report error location
+					return null;
+				} else
+					return te;
+			} else
+				throw new UtilException("What are you returning?");
+		} else
+			throw new UtilException("Missing cases");
 	}
 }
