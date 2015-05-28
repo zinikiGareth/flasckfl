@@ -134,6 +134,17 @@ public class HSIETestData {
 		);
 	}
 
+	public static HSIEForm plus2And2() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("plus");
+		return thingy("f", 0, 1, externals,
+			"RETURN var 0",
+			"CLOSURE 0", "{",
+				"plus", "2", "2",
+			"}"
+		);
+	}
+
 	private static HSIEForm thingy(String name, int nformal, int nbound, List<String> dependsOn, String... commands) {
 		HSIEForm ret = new HSIEForm(name, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;

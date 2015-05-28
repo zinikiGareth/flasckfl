@@ -87,13 +87,9 @@ public class TypeChecker {
 						args.add(te);
 					}
 					Object Tf = args.get(0);
-					Object Tx = args.get(1);
-					TypeVar Tr = factory.next();
-					TypeExpr Tf2 = new TypeExpr("->", Tx, Tr);
-					phi.unify(Tf, Tf2);
-					if (errors.hasErrors())
-						return null;
-					return phi.meaning(Tr);
+					for (int i=1;i<args.size();i++)
+						Tf = checkSingleApplication(phi, Tf, args.get(i));
+					return Tf;
 				}
 			} else if (r.fn != null) {
 				// phi is not updated
@@ -111,5 +107,14 @@ public class TypeChecker {
 				throw new UtilException("What are you returning?");
 		} else
 			throw new UtilException("Missing cases");
+	}
+
+	private Object checkSingleApplication(PhiSolution phi, Object Tf, Object Tx) {
+		TypeVar Tr = factory.next();
+		TypeExpr Tf2 = new TypeExpr("->", Tx, Tr);
+		phi.unify(Tf, Tf2);
+		if (errors.hasErrors())
+			return null;
+		return phi.meaning(Tr);
 	}
 }

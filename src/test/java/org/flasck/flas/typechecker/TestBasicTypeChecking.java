@@ -96,4 +96,21 @@ public class TestBasicTypeChecking {
 		assertEquals("Number", rte.type);
 		assertTrue(rte.args.isEmpty());
 	}
+
+	@Test
+	public void testWeCanTypecheckAFunctionApplicationWithTwoArguments() {
+		TypeChecker tc = new TypeChecker();
+		tc.addExternal("plus", new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("Number"))));
+		PhiSolution phi = new PhiSolution(tc.errors);
+		TypeEnvironment gamma = new TypeEnvironment();
+		HSIEForm fn = HSIETestData.plus2And2();
+		Object te = tc.checkExpr(phi, gamma, fn, fn.nestedCommands().get(0));
+		assertFalse(tc.errors.hasErrors());
+		assertNotNull(te);
+		// The type should be Number
+		assertTrue(te instanceof TypeExpr);
+		TypeExpr rte = (TypeExpr) te;
+		assertEquals("Number", rte.type);
+		assertTrue(rte.args.isEmpty());
+	}
 }
