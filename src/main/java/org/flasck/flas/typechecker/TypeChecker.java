@@ -1,5 +1,6 @@
 package org.flasck.flas.typechecker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.ErrorResult;
@@ -21,30 +22,44 @@ public class TypeChecker {
 	
 	public void typecheck() {
 		TypeEnvironment gamma = new TypeEnvironment(); // should be based on everything we already know
-		for (HSIEForm hsie : functionsToCheck)
-			checkHSIE(gamma, hsie);
+		PhiSolution phi = new PhiSolution();
+		for (HSIEForm hsie : functionsToCheck) {
+			// This is the alleged type of the function, which, if non-null, we should store
+			Object te = checkHSIE(phi, gamma, hsie);
+		}
 	}
 
-	private void checkHSIE(TypeEnvironment gamma, HSIEForm hsie) {
+	Object checkHSIE(PhiSolution phi, TypeEnvironment gamma, HSIEForm hsie) {
+		List<TypeVar> vars = new ArrayList<TypeVar>();
 		for (int i=0;i<hsie.nformal;i++) {
 			TypeVar tv = factory.next();
 			gamma = gamma.bind(hsie.vars.get(i), new TypeScheme(null, tv));
+			vars.add(tv);
 		}
 		System.out.println(gamma);
-		checkBlock(hsie);
+		// what we need to do is to apply tcExpr to the right hand side with the new gamma
+		Object rhs = checkBlock(hsie);
+		if (rhs == null)
+			return null;
+		// then we need to build an expr tv0 -> tv1 -> tv2 -> E with all the vars substituted
+		for (int i=vars.size()-1;i>=0;i--)
+			rhs = new TypeExpr("->", phi.meaning(vars.get(i)), rhs);
+		return rhs;
 	}
 
-	private void checkBlock(HSIEBlock hsie) {
+	private Object checkBlock(HSIEBlock hsie) {
 		for (HSIEBlock o : hsie.nestedCommands()) {
-			tcExpr(o);
+			// Obviously, we should only actually return when we're done, but for now this will work while I figure it out ...
+			return tcExpr(o);
 		}
+		return null;
 	}
 
-	public Object tcExpr(HSIEBlock cmd) {
+	Object tcExpr(HSIEBlock cmd) {
 		if (cmd instanceof ReturnCmd) {
 			ReturnCmd r = (ReturnCmd) cmd;
 			if (r.ival != null)
-				return new TypeExpr("Number", null);
+				return new TypeExpr("Number");
 		}
 		return null;
 	}
