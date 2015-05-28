@@ -98,3 +98,7 @@ OK, I think that's unification done.
 Having done unification, we now have a "new" (extended) solution <tt>phi'</tt> which we want to apply to our freshly introduced variable T? and return that.
 <p>
 Uh, yes, that's it.
+<p>
+Moving on to multi-variable function application.  We want to proceed from the left and apply the "current" function to the next argument until we're done.  Let's create a new test case for plus applied to two arguments.  As expected, that fails, and with a reasonable complaint: just applying + to the first argument returns a curried function (<tt>2+_</tt> in this case).  Let's fix that.
+<p>
+First I'm going to refactor 90% of what we just did into <tt>checkSingleApplication</tt>.  Then we can easily call this with the first pair of arguments and then repeatedly call it with the result (which we "assume" to be a curried function) and the next argument.  Either this will fail at some point (returning null) or we will succeed in obtaining the "real type". Simples.
