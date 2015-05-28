@@ -113,4 +113,23 @@ public class TestBasicTypeChecking {
 		assertEquals("Number", rte.type);
 		assertTrue(rte.args.isEmpty());
 	}
+
+	@Test
+	public void testWeCanUseIDTwiceWithDifferentInstationsOfItsSchematicVar() {
+		TypeChecker tc = new TypeChecker();
+		tc.addExternal("id", new TypeExpr("->", new TypeVar(0), new TypeVar(0)));
+		tc.addExternal("decode", new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("Char")));
+		PhiSolution phi = new PhiSolution(tc.errors);
+		TypeEnvironment gamma = new TypeEnvironment();
+		HSIEForm fn = HSIETestData.idDecode();
+		Object te = tc.checkExpr(phi, gamma, fn, fn.nestedCommands().get(0));
+		assertFalse(tc.errors.hasErrors());
+		assertNotNull(te);
+		System.out.println(te);
+		// The type should be Char
+		assertTrue(te instanceof TypeExpr);
+		TypeExpr rte = (TypeExpr) te;
+		assertEquals("Char", rte.type);
+		assertTrue(rte.args.isEmpty());
+	}
 }

@@ -17,6 +17,12 @@ public class TypeScheme {
 		this.typeExpr = typeExpr;
 	}
 	
+	// See PH p173
+	public TypeScheme subst(PhiSolution phi) {
+		PhiSolution phi2 = phi.exclude(schematicVars);
+		return new TypeScheme(schematicVars, phi2.subst(typeExpr));
+	}
+	
 	@Override
 	public String toString() {
 		return "(SCHEME " + schematicVars + " " + typeExpr +")";

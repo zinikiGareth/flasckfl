@@ -18,9 +18,20 @@ public class HSIECodeGenerator {
 	public void testConvertingIdOf1() {
 		FunctionParser p = new FunctionParser(null);
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = plus1 1"));
-		FunctionDefinition fib = new FunctionDefinition("f", 0, CollectionUtils.listOf(c1));
-		HSIEForm fibForm = HSIE.handle(fib);
-		assertNotNull(fibForm);
-		HSIETestData.assertHSIE(HSIETestData.plus1Of1(), fibForm);
+		FunctionDefinition f = new FunctionDefinition("f", 0, CollectionUtils.listOf(c1));
+		HSIEForm form = HSIE.handle(f);
+		assertNotNull(form);
+		HSIETestData.assertHSIE(HSIETestData.plus1Of1(), form);
+	}
+
+	// This is a pathological case of LET with vars
+	@Test
+	public void testConvertingIdDecode() {
+		FunctionParser p = new FunctionParser(null);
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = id (decode (id 32))"));
+		FunctionDefinition f = new FunctionDefinition("f", 0, CollectionUtils.listOf(c1));
+		HSIEForm form = HSIE.handle(f);
+		assertNotNull(form);
+		HSIETestData.assertHSIE(HSIETestData.idDecode(), form);
 	}
 }

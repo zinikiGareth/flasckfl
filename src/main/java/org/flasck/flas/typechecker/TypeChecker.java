@@ -2,6 +2,7 @@ package org.flasck.flas.typechecker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -101,8 +102,10 @@ public class TypeChecker {
 					// We should not be able to get here if r.fn is not already an external which has been resolved
 					errors.message((Block)null, "There is no type for " + r.fn); // We need some way to report error location
 					return null;
-				} else
-					return te;
+				} else {
+					System.out.print("Replacing vars in " + r.fn +": ");
+					return freshVarsIn(te);
+				}
 			} else
 				throw new UtilException("What are you returning?");
 		} else
@@ -116,5 +119,37 @@ public class TypeChecker {
 		if (errors.hasErrors())
 			return null;
 		return phi.meaning(Tr);
+	}
+
+	private Object freshVarsIn(Object te) {
+		Set<TypeVar> vs = new HashSet<TypeVar>();
+		findVarsIn(vs, te);
+		Map<TypeVar, TypeVar> map = new HashMap<TypeVar, TypeVar>();
+		for (TypeVar tv : vs)
+			map.put(tv, factory.next());
+		System.out.println(map);
+		return substVars(map, te);
+	}
+
+	private void findVarsIn(Set<TypeVar> vs, Object te) {
+		if (te instanceof TypeVar)
+			vs.add((TypeVar) te);
+		else {
+			TypeExpr te2 = (TypeExpr) te;
+			for (Object o : te2.args)
+				findVarsIn(vs, o);
+		}
+	}
+
+	private Object substVars(Map<TypeVar, TypeVar> map, Object te) {
+		if (te instanceof TypeVar)
+			return map.get(te);
+		else {
+			TypeExpr te2 = (TypeExpr) te;
+			List<Object> newArgs = new ArrayList<Object>();
+			for (Object o : te2.args)
+				newArgs.add(substVars(map, o));
+			return new TypeExpr(te2.type, newArgs);
+		}
 	}
 }

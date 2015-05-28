@@ -1,10 +1,10 @@
 package org.flasck.flas.typechecker;
 
-import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
@@ -49,7 +49,12 @@ public class PhiSolution {
 		System.out.println("Unify " + t1 + " and " +t2);
 		if (t1 instanceof TypeVar && t2 instanceof TypeVar) {
 			// case 1a: call extend
-			extend((TypeVar)t1, subst((TypeVar) t2));
+			if (!phi.containsKey(t1))
+				extend((TypeVar)t1, subst((TypeVar) t2));
+			else if (!phi.containsKey(t2))
+				extend((TypeVar)t2, subst((TypeVar) t1));
+			else // go around again, probably for a different case
+				unify(meaning((TypeVar) t1), meaning((TypeVar) t2));
 		} else if (t1 instanceof TypeVar || t2 instanceof TypeVar) {
 			// case 1b & 2: one is a variable and the other isn't (and some 1a)
 			TypeVar v;
@@ -80,6 +85,7 @@ public class PhiSolution {
 			unifyl(te1.args, te2.args);
 		} else
 			throw new UtilException("I claim all the cases should be covered");
+		System.out.println("Unification done: " + this.phi);
 	}
 
 	private void extend(TypeVar tv, Object te) {
@@ -90,10 +96,21 @@ public class PhiSolution {
 		else
 			bind(tv, te);
 	}
+	
 	private void unifyl(List<Object> l1, List<Object> l2) {
 		if (l1.size() != l2.size())
 			throw new UtilException("This really shouldn't be possible");
 		for (int i=0;i<l1.size();i++)
 			unify(l1.get(i), l2.get(i));
+	}
+
+	// See PH p173
+	public PhiSolution exclude(List<TypeVar> varsToExclude) {
+		PhiSolution ret = new PhiSolution(errors);
+		for (Entry<TypeVar, Object> x : phi.entrySet()){
+			if (!varsToExclude.contains(x.getKey()))
+				ret.bind(x.getKey(), x.getValue());
+		}
+		return ret;
 	}
 }
