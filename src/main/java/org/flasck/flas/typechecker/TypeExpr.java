@@ -24,7 +24,7 @@ public class TypeExpr {
 	
 	@Override
 	public String toString() {
-		return "TE["+type+"("+args+")]";
+		return type+(args.isEmpty()?"":"("+args+")");
 	}
 
 	public boolean containsVar(TypeVar tv) {

@@ -1,6 +1,7 @@
 package org.flasck.flas.vcode.hsieForm;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +25,17 @@ public class HSIEForm extends HSIEBlock {
 		this.nformal = nformal;
 	}
 
+	// This is the copy/rewrite constructor
+	public HSIEForm(String name, int nformal, List<Var> vars, Collection<String> externals) {
+		this.fnName = name;
+		this.nformal = nformal;
+		this.vars.addAll(vars);
+		this.externals.addAll(externals);
+	}
+	
+
 	// This constructor is for testing
-	public HSIEForm(String name, int nformal, int nbound, List<String> dependsOn) {
+	public HSIEForm(String name, int nformal, int nbound, Collection<String> dependsOn) {
 		fnName = name;
 		this.nformal = nformal;
 		for (int i=0;i<nformal;i++)
@@ -34,7 +44,6 @@ public class HSIEForm extends HSIEBlock {
 			vars.add(new Var(nformal + i));
 		this.externals.addAll(dependsOn);
 	}
-
 	public Var var(int v) {
 		return vars.get(v);
 	}
@@ -51,6 +60,7 @@ public class HSIEForm extends HSIEBlock {
 
 	public void dump() {
 		System.out.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal) + " externals: " + externals);
+		System.out.println("Vars = " + vars);
 		dump(0);
 		for (HSIEBlock c : closures.values())
 			c.dumpOne(0);
@@ -59,6 +69,10 @@ public class HSIEForm extends HSIEBlock {
 	public void dependsOn(String text) {
 		if (!text.equals(this.fnName))
 			externals.add(text);
+	}
+
+	public Collection<HSIEBlock> closures() {
+		return closures.values();
 	}
 	
 	// So, basically an HSIE definition consists of

@@ -31,8 +31,10 @@ public class ErrorResult {
 	public void showTo(Writer pw) throws IOException {
 		pw.write(errors.size() + " error" + (errors.size() != 1?"s":"") + " encountered\n");
 		for (FLASError e : errors) {
-			pw.write(e.loc + ": " + e.loc.text);
-			pw.write('\n');
+			if (e.loc != null) {
+				pw.write(e.loc + ": " + e.loc.text);
+				pw.write('\n');
+			}
 			pw.write(e.msg);
 			pw.write('\n');
 		}

@@ -34,4 +34,25 @@ public class HSIECodeGenerator {
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.idDecode(), form);
 	}
+
+	@Test
+	public void testASimpleRecursivelyDefinedFunction1() {
+		FunctionParser p = new FunctionParser(null);
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
+		FunctionDefinition f = new FunctionDefinition("f", 1, CollectionUtils.listOf(c1));
+		HSIEForm form = HSIE.handle(f);
+		assertNotNull(form);
+		form.dump();
+		HSIETestData.assertHSIE(HSIETestData.rdf1(), form);
+	}
+
+	@Test
+	public void testASimpleRecursivelyDefinedFunction2() {
+		FunctionParser p = new FunctionParser(null);
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("g x = f (x+1)"));
+		FunctionDefinition f = new FunctionDefinition("g", 1, CollectionUtils.listOf(c1));
+		HSIEForm form = HSIE.handle(f);
+		assertNotNull(form);
+		HSIETestData.assertHSIE(HSIETestData.rdf2(), form);
+	}
 }

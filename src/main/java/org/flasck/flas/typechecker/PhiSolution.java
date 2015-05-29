@@ -47,7 +47,9 @@ public class PhiSolution {
 
 	public void unify(Object t1, Object t2) {
 		System.out.println("Unify " + t1 + " and " +t2);
-		if (t1 instanceof TypeVar && t2 instanceof TypeVar) {
+		if (t1 == null || t2 == null)
+			return;
+		else if (t1 instanceof TypeVar && t2 instanceof TypeVar) {
 			// case 1a: call extend
 			if (!phi.containsKey(t1))
 				extend((TypeVar)t1, subst((TypeVar) t2));
@@ -84,7 +86,7 @@ public class PhiSolution {
 			}
 			unifyl(te1.args, te2.args);
 		} else
-			throw new UtilException("I claim all the cases should be covered");
+			throw new UtilException("I claim all the cases should be covered " + t1 + t2);
 		System.out.println("Unification done: " + this.phi);
 	}
 

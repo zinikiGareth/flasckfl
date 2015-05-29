@@ -9,16 +9,19 @@ import java.util.Set;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.PushCmd;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
+import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker {
 	public final ErrorResult errors = new ErrorResult();
 	private final VariableFactory factory = new VariableFactory();
-	private final Map<String, Object> knowledge = new HashMap<String, Object>();
+	final Map<String, Object> knowledge = new HashMap<String, Object>();
 
 	public TypeChecker() {
 	}
@@ -30,24 +33,94 @@ public class TypeChecker {
 	public void typecheck(Set<HSIEForm> functionsToCheck) {
 		TypeEnvironment gamma = new TypeEnvironment(); // should be based on everything we already know
 		PhiSolution phi = new PhiSolution(errors);
+		// Before we begin, we want to define "local knowledge" with all the "alleged" types of the things we're defining
+		// so that they can be accessed recursively
+		Map<String, Object> localKnowledge = new HashMap<String, Object>();
+		Map<String, HSIEForm> rewritten = new HashMap<String, HSIEForm>();
+		int from = 201; // the actual number doesn't matter but might make debugging easier
 		for (HSIEForm hsie : functionsToCheck) {
-			// This is the alleged type of the function, which, if non-null, we should store
-			Object te = checkHSIE(phi, gamma, hsie);
+			localKnowledge.put(hsie.fnName, factory.next());
+			System.out.println("Allocating tv " + localKnowledge.get(hsie.fnName) + " for " + hsie.fnName);
+			rewritten.put(hsie.fnName, rewriteWithFreshVars(hsie, from));
+			from += hsie.vars.size();
 		}
-		// TODO: I think we now need to do some level of unification on the remaining solution
-		// TODO: Then we probably need to re-apply the solution to all of the types we just had
+		Map<String, Object> actualTypes = new HashMap<String, Object>();
+		for (HSIEForm hsie : rewritten.values()) {
+			Object te = checkHSIE(localKnowledge, phi, gamma, hsie);
+			if (te == null)
+				return;
+			actualTypes.put(hsie.fnName, te);
+		}
+		for (HSIEForm f : rewritten.values())
+			phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
+		for (HSIEForm f : rewritten.values())
+			knowledge.put(f.fnName, phi.subst(actualTypes.get(f.fnName)));
 	}
 
-	Object checkHSIE(PhiSolution phi, TypeEnvironment gamma, HSIEForm hsie) {
+	private HSIEForm rewriteWithFreshVars(HSIEForm hsie, int from) {
+		Map<Var, Var> mapping = new HashMap<Var, Var>();
+		List<Var> vars = new ArrayList<Var>();
+		for (Var v : hsie.vars) {
+			Var newVar = new Var(from++);
+			mapping.put(v, newVar);
+			vars.add(newVar);
+		}
+		HSIEForm ret = new HSIEForm(hsie.fnName, hsie.nformal, vars, hsie.externals);
+		mapBlock(ret, hsie, mapping);
+		for (HSIEBlock b : hsie.closures()) {
+			HSIEBlock closure = ret.closure(mapping.get(((ClosureCmd)b).var));
+			mapBlock(closure, b, mapping);
+		}
+		ret.dump();
+		return ret;
+	}
+
+	private void mapBlock(HSIEBlock ret, HSIEBlock hsie, Map<Var, Var> mapping) {
+		for (HSIEBlock b : hsie.nestedCommands()) {
+			if (b instanceof ReturnCmd) {
+				ReturnCmd rc = (ReturnCmd)b;
+				List<Var> deps = rewriteList(mapping, rc.deps);
+				if (rc.var != null)
+					ret.doReturn(mapping.get(rc.var), deps);
+				else if (rc.ival != null)
+					ret.doReturn(rc.ival, deps);
+				else if (rc.fn != null)
+					ret.doReturn(rc.fn, deps);
+				else
+					throw new UtilException("Unhandled");
+			} else if (b instanceof PushCmd) {
+				PushCmd pc = (PushCmd) b;
+				if (pc.var != null)
+					ret.push(mapping.get(pc.var));
+				else if (pc.ival != null)
+					ret.push(pc.ival);
+				else if (pc.fn != null)
+					ret.push(pc.fn);
+				else
+					throw new UtilException("Unhandled");
+			} else
+				throw new UtilException("Unhandled " + b.getClass());
+		}
+	}
+
+	private List<Var> rewriteList(Map<Var, Var> mapping, List<Var> deps) {
+		List<Var> ret = new ArrayList<Var>();
+		for (Var var : deps)
+			ret.add(mapping.get(var));
+		return ret;
+	}
+
+	Object checkHSIE(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm hsie) {
 		List<TypeVar> vars = new ArrayList<TypeVar>();
 		for (int i=0;i<hsie.nformal;i++) {
 			TypeVar tv = factory.next();
+			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i);
 			gamma = gamma.bind(hsie.vars.get(i), new TypeScheme(null, tv));
 			vars.add(tv);
 		}
 		System.out.println(gamma);
 		// what we need to do is to apply tcExpr to the right hand side with the new gamma
-		Object rhs = checkBlock(phi, gamma, hsie, hsie);
+		Object rhs = checkBlock(localKnowledge, phi, gamma, hsie, hsie);
 		if (rhs == null)
 			return null;
 		// then we need to build an expr tv0 -> tv1 -> tv2 -> E with all the vars substituted
@@ -56,16 +129,16 @@ public class TypeChecker {
 		return rhs;
 	}
 
-	private Object checkBlock(PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock hsie) {
+	private Object checkBlock(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock hsie) {
 		for (HSIEBlock o : hsie.nestedCommands()) {
 			if (o instanceof ReturnCmd)
-				return checkExpr(phi, gamma, form, o);
+				return checkExpr(localKnowledge, phi, gamma, form, o);
 			throw new UtilException("Missing cases");
 		}
 		throw new UtilException("We shouldn't get here");
 	}
 
-	Object checkExpr(PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock cmd) {
+	Object checkExpr(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock cmd) {
 		if (cmd instanceof PushReturn) {
 			PushReturn r = (PushReturn) cmd;
 			if (r.ival != null)
@@ -77,14 +150,18 @@ public class TypeChecker {
 					// assume it must be a bound var; we will fail to get the existing type scheme if not
 					TypeScheme old = gamma.valueOf(r.var);
 					PhiSolution temp = new PhiSolution(errors);
-					for (TypeVar tv : old.schematicVars)
+					for (TypeVar tv : old.schematicVars) {
 						temp.bind(tv, factory.next());
+						System.out.println("Allocating tv " + temp.meaning(tv) + " for " + tv + " when instantiating typescheme");
+					}
 					return temp.subst(old.typeExpr);
 				} else {
 					// c is a closure, which must be a function application
 					List<Object> args = new ArrayList<Object>();
 					for (HSIEBlock b : c.nestedCommands()) {
-						Object te = checkExpr(phi, gamma, form, b);
+						Object te = checkExpr(localKnowledge, phi, gamma, form, b);
+						if (te == null)
+							return null;
 						args.add(te);
 					}
 					Object Tf = args.get(0);
@@ -96,7 +173,10 @@ public class TypeChecker {
 				// phi is not updated
 				// I am going to say that by getting here, we know that it must be an external
 				// all lambdas should be variables by now
-				Object te = knowledge.get(r.fn);
+				Object te = localKnowledge.get(r.fn);
+				if (te != null)
+					return te;
+				te = knowledge.get(r.fn);
 				if (te == null) {
 					// This is probably a failure on our part rather than user error
 					// We should not be able to get here if r.fn is not already an external which has been resolved
@@ -114,6 +194,7 @@ public class TypeChecker {
 
 	private Object checkSingleApplication(PhiSolution phi, Object Tf, Object Tx) {
 		TypeVar Tr = factory.next();
+		System.out.println("Allocating " + Tr + " for new application of " + Tf + " to " + Tx);
 		TypeExpr Tf2 = new TypeExpr("->", Tx, Tr);
 		phi.unify(Tf, Tf2);
 		if (errors.hasErrors())

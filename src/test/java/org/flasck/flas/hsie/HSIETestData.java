@@ -163,6 +163,36 @@ public class HSIETestData {
 		);
 	}
 
+	public static HSIEForm rdf1() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("-");
+		externals.add("g");
+		return thingy("f", 1, 2, externals,
+			"RETURN var 2 1",
+			"CLOSURE 1", "{",
+				"-", "var 0", "1",
+			"}",
+			"CLOSURE 2", "{",
+				"g", "var 1",
+			"}"
+		);
+	}
+
+	public static HSIEForm rdf2() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("+");
+		externals.add("f");
+		return thingy("g", 1, 2, externals,
+			"RETURN var 2 1",
+			"CLOSURE 1", "{",
+				"+", "var 0", "1",
+			"}",
+			"CLOSURE 2", "{",
+				"f", "var 1",
+			"}"
+		);
+	}
+
 	private static HSIEForm thingy(String name, int nformal, int nbound, List<String> dependsOn, String... commands) {
 		HSIEForm ret = new HSIEForm(name, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;

@@ -10,10 +10,15 @@ public class Tokenizable {
 	private int pos;
 
 	public Tokenizable(Block b) {
-		this(b.line);
+		this(b == null ? null : b.line);
 	}
 	
 	public Tokenizable(ContinuedLine l) {
+		if (l == null) {
+			this.input = null;
+			this.line = null;
+			return;
+		}
 		this.input = l.text();
 		this.line = l;
 	}
