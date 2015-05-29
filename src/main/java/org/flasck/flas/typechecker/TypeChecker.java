@@ -12,9 +12,12 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.Head;
+import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushCmd;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
+import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
@@ -77,7 +80,17 @@ public class TypeChecker {
 
 	private void mapBlock(HSIEBlock ret, HSIEBlock hsie, Map<Var, Var> mapping) {
 		for (HSIEBlock b : hsie.nestedCommands()) {
-			if (b instanceof ReturnCmd) {
+			if (b instanceof Head) {
+				ret.head(mapping.get(((Head)b).v));
+			} else if (b instanceof Switch) {
+				Switch sc = (Switch)b;
+				HSIEBlock ib = ret.switchCmd(mapping.get(sc.var), sc.ctor);
+				mapBlock(ib, sc, mapping);
+			} else if (b instanceof IFCmd) {
+				IFCmd ic = (IFCmd) b;
+				HSIEBlock ib = ret.ifCmd(mapping.get(ic.var), ic.value);
+				mapBlock(ib, ic, mapping);
+			} else if (b instanceof ReturnCmd) {
 				ReturnCmd rc = (ReturnCmd)b;
 				List<Var> deps = rewriteList(mapping, rc.deps);
 				if (rc.var != null)
@@ -104,6 +117,8 @@ public class TypeChecker {
 	}
 
 	private List<Var> rewriteList(Map<Var, Var> mapping, List<Var> deps) {
+		if (deps == null)
+			return null;
 		List<Var> ret = new ArrayList<Var>();
 		for (Var var : deps)
 			ret.add(mapping.get(var));
@@ -130,12 +145,32 @@ public class TypeChecker {
 	}
 
 	private Object checkBlock(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock hsie) {
+		List<Object> returns = new ArrayList<Object>();
 		for (HSIEBlock o : hsie.nestedCommands()) {
 			if (o instanceof ReturnCmd)
 				return checkExpr(localKnowledge, phi, gamma, form, o);
-			throw new UtilException("Missing cases");
+			else if (o instanceof Head)
+				;
+			else if (o instanceof Switch) {
+				Switch s = (Switch) o;
+				TypeScheme valueOf = gamma.valueOf(s.var);
+				System.out.println(valueOf);
+				phi.unify(valueOf.typeExpr, new TypeExpr(s.ctor));
+				returns.add(checkBlock(localKnowledge, phi, gamma, form, s));
+			} else if (o instanceof IFCmd) {
+				IFCmd ic = (IFCmd) o;
+				// Since we have to have done a SWITCH before we get here, this gives us no new information
+				returns.add(checkBlock(localKnowledge, phi, gamma, form, ic));
+			} else
+				throw new UtilException("Missing cases " + o.getClass());
 		}
-		throw new UtilException("We shouldn't get here");
+		Object t1 = returns.get(0);
+		for (int i=1;i<returns.size();i++) {
+			if (t1 == null || returns.get(i) == null)
+				return null;
+			phi.unify(t1, returns.get(i));
+		}
+		return phi.subst(t1);
 	}
 
 	Object checkExpr(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock cmd) {

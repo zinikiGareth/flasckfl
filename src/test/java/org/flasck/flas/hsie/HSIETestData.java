@@ -39,8 +39,18 @@ public class HSIETestData {
 
 	public static HSIEForm idFn() {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy("simple", 1, 0, externals,
+		return thingy("id", 1, 0, externals,
 			"RETURN var 0"
+		);
+	}
+
+	public static HSIEForm numberIdFn() {
+		ArrayList<String> externals = new ArrayList<String>();
+		return thingy("numberId", 1, 0, externals,
+			"HEAD 0",
+			"SWITCH 0 Number", "{",
+				"RETURN var 0",
+			"ERROR"
 		);
 	}
 

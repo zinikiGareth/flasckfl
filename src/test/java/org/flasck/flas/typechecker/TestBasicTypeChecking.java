@@ -13,6 +13,7 @@ import java.util.Set;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Test;
+import org.zinutils.collections.CollectionUtils;
 
 public class TestBasicTypeChecking {
 
@@ -185,4 +186,64 @@ public class TestBasicTypeChecking {
 			assertEquals(new TypeVar(6), (TypeVar)te2);
 		}
 	}
+
+	@Test
+	public void testWeCanUseSwitchToLimitId() {
+		TypeChecker tc = new TypeChecker();
+		PhiSolution phi = new PhiSolution(tc.errors);
+		TypeEnvironment gamma = new TypeEnvironment();
+		Object te = tc.checkHSIE(null, phi, gamma, HSIETestData.numberIdFn());
+		System.out.println(te);
+		assertFalse(tc.errors.hasErrors());
+		assertNotNull(te);
+		// The type should be Number -> Number
+		assertTrue(te instanceof TypeExpr);
+		TypeExpr rte = (TypeExpr) te;
+		assertEquals("->", rte.type);
+		assertEquals(2, rte.args.size());
+		{
+			Object te1 = rte.args.get(0);
+			assertTrue(te1 instanceof TypeExpr);
+			assertEquals("Number", ((TypeExpr)te1).type);
+			assertEquals(0, ((TypeExpr)te1).args.size());
+		}
+		{
+			Object te2 = rte.args.get(1);
+			assertTrue(te2 instanceof TypeExpr);
+			assertEquals("Number", ((TypeExpr)te2).type);
+			assertEquals(0, ((TypeExpr)te2).args.size());
+		}
+	}
+	
+
+	@Test
+	public void testWeCanHandleConstantSwitching() throws Exception {
+		TypeChecker tc = new TypeChecker();
+		tc.addExternal("+", new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("Number"))));
+		tc.addExternal("-", new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("Number"))));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.fib()));
+		tc.errors.showTo(new PrintWriter(System.out));
+		assertFalse(tc.errors.hasErrors());
+		Object te = tc.knowledge.get("fib");
+		System.out.println(te);
+		assertNotNull(te);
+		// The type should be Number -> Number
+		assertTrue(te instanceof TypeExpr);
+		TypeExpr rte = (TypeExpr) te;
+		assertEquals("->", rte.type);
+		assertEquals(2, rte.args.size());
+		{
+			Object te1 = rte.args.get(0);
+			assertTrue(te1 instanceof TypeExpr);
+			assertEquals("Number", ((TypeExpr)te1).type);
+			assertEquals(0, ((TypeExpr)te1).args.size());
+		}
+		{
+			Object te2 = rte.args.get(1);
+			assertTrue(te2 instanceof TypeExpr);
+			assertEquals("Number", ((TypeExpr)te2).type);
+			assertEquals(0, ((TypeExpr)te2).args.size());
+		}
+	}
+
 }
