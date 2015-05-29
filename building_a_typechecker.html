@@ -121,4 +121,16 @@ Although this is obviously a theoretical improvement, it still ends up with the 
 <p>
 Actually, not <i>quite</i> that simple.  The problem was in mapping PH's three cases of unification to my three, I'd failed to realize that I need to apply <tt>phi</tt> to the var in case 1 <i>before<i> doing extend.  As it happened, with <tt>tv_1</tt> already having a value, I needed to select case 1b, not case 1a.
 <p>
-Assuming that I didn't so dramatically cheat that it worked for the wrong reasons (and looking at the tracing, that doesn't appear to be the case), that was not too bad.  Basically, that just leaves us with <tt>LETREC</tt> and handling pattern matching (<tt>SWITCH</tt> and <tt>BIND</tt>).  
+Assuming that I didn't so dramatically cheat that it worked for the wrong reasons (and looking at the tracing, that doesn't appear to be the case), that was not too bad.  Basically, that just leaves us with <tt>LETREC</tt> and handling pattern matching (<tt>SWITCH</tt> and <tt>BIND</tt>).
+<h2>LETRECs</h2>
+I think the description of <tt>LETREC</tt> is particularly confusing.  We basically want to just process a bunch of function definitions in parallel.  The one thing we do need to do is to once-and-for-all instantiate the variables in all of the function definitions with new variables so that they are named apart.
+<p>
+The other thing we need to do is to keep track of the "more local" definitions than the global "knowledge" so that we don't try looking up these names in the global scope but rather find the locally renamed definitions.
+<p>    
+So let's get started.
+<p>
+It takes a bit of setup to get all this working which involves creating two new function definitions (for which we also create parsing test cases to make sure that we have written the right HSIE) and then a new test case (<tt>testWeCanCheckTwoFunctionsAtOnceBecauseTheyAreMutuallyRecursive</tt>).  As it happens, this fails on the existing code base with a couple of errors because we don't check for null everywhere we should and we don't (yet) have the right information about where to tag errors but it ultimately comes down to "there is no type for f" (or g).  Well, duh.
+<p>
+So what we need to do is to allocate local knowledge for both of these when we start doing the typechecking.  An interesting issue is how we're going to pass that around, since it's not something which is integral to the state of the typechecker, but rather depends on the methods being typechecked.  So I guess it's another parameter we pass around along with <tt>phi</tt> and <tt>gamma</tt>.
+<p>
+These need to be "named apart" in terms of variables, because we don't want to have the variables in different functions being unified together.  One issue is when we have nested definitions which are "sharing" a variable definition, but I think that's a challenge for later when we can handle that case.  In the meantime, we want to just use a pool of fresh variables for each equation, rewrite them and then process the resulting equations. 
