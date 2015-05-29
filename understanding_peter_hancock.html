@@ -117,3 +117,9 @@ Now, we have already seen in laying our hands on a function definition, that we 
 The "first step" is to typecheck all the sub-expressions <tt>es</tt>, rendered <tt>tcl gamma ns1 es</tt>.  Because of the different way we have ordered this, we only have one at a time; because we already have them "in stock" type checking them is just a question of looking the type up.
 <p>
 The next step is to apply <tt>tclet1</tt> to the "actual" expression, which of course, we don't really have.  This repeated mismatch is starting to make me think that maybe I should take advantage of the fact that I do know up front which the externals are and rewrite in favor of using <tt>LET</tt>.  But let's keep going for now.  Basically, we seem to want to get a new, substituted type environment under the current <tt>phi</tt> and then use that to add a bunch of declarations for the variables.
+<p>
+Actually, that seems to work
+<h2 id='letrec'>LETREC</h2>
+The more I look at this case, the more I think to myself "this just seems way more complicated than it needs to be".  It seems to me that it is almost all details to do with handling Miranda.
+<p>
+I propose an alternative strategy.  Follow the basic rule from Chapter 8 - this is just like a <tt>LET</tt> but you <i>don't</i> substitute fresh variables in for schematic variables, and see where that takes us.
