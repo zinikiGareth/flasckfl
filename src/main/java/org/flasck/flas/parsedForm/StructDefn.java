@@ -12,11 +12,13 @@ public class StructDefn {
 		this.typename = tn;
 	}
 
-	public void add(String ta) {
+	public StructDefn add(String ta) {
 		args.add(ta);
+		return this;
 	}
 
-	public void addField(StructField sf) {
+	public StructDefn addField(StructField sf) {
 		fields.add(sf);
+		return this;
 	}
 }

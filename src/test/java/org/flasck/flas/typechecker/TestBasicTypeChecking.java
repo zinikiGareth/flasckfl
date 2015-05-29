@@ -11,6 +11,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.flasck.flas.hsie.HSIETestData;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeDefn;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
@@ -292,8 +296,16 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
 		TypeChecker tc = new TypeChecker();
+		
+		TypeDefn list = new TypeDefn(new TypeReference("List").with(new TypeReference("A")));
+		list.addCase(new TypeReference("Nil"));
+		list.addCase(new TypeReference("Cons").with(new TypeReference("A")));
+		tc.addStructDefn(new StructDefn("Nil"));
+		tc.addStructDefn(new StructDefn("Cons").add("A").addField(new StructField(Type.polyvar("A"), "head")).addField(new StructField(list, "tail")));
+		tc.addTypeDefn(list);
+		
 		tc.addExternal("Nil", new TypeExpr("Nil"));
-		tc.addExternal("Cons", new TypeExpr("->", new TypeVar(1), new TypeExpr("->", new TypeExpr("List"), new TypeExpr("Cons"))));
+		tc.addExternal("Cons", new TypeExpr("->", new TypeVar(1), new TypeExpr("->", new TypeExpr("List", new TypeVar(1)), new TypeExpr("Cons", new TypeVar(1)))));
 		tc.addExternal("-", new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("Number"))));
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.take()));
 		tc.errors.showTo(new PrintWriter(System.out));
@@ -301,34 +313,11 @@ public class TestBasicTypeChecking {
 		Object te = tc.knowledge.get("take");
 		System.out.println(te);
 		assertNotNull(te);
-		// The type should be Number -> Cons -> List
+		// The type should be Number -> List[A] -> List[A]
 		assertTrue(te instanceof TypeExpr);
 		TypeExpr rte = (TypeExpr) te;
-		assertEquals("->", rte.type);
-		assertEquals(2, rte.args.size());
-		{
-			Object te1 = rte.args.get(0);
-			assertTrue(te1 instanceof TypeExpr);
-			assertEquals("Number", ((TypeExpr)te1).type);
-			assertEquals(0, ((TypeExpr)te1).args.size());
-		}
-		{
-			Object te2 = rte.args.get(1);
-			assertTrue(te2 instanceof TypeExpr);
-			assertEquals("->", ((TypeExpr)te2).type);
-			assertEquals(2, ((TypeExpr)te2).args.size());
-			{
-				Object te2a = ((TypeExpr)te2).args.get(0);
-				assertTrue(te2a instanceof TypeExpr);
-				assertEquals("Cons", ((TypeExpr)te2a).type);
-				assertEquals(0, ((TypeExpr)te2a).args.size());
-			}
-			{
-				Object te2b = ((TypeExpr)te2).args.get(1);
-				assertTrue(te2b instanceof TypeExpr);
-				assertEquals("List", ((TypeExpr)te2b).type);
-				assertEquals(0, ((TypeExpr)te2b).args.size());
-			}
-		}
+		Type type = rte.asType(tc);
+		System.out.println(type);
+		assertEquals("Number->List->List[A]", type.toString());
 	}
 }

@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
@@ -26,13 +28,21 @@ import org.zinutils.exceptions.UtilException;
 public class TypeChecker {
 	public final ErrorResult errors = new ErrorResult();
 	private final VariableFactory factory = new VariableFactory();
-	// TODO: I would like to rewrite "TypeExpr"s to "Type"s once typechecking is complete and store them that way
-	// There seems to be something valuable in making them more readable and using alpha type vars rather than tv_6, etc. in a random order that emerged from unification
 	final Map<String, Object> knowledge = new HashMap<String, Object>();
+	final Map<String, StructDefn> structs = new HashMap<String, StructDefn>();
+	final Map<String, TypeDefn> types = new HashMap<String, TypeDefn>();
 
 	public TypeChecker() {
 	}
-	
+
+	public void addStructDefn(StructDefn structDefn) {
+		structs.put(structDefn.typename, structDefn);
+	}
+
+	public void addTypeDefn(TypeDefn typeDefn) {
+		types.put(typeDefn.defining.name, typeDefn);
+	}
+
 	public void addExternal(String name, Object type) {
 		knowledge.put(name, type);
 	}
@@ -293,4 +303,5 @@ public class TypeChecker {
 			return new TypeExpr(te2.type, newArgs);
 		}
 	}
+
 }

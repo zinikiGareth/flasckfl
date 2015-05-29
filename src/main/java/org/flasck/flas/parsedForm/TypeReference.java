@@ -27,4 +27,9 @@ public class TypeReference {
 		}
 		return ret.toString();
 	}
+
+	public TypeReference with(TypeReference arg) {
+		args.add(arg);
+		return this;
+	}
 }

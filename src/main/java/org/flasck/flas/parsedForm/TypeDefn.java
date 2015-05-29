@@ -11,4 +11,8 @@ public class TypeDefn {
 		this.defining = defining;
 	}
 
+	public TypeDefn addCase(TypeReference tr) {
+		this.cases.add(tr);
+		return this;
+	}
 }
