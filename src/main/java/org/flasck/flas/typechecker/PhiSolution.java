@@ -36,74 +36,115 @@ public class PhiSolution {
 				return phi.get(tv);
 			else
 				return tv;
-		} else {
+		} else if (in instanceof TypeExpr) {
 			TypeExpr te = (TypeExpr) in;
 			List<Object> mapped = new ArrayList<Object>();
 			for (Object o : te.args)
 				mapped.add(subst(o));
 			return new TypeExpr(te.type, mapped);
-		}
+		} else if (in instanceof TypeUnion) {
+			TypeUnion ret = new TypeUnion();
+			for (TypeExpr te : (TypeUnion)in)
+				ret.add(subst(te));
+			return ret;
+		} else
+			throw new UtilException("Cannot handle " + in.getClass());
 	}
 
-	public void unify(Object t1, Object t2) {
+	public Object unify(Object t1, Object t2) {
 		System.out.println("Unify " + t1 + " and " +t2);
 		if (t1 == null || t2 == null)
-			return;
+			return null;
 		else if (t1 instanceof TypeVar && t2 instanceof TypeVar) {
 			// case 1a: call extend
 			if (!phi.containsKey(t1))
-				extend((TypeVar)t1, subst((TypeVar) t2));
+				return extend((TypeVar)t1, subst((TypeVar) t2));
 			else if (!phi.containsKey(t2))
-				extend((TypeVar)t2, subst((TypeVar) t1));
+				return extend((TypeVar)t2, subst((TypeVar) t1));
 			else // go around again, probably for a different case
-				unify(meaning((TypeVar) t1), meaning((TypeVar) t2));
+				return unify(meaning((TypeVar) t1), meaning((TypeVar) t2));
 		} else if (t1 instanceof TypeVar || t2 instanceof TypeVar) {
 			// case 1b & 2: one is a variable and the other isn't (and some 1a)
 			TypeVar v;
-			TypeExpr te;
+			Object te;
 			if (t1 instanceof TypeVar) {
 				v = (TypeVar) t1;
-				te = (TypeExpr) t2;
+				te = t2;
 			} else {
 				v = (TypeVar) t2;
-				te = (TypeExpr) t1;
+				te = t1;
 			}
 			Object phitvn = meaning(v);
 			Object phit = subst(te);
 			if (phitvn instanceof TypeVar)
-				extend((TypeVar)phitvn, phit); // back to case 1a after substitution did nothing
+				return extend((TypeVar)phitvn, phit); // back to case 1a after substitution did nothing
 			else
 				// We need to apply <tt>subst</tt> on the type expression, <tt>meaning</tt> on the variable, and then unify the two results.
-				unify(meaning(v), subst(te));
+				return unify(meaning(v), subst(te));
 		} else if (t1 instanceof TypeExpr && t2 instanceof TypeExpr) {
 			// case 3 : check for same constructors and then unify the lists
 			TypeExpr te1 = (TypeExpr) t1;
 			TypeExpr te2 = (TypeExpr) t2;
-			if (!te1.type.equals(te2.type)) {
-				// we probably want a clearer message than this
-				errors.message((Block)null, "Cannot unify " + te1.type + " and " + te2.type);
-				return;
+			if (te1.type.equals(te2.type)) {
+				List<Object> args = unifyl(te1.args, te2.args);
+				return new TypeExpr(te1.type, args);
 			}
-			unifyl(te1.args, te2.args);
+			// we probably want a clearer message than this
+			System.out.println("Cannot unify " + te1 + " and " + te2);
+			TypeUnion unified = unionOf(te1, te2);
+			boolean stored = false;
+			for (Entry<TypeVar, Object> x : phi.entrySet()) {
+				if (x.getValue() == te1) {
+					System.out.println(te1 + " at " + x.getKey());
+					x.setValue(unified);
+					stored = true;
+				}
+				if (x.getValue() == te2) {
+					System.out.println(te2 + " at " + x.getKey());
+					x.setValue(unified);
+					stored = true;
+				}
+			}
+			if (!stored)
+				errors.message((Block)null, "Could not store the unification " + te1.type + " and " + te2.type + " anywhere");
+			return unified;
+		} else if (t1 instanceof TypeUnion) {
+			((TypeUnion) t1).add(t2);
+			return t1;
+		} else if (t2 instanceof TypeUnion) {
+			((TypeUnion) t2).add(t1);
+			return t2;
 		} else
-			throw new UtilException("I claim all the cases should be covered " + t1 + t2);
-		System.out.println("Unification done: " + this.phi);
+			throw new UtilException("I claim all the cases should be covered but I could not handle the pair " + t1.getClass() + " and " + t2.getClass());
+//		System.out.println("Unification done: " + this.phi);
 	}
 
-	private void extend(TypeVar tv, Object te) {
+	private TypeUnion unionOf(TypeExpr te1, TypeExpr te2) {
+		TypeUnion ret = new TypeUnion();
+		ret.add(te1);
+		ret.add(te2);
+		return ret;
+	}
+
+	private Object extend(TypeVar tv, Object te) {
 		if (te instanceof TypeVar && tv.equals(te))
-			return; // we known that tv == tv
-		else if (te instanceof TypeExpr && ((TypeExpr)te).containsVar(tv))
+			return te; // we known that tv == tv
+		else if (te instanceof TypeExpr && ((TypeExpr)te).containsVar(tv)) {
 			errors.message((Block)null, "This is a circularity");
-		else
+			return null;
+		} else {
 			bind(tv, te);
+			return te;
+		}
 	}
 	
-	private void unifyl(List<Object> l1, List<Object> l2) {
+	private List<Object> unifyl(List<Object> l1, List<Object> l2) {
+		List<Object> ret = new ArrayList<Object>();
 		if (l1.size() != l2.size())
 			throw new UtilException("This really shouldn't be possible");
 		for (int i=0;i<l1.size();i++)
-			unify(l1.get(i), l2.get(i));
+			ret.add(unify(l1.get(i), l2.get(i)));
+		return ret;
 	}
 
 	// See PH p173

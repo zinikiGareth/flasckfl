@@ -9,7 +9,9 @@ import java.util.Set;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
+import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Head;
@@ -24,6 +26,8 @@ import org.zinutils.exceptions.UtilException;
 public class TypeChecker {
 	public final ErrorResult errors = new ErrorResult();
 	private final VariableFactory factory = new VariableFactory();
+	// TODO: I would like to rewrite "TypeExpr"s to "Type"s once typechecking is complete and store them that way
+	// There seems to be something valuable in making them more readable and using alpha type vars rather than tv_6, etc. in a random order that emerged from unification
 	final Map<String, Object> knowledge = new HashMap<String, Object>();
 
 	public TypeChecker() {
@@ -54,8 +58,10 @@ public class TypeChecker {
 				return;
 			actualTypes.put(hsie.fnName, te);
 		}
-		for (HSIEForm f : rewritten.values())
-			phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
+		for (HSIEForm f : rewritten.values()) {
+			Object rwt = phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
+			actualTypes.put(f.fnName, phi.subst(rwt)); 
+		}
 		for (HSIEForm f : rewritten.values())
 			knowledge.put(f.fnName, phi.subst(actualTypes.get(f.fnName)));
 	}
@@ -90,6 +96,9 @@ public class TypeChecker {
 				IFCmd ic = (IFCmd) b;
 				HSIEBlock ib = ret.ifCmd(mapping.get(ic.var), ic.value);
 				mapBlock(ib, ic, mapping);
+			} else if (b instanceof BindCmd) {
+				BindCmd bc = (BindCmd) b;
+				ret.bindCmd(mapping.get(bc.bind), mapping.get(bc.from), bc.field);
 			} else if (b instanceof ReturnCmd) {
 				ReturnCmd rc = (ReturnCmd)b;
 				List<Var> deps = rewriteList(mapping, rc.deps);
@@ -111,7 +120,9 @@ public class TypeChecker {
 					ret.push(pc.fn);
 				else
 					throw new UtilException("Unhandled");
-			} else
+			} else if (b instanceof ErrorCmd)
+				ret.caseError();
+			else
 				throw new UtilException("Unhandled " + b.getClass());
 		}
 	}
@@ -147,8 +158,12 @@ public class TypeChecker {
 	private Object checkBlock(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock hsie) {
 		List<Object> returns = new ArrayList<Object>();
 		for (HSIEBlock o : hsie.nestedCommands()) {
-			if (o instanceof ReturnCmd)
-				return checkExpr(localKnowledge, phi, gamma, form, o);
+			if (o instanceof ReturnCmd) {
+				System.out.println("Checking expr " + o);
+				Object ret = checkExpr(localKnowledge, phi, gamma, form, o);
+				System.out.println("Checked expr " + o + " as " + ret);
+				return ret;
+			}
 			else if (o instanceof Head)
 				;
 			else if (o instanceof Switch) {
@@ -161,6 +176,13 @@ public class TypeChecker {
 				IFCmd ic = (IFCmd) o;
 				// Since we have to have done a SWITCH before we get here, this gives us no new information
 				returns.add(checkBlock(localKnowledge, phi, gamma, form, ic));
+			} else if (o instanceof BindCmd) {
+				BindCmd bc = (BindCmd) o;
+				TypeVar tv = factory.next();
+				System.out.println("binding " + bc.bind + " to " + tv);
+				gamma = gamma.bind(bc.bind, new TypeScheme(null, tv));
+			} else if (o instanceof ErrorCmd) {
+				
 			} else
 				throw new UtilException("Missing cases " + o.getClass());
 		}
@@ -168,8 +190,11 @@ public class TypeChecker {
 		for (int i=1;i<returns.size();i++) {
 			if (t1 == null || returns.get(i) == null)
 				return null;
-			phi.unify(t1, returns.get(i));
+			System.out.println("Attempting to unify return values " + t1 + " and " + returns.get(i));
+			t1 = phi.unify(t1, returns.get(i));
 		}
+		if (t1 == null)
+			return null;
 		return phi.subst(t1);
 	}
 

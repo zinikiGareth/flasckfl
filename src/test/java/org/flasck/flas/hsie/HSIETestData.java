@@ -124,6 +124,36 @@ public class HSIETestData {
 		);
 	}
 
+	public static HSIEForm takeConsCase() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("Cons");
+		externals.add("Nil");
+		externals.add("-");
+		return thingy("take", 2, 5, externals,
+			"HEAD 1",
+			"SWITCH 1 Cons", "{",
+				"BIND 2 1 head",
+				"BIND 3 1 tail",
+				"HEAD 0",
+				"SWITCH 0 Number", "{",
+					"IF 0 0", "{",
+						"RETURN Nil", // expr E1
+					"}",
+				"}",
+				"RETURN var 6 4 5", // expr E0
+			"}",
+			"ERROR",  // it would seem that none of the cases match
+			"CLOSURE 4", "{",
+				"-", "var 0", "1",
+			"}",
+			"CLOSURE 5", "{",
+				"take", "var 4", "var 3",
+			"}",
+			"CLOSURE 6", "{",
+				"Cons", "var 2", "var 5",
+			"}"
+		);
+	}
 
 	public static HSIEForm returnPlus1() {
 		ArrayList<String> externals = new ArrayList<String>();

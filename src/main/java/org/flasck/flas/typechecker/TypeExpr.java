@@ -21,10 +21,12 @@ public class TypeExpr {
 		for (Object o : exprs)
 			args.add(o);
 	}
-	
-	@Override
-	public String toString() {
-		return type+(args.isEmpty()?"":"("+args+")");
+
+	// Test if two type expressions are exactly the same, to the very comma
+	// Type variables would need to be THE SAME variables to pass this test - they are not all created equal
+	public boolean identicalTo(TypeExpr add) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	public boolean containsVar(TypeVar tv) {
@@ -36,5 +38,10 @@ public class TypeExpr {
 				ret |= ((TypeExpr) o).containsVar(tv);
 		}
 		return ret;
+	}
+	
+	@Override
+	public String toString() {
+		return type+(args.isEmpty()?"":"("+args+")");
 	}
 }

@@ -215,7 +215,6 @@ public class TestBasicTypeChecking {
 		}
 	}
 	
-
 	@Test
 	public void testWeCanHandleConstantSwitching() throws Exception {
 		TypeChecker tc = new TypeChecker();
@@ -246,4 +245,90 @@ public class TestBasicTypeChecking {
 		}
 	}
 
+	@Test
+	public void testWeCanHandleBindForCons() throws Exception {
+		TypeChecker tc = new TypeChecker();
+		tc.addExternal("Nil", new TypeExpr("Nil"));
+		tc.addExternal("Cons", new TypeExpr("->", new TypeVar(1), new TypeExpr("->", new TypeExpr("List"), new TypeExpr("List"))));
+		tc.addExternal("-", new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("Number"))));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.takeConsCase()));
+		tc.errors.showTo(new PrintWriter(System.out));
+		assertFalse(tc.errors.hasErrors());
+		Object te = tc.knowledge.get("take");
+		System.out.println(te);
+		assertNotNull(te);
+		// The type should be Number -> Cons -> List
+		assertTrue(te instanceof TypeExpr);
+		TypeExpr rte = (TypeExpr) te;
+		assertEquals("->", rte.type);
+		assertEquals(2, rte.args.size());
+		{
+			Object te1 = rte.args.get(0);
+			assertTrue(te1 instanceof TypeExpr);
+			assertEquals("Number", ((TypeExpr)te1).type);
+			assertEquals(0, ((TypeExpr)te1).args.size());
+		}
+		{
+			Object te2 = rte.args.get(1);
+			assertTrue(te2 instanceof TypeExpr);
+			assertEquals("->", ((TypeExpr)te2).type);
+			assertEquals(2, ((TypeExpr)te2).args.size());
+			{
+				Object te2a = ((TypeExpr)te2).args.get(0);
+				assertTrue(te2a instanceof TypeExpr);
+				assertEquals("Cons", ((TypeExpr)te2a).type);
+				assertEquals(0, ((TypeExpr)te2a).args.size());
+			}
+			{
+				Object te2b = ((TypeExpr)te2).args.get(1);
+				assertTrue(te2b instanceof TypeExpr);
+				assertEquals("List", ((TypeExpr)te2b).type);
+				assertEquals(0, ((TypeExpr)te2b).args.size());
+			}
+		}
+	}
+
+	
+	@Test
+	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
+		TypeChecker tc = new TypeChecker();
+		tc.addExternal("Nil", new TypeExpr("Nil"));
+		tc.addExternal("Cons", new TypeExpr("->", new TypeVar(1), new TypeExpr("->", new TypeExpr("List"), new TypeExpr("Cons"))));
+		tc.addExternal("-", new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("->", new TypeExpr("Number"), new TypeExpr("Number"))));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.take()));
+		tc.errors.showTo(new PrintWriter(System.out));
+		assertFalse(tc.errors.hasErrors());
+		Object te = tc.knowledge.get("take");
+		System.out.println(te);
+		assertNotNull(te);
+		// The type should be Number -> Cons -> List
+		assertTrue(te instanceof TypeExpr);
+		TypeExpr rte = (TypeExpr) te;
+		assertEquals("->", rte.type);
+		assertEquals(2, rte.args.size());
+		{
+			Object te1 = rte.args.get(0);
+			assertTrue(te1 instanceof TypeExpr);
+			assertEquals("Number", ((TypeExpr)te1).type);
+			assertEquals(0, ((TypeExpr)te1).args.size());
+		}
+		{
+			Object te2 = rte.args.get(1);
+			assertTrue(te2 instanceof TypeExpr);
+			assertEquals("->", ((TypeExpr)te2).type);
+			assertEquals(2, ((TypeExpr)te2).args.size());
+			{
+				Object te2a = ((TypeExpr)te2).args.get(0);
+				assertTrue(te2a instanceof TypeExpr);
+				assertEquals("Cons", ((TypeExpr)te2a).type);
+				assertEquals(0, ((TypeExpr)te2a).args.size());
+			}
+			{
+				Object te2b = ((TypeExpr)te2).args.get(1);
+				assertTrue(te2b instanceof TypeExpr);
+				assertEquals("List", ((TypeExpr)te2b).type);
+				assertEquals(0, ((TypeExpr)te2b).args.size());
+			}
+		}
+	}
 }
