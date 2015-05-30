@@ -43,9 +43,11 @@ public class TypeUnion implements Iterable<TypeExpr> {
 		// Build a list of all the constructors which are used in the union
 		// If the actual type is used, that's fine, but don't include it
 		Map<String, TypeExpr> ctors = new TreeMap<String, TypeExpr>(new StringComparator());
+		boolean haveDefn = false;
 		for (TypeExpr te : union)
 			if (te.type.equals(d.defining.name)) {
 				ret.put(d.defining, te);
+				haveDefn = true;
 				continue;
 			} else
 				ctors.put(te.type, te);
@@ -53,7 +55,10 @@ public class TypeUnion implements Iterable<TypeExpr> {
 		// Otherwise, check that ALL of them are there by removing them and asserting that the list is then empty
 		for (TypeReference x : d.cases) {
 			if (!ctors.containsKey(x.name))
-				return null;
+				if (!haveDefn)
+					return null;
+				else
+					continue;
 			ret.put(x, ctors.remove(x.name));
 		}
 		return ret.entrySet();

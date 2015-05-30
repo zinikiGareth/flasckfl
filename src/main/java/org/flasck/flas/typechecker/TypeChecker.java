@@ -28,7 +28,7 @@ import org.zinutils.exceptions.UtilException;
 public class TypeChecker {
 	public final ErrorResult errors = new ErrorResult();
 	private final VariableFactory factory = new VariableFactory();
-	final Map<String, Object> knowledge = new HashMap<String, Object>();
+	final Map<String, Type> knowledge = new HashMap<String, Type>();
 	final Map<String, StructDefn> structs = new HashMap<String, StructDefn>();
 	final Map<String, TypeDefn> types = new HashMap<String, TypeDefn>();
 
@@ -43,7 +43,7 @@ public class TypeChecker {
 		types.put(typeDefn.defining.name, typeDefn);
 	}
 
-	public void addExternal(String name, Object type) {
+	public void addExternal(String name, Type type) {
 		knowledge.put(name, type);
 	}
 
@@ -72,8 +72,10 @@ public class TypeChecker {
 			Object rwt = phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
 			actualTypes.put(f.fnName, phi.subst(rwt)); 
 		}
-		for (HSIEForm f : rewritten.values())
-			knowledge.put(f.fnName, phi.subst(actualTypes.get(f.fnName)));
+		for (HSIEForm f : rewritten.values()) {
+			TypeExpr subst = (TypeExpr) phi.subst(actualTypes.get(f.fnName));
+			knowledge.put(f.fnName, subst.asType(this));
+		}
 	}
 
 	private HSIEForm rewriteWithFreshVars(HSIEForm hsie, int from) {
@@ -273,6 +275,11 @@ public class TypeChecker {
 	}
 
 	private Object freshVarsIn(Object te) {
+		if (te instanceof Type) {
+			Object ret = ((Type)te).asExpr(factory);
+			System.out.println(ret);
+			return ret;
+		}
 		Set<TypeVar> vs = new HashSet<TypeVar>();
 		findVarsIn(vs, te);
 		Map<TypeVar, TypeVar> map = new HashMap<TypeVar, TypeVar>();
@@ -285,11 +292,12 @@ public class TypeChecker {
 	private void findVarsIn(Set<TypeVar> vs, Object te) {
 		if (te instanceof TypeVar)
 			vs.add((TypeVar) te);
-		else {
+		else if (te instanceof TypeExpr) {
 			TypeExpr te2 = (TypeExpr) te;
 			for (Object o : te2.args)
 				findVarsIn(vs, o);
-		}
+		} else
+			throw new UtilException("case not handled " + te.getClass());
 	}
 
 	private Object substVars(Map<TypeVar, TypeVar> map, Object te) {

@@ -1,7 +1,11 @@
 package org.flasck.flas.typechecker;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class Type {
@@ -19,6 +23,10 @@ public class Type {
 	public static Type simple(String name, List<Type> args) {
 		return new Type(WhatAmI.SIMPLE, name, args);
 	}
+
+	public static Type simple(String name, Type... args) {
+		return new Type(WhatAmI.SIMPLE, name, CollectionUtils.listOf(args));
+	}
 	
 	public static Type polyvar(String name) {
 		return new Type(WhatAmI.POLYVAR, name, null);
@@ -27,11 +35,48 @@ public class Type {
 	public static Type function(List<Type> args) {
 		return new Type(WhatAmI.FUNCTION, null, args);
 	}
+
+	public static Type function(Type... args) {
+		return Type.function(CollectionUtils.listOf(args));
+	}
 	
 	public static Type tuple(List<Type> args) {
 		return new Type(WhatAmI.TUPLE, null, args);
 	}
 	
+	public Object asExpr(VariableFactory factory) {
+		Map<String, TypeVar> mapping = new HashMap<String, TypeVar>();
+		return convertToExpr(factory, mapping);
+	}
+
+	protected Object convertToExpr(VariableFactory factory, Map<String, TypeVar> mapping) {
+		switch (iam) {
+		case SIMPLE: {
+			List<Object> myargs = new ArrayList<Object>();
+			for (Type t : args)
+				myargs.add(t.convertToExpr(factory, mapping));
+			return new TypeExpr(name, myargs);
+		}
+		case POLYVAR: {
+			if (mapping.containsKey(name))
+				return mapping.get(name);
+			TypeVar var = factory.next();
+			mapping.put(name, var);
+			return var;
+		}
+		case FUNCTION: {
+			Object ret = args.get(args.size()-1).convertToExpr(factory, mapping);
+			for (int i=args.size()-2;i>=0;i--) {
+				Object left = args.get(i).convertToExpr(factory, mapping);
+				ret = new TypeExpr("->", left, ret);
+			}
+			return ret;
+		}
+		default:
+			throw new UtilException("error: "+ iam);
+		}
+	}
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		show(sb);

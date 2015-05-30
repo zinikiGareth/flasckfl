@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -34,9 +35,23 @@ public class TypeExpr {
 
 	// Test if two type expressions are exactly the same, to the very comma
 	// Type variables would need to be THE SAME variables to pass this test - they are not all created equal
-	public boolean identicalTo(TypeExpr add) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean identicalTo(TypeExpr other) {
+		if (!this.type.equals(other.type))
+			return false;
+		if (this.args.size() != other.args.size())
+			return false;
+		boolean ret = true;
+		for (int i=0;i<this.args.size();i++) {
+			Object lhs = this.args.get(i);
+			Object rhs = other.args.get(i);
+			if (lhs instanceof TypeVar && rhs instanceof TypeVar)
+				ret &= ((TypeVar)lhs).equals(rhs);
+			else if (lhs instanceof TypeExpr && rhs instanceof TypeExpr)
+				ret &= ((TypeExpr)lhs).identicalTo((TypeExpr) rhs);
+			else
+				return false;
+		}
+		return ret;
 	}
 
 	public boolean containsVar(TypeVar tv) {
@@ -108,7 +123,6 @@ public class TypeExpr {
 								continue;
 							TypeReference vr = (TypeReference) v;
 							Object hv = have.next();
-							System.out.println(vr.name);
 							if (checkBindings.containsKey(vr.name)) {
 								if (!hv.equals(checkBindings.get(vr.name))) {
 									tc.errors.message((Tokenizable)null, "inconsistent parameters to " + want.name);
@@ -123,7 +137,7 @@ public class TypeExpr {
 					return Type.simple(d.defining.name, convertArgs(tc, pool, checkBindings.values()));
 				}
 			}
-			tc.errors.message((Tokenizable)null, "The union of " + tu + " is not a valid type");
+			tc.errors.message((Block)null, "The union of " + tu + " is not a valid type");
 			throw new TypeUnion.FailException();
 		} else
 			throw new UtilException("Cannot convert " + (o == null?"null":o.getClass()));
