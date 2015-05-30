@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -54,7 +55,7 @@ public class FLASStory implements StoryProcessor {
 
 	@Override
 	public Object process(String pkg, List<Block> blocks) {
-		State s = new State(builtinScope(), pkg);
+		State s = new State(new Scope(builtinScope()), pkg);
 		ErrorResult er = new ErrorResult();
 		return doScope(er, s, blocks);
 	}
@@ -63,7 +64,7 @@ public class FLASStory implements StoryProcessor {
 		if (blocks.isEmpty())
 			return null;
 
-		Scope ret = new Scope(s.scope);
+		Scope ret = s.scope;
 		Boolean usingPackages = null;
 		List<Object> fndefns = new ArrayList<Object>();
 		for (Block b : blocks) {
@@ -102,8 +103,9 @@ public class FLASStory implements StoryProcessor {
 			}
 			if (o instanceof FunctionCaseDefn) {
 				fndefns.add(o);
-				if (!b.nested.isEmpty())
-					throw new UtilException("Need to handle nested function defns");
+				if (!b.nested.isEmpty()) {
+					doScope(er, new State(((ContainsScope)o).innerScope(), s.pkg +"." + ((FunctionCaseDefn)o).intro.name), b.nested);
+				}
 			} else if (o instanceof StructDefn) {
 				StructDefn sd = (StructDefn)o;
 				if (ret.contains(sd.typename))
@@ -169,6 +171,9 @@ public class FLASStory implements StoryProcessor {
 			ret.define("Number", "Number", null);
 			ret.define("+", "FLEval.plus", null);
 			ret.define("-", "FLEval.minus", null);
+			ret.define("*", "FLEval.mul", null);
+			ret.define("/", "FLEval.div", null);
+			ret.define("^", "FLEval.exp", null);
 		}
 		{ // lists
 			ret.define("List", "List", null);

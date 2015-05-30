@@ -18,7 +18,7 @@ public class MethodConvertor {
 	public static FunctionDefinition convert(String card, String type, MethodDefinition m) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		for (MethodCaseDefn mcd : m.cases) {
-			cases.add(new FunctionCaseDefn(card +"." +type+"."+mcd.intro.name, mcd.intro.args, convert(mcd.messages)));
+			cases.add(new FunctionCaseDefn(null, card +"." +type+"."+mcd.intro.name, mcd.intro.args, convert(mcd.messages)));
 		}
 		// This feels very much hackishly the wrong place to put ".prototype."
 		// Should we have a MethodDefinition as well which we can generate differently?

@@ -155,6 +155,29 @@ public class HSIETestData {
 		);
 	}
 
+	public static HSIEForm mutualF() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("ME.f.g");
+		return thingy("ME.f", 1, 1, externals,
+			"RETURN var 1",
+			"CLOSURE 1", "{",
+				"ME.f.g", "2",
+			"}"
+		);
+	}
+
+	public static HSIEForm mutualG() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("FLEval.mul");
+		externals.add("_scoped.x");
+		return thingy("ME.f.g", 1, 1, externals,
+			"RETURN var 1",
+			"CLOSURE 1", "{",
+				"FLEval.mul", "_scoped.x", "var 0",
+			"}"
+		);
+	}
+
 	public static HSIEForm returnPlus1() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("plus1");

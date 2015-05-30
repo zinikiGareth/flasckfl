@@ -57,7 +57,7 @@ public class Compiler {
 				((ErrorResult)obj).showTo(new PrintWriter(System.out));
 			} else if (obj instanceof Scope) {
 				Scope scope = (Scope) obj;
-				rewriter.rewrite(scope);
+				scope = rewriter.rewrite(scope);
 				List<String> pkglist = emitPackages(forms, scope, defPkg);
 				processScope(forms, scope, 1);
 				for (JSForm js : forms) {
@@ -83,9 +83,9 @@ public class Compiler {
 	}
 
 	private void processScope(List<JSForm> forms, Scope scope, int scopeDepth) {
-		for (Entry<String, Object> x : scope) {
-			String name = x.getKey();
-			Object val = x.getValue();
+		for (Entry<String, Entry<String, Object>> x : scope) {
+			String name = x.getValue().getKey();
+			Object val = x.getValue().getValue();
 			if (val instanceof PackageDefn) {
 				processScope(forms, ((PackageDefn) val).innerScope(), scopeDepth+1);
 			} else if (val instanceof FunctionDefinition) {
@@ -136,7 +136,8 @@ public class Compiler {
 	private List<String> emitPackages(List<JSForm> forms, Scope scope, String defPkg) {
 		boolean havePkg = false;
 		List<String> plist = new ArrayList<String>();
-		for (Entry<String, Object> o : scope) {
+		for (Entry<String, Entry<String, Object>> ko : scope) {
+			Entry<String, Object> o = ko.getValue();
 			if (o.getValue() instanceof PackageDefn) {
 				havePkg = true;
 				assertPackage(forms, plist, o.getKey());

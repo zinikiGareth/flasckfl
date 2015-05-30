@@ -12,6 +12,8 @@ import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
@@ -44,7 +46,7 @@ public class Rewriter {
 			if (defines.contains(name)) {
 				return this.makeName(name);
 			} else
-				return ((NamingContext)nested).resolve(name);
+				return nested.resolve(name);
 		}
 
 		protected abstract String makeName(String name);
@@ -70,7 +72,8 @@ public class Rewriter {
 
 		@Override
 		protected String makeName(String name) {
-			throw new UtilException("Cannot have names in this scope");
+//			throw new UtilException("Cannot have names in this scope");
+			return scope.resolve(name);
 		}
 		
 	}
@@ -98,8 +101,16 @@ public class Rewriter {
 	}
 	
 	class FunctionContext extends NamingContext {
-		FunctionContext(NamingContext cx) {
+		private final String myname;
+		protected final Set<String> locals = new HashSet<String>();
+
+		FunctionContext(NamingContext cx, Scope scope, String myname) {
 			super(cx);
+			this.myname = cx.makeName(myname);
+			if (scope != null) {
+				for (String k : scope.keys())
+					add(k);
+			}
 		}
 
 		@Override
@@ -110,21 +121,48 @@ public class Rewriter {
 					throw new UtilException("Cannot define variable " + s + " multiple times in nested scopes");
 				nc = nc.nested;
 			}
+			super.add(s);
+		}
+		
+		public String resolveWithLocal(String name, boolean direct) {
+			if (locals.contains(name)) {
+				if (direct)
+					return name;
+				else
+					return "_scoped." + name;
+			} else if (defines.contains(name))
+				return makeName(name);
+			else if (nested instanceof FunctionContext)
+				return ((FunctionContext)nested).resolveWithLocal(name, false);
+			else
+				return nested.resolve(name);
+		}
+		
+		@Override
+		public String resolve(String name) {
+			return resolveWithLocal(name, true);
 		}
 		
 		@Override
 		protected String makeName(String name) {
-			return name;
+			return myname + "." + name;
 		}
 	}
 	
-	public void rewrite(Scope scope) {
-		RootContext cx = new RootContext(scope);
-		for (Entry<String, Object> x : scope) {
-			String name = x.getKey();
-			Object val = x.getValue();
+	public Scope rewrite(Scope scope) {
+		Scope newScope = new Scope(scope.outer);
+		rewriteScope(new RootContext(scope), scope, newScope);
+		return newScope;
+	}
+
+	protected void rewriteScope(NamingContext cx, Scope from, Scope into) {
+		for (Entry<String, Entry<String, Object>> x : from) {
+			String name = x.getValue().getKey();
+			Object val = x.getValue().getValue();
 			if (val instanceof CardDefinition) {
-				CardContext c2 = new CardContext(cx);
+				if (!(cx instanceof RootContext))
+					throw new UtilException("Cannot have card in nested scope");
+				CardContext c2 = new CardContext((RootContext) cx);
 				CardDefinition cd = (CardDefinition) val;
 				// TODO: Gather locally defined things 
 				if (cd.state != null) {
@@ -154,8 +192,14 @@ public class Rewriter {
 				for (HandlerImplements hi : ll) {
 					cd.handlers.add(rewriteHI(c2, hi));
 				}
-			} else
+				into.define(x.getKey(), name, cd);
+			} else if (val instanceof FunctionDefinition) {
+				FunctionDefinition nv = rewrite(cx, (FunctionDefinition)val);
+				into.define(x.getKey(), nv.name, nv);
+			} else {
 				System.out.println("Can't rewrite " + name + " of type " + val.getClass());
+				into.define(x.getKey(), name, val);
+			}
 		}
 	}
 
@@ -184,20 +228,36 @@ public class Rewriter {
 		}
 	}
 
+	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
+		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
+		FunctionContext icx = new FunctionContext(cx, f.innerScope(), f.name);
+		for (FunctionCaseDefn c : f.cases) {
+			list.add(rewrite(icx, c));
+		}
+		FunctionDefinition ret = new FunctionDefinition(cx.makeName(f.name), f.nargs, list);
+		rewriteScope(icx, f.innerScope(), ret.innerScope());
+		return ret;
+	}
+
 	private MethodDefinition rewrite(NamingContext scope, MethodDefinition m) {
 		List<MethodCaseDefn> list = new ArrayList<MethodCaseDefn>();
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(scope, c));
+			list.add(rewrite(new FunctionContext(scope, null, m.intro.name), c));
 		}
 		return new MethodDefinition(m.intro, list);
 	}
 
-	private MethodCaseDefn rewrite(NamingContext cx, MethodCaseDefn c) {
+	private FunctionCaseDefn rewrite(FunctionContext cx, FunctionCaseDefn c) {
+		FunctionIntro intro = rewrite(cx, c.intro);
+		gatherVars(cx.locals, c.intro.args);
+		return new FunctionCaseDefn(c.innerScope().outer, intro.name, intro.args, rewriteExpr(cx, c.expr));
+	}
+
+	private MethodCaseDefn rewrite(FunctionContext cx, MethodCaseDefn c) {
 		MethodCaseDefn ret = new MethodCaseDefn(rewrite(cx, c.intro));
-		NamingContext c2 = new FunctionContext(cx);
-		gatherVars(c2.defines, c.intro.args);
+		gatherVars(cx.locals, c.intro.args);
 		for (MethodMessage mm : c.messages)
-			ret.messages.add(rewrite(c2, mm));
+			ret.messages.add(rewrite(cx, mm));
 		return ret;
 	}
 
@@ -206,13 +266,15 @@ public class Rewriter {
 		for (Object o : intro.args) {
 			args.add(rewritePattern(scope, o));
 		}
-		return new FunctionIntro(intro.name, args);
+		return new FunctionIntro(scope.makeName(intro.name), args);
 	}
 
 	private Object rewritePattern(NamingContext scope, Object o) {
 		if (o instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) o;
 			return new TypedPattern(scope.resolve(tp.type), tp.var);
+		} else if (o instanceof VarPattern) {
+			return o;
 		} else {
 			System.out.println("Couldn't rewrite pattern " + o.getClass());
 			return o;
@@ -238,12 +300,15 @@ public class Rewriter {
 		if (expr instanceof ItemExpr) {
 			ItemExpr ie = (ItemExpr) expr;
 			System.out.println("Want to rewrite " + ie.tok);
+			ItemExpr ret;
 			if (ie.tok.type == ExprToken.NUMBER || ie.tok.type == ExprToken.STRING)
-				return ie;
+				ret = ie;
 			else if (ie.tok.type == ExprToken.IDENTIFIER || ie.tok.type == ExprToken.SYMBOL || ie.tok.type == ExprToken.PUNC)
-				return new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, scope.resolve(ie.tok.text)));
+				ret = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, scope.resolve(ie.tok.text)));
 			else
 				throw new UtilException("Cannot handle " + ie.tok);
+			System.out.println("Rewritten to " + ret);
+			return ret;
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			if (ae.fn instanceof ItemExpr && ((ItemExpr)ae.fn).tok.text.equals(".")) {

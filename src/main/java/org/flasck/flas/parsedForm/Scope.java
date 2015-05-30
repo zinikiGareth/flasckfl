@@ -3,11 +3,12 @@ package org.flasck.flas.parsedForm;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.zinutils.exceptions.UtilException;
 
-public class Scope implements Iterable<Entry<String, Object>> {
+public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 	public class ScopeEntry implements Entry<String, Object> {
 		private final String name;
 		private Object defn;
@@ -29,11 +30,12 @@ public class Scope implements Iterable<Entry<String, Object>> {
 
 		@Override
 		public Object setValue(Object value) {
+			this.defn = value;
 			return defn;
 		}
 	}
 
-	private final Scope outer;
+	public final Scope outer;
 	private final Map<String, Map.Entry<String, Object>> defns = new TreeMap<String, Map.Entry<String, Object>>();
 
 	public Scope(Scope inside) {
@@ -63,12 +65,26 @@ public class Scope implements Iterable<Entry<String, Object>> {
 		if (outer != null)
 			return outer.resolve(name);
 		System.out.println("Could not resolve name " + name + " in " + defns.keySet());
-		return "BUILTIN."+name;
+		throw new UtilException("Could not resolve name " + name);
+	}
+	
+	public Set<String> keys() {
+		return defns.keySet();
 	}
 
 	@Override
-	public Iterator<Entry<String, Object>> iterator() {
-		return defns.values().iterator();
+	public Iterator<Entry<String, Entry<String, Object>>> iterator() {
+		return defns.entrySet().iterator();
 	}
 
+	public Object get(String key) {
+		if (!defns.containsKey(key))
+			return null;
+		return defns.get(key).getValue();
+	}
+
+	@Override
+	public String toString() {
+		return defns.toString();
+	}
 }

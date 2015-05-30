@@ -12,9 +12,10 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class FunctionParser implements TryParsing {
+	private final Scope scope;
 
 	public FunctionParser(Scope scope) {
-		
+		this.scope = scope;
 	}
 	
 	@Override
@@ -56,7 +57,7 @@ public class FunctionParser implements TryParsing {
 			return ErrorResult.oneMessage(line, "unexpected tokens at end of line");
 
 		// Build a response object
-		return new FunctionCaseDefn(name, args, expr);
+		return new FunctionCaseDefn(scope, name, args, expr);
 	}
 
 }

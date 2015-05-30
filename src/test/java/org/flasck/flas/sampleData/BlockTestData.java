@@ -119,6 +119,15 @@ public class BlockTestData {
 			.build();
 	}
 
+	public static List<Block> simpleMutualRecursionBlock() {
+		List<Block> ret = new ArrayList<Block>();
+		ret.add(builder()
+			.line("f x = g 2")
+			.indent()
+			.line("g y = x * y")
+			.build());
+		return ret;
+	}
 
 	public static Block comment(String string) {
 		return builder().comment(string).build();

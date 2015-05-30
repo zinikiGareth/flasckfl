@@ -20,14 +20,14 @@ public class ParsedFormTestData {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(ConstPattern.INTEGER, "0"));
 		ItemExpr ie = new ItemExpr(new ExprToken(ExprToken.NUMBER, "1"));
-		return new FunctionCaseDefn("fib", args, ie);
+		return new FunctionCaseDefn(null, "fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefn2() {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(ConstPattern.INTEGER, "1"));
 		ItemExpr ie = new ItemExpr(new ExprToken(ExprToken.NUMBER, "1"));
-		return new FunctionCaseDefn("fib", args, ie);
+		return new FunctionCaseDefn(null, "fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefnN() {
@@ -40,7 +40,7 @@ public class ParsedFormTestData {
 		ApplyExpr rhs = new ApplyExpr(ie("fib"), minus2);
 		ApplyExpr top = new ApplyExpr(se("+"), lhs, rhs);
 		
-		return new FunctionCaseDefn("fib", args, top);
+		return new FunctionCaseDefn(null, "fib", args, top);
 	}
 
 	private static ItemExpr ie(String tok) {

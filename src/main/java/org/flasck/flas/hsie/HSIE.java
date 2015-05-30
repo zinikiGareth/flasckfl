@@ -13,10 +13,8 @@ import java.util.TreeSet;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
-import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -249,15 +247,4 @@ public class HSIE {
 		}
 		return best;
 	}
-
-	public static void applyTo(Scope s) {
-		for (Entry<String, Object> x : s) {
-			if (x instanceof FunctionDefinition) {
-				handle((FunctionDefinition) x);
-			}
-			if (x instanceof ContainsScope)
-				applyTo(((ContainsScope)x).innerScope());
-		}
-	}
-
 }
