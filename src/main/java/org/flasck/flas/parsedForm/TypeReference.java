@@ -5,7 +5,7 @@ import java.util.List;
 
 public class TypeReference {
 	public final String name;
-	public final List<Object> args = new ArrayList<Object>();
+	public final List<TypeReference> args = new ArrayList<TypeReference>();
 
 	public TypeReference(String name) {
 		this.name = name;

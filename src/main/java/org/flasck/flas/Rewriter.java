@@ -258,7 +258,7 @@ public class Rewriter {
 		return expr;
 	}
 
-	private Object rewriteType(NamingContext scope, Object type) {
+	private TypeReference rewriteType(NamingContext scope, Object type) {
 		if (type instanceof TypeReference) {
 			TypeReference tr = (TypeReference) type;
 			TypeReference ret = new TypeReference(scope.resolve(tr.name));
@@ -267,7 +267,7 @@ public class Rewriter {
 			return ret;
 		}
 		System.out.println("Can't rewrite type " + type + " of type " + type.getClass());
-		return type;
+		return (TypeReference) type;
 	}
 	
 	private void gatherVars(Set<String> defines, List<Object> args) {

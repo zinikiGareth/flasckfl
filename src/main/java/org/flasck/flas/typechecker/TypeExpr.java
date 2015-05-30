@@ -143,6 +143,19 @@ public class TypeExpr {
 			throw new UtilException("Cannot convert " + (o == null?"null":o.getClass()));
 	}
 
+	public static Object fromReference(TypeReference tr, Map<String, TypeVar> polys) {
+		if (polys.containsKey(tr.name))
+			return polys.get(tr.name);
+		return new TypeExpr(tr.name, fromArgs(tr.args, polys));
+	}
+	
+	private static List<Object> fromArgs(List<TypeReference> l, Map<String, TypeVar> polys) {
+		List<Object> ret = new ArrayList<Object>();
+		for (TypeReference o : l)
+			ret.add(fromReference(o, polys));
+		return ret;
+	}
+
 	@Override
 	public String toString() {
 		return type+(args.isEmpty()?"":"("+args+")");

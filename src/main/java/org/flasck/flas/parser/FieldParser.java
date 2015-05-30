@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.VarNameToken;
 
@@ -9,7 +10,7 @@ public class FieldParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
-		Object type = new TypeExprParser().tryParsing(line);
+		TypeReference type = (TypeReference) new TypeExprParser().tryParsing(line);
 		if (type == null)
 			return null; // errors should have been reported already, propagate
 		String kw = VarNameToken.from(line);

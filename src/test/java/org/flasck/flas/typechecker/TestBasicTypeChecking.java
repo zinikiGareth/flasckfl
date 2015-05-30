@@ -176,12 +176,14 @@ public class TestBasicTypeChecking {
 	}
 
 	@Test
-	public void testWeCanUseSwitchToLimitId() {
+	public void testWeCanUseSwitchToLimitId() throws Exception {
 		TypeChecker tc = new TypeChecker();
+		tc.addStructDefn(new StructDefn("Number"));
 		PhiSolution phi = new PhiSolution(tc.errors);
 		TypeEnvironment gamma = new TypeEnvironment();
-		Object te = tc.checkHSIE(null, phi, gamma, HSIETestData.numberIdFn());
+		Object te = tc.checkHSIE(new HashMap<String,Object>(), phi, gamma, HSIETestData.numberIdFn());
 		System.out.println(te);
+		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		assertNotNull(te);
 		// The type should be Number -> Number
@@ -206,6 +208,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanHandleConstantSwitching() throws Exception {
 		TypeChecker tc = new TypeChecker();
+		tc.addStructDefn(new StructDefn("Number"));
 		tc.addExternal("+", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.fib()));
@@ -222,6 +225,11 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanHandleBindForCons() throws Exception {
 		TypeChecker tc = new TypeChecker();
+		tc.addStructDefn(new StructDefn("Number"));
+		tc.addStructDefn(
+				new StructDefn("Cons").add("A")
+				.addField(new StructField(new TypeReference("A"), "head"))
+				.addField(new StructField(new TypeReference("Cons").with(new TypeReference("A")), "tail")));
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
@@ -233,8 +241,8 @@ public class TestBasicTypeChecking {
 		assertNotNull(te);
 		// The type should be Number -> Cons -> List
 		assertTrue(te instanceof Type);
-		assertEquals("Number->Cons->List[A]", te.toString());
-//		assertEquals("Number->Cons[A]->List[A]", te.toString());
+//		assertEquals("Number->Cons->List[A]", te.toString());
+		assertEquals("Number->Cons[A]->List[A]", te.toString());
 	}
 
 	
@@ -242,12 +250,17 @@ public class TestBasicTypeChecking {
 	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
 		TypeChecker tc = new TypeChecker();
 		
-		TypeDefn list = new TypeDefn(new TypeReference("List").with(new TypeReference("A")));
-		list.addCase(new TypeReference("Nil"));
-		list.addCase(new TypeReference("Cons").with(new TypeReference("A")));
+		TypeReference list = new TypeReference("List").with(new TypeReference("A"));
+		tc.addStructDefn(new StructDefn("Number"));
 		tc.addStructDefn(new StructDefn("Nil"));
-		tc.addStructDefn(new StructDefn("Cons").add("A").addField(new StructField(Type.polyvar("A"), "head")).addField(new StructField(list, "tail")));
-		tc.addTypeDefn(list);
+		tc.addStructDefn(
+				new StructDefn("Cons").add("A")
+				.addField(new StructField(new TypeReference("A"), "head"))
+				.addField(new StructField(list, "tail")));
+		TypeDefn listDefn = new TypeDefn(list);
+		listDefn.addCase(new TypeReference("Nil"));
+		listDefn.addCase(new TypeReference("Cons").with(new TypeReference("A")));
+		tc.addTypeDefn(listDefn);
 		
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
@@ -258,9 +271,7 @@ public class TestBasicTypeChecking {
 		Object te = tc.knowledge.get("take");
 		System.out.println(te);
 		assertNotNull(te);
-		// The type should be Number -> List[A] -> List[A]
 		assertTrue(te instanceof Type);
-//		assertEquals("Number->List->List", te.toString());
-		assertEquals("Number->List->List[A]", te.toString());
+		assertEquals("Number->List[A]->List[A]", te.toString());
 	}
 }

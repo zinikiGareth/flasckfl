@@ -61,7 +61,7 @@ public class TypeExprParser implements TryParsing {
 				Object ta = tryParsing(line);
 				if (ta == null)
 					return null; // error happened inside, return it
-				tr.args.add(ta);
+				tr.args.add((TypeReference) ta);
 				mark = line.at();
 			}
 			line.reset(mark); // want to see the CRB/COMMA again

@@ -10,6 +10,7 @@ import java.util.Set;
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -158,7 +159,7 @@ public class TypeChecker {
 		}
 		System.out.println(gamma);
 		// what we need to do is to apply tcExpr to the right hand side with the new gamma
-		Object rhs = checkBlock(localKnowledge, phi, gamma, hsie, hsie);
+		Object rhs = checkBlock(new SFTypes(null), localKnowledge, phi, gamma, hsie, hsie);
 		if (rhs == null)
 			return null;
 		// then we need to build an expr tv0 -> tv1 -> tv2 -> E with all the vars substituted
@@ -167,7 +168,7 @@ public class TypeChecker {
 		return rhs;
 	}
 
-	private Object checkBlock(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock hsie) {
+	private Object checkBlock(SFTypes sft, Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock hsie) {
 		List<Object> returns = new ArrayList<Object>();
 		for (HSIEBlock o : hsie.nestedCommands()) {
 			if (o instanceof ReturnCmd) {
@@ -180,21 +181,44 @@ public class TypeChecker {
 				;
 			else if (o instanceof Switch) {
 				Switch s = (Switch) o;
+				StructDefn sd = structs.get(s.ctor);
+				if (sd == null) {
+					errors.message((Block)null, "there is no definition for struct " + s.ctor);
+					return null;
+				}
 				TypeScheme valueOf = gamma.valueOf(s.var);
 				System.out.println(valueOf);
-				phi.unify(valueOf.typeExpr, new TypeExpr(s.ctor));
-				returns.add(checkBlock(localKnowledge, phi, gamma, form, s));
+				List<Object> targs = new ArrayList<Object>();
+				Map<String, TypeVar> polys = new HashMap<String, TypeVar>();
+				// we need a complex map of form var -> ctor -> field -> type
+				// and type needs to be cunningly constructed from TypeReference
+				for (String x : sd.args) {
+					TypeVar tv = factory.next();
+					targs.add(tv);
+					polys.put(x, tv);
+				}
+				System.out.println(polys);
+				SFTypes inner = new SFTypes(sft);
+				for (StructField x : sd.fields) {
+					System.out.println("field " + x.name + " has " + x.type);
+					Object fr = TypeExpr.fromReference(x.type, polys);
+					inner.put(s.var, x.name, fr);
+					System.out.println(fr);
+				}
+				phi.unify(valueOf.typeExpr, new TypeExpr(s.ctor, targs));
+				returns.add(checkBlock(inner, localKnowledge, phi, gamma, form, s));
 			} else if (o instanceof IFCmd) {
 				IFCmd ic = (IFCmd) o;
 				// Since we have to have done a SWITCH before we get here, this gives us no new information
-				returns.add(checkBlock(localKnowledge, phi, gamma, form, ic));
+				returns.add(checkBlock(sft, localKnowledge, phi, gamma, form, ic));
 			} else if (o instanceof BindCmd) {
 				BindCmd bc = (BindCmd) o;
 				TypeVar tv = factory.next();
+				phi.unify(tv, sft.get(bc.from, bc.field));
 				System.out.println("binding " + bc.bind + " to " + tv);
 				gamma = gamma.bind(bc.bind, new TypeScheme(null, tv));
 			} else if (o instanceof ErrorCmd) {
-				
+				// nothing really to do here ...
 			} else
 				throw new UtilException("Missing cases " + o.getClass());
 		}
