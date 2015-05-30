@@ -181,3 +181,25 @@ Cannot unify Cons and Nil
 Cannot unify List and Cons
 </pre>
 </blockquote>
+Turning around and trying to implement this, everything goes pretty much by the book.  We can introduce and implement a <tt>TypeUnion</tt> easily enough, and we can populate it with <tt>TypeExpr</tt> objects when needed.  It's not too hard to update the unification code to create one of these if it can't unify, and then it's just a question of following through on all the places where errors occur because we can handle <tt>TypeVar</tt>s and <tt>TypeExpr</tt>s, but we can't handle <tt>TypeUnion</tt>s.  That includes being able to merge two <tt>TypeUnion</tt> objects together to make a new object.
+<p>
+The one thing that comes out of this is that previously the unification algorithm did not need to return a type, since it could be deduced from the <tt>phi</tt> transform as the mapping from a type variable.  Now, a (potentially new) unified type may need to be returned which does not really reflect a unified variable since it may reflect the unification of two different return values.
+<p>
+And we're done with the actual unification.
+<h2>Cleaning up (Union) types</h2>
+It's particularly apparent with union types, but it's also the case with polymorphic types, that the presentation of types that we have is not particularly pleasant.  The problem with union types is that we are showing all the individual "constructors" and thus describing something as <tt>{Cons,Nil}</tt> or even <tt>{Cons,Nil,List}</tt>, where what we really mean is <tt>List</tt>.  In polymorphic types, we have variables called things like <tt>tv_3</tt> when <tt>A</tt> would be more natural.
+<p>
+At the same time, I would like to clean up the presentation so that function types can have multiple parameters, instead of being strictly pairs.  This basically consists of unfolding the <tt>TypeExpr</tt> definitions.
+<p>
+I thus propose that in the process of adding types to the store of existing knowledge, we map them from being <tt>TypeExpr</tt>s to being <tt>Type</tt> objects, which don't allow for "type variables" as such but for polymorphic type parameters.  Also, <tt>TypeUnion</tt> objects are not permitted here: they must be resolved to a suitable type.
+<p>
+For this, I am going to follow the strategy I outlined above: if there is a suitable <tt>type</tt> which is exactly what is required, then that is what will be used; if not, then the combined type will be rejected.  If and when I allow for functions to be specifically typed, the second part of the rule will be implemented.
+<p>
+This isn't going to involve the creation of any new test cases, but a refactoring of all the existing ones.  It also requires us to add the knowledge about <tt>struct</tt> and <tt>type</tt> definitions to the typechecker.
+<p>
+The hard part of all of this is none of the things I expected, but the thorny issue of matching up the polymorphic types in a Union.  The problem appears to be simply that because we have a union of different things, we want to resolve to T[A], but we obviously can't say that Cons[Number] and Cons[String] merge to List[A].  I think it's even more tricky in cases where there are multiple polymorphic structs.
+<p>
+The only reasonable approach (at least until we have more data) is to say that for each case, we want the defined struct-polymorphic variable to match the same rhs every time.  Hopefully unification will mean that this is true.
+<p>
+And so on and so on.  Almost all details in bookkeeping and making sure that everything ends up in the right places and populating the right structures in the typechecker and lots of mapping backwards and forwards between Types, TypeExprs and TypeReferences.  I'm not sure that TypeReference shouldn't go away and be replaced with the more general Type.
+<p>
