@@ -24,7 +24,11 @@ import org.zinutils.exceptions.UtilException;
 
 public class HSIE {
 	public static HSIEForm handle(FunctionDefinition defn) {
-		HSIEForm ret = new HSIEForm(defn.name, defn.nargs);
+		return handle(defn, 0);
+	}
+	
+	public static HSIEForm handle(FunctionDefinition defn, int alreadyUsed) {
+		HSIEForm ret = new HSIEForm(defn.name, alreadyUsed, defn.nargs);
 		MetaState ms = new MetaState(ret);
 		if (defn.nargs == 0)
 			return handleConstant(ms, defn);
@@ -34,12 +38,11 @@ public class HSIE {
 			State f = ms.first();
 			recurse(ms, f);
 		}
-		ret.dump();
 		return ret;
 	}
 
 	public static HSIEForm handleExpr(Object expr) {
-		MetaState ms = new MetaState(new HSIEForm("", 0));
+		MetaState ms = new MetaState(new HSIEForm("", 0, 0));
 		Object ret = ms.getValueFor(new SubstExpr(expr));
 		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;

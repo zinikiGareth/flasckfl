@@ -87,7 +87,7 @@ public class TypeChecker {
 			mapping.put(v, newVar);
 			vars.add(newVar);
 		}
-		HSIEForm ret = new HSIEForm(hsie.fnName, hsie.nformal, vars, hsie.externals);
+		HSIEForm ret = new HSIEForm(hsie.fnName, hsie.alreadyUsed, hsie.nformal, vars, hsie.externals);
 		mapBlock(ret, hsie, mapping);
 		for (HSIEBlock b : hsie.closures()) {
 			HSIEBlock closure = ret.closure(mapping.get(((ClosureCmd)b).var));

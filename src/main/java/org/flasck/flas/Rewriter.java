@@ -104,9 +104,9 @@ public class Rewriter {
 		private final String myname;
 		protected final Set<String> locals = new HashSet<String>();
 
-		FunctionContext(NamingContext cx, Scope scope, String myname) {
+		FunctionContext(NamingContext cx, Scope scope, String myname, int cs) {
 			super(cx);
-			this.myname = cx.makeName(myname);
+			this.myname = cx.makeName(myname) +"_"+cs;
 			if (scope != null) {
 				for (String k : scope.keys())
 					add(k);
@@ -230,27 +230,31 @@ public class Rewriter {
 
 	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
-		FunctionContext icx = new FunctionContext(cx, f.innerScope(), f.name);
+		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
-			list.add(rewrite(icx, c));
+			list.add(rewrite(new FunctionContext(cx, c.innerScope(), f.name, cs), c));
+			cs++;
 		}
 		FunctionDefinition ret = new FunctionDefinition(cx.makeName(f.name), f.nargs, list);
-		rewriteScope(icx, f.innerScope(), ret.innerScope());
 		return ret;
 	}
 
 	private MethodDefinition rewrite(NamingContext scope, MethodDefinition m) {
 		List<MethodCaseDefn> list = new ArrayList<MethodCaseDefn>();
+		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(new FunctionContext(scope, null, m.intro.name), c));
+			list.add(rewrite(new FunctionContext(scope, null, m.intro.name, cs), c));
+			cs++;
 		}
 		return new MethodDefinition(m.intro, list);
 	}
 
 	private FunctionCaseDefn rewrite(FunctionContext cx, FunctionCaseDefn c) {
-		FunctionIntro intro = rewrite(cx, c.intro);
 		gatherVars(cx.locals, c.intro.args);
-		return new FunctionCaseDefn(c.innerScope().outer, intro.name, intro.args, rewriteExpr(cx, c.expr));
+		FunctionIntro intro = rewrite(cx, c.intro);
+		FunctionCaseDefn ret = new FunctionCaseDefn(c.innerScope().outer, intro.name, intro.args, rewriteExpr(cx, c.expr));
+		rewriteScope(cx, c.innerScope(), ret.innerScope());
+		return ret;
 	}
 
 	private MethodCaseDefn rewrite(FunctionContext cx, MethodCaseDefn c) {

@@ -27,4 +27,9 @@ public class ContinuedLine {
 		SingleLine l = lines.get(lines.size()-1);
 		return new InputPosition(l.lineNo, l.line.trim().length(), l.line.trim());
 	}
+	
+	@Override
+	public String toString() {
+		return "CL[" + text() + "]";
+	}
 }

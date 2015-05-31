@@ -66,6 +66,12 @@ public class BlockBuilder {
 		return this;
 	}
 
+	public BlockBuilder exdent() {
+		stack.remove(stack.size()-1);
+		stack.get(stack.size()-1).nested.add(new Block());
+		return this;
+	}
+
 	public Block build() {
 		return block;
 	}

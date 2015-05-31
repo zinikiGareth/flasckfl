@@ -21,17 +21,19 @@ import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
+import org.flasck.flas.vcode.hsieForm.Var;
+import org.zinutils.collections.CollectionUtils;
 
 public class Generator {
 
 	public JSForm generate(HSIEForm input) {
-		JSForm ret = JSForm.function(input.fnName, input.nformal);
+		JSForm ret = JSForm.function(input.fnName, input.vars, input.nformal);
 		generateBlock(input.fnName, input, ret, input);
 		return ret;
 	}
 
 	public JSForm generate(String name, StructDefn sd) {
-		JSForm ret = JSForm.function(name, 1);
+		JSForm ret = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 1);
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
 			ret.add(ifBlock);
@@ -62,7 +64,7 @@ public class Generator {
 	}
 
 	public JSForm generate(String name, CardDefinition card) {
-		JSForm cf = JSForm.function(name, 1);
+		JSForm cf = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
@@ -102,7 +104,7 @@ public class Generator {
 
 	public JSForm generateContract(String name, ContractImplements ci, int pos) {
 		String myname = name +"._C"+pos;
-		JSForm ret = JSForm.function(myname, 1);
+		JSForm ret = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 1);
 		ret.add(new JSForm("this._ctor = '" + myname + "'"));
 		ret.add(new JSForm("this._card = v0"));
 		ret.add(new JSForm("this._special = 'contract'"));
@@ -113,7 +115,10 @@ public class Generator {
 
 	public JSForm generateHandler(String name, HandlerImplements hi, int pos) {
 		String myname = name +"._H"+pos;
-		JSForm ret = JSForm.function(myname, hi.boundVars.size() + 1);
+		List<Var> vars = new ArrayList<Var>();
+		for (int i=1;i<=hi.boundVars.size();i++)
+			vars.add(new Var(i));
+		JSForm ret = JSForm.function(myname, vars, hi.boundVars.size() + 1);
 		ret.add(new JSForm("this._ctor = '" + myname + "'"));
 		ret.add(new JSForm("this._card = v0"));
 		ret.add(new JSForm("this._special = 'handler'"));

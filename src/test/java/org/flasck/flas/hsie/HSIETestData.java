@@ -16,41 +16,41 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("Cons");
 		externals.add("Nil");
-		return thingy("primes", 0, 3, externals,
-			"RETURN var 2 0 1",
-			"CLOSURE 0", "{",
-				"Cons", "5", "Nil",
-			"}",
-			"CLOSURE 1", "{",
-				"Cons", "3", "var 0",
-			"}",
-			"CLOSURE 2", "{",
-				"Cons", "2", "var 1",
-			"}"
+		return thingy("primes", 0, 0, 3,
+			externals,
+			"RETURN var 2 0 1", "CLOSURE 0",
+				"{", "Cons", "5",
+			"Nil",
+			"}", "CLOSURE 1",
+				"{", "Cons", "3",
+			"var 0",
+			"}", "CLOSURE 2",
+				"{", "Cons", "2",
+			"var 1", "}"
 		);
 	}
 
 	public static HSIEForm simpleFn() {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy("simple", 1, 0, externals,
-			"RETURN 1"
+		return thingy("simple", 0, 1, 0,
+			externals, "RETURN 1"
 		);
 	}
 
 	public static HSIEForm idFn() {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy("id", 1, 0, externals,
-			"RETURN var 0"
+		return thingy("id", 0, 1, 0,
+			externals, "RETURN var 0"
 		);
 	}
 
 	public static HSIEForm numberIdFn() {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy("numberId", 1, 0, externals,
-			"HEAD 0",
-			"SWITCH 0 Number", "{",
-				"RETURN var 0",
-			"ERROR"
+		return thingy("numberId", 0, 1, 0,
+			externals,
+			"HEAD 0", "SWITCH 0 Number",
+				"{",
+			"RETURN var 0", "ERROR"
 		);
 	}
 
@@ -58,33 +58,33 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("+");
 		externals.add("-");
-		return thingy("fib", 1, 5, externals,
-			"HEAD 0",
-			"SWITCH 0 Number", "{",
-				"IF 0 0", "{",
-					"RETURN 1",
-				"}",
-				"IF 0 1", "{",
-					"RETURN 1",
-				"}",
+		return thingy("fib", 0, 1, 5,
+			externals,
+			"HEAD 0", "SWITCH 0 Number",
+				"{", "IF 0 0",
+					"{",
+				"RETURN 1",
+				"}", "IF 0 1",
+					"{",
+				"RETURN 1",
 			"}",
-			"RETURN var 5 1 2 3 4",
-			// Since we do this before type checking, there is no guarantee var 0 is an integer
-			"CLOSURE 1", "{",
-				"-", "var 0", "1",
 			"}",
-			"CLOSURE 2", "{",
-				"fib", "var 1",
-			"}",
-			"CLOSURE 3", "{",
-				"-", "var 0", "2",
-			"}",
-			"CLOSURE 4", "{",
-				"fib", "var 3",
-			"}",
-			"CLOSURE 5", "{",
-				"+", "var 2", "var 4",
-			"}"
+			"RETURN var 5 1 2 3 4", // Since we do this before type checking, there is no guarantee var 0 is an integer
+			"CLOSURE 1",
+				"{", "-", "var 0",
+			"1",
+			"}", "CLOSURE 2",
+				"{", "fib",
+			"var 1",
+			"}", "CLOSURE 3",
+				"{", "-", "var 0",
+			"2",
+			"}", "CLOSURE 4",
+				"{", "fib",
+			"var 3",
+			"}", "CLOSURE 5",
+				"{", "+", "var 2",
+			"var 4", "}"
 		);
 	}
 
@@ -93,34 +93,34 @@ public class HSIETestData {
 		externals.add("Cons");
 		externals.add("Nil");
 		externals.add("-");
-		return thingy("take", 2, 5, externals,
-			"HEAD 1",
-			"SWITCH 1 Cons", "{",
+		return thingy("take", 0, 2, 5,
+			externals,
+			"HEAD 1", "SWITCH 1 Cons",
+				"{",
 				"BIND 2 1 head",
 				"BIND 3 1 tail",
-				"HEAD 0",
-				"SWITCH 0 Number", "{",
-					"IF 0 0", "{",
-						"RETURN Nil", // expr E1
-					"}",
+				"HEAD 0", "SWITCH 0 Number",
+					"{", "IF 0 0",
+						"{", // expr E1
+					"RETURN Nil",
 				"}",
-				"RETURN var 6 4 5", // expr E0
-			"}",
-			"SWITCH 1 Nil", "{",
-				"HEAD 0",
-				"RETURN Nil", // expr E0
-			"}",
+				"}", // expr E0
+			"RETURN var 6 4 5",
+			"}", "SWITCH 1 Nil",
+				"{",
+				"HEAD 0", // expr E0
+			"RETURN Nil",
+			"}",  // it would seem that none of the cases match
 			// when we get here, we know that Arg#1 is NOT Nil or Cons - thus only E1 _could_ match
-			"ERROR",  // it would seem that none of the cases match
-			"CLOSURE 4", "{",
-				"-", "var 0", "1",
-			"}",
-			"CLOSURE 5", "{",
-				"take", "var 4", "var 3",
-			"}",
-			"CLOSURE 6", "{",
-				"Cons", "var 2", "var 5",
-			"}"
+			"ERROR", "CLOSURE 4",
+				"{", "-", "var 0",
+			"1",
+			"}", "CLOSURE 5",
+				"{", "take", "var 4",
+			"var 3",
+			"}", "CLOSURE 6",
+				"{", "Cons", "var 2",
+			"var 5", "}"
 		);
 	}
 
@@ -129,40 +129,40 @@ public class HSIETestData {
 		externals.add("Cons");
 		externals.add("Nil");
 		externals.add("-");
-		return thingy("take", 2, 5, externals,
-			"HEAD 1",
-			"SWITCH 1 Cons", "{",
+		return thingy("take", 0, 2, 5,
+			externals,
+			"HEAD 1", "SWITCH 1 Cons",
+				"{",
 				"BIND 2 1 head",
 				"BIND 3 1 tail",
-				"HEAD 0",
-				"SWITCH 0 Number", "{",
-					"IF 0 0", "{",
-						"RETURN Nil", // expr E1
-					"}",
+				"HEAD 0", "SWITCH 0 Number",
+					"{", "IF 0 0",
+						"{", // expr E1
+					"RETURN Nil",
 				"}",
-				"RETURN var 6 4 5", // expr E0
-			"}",
-			"ERROR",  // it would seem that none of the cases match
-			"CLOSURE 4", "{",
-				"-", "var 0", "1",
-			"}",
-			"CLOSURE 5", "{",
-				"take", "var 4", "var 3",
-			"}",
-			"CLOSURE 6", "{",
-				"Cons", "var 2", "var 5",
-			"}"
+				"}", // expr E0
+			"RETURN var 6 4 5",
+			"}",  // it would seem that none of the cases match
+			"ERROR", "CLOSURE 4",
+				"{", "-", "var 0",
+			"1",
+			"}", "CLOSURE 5",
+				"{", "take", "var 4",
+			"var 3",
+			"}", "CLOSURE 6",
+				"{", "Cons", "var 2",
+			"var 5", "}"
 		);
 	}
 
 	public static HSIEForm mutualF() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("ME.f.g");
-		return thingy("ME.f", 1, 1, externals,
-			"RETURN var 1",
-			"CLOSURE 1", "{",
-				"ME.f.g", "2",
-			"}"
+		return thingy("ME.f", 0, 1, 1,
+			externals,
+			"RETURN var 1", "CLOSURE 1",
+				"{", "ME.f.g",
+			"2", "}"
 		);
 	}
 
@@ -170,10 +170,61 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("FLEval.mul");
 		externals.add("_scoped.x");
-		return thingy("ME.f.g", 1, 1, externals,
-			"RETURN var 1",
-			"CLOSURE 1", "{",
-				"FLEval.mul", "_scoped.x", "var 0",
+		return thingy("ME.f.g", 2, 1, 1,
+			externals,
+			"RETURN var 3",
+			"CLOSURE 3", "{",
+				"FLEval.mul", "_scoped.x", "var 2",
+			"}"
+		);
+	}
+
+	public static HSIEForm splitF() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("ME.f_0.g");
+		externals.add("ME.f_1.g");
+		return thingy("ME.f", 0, 2, 4,
+			externals,
+			"HEAD 0",
+			"SWITCH 0 Cons", "{",
+				"BIND 2 0 head",
+				"BIND 3 0 tail",
+				"RETURN var 5",
+			"}",
+			"SWITCH 0 Nil", "{",
+				"RETURN var 4",
+			"}",
+			"ERROR",
+			"CLOSURE 4", "{",
+				"ME.f_0.g", "2",
+			"}",
+			"CLOSURE 5", "{",
+				"ME.f_1.g", "var 1", "var 2",
+			"}"
+		);
+	}
+
+	public static HSIEForm splitF_G1() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("FLEval.mul");
+		externals.add("_scoped.x");
+		return thingy("ME.f_0.g", 6, 1, 1,
+			externals,
+			"RETURN var 7",
+			"CLOSURE 7", "{",
+				"FLEval.mul", "_scoped.x", "var 6",
+			"}"
+		);
+	}
+
+	public static HSIEForm splitF_G2() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("FLEval.plus");
+		return thingy("ME.f_1.g", 6, 2, 1,
+			externals,
+			"RETURN var 8",
+			"CLOSURE 8", "{",
+				"FLEval.plus", "var 6", "var 7",
 			"}"
 		);
 	}
@@ -181,7 +232,7 @@ public class HSIETestData {
 	public static HSIEForm returnPlus1() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("plus1");
-		return thingy("f", 0, 1, externals,
+		return thingy("f", 0, 0, 1, externals,
 			"RETURN plus1"
 		);
 	}
@@ -189,7 +240,7 @@ public class HSIETestData {
 	public static HSIEForm plus1Of1() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("plus1");
-		return thingy("f", 0, 1, externals,
+		return thingy("f", 0, 0, 1, externals,
 			"RETURN var 0",
 			"CLOSURE 0", "{",
 				"plus1", "1",
@@ -200,11 +251,11 @@ public class HSIETestData {
 	public static HSIEForm plus2And2() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("plus");
-		return thingy("f", 0, 1, externals,
-			"RETURN var 0",
-			"CLOSURE 0", "{",
-				"plus", "2", "2",
-			"}"
+		return thingy("f", 0, 0, 1,
+			externals,
+			"RETURN var 0", "CLOSURE 0",
+				"{", "plus", "2",
+			"2", "}"
 		);
 	}
 
@@ -212,17 +263,17 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("id");
 		externals.add("decode");
-		return thingy("f", 0, 3, externals,
-			"RETURN var 2 0 1",
-			"CLOSURE 0", "{",
-				"id", "32",
-			"}",
-			"CLOSURE 1", "{",
-				"decode", "var 0",
-			"}",
-			"CLOSURE 2", "{",
-				"id", "var 1",
-			"}"
+		return thingy("f", 0, 0, 3,
+			externals,
+			"RETURN var 2 0 1", "CLOSURE 0",
+				"{", "id",
+			"32",
+			"}", "CLOSURE 1",
+				"{", "decode",
+			"var 0",
+			"}", "CLOSURE 2",
+				"{", "id",
+			"var 1", "}"
 		);
 	}
 
@@ -230,14 +281,14 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("-");
 		externals.add("g");
-		return thingy("f", 1, 2, externals,
-			"RETURN var 2 1",
-			"CLOSURE 1", "{",
-				"-", "var 0", "1",
-			"}",
-			"CLOSURE 2", "{",
-				"g", "var 1",
-			"}"
+		return thingy("f", 0, 1, 2,
+			externals,
+			"RETURN var 2 1", "CLOSURE 1",
+				"{", "-", "var 0",
+			"1",
+			"}", "CLOSURE 2",
+				"{", "g",
+			"var 1", "}"
 		);
 	}
 
@@ -245,19 +296,19 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("+");
 		externals.add("f");
-		return thingy("g", 1, 2, externals,
-			"RETURN var 2 1",
-			"CLOSURE 1", "{",
-				"+", "var 0", "1",
-			"}",
-			"CLOSURE 2", "{",
-				"f", "var 1",
-			"}"
+		return thingy("g", 0, 1, 2,
+			externals,
+			"RETURN var 2 1", "CLOSURE 1",
+				"{", "+", "var 0",
+			"1",
+			"}", "CLOSURE 2",
+				"{", "f",
+			"var 1", "}"
 		);
 	}
 
-	private static HSIEForm thingy(String name, int nformal, int nbound, List<String> dependsOn, String... commands) {
-		HSIEForm ret = new HSIEForm(name, nformal, nbound, dependsOn);
+	private static HSIEForm thingy(String name, int alreadyUsed, int nformal, int nbound, List<String> dependsOn, String... commands) {
+		HSIEForm ret = new HSIEForm(name, alreadyUsed, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;
 		List<HSIEBlock> stack = new ArrayList<HSIEBlock>();
 		stack.add(0, ret);
@@ -322,31 +373,36 @@ public class HSIETestData {
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {
 		expected.dump();
 		actual.dump();
-		assertEquals(expected.fnName, actual.fnName);
-		assertEquals(expected.nformal, actual.nformal);
-		assertEquals(expected.vars.size(), actual.vars.size());
-		assertEquals(expected.externals.size(), actual.externals.size());
+		assertEquals("incorrect name", expected.fnName, actual.fnName);
+		assertEquals("incorrect # of formals", expected.nformal, actual.nformal);
+		assertEquals("incorrect # of total vars", expected.vars.size(), actual.vars.size());
+		assertEquals("incorrect # of externals", expected.externals.size(), actual.externals.size());
 		Iterator<String> ee = expected.externals.iterator();
 		Iterator<String> ae = actual.externals.iterator();
 		while (ee.hasNext())
-			assertEquals(ee.next(), ae.next());
-		List<HSIEBlock> ecmds = expected.nestedCommands();
-		List<HSIEBlock> acmds = actual.nestedCommands();
-		assertEquals(ecmds.size(), acmds.size());
-		for (int i=0;i<ecmds.size();i++) {
-			assertEquals(ecmds.get(i).toString(), acmds.get(i).toString());
-		}
+			assertEquals("incorrect external", ee.next(), ae.next());
+		compareBlocks(expected, actual);
 		for (int i=expected.nformal;i<expected.vars.size();i++) {
 			HSIEBlock ec = expected.getClosure(expected.vars.get(i));
 			HSIEBlock ac = actual.getClosure(actual.vars.get(i));
 			if (ec == null && ac == null)
 				continue; // it was a bound var
-			assertNotNull("Did not find expected closure " + i, ec);
-			assertNotNull("Did not find actual closure " + i, ac);
-			assertEquals(ec.nestedCommands().size(), ac.nestedCommands().size());
+			assertNotNull("Did not find 'expected' closure " + i, ec);
+			assertNotNull("Did not find 'actual' closure " + i, ac);
+			assertEquals("incorrect number of commands in closure " + i, ec.nestedCommands().size(), ac.nestedCommands().size());
 			for (int j=0;j<ac.nestedCommands().size();j++) {
 				assertEquals(ec.nestedCommands().get(j).toString(), ac.nestedCommands().get(j).toString());
 			}
+		}
+	}
+
+	private static void compareBlocks(HSIEBlock expected, HSIEBlock actual) {
+		List<HSIEBlock> ecmds = expected.nestedCommands();
+		List<HSIEBlock> acmds = actual.nestedCommands();
+		assertEquals("incorrect number of commands", ecmds.size(), acmds.size());
+		for (int i=0;i<ecmds.size();i++) {
+			assertEquals(ecmds.get(i).toString(), acmds.get(i).toString());
+			compareBlocks(ecmds.get(i), acmds.get(i));
 		}
 	}
 }

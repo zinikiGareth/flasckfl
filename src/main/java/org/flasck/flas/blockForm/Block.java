@@ -10,4 +10,9 @@ public class Block {
 	public boolean isComment() {
 		return line == null || line.lines.isEmpty() || line.lines.get(0).indent == null;
 	}
+	
+	@Override
+	public String toString() {
+		return "Block[" + line + "/"+nested.size()+"]";
+	}
 }

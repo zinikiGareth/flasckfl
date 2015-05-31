@@ -20,6 +20,7 @@ public class JSForm {
 	private final String text;
 	private String endWith = ";";
 	private List<JSForm> block = null;
+	private int insertPoint = 0;
 
 	public JSForm(String text) {
 		this.text = text;
@@ -38,6 +39,7 @@ public class JSForm {
 
 	public JSForm strict() {
 		needBlock().add(new JSForm("\"use strict\""));
+		insertPoint++;
 		return this;
 	}
 
@@ -45,6 +47,13 @@ public class JSForm {
 		needBlock();
 		block.add(inner);
 		return this;
+	}
+
+	/* Add a sub-form to this form at the "start" of the block,
+	 * but after any "use strict" or other inserted items
+	 */
+	public void insert(JSForm generate) {
+		block.add(insertPoint++, generate);
 	}
 
 	public JSForm addAll(List<JSForm> inner) {
@@ -96,10 +105,10 @@ public class JSForm {
 		return new JSForm(key + " = function()").needBlock();
 	}
 
-	public static JSForm function(String fnName, int nformal) {
+	public static JSForm function(String fnName, List<Var> hsvs, int nformal) {
 		List<String> vars = new ArrayList<String>();
 		for (int i=0;i<nformal;i++)
-			vars.add("v"+i);
+			vars.add(hsvs.get(i).toString());
 		return new JSForm(fnName + " = function(" + String.join(", ", vars) + ")").strict();
 	}
 
@@ -205,6 +214,8 @@ public class JSForm {
 			return "this."+fn;
 		else if (fn.startsWith("_handler"))
 			return "this"+fn.substring(8);
+		else if (fn.startsWith("_scoped."))
+			return fn.substring(8);
 		return fn;
 	}
 }

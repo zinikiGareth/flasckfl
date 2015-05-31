@@ -149,7 +149,7 @@ public class FLASStory implements StoryProcessor {
 					else if (ret.contains(cfn))
 						er.message((Tokenizable)null, "duplicate definition of " + cfn);
 				} else if (fcd.intro.args.size() != pnargs)
-					er.message((Tokenizable)null, "inconsistent numbers of arguments in definitions of " + cfn);
+					er.message((Block)null, "inconsistent numbers of arguments in definitions of " + cfn);
 				groups.add(cfn, fcd);
 			}
 		}

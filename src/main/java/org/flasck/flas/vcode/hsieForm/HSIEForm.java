@@ -8,44 +8,44 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.zinutils.exceptions.UtilException;
-
 public class HSIEForm extends HSIEBlock {
 	public final String fnName;
+	public final int alreadyUsed;
 	public final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();
-
-	// This should really be objects, not names of objects
 	public final Set<String> externals = new TreeSet<String>();
 	private final Map<Var, HSIEBlock> closures = new HashMap<Var, HSIEBlock>();
 
 	// This constructor is the one for real code
-	public HSIEForm(String name, int nformal) {
+	public HSIEForm(String name, int alreadyUsed, int nformal) {
 		this.fnName = name;
+		this.alreadyUsed = alreadyUsed;
 		this.nformal = nformal;
 	}
 
 	// This is the copy/rewrite constructor
-	public HSIEForm(String name, int nformal, List<Var> vars, Collection<String> externals) {
+	public HSIEForm(String name, int alreadyUsed, int nformal, List<Var> vars, Collection<String> externals) {
 		this.fnName = name;
+		this.alreadyUsed = alreadyUsed;
 		this.nformal = nformal;
 		this.vars.addAll(vars);
 		this.externals.addAll(externals);
 	}
-	
 
 	// This constructor is for testing
-	public HSIEForm(String name, int nformal, int nbound, Collection<String> dependsOn) {
+	public HSIEForm(String name, int alreadyUsed, int nformal, int nbound, Collection<String> dependsOn) {
 		fnName = name;
+		this.alreadyUsed = alreadyUsed;
 		this.nformal = nformal;
 		for (int i=0;i<nformal;i++)
-			vars.add(new Var(i));
+			vars.add(new Var(alreadyUsed + i));
 		for (int i=0;i<nbound;i++)
-			vars.add(new Var(nformal + i));
+			vars.add(new Var(alreadyUsed + nformal + i));
 		this.externals.addAll(dependsOn);
 	}
+
 	public Var var(int v) {
-		return vars.get(v);
+		return vars.get(v-alreadyUsed);
 	}
 
 	public HSIEBlock closure(Var var) {

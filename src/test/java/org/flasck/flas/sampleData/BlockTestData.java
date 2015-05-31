@@ -129,6 +129,21 @@ public class BlockTestData {
 		return ret;
 	}
 
+	public static List<Block> splitNestedBlocks() {
+		List<Block> ret = new ArrayList<Block>();
+		ret.add(builder()
+			.line("f Nil x = g 2")
+			.indent()
+			.line("g y = x * y")
+			.build());
+		ret.add(builder()
+			.line("f (Cons { head: a, tail: b }) k = g k a")
+			.indent()
+			.line("g p q = p + q")
+			.build());
+		return ret;
+	}
+
 	public static Block comment(String string) {
 		return builder().comment(string).build();
 	}
