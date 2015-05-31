@@ -157,11 +157,11 @@ public class HSIETestData {
 
 	public static HSIEForm mutualF() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("ME.f.g");
+		externals.add("ME.f_0.g");
 		return thingy("ME.f", 0, 1, 1,
 			externals,
 			"RETURN var 1", "CLOSURE 1",
-				"{", "ME.f.g",
+				"{", "ME.f_0.g",
 			"2", "}"
 		);
 	}
@@ -169,12 +169,11 @@ public class HSIETestData {
 	public static HSIEForm mutualG() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("FLEval.mul");
-		externals.add("_scoped.x");
-		return thingy("ME.f.g", 2, 1, 1,
+		return thingy("ME.f_0.g", 2, 1, 1,
 			externals,
 			"RETURN var 3",
 			"CLOSURE 3", "{",
-				"FLEval.mul", "_scoped.x", "var 2",
+				"FLEval.mul", "var 0", "var 2",
 			"}"
 		);
 	}
@@ -207,12 +206,11 @@ public class HSIETestData {
 	public static HSIEForm splitF_G1() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("FLEval.mul");
-		externals.add("_scoped.x");
 		return thingy("ME.f_0.g", 6, 1, 1,
 			externals,
 			"RETURN var 7",
 			"CLOSURE 7", "{",
-				"FLEval.mul", "_scoped.x", "var 6",
+				"FLEval.mul", "var 1", "var 6",
 			"}"
 		);
 	}
@@ -371,8 +369,11 @@ public class HSIETestData {
 	}
 	
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {
+		System.out.println("---- Check expecting:");
 		expected.dump();
+		System.out.println("---------- actual:");
 		actual.dump();
+		System.out.println("----------");
 		assertEquals("incorrect name", expected.fnName, actual.fnName);
 		assertEquals("incorrect # of formals", expected.nformal, actual.nformal);
 		assertEquals("incorrect # of total vars", expected.vars.size(), actual.vars.size());

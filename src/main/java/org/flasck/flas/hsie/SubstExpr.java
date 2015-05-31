@@ -18,6 +18,12 @@ public class SubstExpr {
 		this.me = "E" + (idx++);
 	}
 
+	public SubstExpr alsoSub(Map<String, Var> map) {
+		for (Entry<String, Var> x : map.entrySet())
+			subst("_scoped." + x.getKey(), x.getValue());
+		return this;
+	}
+
 	public SubstExpr subst(String varToSubst, Var var) {
 		if (substs.containsKey(varToSubst))
 			throw new UtilException("Duplicate var in patterns: " + varToSubst); // TODO: this should be proper error handling

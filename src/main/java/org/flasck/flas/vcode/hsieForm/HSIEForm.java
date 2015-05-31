@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.hsie.SubstExpr;
+
 public class HSIEForm extends HSIEBlock {
 	public final String fnName;
 	public final int alreadyUsed;
@@ -15,11 +17,16 @@ public class HSIEForm extends HSIEBlock {
 	public final List<Var> vars = new ArrayList<Var>();
 	public final Set<String> externals = new TreeSet<String>();
 	private final Map<Var, HSIEBlock> closures = new HashMap<Var, HSIEBlock>();
+	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 
 	// This constructor is the one for real code
-	public HSIEForm(String name, int alreadyUsed, int nformal) {
+	public HSIEForm(String name, int alreadyUsed, Map<String, Var> map, int nformal) {
 		this.fnName = name;
 		this.alreadyUsed = alreadyUsed;
+		for (int i=0;i<alreadyUsed;i++)
+			vars.add(null);
+		for (Var v : map.values())
+			vars.set(v.idx, v);
 		this.nformal = nformal;
 	}
 
@@ -37,6 +44,8 @@ public class HSIEForm extends HSIEBlock {
 		fnName = name;
 		this.alreadyUsed = alreadyUsed;
 		this.nformal = nformal;
+		for (int i=0;i<alreadyUsed;i++)
+			vars.add(new Var(i));
 		for (int i=0;i<nformal;i++)
 			vars.add(new Var(alreadyUsed + i));
 		for (int i=0;i<nbound;i++)
@@ -45,7 +54,7 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	public Var var(int v) {
-		return vars.get(v-alreadyUsed);
+		return vars.get(v);
 	}
 
 	public HSIEBlock closure(Var var) {
@@ -73,6 +82,11 @@ public class HSIEForm extends HSIEBlock {
 
 	public Collection<HSIEBlock> closures() {
 		return closures.values();
+	}
+
+	// Get the vars which are bound in for ExprN
+	public Map<String, Var> varsFor(int eN) {
+		return exprs.get(eN).substs;
 	}
 	
 	// So, basically an HSIE definition consists of

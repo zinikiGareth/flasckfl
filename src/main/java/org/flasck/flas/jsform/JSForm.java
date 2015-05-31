@@ -105,10 +105,10 @@ public class JSForm {
 		return new JSForm(key + " = function()").needBlock();
 	}
 
-	public static JSForm function(String fnName, List<Var> hsvs, int nformal) {
+	public static JSForm function(String fnName, List<Var> hsvs, int alreadyUsed, int nformal) {
 		List<String> vars = new ArrayList<String>();
 		for (int i=0;i<nformal;i++)
-			vars.add(hsvs.get(i).toString());
+			vars.add(hsvs.get(alreadyUsed + i).toString());
 		return new JSForm(fnName + " = function(" + String.join(", ", vars) + ")").strict();
 	}
 

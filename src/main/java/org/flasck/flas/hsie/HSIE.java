@@ -24,16 +24,16 @@ import org.zinutils.exceptions.UtilException;
 
 public class HSIE {
 	public static HSIEForm handle(FunctionDefinition defn) {
-		return handle(defn, 0);
+		return handle(defn, 0, new HashMap<String, Var>());
 	}
 	
-	public static HSIEForm handle(FunctionDefinition defn, int alreadyUsed) {
-		HSIEForm ret = new HSIEForm(defn.name, alreadyUsed, defn.nargs);
+	public static HSIEForm handle(FunctionDefinition defn, int alreadyUsed, Map<String, Var> map) {
+		HSIEForm ret = new HSIEForm(defn.name, alreadyUsed, map, defn.nargs);
 		MetaState ms = new MetaState(ret);
 		if (defn.nargs == 0)
 			return handleConstant(ms, defn);
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
-		ms.add(buildFundamentalState(ms, ret, defn.nargs, defn.cases));
+		ms.add(buildFundamentalState(ms, ret, map, defn.nargs, defn.cases));
 		while (!ms.allDone()) {
 			State f = ms.first();
 			recurse(ms, f);
@@ -42,7 +42,7 @@ public class HSIE {
 	}
 
 	public static HSIEForm handleExpr(Object expr) {
-		MetaState ms = new MetaState(new HSIEForm("", 0, 0));
+		MetaState ms = new MetaState(new HSIEForm("", 0, new HashMap<String, Var>(), 0));
 		Object ret = ms.getValueFor(new SubstExpr(expr));
 		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
@@ -56,14 +56,16 @@ public class HSIE {
 		return ms.form;
 	}
 
-	private static State buildFundamentalState(MetaState ms, HSIEBlock block, int nargs, List<FunctionCaseDefn> cases) {
-		State s = new State(block);
+	private static State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, Var> map, int nargs, List<FunctionCaseDefn> cases) {
+		State s = new State(form);
 		List<Var> formals = new ArrayList<Var>();
 		for (int i=0;i<nargs;i++)
 			formals.add(ms.allocateVar());
 		Map<Object, SubstExpr> exprs = new HashMap<Object, SubstExpr>();
 		for (FunctionCaseDefn c : cases) {
 			SubstExpr ex = new SubstExpr(c.expr);
+			ex.alsoSub(map);
+			form.exprs.add(ex);
 			createSubsts(ms, c.intro.args, formals, ex);
 			exprs.put(c.expr, ex);
 		}
@@ -157,9 +159,9 @@ public class HSIE {
 					System.out.println("Handling constant " + nb.ifConst.value);
 					HSIEBlock inner = blk.ifCmd(elim.var, Integer.parseInt(nb.ifConst.value));
 					State s3 = s1.duplicate(inner);
-					System.out.println("---");
-					s3.dump();
-					System.out.println("---");
+//					System.out.println("---");
+//					s3.dump();
+//					System.out.println("---");
 					
 					addState(ms, s3, casesForConst(elim.ctorCases.get(ctor), nb.ifConst.value));
 				} else {
@@ -192,15 +194,15 @@ public class HSIE {
 
 	private static void addState(MetaState ms, State s, Set<SubstExpr> mycases) {
 		if (s.hasNeeds()) {
-			System.out.println("Adding state ---");
-			s.dump();
-			System.out.println("---");
+//			System.out.println("Adding state ---");
+//			s.dump();
+//			System.out.println("---");
 			ms.allStates.add(s);
 		} else {
-			System.out.println("Resolving to ---");
+//			System.out.println("Resolving to ---");
 			evalExpr(ms, s, mycases);
-			s.dump();
-			System.out.println("---");
+//			s.dump();
+//			System.out.println("---");
 		}
 	}
 
