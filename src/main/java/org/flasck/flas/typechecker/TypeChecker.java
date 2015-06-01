@@ -25,6 +25,8 @@ import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.graphs.Node;
+import org.zinutils.graphs.Tree;
 
 public class TypeChecker {
 	public final ErrorResult errors = new ErrorResult();
@@ -48,6 +50,62 @@ public class TypeChecker {
 		knowledge.put(name, type);
 	}
 
+
+	public void typecheck(Tree<HSIEForm> functionsToCheck) {
+		System.out.println("---- Starting to typecheck");
+		TypeEnvironment gamma = new TypeEnvironment(); // should be based on everything we already know
+		PhiSolution phi = new PhiSolution(errors);
+		// First, rewrite all the equations to have the "correct" set of variables
+		// Equations at the same level of the tree should have "fresh" variables; while
+		// nested equations should share their parent's variables
+		Map<String, Object> localKnowledge = new HashMap<String, Object>();
+		Map<String, HSIEForm> rewritten = new HashMap<String, HSIEForm>();
+		int from = 201; // the actual number doesn't matter but might make debugging easier
+		Map<Var, Var> rwvars = new HashMap<Var, Var>();
+		System.out.println("Rewriting function tree");
+		rewriteFunctionTree(functionsToCheck, localKnowledge, rwvars, rewritten, from, functionsToCheck.getRoot());
+		System.out.println("Finished rewriting");
+		Map<String, Object> actualTypes = new HashMap<String, Object>();
+		List<TypeVar> vars = new ArrayList<TypeVar>();
+		for (HSIEForm hsie : rewritten.values()) {
+			System.out.println("Allocating type vars for " + hsie.fnName);
+			localKnowledge.put(hsie.fnName, factory.next());
+			System.out.println("Allocated tv " + localKnowledge.get(hsie.fnName) + " for result of " + hsie.fnName);
+			gamma = allocateTVs(vars, gamma, hsie);
+		}
+		System.out.println("Allocated new type vars; checking forms");
+		for (HSIEForm hsie : rewritten.values()) {
+			Object te = checkHSIE(vars, localKnowledge, phi, gamma, hsie);
+			if (te == null)
+				return;
+			actualTypes.put(hsie.fnName, te);
+		}
+		System.out.println("Checked forms: actualTypes = " + actualTypes);
+		System.out.println("Attempting to unify types");
+		for (HSIEForm f : rewritten.values()) {
+			Object rwt = phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
+			actualTypes.put(f.fnName, phi.subst(rwt)); 
+		}
+		System.out.println("Done final unification; building types");
+		for (HSIEForm f : rewritten.values()) {
+			TypeExpr subst = (TypeExpr) phi.subst(actualTypes.get(f.fnName));
+			knowledge.put(f.fnName, subst.asType(this));
+			System.out.println(f.fnName + " :: " + knowledge.get(f.fnName));
+		}
+		System.out.println("---- Done with typecheck");
+	}
+
+	private void rewriteFunctionTree(Tree<HSIEForm> functionsToCheck, Map<String, Object> localKnowledge, Map<Var, Var> rwvars, Map<String, HSIEForm> rewritten, int from, Node<HSIEForm> root) {
+		for (Node<HSIEForm> nh : functionsToCheck.getChildren(root)) {
+			HSIEForm hsie = nh.getEntry();
+			Map<Var, Var> rwvars2 = new HashMap<Var, Var>(rwvars);
+			rewritten.put(hsie.fnName, rewriteWithFreshVars(rwvars2, hsie, from));
+			from += hsie.vars.size();
+			rewriteFunctionTree(functionsToCheck, localKnowledge, rwvars2, rewritten, from, nh);
+		}
+	}
+
+	@Deprecated
 	public void typecheck(Set<HSIEForm> functionsToCheck) {
 		TypeEnvironment gamma = new TypeEnvironment(); // should be based on everything we already know
 		PhiSolution phi = new PhiSolution(errors);
@@ -57,14 +115,18 @@ public class TypeChecker {
 		Map<String, HSIEForm> rewritten = new HashMap<String, HSIEForm>();
 		int from = 201; // the actual number doesn't matter but might make debugging easier
 		for (HSIEForm hsie : functionsToCheck) {
-			localKnowledge.put(hsie.fnName, factory.next());
-			System.out.println("Allocating tv " + localKnowledge.get(hsie.fnName) + " for " + hsie.fnName);
-			rewritten.put(hsie.fnName, rewriteWithFreshVars(hsie, from));
+			rewritten.put(hsie.fnName, rewriteWithFreshVars(new HashMap<Var, Var>(), hsie, from));
 			from += hsie.vars.size();
 		}
 		Map<String, Object> actualTypes = new HashMap<String, Object>();
+		List<TypeVar> vars = new ArrayList<TypeVar>();
 		for (HSIEForm hsie : rewritten.values()) {
-			Object te = checkHSIE(localKnowledge, phi, gamma, hsie);
+			localKnowledge.put(hsie.fnName, factory.next());
+			System.out.println("Allocating tv " + localKnowledge.get(hsie.fnName) + " for " + hsie.fnName);
+			allocateTVs(vars, gamma, hsie);
+		}
+		for (HSIEForm hsie : rewritten.values()) {
+			Object te = checkHSIE(vars, localKnowledge, phi, gamma, hsie);
 			if (te == null)
 				return;
 			actualTypes.put(hsie.fnName, te);
@@ -79,13 +141,14 @@ public class TypeChecker {
 		}
 	}
 
-	private HSIEForm rewriteWithFreshVars(HSIEForm hsie, int from) {
-		Map<Var, Var> mapping = new HashMap<Var, Var>();
+	private HSIEForm rewriteWithFreshVars(Map<Var, Var> mapping, HSIEForm hsie, int from) {
 		List<Var> vars = new ArrayList<Var>();
 		for (Var v : hsie.vars) {
-			Var newVar = new Var(from++);
-			mapping.put(v, newVar);
-			vars.add(newVar);
+			if (!mapping.containsKey(v)) {
+				Var newVar = new Var(from++);
+				mapping.put(v, newVar);
+			}
+			vars.add(mapping.get(v));
 		}
 		HSIEForm ret = new HSIEForm(hsie.fnName, hsie.alreadyUsed, hsie.nformal, vars, hsie.externals);
 		mapBlock(ret, hsie, mapping);
@@ -149,22 +212,30 @@ public class TypeChecker {
 		return ret;
 	}
 
-	Object checkHSIE(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm hsie) {
-		List<TypeVar> vars = new ArrayList<TypeVar>();
+	TypeEnvironment allocateTVs(List<TypeVar> vars, TypeEnvironment gamma, HSIEForm hsie) {
+//		for (int i=0;i<hsie.alreadyUsed;i++)
+//			throw new UtilException("Need to make sure these are reused from existing parent, even after renaming");
 		for (int i=0;i<hsie.nformal;i++) {
 			TypeVar tv = factory.next();
-			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i);
-			gamma = gamma.bind(hsie.vars.get(i), new TypeScheme(null, tv));
+			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + (i+hsie.alreadyUsed));
+			gamma = gamma.bind(hsie.vars.get(i+hsie.alreadyUsed), new TypeScheme(null, tv));
 			vars.add(tv);
 		}
 		System.out.println(gamma);
+		return gamma;
+	}
+
+	Object checkHSIE(List<TypeVar> vars, Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm hsie) {
 		// what we need to do is to apply tcExpr to the right hand side with the new gamma
 		Object rhs = checkBlock(new SFTypes(null), localKnowledge, phi, gamma, hsie, hsie);
 		if (rhs == null)
 			return null;
 		// then we need to build an expr tv0 -> tv1 -> tv2 -> E with all the vars substituted
-		for (int i=vars.size()-1;i>=0;i--)
-			rhs = new TypeExpr("->", phi.meaning(vars.get(i)), rhs);
+		for (int i=hsie.nformal-1;i>=0;i--) {
+			Var myarg = hsie.vars.get(hsie.alreadyUsed+i);
+			Object tv = gamma.valueOf(myarg).typeExpr;
+			rhs = new TypeExpr("->", phi.subst(tv), rhs);
+		}
 		return rhs;
 	}
 

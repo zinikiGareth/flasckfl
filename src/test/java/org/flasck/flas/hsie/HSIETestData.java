@@ -160,9 +160,10 @@ public class HSIETestData {
 		externals.add("ME.f_0.g");
 		return thingy("ME.f", 0, 1, 1,
 			externals,
-			"RETURN var 1", "CLOSURE 1",
-				"{", "ME.f_0.g",
-			"2", "}"
+			"RETURN var 1",
+			"CLOSURE 1", "{",
+				"ME.f_0.g", "2",
+			"}"
 		);
 	}
 
