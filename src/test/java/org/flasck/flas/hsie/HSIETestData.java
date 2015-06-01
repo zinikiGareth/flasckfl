@@ -95,21 +95,19 @@ public class HSIETestData {
 		externals.add("-");
 		return thingy("take", 0, 2, 5,
 			externals,
-			"HEAD 1", "SWITCH 1 Cons",
-				"{",
+			"HEAD 1", "SWITCH 1 Cons", "{",
 				"BIND 2 1 head",
 				"BIND 3 1 tail",
-				"HEAD 0", "SWITCH 0 Number",
-					"{", "IF 0 0",
-						"{", // expr E1
-					"RETURN Nil",
-				"}",
+				"HEAD 0",
+				"SWITCH 0 Number", "{",
+					"IF 0 0", "{", // expr E1
+						"RETURN Nil",
+					"}",
 				"}", // expr E0
-			"RETURN var 6 4 5",
-			"}", "SWITCH 1 Nil",
-				"{",
-				"HEAD 0", // expr E0
-			"RETURN Nil",
+				"RETURN var 6 4 5",
+			"}", 
+			"SWITCH 1 Nil", "{", // expr E0
+				"RETURN Nil",
 			"}",  // it would seem that none of the cases match
 			// when we get here, we know that Arg#1 is NOT Nil or Cons - thus only E1 _could_ match
 			"ERROR", "CLOSURE 4",

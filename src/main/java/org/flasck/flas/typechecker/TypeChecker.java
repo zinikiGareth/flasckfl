@@ -75,7 +75,7 @@ public class TypeChecker {
 		}
 		System.out.println("Allocated new type vars; checking forms");
 		for (HSIEForm hsie : rewritten.values()) {
-			Object te = checkHSIE(vars, localKnowledge, phi, gamma, hsie);
+			Object te = checkHSIE(localKnowledge, phi, gamma, hsie);
 			if (te == null)
 				return;
 			actualTypes.put(hsie.fnName, te);
@@ -102,42 +102,6 @@ public class TypeChecker {
 			rewritten.put(hsie.fnName, rewriteWithFreshVars(rwvars2, hsie, from));
 			from += hsie.vars.size();
 			rewriteFunctionTree(functionsToCheck, localKnowledge, rwvars2, rewritten, from, nh);
-		}
-	}
-
-	@Deprecated
-	public void typecheck(Set<HSIEForm> functionsToCheck) {
-		TypeEnvironment gamma = new TypeEnvironment(); // should be based on everything we already know
-		PhiSolution phi = new PhiSolution(errors);
-		// Before we begin, we want to define "local knowledge" with all the "alleged" types of the things we're defining
-		// so that they can be accessed recursively
-		Map<String, Object> localKnowledge = new HashMap<String, Object>();
-		Map<String, HSIEForm> rewritten = new HashMap<String, HSIEForm>();
-		int from = 201; // the actual number doesn't matter but might make debugging easier
-		for (HSIEForm hsie : functionsToCheck) {
-			rewritten.put(hsie.fnName, rewriteWithFreshVars(new HashMap<Var, Var>(), hsie, from));
-			from += hsie.vars.size();
-		}
-		Map<String, Object> actualTypes = new HashMap<String, Object>();
-		List<TypeVar> vars = new ArrayList<TypeVar>();
-		for (HSIEForm hsie : rewritten.values()) {
-			localKnowledge.put(hsie.fnName, factory.next());
-			System.out.println("Allocating tv " + localKnowledge.get(hsie.fnName) + " for " + hsie.fnName);
-			allocateTVs(vars, gamma, hsie);
-		}
-		for (HSIEForm hsie : rewritten.values()) {
-			Object te = checkHSIE(vars, localKnowledge, phi, gamma, hsie);
-			if (te == null)
-				return;
-			actualTypes.put(hsie.fnName, te);
-		}
-		for (HSIEForm f : rewritten.values()) {
-			Object rwt = phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
-			actualTypes.put(f.fnName, phi.subst(rwt)); 
-		}
-		for (HSIEForm f : rewritten.values()) {
-			TypeExpr subst = (TypeExpr) phi.subst(actualTypes.get(f.fnName));
-			knowledge.put(f.fnName, subst.asType(this));
 		}
 	}
 
@@ -225,7 +189,7 @@ public class TypeChecker {
 		return gamma;
 	}
 
-	Object checkHSIE(List<TypeVar> vars, Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm hsie) {
+	Object checkHSIE(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm hsie) {
 		// what we need to do is to apply tcExpr to the right hand side with the new gamma
 		Object rhs = checkBlock(new SFTypes(null), localKnowledge, phi, gamma, hsie, hsie);
 		if (rhs == null)

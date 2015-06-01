@@ -7,8 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -18,7 +16,6 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.junit.Test;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Tree;
 
@@ -44,6 +41,7 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker();
 		PhiSolution phi = new PhiSolution(tc.errors);
 		TypeEnvironment gamma = new TypeEnvironment();
+		gamma = gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(1)));
 		Object te = tc.checkHSIE(null, phi, gamma, HSIETestData.simpleFn());
 		assertFalse(tc.errors.hasErrors());
 		assertNotNull(te);
@@ -61,6 +59,7 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker();
 		PhiSolution phi = new PhiSolution(tc.errors);
 		TypeEnvironment gamma = new TypeEnvironment();
+		gamma = gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(1)));
 		Object te = tc.checkHSIE(null, phi, gamma, HSIETestData.idFn());
 		assertFalse(tc.errors.hasErrors());
 		assertNotNull(te);
@@ -155,10 +154,7 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker();
 		tc.addExternal("+", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		Set<HSIEForm> set = new HashSet<HSIEForm>();
-		set.add(HSIETestData.rdf1());
-		set.add(HSIETestData.rdf2());
-		tc.typecheck(set);
+		tc.typecheck(treeOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
 		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		// Four things should now be defined: -, +, f, g
@@ -184,6 +180,7 @@ public class TestBasicTypeChecking {
 		tc.addStructDefn(new StructDefn("Number"));
 		PhiSolution phi = new PhiSolution(tc.errors);
 		TypeEnvironment gamma = new TypeEnvironment();
+		gamma = gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(1)));
 		Object te = tc.checkHSIE(new HashMap<String,Object>(), phi, gamma, HSIETestData.numberIdFn());
 		System.out.println(te);
 		tc.errors.showTo(new PrintWriter(System.out));
@@ -214,7 +211,7 @@ public class TestBasicTypeChecking {
 		tc.addStructDefn(new StructDefn("Number"));
 		tc.addExternal("+", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.fib()));
+		tc.typecheck(treeOf(HSIETestData.fib()));
 		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		Object te = tc.knowledge.get("fib");
@@ -236,7 +233,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.takeConsCase()));
+		tc.typecheck(treeOf(HSIETestData.takeConsCase()));
 		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		Object te = tc.knowledge.get("take");
@@ -268,7 +265,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.take()));
+		tc.typecheck(treeOf(HSIETestData.take()));
 		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		Object te = tc.knowledge.get("take");
@@ -306,5 +303,12 @@ public class TestBasicTypeChecking {
 			assertTrue(mg instanceof Type);
 			assertEquals("Number->Number", mg.toString());
 		}
+	}
+
+	private Tree<HSIEForm> treeOf(HSIEForm... hs) {
+		Tree<HSIEForm> ret = new Tree<HSIEForm>(new HSIEForm(null, 0, new HashMap<String,Var>(), 0));
+		for (HSIEForm h : hs)
+			ret.addChild(ret.getRoot(), h);
+		return ret;
 	}
 }
