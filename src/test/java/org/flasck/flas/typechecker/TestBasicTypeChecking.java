@@ -16,7 +16,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.junit.Test;
-import org.zinutils.graphs.Node;
+import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 
 public class TestBasicTypeChecking {
@@ -154,7 +154,7 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker();
 		tc.addExternal("+", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		tc.typecheck(treeOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
+		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
 		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		// Four things should now be defined: -, +, f, g
@@ -211,7 +211,7 @@ public class TestBasicTypeChecking {
 		tc.addStructDefn(new StructDefn("Number"));
 		tc.addExternal("+", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		tc.typecheck(treeOf(HSIETestData.fib()));
+		tc.typecheck(orchardOf(HSIETestData.fib()));
 		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		Object te = tc.knowledge.get("fib");
@@ -233,7 +233,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		tc.typecheck(treeOf(HSIETestData.takeConsCase()));
+		tc.typecheck(orchardOf(HSIETestData.takeConsCase()));
 		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		Object te = tc.knowledge.get("take");
@@ -265,7 +265,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		tc.typecheck(treeOf(HSIETestData.take()));
+		tc.typecheck(orchardOf(HSIETestData.take()));
 		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		Object te = tc.knowledge.get("take");
@@ -281,11 +281,11 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker();
 		tc.addStructDefn(new StructDefn("Number"));
 		tc.addExternal("FLEval.mul", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		Tree<HSIEForm> tree = new Tree<HSIEForm>(new HSIEForm("", 0, new HashMap<String,Var>(), 0));
-		Node<HSIEForm> f = tree.addChild(tree.getRoot(), HSIETestData.mutualF());
-		tree.addChild(f, HSIETestData.mutualG());
+		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
+		Tree<HSIEForm> tree = orchard.addTree(HSIETestData.mutualF());
+		tree.addChild(tree.getRoot(), HSIETestData.mutualG());
 		System.out.println(tree.getChildren(tree.getRoot()));
-		tc.typecheck(tree);
+		tc.typecheck(orchard);
 		tc.errors.showTo(new PrintWriter(System.out));
 		assertFalse(tc.errors.hasErrors());
 		// Four things should now be defined: -, +, f, g
@@ -305,10 +305,10 @@ public class TestBasicTypeChecking {
 		}
 	}
 
-	private Tree<HSIEForm> treeOf(HSIEForm... hs) {
-		Tree<HSIEForm> ret = new Tree<HSIEForm>(new HSIEForm(null, 0, new HashMap<String,Var>(), 0));
+	private Orchard<HSIEForm> orchardOf(HSIEForm... hs) {
+		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();
 		for (HSIEForm h : hs)
-			ret.addChild(ret.getRoot(), h);
+			ret.addTree(h);
 		return ret;
 	}
 }

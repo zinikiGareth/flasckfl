@@ -26,6 +26,7 @@ import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
+import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 
 public class TypeChecker {
@@ -51,7 +52,7 @@ public class TypeChecker {
 	}
 
 
-	public void typecheck(Tree<HSIEForm> functionsToCheck) {
+	public void typecheck(Orchard<HSIEForm> functionsToCheck) {
 		System.out.println("---- Starting to typecheck");
 		TypeEnvironment gamma = new TypeEnvironment(); // should be based on everything we already know
 		PhiSolution phi = new PhiSolution(errors);
@@ -63,7 +64,8 @@ public class TypeChecker {
 		int from = 201; // the actual number doesn't matter but might make debugging easier
 		Map<Var, Var> rwvars = new HashMap<Var, Var>();
 		System.out.println("Rewriting function tree");
-		rewriteFunctionTree(functionsToCheck, localKnowledge, rwvars, rewritten, from, functionsToCheck.getRoot());
+		for (Tree<HSIEForm> tree : functionsToCheck)
+			rewriteFunctionTree(tree, localKnowledge, rwvars, rewritten, from, tree.getRoot());
 		System.out.println("Finished rewriting");
 		Map<String, Object> actualTypes = new HashMap<String, Object>();
 		List<TypeVar> vars = new ArrayList<TypeVar>();
@@ -95,14 +97,13 @@ public class TypeChecker {
 		System.out.println("---- Done with typecheck");
 	}
 
-	private void rewriteFunctionTree(Tree<HSIEForm> functionsToCheck, Map<String, Object> localKnowledge, Map<Var, Var> rwvars, Map<String, HSIEForm> rewritten, int from, Node<HSIEForm> root) {
-		for (Node<HSIEForm> nh : functionsToCheck.getChildren(root)) {
-			HSIEForm hsie = nh.getEntry();
-			Map<Var, Var> rwvars2 = new HashMap<Var, Var>(rwvars);
-			rewritten.put(hsie.fnName, rewriteWithFreshVars(rwvars2, hsie, from));
-			from += hsie.vars.size();
-			rewriteFunctionTree(functionsToCheck, localKnowledge, rwvars2, rewritten, from, nh);
-		}
+	private void rewriteFunctionTree(Tree<HSIEForm> functionsToCheck, Map<String, Object> localKnowledge, Map<Var, Var> rwvars, Map<String, HSIEForm> rewritten, int from, Node<HSIEForm> nh) {
+		HSIEForm hsie = nh.getEntry();
+		Map<Var, Var> rwvars2 = new HashMap<Var, Var>(rwvars);
+		rewritten.put(hsie.fnName, rewriteWithFreshVars(rwvars2, hsie, from));
+		from += hsie.vars.size();
+		for (Node<HSIEForm> c : functionsToCheck.getChildren(nh))
+			rewriteFunctionTree(functionsToCheck, localKnowledge, rwvars2, rewritten, from, c);
 	}
 
 	private HSIEForm rewriteWithFreshVars(Map<Var, Var> mapping, HSIEForm hsie, int from) {
