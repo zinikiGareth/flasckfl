@@ -162,7 +162,7 @@ public class FLASStory implements StoryProcessor {
 		return ret;
 	}
 
-	private Scope builtinScope() {
+	public static Scope builtinScope() {
 		Scope ret = new Scope(null);
 		{ // core
 			ret.define(".", "FLEval.field", null);

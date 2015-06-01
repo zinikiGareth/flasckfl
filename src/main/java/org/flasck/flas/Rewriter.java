@@ -8,9 +8,6 @@ import java.util.Set;
 
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.ConstPattern;
-import org.flasck.flas.parsedForm.ConstructorMatch;
-import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -250,7 +247,7 @@ public class Rewriter {
 	}
 
 	private FunctionCaseDefn rewrite(FunctionContext cx, FunctionCaseDefn c) {
-		gatherVars(cx.locals, c.intro.args);
+		c.intro.gatherVars(cx.locals);
 		FunctionIntro intro = rewrite(cx, c.intro);
 		FunctionCaseDefn ret = new FunctionCaseDefn(c.innerScope().outer, intro.name, intro.args, rewriteExpr(cx, c.expr));
 		rewriteScope(cx, c.innerScope(), ret.innerScope());
@@ -259,7 +256,7 @@ public class Rewriter {
 
 	private MethodCaseDefn rewrite(FunctionContext cx, MethodCaseDefn c) {
 		MethodCaseDefn ret = new MethodCaseDefn(rewrite(cx, c.intro));
-		gatherVars(cx.locals, c.intro.args);
+		c.intro.gatherVars(cx.locals);
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
@@ -337,34 +334,5 @@ public class Rewriter {
 		}
 		System.out.println("Can't rewrite type " + type + " of type " + type.getClass());
 		return (TypeReference) type;
-	}
-	
-	private void gatherVars(Set<String> defines, List<Object> args) {
-		for (int i=0;i<args.size();i++) {
-			Object arg = args.get(i);
-			if (arg instanceof VarPattern)
-				defines.add(((VarPattern)arg).var);
-			else if (arg instanceof ConstructorMatch)
-				gatherCtor(defines, (ConstructorMatch) arg);
-			else if (arg instanceof ConstPattern)
-				;
-			else if (arg instanceof TypedPattern)
-				defines.add(((TypedPattern)arg).var);
-			else
-				throw new UtilException("Not gathering vars from " + arg.getClass());
-		}
-	}
-
-	private void gatherCtor(Set<String> defines, ConstructorMatch cm) {
-		for (Field x : cm.args) {
-			if (x.patt instanceof VarPattern)
-				defines.add(((VarPattern)x.patt).var);
-			else if (x.patt instanceof ConstructorMatch)
-				gatherCtor(defines, (ConstructorMatch)x.patt);
-			else if (x.patt instanceof ConstPattern)
-				;
-			else
-				throw new UtilException("Not gathering vars from " + x.patt.getClass());
-		}
 	}
 }
