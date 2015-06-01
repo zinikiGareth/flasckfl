@@ -177,6 +177,30 @@ public class HSIETestData {
 		);
 	}
 
+	public static HSIEForm simpleF() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("ME.f_0.g");
+		return thingy("ME.f", 0, 1, 1,
+			externals,
+			"RETURN var 1",
+			"CLOSURE 1", "{",
+				"ME.f_0.g", "var 0",
+			"}"
+		);
+	}
+
+	public static HSIEForm simpleG() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("FLEval.mul");
+		return thingy("ME.f_0.g", 2, 1, 1,
+			externals,
+			"RETURN var 3",
+			"CLOSURE 3", "{",
+				"FLEval.mul", "2", "var 2",
+			"}"
+		);
+	}
+
 	public static HSIEForm splitF() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("ME.f_0.g");

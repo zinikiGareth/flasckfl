@@ -275,7 +275,32 @@ public class TestBasicTypeChecking {
 		assertEquals("Number->List[A]->List[A]", te.toString());
 	}
 
-	
+	@Test
+	public void testWeCanCheckASimpleNestedFunction() throws Exception {
+		TypeChecker tc = new TypeChecker();
+		tc.addStructDefn(new StructDefn("Number"));
+		tc.addExternal("FLEval.mul", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+		tc.typecheck(orchardOf(HSIETestData.simpleG()));
+		tc.typecheck(orchardOf(HSIETestData.simpleF()));
+		tc.errors.showTo(new PrintWriter(System.out));
+		assertFalse(tc.errors.hasErrors());
+		// Four things should now be defined: -, +, f, g
+		assertEquals(3, tc.knowledge.size());
+		System.out.println(tc.knowledge);
+		{
+			Object mf = tc.knowledge.get("ME.f");
+			assertNotNull(mf);
+			assertTrue(mf instanceof Type);
+			assertEquals("Number->Number", mf.toString());
+		}
+		{
+			Object mg = tc.knowledge.get("ME.f_0.g");
+			assertNotNull(mg);
+			assertTrue(mg instanceof Type);
+			assertEquals("Number->Number", mg.toString());
+		}
+	}
+
 	@Test
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
 		TypeChecker tc = new TypeChecker();
