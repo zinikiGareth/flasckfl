@@ -116,6 +116,7 @@ public class Generator {
 	public JSForm generateHandler(String name, HandlerImplements hi, int pos) {
 		String myname = name +"._H"+pos;
 		List<Var> vars = new ArrayList<Var>();
+		vars.add(null);
 		for (int i=1;i<=hi.boundVars.size();i++)
 			vars.add(new Var(i));
 		JSForm ret = JSForm.function(myname, vars, 0, hi.boundVars.size() + 1);

@@ -3,13 +3,16 @@ package org.flasck.flas.dependency;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.Rewriter;
 import org.flasck.flas.depedencies.DependencyAnalyzer;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.stories.FLASStory;
 import org.junit.Test;
@@ -29,9 +32,14 @@ public class TestDependencyAnalysis {
 		assertTrue(o instanceof Scope);
 		Scope s = (Scope) o;
 		s = rewriter.rewrite(s);
+		Map<String, FunctionDefinition> map = new HashMap<String, FunctionDefinition>();
+		ScopeEntry f = (ScopeEntry) s.getEntry("f");
+		ScopeEntry g = (ScopeEntry) ((FunctionDefinition)f.getValue()).cases.get(0).innerScope().getEntry("g");
+		map.put(f.getKey(), (FunctionDefinition) f.getValue());
+		map.put(g.getKey(), (FunctionDefinition) g.getValue());
 		
 		// Now begins the real test on this data
-		List<Orchard<FunctionDefinition>> orchards = analyzer.analyze(s);
+		List<Orchard<FunctionDefinition>> orchards = analyzer.analyze(map);
 		assertNotNull(orchards);
 	}
 

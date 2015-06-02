@@ -83,6 +83,12 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 		return defns.get(key).getValue();
 	}
 
+	public ScopeEntry getEntry(String key) {
+		if (!defns.containsKey(key))
+			return null;
+		return (ScopeEntry) defns.get(key);
+	}
+
 	@Override
 	public String toString() {
 		return defns.toString();

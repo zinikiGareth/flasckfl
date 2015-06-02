@@ -6,11 +6,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
+import org.flasck.flas.depedencies.DependencyAnalyzer;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsgen.Generator;
@@ -27,8 +30,12 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.graphs.Node;
+import org.zinutils.graphs.Orchard;
+import org.zinutils.graphs.Tree;
 import org.zinutils.utils.FileUtils;
 
 public class Compiler {
@@ -54,12 +61,24 @@ public class Compiler {
 			List<JSForm> forms = new ArrayList<JSForm>();
 			Object obj = new FLASStory().process(defPkg, blocks);
 			if (obj instanceof ErrorResult) {
-				((ErrorResult)obj).showTo(new PrintWriter(System.out));
+				throw new ErrorResultException((ErrorResult)obj);
 			} else if (obj instanceof Scope) {
 				Scope scope = (Scope) obj;
 				scope = rewriter.rewrite(scope);
 				List<String> pkglist = emitPackages(forms, scope, defPkg);
-				processScope(forms, scope, 1);
+				Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
+				processScope(forms, functions, scope, 1);
+				TypeChecker tc = new TypeChecker();
+				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(functions);
+				if (tc.errors.hasErrors())
+					throw new ErrorResultException(tc.errors);
+				for (Orchard<FunctionDefinition> d : defns) {
+					Orchard<HSIEForm> oh = hsieOrchard(d);
+					tc.typecheck(oh);
+					if (tc.errors.hasErrors())
+						throw new ErrorResultException(tc.errors);
+					generateOrchard(forms, oh);
+				}
 				for (JSForm js : forms) {
 					js.writeTo(w);
 					w.write("\n");
@@ -73,6 +92,12 @@ public class Compiler {
 				}
 			} else
 				System.err.println("Failed to parse; got " + obj);
+		} catch (ErrorResultException ex) {
+			try {
+				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out));
+			} catch (IOException ex2) {
+				ex.printStackTrace();
+			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -82,15 +107,46 @@ public class Compiler {
 		FileUtils.copyFileToStream(writeTo, System.out);
 	}
 
-	private void processScope(List<JSForm> forms, Scope scope, int scopeDepth) {
+	private Orchard<HSIEForm> hsieOrchard(Orchard<FunctionDefinition> d) {
+		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();
+		for (Tree<FunctionDefinition> t : d)
+			hsieTree(ret, t, t.getRoot(), null, null);
+		return ret;
+	}
+
+	private void hsieTree(Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
+		HSIEForm hsie = HSIE.handle(node.getEntry());
+		if (parent == null) {
+			tree = ret.addTree(hsie);
+			parent = tree.getRoot();
+		} else
+			parent = tree.addChild(parent, hsie);
+
+		for (Node<FunctionDefinition> x : t.getChildren(node))
+			hsieTree(ret, t, x, tree, parent);
+	}
+
+	private void generateOrchard(List<JSForm> forms, Orchard<HSIEForm> oh) {
+		for (Tree<HSIEForm> t : oh)
+			generateTree(forms, t, t.getRoot());
+	}
+	
+	private void generateTree(List<JSForm> forms, Tree<HSIEForm> t, Node<HSIEForm> node) {
+		forms.add(gen.generate(node.getEntry()));
+		for (Node<HSIEForm> n : t.getChildren(node))
+			generateTree(forms, t, n);
+	}
+
+	private void processScope(List<JSForm> forms, Map<String, FunctionDefinition> functions, Scope scope, int scopeDepth) {
 		for (Entry<String, Entry<String, Object>> x : scope) {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
 			if (val instanceof PackageDefn) {
-				processScope(forms, ((PackageDefn) val).innerScope(), scopeDepth+1);
+				processScope(forms, functions, ((PackageDefn) val).innerScope(), scopeDepth+1);
 			} else if (val instanceof FunctionDefinition) {
-				HSIEForm hsie = HSIE.handle((FunctionDefinition) val);
-				forms.add(gen.generate(hsie));
+				functions.put(name, (FunctionDefinition) val);
+//				HSIEForm hsie = HSIE.handle((FunctionDefinition) val);
+//				forms.add(gen.generate(hsie));
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
 				forms.add(gen.generate(name, sd));
@@ -107,8 +163,9 @@ public class Compiler {
 					forms.add(gen.generateContract(name, ci, pos));
 					for (MethodDefinition m : ci.methods) {
 						FunctionDefinition fd = MethodConvertor.convert(name, "_C"+pos, m);
-						HSIEForm hsie = HSIE.handle(fd);
-						forms.add(gen.generate(hsie));
+						functions.put(name, fd);
+//						HSIEForm hsie = HSIE.handle(fd);
+//						forms.add(gen.generate(hsie));
 					}
 					pos++;
 				}
@@ -117,8 +174,9 @@ public class Compiler {
 					forms.add(gen.generateHandler(name, hi, pos));
 					for (MethodDefinition m : hi.methods) {
 						FunctionDefinition fd = MethodConvertor.convert(name, "_H"+pos, m);
-						HSIEForm hsie = HSIE.handle(fd);
-						forms.add(gen.generate(hsie));
+						functions.put(name, fd);
+//						HSIEForm hsie = HSIE.handle(fd);
+//						forms.add(gen.generate(hsie));
 					}
 					pos++;
 				}

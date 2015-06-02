@@ -13,7 +13,6 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ItemExpr;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -30,28 +29,20 @@ public class DependencyAnalyzer {
 		this.errors = errors;
 	}
 
-	public List<Orchard<FunctionDefinition>> analyze(Scope scope) {
+	public List<Orchard<FunctionDefinition>> analyze(Map<String, FunctionDefinition> map) {
 		DirectedCyclicGraph<String> dcg = new DirectedCyclicGraph<String>();
 		Map<String, FunctionDefinition> fdm = new TreeMap<String, FunctionDefinition>();
-		addScopeToDCG(dcg, new TreeMap<String, String>(), fdm, scope);
+		addFunctionsToDCG(dcg, new TreeMap<String, String>(), fdm, map);
 //		System.out.print(dcg);
 		return buildOrchards(dcg, fdm);
 	}
 
-	// may need more arguments (like "list of parent scopes" or "map of bound vars to parent scopes")
-	private void addScopeToDCG(DirectedCyclicGraph<String> dcg, Map<String, String> map, Map<String, FunctionDefinition> fdm, Scope scope) {
-		for (Entry<String, Entry<String, Object>> x : scope) {
-			String name = x.getValue().getKey();
-			Object what = x.getValue().getValue();
-			
-			// TODO: we only want to deal with functions
-			// TODO: have we mapped methods to functions yet?
-			// TODO: likewise templates if we are going to treat them as FL functions
-			if (!(what instanceof FunctionDefinition))
-				continue;
-			
+	private void addFunctionsToDCG(DirectedCyclicGraph<String> dcg, Map<String, String> map, Map<String, FunctionDefinition> fdm, Map<String, FunctionDefinition> functions) {
+		for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
+			String name = x.getKey();
 			dcg.ensure(name);
-			FunctionDefinition fd = (FunctionDefinition)what;
+
+			FunctionDefinition fd = x.getValue();
 			fdm.put(name,  fd);
 			for (FunctionCaseDefn c : fd.cases) {
 				Set<String> locals = new TreeSet<String>();
@@ -64,7 +55,6 @@ public class DependencyAnalyzer {
 					varMap.put("_scoped."+v, realname);
 				}
 				analyzeExpr(dcg, name, varMap, locals, c.expr);
-				addScopeToDCG(dcg, varMap, fdm, c.innerScope());
 			}
 		}
 	}
