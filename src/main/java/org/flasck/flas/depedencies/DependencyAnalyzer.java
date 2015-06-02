@@ -1,5 +1,6 @@
 package org.flasck.flas.depedencies;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,9 +15,13 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ItemExpr;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.tokenizers.ExprToken;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.DirectedCyclicGraph;
+import org.zinutils.graphs.Link;
+import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
+import org.zinutils.graphs.Tree;
 
 public class DependencyAnalyzer {
 	private final ErrorResult errors;
@@ -26,15 +31,15 @@ public class DependencyAnalyzer {
 	}
 
 	public List<Orchard<FunctionDefinition>> analyze(Scope scope) {
-		DirectedCyclicGraph<Object> dcg = new DirectedCyclicGraph<Object>();
-		addScopeToDCG(dcg, new TreeMap<String, String>(), scope);
-		System.out.print(dcg);
-		System.out.print(dcg.roots());
-		return null;
+		DirectedCyclicGraph<String> dcg = new DirectedCyclicGraph<String>();
+		Map<String, FunctionDefinition> fdm = new TreeMap<String, FunctionDefinition>();
+		addScopeToDCG(dcg, new TreeMap<String, String>(), fdm, scope);
+//		System.out.print(dcg);
+		return buildOrchards(dcg, fdm);
 	}
 
 	// may need more arguments (like "list of parent scopes" or "map of bound vars to parent scopes")
-	private void addScopeToDCG(DirectedCyclicGraph<Object> dcg, Map<String, String> map, Scope scope) {
+	private void addScopeToDCG(DirectedCyclicGraph<String> dcg, Map<String, String> map, Map<String, FunctionDefinition> fdm, Scope scope) {
 		for (Entry<String, Entry<String, Object>> x : scope) {
 			String name = x.getValue().getKey();
 			Object what = x.getValue().getValue();
@@ -47,6 +52,7 @@ public class DependencyAnalyzer {
 			
 			dcg.ensure(name);
 			FunctionDefinition fd = (FunctionDefinition)what;
+			fdm.put(name,  fd);
 			for (FunctionCaseDefn c : fd.cases) {
 				Set<String> locals = new TreeSet<String>();
 				c.intro.gatherVars(locals);
@@ -58,12 +64,12 @@ public class DependencyAnalyzer {
 					varMap.put("_scoped."+v, realname);
 				}
 				analyzeExpr(dcg, name, varMap, locals, c.expr);
-				addScopeToDCG(dcg, varMap, c.innerScope());
+				addScopeToDCG(dcg, varMap, fdm, c.innerScope());
 			}
 		}
 	}
 
-	private void analyzeExpr(DirectedCyclicGraph<Object> dcg, String name, Map<String, String> varMap, Set<String> locals, Object expr) {
+	private void analyzeExpr(DirectedCyclicGraph<String> dcg, String name, Map<String, String> varMap, Set<String> locals, Object expr) {
 		if (expr instanceof ItemExpr) {
 			ExprToken tok = ((ItemExpr)expr).tok;
 			switch(tok.type) {
@@ -93,5 +99,75 @@ public class DependencyAnalyzer {
 				analyzeExpr(dcg, name, varMap, locals, x);
 		} else
 			throw new UtilException("Unhandled expr: " + expr + " -> " + expr.getClass());
+	}
+
+	List<Orchard<FunctionDefinition>> buildOrchards(DirectedCyclicGraph<String> dcg, Map<String, FunctionDefinition> fdm) {
+		Set<Set<String>> spanners = new TreeSet<Set<String>>(new SortOnSize());
+		for (String name : dcg.nodes()) {
+			if (!name.startsWith("_var_"))
+				spanners.add(dcg.spanOf(name));
+		}
+		Set<String> done = new TreeSet<String>();
+		List<Set<String>> groups = new ArrayList<Set<String>>();
+		for (Set<String> s : spanners) {
+			s.removeAll(done);
+			if (!s.isEmpty()) {
+				groups.add(s);
+				done.addAll(s);
+			}
+		}
+		List<Orchard<FunctionDefinition>> ret = new ArrayList<Orchard<FunctionDefinition>>();
+		for (Set<String> g : groups) {
+			Orchard<FunctionDefinition> orch = buildOrchard(dcg, fdm, g);
+			if (!orch.isEmpty())
+				ret.add(orch);
+		}
+		System.out.println(ret);
+		return ret;
+	}
+
+	private Orchard<FunctionDefinition> buildOrchard(DirectedCyclicGraph<String> dcg, Map<String, FunctionDefinition> fdm, Set<String> g) {
+		Orchard<FunctionDefinition> ret = new Orchard<FunctionDefinition>();
+		Set<String> topCandidates = new TreeSet<String>();
+
+		// Collect together all the people that "defined" variables that were later used
+		for (String s : g) {
+			if (s.startsWith("_var_"))
+				topCandidates.add(CollectionUtils.any(dcg.find(s).linksFrom()).getTo());
+		}
+
+		// Go through this list, seeing which ones don't use other people's variables
+		// This must terminate, because scoping, unlike referencing, is tree-based
+		for (String s : topCandidates) {
+			Node<String> top = dcg.find(s);
+			for (Link<String> l : top.linksFrom()) {
+				// TODO: handle the case where a function both defines and uses a var
+				if (l.getTo().startsWith("_var_"))
+					throw new UtilException("The non-top-candidate case");
+			}
+			
+			// Create a new tree with the definer at the top
+			Tree<FunctionDefinition> t = ret.addTree(fdm.get(s));
+			g.remove(s); // remove everything that we do something with
+			for (Link<String> lc : top.linksTo()) {
+				// find all the variables it defines and then make their sub-functions our children
+				if (lc.getFrom().startsWith("_var")) {
+					g.remove(lc.getFrom());
+					for (Link<String> lu : lc.getFromNode().linksTo()) {
+						g.remove(lu.getFrom());
+						if (fdm.containsKey(lu.getFrom()))
+							t.addChild(t.getRoot(), fdm.get(lu.getFrom()));
+					}
+				}
+			}
+		}
+		
+		// when there are no more vars, everything is just a peer
+		// add one tree for all remaining items
+		for (String s : g)
+			if (fdm.containsKey(s))
+				ret.addTree(fdm.get(s));
+
+		return ret;
 	}
 }

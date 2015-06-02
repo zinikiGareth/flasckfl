@@ -21,4 +21,9 @@ public class FunctionDefinition {
 	public FunctionDefinition(FunctionIntro intro, List<FunctionCaseDefn> list) {
 		this(intro.name, intro.args.size(), list);
 	}
+	
+	@Override
+	public String toString() {
+		return name +"/" +nargs+"["+cases.size()+"]";
+	}
 }
