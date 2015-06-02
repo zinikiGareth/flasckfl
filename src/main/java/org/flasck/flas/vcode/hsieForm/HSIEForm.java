@@ -10,6 +10,19 @@ import java.util.TreeSet;
 
 import org.flasck.flas.hsie.SubstExpr;
 
+// So, basically an HSIE definition consists of
+// Fn "name" [formal-args] [bound-vars] [external-vars]
+//   HEAD var
+//   SWITCH var Type/Constructor|Type|Type/Constructor
+//     BIND new-var var "field"
+//     IF boolean-expr
+//       EVAL En
+//   Er
+// If there is no general case, then add "E?" to indicate an error in switching
+
+// There is no notion of "Else", you just drop down to the next statement at a not-indented level and pick up from there.
+
+// Each of the Expressions En is modified to be just a simple apply-tree
 public class HSIEForm extends HSIEBlock {
 	public final String fnName;
 	public final int alreadyUsed;
@@ -88,19 +101,9 @@ public class HSIEForm extends HSIEBlock {
 	public Map<String, Var> varsFor(int eN) {
 		return exprs.get(eN).substs;
 	}
-	
-	// So, basically an HSIE definition consists of
-	// Fn "name" [formal-args] [bound-vars] [external-vars]
-	//   HEAD var
-	//   SWITCH var Type/Constructor|Type|Type/Constructor
-	//     BIND new-var var "field"
-	//     IF boolean-expr
-	//       EVAL En
-	//   Er
-	// If there is no general case, then add "E?" to indicate an error in switching
 
-	// There is no notion of "Else", you just drop down to the next statement at a not-indented level and pick up from there.
-	
-	// Each of the Expressions En is modified to be just a simple apply-tree
-
+	@Override
+	public String toString() {
+		return fnName + "/" + nformal;
+	}
 }

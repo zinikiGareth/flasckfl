@@ -167,7 +167,8 @@ public class FLASStory implements StoryProcessor {
 	public static Scope builtinScope() {
 		Scope ret = new Scope(null);
 		{ // core
-			ret.define(".", "FLEval.field", null);
+			ret.define(".", "FLEval.field", 
+				Type.function(Type.polyvar("A"), Type.simple("String"), Type.polyvar("B")));
 		}
 		{ // math
 			ret.define("Number", "Number", null);

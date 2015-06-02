@@ -93,10 +93,10 @@ public class Generator {
 			List<String> tmp = new ArrayList<String>();
 			for (int i=0;i<hi.boundVars.size();i++)
 				tmp.add("v" +i);
-			JSForm ctor = new JSForm("this."+Rewriter.basename(hi.type) + " = function(" + String.join(",",tmp) + ")").strict();
-			cf.add(ctor);
-			tmp.add(0, "_self");
-			ctor.add(new JSForm("return new "+name +"._H" +pos+"(" + String.join(",", tmp) +")"));
+//			JSForm ctor = new JSForm("this."+Rewriter.basename(hi.type) + " = function(" + String.join(",",tmp) + ")").strict();
+//			cf.add(ctor);
+//			tmp.add(0, "_self");
+//			ctor.add(new JSForm("return new "+name +"._H" +pos+"(" + String.join(",", tmp) +")"));
 			pos++;
 		}
 		return cf;

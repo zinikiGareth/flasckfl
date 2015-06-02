@@ -3,8 +3,10 @@ package org.flasck.flas;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -76,13 +78,24 @@ public class Rewriter {
 	}
 	
 	class CardContext extends NamingContext {
-		CardContext(RootContext scope) {
+		public Map<String, Integer> globals = new TreeMap<String, Integer>();
+		private final String prefix;
+
+		CardContext(RootContext scope, String name) {
 			super(scope);
+			this.prefix = name;
 		}
 
 		@Override
+		public String resolve(String name) {
+			if (globals.containsKey(name))
+				return prefix + "._H" + globals.get(name);
+			else
+				return super.resolve(name);
+		}
+		@Override
 		protected String makeName(String name) {
-			return "_card."+name;
+				return "_card."+name;
 		}
 	}
 	
@@ -159,9 +172,8 @@ public class Rewriter {
 			if (val instanceof CardDefinition) {
 				if (!(cx instanceof RootContext))
 					throw new UtilException("Cannot have card in nested scope");
-				CardContext c2 = new CardContext((RootContext) cx);
+				CardContext c2 = new CardContext((RootContext) cx, name);
 				CardDefinition cd = (CardDefinition) val;
-				// TODO: Gather locally defined things 
 				if (cd.state != null) {
 					List<StructField> l = new ArrayList<StructField>(cd.state.fields);
 					cd.state.fields.clear();
@@ -173,8 +185,9 @@ public class Rewriter {
 				for (ContractImplements ci : cd.contracts) {
 					c2.add(ci.referAsVar);
 				}
+				int pos = 0;
 				for (HandlerImplements hi : cd.handlers) {
-					c2.add(basename(hi.type));
+					c2.globals.put(basename(hi.type), pos++);
 				}
 				if (cd.template != null) {
 					System.out.println("Don't rewrite template yet");
@@ -301,19 +314,27 @@ public class Rewriter {
 		if (expr instanceof ItemExpr) {
 			ItemExpr ie = (ItemExpr) expr;
 			System.out.println("Want to rewrite " + ie.tok);
-			ItemExpr ret;
+			Object ret;
 			if (ie.tok.type == ExprToken.NUMBER || ie.tok.type == ExprToken.STRING)
 				ret = ie;
-			else if (ie.tok.type == ExprToken.IDENTIFIER || ie.tok.type == ExprToken.SYMBOL || ie.tok.type == ExprToken.PUNC)
-				ret = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, scope.resolve(ie.tok.text)));
-			else
+			else if (ie.tok.type == ExprToken.IDENTIFIER || ie.tok.type == ExprToken.SYMBOL || ie.tok.type == ExprToken.PUNC) {
+				String rwTo = scope.resolve(ie.tok.text);
+				ret = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, rwTo));
+				if (rwTo.contains("._H")) {
+					System.out.println("_H thing: " + rwTo);
+					ret = new ApplyExpr(ret, new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "_card")));
+				}
+			} else
 				throw new UtilException("Cannot handle " + ie.tok);
 			System.out.println("Rewritten to " + ret);
 			return ret;
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			if (ae.fn instanceof ItemExpr && ((ItemExpr)ae.fn).tok.text.equals(".")) {
-				return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "FLEval.field")), rewriteExpr(scope, ae.args.get(0)), ae.args.get(1));
+				Object applyFn = rewriteExpr(scope, ae.args.get(0));
+				ItemExpr ie = (ItemExpr)ae.args.get(1);
+				if (ie.tok.type != ExprToken.IDENTIFIER) throw new UtilException("unhandled case");
+				return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "FLEval.field")), applyFn, new ItemExpr(new ExprToken(ExprToken.STRING, ie.tok.text)));
 			}
 			List<Object> args = new ArrayList<Object>();
 			for (Object o : ae.args)

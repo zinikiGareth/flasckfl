@@ -175,8 +175,14 @@ public class Compiler {
 
 				{
 					StructDefn sd = new StructDefn(name);
-					for (StructField sf : card.state.fields)
-						sd.fields.add(sf);
+					if (card.state != null) {
+						for (StructField sf : card.state.fields)
+							sd.fields.add(sf);
+					}
+					for (ContractImplements ci : card.contracts) {
+						if (ci.referAsVar != null)
+							sd.fields.add(new StructField(new TypeReference(ci.type), ci.referAsVar));
+					}
 					tc.addStructDefn(sd);
 				}
 				

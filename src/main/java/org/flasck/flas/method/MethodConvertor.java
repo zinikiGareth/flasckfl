@@ -50,10 +50,9 @@ public class MethodConvertor {
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr fn = (ApplyExpr)root.fn;
 			if (!((ItemExpr)fn.fn).tok.text.equals("FLEval.field")) throw new UtilException("unhandled case");
-			if (((ItemExpr)fn.args.get(1)).tok.type != ExprToken.IDENTIFIER) throw new UtilException("unhandled case");
 			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Send")),
 					fn.args.get(0),
-					new ItemExpr(new ExprToken(ExprToken.STRING, ((ItemExpr)fn.args.get(1)).tok.text)),
+					fn.args.get(1),
 					asList(root.args));
 		}
 	}

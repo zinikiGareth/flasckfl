@@ -114,7 +114,6 @@ public class DependencyAnalyzer {
 			if (!orch.isEmpty())
 				ret.add(orch);
 		}
-		System.out.println(ret);
 		return ret;
 	}
 

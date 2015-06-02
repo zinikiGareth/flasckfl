@@ -311,7 +311,7 @@ public class TypeChecker {
 				// I am going to say that by getting here, we know that it must be an external
 				// all lambdas should be variables by now
 				
-				if (r.fn.startsWith("_card.")) {
+				if (r.fn.startsWith("_card")) {
 					// try and find the name of the card class
 					// this is a hack and I know it ...
 					int idx = form.fnName.length();
@@ -319,6 +319,8 @@ public class TypeChecker {
 						idx = form.fnName.lastIndexOf('.', idx-1);
 					String structName = form.fnName.substring(0, idx);
 					System.out.println(structName);
+					if (r.fn.equals("_card"))
+						return freshVarsIn(new TypeReference(structName));
 					StructDefn sd = structs.get(structName);
 					for (StructField sf : sd.fields) {
 						if (sf.name.equals(r.fn.substring(6))) {
@@ -326,13 +328,15 @@ public class TypeChecker {
 						}
 					}
 					throw new UtilException("Could not find field " + r.fn.substring(6) + " in card " + structName);
-				} else if (r.fn.startsWith("_handler.")) {
+				} else if (r.fn.startsWith("_handler")) {
 					// try and find the name of the handler class
 					// this is likewise a hack and I know it ...
 					int idx = form.fnName.length();
 					for (int i=0;i<2;i++)
 						idx = form.fnName.lastIndexOf('.', idx-1);
 					String structName = form.fnName.substring(0, idx);
+					if (r.fn.equals("_handler"))
+						return freshVarsIn(new TypeReference(structName));
 					StructDefn sd = structs.get(structName);
 					for (StructField sf : sd.fields) {
 						if (sf.name.equals(r.fn.substring(9))) {
