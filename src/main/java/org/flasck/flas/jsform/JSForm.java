@@ -200,6 +200,8 @@ public class JSForm {
 				sb.append(c.ival);
 			else if (c.var != null)
 				sb.append("v"+ c.var.idx);
+			else if (c.sval != null)
+				sb.append("'" + c.sval.text + "'");
 			else
 				throw new UtilException("What are you pushing? " + c);
 			pos++;

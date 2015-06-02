@@ -25,6 +25,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
@@ -32,6 +33,7 @@ import org.flasck.flas.parser.MethodMessageParser;
 import org.flasck.flas.parser.MethodParser;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.typechecker.Type;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
@@ -169,7 +171,8 @@ public class FLASStory implements StoryProcessor {
 		}
 		{ // math
 			ret.define("Number", "Number", null);
-			ret.define("+", "FLEval.plus", null);
+			ret.define("+", "FLEval.plus", 
+				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 			ret.define("-", "FLEval.minus", null);
 			ret.define("*", "FLEval.mul", null);
 			ret.define("/", "FLEval.div", null);
@@ -177,13 +180,26 @@ public class FLASStory implements StoryProcessor {
 		}
 		{ // lists
 			ret.define("List", "List", null);
-			ret.define("Nil", "Nil", null);
-			ret.define("Cons", "Cons", null);
+			ret.define("Nil", "Nil",
+				new StructDefn("Nil"));
+			ret.define("Cons", "Cons",
+				new StructDefn("Cons")
+				.add("A")
+				.addField(new StructField(new TypeReference(null, "A"), "head"))
+				.addField(new StructField(new TypeReference("List").with(new TypeReference(null, "A")), "tail")));
 		}
 		{ // messaging
 			ret.define("Message", "Message", null);
-			ret.define("Assign", "Assign", null);
-			ret.define("Send", "Send", null);
+			ret.define("Assign", "Assign",
+				new StructDefn("Assign")
+				.add("A")
+				.addField(new StructField(new TypeReference("String"), "slot"))
+				.addField(new StructField(new TypeReference(null, "A"), "value")));
+			ret.define("Send", "Send",
+				new StructDefn("Send")
+				.addField(new StructField(new TypeReference("Any"), "dest"))
+				.addField(new StructField(new TypeReference("String"), "method"))
+				.addField(new StructField(new TypeReference("List").with(new TypeReference("Any")), "args")));
 			ret.define("JSNI", "JSNI", null);
 		}
 		return ret;

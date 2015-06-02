@@ -53,8 +53,7 @@ public class MethodConvertor {
 			if (((ItemExpr)fn.args.get(1)).tok.type != ExprToken.IDENTIFIER) throw new UtilException("unhandled case");
 			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Send")),
 					fn.args.get(0),
-					// TODO: I think this is actually a string
-					new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "'" + ((ItemExpr)fn.args.get(1)).tok.text + "'")),
+					new ItemExpr(new ExprToken(ExprToken.STRING, ((ItemExpr)fn.args.get(1)).tok.text)),
 					asList(root.args));
 		}
 	}

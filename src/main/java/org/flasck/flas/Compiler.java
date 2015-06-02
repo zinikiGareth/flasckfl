@@ -28,8 +28,12 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TypeDefn;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
@@ -67,8 +71,18 @@ public class Compiler {
 				scope = rewriter.rewrite(scope);
 				List<String> pkglist = emitPackages(forms, scope, defPkg);
 				Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
-				processScope(forms, functions, scope, 1);
 				TypeChecker tc = new TypeChecker();
+				for (Entry<String, Entry<String, Object>> x : scope.outer) {
+					Object val = x.getValue().getValue();
+					if (val instanceof StructDefn) {
+						tc.addStructDefn((StructDefn) val);
+					} else if (val instanceof TypeDefn) {
+						tc.addTypeDefn((TypeDefn) val);
+					} else if (val instanceof Type) {
+						tc.addExternal(x.getValue().getKey(), (Type)val);
+					}
+				}
+				processScope(forms, tc, functions, scope, 1);
 				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(functions);
 				if (tc.errors.hasErrors())
 					throw new ErrorResultException(tc.errors);
@@ -137,46 +151,65 @@ public class Compiler {
 			generateTree(forms, t, n);
 	}
 
-	private void processScope(List<JSForm> forms, Map<String, FunctionDefinition> functions, Scope scope, int scopeDepth) {
+	private void processScope(List<JSForm> forms, TypeChecker tc, Map<String, FunctionDefinition> functions, Scope scope, int scopeDepth) {
 		for (Entry<String, Entry<String, Object>> x : scope) {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
 			if (val instanceof PackageDefn) {
-				processScope(forms, functions, ((PackageDefn) val).innerScope(), scopeDepth+1);
+				processScope(forms, tc, functions, ((PackageDefn) val).innerScope(), scopeDepth+1);
 			} else if (val instanceof FunctionDefinition) {
 				functions.put(name, (FunctionDefinition) val);
-//				HSIEForm hsie = HSIE.handle((FunctionDefinition) val);
-//				forms.add(gen.generate(hsie));
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
+				tc.addStructDefn(sd);
 				forms.add(gen.generate(name, sd));
+			} else if (val instanceof TypeDefn) {
+				TypeDefn td = (TypeDefn) val;
+				tc.addTypeDefn(td);
 			} else if (val instanceof ContractDecl) {
 				// currently, I don't think anything needs to be written in this case
 				continue;
 			} else if (val instanceof CardDefinition) {
 				CardDefinition card = (CardDefinition) val;
-				
 				forms.add(gen.generate(name, card));
+
+				{
+					StructDefn sd = new StructDefn(name);
+					for (StructField sf : card.state.fields)
+						sd.fields.add(sf);
+					tc.addStructDefn(sd);
+				}
 				
 				int pos = 0;
 				for (ContractImplements ci : card.contracts) {
 					forms.add(gen.generateContract(name, ci, pos));
 					for (MethodDefinition m : ci.methods) {
 						FunctionDefinition fd = MethodConvertor.convert(name, "_C"+pos, m);
-						functions.put(name, fd);
-//						HSIEForm hsie = HSIE.handle(fd);
-//						forms.add(gen.generate(hsie));
+						functions.put(fd.name, fd);
 					}
 					pos++;
 				}
 				pos = 0;
 				for (HandlerImplements hi : card.handlers) {
+					if (!hi.boundVars.isEmpty()) {
+						String hname = name +"._H"+pos;
+						System.out.println("Creating class for handler " + hname);
+						StructDefn sd = new StructDefn(hname);
+						// Doing this seems clever, but I'm not really sure that it is
+						// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
+						for (int i=0;i<hi.boundVars.size();i++)
+							sd.args.add("A"+i);
+						int j=0;
+						for (String s : hi.boundVars) {
+							sd.fields.add(new StructField(new TypeReference(null, "A"+j), s));
+							j++;
+						}
+						tc.addStructDefn(sd);
+					}
 					forms.add(gen.generateHandler(name, hi, pos));
 					for (MethodDefinition m : hi.methods) {
 						FunctionDefinition fd = MethodConvertor.convert(name, "_H"+pos, m);
-						functions.put(name, fd);
-//						HSIEForm hsie = HSIE.handle(fd);
-//						forms.add(gen.generate(hsie));
+						functions.put(fd.name, fd);
 					}
 					pos++;
 				}

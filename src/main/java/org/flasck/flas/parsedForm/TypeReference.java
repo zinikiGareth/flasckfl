@@ -4,11 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TypeReference {
+	public final String var;
 	public final String name;
 	public final List<TypeReference> args = new ArrayList<TypeReference>();
 
 	public TypeReference(String name) {
 		this.name = name;
+		this.var = null;
+	}
+	
+	public TypeReference(String name, String var) {
+		this.name = name;
+		this.var = var;
 	}
 	
 	@Override

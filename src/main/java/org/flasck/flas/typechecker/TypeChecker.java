@@ -12,6 +12,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeDefn;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
@@ -159,6 +160,8 @@ public class TypeChecker {
 					ret.push(pc.ival);
 				else if (pc.fn != null)
 					ret.push(pc.fn);
+				else if (pc.sval != null)
+					ret.push(pc.sval);
 				else
 					throw new UtilException("Unhandled");
 			} else if (b instanceof ErrorCmd)
@@ -275,6 +278,8 @@ public class TypeChecker {
 			PushReturn r = (PushReturn) cmd;
 			if (r.ival != null)
 				return new TypeExpr("Number");
+			else if (r.sval != null)
+				return new TypeExpr("String");
 			else if (r.var != null) {
 				HSIEBlock c = form.getClosure(r.var);
 				if (c == null) {
@@ -305,14 +310,48 @@ public class TypeChecker {
 				// phi is not updated
 				// I am going to say that by getting here, we know that it must be an external
 				// all lambdas should be variables by now
+				
+				if (r.fn.startsWith("_card.")) {
+					// try and find the name of the card class
+					// this is a hack and I know it ...
+					int idx = form.fnName.length();
+					for (int i=0;i<3;i++)
+						idx = form.fnName.lastIndexOf('.', idx-1);
+					String structName = form.fnName.substring(0, idx);
+					System.out.println(structName);
+					StructDefn sd = structs.get(structName);
+					for (StructField sf : sd.fields) {
+						if (sf.name.equals(r.fn.substring(6))) {
+							return freshVarsIn(sf.type);
+						}
+					}
+					throw new UtilException("Could not find field " + r.fn.substring(6) + " in card " + structName);
+				} else if (r.fn.startsWith("_handler.")) {
+					// try and find the name of the handler class
+					// this is likewise a hack and I know it ...
+					int idx = form.fnName.length();
+					for (int i=0;i<2;i++)
+						idx = form.fnName.lastIndexOf('.', idx-1);
+					String structName = form.fnName.substring(0, idx);
+					StructDefn sd = structs.get(structName);
+					for (StructField sf : sd.fields) {
+						if (sf.name.equals(r.fn.substring(9))) {
+							return freshVarsIn(sf.type);
+						}
+					}
+					throw new UtilException("Could not find field " + r.fn.substring(9) + " in handler " + structName);
+				}
+				
 				Object te = localKnowledge.get(r.fn);
 				if (te != null)
 					return te;
 				te = knowledge.get(r.fn);
 				if (te == null) {
+					if (structs.containsKey(r.fn))
+						return freshVarsIn(typeForStructCtor(structs.get(r.fn)));
 					// This is probably a failure on our part rather than user error
 					// We should not be able to get here if r.fn is not already an external which has been resolved
-					errors.message((Block)null, "There is no type for " + r.fn); // We need some way to report error location
+					errors.message((Block)null, "There is no type for identifier: " + r.fn + " when checking " + form.fnName); // We need some way to report error location
 					return null;
 				} else {
 					System.out.print("Replacing vars in " + r.fn +": ");
@@ -322,6 +361,23 @@ public class TypeChecker {
 				throw new UtilException("What are you returning?");
 		} else
 			throw new UtilException("Missing cases");
+	}
+
+	private Object typeForStructCtor(StructDefn structDefn) {
+		List<Type> args = new ArrayList<Type>();
+		for (StructField x : structDefn.fields)
+			args.add(fromTypeReference(x.type));
+		args.add(fromTypeReference(new TypeReference(structDefn.typename)));
+		return Type.function(args);
+	}
+
+	private Type fromTypeReference(TypeReference type) {
+		if (type.var != null)
+			return Type.polyvar(type.var);
+		List<Type> args = new ArrayList<Type>();
+		for (TypeReference tr : type.args)
+			args.add(fromTypeReference(tr));
+		return Type.simple(type.name, args);
 	}
 
 	private Object checkSingleApplication(PhiSolution phi, Object Tf, Object Tx) {
@@ -335,6 +391,8 @@ public class TypeChecker {
 	}
 
 	private Object freshVarsIn(Object te) {
+		if (te instanceof TypeReference)
+			te = fromTypeReference((TypeReference) te);
 		if (te instanceof Type) {
 			Object ret = ((Type)te).asExpr(factory);
 			System.out.println(ret);

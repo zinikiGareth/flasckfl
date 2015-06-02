@@ -3,6 +3,7 @@ package org.flasck.flas.vcode.hsieForm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.hsie.StringLiteral;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIEBlock {
@@ -39,6 +40,8 @@ public class HSIEBlock {
 		else if (o instanceof String)
 			// TODO: check it's a defined name
 			ret = new PushCmd((String)o);
+		else if (o instanceof StringLiteral)
+			ret = new PushCmd((StringLiteral)o);
 		else if (o == null)
 			throw new UtilException("Cannot push null");
 		else

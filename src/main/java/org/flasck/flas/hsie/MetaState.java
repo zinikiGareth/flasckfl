@@ -67,7 +67,7 @@ public class MetaState {
 				return Integer.parseInt(e2.tok.text); // what about floats?
 			else if (e2.tok.type == ExprToken.STRING) {
 				System.out.println(e2.tok);
-				return '"' + e2.tok.text + '"';
+				return new StringLiteral(e2.tok.text);
 			} else if (e2.tok.type == ExprToken.IDENTIFIER || e2.tok.type == ExprToken.SYMBOL || e2.tok.type == ExprToken.PUNC) {
 				if (substs.containsKey(e2.tok.text))
 					return substs.get(e2.tok.text);

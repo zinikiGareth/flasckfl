@@ -76,7 +76,9 @@ public class DependencyAnalyzer {
 				}
 				break;
 			}
-			case ExprToken.NUMBER: {
+			case ExprToken.NUMBER:
+			case ExprToken.STRING:
+			{
 				// that's OK
 				break;
 			}

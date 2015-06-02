@@ -105,8 +105,8 @@ public class PhiSolution {
 					stored = true;
 				}
 			}
-			if (!stored)
-				errors.message((Block)null, "Could not store the unification " + te1.type + " and " + te2.type + " anywhere");
+//			if (!stored)
+//				errors.message((Block)null, "Could not store the unification " + te1.type + " and " + te2.type + " anywhere");
 			return unified;
 		} else if (t1 instanceof TypeUnion) {
 			((TypeUnion) t1).add(t2);

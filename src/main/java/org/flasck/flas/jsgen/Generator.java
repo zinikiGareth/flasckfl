@@ -104,7 +104,7 @@ public class Generator {
 
 	public JSForm generateContract(String name, ContractImplements ci, int pos) {
 		String myname = name +"._C"+pos;
-		JSForm ret = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 0, 1);
+		JSForm ret = JSForm.function(myname, CollectionUtils.listOf(new Var(0)), 0, 1);
 		ret.add(new JSForm("this._ctor = '" + myname + "'"));
 		ret.add(new JSForm("this._card = v0"));
 		ret.add(new JSForm("this._special = 'contract'"));
@@ -116,8 +116,7 @@ public class Generator {
 	public JSForm generateHandler(String name, HandlerImplements hi, int pos) {
 		String myname = name +"._H"+pos;
 		List<Var> vars = new ArrayList<Var>();
-		vars.add(null);
-		for (int i=1;i<=hi.boundVars.size();i++)
+		for (int i=0;i<=hi.boundVars.size();i++)
 			vars.add(new Var(i));
 		JSForm ret = JSForm.function(myname, vars, 0, hi.boundVars.size() + 1);
 		ret.add(new JSForm("this._ctor = '" + myname + "'"));
