@@ -7,12 +7,14 @@ import org.flasck.flas.ErrorResult;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.zinutils.exceptions.UtilException;
 
 public class TemplateLineParser implements TryParsing{
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		List<Object> contents = new ArrayList<Object>();
+		boolean seenDiv = false;
 		while (line.hasMore()) {
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
@@ -21,9 +23,16 @@ public class TemplateLineParser implements TryParsing{
 			if (tt.type == TemplateToken.COLON || tt.type == TemplateToken.HASH) {
 				line.reset(mark);
 				break;
-			} else if (tt.type == TemplateToken.IDENTIFIER)
+			} else if (tt.type == TemplateToken.DIV) {
+				seenDiv = true;
 				contents.add(tt);
+			} else if (tt.type == TemplateToken.IDENTIFIER || tt.type == TemplateToken.STRING)
+				contents.add(tt);
+			else
+				throw new UtilException("Cannot handle " + tt);
 		}
+		if (seenDiv && contents.size() != 1)
+			return ErrorResult.oneMessage(line, "Cannot have other content on line with <div>");
 		List<String> formats = new ArrayList<String>();
 		if (line.hasMore()) {
 			TemplateToken tt = TemplateToken.from(line);

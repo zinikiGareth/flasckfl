@@ -2,6 +2,10 @@ package org.flasck.flas.parser;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import org.flasck.flas.ErrorResult;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -27,11 +31,51 @@ public class TemplateParsingTests {
 		assertFormat("format", tl, 0);
 	}
 
+	@Test
+	public void testLiteralText() {
+		TemplateLine tl = parse("'counter is: '");
+		assertEquals(1, tl.contents.size());
+		assertToken(TemplateToken.STRING, "counter is: ", tl, 0);
+		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testMultipleTokens() {
+		TemplateLine tl = parse("'counter is: ' counter");
+		assertEquals(2, tl.contents.size());
+		assertToken(TemplateToken.STRING, "counter is: ", tl, 0);
+		assertToken(TemplateToken.IDENTIFIER, "counter", tl, 1);
+		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testDiv() {
+		TemplateLine tl = parse(".");
+		assertEquals(1, tl.contents.size());
+		assertToken(TemplateToken.DIV, ".", tl, 0);
+		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testDivCantBePartOfLongerLine() throws IOException {
+		ErrorResult er = parseError(". counter");
+		assertEquals(1, er.errors.size());
+		assertEquals("Cannot have other content on line with <div>", er.errors.get(0).msg);
+		er.showTo(new PrintWriter(System.out));
+	}
+
 	protected TemplateLine parse(String string) {
 		Object o = doparse(string);
 		assertNotNull(o);
 		assertTrue(o instanceof TemplateLine);
 		return (TemplateLine) o;
+	}
+
+	protected ErrorResult parseError(String string) {
+		Object o = doparse(string);
+		assertNotNull(o);
+		assertTrue(o instanceof ErrorResult);
+		return (ErrorResult) o;
 	}
 
 	private Object doparse(String string) {
