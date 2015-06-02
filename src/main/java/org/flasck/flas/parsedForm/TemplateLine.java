@@ -2,6 +2,8 @@ package org.flasck.flas.parsedForm;
 
 import java.util.List;
 
+import org.flasck.flas.tokenizers.TemplateToken;
+
 /* How to test this?
  * One option would be to compile the templates to javascript, then build one or more models,
  * then run the overall framework, calling into "renderFirstTime" (and/or "renderUpdate")
@@ -12,9 +14,9 @@ import java.util.List;
  */
 public class TemplateLine {
 	public final List<Object> contents;
-	public final List<String> formats;
+	public final List<TemplateToken> formats;
 
-	public TemplateLine(List<Object> contents, List<String> formats) {
+	public TemplateLine(List<Object> contents, List<TemplateToken> formats) {
 		this.contents = contents;
 		this.formats = formats;
 	}

@@ -27,22 +27,22 @@ public class TemplateParsingTests {
 
 	@Test
 	public void testSimpleWithFormat() throws Exception {
-		TemplateLine tl = parse("counter: format");
+		TemplateLine tl = parse("counter: 'format'");
 		assertEquals(1, tl.contents.size());
 		assertToken(TemplateToken.IDENTIFIER, "counter", tl, 0);
 		assertEquals(1, tl.formats.size());
-		assertFormat("format", tl, 0);
+		assertFormat(TemplateToken.STRING, "format", tl, 0);
 	}
 
 	@Test
 	public void testSimpleWithMultipleFormats() throws Exception {
-		TemplateLine tl = parse("counter: format style settings");
+		TemplateLine tl = parse("counter: format 'style' settings");
 		assertEquals(1, tl.contents.size());
 		assertToken(TemplateToken.IDENTIFIER, "counter", tl, 0);
 		assertEquals(3, tl.formats.size());
-		assertFormat("format", tl, 0);
-		assertFormat("style", tl, 1);
-		assertFormat("settings", tl, 2);
+		assertFormat(TemplateToken.IDENTIFIER, "format", tl, 0);
+		assertFormat(TemplateToken.STRING, "style", tl, 1);
+		assertFormat(TemplateToken.IDENTIFIER, "settings", tl, 2);
 	}
 
 	@Test
@@ -79,11 +79,11 @@ public class TemplateParsingTests {
 
 	@Test
 	public void testDivWithFormat() throws Exception {
-		TemplateLine tl = parse(". : format");
+		TemplateLine tl = parse(". : 'format'");
 		assertEquals(1, tl.contents.size());
 		assertToken(TemplateToken.DIV, ".", tl, 0);
 		assertEquals(1, tl.formats.size());
-		assertFormat("format", tl, 0);
+		assertFormat(TemplateToken.STRING, "format", tl, 0);
 	}
 
 	@Test
@@ -158,7 +158,9 @@ public class TemplateParsingTests {
 		assertEquals("text of token " + which + " was wrong", text, x.text);
 	}
 
-	private void assertFormat(String text, TemplateLine tl, int which) {
-		assertEquals("format " + which + " was wrong", text, tl.formats.get(which));
+	private void assertFormat(int type, String text, TemplateLine tl, int which) {
+		TemplateToken x = tl.formats.get(which);
+		assertEquals("type of format " + which + " was wrong", type, x.type);
+		assertEquals("text of format " + which + " was wrong", text, x.text);
 	}
 }

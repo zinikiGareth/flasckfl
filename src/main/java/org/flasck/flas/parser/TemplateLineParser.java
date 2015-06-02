@@ -47,14 +47,14 @@ public class TemplateLineParser implements TryParsing{
 		}
 		if (seenDiv && contents.size() != 1)
 			return ErrorResult.oneMessage(line, "Cannot have other content on line with . or +");
-		List<String> formats = new ArrayList<String>();
+		List<TemplateToken> formats = new ArrayList<TemplateToken>();
 		if (line.hasMore()) {
 			TemplateToken tt = TemplateToken.from(line);
 			if (tt.type == TemplateToken.COLON) {
 				while (line.hasMore()) {
 					TemplateToken f = TemplateToken.from(line);
-					if (f.type == TemplateToken.IDENTIFIER)
-						formats.add(f.text);
+					if (f.type == TemplateToken.IDENTIFIER || f.type == TemplateToken.STRING)
+						formats.add(f);
 					else
 						return ErrorResult.oneMessage(line, "invalid CSS format");
 				}
