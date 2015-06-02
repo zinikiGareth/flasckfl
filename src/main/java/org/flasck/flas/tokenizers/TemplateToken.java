@@ -6,6 +6,7 @@ public class TemplateToken {
 	public static final int HASH = 3;
 	public static final int STRING = 4;
 	public static final int DIV = 5;
+	public static final int LIST = 6;
 
 	public final int type;
 	public final String text;
@@ -28,6 +29,9 @@ public class TemplateToken {
 		} else if (c == '.') {
 			line.advance();
 			return new TemplateToken(DIV, ".");
+		} else if (c == '+') {
+			line.advance();
+			return new TemplateToken(LIST, "+");
 		} else if (c == ':') {
 			line.advance();
 			return new TemplateToken(COLON, ":");
