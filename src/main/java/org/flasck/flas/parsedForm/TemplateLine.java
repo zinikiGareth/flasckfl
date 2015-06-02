@@ -12,8 +12,10 @@ import java.util.List;
  */
 public class TemplateLine {
 	public final List<Object> contents;
+	public final List<String> formats;
 
 	public TemplateLine(List<Object> contents, List<String> formats) {
 		this.contents = contents;
+		this.formats = formats;
 	}
 }
