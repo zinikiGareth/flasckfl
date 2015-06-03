@@ -1,4 +1,4 @@
-package org.flasck.flas.parser;
+package org.flasck.flas.parsedForm;
 
 public class TemplateExplicitAttr {
 

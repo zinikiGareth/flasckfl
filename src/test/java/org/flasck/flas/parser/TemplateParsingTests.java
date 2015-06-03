@@ -8,6 +8,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.PrintWriter;
 
 import org.flasck.flas.ErrorResult;
+import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.EventHandler;
+import org.flasck.flas.parsedForm.TemplateAttributeVar;
+import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -234,11 +238,56 @@ public class TemplateParsingTests {
 		assertEquals(0, tl.formats.size());
 	}
 
-	protected TemplateLine parse(String string) throws Exception {
-		Object o = doparse(string);
+	@Test
+	public void testWeCanDefineAClickHandler() throws Exception {
+		EventHandler eh = parseHandler("click => handleClick 7 (u:x)");
+		assertEquals("click", eh.text);
+		assertNull(eh.var);
+		assertNotNull(eh.expr);
+		assertTrue(eh.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) eh.expr;
+		assertEquals("handleClick", ae.fn.toString());
+		assertEquals(2, ae.args.size());
+		assertEquals("7", ae.args.get(0).toString());
+		assertTrue(ae.args.get(1) instanceof ApplyExpr);
+		ae = (ApplyExpr) ae.args.get(1);
+		assertEquals("Cons", ae.fn.toString());
+		assertEquals(2, ae.args.size());
+		assertEquals("u", ae.args.get(0).toString());
+		assertEquals("x", ae.args.get(1).toString());
+	}
+
+	@Test
+	public void testAHandlerCanTakeAnEvent() throws Exception {
+		EventHandler eh = parseHandler("mousedown ev => handleClick 7 (u:x)");
+		assertEquals("mousedown", eh.text);
+		assertEquals("ev", eh.var);
+		assertNotNull(eh.expr);
+		assertTrue(eh.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) eh.expr;
+		assertEquals("handleClick", ae.fn.toString());
+		assertEquals(2, ae.args.size());
+		assertEquals("7", ae.args.get(0).toString());
+		assertTrue(ae.args.get(1) instanceof ApplyExpr);
+		ae = (ApplyExpr) ae.args.get(1);
+		assertEquals("Cons", ae.fn.toString());
+		assertEquals(2, ae.args.size());
+		assertEquals("u", ae.args.get(0).toString());
+		assertEquals("x", ae.args.get(1).toString());
+	}
+
+	protected TemplateLine parse(String input) throws Exception {
+		Object o = doparse(input);
 		assertNotNull(o);
 		assertTrue(o instanceof TemplateLine);
 		return (TemplateLine) o;
+	}
+
+	protected EventHandler parseHandler(String input) throws Exception {
+		Object o = doparse(input);
+		assertNotNull(o);
+		assertTrue(o instanceof EventHandler);
+		return (EventHandler) o;
 	}
 
 	protected ErrorResult parseError(String string) throws Exception {

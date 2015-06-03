@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.ErrorResult;
+import org.flasck.flas.parsedForm.EventHandler;
+import org.flasck.flas.parsedForm.TemplateAttributeVar;
+import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -40,6 +43,26 @@ public class TemplateLineParser implements TryParsing{
 				else
 					line.reset(mark2);
 				contents.add(new TemplateList(t2.text, iv));
+			} else if (tt.type == TemplateToken.ARROW) {
+				if (seenDivOrList || contents.size() == 0 || contents.size() > 2)
+					return ErrorResult.oneMessage(line, "syntax error");
+				TemplateToken action = (TemplateToken)contents.get(0);
+				if (action.type != TemplateToken.IDENTIFIER)
+					return ErrorResult.oneMessage(line, "syntax error");
+				String var = null;
+				if (contents.size() == 2) {
+					TemplateToken varis = (TemplateToken)contents.get(1);
+					if (varis.type != TemplateToken.IDENTIFIER)
+						return ErrorResult.oneMessage(line, "syntax error");
+					var = varis.text;
+				}
+				Object expr = new Expression().tryParsing(line);
+				if (expr == null)
+					return ErrorResult.oneMessage(line, "syntax error");
+				else if (expr instanceof ErrorResult)
+					return expr;
+				else
+					return new EventHandler(action.text, var, expr);
 			} else if (tt.type == TemplateToken.IDENTIFIER || tt.type == TemplateToken.STRING)
 				contents.add(tt);
 			else

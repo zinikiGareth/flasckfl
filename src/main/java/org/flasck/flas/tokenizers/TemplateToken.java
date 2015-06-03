@@ -9,6 +9,7 @@ public class TemplateToken {
 	public static final int HASH = 6;
 	public static final int ATTR = 7;
 	public static final int EQUALS = 8;
+	public static final int ARROW = 9;
 
 	public final int type;
 	public final String text;
@@ -45,7 +46,11 @@ public class TemplateToken {
 			return new TemplateToken(ATTR, "@");
 		} else if (c == '=') {
 			line.advance();
-			return new TemplateToken(EQUALS, "=");
+			if (line.nextChar() == '>') {
+				line.advance();
+				return new TemplateToken(ARROW, "=>");
+			} else
+				return new TemplateToken(EQUALS, "=");
 		} else
 			return null;
 	}
