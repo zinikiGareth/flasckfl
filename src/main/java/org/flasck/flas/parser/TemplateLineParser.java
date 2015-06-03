@@ -15,7 +15,7 @@ public class TemplateLineParser implements TryParsing{
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		List<Object> contents = new ArrayList<Object>();
-		boolean seenDiv = false;
+		boolean seenDivOrList = false;
 		while (line.hasMore()) {
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
@@ -25,10 +25,10 @@ public class TemplateLineParser implements TryParsing{
 				line.reset(mark);
 				break;
 			} else if (tt.type == TemplateToken.DIV) {
-				seenDiv = true;
+				seenDivOrList = true;
 				contents.add(tt);
 			} else if (tt.type == TemplateToken.LIST) {
-				seenDiv = true;
+				seenDivOrList = true;
 				TemplateToken t2 = TemplateToken.from(line);
 				if (t2.type != TemplateToken.IDENTIFIER)
 					return ErrorResult.oneMessage(line, "list requires a list variable");
@@ -45,9 +45,36 @@ public class TemplateLineParser implements TryParsing{
 			else
 				throw new UtilException("Cannot handle " + tt);
 		}
-		if (seenDiv && contents.size() != 1)
+		if (seenDivOrList && contents.size() != 1)
 			return ErrorResult.oneMessage(line, "Cannot have other content on line with . or +");
 		List<TemplateToken> formats = new ArrayList<TemplateToken>();
+		String customTag = null;
+		String customTagVar = null;
+		if (line.hasMore()) {
+			int mark = line.at();
+			TemplateToken tt = TemplateToken.from(line);
+			if (tt.type == TemplateToken.HASH) {
+				if (!seenDivOrList && !contents.isEmpty())
+					return ErrorResult.oneMessage(line, "can only use # by itself or with . or +");
+				if (!line.hasMore())
+					return ErrorResult.oneMessage(line, "missing #tag");
+					
+				TemplateToken f = TemplateToken.from(line);
+				if (f.type == TemplateToken.HASH) {
+					if (!line.hasMore())
+						return ErrorResult.oneMessage(line, "missing #tag");
+					f = TemplateToken.from(line);
+					if (f.type == TemplateToken.IDENTIFIER)
+						customTagVar = f.text;
+					else
+						return ErrorResult.oneMessage(line, "invalid #tag");
+				} else if (f.type == TemplateToken.IDENTIFIER)
+					customTag = f.text;
+				else
+					return ErrorResult.oneMessage(line, "invalid #tag");
+			} else
+				line.reset(mark);
+		}
 		if (line.hasMore()) {
 			TemplateToken tt = TemplateToken.from(line);
 			if (tt.type == TemplateToken.COLON) {
@@ -61,7 +88,7 @@ public class TemplateLineParser implements TryParsing{
 			} else
 				return ErrorResult.oneMessage(line, "syntax error");
 		}
-		return new TemplateLine(contents, formats);
+		return new TemplateLine(contents, customTag, customTagVar, formats);
 	}
 
 }

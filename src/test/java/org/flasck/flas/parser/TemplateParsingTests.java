@@ -117,6 +117,7 @@ public class TemplateParsingTests {
 		assertEquals("list", lv.listVar);
 		assertNull(lv.iterVar);
 		assertEquals(1, tl.formats.size());
+		assertFormat(TemplateToken.IDENTIFIER, "format", tl, 0);
 	}
 
 	@Test
@@ -128,6 +129,66 @@ public class TemplateParsingTests {
 		assertEquals("list", lv.listVar);
 		assertEquals("iter", lv.iterVar);
 		assertEquals(1, tl.formats.size());
+		assertFormat(TemplateToken.IDENTIFIER, "format", tl, 0);
+	}
+
+	@Test
+	public void testDivWithCustomTag() throws Exception {
+		TemplateLine tl = parse(". #blockquote");
+		assertEquals(1, tl.contents.size());
+		assertToken(TemplateToken.DIV, ".", tl, 0);
+		assertEquals("blockquote", tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testDivWithCustomTagVar() throws Exception {
+		TemplateLine tl = parse(". ## tag");
+		assertEquals(1, tl.contents.size());
+		assertToken(TemplateToken.DIV, ".", tl, 0);
+		assertNull(tl.customTag);
+		assertEquals("tag", tl.customTagVar);
+		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testDivWithCustomTagAndFormat() throws Exception {
+		TemplateLine tl = parse(". #blockquote : 'quoted-text'");
+		assertEquals(1, tl.contents.size());
+		assertToken(TemplateToken.DIV, ".", tl, 0);
+		assertEquals("blockquote", tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(1, tl.formats.size());
+		assertFormat(TemplateToken.STRING, "quoted-text", tl, 0);
+	}
+
+	@Test
+	public void testSimpleContentCannotHaveCustomTag() throws Exception {
+		ErrorResult err = parseError("counter #blockquote");
+		assertEquals(1, err.errors.size());
+		assertEquals("can only use # by itself or with . or +", err.errors.get(0).msg);
+	}
+
+	@Test
+	public void testCustomTagDoesNotRequireDot() throws Exception {
+		TemplateLine tl = parse("#blockquote");
+		assertEquals(0, tl.contents.size());
+		assertEquals("blockquote", tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testListWithCustomTag() throws Exception {
+		TemplateLine tl = parse("+ list #ol");
+		assertEquals(1, tl.contents.size());
+		assertTrue(tl.contents.get(0) instanceof TemplateList);
+		TemplateList lv = (TemplateList) tl.contents.get(0);
+		assertEquals("list", lv.listVar);
+		assertEquals("ol", tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(0, tl.formats.size());
 	}
 
 	protected TemplateLine parse(String string) throws Exception {
