@@ -74,7 +74,7 @@ public class TemplateParsingTests {
 	public void testDivCantBePartOfLongerLine() throws Exception {
 		ErrorResult er = parseError(". counter");
 		assertEquals(1, er.errors.size());
-		assertEquals("Cannot have other content on line with . or +", er.errors.get(0).msg);
+		assertEquals("cannot have other content on line with . or +", er.errors.get(0).msg);
 	}
 
 	@Test
@@ -188,6 +188,49 @@ public class TemplateParsingTests {
 		assertEquals("list", lv.listVar);
 		assertEquals("ol", tl.customTag);
 		assertNull(tl.customTagVar);
+		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testTagCanHaveExplicitAttribute() throws Exception {
+		TemplateLine tl = parse("#blockquote @id=famous");
+		assertEquals(0, tl.contents.size());
+		assertEquals("blockquote", tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(1, tl.attrs.size());
+		assertTrue(tl.attrs.get(0) instanceof TemplateExplicitAttr);
+		TemplateExplicitAttr attr = (TemplateExplicitAttr) tl.attrs.get(0);
+		assertEquals("id", attr.attr);
+		assertEquals(TemplateToken.IDENTIFIER, attr.type);
+		assertEquals("famous", attr.value);
+		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testTagCanHaveExplicitStringAttribute() throws Exception {
+		TemplateLine tl = parse("#blockquote @id='famous'");
+		assertEquals(0, tl.contents.size());
+		assertEquals("blockquote", tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(1, tl.attrs.size());
+		assertTrue(tl.attrs.get(0) instanceof TemplateExplicitAttr);
+		TemplateExplicitAttr attr = (TemplateExplicitAttr) tl.attrs.get(0);
+		assertEquals("id", attr.attr);
+		assertEquals(TemplateToken.STRING, attr.type);
+		assertEquals("famous", attr.value);
+		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testTagCanHaveVariableForAttribute() throws Exception {
+		TemplateLine tl = parse("#blockquote @@id");
+		assertEquals(0, tl.contents.size());
+		assertEquals("blockquote", tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(1, tl.attrs.size());
+		assertTrue(tl.attrs.get(0) instanceof TemplateAttributeVar);
+		TemplateAttributeVar attr = (TemplateAttributeVar) tl.attrs.get(0);
+		assertEquals("id", attr.var);
 		assertEquals(0, tl.formats.size());
 	}
 

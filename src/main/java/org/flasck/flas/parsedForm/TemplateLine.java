@@ -14,14 +14,16 @@ import org.flasck.flas.tokenizers.TemplateToken;
  */
 public class TemplateLine {
 	public final List<Object> contents;
-	public final List<TemplateToken> formats;
 	public final String customTag;
 	public final String customTagVar;
+	public final List<Object> attrs;
+	public final List<TemplateToken> formats;
 
-	public TemplateLine(List<Object> contents, String customTag, String customTagVar, List<TemplateToken> formats) {
+	public TemplateLine(List<Object> contents, String customTag, String customTagVar, List<Object> attrs, List<TemplateToken> formats) {
 		this.contents = contents;
 		this.customTag = customTag;
 		this.customTagVar = customTagVar;
+		this.attrs = attrs;
 		this.formats = formats;
 	}
 }

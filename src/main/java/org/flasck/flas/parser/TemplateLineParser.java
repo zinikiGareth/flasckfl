@@ -46,10 +46,11 @@ public class TemplateLineParser implements TryParsing{
 				throw new UtilException("Cannot handle " + tt);
 		}
 		if (seenDivOrList && contents.size() != 1)
-			return ErrorResult.oneMessage(line, "Cannot have other content on line with . or +");
+			return ErrorResult.oneMessage(line, "cannot have other content on line with . or +");
 		List<TemplateToken> formats = new ArrayList<TemplateToken>();
 		String customTag = null;
 		String customTagVar = null;
+		List<Object> attrs = new ArrayList<Object>();
 		if (line.hasMore()) {
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
@@ -72,11 +73,47 @@ public class TemplateLineParser implements TryParsing{
 					customTag = f.text;
 				else
 					return ErrorResult.oneMessage(line, "invalid #tag");
+				while (line.hasMore()) {
+					mark = line.at();
+					TemplateToken at = TemplateToken.from(line);
+					if (at == null || at.type != TemplateToken.ATTR) {
+						line.reset(mark);
+						break;
+					}
+					boolean wantVar = false;
+					TemplateToken n = TemplateToken.from(line);
+					if (n == null)
+						return ErrorResult.oneMessage(line, "syntax error");
+					if (n.type == TemplateToken.ATTR) {
+						wantVar = true;
+						n = TemplateToken.from(line);
+						if (n == null)
+							return ErrorResult.oneMessage(line, "syntax error");
+					}
+					if (n.type != TemplateToken.IDENTIFIER)
+						return ErrorResult.oneMessage(line, "invalid attribute");
+					if (wantVar)
+						attrs.add(new TemplateAttributeVar(n.text));
+					else {
+						mark = line.at();
+						TemplateToken eq = TemplateToken.from(line);
+						if (eq == null || eq.type != TemplateToken.EQUALS) {
+							line.reset(mark);
+							break;
+						}
+						TemplateToken val = TemplateToken.from(line);
+						if (val == null || (val.type != TemplateToken.IDENTIFIER && val.type != TemplateToken.STRING))
+							return ErrorResult.oneMessage(line, "syntax error");
+						attrs.add(new TemplateExplicitAttr(n.text, val.type, val.text));
+					}
+				}
 			} else
 				line.reset(mark);
 		}
 		if (line.hasMore()) {
 			TemplateToken tt = TemplateToken.from(line);
+			if (tt == null)
+				return ErrorResult.oneMessage(line, "could not parse token");
 			if (tt.type == TemplateToken.COLON) {
 				while (line.hasMore()) {
 					TemplateToken f = TemplateToken.from(line);
@@ -88,7 +125,7 @@ public class TemplateLineParser implements TryParsing{
 			} else
 				return ErrorResult.oneMessage(line, "syntax error");
 		}
-		return new TemplateLine(contents, customTag, customTagVar, formats);
+		return new TemplateLine(contents, customTag, customTagVar, attrs, formats);
 	}
 
 }

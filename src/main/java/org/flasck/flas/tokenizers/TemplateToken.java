@@ -2,11 +2,13 @@ package org.flasck.flas.tokenizers;
 
 public class TemplateToken {
 	public static final int IDENTIFIER = 1;
-	public static final int COLON = 2;
-	public static final int HASH = 3;
-	public static final int STRING = 4;
-	public static final int DIV = 5;
-	public static final int LIST = 6;
+	public static final int STRING = 2;
+	public static final int COLON = 3;
+	public static final int DIV = 4;
+	public static final int LIST = 5;
+	public static final int HASH = 6;
+	public static final int ATTR = 7;
+	public static final int EQUALS = 8;
 
 	public final int type;
 	public final String text;
@@ -38,6 +40,12 @@ public class TemplateToken {
 		} else if (c == '#') {
 			line.advance();
 			return new TemplateToken(HASH, "#");
+		} else if (c == '@') {
+			line.advance();
+			return new TemplateToken(ATTR, "@");
+		} else if (c == '=') {
+			line.advance();
+			return new TemplateToken(EQUALS, "=");
 		} else
 			return null;
 	}
