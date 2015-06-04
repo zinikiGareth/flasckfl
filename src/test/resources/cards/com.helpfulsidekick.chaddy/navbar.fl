@@ -11,4 +11,4 @@
 								click => switchTo 'dashboard'
 							(navItem 'dashboard' 'D')
 		
-		navItem title short = HTML "a"
+		navItem title short = DOM.Element "a" Nil Nil

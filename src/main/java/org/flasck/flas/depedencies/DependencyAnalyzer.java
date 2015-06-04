@@ -33,13 +33,13 @@ public class DependencyAnalyzer {
 		DirectedCyclicGraph<String> dcg = new DirectedCyclicGraph<String>();
 		Map<String, FunctionDefinition> fdm = new TreeMap<String, FunctionDefinition>();
 		addFunctionsToDCG(dcg, new TreeMap<String, String>(), fdm, map);
-//		System.out.print(dcg);
+		System.out.print(dcg);
 		return buildOrchards(dcg, fdm);
 	}
 
 	private void addFunctionsToDCG(DirectedCyclicGraph<String> dcg, Map<String, String> map, Map<String, FunctionDefinition> fdm, Map<String, FunctionDefinition> functions) {
 		for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
-			String name = x.getKey();
+			String name = x.getValue().name;
 			dcg.ensure(name);
 
 			FunctionDefinition fd = x.getValue();

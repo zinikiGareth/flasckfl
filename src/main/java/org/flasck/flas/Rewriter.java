@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.ItemExpr;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -58,6 +59,15 @@ public class Rewriter {
 		}
 
 		protected abstract String makeName(String name);
+
+		public String makeAbsoluteName(String name) {
+			return makeName(name);
+		}
+
+		/* Hard get a resolved name from the scope */
+		public Object get(String resolvedName) {
+			return nested.get(resolvedName);
+		}
 	}
 	
 	class RootContext extends NamingContext {
@@ -83,25 +93,50 @@ public class Rewriter {
 //			throw new UtilException("Cannot have names in this scope");
 			return scope.resolve(name);
 		}
-		
+
+		/* Hard get a resolved name from the scope */
+		public Object get(String resolvedName) {
+			return scope.getResolved(resolvedName);
+		}
 	}
 	
 	class CardContext extends NamingContext {
 		public Map<String, Integer> globals = new TreeMap<String, Integer>();
 		private final String prefix;
+		private final Scope innerScope;
 
-		CardContext(RootContext scope, String name) {
+		CardContext(RootContext scope, CardDefinition cd) {
 			super(scope);
-			this.prefix = name;
+			this.prefix = scope.resolve(cd.name);
+			this.innerScope = cd.innerScope();
+			if (cd.state != null) {
+				for (StructField sf : cd.state.fields)
+					add(sf.name);
+			}
+			for (ContractImplements ci : cd.contracts) {
+				add(ci.referAsVar);
+			}
+			int pos = 0;
+			for (HandlerImplements hi : cd.handlers) {
+				globals.put(basename(hi.type), pos++);
+			}
 		}
 
 		@Override
 		public String resolve(String name) {
+			if (innerScope.contains(name))
+				return prefix + "." + name;
 			if (globals.containsKey(name))
 				return prefix + "._H" + globals.get(name);
 			else
 				return super.resolve(name);
 		}
+		
+		@Override
+		public String makeAbsoluteName(String name) {
+			return prefix + "." + name;
+		}
+		
 		@Override
 		protected String makeName(String name) {
 				return "_card."+name;
@@ -125,7 +160,7 @@ public class Rewriter {
 
 		FunctionContext(NamingContext cx, Scope scope, String myname, int cs) {
 			super(cx);
-			this.myname = cx.makeName(myname) +"_"+cs;
+			this.myname = cx.makeAbsoluteName(myname) +"_"+cs;
 			if (scope != null) {
 				for (String k : scope.keys())
 					add(k);
@@ -181,26 +216,14 @@ public class Rewriter {
 			if (val instanceof CardDefinition) {
 				if (!(cx instanceof RootContext))
 					throw new UtilException("Cannot have card in nested scope");
-				CardContext c2 = new CardContext((RootContext) cx, name);
 				CardDefinition cd = (CardDefinition) val;
+				CardContext c2 = new CardContext((RootContext) cx, cd);
 				if (cd.state != null) {
 					List<StructField> l = new ArrayList<StructField>(cd.state.fields);
 					cd.state.fields.clear();
-					for (StructField sf : l) {
+					for (StructField sf : l)
 						cd.state.fields.add(rewrite(cx, sf));
-						c2.add(sf.name);
-					}
 				}
-				for (ContractImplements ci : cd.contracts) {
-					c2.add(ci.referAsVar);
-				}
-				int pos = 0;
-				for (HandlerImplements hi : cd.handlers) {
-					c2.globals.put(basename(hi.type), pos++);
-				}
-//				if (cd.template != null) {
-//					System.out.println("Don't rewrite template yet");
-//				}
 				List<ContractImplements> l = new ArrayList<ContractImplements>(cd.contracts);
 				cd.contracts.clear();
 				for (ContractImplements ci : l) {
@@ -247,6 +270,11 @@ public class Rewriter {
 		}
 	}
 
+	public FunctionDefinition rewriteFunction(Scope scope, CardDefinition cd, FunctionDefinition f) {
+		NamingContext cx = new CardContext(new RootContext(scope), cd);
+		return rewrite(cx, f);
+	}
+	
 	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
@@ -254,7 +282,7 @@ public class Rewriter {
 			list.add(rewrite(new FunctionContext(cx, c.innerScope(), f.name, cs), c));
 			cs++;
 		}
-		FunctionDefinition ret = new FunctionDefinition(cx.makeName(f.name), f.nargs, list);
+		FunctionDefinition ret = new FunctionDefinition(cx.makeAbsoluteName(f.name), f.nargs, list);
 		return ret;
 	}
 
@@ -340,9 +368,19 @@ public class Rewriter {
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			if (ae.fn instanceof ItemExpr && ((ItemExpr)ae.fn).tok.text.equals(".")) {
-				Object applyFn = rewriteExpr(scope, ae.args.get(0));
 				ItemExpr ie = (ItemExpr)ae.args.get(1);
 				if (ie.tok.type != ExprToken.IDENTIFIER) throw new UtilException("unhandled case");
+				System.out.println("Considering . with " + ae.args.get(0).getClass());
+				if (ae.args.get(0) instanceof ItemExpr) {
+					String pkg = ((ItemExpr)ae.args.get(0)).tok.text;
+					System.out.println("is: " + scope.get(pkg));
+					if (scope.get(pkg) instanceof PackageDefn) {
+						System.out.println("pkg " + pkg);
+						return ItemExpr.id(pkg + "." + ie.tok.text);
+					}
+				}
+				Object applyFn = rewriteExpr(scope, ae.args.get(0));
+
 				return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "FLEval.field")), applyFn, new ItemExpr(new ExprToken(ExprToken.STRING, ie.tok.text)));
 			}
 			List<Object> args = new ArrayList<Object>();

@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -115,6 +116,14 @@ public class FLASStory implements StoryProcessor {
 		if (er.hasErrors())
 			return er;
 		
+		gatherFunctions(er, s, ret, fndefns);
+		
+		if (er.hasErrors())
+			return er;
+		return ret;
+	}
+
+	protected void gatherFunctions(ErrorResult er, State s, Scope ret, List<Object> fndefns) {
 		ListMap<String, FunctionCaseDefn> groups = new ListMap<String, FunctionCaseDefn>();
 		String cfn = null;
 		int pnargs = 0;
@@ -138,10 +147,6 @@ public class FLASStory implements StoryProcessor {
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
 			ret.define(x.getKey(), s.withPkg(x.getKey()), new FunctionDefinition(x.getValue().get(0).intro, x.getValue()));
 		}
-		
-		if (er.hasErrors())
-			return er;
-		return ret;
 	}
 
 	public static Scope builtinScope() {
@@ -183,6 +188,15 @@ public class FLASStory implements StoryProcessor {
 				.addField(new StructField(new TypeReference("List").with(new TypeReference("Any")), "args")));
 			ret.define("JSNI", "JSNI", null);
 		}
+		{ // DOM
+			PackageDefn dom = new PackageDefn(ret, "DOM");
+			ret.define("DOM", "DOM", dom);
+			dom.innerScope().define("Element", "DOM.Element",
+				new StructDefn("DOM.Element")
+				.addField(new StructField(new TypeReference("String"), "tag"))
+				.addField(new StructField(new TypeReference("List").with(new TypeReference(null, "A")), "attrs"))
+				.addField(new StructField(new TypeReference("List").with(new TypeReference("DOM.Element")), "content")));
+		}
 		return ret;
 	}
 
@@ -222,7 +236,7 @@ public class FLASStory implements StoryProcessor {
 
 	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
 		IntroParser ip = new IntroParser(s.scope);
-		List<FunctionCaseDefn> functions = new ArrayList<FunctionCaseDefn>();
+		List<Object> functions = new ArrayList<Object>();
 		for (Block b : components) {
 			if (b.isComment())
 				continue;
@@ -271,7 +285,7 @@ public class FLASStory implements StoryProcessor {
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
-		System.out.println("Need to handle functions: " + functions);
+		gatherFunctions(er, s, cd.innerScope(), functions);
 	}	
 
 	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {

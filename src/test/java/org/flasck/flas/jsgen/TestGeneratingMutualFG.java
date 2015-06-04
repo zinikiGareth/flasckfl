@@ -1,7 +1,5 @@
 package org.flasck.flas.jsgen;
 
-import static org.junit.Assert.*;
-
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;

@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.zinutils.bytecode.InnerClass;
 import org.zinutils.exceptions.UtilException;
 
 public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
@@ -58,11 +59,13 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 
 	public String resolve(String name) {
 		if (name.contains("."))
-			throw new UtilException("Cannot have '.' in name: " + name);
+			return name;
 		if (defns.containsKey(name))
 			return defns.get(name).getKey();
-		if (outer != null)
-			return outer.resolve(name);
+		try {
+			if (outer != null)
+				return outer.resolve(name);
+		} catch (UtilException ex) { /* and rethrow ourselves */ }
 		System.out.println("Could not resolve name " + name + " in " + defns.keySet());
 		throw new UtilException("Could not resolve name " + name);
 	}
@@ -91,5 +94,13 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 	@Override
 	public String toString() {
 		return defns.toString();
+	}
+
+	public Object getResolved(String resolvedName) {
+		if (outer != null)
+			return outer.getResolved(resolvedName);
+		if (resolvedName.contains("."))
+			throw new UtilException("Not yet");
+		return get(resolvedName);
 	}
 }

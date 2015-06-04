@@ -18,7 +18,6 @@ import org.flasck.flas.dom.DomFunctionGenerator;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsgen.Generator;
-import org.flasck.flas.jsgen.TemplateRenderState;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -26,10 +25,10 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodDefinition;
+import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.stories.FLASStory;
@@ -93,16 +92,7 @@ public class Compiler {
 				assertPackage(forms, inPkg);
 				Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
 				TypeChecker tc = new TypeChecker();
-				for (Entry<String, Entry<String, Object>> x : scope.outer) {
-					Object val = x.getValue().getValue();
-					if (val instanceof StructDefn) {
-						tc.addStructDefn((StructDefn) val);
-					} else if (val instanceof TypeDefn) {
-						tc.addTypeDefn((TypeDefn) val);
-					} else if (val instanceof Type) {
-						tc.addExternal(x.getValue().getKey(), (Type)val);
-					}
-				}
+				populateTypes(tc, scope.outer);
 				processScope(forms, tc, functions, scope, 1);
 				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(functions);
 				if (tc.errors.hasErrors())
@@ -137,6 +127,21 @@ public class Compiler {
 			ex.printStackTrace();
 		} finally {
 			if (r != null) try { r.close(); } catch (IOException ex) {}
+		}
+	}
+
+	protected void populateTypes(TypeChecker tc, Scope scope) {
+		for (Entry<String, Entry<String, Object>> x : scope) {
+			Object val = x.getValue().getValue();
+			if (val instanceof PackageDefn) {
+				populateTypes(tc, ((PackageDefn)val).innerScope());
+			} else if (val instanceof StructDefn) {
+				tc.addStructDefn((StructDefn) val);
+			} else if (val instanceof TypeDefn) {
+				tc.addTypeDefn((TypeDefn) val);
+			} else if (val instanceof Type) {
+				tc.addExternal(x.getValue().getKey(), (Type)val);
+			}
 		}
 	}
 
@@ -239,17 +244,31 @@ public class Compiler {
 					}
 					pos++;
 				}
-				
+
+				Map<String, FunctionDefinition> innerFns = new HashMap<String, FunctionDefinition>();
 				if (card.template != null) {
-					DomFunctionGenerator gen = new DomFunctionGenerator(functions, scope, card.state);
+					DomFunctionGenerator gen = new DomFunctionGenerator(innerFns, scope, card.state);
 					gen.generate(card.template);
 //					TemplateRenderState trs = new TemplateRenderState(name);
 //					for (TemplateLine tl : card.template)
 //						forms.add(gen.generateTemplateLine(trs, tl));
 				}
+				
+				for (Entry<String, Entry<String, Object>> x2 : card.innerScope())
+					innerFns.put(x2.getKey(), (FunctionDefinition) x2.getValue().getValue());
+
+				// lift and rewrite all the functions we just defined
+				for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
+					if (functions.containsKey(x2.getKey()))
+						tc.errors.message((Block)null, "duplicate definition of " + x2.getKey() + " in scope");
+					FunctionDefinition rfn = rewriter.rewriteFunction(scope, card,  (FunctionDefinition) x2.getValue());
+					System.out.println(rfn);
+					functions.put(x2.getKey(), rfn);
+				}
 			} else
 				throw new UtilException("Need to handle " + x.getKey() + " of type " + val.getClass());
 		}
+		System.out.println(functions);
 	}
 
 //	private List<String> emitPackages(List<JSForm> forms, Scope scope, String defPkg) {

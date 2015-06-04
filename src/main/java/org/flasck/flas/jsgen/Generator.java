@@ -3,7 +3,6 @@ package org.flasck.flas.jsgen;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.Rewriter;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.parsedForm.CardDefinition;
