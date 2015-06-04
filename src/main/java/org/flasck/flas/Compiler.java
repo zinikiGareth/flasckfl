@@ -261,7 +261,7 @@ public class Compiler {
 				for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
 					if (functions.containsKey(x2.getKey()))
 						tc.errors.message((Block)null, "duplicate definition of " + x2.getKey() + " in scope");
-					FunctionDefinition rfn = rewriter.rewriteFunction(scope, card,  (FunctionDefinition) x2.getValue());
+					FunctionDefinition rfn = rewriter.rewriteFunction(scope, card, MethodConvertor.lift(card, (FunctionDefinition) x2.getValue()));
 					System.out.println(rfn);
 					functions.put(x2.getKey(), rfn);
 				}

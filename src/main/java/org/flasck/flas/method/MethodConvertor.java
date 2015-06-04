@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ItemExpr;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.zinutils.exceptions.UtilException;
 
@@ -63,6 +65,17 @@ public class MethodConvertor {
 			ret = new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Cons")), args.get(n), ret);
 		}
 		return ret;
+	}
+
+	public static FunctionDefinition lift(CardDefinition card, FunctionDefinition fn) {
+		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		for (FunctionCaseDefn fcd : fn.cases) {
+			List<Object> args = new ArrayList<Object>();
+			args.add(new VarPattern("_card"));
+			args.addAll(fcd.intro.args);
+			cases.add(new FunctionCaseDefn(fcd.innerScope().outer, fcd.intro.name, args, fcd.expr));
+		}
+		return new FunctionDefinition(fn.name, fn.nargs+1, cases);
 	}
 
 }

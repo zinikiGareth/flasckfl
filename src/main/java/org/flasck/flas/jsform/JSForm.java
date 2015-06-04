@@ -172,7 +172,7 @@ public class JSForm {
 		else if (r.ival != null)
 			ret.add(new JSForm("return " + r.ival));
 		else if (r.sval != null)
-			ret.add(new JSForm("return '" + r.sval + "'"));
+			ret.add(new JSForm("return '" + r.sval.text + "'"));
 		else
 			throw new UtilException("What are you returning " + r);
 		return ret;

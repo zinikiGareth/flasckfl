@@ -53,7 +53,7 @@ public class DomFunctionGenerator {
 					if (tt.type == TemplateToken.IDENTIFIER) {
 						// TODO: distinguish between state vars and functions to call
 						// TODO: check that functions are defined on the card and not global
-						function(new ApplyExpr(ItemExpr.punc("."), ItemExpr.id("card"), ItemExpr.str(tt.text)));
+						function(ItemExpr.str(tt.text));
 					} else if (tt.type == TemplateToken.STRING)
 						function(ItemExpr.str(tt.text));
 					else if (tt.type == TemplateToken.DIV)
@@ -64,12 +64,7 @@ public class DomFunctionGenerator {
 					// in this case, this is an expression which should return an HTML structure or text value
 					// anyway, it can be directly inserted into the DOM
 					// But, it is effectively curried on the card, so lift that
-					ApplyExpr expr = (ApplyExpr) x;
-					Object[] args = new Object[expr.args.size()+1];
-					args[0] = ItemExpr.id("card");
-					for (int i=0;i<expr.args.size();i++)
-						args[i+1] = expr.args.get(i);
-					function(new ApplyExpr(expr.fn, args));
+					function(x);
 				} else
 					throw new UtilException("Non TT not handled: " + x.getClass());
 			}
@@ -89,8 +84,7 @@ public class DomFunctionGenerator {
 		
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		List<Object> args = new ArrayList<Object>();
-		args.add(new VarPattern("card"));
 		cases.add(new FunctionCaseDefn(scope, name, args, expr));
-		functions.put(name, new FunctionDefinition(name, 1, cases));
+		functions.put(name, new FunctionDefinition(name, 0, cases));
 	}
 }
