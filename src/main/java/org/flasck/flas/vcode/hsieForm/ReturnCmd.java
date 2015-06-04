@@ -2,6 +2,8 @@ package org.flasck.flas.vcode.hsieForm;
 
 import java.util.List;
 
+import org.flasck.flas.hsie.StringLiteral;
+
 public class ReturnCmd extends PushReturn {
 	public final List<Var> deps;
 
@@ -12,6 +14,11 @@ public class ReturnCmd extends PushReturn {
 
 	public ReturnCmd(int i) {
 		super(i);
+		this.deps = null;
+	}
+	
+	public ReturnCmd(StringLiteral s) {
+		super(s);
 		this.deps = null;
 	}
 

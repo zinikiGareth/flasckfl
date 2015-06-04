@@ -56,6 +56,8 @@ public class HSIEBlock {
 			ret = new ReturnCmd((Var)o, deps);
 		else if (o instanceof Integer)
 			ret = new ReturnCmd((Integer)o);
+		else if (o instanceof StringLiteral)
+			ret = new ReturnCmd((StringLiteral)o);
 		else if (o instanceof String)
 			// TODO: check it's a defined name
 			ret = new ReturnCmd((String)o);

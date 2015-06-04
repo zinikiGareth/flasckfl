@@ -241,9 +241,11 @@ public class Compiler {
 				}
 				
 				if (card.template != null) {
-					TemplateRenderState trs = new TemplateRenderState(name);
-					for (TemplateLine tl : card.template)
-						forms.add(gen.generateTemplateLine(trs, tl));
+					DomFunctionGenerator gen = new DomFunctionGenerator(functions, scope, card.state);
+					gen.generate(card.template);
+//					TemplateRenderState trs = new TemplateRenderState(name);
+//					for (TemplateLine tl : card.template)
+//						forms.add(gen.generateTemplateLine(trs, tl));
 				}
 			} else
 				throw new UtilException("Need to handle " + x.getKey() + " of type " + val.getClass());

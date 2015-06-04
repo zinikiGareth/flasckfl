@@ -244,10 +244,16 @@ public class FLASStory implements StoryProcessor {
 					break;
 				}
 				case "template": {
-					List<TemplateLine> items = doCardTemplate(er, b.nested);
 					if (cd.template != null)
-						er.message((Block)null, "duplicate template definition in card");
-					cd.template = items;
+						er.message(b, "duplicate template definition in card");
+					else {
+						List<TemplateLine> items = new ArrayList<TemplateLine>();
+						doCardTemplate(er, b.nested, items, null);
+						if (items.size() != 1)
+							er.message(b, "top level template must be a div or list");
+						else
+							cd.template = items.get(0);
+					}
 					break;
 				}
 				default: {
@@ -288,10 +294,8 @@ public class FLASStory implements StoryProcessor {
 				
 	}
 
-	private List<TemplateLine> doCardTemplate(ErrorResult er, List<Block> nested) {
+	private List<TemplateLine> doCardTemplate(ErrorResult er, List<Block> nested, List<TemplateLine> ret, List<EventHandler> handlers) {
 		TemplateLineParser tlp = new TemplateLineParser();
-		List<TemplateLine> ret = new ArrayList<TemplateLine>();
-		List<EventHandler> handlers = new ArrayList<EventHandler>();
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;
@@ -300,13 +304,26 @@ public class FLASStory implements StoryProcessor {
 				er.message(b, "syntax error");
 			else if (o instanceof ErrorResult)
 				er.merge((ErrorResult) o);
-			else if (o instanceof TemplateLine)
-				ret.add((TemplateLine)o);
-			else if (o instanceof EventHandler)
+			else if (o instanceof TemplateLine) {
+				TemplateLine tl = (TemplateLine)o;
+				ret.add(tl);
+				if (!b.nested.isEmpty()) {
+					if (tl.isDiv()) { 
+						doCardTemplate(er, b.nested, tl.nested, tl.handlers);
+					} else if (tl.isList()) {
+						doCardTemplate(er, b.nested, tl.nested, tl.handlers);
+					} else {
+						boolean nc = false;
+						for (Block b1 : b.nested)
+							nc |= !b1.isComment();
+						if (nc)
+							er.message(b, "this node cannot have nested content");
+					}
+				}
+			} else if (o instanceof EventHandler)
 				handlers.add((EventHandler)o);
 			else
 				er.message(b, "not a valid template line");
-			doCardTemplate(er, b.nested);
 		}
 		return ret;
 	}

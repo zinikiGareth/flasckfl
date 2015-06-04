@@ -6,7 +6,7 @@ import java.util.List;
 public class CardDefinition {
 	public final String name;
 	public StateDefinition state;
-	public List<TemplateLine> template;
+	public TemplateLine template;
 	public final List<ContractImplements> contracts = new ArrayList<ContractImplements>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 
