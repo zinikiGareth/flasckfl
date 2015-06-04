@@ -8,6 +8,18 @@ public class ItemExpr {
 	public ItemExpr(ExprToken tok) {
 		this.tok = tok;
 	}
+	
+	public static ItemExpr id(String id) {
+		return new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, id));
+	}
+
+	public static ItemExpr str(String str) {
+		return new ItemExpr(new ExprToken(ExprToken.STRING, str));
+	}
+
+	public static Object punc(String ch) {
+		return new ItemExpr(new ExprToken(ExprToken.PUNC, ch));
+	}
 
 	@Override
 	public String toString() {

@@ -148,6 +148,8 @@ public class TypeChecker {
 					ret.doReturn(mapping.get(rc.var), deps);
 				else if (rc.ival != null)
 					ret.doReturn(rc.ival, deps);
+				else if (rc.sval != null)
+					ret.doReturn(rc.sval, deps);
 				else if (rc.fn != null)
 					ret.doReturn(rc.fn, deps);
 				else

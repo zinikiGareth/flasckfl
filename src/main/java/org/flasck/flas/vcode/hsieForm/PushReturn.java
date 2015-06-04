@@ -37,4 +37,8 @@ public abstract class PushReturn extends HSIEBlock {
 		this.sval = s;
 		this.fn = null;
 	}
+
+	protected Object textValue() {
+		return (var != null)?var:(ival!=null)?ival.toString():(fn != null)?fn:(sval!=null?sval:"ERR");
+	}
 }

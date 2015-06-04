@@ -1,6 +1,7 @@
 package org.flasck.flas.dom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,6 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.zinutils.exceptions.UtilException;
 
@@ -34,8 +34,7 @@ public class DomFunctionGenerator {
 	//  we need to create the maps of overall tree and dependencies
 
 	public void generate(TemplateLine template) {
-		FunctionDefinition f = generateOne(template);
-		functions.put(f.name, f);
+		generateOne(template);
 		for (TemplateLine tl : template.nested)
 			generate(tl);
 	}
@@ -43,37 +42,56 @@ public class DomFunctionGenerator {
 	// TODO: this shouldn't take both a "name" and a "line"
 	// I think there should be a name-generator in this class
 	// We should then iterate over the "contents" array (if not a div/list)
-	public FunctionDefinition generateOne(TemplateLine tl) {
-		String name = nextName();
-		// This is standard for all cases
+	public void generateOne(TemplateLine tl) {
+		if (tl.contents.isEmpty())
+			function(div(tl));
+		else {
+			for (Object x : tl.contents) {
+				if (x instanceof TemplateToken) {
+					TemplateToken tt = (TemplateToken)x;
+					// This is the case for a simple (variable) content item
+					// TODO: it goes with a "type: content" entry in the tree
+					if (tt.type == TemplateToken.IDENTIFIER) {
+						// TODO: distinguish between state vars and functions to call
+						// TODO: check that functions are defined on the card and not global
+						function(new ApplyExpr(ItemExpr.punc("."), ItemExpr.id("card"), ItemExpr.str(tt.text)));
+					} else if (tt.type == TemplateToken.STRING)
+						function(ItemExpr.str(tt.text));
+					else if (tt.type == TemplateToken.DIV)
+						function(div(tl));
+					else
+						throw new UtilException("template token case not handled: " + tt.type);
+				} else if (x instanceof ApplyExpr) {
+					// in this case, this is an expression which should return an HTML structure or text value
+					// anyway, it can be directly inserted into the DOM
+					// But, it is effectively curried on the card, so lift that
+					ApplyExpr expr = (ApplyExpr) x;
+					Object[] args = new Object[expr.args.size()+1];
+					args[0] = ItemExpr.id("card");
+					for (int i=0;i<expr.args.size();i++)
+						args[i+1] = expr.args.get(i);
+					function(new ApplyExpr(expr.fn, args));
+				} else
+					throw new UtilException("Non TT not handled: " + x.getClass());
+			}
+		}
+	}
+
+	private Object div(TemplateLine tl) {
+		// TODO: handle custom tags
+		// TODO: handle attributes (including from vars)
+		// TODO: handle formats? (or just put them in the tree? because they are "common" to all classes?)
+		// TODO: generate tree state
+		return new ApplyExpr(ItemExpr.id("DOM.Element"), ItemExpr.str("div"), ItemExpr.id("Nil"), ItemExpr.id("Nil"));
+	}
+
+	private void function(Object expr) {
+		String name = "_templateNode_"+(++node);
+		
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		List<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern("card"));
-
-		// This is the case for a simple (variable) content item
-		// TODO: it goes with a "type: content" entry in the tree
-		for (Object x : tl.contents) {
-			if (x instanceof TemplateToken) {
-				TemplateToken tt = (TemplateToken)x;
-				if (tt.type == TemplateToken.IDENTIFIER)
-					cases.add(new FunctionCaseDefn(scope, name, args,
-						new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.PUNC, ".")),
-						new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "card")),
-						new ItemExpr(new ExprToken(ExprToken.STRING, tt.text)))));
-				else if (tt.type == TemplateToken.STRING)
-					cases.add(new FunctionCaseDefn(scope, name, args,
-						new ItemExpr(new ExprToken(ExprToken.STRING, tt.text))));
-				else
-					throw new UtilException("template token case not handled: " + tt.type);
-			} else
-				throw new UtilException("Non TT not handled");
-		}
-		
-		// This is standard
-		return new FunctionDefinition(name, 1, cases);
-	}
-
-	private String nextName() {
-		return "_templateNode_"+(++node);
+		cases.add(new FunctionCaseDefn(scope, name, args, expr));
+		functions.put(name, new FunctionDefinition(name, 1, cases));
 	}
 }

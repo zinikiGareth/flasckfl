@@ -3,6 +3,8 @@ package org.flasck.flas.dom;
 import static org.junit.Assert.*;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
@@ -26,10 +28,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testAString() throws Exception {
-		gen = new DomFunctionGenerator(null, null, counterState());
-		TemplateLine tl = parse("'hello'");
-		FunctionDefinition node1 = gen.generateOne(tl);
-		assertNotNull(node1);
+		FunctionDefinition node1 = generateOne(null, "'hello'");
 		assertEquals("_templateNode_1", node1.name);
 		assertEquals(1, node1.nargs);
 		assertEquals(1, node1.cases.size());
@@ -47,10 +46,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testSimpleVar() throws Exception {
-		gen = new DomFunctionGenerator(null, null, counterState());
-		TemplateLine tl = parse("counter");
-		FunctionDefinition node1 = gen.generateOne(tl);
-		assertNotNull(node1);
+		FunctionDefinition node1 = generateOne(counterState(), "counter");
 		assertEquals("_templateNode_1", node1.name);
 		assertEquals(1, node1.nargs);
 		assertEquals(1, node1.cases.size());
@@ -66,6 +62,65 @@ public class DomFunctionTests {
 		assertEquals("counter", ((ItemExpr)ae.args.get(1)).tok.text);
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
+	}
+
+	@Test
+	public void testAMinimalDiv() throws Exception {
+		FunctionDefinition node1 = generateOne(null, ".");
+		assertEquals("_templateNode_1", node1.name);
+		assertEquals(1, node1.nargs);
+		assertEquals(1, node1.cases.size());
+		FunctionCaseDefn fcd = node1.cases.get(0);
+		assertEquals("_templateNode_1", fcd.intro.name);
+		assertEquals(1, fcd.intro.args.size());
+		assertTrue(fcd.intro.args.get(0) instanceof VarPattern);
+		assertEquals("card", ((VarPattern)fcd.intro.args.get(0)).var);
+		assertNotNull(fcd.expr);
+		assertTrue(fcd.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) fcd.expr;
+		assertEquals("DOM.Element", ((ItemExpr)ae.fn).tok.text);
+		assertEquals(3, ae.args.size());
+		assertEquals("div", ((ItemExpr)ae.args.get(0)).tok.text);
+		assertEquals("Nil", ((ItemExpr)ae.args.get(1)).tok.text);
+		assertEquals("Nil", ((ItemExpr)ae.args.get(2)).tok.text);
+		HSIEForm c = HSIE.handle(node1);
+		c.dump();
+	}
+
+	@Test
+	public void testCallingAFunction() throws Exception {
+		FunctionDefinition node1 = generateOne(null, "(tfn counter)");
+		assertEquals("_templateNode_1", node1.name);
+		assertEquals(1, node1.nargs);
+		assertEquals(1, node1.cases.size());
+		FunctionCaseDefn fcd = node1.cases.get(0);
+		assertEquals("_templateNode_1", fcd.intro.name);
+		assertEquals(1, fcd.intro.args.size());
+		assertTrue(fcd.intro.args.get(0) instanceof VarPattern);
+		assertEquals("card", ((VarPattern)fcd.intro.args.get(0)).var);
+		assertNotNull(fcd.expr);
+		assertTrue(fcd.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) fcd.expr;
+		assertEquals("tfn", ((ItemExpr)ae.fn).tok.text);
+		assertEquals(2, ae.args.size());
+		assertEquals("card", ((ItemExpr)ae.args.get(0)).tok.text);
+		assertEquals("counter", ((ItemExpr)ae.args.get(1)).tok.text);
+		// TODO: note that although 'counter' appears to be an external, it should be rewritten at some point to be a state reference
+		// TODO: if we can do this for this function, then surely we don't need the special handling just for counter as a variable?
+		// TODO: figure out this inconsistency
+		HSIEForm c = HSIE.handle(node1);
+		c.dump();
+	}
+
+	private FunctionDefinition generateOne(StateDefinition state, String input) throws Exception {
+		Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
+		gen = new DomFunctionGenerator(functions, null, state);
+		TemplateLine tl = parse(input);
+		gen.generateOne(tl);
+		assertEquals(1, functions.size());
+		FunctionDefinition ret = functions.get("_templateNode_1");
+		assertNotNull(ret);
+		return ret;
 	}
 
 	private StateDefinition counterState() {

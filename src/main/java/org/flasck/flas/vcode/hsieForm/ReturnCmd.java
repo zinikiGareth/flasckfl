@@ -29,6 +29,6 @@ public class ReturnCmd extends PushReturn {
 
 	@Override
 	public String toString() {
-		return "RETURN " + ((var != null)?var:(ival!=null)?ival.toString():(fn != null)?fn:"ERR") + (deps != null?" " + deps:"");
+		return "RETURN " + textValue();
 	}
 }

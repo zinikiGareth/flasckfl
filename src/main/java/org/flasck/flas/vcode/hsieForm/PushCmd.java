@@ -2,7 +2,6 @@ package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.hsie.StringLiteral;
 
-
 public class PushCmd extends PushReturn {
 
 	public PushCmd(Var var) {
@@ -23,6 +22,6 @@ public class PushCmd extends PushReturn {
 
 	@Override
 	public String toString() {
-		return "PUSH " + ((var != null)?var:(ival!=null)?ival.toString():(fn != null)?fn:(sval!=null?sval:"ERR"));
+		return "PUSH " + textValue();
 	}
 }
