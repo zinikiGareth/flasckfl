@@ -27,6 +27,10 @@ public class TemplateLineParser implements TryParsing{
 			if (tt.type == TemplateToken.COLON || tt.type == TemplateToken.HASH) {
 				line.reset(mark);
 				break;
+			} else if (tt.type == TemplateToken.ORB) {
+				line.reset(mark);
+				Object pe = new Expression().tryParsing(line);
+				contents.add(Expression.deparen(pe));
 			} else if (tt.type == TemplateToken.DIV) {
 				seenDivOrList = true;
 				contents.add(tt);
@@ -140,14 +144,16 @@ public class TemplateLineParser implements TryParsing{
 			if (tt.type == TemplateToken.COLON) {
 				while (line.hasMore()) {
 					TemplateToken f = TemplateToken.from(line);
-					if (f.type == TemplateToken.IDENTIFIER || f.type == TemplateToken.STRING)
+					if (f!= null && (f.type == TemplateToken.IDENTIFIER || f.type == TemplateToken.STRING))
 						formats.add(f);
 					else
-						return ErrorResult.oneMessage(line, "invalid CSS format");
+						return ErrorResult.oneMessage(line, "invalid CSS format (did you mean to quote it?)");
 				}
 			} else
 				return ErrorResult.oneMessage(line, "syntax error");
 		}
+//		if (line.hasMore())
+//			return ErrorResult.oneMessage(line, "unparsed tokens at end of line");
 		return new TemplateLine(contents, customTag, customTagVar, attrs, formats);
 	}
 

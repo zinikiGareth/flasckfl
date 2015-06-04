@@ -84,7 +84,7 @@ public class Expression implements TryParsing {
 		}
 	}
 
-	private Object rehash(Object o) {
+	private static Object rehash(Object o) {
 		if (o instanceof ItemExpr) {
 			ExprToken pe = ((ItemExpr)o).tok;
 			if (pe.type == ExprToken.SYMBOL && pe.text.equals(":"))
@@ -195,7 +195,7 @@ public class Expression implements TryParsing {
 		return tok instanceof ItemExpr && ((ItemExpr)tok).tok.text.equals(".");
 	}
 
-	private Object deparen(Object pe) {
+	public static Object deparen(Object pe) {
 		while (pe instanceof ParenExpr)
 			pe = ((ParenExpr)pe).nested;
 		return rehash(pe);

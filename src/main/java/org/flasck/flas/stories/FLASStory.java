@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -19,7 +20,6 @@ import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -67,7 +67,6 @@ public class FLASStory implements StoryProcessor {
 			return null;
 
 		Scope ret = s.scope;
-		Boolean usingPackages = null;
 		List<Object> fndefns = new ArrayList<Object>();
 		for (Block b : blocks) {
 			if (b.isComment())
@@ -83,25 +82,6 @@ public class FLASStory implements StoryProcessor {
 			else if (o instanceof ErrorResult) {
 				er.merge((ErrorResult)o);
 				continue;
-			}
-			if (o instanceof PackageDefn) {
-				if (usingPackages == null)
-					usingPackages = true;
-				else if (!usingPackages)
-					er.message(b, "inconsistent use of packages: first definition must be a package in order to use packages");
-				PackageDefn p = (PackageDefn) o;
-				if (ret.contains(p.name))
-					er.message(b, "duplicate definition for name " + p.name);
-				s.pkg = p.name;
-				ret.define(p.name, s.withPkg(p.name), doScope(er, s, b.nested));
-				continue;
-			} else {
-				if (usingPackages == null)
-					usingPackages = false;
-				else if (usingPackages) {
-					er.message(b,  "inconsistent use of packages: all top-level definitions must be packages once started");
-					continue;
-				}
 			}
 			if (o instanceof FunctionCaseDefn) {
 				fndefns.add(o);
@@ -242,14 +222,20 @@ public class FLASStory implements StoryProcessor {
 
 	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
 		IntroParser ip = new IntroParser(s.scope);
+		List<FunctionCaseDefn> functions = new ArrayList<FunctionCaseDefn>();
 		for (Block b : components) {
 			if (b.isComment())
 				continue;
 			Tokenizable tkz = new Tokenizable(b);
 			Object o = ip.tryParsing(tkz);
-			if (o == null)
-				er.message(tkz, "must have valid card component definition here");
-			else if (o instanceof ErrorResult)
+			if (o == null) {
+				o = new FunctionParser(s.scope).tryParsing(new Tokenizable(b));
+				if (o  == null) {
+					er.message(tkz, "must have valid card component definition here");
+					continue;
+				}
+			}
+			if (o instanceof ErrorResult)
 				er.merge((ErrorResult)o);
 			else if (o instanceof String) {
 				switch ((String)o) {
@@ -274,9 +260,12 @@ public class FLASStory implements StoryProcessor {
 			} else if (o instanceof HandlerImplements) {
 				cd.addHandlerImplementation((HandlerImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested);
+			} else if (o instanceof FunctionCaseDefn) {
+				functions.add((FunctionCaseDefn) o);
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
+		System.out.println("Need to handle functions: " + functions);
 	}	
 
 	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {
@@ -302,6 +291,7 @@ public class FLASStory implements StoryProcessor {
 	private List<TemplateLine> doCardTemplate(ErrorResult er, List<Block> nested) {
 		TemplateLineParser tlp = new TemplateLineParser();
 		List<TemplateLine> ret = new ArrayList<TemplateLine>();
+		List<EventHandler> handlers = new ArrayList<EventHandler>();
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;
@@ -312,8 +302,11 @@ public class FLASStory implements StoryProcessor {
 				er.merge((ErrorResult) o);
 			else if (o instanceof TemplateLine)
 				ret.add((TemplateLine)o);
+			else if (o instanceof EventHandler)
+				handlers.add((EventHandler)o);
 			else
-				er.message(b, "invalid type");
+				er.message(b, "not a valid template line");
+			doCardTemplate(er, b.nested);
 		}
 		return ret;
 	}

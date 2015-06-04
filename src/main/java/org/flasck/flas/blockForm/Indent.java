@@ -8,4 +8,9 @@ public class Indent {
 		this.tabs = tabs;
 		this.spaces = spaces;
 	}
+	
+	@Override
+	public String toString() {
+		return "[" + tabs + "/" + spaces + "]";
+	}
 }

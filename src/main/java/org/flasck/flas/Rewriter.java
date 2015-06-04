@@ -28,6 +28,15 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.zinutils.exceptions.UtilException;
 
+/** The objective of this class is to resolve all of the names of all of the
+ * items in all of the expressions so that it is all unambiguous
+ *
+ * <p>
+ * &copy; 2015 Ziniki Infrastructure Software, LLC.  All rights reserved.
+ *
+ * @author Gareth Powell
+ *
+ */
 public class Rewriter {
 	private abstract class NamingContext {
 		protected final Set<String> defines = new HashSet<String>();
@@ -189,9 +198,9 @@ public class Rewriter {
 				for (HandlerImplements hi : cd.handlers) {
 					c2.globals.put(basename(hi.type), pos++);
 				}
-				if (cd.template != null) {
-					System.out.println("Don't rewrite template yet");
-				}
+//				if (cd.template != null) {
+//					System.out.println("Don't rewrite template yet");
+//				}
 				List<ContractImplements> l = new ArrayList<ContractImplements>(cd.contracts);
 				cd.contracts.clear();
 				for (ContractImplements ci : l) {
@@ -207,7 +216,7 @@ public class Rewriter {
 				FunctionDefinition nv = rewrite(cx, (FunctionDefinition)val);
 				into.define(x.getKey(), nv.name, nv);
 			} else {
-				System.out.println("Can't rewrite " + name + " of type " + val.getClass());
+//				System.out.println("Can't rewrite " + name + " of type " + val.getClass());
 				into.define(x.getKey(), name, val);
 			}
 		}

@@ -24,6 +24,15 @@ public class FunctionParser implements TryParsing {
 		String name = ValidIdentifierToken.from(line);
 		if (name == null)
 			return null;
+		// don't allow keywords to start line
+		if ("card".equals(name) ||
+			"state".equals(name) ||
+			"template".equals(name) ||
+			"handler".equals(name) ||
+			"implements".equals(name) ||
+			"struct".equals(name) ||
+			"contract".equals(name)) // more
+			return null;
 		
 		// Collect patterns into an argument
 		List<Object> args = new ArrayList<Object>();

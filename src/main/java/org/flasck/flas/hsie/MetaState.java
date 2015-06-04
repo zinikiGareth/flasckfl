@@ -38,7 +38,7 @@ public class MetaState {
 
 	public Var allocateVar() {
 		Var ret = new Var(form.vars.size());
-		System.out.println("Allocating var " + ret);
+//		System.out.println("Allocating var " + ret);
 		form.vars.add(ret);
 		return ret;
 	}
@@ -49,7 +49,7 @@ public class MetaState {
 		if (!fieldVars.get(from).containsKey(field))
 			fieldVars.get(from).put(field, allocateVar());
 		Var ret = fieldVars.get(from).get(field);
-		System.out.println("Allocating " + ret + " for " + from + "." + field);
+//		System.out.println("Allocating " + ret + " for " + from + "." + field);
 		return ret;
 	}
 
@@ -66,7 +66,6 @@ public class MetaState {
 			if (e2.tok.type == ExprToken.NUMBER)
 				return Integer.parseInt(e2.tok.text); // what about floats?
 			else if (e2.tok.type == ExprToken.STRING) {
-				System.out.println(e2.tok);
 				return new StringLiteral(e2.tok.text);
 			} else if (e2.tok.type == ExprToken.IDENTIFIER || e2.tok.type == ExprToken.SYMBOL || e2.tok.type == ExprToken.PUNC) {
 				if (substs.containsKey(e2.tok.text))

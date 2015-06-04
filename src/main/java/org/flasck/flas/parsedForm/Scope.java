@@ -49,7 +49,6 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 	public void define(String key, String name, Object defn) {
 		if (defns.containsKey(key))
 			throw new UtilException("Cannot provide multiple definitions of " + name);
-		System.out.println("Defining " + key + " with name " + name);
 		defns.put(key, new ScopeEntry(name, defn));
 	}
 

@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.depedencies.DependencyAnalyzer;
+import org.flasck.flas.dom.DomFunctionGenerator;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsgen.Generator;
@@ -25,7 +26,6 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -53,23 +53,44 @@ public class Compiler {
 	private final Generator gen = new Generator();
 	
 	public void compile(File file) {
-		String defPkg = file.getParentFile().getName();
-		System.out.println("default package would be " + defPkg);
-		File writeTo = new File(file.getParentFile(), file.getName().replace(".fl", ".js"));
+		String inPkg = file.getName();
+		System.out.println("compiling package " + inPkg);
+		File writeTo = new File(file, inPkg + ".js");
+			
 		FileWriter w = null;
-		FileReader r = null;
 		try {
 			w = new FileWriter(writeTo);
-			r = new FileReader(file);
-			List<Block> blocks = Blocker.block(r);
+		} catch (IOException ex) {
+			System.err.println("Cannot write to " + writeTo + ": " + ex.getMessage());
+			return;
+		}
+
+		for (File f : FileUtils.findFilesMatching(file, "*.fl"))
+			compile(inPkg, w, f);
+		try { w.close(); } catch (IOException ex) {}
+		FileUtils.copyFileToStream(writeTo, System.out);
+	}
+
+	private void compile(String inPkg, FileWriter w, File f) {
+		FileReader r = null;
+		try {
+			r = new FileReader(f);
+			Object blks = Blocker.block(r);
+			if (blks instanceof ErrorResult) {
+				((ErrorResult)blks).showTo(new PrintWriter(System.err));
+				return;
+			}
+			@SuppressWarnings("unchecked")
+			List<Block> blocks = (List<Block>) blks;
 			List<JSForm> forms = new ArrayList<JSForm>();
-			Object obj = new FLASStory().process(defPkg, blocks);
+			Object obj = new FLASStory().process(inPkg, blocks);
 			if (obj instanceof ErrorResult) {
 				throw new ErrorResultException((ErrorResult)obj);
 			} else if (obj instanceof Scope) {
 				Scope scope = (Scope) obj;
 				scope = rewriter.rewrite(scope);
-				List<String> pkglist = emitPackages(forms, scope, defPkg);
+//				List<String> pkglist = emitPackages(forms, scope, inPkg);
+				assertPackage(forms, inPkg);
 				Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
 				TypeChecker tc = new TypeChecker();
 				for (Entry<String, Entry<String, Object>> x : scope.outer) {
@@ -97,13 +118,13 @@ public class Compiler {
 					js.writeTo(w);
 					w.write("\n");
 				}
-				if (pkglist.size() == 1)
-					w.write(pkglist.get(0) + ";\n");
-				else {
-					w.write("{ ");
-					w.write(String.join(", ", pkglist));
-					w.write(" }\n");
-				}
+//				if (pkglist.size() == 1)
+					w.write(inPkg + ";\n");
+//				else {
+//					w.write("{ ");
+//					w.write(String.join(", ", pkglist));
+//					w.write(" }\n");
+//				}
 			} else
 				System.err.println("Failed to parse; got " + obj);
 		} catch (ErrorResultException ex) {
@@ -115,10 +136,8 @@ public class Compiler {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
-			if (w != null) try { w.close(); } catch (IOException ex) {}
 			if (r != null) try { r.close(); } catch (IOException ex) {}
 		}
-		FileUtils.copyFileToStream(writeTo, System.out);
 	}
 
 	private Orchard<HSIEForm> hsieOrchard(Orchard<FunctionDefinition> d) {
@@ -155,9 +174,10 @@ public class Compiler {
 		for (Entry<String, Entry<String, Object>> x : scope) {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
-			if (val instanceof PackageDefn) {
-				processScope(forms, tc, functions, ((PackageDefn) val).innerScope(), scopeDepth+1);
-			} else if (val instanceof FunctionDefinition) {
+//			if (val instanceof PackageDefn) {
+//				processScope(forms, tc, functions, ((PackageDefn) val).innerScope(), scopeDepth+1);
+//			} else 
+			if (val instanceof FunctionDefinition) {
 				functions.put(name, (FunctionDefinition) val);
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
@@ -230,32 +250,31 @@ public class Compiler {
 		}
 	}
 
-	private List<String> emitPackages(List<JSForm> forms, Scope scope, String defPkg) {
-		boolean havePkg = false;
-		List<String> plist = new ArrayList<String>();
-		for (Entry<String, Entry<String, Object>> ko : scope) {
-			Entry<String, Object> o = ko.getValue();
-			if (o.getValue() instanceof PackageDefn) {
-				havePkg = true;
-				assertPackage(forms, plist, o.getKey());
-			}
-		}
-		if (!havePkg) {
-			assertPackage(forms, plist, defPkg);
-		}
-		return plist;
-	}
+//	private List<String> emitPackages(List<JSForm> forms, Scope scope, String defPkg) {
+//		boolean havePkg = false;
+//		List<String> plist = new ArrayList<String>();
+//		for (Entry<String, Entry<String, Object>> ko : scope) {
+//			Entry<String, Object> o = ko.getValue();
+//			if (o.getValue() instanceof PackageDefn) {
+//				havePkg = true;
+//				assertPackage(forms, plist, o.getKey());
+//			}
+//		}
+//		if (!havePkg) {
+//			assertPackage(forms, plist, defPkg);
+//		}
+//		return plist;
+//	}
 
-	private void assertPackage(List<JSForm> forms, List<String> plist, String key) {
+	private void assertPackage(List<JSForm> forms, /* List<String> plist, */String key) {
 		String keydot = key+".";
 		int idx = -1;
 		while ((idx = keydot.indexOf('.', idx+1))!= -1) {
 			String tmp = keydot.substring(0, idx);
 			forms.add(JSForm.packageForm(tmp));
 //			plist.add(tmp);
-			System.out.println(idx);
 		}
-		plist.add(key);
+//		plist.add(key);
 	}
 
 }

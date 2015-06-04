@@ -33,12 +33,6 @@ public class IntroParser implements TryParsing {
 			return null; // in the "nothing doing" sense
 		
 		switch (kw) {
-		case "package": {
-			String pn = QualifiedNameToken.from(line);
-			if (line.hasMore())
-				return ErrorResult.oneMessage(line, "extra tokens at end of line");
-			return new PackageDefn(scope, pn);
-		}
 		case "struct": {
 			String tn = TypeNameToken.from(line);
 			if (tn == null)
@@ -93,7 +87,7 @@ public class IntroParser implements TryParsing {
 		case "card": {
 			String tn = TypeNameToken.from(line);
 			if (tn == null)
-				return ErrorResult.oneMessage(line, "invalid contract name");
+				return ErrorResult.oneMessage(line, "invalid card name");
 			return new CardDefinition(tn);
 		}
 		case "state":

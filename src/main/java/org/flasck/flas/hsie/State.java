@@ -68,7 +68,7 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 	}
 
 	public SubstExpr singleExpr(Set<SubstExpr> onlyCases) {
-		System.out.println("Result = " + result);
+//		System.out.println("Result = " + result);
 		if (result == null)
 			return null;
 //			throw new UtilException("Didn't resolve to single result");

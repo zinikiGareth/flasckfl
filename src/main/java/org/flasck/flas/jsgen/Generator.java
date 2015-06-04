@@ -23,6 +23,7 @@ import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.CollectionUtils;
+import org.zinutils.exceptions.UtilException;
 
 public class Generator {
 
@@ -145,7 +146,16 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 		ret.add(new JSForm("tag: 'span'").comma());
 		JSForm render = new JSForm("render: function(doc, myblock)").strict();
 		ret.add(render);
-		render.add(new JSForm("myblock.appendChild(doc.createTextNode(this." + ((TemplateToken)tl.contents.get(0)).text + "))"));
+		for (Object o : tl.contents) {
+			if (o instanceof TemplateToken) {
+				TemplateToken tt = (TemplateToken) o;
+				if (tt.type == TemplateToken.IDENTIFIER)
+					render.add(new JSForm("myblock.appendChild(doc.createTextNode(this." + tt.text + "))"));
+				else
+					throw new UtilException("Cannot handle " + tt.type);
+			} else
+				throw new UtilException("Cannot handle " + o.getClass());
+		}
 		return ret;
 	}
 

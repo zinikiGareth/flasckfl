@@ -1,0 +1,14 @@
+	card Navbar
+		template
+			#header : 'nav-bar'
+				. : 'w-container'
+					. : 'w-row'
+						. : 'w-col' 'w-col-4' 'brand-column'
+							#image @src='chaddy.jpg' @width='32' : logo
+						#nav : 'w-col' 'w-col-8' 'nav-column'
+							#a  @title='dashboard' : 'nav-link' 'current-link'
+								'D'
+								click => switchTo 'dashboard'
+							(navItem 'dashboard' 'D')
+		
+		navItem title short = HTML "a"

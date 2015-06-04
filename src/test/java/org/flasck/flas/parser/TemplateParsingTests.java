@@ -175,12 +175,29 @@ public class TemplateParsingTests {
 	}
 
 	@Test
+	public void testCustomTagCannotHaveSimpleContent() throws Exception {
+		ErrorResult err = parseError("#blockquote counter");
+		assertEquals(1, err.errors.size());
+		assertEquals("syntax error", err.errors.get(0).msg);
+	}
+
+	@Test
 	public void testCustomTagDoesNotRequireDot() throws Exception {
 		TemplateLine tl = parse("#blockquote");
 		assertEquals(0, tl.contents.size());
 		assertEquals("blockquote", tl.customTag);
 		assertNull(tl.customTagVar);
 		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testCustomTagDoesNotRequireDotButCanStillHaveFormat() throws Exception {
+		TemplateLine tl = parse("#blockquote : format");
+		assertEquals(0, tl.contents.size());
+		assertEquals("blockquote", tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(1, tl.formats.size());
+		assertFormat(TemplateToken.IDENTIFIER, "format", tl, 0);
 	}
 
 	@Test
@@ -236,6 +253,20 @@ public class TemplateParsingTests {
 		TemplateAttributeVar attr = (TemplateAttributeVar) tl.attrs.get(0);
 		assertEquals("id", attr.var);
 		assertEquals(0, tl.formats.size());
+	}
+
+	@Test
+	public void testWeCanHaveAnExpressionInATemplate() throws Exception {
+		TemplateLine tl = parse("(fnCall 'hello' 3 x)");
+		assertEquals(1, tl.contents.size());
+		System.out.println(tl.contents.get(0).getClass());
+		assertTrue(tl.contents.get(0) instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) tl.contents.get(0);
+		assertEquals("fnCall", ae.fn.toString());
+		assertEquals(3, ae.args.size());
+		assertEquals("hello", ae.args.get(0).toString());
+		assertEquals("3", ae.args.get(1).toString());
+		assertEquals("x", ae.args.get(2).toString());
 	}
 
 	@Test

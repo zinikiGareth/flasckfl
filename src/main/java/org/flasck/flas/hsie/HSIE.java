@@ -109,13 +109,13 @@ public class HSIE {
 	}
 
 	private static void recurse(MetaState ms, State s) {
-		System.out.println("------ Entering recurse");
+//		System.out.println("------ Entering recurse");
 		Table t = buildDecisionTable(s);
 		boolean needChoice = false;
 		List<Option> dulls = new ArrayList<Option>();
 		for (Option o : t) {
 			if (o.dull()) {
-				System.out.println(o.var + " is dull");
+//				System.out.println(o.var + " is dull");
 				s.eliminate(o.var);
 				dulls.add(o);
 			} else
@@ -129,10 +129,10 @@ public class HSIE {
 		}
 		t.dump();
 		Option elim = chooseBest(t);
-		System.out.println("Switching on " + elim.var);
+//		System.out.println("Switching on " + elim.var);
 		s.writeTo.head(elim.var);
 		for (String ctor : elim.ctorCases) {
-			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
+//			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
 			HSIEBlock blk = s.writeTo.switchCmd(elim.var, ctor);
 			Set<String> binds = new TreeSet<String>();
 			Set<SubstExpr> possibles = new HashSet<SubstExpr>();
@@ -156,7 +156,7 @@ public class HSIE {
 			boolean wantS1 = false;
 			for (NestedBinds nb : elim.ctorCases.get(ctor)) {
 				if (nb.ifConst != null) {
-					System.out.println("Handling constant " + nb.ifConst.value);
+//					System.out.println("Handling constant " + nb.ifConst.value);
 					HSIEBlock inner = blk.ifCmd(elim.var, Integer.parseInt(nb.ifConst.value));
 					State s3 = s1.duplicate(inner);
 //					System.out.println("---");
@@ -178,7 +178,7 @@ public class HSIE {
 				addState(ms, s1, mycases);
 		}
 		{
-			System.out.println(elim.var + " is none of the above");
+//			System.out.println(elim.var + " is none of the above");
 			addState(ms, s.cloneEliminate(elim.var, s.writeTo, elim.undecidedCases), elim.undecidedCases);
 		}
 	}
@@ -208,7 +208,7 @@ public class HSIE {
 
 	private static void evalExpr(MetaState ms, State s, Set<SubstExpr> mycases) {
 		SubstExpr e = s.singleExpr(mycases);
-		System.out.println("Have expr " + e);
+//		System.out.println("Have expr " + e);
 		if (e != null) {
 			Object ret = ms.getValueFor(e);
 			s.writeTo.doReturn(ret, ms.closureDependencies(ret));

@@ -6,18 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class ErrorResult {
 	public final List<FLASError> errors = new ArrayList<FLASError>();
 
-	public ErrorResult message(Tokenizable line, String msg) {
-		errors.add(new FLASError(line.realinfo(), msg));
-		return this;
-	}
-
 	public ErrorResult message(Block b, String msg) {
 		return message(new Tokenizable(b), msg);
+	}
+	
+	public ErrorResult message(Tokenizable line, String msg) {
+		return message(line.realinfo(), msg);
+	}
+
+	public ErrorResult message(InputPosition pos, String msg) {
+		errors.add(new FLASError(pos, msg));
+		return this;
 	}
 
 	public void merge(ErrorResult from) {

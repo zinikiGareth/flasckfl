@@ -6,16 +6,18 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class Blocker {
+	private final ErrorResult errors = new ErrorResult();
 	private int lineNo = 0;
-//	private final List<FLASError> errors = new ArrayList<FLASError>();
 	private final List<Block> stack = new ArrayList<Block>();
 	
 	private Blocker() {
@@ -30,10 +32,14 @@ public class Blocker {
 	private void accept(String l) {
 		lineNo++;
 		Indent ind = getIndent(l);
+//		System.out.println(lineNo + " " + ind + ": " + l);
 		String text = l.trim();
 		if (ind == null || (ind.tabs == 0 && ind.spaces == 0)) {
 			// this is a comment
 			pushBlock(null, text, true, false);
+		} else if (ind.tabs == 0 && ind.spaces != 0) {
+			// can't have a line with spaces at start and no tabs
+			errors.message(new InputPosition(lineNo, 0, l), "line cannot start with spaces");
 		} else if (ind.tabs == cind() && ind.spaces > 0) {
 			// this is a continuation line
 			stack.get(stack.size()-1).line.lines.add(new SingleLine(lineNo, ind, text));
@@ -99,17 +105,19 @@ public class Blocker {
 		return block(lines);
 	}
 
-	public static List<Block> block(Reader reader) {
+	public static Object block(Reader reader) {
 		LineNumberReader lnr = new LineNumberReader(reader);
 		Blocker blocker = new Blocker();
 		try {
 			String s;
 			while ((s = lnr.readLine()) != null)
 				blocker.accept(s);
+			if (blocker.errors.hasErrors())
+				return blocker.errors;
 			return blocker.stack.get(0).nested;
 		} catch (IOException ex) {
 			ex.printStackTrace();
-			return null;
+			return ErrorResult.oneMessage(null, "io error: " + ex.getMessage());
 		}
 	}
 }

@@ -23,7 +23,10 @@ public class ExprToken {
 		if (Character.isJavaIdentifierStart(c))
 			return new ExprToken(IDENTIFIER, ValidIdentifierToken.from(line));
 		else if (c == '"' || c == '\'') {
-			throw new RuntimeException("Handle string parsing");
+			String tok = StringToken.from(line);
+			if (tok == null)
+				return null;
+			return new ExprToken(STRING, tok);
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1)))
 			return new ExprToken(NUMBER, NumberToken.from(line));
