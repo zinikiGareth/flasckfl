@@ -9,4 +9,11 @@ public class StateDefinition {
 	public void addField(StructField o) {
 		fields.add(o);
 	}
+
+	public boolean hasMember(String text) {
+		for (StructField sf : fields)
+			if (sf.name.equals(text))
+				return true;
+		return false;
+	}
 }

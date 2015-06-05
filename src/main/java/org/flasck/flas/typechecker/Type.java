@@ -9,8 +9,8 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class Type {
-	private enum WhatAmI { SIMPLE, POLYVAR, FUNCTION, TUPLE };
-	private final WhatAmI iam;
+	public enum WhatAmI { SIMPLE, POLYVAR, FUNCTION, TUPLE };
+	public final WhatAmI iam;
 	private final String name;
 	private final List<Type> args;
 	
@@ -20,6 +20,33 @@ public class Type {
 		this.args = args;
 	}
 
+	public String name() {
+		if (iam == WhatAmI.SIMPLE || iam == WhatAmI.POLYVAR)
+			return name;
+		else
+			throw new UtilException("Can only ask for the name of a simple of polymorphic type");
+	}
+	
+	public int arity() {
+		if (iam == WhatAmI.FUNCTION)
+			return args.size() - 1;
+		else
+			throw new UtilException("Can only ask for the arity of a function");
+	}
+	
+	public int width() {
+		if (iam != WhatAmI.TUPLE)
+			return args.size();
+		else
+			throw new UtilException("Can only ask for the arity of a function");
+	}
+	
+	public Type arg(int i) {
+		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE)
+			throw new UtilException("Can only ask for the argument of a function or tuple");
+		return args.get(i);
+	}
+	
 	public static Type simple(String name, List<Type> args) {
 		return new Type(WhatAmI.SIMPLE, name, args);
 	}

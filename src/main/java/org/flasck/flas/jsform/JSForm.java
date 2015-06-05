@@ -213,7 +213,7 @@ public class JSForm {
 	}
 
 	private static String mapName(String fn) {
-		System.out.println("Need to map " + fn);
+//		System.out.println("Need to map " + fn);
 		if (fn.startsWith("_card"))
 			return "this."+fn;
 		else if (fn.startsWith("_handler"))

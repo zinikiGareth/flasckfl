@@ -15,6 +15,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.depedencies.DependencyAnalyzer;
 import org.flasck.flas.dom.DomFunctionGenerator;
+import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsgen.Generator;
@@ -49,7 +50,9 @@ public class Compiler {
 	}
 
 	private final Rewriter rewriter = new Rewriter();
+	private final ApplyCurry curry = new ApplyCurry();
 	private final Generator gen = new Generator();
+	
 	
 	public void compile(File file) {
 		String inPkg = file.getName();
@@ -102,6 +105,7 @@ public class Compiler {
 					tc.typecheck(oh);
 					if (tc.errors.hasErrors())
 						throw new ErrorResultException(tc.errors);
+					handleCurrying(tc, oh);
 					generateOrchard(forms, oh);
 				}
 				for (JSForm js : forms) {
@@ -162,6 +166,12 @@ public class Compiler {
 
 		for (Node<FunctionDefinition> x : t.getChildren(node))
 			hsieTree(ret, t, x, tree, parent);
+	}
+
+	private void handleCurrying(TypeChecker tc, Orchard<HSIEForm> oh) {
+		for (Tree<HSIEForm> t : oh)
+			for (HSIEForm h : t.allNodes())
+				curry.rewrite(tc, h);
 	}
 
 	private void generateOrchard(List<JSForm> forms, Orchard<HSIEForm> oh) {

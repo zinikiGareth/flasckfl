@@ -379,7 +379,7 @@ public class TypeChecker {
 			throw new UtilException("Missing cases");
 	}
 
-	private Object typeForStructCtor(StructDefn structDefn) {
+	private Type typeForStructCtor(StructDefn structDefn) {
 		List<Type> args = new ArrayList<Type>();
 		for (StructField x : structDefn.fields)
 			args.add(fromTypeReference(x.type));
@@ -446,4 +446,12 @@ public class TypeChecker {
 		}
 	}
 
+	public Type getTypeDefn(String fn) {
+		if (knowledge.containsKey(fn))
+			return knowledge.get(fn);
+		if (structs.containsKey(fn))
+			return typeForStructCtor(structs.get(fn));
+		System.out.println(knowledge);
+		throw new UtilException("There is no type: " + fn);
+	}
 }

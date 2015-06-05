@@ -73,9 +73,38 @@ public class MethodConvertor {
 			List<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern("_card"));
 			args.addAll(fcd.intro.args);
-			cases.add(new FunctionCaseDefn(fcd.innerScope().outer, fcd.intro.name, args, fcd.expr));
+			cases.add(new FunctionCaseDefn(fcd.innerScope().outer, fcd.intro.name, args, lift(card, fcd.expr)));
 		}
 		return new FunctionDefinition(fn.name, fn.nargs+1, cases);
+	}
+
+	private static Object lift(CardDefinition card, Object expr) {
+//		System.out.println("trying to lift " + expr);
+		if (expr instanceof ItemExpr) {
+			ExprToken tok = ((ItemExpr) expr).tok;
+			if (tok.type != ExprToken.IDENTIFIER)
+				return expr;
+			else if (card.state != null && card.state.hasMember(tok.text)) {
+				return new ApplyExpr(".", ItemExpr.id("_card"), ItemExpr.str(tok.text));
+			} else if (card.fnScope.contains(tok.text)) {
+				// when a function is called normally, that should be handled above
+				// this is the case where it is an argument
+				return new ApplyExpr(expr, ItemExpr.id("_card"));
+			} else
+				return expr;
+		} else if (expr instanceof ApplyExpr) {
+			ApplyExpr ae = (ApplyExpr) expr;
+			List<Object> args = new ArrayList<Object>();
+			for (Object o : ae.args)
+				args.add(lift(card, o));
+			if (ae.fn instanceof ItemExpr && card.fnScope.contains(((ItemExpr)ae.fn).tok.text)) {
+				// insert the extra argument as the first parameter
+				args.add(0, ItemExpr.id("_card"));
+				return new ApplyExpr(ae.fn, args);
+			}
+			return new ApplyExpr(lift(card, ae.fn), args);
+		} else
+			throw new UtilException("Cannot lift " + expr);
 	}
 
 }

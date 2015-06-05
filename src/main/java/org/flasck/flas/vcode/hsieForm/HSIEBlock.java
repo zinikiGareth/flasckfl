@@ -32,6 +32,10 @@ public class HSIEBlock {
 	}
 	
 	public HSIEBlock push(Object o) {
+		return pushAt(commands.size(), o);
+	}
+
+	public HSIEBlock pushAt(int pos, Object o) {
 		PushCmd ret;
 		if (o instanceof Var)
 			ret = new PushCmd((Var)o);
@@ -46,7 +50,7 @@ public class HSIEBlock {
 			throw new UtilException("Cannot push null");
 		else
 			throw new UtilException("Invalid object to push " + o.getClass());
-		commands.add(ret);
+		commands.add(pos, ret);
 		return ret;
 	}
 
