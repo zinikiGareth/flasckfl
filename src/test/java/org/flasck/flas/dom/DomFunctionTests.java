@@ -30,13 +30,11 @@ public class DomFunctionTests {
 	public void testAString() throws Exception {
 		FunctionDefinition node1 = generateOne(null, "'hello'");
 		assertEquals("_templateNode_1", node1.name);
-		assertEquals(1, node1.nargs);
+		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
 		FunctionCaseDefn fcd = node1.cases.get(0);
 		assertEquals("_templateNode_1", fcd.intro.name);
-		assertEquals(1, fcd.intro.args.size());
-		assertTrue(fcd.intro.args.get(0) instanceof VarPattern);
-		assertEquals("card", ((VarPattern)fcd.intro.args.get(0)).var);
+		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
 		assertTrue(fcd.expr instanceof ItemExpr);
 		assertEquals("hello", ((ItemExpr) fcd.expr).tok.text);
@@ -48,18 +46,13 @@ public class DomFunctionTests {
 	public void testSimpleVar() throws Exception {
 		FunctionDefinition node1 = generateOne(counterState(), "counter");
 		assertEquals("_templateNode_1", node1.name);
-		assertEquals(1, node1.nargs);
+		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
 		FunctionCaseDefn fcd = node1.cases.get(0);
 		assertEquals("_templateNode_1", fcd.intro.name);
-		assertEquals(1, fcd.intro.args.size());
-		assertTrue(fcd.intro.args.get(0) instanceof VarPattern);
-		assertEquals("card", ((VarPattern)fcd.intro.args.get(0)).var);
-		assertTrue(fcd.expr instanceof ApplyExpr);
-		ApplyExpr ae = (ApplyExpr) fcd.expr;
-		assertEquals(".", ((ItemExpr)ae.fn).tok.text);
-		assertEquals("card", ((ItemExpr)ae.args.get(0)).tok.text);
-		assertEquals("counter", ((ItemExpr)ae.args.get(1)).tok.text);
+		assertEquals(0, fcd.intro.args.size());
+		assertTrue(fcd.expr instanceof ItemExpr);
+		assertEquals("counter", ((ItemExpr)fcd.expr).tok.text);
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}
@@ -68,13 +61,11 @@ public class DomFunctionTests {
 	public void testAMinimalDiv() throws Exception {
 		FunctionDefinition node1 = generateOne(null, ".");
 		assertEquals("_templateNode_1", node1.name);
-		assertEquals(1, node1.nargs);
+		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
 		FunctionCaseDefn fcd = node1.cases.get(0);
 		assertEquals("_templateNode_1", fcd.intro.name);
-		assertEquals(1, fcd.intro.args.size());
-		assertTrue(fcd.intro.args.get(0) instanceof VarPattern);
-		assertEquals("card", ((VarPattern)fcd.intro.args.get(0)).var);
+		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
 		assertTrue(fcd.expr instanceof ApplyExpr);
 		ApplyExpr ae = (ApplyExpr) fcd.expr;
@@ -91,23 +82,17 @@ public class DomFunctionTests {
 	public void testCallingAFunction() throws Exception {
 		FunctionDefinition node1 = generateOne(null, "(tfn counter)");
 		assertEquals("_templateNode_1", node1.name);
-		assertEquals(1, node1.nargs);
+		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
 		FunctionCaseDefn fcd = node1.cases.get(0);
 		assertEquals("_templateNode_1", fcd.intro.name);
-		assertEquals(1, fcd.intro.args.size());
-		assertTrue(fcd.intro.args.get(0) instanceof VarPattern);
-		assertEquals("card", ((VarPattern)fcd.intro.args.get(0)).var);
+		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
 		assertTrue(fcd.expr instanceof ApplyExpr);
 		ApplyExpr ae = (ApplyExpr) fcd.expr;
 		assertEquals("tfn", ((ItemExpr)ae.fn).tok.text);
-		assertEquals(2, ae.args.size());
-		assertEquals("card", ((ItemExpr)ae.args.get(0)).tok.text);
-		assertEquals("counter", ((ItemExpr)ae.args.get(1)).tok.text);
-		// TODO: note that although 'counter' appears to be an external, it should be rewritten at some point to be a state reference
-		// TODO: if we can do this for this function, then surely we don't need the special handling just for counter as a variable?
-		// TODO: figure out this inconsistency
+		assertEquals(1, ae.args.size());
+		assertEquals("counter", ((ItemExpr)ae.args.get(0)).tok.text);
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}
