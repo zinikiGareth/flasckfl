@@ -264,7 +264,7 @@ public class Rewriter {
 	}
 
 	private void rewrite(NamingContext scope, Implements into, Implements orig) {
-		System.out.println("Rewriting " + orig.type + " to " + into.type);
+//		System.out.println("Rewriting " + orig.type + " to " + into.type);
 		for (MethodDefinition m : orig.methods) {
 			into.methods.add(rewrite(scope, m));
 		}
@@ -350,7 +350,7 @@ public class Rewriter {
 	private Object rewriteExpr(NamingContext scope, Object expr) {
 		if (expr instanceof ItemExpr) {
 			ItemExpr ie = (ItemExpr) expr;
-			System.out.println("Want to rewrite " + ie.tok);
+//			System.out.println("Want to rewrite " + ie.tok);
 			Object ret;
 			if (ie.tok.type == ExprToken.NUMBER || ie.tok.type == ExprToken.STRING)
 				ret = ie;
@@ -358,24 +358,24 @@ public class Rewriter {
 				String rwTo = scope.resolve(ie.tok.text);
 				ret = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, rwTo));
 				if (rwTo.contains("._H")) {
-					System.out.println("_H thing: " + rwTo);
+//					System.out.println("_H thing: " + rwTo);
 					ret = new ApplyExpr(ret, new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "_card")));
 				}
 			} else
 				throw new UtilException("Cannot handle " + ie.tok);
-			System.out.println("Rewritten to " + ret);
+//			System.out.println("Rewritten to " + ret);
 			return ret;
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			if (ae.fn instanceof ItemExpr && ((ItemExpr)ae.fn).tok.text.equals(".")) {
 				ItemExpr ie = (ItemExpr)ae.args.get(1);
 				if (ie.tok.type != ExprToken.IDENTIFIER) throw new UtilException("unhandled case");
-				System.out.println("Considering . with " + ae.args.get(0).getClass());
+//				System.out.println("Considering . with " + ae.args.get(0).getClass());
 				if (ae.args.get(0) instanceof ItemExpr) {
 					String pkg = ((ItemExpr)ae.args.get(0)).tok.text;
-					System.out.println("is: " + scope.get(pkg));
+//					System.out.println("is: " + scope.get(pkg));
 					if (scope.get(pkg) instanceof PackageDefn) {
-						System.out.println("pkg " + pkg);
+//						System.out.println("pkg " + pkg);
 						return ItemExpr.id(pkg + "." + ie.tok.text);
 					}
 				}

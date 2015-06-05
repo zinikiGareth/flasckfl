@@ -262,7 +262,6 @@ public class Compiler {
 					if (functions.containsKey(x2.getKey()))
 						tc.errors.message((Block)null, "duplicate definition of " + x2.getKey() + " in scope");
 					FunctionDefinition rfn = rewriter.rewriteFunction(scope, card, MethodConvertor.lift(card, (FunctionDefinition) x2.getValue()));
-					System.out.println(rfn);
 					functions.put(x2.getKey(), rfn);
 				}
 			} else
