@@ -154,6 +154,8 @@ public class FLASStory implements StoryProcessor {
 		{ // core
 			ret.define(".", "FLEval.field", 
 				Type.function(Type.polyvar("A"), Type.simple("String"), Type.polyvar("B")));
+			ret.define("()", "FLEval.tuple", 
+					null);
 		}
 		{ // math
 			ret.define("Number", "Number", null);

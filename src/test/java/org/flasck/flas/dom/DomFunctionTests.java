@@ -79,6 +79,27 @@ public class DomFunctionTests {
 	}
 
 	@Test
+	public void testATaggedDiv() throws Exception {
+		FunctionDefinition node1 = generateOne(null, "#nav");
+		assertEquals("_templateNode_1", node1.name);
+		assertEquals(0, node1.nargs);
+		assertEquals(1, node1.cases.size());
+		FunctionCaseDefn fcd = node1.cases.get(0);
+		assertEquals("_templateNode_1", fcd.intro.name);
+		assertEquals(0, fcd.intro.args.size());
+		assertNotNull(fcd.expr);
+		assertTrue(fcd.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) fcd.expr;
+		assertEquals("DOM.Element", ((ItemExpr)ae.fn).tok.text);
+		assertEquals(3, ae.args.size());
+		assertEquals("nav", ((ItemExpr)ae.args.get(0)).tok.text);
+		assertEquals("Nil", ((ItemExpr)ae.args.get(1)).tok.text);
+		assertEquals("Nil", ((ItemExpr)ae.args.get(2)).tok.text);
+		HSIEForm c = HSIE.handle(node1);
+		c.dump();
+	}
+
+	@Test
 	public void testCallingAFunction() throws Exception {
 		FunctionDefinition node1 = generateOne(null, "(tfn counter)");
 		assertEquals("_templateNode_1", node1.name);

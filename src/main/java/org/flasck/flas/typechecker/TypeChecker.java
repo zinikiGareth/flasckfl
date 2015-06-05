@@ -304,6 +304,12 @@ public class TypeChecker {
 						args.add(te);
 					}
 					Object Tf = args.get(0);
+					if ("()".equals(Tf)) { // tuples need special handling
+						List<Object> newVars = new ArrayList<Object>();
+						for (int i=1;i<args.size();i++)
+							newVars.add(factory.next());
+						Tf = new TypeExpr("()", newVars);
+					}
 					for (int i=1;i<args.size();i++)
 						Tf = checkSingleApplication(phi, Tf, args.get(i));
 					return Tf;
@@ -313,6 +319,10 @@ public class TypeChecker {
 				// I am going to say that by getting here, we know that it must be an external
 				// all lambdas should be variables by now
 				
+				if (r.fn.equals("FLEval.tuple")) {
+					System.out.println("tuple");
+					return "()";
+				}
 				if (r.fn.startsWith("_card")) {
 					// try and find the name of the card class
 					// this is a hack and I know it ...

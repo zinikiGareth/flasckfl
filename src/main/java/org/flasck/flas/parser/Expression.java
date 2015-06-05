@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.zinutils.exceptions.UtilException;
 
 public class Expression implements TryParsing {
 	int SHIFT = 1;
@@ -42,14 +43,16 @@ public class Expression implements TryParsing {
 	public Object tryParsing(Tokenizable line) {
 		int mark = line.at(); // do this now in case we need it later
 		ExprToken s = ExprToken.from(line);
-		if (s.type == ExprToken.NUMBER || s.type == ExprToken.IDENTIFIER || s.type == ExprToken.SYMBOL) {
+		if (s.type == ExprToken.NUMBER || s.type == ExprToken.STRING || s.type == ExprToken.IDENTIFIER || s.type == ExprToken.SYMBOL) {
 			List<Object> args = new ArrayList<Object>();
 			args.add(new ItemExpr(s));
 			while (line.hasMore()) {
 				mark = line.at();
 				s = ExprToken.from(line);
-				if (s.type == ExprToken.PUNC && s.text.equals("(")) { // I think this probably could be "[" as well
+				if (s.type == ExprToken.PUNC && s.text.equals("(")) {
 					args.add(parseParenthetical(line, ")"));
+				} else if (s.type == ExprToken.PUNC && s.text.equals("[")) {
+					args.add(parseParenthetical(line, "]"));
 				} else if (s.type == ExprToken.PUNC && (s.text.equals(")") || s.text.equals(",") || s.text.equals("]"))) {
 					line.reset(mark);
 					break;
@@ -69,7 +72,7 @@ public class Expression implements TryParsing {
 				return deparen(opstack(args));
 		} else if (s.type == ExprToken.PUNC) {
 			if (s.text.equals("(") || s.text.equals("[")) {
-				return parseParenthetical(line, s.text.equals("(")?")":"]");
+				return deparen(parseParenthetical(line, s.text.equals("(")?")":"]"));
 			} else if (s.text.equals(")") || s.text.equals("]") || s.text.equals(",")) {
 				line.reset(mark);
 				return null;
@@ -82,15 +85,6 @@ public class Expression implements TryParsing {
 			System.out.println("What was this? " + s);
 			return null;
 		}
-	}
-
-	private static Object rehash(Object o) {
-		if (o instanceof ItemExpr) {
-			ExprToken pe = ((ItemExpr)o).tok;
-			if (pe.type == ExprToken.SYMBOL && pe.text.equals(":"))
-				return new ItemExpr (new ExprToken(ExprToken.IDENTIFIER, "Cons"));
-		}
-		return o;
 	}
 
 	// By the time we get here, all the inner parentheses should have been resolved.
@@ -195,10 +189,25 @@ public class Expression implements TryParsing {
 		return tok instanceof ItemExpr && ((ItemExpr)tok).tok.text.equals(".");
 	}
 
-	public static Object deparen(Object pe) {
-		while (pe instanceof ParenExpr)
-			pe = ((ParenExpr)pe).nested;
-		return rehash(pe);
+	private Object deparen(Object pe) {
+		if (pe instanceof ItemExpr)
+			return rehash((ItemExpr) pe);
+		else if (pe instanceof ParenExpr)
+			return deparen(((ParenExpr)pe).nested);
+		else if (pe instanceof ApplyExpr) {
+			ApplyExpr ae = (ApplyExpr) pe;
+			List<Object> args = new ArrayList<Object>();
+			for (Object o : ae.args)
+				args.add(deparen(o));
+			return new ApplyExpr(deparen(ae.fn), args);
+		} else
+			throw new UtilException("Expr not handled: " + pe.getClass());
+	}
+
+	private ItemExpr rehash(ItemExpr ie) {
+		if (ie.tok.type == ExprToken.SYMBOL && ie.tok.text.equals(":"))
+			return new ItemExpr (new ExprToken(ExprToken.IDENTIFIER, "Cons"));
+		return ie;
 	}
 
 	private int compareActions(int prec, int myprec) {

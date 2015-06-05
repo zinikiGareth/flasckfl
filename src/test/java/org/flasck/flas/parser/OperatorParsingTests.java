@@ -97,6 +97,14 @@ public class OperatorParsingTests {
 	}
 
 	@Test
+	public void testFunctionOfEmptyList() {
+		Object o = new Expression().tryParsing(new Tokenizable("f []"));
+		System.out.println(o);
+		assertNotNull(o);
+		ExprTester.assertExpr(o, "(", "f", "Nil", ")");
+	}
+
+	@Test
 	public void testSingleItemList() {
 		Object o = new Expression().tryParsing(new Tokenizable("[x]"));
 		assertNotNull(o);

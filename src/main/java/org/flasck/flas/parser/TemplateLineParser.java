@@ -30,7 +30,7 @@ public class TemplateLineParser implements TryParsing{
 			} else if (tt.type == TemplateToken.ORB) {
 				line.reset(mark);
 				Object pe = new Expression().tryParsing(line);
-				contents.add(Expression.deparen(pe));
+				contents.add(pe);
 			} else if (tt.type == TemplateToken.DIV) {
 				seenDivOrList = true;
 				contents.add(tt);

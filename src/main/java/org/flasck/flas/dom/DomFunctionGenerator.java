@@ -72,11 +72,20 @@ public class DomFunctionGenerator {
 	}
 
 	private Object div(TemplateLine tl) {
-		// TODO: handle custom tags
+		Object tag;
+		if (tl.customTagVar != null)
+			tag = ItemExpr.id(tl.customTagVar);
+		else {
+			if (tl.customTag != null)
+				tag = ItemExpr.str(tl.customTag);
+			else
+				tag = ItemExpr.str("div");
+		}
+			
 		// TODO: handle attributes (including from vars)
 		// TODO: handle formats? (or just put them in the tree? because they are "common" to all classes?)
 		// TODO: generate tree state
-		return new ApplyExpr(ItemExpr.id("DOM.Element"), ItemExpr.str("div"), ItemExpr.id("Nil"), ItemExpr.id("Nil"));
+		return new ApplyExpr(ItemExpr.id("DOM.Element"), tag, ItemExpr.id("Nil"), ItemExpr.id("Nil"));
 	}
 
 	private void function(Object expr) {
