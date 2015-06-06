@@ -318,8 +318,11 @@ public class Rewriter {
 	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
+		NamingContext c2 = cx;
+		if (cx instanceof CardContext)
+			c2 = new RenameCardToThis(cx);
 		for (FunctionCaseDefn c : f.cases) {
-			list.add(rewrite(new FunctionContext(new RenameCardToThis(cx), c.innerScope(), f.name, cs), c));
+			list.add(rewrite(new FunctionContext(c2, c.innerScope(), f.name, cs), c));
 			cs++;
 		}
 		FunctionDefinition ret = new FunctionDefinition(cx.makeAbsoluteName(f.name), f.nargs, list);
@@ -340,8 +343,11 @@ public class Rewriter {
 		List<EventCaseDefn> list = new ArrayList<EventCaseDefn>();
 		int cs = 0;
 		String rw = scope.makeAbsoluteName(ehd.intro.name);
+		NamingContext c2 = scope;
+		if (scope instanceof CardContext)
+			c2 = new RenameCardToThis(scope);
 		for (EventCaseDefn c : ehd.cases) {
-			list.add(rewrite(new FunctionContext(new RenameCardToThis(scope), null, rw, cs), c));
+			list.add(rewrite(new FunctionContext(c2, null, rw, cs), c));
 			cs++;
 		}
 		return new EventHandlerDefinition(new FunctionIntro(rw, ehd.intro.args), list);

@@ -70,10 +70,11 @@ public class DomFunctionTests {
 		assertTrue(fcd.expr instanceof ApplyExpr);
 		ApplyExpr ae = (ApplyExpr) fcd.expr;
 		assertEquals("DOM.Element", ((ItemExpr)ae.fn).tok.text);
-		assertEquals(3, ae.args.size());
+		assertEquals(4, ae.args.size());
 		assertEquals("div", ((ItemExpr)ae.args.get(0)).tok.text);
 		assertEquals("Nil", ((ItemExpr)ae.args.get(1)).tok.text);
 		assertEquals("Nil", ((ItemExpr)ae.args.get(2)).tok.text);
+		assertEquals("Nil", ((ItemExpr)ae.args.get(3)).tok.text);
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}
@@ -91,10 +92,11 @@ public class DomFunctionTests {
 		assertTrue(fcd.expr instanceof ApplyExpr);
 		ApplyExpr ae = (ApplyExpr) fcd.expr;
 		assertEquals("DOM.Element", ((ItemExpr)ae.fn).tok.text);
-		assertEquals(3, ae.args.size());
+		assertEquals(4, ae.args.size());
 		assertEquals("nav", ((ItemExpr)ae.args.get(0)).tok.text);
 		assertEquals("Nil", ((ItemExpr)ae.args.get(1)).tok.text);
 		assertEquals("Nil", ((ItemExpr)ae.args.get(2)).tok.text);
+		assertEquals("Nil", ((ItemExpr)ae.args.get(3)).tok.text);
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}
