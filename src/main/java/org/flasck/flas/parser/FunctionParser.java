@@ -30,6 +30,7 @@ public class FunctionParser implements TryParsing {
 			"template".equals(name) ||
 			"handler".equals(name) ||
 			"implements".equals(name) ||
+			"event".equals(name) ||
 			"struct".equals(name) ||
 			"contract".equals(name)) // more
 			return null;

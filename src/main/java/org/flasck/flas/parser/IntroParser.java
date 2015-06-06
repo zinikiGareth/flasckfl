@@ -6,6 +6,8 @@ import org.flasck.flas.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -54,6 +56,16 @@ public class IntroParser implements TryParsing {
 				return ErrorResult.oneMessage(line, "invalid contract name");
 			return new ContractDecl(tn);
 		}
+		case "card": {
+			String tn = TypeNameToken.from(line);
+			if (tn == null)
+				return ErrorResult.oneMessage(line, "invalid card name");
+			return new CardDefinition(scope, tn);
+		}
+		case "state":
+			return "state";
+		case "template":
+			return "template";
 		case "implements": {
 			String tn = QualifiedTypeNameToken.from(line);
 			if (tn == null)
@@ -82,16 +94,17 @@ public class IntroParser implements TryParsing {
 			}
 			return new HandlerImplements(tn, lambdas);
 		}
-		case "card": {
-			String tn = TypeNameToken.from(line);
-			if (tn == null)
-				return ErrorResult.oneMessage(line, "invalid card name");
-			return new CardDefinition(scope, tn);
+		case "event": {
+			Object o = new FunctionParser(scope).tryParsing(line);
+			if (o == null)
+				return ErrorResult.oneMessage(line, "syntax error");
+			else if (o instanceof ErrorResult)
+				return o;
+			else if (o instanceof FunctionIntro) {
+				return new EventCaseDefn((FunctionIntro)o);
+			} else
+				return ErrorResult.oneMessage(line, "cannot handle " + o.getClass());
 		}
-		case "state":
-			return "state";
-		case "template":
-			return "template";
 		}
 		
 		// we didn't find anything we could handle - "not us"

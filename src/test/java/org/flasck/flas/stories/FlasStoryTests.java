@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.flasck.flas.ErrorResult;
 import org.flasck.flas.Rewriter;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
@@ -17,7 +18,8 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Test;
 
 public class FlasStoryTests {
-	private final Rewriter rewriter = new Rewriter();
+	private final ErrorResult errors = new ErrorResult();
+	private final Rewriter rewriter = new Rewriter(errors);
 
 	@Test
 	public void testProcessingFib() {

@@ -31,13 +31,14 @@ import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 
 public class TypeChecker {
-	public final ErrorResult errors = new ErrorResult();
+	public final ErrorResult errors;
 	private final VariableFactory factory = new VariableFactory();
 	final Map<String, Type> knowledge = new HashMap<String, Type>();
 	final Map<String, StructDefn> structs = new HashMap<String, StructDefn>();
 	final Map<String, TypeDefn> types = new HashMap<String, TypeDefn>();
 
-	public TypeChecker() {
+	public TypeChecker(ErrorResult errors) {
+		this.errors = errors;
 	}
 
 	public void addStructDefn(StructDefn structDefn) {

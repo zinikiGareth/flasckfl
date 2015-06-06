@@ -11,7 +11,6 @@ import org.flasck.flas.parsedForm.ItemExpr;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.TemplateLine;
-import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.zinutils.exceptions.UtilException;
 

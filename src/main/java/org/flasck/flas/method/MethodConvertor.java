@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.ItemExpr;
@@ -25,6 +27,14 @@ public class MethodConvertor {
 		// This feels very much hackishly the wrong place to put ".prototype."
 		// Should we have a MethodDefinition as well which we can generate differently?
 		return new FunctionDefinition(card +"." +type+".prototype."+m.intro.name, m.intro.args.size(), cases);
+	}
+
+	public static FunctionDefinition convert(String card, EventHandlerDefinition eh) {
+		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		for (EventCaseDefn c : eh.cases) {
+			cases.add(new FunctionCaseDefn(null, c.intro.name, c.intro.args, convert(c.messages)));
+		}
+		return new FunctionDefinition(eh.intro.name, eh.intro.args.size(), cases);
 	}
 
 	// TODO: this is more complicated than I make it appear here, but the proper thing requires typechecking

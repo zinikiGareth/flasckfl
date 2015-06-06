@@ -3,11 +3,11 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MethodCaseDefn implements MessagesHandler {
+public class EventCaseDefn implements MessagesHandler {
 	public final FunctionIntro intro;
 	public final List<MethodMessage> messages = new ArrayList<MethodMessage>();
 
-	public MethodCaseDefn(FunctionIntro fi) {
+	public EventCaseDefn(FunctionIntro fi) {
 		intro = fi;
 	}
 
@@ -17,6 +17,6 @@ public class MethodCaseDefn implements MessagesHandler {
 	
 	@Override
 	public String toString() {
-		return "MCD[" + intro.name + "/" + intro.args.size() + "]";
+		return "ECD[" + intro.name + "/" + intro.args.size() + "]";
 	}
 }

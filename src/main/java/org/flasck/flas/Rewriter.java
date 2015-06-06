@@ -8,9 +8,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -39,6 +42,8 @@ import org.zinutils.exceptions.UtilException;
  *
  */
 public class Rewriter {
+	private ErrorResult errors;
+
 	private abstract class NamingContext {
 		protected final Set<String> defines = new HashSet<String>();
 		protected final NamingContext nested;
@@ -124,8 +129,12 @@ public class Rewriter {
 
 		@Override
 		public String resolve(String name) {
-			if (innerScope.contains(name))
+			if (innerScope.contains(name)) {
+				Object defn = innerScope.get(name);
+				if (defn instanceof EventHandlerDefinition)
+					return prefix + ".prototype." + name;
 				return prefix + "." + name;
+			}
 			if (globals.containsKey(name))
 				return prefix + "._H" + globals.get(name);
 			else
@@ -202,6 +211,10 @@ public class Rewriter {
 			return myname + "." + name;
 		}
 	}
+
+	public Rewriter(ErrorResult errors) {
+		this.errors = errors;
+	}
 	
 	public Scope rewrite(Scope scope) {
 		Scope newScope = new Scope(scope.outer);
@@ -274,6 +287,11 @@ public class Rewriter {
 		NamingContext cx = new CardContext(new RootContext(scope), cd);
 		return rewrite(cx, f);
 	}
+
+	public EventHandlerDefinition rewriteEventHandler(Scope scope, CardDefinition cd, EventHandlerDefinition ehd) {
+		NamingContext cx = new CardContext(new RootContext(scope), cd);
+		return rewrite(cx, ehd);
+	}
 	
 	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
@@ -296,6 +314,17 @@ public class Rewriter {
 		return new MethodDefinition(m.intro, list);
 	}
 
+	private EventHandlerDefinition rewrite(NamingContext scope, EventHandlerDefinition ehd) {
+		List<EventCaseDefn> list = new ArrayList<EventCaseDefn>();
+		int cs = 0;
+		String rw = scope.makeAbsoluteName("prototype."+ehd.intro.name);
+		for (EventCaseDefn c : ehd.cases) {
+			list.add(rewrite(new FunctionContext(scope, null, rw, cs), c));
+			cs++;
+		}
+		return new EventHandlerDefinition(new FunctionIntro(rw, ehd.intro.args), list);
+	}
+
 	private FunctionCaseDefn rewrite(FunctionContext cx, FunctionCaseDefn c) {
 		c.intro.gatherVars(cx.locals);
 		FunctionIntro intro = rewrite(cx, c.intro);
@@ -306,6 +335,14 @@ public class Rewriter {
 
 	private MethodCaseDefn rewrite(FunctionContext cx, MethodCaseDefn c) {
 		MethodCaseDefn ret = new MethodCaseDefn(rewrite(cx, c.intro));
+		c.intro.gatherVars(cx.locals);
+		for (MethodMessage mm : c.messages)
+			ret.messages.add(rewrite(cx, mm));
+		return ret;
+	}
+
+	private EventCaseDefn rewrite(FunctionContext cx, EventCaseDefn c) {
+		EventCaseDefn ret = new EventCaseDefn(rewrite(cx, c.intro));
 		c.intro.gatherVars(cx.locals);
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
@@ -348,48 +385,55 @@ public class Rewriter {
 	}
 
 	private Object rewriteExpr(NamingContext scope, Object expr) {
-		if (expr instanceof ItemExpr) {
-			ItemExpr ie = (ItemExpr) expr;
-//			System.out.println("Want to rewrite " + ie.tok);
-			Object ret;
-			if (ie.tok.type == ExprToken.NUMBER || ie.tok.type == ExprToken.STRING)
-				ret = ie;
-			else if (ie.tok.type == ExprToken.IDENTIFIER || ie.tok.type == ExprToken.SYMBOL || ie.tok.type == ExprToken.PUNC) {
-				String rwTo = scope.resolve(ie.tok.text);
-				ret = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, rwTo));
-				if (rwTo.contains("._H")) {
-//					System.out.println("_H thing: " + rwTo);
-					ret = new ApplyExpr(ret, new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "_card")));
-				}
-			} else
-				throw new UtilException("Cannot handle " + ie.tok);
-//			System.out.println("Rewritten to " + ret);
-			return ret;
-		} else if (expr instanceof ApplyExpr) {
-			ApplyExpr ae = (ApplyExpr) expr;
-			if (ae.fn instanceof ItemExpr && ((ItemExpr)ae.fn).tok.text.equals(".")) {
-				ItemExpr ie = (ItemExpr)ae.args.get(1);
-				if (ie.tok.type != ExprToken.IDENTIFIER) throw new UtilException("unhandled case");
-//				System.out.println("Considering . with " + ae.args.get(0).getClass());
-				if (ae.args.get(0) instanceof ItemExpr) {
-					String pkg = ((ItemExpr)ae.args.get(0)).tok.text;
-//					System.out.println("is: " + scope.get(pkg));
-					if (scope.get(pkg) instanceof PackageDefn) {
-//						System.out.println("pkg " + pkg);
-						return ItemExpr.id(pkg + "." + ie.tok.text);
+		if (expr == null)
+			return null;
+		try {
+			if (expr instanceof ItemExpr) {
+				ItemExpr ie = (ItemExpr) expr;
+//				System.out.println("Want to rewrite " + ie.tok);
+				Object ret;
+				if (ie.tok.type == ExprToken.NUMBER || ie.tok.type == ExprToken.STRING)
+					ret = ie;
+				else if (ie.tok.type == ExprToken.IDENTIFIER || ie.tok.type == ExprToken.SYMBOL || ie.tok.type == ExprToken.PUNC) {
+					String rwTo = scope.resolve(ie.tok.text);
+					ret = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, rwTo));
+					if (rwTo.contains("._H")) {
+	//					System.out.println("_H thing: " + rwTo);
+						ret = new ApplyExpr(ret, new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "_card")));
 					}
+				} else
+					throw new UtilException("Cannot handle " + ie.tok);
+//				System.out.println("Rewritten to " + ret);
+				return ret;
+			} else if (expr instanceof ApplyExpr) {
+				ApplyExpr ae = (ApplyExpr) expr;
+				if (ae.fn instanceof ItemExpr && ((ItemExpr)ae.fn).tok.text.equals(".")) {
+					ItemExpr ie = (ItemExpr)ae.args.get(1);
+					if (ie.tok.type != ExprToken.IDENTIFIER) throw new UtilException("unhandled case");
+	//				System.out.println("Considering . with " + ae.args.get(0).getClass());
+					if (ae.args.get(0) instanceof ItemExpr) {
+						String pkg = ((ItemExpr)ae.args.get(0)).tok.text;
+	//					System.out.println("is: " + scope.get(pkg));
+						if (scope.get(pkg) instanceof PackageDefn) {
+	//						System.out.println("pkg " + pkg);
+							return ItemExpr.id(pkg + "." + ie.tok.text);
+						}
+					}
+					Object applyFn = rewriteExpr(scope, ae.args.get(0));
+	
+					return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "FLEval.field")), applyFn, new ItemExpr(new ExprToken(ExprToken.STRING, ie.tok.text)));
 				}
-				Object applyFn = rewriteExpr(scope, ae.args.get(0));
-
-				return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "FLEval.field")), applyFn, new ItemExpr(new ExprToken(ExprToken.STRING, ie.tok.text)));
+				List<Object> args = new ArrayList<Object>();
+				for (Object o : ae.args)
+					args.add(rewriteExpr(scope, o));
+				return new ApplyExpr(rewriteExpr(scope, ae.fn), args);
 			}
-			List<Object> args = new ArrayList<Object>();
-			for (Object o : ae.args)
-				args.add(rewriteExpr(scope, o));
-			return new ApplyExpr(rewriteExpr(scope, ae.fn), args);
+			System.out.println("Can't rewrite expr " + expr + " of type " + expr.getClass());
+			return expr;
+		} catch (ResolutionException ex) {
+			errors.message((Block)null, ex.getMessage());
+			return null;
 		}
-		System.out.println("Can't rewrite expr " + expr + " of type " + expr.getClass());
-		return expr;
 	}
 
 	private TypeReference rewriteType(NamingContext scope, Object type) {

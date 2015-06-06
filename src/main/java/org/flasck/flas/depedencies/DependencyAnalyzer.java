@@ -60,6 +60,8 @@ public class DependencyAnalyzer {
 	}
 
 	private void analyzeExpr(DirectedCyclicGraph<String> dcg, String name, Map<String, String> varMap, Set<String> locals, Object expr) {
+		if (expr == null)
+			return;
 		if (expr instanceof ItemExpr) {
 			ExprToken tok = ((ItemExpr)expr).tok;
 			switch(tok.type) {

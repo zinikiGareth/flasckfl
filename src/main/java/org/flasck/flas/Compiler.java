@@ -23,6 +23,7 @@ import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodDefinition;
@@ -49,10 +50,10 @@ public class Compiler {
 			compiler.compile(new File(f));
 	}
 
-	private final Rewriter rewriter = new Rewriter();
+	private final ErrorResult errors = new ErrorResult();
+	private final Rewriter rewriter = new Rewriter(errors);
 	private final ApplyCurry curry = new ApplyCurry();
 	private final Generator gen = new Generator();
-	
 	
 	public void compile(File file) {
 		String inPkg = file.getName();
@@ -91,10 +92,12 @@ public class Compiler {
 			} else if (obj instanceof Scope) {
 				Scope scope = (Scope) obj;
 				scope = rewriter.rewrite(scope);
+				if (errors.hasErrors())
+					throw new ErrorResultException(errors);
 //				List<String> pkglist = emitPackages(forms, scope, inPkg);
 				assertPackage(forms, inPkg);
 				Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
-				TypeChecker tc = new TypeChecker();
+				TypeChecker tc = new TypeChecker(errors);
 				populateTypes(tc, scope.outer);
 				processScope(forms, tc, functions, scope, 1);
 				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(functions);
@@ -255,29 +258,36 @@ public class Compiler {
 					pos++;
 				}
 
-				Map<String, FunctionDefinition> innerFns = new HashMap<String, FunctionDefinition>();
 				if (card.template != null) {
+					Map<String, FunctionDefinition> innerFns = new HashMap<String, FunctionDefinition>();
 					DomFunctionGenerator gen = new DomFunctionGenerator(innerFns, scope, card.state);
 					gen.generate(card.template);
-//					TemplateRenderState trs = new TemplateRenderState(name);
-//					for (TemplateLine tl : card.template)
-//						forms.add(gen.generateTemplateLine(trs, tl));
+					for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
+						FunctionDefinition rfn = rewriter.rewriteFunction(scope, card, MethodConvertor.lift(card, (FunctionDefinition) x2.getValue()));
+						functions.put(rfn.name, rfn);
+					}
 				}
 				
-				for (Entry<String, Entry<String, Object>> x2 : card.innerScope())
-					innerFns.put(x2.getKey(), (FunctionDefinition) x2.getValue().getValue());
-
 				// lift and rewrite all the functions we just defined
-				for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
-					if (functions.containsKey(x2.getKey()))
-						tc.errors.message((Block)null, "duplicate definition of " + x2.getKey() + " in scope");
-					FunctionDefinition rfn = rewriter.rewriteFunction(scope, card, MethodConvertor.lift(card, (FunctionDefinition) x2.getValue()));
-					functions.put(x2.getKey(), rfn);
+				for (Entry<String, Entry<String, Object>> x2 : card.innerScope()) {
+					if (x2.getValue().getValue() instanceof FunctionDefinition) {
+						if (functions.containsKey(x2.getKey()))
+							tc.errors.message((Block)null, "duplicate definition of " + x2.getKey() + " in scope");
+						FunctionDefinition lifted = MethodConvertor.lift(card, (FunctionDefinition) x2.getValue().getValue());
+						FunctionDefinition rewritten = rewriter.rewriteFunction(scope, card, lifted);
+						functions.put(rewritten.name, rewritten);
+					} else if (x2.getValue().getValue() instanceof EventHandlerDefinition) {
+						EventHandlerDefinition rewritten = rewriter.rewriteEventHandler(scope, card, (EventHandlerDefinition)x2.getValue().getValue());
+						FunctionDefinition fd = MethodConvertor.convert(name, rewritten);
+						functions.put(fd.name, fd);
+					} else
+						throw new UtilException("Need to handle " + x2);
 				}
 			} else
 				throw new UtilException("Need to handle " + x.getKey() + " of type " + val.getClass());
 		}
 		System.out.println(functions);
+		System.out.println("hello");
 	}
 
 //	private List<String> emitPackages(List<JSForm> forms, Scope scope, String defPkg) {

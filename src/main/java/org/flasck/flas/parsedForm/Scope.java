@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.flasck.flas.ResolutionException;
 import org.zinutils.bytecode.InnerClass;
 import org.zinutils.exceptions.UtilException;
 
@@ -67,7 +68,7 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 				return outer.resolve(name);
 		} catch (UtilException ex) { /* and rethrow ourselves */ }
 		System.out.println("Could not resolve name " + name + " in " + defns.keySet());
-		throw new UtilException("Could not resolve name " + name);
+		throw new ResolutionException(name);
 	}
 	
 	public Set<String> keys() {

@@ -1,4 +1,7 @@
 	card Navbar
+		state
+			String currentTab
+			
 		template
 			#header : 'nav-bar'
 				. : 'w-container'
@@ -11,4 +14,7 @@
 								click => switchTo 'dashboard'
 							(navItem 'dashboard' 'D')
 		
-		navItem title short = DOM.Element "a" [('title', title),('class','nav-link')] [short]
+		navItem title short tab = DOM.Element "a" [('title', title),('class','nav-link')] [short] [('click',switchTo tab)]
+		
+		event switchTo name ev
+			currentTab <- name 		

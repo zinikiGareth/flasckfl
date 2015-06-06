@@ -11,12 +11,15 @@ import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
+import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
+import org.flasck.flas.parsedForm.MessagesHandler;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
@@ -157,6 +160,9 @@ public class FLASStory implements StoryProcessor {
 			ret.define("()", "FLEval.tuple", 
 					null);
 		}
+		{ // text
+			ret.define("String", "String", null);
+		}
 		{ // math
 			ret.define("Number", "Number", null);
 			ret.define("+", "FLEval.plus", 
@@ -239,6 +245,7 @@ public class FLASStory implements StoryProcessor {
 	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
 		IntroParser ip = new IntroParser(s.scope);
 		List<Object> functions = new ArrayList<Object>();
+		List<EventCaseDefn> events = new ArrayList<EventCaseDefn>();
 		for (Block b : components) {
 			if (b.isComment())
 				continue;
@@ -284,10 +291,15 @@ public class FLASStory implements StoryProcessor {
 				doImplementation(s, er, (Implements)o, b.nested);
 			} else if (o instanceof FunctionCaseDefn) {
 				functions.add((FunctionCaseDefn) o);
+			} else if (o instanceof EventCaseDefn) {
+				EventCaseDefn ecd = (EventCaseDefn) o;
+				events.add(ecd);
+				handleMessageMethods(er, ecd, b.nested);
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
 		gatherFunctions(er, s, cd.innerScope(), functions);
+		defineEventMethods(er, s, cd, events);
 	}	
 
 	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {
@@ -382,12 +394,30 @@ public class FLASStory implements StoryProcessor {
 		for (Entry<String, List<MethodCaseDefn>> x : groups.entrySet()) {
 			impl.addMethod(new MethodDefinition(x.getValue().get(0).intro, x.getValue()));
 		}
-
-		// TODO: somewhere (possibly not here) they need to be rewritten to functions and thus to HSIE
-		// Oh, and we probably want to do that in a phase that converts templates to functions too
 	}
 
-	private void handleMessageMethods(ErrorResult er, MethodCaseDefn mcd, List<Block> nested) {
+	private void defineEventMethods(ErrorResult er, State s, CardDefinition cd, List<EventCaseDefn> events) {
+		ListMap<String, EventCaseDefn> groups = new ListMap<String, EventCaseDefn>();
+		String cfn = null;
+		int pnargs = 0;
+		for (EventCaseDefn ecd : events) {
+			String n = ecd.intro.name;
+			if (cfn == null || !cfn.equals(n)) {
+				cfn = n;
+				pnargs = ecd.intro.args.size();
+				if (groups.contains(cfn))
+					er.message((Tokenizable)null, "split definition of function " + cfn);
+			} else if (ecd.intro.args.size() != pnargs)
+				er.message((Tokenizable)null, "inconsistent numbers of arguments in definitions of " + cfn);
+			groups.add(cfn, ecd);
+		}
+		for (Entry<String, List<EventCaseDefn>> x : groups.entrySet()) {
+			cd.innerScope().define(x.getKey(), s.withPkg(x.getKey()), new EventHandlerDefinition(x.getValue().get(0).intro, x.getValue()));
+		}
+	}
+
+
+	private void handleMessageMethods(ErrorResult er, MessagesHandler mcd, List<Block> nested) {
 		MethodMessageParser mm = new MethodMessageParser();
 		for (Block b : nested) {
 			if (b.isComment())
