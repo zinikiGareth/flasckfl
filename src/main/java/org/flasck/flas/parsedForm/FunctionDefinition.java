@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Writer;
 import java.util.List;
 
 public class FunctionDefinition {
@@ -20,6 +21,14 @@ public class FunctionDefinition {
 
 	public FunctionDefinition(FunctionIntro intro, List<FunctionCaseDefn> list) {
 		this(intro.name, intro.args.size(), list);
+	}
+
+	public void dumpTo(Writer pw) throws Exception {
+		pw.append(name + " {\n");
+		for (FunctionCaseDefn fcd : cases)
+			fcd.dumpTo(pw);
+		pw.append("}\n");
+		pw.flush();
 	}
 	
 	@Override

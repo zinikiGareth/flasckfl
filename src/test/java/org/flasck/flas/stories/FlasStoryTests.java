@@ -5,11 +5,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.flasck.flas.ErrorResult;
 import org.flasck.flas.Rewriter;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
+import org.flasck.flas.method.MethodConvertor;
+import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
@@ -86,5 +90,32 @@ public class FlasStoryTests {
 //		assertTrue(gorm.externals.contains("FLEval.mul"));
 //		assertTrue(gorm.externals.contains("_scoped.x"));
 //		HSIETestData.assertHSIE(HSIETestData.mutualG(), gorm);
+	}
+	
+	@Test
+	public void testLiftingOfCardMethods() throws Exception {
+		Object o = new FLASStory().process("ME", BlockTestData.cardWithMethods());
+		assertNotNull(o);
+		assertTrue(o instanceof Scope);
+		Scope s = rewriter.rewrite((Scope)o);
+		assertEquals(2, s.size());
+		CardDefinition cd = (CardDefinition) s.get("Mycard");
+		assertNotNull(cd.state);
+		assertNotNull(cd.template);
+		assertNotNull(cd.innerScope());
+		Scope is = cd.innerScope();
+		assertEquals(2, is.size());
+		FunctionDefinition render = (FunctionDefinition) is.get("render");
+		EventHandlerDefinition action = (EventHandlerDefinition) is.get("action");
+		
+		// NOTE: this is now writing back into the card's "inner scope"
+		render = rewriter.rewriteFunction(cd.innerScope(), cd, render);
+		assertNotNull(render);
+		render.dumpTo(new PrintWriter(System.out));
+		assertEquals("ME.Mycard.prototype.render", render.name);
+
+		FunctionDefinition actionFD = MethodConvertor.convert(action.intro.name, rewriter.rewriteEventHandler(cd.innerScope(), cd, action));
+		assertNotNull(actionFD);
+		actionFD.dumpTo(new PrintWriter(System.out));
 	}
 }

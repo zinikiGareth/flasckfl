@@ -84,7 +84,7 @@ public class DomFunctionGenerator {
 		// TODO: handle attributes (including from vars)
 		// TODO: handle formats? (or just put them in the tree? because they are "common" to all classes?)
 		// TODO: generate tree state
-		return new ApplyExpr(ItemExpr.id("DOM.Element"), tag, ItemExpr.id("Nil"), ItemExpr.id("Nil"));
+		return new ApplyExpr(ItemExpr.id("DOM.Element"), tag, ItemExpr.id("Nil"), ItemExpr.id("Nil"), ItemExpr.id("Nil"));
 	}
 
 	private void function(Object expr) {

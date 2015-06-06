@@ -92,7 +92,12 @@ public class TypeChecker {
 		}
 		System.out.println("Done final unification; building types");
 		for (HSIEForm f : rewritten.values()) {
-			TypeExpr subst = (TypeExpr) phi.subst(actualTypes.get(f.fnName));
+			Object tmp = phi.subst(actualTypes.get(f.fnName));
+			if (!(tmp instanceof TypeExpr)) {
+				System.out.println("I truly believe tmp should be a TypeExpr, not " + tmp.getClass());
+				continue;
+			}
+			TypeExpr subst = (TypeExpr) tmp;
 			knowledge.put(f.fnName, subst.asType(this));
 			System.out.println(f.fnName + " :: " + knowledge.get(f.fnName));
 		}
@@ -328,13 +333,15 @@ public class TypeChecker {
 					// try and find the name of the card class
 					// this is a hack and I know it ...
 					int idx = form.fnName.length();
-					for (int i=0;i<3;i++)
-						idx = form.fnName.lastIndexOf('.', idx-1);
+//					for (int i=0;i<3;i++)
+						idx = form.fnName.lastIndexOf(".prototype.", idx-1);
 					String structName = form.fnName.substring(0, idx);
 					System.out.println(structName);
 					if (r.fn.equals("_card"))
 						return freshVarsIn(new TypeReference(structName));
 					StructDefn sd = structs.get(structName);
+					if (sd == null)
+						throw new UtilException("There was no struct definition called " + structName);
 					for (StructField sf : sd.fields) {
 						if (sf.name.equals(r.fn.substring(6))) {
 							return freshVarsIn(sf.type);

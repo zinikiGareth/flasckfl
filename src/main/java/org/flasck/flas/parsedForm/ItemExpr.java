@@ -23,6 +23,8 @@ public class ItemExpr {
 
 	@Override
 	public String toString() {
+		if (tok.type == ExprToken.STRING)
+			return "'" + tok.text + "'";
 		return tok.text;
 	}
 }

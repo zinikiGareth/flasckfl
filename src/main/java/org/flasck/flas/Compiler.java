@@ -263,7 +263,7 @@ public class Compiler {
 					DomFunctionGenerator gen = new DomFunctionGenerator(innerFns, scope, card.state);
 					gen.generate(card.template);
 					for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
-						FunctionDefinition rfn = rewriter.rewriteFunction(scope, card, MethodConvertor.lift(card, (FunctionDefinition) x2.getValue()));
+						FunctionDefinition rfn = rewriter.rewriteFunction(scope, card, (FunctionDefinition) x2.getValue());
 						functions.put(rfn.name, rfn);
 					}
 				}
@@ -273,8 +273,8 @@ public class Compiler {
 					if (x2.getValue().getValue() instanceof FunctionDefinition) {
 						if (functions.containsKey(x2.getKey()))
 							tc.errors.message((Block)null, "duplicate definition of " + x2.getKey() + " in scope");
-						FunctionDefinition lifted = MethodConvertor.lift(card, (FunctionDefinition) x2.getValue().getValue());
-						FunctionDefinition rewritten = rewriter.rewriteFunction(scope, card, lifted);
+//						FunctionDefinition lifted = MethodConvertor.lift(card, (FunctionDefinition) x2.getValue().getValue());
+						FunctionDefinition rewritten = rewriter.rewriteFunction(scope, card, (FunctionDefinition) x2.getValue().getValue());
 						functions.put(rewritten.name, rewritten);
 					} else if (x2.getValue().getValue() instanceof EventHandlerDefinition) {
 						EventHandlerDefinition rewritten = rewriter.rewriteEventHandler(scope, card, (EventHandlerDefinition)x2.getValue().getValue());

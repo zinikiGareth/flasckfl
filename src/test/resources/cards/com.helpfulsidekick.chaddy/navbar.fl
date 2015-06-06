@@ -12,9 +12,12 @@
 							#a  @title='dashboard' : 'nav-link' 'current-link'
 								'D'
 								click => switchTo 'dashboard'
-							(navItem 'dashboard' 'D')
+							(navItem 'dashboard' 'D' 'dashboard')
 		
 		navItem title short tab = DOM.Element "a" [('title', title),('class','nav-link')] [short] [('click',switchTo tab)]
 		
 		event switchTo name ev
-			currentTab <- name 		
+			currentTab <- name
+
+This was an experiment to check that the RHS was correctly rewritten; it gets "_card" where something more like "this" is needed.
+#			currentTab <- currentTab 		

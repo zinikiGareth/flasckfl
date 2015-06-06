@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.flasck.flas.Rewriter.RenameCardToThis;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -130,10 +131,7 @@ public class Rewriter {
 		@Override
 		public String resolve(String name) {
 			if (innerScope.contains(name)) {
-				Object defn = innerScope.get(name);
-				if (defn instanceof EventHandlerDefinition)
-					return prefix + ".prototype." + name;
-				return prefix + "." + name;
+				return makeAbsoluteName(name);
 			}
 			if (globals.containsKey(name))
 				return prefix + "._H" + globals.get(name);
@@ -143,15 +141,39 @@ public class Rewriter {
 		
 		@Override
 		public String makeAbsoluteName(String name) {
+			Object defn = innerScope.get(name);
+			if (defn instanceof EventHandlerDefinition || defn instanceof FunctionDefinition)
+				return prefix + ".prototype." + name;
 			return prefix + "." + name;
 		}
 		
 		@Override
 		protected String makeName(String name) {
-				return "_card."+name;
+			return "_card."+name;
 		}
 	}
-	
+
+	class RenameCardToThis extends NamingContext {
+
+		public RenameCardToThis(NamingContext cx) {
+			super(cx);
+		}
+
+		@Override
+		public String resolve(String name) {
+			String base = super.resolve(name);
+			if (base.startsWith("_card"))
+				return base.replace("_card", "this");
+			return base;
+		}
+		
+		@Override
+		protected String makeName(String name) {
+			return nested.makeName(name);
+		}
+
+	}
+
 	class HandlerContext extends NamingContext {
 		HandlerContext(CardContext card) {
 			super(card);
@@ -297,7 +319,7 @@ public class Rewriter {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
-			list.add(rewrite(new FunctionContext(cx, c.innerScope(), f.name, cs), c));
+			list.add(rewrite(new FunctionContext(new RenameCardToThis(cx), c.innerScope(), f.name, cs), c));
 			cs++;
 		}
 		FunctionDefinition ret = new FunctionDefinition(cx.makeAbsoluteName(f.name), f.nargs, list);
@@ -317,9 +339,9 @@ public class Rewriter {
 	private EventHandlerDefinition rewrite(NamingContext scope, EventHandlerDefinition ehd) {
 		List<EventCaseDefn> list = new ArrayList<EventCaseDefn>();
 		int cs = 0;
-		String rw = scope.makeAbsoluteName("prototype."+ehd.intro.name);
+		String rw = scope.makeAbsoluteName(ehd.intro.name);
 		for (EventCaseDefn c : ehd.cases) {
-			list.add(rewrite(new FunctionContext(scope, null, rw, cs), c));
+			list.add(rewrite(new FunctionContext(new RenameCardToThis(scope), null, rw, cs), c));
 			cs++;
 		}
 		return new EventHandlerDefinition(new FunctionIntro(rw, ehd.intro.args), list);

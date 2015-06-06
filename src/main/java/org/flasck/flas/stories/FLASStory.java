@@ -203,7 +203,8 @@ public class FLASStory implements StoryProcessor {
 				new StructDefn("DOM.Element")
 				.addField(new StructField(new TypeReference("String"), "tag"))
 				.addField(new StructField(new TypeReference("List").with(new TypeReference(null, "A")), "attrs"))
-				.addField(new StructField(new TypeReference("List").with(new TypeReference("DOM.Element")), "content")));
+				.addField(new StructField(new TypeReference("List").with(new TypeReference("DOM.Element")), "content"))
+				.addField(new StructField(new TypeReference("List").with(new TypeReference(null, "B")), "handlers")));
 		}
 		return ret;
 	}

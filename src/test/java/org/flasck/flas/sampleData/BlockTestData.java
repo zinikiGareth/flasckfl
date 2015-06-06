@@ -144,6 +144,28 @@ public class BlockTestData {
 		return ret;
 	}
 
+	public static List<Block> cardWithMethods() {
+		List<Block> ret = new ArrayList<Block>();
+		ret.add(builder().line("concat a b = a").build());
+		ret.add(builder()
+			.line("card Mycard")
+				.indent()
+				.line("state")
+					.indent()
+					.line("String title")
+					.exdent()
+				.line("template")
+					.indent()
+					.line("render 'hello'")
+					.exdent()
+				.line("render s = DOM.Element 'h1' [] [] [('action', action title s)]")
+				.line("event action curr s ev")
+					.indent()
+					.line("title <- concat title s")
+			.build());
+		return ret;
+	}
+
 	public static Block comment(String string) {
 		return builder().comment(string).build();
 	}

@@ -53,7 +53,7 @@ public class MethodConvertor {
 		if (mm.slot != null) {
 			// we want an assign message
 			String slot = mm.slot.get(0);
-			if (!slot.startsWith("_card."))
+			if (!slot.startsWith("_card.") && !slot.startsWith("this."))
 				throw new UtilException("slots must be in the card state");
 			slot = slot.substring(6);
 			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Assign")), new ItemExpr(new ExprToken(ExprToken.STRING, slot)), mm.expr);
@@ -77,6 +77,7 @@ public class MethodConvertor {
 		return ret;
 	}
 
+	@Deprecated
 	public static FunctionDefinition lift(CardDefinition card, FunctionDefinition fn) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		for (FunctionCaseDefn fcd : fn.cases) {
