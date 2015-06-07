@@ -1,4 +1,4 @@
-package org.flasck.flas.hsie;
+package org.flasck.flas.parsedForm;
 
 public class StringLiteral {
 	public final String text;

@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.ResolutionException;
-import org.zinutils.bytecode.InnerClass;
 import org.zinutils.exceptions.UtilException;
 
 public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {

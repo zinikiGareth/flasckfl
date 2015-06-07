@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.ErrorResult;
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.ItemExpr;
+import org.flasck.flas.parsedForm.NumericLiteral;
+import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.UtilException;
@@ -45,7 +49,7 @@ public class Expression implements TryParsing {
 		ExprToken s = ExprToken.from(line);
 		if (s.type == ExprToken.NUMBER || s.type == ExprToken.STRING || s.type == ExprToken.IDENTIFIER || s.type == ExprToken.SYMBOL) {
 			List<Object> args = new ArrayList<Object>();
-			args.add(new ItemExpr(s));
+			args.add(ItemExpr.from(s));
 			while (line.hasMore()) {
 				mark = line.at();
 				s = ExprToken.from(line);
@@ -58,13 +62,13 @@ public class Expression implements TryParsing {
 					break;
 				} else if (s.type == ExprToken.PUNC) {
 					if (s.text.equals("."))
-						args.add(new ItemExpr(s));
+						args.add(ItemExpr.from(s));
 					else {
 						System.out.println("Random PUNC");
 						return ErrorResult.oneMessage(line, "unrecognized punctuation");
 					}
 				} else
-					args.add(new ItemExpr(s));
+					args.add(ItemExpr.from(s));
 			}
 			if (args.size() == 1)
 				return deparen(args.get(0));
@@ -105,7 +109,7 @@ public class Expression implements TryParsing {
 		
 		// Step 2.  The trickiest thing is to handle all the straightforward function calls, so do that next
 		for (int i=0,j=0;i<=args.size();i++) {
-			if (i == args.size() || isSymbol(args.get(i))) {
+			if (i == args.size() || args.get(i) instanceof UnresolvedOperator) {
 				if (i>j+1) { // collapse a fn defn to the left
 					List<Object> inargs = new ArrayList<Object>();
 					for (int k=j+1;k<i;k++) {
@@ -126,7 +130,7 @@ public class Expression implements TryParsing {
 		// We now do straightforward precedence/associate shift-reduce
 		List<OpState> stack = new ArrayList<OpState>();
 		for (int i=0;i<=args.size();i++) {
-			if (i == args.size() || isSymbol(args.get(i))) {
+			if (i == args.size() || args.get(i) instanceof UnresolvedOperator) {
 				// we either need to shift this symbol OR reduce what's to the left
 				int action = SHIFT;
 				do {
@@ -141,7 +145,7 @@ public class Expression implements TryParsing {
 							break;
 						action = REDUCE;
 					} else {
-						op = ((ItemExpr)args.get(i)).tok.text;
+						op = ((UnresolvedOperator)args.get(i)).op;
 						myprec = precedence(op);
 						if (i == 0 || prev != null && prev.idx == i-1) { // if first token or if previous token was an operator, this must be a unary operator
 							action = SHIFT;
@@ -186,12 +190,12 @@ public class Expression implements TryParsing {
 	}
 
 	private boolean isDot(Object tok) {
-		return tok instanceof ItemExpr && ((ItemExpr)tok).tok.text.equals(".");
+		return tok instanceof UnresolvedOperator && ((UnresolvedOperator)tok).op.equals(".");
 	}
 
 	private Object deparen(Object pe) {
-		if (pe instanceof ItemExpr)
-			return rehash((ItemExpr) pe);
+		if (pe instanceof UnresolvedOperator)
+			return rehash((UnresolvedOperator) pe);
 		else if (pe instanceof ParenExpr)
 			return deparen(((ParenExpr)pe).nested);
 		else if (pe instanceof ApplyExpr) {
@@ -200,13 +204,15 @@ public class Expression implements TryParsing {
 			for (Object o : ae.args)
 				args.add(deparen(o));
 			return new ApplyExpr(deparen(ae.fn), args);
-		} else
+		} else if (pe instanceof NumericLiteral || pe instanceof AbsoluteVar || pe instanceof UnresolvedVar || pe instanceof UnresolvedOperator || pe instanceof StringLiteral)
+			return pe;
+		else
 			throw new UtilException("Expr not handled: " + pe.getClass());
 	}
 
-	private ItemExpr rehash(ItemExpr ie) {
-		if (ie.tok.type == ExprToken.SYMBOL && ie.tok.text.equals(":"))
-			return new ItemExpr (new ExprToken(ExprToken.IDENTIFIER, "Cons"));
+	private Object rehash(UnresolvedOperator ie) {
+		if (ie.op.equals(":"))
+			return new AbsoluteVar("Cons");
 		return ie;
 	}
 
@@ -239,16 +245,12 @@ public class Expression implements TryParsing {
 			return 99;
 	}
 
-	private boolean isSymbol(Object o) {
-		return o instanceof ItemExpr && ((ItemExpr)o).tok.type == ExprToken.SYMBOL;
-	}
-
 	private boolean isCurryVar(Object o) {
-		return o instanceof ItemExpr && ((ItemExpr)o).tok.text.equals("_");
+		return o instanceof UnresolvedVar && ((UnresolvedVar)o).var.equals("_");
 	}
 
 	private Object curry1st(Object o) {
-		return new ItemExpr(new ExprToken(ExprToken.SYMBOL, ((ItemExpr)o).tok.text+"_"));
+		return new UnresolvedOperator(((UnresolvedOperator)o).op+"_");
 	}
 
 	private Object parseParenthetical(Tokenizable line, String endsWith) {
@@ -271,13 +273,13 @@ public class Expression implements TryParsing {
 							return new ParenExpr(objs.get(0));
 						else {
 							// The tuple case
-							return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.SYMBOL, "()")), objs);
+							return new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.SYMBOL, "()")), objs);
 						}
 					}
 					else if (endsWith.equals("]")) {
-						Object base = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
+						Object base = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
 						for (int i=objs.size()-1;i>=0;i--)
-							base = new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Cons")), objs.get(i), base);
+							base = new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Cons")), objs.get(i), base);
 						return base;
 					} else {
 						System.out.println("huh?");

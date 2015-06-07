@@ -1,6 +1,6 @@
 package org.flasck.flas.vcode.hsieForm;
 
-import org.flasck.flas.hsie.StringLiteral;
+import org.flasck.flas.parsedForm.StringLiteral;
 
 // Push and Return are like REALLY, REALLY similar
 // It helps the typechecker at least to treat them as exactly the same

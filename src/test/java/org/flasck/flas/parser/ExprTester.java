@@ -4,7 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.ItemExpr;
+import org.flasck.flas.parsedForm.NumericLiteral;
+import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 
 public class ExprTester {
 
@@ -28,8 +31,8 @@ public class ExprTester {
 			assertEquals(k, ae.args.size());
 			return pos+1;
 		} else {
-			assertTrue(o instanceof ItemExpr);
-			assertEquals(patt[pos], ((ItemExpr)o).tok.text);
+			assertTrue(o instanceof UnresolvedVar || o instanceof UnresolvedOperator || o instanceof StringLiteral || o instanceof NumericLiteral); // || ...
+			assertEquals(patt[pos], o.toString());
 			return pos+1;
 		}
 		

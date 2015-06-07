@@ -264,7 +264,7 @@ public class TemplateParsingTests {
 		ApplyExpr ae = (ApplyExpr) tl.contents.get(0);
 		assertEquals("fnCall", ae.fn.toString());
 		assertEquals(3, ae.args.size());
-		assertEquals("'hello'", ae.args.get(0).toString());
+		assertEquals("\"hello\"", ae.args.get(0).toString());
 		assertEquals("3", ae.args.get(1).toString());
 		assertEquals("x", ae.args.get(2).toString());
 	}

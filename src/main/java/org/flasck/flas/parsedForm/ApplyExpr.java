@@ -26,13 +26,13 @@ public class ApplyExpr {
 	}
 
 	private void showOne(int ind, Object o) {
-		if (o instanceof ItemExpr) {
+		if (o instanceof ApplyExpr) {
+			((ApplyExpr)o).showTree(ind);
+		} else {
 			for (int i=0;i<ind;i++)
 				System.out.print(" ");
-			System.out.println(((ItemExpr)o).tok.text);
+			System.out.println(o);
 		}
-		else
-			((ApplyExpr)o).showTree(ind);
 	}
 	
 	@Override

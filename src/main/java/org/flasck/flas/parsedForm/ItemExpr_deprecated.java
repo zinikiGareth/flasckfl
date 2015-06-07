@@ -1,11 +1,10 @@
 package org.flasck.flas.parsedForm;
 
-import org.flasck.flas.tokenizers.ExprToken;
-
-public class ItemExpr {
+public class ItemExpr_deprecated {
+	/*
 	public final ExprToken tok;
 
-	public ItemExpr(ExprToken tok) {
+	public ItemExpr_deprecated(ExprToken tok) {
 		this.tok = tok;
 	}
 	
@@ -27,4 +26,5 @@ public class ItemExpr {
 			return "'" + tok.text + "'";
 		return tok.text;
 	}
+	*/
 }

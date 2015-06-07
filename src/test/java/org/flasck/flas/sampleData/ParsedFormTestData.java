@@ -11,22 +11,25 @@ import java.util.List;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.ItemExpr;
+import org.flasck.flas.parsedForm.NumericLiteral;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 
 public class ParsedFormTestData {
 	public static FunctionCaseDefn fibDefn1() {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(ConstPattern.INTEGER, "0"));
-		ItemExpr ie = new ItemExpr(new ExprToken(ExprToken.NUMBER, "1"));
+		Object ie = ItemExpr.from(new ExprToken(ExprToken.NUMBER, "1"));
 		return new FunctionCaseDefn(null, "fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefn2() {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(ConstPattern.INTEGER, "1"));
-		ItemExpr ie = new ItemExpr(new ExprToken(ExprToken.NUMBER, "1"));
+		Object ie = ItemExpr.from(new ExprToken(ExprToken.NUMBER, "1"));
 		return new FunctionCaseDefn(null, "fib", args, ie);
 	}
 
@@ -43,16 +46,16 @@ public class ParsedFormTestData {
 		return new FunctionCaseDefn(null, "fib", args, top);
 	}
 
-	private static ItemExpr ie(String tok) {
-		return new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, tok));
+	private static Object ie(String tok) {
+		return ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tok));
 	}
 
-	private static ItemExpr ne(String tok) {
-		return new ItemExpr(new ExprToken(ExprToken.NUMBER, tok));
+	private static Object ne(String tok) {
+		return ItemExpr.from(new ExprToken(ExprToken.NUMBER, tok));
 	}
 
-	private static ItemExpr se(String tok) {
-		return new ItemExpr(new ExprToken(ExprToken.SYMBOL, tok));
+	private static Object se(String tok) {
+		return ItemExpr.from(new ExprToken(ExprToken.SYMBOL, tok));
 	}
 
 	public static void assertFormsEqual(Object expected, Object actual) {
@@ -87,19 +90,13 @@ public class ParsedFormTestData {
 	}
 
 	private static void assertExprsEqual(Object expected, Object actual) {
-		if (expected instanceof ItemExpr) {
-			assertTrue(actual instanceof ItemExpr);
-			assertItemExprsEqual((ItemExpr)expected, (ItemExpr)actual);
+		if (expected instanceof NumericLiteral || expected instanceof UnresolvedOperator || expected instanceof UnresolvedVar) {
+			assertEquals(expected.toString(), actual.toString());
 		} else if (expected instanceof ApplyExpr) {
 			assertTrue(actual instanceof ApplyExpr);
 			assertApplyExprsEqual((ApplyExpr)expected, (ApplyExpr)actual);
 		} else
 			fail("Cannot handle expr of type " + expected.getClass());
-	}
-
-	private static void assertItemExprsEqual(ItemExpr eie, ItemExpr aie) {
-		assertEquals(eie.tok.type, aie.tok.type);
-		assertEquals(eie.tok.text, aie.tok.text);
 	}
 
 	private static void assertApplyExprsEqual(ApplyExpr eae, ApplyExpr aae) {

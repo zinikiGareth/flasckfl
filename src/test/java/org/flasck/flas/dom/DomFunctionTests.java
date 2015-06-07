@@ -1,22 +1,25 @@
 package org.flasck.flas.dom;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.flasck.flas.ErrorResult;
+import org.flasck.flas.Rewriter;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.ItemExpr;
+import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -36,8 +39,7 @@ public class DomFunctionTests {
 		assertEquals("_templateNode_1", fcd.intro.name);
 		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
-		assertTrue(fcd.expr instanceof ItemExpr);
-		assertEquals("hello", ((ItemExpr) fcd.expr).tok.text);
+		assertEquals("\"hello\"", fcd.expr.toString());
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}
@@ -51,8 +53,7 @@ public class DomFunctionTests {
 		FunctionCaseDefn fcd = node1.cases.get(0);
 		assertEquals("_templateNode_1", fcd.intro.name);
 		assertEquals(0, fcd.intro.args.size());
-		assertTrue(fcd.expr instanceof ItemExpr);
-		assertEquals("counter", ((ItemExpr)fcd.expr).tok.text);
+		assertEquals("\"counter\"", fcd.expr.toString());
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}
@@ -69,12 +70,12 @@ public class DomFunctionTests {
 		assertNotNull(fcd.expr);
 		assertTrue(fcd.expr instanceof ApplyExpr);
 		ApplyExpr ae = (ApplyExpr) fcd.expr;
-		assertEquals("DOM.Element", ((ItemExpr)ae.fn).tok.text);
+		assertEquals("DOM.Element", ae.fn.toString());
 		assertEquals(4, ae.args.size());
-		assertEquals("div", ((ItemExpr)ae.args.get(0)).tok.text);
-		assertEquals("Nil", ((ItemExpr)ae.args.get(1)).tok.text);
-		assertEquals("Nil", ((ItemExpr)ae.args.get(2)).tok.text);
-		assertEquals("Nil", ((ItemExpr)ae.args.get(3)).tok.text);
+		assertEquals("\"div\"", ae.args.get(0).toString());
+		assertEquals("Nil", ae.args.get(1).toString());
+		assertEquals("Nil", ae.args.get(2).toString());
+		assertEquals("Nil", ae.args.get(3).toString());
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}
@@ -91,18 +92,24 @@ public class DomFunctionTests {
 		assertNotNull(fcd.expr);
 		assertTrue(fcd.expr instanceof ApplyExpr);
 		ApplyExpr ae = (ApplyExpr) fcd.expr;
-		assertEquals("DOM.Element", ((ItemExpr)ae.fn).tok.text);
+		assertEquals("DOM.Element", ae.fn.toString());
 		assertEquals(4, ae.args.size());
-		assertEquals("nav", ((ItemExpr)ae.args.get(0)).tok.text);
-		assertEquals("Nil", ((ItemExpr)ae.args.get(1)).tok.text);
-		assertEquals("Nil", ((ItemExpr)ae.args.get(2)).tok.text);
-		assertEquals("Nil", ((ItemExpr)ae.args.get(3)).tok.text);
+		assertEquals("\"nav\"", ae.args.get(0).toString());
+		assertEquals("Nil", ae.args.get(1).toString());
+		assertEquals("Nil", ae.args.get(2).toString());
+		assertEquals("Nil", ae.args.get(3).toString());
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}
 
 	@Test
 	public void testCallingAFunction() throws Exception {
+		Scope scope = new Scope(null);
+		scope.define("tfn", "tfn", null);
+		CardDefinition card = new CardDefinition(scope, "MyCard");
+		card.state = new StateDefinition();
+		card.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
+		scope.define("MyCard", "MyCard", card);
 		FunctionDefinition node1 = generateOne(null, "(tfn counter)");
 		assertEquals("_templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
@@ -113,9 +120,11 @@ public class DomFunctionTests {
 		assertNotNull(fcd.expr);
 		assertTrue(fcd.expr instanceof ApplyExpr);
 		ApplyExpr ae = (ApplyExpr) fcd.expr;
-		assertEquals("tfn", ((ItemExpr)ae.fn).tok.text);
+		assertEquals("tfn", ae.fn.toString());
 		assertEquals(1, ae.args.size());
-		assertEquals("counter", ((ItemExpr)ae.args.get(0)).tok.text);
+		assertEquals("counter", ae.args.get(0).toString());
+		Rewriter rewriter = new Rewriter(new ErrorResult());
+		node1 = rewriter.rewriteFunction(scope, card, node1);
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}

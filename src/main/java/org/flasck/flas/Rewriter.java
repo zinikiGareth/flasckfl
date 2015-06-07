@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.flasck.flas.Rewriter.RenameCardToThis;
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -20,16 +20,20 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
-import org.flasck.flas.parsedForm.ItemExpr;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.zinutils.exceptions.UtilException;
 
@@ -416,40 +420,45 @@ public class Rewriter {
 		if (expr == null)
 			return null;
 		try {
-			if (expr instanceof ItemExpr) {
-				ItemExpr ie = (ItemExpr) expr;
-//				System.out.println("Want to rewrite " + ie.tok);
-				Object ret;
-				if (ie.tok.type == ExprToken.NUMBER || ie.tok.type == ExprToken.STRING)
-					ret = ie;
-				else if (ie.tok.type == ExprToken.IDENTIFIER || ie.tok.type == ExprToken.SYMBOL || ie.tok.type == ExprToken.PUNC) {
-					String rwTo = scope.resolve(ie.tok.text);
-					ret = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, rwTo));
-					if (rwTo.contains("._H")) {
-	//					System.out.println("_H thing: " + rwTo);
-						ret = new ApplyExpr(ret, new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "_card")));
-					}
-				} else
-					throw new UtilException("Cannot handle " + ie.tok);
-//				System.out.println("Rewritten to " + ret);
-				return ret;
+			if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof AbsoluteVar)
+				return expr;
+			else if (expr instanceof UnresolvedOperator || expr instanceof UnresolvedVar) {
+				String s;
+				if (expr instanceof UnresolvedOperator)
+					 s = ((UnresolvedOperator) expr).op;
+				else if (expr instanceof UnresolvedVar)
+					s = ((UnresolvedVar) expr).var;
+				else
+					throw new UtilException("Huh?");
+				Object ret = scope.resolve(s);
+				if (ret instanceof AbsoluteVar)
+					return ret;
+				else
+					throw new UtilException("cannot handle " + ret.getClass());
+//				Object ret = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, rwTo));
+//				if (rwTo.contains("._H")) {
+////					System.out.println("_H thing: " + rwTo);
+//					ret = new ApplyExpr(ret, ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "_card")));
+//				}
+//				return ret;
 			} else if (expr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) expr;
-				if (ae.fn instanceof ItemExpr && ((ItemExpr)ae.fn).tok.text.equals(".")) {
-					ItemExpr ie = (ItemExpr)ae.args.get(1);
-					if (ie.tok.type != ExprToken.IDENTIFIER) throw new UtilException("unhandled case");
-	//				System.out.println("Considering . with " + ae.args.get(0).getClass());
-					if (ae.args.get(0) instanceof ItemExpr) {
-						String pkg = ((ItemExpr)ae.args.get(0)).tok.text;
+				if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals(".")) {
+					UnresolvedVar field = (UnresolvedVar)ae.args.get(1);
+					// The case where we have an absolute var by package name
+					if (!(ae.args.get(0) instanceof ApplyExpr)) {
+						String pkg = ((UnresolvedVar)ae.args.get(0)).var;
 	//					System.out.println("is: " + scope.get(pkg));
 						if (scope.get(pkg) instanceof PackageDefn) {
 	//						System.out.println("pkg " + pkg);
-							return ItemExpr.id(pkg + "." + ie.tok.text);
+							return new AbsoluteVar(pkg + "." + field.var);
 						}
 					}
+					
+					// expr . field
 					Object applyFn = rewriteExpr(scope, ae.args.get(0));
 	
-					return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "FLEval.field")), applyFn, new ItemExpr(new ExprToken(ExprToken.STRING, ie.tok.text)));
+					return new ApplyExpr(new AbsoluteVar("FLEval.field"), applyFn, new StringLiteral(field.var));
 				}
 				List<Object> args = new ArrayList<Object>();
 				for (Object o : ae.args)

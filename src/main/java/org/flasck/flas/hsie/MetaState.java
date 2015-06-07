@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.ItemExpr;
-import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.NumericLiteral;
+import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -61,24 +63,20 @@ public class MetaState {
 	}
 
 	private Object convertValue(Map<String, Var> substs, Object expr) {
-		if (expr instanceof ItemExpr) {
-			ItemExpr e2 = (ItemExpr) expr;
-			if (e2.tok.type == ExprToken.NUMBER)
-				return Integer.parseInt(e2.tok.text); // what about floats?
-			else if (e2.tok.type == ExprToken.STRING) {
-				return new StringLiteral(e2.tok.text);
-			} else if (e2.tok.type == ExprToken.IDENTIFIER || e2.tok.type == ExprToken.SYMBOL || e2.tok.type == ExprToken.PUNC) {
-				if (substs.containsKey(e2.tok.text))
-					return substs.get(e2.tok.text);
-				else {
-					// TODO: resolve these to the global scope
-					form.dependsOn(e2.tok.text);
-					return e2.tok.text;
-				}
-			} else
-				throw new UtilException("Cannot handle " + e2.tok);
-		}
-		else if (expr instanceof ApplyExpr) {
+		if (expr instanceof NumericLiteral)
+			return Integer.parseInt(((NumericLiteral)expr).text); // what about floats?
+		else if (expr instanceof StringLiteral)
+			return expr;
+		else if (expr instanceof LocalVar) {
+			String var = ((LocalVar)expr).var;
+			if (!substs.containsKey(var))
+				throw new UtilException("How can this be a local var?");
+			return substs.get(var);
+		} else if (expr instanceof AbsoluteVar) {
+			String var = ((AbsoluteVar)expr).id;
+			form.dependsOn(var);
+			return var;
+		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr e2 = (ApplyExpr) expr;
 			List<Object> ops = new ArrayList<Object>();
 			ops.add(convertValue(substs, e2.fn));

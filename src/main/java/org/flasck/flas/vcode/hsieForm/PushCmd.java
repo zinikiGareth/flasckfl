@@ -1,6 +1,6 @@
 package org.flasck.flas.vcode.hsieForm;
 
-import org.flasck.flas.hsie.StringLiteral;
+import org.flasck.flas.parsedForm.StringLiteral;
 
 public class PushCmd extends PushReturn {
 

@@ -2,7 +2,7 @@ package org.flasck.flas.vcode.hsieForm;
 
 import java.util.List;
 
-import org.flasck.flas.hsie.StringLiteral;
+import org.flasck.flas.parsedForm.StringLiteral;
 
 public class ReturnCmd extends PushReturn {
 	public final List<Var> deps;

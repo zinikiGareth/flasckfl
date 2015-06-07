@@ -3,17 +3,16 @@ package org.flasck.flas.method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.ItemExpr;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
-import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.zinutils.exceptions.UtilException;
 
@@ -39,11 +38,11 @@ public class MethodConvertor {
 
 	// TODO: this is more complicated than I make it appear here, but the proper thing requires typechecking
 	private static Object convert(List<MethodMessage> messages) {
-		Object ret = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
+		Object ret = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
 		for (int n = messages.size()-1;n>=0;n--) {
 			MethodMessage mm = messages.get(n);
 			Object me = convert(mm);
-			ret = new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Cons")), me, ret);
+			ret = new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Cons")), me, ret);
 		}
 		return ret;
 	}
@@ -56,13 +55,13 @@ public class MethodConvertor {
 			if (!slot.startsWith("_card.") && !slot.startsWith("this."))
 				throw new UtilException("slots must be in the card state");
 			slot = slot.substring(6);
-			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Assign")), new ItemExpr(new ExprToken(ExprToken.STRING, slot)), mm.expr);
+			return new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Assign")), ItemExpr.from(new ExprToken(ExprToken.STRING, slot)), mm.expr);
 		} else {
 			// we want some kind of invoke message
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr fn = (ApplyExpr)root.fn;
-			if (!((ItemExpr)fn.fn).tok.text.equals("FLEval.field")) throw new UtilException("unhandled case");
-			return new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Send")),
+			if (!(fn.fn instanceof AbsoluteVar) || ((AbsoluteVar)fn.fn).id.equals("FLEval.field")) throw new UtilException("unhandled case");
+			return new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Send")),
 					fn.args.get(0),
 					fn.args.get(1),
 					asList(root.args));
@@ -70,13 +69,13 @@ public class MethodConvertor {
 	}
 
 	private static Object asList(List<Object> args) {
-		Object ret = new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
+		Object ret = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
 		for (int n = args.size()-1;n>=0;n--) {
-			ret = new ApplyExpr(new ItemExpr(new ExprToken(ExprToken.IDENTIFIER, "Cons")), args.get(n), ret);
+			ret = new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Cons")), args.get(n), ret);
 		}
 		return ret;
 	}
-
+/*
 	@Deprecated
 	public static FunctionDefinition lift(CardDefinition card, FunctionDefinition fn) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
@@ -96,7 +95,7 @@ public class MethodConvertor {
 			if (tok.type != ExprToken.IDENTIFIER)
 				return expr;
 			else if (card.state != null && card.state.hasMember(tok.text)) {
-				return new ApplyExpr(".", ItemExpr.id("_card"), ItemExpr.str(tok.text));
+				return new ApplyExpr(".", new HandlerCard, new StringLiteral(tok.text));
 			} else if (card.fnScope.contains(tok.text)) {
 				// when a function is called normally, that should be handled above
 				// this is the case where it is an argument
@@ -117,5 +116,5 @@ public class MethodConvertor {
 		} else
 			throw new UtilException("Cannot lift " + expr);
 	}
-
+*/
 }

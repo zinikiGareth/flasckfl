@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.ItemExpr;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.zinutils.exceptions.UtilException;
 
@@ -52,9 +54,9 @@ public class DomFunctionGenerator {
 					if (tt.type == TemplateToken.IDENTIFIER) {
 						// TODO: distinguish between state vars and functions to call
 						// TODO: check that functions are defined on the card and not global
-						function(ItemExpr.str(tt.text));
+						function(new StringLiteral(tt.text));
 					} else if (tt.type == TemplateToken.STRING)
-						function(ItemExpr.str(tt.text));
+						function(new StringLiteral(tt.text));
 					else if (tt.type == TemplateToken.DIV)
 						function(div(tl));
 					else
@@ -73,18 +75,18 @@ public class DomFunctionGenerator {
 	private Object div(TemplateLine tl) {
 		Object tag;
 		if (tl.customTagVar != null)
-			tag = ItemExpr.id(tl.customTagVar);
+			tag = new UnresolvedVar(tl.customTagVar);
 		else {
 			if (tl.customTag != null)
-				tag = ItemExpr.str(tl.customTag);
+				tag = new StringLiteral(tl.customTag);
 			else
-				tag = ItemExpr.str("div");
+				tag = new StringLiteral("div");
 		}
 			
 		// TODO: handle attributes (including from vars)
 		// TODO: handle formats? (or just put them in the tree? because they are "common" to all classes?)
 		// TODO: generate tree state
-		return new ApplyExpr(ItemExpr.id("DOM.Element"), tag, ItemExpr.id("Nil"), ItemExpr.id("Nil"), ItemExpr.id("Nil"));
+		return new ApplyExpr(new AbsoluteVar("DOM.Element"), tag, new AbsoluteVar("Nil"), new AbsoluteVar("Nil"), new AbsoluteVar("Nil"));
 	}
 
 	private void function(Object expr) {

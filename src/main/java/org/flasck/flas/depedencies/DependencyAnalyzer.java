@@ -9,11 +9,14 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.ErrorResult;
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardScopedVar;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.ItemExpr;
-import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.NumericLiteral;
+import org.flasck.flas.parsedForm.StringLiteral;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.DirectedCyclicGraph;
@@ -62,30 +65,13 @@ public class DependencyAnalyzer {
 	private void analyzeExpr(DirectedCyclicGraph<String> dcg, String name, Map<String, String> varMap, Set<String> locals, Object expr) {
 		if (expr == null)
 			return;
-		if (expr instanceof ItemExpr) {
-			ExprToken tok = ((ItemExpr)expr).tok;
-			switch(tok.type) {
-			case ExprToken.IDENTIFIER: {
-				if (locals.contains(tok.text)) {
-					// do nothing
-				} else if (varMap.containsKey(tok.text)) {
-					// link to the fully scoped name and thus to the guy that introduced it
-					dcg.ensureLink(name, varMap.get(tok.text));
-				} else {
-					// a global name
-					dcg.ensure(tok.text);
-					dcg.ensureLink(name, tok.text);
-				}
-				break;
-			}
-			case ExprToken.NUMBER:
-			case ExprToken.STRING:
-			{
-				// that's OK
-				break;
-			}
-			default: throw new UtilException("Can't handle " + tok);
-			}
+		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof CardScopedVar)
+			;
+		else if (expr instanceof LocalVar)
+			dcg.ensureLink(name, varMap.get(((LocalVar)expr).var));
+		else if (expr instanceof AbsoluteVar) {
+			dcg.ensure(((AbsoluteVar) expr).id);
+			dcg.ensureLink(name, ((AbsoluteVar) expr).id);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			analyzeExpr(dcg, name, varMap, locals, ae.fn);
