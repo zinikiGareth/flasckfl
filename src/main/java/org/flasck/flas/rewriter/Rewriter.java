@@ -277,11 +277,11 @@ public class Rewriter {
 		return ret;
 	}
 
-	private MethodDefinition rewrite(NamingContext scope, MethodDefinition m) {
+	private MethodDefinition rewrite(NamingContext cx, MethodDefinition m) {
 		List<MethodCaseDefn> list = new ArrayList<MethodCaseDefn>();
 		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(new FunctionContext(scope, null, m.intro.name, cs), c));
+			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, new HashSet<String>(), c.innerScope()), c));
 			cs++;
 		}
 		return new MethodDefinition(m.intro, list);

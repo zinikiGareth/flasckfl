@@ -16,7 +16,12 @@ import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.MethodDefinition;
+import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -29,6 +34,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.FLASStory;
 import org.junit.Before;
 import org.junit.Test;
+import org.zinutils.collections.CollectionUtils;
 
 public class RewriterTests {
 	private final ErrorResult errors = new ErrorResult();
@@ -143,6 +149,32 @@ public class RewriterTests {
 		assertEquals("timer", ((CardMember)fn.cases.get(0).expr).name);
 	}
 
-	// inside a handler
+	@Test
+	public void testRewritingAContractMethod() throws Exception {
+		CardDefinition cd = new CardDefinition(scope, "MyCard");
+		cd.state = new StateDefinition();
+		cd.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
+		// TODO: I would have expected this to complain that it can't find the referenced contract
+		ContractImplements ci = new ContractImplements("org.ziniki.foo", "timer");
+		cd.contracts.add(ci);
+		List<MethodCaseDefn> mcds = new ArrayList<MethodCaseDefn>();
+		MethodDefinition md = new MethodDefinition(new FunctionIntro("ME.MyCard._C0.m", new ArrayList<Object>()), mcds);
+		MethodCaseDefn mcd1 = new MethodCaseDefn(md.intro);
+		mcds.add(mcd1);
+		mcd1.messages.add(new MethodMessage(CollectionUtils.listOf("counter"), new UnresolvedVar("counter")));
+		ci.methods.add(md);
+		scope.define("MyCard", "ME.MyCard", cd);
+		rw.rewrite(pkgEntry);
+		errors.showTo(new PrintWriter(System.out));
+		assertFalse(errors.hasErrors());
+		PackageDefn rp = (PackageDefn)builtinScope.get("ME");
+		CardDefinition rc = (CardDefinition) rp.innerScope().get("MyCard");
+		ci = rc.contracts.get(0);
+		md = ci.methods.get(0);
+		assertEquals("ME.MyCard._C0.m", md.intro.name);
+		assertTrue(md.cases.get(0).messages.get(0).expr instanceof CardMember);
+		assertEquals("counter", ((CardMember)md.cases.get(0).messages.get(0).expr).name);
+	}
+
 	// event handlers
 }
