@@ -14,6 +14,8 @@ import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -176,5 +178,29 @@ public class RewriterTests {
 		assertEquals("counter", ((CardMember)md.cases.get(0).messages.get(0).expr).name);
 	}
 
-	// event handlers
+	// Handler with lambda
+
+	@Test
+	public void testRewritingAnEventHandler() throws Exception {
+		CardDefinition cd = new CardDefinition(scope, "MyCard");
+		cd.state = new StateDefinition();
+		cd.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
+		// TODO: I would have expected this to complain that it can't find the referenced contract
+		List<EventCaseDefn> ecds = new ArrayList<EventCaseDefn>();
+		EventHandlerDefinition ehd = new EventHandlerDefinition(new FunctionIntro("ME.MyCard.eh", new ArrayList<Object>()), ecds);
+		EventCaseDefn ecd1 = new EventCaseDefn(ehd.intro);
+		ecds.add(ecd1);
+		ecd1.messages.add(new MethodMessage(CollectionUtils.listOf("counter"), new UnresolvedVar("counter")));
+		cd.fnScope.define("eh", "ME.MyCard.eh", ehd);
+		scope.define("MyCard", "ME.MyCard", cd);
+		rw.rewrite(pkgEntry);
+		errors.showTo(new PrintWriter(System.out));
+		assertFalse(errors.hasErrors());
+		PackageDefn rp = (PackageDefn)builtinScope.get("ME");
+		CardDefinition rc = (CardDefinition) rp.innerScope().get("MyCard");
+		ehd = (EventHandlerDefinition) rc.fnScope.get("eh");
+		assertEquals("ME.MyCard.eh", ehd.intro.name);
+		assertTrue(ehd.cases.get(0).messages.get(0).expr instanceof CardMember);
+		assertEquals("counter", ((CardMember)ehd.cases.get(0).messages.get(0).expr).name);
+	}
 }

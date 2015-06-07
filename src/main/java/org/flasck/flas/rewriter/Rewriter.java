@@ -179,7 +179,7 @@ public class Rewriter {
 			if (bound.contains(name))
 				return new LocalVar(name);
 			if (inner.contains(name))
-				return inner.get(name);
+				return new AbsoluteVar(inner.getEntry(name));
 			return nested.resolve(name);
 		}
 	}
@@ -203,6 +203,8 @@ public class Rewriter {
 				into.define(x.getKey(), name, rewriteCard(cx, into, (CardDefinition)val));
 			else if (val instanceof FunctionDefinition)
 				into.define(x.getKey(), ((FunctionDefinition)val).name, rewrite(cx, (FunctionDefinition)val));
+			else if (val instanceof EventHandlerDefinition)
+				into.define(x.getKey(), ((EventHandlerDefinition)val).intro.name, rewrite(cx, (EventHandlerDefinition)val));
 			else {
 //				System.out.println("Don't do anything to rewrite " + name + " of type " + val.getClass());
 				into.define(x.getKey(), name, val);
@@ -254,16 +256,16 @@ public class Rewriter {
 		}
 	}
 
-	public FunctionDefinition rewriteFunction(Scope scope, CardDefinition cd, FunctionDefinition f) {
-		NamingContext cx = new CardContext(new RootContext(scope), cd);
-		return rewrite(cx, f);
-	}
-
-	public EventHandlerDefinition rewriteEventHandler(Scope scope, CardDefinition cd, EventHandlerDefinition ehd) {
-		NamingContext cx = new CardContext(new RootContext(scope), cd);
-		return rewrite(cx, ehd);
-	}
-	
+//	public FunctionDefinition rewriteFunction(Scope scope, CardDefinition cd, FunctionDefinition f) {
+//		NamingContext cx = new CardContext(new RootContext(scope), cd);
+//		return rewrite(cx, f);
+//	}
+//
+//	public EventHandlerDefinition rewriteEventHandler(Scope scope, CardDefinition cd, EventHandlerDefinition ehd) {
+//		NamingContext cx = new CardContext(new RootContext(scope), cd);
+//		return rewrite(cx, ehd);
+//	}
+//	
 	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
@@ -287,18 +289,14 @@ public class Rewriter {
 		return new MethodDefinition(m.intro, list);
 	}
 
-	private EventHandlerDefinition rewrite(NamingContext scope, EventHandlerDefinition ehd) {
+	private EventHandlerDefinition rewrite(NamingContext cx, EventHandlerDefinition ehd) {
 		List<EventCaseDefn> list = new ArrayList<EventCaseDefn>();
 		int cs = 0;
-		String rw = scope.makeAbsoluteName(ehd.intro.name);
-		NamingContext c2 = scope;
-		if (scope instanceof CardContext)
-			c2 = new RenameCardToThis(scope);
 		for (EventCaseDefn c : ehd.cases) {
-			list.add(rewrite(new FunctionContext(c2, null, rw, cs), c));
+			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name, cs, new HashSet<String>(), c.innerScope()), c));
 			cs++;
 		}
-		return new EventHandlerDefinition(new FunctionIntro(rw, ehd.intro.args), list);
+		return new EventHandlerDefinition(ehd.intro, list);
 	}
 
 	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {

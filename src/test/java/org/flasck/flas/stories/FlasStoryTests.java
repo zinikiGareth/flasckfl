@@ -15,7 +15,9 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -38,9 +40,10 @@ public class FlasStoryTests {
 	public void testProcessingMutualRecursion() {
 		Object o = new FLASStory().process("ME", BlockTestData.simpleMutualRecursionBlock());
 		assertNotNull(o);
-		assertTrue(o instanceof Scope);
-		Scope s = (Scope) o;
-		s = rewriter.rewrite(s);
+		assertTrue(o instanceof ScopeEntry);
+		ScopeEntry se = (ScopeEntry) o;
+		rewriter.rewrite(se);
+		Scope s = ((PackageDefn)se.getValue()).innerScope();
 		assertEquals(1, s.size());
 		FunctionDefinition f = (FunctionDefinition) s.get("f");
 		assertEquals("ME.f", s.resolve("f"));

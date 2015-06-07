@@ -62,9 +62,13 @@ public class FLASStory implements StoryProcessor {
 
 	@Override
 	public Object process(String pkg, List<Block> blocks) {
-		State s = new State(new Scope(builtinScope()), pkg);
+		// TODO: I think this should be a parameter ...
+		Scope top = builtinScope();
+		PackageDefn pd = new PackageDefn(top, pkg);
+		State s = new State(pd.innerScope(), pkg);
 		ErrorResult er = new ErrorResult();
-		return doScope(er, s, blocks);
+		doScope(er, s, blocks);
+		return pd.myEntry();
 	}
 	
 	private Object doScope(ErrorResult er, State s, List<Block> blocks) {

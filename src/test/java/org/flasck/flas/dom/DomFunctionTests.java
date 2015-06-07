@@ -104,7 +104,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testCallingAFunction() throws Exception {
-		Scope scope = new Scope(null);
+		Scope scope = new Scope((Scope)null);
 		scope.define("tfn", "tfn", null);
 		CardDefinition card = new CardDefinition(scope, "MyCard");
 		card.state = new StateDefinition();
