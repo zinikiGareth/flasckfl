@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
@@ -75,6 +76,10 @@ public class MetaState {
 		} else if (expr instanceof AbsoluteVar) {
 			String var = ((AbsoluteVar)expr).id;
 			form.dependsOn(var);
+			return var;
+		} else if (expr instanceof CardMember) {
+			String var = ((CardMember)expr).name;
+			form.dependsOn("_card." + var);
 			return var;
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr e2 = (ApplyExpr) expr;

@@ -268,6 +268,7 @@ public class Rewriter {
 //	}
 //	
 	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
+		System.out.println("Rewriting " + f.name);
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
@@ -276,6 +277,7 @@ public class Rewriter {
 			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, locals, c.innerScope()), c));
 			cs++;
 		}
+		System.out.println("rewritten to " + list.get(0).expr);
 		FunctionDefinition ret = new FunctionDefinition(f.name, f.nargs, list);
 		return ret;
 	}

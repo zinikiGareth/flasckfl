@@ -14,13 +14,16 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Test;
@@ -104,13 +107,17 @@ public class DomFunctionTests {
 
 	@Test
 	public void testCallingAFunction() throws Exception {
-		Scope scope = new Scope((Scope)null);
+		Scope biscope = FLASStory.builtinScope();
+		PackageDefn pd = new PackageDefn(biscope, "ME");
+		Scope scope = pd.innerScope();
 		scope.define("tfn", "tfn", null);
 		CardDefinition card = new CardDefinition(scope, "MyCard");
 		card.state = new StateDefinition();
 		card.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
 		scope.define("MyCard", "MyCard", card);
 		FunctionDefinition node1 = generateOne(null, "(tfn counter)");
+		card.innerScope().define("_templateNode_1", "ME.MyCard._templateNode_1", node1);
+
 		assertEquals("_templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
@@ -124,8 +131,8 @@ public class DomFunctionTests {
 		assertEquals(1, ae.args.size());
 		assertEquals("counter", ae.args.get(0).toString());
 		Rewriter rewriter = new Rewriter(new ErrorResult());
-		node1 = rewriter.rewriteFunction(scope, card, node1);
-		HSIEForm c = HSIE.handle(node1);
+		rewriter.rewrite(pd.myEntry());
+		HSIEForm c = HSIE.handle((FunctionDefinition) ((CardDefinition)((PackageDefn)biscope.get("ME")).innerScope().get("MyCard")).innerScope().get("_templateNode_1"));
 		c.dump();
 	}
 
