@@ -70,7 +70,7 @@ public class MetaState {
 		else if (expr instanceof LocalVar) {
 			String var = ((LocalVar)expr).var;
 			if (!substs.containsKey(var))
-				throw new UtilException("How can this be a local var?");
+				throw new UtilException("How can this be a local var? " + var + " not in " + substs);
 			return substs.get(var);
 		} else if (expr instanceof AbsoluteVar) {
 			String var = ((AbsoluteVar)expr).id;

@@ -31,8 +31,9 @@ public class FlasStoryTests {
 	public void testProcessingFib() {
 		Object o = new FLASStory().process("MathLib", BlockTestData.allFib());
 		assertNotNull(o);
-		assertTrue(o instanceof Scope);
-		Scope s = (Scope) o;
+		assertTrue(o instanceof ScopeEntry);
+		ScopeEntry se = (ScopeEntry) o;
+		Scope s = ((PackageDefn)se.getValue()).innerScope();
 		assertEquals(1, s.size());
 	}
 
@@ -46,10 +47,10 @@ public class FlasStoryTests {
 		Scope s = ((PackageDefn)se.getValue()).innerScope();
 		assertEquals(1, s.size());
 		FunctionDefinition f = (FunctionDefinition) s.get("f");
-		assertEquals("ME.f", s.resolve("f"));
+		assertEquals("ME.f", s.resolve("f").toString());
 		FunctionCaseDefn c1 = f.cases.get(0);
-		assertEquals("ME.f", c1.innerScope().resolve("f"));
-		assertEquals("ME.f_0.g", c1.innerScope().resolve("g"));
+		assertEquals("ME.f", c1.innerScope().resolve("f").toString());
+		assertEquals("ME.f_0.g", c1.innerScope().resolve("g").toString());
 		assertEquals(1, c1.innerScope().size());
 		HSIEForm form = HSIE.handle(f);
 		HSIETestData.assertHSIE(HSIETestData.mutualF(), form);
@@ -63,22 +64,21 @@ public class FlasStoryTests {
 	@Test
 	public void testProcessingAMultiPartFunctionWithSeparateNestedScopes() throws IOException {
 		Object o = new FLASStory().process("ME", BlockTestData.splitNestedBlocks());
-		System.out.println(o);
-//		((ErrorResult)o).showTo(new PrintWriter(System.out));
 		assertNotNull(o);
-		assertTrue(o instanceof Scope);
-		Scope s = (Scope) o;
-		s = rewriter.rewrite(s);
+		assertTrue(o instanceof ScopeEntry);
+		ScopeEntry se = (ScopeEntry) o;
+		rewriter.rewrite(se);
+		Scope s = ((PackageDefn)se.getValue()).innerScope();
 		assertEquals(1, s.size());
 		FunctionDefinition f = (FunctionDefinition) s.get("f");
 		assertEquals(2, f.cases.size());
 		FunctionCaseDefn c1 = f.cases.get(0);
 		FunctionCaseDefn c2 = f.cases.get(1);
-		assertEquals("ME.f", s.resolve("f"));
-		assertEquals("ME.f", c1.innerScope().resolve("f"));
-		assertEquals("ME.f", c2.innerScope().resolve("f"));
-		assertEquals("ME.f_0.g", c1.innerScope().resolve("g"));
-		assertEquals("ME.f_1.g", c2.innerScope().resolve("g"));
+		assertEquals("ME.f", s.resolve("f").toString());
+		assertEquals("ME.f", c1.innerScope().resolve("f").toString());
+		assertEquals("ME.f", c2.innerScope().resolve("f").toString());
+		assertEquals("ME.f_0.g", c1.innerScope().resolve("g").toString());
+		assertEquals("ME.f_1.g", c2.innerScope().resolve("g").toString());
 		assertEquals(1, c1.innerScope().size());
 		assertEquals(1, c2.innerScope().size());
 		HSIEForm form = HSIE.handle(f);
@@ -99,8 +99,10 @@ public class FlasStoryTests {
 	public void testLiftingOfCardMethods() throws Exception {
 		Object o = new FLASStory().process("ME", BlockTestData.cardWithMethods());
 		assertNotNull(o);
-		assertTrue(o instanceof Scope);
-		Scope s = rewriter.rewrite((Scope)o);
+		assertTrue(o instanceof ScopeEntry);
+		ScopeEntry se = (ScopeEntry) o;
+		rewriter.rewrite(se);
+		Scope s = ((PackageDefn)se.getValue()).innerScope();
 		assertEquals(2, s.size());
 		CardDefinition cd = (CardDefinition) s.get("Mycard");
 		assertNotNull(cd.state);
@@ -112,12 +114,12 @@ public class FlasStoryTests {
 		EventHandlerDefinition action = (EventHandlerDefinition) is.get("action");
 		
 		// NOTE: this is now writing back into the card's "inner scope"
-		render = rewriter.rewriteFunction(cd.innerScope(), cd, render);
-		assertNotNull(render);
+//		render = rewriter.rewriteFunction(cd.innerScope(), cd, render);
+//		assertNotNull(render);
 		render.dumpTo(new PrintWriter(System.out));
-		assertEquals("ME.Mycard.prototype.render", render.name);
+		assertEquals("ME.Mycard.render", render.name);
 
-		FunctionDefinition actionFD = MethodConvertor.convert(action.intro.name, rewriter.rewriteEventHandler(cd.innerScope(), cd, action));
+		FunctionDefinition actionFD = MethodConvertor.convert(action.intro.name, action);
 		assertNotNull(actionFD);
 		actionFD.dumpTo(new PrintWriter(System.out));
 	}

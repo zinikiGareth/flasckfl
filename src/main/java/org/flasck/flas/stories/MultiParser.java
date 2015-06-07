@@ -2,19 +2,19 @@ package org.flasck.flas.stories;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.TryParsing;
+import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.reflection.Reflection;
 
 
 public class MultiParser {
 	private final Class<? extends TryParsing>[] klz;
-	private Scope scope;
+	private final State state;
 
 	@SafeVarargs
-	public MultiParser(Scope scope, Class<? extends TryParsing>... klz) {
-		this.scope = scope;
+	public MultiParser(State state, Class<? extends TryParsing>... klz) {
+		this.state = state;
 		this.klz = klz;
 	}
 
@@ -23,7 +23,7 @@ public class MultiParser {
 		ErrorResult firstError = null;
 		for (Class<? extends TryParsing> k : klz) {
 			line.reset(0);
-			Object o = Reflection.create(k, scope).tryParsing(line);
+			Object o = Reflection.create(k, state).tryParsing(line);
 			if (o == null)
 				continue;
 			else if (o instanceof ErrorResult && firstError == null)

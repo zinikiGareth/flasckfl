@@ -222,6 +222,7 @@ public class Rewriter {
 			for (StructField sf : cd.state.fields)
 				ret.state.fields.add(rewrite(cx, sf));
 		}
+		ret.template = cd.template;
 		for (ContractImplements ci : cd.contracts) {
 			ret.contracts.add(rewriteCI(c2, ci));
 		}
@@ -293,7 +294,9 @@ public class Rewriter {
 		List<EventCaseDefn> list = new ArrayList<EventCaseDefn>();
 		int cs = 0;
 		for (EventCaseDefn c : ehd.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name, cs, new HashSet<String>(), c.innerScope()), c));
+			Set<String> locals = new HashSet<String>();
+			ehd.intro.gatherVars(locals);
+			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name, cs, locals, c.innerScope()), c));
 			cs++;
 		}
 		return new EventHandlerDefinition(ehd.intro, list);
@@ -377,7 +380,7 @@ public class Rewriter {
 				else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(s);
-				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember)
+				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember || ret instanceof ObjectRelative)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());
@@ -393,15 +396,18 @@ public class Rewriter {
 					UnresolvedVar field = (UnresolvedVar)ae.args.get(1);
 					// The case where we have an absolute var by package name
 					if (!(ae.args.get(0) instanceof ApplyExpr)) {
-						String pkg = ((UnresolvedVar)ae.args.get(0)).var;
-	//					System.out.println("is: " + scope.get(pkg));
-						/*
-						if (cx.get(pkg) instanceof PackageDefn) {
-	//						System.out.println("pkg " + pkg);
-							return new AbsoluteVar(pkg + "." + field.var);
+						String pkgVar = ((UnresolvedVar)ae.args.get(0)).var;
+						Object pkgEntry = cx.resolve(pkgVar);
+						if (!(pkgEntry instanceof AbsoluteVar)) {
+							errors.message((Block)null, pkgVar + " is not a package name");
+							return null;
 						}
-						*/
-						throw new UtilException("Handle this case");
+						Object o = ((AbsoluteVar)pkgEntry).defn;
+						if (!(o instanceof PackageDefn)) {
+							errors.message((Block)null, pkgVar + " is not a package name");
+							return null;
+						}
+						return new AbsoluteVar(((PackageDefn)o).innerScope().getEntry(field.var));
 					}
 					
 					// expr . field

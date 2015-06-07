@@ -7,15 +7,16 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 
 public class FunctionParser implements TryParsing {
-	private final Scope scope;
+	private final State state;
 
-	public FunctionParser(Scope scope) {
-		this.scope = scope;
+	public FunctionParser(State state) {
+		this.state = state;
 	}
 	
 	@Override
@@ -67,7 +68,7 @@ public class FunctionParser implements TryParsing {
 			return ErrorResult.oneMessage(line, "unexpected tokens at end of line");
 
 		// Build a response object
-		return new FunctionCaseDefn(scope, name, args, expr);
+		return new FunctionCaseDefn(state.scope, state.withPkg(name), args, expr);
 	}
 
 }

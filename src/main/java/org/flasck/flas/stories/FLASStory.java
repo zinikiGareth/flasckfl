@@ -58,6 +58,11 @@ public class FLASStory implements StoryProcessor {
 				return name;
 			return pkg +"." + name;
 		}
+
+		public String simpleName(String key) {
+			int idx = key.lastIndexOf(".");
+			return key.substring(idx+1);
+		}
 	}
 
 	@Override
@@ -76,13 +81,15 @@ public class FLASStory implements StoryProcessor {
 			return null;
 
 		Scope ret = s.scope;
-		List<Object> fndefns = new ArrayList<Object>();
+		List<FunctionCaseDefn> fndefns = new ArrayList<FunctionCaseDefn>();
+		String lastFn = null;
+		int cs = 0;
 		for (Block b : blocks) {
 			if (b.isComment())
 				continue;
 			
 			// TODO: if it's a "package", deal with that ... and all blocks must either be or not be packages
-			Object o = new MultiParser(ret, IntroParser.class, FunctionParser.class).parse(b);
+			Object o = new MultiParser(s, IntroParser.class, FunctionParser.class).parse(b);
 			if (o == null) {
 				System.out.println("Could not parse " + b.line.text());
 				er.message(new Tokenizable(b), "syntax error");
@@ -93,9 +100,14 @@ public class FLASStory implements StoryProcessor {
 				continue;
 			}
 			if (o instanceof FunctionCaseDefn) {
-				fndefns.add(o);
+				FunctionCaseDefn fcd = (FunctionCaseDefn)o;
+				fndefns.add(fcd);
+				if (lastFn != null && !fcd.intro.name.equals(lastFn)) {
+					lastFn = fcd.intro.name;
+					cs = 0;
+				}
 				if (!b.nested.isEmpty()) {
-					doScope(er, new State(((ContainsScope)o).innerScope(), s.pkg +"." + ((FunctionCaseDefn)o).intro.name), b.nested);
+					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+(cs++)), b.nested);
 				}
 			} else if (o instanceof StructDefn) {
 				StructDefn sd = (StructDefn)o;
@@ -116,8 +128,8 @@ public class FLASStory implements StoryProcessor {
 				if (ret.contains(cd.name))
 					er.message(b, "duplicate definition for name " + cd.name);
 				else
-					ret.define(cd.name, s.withPkg(cd.name), cd);
-				doCardDefinition(er, s, cd, b.nested);
+					ret.define(s.simpleName(cd.name), cd.name, cd);
+				doCardDefinition(er, new State(cd.innerScope(), cd.name), cd, b.nested);
 			} else
 				throw new UtilException("Need to handle " + o.getClass());
 		}
@@ -131,29 +143,26 @@ public class FLASStory implements StoryProcessor {
 		return ret;
 	}
 
-	protected void gatherFunctions(ErrorResult er, State s, Scope ret, List<Object> fndefns) {
+	protected void gatherFunctions(ErrorResult er, State s, Scope ret, List<FunctionCaseDefn> fndefns) {
 		ListMap<String, FunctionCaseDefn> groups = new ListMap<String, FunctionCaseDefn>();
 		String cfn = null;
 		int pnargs = 0;
-		for (Object o : fndefns) {
-			if (o instanceof FunctionCaseDefn) {
-				// group together all function defns for a given function
-				FunctionCaseDefn fcd = (FunctionCaseDefn)o;
-				String n = fcd.intro.name;
-				if (cfn == null || !cfn.equals(n)) {
-					cfn = n;
-					pnargs = fcd.intro.args.size();
-					if (groups.contains(cfn))
-						er.message((Tokenizable)null, "split definition of function " + cfn);
-					else if (ret.contains(cfn))
-						er.message((Tokenizable)null, "duplicate definition of " + cfn);
-				} else if (fcd.intro.args.size() != pnargs)
-					er.message((Block)null, "inconsistent numbers of arguments in definitions of " + cfn);
-				groups.add(cfn, fcd);
-			}
+		for (FunctionCaseDefn fcd : fndefns) {
+			// group together all function defns for a given function
+			String n = fcd.intro.name;
+			if (cfn == null || !cfn.equals(n)) {
+				cfn = n;
+				pnargs = fcd.intro.args.size();
+				if (groups.contains(cfn))
+					er.message((Tokenizable)null, "split definition of function " + cfn);
+				else if (ret.contains(cfn))
+					er.message((Tokenizable)null, "duplicate definition of " + cfn);
+			} else if (fcd.intro.args.size() != pnargs)
+				er.message((Block)null, "inconsistent numbers of arguments in definitions of " + cfn);
+			groups.add(cfn, fcd);
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			ret.define(x.getKey(), s.withPkg(x.getKey()), new FunctionDefinition(x.getValue().get(0).intro, x.getValue()));
+			ret.define(s.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(x.getValue().get(0).intro, x.getValue()));
 		}
 	}
 
@@ -248,8 +257,8 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
-		IntroParser ip = new IntroParser(s.scope);
-		List<Object> functions = new ArrayList<Object>();
+		IntroParser ip = new IntroParser(s);
+		List<FunctionCaseDefn> functions = new ArrayList<FunctionCaseDefn>();
 		List<EventCaseDefn> events = new ArrayList<EventCaseDefn>();
 		for (Block b : components) {
 			if (b.isComment())
@@ -257,7 +266,7 @@ public class FLASStory implements StoryProcessor {
 			Tokenizable tkz = new Tokenizable(b);
 			Object o = ip.tryParsing(tkz);
 			if (o == null) {
-				o = new FunctionParser(s.scope).tryParsing(new Tokenizable(b));
+				o = new FunctionParser(s).tryParsing(new Tokenizable(b));
 				if (o  == null) {
 					er.message(tkz, "must have valid card component definition here");
 					continue;
@@ -362,7 +371,7 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested) {
-		FunctionParser fp = new FunctionParser(s.scope);
+		FunctionParser fp = new FunctionParser(s);
 		List<MethodCaseDefn> cases = new ArrayList<MethodCaseDefn>();
 		for (Block b : nested) {
 			if (b.isComment())

@@ -52,9 +52,7 @@ public class MethodConvertor {
 		if (mm.slot != null) {
 			// we want an assign message
 			String slot = mm.slot.get(0);
-			if (!slot.startsWith("_card.") && !slot.startsWith("this."))
-				throw new UtilException("slots must be in the card state");
-			slot = slot.substring(6);
+			// TODO: somebody should check it really is a slot
 			return new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Assign")), ItemExpr.from(new ExprToken(ExprToken.STRING, slot)), mm.expr);
 		} else {
 			// we want some kind of invoke message

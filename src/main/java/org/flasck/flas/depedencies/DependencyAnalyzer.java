@@ -55,7 +55,7 @@ public class DependencyAnalyzer {
 					String realname = "_var_" + name+"__"+v;
 					dcg.ensure(realname);
 					dcg.ensureLink(realname, name);
-					varMap.put("_scoped."+v, realname);
+					varMap.put(v, realname);
 				}
 				analyzeExpr(dcg, name, varMap, locals, c.expr);
 			}

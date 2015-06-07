@@ -20,7 +20,7 @@ public class SubstExpr {
 
 	public SubstExpr alsoSub(Map<String, Var> map) {
 		for (Entry<String, Var> x : map.entrySet())
-			subst("_scoped." + x.getKey(), x.getValue());
+			subst(x.getKey(), x.getValue());
 		return this;
 	}
 

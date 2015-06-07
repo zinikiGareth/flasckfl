@@ -9,8 +9,8 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -18,10 +18,10 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
 public class IntroParser implements TryParsing {
-	private final Scope scope;
+	private final State state;
 
-	public IntroParser(Scope scope) {
-		this.scope = scope;
+	public IntroParser(State state) {
+		this.state = state;
 	}
 	
 	@Override
@@ -60,7 +60,7 @@ public class IntroParser implements TryParsing {
 			String tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid card name");
-			return new CardDefinition(scope, tn);
+			return new CardDefinition(state.scope, state.withPkg(tn));
 		}
 		case "state":
 			return "state";
@@ -95,7 +95,7 @@ public class IntroParser implements TryParsing {
 			return new HandlerImplements(tn, lambdas);
 		}
 		case "event": {
-			Object o = new FunctionParser(scope).tryParsing(line);
+			Object o = new FunctionParser(state).tryParsing(line);
 			if (o == null)
 				return ErrorResult.oneMessage(line, "syntax error");
 			else if (o instanceof ErrorResult)
