@@ -7,8 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.flasck.flas.ErrorResult;
-import org.flasck.flas.Rewriter;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.method.MethodConvertor;
@@ -17,6 +16,7 @@ import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Test;

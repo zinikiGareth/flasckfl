@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.flasck.flas.ErrorResult;
-import org.flasck.flas.Rewriter;
 import org.flasck.flas.depedencies.DependencyAnalyzer;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.stories.FLASStory;
 import org.junit.Test;

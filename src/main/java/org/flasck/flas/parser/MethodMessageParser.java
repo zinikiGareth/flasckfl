@@ -3,7 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.ErrorResult;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.tokenizers.MessageToken;
 import org.flasck.flas.tokenizers.Tokenizable;

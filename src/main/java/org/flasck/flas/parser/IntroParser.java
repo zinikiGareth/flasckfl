@@ -2,7 +2,7 @@ package org.flasck.flas.parser;
 
 import java.util.ArrayList;
 
-import org.flasck.flas.ErrorResult;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;

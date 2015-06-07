@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 
-import org.flasck.flas.ErrorResult;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.TemplateAttributeVar;

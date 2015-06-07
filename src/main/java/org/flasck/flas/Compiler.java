@@ -15,6 +15,8 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.depedencies.DependencyAnalyzer;
 import org.flasck.flas.dom.DomFunctionGenerator;
+import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
@@ -33,6 +35,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -91,7 +94,7 @@ public class Compiler {
 				throw new ErrorResultException((ErrorResult)obj);
 			} else if (obj instanceof Scope) {
 				Scope scope = (Scope) obj;
-				scope = rewriter.rewrite(scope);
+				scope = rewriter.rewrite(scope, inPkg);
 				if (errors.hasErrors())
 					throw new ErrorResultException(errors);
 //				List<String> pkglist = emitPackages(forms, scope, inPkg);

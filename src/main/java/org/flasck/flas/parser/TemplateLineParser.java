@@ -3,7 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.ErrorResult;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.TemplateAttributeVar;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;

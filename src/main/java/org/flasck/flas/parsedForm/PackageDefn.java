@@ -6,7 +6,7 @@ public class PackageDefn implements ContainsScope {
 
 	public PackageDefn(Scope scope, String pn) {
 		this.name = pn;
-		this.scope = new Scope(scope);
+		this.scope = new Scope(scope.define(pn, scope.fullName(pn), this));
 	}
 
 	@Override

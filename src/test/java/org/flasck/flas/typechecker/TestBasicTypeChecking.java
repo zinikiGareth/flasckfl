@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
-import org.flasck.flas.ErrorResult;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;

@@ -1,4 +1,4 @@
-package org.flasck.flas;
+package org.flasck.flas.rewriter;
 
 @SuppressWarnings("serial")
 public class ResolutionException extends RuntimeException {

@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.flasck.flas.ResolutionException;
+import org.flasck.flas.rewriter.ResolutionException;
 import org.zinutils.exceptions.UtilException;
 
 public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
@@ -34,34 +34,47 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 			this.defn = value;
 			return defn;
 		}
+		
+		public Scope scope() {
+			return Scope.this;
+		}
 	}
 
 	public final Scope outer;
 	private final Map<String, Map.Entry<String, Object>> defns = new TreeMap<String, Map.Entry<String, Object>>();
+	public ScopeEntry outerEntry;
 
+	@Deprecated
 	public Scope(Scope inside) {
 		this.outer = inside;
+	}
+	
+	public Scope(ScopeEntry inside) {
+		this.outer = null;
+		this.outerEntry = inside;
 	}
 	
 	public boolean contains(String key) {
 		return defns.containsKey(key);
 	}
 
-	public void define(String key, String name, Object defn) {
+	public ScopeEntry define(String key, String name, Object defn) {
 		if (defns.containsKey(key))
 			throw new UtilException("Cannot provide multiple definitions of " + name);
-		defns.put(key, new ScopeEntry(name, defn));
+		ScopeEntry ret = new ScopeEntry(name, defn);
+		defns.put(key, ret);
+		return ret;
 	}
 
 	public int size() {
 		return defns.size();
 	}
 
-	public String resolve(String name) {
+	public Object resolve(String name) {
 		if (name.contains("."))
 			return name;
 		if (defns.containsKey(name))
-			return defns.get(name).getKey();
+			return new AbsoluteVar(defns.get(name).getKey());
 		try {
 			if (outer != null)
 				return outer.resolve(name);
@@ -102,5 +115,11 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 		if (resolvedName.contains("."))
 			throw new UtilException("Not yet");
 		return get(resolvedName);
+	}
+
+	public String fullName(String name) {
+		if (outerEntry != null)
+			return outerEntry.name + "." + name;
+		return name;
 	}
 }

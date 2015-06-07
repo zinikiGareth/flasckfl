@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.errors.ErrorResult;
 import org.zinutils.exceptions.UtilException;
 
 public class PhiSolution {

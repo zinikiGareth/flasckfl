@@ -6,12 +6,12 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
+import org.flasck.flas.errors.ErrorResult;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 

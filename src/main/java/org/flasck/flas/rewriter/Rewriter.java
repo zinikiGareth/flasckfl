@@ -1,4 +1,4 @@
-package org.flasck.flas;
+package org.flasck.flas.rewriter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -20,12 +21,14 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
+import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -33,8 +36,6 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parser.ItemExpr;
-import org.flasck.flas.tokenizers.ExprToken;
 import org.zinutils.exceptions.UtilException;
 
 /** The objective of this class is to resolve all of the names of all of the
@@ -61,16 +62,16 @@ public class Rewriter {
 			defines.add(s);
 		}
 		
-		public String resolve(String name) {
+		public Object resolve(String name) {
 			if (defines.contains(name)) {
 				return this.makeName(name);
 			} else
 				return nested.resolve(name);
 		}
 
-		protected abstract String makeName(String name);
+		protected abstract Object makeName(String name);
 
-		public String makeAbsoluteName(String name) {
+		public Object makeAbsoluteName(String name) {
 			return makeName(name);
 		}
 
@@ -78,14 +79,20 @@ public class Rewriter {
 		public Object get(String resolvedName) {
 			return nested.get(resolvedName);
 		}
+
+		public String makeScopedName(String name) {
+			throw new UtilException("I don't think that can be here");
+		}
 	}
 	
 	class RootContext extends NamingContext {
-		private Scope scope;
+		private ScopeEntry iam;
 
-		public RootContext(Scope scope) {
+		public RootContext(ScopeEntry scope) {
 			super(null);
-			this.scope = scope;
+			if (scope == null)
+				throw new UtilException("but no");
+			this.iam = scope;
 		}
 
 		@Override
@@ -94,19 +101,24 @@ public class Rewriter {
 		}
 
 		@Override
-		public String resolve(String name) {
-			return scope.resolve(name);
+		public Object resolve(String name) {
+			return iam.scope().resolve(name);
 		}
 
 		@Override
-		protected String makeName(String name) {
+		protected Object makeName(String name) {
 //			throw new UtilException("Cannot have names in this scope");
-			return scope.resolve(name);
+			return iam.scope().resolve(name);
 		}
 
 		/* Hard get a resolved name from the scope */
 		public Object get(String resolvedName) {
-			return scope.getResolved(resolvedName);
+			return iam.scope().getResolved(resolvedName);
+		}
+
+		@Override
+		public String makeScopedName(String name) {
+			return iam.getKey() + "." + name;
 		}
 	}
 	
@@ -133,7 +145,7 @@ public class Rewriter {
 		}
 
 		@Override
-		public String resolve(String name) {
+		public Object resolve(String name) {
 			if (innerScope.contains(name)) {
 				return makeAbsoluteName(name);
 			}
@@ -144,7 +156,7 @@ public class Rewriter {
 		}
 		
 		@Override
-		public String makeAbsoluteName(String name) {
+		public Object makeAbsoluteName(String name) {
 			Object defn = innerScope.get(name);
 			if (defn instanceof EventHandlerDefinition || defn instanceof FunctionDefinition)
 				return prefix + ".prototype." + name;
@@ -152,7 +164,7 @@ public class Rewriter {
 		}
 		
 		@Override
-		protected String makeName(String name) {
+		protected Object makeName(String name) {
 			return "_card."+name;
 		}
 	}
@@ -164,7 +176,7 @@ public class Rewriter {
 		}
 
 		@Override
-		public String resolve(String name) {
+		public Object resolve(String name) {
 			String base = super.resolve(name);
 			if (base.startsWith("_card"))
 				return base.replace("_card", "this");
@@ -172,7 +184,7 @@ public class Rewriter {
 		}
 		
 		@Override
-		protected String makeName(String name) {
+		protected Object makeName(String name) {
 			return nested.makeName(name);
 		}
 
@@ -184,7 +196,7 @@ public class Rewriter {
 		}
 
 		@Override
-		protected String makeName(String name) {
+		protected Object makeName(String name) {
 			return "_handler."+name;
 		}
 	}
@@ -193,11 +205,11 @@ public class Rewriter {
 		private final String myname;
 		protected final Set<String> locals = new HashSet<String>();
 
-		FunctionContext(NamingContext cx, Scope scope, String myname, int cs) {
+		FunctionContext(NamingContext cx, Scope myscope, String myname, int cs) {
 			super(cx);
-			this.myname = cx.makeAbsoluteName(myname) +"_"+cs;
-			if (scope != null) {
-				for (String k : scope.keys())
+			this.myname = cx.makeScopedName(myname) +"_"+cs;
+			if (myscope != null) {
+				for (String k : myscope.keys())
 					add(k);
 			}
 		}
@@ -213,12 +225,12 @@ public class Rewriter {
 			super.add(s);
 		}
 		
-		public String resolveWithLocal(String name, boolean direct) {
+		public Object resolveWithLocal(String name, boolean direct) {
 			if (locals.contains(name)) {
 				if (direct)
-					return name;
+					return new LocalVar(name);
 				else
-					return "_scoped." + name;
+					return new LocalVar(name); // do we need to have something to distinguish this (nested) case?
 			} else if (defines.contains(name))
 				return makeName(name);
 			else if (nested instanceof FunctionContext)
@@ -228,23 +240,32 @@ public class Rewriter {
 		}
 		
 		@Override
-		public String resolve(String name) {
+		public Object resolve(String name) {
 			return resolveWithLocal(name, true);
 		}
 		
 		@Override
-		protected String makeName(String name) {
+		protected Object makeName(String name) {
 			return myname + "." + name;
 		}
+
+		@Override
+		public String makeScopedName(String name) {
+			return myname + "." + name;
+		}
+		
+		
 	}
 
 	public Rewriter(ErrorResult errors) {
 		this.errors = errors;
 	}
 	
-	public Scope rewrite(Scope scope) {
-		Scope newScope = new Scope(scope.outer);
-		rewriteScope(new RootContext(scope), scope, newScope);
+	public Scope rewrite(Scope scope, String inPkg) {
+		ScopeEntry entry = scope.outerEntry;
+		Scope newScope = new Scope(entry);
+		rewriteScope(new RootContext(entry), scope, newScope);
+		entry.setValue(newScope);
 		return newScope;
 	}
 
@@ -329,7 +350,7 @@ public class Rewriter {
 			list.add(rewrite(new FunctionContext(c2, c.innerScope(), f.name, cs), c));
 			cs++;
 		}
-		FunctionDefinition ret = new FunctionDefinition(cx.makeAbsoluteName(f.name), f.nargs, list);
+		FunctionDefinition ret = new FunctionDefinition(cx.makeScopedName(f.name), f.nargs, list);
 		return ret;
 	}
 
@@ -381,18 +402,21 @@ public class Rewriter {
 		return ret;
 	}
 
-	private FunctionIntro rewrite(NamingContext scope, FunctionIntro intro) {
+	private FunctionIntro rewrite(NamingContext cx, FunctionIntro intro) {
 		List<Object> args = new ArrayList<Object>();
 		for (Object o : intro.args) {
-			args.add(rewritePattern(scope, o));
+			args.add(rewritePattern(cx, o));
 		}
-		return new FunctionIntro(scope.makeName(intro.name), args);
+		return new FunctionIntro(cx.makeScopedName(intro.name), args);
 	}
 
 	private Object rewritePattern(NamingContext scope, Object o) {
 		if (o instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) o;
-			return new TypedPattern(scope.resolve(tp.type), tp.var);
+			Object type = scope.resolve(tp.type);
+			if (!(type instanceof AbsoluteVar))
+				errors.message((Block)null, "could not handle " + type);
+			return new TypedPattern(((AbsoluteVar)type).id, tp.var);
 		} else if (o instanceof VarPattern) {
 			return o;
 		} else {
@@ -432,6 +456,8 @@ public class Rewriter {
 					throw new UtilException("Huh?");
 				Object ret = scope.resolve(s);
 				if (ret instanceof AbsoluteVar)
+					return ret;
+				else if (ret instanceof LocalVar)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());

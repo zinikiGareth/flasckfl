@@ -1,4 +1,4 @@
-package org.flasck.flas;
+package org.flasck.flas.errors;
 
 @SuppressWarnings("serial")
 public class ErrorResultException extends Exception {

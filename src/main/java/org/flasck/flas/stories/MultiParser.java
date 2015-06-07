@@ -1,7 +1,7 @@
 package org.flasck.flas.stories;
 
-import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.TryParsing;
 import org.flasck.flas.tokenizers.Tokenizable;

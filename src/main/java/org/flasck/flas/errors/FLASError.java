@@ -1,4 +1,4 @@
-package org.flasck.flas;
+package org.flasck.flas.errors;
 
 import org.flasck.flas.blockForm.InputPosition;
 

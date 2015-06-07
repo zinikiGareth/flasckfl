@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.flasck.flas.ErrorResult;
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -25,6 +25,7 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -153,7 +154,7 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	public static Scope builtinScope() {
-		Scope ret = new Scope(null);
+		Scope ret = new Scope((ScopeEntry)null);
 		{ // core
 			ret.define(".", "FLEval.field", 
 				Type.function(Type.polyvar("A"), Type.simple("String"), Type.polyvar("B")));
@@ -198,7 +199,6 @@ public class FLASStory implements StoryProcessor {
 		}
 		{ // DOM
 			PackageDefn dom = new PackageDefn(ret, "DOM");
-			ret.define("DOM", "DOM", dom);
 			dom.innerScope().define("Element", "DOM.Element",
 				new StructDefn("DOM.Element")
 				.addField(new StructField(new TypeReference("String"), "tag"))
