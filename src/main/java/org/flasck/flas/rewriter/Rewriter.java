@@ -33,6 +33,7 @@ import org.flasck.flas.parsedForm.ObjectRelative;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -199,9 +200,9 @@ public class Rewriter {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
 			if (val instanceof CardDefinition)
-				into.define(x.getKey(), name, rewriteCard(cx, into, x, name, (CardDefinition)val));
+				into.define(x.getKey(), name, rewriteCard(cx, into, (CardDefinition)val));
 			else if (val instanceof FunctionDefinition)
-				into.define(x.getKey(), rewrite(cx, (FunctionDefinition)val).name, rewrite(cx, (FunctionDefinition)val));
+				into.define(x.getKey(), ((FunctionDefinition)val).name, rewrite(cx, (FunctionDefinition)val));
 			else {
 //				System.out.println("Don't do anything to rewrite " + name + " of type " + val.getClass());
 				into.define(x.getKey(), name, val);
@@ -209,27 +210,24 @@ public class Rewriter {
 		}
 	}
 
-	private CardDefinition rewriteCard(NamingContext cx, Scope into, Entry<String, Entry<String, Object>> x, String name, CardDefinition cd) {
+	private CardDefinition rewriteCard(NamingContext cx, Scope into, CardDefinition cd) {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope");
 		CardContext c2 = new CardContext((PackageContext) cx, cd);
+		CardDefinition ret = new CardDefinition(into, cd.name);
 		if (cd.state != null) {
-			List<StructField> l = new ArrayList<StructField>(cd.state.fields);
-			cd.state.fields.clear();
-			for (StructField sf : l)
-				cd.state.fields.add(rewrite(cx, sf));
+			ret.state = new StateDefinition();
+			for (StructField sf : cd.state.fields)
+				ret.state.fields.add(rewrite(cx, sf));
 		}
-		List<ContractImplements> l = new ArrayList<ContractImplements>(cd.contracts);
-		cd.contracts.clear();
-		for (ContractImplements ci : l) {
-			cd.contracts.add(rewriteCI(c2, ci));
+		for (ContractImplements ci : cd.contracts) {
+			ret.contracts.add(rewriteCI(c2, ci));
 		}
-		List<HandlerImplements> ll = new ArrayList<HandlerImplements>(cd.handlers);
-		cd.handlers.clear();
-		for (HandlerImplements hi : ll) {
-			cd.handlers.add(rewriteHI(c2, hi));
+		for (HandlerImplements hi : cd.handlers) {
+			ret.handlers.add(rewriteHI(c2, hi));
 		}
-		return cd;
+		rewriteScope(c2, cd.fnScope, ret.fnScope);
+		return ret;
 	}
 
 	public static String basename(String type) {
@@ -381,9 +379,7 @@ public class Rewriter {
 				else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(s);
-				if (ret instanceof AbsoluteVar)
-					return ret;
-				else if (ret instanceof LocalVar)
+				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());
