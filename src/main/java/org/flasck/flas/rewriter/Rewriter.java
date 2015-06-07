@@ -7,12 +7,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
@@ -20,12 +22,14 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
+import org.flasck.flas.parsedForm.ObjectRelative;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -51,258 +55,181 @@ public class Rewriter {
 	private ErrorResult errors;
 
 	private abstract class NamingContext {
-		protected final Set<String> defines = new HashSet<String>();
 		protected final NamingContext nested;
 		
 		public NamingContext(NamingContext inner) {
 			this.nested = inner;
 		}
 
-		public void add(String s) {
-			defines.add(s);
-		}
-		
-		public Object resolve(String name) {
-			if (defines.contains(name)) {
-				return this.makeName(name);
-			} else
-				return nested.resolve(name);
-		}
-
-		protected abstract Object makeName(String name);
-
-		public Object makeAbsoluteName(String name) {
-			return makeName(name);
-		}
-
-		/* Hard get a resolved name from the scope */
-		public Object get(String resolvedName) {
-			return nested.get(resolvedName);
-		}
-
-		public String makeScopedName(String name) {
-			throw new UtilException("I don't think that can be here");
-		}
+		public abstract Object resolve(String name);
 	}
-	
+
+	/** The Root Context exists exactly one time to include the BuiltinScope and nothing else
+	 */
 	class RootContext extends NamingContext {
-		private ScopeEntry iam;
+		private final Scope biscope;
 
-		public RootContext(ScopeEntry scope) {
+		public RootContext(Scope biscope) {
 			super(null);
-			if (scope == null)
+			if (biscope == null)
 				throw new UtilException("but no");
-			this.iam = scope;
-		}
-
-		@Override
-		public void add(String s) {
-			throw new UtilException("Cannot add names to this scope");
+			this.biscope = biscope;
 		}
 
 		@Override
 		public Object resolve(String name) {
-			return iam.scope().resolve(name);
-		}
-
-		@Override
-		protected Object makeName(String name) {
-//			throw new UtilException("Cannot have names in this scope");
-			return iam.scope().resolve(name);
-		}
-
-		/* Hard get a resolved name from the scope */
-		public Object get(String resolvedName) {
-			return iam.scope().getResolved(resolvedName);
-		}
-
-		@Override
-		public String makeScopedName(String name) {
-			return iam.getKey() + "." + name;
+			if (biscope.contains(name))
+				return new AbsoluteVar(biscope.getEntry(name));
+			throw new ResolutionException(name);
 		}
 	}
-	
+
+	/** The Package Context represents one package which must exist exactly in the builtin scope
+	 */
+	class PackageContext extends NamingContext {
+		private PackageDefn pkg;
+
+		public PackageContext(RootContext cx, PackageDefn pkg) {
+			super(cx);
+			this.pkg = pkg;
+		}
+
+		@Override
+		public Object resolve(String name) {
+			if (pkg.innerScope().contains(name))
+				return new AbsoluteVar(pkg.innerScope().getEntry(name));
+			return nested.resolve(name);
+		}
+	}
+
+	/** The Card Context can only be found directly in a Package Context 
+	 */
 	class CardContext extends NamingContext {
-		public Map<String, Integer> globals = new TreeMap<String, Integer>();
 		private final String prefix;
+		private final Set<String> members = new TreeSet<String>();
+		private final Map<String, Integer> statics = new TreeMap<String, Integer>();
 		private final Scope innerScope;
 
-		CardContext(RootContext scope, CardDefinition cd) {
-			super(scope);
-			this.prefix = scope.resolve(cd.name);
+		CardContext(PackageContext cx, CardDefinition cd) {
+			super(cx);
+			this.prefix = cd.name;
 			this.innerScope = cd.innerScope();
 			if (cd.state != null) {
 				for (StructField sf : cd.state.fields)
-					add(sf.name);
+					members.add(sf.name);
 			}
 			for (ContractImplements ci : cd.contracts) {
-				add(ci.referAsVar);
+				members.add(ci.referAsVar);
 			}
 			int pos = 0;
 			for (HandlerImplements hi : cd.handlers) {
-				globals.put(basename(hi.type), pos++);
+				statics.put(basename(hi.type), pos++);
 			}
 		}
 
 		@Override
 		public Object resolve(String name) {
-			if (innerScope.contains(name)) {
-				return makeAbsoluteName(name);
-			}
-			if (globals.containsKey(name))
-				return prefix + "._H" + globals.get(name);
-			else
-				return super.resolve(name);
-		}
-		
-		@Override
-		public Object makeAbsoluteName(String name) {
-			Object defn = innerScope.get(name);
-			if (defn instanceof EventHandlerDefinition || defn instanceof FunctionDefinition)
-				return prefix + ".prototype." + name;
-			return prefix + "." + name;
-		}
-		
-		@Override
-		protected Object makeName(String name) {
-			return "_card."+name;
+			if (members.contains(name))
+				return new CardMember(name);
+			if (statics.containsKey(name))
+				return new ObjectRelative(prefix, "_H" + statics.get(name));
+			if (innerScope.contains(name))
+				return new ObjectRelative(prefix, name);
+			return nested.resolve(name);
 		}
 	}
 
-	class RenameCardToThis extends NamingContext {
-
-		public RenameCardToThis(NamingContext cx) {
-			super(cx);
-		}
-
-		@Override
-		public Object resolve(String name) {
-			String base = super.resolve(name);
-			if (base.startsWith("_card"))
-				return base.replace("_card", "this");
-			return base;
-		}
-		
-		@Override
-		protected Object makeName(String name) {
-			return nested.makeName(name);
-		}
-
-	}
-
+	/** The Handler Context can only be in a Card Context
+	 */
 	class HandlerContext extends NamingContext {
-		HandlerContext(CardContext card) {
-			super(card);
-		}
+		private final HandlerImplements hi;
 
+		HandlerContext(CardContext card, HandlerImplements hi) {
+			super(card);
+			this.hi = hi;
+		}
+		
 		@Override
-		protected Object makeName(String name) {
-			return "_handler."+name;
+		public Object resolve(String name) {
+			if (hi.boundVars.contains(name))
+				return new HandlerLambda(name);
+			return nested.resolve(name);
 		}
 	}
 	
-	class FunctionContext extends NamingContext {
+	// I think I still need ImplementsContext, MethodContext and EventHandlerContext
+	// BUT I think the latter two can just be FunctionContext & ImplementsContext is dull
+	
+	/** A function context can appear in lots of places, including inside other functions
+	 */
+	class FunctionCaseContext extends NamingContext {
 		private final String myname;
-		protected final Set<String> locals = new HashSet<String>();
+		protected final Set<String> bound;
+		private final Scope inner;
 
-		FunctionContext(NamingContext cx, Scope myscope, String myname, int cs) {
+		FunctionCaseContext(NamingContext cx, String myname, int cs, Set<String> locals, Scope inner) {
 			super(cx);
-			this.myname = cx.makeScopedName(myname) +"_"+cs;
-			if (myscope != null) {
-				for (String k : myscope.keys())
-					add(k);
-			}
+			this.myname = myname +"_"+cs;
+			this.bound = locals;
+			this.inner = inner;
 		}
 
-		@Override
-		public void add(String s) {
-			NamingContext nc = this;
-			while (nc != null && nc instanceof FunctionContext) {
-				if (nc.defines.contains(s))
-					throw new UtilException("Cannot define variable " + s + " multiple times in nested scopes");
-				nc = nc.nested;
-			}
-			super.add(s);
-		}
-		
-		public Object resolveWithLocal(String name, boolean direct) {
-			if (locals.contains(name)) {
-				if (direct)
-					return new LocalVar(name);
-				else
-					return new LocalVar(name); // do we need to have something to distinguish this (nested) case?
-			} else if (defines.contains(name))
-				return makeName(name);
-			else if (nested instanceof FunctionContext)
-				return ((FunctionContext)nested).resolveWithLocal(name, false);
-			else
-				return nested.resolve(name);
-		}
-		
-		@Override
 		public Object resolve(String name) {
-			return resolveWithLocal(name, true);
+			if (bound.contains(name))
+				return new LocalVar(name);
+			if (inner.contains(name))
+				return inner.get(name);
+			return nested.resolve(name);
 		}
-		
-		@Override
-		protected Object makeName(String name) {
-			return myname + "." + name;
-		}
-
-		@Override
-		public String makeScopedName(String name) {
-			return myname + "." + name;
-		}
-		
-		
 	}
 
 	public Rewriter(ErrorResult errors) {
 		this.errors = errors;
 	}
 	
-	public Scope rewrite(Scope scope, String inPkg) {
-		ScopeEntry entry = scope.outerEntry;
-		Scope newScope = new Scope(entry);
-		rewriteScope(new RootContext(entry), scope, newScope);
-		entry.setValue(newScope);
-		return newScope;
+	public void rewrite(ScopeEntry pkgEntry) {
+		PackageDefn pkg = (PackageDefn) pkgEntry.getValue();
+		PackageDefn newPkg = new PackageDefn(pkg);
+		rewriteScope(new PackageContext(new RootContext(pkgEntry.scope()), pkg), pkg.innerScope(), newPkg.innerScope());
+		newPkg.replaceOther();
 	}
 
 	protected void rewriteScope(NamingContext cx, Scope from, Scope into) {
 		for (Entry<String, Entry<String, Object>> x : from) {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
-			if (val instanceof CardDefinition) {
-				if (!(cx instanceof RootContext))
-					throw new UtilException("Cannot have card in nested scope");
-				CardDefinition cd = (CardDefinition) val;
-				CardContext c2 = new CardContext((RootContext) cx, cd);
-				if (cd.state != null) {
-					List<StructField> l = new ArrayList<StructField>(cd.state.fields);
-					cd.state.fields.clear();
-					for (StructField sf : l)
-						cd.state.fields.add(rewrite(cx, sf));
-				}
-				List<ContractImplements> l = new ArrayList<ContractImplements>(cd.contracts);
-				cd.contracts.clear();
-				for (ContractImplements ci : l) {
-					cd.contracts.add(rewriteCI(c2, ci));
-				}
-				List<HandlerImplements> ll = new ArrayList<HandlerImplements>(cd.handlers);
-				cd.handlers.clear();
-				for (HandlerImplements hi : ll) {
-					cd.handlers.add(rewriteHI(c2, hi));
-				}
-				into.define(x.getKey(), name, cd);
-			} else if (val instanceof FunctionDefinition) {
-				FunctionDefinition nv = rewrite(cx, (FunctionDefinition)val);
-				into.define(x.getKey(), nv.name, nv);
-			} else {
-//				System.out.println("Can't rewrite " + name + " of type " + val.getClass());
+			if (val instanceof CardDefinition)
+				into.define(x.getKey(), name, rewriteCard(cx, into, x, name, (CardDefinition)val));
+			else if (val instanceof FunctionDefinition)
+				into.define(x.getKey(), rewrite(cx, (FunctionDefinition)val).name, rewrite(cx, (FunctionDefinition)val));
+			else {
+//				System.out.println("Don't do anything to rewrite " + name + " of type " + val.getClass());
 				into.define(x.getKey(), name, val);
 			}
 		}
+	}
+
+	private CardDefinition rewriteCard(NamingContext cx, Scope into, Entry<String, Entry<String, Object>> x, String name, CardDefinition cd) {
+		if (!(cx instanceof PackageContext))
+			throw new UtilException("Cannot have card in nested scope");
+		CardContext c2 = new CardContext((PackageContext) cx, cd);
+		if (cd.state != null) {
+			List<StructField> l = new ArrayList<StructField>(cd.state.fields);
+			cd.state.fields.clear();
+			for (StructField sf : l)
+				cd.state.fields.add(rewrite(cx, sf));
+		}
+		List<ContractImplements> l = new ArrayList<ContractImplements>(cd.contracts);
+		cd.contracts.clear();
+		for (ContractImplements ci : l) {
+			cd.contracts.add(rewriteCI(c2, ci));
+		}
+		List<HandlerImplements> ll = new ArrayList<HandlerImplements>(cd.handlers);
+		cd.handlers.clear();
+		for (HandlerImplements hi : ll) {
+			cd.handlers.add(rewriteHI(c2, hi));
+		}
+		return cd;
 	}
 
 	public static String basename(String type) {
@@ -310,15 +237,14 @@ public class Rewriter {
 	}
 
 	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
-		ContractImplements ret = new ContractImplements(cx.resolve(ci.type), ci.referAsVar);
+		ContractImplements ret = new ContractImplements(ci.type, ci.referAsVar);
 		rewrite(cx, ret, ci);
 		return ret;
 	}
 
 	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi) {
-		HandlerImplements ret = new HandlerImplements(cx.nested.resolve(hi.type), hi.boundVars);
-		NamingContext c2 = new HandlerContext(cx);
-		c2.defines.addAll(hi.boundVars);
+		HandlerImplements ret = new HandlerImplements(hi.type, hi.boundVars);
+		NamingContext c2 = new HandlerContext(cx, hi);
 		rewrite(c2, ret, hi);
 		return ret;
 	}
@@ -343,14 +269,13 @@ public class Rewriter {
 	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
-		NamingContext c2 = cx;
-		if (cx instanceof CardContext)
-			c2 = new RenameCardToThis(cx);
 		for (FunctionCaseDefn c : f.cases) {
-			list.add(rewrite(new FunctionContext(c2, c.innerScope(), f.name, cs), c));
+			Set<String> locals = new TreeSet<String>();
+			c.intro.gatherVars(locals);
+			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, locals, c.innerScope()), c));
 			cs++;
 		}
-		FunctionDefinition ret = new FunctionDefinition(cx.makeScopedName(f.name), f.nargs, list);
+		FunctionDefinition ret = new FunctionDefinition(f.name, f.nargs, list);
 		return ret;
 	}
 
@@ -378,25 +303,22 @@ public class Rewriter {
 		return new EventHandlerDefinition(new FunctionIntro(rw, ehd.intro.args), list);
 	}
 
-	private FunctionCaseDefn rewrite(FunctionContext cx, FunctionCaseDefn c) {
-		c.intro.gatherVars(cx.locals);
+	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {
 		FunctionIntro intro = rewrite(cx, c.intro);
 		FunctionCaseDefn ret = new FunctionCaseDefn(c.innerScope().outer, intro.name, intro.args, rewriteExpr(cx, c.expr));
 		rewriteScope(cx, c.innerScope(), ret.innerScope());
 		return ret;
 	}
 
-	private MethodCaseDefn rewrite(FunctionContext cx, MethodCaseDefn c) {
+	private MethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c) {
 		MethodCaseDefn ret = new MethodCaseDefn(rewrite(cx, c.intro));
-		c.intro.gatherVars(cx.locals);
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
 	}
 
-	private EventCaseDefn rewrite(FunctionContext cx, EventCaseDefn c) {
+	private EventCaseDefn rewrite(FunctionCaseContext cx, EventCaseDefn c) {
 		EventCaseDefn ret = new EventCaseDefn(rewrite(cx, c.intro));
-		c.intro.gatherVars(cx.locals);
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
@@ -407,7 +329,7 @@ public class Rewriter {
 		for (Object o : intro.args) {
 			args.add(rewritePattern(cx, o));
 		}
-		return new FunctionIntro(cx.makeScopedName(intro.name), args);
+		return new FunctionIntro(intro.name, args);
 	}
 
 	private Object rewritePattern(NamingContext scope, Object o) {
@@ -429,7 +351,11 @@ public class Rewriter {
 		List<String> newSlot = null;
 		if (mm.slot != null && !mm.slot.isEmpty()) {
 			newSlot = new ArrayList<String>();
-			newSlot.add(cx.resolve(mm.slot.get(0)));
+			Object r = cx.resolve(mm.slot.get(0));
+			if (!(r instanceof CardMember))
+				errors.message((Block)null, mm.slot.get(0) + " needs to be a state member");
+			else
+				newSlot.add(((CardMember)r).name);
 			for (int i=1;i<mm.slot.size();i++)
 				newSlot.add(mm.slot.get(i));
 		}
@@ -440,7 +366,7 @@ public class Rewriter {
 		return new StructField(rewriteType(scope, sf.type), sf.name, rewriteExpr(scope, sf.init));
 	}
 
-	private Object rewriteExpr(NamingContext scope, Object expr) {
+	private Object rewriteExpr(NamingContext cx, Object expr) {
 		if (expr == null)
 			return null;
 		try {
@@ -454,7 +380,7 @@ public class Rewriter {
 					s = ((UnresolvedVar) expr).var;
 				else
 					throw new UtilException("Huh?");
-				Object ret = scope.resolve(s);
+				Object ret = cx.resolve(s);
 				if (ret instanceof AbsoluteVar)
 					return ret;
 				else if (ret instanceof LocalVar)
@@ -475,21 +401,24 @@ public class Rewriter {
 					if (!(ae.args.get(0) instanceof ApplyExpr)) {
 						String pkg = ((UnresolvedVar)ae.args.get(0)).var;
 	//					System.out.println("is: " + scope.get(pkg));
-						if (scope.get(pkg) instanceof PackageDefn) {
+						/*
+						if (cx.get(pkg) instanceof PackageDefn) {
 	//						System.out.println("pkg " + pkg);
 							return new AbsoluteVar(pkg + "." + field.var);
 						}
+						*/
+						throw new UtilException("Handle this case");
 					}
 					
 					// expr . field
-					Object applyFn = rewriteExpr(scope, ae.args.get(0));
+					Object applyFn = rewriteExpr(cx, ae.args.get(0));
 	
 					return new ApplyExpr(new AbsoluteVar("FLEval.field"), applyFn, new StringLiteral(field.var));
 				}
 				List<Object> args = new ArrayList<Object>();
 				for (Object o : ae.args)
-					args.add(rewriteExpr(scope, o));
-				return new ApplyExpr(rewriteExpr(scope, ae.fn), args);
+					args.add(rewriteExpr(cx, o));
+				return new ApplyExpr(rewriteExpr(cx, ae.fn), args);
 			}
 			System.out.println("Can't rewrite expr " + expr + " of type " + expr.getClass());
 			return expr;
@@ -502,7 +431,12 @@ public class Rewriter {
 	private TypeReference rewriteType(NamingContext scope, Object type) {
 		if (type instanceof TypeReference) {
 			TypeReference tr = (TypeReference) type;
-			TypeReference ret = new TypeReference(scope.resolve(tr.name));
+			Object r = scope.resolve(tr.name);
+			if (!(r instanceof AbsoluteVar)) {
+				errors.message((Block)null, tr.name + " is not a type definition");
+				return null;
+			}
+			TypeReference ret = new TypeReference(((AbsoluteVar)r).id);
 			for (Object o : tr.args)
 				ret.args.add(rewriteType(scope, o));
 			return ret;
