@@ -10,6 +10,7 @@ import java.util.Map;
 import org.flasck.flas.depedencies.DependencyAnalyzer;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
@@ -29,11 +30,13 @@ public class TestDependencyAnalysis {
 		// Can we go back and refactor this at some point into the checked output of FlasStoryTests?
 		Object o = new FLASStory().process("ME", BlockTestData.simpleMutualRecursionBlock());
 		assertNotNull(o);
-		assertTrue(o instanceof Scope);
-		Scope s = (Scope) o;
-		s = rewriter.rewrite(s);
+		assertTrue(o instanceof ScopeEntry);
+		ScopeEntry se = (ScopeEntry) o;
+		rewriter.rewrite(se);
+		Scope s = ((PackageDefn)se.getValue()).innerScope();
 		Map<String, FunctionDefinition> map = new HashMap<String, FunctionDefinition>();
 		ScopeEntry f = (ScopeEntry) s.getEntry("f");
+		assertNotNull(f);
 		ScopeEntry g = (ScopeEntry) ((FunctionDefinition)f.getValue()).cases.get(0).innerScope().getEntry("g");
 		map.put(f.getKey(), (FunctionDefinition) f.getValue());
 		map.put(g.getKey(), (FunctionDefinition) g.getValue());

@@ -2,6 +2,7 @@ package org.flasck.flas.parsedForm;
 
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.zinutils.exceptions.UtilException;
@@ -13,6 +14,12 @@ public class FunctionIntro {
 	public FunctionIntro(String name, List<Object> args) {
 		this.name = name;
 		this.args = args;
+	}
+	
+	public Set<String> allVars() {
+		Set<String> ret = new TreeSet<String>();
+		gatherVars(ret);
+		return ret;
 	}
 	
 	public void gatherVars(Set<String> into) {

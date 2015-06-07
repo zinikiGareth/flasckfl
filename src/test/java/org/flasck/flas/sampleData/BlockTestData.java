@@ -123,8 +123,8 @@ public class BlockTestData {
 		List<Block> ret = new ArrayList<Block>();
 		ret.add(builder()
 			.line("f x = g 2")
-			.indent()
-			.line("g y = x * y")
+				.indent()
+				.line("g y = x * y")
 			.build());
 		return ret;
 	}

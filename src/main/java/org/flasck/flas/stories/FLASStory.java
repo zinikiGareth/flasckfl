@@ -44,7 +44,7 @@ import org.zinutils.exceptions.UtilException;
 
 public class FLASStory implements StoryProcessor {
 
-	public class State {
+	public static class State {
 		private String pkg;
 		public final Scope scope;
 

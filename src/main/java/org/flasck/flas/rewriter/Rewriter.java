@@ -177,7 +177,7 @@ public class Rewriter {
 
 		public Object resolve(String name) {
 			if (bound.contains(name))
-				return new LocalVar(name);
+				return new LocalVar(myname, name);
 			if (inner.contains(name))
 				return new AbsoluteVar(inner.getEntry(name));
 			return nested.resolve(name);

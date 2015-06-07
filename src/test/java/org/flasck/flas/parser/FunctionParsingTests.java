@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.sampleData.ParsedFormTestData;
+import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.junit.Test;
 
@@ -18,21 +19,21 @@ public class FunctionParsingTests {
 	public void testParsingFibBlock1() {
 		Block b = BlockTestData.fibBlock1();
 		BlockerTests.showBlock(0, b);
-		ParsedFormTestData.assertFormsEqual(ParsedFormTestData.fibDefn1(), new FunctionParser(null).tryParsing(new Tokenizable(b)));
+		ParsedFormTestData.assertFormsEqual(ParsedFormTestData.fibDefn1(), new FunctionParser(new State(null, "")).tryParsing(new Tokenizable(b)));
 	}
 
 	@Test
 	public void testParsingFibBlock2() {
 		Block b = BlockTestData.fibBlock2();
 		BlockerTests.showBlock(0, b);
-		ParsedFormTestData.assertFormsEqual(ParsedFormTestData.fibDefn2(), new FunctionParser(null).tryParsing(new Tokenizable(b)));
+		ParsedFormTestData.assertFormsEqual(ParsedFormTestData.fibDefn2(), new FunctionParser(new State(null, "")).tryParsing(new Tokenizable(b)));
 	}
 
 	@Test
 	public void testParsingFibBlockN() {
 		Block b = BlockTestData.fibBlockN();
 		BlockerTests.showBlock(0, b);
-		Object pf = new FunctionParser(null).tryParsing(new Tokenizable(b));
+		Object pf = new FunctionParser(new State(null, "")).tryParsing(new Tokenizable(b));
 		assertNotNull(pf);
 		assertTrue("Return was not an FCD", pf instanceof FunctionCaseDefn);
 		FunctionCaseDefn fcd = (FunctionCaseDefn) pf;

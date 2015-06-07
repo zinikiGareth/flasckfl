@@ -33,6 +33,7 @@ public class DependencyAnalyzer {
 	}
 
 	public List<Orchard<FunctionDefinition>> analyze(Map<String, FunctionDefinition> map) {
+		System.out.println("in analyze");
 		DirectedCyclicGraph<String> dcg = new DirectedCyclicGraph<String>();
 		Map<String, FunctionDefinition> fdm = new TreeMap<String, FunctionDefinition>();
 		addFunctionsToDCG(dcg, new TreeMap<String, String>(), fdm, map);
@@ -41,42 +42,50 @@ public class DependencyAnalyzer {
 	}
 
 	private void addFunctionsToDCG(DirectedCyclicGraph<String> dcg, Map<String, String> map, Map<String, FunctionDefinition> fdm, Map<String, FunctionDefinition> functions) {
+		// First make sure all the nodes are in the DCG
 		for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
 			String name = x.getValue().name;
 			dcg.ensure(name);
 
 			FunctionDefinition fd = x.getValue();
 			fdm.put(name,  fd);
+			int cs = 0;
 			for (FunctionCaseDefn c : fd.cases) {
-				Set<String> locals = new TreeSet<String>();
-				c.intro.gatherVars(locals);
-				Map<String, String> varMap = new TreeMap<String, String>(map);
-				for (String v : locals) {
-					String realname = "_var_" + name+"__"+v;
+				for (String v : c.intro.allVars()) {
+					String realname = "_var_" + name+"_" + cs +"."+v;
 					dcg.ensure(realname);
 					dcg.ensureLink(realname, name);
-					varMap.put(v, realname);
 				}
-				analyzeExpr(dcg, name, varMap, locals, c.expr);
+				cs++;
 			}
 		}
+
+		System.out.print(dcg);
+		// Then add the links
+		for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
+			FunctionDefinition fd = x.getValue();
+			for (FunctionCaseDefn c : fd.cases)
+				analyzeExpr(dcg, fd.name, c.intro.allVars(), c.expr);
+		}
+		System.out.print(dcg);
 	}
 
-	private void analyzeExpr(DirectedCyclicGraph<String> dcg, String name, Map<String, String> varMap, Set<String> locals, Object expr) {
+	private void analyzeExpr(DirectedCyclicGraph<String> dcg, String name, Set<String> locals, Object expr) {
 		if (expr == null)
 			return;
+		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
 		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof CardScopedVar)
 			;
 		else if (expr instanceof LocalVar)
-			dcg.ensureLink(name, varMap.get(((LocalVar)expr).var));
+			dcg.ensureLink(name, "_var_" + ((LocalVar)expr).uniqueName());
 		else if (expr instanceof AbsoluteVar) {
 			dcg.ensure(((AbsoluteVar) expr).id);
 			dcg.ensureLink(name, ((AbsoluteVar) expr).id);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
-			analyzeExpr(dcg, name, varMap, locals, ae.fn);
+			analyzeExpr(dcg, name, locals, ae.fn);
 			for (Object x : ae.args)
-				analyzeExpr(dcg, name, varMap, locals, x);
+				analyzeExpr(dcg, name, locals, x);
 		} else
 			throw new UtilException("Unhandled expr: " + expr + " -> " + expr.getClass());
 	}
@@ -106,6 +115,7 @@ public class DependencyAnalyzer {
 	}
 
 	private Orchard<FunctionDefinition> buildOrchard(DirectedCyclicGraph<String> dcg, Map<String, FunctionDefinition> fdm, Set<String> g) {
+		System.out.println("Attempting to build orchard from " + g);
 		Orchard<FunctionDefinition> ret = new Orchard<FunctionDefinition>();
 		Set<String> topCandidates = new TreeSet<String>();
 
@@ -115,15 +125,29 @@ public class DependencyAnalyzer {
 				topCandidates.add(CollectionUtils.any(dcg.find(s).linksFrom()).getTo());
 		}
 
+		System.out.println("top candidates = " + topCandidates);
 		// Go through this list, seeing which ones don't use other people's variables
 		// This must terminate, because scoping, unlike referencing, is tree-based
 		for (String s : topCandidates) {
 			Node<String> top = dcg.find(s);
+			boolean reject = false;
 			for (Link<String> l : top.linksFrom()) {
-				// TODO: handle the case where a function both defines and uses a var
-				if (l.getTo().startsWith("_var_"))
-					throw new UtilException("The non-top-candidate case");
+				// If a function depends on a var, check if it is one of its own or an "inherited" one
+				// If it's inherited, we reject this candidate.
+				System.out.println(l);
+				if (l.getTo().startsWith("_var_")) {
+					String s1 = l.getTo().replace("_var_", "");
+					s1 = s1.replace(s, "");
+					int i1 = s1.indexOf('.');
+					int i2 = s1.lastIndexOf('.');
+					if (i2 > i1) {
+						reject = true;
+						System.out.println("Rejecting " + s + " because of " + s1);
+					}
+				}
 			}
+			if (reject)
+				continue;
 			
 			// Create a new tree with the definer at the top
 			Tree<FunctionDefinition> t = ret.addTree(fdm.get(s));
