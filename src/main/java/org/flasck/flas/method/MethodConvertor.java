@@ -38,11 +38,11 @@ public class MethodConvertor {
 
 	// TODO: this is more complicated than I make it appear here, but the proper thing requires typechecking
 	private static Object convert(List<MethodMessage> messages) {
-		Object ret = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
+		Object ret = new AbsoluteVar("Nil");
 		for (int n = messages.size()-1;n>=0;n--) {
 			MethodMessage mm = messages.get(n);
 			Object me = convert(mm);
-			ret = new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Cons")), me, ret);
+			ret = new ApplyExpr(new AbsoluteVar("Cons"), me, ret);
 		}
 		return ret;
 	}
@@ -53,13 +53,13 @@ public class MethodConvertor {
 			// we want an assign message
 			String slot = mm.slot.get(0);
 			// TODO: somebody should check it really is a slot
-			return new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Assign")), ItemExpr.from(new ExprToken(ExprToken.STRING, slot)), mm.expr);
+			return new ApplyExpr(new AbsoluteVar("Assign"), ItemExpr.from(new ExprToken(ExprToken.STRING, slot)), mm.expr);
 		} else {
 			// we want some kind of invoke message
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr fn = (ApplyExpr)root.fn;
 			if (!(fn.fn instanceof AbsoluteVar) || ((AbsoluteVar)fn.fn).id.equals("FLEval.field")) throw new UtilException("unhandled case");
-			return new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Send")),
+			return new ApplyExpr(new AbsoluteVar("Send"),
 					fn.args.get(0),
 					fn.args.get(1),
 					asList(root.args));
@@ -67,9 +67,9 @@ public class MethodConvertor {
 	}
 
 	private static Object asList(List<Object> args) {
-		Object ret = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
+		Object ret = new AbsoluteVar("Nil");
 		for (int n = args.size()-1;n>=0;n--) {
-			ret = new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Cons")), args.get(n), ret);
+			ret = new ApplyExpr(new AbsoluteVar("Cons"), args.get(n), ret);
 		}
 		return ret;
 	}

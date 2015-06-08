@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
+import org.flasck.flas.parsedForm.ObjectRelative;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -81,6 +82,10 @@ public class DependencyAnalyzer {
 		else if (expr instanceof AbsoluteVar) {
 			dcg.ensure(((AbsoluteVar) expr).id);
 			dcg.ensureLink(name, ((AbsoluteVar) expr).id);
+		} else if (expr instanceof ObjectRelative) {
+			String orname = ((ObjectRelative)expr).uniqueName();
+			dcg.ensure(orname);
+			dcg.ensureLink(name, orname);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			analyzeExpr(dcg, name, locals, ae.fn);

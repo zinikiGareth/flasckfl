@@ -8,5 +8,13 @@ public class ObjectRelative {
 		this.clzName = clzName;
 		this.handle = handle;
 	}
+	
+	public String uniqueName() {
+		return this.clzName + "." + this.handle;
+	}
 
+	@Override
+	public String toString() {
+		return this.clzName + "." + this.handle;
+	}
 }

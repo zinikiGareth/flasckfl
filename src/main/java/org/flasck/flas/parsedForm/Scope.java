@@ -59,7 +59,7 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 	}
 
 	public ScopeEntry define(String key, String name, Object defn) {
-		if (key.contains(".") && !key.equals("."))
+		if (key.contains(".") && !key.equals(".") && !(defn instanceof PackageDefn))
 			throw new UtilException("Cannot define an entry in a scope with a compound key: " + key);
 		if (defns.containsKey(key))
 			throw new UtilException("Cannot provide multiple definitions of " + name);

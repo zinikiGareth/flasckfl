@@ -31,6 +31,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeDefn;
@@ -92,17 +93,17 @@ public class Compiler {
 			Object obj = new FLASStory().process(inPkg, blocks);
 			if (obj instanceof ErrorResult) {
 				throw new ErrorResultException((ErrorResult)obj);
-			} else if (obj instanceof Scope) {
-				Scope scope = (Scope) obj;
-				scope = rewriter.rewrite(scope, inPkg);
+			} else if (obj instanceof ScopeEntry) {
+				ScopeEntry se = (ScopeEntry) obj;
+				rewriter.rewrite(se);
 				if (errors.hasErrors())
 					throw new ErrorResultException(errors);
 //				List<String> pkglist = emitPackages(forms, scope, inPkg);
 				assertPackage(forms, inPkg);
 				Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
 				TypeChecker tc = new TypeChecker(errors);
-				populateTypes(tc, scope.outer);
-				processScope(forms, tc, functions, scope, 1);
+				populateTypes(tc, se.scope());
+				processScope(forms, tc, functions, ((PackageDefn)se.getValue()).innerScope(), 1);
 				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(functions);
 				if (tc.errors.hasErrors())
 					throw new ErrorResultException(tc.errors);
@@ -266,7 +267,7 @@ public class Compiler {
 					DomFunctionGenerator gen = new DomFunctionGenerator(innerFns, scope, card.state);
 					gen.generate(card.template);
 					for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
-						FunctionDefinition rfn = rewriter.rewriteFunction(scope, card, (FunctionDefinition) x2.getValue());
+						FunctionDefinition rfn = (FunctionDefinition) x2.getValue();
 						functions.put(rfn.name, rfn);
 					}
 				}
