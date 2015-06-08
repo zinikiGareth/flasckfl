@@ -3,6 +3,9 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.stories.FLASStory.State;
+
 public class CardDefinition implements ContainsScope {
 	public final String name;
 	public StateDefinition state;
@@ -11,9 +14,10 @@ public class CardDefinition implements ContainsScope {
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final Scope fnScope;
 
-	public CardDefinition(Scope s, String name) {
+	public CardDefinition(Scope outer, String name) {
+		ScopeEntry se = outer.define(State.simpleName(name), name, this);
 		this.name = name;
-		this.fnScope = new Scope(s);
+		this.fnScope = new Scope(se);
 	}
 
 	public void addContractImplementation(ContractImplements o) {

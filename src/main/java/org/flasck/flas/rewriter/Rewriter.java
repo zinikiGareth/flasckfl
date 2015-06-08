@@ -196,11 +196,11 @@ public class Rewriter {
 	}
 
 	protected void rewriteScope(NamingContext cx, Scope from, Scope into) {
-		for (Entry<String, Entry<String, Object>> x : from) {
+		for (Entry<String, ScopeEntry> x : from) {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
 			if (val instanceof CardDefinition)
-				into.define(x.getKey(), name, rewriteCard(cx, into, (CardDefinition)val));
+				rewriteCard(cx, into, (CardDefinition)val);
 			else if (val instanceof FunctionDefinition)
 				into.define(x.getKey(), ((FunctionDefinition)val).name, rewrite(cx, (FunctionDefinition)val));
 			else if (val instanceof EventHandlerDefinition)
@@ -415,7 +415,7 @@ public class Rewriter {
 					// expr . field
 					Object applyFn = rewriteExpr(cx, ae.args.get(0));
 	
-					return new ApplyExpr(new AbsoluteVar("FLEval.field"), applyFn, new StringLiteral(field.var));
+					return new ApplyExpr(cx.resolve("FLEval.field"), applyFn, new StringLiteral(field.var));
 				}
 				List<Object> args = new ArrayList<Object>();
 				for (Object o : ae.args)

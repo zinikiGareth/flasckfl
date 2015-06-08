@@ -125,10 +125,10 @@ public class FLASStory implements StoryProcessor {
 				doContractMethods(er, cd, b.nested);
 			} else if (o instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) o;
-				if (ret.contains(cd.name))
-					er.message(b, "duplicate definition for name " + cd.name);
-				else
-					ret.define(State.simpleName(cd.name), cd.name, cd);
+//				if (ret.contains(cd.name))
+//					er.message(b, "duplicate definition for name " + cd.name);
+//				else
+//					ret.define(State.simpleName(cd.name), cd.name, cd);
 				doCardDefinition(er, new State(cd.innerScope(), cd.name), cd, b.nested);
 			} else
 				throw new UtilException("Need to handle " + o.getClass());

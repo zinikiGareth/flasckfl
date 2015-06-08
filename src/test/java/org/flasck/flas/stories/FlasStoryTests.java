@@ -119,7 +119,7 @@ public class FlasStoryTests {
 		render.dumpTo(new PrintWriter(System.out));
 		assertEquals("ME.Mycard.render", render.name);
 
-		FunctionDefinition actionFD = MethodConvertor.convert(action.intro.name, action);
+		FunctionDefinition actionFD = MethodConvertor.convert(s, action.intro.name, action);
 		assertNotNull(actionFD);
 		actionFD.dumpTo(new PrintWriter(System.out));
 	}

@@ -140,7 +140,7 @@ public class Compiler {
 	}
 
 	private void promoteTemplateFunctions(PackageDefn pd) {
-		for (Entry<String, Entry<String, Object>> x : pd.innerScope()) {
+		for (Entry<String, ScopeEntry> x : pd.innerScope()) {
 			if (x.getValue().getValue() instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) x.getValue().getValue();
 				if (cd.template != null)
@@ -184,7 +184,7 @@ public class Compiler {
 	}
 
 	protected void populateTypes(TypeChecker tc, Scope scope) {
-		for (Entry<String, Entry<String, Object>> x : scope) {
+		for (Entry<String, ScopeEntry> x : scope) {
 			Object val = x.getValue().getValue();
 			if (val instanceof PackageDefn) {
 				populateTypes(tc, ((PackageDefn)val).innerScope());
@@ -235,7 +235,7 @@ public class Compiler {
 	}
 
 	private void processScope(List<JSForm> forms, TypeChecker tc, Map<String, FunctionDefinition> functions, Scope scope, int scopeDepth) {
-		for (Entry<String, Entry<String, Object>> x : scope) {
+		for (Entry<String, ScopeEntry> x : scope) {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
 //			if (val instanceof PackageDefn) {
@@ -274,7 +274,7 @@ public class Compiler {
 				for (ContractImplements ci : card.contracts) {
 					forms.add(gen.generateContract(name, ci, pos));
 					for (MethodDefinition m : ci.methods) {
-						FunctionDefinition fd = MethodConvertor.convert(name, "_C"+pos, m);
+						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_C"+pos, m);
 						functions.put(fd.name, fd);
 					}
 					pos++;
@@ -298,7 +298,7 @@ public class Compiler {
 					}
 					forms.add(gen.generateHandler(name, hi, pos));
 					for (MethodDefinition m : hi.methods) {
-						FunctionDefinition fd = MethodConvertor.convert(name, "_H"+pos, m);
+						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_H"+pos, m);
 						functions.put(fd.name, fd);
 					}
 					pos++;
@@ -317,7 +317,7 @@ public class Compiler {
 				*/
 				
 				// lift and rewrite all the functions we just defined
-				for (Entry<String, Entry<String, Object>> x2 : card.innerScope()) {
+				for (Entry<String, ScopeEntry> x2 : card.innerScope()) {
 					if (x2.getValue().getValue() instanceof FunctionDefinition) {
 						if (functions.containsKey(x2.getKey()))
 							tc.errors.message((Block)null, "duplicate definition of " + x2.getKey() + " in scope");
@@ -326,7 +326,7 @@ public class Compiler {
 						functions.put(x2.getValue().getKey(), (FunctionDefinition) x2.getValue().getValue());
 					} else if (x2.getValue().getValue() instanceof EventHandlerDefinition) {
 //						EventHandlerDefinition rewritten = rewriter.rewriteEventHandler(scope, card, (EventHandlerDefinition)x2.getValue().getValue());
-						FunctionDefinition fd = MethodConvertor.convert(name, (EventHandlerDefinition)x2.getValue().getValue());
+						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, (EventHandlerDefinition)x2.getValue().getValue());
 						functions.put(fd.name, fd);
 					} else
 						throw new UtilException("Need to handle " + x2);

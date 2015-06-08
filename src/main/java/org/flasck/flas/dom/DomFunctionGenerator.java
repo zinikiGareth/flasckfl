@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -20,14 +19,14 @@ public class DomFunctionGenerator {
 	private final String prefix;
 	private final Map<String, FunctionDefinition> functions;
 	private final Scope scope;
-	private final StateDefinition state;
+//	private final StateDefinition state;
 	private int node = 0;
 
 	public DomFunctionGenerator(String prefix, Map<String, FunctionDefinition> functions, Scope scope, StateDefinition state) {
 		this.prefix = prefix;
 		this.functions = functions;
 		this.scope = scope;
-		this.state = state;
+//		this.state = state;
 	}
 
 	// Steps:
@@ -88,7 +87,7 @@ public class DomFunctionGenerator {
 		// TODO: handle attributes (including from vars)
 		// TODO: handle formats? (or just put them in the tree? because they are "common" to all classes?)
 		// TODO: generate tree state
-		return new ApplyExpr(new AbsoluteVar("DOM.Element"), tag, new AbsoluteVar("Nil"), new AbsoluteVar("Nil"), new AbsoluteVar("Nil"));
+		return new ApplyExpr(scope.fromRoot("DOM.Element"), tag, scope.fromRoot("Nil"), scope.fromRoot("Nil"), scope.fromRoot("Nil"));
 	}
 
 	private void function(Object expr) {

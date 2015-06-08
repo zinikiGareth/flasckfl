@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.zinutils.exceptions.UtilException;
 
-public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
+public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 	public class ScopeEntry implements Entry<String, Object> {
 		private final String name;
 		private Object defn;
@@ -41,7 +41,7 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 	}
 
 	public final Scope outer;
-	private final Map<String, Map.Entry<String, Object>> defns = new TreeMap<String, Map.Entry<String, Object>>();
+	private final Map<String, ScopeEntry> defns = new TreeMap<String, ScopeEntry>();
 	public ScopeEntry outerEntry;
 
 	@Deprecated
@@ -76,7 +76,7 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 		if (name.contains("."))
 			return name;
 		if (defns.containsKey(name))
-			return new AbsoluteVar(defns.get(name).getKey());
+			return new AbsoluteVar(defns.get(name));
 		try {
 			if (outer != null)
 				return outer.resolve(name);
@@ -90,7 +90,7 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 	}
 
 	@Override
-	public Iterator<Entry<String, Entry<String, Object>>> iterator() {
+	public Iterator<Entry<String, ScopeEntry>> iterator() {
 		return defns.entrySet().iterator();
 	}
 
@@ -123,5 +123,22 @@ public class Scope implements Iterable<Entry<String, Entry<String, Object>>> {
 		if (outerEntry != null)
 			return outerEntry.name + "." + name;
 		return name;
+	}
+
+	public AbsoluteVar fromRoot(String name) {
+		if (outerEntry != null)
+			return outerEntry.scope().fromRoot(name);
+		else if (outer != null)
+			return outer.fromRoot(name);
+		int idx = name.indexOf('.');
+		Scope scope = this;
+		if (idx != -1) {
+			PackageDefn pd = (PackageDefn) this.get(name.substring(0, idx));
+			scope = pd.innerScope();
+			name = name.substring(idx+1);
+			if (name.indexOf('.') != -1)
+				throw new UtilException("Can't do that");
+		}
+		return new AbsoluteVar(scope.getEntry(name));
 	}
 }
