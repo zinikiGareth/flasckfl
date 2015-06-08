@@ -38,6 +38,7 @@ import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -78,56 +79,53 @@ public class Compiler {
 		FileUtils.copyFileToStream(writeTo, System.out);
 	}
 
+	/* Compile comes in phases:
+	 * 1. block to build a tree
+	 * 2. parse the individual blocks to make a real parse tree
+	 * 3. extract templates to make generated functions
+	 * 4. convert methods to functions
+	 * 5. resolve symbols & rewrite references
+	 * 6. regroup into a set of typed collections
+	 * 7. for functions:
+	 *   a. build orchards
+	 *   b. dependency analysis
+	 *   c. HSIE transformation
+	 *   d. typechecking
+	 * 8. generation of JSForms
+	 * 9. issue javascript
+	 */
 	private void compile(String inPkg, FileWriter w, File f) {
 		FileReader r = null;
 		try {
 			r = new FileReader(f);
-			Object blks = Blocker.block(r);
-			if (blks instanceof ErrorResult) {
-				((ErrorResult)blks).showTo(new PrintWriter(System.err));
-				return;
-			}
-			@SuppressWarnings("unchecked")
-			List<Block> blocks = (List<Block>) blks;
+			List<Block> blocks = makeBlocks(r);
+			ScopeEntry se = doParsing(inPkg, blocks);
+			PackageDefn pd = (PackageDefn) se.getValue();
+			promoteTemplateFunctions(pd);
+			doRewriting(se);
+
+			Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
+			TypeChecker tc = new TypeChecker(errors);
+			populateTypes(tc, se.scope());
 			List<JSForm> forms = new ArrayList<JSForm>();
-			Object obj = new FLASStory().process(inPkg, blocks);
-			if (obj instanceof ErrorResult) {
-				throw new ErrorResultException((ErrorResult)obj);
-			} else if (obj instanceof ScopeEntry) {
-				ScopeEntry se = (ScopeEntry) obj;
-				rewriter.rewrite(se);
-				if (errors.hasErrors())
-					throw new ErrorResultException(errors);
-//				List<String> pkglist = emitPackages(forms, scope, inPkg);
-				assertPackage(forms, inPkg);
-				Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
-				TypeChecker tc = new TypeChecker(errors);
-				populateTypes(tc, se.scope());
-				processScope(forms, tc, functions, ((PackageDefn)se.getValue()).innerScope(), 1);
-				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(functions);
+			assertPackage(forms, inPkg);
+			processScope(forms, tc, functions, ((PackageDefn)se.getValue()).innerScope(), 1);
+			List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(functions);
+			if (tc.errors.hasErrors())
+				throw new ErrorResultException(tc.errors);
+			for (Orchard<FunctionDefinition> d : defns) {
+				Orchard<HSIEForm> oh = hsieOrchard(d);
+				tc.typecheck(oh);
 				if (tc.errors.hasErrors())
 					throw new ErrorResultException(tc.errors);
-				for (Orchard<FunctionDefinition> d : defns) {
-					Orchard<HSIEForm> oh = hsieOrchard(d);
-					tc.typecheck(oh);
-					if (tc.errors.hasErrors())
-						throw new ErrorResultException(tc.errors);
-					handleCurrying(tc, oh);
-					generateOrchard(forms, oh);
-				}
-				for (JSForm js : forms) {
-					js.writeTo(w);
-					w.write("\n");
-				}
-//				if (pkglist.size() == 1)
-					w.write(inPkg + ";\n");
-//				else {
-//					w.write("{ ");
-//					w.write(String.join(", ", pkglist));
-//					w.write(" }\n");
-//				}
-			} else
-				System.err.println("Failed to parse; got " + obj);
+				handleCurrying(tc, oh);
+				generateOrchard(forms, oh);
+			}
+			for (JSForm js : forms) {
+				js.writeTo(w);
+				w.write("\n");
+			}
+			w.write(inPkg + ";\n");
 		} catch (ErrorResultException ex) {
 			try {
 				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out));
@@ -139,6 +137,50 @@ public class Compiler {
 		} finally {
 			if (r != null) try { r.close(); } catch (IOException ex) {}
 		}
+	}
+
+	private void promoteTemplateFunctions(PackageDefn pd) {
+		for (Entry<String, Entry<String, Object>> x : pd.innerScope()) {
+			if (x.getValue().getValue() instanceof CardDefinition) {
+				CardDefinition cd = (CardDefinition) x.getValue().getValue();
+				if (cd.template != null)
+					promoteTemplateFunctions(cd);
+			}
+		}
+	}
+
+	private void promoteTemplateFunctions(CardDefinition card) {
+		Map<String, FunctionDefinition> innerFns = new HashMap<String, FunctionDefinition>();
+		DomFunctionGenerator gen = new DomFunctionGenerator(card.name, innerFns, card.innerScope(), card.state);
+		gen.generate(card.template);
+		for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
+			FunctionDefinition rfn = (FunctionDefinition) x2.getValue();
+			card.innerScope().define(State.simpleName(rfn.name), rfn.name, rfn);
+		}
+	}
+
+	private void doRewriting(ScopeEntry se) throws ErrorResultException {
+		rewriter.rewrite(se);
+		if (errors.hasErrors())
+			throw new ErrorResultException(errors);
+	}
+
+	private ScopeEntry doParsing(String inPkg, List<Block> blocks) throws ErrorResultException {
+		Object obj = new FLASStory().process(inPkg, blocks);
+		if (obj instanceof ErrorResult) {
+			throw new ErrorResultException((ErrorResult)obj);
+		} else if (obj instanceof ScopeEntry) {
+			return (ScopeEntry) obj;
+		} else
+			throw new UtilException("Parsing returned: " + obj);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Block> makeBlocks(FileReader r) throws IOException, ErrorResultException {
+		Object res = Blocker.block(r);
+		if (res instanceof ErrorResult)
+			throw new ErrorResultException((ErrorResult) res);
+		return (List<Block>) res;
 	}
 
 	protected void populateTypes(TypeChecker tc, Scope scope) {
@@ -262,6 +304,7 @@ public class Compiler {
 					pos++;
 				}
 
+				/*
 				if (card.template != null) {
 					Map<String, FunctionDefinition> innerFns = new HashMap<String, FunctionDefinition>();
 					DomFunctionGenerator gen = new DomFunctionGenerator(innerFns, scope, card.state);
@@ -271,6 +314,7 @@ public class Compiler {
 						functions.put(rfn.name, rfn);
 					}
 				}
+				*/
 				
 				// lift and rewrite all the functions we just defined
 				for (Entry<String, Entry<String, Object>> x2 : card.innerScope()) {
@@ -290,8 +334,7 @@ public class Compiler {
 			} else
 				throw new UtilException("Need to handle " + x.getKey() + " of type " + val.getClass());
 		}
-		System.out.println(functions);
-		System.out.println("hello");
+		System.out.println("Functions at this point are: " + functions);
 	}
 
 //	private List<String> emitPackages(List<JSForm> forms, Scope scope, String defPkg) {

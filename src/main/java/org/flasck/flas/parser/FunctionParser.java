@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -57,7 +56,7 @@ public class FunctionParser implements TryParsing {
 		}
 		
 		if (!line.hasMore())
-			return new FunctionIntro(name, args);
+			return new FunctionIntro(state.withPkg(name), args);
 		
 		ExprToken tok = ExprToken.from(line);
 		if (tok == null || !tok.text.equals("="))

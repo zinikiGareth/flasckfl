@@ -16,7 +16,6 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateLine;
@@ -34,7 +33,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testAString() throws Exception {
-		FunctionDefinition node1 = generateOne(null, "'hello'");
+		FunctionDefinition node1 = generateOne("ME.MyCard", null, "'hello'");
 		assertEquals("_templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
@@ -49,7 +48,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testSimpleVar() throws Exception {
-		FunctionDefinition node1 = generateOne(counterState(), "counter");
+		FunctionDefinition node1 = generateOne("ME.MyCard", counterState(), "counter");
 		assertEquals("_templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
@@ -63,7 +62,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testAMinimalDiv() throws Exception {
-		FunctionDefinition node1 = generateOne(null, ".");
+		FunctionDefinition node1 = generateOne("ME.MyCard", null, ".");
 		assertEquals("_templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
@@ -85,7 +84,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testATaggedDiv() throws Exception {
-		FunctionDefinition node1 = generateOne(null, "#nav");
+		FunctionDefinition node1 = generateOne("ME.MyCard", null, "#nav");
 		assertEquals("_templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
@@ -115,7 +114,7 @@ public class DomFunctionTests {
 		card.state = new StateDefinition();
 		card.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
 		scope.define("MyCard", "MyCard", card);
-		FunctionDefinition node1 = generateOne(null, "(tfn counter)");
+		FunctionDefinition node1 = generateOne("ME.MyCard", null, "(tfn counter)");
 		card.innerScope().define("_templateNode_1", "ME.MyCard._templateNode_1", node1);
 
 		assertEquals("_templateNode_1", node1.name);
@@ -136,9 +135,9 @@ public class DomFunctionTests {
 		c.dump();
 	}
 
-	private FunctionDefinition generateOne(StateDefinition state, String input) throws Exception {
+	private FunctionDefinition generateOne(String name, StateDefinition state, String input) throws Exception {
 		Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
-		gen = new DomFunctionGenerator(functions, null, state);
+		gen = new DomFunctionGenerator(name, functions, null, state);
 		TemplateLine tl = parse(input);
 		gen.generateOne(tl);
 		assertEquals(1, functions.size());

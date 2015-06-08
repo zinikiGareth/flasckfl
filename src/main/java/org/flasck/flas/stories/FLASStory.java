@@ -59,7 +59,7 @@ public class FLASStory implements StoryProcessor {
 			return pkg +"." + name;
 		}
 
-		public String simpleName(String key) {
+		public static String simpleName(String key) {
 			int idx = key.lastIndexOf(".");
 			return key.substring(idx+1);
 		}
@@ -128,7 +128,7 @@ public class FLASStory implements StoryProcessor {
 				if (ret.contains(cd.name))
 					er.message(b, "duplicate definition for name " + cd.name);
 				else
-					ret.define(s.simpleName(cd.name), cd.name, cd);
+					ret.define(State.simpleName(cd.name), cd.name, cd);
 				doCardDefinition(er, new State(cd.innerScope(), cd.name), cd, b.nested);
 			} else
 				throw new UtilException("Need to handle " + o.getClass());
@@ -162,7 +162,7 @@ public class FLASStory implements StoryProcessor {
 			groups.add(cfn, fcd);
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			ret.define(s.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(x.getValue().get(0).intro, x.getValue()));
+			ret.define(State.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(x.getValue().get(0).intro, x.getValue()));
 		}
 	}
 
@@ -426,7 +426,7 @@ public class FLASStory implements StoryProcessor {
 			groups.add(cfn, ecd);
 		}
 		for (Entry<String, List<EventCaseDefn>> x : groups.entrySet()) {
-			cd.innerScope().define(x.getKey(), s.withPkg(x.getKey()), new EventHandlerDefinition(x.getValue().get(0).intro, x.getValue()));
+			cd.innerScope().define(State.simpleName(x.getKey()), x.getKey(), new EventHandlerDefinition(x.getValue().get(0).intro, x.getValue()));
 		}
 	}
 

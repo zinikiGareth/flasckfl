@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
+import org.flasck.flas.parsedForm.ObjectRelative;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -75,6 +76,10 @@ public class MetaState {
 			return substs.get(var);
 		} else if (expr instanceof AbsoluteVar) {
 			String var = ((AbsoluteVar)expr).id;
+			form.dependsOn(var);
+			return var;
+		} else if (expr instanceof ObjectRelative) {
+			String var = ((ObjectRelative)expr).uniqueName();
 			form.dependsOn(var);
 			return var;
 		} else if (expr instanceof CardMember) {

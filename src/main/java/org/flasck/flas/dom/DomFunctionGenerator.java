@@ -17,12 +17,14 @@ import org.flasck.flas.tokenizers.TemplateToken;
 import org.zinutils.exceptions.UtilException;
 
 public class DomFunctionGenerator {
+	private final String prefix;
 	private final Map<String, FunctionDefinition> functions;
 	private final Scope scope;
 	private final StateDefinition state;
 	private int node = 0;
 
-	public DomFunctionGenerator(Map<String, FunctionDefinition> functions, Scope scope, StateDefinition state) {
+	public DomFunctionGenerator(String prefix, Map<String, FunctionDefinition> functions, Scope scope, StateDefinition state) {
+		this.prefix = prefix;
 		this.functions = functions;
 		this.scope = scope;
 		this.state = state;
@@ -90,7 +92,7 @@ public class DomFunctionGenerator {
 	}
 
 	private void function(Object expr) {
-		String name = "_templateNode_"+(++node);
+		String name = prefix+"._templateNode_"+(++node);
 		
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		List<Object> args = new ArrayList<Object>();
