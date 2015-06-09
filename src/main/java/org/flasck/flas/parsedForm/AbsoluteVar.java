@@ -2,7 +2,7 @@ package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 
-public class AbsoluteVar {
+public class AbsoluteVar implements ExternalRef {
 	public final String id;
 	public final Object defn;
 
@@ -15,6 +15,16 @@ public class AbsoluteVar {
 	public AbsoluteVar(ScopeEntry entry) {
 		this.id = entry.getKey();
 		this.defn = entry.getValue();
+	}
+	
+	@Override
+	public String uniqueName() {
+		return id;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return this.toString().compareTo(o.toString());
 	}
 
 	@Override

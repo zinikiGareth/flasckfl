@@ -3,6 +3,10 @@ package org.flasck.flas.vcode.hsieForm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.zinutils.exceptions.UtilException;
 
@@ -41,15 +45,14 @@ public class HSIEBlock {
 			ret = new PushCmd((Var)o);
 		else if (o instanceof Integer)
 			ret = new PushCmd((Integer)o);
-		else if (o instanceof String)
-			// TODO: check it's a defined name
-			ret = new PushCmd((String)o);
+		else if (o instanceof ExternalRef)
+			ret = new PushCmd((ExternalRef)o);
 		else if (o instanceof StringLiteral)
 			ret = new PushCmd((StringLiteral)o);
 		else if (o == null)
 			throw new UtilException("Cannot push null");
 		else
-			throw new UtilException("Invalid object to push " + o.getClass());
+			throw new UtilException("Invalid object to push " + o.getClass() + ": " + o);
 		commands.add(pos, ret);
 		return ret;
 	}

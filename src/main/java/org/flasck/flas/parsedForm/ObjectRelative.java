@@ -1,6 +1,6 @@
 package org.flasck.flas.parsedForm;
 
-public class ObjectRelative {
+public class ObjectRelative implements ExternalRef {
 	public final String clzName;
 	public final String handle;
 
@@ -11,6 +11,11 @@ public class ObjectRelative {
 	
 	public String uniqueName() {
 		return this.clzName + "." + this.handle;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		return this.toString().compareTo(o.toString());
 	}
 
 	@Override

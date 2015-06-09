@@ -1,4 +1,4 @@
-package org.flasck.flas.depedencies;
+package org.flasck.flas.dependencies;
 
 import java.util.Comparator;
 import java.util.Set;

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectRelative;
@@ -76,16 +77,20 @@ public class MetaState {
 			return substs.get(var);
 		} else if (expr instanceof AbsoluteVar) {
 			String var = ((AbsoluteVar)expr).id;
-			form.dependsOn(var);
-			return var;
+			form.dependsOn(expr);
+			return expr;
 		} else if (expr instanceof ObjectRelative) {
 			String var = ((ObjectRelative)expr).uniqueName();
-			form.dependsOn(var);
-			return var;
+			form.dependsOn(expr);
+			return expr;
 		} else if (expr instanceof CardMember) {
-			String var = ((CardMember)expr).name;
-			form.dependsOn("_card." + var);
-			return var;
+			String var = ((CardMember)expr).uniqueName();
+			form.dependsOn(expr);
+			return expr;
+		} else if (expr instanceof HandlerLambda) {
+			String var = ((HandlerLambda)expr).uniqueName();
+			form.dependsOn(expr);
+			return expr;
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr e2 = (ApplyExpr) expr;
 			List<Object> ops = new ArrayList<Object>();

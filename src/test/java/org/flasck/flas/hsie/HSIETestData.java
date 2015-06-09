@@ -400,8 +400,8 @@ public class HSIETestData {
 		assertEquals("incorrect # of formals", expected.nformal, actual.nformal);
 		assertEquals("incorrect # of total vars", expected.vars.size(), actual.vars.size());
 		assertEquals("incorrect # of externals", expected.externals.size(), actual.externals.size());
-		Iterator<String> ee = expected.externals.iterator();
-		Iterator<String> ae = actual.externals.iterator();
+		Iterator<Object> ee = expected.externals.iterator();
+		Iterator<Object> ae = actual.externals.iterator();
 		while (ee.hasNext())
 			assertEquals("incorrect external", ee.next(), ae.next());
 		compareBlocks(expected, actual);

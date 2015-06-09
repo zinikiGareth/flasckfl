@@ -21,7 +21,7 @@ public class TypeReference {
 	@Override
 	public String toString() {
 		StringBuilder ret = new StringBuilder();
-		ret.append(name);
+		ret.append(name != null ? name : var);
 		if (!args.isEmpty()) {
 			String sep = "";
 			ret.append("[");

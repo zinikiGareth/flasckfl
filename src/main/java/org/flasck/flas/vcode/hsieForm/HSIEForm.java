@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.hsie.SubstExpr;
+import org.zinutils.exceptions.UtilException;
 
 // So, basically an HSIE definition consists of
 // Fn "name" [formal-args] [bound-vars] [external-vars]
@@ -28,7 +29,7 @@ public class HSIEForm extends HSIEBlock {
 	public final int alreadyUsed;
 	public final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();
-	public final Set<String> externals = new TreeSet<String>();
+	public final Set<Object> externals = new TreeSet<Object>();
 	private final Map<Var, HSIEBlock> closures = new HashMap<Var, HSIEBlock>();
 	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 
@@ -44,7 +45,7 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	// This is the copy/rewrite constructor
-	public HSIEForm(String name, int alreadyUsed, int nformal, List<Var> vars, Collection<String> externals) {
+	public HSIEForm(String name, int alreadyUsed, int nformal, List<Var> vars, Collection<Object> externals) {
 		this.fnName = name;
 		this.alreadyUsed = alreadyUsed;
 		this.nformal = nformal;
@@ -88,9 +89,11 @@ public class HSIEForm extends HSIEBlock {
 			c.dumpOne(0);
 	}
 
-	public void dependsOn(String text) {
-		if (!text.equals(this.fnName))
-			externals.add(text);
+	public void dependsOn(Object ref) {
+		if (ref instanceof String)
+			throw new UtilException("Cannot pass in a string var: " + ref);
+		if (!ref.equals(this.fnName))
+			externals.add(ref);
 	}
 
 	public Collection<HSIEBlock> closures() {

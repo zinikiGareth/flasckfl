@@ -26,7 +26,7 @@ public class MethodConvertor {
 		}
 		// This feels very much hackishly the wrong place to put ".prototype."
 		// Should we have a MethodDefinition as well which we can generate differently?
-		return new FunctionDefinition(card +"." +type+".prototype."+m.intro.name, m.intro.args.size(), cases);
+		return new FunctionDefinition(m.intro.name, m.intro.args.size(), cases);
 	}
 
 	public static FunctionDefinition convert(Scope scope, String card, EventHandlerDefinition eh) {
@@ -59,7 +59,7 @@ public class MethodConvertor {
 			// we want some kind of invoke message
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr fn = (ApplyExpr)root.fn;
-			if (!(fn.fn instanceof AbsoluteVar) || ((AbsoluteVar)fn.fn).id.equals("FLEval.field")) throw new UtilException("unhandled case");
+			if (!(fn.fn instanceof AbsoluteVar) || ((AbsoluteVar)fn.fn).id.equals(".")) throw new UtilException("unhandled case");
 			return new ApplyExpr(scope.fromRoot("Send"),
 					fn.args.get(0),
 					fn.args.get(1),

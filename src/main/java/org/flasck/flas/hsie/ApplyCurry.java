@@ -18,7 +18,7 @@ public class ApplyCurry {
 			if (pc.fn != null) { // the normal case
 				if (pc.fn.equals("FLEval.tuple"))
 					continue;
-				Type t = tc.getTypeDefn(pc.fn);
+				Type t = tc.getTypeDefn(pc.fn.uniqueName());
 				if (t.arity() != c.nestedCommands().size()-1) {
 					System.out.println("need to curry block for type = " + t);
 					c.pushAt(0, "FLEval.curry");

@@ -10,4 +10,9 @@ public class MethodDefinition {
 		this.intro = intro;
 		this.cases = list;
 	}
+	
+	@Override
+	public String toString() {
+		return intro.toString();
+	}
 }

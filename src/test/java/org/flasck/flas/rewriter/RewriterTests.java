@@ -125,7 +125,7 @@ public class RewriterTests {
 		fn = (FunctionDefinition) rc.fnScope.get("f");
 		assertEquals("ME.MyCard.f", fn.name);
 		assertTrue(fn.cases.get(0).expr instanceof CardMember);
-		assertEquals("counter", ((CardMember)fn.cases.get(0).expr).name);
+		assertEquals("counter", ((CardMember)fn.cases.get(0).expr).var);
 	}
 
 	@Test
@@ -146,7 +146,7 @@ public class RewriterTests {
 		fn = (FunctionDefinition) rc.fnScope.get("f");
 		assertEquals("ME.MyCard.f", fn.name);
 		assertTrue(fn.cases.get(0).expr instanceof CardMember);
-		assertEquals("timer", ((CardMember)fn.cases.get(0).expr).name);
+		assertEquals("timer", ((CardMember)fn.cases.get(0).expr).var);
 	}
 
 	@Test
@@ -173,7 +173,7 @@ public class RewriterTests {
 		md = ci.methods.get(0);
 		assertEquals("ME.MyCard._C0.m", md.intro.name);
 		assertTrue(md.cases.get(0).messages.get(0).expr instanceof CardMember);
-		assertEquals("counter", ((CardMember)md.cases.get(0).messages.get(0).expr).name);
+		assertEquals("counter", ((CardMember)md.cases.get(0).messages.get(0).expr).var);
 	}
 
 	// Handler with lambda
@@ -199,6 +199,6 @@ public class RewriterTests {
 		ehd = (EventHandlerDefinition) rc.fnScope.get("eh");
 		assertEquals("ME.MyCard.eh", ehd.intro.name);
 		assertTrue(ehd.cases.get(0).messages.get(0).expr instanceof CardMember);
-		assertEquals("counter", ((CardMember)ehd.cases.get(0).messages.get(0).expr).name);
+		assertEquals("counter", ((CardMember)ehd.cases.get(0).messages.get(0).expr).var);
 	}
 }

@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
-import org.flasck.flas.depedencies.DependencyAnalyzer;
+import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.dom.DomFunctionGenerator;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
@@ -189,12 +189,18 @@ public class Compiler {
 			if (val instanceof PackageDefn) {
 				populateTypes(tc, ((PackageDefn)val).innerScope());
 			} else if (val instanceof StructDefn) {
+				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
 				tc.addStructDefn((StructDefn) val);
 			} else if (val instanceof TypeDefn) {
 				tc.addTypeDefn((TypeDefn) val);
 			} else if (val instanceof Type) {
 				tc.addExternal(x.getValue().getKey(), (Type)val);
-			}
+			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
+				System.out.println("Not adding anything for " + x.getValue().getKey() + " " + val);
+			} else if (val == null) {
+				System.out.println("Cannot add type for " + x.getValue().getKey() + " as it is null");
+			} else 
+				throw new UtilException("Cannot handle " + val);
 		}
 	}
 

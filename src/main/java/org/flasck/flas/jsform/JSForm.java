@@ -197,7 +197,7 @@ public class JSForm {
 				if (isField && pos == 2)
 					sb.append("'" + c.fn + "'");
 				else
-					sb.append(mapName(c.fn));
+					sb.append(mapName(c.fn.uniqueName()));
 			} else if (c.ival != null)
 				sb.append(c.ival);
 			else if (c.var != null)

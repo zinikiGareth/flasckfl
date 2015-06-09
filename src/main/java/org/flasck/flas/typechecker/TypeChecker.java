@@ -5,10 +5,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeDefn;
@@ -52,7 +56,6 @@ public class TypeChecker {
 	public void addExternal(String name, Type type) {
 		knowledge.put(name, type);
 	}
-
 
 	public void typecheck(Orchard<HSIEForm> functionsToCheck) {
 		System.out.println("---- Starting to typecheck");
@@ -329,13 +332,14 @@ public class TypeChecker {
 					System.out.println("tuple");
 					return "()";
 				}
-				if (r.fn.startsWith("_card")) {
+				if (r.fn instanceof CardMember) {
+					CardMember cm = (CardMember) r.fn;
 					// try and find the name of the card class
 					// this is a hack and I know it ...
-					int idx = form.fnName.length();
+//					int idx = form.fnName.length();
 //					for (int i=0;i<3;i++)
-						idx = form.fnName.lastIndexOf(".prototype.", idx-1);
-					String structName = form.fnName.substring(0, idx);
+//						idx = form.fnName.lastIndexOf(".prototype.", idx-1);
+					String structName = cm.card; // form.fnName; //.substring(0, idx);
 					System.out.println(structName);
 					if (r.fn.equals("_card"))
 						return freshVarsIn(new TypeReference(structName));
@@ -343,38 +347,42 @@ public class TypeChecker {
 					if (sd == null)
 						throw new UtilException("There was no struct definition called " + structName);
 					for (StructField sf : sd.fields) {
-						if (sf.name.equals(r.fn.substring(6))) {
+						if (sf.name.equals(cm.var)) {
 							return freshVarsIn(sf.type);
 						}
 					}
-					throw new UtilException("Could not find field " + r.fn.substring(6) + " in card " + structName);
-				} else if (r.fn.startsWith("_handler")) {
+					throw new UtilException("Could not find field " + cm.var + " in card " + structName);
+				} else if (r.fn instanceof HandlerLambda) {
+					HandlerLambda hl = (HandlerLambda) r.fn;
 					// try and find the name of the handler class
 					// this is likewise a hack and I know it ...
-					int idx = form.fnName.length();
-					for (int i=0;i<2;i++)
-						idx = form.fnName.lastIndexOf('.', idx-1);
-					String structName = form.fnName.substring(0, idx);
+//					int idx = form.fnName.length();
+//					for (int i=0;i<2;i++)
+//						idx = form.fnName.lastIndexOf('.', idx-1);
+					String structName = hl.hi; // form.fnName.substring(0, idx);
 					if (r.fn.equals("_handler"))
 						return freshVarsIn(new TypeReference(structName));
 					StructDefn sd = structs.get(structName);
 					for (StructField sf : sd.fields) {
-						if (sf.name.equals(r.fn.substring(9))) {
+						if (sf.name.equals(hl.var)) {
 							return freshVarsIn(sf.type);
 						}
 					}
-					throw new UtilException("Could not find field " + r.fn.substring(9) + " in handler " + structName);
+					throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
 				}
 				
-				Object te = localKnowledge.get(r.fn);
+				String name = r.fn.uniqueName();
+				Object te = localKnowledge.get(name);
 				if (te != null)
 					return te;
-				te = knowledge.get(r.fn);
+				te = knowledge.get(name);
 				if (te == null) {
-					if (structs.containsKey(r.fn))
-						return freshVarsIn(typeForStructCtor(structs.get(r.fn)));
+					if (structs.containsKey(name))
+						return freshVarsIn(typeForStructCtor(structs.get(name)));
 					// This is probably a failure on our part rather than user error
 					// We should not be able to get here if r.fn is not already an external which has been resolved
+					for (Entry<String, Type> x : knowledge.entrySet())
+						System.out.println(x.getKey() + " => " + x.getValue());
 					errors.message((Block)null, "There is no type for identifier: " + r.fn + " when checking " + form.fnName); // We need some way to report error location
 					return null;
 				} else {

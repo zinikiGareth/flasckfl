@@ -1,5 +1,6 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.StringLiteral;
 
 public class PushCmd extends PushReturn {
@@ -12,8 +13,8 @@ public class PushCmd extends PushReturn {
 		super(i);
 	}
 
-	public PushCmd(String fn) {
-		super(fn);
+	public PushCmd(ExternalRef ref) {
+		super(ref);
 	}
 
 	public PushCmd(StringLiteral s) {

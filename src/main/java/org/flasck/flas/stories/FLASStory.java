@@ -114,14 +114,14 @@ public class FLASStory implements StoryProcessor {
 				if (ret.contains(sd.typename))
 					er.message(b, "duplicate definition for name " + sd.typename);
 				else
-					ret.define(sd.typename, s.withPkg(sd.typename), sd);
+					ret.define(sd.typename, sd.typename, sd);
 				doStructFields(er, sd, b.nested);
 			} else if (o instanceof ContractDecl) {
 				ContractDecl cd = (ContractDecl) o;
 				if (ret.contains(cd.contractName))
 					er.message(b, "duplicate definition for name " + cd.contractName);
 				else
-					ret.define(cd.contractName, s.withPkg(cd.contractName), cd);
+					ret.define(cd.contractName, cd.contractName, cd);
 				doContractMethods(er, cd, b.nested);
 			} else if (o instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) o;

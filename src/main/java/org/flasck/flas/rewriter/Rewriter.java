@@ -120,7 +120,8 @@ public class Rewriter {
 					members.add(sf.name);
 			}
 			for (ContractImplements ci : cd.contracts) {
-				members.add(ci.referAsVar);
+				if (ci.referAsVar != null)
+					members.add(ci.referAsVar);
 			}
 			int pos = 0;
 			for (HandlerImplements hi : cd.handlers) {
@@ -131,7 +132,7 @@ public class Rewriter {
 		@Override
 		public Object resolve(String name) {
 			if (members.contains(name))
-				return new CardMember(name);
+				return new CardMember(prefix, name);
 			if (statics.containsKey(name))
 				return new ObjectRelative(prefix, "_H" + statics.get(name));
 			if (innerScope.contains(name))
@@ -144,16 +145,18 @@ public class Rewriter {
 	 */
 	class HandlerContext extends NamingContext {
 		private final HandlerImplements hi;
+		private final int cs;
 
-		HandlerContext(CardContext card, HandlerImplements hi) {
+		HandlerContext(CardContext card, HandlerImplements hi, int cs) {
 			super(card);
 			this.hi = hi;
+			this.cs = cs;
 		}
 		
 		@Override
 		public Object resolve(String name) {
 			if (hi.boundVars.contains(name))
-				return new HandlerLambda(name);
+				return new HandlerLambda(((CardContext)nested).prefix + "._H" + cs, name);
 			return nested.resolve(name);
 		}
 	}
@@ -226,8 +229,9 @@ public class Rewriter {
 		for (ContractImplements ci : cd.contracts) {
 			ret.contracts.add(rewriteCI(c2, ci));
 		}
+		int pos = 0;
 		for (HandlerImplements hi : cd.handlers) {
-			ret.handlers.add(rewriteHI(c2, hi));
+			ret.handlers.add(rewriteHI(c2, hi, pos++));
 		}
 		rewriteScope(c2, cd.fnScope, ret.fnScope);
 		return ret;
@@ -243,9 +247,9 @@ public class Rewriter {
 		return ret;
 	}
 
-	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi) {
+	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi, int cs) {
 		HandlerImplements ret = new HandlerImplements(hi.type, hi.boundVars);
-		NamingContext c2 = new HandlerContext(cx, hi);
+		NamingContext c2 = new HandlerContext(cx, hi, cs);
 		rewrite(c2, ret, hi);
 		return ret;
 	}
@@ -272,9 +276,7 @@ public class Rewriter {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
-			Set<String> locals = new TreeSet<String>();
-			c.intro.gatherVars(locals);
-			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, locals, c.innerScope()), c));
+			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(), c.innerScope()), c));
 			cs++;
 		}
 		System.out.println("rewritten to " + list.get(0).expr);
@@ -286,7 +288,7 @@ public class Rewriter {
 		List<MethodCaseDefn> list = new ArrayList<MethodCaseDefn>();
 		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, new HashSet<String>(), c.innerScope()), c));
+			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(), c.innerScope()), c));
 			cs++;
 		}
 		return new MethodDefinition(m.intro, list);
@@ -356,7 +358,7 @@ public class Rewriter {
 			if (!(r instanceof CardMember))
 				errors.message((Block)null, mm.slot.get(0) + " needs to be a state member");
 			else
-				newSlot.add(((CardMember)r).name);
+				newSlot.add(((CardMember)r).var);
 			for (int i=1;i<mm.slot.size();i++)
 				newSlot.add(mm.slot.get(i));
 		}
@@ -382,7 +384,7 @@ public class Rewriter {
 				else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(s);
-				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember || ret instanceof ObjectRelative)
+				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember || ret instanceof ObjectRelative || ret instanceof HandlerLambda)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());
@@ -400,22 +402,17 @@ public class Rewriter {
 					if (!(ae.args.get(0) instanceof ApplyExpr)) {
 						String pkgVar = ((UnresolvedVar)ae.args.get(0)).var;
 						Object pkgEntry = cx.resolve(pkgVar);
-						if (!(pkgEntry instanceof AbsoluteVar)) {
-							errors.message((Block)null, pkgVar + " is not a package name");
-							return null;
+						if (pkgEntry instanceof AbsoluteVar) {
+							Object o = ((AbsoluteVar)pkgEntry).defn;
+							if (o instanceof PackageDefn)
+								return new AbsoluteVar(((PackageDefn)o).innerScope().getEntry(field.var));
 						}
-						Object o = ((AbsoluteVar)pkgEntry).defn;
-						if (!(o instanceof PackageDefn)) {
-							errors.message((Block)null, pkgVar + " is not a package name");
-							return null;
-						}
-						return new AbsoluteVar(((PackageDefn)o).innerScope().getEntry(field.var));
 					}
 					
 					// expr . field
 					Object applyFn = rewriteExpr(cx, ae.args.get(0));
 	
-					return new ApplyExpr(cx.resolve("FLEval.field"), applyFn, new StringLiteral(field.var));
+					return new ApplyExpr(cx.resolve("."), applyFn, new StringLiteral(field.var));
 				}
 				List<Object> args = new ArrayList<Object>();
 				for (Object o : ae.args)

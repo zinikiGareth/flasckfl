@@ -1,4 +1,4 @@
-package org.flasck.flas.depedencies;
+package org.flasck.flas.dependencies;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +11,10 @@ import java.util.TreeSet;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CardScopedVar;
+import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectRelative;
@@ -75,8 +76,14 @@ public class DependencyAnalyzer {
 		if (expr == null)
 			return;
 		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
-		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof CardScopedVar)
+		if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
 			;
+		else if (expr instanceof CardMember) {
+			dcg.ensure("_var_" + ((CardMember)expr).uniqueName());
+		}
+		else if (expr instanceof HandlerLambda) {
+			dcg.ensure("_var_" + ((HandlerLambda)expr).uniqueName());
+		}
 		else if (expr instanceof LocalVar)
 			dcg.ensureLink(name, "_var_" + ((LocalVar)expr).uniqueName());
 		else if (expr instanceof AbsoluteVar) {

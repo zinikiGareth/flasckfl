@@ -1,5 +1,6 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.StringLiteral;
 
 // Push and Return are like REALLY, REALLY similar
@@ -8,7 +9,7 @@ public abstract class PushReturn extends HSIEBlock {
 	public final Var var;
 	public final Integer ival;
 	public final StringLiteral sval;
-	public final String fn;
+	public final ExternalRef fn;
 
 	public PushReturn(Var var) {
 		this.var = var;
@@ -24,7 +25,7 @@ public abstract class PushReturn extends HSIEBlock {
 		this.fn = null;
 	}
 
-	public PushReturn(String fn) {
+	public PushReturn(ExternalRef fn) {
 		this.var = null;
 		this.ival = null;
 		this.sval = null;
