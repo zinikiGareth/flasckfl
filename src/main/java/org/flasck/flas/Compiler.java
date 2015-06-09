@@ -15,6 +15,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.dom.DomFunctionGenerator;
+import org.flasck.flas.dom.RenderTree;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.hsie.ApplyCurry;
@@ -105,7 +106,8 @@ public class Compiler {
 			List<Block> blocks = makeBlocks(r);
 			ScopeEntry se = doParsing(inPkg, blocks);
 			PackageDefn pd = (PackageDefn) se.getValue();
-			promoteTemplateFunctions(pd);
+			List<RenderTree> trees = new ArrayList<RenderTree>();
+			promoteTemplateFunctions(pd, trees);
 			doRewriting(se);
 
 			Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
@@ -125,6 +127,7 @@ public class Compiler {
 				handleCurrying(tc, oh);
 				generateOrchard(forms, oh);
 			}
+			renderTemplateTrees(forms, trees);
 			for (JSForm js : forms) {
 				js.writeTo(w);
 				w.write("\n");
@@ -143,24 +146,25 @@ public class Compiler {
 		}
 	}
 
-	private void promoteTemplateFunctions(PackageDefn pd) {
+	private void promoteTemplateFunctions(PackageDefn pd, List<RenderTree> trees) {
 		for (Entry<String, ScopeEntry> x : pd.innerScope()) {
 			if (x.getValue().getValue() instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) x.getValue().getValue();
 				if (cd.template != null)
-					promoteTemplateFunctions(cd);
+					promoteTemplateFunctions(cd, trees);
 			}
 		}
 	}
 
-	private void promoteTemplateFunctions(CardDefinition card) {
+	private void promoteTemplateFunctions(CardDefinition card, List<RenderTree> trees) {
 		Map<String, FunctionDefinition> innerFns = new HashMap<String, FunctionDefinition>();
 		DomFunctionGenerator gen = new DomFunctionGenerator(card.name, innerFns, card.innerScope(), card.state);
-		gen.generate(card.template);
+		gen.generateTree(card.template);
 		for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
 			FunctionDefinition rfn = (FunctionDefinition) x2.getValue();
 			card.innerScope().define(State.simpleName(rfn.name), rfn.name, rfn);
 		}
+		trees.addAll(gen.trees);
 	}
 
 	private void doRewriting(ScopeEntry se) throws ErrorResultException {
@@ -316,18 +320,6 @@ public class Compiler {
 					pos++;
 				}
 
-				/*
-				if (card.template != null) {
-					Map<String, FunctionDefinition> innerFns = new HashMap<String, FunctionDefinition>();
-					DomFunctionGenerator gen = new DomFunctionGenerator(innerFns, scope, card.state);
-					gen.generate(card.template);
-					for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
-						FunctionDefinition rfn = (FunctionDefinition) x2.getValue();
-						functions.put(rfn.name, rfn);
-					}
-				}
-				*/
-				
 				// lift and rewrite all the functions we just defined
 				for (Entry<String, ScopeEntry> x2 : card.innerScope()) {
 					if (x2.getValue().getValue() instanceof FunctionDefinition) {
@@ -346,7 +338,14 @@ public class Compiler {
 			} else
 				throw new UtilException("Need to handle " + x.getKey() + " of type " + val.getClass());
 		}
-		System.out.println("Functions at this point are: " + functions);
+	}
+
+	private void renderTemplateTrees(List<JSForm> forms, List<RenderTree> trees) {
+		for (RenderTree t : trees) {
+			JSForm block = gen.generateTemplateTree(t.card, t.template);
+			forms.add(block);
+			gen.generateTree(block, t.ret);
+		}
 	}
 
 //	private List<String> emitPackages(List<JSForm> forms, Scope scope, String defPkg) {

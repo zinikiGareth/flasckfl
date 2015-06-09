@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -23,6 +24,7 @@ public class DomFunctionGenerator {
 	private final Scope scope;
 //	private final StateDefinition state;
 	private int node = 0;
+	public final List<RenderTree> trees = new ArrayList<RenderTree>();
 
 	public DomFunctionGenerator(String prefix, Map<String, FunctionDefinition> functions, Scope scope, StateDefinition state) {
 		this.prefix = prefix;
@@ -36,19 +38,27 @@ public class DomFunctionGenerator {
 	//  we need to generate appropriate functions
 	//  we need to create the maps of overall tree and dependencies
 
-	public void generate(TemplateLine template) {
-		generateOne(template);
+	public void generateTree(TemplateLine template) {
+		RenderTree rt = new RenderTree(prefix, "template", (Element) generate(template));
+		trees.add(rt);
+	}
+
+	public Object generate(TemplateLine template) {
+		Object ret = generateOne(template);
 		for (TemplateLine tl : template.nested)
-			generate(tl);
+			((Element)ret).addChildren(generate(tl));
+		return ret;
 	}
 	
-	// TODO: this shouldn't take both a "name" and a "line"
 	// I think there should be a name-generator in this class
 	// We should then iterate over the "contents" array (if not a div/list)
-	public void generateOne(TemplateLine tl) {
-		if (tl.contents.isEmpty())
-			function(div(tl));
-		else {
+	public Object generateOne(TemplateLine tl) {
+		if (tl.contents.isEmpty()) {
+			RenderTree.ElementExpr pair = div(tl);
+			function(pair.element.fn, pair.expr);
+			return pair.element;
+		} else {
+			List<Element> ret = new ArrayList<Element>();
 			for (Object x : tl.contents) {
 				if (x instanceof TemplateToken) {
 					TemplateToken tt = (TemplateToken)x;
@@ -57,25 +67,34 @@ public class DomFunctionGenerator {
 					if (tt.type == TemplateToken.IDENTIFIER) {
 						// TODO: distinguish between state vars and functions to call
 						// TODO: check that functions are defined on the card and not global
-						function(new CardMember(prefix, tt.text));
-					} else if (tt.type == TemplateToken.STRING)
-						function(new StringLiteral(tt.text));
-					else if (tt.type == TemplateToken.DIV)
-						function(div(tl));
-					else
+						String fn = nextFnName();
+						function(fn, new CardMember(prefix, tt.text));
+						ret.add(new Element("content", fn));
+					} else if (tt.type == TemplateToken.STRING) {
+						String fn = nextFnName();
+						function(fn, new StringLiteral(tt.text));
+						ret.add(new Element("content", fn));
+					} else if (tt.type == TemplateToken.DIV) {
+						RenderTree.ElementExpr pair = div(tl);
+						function(pair.element.fn, pair.expr);
+						return pair.element; // there can only be one item in this case
+					} else
 						throw new UtilException("template token case not handled: " + tt.type);
 				} else if (x instanceof ApplyExpr) {
 					// in this case, this is an expression which should return an HTML structure or text value
 					// anyway, it can be directly inserted into the DOM
 					// But, it is effectively curried on the card, so lift that
-					function(x);
+					String fn = nextFnName();
+					function(fn, x);
+					ret.add(new Element("content", fn));
 				} else
 					throw new UtilException("Non TT not handled: " + x.getClass());
 			}
+			return ret;
 		}
 	}
 
-	private Object div(TemplateLine tl) {
+	private RenderTree.ElementExpr div(TemplateLine tl) {
 		Object tag;
 		if (tl.customTagVar != null)
 			tag = new UnresolvedVar(tl.customTagVar);
@@ -86,15 +105,23 @@ public class DomFunctionGenerator {
 				tag = new StringLiteral("div");
 		}
 			
+		Element elt = new Element("div", nextFnName());
+		for (TemplateToken tt : tl.formats) {
+			if (tt.type == TemplateToken.STRING) {
+				elt.addClass(tt.text);
+			}
+		}
 		// TODO: handle attributes (including from vars)
 		// TODO: handle formats? (or just put them in the tree? because they are "common" to all classes?)
 		// TODO: generate tree state
-		return new ApplyExpr(scope.fromRoot("DOM.Element"), tag, scope.fromRoot("Nil"), scope.fromRoot("Nil"), scope.fromRoot("Nil"));
+		return new RenderTree.ElementExpr(elt, new ApplyExpr(scope.fromRoot("DOM.Element"), tag, scope.fromRoot("Nil"), scope.fromRoot("Nil"), scope.fromRoot("Nil")));
 	}
 
-	private void function(Object expr) {
-		String name = prefix+"._templateNode_"+(++node);
-		
+	private String nextFnName() {
+		return prefix+"._templateNode_"+(++node);
+	}
+
+	private void function(String name, Object expr) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		List<Object> args = new ArrayList<Object>();
 		cases.add(new FunctionCaseDefn(scope, name, args, expr));

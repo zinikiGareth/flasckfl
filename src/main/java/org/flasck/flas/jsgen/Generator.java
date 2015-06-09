@@ -3,6 +3,7 @@ package org.flasck.flas.jsgen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -214,4 +215,39 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 				h.dumpOne(0);
 		}
 	}
+
+	public JSForm generateTemplateTree(String name, String templateName) {
+		return new JSForm(name + "." + templateName + " =").needBlock().needSemi();
+	}
+
+	public void generateTree(JSForm block, Element ret) {
+		int idx = ret.fn.lastIndexOf(".");
+		String jsname = ret.fn.substring(0, idx+1) + "prototype" + ret.fn.substring(idx);
+
+		StringBuilder thisOne = new StringBuilder("type: '" + ret.type + "', fn: " + jsname + ", class: [");
+		String sep = "";
+		for (String s : ret.classes) {
+			thisOne.append(sep);
+			thisOne.append("'");
+			thisOne.append(s);
+			thisOne.append("'");
+			sep = ", ";
+		}
+		thisOne.append("]");
+		if (!ret.children.isEmpty())
+			thisOne.append(", children:");
+		JSForm next = new JSForm(thisOne.toString());
+		next.noSemi();
+		block.add(next);
+
+		if (!ret.children.isEmpty()) {
+			next.nestArray();
+			for (Element e : ret.children) {
+				JSForm wrapper = new JSForm("").needBlock();
+				next.add(wrapper);
+				generateTree(wrapper, e);
+			}
+		}
+	}
+
 }

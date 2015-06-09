@@ -28,6 +28,7 @@ public class JSForm {
 	private String endWith = ";";
 	private List<JSForm> block = null;
 	private int insertPoint = 0;
+	private boolean isArray = false;
 
 	public JSForm(String text) {
 		this.text = text;
@@ -37,10 +38,29 @@ public class JSForm {
 		endWith = ",";
 		return this;
 	}
+	
+	public JSForm needSemi() {
+		endWith = ";";
+		return this;
+	}
+
+	public JSForm noSemi() {
+		endWith = "";
+		return this;
+	}
 
 	public JSForm needBlock() {
-		if (block == null)
+		if (block == null) {
 			block = new ArrayList<JSForm>();
+			endWith = "";
+		}
+		return this;
+	}
+
+	public JSForm nestArray() {
+		if (block != null)
+			throw new UtilException("Cannot have both block and array");
+		isArray = true;
 		return this;
 	}
 
@@ -70,31 +90,50 @@ public class JSForm {
 	}
 
 	public void writeTo(Writer w) throws IOException {
-		toString(w, 0);
+		toString(w, 0, true, false);
 	}
 
 	@Override
 	public String toString() {
 		try {
 			StringWriter ret = new StringWriter();
-			this.toString(ret, 0);
+			this.writeTo(ret);
 			return ret.toString();
 		} catch (IOException ex) {
 			return null;
 		}
 	}
 
-	private void toString(Writer ret, int ind) throws IOException {
-		indent(ret, ind);
+	private void toString(Writer ret, int ind, boolean indentLine, boolean inArray) throws IOException {
+		if (indentLine)
+			indent(ret, ind);
 		ret.append(text);
 		if (block != null) {
-			ret.append(" {\n");
-			for (JSForm f : block)
-				f.toString(ret, ind+2);
-			indent(ret, ind);
-			ret.append("}\n");
-		} else
-			ret.append(endWith + "\n");
+			if (isArray)
+				ret.append(" [");
+			else if (inArray)
+				ret.append("{\n");
+			else
+				ret.append(" {\n");
+			boolean indNext = !isArray;
+			String sep = "";
+			for (JSForm f : block) {
+				ret.append(sep);
+				f.toString(ret, isArray?ind:ind+2, indNext, isArray);
+//				indNext = true;
+				if (isArray)
+					sep =", ";
+			}
+			if (inArray)
+				indent(ret, ind);
+			if (isArray)
+				ret.append("]");
+			else
+				ret.append("}");
+		}
+		ret.append(endWith);
+		if (!inArray)
+			ret.append("\n");
 	}
 	
 	private void indent(Writer ret, int ind) throws IOException {
@@ -247,17 +286,4 @@ public class JSForm {
 		else
 			throw new UtilException("What are you pushing? " + c);
 	}
-
-	/*
-	private static String mapName(String fn) {
-//		System.out.println("Need to map " + fn);
-		if (fn.startsWith("_card"))
-			return "this."+fn;
-		else if (fn.startsWith("_handler"))
-			return "this"+fn.substring(8);
-		else if (fn.startsWith("_scoped."))
-			return fn.substring(8);
-		return fn;
-	}
-	*/
 }
