@@ -242,13 +242,23 @@ public class Rewriter {
 	}
 
 	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
-		ContractImplements ret = new ContractImplements(ci.type, ci.referAsVar);
+		Object av = cx.nested.resolve(ci.type);
+		if (av == null || !(av instanceof AbsoluteVar)) {
+			errors.message((Block)null, "cannot find a valid definition of contract " + ci.type);
+			return ci;
+		}
+		ContractImplements ret = new ContractImplements(((AbsoluteVar)av).id, ci.referAsVar);
 		rewrite(cx, ret, ci);
 		return ret;
 	}
 
 	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi, int cs) {
-		HandlerImplements ret = new HandlerImplements(hi.type, hi.boundVars);
+		Object av = cx.nested.resolve(hi.type);
+		if (av == null || !(av instanceof AbsoluteVar)) {
+			errors.message((Block)null, "cannot find a valid definition of contract " + hi.type);
+			return hi;
+		}
+		HandlerImplements ret = new HandlerImplements(((AbsoluteVar)av).id, hi.boundVars);
 		NamingContext c2 = new HandlerContext(cx, hi, cs);
 		rewrite(c2, ret, hi);
 		return ret;

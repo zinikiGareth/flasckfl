@@ -62,8 +62,8 @@ public class Compiler {
 	
 	public void compile(File file) {
 		String inPkg = file.getName();
-		System.out.println("compiling package " + inPkg);
 		File writeTo = new File(file, inPkg + ".js");
+		System.out.println("compiling package " + inPkg + " to " + writeTo);
 			
 		FileWriter w = null;
 		try {

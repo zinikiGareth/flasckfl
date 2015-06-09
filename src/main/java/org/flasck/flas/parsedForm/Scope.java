@@ -38,6 +38,11 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 		public Scope scope() {
 			return Scope.this;
 		}
+		
+		@Override
+		public String toString() {
+			return name + " => " + defn;
+		}
 	}
 
 	public final Scope outer;

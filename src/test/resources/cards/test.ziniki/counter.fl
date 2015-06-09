@@ -14,7 +14,7 @@
 		state	
 			Number counter <- 0
 
-		template
+		template	
 			counter : format
 
 I would like this to be org.cardstack.Init, but for now, compromise
