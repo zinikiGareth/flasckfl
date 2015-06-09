@@ -171,7 +171,7 @@ public class Rewriter {
 		protected final Set<String> bound;
 		private final Scope inner;
 
-		FunctionCaseContext(NamingContext cx, String myname, int cs, Set<String> locals, Scope inner) {
+		FunctionCaseContext(NamingContext cx, String myname, int cs, Set<String> locals, Scope inner, boolean fromMethod) {
 			super(cx);
 			this.myname = myname +"_"+cs;
 			this.bound = locals;
@@ -183,7 +183,10 @@ public class Rewriter {
 				return new LocalVar(myname, name);
 			if (inner.contains(name))
 				return new AbsoluteVar(inner.getEntry(name));
-			return nested.resolve(name);
+			Object res = nested.resolve(name);
+			if (res instanceof ObjectRelative)
+				return new ObjectRelative((ObjectRelative)res, true);
+			return res;
 		}
 	}
 
@@ -286,7 +289,7 @@ public class Rewriter {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(), c.innerScope()), c));
+			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(), c.innerScope(), false), c));
 			cs++;
 		}
 		System.out.println("rewritten to " + list.get(0).expr);
@@ -298,7 +301,7 @@ public class Rewriter {
 		List<MethodCaseDefn> list = new ArrayList<MethodCaseDefn>();
 		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(), c.innerScope()), c));
+			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(), c.innerScope(), true), c));
 			cs++;
 		}
 		return new MethodDefinition(m.intro, list);
@@ -310,7 +313,7 @@ public class Rewriter {
 		for (EventCaseDefn c : ehd.cases) {
 			Set<String> locals = new HashSet<String>();
 			ehd.intro.gatherVars(locals);
-			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name, cs, locals, c.innerScope()), c));
+			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name, cs, locals, c.innerScope(), false), c));
 			cs++;
 		}
 		return new EventHandlerDefinition(ehd.intro, list);

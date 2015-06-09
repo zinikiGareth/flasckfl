@@ -283,6 +283,7 @@ public class Compiler {
 				int pos = 0;
 				for (ContractImplements ci : card.contracts) {
 					forms.add(gen.generateContract(name, ci, pos));
+					forms.add(gen.generateContractCtor(name, ci, pos));
 					for (MethodDefinition m : ci.methods) {
 						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_C"+pos, HSIEForm.Type.CONTRACT, m);
 						functions.put(fd.name, fd);
@@ -307,6 +308,7 @@ public class Compiler {
 						tc.addStructDefn(sd);
 					}
 					forms.add(gen.generateHandler(name, hi, pos));
+					forms.add(gen.generateHandlerCtor(name, hi, pos));
 					for (MethodDefinition m : hi.methods) {
 						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_H"+pos, HSIEForm.Type.HANDLER, m);
 						functions.put(fd.name, fd);

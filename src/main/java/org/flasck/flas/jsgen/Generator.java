@@ -31,6 +31,9 @@ public class Generator {
 		if (input.isMethod()) {
 			int idx = jsname.lastIndexOf(".");
 			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
+			idx = jsname.lastIndexOf("._C");
+			if (idx == -1) idx = jsname.lastIndexOf("._H");
+			if (idx != -1) jsname = jsname.substring(0, idx+1) + "_" + jsname.substring(idx+1);
 		}
 		JSForm ret = JSForm.function(jsname, input.vars, input.alreadyUsed, input.nformal);
 		generateBlock(input.fnName, input, ret, input);
@@ -88,7 +91,7 @@ public class Generator {
 		cf.add(new JSForm("this.contracts = {}"));
 		int pos = 0;
 		for (ContractImplements ci : card.contracts) {
-			cf.add(new JSForm("this.contracts['" + ci.type +"'] = new "+ name +"._C" +pos + "(this)"));
+			cf.add(new JSForm("this.contracts['" + ci.type +"'] = "+ name +"._C" +pos + ".apply(this)"));
 			if (ci.referAsVar != null)
 				cf.add(new JSForm("this." + ci.referAsVar + " = this.contracts['" + ci.type + "']"));
 			pos++;
@@ -108,9 +111,10 @@ public class Generator {
 	}
 
 	public JSForm generateContract(String name, ContractImplements ci, int pos) {
-		String myname = name +"._C"+pos;
-		JSForm ret = JSForm.function(myname, CollectionUtils.listOf(new Var(0)), 0, 1);
-		ret.add(new JSForm("this._ctor = '" + myname + "'"));
+		String ctorname = name +"._C"+pos;
+		String clzname = name +".__C"+pos;
+		JSForm ret = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), 0, 1);
+		ret.add(new JSForm("this._ctor = '" + ctorname + "'"));
 		ret.add(new JSForm("this._card = v0"));
 		ret.add(new JSForm("this._special = 'contract'"));
 		ret.add(new JSForm("this._contract = '" + ci.type + "'"));
@@ -118,13 +122,22 @@ public class Generator {
 		return ret;
 	}
 
+	public JSForm generateContractCtor(String name, ContractImplements ci, int pos) {
+		String ctorname = name +"._C"+pos;
+		String clzname = name +".__C"+pos;
+		JSForm ret = JSForm.function(ctorname, new ArrayList<Var>(), 0, 0);
+		ret.add(new JSForm("return new " + clzname + "(this)"));
+		return ret;
+	}
+
 	public JSForm generateHandler(String name, HandlerImplements hi, int pos) {
-		String myname = name +"._H"+pos;
+		String ctorname = name +"._H"+pos;
+		String clzname = name +".__H"+pos;
 		List<Var> vars = new ArrayList<Var>();
 		for (int i=0;i<=hi.boundVars.size();i++)
 			vars.add(new Var(i));
-		JSForm ret = JSForm.function(myname, vars, 0, hi.boundVars.size() + 1);
-		ret.add(new JSForm("this._ctor = '" + myname + "'"));
+		JSForm ret = JSForm.function(clzname, vars, 0, hi.boundVars.size() + 1);
+		ret.add(new JSForm("this._ctor = '" + ctorname + "'"));
 		ret.add(new JSForm("this._card = v0"));
 		ret.add(new JSForm("this._special = 'handler'"));
 		ret.add(new JSForm("this._contract = '" + hi.type + "'"));
@@ -132,6 +145,20 @@ public class Generator {
 		int v = 1;
 		for (String s : hi.boundVars) 
 			ret.add(new JSForm("this." + s + " = v" + v++));
+		return ret;
+	}
+
+	public JSForm generateHandlerCtor(String name, HandlerImplements hi, int pos) {
+		String ctorname = name +"._H"+pos;
+		String clzname = name +".__H"+pos;
+		List<Var> vars = new ArrayList<Var>();
+		for (int i=0;i<hi.boundVars.size();i++)
+			vars.add(new Var(i));
+		JSForm ret = JSForm.function(ctorname, vars, 0, hi.boundVars.size());
+		StringBuffer sb = new StringBuffer("this");
+		for (Var v : vars)
+			sb.append(", " + v);
+		ret.add(new JSForm("return new " + clzname + "(" + sb +")"));
 		return ret;
 	}
 

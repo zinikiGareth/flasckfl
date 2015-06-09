@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectRelative;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -190,7 +191,12 @@ public class JSForm {
 	}
 
 	private static String closure(Type fntype, HSIEBlock closure) {
-		StringBuilder sb = new StringBuilder("FLEval.closure(");
+		StringBuilder sb;
+		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
+		if (fn instanceof ObjectRelative)
+			sb = new StringBuilder("FLEval.oclosure(" + (((ObjectRelative)fn).fromHandler?"this._card":"this") + ", ");
+		else
+			sb = new StringBuilder("FLEval.closure(");
 		int pos = 0;
 		boolean isField = false;
 		for (HSIEBlock b : closure.nestedCommands()) {
@@ -199,10 +205,6 @@ public class JSForm {
 				sb.append(", ");
 			if (c.fn != null && pos == 0) {
 				isField = "FLEval.field".equals(c.fn);
-				// handle ctor
-//				int idx = c.fn.lastIndexOf('.')+1;
-//				if (Character.isUpperCase(c.fn.charAt(idx)))
-//					sb.append("FLEval.makeNew, ");
 			}
 			 if (c.fn != null && isField && pos == 2)
 				sb.append("'" + c.fn + "'");
@@ -219,15 +221,7 @@ public class JSForm {
 			if (c.fn instanceof AbsoluteVar)
 				sb.append(c.fn.uniqueName());
 			else if (c.fn instanceof ObjectRelative) {
-				// No, this is the wrong test.  The cases are correct
-				// We need to look at what c.fn.defn is: handler then case (a), function then (b)
-				if (pos == 0) {// I believe this is always a handler constructor
-					sb.append("FLEval.makeNew, ");
-					sb.append(c.fn.uniqueName());
-					sb.append(", this._card");
-				} else { // this is just a card-scoped function
-					sb.append(c.fn.uniqueName());
-				}
+				sb.append(c.fn.uniqueName());
 			} else if (c.fn instanceof CardMember) {
 				if (fntype == Type.CARD || fntype == Type.EVENTHANDLER)
 					sb.append("this." + ((CardMember)c.fn).var);

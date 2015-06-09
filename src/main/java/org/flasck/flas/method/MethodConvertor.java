@@ -25,8 +25,6 @@ public class MethodConvertor {
 		for (MethodCaseDefn mcd : m.cases) {
 			cases.add(new FunctionCaseDefn(null, mcd.intro.name, mcd.intro.args, convert(scope, mcd.messages)));
 		}
-		// This feels very much hackishly the wrong place to put ".prototype."
-		// Should we have a MethodDefinition as well which we can generate differently?
 		return new FunctionDefinition(ft, m.intro.name, m.intro.args.size(), cases);
 	}
 
