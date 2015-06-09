@@ -62,6 +62,10 @@ public class Compiler {
 	
 	public void compile(File file) {
 		String inPkg = file.getName();
+		if (!file.isDirectory()) {
+			System.out.println("there is no directory " + file);
+			return;
+		}
 		File writeTo = new File(file, inPkg + ".js");
 		System.out.println("compiling package " + inPkg + " to " + writeTo);
 			
@@ -280,7 +284,7 @@ public class Compiler {
 				for (ContractImplements ci : card.contracts) {
 					forms.add(gen.generateContract(name, ci, pos));
 					for (MethodDefinition m : ci.methods) {
-						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_C"+pos, m);
+						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_C"+pos, HSIEForm.Type.CONTRACT, m);
 						functions.put(fd.name, fd);
 					}
 					pos++;
@@ -304,7 +308,7 @@ public class Compiler {
 					}
 					forms.add(gen.generateHandler(name, hi, pos));
 					for (MethodDefinition m : hi.methods) {
-						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_H"+pos, m);
+						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_H"+pos, HSIEForm.Type.HANDLER, m);
 						functions.put(fd.name, fd);
 					}
 					pos++;

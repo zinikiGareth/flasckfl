@@ -27,7 +27,12 @@ import org.zinutils.exceptions.UtilException;
 public class Generator {
 
 	public JSForm generate(HSIEForm input) {
-		JSForm ret = JSForm.function(input.fnName, input.vars, input.alreadyUsed, input.nformal);
+		String jsname = input.fnName;
+		if (input.isMethod()) {
+			int idx = jsname.lastIndexOf(".");
+			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
+		}
+		JSForm ret = JSForm.function(jsname, input.vars, input.alreadyUsed, input.nformal);
 		generateBlock(input.fnName, input, ret, input);
 		return ret;
 	}
@@ -131,14 +136,12 @@ public class Generator {
 	}
 
 	/* We want something like this:
-
 test.ziniki.CounterCard.prototype._templateLine1 = {
 	tag: 'span',
 	render: function(doc, myblock) {
 		myblock.appendChild(doc.createTextNode(this.counter));
 	}
 }
-
 	 */
 	public JSForm generateTemplateLine(TemplateRenderState trs, TemplateLine tl) {
 		JSForm ret = new JSForm(trs.name + ".prototype._templateLine"+trs.lineNo() + " =").needBlock();

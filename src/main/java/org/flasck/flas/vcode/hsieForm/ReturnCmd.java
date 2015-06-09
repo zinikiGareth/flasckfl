@@ -2,6 +2,7 @@ package org.flasck.flas.vcode.hsieForm;
 
 import java.util.List;
 
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.StringLiteral;
 
 public class ReturnCmd extends PushReturn {
@@ -22,7 +23,7 @@ public class ReturnCmd extends PushReturn {
 		this.deps = null;
 	}
 
-	public ReturnCmd(String fn) {
+	public ReturnCmd(ExternalRef fn) {
 		super(fn);
 		this.deps = null;
 	}

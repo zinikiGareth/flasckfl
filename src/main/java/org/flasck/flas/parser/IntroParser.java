@@ -38,7 +38,7 @@ public class IntroParser implements TryParsing {
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
-			StructDefn ret = new StructDefn(tn);
+			StructDefn ret = new StructDefn(state.withPkg(tn));
 			while (line.hasMore()) {
 				String ta = TypeNameToken.from(line);
 				if (ta == null)

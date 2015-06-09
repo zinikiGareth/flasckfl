@@ -3,10 +3,7 @@ package org.flasck.flas.vcode.hsieForm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.AbsoluteVar;
-import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ExternalRef;
-import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.zinutils.exceptions.UtilException;
 
@@ -65,9 +62,8 @@ public class HSIEBlock {
 			ret = new ReturnCmd((Integer)o);
 		else if (o instanceof StringLiteral)
 			ret = new ReturnCmd((StringLiteral)o);
-		else if (o instanceof String)
-			// TODO: check it's a defined name
-			ret = new ReturnCmd((String)o);
+		else if (o instanceof ExternalRef)
+			ret = new ReturnCmd((ExternalRef)o);
 		else
 			throw new UtilException("Invalid object to return");
 		commands.add(ret);

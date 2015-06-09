@@ -25,6 +25,11 @@ import org.zinutils.exceptions.UtilException;
 
 // Each of the Expressions En is modified to be just a simple apply-tree
 public class HSIEForm extends HSIEBlock {
+	public enum Type {
+		FUNCTION, CARD, CONTRACT, HANDLER, EVENTHANDLER
+	}
+
+	public final Type mytype;
 	public final String fnName;
 	public final int alreadyUsed;
 	public final int nformal;
@@ -34,7 +39,8 @@ public class HSIEForm extends HSIEBlock {
 	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 
 	// This constructor is the one for real code
-	public HSIEForm(String name, int alreadyUsed, Map<String, Var> map, int nformal) {
+	public HSIEForm(Type mytype, String name, int alreadyUsed, Map<String, Var> map, int nformal) {
+		this.mytype = mytype;
 		this.fnName = name;
 		this.alreadyUsed = alreadyUsed;
 		for (int i=0;i<alreadyUsed;i++)
@@ -45,7 +51,8 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	// This is the copy/rewrite constructor
-	public HSIEForm(String name, int alreadyUsed, int nformal, List<Var> vars, Collection<Object> externals) {
+	public HSIEForm(Type mytype, String name, int alreadyUsed, int nformal, List<Var> vars, Collection<Object> externals) {
+		this.mytype = mytype;
 		this.fnName = name;
 		this.alreadyUsed = alreadyUsed;
 		this.nformal = nformal;
@@ -54,7 +61,8 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	// This constructor is for testing
-	public HSIEForm(String name, int alreadyUsed, int nformal, int nbound, Collection<String> dependsOn) {
+	public HSIEForm(Type mytype, String name, int alreadyUsed, int nformal, int nbound, Collection<String> dependsOn) {
+		this.mytype = mytype;
 		fnName = name;
 		this.alreadyUsed = alreadyUsed;
 		this.nformal = nformal;
@@ -108,5 +116,9 @@ public class HSIEForm extends HSIEBlock {
 	@Override
 	public String toString() {
 		return fnName + "/" + nformal;
+	}
+
+	public boolean isMethod() {
+		return mytype == Type.CARD || mytype == Type.CONTRACT || mytype == Type.HANDLER || mytype == Type.EVENTHANDLER;
 	}
 }

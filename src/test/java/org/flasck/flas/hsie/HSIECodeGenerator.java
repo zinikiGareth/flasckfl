@@ -8,6 +8,7 @@ import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
@@ -21,7 +22,7 @@ public class HSIECodeGenerator {
 	public void testConvertingIdOf1() {
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = plus1 1"));
-		FunctionDefinition f = new FunctionDefinition("f", 0, CollectionUtils.listOf(c1));
+		FunctionDefinition f = new FunctionDefinition(Type.FUNCTION, "f", 0, CollectionUtils.listOf(c1));
 		HSIEForm form = HSIE.handle(f);
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.plus1Of1(), form);
@@ -32,7 +33,7 @@ public class HSIECodeGenerator {
 	public void testConvertingIdDecode() {
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = id (decode (id 32))"));
-		FunctionDefinition f = new FunctionDefinition("f", 0, CollectionUtils.listOf(c1));
+		FunctionDefinition f = new FunctionDefinition(Type.FUNCTION, "f", 0, CollectionUtils.listOf(c1));
 		HSIEForm form = HSIE.handle(f);
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.idDecode(), form);
@@ -42,7 +43,7 @@ public class HSIECodeGenerator {
 	public void testASimpleRecursivelyDefinedFunction1() {
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
-		FunctionDefinition f = new FunctionDefinition("f", 1, CollectionUtils.listOf(c1));
+		FunctionDefinition f = new FunctionDefinition(Type.FUNCTION, "f", 1, CollectionUtils.listOf(c1));
 		HSIEForm form = HSIE.handle(f);
 		assertNotNull(form);
 		form.dump();
@@ -53,7 +54,7 @@ public class HSIECodeGenerator {
 	public void testASimpleRecursivelyDefinedFunction2() {
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("g x = f (x+1)"));
-		FunctionDefinition f = new FunctionDefinition("g", 1, CollectionUtils.listOf(c1));
+		FunctionDefinition f = new FunctionDefinition(Type.FUNCTION, "g", 1, CollectionUtils.listOf(c1));
 		HSIEForm form = HSIE.handle(f);
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.rdf2(), form);

@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
@@ -28,7 +29,7 @@ public class HSIE {
 	}
 	
 	public static HSIEForm handle(FunctionDefinition defn, int alreadyUsed, Map<String, Var> map) {
-		HSIEForm ret = new HSIEForm(defn.name, alreadyUsed, map, defn.nargs);
+		HSIEForm ret = new HSIEForm(defn.mytype, defn.name, alreadyUsed, map, defn.nargs);
 		MetaState ms = new MetaState(ret);
 		if (defn.nargs == 0)
 			return handleConstant(ms, defn);
@@ -42,7 +43,7 @@ public class HSIE {
 	}
 
 	public static HSIEForm handleExpr(Object expr) {
-		MetaState ms = new MetaState(new HSIEForm("", 0, new HashMap<String, Var>(), 0));
+		MetaState ms = new MetaState(new HSIEForm(Type.FUNCTION, "", 0, new HashMap<String, Var>(), 0));
 		Object ret = ms.getValueFor(new SubstExpr(expr));
 		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;

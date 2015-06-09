@@ -1,5 +1,6 @@
 package org.flasck.flas.hsie;
 
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -16,12 +17,12 @@ public class ApplyCurry {
 
 			// This is a very weird case
 			if (pc.fn != null) { // the normal case
-				if (pc.fn.equals("FLEval.tuple"))
+				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;
 				Type t = tc.getTypeDefn(pc.fn.uniqueName());
 				if (t.arity() != c.nestedCommands().size()-1) {
 					System.out.println("need to curry block for type = " + t);
-					c.pushAt(0, "FLEval.curry");
+					c.pushAt(0, new AbsoluteVar("FLEval.curry", null));
 					c.pushAt(2, t.arity());
 				}
 			} else if (pc.var != null) { // the closure case, q.v.

@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.flasck.flas.vcode.hsieForm.Var;
 
 public class HSIETestData {
@@ -328,7 +329,7 @@ public class HSIETestData {
 	}
 
 	private static HSIEForm thingy(String name, int alreadyUsed, int nformal, int nbound, List<String> dependsOn, String... commands) {
-		HSIEForm ret = new HSIEForm(name, alreadyUsed, nformal, nbound, dependsOn);
+		HSIEForm ret = new HSIEForm(Type.FUNCTION, name, alreadyUsed, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;
 		List<HSIEBlock> stack = new ArrayList<HSIEBlock>();
 		stack.add(0, ret);

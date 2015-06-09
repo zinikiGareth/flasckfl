@@ -3,13 +3,17 @@ package org.flasck.flas.parsedForm;
 import java.io.Writer;
 import java.util.List;
 
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
+
 public class FunctionDefinition {
+	public final Type mytype;
 	public final String name;
 	public final int nargs;
 	public final List<FunctionCaseDefn> cases;
 //	private final Scope scope;
 
-	public FunctionDefinition(String name, int nargs, List<FunctionCaseDefn> list) {
+	public FunctionDefinition(Type mytype, String name, int nargs, List<FunctionCaseDefn> list) {
+		this.mytype = mytype;
 		this.name = name;
 		this.nargs = nargs;
 		this.cases = list;
@@ -19,8 +23,8 @@ public class FunctionDefinition {
 //		this.scope = list.get(list.size()-1).innerScope();
 	}
 
-	public FunctionDefinition(FunctionIntro intro, List<FunctionCaseDefn> list) {
-		this(intro.name, intro.args.size(), list);
+	public FunctionDefinition(Type mytype, FunctionIntro intro, List<FunctionCaseDefn> list) {
+		this(mytype, intro.name, intro.args.size(), list);
 	}
 
 	public void dumpTo(Writer pw) throws Exception {

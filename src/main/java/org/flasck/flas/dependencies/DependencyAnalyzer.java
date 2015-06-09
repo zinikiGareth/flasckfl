@@ -170,8 +170,11 @@ public class DependencyAnalyzer {
 					g.remove(lc.getFrom());
 					for (Link<String> lu : lc.getFromNode().linksTo()) {
 						g.remove(lu.getFrom());
-						if (fdm.containsKey(lu.getFrom()))
-							t.addChild(t.getRoot(), fdm.get(lu.getFrom()));
+						if (fdm.containsKey(lu.getFrom())) {
+							FunctionDefinition to = fdm.get(lu.getFrom());
+							if (!to.name.equals(lu.getFrom()))
+								t.addChild(t.getRoot(), to);
+						}
 					}
 				}
 			}

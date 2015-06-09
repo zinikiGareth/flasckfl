@@ -6,10 +6,15 @@ public class AbsoluteVar implements ExternalRef {
 	public final String id;
 	public final Object defn;
 
-	@Deprecated // or at least should have a defn
+	@Deprecated
 	public AbsoluteVar(String id) {
 		this.id = id;
 		this.defn = null; // not a good idea
+	}
+
+	public AbsoluteVar(String id, Object defn) {
+		this.id = id;
+		this.defn = defn;
 	}
 
 	public AbsoluteVar(ScopeEntry entry) {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
@@ -13,6 +14,7 @@ import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.TemplateToken;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class DomFunctionGenerator {
@@ -55,7 +57,7 @@ public class DomFunctionGenerator {
 					if (tt.type == TemplateToken.IDENTIFIER) {
 						// TODO: distinguish between state vars and functions to call
 						// TODO: check that functions are defined on the card and not global
-						function(new StringLiteral(tt.text));
+						function(new CardMember(prefix, tt.text));
 					} else if (tt.type == TemplateToken.STRING)
 						function(new StringLiteral(tt.text));
 					else if (tt.type == TemplateToken.DIV)
@@ -96,6 +98,6 @@ public class DomFunctionGenerator {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		List<Object> args = new ArrayList<Object>();
 		cases.add(new FunctionCaseDefn(scope, name, args, expr));
-		functions.put(name, new FunctionDefinition(name, 0, cases));
+		functions.put(name, new FunctionDefinition(Type.CARD, name, 0, cases));
 	}
 }

@@ -39,11 +39,11 @@ import org.flasck.flas.parser.MethodParser;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
 public class FLASStory implements StoryProcessor {
-
 	public static class State {
 		private String pkg;
 		public final Scope scope;
@@ -111,10 +111,7 @@ public class FLASStory implements StoryProcessor {
 				}
 			} else if (o instanceof StructDefn) {
 				StructDefn sd = (StructDefn)o;
-				if (ret.contains(sd.typename))
-					er.message(b, "duplicate definition for name " + sd.typename);
-				else
-					ret.define(sd.typename, sd.typename, sd);
+				ret.define(State.simpleName(sd.typename), sd.typename, sd);
 				doStructFields(er, sd, b.nested);
 			} else if (o instanceof ContractDecl) {
 				ContractDecl cd = (ContractDecl) o;
@@ -162,7 +159,7 @@ public class FLASStory implements StoryProcessor {
 			groups.add(cfn, fcd);
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			ret.define(State.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(x.getValue().get(0).intro, x.getValue()));
+			ret.define(State.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(HSIEForm.Type.FUNCTION, x.getValue().get(0).intro, x.getValue()));
 		}
 	}
 
@@ -260,6 +257,8 @@ public class FLASStory implements StoryProcessor {
 		IntroParser ip = new IntroParser(s);
 		List<FunctionCaseDefn> functions = new ArrayList<FunctionCaseDefn>();
 		List<EventCaseDefn> events = new ArrayList<EventCaseDefn>();
+		int hs = 0;
+		int cs = 0;
 		for (Block b : components) {
 			if (b.isComment())
 				continue;
@@ -299,10 +298,10 @@ public class FLASStory implements StoryProcessor {
 				}
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
-				doImplementation(s, er, (Implements)o, b.nested);
+				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);
 			} else if (o instanceof HandlerImplements) {
 				cd.addHandlerImplementation((HandlerImplements)o);
-				doImplementation(s, er, (Implements)o, b.nested);
+				doImplementation(s, er, (Implements)o, b.nested, "_H" + hs++);
 			} else if (o instanceof FunctionCaseDefn) {
 				functions.add((FunctionCaseDefn) o);
 			} else if (o instanceof EventCaseDefn) {
@@ -370,8 +369,8 @@ public class FLASStory implements StoryProcessor {
 		return ret;
 	}
 
-	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested) {
-		FunctionParser fp = new FunctionParser(s);
+	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested, String clz) {
+		FunctionParser fp = new FunctionParser(new State(s.scope, s.withPkg(clz)));
 		List<MethodCaseDefn> cases = new ArrayList<MethodCaseDefn>();
 		for (Block b : nested) {
 			if (b.isComment())

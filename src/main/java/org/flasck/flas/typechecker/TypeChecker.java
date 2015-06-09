@@ -125,7 +125,7 @@ public class TypeChecker {
 			}
 			vars.add(mapping.get(v));
 		}
-		HSIEForm ret = new HSIEForm(hsie.fnName, hsie.alreadyUsed, hsie.nformal, vars, hsie.externals);
+		HSIEForm ret = new HSIEForm(hsie.mytype, hsie.fnName, hsie.alreadyUsed, hsie.nformal, vars, hsie.externals);
 		mapBlock(ret, hsie, mapping);
 		for (HSIEBlock b : hsie.closures()) {
 			HSIEBlock closure = ret.closure(mapping.get(((ClosureCmd)b).var));
@@ -328,7 +328,7 @@ public class TypeChecker {
 				// I am going to say that by getting here, we know that it must be an external
 				// all lambdas should be variables by now
 				
-				if (r.fn.equals("FLEval.tuple")) {
+				if (r.fn.uniqueName().equals("FLEval.tuple")) {
 					System.out.println("tuple");
 					return "()";
 				}

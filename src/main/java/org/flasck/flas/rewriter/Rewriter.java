@@ -290,7 +290,7 @@ public class Rewriter {
 			cs++;
 		}
 		System.out.println("rewritten to " + list.get(0).expr);
-		FunctionDefinition ret = new FunctionDefinition(f.name, f.nargs, list);
+		FunctionDefinition ret = new FunctionDefinition(f.mytype, f.name, f.nargs, list);
 		return ret;
 	}
 

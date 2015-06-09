@@ -15,18 +15,19 @@ import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class MethodConvertor {
 
-	public static FunctionDefinition convert(Scope scope, String card, String type, MethodDefinition m) {
+	public static FunctionDefinition convert(Scope scope, String card, String type, Type ft, MethodDefinition m) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		for (MethodCaseDefn mcd : m.cases) {
-			cases.add(new FunctionCaseDefn(null, card +"." +type+"."+mcd.intro.name, mcd.intro.args, convert(scope, mcd.messages)));
+			cases.add(new FunctionCaseDefn(null, mcd.intro.name, mcd.intro.args, convert(scope, mcd.messages)));
 		}
 		// This feels very much hackishly the wrong place to put ".prototype."
 		// Should we have a MethodDefinition as well which we can generate differently?
-		return new FunctionDefinition(m.intro.name, m.intro.args.size(), cases);
+		return new FunctionDefinition(ft, m.intro.name, m.intro.args.size(), cases);
 	}
 
 	public static FunctionDefinition convert(Scope scope, String card, EventHandlerDefinition eh) {
@@ -34,7 +35,7 @@ public class MethodConvertor {
 		for (EventCaseDefn c : eh.cases) {
 			cases.add(new FunctionCaseDefn(null, c.intro.name, c.intro.args, convert(scope, c.messages)));
 		}
-		return new FunctionDefinition(eh.intro.name, eh.intro.args.size(), cases);
+		return new FunctionDefinition(Type.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
 	}
 
 	// TODO: this is more complicated than I make it appear here, but the proper thing requires typechecking

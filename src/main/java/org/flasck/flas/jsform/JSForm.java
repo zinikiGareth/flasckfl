@@ -6,11 +6,17 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.ObjectRelative;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushCmd;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.CollectionUtils;
@@ -146,10 +152,10 @@ public class JSForm {
 		else if (r.var != null) {
 			if (r.deps != null) {
 				for (Var v : r.deps) {
-					into.add(new JSForm("var v" + v.idx + " = " + closure(form.getClosure(v))));
+					into.add(new JSForm("var v" + v.idx + " = " + closure(form.mytype, form.getClosure(v))));
 				}
 			}
-			into.add(new JSForm(assgn + " = " + closure(form.getClosure(r.var))));
+			into.add(new JSForm(assgn + " = " + closure(form.mytype, form.getClosure(r.var))));
 		}
 		else if (r.ival != null)
 			into.add(new JSForm(assgn + " = " + r.ival));
@@ -159,26 +165,31 @@ public class JSForm {
 
 	public static List<JSForm> ret(ReturnCmd r, HSIEForm form) {
 		List<JSForm> ret = new ArrayList<JSForm>();
-		if (r.fn != null)
-			ret.add(new JSForm("return " + r.fn));
-		else if (r.var != null) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("return ");
+//		if (r.fn != null)
+//			ret.add(new JSForm("return " + r.fn));
+		if (r.var != null) {
 			if (r.deps != null) {
 				for (Var v : r.deps) {
-					ret.add(new JSForm("var v" + v.idx + " = " + closure(form.getClosure(v))));
+					ret.add(new JSForm("var v" + v.idx + " = " + closure(form.mytype, form.getClosure(v))));
 				}
 			}
-			ret.add(new JSForm("return " + closure(form.getClosure(r.var))));
+			ret.add(new JSForm("return " + closure(form.mytype, form.getClosure(r.var))));
+		} else {
+			appendValue(sb, form.mytype, r, 0);
+//		else if (r.ival != null)
+//			ret.add(new JSForm("return " + r.ival));
+//		else if (r.sval != null)
+//			ret.add(new JSForm("return '" + r.sval.text + "'"));
+//		else
+//			throw new UtilException("What are you returning " + r);
+			ret.add(new JSForm(sb.toString()));
 		}
-		else if (r.ival != null)
-			ret.add(new JSForm("return " + r.ival));
-		else if (r.sval != null)
-			ret.add(new JSForm("return '" + r.sval.text + "'"));
-		else
-			throw new UtilException("What are you returning " + r);
 		return ret;
 	}
 
-	private static String closure(HSIEBlock closure) {
+	private static String closure(Type fntype, HSIEBlock closure) {
 		StringBuilder sb = new StringBuilder("FLEval.closure(");
 		int pos = 0;
 		boolean isField = false;
@@ -186,32 +197,64 @@ public class JSForm {
 			PushCmd c = (PushCmd) b;
 			if (pos > 0)
 				sb.append(", ");
-			if (c.fn != null) {
-				if (pos == 0) {
-					isField = "FLEval.field".equals(c.fn);
-					// handle ctor
-//					int idx = c.fn.lastIndexOf('.')+1;
-//					if (Character.isUpperCase(c.fn.charAt(idx)))
-//						sb.append("FLEval.makeNew, ");
-				}
-				if (isField && pos == 2)
-					sb.append("'" + c.fn + "'");
-				else
-					sb.append(mapName(c.fn.uniqueName()));
-			} else if (c.ival != null)
-				sb.append(c.ival);
-			else if (c.var != null)
-				sb.append("v"+ c.var.idx);
-			else if (c.sval != null)
-				sb.append("'" + c.sval.text + "'");
+			if (c.fn != null && pos == 0) {
+				isField = "FLEval.field".equals(c.fn);
+				// handle ctor
+//				int idx = c.fn.lastIndexOf('.')+1;
+//				if (Character.isUpperCase(c.fn.charAt(idx)))
+//					sb.append("FLEval.makeNew, ");
+			}
+			 if (c.fn != null && isField && pos == 2)
+				sb.append("'" + c.fn + "'");
 			else
-				throw new UtilException("What are you pushing? " + c);
+				appendValue(sb, fntype, c, pos);
 			pos++;
 		}
 		sb.append(")");
 		return sb.toString();
 	}
 
+	private static void appendValue(StringBuilder sb, Type fntype, PushReturn c, int pos) {
+		if (c.fn != null) {
+			if (c.fn instanceof AbsoluteVar)
+				sb.append(c.fn.uniqueName());
+			else if (c.fn instanceof ObjectRelative) {
+				// No, this is the wrong test.  The cases are correct
+				// We need to look at what c.fn.defn is: handler then case (a), function then (b)
+				if (pos == 0) {// I believe this is always a handler constructor
+					sb.append("FLEval.makeNew, ");
+					sb.append(c.fn.uniqueName());
+					sb.append(", this._card");
+				} else { // this is just a card-scoped function
+					sb.append(c.fn.uniqueName());
+				}
+			} else if (c.fn instanceof CardMember) {
+				if (fntype == Type.CARD || fntype == Type.EVENTHANDLER)
+					sb.append("this." + ((CardMember)c.fn).var);
+				else if (fntype == Type.HANDLER || fntype == Type.CONTRACT)
+					sb.append("this._card." + ((CardMember)c.fn).var);
+				else
+					throw new UtilException("Can't handle " + fntype + " with card member");
+			}
+			else if (c.fn instanceof HandlerLambda) {
+				if (fntype == Type.HANDLER)
+					sb.append("this." + ((HandlerLambda)c.fn).var);
+				else
+					throw new UtilException("Can't handle " + fntype + " with handler lambda");
+			} else
+				throw new UtilException("Can't handle " + c.fn + " of type " + c.fn.getClass());
+//					sb.append(mapName(c.fn.uniqueName()));
+		} else if (c.ival != null)
+			sb.append(c.ival);
+		else if (c.var != null)
+			sb.append("v"+ c.var.idx);
+		else if (c.sval != null)
+			sb.append("'" + c.sval.text + "'");
+		else
+			throw new UtilException("What are you pushing? " + c);
+	}
+
+	/*
 	private static String mapName(String fn) {
 //		System.out.println("Need to map " + fn);
 		if (fn.startsWith("_card"))
@@ -222,4 +265,5 @@ public class JSForm {
 			return fn.substring(8);
 		return fn;
 	}
+	*/
 }

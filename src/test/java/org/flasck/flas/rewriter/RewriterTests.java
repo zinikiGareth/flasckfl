@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.junit.Before;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
@@ -55,7 +56,7 @@ public class RewriterTests {
 	public void testRewritingSomethingGloballyDefined() {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, "ME.f", new ArrayList<Object>(), new UnresolvedVar("Nil")));
-		FunctionDefinition fn = new FunctionDefinition("ME.f", 0, cases);
+		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f", 0, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
 		fn = (FunctionDefinition) ((PackageDefn)builtinScope.get("ME")).innerScope().get("f");
@@ -70,7 +71,7 @@ public class RewriterTests {
 		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern("x"));
 		cases.add(new FunctionCaseDefn(scope, "ME.f", args, new UnresolvedVar("x")));
-		FunctionDefinition fn = new FunctionDefinition("ME.f", 1, cases);
+		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f", 1, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
 		fn = (FunctionDefinition) ((PackageDefn)builtinScope.get("ME")).innerScope().get("f");
@@ -87,7 +88,7 @@ public class RewriterTests {
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern("x"));
 			cases.add(new FunctionCaseDefn(scope, "ME.f", args, new StringLiteral("x")));
-			FunctionDefinition fn = new FunctionDefinition("ME.f", 1, cases);
+			FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f", 1, cases);
 			scope.define("f", "ME.f", fn);
 			innerScope = cases.get(0).innerScope();
 		}
@@ -96,7 +97,7 @@ public class RewriterTests {
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern("y"));
 			cases.add(new FunctionCaseDefn(scope, "ME.f_0.g", args, new UnresolvedVar("x")));
-			FunctionDefinition fn = new FunctionDefinition("ME.f_0.g", 1, cases);
+			FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f_0.g", 1, cases);
 			innerScope.define("g", "ME.f.g", fn);
 		}
 		rw.rewrite(pkgEntry);
@@ -115,7 +116,7 @@ public class RewriterTests {
 		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar("counter")));
-		FunctionDefinition fn = new FunctionDefinition("ME.MyCard.f", 0, cases);
+		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out));
@@ -136,7 +137,7 @@ public class RewriterTests {
 		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar("timer")));
-		FunctionDefinition fn = new FunctionDefinition("ME.MyCard.f", 0, cases);
+		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out));
