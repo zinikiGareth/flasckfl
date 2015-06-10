@@ -53,6 +53,7 @@ public class TemplateLineParser implements TryParsing{
 				TemplateToken action = (TemplateToken)contents.get(0);
 				if (action.type != TemplateToken.IDENTIFIER)
 					return ErrorResult.oneMessage(line, "syntax error");
+				/* Right now, in generating this, I'm unclear what this var was for
 				String var = null;
 				if (contents.size() == 2) {
 					TemplateToken varis = (TemplateToken)contents.get(1);
@@ -60,13 +61,14 @@ public class TemplateLineParser implements TryParsing{
 						return ErrorResult.oneMessage(line, "syntax error");
 					var = varis.text;
 				}
+				*/
 				Object expr = new Expression().tryParsing(line);
 				if (expr == null)
 					return ErrorResult.oneMessage(line, "syntax error");
 				else if (expr instanceof ErrorResult)
 					return expr;
 				else
-					return new EventHandler(action.text, var, expr);
+					return new EventHandler(action.text, expr);
 			} else if (tt.type == TemplateToken.IDENTIFIER || tt.type == TemplateToken.STRING)
 				contents.add(tt);
 			else

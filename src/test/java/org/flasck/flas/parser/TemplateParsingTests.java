@@ -272,7 +272,7 @@ public class TemplateParsingTests {
 	@Test
 	public void testWeCanDefineAClickHandler() throws Exception {
 		EventHandler eh = parseHandler("click => handleClick 7 (u:x)");
-		assertEquals("click", eh.text);
+		assertEquals("click", eh.action);
 		assertNull(eh.var);
 		assertNotNull(eh.expr);
 		assertTrue(eh.expr instanceof ApplyExpr);
@@ -291,7 +291,7 @@ public class TemplateParsingTests {
 	@Test
 	public void testAHandlerCanTakeAnEvent() throws Exception {
 		EventHandler eh = parseHandler("mousedown ev => handleClick 7 (u:x)");
-		assertEquals("mousedown", eh.text);
+		assertEquals("mousedown", eh.action);
 		assertEquals("ev", eh.var);
 		assertNotNull(eh.expr);
 		assertTrue(eh.expr instanceof ApplyExpr);

@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.dom.RenderTree.Element;
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -19,18 +23,18 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class DomFunctionGenerator {
+	private final CardDefinition card;
 	private final String prefix;
 	private final Map<String, FunctionDefinition> functions;
 	private final Scope scope;
-//	private final StateDefinition state;
 	private int node = 0;
 	public final List<RenderTree> trees = new ArrayList<RenderTree>();
 
-	public DomFunctionGenerator(String prefix, Map<String, FunctionDefinition> functions, Scope scope, StateDefinition state) {
-		this.prefix = prefix;
+	public DomFunctionGenerator(CardDefinition card, Map<String, FunctionDefinition> functions) {
+		this.card = card;
+		this.prefix = card.name;
 		this.functions = functions;
-		this.scope = scope;
-//		this.state = state;
+		this.scope = card.innerScope();
 	}
 
 	// Steps:
@@ -105,16 +109,51 @@ public class DomFunctionGenerator {
 				tag = new StringLiteral("div");
 		}
 			
-		Element elt = new Element("div", nextFnName());
+		// Create the node in the RenderTree
+		RenderTree.Element rtnode = new Element("div", nextFnName());
+
+		// Create the parts of the DOM element
+		AbsoluteVar domCtor = scope.fromRoot("DOM.Element");
+		AbsoluteVar nil = scope.fromRoot("Nil");
+		AbsoluteVar cons = scope.fromRoot("Cons");
+		AbsoluteVar tuple = scope.fromRoot("()");
+		Object attrs = nil;
+		Object children = nil; // I think this is just a statement about how we build our trees
+		Object events = nil;
+
+		for (Object x : tl.attrs) {
+			if (x instanceof TemplateExplicitAttr) {
+				TemplateExplicitAttr tea = (TemplateExplicitAttr) x;
+				if (tea.type == TemplateToken.STRING)
+					attrs = new ApplyExpr(cons, new ApplyExpr(tuple, new StringLiteral(tea.attr), new StringLiteral(tea.value)), attrs);
+				else
+					throw new UtilException("Cannot handle attribute " + tea.type);
+			} else
+				throw new UtilException("Attribute " + x + " of type " + x.getClass() + " is not handled");
+		}
+		List<String> classes = new ArrayList<String>();
 		for (TemplateToken tt : tl.formats) {
 			if (tt.type == TemplateToken.STRING) {
-				elt.addClass(tt.text);
-			}
+				rtnode.addClass(tt.text);
+				classes.add(tt.text);
+			} else
+				throw new UtilException("format not handled: " + tt);
 		}
+		if (!classes.isEmpty())
+			attrs = new ApplyExpr(cons, new ApplyExpr(tuple, new StringLiteral("class"), new StringLiteral(String.join(" ", classes))), attrs);
+		
+		for (EventHandler x : tl.handlers) {
+			
+			// TODO: check that the apply expression is one for a handler
+//			card.handlers
+			events = new ApplyExpr(cons, new ApplyExpr(tuple, new StringLiteral(x.action), x.expr), events);
+		}
+		// TODO: still need to build dependency tree
 		// TODO: handle attributes (including from vars)
 		// TODO: handle formats? (or just put them in the tree? because they are "common" to all classes?)
-		// TODO: generate tree state
-		return new RenderTree.ElementExpr(elt, new ApplyExpr(scope.fromRoot("DOM.Element"), tag, scope.fromRoot("Nil"), scope.fromRoot("Nil"), scope.fromRoot("Nil")));
+		
+		// Return all the pieces together and create the actual DOM Element ctor
+		return new RenderTree.ElementExpr(rtnode, new ApplyExpr(domCtor, tag, attrs, children, events));
 	}
 
 	private String nextFnName() {

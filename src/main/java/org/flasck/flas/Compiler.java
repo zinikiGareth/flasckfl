@@ -158,7 +158,7 @@ public class Compiler {
 
 	private void promoteTemplateFunctions(CardDefinition card, List<RenderTree> trees) {
 		Map<String, FunctionDefinition> innerFns = new HashMap<String, FunctionDefinition>();
-		DomFunctionGenerator gen = new DomFunctionGenerator(card.name, innerFns, card.innerScope(), card.state);
+		DomFunctionGenerator gen = new DomFunctionGenerator(card, innerFns);
 		gen.generateTree(card.template);
 		for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
 			FunctionDefinition rfn = (FunctionDefinition) x2.getValue();
