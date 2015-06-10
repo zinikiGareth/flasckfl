@@ -40,6 +40,7 @@ public class HSIEForm extends HSIEBlock {
 
 	// This constructor is the one for real code
 	public HSIEForm(Type mytype, String name, int alreadyUsed, Map<String, Var> map, int nformal) {
+		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
 		this.alreadyUsed = alreadyUsed;
@@ -52,6 +53,7 @@ public class HSIEForm extends HSIEBlock {
 
 	// This is the copy/rewrite constructor
 	public HSIEForm(Type mytype, String name, int alreadyUsed, int nformal, List<Var> vars, Collection<Object> externals) {
+		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
 		this.alreadyUsed = alreadyUsed;
@@ -62,6 +64,7 @@ public class HSIEForm extends HSIEBlock {
 
 	// This constructor is for testing
 	public HSIEForm(Type mytype, String name, int alreadyUsed, int nformal, int nbound, Collection<String> dependsOn) {
+		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		fnName = name;
 		this.alreadyUsed = alreadyUsed;

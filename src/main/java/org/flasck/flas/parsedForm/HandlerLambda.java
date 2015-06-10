@@ -1,5 +1,7 @@
 package org.flasck.flas.parsedForm;
 
+import org.zinutils.exceptions.UtilException;
+
 public class HandlerLambda implements ExternalRef {
 	public final String hi;
 	public final String var;
@@ -16,6 +18,10 @@ public class HandlerLambda implements ExternalRef {
 	@Override
 	public int compareTo(Object o) {
 		return this.toString().compareTo(o.toString());
+	}
+	
+	public boolean fromHandler() {
+		throw new UtilException("This is not available");
 	}
 
 	@Override

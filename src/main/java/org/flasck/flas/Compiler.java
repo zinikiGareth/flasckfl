@@ -320,16 +320,10 @@ public class Compiler {
 					pos++;
 				}
 
-				// lift and rewrite all the functions we just defined
 				for (Entry<String, ScopeEntry> x2 : card.innerScope()) {
 					if (x2.getValue().getValue() instanceof FunctionDefinition) {
-						if (functions.containsKey(x2.getKey()))
-							tc.errors.message((Block)null, "duplicate definition of " + x2.getKey() + " in scope");
-//						FunctionDefinition lifted = MethodConvertor.lift(card, (FunctionDefinition) x2.getValue().getValue());
-//						FunctionDefinition rewritten = rewriter.rewriteFunction(scope, card, (FunctionDefinition) x2.getValue().getValue());
 						functions.put(x2.getValue().getKey(), (FunctionDefinition) x2.getValue().getValue());
 					} else if (x2.getValue().getValue() instanceof EventHandlerDefinition) {
-//						EventHandlerDefinition rewritten = rewriter.rewriteEventHandler(scope, card, (EventHandlerDefinition)x2.getValue().getValue());
 						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, (EventHandlerDefinition)x2.getValue().getValue());
 						functions.put(fd.name, fd);
 					} else

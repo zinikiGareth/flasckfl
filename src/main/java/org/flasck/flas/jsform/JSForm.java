@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.ObjectRelative;
+import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -232,8 +233,8 @@ public class JSForm {
 	private static String closure(Type fntype, HSIEBlock closure) {
 		StringBuilder sb;
 		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
-		if (fn instanceof ObjectRelative)
-			sb = new StringBuilder("FLEval.oclosure(" + (((ObjectRelative)fn).fromHandler?"this._card":"this") + ", ");
+		if (fn instanceof ObjectReference || fn instanceof CardFunction)
+			sb = new StringBuilder("FLEval.oclosure(" + (((ExternalRef)fn).fromHandler()?"this._card":"this") + ", ");
 		else
 			sb = new StringBuilder("FLEval.closure(");
 		int pos = 0;
@@ -259,8 +260,13 @@ public class JSForm {
 		if (c.fn != null) {
 			if (c.fn instanceof AbsoluteVar)
 				sb.append(c.fn.uniqueName());
-			else if (c.fn instanceof ObjectRelative) {
+			else if (c.fn instanceof ObjectReference) {
 				sb.append(c.fn.uniqueName());
+			} else if (c.fn instanceof CardFunction) {
+				String jsname = c.fn.uniqueName();
+				int idx = jsname.lastIndexOf(".");
+				jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
+				sb.append(jsname);
 			} else if (c.fn instanceof CardMember) {
 				if (fntype == Type.CARD || fntype == Type.EVENTHANDLER)
 					sb.append("this." + ((CardMember)c.fn).var);

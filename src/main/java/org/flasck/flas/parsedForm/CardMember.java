@@ -1,5 +1,7 @@
 package org.flasck.flas.parsedForm;
 
+import org.zinutils.exceptions.UtilException;
+
 public class CardMember implements ExternalRef {
 	public final String card;
 	public final String var;
@@ -16,6 +18,10 @@ public class CardMember implements ExternalRef {
 
 	public String uniqueName() {
 		return card +"."+var;
+	}
+	
+	public boolean fromHandler() {
+		throw new UtilException("This is not available");
 	}
 	
 	@Override

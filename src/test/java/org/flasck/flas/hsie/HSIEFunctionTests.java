@@ -18,7 +18,7 @@ public class HSIEFunctionTests {
 
 	@Test
 	public void testConvertingConstant() {
-		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
+		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
 		FunctionDefinition primes = new FunctionDefinition(Type.FUNCTION, "primes", 0, CollectionUtils.listOf(c1));
 		HSIEForm primesForm = HSIE.handle(primes);
@@ -28,7 +28,7 @@ public class HSIEFunctionTests {
 	
 	@Test
 	public void testConvertingFib() {
-		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
+		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 0 = 1"));
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 1 = 1"));
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib n = fib (n-1) + fib (n-2)"));
@@ -40,7 +40,7 @@ public class HSIEFunctionTests {
 
 	@Test
 	public void testConvertingTake() {
-		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
+		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n [] = []"));
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take 0 Cons = []"));
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n (a:b) = a:(take (n-1) b)"));

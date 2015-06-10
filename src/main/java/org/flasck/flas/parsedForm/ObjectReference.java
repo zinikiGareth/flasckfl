@@ -1,17 +1,17 @@
 package org.flasck.flas.parsedForm;
 
-public class ObjectRelative implements ExternalRef {
+public class ObjectReference implements ExternalRef {
 	public final String clzName;
 	public final String handle;
 	public final boolean fromHandler;
 
-	public ObjectRelative(String clzName, String handle) {
+	public ObjectReference(String clzName, String handle) {
 		this.clzName = clzName;
 		this.handle = handle;
 		this.fromHandler = false;
 	}
 	
-	public ObjectRelative(ObjectRelative inner, boolean fromHandler) {
+	public ObjectReference(ObjectReference inner, boolean fromHandler) {
 		this.clzName = inner.clzName;
 		this.handle = inner.handle;
 		this.fromHandler = true;
@@ -26,6 +26,10 @@ public class ObjectRelative implements ExternalRef {
 		return this.toString().compareTo(o.toString());
 	}
 
+	public boolean fromHandler() {
+		return fromHandler;
+	}
+	
 	@Override
 	public String toString() {
 		return this.clzName + "." + this.handle;

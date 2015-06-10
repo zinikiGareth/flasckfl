@@ -47,10 +47,12 @@ public class FLASStory implements StoryProcessor {
 	public static class State {
 		private String pkg;
 		public final Scope scope;
+		public final HSIEForm.Type kind;
 
-		public State(Scope scope, String pkg) {
+		public State(Scope scope, String pkg, HSIEForm.Type kind) {
 			this.scope = scope;
 			this.pkg = pkg;
+			this.kind = kind;
 		}
 
 		public String withPkg(String name) {
@@ -70,7 +72,7 @@ public class FLASStory implements StoryProcessor {
 		// TODO: I think this should be a parameter ...
 		Scope top = builtinScope();
 		PackageDefn pd = new PackageDefn(top, pkg);
-		State s = new State(pd.innerScope(), pkg);
+		State s = new State(pd.innerScope(), pkg, HSIEForm.Type.FUNCTION);
 		ErrorResult er = new ErrorResult();
 		doScope(er, s, blocks);
 		return pd.myEntry();
@@ -107,7 +109,7 @@ public class FLASStory implements StoryProcessor {
 					cs = 0;
 				}
 				if (!b.nested.isEmpty()) {
-					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+(cs++)), b.nested);
+					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+(cs++), s.kind), b.nested);
 				}
 			} else if (o instanceof StructDefn) {
 				StructDefn sd = (StructDefn)o;
@@ -126,7 +128,7 @@ public class FLASStory implements StoryProcessor {
 //					er.message(b, "duplicate definition for name " + cd.name);
 //				else
 //					ret.define(State.simpleName(cd.name), cd.name, cd);
-				doCardDefinition(er, new State(cd.innerScope(), cd.name), cd, b.nested);
+				doCardDefinition(er, new State(cd.innerScope(), cd.name, HSIEForm.Type.CARD), cd, b.nested);
 			} else
 				throw new UtilException("Need to handle " + o.getClass());
 		}
@@ -159,7 +161,7 @@ public class FLASStory implements StoryProcessor {
 			groups.add(cfn, fcd);
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			ret.define(State.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(HSIEForm.Type.FUNCTION, x.getValue().get(0).intro, x.getValue()));
+			ret.define(State.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(s.kind, x.getValue().get(0).intro, x.getValue()));
 		}
 	}
 
@@ -370,7 +372,7 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested, String clz) {
-		FunctionParser fp = new FunctionParser(new State(s.scope, s.withPkg(clz)));
+		FunctionParser fp = new FunctionParser(new State(s.scope, s.withPkg(clz), s.kind));
 		List<MethodCaseDefn> cases = new ArrayList<MethodCaseDefn>();
 		for (Block b : nested) {
 			if (b.isComment())

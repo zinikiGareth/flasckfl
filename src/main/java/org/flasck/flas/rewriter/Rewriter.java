@@ -14,6 +14,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
@@ -29,7 +30,7 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
-import org.flasck.flas.parsedForm.ObjectRelative;
+import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -134,9 +135,9 @@ public class Rewriter {
 			if (members.contains(name))
 				return new CardMember(prefix, name);
 			if (statics.containsKey(name))
-				return new ObjectRelative(prefix, "_H" + statics.get(name));
+				return new ObjectReference(prefix, "_H" + statics.get(name));
 			if (innerScope.contains(name))
-				return new ObjectRelative(prefix, name);
+				return new CardFunction(prefix, name);
 			return nested.resolve(name);
 		}
 	}
@@ -184,8 +185,10 @@ public class Rewriter {
 			if (inner.contains(name))
 				return new AbsoluteVar(inner.getEntry(name));
 			Object res = nested.resolve(name);
-			if (res instanceof ObjectRelative)
-				return new ObjectRelative((ObjectRelative)res, true);
+			if (res instanceof ObjectReference)
+				return new ObjectReference((ObjectReference)res, true);
+			if (res instanceof CardFunction)
+				return new CardFunction((CardFunction)res, true);
 			return res;
 		}
 	}
@@ -274,16 +277,6 @@ public class Rewriter {
 		}
 	}
 
-//	public FunctionDefinition rewriteFunction(Scope scope, CardDefinition cd, FunctionDefinition f) {
-//		NamingContext cx = new CardContext(new RootContext(scope), cd);
-//		return rewrite(cx, f);
-//	}
-//
-//	public EventHandlerDefinition rewriteEventHandler(Scope scope, CardDefinition cd, EventHandlerDefinition ehd) {
-//		NamingContext cx = new CardContext(new RootContext(scope), cd);
-//		return rewrite(cx, ehd);
-//	}
-//	
 	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 		System.out.println("Rewriting " + f.name);
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
@@ -397,7 +390,7 @@ public class Rewriter {
 				else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(s);
-				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember || ret instanceof ObjectRelative || ret instanceof HandlerLambda)
+				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());

@@ -1,6 +1,7 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.zinutils.exceptions.UtilException;
 
 public class AbsoluteVar implements ExternalRef {
 	public final String id;
@@ -30,6 +31,10 @@ public class AbsoluteVar implements ExternalRef {
 	@Override
 	public int compareTo(Object o) {
 		return this.toString().compareTo(o.toString());
+	}
+	
+	public boolean fromHandler() {
+		throw new UtilException("This is not available");
 	}
 
 	@Override

@@ -7,11 +7,13 @@ import java.util.Map;
 
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
-import org.flasck.flas.parsedForm.ObjectRelative;
+import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -79,8 +81,8 @@ public class MetaState {
 			String var = ((AbsoluteVar)expr).id;
 			form.dependsOn(expr);
 			return expr;
-		} else if (expr instanceof ObjectRelative) {
-			String var = ((ObjectRelative)expr).uniqueName();
+		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
+			String var = ((ExternalRef)expr).uniqueName();
 			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof CardMember) {
