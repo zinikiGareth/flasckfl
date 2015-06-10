@@ -273,7 +273,7 @@ public class TemplateParsingTests {
 	public void testWeCanDefineAClickHandler() throws Exception {
 		EventHandler eh = parseHandler("click => handleClick 7 (u:x)");
 		assertEquals("click", eh.action);
-		assertNull(eh.var);
+//		assertNull(eh.var);
 		assertNotNull(eh.expr);
 		assertTrue(eh.expr instanceof ApplyExpr);
 		ApplyExpr ae = (ApplyExpr) eh.expr;
@@ -288,6 +288,8 @@ public class TemplateParsingTests {
 		assertEquals("x", ae.args.get(1).toString());
 	}
 
+	/* I think I deny this ...
+	 * All event handlers receive an event object.  The expression here is a curried event handler
 	@Test
 	public void testAHandlerCanTakeAnEvent() throws Exception {
 		EventHandler eh = parseHandler("mousedown ev => handleClick 7 (u:x)");
@@ -306,6 +308,7 @@ public class TemplateParsingTests {
 		assertEquals("u", ae.args.get(0).toString());
 		assertEquals("x", ae.args.get(1).toString());
 	}
+	*/
 
 	protected TemplateLine parse(String input) throws Exception {
 		Object o = doparse(input);

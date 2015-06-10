@@ -65,7 +65,7 @@ public class HSIEBlock {
 		else if (o instanceof ExternalRef)
 			ret = new ReturnCmd((ExternalRef)o);
 		else
-			throw new UtilException("Invalid object to return");
+			throw new UtilException("Invalid object to return: " + o + " of type " + o.getClass());
 		commands.add(ret);
 		return ret;
 	}

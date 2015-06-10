@@ -33,6 +33,16 @@ public class AbsoluteVar implements ExternalRef {
 		return this.toString().compareTo(o.toString());
 	}
 	
+	@Override
+	public int hashCode() {
+		return this.toString().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof AbsoluteVar && this.toString().equals(obj.toString());
+	}
+
 	public boolean fromHandler() {
 		throw new UtilException("This is not available");
 	}

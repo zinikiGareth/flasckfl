@@ -33,12 +33,13 @@ public class DomFunctionTests {
 
 	@Test
 	public void testAString() throws Exception {
-		FunctionDefinition node1 = generateOne("ME.MyCard", null, "'hello'");
-		assertEquals("_templateNode_1", node1.name);
+		CardDefinition card = new CardDefinition(FLASStory.builtinScope(), "MyCard");
+		FunctionDefinition node1 = generateOne(card, "'hello'");
+		assertEquals("MyCard._templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
 		FunctionCaseDefn fcd = node1.cases.get(0);
-		assertEquals("_templateNode_1", fcd.intro.name);
+		assertEquals("MyCard._templateNode_1", fcd.intro.name);
 		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
 		assertEquals("\"hello\"", fcd.expr.toString());
@@ -48,26 +49,29 @@ public class DomFunctionTests {
 
 	@Test
 	public void testSimpleVar() throws Exception {
-		FunctionDefinition node1 = generateOne("ME.MyCard", counterState(), "counter");
-		assertEquals("_templateNode_1", node1.name);
+		CardDefinition card = new CardDefinition(FLASStory.builtinScope(), "MyCard");
+		card.state = counterState();
+		FunctionDefinition node1 = generateOne(card, "counter");
+		assertEquals("MyCard._templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
 		FunctionCaseDefn fcd = node1.cases.get(0);
-		assertEquals("_templateNode_1", fcd.intro.name);
+		assertEquals("MyCard._templateNode_1", fcd.intro.name);
 		assertEquals(0, fcd.intro.args.size());
-		assertEquals("\"counter\"", fcd.expr.toString());
+		assertEquals("Card[MyCard.counter]", fcd.expr.toString());
 		HSIEForm c = HSIE.handle(node1);
 		c.dump();
 	}
 
 	@Test
 	public void testAMinimalDiv() throws Exception {
-		FunctionDefinition node1 = generateOne("ME.MyCard", null, ".");
-		assertEquals("_templateNode_1", node1.name);
+		CardDefinition card = new CardDefinition(FLASStory.builtinScope(), "MyCard");
+		FunctionDefinition node1 = generateOne(card, ".");
+		assertEquals("MyCard._templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
 		FunctionCaseDefn fcd = node1.cases.get(0);
-		assertEquals("_templateNode_1", fcd.intro.name);
+		assertEquals("MyCard._templateNode_1", fcd.intro.name);
 		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
 		assertTrue(fcd.expr instanceof ApplyExpr);
@@ -84,12 +88,13 @@ public class DomFunctionTests {
 
 	@Test
 	public void testATaggedDiv() throws Exception {
-		FunctionDefinition node1 = generateOne("ME.MyCard", null, "#nav");
-		assertEquals("_templateNode_1", node1.name);
+		CardDefinition card = new CardDefinition(FLASStory.builtinScope(), "MyCard");
+		FunctionDefinition node1 = generateOne(card, "#nav");
+		assertEquals("MyCard._templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
 		FunctionCaseDefn fcd = node1.cases.get(0);
-		assertEquals("_templateNode_1", fcd.intro.name);
+		assertEquals("MyCard._templateNode_1", fcd.intro.name);
 		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
 		assertTrue(fcd.expr instanceof ApplyExpr);
@@ -113,15 +118,15 @@ public class DomFunctionTests {
 		CardDefinition card = new CardDefinition(scope, "MyCard");
 		card.state = new StateDefinition();
 		card.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
-		scope.define("MyCard", "MyCard", card);
-		FunctionDefinition node1 = generateOne("ME.MyCard", null, "(tfn counter)");
+//		scope.define("MyCard", "MyCard", card);
+		FunctionDefinition node1 = generateOne(card, "(tfn counter)");
 		card.innerScope().define("_templateNode_1", "ME.MyCard._templateNode_1", node1);
 
-		assertEquals("_templateNode_1", node1.name);
+		assertEquals("MyCard._templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
 		assertEquals(1, node1.cases.size());
 		FunctionCaseDefn fcd = node1.cases.get(0);
-		assertEquals("_templateNode_1", fcd.intro.name);
+		assertEquals("MyCard._templateNode_1", fcd.intro.name);
 		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
 		assertTrue(fcd.expr instanceof ApplyExpr);
@@ -135,13 +140,13 @@ public class DomFunctionTests {
 		c.dump();
 	}
 
-	private FunctionDefinition generateOne(String name, StateDefinition state, String input) throws Exception {
+	private FunctionDefinition generateOne(CardDefinition card, String input) throws Exception {
 		Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
-		gen = new DomFunctionGenerator(name, functions, null, state);
+		gen = new DomFunctionGenerator(card, functions);
 		TemplateLine tl = parse(input);
 		gen.generateOne(tl);
 		assertEquals(1, functions.size());
-		FunctionDefinition ret = functions.get("_templateNode_1");
+		FunctionDefinition ret = functions.get("MyCard._templateNode_1");
 		assertNotNull(ret);
 		return ret;
 	}

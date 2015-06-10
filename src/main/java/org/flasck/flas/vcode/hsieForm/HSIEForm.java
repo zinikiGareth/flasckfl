@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.hsie.SubstExpr;
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.zinutils.exceptions.UtilException;
 
 // So, basically an HSIE definition consists of
@@ -75,7 +76,8 @@ public class HSIEForm extends HSIEBlock {
 			vars.add(new Var(alreadyUsed + i));
 		for (int i=0;i<nbound;i++)
 			vars.add(new Var(alreadyUsed + nformal + i));
-		this.externals.addAll(dependsOn);
+		for (String s : dependsOn)
+			this.externals.add(new AbsoluteVar(s, null));
 	}
 
 	public Var var(int v) {

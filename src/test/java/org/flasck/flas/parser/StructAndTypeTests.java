@@ -6,6 +6,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningNil() {
-		IntroParser p = new IntroParser(null);
+		IntroParser p = new IntroParser(new State(null, null, null));
 		Object o = p.tryParsing(new Tokenizable("struct Nil"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);
@@ -24,7 +25,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningConsIntro() {
-		IntroParser p = new IntroParser(null);
+		IntroParser p = new IntroParser(new State(null, null, null));
 		Object o = p.tryParsing(new Tokenizable("struct Cons A"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);

@@ -11,6 +11,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.method.MethodConvertor;
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -57,7 +58,7 @@ public class FlasStoryTests {
 		FunctionDefinition g = (FunctionDefinition) c1.innerScope().get("g");
 		HSIEForm gorm = HSIE.handle(g, form.vars.size(), form.varsFor(0));
 		assertEquals(1, gorm.externals.size());
-		assertTrue(gorm.externals.contains("FLEval.mul"));
+		assertTrue(gorm.externals.contains(new AbsoluteVar("FLEval.mul", null)));
 		HSIETestData.assertHSIE(HSIETestData.mutualG(), gorm);
 	}
 

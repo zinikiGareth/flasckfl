@@ -6,6 +6,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
@@ -375,7 +376,7 @@ public class HSIETestData {
 			} else if (Character.isDigit(ps[0].charAt(0))) {
 				prev = b.push(Integer.parseInt(ps[0]));
 			} else {
-				prev = b.push(ps[0]);
+				prev = b.push(new AbsoluteVar(ps[0], null));
 			}
 			
 		}
@@ -388,7 +389,7 @@ public class HSIETestData {
 		else if (Character.isDigit(ps[from].charAt(0)))
 			return Integer.parseInt(ps[from]);
 		else
-			return ps[from];
+			return new AbsoluteVar(ps[from], null);
 	}
 	
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {

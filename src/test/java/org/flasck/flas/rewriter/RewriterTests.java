@@ -47,6 +47,7 @@ public class RewriterTests {
 	@Before
 	public void setup() {
 		builtinScope = FLASStory.builtinScope();
+		builtinScope.define("Timer", "Timer", null);
 		PackageDefn pd = new PackageDefn(builtinScope, "ME");
 		scope = pd.innerScope();
 		pkgEntry = pd.innerScope().outerEntry;
@@ -113,7 +114,7 @@ public class RewriterTests {
 		CardDefinition cd = new CardDefinition(scope, "MyCard");
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
-		scope.define("MyCard", "ME.MyCard", cd);
+//		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar("counter")));
 		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
@@ -133,8 +134,8 @@ public class RewriterTests {
 	public void testRewritingAContractVar() throws Exception {
 		CardDefinition cd = new CardDefinition(scope, "MyCard");
 		// TODO: I would have expected this to complain that it can't find the referenced contract
-		cd.contracts.add(new ContractImplements("org.ziniki.foo", "timer"));
-		scope.define("MyCard", "ME.MyCard", cd);
+		cd.contracts.add(new ContractImplements("Timer", "timer"));
+//		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar("timer")));
 		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
@@ -156,7 +157,7 @@ public class RewriterTests {
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
-		ContractImplements ci = new ContractImplements("org.ziniki.foo", "timer");
+		ContractImplements ci = new ContractImplements("Timer", "timer");
 		cd.contracts.add(ci);
 		List<MethodCaseDefn> mcds = new ArrayList<MethodCaseDefn>();
 		MethodDefinition md = new MethodDefinition(new FunctionIntro("ME.MyCard._C0.m", new ArrayList<Object>()), mcds);
@@ -164,7 +165,7 @@ public class RewriterTests {
 		mcds.add(mcd1);
 		mcd1.messages.add(new MethodMessage(CollectionUtils.listOf("counter"), new UnresolvedVar("counter")));
 		ci.methods.add(md);
-		scope.define("MyCard", "ME.MyCard", cd);
+//		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out));
 		assertFalse(errors.hasErrors());
@@ -191,7 +192,7 @@ public class RewriterTests {
 		ecds.add(ecd1);
 		ecd1.messages.add(new MethodMessage(CollectionUtils.listOf("counter"), new UnresolvedVar("counter")));
 		cd.fnScope.define("eh", "ME.MyCard.eh", ehd);
-		scope.define("MyCard", "ME.MyCard", cd);
+//		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out));
 		assertFalse(errors.hasErrors());
