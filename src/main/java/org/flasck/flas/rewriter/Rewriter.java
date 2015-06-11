@@ -82,6 +82,25 @@ public class Rewriter {
 		public Object resolve(String name) {
 			if (biscope.contains(name))
 				return new AbsoluteVar(biscope.getEntry(name));
+			if (name.contains(".")) {
+				// try and resolve through a sequence of packages
+				String tmp = name;
+				int idx;
+				Scope scope = biscope;
+				while ((idx = tmp.indexOf('.')) != -1) {
+					String pkg = tmp.substring(0, idx);
+					Object o = scope.get(pkg);
+					if (o == null || !(o instanceof PackageDefn))
+						break;
+					tmp = tmp.substring(idx+1);
+					scope = ((PackageDefn)o).innerScope();
+				}
+				if (!tmp.contains(".")) {
+					ScopeEntry o = scope.getEntry(tmp);
+					if (o != null)
+						return new AbsoluteVar(o);
+				}
+			}
 			throw new ResolutionException(name);
 		}
 	}
@@ -248,26 +267,36 @@ public class Rewriter {
 	}
 
 	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
-		Object av = cx.nested.resolve(ci.type);
-		if (av == null || !(av instanceof AbsoluteVar)) {
-			errors.message((Block)null, "cannot find a valid definition of contract " + ci.type);
-			return ci;
+		try {
+			Object av = cx.nested.resolve(ci.type);
+			if (av == null || !(av instanceof AbsoluteVar)) {
+				errors.message((Block)null, "cannot find a valid definition of contract " + ci.type);
+				return ci;
+			}
+			ContractImplements ret = new ContractImplements(((AbsoluteVar)av).id, ci.referAsVar);
+			rewrite(cx, ret, ci);
+			return ret;
+		} catch (ResolutionException ex) {
+			errors.message((Block)null, ex.getMessage());
+			return null;
 		}
-		ContractImplements ret = new ContractImplements(((AbsoluteVar)av).id, ci.referAsVar);
-		rewrite(cx, ret, ci);
-		return ret;
 	}
 
 	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi, int cs) {
-		Object av = cx.nested.resolve(hi.type);
-		if (av == null || !(av instanceof AbsoluteVar)) {
-			errors.message((Block)null, "cannot find a valid definition of contract " + hi.type);
-			return hi;
+		try {
+			Object av = cx.nested.resolve(hi.type);
+			if (av == null || !(av instanceof AbsoluteVar)) {
+				errors.message((Block)null, "cannot find a valid definition of contract " + hi.type);
+				return hi;
+			}
+			HandlerImplements ret = new HandlerImplements(((AbsoluteVar)av).id, hi.boundVars);
+			NamingContext c2 = new HandlerContext(cx, hi, cs);
+			rewrite(c2, ret, hi);
+			return ret;
+		} catch (ResolutionException ex) {
+			errors.message((Block)null, ex.getMessage());
+			return null;
 		}
-		HandlerImplements ret = new HandlerImplements(((AbsoluteVar)av).id, hi.boundVars);
-		NamingContext c2 = new HandlerContext(cx, hi, cs);
-		rewrite(c2, ret, hi);
-		return ret;
 	}
 
 	private void rewrite(NamingContext scope, Implements into, Implements orig) {
@@ -405,6 +434,7 @@ public class Rewriter {
 				if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals(".")) {
 					UnresolvedVar field = (UnresolvedVar)ae.args.get(1);
 					// The case where we have an absolute var by package name
+					// Does this need to be here as well as in RootScope?
 					if (!(ae.args.get(0) instanceof ApplyExpr)) {
 						String pkgVar = ((UnresolvedVar)ae.args.get(0)).var;
 						Object pkgEntry = cx.resolve(pkgVar);

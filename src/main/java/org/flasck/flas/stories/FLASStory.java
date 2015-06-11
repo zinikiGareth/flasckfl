@@ -218,6 +218,12 @@ public class FLASStory implements StoryProcessor {
 				.addField(new StructField(new TypeReference("List").with(new TypeReference("DOM.Element")), "content"))
 				.addField(new StructField(new TypeReference("List").with(new TypeReference(null, "B")), "handlers")));
 		}
+		{ // Ziniki
+			PackageDefn dom = new PackageDefn(ret, "org");
+			PackageDefn ziniki = new PackageDefn(dom.innerScope(), "ziniki");
+			ziniki.innerScope().define("Init", "org.ziniki.Init",
+				new ContractDecl("org.ziniki.Init"));
+		}
 		return ret;
 	}
 
