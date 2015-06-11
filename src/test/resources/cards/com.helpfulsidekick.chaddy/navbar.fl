@@ -7,9 +7,11 @@
 				. : 'w-container'
 					. : 'w-row'
 						. : 'w-col' 'w-col-4' 'brand-column'
-							#image @src='chaddy.jpg' @width='32' : 'logo'
+							#img @src='../images/chaddy.jpg' @width='32' : 'logo'
+							. : 'company'
+								'Chaddy'
 						#nav : 'w-col' 'w-col-8' 'nav-column'
-							#a  @title='dashboard' : 'nav-link' 'current-link'
+							#a  @title='dashboard' : 'nav-link' 'selected-tab'
 								'D'
 								click => switchTo 'dashboard'
 							(navItem 'dashboard' 'D' 'dashboard')
