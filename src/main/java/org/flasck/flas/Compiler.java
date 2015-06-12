@@ -21,6 +21,7 @@ import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
+import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -91,31 +92,62 @@ public class Compiler {
 	 * 4. convert methods to functions
 	 * 5. resolve symbols & rewrite references
 	 * 6. regroup into a set of typed collections
-	 * 7. for functions:
+	 * 8. for functions:
 	 *   a. build orchards
 	 *   b. dependency analysis
 	 *   c. HSIE transformation
 	 *   d. typechecking
-	 * 8. generation of JSForms
-	 * 9. issue javascript
+	 * 9. generation of JSForms
+	 * 10. issue javascript
 	 */
 	private void compile(String inPkg, FileWriter w, File f) {
 		FileReader r = null;
 		try {
 			r = new FileReader(f);
+			// 1. Use indentation to break the input file up into blocks
 			List<Block> blocks = makeBlocks(r);
+			abortIfErrors();
+			
+			// 2. Use the parser factory and story to convert blocks to a package definition
 			ScopeEntry se = doParsing(inPkg, blocks);
 			PackageDefn pd = (PackageDefn) se.getValue();
+			abortIfErrors();
+			
+			// 3. Promote template tree definition to individual functions
 			List<RenderTree> trees = new ArrayList<RenderTree>();
 			promoteTemplateFunctions(pd, trees);
-			doRewriting(se);
-
+			abortIfErrors();
+			
+			// 4. Convert methods to functions
 			Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
+			MethodConvertor.convert(functions, pd.innerScope());
+			System.out.println(functions);
+			abortIfErrors();
+			
+			// 5. Resolve symbols and rewrite expressions to reference "scoped" variables
+			doRewriting(se);
+			abortIfErrors();
+
+			// 6. Regroup into things of similar kinds
+
+			// 7. Prepare Typechecker & load types
 			TypeChecker tc = new TypeChecker(errors);
 			populateTypes(tc, se.scope());
-			List<JSForm> forms = new ArrayList<JSForm>();
-			assertPackage(forms, inPkg);
-			processScope(forms, tc, functions, ((PackageDefn)se.getValue()).innerScope(), 1);
+			abortIfErrors();
+
+			// Prepare target to hold "code"
+			JSTarget target = new JSTarget(inPkg);
+
+			// 8. Now look specifically at the functions we've assembled & grouped
+			
+			//   a. build orchards
+			//   b. dependency analysis
+			//   c. HSIE transformation
+			//   d. typechecking
+			//   e. generate JSForms
+
+			// break this up
+			processScope(target.forms, tc, functions, ((PackageDefn)se.getValue()).innerScope(), 1);
 			List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(functions);
 			if (tc.errors.hasErrors())
 				throw new ErrorResultException(tc.errors);
@@ -127,14 +159,19 @@ public class Compiler {
 				if (tc.errors.hasErrors())
 					throw new ErrorResultException(tc.errors);
 				handleCurrying(tc, oh);
-				generateOrchard(forms, oh);
+
+				// 8e. generation of JSForms
+				generateOrchard(target.forms, oh);
+				abortIfErrors();
 			}
-			renderTemplateTrees(forms, trees);
-			for (JSForm js : forms) {
-				js.writeTo(w);
-				w.write("\n");
-			}
-			w.write(inPkg + ";\n");
+			
+			// 9. Generate render & dependency trees
+			renderTemplateTrees(target.forms, trees);
+			abortIfErrors();
+			
+			// 10. Issue JavaScript
+			target.writeTo(w);
+			abortIfErrors();
 		} catch (ErrorResultException ex) {
 			try {
 				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out));
@@ -146,6 +183,11 @@ public class Compiler {
 		} finally {
 			if (r != null) try { r.close(); } catch (IOException ex) {}
 		}
+	}
+
+	private void abortIfErrors() throws ErrorResultException {
+		if (errors.hasErrors())
+			throw new ErrorResultException(errors);
 	}
 
 	private void promoteTemplateFunctions(PackageDefn pd, List<RenderTree> trees) {
@@ -290,10 +332,6 @@ public class Compiler {
 				for (ContractImplements ci : card.contracts) {
 					forms.add(gen.generateContract(name, ci, pos));
 					forms.add(gen.generateContractCtor(name, ci, pos));
-					for (MethodDefinition m : ci.methods) {
-						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_C"+pos, HSIEForm.Type.CONTRACT, m);
-						functions.put(fd.name, fd);
-					}
 					pos++;
 				}
 				pos = 0;
@@ -315,10 +353,6 @@ public class Compiler {
 					}
 					forms.add(gen.generateHandler(name, hi, pos));
 					forms.add(gen.generateHandlerCtor(name, hi, pos));
-					for (MethodDefinition m : hi.methods) {
-						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, "_H"+pos, HSIEForm.Type.HANDLER, m);
-						functions.put(fd.name, fd);
-					}
 					pos++;
 				}
 
@@ -342,33 +376,6 @@ public class Compiler {
 			forms.add(block);
 			gen.generateTree(block, t.ret);
 		}
-	}
-
-//	private List<String> emitPackages(List<JSForm> forms, Scope scope, String defPkg) {
-//		boolean havePkg = false;
-//		List<String> plist = new ArrayList<String>();
-//		for (Entry<String, Entry<String, Object>> ko : scope) {
-//			Entry<String, Object> o = ko.getValue();
-//			if (o.getValue() instanceof PackageDefn) {
-//				havePkg = true;
-//				assertPackage(forms, plist, o.getKey());
-//			}
-//		}
-//		if (!havePkg) {
-//			assertPackage(forms, plist, defPkg);
-//		}
-//		return plist;
-//	}
-
-	private void assertPackage(List<JSForm> forms, /* List<String> plist, */String key) {
-		String keydot = key+".";
-		int idx = -1;
-		while ((idx = keydot.indexOf('.', idx+1))!= -1) {
-			String tmp = keydot.substring(0, idx);
-			forms.add(JSForm.packageForm(tmp));
-//			plist.add(tmp);
-		}
-//		plist.add(key);
 	}
 
 }

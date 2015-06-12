@@ -2,23 +2,65 @@ package org.flasck.flas.method;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class MethodConvertor {
+
+	public static void convert(Map<String, FunctionDefinition> functions, Scope scope) {
+		for (Entry<String, ScopeEntry> x : scope) {
+			String name = x.getValue().getKey();
+			Object val = x.getValue().getValue();
+			if (val instanceof CardDefinition) {
+				CardDefinition card = (CardDefinition) val;
+				
+				int pos = 0;
+				for (ContractImplements ci : card.contracts) {
+					for (MethodDefinition m : ci.methods) {
+						FunctionDefinition fd = convert(card.innerScope(), name, "_C"+pos, HSIEForm.Type.CONTRACT, m);
+						functions.put(fd.name, fd);
+					}
+					pos++;
+				}
+				
+				pos = 0;
+				for (HandlerImplements hi : card.handlers) {
+					for (MethodDefinition m : hi.methods) {
+						FunctionDefinition fd = convert(card.innerScope(), name, "_H"+pos, HSIEForm.Type.HANDLER, m);
+						functions.put(fd.name, fd);
+					}
+					pos++;
+				}
+
+				for (Entry<String, ScopeEntry> x2 : card.innerScope()) {
+					if (x2.getValue().getValue() instanceof EventHandlerDefinition) {
+						FunctionDefinition fd = convert(card.innerScope(), name, (EventHandlerDefinition)x2.getValue().getValue());
+						functions.put(fd.name, fd);
+					}
+				}
+			}
+		}
+	}
 
 	public static FunctionDefinition convert(Scope scope, String card, String type, Type ft, MethodDefinition m) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
