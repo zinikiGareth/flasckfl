@@ -2,12 +2,14 @@ package org.flasck.flas.jsgen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
-import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.jsform.JSTarget;
+import org.flasck.flas.parsedForm.CardGrouping;
+import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -27,7 +29,12 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class Generator {
+	private final JSTarget target;
 
+	public Generator(JSTarget target) {
+		this.target = target;
+	}
+	
 	public JSForm generate(HSIEForm input) {
 		String jsname = input.fnName;
 		if (input.isMethod()) {
@@ -58,78 +65,58 @@ public class Generator {
 					ifBlock.add(defass);
 					HSIEForm form = HSIE.handleExpr(x.init);
 //					form.dump();
-					generateField(defass, x, form);
-					generateField(elseBlock, x, form);
+					generateField(defass, x.name, form);
+					generateField(elseBlock, x.name, form);
 				}
 			}
 		}
 		return ret;
 	}
 
-	private void generateField(JSForm defass, StructField x, HSIEForm form) {
+	private void generateField(JSForm defass, String field, HSIEForm form) {
 		if (form == null)
-			defass.add(new JSForm("this."+ x.name + " = undefined"));
+			defass.add(new JSForm("this."+ field + " = undefined"));
 		else
-			JSForm.assign(defass, "this." + x.name, form);
+			JSForm.assign(defass, "this." + field, form);
 	}
 
-	public JSForm generate(String name, CardDefinition card) {
+	public void generate(String name, CardGrouping card) {
 		JSForm cf = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 0, 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
 		cf.add(new JSForm("this._special = 'card'"));
-		if (card.state != null) {
-			for (StructField fd : card.state.fields) {
-				HSIEForm form = null;
-				if (fd.init != null) {
-					form = HSIE.handleExpr(fd.init);
+		for (Entry<String, Object> x : card.inits.entrySet()) {
+			HSIEForm form = null;
+			if (x.getValue() != null) {
+				form = HSIE.handleExpr(x.getValue());
 //					form.dump();
-				}
-
-				generateField(cf, fd, form);
 			}
+
+			generateField(cf, x.getKey(), form);
 		}
 		cf.add(new JSForm("this.contracts = {}"));
-		int pos = 0;
-		for (ContractImplements ci : card.contracts) {
-			cf.add(new JSForm("this.contracts['" + ci.type +"'] = "+ name +"._C" +pos + ".apply(this)"));
+		for (ContractGrouping ci : card.contracts) {
+			cf.add(new JSForm("this.contracts['" + ci.type +"'] = "+ ci.implName + ".apply(this)"));
 			if (ci.referAsVar != null)
 				cf.add(new JSForm("this." + ci.referAsVar + " = this.contracts['" + ci.type + "']"));
-			pos++;
 		}
-		pos = 0;
-		for (HandlerImplements hi : card.handlers) {
-			List<String> tmp = new ArrayList<String>();
-			for (int i=0;i<hi.boundVars.size();i++)
-				tmp.add("v" +i);
-//			JSForm ctor = new JSForm("this."+Rewriter.basename(hi.type) + " = function(" + String.join(",",tmp) + ")").strict();
-//			cf.add(ctor);
-//			tmp.add(0, "_self");
-//			ctor.add(new JSForm("return new "+name +"._H" +pos+"(" + String.join(",", tmp) +")"));
-			pos++;
-		}
-		return cf;
+		target.add(cf);
 	}
 
-	public JSForm generateContract(String name, ContractImplements ci, int pos) {
-		String ctorname = name +"._C"+pos;
-		String clzname = name +".__C"+pos;
-		JSForm ret = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), 0, 1);
-		ret.add(new JSForm("this._ctor = '" + ctorname + "'"));
-		ret.add(new JSForm("this._card = v0"));
-		ret.add(new JSForm("this._special = 'contract'"));
-		ret.add(new JSForm("this._contract = '" + ci.type + "'"));
-		ret.add(new JSForm("this._onchan = null"));
-		return ret;
-	}
+	public void generateContract(String ctorName, ContractImplements ci) {
+		String clzname = ctorName.replace("._C", ".__C");
+		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), 0, 1);
+		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
+		clz.add(new JSForm("this._card = v0"));
+		clz.add(new JSForm("this._special = 'contract'"));
+		clz.add(new JSForm("this._contract = '" + ci.type + "'"));
+		clz.add(new JSForm("this._onchan = null"));
+		target.add(clz);
 
-	public JSForm generateContractCtor(String name, ContractImplements ci, int pos) {
-		String ctorname = name +"._C"+pos;
-		String clzname = name +".__C"+pos;
-		JSForm ret = JSForm.function(ctorname, new ArrayList<Var>(), 0, 0);
-		ret.add(new JSForm("return new " + clzname + "(this)"));
-		return ret;
+		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), 0, 0);
+		ctor.add(new JSForm("return new " + clzname + "(this)"));
+		target.add(ctor);
 	}
 
 	public JSForm generateHandler(String name, HandlerImplements hi, int pos) {

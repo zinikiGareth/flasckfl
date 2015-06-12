@@ -1,6 +1,8 @@
 package org.flasck.flas.rewriter;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +17,14 @@ import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardFunction;
+import org.flasck.flas.parsedForm.CardGrouping;
+import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
+import org.flasck.flas.parsedForm.EventHandlerInContext;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -28,20 +34,27 @@ import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
+import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.stories.FLASStory.State;
+import org.flasck.flas.tokenizers.TemplateToken;
+import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
 
 /** The objective of this class is to resolve all of the names of all of the
@@ -53,8 +66,19 @@ import org.zinutils.exceptions.UtilException;
  * @author Gareth Powell
  *
  */
+// and ultimately pull these two together
 public class Rewriter {
-	private ErrorResult errors;
+	private final ErrorResult errors;
+	public final Map<String, StructDefn> structs = new HashMap<String, StructDefn>();
+	public final Map<String, TypeDefn> types = new HashMap<String, TypeDefn>();
+	public final Map<String, ContractDecl> contracts = new HashMap<String, ContractDecl>();
+	public final Map<String, CardGrouping> cards = new HashMap<String, CardGrouping>();
+	public final List<Template> templates = new ArrayList<Template>();
+	public final Map<String, ContractImplements> cardImplements = new HashMap<String, ContractImplements>();
+	public final Map<String, HandlerImplements> cardHandlers = new HashMap<String, HandlerImplements>();
+	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
+	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
+	public final Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
 
 	private abstract class NamingContext {
 		protected final NamingContext nested;
@@ -145,7 +169,7 @@ public class Rewriter {
 			}
 			int pos = 0;
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(basename(hi.type), pos++);
+				statics.put(State.simpleName(hi.type), pos++);
 			}
 		}
 
@@ -220,52 +244,126 @@ public class Rewriter {
 	
 	public void rewrite(ScopeEntry pkgEntry) {
 		PackageDefn pkg = (PackageDefn) pkgEntry.getValue();
-		PackageDefn newPkg = new PackageDefn(pkg);
-		rewriteScope(new PackageContext(new RootContext(pkgEntry.scope()), pkg), pkg.innerScope(), newPkg.innerScope());
-		newPkg.replaceOther();
+		rewriteScope(new PackageContext(new RootContext(pkgEntry.scope()), pkg), pkg.innerScope());
 	}
 
-	protected void rewriteScope(NamingContext cx, Scope from, Scope into) {
+	protected void rewriteScope(NamingContext cx, Scope from) {
 		for (Entry<String, ScopeEntry> x : from) {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
 			if (val instanceof CardDefinition)
-				rewriteCard(cx, into, (CardDefinition)val);
+				rewriteCard(cx, (CardDefinition)val);
 			else if (val instanceof FunctionDefinition)
-				into.define(x.getKey(), ((FunctionDefinition)val).name, rewrite(cx, (FunctionDefinition)val));
+				functions.put(name, rewrite(cx, (FunctionDefinition)val));
 			else if (val instanceof EventHandlerDefinition)
-				into.define(x.getKey(), ((EventHandlerDefinition)val).intro.name, rewrite(cx, (EventHandlerDefinition)val));
-			else {
-//				System.out.println("Don't do anything to rewrite " + name + " of type " + val.getClass());
-				into.define(x.getKey(), name, val);
-			}
+				eventHandlers.add(new EventHandlerInContext(from, name, rewrite(cx, (EventHandlerDefinition)val)));
+			else if (val instanceof StructDefn) {
+				structs.put(name, (StructDefn)val);
+			} else if (val instanceof TypeDefn) {
+				types.put(name, (TypeDefn)val);
+			} else if (val instanceof ContractDecl) {
+				contracts.put(name, (ContractDecl)val);
+			} else
+				throw new UtilException("Cannot handle " + val.getClass());
 		}
 	}
 
-	private CardDefinition rewriteCard(NamingContext cx, Scope into, CardDefinition cd) {
+	private void rewriteCard(NamingContext cx, CardDefinition cd) {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope");
 		CardContext c2 = new CardContext((PackageContext) cx, cd);
-		CardDefinition ret = new CardDefinition(into, cd.name);
+		CardGrouping grp = new CardGrouping();
+		cards.put(cd.name, grp);
+		StructDefn sd = new StructDefn(cd.name);
 		if (cd.state != null) {
-			ret.state = new StateDefinition();
-			for (StructField sf : cd.state.fields)
-				ret.state.fields.add(rewrite(cx, sf));
+			for (StructField sf : cd.state.fields) {
+				sd.fields.add(rewrite(cx, sf));
+				grp.inits.put(sf.name, rewriteExpr(cx, sf.init));
+			}
 		}
-		ret.template = cd.template;
-		for (ContractImplements ci : cd.contracts) {
-			ret.contracts.add(rewriteCI(c2, ci));
-		}
+		
 		int pos = 0;
-		for (HandlerImplements hi : cd.handlers) {
-			ret.handlers.add(rewriteHI(c2, hi, pos++));
+		for (ContractImplements ci : cd.contracts) {
+			ContractImplements rw = rewriteCI(c2, ci);
+			String myname = cd.name +"._C" + pos;
+			grp.contracts.add(new ContractGrouping(rw.type, myname, rw.referAsVar));
+			cardImplements.put(myname, rw);
+			if (rw.referAsVar != null)
+				sd.fields.add(new StructField(new TypeReference(rw.type), rw.referAsVar));
+
+			for (MethodDefinition m : ci.methods)
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_C"+pos, HSIEForm.Type.CONTRACT, m));
+
+			pos++;
 		}
-		rewriteScope(c2, cd.fnScope, ret.fnScope);
-		return ret;
+		structs.put(cd.name, sd);
+		if (cd.template != null)
+			templates.add(rewrite(c2, cd.template));
+		
+		pos = 0;
+		for (HandlerImplements hi : cd.handlers) {
+			HandlerImplements rw = rewriteHI(c2, hi, pos++);
+			String hiName = cd.name +"._H"+pos;
+			cardHandlers.put(hiName, rw);
+			if (!rw.boundVars.isEmpty()) {
+				System.out.println("Creating class for handler " + hiName);
+				StructDefn hsd = new StructDefn(hiName);
+				// Doing this seems clever, but I'm not really sure that it is
+				// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
+				for (int i=0;i<rw.boundVars.size();i++)
+					hsd.args.add("A"+i);
+				int j=0;
+				for (String s : hi.boundVars) {
+					hsd.fields.add(new StructField(new TypeReference(null, "A"+j), s));
+					j++;
+				}
+				structs.put(hiName, hsd);
+			}
+			for (MethodDefinition m : hi.methods)
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_H"+pos, HSIEForm.Type.HANDLER, m));
+			pos++;
+		}
+		
+		rewriteScope(c2, cd.fnScope);
 	}
 
-	public static String basename(String type) {
-		return type.substring(type.lastIndexOf(".")+1);
+	private Template rewrite(CardContext cx, Template template) {
+		// Again, the need for a scope seems dodgy if we've rewritten ...
+		return new Template(template.prefix, template.name, rewrite(cx, template.topLine), template.scope);
+	}
+
+	private TemplateLine rewrite(CardContext cx, TemplateLine tl) {
+		List<Object> contents = new ArrayList<Object>();
+		List<Object> attrs = new ArrayList<Object>();
+		List<Object> formats = new ArrayList<Object>();
+		for (Object o : tl.contents) {
+			if (o instanceof TemplateToken) {
+				TemplateToken tt = (TemplateToken) o;
+				if (tt.type == TemplateToken.STRING || tt.type == TemplateToken.DIV)
+					contents.add(tt);
+				else
+					throw new UtilException("Content type not handled: " + tt);
+			} else if (o instanceof ApplyExpr) {
+				contents.add(rewriteExpr(cx, o));
+			} else 
+				throw new UtilException("Content type not handled: " + o.getClass());
+		}
+		for (Object o : tl.formats) {
+			if (o instanceof TemplateToken) {
+				TemplateToken tt = (TemplateToken) o;
+				if (tt.type == TemplateToken.STRING)
+					formats.add(tt);
+				else
+					throw new UtilException("Format type not handled: " + tt);
+			} else if (o instanceof ApplyExpr) {
+				formats.add(rewriteExpr(cx, o));
+			} else 
+				throw new UtilException("Format type not handled: " + o.getClass());
+		}
+		TemplateLine ret = new TemplateLine(contents, tl.customTag, tl.customTagVar, attrs, formats);
+		for (TemplateLine i : tl.nested)
+			ret.nested.add(rewrite(cx, i));
+		return ret;
 	}
 
 	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
@@ -308,7 +406,7 @@ public class Rewriter {
 		}
 	}
 
-	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
+	public FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 //		System.out.println("Rewriting " + f.name);
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
@@ -346,7 +444,7 @@ public class Rewriter {
 	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {
 		FunctionIntro intro = rewrite(cx, c.intro);
 		FunctionCaseDefn ret = new FunctionCaseDefn(c.innerScope().outer, intro.name, intro.args, rewriteExpr(cx, c.expr));
-		rewriteScope(cx, c.innerScope(), ret.innerScope());
+		rewriteScope(cx, c.innerScope());
 		return ret;
 	}
 
@@ -425,12 +523,6 @@ public class Rewriter {
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());
-//				Object ret = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, rwTo));
-//				if (rwTo.contains("._H")) {
-////					System.out.println("_H thing: " + rwTo);
-//					ret = new ApplyExpr(ret, ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "_card")));
-//				}
-//				return ret;
 			} else if (expr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) expr;
 				if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals(".")) {
@@ -480,5 +572,17 @@ public class Rewriter {
 		}
 		System.out.println("Can't rewrite type " + type + " of type " + type.getClass());
 		return (TypeReference) type;
+	}
+
+	public void dump() {
+		try {
+			PrintWriter pw = new PrintWriter(System.out);
+			for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
+				x.getValue().dumpTo(pw);
+			}
+			pw.flush();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 }

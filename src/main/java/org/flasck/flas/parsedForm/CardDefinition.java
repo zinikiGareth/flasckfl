@@ -9,7 +9,7 @@ import org.flasck.flas.stories.FLASStory.State;
 public class CardDefinition implements ContainsScope {
 	public final String name;
 	public StateDefinition state;
-	public TemplateLine template;
+	public Template template;
 	public final List<ContractImplements> contracts = new ArrayList<ContractImplements>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final Scope fnScope;

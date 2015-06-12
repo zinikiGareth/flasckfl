@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
@@ -42,6 +43,15 @@ public class TypeChecker {
 
 	public TypeChecker(ErrorResult errors) {
 		this.errors = errors;
+	}
+
+	public void populateTypes(Rewriter rewriter) {
+		for (Entry<String, StructDefn> d : rewriter.structs.entrySet())
+			structs.put(d.getKey(), d.getValue());
+		System.out.println(structs);
+		for (Entry<String, TypeDefn> d : rewriter.types.entrySet())
+			types.put(d.getKey(), d.getValue());
+		System.out.println(types);
 	}
 
 	public void addStructDefn(StructDefn structDefn) {

@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parser.FieldParser;
@@ -305,7 +306,7 @@ public class FLASStory implements StoryProcessor {
 						if (items.size() != 1)
 							er.message(b, "top level template must be a div or list");
 						else
-							cd.template = items.get(0);
+							cd.template = new Template(cd.name, "template", items.get(0), cd.innerScope());
 					}
 					break;
 				}

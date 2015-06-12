@@ -7,14 +7,13 @@ import java.util.Map;
 import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -23,18 +22,16 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class DomFunctionGenerator {
-	private final CardDefinition card;
 	private final String prefix;
 	private final Map<String, FunctionDefinition> functions;
 	private final Scope scope;
 	private int node = 0;
 	public final List<RenderTree> trees = new ArrayList<RenderTree>();
 
-	public DomFunctionGenerator(CardDefinition card, Map<String, FunctionDefinition> functions) {
-		this.card = card;
-		this.prefix = card.name;
+	public DomFunctionGenerator(Template template, Map<String, FunctionDefinition> functions) {
+		this.prefix = template.prefix/* + "." + template.name*/;
 		this.functions = functions;
-		this.scope = card.innerScope();
+		this.scope = template.scope;
 	}
 
 	// Steps:

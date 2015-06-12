@@ -47,11 +47,12 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 
 	public final Scope outer;
 	private final Map<String, ScopeEntry> defns = new TreeMap<String, ScopeEntry>();
-	public ScopeEntry outerEntry;
+	public final ScopeEntry outerEntry;
 
 	@Deprecated
 	public Scope(Scope inside) {
 		this.outer = inside;
+		this.outerEntry = null;
 	}
 	
 	public Scope(ScopeEntry inside) {

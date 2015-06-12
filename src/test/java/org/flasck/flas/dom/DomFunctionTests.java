@@ -143,7 +143,7 @@ public class DomFunctionTests {
 
 	private FunctionDefinition generateOne(CardDefinition card, String input) throws Exception {
 		Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
-		gen = new DomFunctionGenerator(card, functions);
+		gen = new DomFunctionGenerator(card.template, functions);
 		TemplateLine tl = parse(input);
 		gen.generateOne(tl);
 		assertEquals(1, functions.size());

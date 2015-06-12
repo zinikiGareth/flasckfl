@@ -11,9 +11,9 @@
 							. : 'company'
 								'Chaddy'
 						#nav : 'w-col' 'w-col-8' 'nav-column'
-.							#a  @title='dashboard' : (selectedTab 'dashboard')'nav-link' 
-.								'D'
-.								click => switchTo 'dashboard'
+							#a  @title='dashboard' : (selectedTab 'dashboard')'nav-link' 
+								'D'
+								click => switchTo 'dashboard'
 							(navItem 'dashboard' 'D' 'dashboard')
 							(navItem 'my queues' 'Q' 'myqueues')
 							(navItem 'teams' 'T' 'organization and teams')

@@ -19,6 +19,10 @@ public class JSTarget {
 			forms.add(JSForm.packageForm(tmp));
 		}
 	}
+	
+	public void add(JSForm cf) {
+		forms.add(cf);
+	}
 
 	public void writeTo(FileWriter w) throws IOException {
 		for (JSForm js : forms) {

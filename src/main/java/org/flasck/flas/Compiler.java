@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,7 +17,6 @@ import org.flasck.flas.dom.DomFunctionGenerator;
 import org.flasck.flas.dom.RenderTree;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.grouper.Grouper;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
@@ -26,6 +24,7 @@ import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
@@ -36,11 +35,11 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.FLASStory;
-import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -60,7 +59,6 @@ public class Compiler {
 	private final ErrorResult errors = new ErrorResult();
 	private final Rewriter rewriter = new Rewriter(errors);
 	private final ApplyCurry curry = new ApplyCurry();
-	private final Generator gen = new Generator();
 	
 	public void compile(File file) {
 		String inPkg = file.getName();
@@ -79,112 +77,102 @@ public class Compiler {
 			return;
 		}
 
-		for (File f : FileUtils.findFilesMatching(file, "*.fl"))
-			compile(inPkg, w, f);
+		for (File f : FileUtils.findFilesMatching(file, "*.fl")) {
+			FileReader r = null;
+			try {
+				r = new FileReader(f);
+				// 1. Use indentation to break the input file up into blocks
+				List<Block> blocks = makeBlocks(r);
+				abortIfErrors();
+				
+				// 2. Use the parser factory and story to convert blocks to a package definition
+				ScopeEntry se = doParsing(inPkg, blocks);
+				abortIfErrors();
+				
+				// 3. Flatten the hierarchy, grouping into things of similar kinds
+				//    Resolve symbols and rewrite expressions to reference "scoped" variables
+				rewriter.rewrite(se);
+				abortIfErrors();
+
+				// 4. Promote template tree definition to individual functions
+				List<RenderTree> trees = new ArrayList<RenderTree>();
+				for (Template t : rewriter.templates)
+					promoteTemplateFunctions(rewriter.functions, trees, t);
+				abortIfErrors();
+				
+				// 5. Extract methods and convert to functions
+				MethodConvertor.convert(rewriter.functions, rewriter.methods);
+				abortIfErrors();
+
+				// 6. Convert event handlers to functions
+				MethodConvertor.convertEvents(rewriter.functions, rewriter.eventHandlers);
+				abortIfErrors();
+				rewriter.dump();
+
+				// 7. Prepare Typechecker & load types
+				TypeChecker tc = new TypeChecker(errors);
+				populateTypes(tc, se.scope(), inPkg); // this is intended to just load in builtin stuff.  We should have a better pre-flattened version of that
+				tc.populateTypes(rewriter);
+				abortIfErrors();
+			
+				// Prepare target to hold "code"
+				JSTarget target = new JSTarget(inPkg);
+				Generator gen = new Generator(target);
+			
+				// Generate Class Definitions
+				for (Entry<String, CardGrouping> cg : rewriter.cards.entrySet())
+					gen.generate(cg.getKey(), cg.getValue());
+				for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet())
+					gen.generateContract(ci.getKey(), ci.getValue());
+				
+				// 8. Now look specifically at the functions we've assembled & grouped
+				
+				//   a. build orchards
+				//   b. dependency analysis
+				//   c. HSIE transformation
+				//   d. typechecking
+				//   e. generate JSForms
+			
+				// break this up
+//				processScope(target.forms, tc, rewriter.functions, ((PackageDefn)se.getValue()).innerScope(), 1);
+				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(rewriter.functions);
+				if (tc.errors.hasErrors())
+					throw new ErrorResultException(tc.errors);
+				for (Orchard<FunctionDefinition> d : defns) {
+					Orchard<HSIEForm> oh = hsieOrchard(d);
+					if (tc.errors.hasErrors())
+						throw new ErrorResultException(tc.errors);
+					tc.typecheck(oh);
+					if (tc.errors.hasErrors())
+						throw new ErrorResultException(tc.errors);
+					handleCurrying(tc, oh);
+			
+					// 8e. generation of JSForms
+					generateOrchard(gen, target.forms, oh);
+					abortIfErrors();
+				}
+				
+				// 9. Generate render & dependency trees
+				renderTemplateTrees(gen, target.forms, trees);
+				abortIfErrors();
+				
+				// 10. Issue JavaScript
+				target.writeTo(w);
+				abortIfErrors();
+			} catch (ErrorResultException ex) {
+				try {
+					((ErrorResult)ex.errors).showTo(new PrintWriter(System.out));
+				} catch (IOException ex2) {
+					ex2.printStackTrace();
+				}
+			} catch (IOException ex1) {
+				ex1.printStackTrace();
+			} finally {
+				if (r != null) try { r.close(); } catch (IOException ex3) {}
+			}
+		}
 		try { w.close(); } catch (IOException ex) {}
 		FileUtils.copyFileToStream(writeTo, System.out);
-	}
-
-	/* Compile comes in phases:
-	 * 1. block to build a tree
-	 * 2. parse the individual blocks to make a real parse tree
-	 * 3. extract templates to make generated functions
-	 * 4. convert methods to functions
-	 * 5. resolve symbols & rewrite references // if possible, I'd like to move this below grouping
-	 * 6. regroup into a set of typed collections
-	 * 7. prepare type checker
-	 * 8. for functions:
-	 *   a. build orchards
-	 *   b. dependency analysis
-	 *   c. HSIE transformation
-	 *   d. typechecking
-	 * 9. generation of JSForms
-	 * 10. issue javascript
-	 */
-	private void compile(String inPkg, FileWriter w, File f) {
-		FileReader r = null;
-		try {
-			r = new FileReader(f);
-			// 1. Use indentation to break the input file up into blocks
-			List<Block> blocks = makeBlocks(r);
-			abortIfErrors();
-			
-			// 2. Use the parser factory and story to convert blocks to a package definition
-			ScopeEntry se = doParsing(inPkg, blocks);
-			PackageDefn pd = (PackageDefn) se.getValue();
-			abortIfErrors();
-			
-			// 3. Regroup into things of similar kinds
-			Grouper grouper = new Grouper(errors);
-			grouper.group(pd.innerScope());
-
-			// 4. Promote template tree definition to individual functions
-			List<RenderTree> trees = new ArrayList<RenderTree>();
-			promoteTemplateFunctions(pd, trees);
-			abortIfErrors();
-			
-			// 4. Extract methods and convert to functions
-			MethodConvertor.convert(grouper.functions, grouper.methods);
-			System.out.println(grouper.functions);
-			abortIfErrors();
-			
-			// 5. Resolve symbols and rewrite expressions to reference "scoped" variables
-			doRewriting(se);
-			abortIfErrors();
-
-			// 7. Prepare Typechecker & load types
-			TypeChecker tc = new TypeChecker(errors);
-			populateTypes(tc, se.scope());
-			abortIfErrors();
-
-			// Prepare target to hold "code"
-			JSTarget target = new JSTarget(inPkg);
-
-			// 8. Now look specifically at the functions we've assembled & grouped
-			
-			//   a. build orchards
-			//   b. dependency analysis
-			//   c. HSIE transformation
-			//   d. typechecking
-			//   e. generate JSForms
-
-			// break this up
-			processScope(target.forms, tc, grouper.functions, ((PackageDefn)se.getValue()).innerScope(), 1);
-			List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(grouper.functions);
-			if (tc.errors.hasErrors())
-				throw new ErrorResultException(tc.errors);
-			for (Orchard<FunctionDefinition> d : defns) {
-				Orchard<HSIEForm> oh = hsieOrchard(d);
-				if (tc.errors.hasErrors())
-					throw new ErrorResultException(tc.errors);
-				tc.typecheck(oh);
-				if (tc.errors.hasErrors())
-					throw new ErrorResultException(tc.errors);
-				handleCurrying(tc, oh);
-
-				// 8e. generation of JSForms
-				generateOrchard(target.forms, oh);
-				abortIfErrors();
-			}
-			
-			// 9. Generate render & dependency trees
-			renderTemplateTrees(target.forms, trees);
-			abortIfErrors();
-			
-			// 10. Issue JavaScript
-			target.writeTo(w);
-			abortIfErrors();
-		} catch (ErrorResultException ex) {
-			try {
-				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out));
-			} catch (IOException ex2) {
-				ex.printStackTrace();
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		} finally {
-			if (r != null) try { r.close(); } catch (IOException ex) {}
-		}
 	}
 
 	private void abortIfErrors() throws ErrorResultException {
@@ -192,31 +180,14 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
-	private void promoteTemplateFunctions(PackageDefn pd, List<RenderTree> trees) {
-		for (Entry<String, ScopeEntry> x : pd.innerScope()) {
-			if (x.getValue().getValue() instanceof CardDefinition) {
-				CardDefinition cd = (CardDefinition) x.getValue().getValue();
-				if (cd.template != null)
-					promoteTemplateFunctions(cd, trees);
-			}
-		}
-	}
-
-	private void promoteTemplateFunctions(CardDefinition card, List<RenderTree> trees) {
-		Map<String, FunctionDefinition> innerFns = new HashMap<String, FunctionDefinition>();
-		DomFunctionGenerator gen = new DomFunctionGenerator(card, innerFns);
-		gen.generateTree(card.template);
-		for (Entry<String, FunctionDefinition> x2 : innerFns.entrySet()) {
+	private void promoteTemplateFunctions(Map<String, FunctionDefinition> functions, List<RenderTree> trees, Template template) {
+		DomFunctionGenerator gen = new DomFunctionGenerator(template, functions);
+		gen.generateTree(template.topLine);
+		for (Entry<String, FunctionDefinition> x2 : functions.entrySet()) {
 			FunctionDefinition rfn = (FunctionDefinition) x2.getValue();
-			card.innerScope().define(State.simpleName(rfn.name), rfn.name, rfn);
+			functions.put(rfn.name, rfn);
 		}
 		trees.addAll(gen.trees);
-	}
-
-	private void doRewriting(ScopeEntry se) throws ErrorResultException {
-		rewriter.rewrite(se);
-		if (errors.hasErrors())
-			throw new ErrorResultException(errors);
 	}
 
 	private ScopeEntry doParsing(String inPkg, List<Block> blocks) throws ErrorResultException {
@@ -237,11 +208,12 @@ public class Compiler {
 		return (List<Block>) res;
 	}
 
-	protected void populateTypes(TypeChecker tc, Scope scope) {
+	protected void populateTypes(TypeChecker tc, Scope scope, String mine) {
 		for (Entry<String, ScopeEntry> x : scope) {
 			Object val = x.getValue().getValue();
 			if (val instanceof PackageDefn) {
-				populateTypes(tc, ((PackageDefn)val).innerScope());
+				if (mine == null || !x.getKey().equals(mine))
+					populateTypes(tc, ((PackageDefn)val).innerScope(), null);
 			} else if (val instanceof StructDefn) {
 //				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
 				tc.addStructDefn((StructDefn) val);
@@ -283,96 +255,96 @@ public class Compiler {
 				curry.rewrite(tc, h);
 	}
 
-	private void generateOrchard(List<JSForm> forms, Orchard<HSIEForm> oh) {
+	private void generateOrchard(Generator gen, List<JSForm> forms, Orchard<HSIEForm> oh) {
 		for (Tree<HSIEForm> t : oh)
-			generateTree(forms, t, t.getRoot());
+			generateTree(gen, forms, t, t.getRoot());
 	}
 	
-	private void generateTree(List<JSForm> forms, Tree<HSIEForm> t, Node<HSIEForm> node) {
+	private void generateTree(Generator gen, List<JSForm> forms, Tree<HSIEForm> t, Node<HSIEForm> node) {
 		forms.add(gen.generate(node.getEntry()));
 		for (Node<HSIEForm> n : t.getChildren(node))
-			generateTree(forms, t, n);
+			generateTree(gen, forms, t, n);
 	}
 
-	private void processScope(List<JSForm> forms, TypeChecker tc, Map<String, FunctionDefinition> functions, Scope scope, int scopeDepth) {
-		for (Entry<String, ScopeEntry> x : scope) {
-			String name = x.getValue().getKey();
-			Object val = x.getValue().getValue();
-//			if (val instanceof PackageDefn) {
-//				processScope(forms, tc, functions, ((PackageDefn) val).innerScope(), scopeDepth+1);
-//			} else 
-			if (val instanceof FunctionDefinition) {
-				functions.put(name, (FunctionDefinition) val);
-			} else if (val instanceof StructDefn) {
-				StructDefn sd = (StructDefn) val;
-				tc.addStructDefn(sd);
-				forms.add(gen.generate(name, sd));
-			} else if (val instanceof TypeDefn) {
-				TypeDefn td = (TypeDefn) val;
-				tc.addTypeDefn(td);
-			} else if (val instanceof ContractDecl) {
-				// currently, I don't think anything needs to be written in this case
-				continue;
-			} else if (val instanceof CardDefinition) {
-				CardDefinition card = (CardDefinition) val;
-				forms.add(gen.generate(name, card));
+//	private void processScope(List<JSForm> forms, TypeChecker tc, Map<String, FunctionDefinition> functions, Scope scope, int scopeDepth) {
+//		for (Entry<String, ScopeEntry> x : scope) {
+//			String name = x.getValue().getKey();
+//			Object val = x.getValue().getValue();
+////			if (val instanceof PackageDefn) {
+////				processScope(forms, tc, functions, ((PackageDefn) val).innerScope(), scopeDepth+1);
+////			} else 
+//			if (val instanceof FunctionDefinition) {
+//				functions.put(name, (FunctionDefinition) val);
+//			} else if (val instanceof StructDefn) {
+//				StructDefn sd = (StructDefn) val;
+//				tc.addStructDefn(sd);
+//				forms.add(gen.generate(name, sd));
+//			} else if (val instanceof TypeDefn) {
+//				TypeDefn td = (TypeDefn) val;
+//				tc.addTypeDefn(td);
+//			} else if (val instanceof ContractDecl) {
+//				// currently, I don't think anything needs to be written in this case
+//				continue;
+//			} else if (val instanceof CardDefinition) {
+//				CardDefinition card = (CardDefinition) val;
+//				forms.add(gen.generate(name, card));
+//
+//				{
+//					StructDefn sd = new StructDefn(name);
+//					if (card.state != null) {
+//						for (StructField sf : card.state.fields)
+//							sd.fields.add(sf);
+//					}
+//					for (ContractImplements ci : card.contracts) {
+//						if (ci.referAsVar != null)
+//							sd.fields.add(new StructField(new TypeReference(ci.type), ci.referAsVar));
+//					}
+//					tc.addStructDefn(sd);
+//				}
+//				
+//				int pos = 0;
+//				for (ContractImplements ci : card.contracts) {
+//					forms.add(gen.generateContract(name, ci, pos));
+//					forms.add(gen.generateContractCtor(name, ci, pos));
+//					pos++;
+//				}
+//				pos = 0;
+//				for (HandlerImplements hi : card.handlers) {
+//					if (!hi.boundVars.isEmpty()) {
+//						String hname = name +"._H"+pos;
+//						System.out.println("Creating class for handler " + hname);
+//						StructDefn sd = new StructDefn(hname);
+//						// Doing this seems clever, but I'm not really sure that it is
+//						// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
+//						for (int i=0;i<hi.boundVars.size();i++)
+//							sd.args.add("A"+i);
+//						int j=0;
+//						for (String s : hi.boundVars) {
+//							sd.fields.add(new StructField(new TypeReference(null, "A"+j), s));
+//							j++;
+//						}
+//						tc.addStructDefn(sd);
+//					}
+//					forms.add(gen.generateHandler(name, hi, pos));
+//					forms.add(gen.generateHandlerCtor(name, hi, pos));
+//					pos++;
+//				}
+//
+//				for (Entry<String, ScopeEntry> x2 : card.innerScope()) {
+//					if (x2.getValue().getValue() instanceof FunctionDefinition) {
+//						functions.put(x2.getValue().getKey(), (FunctionDefinition) x2.getValue().getValue());
+//					} else if (x2.getValue().getValue() instanceof EventHandlerDefinition) {
+//						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, (EventHandlerDefinition)x2.getValue().getValue());
+//						functions.put(fd.name, fd);
+//					} else
+//						throw new UtilException("Need to handle " + x2);
+//				}
+//			} else
+//				throw new UtilException("Need to handle " + x.getKey() + " of type " + val.getClass());
+//		}
+//	}
 
-				{
-					StructDefn sd = new StructDefn(name);
-					if (card.state != null) {
-						for (StructField sf : card.state.fields)
-							sd.fields.add(sf);
-					}
-					for (ContractImplements ci : card.contracts) {
-						if (ci.referAsVar != null)
-							sd.fields.add(new StructField(new TypeReference(ci.type), ci.referAsVar));
-					}
-					tc.addStructDefn(sd);
-				}
-				
-				int pos = 0;
-				for (ContractImplements ci : card.contracts) {
-					forms.add(gen.generateContract(name, ci, pos));
-					forms.add(gen.generateContractCtor(name, ci, pos));
-					pos++;
-				}
-				pos = 0;
-				for (HandlerImplements hi : card.handlers) {
-					if (!hi.boundVars.isEmpty()) {
-						String hname = name +"._H"+pos;
-						System.out.println("Creating class for handler " + hname);
-						StructDefn sd = new StructDefn(hname);
-						// Doing this seems clever, but I'm not really sure that it is
-						// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
-						for (int i=0;i<hi.boundVars.size();i++)
-							sd.args.add("A"+i);
-						int j=0;
-						for (String s : hi.boundVars) {
-							sd.fields.add(new StructField(new TypeReference(null, "A"+j), s));
-							j++;
-						}
-						tc.addStructDefn(sd);
-					}
-					forms.add(gen.generateHandler(name, hi, pos));
-					forms.add(gen.generateHandlerCtor(name, hi, pos));
-					pos++;
-				}
-
-				for (Entry<String, ScopeEntry> x2 : card.innerScope()) {
-					if (x2.getValue().getValue() instanceof FunctionDefinition) {
-						functions.put(x2.getValue().getKey(), (FunctionDefinition) x2.getValue().getValue());
-					} else if (x2.getValue().getValue() instanceof EventHandlerDefinition) {
-						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, (EventHandlerDefinition)x2.getValue().getValue());
-						functions.put(fd.name, fd);
-					} else
-						throw new UtilException("Need to handle " + x2);
-				}
-			} else
-				throw new UtilException("Need to handle " + x.getKey() + " of type " + val.getClass());
-		}
-	}
-
-	private void renderTemplateTrees(List<JSForm> forms, List<RenderTree> trees) {
+	private void renderTemplateTrees(Generator gen, List<JSForm> forms, List<RenderTree> trees) {
 		for (RenderTree t : trees) {
 			JSForm block = gen.generateTemplateTree(t.card, t.template);
 			forms.add(block);

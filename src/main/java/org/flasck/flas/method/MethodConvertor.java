@@ -3,11 +3,13 @@ package org.flasck.flas.method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
+import org.flasck.flas.parsedForm.EventHandlerInContext;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
@@ -28,6 +30,13 @@ public class MethodConvertor {
 				cases.add(new FunctionCaseDefn(null, mcd.intro.name, mcd.intro.args, convert(m.scope, mcd.messages)));
 			}
 			functions.put(m.method.intro.name, new FunctionDefinition(m.type, m.method.intro.name, m.method.intro.args.size(), cases));
+		}
+	}
+
+	public static void convertEvents(Map<String, FunctionDefinition> functions, List<EventHandlerInContext> eventHandlers) {
+		for (EventHandlerInContext x : eventHandlers) {
+			FunctionDefinition fd = MethodConvertor.convert(x.scope, x.name, x.handler);
+			functions.put(x.name, fd);
 		}
 	}
 
