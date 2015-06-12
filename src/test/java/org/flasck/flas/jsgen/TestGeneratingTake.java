@@ -71,8 +71,6 @@ StdLib.take = function(v0, v1) {
 	@Test
 	public void test() {
 		HSIEForm input = HSIETestData.take();
-		JSForm output = new Generator(null).generate(input);
-		assertNotNull(output);
-		System.out.println(output);
+		new Generator(null).generate(input);
 	}
 }

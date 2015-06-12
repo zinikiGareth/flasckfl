@@ -112,11 +112,10 @@ public class Compiler {
 				tc.populateTypes(rewriter);
 				abortIfErrors();
 			
-				// Prepare target to hold "code"
+				// 8. Generate Class Definitions
 				JSTarget target = new JSTarget(inPkg);
 				Generator gen = new Generator(target);
 			
-				// Generate Class Definitions
 				for (Entry<String, CardGrouping> cg : rewriter.cards.entrySet())
 					gen.generate(cg.getKey(), cg.getValue());
 				for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet())
@@ -124,40 +123,42 @@ public class Compiler {
 				for (Entry<String, HandlerImplements> ci : rewriter.cardHandlers.entrySet())
 					gen.generateHandler(ci.getKey(), ci.getValue());
 				
-				// 8. Now look specifically at the functions we've assembled & grouped
-				
-				//   a. build orchards
-				//   b. dependency analysis
-				//   c. HSIE transformation
-				//   d. typechecking
-				//   e. generate JSForms
+				// 9. Do dependency analysis on functions and group them together in orchards
+				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(rewriter.functions);
+				abortIfErrors();
+
+				// 10. Now process each orchard
+				//   a. convert functions to HSIE
+				//   b. typechecking
+				//   c. curry functions that don't have enough args
+				//   d. generate JSForms
 			
-				// break this up
-//				processScope(target.forms, tc, rewriter.functions, ((PackageDefn)se.getValue()).innerScope(), 1);
-				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(rewriter.functions);
-				if (tc.errors.hasErrors())
-					throw new ErrorResultException(tc.errors);
 				for (Orchard<FunctionDefinition> d : defns) {
+					// 10a. Convert each orchard to HSIE
 					Orchard<HSIEForm> oh = hsieOrchard(d);
-					if (tc.errors.hasErrors())
-						throw new ErrorResultException(tc.errors);
+					abortIfErrors();
+					
+					// 10b. Typecheck an orchard together
 					tc.typecheck(oh);
-					if (tc.errors.hasErrors())
-						throw new ErrorResultException(tc.errors);
+					abortIfErrors();
+
+					// 10c. Check whether functions are curried and add in the appropriate indications if so
 					handleCurrying(tc, oh);
-			
-					// 8e. generation of JSForms
-					generateOrchard(gen, target.forms, oh);
+					abortIfErrors();
+
+					// 10d. generation of JSForms
+					generateOrchard(gen, oh);
 					abortIfErrors();
 				}
 				
-				// 9. Generate render & dependency trees
-				renderTemplateTrees(gen, target.forms, trees);
+				// 11. Generate render & dependency trees
+				renderTemplateTrees(gen, trees);
 				abortIfErrors();
 				
-				// 10. Issue JavaScript
+				// 12. Issue JavaScript
 				target.writeTo(w);
 				abortIfErrors();
+				
 			} catch (ErrorResultException ex) {
 				try {
 					((ErrorResult)ex.errors).showTo(new PrintWriter(System.out));
@@ -207,7 +208,7 @@ public class Compiler {
 		return (List<Block>) res;
 	}
 
-	protected void populateTypes(TypeChecker tc, Scope scope, String mine) {
+	private void populateTypes(TypeChecker tc, Scope scope, String mine) {
 		for (Entry<String, ScopeEntry> x : scope) {
 			Object val = x.getValue().getValue();
 			if (val instanceof PackageDefn) {
@@ -254,101 +255,21 @@ public class Compiler {
 				curry.rewrite(tc, h);
 	}
 
-	private void generateOrchard(Generator gen, List<JSForm> forms, Orchard<HSIEForm> oh) {
+	private void generateOrchard(Generator gen, Orchard<HSIEForm> oh) {
 		for (Tree<HSIEForm> t : oh)
-			generateTree(gen, forms, t, t.getRoot());
+			generateTree(gen,  t, t.getRoot());
 	}
 	
-	private void generateTree(Generator gen, List<JSForm> forms, Tree<HSIEForm> t, Node<HSIEForm> node) {
-		forms.add(gen.generate(node.getEntry()));
+	private void generateTree(Generator gen, Tree<HSIEForm> t, Node<HSIEForm> node) {
+		gen.generate(node.getEntry());
 		for (Node<HSIEForm> n : t.getChildren(node))
-			generateTree(gen, forms, t, n);
+			generateTree(gen, t, n);
 	}
 
-//	private void processScope(List<JSForm> forms, TypeChecker tc, Map<String, FunctionDefinition> functions, Scope scope, int scopeDepth) {
-//		for (Entry<String, ScopeEntry> x : scope) {
-//			String name = x.getValue().getKey();
-//			Object val = x.getValue().getValue();
-////			if (val instanceof PackageDefn) {
-////				processScope(forms, tc, functions, ((PackageDefn) val).innerScope(), scopeDepth+1);
-////			} else 
-//			if (val instanceof FunctionDefinition) {
-//				functions.put(name, (FunctionDefinition) val);
-//			} else if (val instanceof StructDefn) {
-//				StructDefn sd = (StructDefn) val;
-//				tc.addStructDefn(sd);
-//				forms.add(gen.generate(name, sd));
-//			} else if (val instanceof TypeDefn) {
-//				TypeDefn td = (TypeDefn) val;
-//				tc.addTypeDefn(td);
-//			} else if (val instanceof ContractDecl) {
-//				// currently, I don't think anything needs to be written in this case
-//				continue;
-//			} else if (val instanceof CardDefinition) {
-//				CardDefinition card = (CardDefinition) val;
-//				forms.add(gen.generate(name, card));
-//
-//				{
-//					StructDefn sd = new StructDefn(name);
-//					if (card.state != null) {
-//						for (StructField sf : card.state.fields)
-//							sd.fields.add(sf);
-//					}
-//					for (ContractImplements ci : card.contracts) {
-//						if (ci.referAsVar != null)
-//							sd.fields.add(new StructField(new TypeReference(ci.type), ci.referAsVar));
-//					}
-//					tc.addStructDefn(sd);
-//				}
-//				
-//				int pos = 0;
-//				for (ContractImplements ci : card.contracts) {
-//					forms.add(gen.generateContract(name, ci, pos));
-//					forms.add(gen.generateContractCtor(name, ci, pos));
-//					pos++;
-//				}
-//				pos = 0;
-//				for (HandlerImplements hi : card.handlers) {
-//					if (!hi.boundVars.isEmpty()) {
-//						String hname = name +"._H"+pos;
-//						System.out.println("Creating class for handler " + hname);
-//						StructDefn sd = new StructDefn(hname);
-//						// Doing this seems clever, but I'm not really sure that it is
-//						// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
-//						for (int i=0;i<hi.boundVars.size();i++)
-//							sd.args.add("A"+i);
-//						int j=0;
-//						for (String s : hi.boundVars) {
-//							sd.fields.add(new StructField(new TypeReference(null, "A"+j), s));
-//							j++;
-//						}
-//						tc.addStructDefn(sd);
-//					}
-//					forms.add(gen.generateHandler(name, hi, pos));
-//					forms.add(gen.generateHandlerCtor(name, hi, pos));
-//					pos++;
-//				}
-//
-//				for (Entry<String, ScopeEntry> x2 : card.innerScope()) {
-//					if (x2.getValue().getValue() instanceof FunctionDefinition) {
-//						functions.put(x2.getValue().getKey(), (FunctionDefinition) x2.getValue().getValue());
-//					} else if (x2.getValue().getValue() instanceof EventHandlerDefinition) {
-//						FunctionDefinition fd = MethodConvertor.convert(card.innerScope(), name, (EventHandlerDefinition)x2.getValue().getValue());
-//						functions.put(fd.name, fd);
-//					} else
-//						throw new UtilException("Need to handle " + x2);
-//				}
-//			} else
-//				throw new UtilException("Need to handle " + x.getKey() + " of type " + val.getClass());
-//		}
-//	}
-
-	private void renderTemplateTrees(Generator gen, List<JSForm> forms, List<RenderTree> trees) {
+	private void renderTemplateTrees(Generator gen, List<RenderTree> trees) {
 		for (RenderTree t : trees) {
 			JSForm block = gen.generateTemplateTree(t.card, t.template);
-			forms.add(block);
 			gen.generateTree(block, t.ret);
 		}
 	}
-
 }

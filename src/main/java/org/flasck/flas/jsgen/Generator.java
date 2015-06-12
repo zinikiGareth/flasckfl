@@ -35,7 +35,7 @@ public class Generator {
 		this.target = target;
 	}
 	
-	public JSForm generate(HSIEForm input) {
+	public void generate(HSIEForm input) {
 		String jsname = input.fnName;
 		if (input.isMethod()) {
 			int idx = jsname.lastIndexOf(".");
@@ -46,7 +46,7 @@ public class Generator {
 		}
 		JSForm ret = JSForm.function(jsname, input.vars, input.alreadyUsed, input.nformal);
 		generateBlock(input.fnName, input, ret, input);
-		return ret;
+		target.add(ret);
 	}
 
 	public JSForm generate(String name, StructDefn sd) {
@@ -206,7 +206,9 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 	}
 
 	public JSForm generateTemplateTree(String name, String templateName) {
-		return new JSForm(name + "." + templateName + " =").needBlock().needSemi();
+		JSForm ret = new JSForm(name + "." + templateName + " =").needBlock().needSemi();
+		target.add(ret);
+		return ret;
 	}
 
 	public void generateTree(JSForm block, Element ret) {
