@@ -119,22 +119,21 @@ public class Generator {
 		target.add(ctor);
 	}
 
-	public JSForm generateHandler(String name, HandlerImplements hi, int pos) {
-		String ctorname = name +"._H"+pos;
-		String clzname = name +".__H"+pos;
+	public void generateHandler(String ctorName, HandlerImplements hi) {
+		String clzname = ctorName.replace("._H", ".__H");
 		List<Var> vars = new ArrayList<Var>();
 		for (int i=0;i<=hi.boundVars.size();i++)
 			vars.add(new Var(i));
-		JSForm ret = JSForm.function(clzname, vars, 0, hi.boundVars.size() + 1);
-		ret.add(new JSForm("this._ctor = '" + ctorname + "'"));
-		ret.add(new JSForm("this._card = v0"));
-		ret.add(new JSForm("this._special = 'handler'"));
-		ret.add(new JSForm("this._contract = '" + hi.type + "'"));
-		ret.add(new JSForm("this._onchan = null"));
+		JSForm clz = JSForm.function(clzname, vars, 0, hi.boundVars.size() + 1);
+		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
+		clz.add(new JSForm("this._card = v0"));
+		clz.add(new JSForm("this._special = 'handler'"));
+		clz.add(new JSForm("this._contract = '" + hi.type + "'"));
+		clz.add(new JSForm("this._onchan = null"));
 		int v = 1;
 		for (String s : hi.boundVars) 
-			ret.add(new JSForm("this." + s + " = v" + v++));
-		return ret;
+			clz.add(new JSForm("this." + s + " = v" + v++));
+		target.add(clz);
 	}
 
 	public JSForm generateHandlerCtor(String name, HandlerImplements hi, int pos) {
