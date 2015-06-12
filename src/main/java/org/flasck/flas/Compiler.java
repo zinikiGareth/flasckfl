@@ -18,6 +18,7 @@ import org.flasck.flas.dom.DomFunctionGenerator;
 import org.flasck.flas.dom.RenderTree;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.grouper.Grouper;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
@@ -30,7 +31,6 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -90,8 +90,9 @@ public class Compiler {
 	 * 2. parse the individual blocks to make a real parse tree
 	 * 3. extract templates to make generated functions
 	 * 4. convert methods to functions
-	 * 5. resolve symbols & rewrite references
+	 * 5. resolve symbols & rewrite references // if possible, I'd like to move this below grouping
 	 * 6. regroup into a set of typed collections
+	 * 7. prepare type checker
 	 * 8. for functions:
 	 *   a. build orchards
 	 *   b. dependency analysis
@@ -113,22 +114,23 @@ public class Compiler {
 			PackageDefn pd = (PackageDefn) se.getValue();
 			abortIfErrors();
 			
-			// 3. Promote template tree definition to individual functions
+			// 3. Regroup into things of similar kinds
+			Grouper grouper = new Grouper(errors);
+			grouper.group(pd.innerScope());
+
+			// 4. Promote template tree definition to individual functions
 			List<RenderTree> trees = new ArrayList<RenderTree>();
 			promoteTemplateFunctions(pd, trees);
 			abortIfErrors();
 			
-			// 4. Convert methods to functions
-			Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
-			MethodConvertor.convert(functions, pd.innerScope());
-			System.out.println(functions);
+			// 4. Extract methods and convert to functions
+			MethodConvertor.convert(grouper.functions, grouper.methods);
+			System.out.println(grouper.functions);
 			abortIfErrors();
 			
 			// 5. Resolve symbols and rewrite expressions to reference "scoped" variables
 			doRewriting(se);
 			abortIfErrors();
-
-			// 6. Regroup into things of similar kinds
 
 			// 7. Prepare Typechecker & load types
 			TypeChecker tc = new TypeChecker(errors);
@@ -147,8 +149,8 @@ public class Compiler {
 			//   e. generate JSForms
 
 			// break this up
-			processScope(target.forms, tc, functions, ((PackageDefn)se.getValue()).innerScope(), 1);
-			List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(functions);
+			processScope(target.forms, tc, grouper.functions, ((PackageDefn)se.getValue()).innerScope(), 1);
+			List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(tc.errors).analyze(grouper.functions);
 			if (tc.errors.hasErrors())
 				throw new ErrorResultException(tc.errors);
 			for (Orchard<FunctionDefinition> d : defns) {
