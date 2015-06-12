@@ -15,8 +15,7 @@ public class ApplyCurry {
 //			c.dumpOne(4);
 			PushCmd pc = (PushCmd) c.nestedCommands().get(0);
 
-			// This is a very weird case
-			if (pc.fn != null) { // the normal case
+			if (pc.fn != null) {
 				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;
 				Type t = tc.getTypeDefn(pc.fn.uniqueName());
@@ -26,7 +25,7 @@ public class ApplyCurry {
 					c.pushAt(2, t.arity());
 				}
 			} else if (pc.var != null) { // the closure case, q.v.
-				
+				 
 			} else {
 				System.out.println(pc);
 				throw new UtilException("I don't think this can have passed typecheck");

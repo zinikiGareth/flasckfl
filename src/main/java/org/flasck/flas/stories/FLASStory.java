@@ -75,6 +75,8 @@ public class FLASStory implements StoryProcessor {
 		State s = new State(pd.innerScope(), pkg, HSIEForm.Type.FUNCTION);
 		ErrorResult er = new ErrorResult();
 		doScope(er, s, blocks);
+		if (er.hasErrors())
+			return er;
 		return pd.myEntry();
 	}
 	
@@ -399,7 +401,7 @@ public class FLASStory implements StoryProcessor {
 				FunctionIntro meth = (FunctionIntro)o;
 				MethodCaseDefn mcd = new MethodCaseDefn(meth);
 				cases.add(mcd);
-				assertSomeNonCommentNestedLines(er, b);
+//				assertSomeNonCommentNestedLines(er, b);
 				handleMessageMethods(er, mcd, b.nested);
 			} else
 				er.message(b, "cannot handle " + o.getClass());

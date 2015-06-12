@@ -11,10 +11,12 @@
 							. : 'company'
 								'Chaddy'
 						#nav : 'w-col' 'w-col-8' 'nav-column'
-							#a  @title='dashboard' : 'nav-link' (selectedTab 'dashboard')
-								'D'
-								click => switchTo 'dashboard'
+.							#a  @title='dashboard' : (selectedTab 'dashboard')'nav-link' 
+.								'D'
+.								click => switchTo 'dashboard'
 							(navItem 'dashboard' 'D' 'dashboard')
+							(navItem 'my queues' 'Q' 'myqueues')
+							(navItem 'teams' 'T' 'organization and teams')
 		
 		navItem title short tab = DOM.Element "a" [('title', title),('class', concat ['nav-link ', selectedTab tab])] [short] [('click',switchTo tab)]
 		

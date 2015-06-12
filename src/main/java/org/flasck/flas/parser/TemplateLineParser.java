@@ -76,7 +76,7 @@ public class TemplateLineParser implements TryParsing{
 		}
 		if (seenDivOrList && contents.size() != 1)
 			return ErrorResult.oneMessage(line, "cannot have other content on line with . or +");
-		List<TemplateToken> formats = new ArrayList<TemplateToken>();
+		List<Object> formats = new ArrayList<Object>();
 		String customTag = null;
 		String customTagVar = null;
 		List<Object> attrs = new ArrayList<Object>();
@@ -148,7 +148,18 @@ public class TemplateLineParser implements TryParsing{
 					TemplateToken f = TemplateToken.from(line);
 					if (f!= null && (f.type == TemplateToken.IDENTIFIER || f.type == TemplateToken.STRING))
 						formats.add(f);
-					else
+					else if (f.type == TemplateToken.ORB) {
+						Expression ep = new Expression();
+						Object fe = ep.tryParsing(line);
+						if (fe == null)
+							return ErrorResult.oneMessage(line, "could not parse format expression");
+						else if (fe instanceof ErrorResult)
+							return fe;
+						f = TemplateToken.from(line);
+						if (f == null || f.type != TemplateToken.CRB)
+							return ErrorResult.oneMessage(line, "expected )");
+						formats.add(fe);
+					} else
 						return ErrorResult.oneMessage(line, "invalid CSS format (did you mean to quote it?)");
 				}
 			} else

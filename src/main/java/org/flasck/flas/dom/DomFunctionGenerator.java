@@ -116,6 +116,7 @@ public class DomFunctionGenerator {
 		AbsoluteVar domCtor = scope.fromRoot("DOM.Element");
 		AbsoluteVar nil = scope.fromRoot("Nil");
 		AbsoluteVar cons = scope.fromRoot("Cons");
+		AbsoluteVar concat = scope.fromRoot("concat");
 		AbsoluteVar tuple = scope.fromRoot("()");
 		Object attrs = nil;
 		Object children = nil; // I think this is just a statement about how we build our trees
@@ -131,26 +132,40 @@ public class DomFunctionGenerator {
 			} else
 				throw new UtilException("Attribute " + x + " of type " + x.getClass() + " is not handled");
 		}
-		List<String> classes = new ArrayList<String>();
-		for (TemplateToken tt : tl.formats) {
-			if (tt.type == TemplateToken.STRING) {
-				rtnode.addClass(tt.text);
-				classes.add(tt.text);
+		List<String> classLiterals = new ArrayList<String>();
+		ApplyExpr computed = null;
+//		System.out.println(tl.formats);
+		for (Object f : tl.formats) {
+			if (f instanceof TemplateToken) {
+				TemplateToken tt = (TemplateToken) f;
+				if (tt.type == TemplateToken.STRING) {
+					rtnode.addClass(tt.text);
+					classLiterals.add(tt.text);
+				} else
+					throw new UtilException("format not handled: " + tt);
+			} else if (f instanceof ApplyExpr) {
+				if (computed == null)
+					computed = new ApplyExpr(nil);
+				String ename = nextFnName();
+				function(ename, f);
+				rtnode.addClassExpr(ename);
+				computed = new ApplyExpr(cons, f, computed);
 			} else
-				throw new UtilException("format not handled: " + tt);
+				throw new UtilException("Cannot handle format " + f + " of class " + f.getClass());
 		}
-		if (!classes.isEmpty())
-			attrs = new ApplyExpr(cons, new ApplyExpr(tuple, new StringLiteral("class"), new StringLiteral(String.join(" ", classes))), attrs);
+		if (!classLiterals.isEmpty() || computed != null) {
+			StringLiteral lits = new StringLiteral(String.join(" ", classLiterals));
+			if (computed != null)
+				computed = new ApplyExpr(concat, new ApplyExpr(cons, lits, computed));
+			attrs = new ApplyExpr(cons, new ApplyExpr(tuple, new StringLiteral("class"), computed != null?computed:lits), attrs);
+		}
 		
 		for (EventHandler x : tl.handlers) {
-			
 			// TODO: check that the apply expression is one for a handler
 //			card.handlers
 			events = new ApplyExpr(cons, new ApplyExpr(tuple, new StringLiteral(x.action), x.expr), events);
 		}
 		// TODO: still need to build dependency tree
-		// TODO: handle attributes (including from vars)
-		// TODO: handle formats? (or just put them in the tree? because they are "common" to all classes?)
 		
 		// Return all the pieces together and create the actual DOM Element ctor
 		return new RenderTree.ElementExpr(rtnode, new ApplyExpr(domCtor, tag, attrs, children, events));

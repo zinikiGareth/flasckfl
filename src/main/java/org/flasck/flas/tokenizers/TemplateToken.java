@@ -11,6 +11,7 @@ public class TemplateToken {
 	public static final int EQUALS = 8;
 	public static final int ARROW = 9;
 	public static final int ORB = 10;
+	public static final int CRB = 11;
 
 	public final int type;
 	public final String text;
@@ -48,6 +49,9 @@ public class TemplateToken {
 		} else if (c == '(') {
 			line.advance();
 			return new TemplateToken(ORB, "(");
+		} else if (c == ')') {
+			line.advance();
+			return new TemplateToken(CRB, ")");
 		} else if (c == '=') {
 			line.advance();
 			if (line.nextChar() == '>') {

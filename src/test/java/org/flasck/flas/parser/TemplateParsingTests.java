@@ -346,7 +346,7 @@ public class TemplateParsingTests {
 	}
 
 	private void assertFormat(int type, String text, TemplateLine tl, int which) {
-		TemplateToken x = tl.formats.get(which);
+		TemplateToken x = (TemplateToken) tl.formats.get(which);
 		assertEquals("type of format " + which + " was wrong", type, x.type);
 		assertEquals("text of format " + which + " was wrong", text, x.text);
 	}

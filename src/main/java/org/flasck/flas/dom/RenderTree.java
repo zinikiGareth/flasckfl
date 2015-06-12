@@ -22,6 +22,7 @@ public class RenderTree {
 		public final String fn;
 		public final List<Element> children = new ArrayList<Element>();
 		public final List<String> classes = new ArrayList<String>();
+		public final List<String> clsexprs = new ArrayList<String>();
 		
 		public Element(String t, String f) {
 			type = t;
@@ -38,6 +39,10 @@ public class RenderTree {
 
 		public void addClass(String clz) {
 			classes.add(clz);
+		}
+
+		public void addClassExpr(String ename) {
+			clsexprs.add(ename);
 		}
 	}
 

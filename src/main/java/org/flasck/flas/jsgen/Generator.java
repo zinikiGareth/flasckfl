@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
+import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -233,6 +234,12 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 			thisOne.append("'");
 			thisOne.append(s);
 			thisOne.append("'");
+			sep = ", ";
+		}
+		for (String ae : ret.clsexprs) {
+			thisOne.append(sep);
+			int idx2 = ae.lastIndexOf(".");
+			thisOne.append(ae.substring(0, idx2+1) + "prototype" + ae.substring(idx2));
 			sep = ", ";
 		}
 		thisOne.append("]");
