@@ -30,6 +30,7 @@
 
 		implements org.ziniki.Init
 			load obj
+				currentTab <- 'dashboard'
 				
 This was an experiment to check that the RHS was correctly rewritten; it gets "_card" where something more like "this" is needed.
 #			currentTab <- currentTab 		
