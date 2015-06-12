@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
@@ -24,20 +25,24 @@ import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIE {
-	public static HSIEForm handle(FunctionDefinition defn) {
-		return handle(defn, 0, new HashMap<String, Var>());
+	public static HSIEForm handle(ErrorResult errors, FunctionDefinition defn) {
+		return handle(errors, defn, 0, new HashMap<String, Var>());
 	}
 	
-	public static HSIEForm handle(FunctionDefinition defn, int alreadyUsed, Map<String, Var> map) {
+	public static HSIEForm handle(ErrorResult errors, FunctionDefinition defn, int alreadyUsed, Map<String, Var> map) {
 		HSIEForm ret = new HSIEForm(defn.mytype, defn.name, alreadyUsed, map, defn.nargs);
 		MetaState ms = new MetaState(ret);
 		if (defn.nargs == 0)
 			return handleConstant(ms, defn);
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
 		ms.add(buildFundamentalState(ms, ret, map, defn.nargs, defn.cases));
-		while (!ms.allDone()) {
-			State f = ms.first();
-			recurse(ms, f);
+		try {
+			while (!ms.allDone()) {
+				State f = ms.first();
+				recurse(ms, f);
+			}
+		} catch (HSIEException ex) {
+			errors.message(ex.block, ex.msg);
 		}
 		return ret;
 	}
@@ -128,7 +133,7 @@ public class HSIE {
 			evalExpr(ms, s, null);
 			return;
 		}
-		t.dump();
+//		t.dump();
 		Option elim = chooseBest(t);
 //		System.out.println("Switching on " + elim.var);
 		s.writeTo.head(elim.var);
@@ -158,7 +163,13 @@ public class HSIE {
 			for (NestedBinds nb : elim.ctorCases.get(ctor)) {
 				if (nb.ifConst != null) {
 //					System.out.println("Handling constant " + nb.ifConst.value);
-					HSIEBlock inner = blk.ifCmd(elim.var, Integer.parseInt(nb.ifConst.value));
+					HSIEBlock inner;
+					if (nb.ifConst.type == ConstPattern.INTEGER)
+						inner = blk.ifCmd(elim.var, Integer.parseInt(nb.ifConst.value));
+					else if (nb.ifConst.type == ConstPattern.BOOLEAN)
+						inner = blk.ifCmd(elim.var, Boolean.parseBoolean(nb.ifConst.value));
+					else
+						throw new UtilException("Cannot handle " + nb.ifConst);
 					State s3 = s1.duplicate(inner);
 //					System.out.println("---");
 //					s3.dump();
@@ -234,6 +245,8 @@ public class HSIE {
 					ConstPattern cp = (ConstPattern) patt;
 					if (cp.type == ConstPattern.INTEGER) {
 						o.ifConst("Number", cp, pe.getValue());
+					} else if (cp.type == ConstPattern.BOOLEAN) {
+						o.ifConst("Boolean", cp, pe.getValue());
 					} else
 						throw new UtilException("HSIE Cannot handle constant pattern for " + cp.type);
 				} else

@@ -190,12 +190,14 @@ public class Rewriter {
 		private final String myname;
 		protected final Set<String> bound;
 		private final Scope inner;
+		private final boolean fromMethod;
 
 		FunctionCaseContext(NamingContext cx, String myname, int cs, Set<String> locals, Scope inner, boolean fromMethod) {
 			super(cx);
 			this.myname = myname +"_"+cs;
 			this.bound = locals;
 			this.inner = inner;
+			this.fromMethod = fromMethod;
 		}
 
 		public Object resolve(String name) {
@@ -205,9 +207,9 @@ public class Rewriter {
 				return new AbsoluteVar(inner.getEntry(name));
 			Object res = nested.resolve(name);
 			if (res instanceof ObjectReference)
-				return new ObjectReference((ObjectReference)res, true);
+				return new ObjectReference((ObjectReference)res, fromMethod);
 			if (res instanceof CardFunction)
-				return new CardFunction((CardFunction)res, true);
+				return new CardFunction((CardFunction)res, fromMethod);
 			return res;
 		}
 	}
@@ -307,14 +309,14 @@ public class Rewriter {
 	}
 
 	private FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
-		System.out.println("Rewriting " + f.name);
+//		System.out.println("Rewriting " + f.name);
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
 			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(), c.innerScope(), false), c));
 			cs++;
 		}
-		System.out.println("rewritten to " + list.get(0).expr);
+//		System.out.println("rewritten to " + list.get(0).expr);
 		FunctionDefinition ret = new FunctionDefinition(f.mytype, f.name, f.nargs, list);
 		return ret;
 	}
@@ -380,7 +382,7 @@ public class Rewriter {
 		} else if (o instanceof VarPattern) {
 			return o;
 		} else {
-			System.out.println("Couldn't rewrite pattern " + o.getClass());
+//			System.out.println("Couldn't rewrite pattern " + o.getClass());
 			return o;
 		}
 	}

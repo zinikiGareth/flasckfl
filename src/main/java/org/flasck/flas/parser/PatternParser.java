@@ -96,6 +96,8 @@ public class PatternParser implements TryParsing {
 			return new ConstructorMatch(tok.text);
 		else if (tok.type == PattToken.NUMBER)
 			return new ConstPattern(ConstPattern.INTEGER, tok.text);
+		else if (tok.type == PattToken.FALSE || tok.type == PattToken.TRUE)
+			return new ConstPattern(ConstPattern.BOOLEAN, tok.text);
 		else if (tok.type == PattToken.OSB) {
 			int mark = line.at();
 			PattToken next = PattToken.from(line);

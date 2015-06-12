@@ -30,6 +30,7 @@ import org.junit.Test;
 public class DomFunctionTests {
 	private final TemplateLineParser p = new TemplateLineParser();
 	private DomFunctionGenerator gen;
+	private ErrorResult errors = new ErrorResult();
 
 	@Test
 	public void testAString() throws Exception {
@@ -43,7 +44,7 @@ public class DomFunctionTests {
 		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
 		assertEquals("\"hello\"", fcd.expr.toString());
-		HSIEForm c = HSIE.handle(node1);
+		HSIEForm c = HSIE.handle(errors, node1);
 		c.dump();
 	}
 
@@ -59,7 +60,7 @@ public class DomFunctionTests {
 		assertEquals("MyCard._templateNode_1", fcd.intro.name);
 		assertEquals(0, fcd.intro.args.size());
 		assertEquals("Card[MyCard.counter]", fcd.expr.toString());
-		HSIEForm c = HSIE.handle(node1);
+		HSIEForm c = HSIE.handle(errors, node1);
 		c.dump();
 	}
 
@@ -82,7 +83,7 @@ public class DomFunctionTests {
 		assertEquals("Nil", ae.args.get(1).toString());
 		assertEquals("Nil", ae.args.get(2).toString());
 		assertEquals("Nil", ae.args.get(3).toString());
-		HSIEForm c = HSIE.handle(node1);
+		HSIEForm c = HSIE.handle(errors, node1);
 		c.dump();
 	}
 
@@ -105,7 +106,7 @@ public class DomFunctionTests {
 		assertEquals("Nil", ae.args.get(1).toString());
 		assertEquals("Nil", ae.args.get(2).toString());
 		assertEquals("Nil", ae.args.get(3).toString());
-		HSIEForm c = HSIE.handle(node1);
+		HSIEForm c = HSIE.handle(errors, node1);
 		c.dump();
 	}
 
@@ -136,7 +137,7 @@ public class DomFunctionTests {
 		assertEquals("counter", ae.args.get(0).toString());
 		Rewriter rewriter = new Rewriter(new ErrorResult());
 		rewriter.rewrite(pd.myEntry());
-		HSIEForm c = HSIE.handle((FunctionDefinition) ((CardDefinition)((PackageDefn)biscope.get("ME")).innerScope().get("MyCard")).innerScope().get("_templateNode_1"));
+		HSIEForm c = HSIE.handle(errors, (FunctionDefinition) ((CardDefinition)((PackageDefn)biscope.get("ME")).innerScope().get("MyCard")).innerScope().get("_templateNode_1"));
 		c.dump();
 	}
 

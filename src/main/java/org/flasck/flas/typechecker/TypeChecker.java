@@ -11,7 +11,6 @@ import java.util.Set;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardMember;
-import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -58,7 +57,7 @@ public class TypeChecker {
 	}
 
 	public void typecheck(Orchard<HSIEForm> functionsToCheck) {
-		System.out.println("---- Starting to typecheck");
+//		System.out.println("---- Starting to typecheck");
 		TypeEnvironment gamma = new TypeEnvironment(); // should be based on everything we already know
 		PhiSolution phi = new PhiSolution(errors);
 		// First, rewrite all the equations to have the "correct" set of variables
@@ -68,32 +67,32 @@ public class TypeChecker {
 		Map<String, HSIEForm> rewritten = new HashMap<String, HSIEForm>();
 		int from = 201; // the actual number doesn't matter but might make debugging easier
 		Map<Var, Var> rwvars = new HashMap<Var, Var>();
-		System.out.println("Rewriting function tree");
+//		System.out.println("Rewriting function tree");
 		for (Tree<HSIEForm> tree : functionsToCheck)
 			rewriteFunctionTree(tree, localKnowledge, rwvars, rewritten, from, tree.getRoot());
-		System.out.println("Finished rewriting");
+//		System.out.println("Finished rewriting");
 		Map<String, Object> actualTypes = new HashMap<String, Object>();
 		List<TypeVar> vars = new ArrayList<TypeVar>();
 		for (HSIEForm hsie : rewritten.values()) {
-			System.out.println("Allocating type vars for " + hsie.fnName);
+//			System.out.println("Allocating type vars for " + hsie.fnName);
 			localKnowledge.put(hsie.fnName, factory.next());
-			System.out.println("Allocated tv " + localKnowledge.get(hsie.fnName) + " for result of " + hsie.fnName);
+//			System.out.println("Allocated tv " + localKnowledge.get(hsie.fnName) + " for result of " + hsie.fnName);
 			gamma = allocateTVs(vars, gamma, hsie);
 		}
-		System.out.println("Allocated new type vars; checking forms");
+//		System.out.println("Allocated new type vars; checking forms");
 		for (HSIEForm hsie : rewritten.values()) {
 			Object te = checkHSIE(localKnowledge, phi, gamma, hsie);
 			if (te == null)
 				return;
 			actualTypes.put(hsie.fnName, te);
 		}
-		System.out.println("Checked forms: actualTypes = " + actualTypes);
-		System.out.println("Attempting to unify types");
+//		System.out.println("Checked forms: actualTypes = " + actualTypes);
+//		System.out.println("Attempting to unify types");
 		for (HSIEForm f : rewritten.values()) {
 			Object rwt = phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
 			actualTypes.put(f.fnName, phi.subst(rwt)); 
 		}
-		System.out.println("Done final unification; building types");
+//		System.out.println("Done final unification; building types");
 		for (HSIEForm f : rewritten.values()) {
 			Object tmp = phi.subst(actualTypes.get(f.fnName));
 			if (!(tmp instanceof TypeExpr)) {
@@ -102,9 +101,9 @@ public class TypeChecker {
 			}
 			TypeExpr subst = (TypeExpr) tmp;
 			knowledge.put(f.fnName, subst.asType(this));
-			System.out.println(f.fnName + " :: " + knowledge.get(f.fnName));
+//			System.out.println(f.fnName + " :: " + knowledge.get(f.fnName));
 		}
-		System.out.println("---- Done with typecheck");
+//		System.out.println("---- Done with typecheck");
 	}
 
 	private void rewriteFunctionTree(Tree<HSIEForm> functionsToCheck, Map<String, Object> localKnowledge, Map<Var, Var> rwvars, Map<String, HSIEForm> rewritten, int from, Node<HSIEForm> nh) {
@@ -131,7 +130,7 @@ public class TypeChecker {
 			HSIEBlock closure = ret.closure(mapping.get(((ClosureCmd)b).var));
 			mapBlock(closure, b, mapping);
 		}
-		ret.dump();
+//		ret.dump();
 		return ret;
 	}
 
@@ -196,11 +195,11 @@ public class TypeChecker {
 //			throw new UtilException("Need to make sure these are reused from existing parent, even after renaming");
 		for (int i=0;i<hsie.nformal;i++) {
 			TypeVar tv = factory.next();
-			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + (i+hsie.alreadyUsed));
+//			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + (i+hsie.alreadyUsed));
 			gamma = gamma.bind(hsie.vars.get(i+hsie.alreadyUsed), new TypeScheme(null, tv));
 			vars.add(tv);
 		}
-		System.out.println(gamma);
+//		System.out.println(gamma);
 		return gamma;
 	}
 
@@ -222,41 +221,46 @@ public class TypeChecker {
 		List<Object> returns = new ArrayList<Object>();
 		for (HSIEBlock o : hsie.nestedCommands()) {
 			if (o instanceof ReturnCmd) {
-				System.out.println("Checking expr " + o);
+//				System.out.println("Checking expr " + o);
 				Object ret = checkExpr(localKnowledge, phi, gamma, form, o);
-				System.out.println("Checked expr " + o + " as " + ret);
+//				System.out.println("Checked expr " + o + " as " + ret);
 				return ret;
 			}
 			else if (o instanceof Head)
 				;
 			else if (o instanceof Switch) {
 				Switch s = (Switch) o;
-				StructDefn sd = structs.get(s.ctor);
-				if (sd == null) {
-					errors.message((Block)null, "there is no definition for struct " + s.ctor);
-					return null;
-				}
 				TypeScheme valueOf = gamma.valueOf(s.var);
-				System.out.println(valueOf);
-				List<Object> targs = new ArrayList<Object>();
-				Map<String, TypeVar> polys = new HashMap<String, TypeVar>();
-				// we need a complex map of form var -> ctor -> field -> type
-				// and type needs to be cunningly constructed from TypeReference
-				for (String x : sd.args) {
-					TypeVar tv = factory.next();
-					targs.add(tv);
-					polys.put(x, tv);
+				if (s.ctor.equals("Number") || s.ctor.equals("Boolean")) {
+					phi.unify(valueOf.typeExpr, new TypeExpr(s.ctor));
+					returns.add(checkBlock(sft, localKnowledge, phi, gamma, form, s));
+				} else {
+					StructDefn sd = structs.get(s.ctor);
+					if (sd == null) {
+						errors.message((Block)null, "there is no definition for struct " + s.ctor);
+						return null;
+					}
+	//				System.out.println(valueOf);
+					Map<String, TypeVar> polys = new HashMap<String, TypeVar>();
+					// we need a complex map of form var -> ctor -> field -> type
+					// and type needs to be cunningly constructed from TypeReference
+					List<Object> targs = new ArrayList<Object>();
+					for (String x : sd.args) {
+						TypeVar tv = factory.next();
+						targs.add(tv);
+						polys.put(x, tv);
+					}
+	//				System.out.println(polys);
+					SFTypes inner = new SFTypes(sft);
+					for (StructField x : sd.fields) {
+//						System.out.println("field " + x.name + " has " + x.type);
+						Object fr = TypeExpr.fromReference(x.type, polys);
+						inner.put(s.var, x.name, fr);
+//						System.out.println(fr);
+					}
+					phi.unify(valueOf.typeExpr, new TypeExpr(s.ctor, targs));
+					returns.add(checkBlock(inner, localKnowledge, phi, gamma, form, s));
 				}
-				System.out.println(polys);
-				SFTypes inner = new SFTypes(sft);
-				for (StructField x : sd.fields) {
-					System.out.println("field " + x.name + " has " + x.type);
-					Object fr = TypeExpr.fromReference(x.type, polys);
-					inner.put(s.var, x.name, fr);
-					System.out.println(fr);
-				}
-				phi.unify(valueOf.typeExpr, new TypeExpr(s.ctor, targs));
-				returns.add(checkBlock(inner, localKnowledge, phi, gamma, form, s));
 			} else if (o instanceof IFCmd) {
 				IFCmd ic = (IFCmd) o;
 				// Since we have to have done a SWITCH before we get here, this gives us no new information
@@ -265,7 +269,7 @@ public class TypeChecker {
 				BindCmd bc = (BindCmd) o;
 				TypeVar tv = factory.next();
 				phi.unify(tv, sft.get(bc.from, bc.field));
-				System.out.println("binding " + bc.bind + " to " + tv);
+//				System.out.println("binding " + bc.bind + " to " + tv);
 				gamma = gamma.bind(bc.bind, new TypeScheme(null, tv));
 			} else if (o instanceof ErrorCmd) {
 				// nothing really to do here ...
@@ -276,7 +280,7 @@ public class TypeChecker {
 		for (int i=1;i<returns.size();i++) {
 			if (t1 == null || returns.get(i) == null)
 				return null;
-			System.out.println("Attempting to unify return values " + t1 + " and " + returns.get(i));
+//			System.out.println("Attempting to unify return values " + t1 + " and " + returns.get(i));
 			t1 = phi.unify(t1, returns.get(i));
 		}
 		if (t1 == null)
@@ -300,7 +304,7 @@ public class TypeChecker {
 					PhiSolution temp = new PhiSolution(errors);
 					for (TypeVar tv : old.schematicVars) {
 						temp.bind(tv, factory.next());
-						System.out.println("Allocating tv " + temp.meaning(tv) + " for " + tv + " when instantiating typescheme");
+//						System.out.println("Allocating tv " + temp.meaning(tv) + " for " + tv + " when instantiating typescheme");
 					}
 					return temp.subst(old.typeExpr);
 				} else {
@@ -329,7 +333,6 @@ public class TypeChecker {
 				// all lambdas should be variables by now
 				
 				if (r.fn.uniqueName().equals("FLEval.tuple")) {
-					System.out.println("tuple");
 					return "()";
 				}
 				if (r.fn instanceof CardMember) {
@@ -340,7 +343,6 @@ public class TypeChecker {
 //					for (int i=0;i<3;i++)
 //						idx = form.fnName.lastIndexOf(".prototype.", idx-1);
 					String structName = cm.card; // form.fnName; //.substring(0, idx);
-					System.out.println(structName);
 					if (r.fn.equals("_card"))
 						return freshVarsIn(new TypeReference(structName));
 					StructDefn sd = structs.get(structName);
@@ -386,7 +388,7 @@ public class TypeChecker {
 					errors.message((Block)null, "There is no type for identifier: " + r.fn + " when checking " + form.fnName); // We need some way to report error location
 					return null;
 				} else {
-					System.out.print("Replacing vars in " + r.fn +": ");
+//					System.out.print("Replacing vars in " + r.fn +": ");
 					return freshVarsIn(te);
 				}
 			} else
@@ -414,7 +416,7 @@ public class TypeChecker {
 
 	private Object checkSingleApplication(PhiSolution phi, Object Tf, Object Tx) {
 		TypeVar Tr = factory.next();
-		System.out.println("Allocating " + Tr + " for new application of " + Tf + " to " + Tx);
+//		System.out.println("Allocating " + Tr + " for new application of " + Tf + " to " + Tx);
 		TypeExpr Tf2 = new TypeExpr("->", Tx, Tr);
 		phi.unify(Tf, Tf2);
 		if (errors.hasErrors())
@@ -427,7 +429,6 @@ public class TypeChecker {
 			te = fromTypeReference((TypeReference) te);
 		if (te instanceof Type) {
 			Object ret = ((Type)te).asExpr(factory);
-			System.out.println(ret);
 			return ret;
 		}
 		Set<TypeVar> vs = new HashSet<TypeVar>();
@@ -435,7 +436,6 @@ public class TypeChecker {
 		Map<TypeVar, TypeVar> map = new HashMap<TypeVar, TypeVar>();
 		for (TypeVar tv : vs)
 			map.put(tv, factory.next());
-		System.out.println(map);
 		return substVars(map, te);
 	}
 
@@ -467,7 +467,7 @@ public class TypeChecker {
 			return knowledge.get(fn);
 		if (structs.containsKey(fn))
 			return typeForStructCtor(structs.get(fn));
-		System.out.println(knowledge);
+//		System.out.println(knowledge);
 		throw new UtilException("There is no type: " + fn);
 	}
 }

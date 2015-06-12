@@ -14,7 +14,7 @@ public class CardFunction implements ExternalRef {
 	public CardFunction(CardFunction inner, boolean fromHandler) {
 		this.clzName = inner.clzName;
 		this.function = inner.function;
-		this.fromHandler = true;
+		this.fromHandler = fromHandler;
 	}
 
 	public String uniqueName() {

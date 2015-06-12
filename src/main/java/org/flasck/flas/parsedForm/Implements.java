@@ -12,7 +12,6 @@ public class Implements {
 	}
 
 	public void addMethod(MethodDefinition meth) {
-		System.out.println("Adding method " + meth.intro.name + " to " + type);
 		methods.add(meth);
 	}
 

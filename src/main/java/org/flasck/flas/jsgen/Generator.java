@@ -56,7 +56,7 @@ public class Generator {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
 					HSIEForm form = HSIE.handleExpr(x.init);
-					form.dump();
+//					form.dump();
 					generateField(defass, x, form);
 					generateField(elseBlock, x, form);
 				}
@@ -83,7 +83,7 @@ public class Generator {
 				HSIEForm form = null;
 				if (fd.init != null) {
 					form = HSIE.handleExpr(fd.init);
-					form.dump();
+//					form.dump();
 				}
 
 				generateField(cf, fd, form);
@@ -211,8 +211,10 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 				into.addAll(JSForm.ret(r, form));
 			} else if (h instanceof ErrorCmd) {
 				into.add(JSForm.error(fn));
-			} else
+			} else {
+				System.out.println("Cannot generate block:");
 				h.dumpOne(0);
+			}
 		}
 	}
 

@@ -20,7 +20,13 @@ public class HSIEBlock {
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(Var v, int value) {
+	public HSIEBlock ifCmd(Var v, Object value) {
+		IFCmd ret = new IFCmd(v, value);
+		commands.add(ret);
+		return ret;
+	}
+
+	public HSIEBlock ifCmd(Var v, boolean value) {
 		IFCmd ret = new IFCmd(v, value);
 		commands.add(ret);
 		return ret;

@@ -12,7 +12,7 @@ public class ApplyCurry {
 
 	public void rewrite(TypeChecker tc, HSIEForm h) {
 		for (HSIEBlock c : h.closures()) {
-			c.dumpOne(4);
+//			c.dumpOne(4);
 			PushCmd pc = (PushCmd) c.nestedCommands().get(0);
 
 			// This is a very weird case
@@ -21,7 +21,7 @@ public class ApplyCurry {
 					continue;
 				Type t = tc.getTypeDefn(pc.fn.uniqueName());
 				if (t.arity() != c.nestedCommands().size()-1) {
-					System.out.println("need to curry block for type = " + t);
+//					System.out.println("need to curry block for type = " + t);
 					c.pushAt(0, new AbsoluteVar("FLEval.curry", null));
 					c.pushAt(2, t.arity());
 				}

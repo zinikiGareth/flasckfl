@@ -29,17 +29,17 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 	}
 
 	public State cloneEliminate(Var var, HSIEBlock into, Set<SubstExpr> possibles) {
-		System.out.println("Eliminating " + var + " and allowing " + possibles);
+//		System.out.println("Eliminating " + var + " and allowing " + possibles);
 		State ret = new State(into);
 		for (Entry<Var, PattExpr> x : mapping.entrySet()) {
-			System.out.println("Considering " + x.getKey());
+//			System.out.println("Considering " + x.getKey());
 			PattExpr pe = x.getValue().duplicate(possibles);
 			if (x.getKey().equals(var)) {
 				if (mapping.size() == 1)
 					ret.result = pe;
 				continue;
 			}
-			System.out.println("Duplicated value is " + pe);
+//			System.out.println("Duplicated value is " + pe);
 			if (pe != null)
 				ret.mapping.put(x.getKey(), pe);
 		}

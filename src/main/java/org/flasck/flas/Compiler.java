@@ -121,6 +121,8 @@ public class Compiler {
 				throw new ErrorResultException(tc.errors);
 			for (Orchard<FunctionDefinition> d : defns) {
 				Orchard<HSIEForm> oh = hsieOrchard(d);
+				if (tc.errors.hasErrors())
+					throw new ErrorResultException(tc.errors);
 				tc.typecheck(oh);
 				if (tc.errors.hasErrors())
 					throw new ErrorResultException(tc.errors);
@@ -197,16 +199,16 @@ public class Compiler {
 			if (val instanceof PackageDefn) {
 				populateTypes(tc, ((PackageDefn)val).innerScope());
 			} else if (val instanceof StructDefn) {
-				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
+//				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
 				tc.addStructDefn((StructDefn) val);
 			} else if (val instanceof TypeDefn) {
 				tc.addTypeDefn((TypeDefn) val);
 			} else if (val instanceof Type) {
 				tc.addExternal(x.getValue().getKey(), (Type)val);
 			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
-				System.out.println("Not adding anything for " + x.getValue().getKey() + " " + val);
+//				System.out.println("Not adding anything for " + x.getValue().getKey() + " " + val);
 			} else if (val == null) {
-				System.out.println("Cannot add type for " + x.getValue().getKey() + " as it is null");
+//				System.out.println("Cannot add type for " + x.getValue().getKey() + " as it is null");
 			} else 
 				throw new UtilException("Cannot handle " + val);
 		}
@@ -220,7 +222,7 @@ public class Compiler {
 	}
 
 	private void hsieTree(Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
-		HSIEForm hsie = HSIE.handle(node.getEntry());
+		HSIEForm hsie = HSIE.handle(errors, node.getEntry());
 		if (parent == null) {
 			tree = ret.addTree(hsie);
 			parent = tree.getRoot();

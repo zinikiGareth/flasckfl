@@ -52,7 +52,7 @@ public class PhiSolution {
 	}
 
 	public Object unify(Object t1, Object t2) {
-		System.out.println("Unify " + t1 + " and " +t2);
+//		System.out.println("Unify " + t1 + " and " +t2);
 		if (t1 == null || t2 == null)
 			return null;
 		else if (t1 instanceof TypeVar && t2 instanceof TypeVar) {
@@ -95,12 +95,12 @@ public class PhiSolution {
 			boolean stored = false;
 			for (Entry<TypeVar, Object> x : phi.entrySet()) {
 				if (x.getValue() == te1) {
-					System.out.println(te1 + " at " + x.getKey());
+//					System.out.println(te1 + " at " + x.getKey());
 					x.setValue(unified);
 					stored = true;
 				}
 				if (x.getValue() == te2) {
-					System.out.println(te2 + " at " + x.getKey());
+//					System.out.println(te2 + " at " + x.getKey());
 					x.setValue(unified);
 					stored = true;
 				}

@@ -4,6 +4,9 @@ public class PattToken {
 	public static final int VAR = 1;
 	public static final int TYPE = 2;
 	public static final int NUMBER = 3;
+	public static final int TRUE = 4;
+	public static final int FALSE = 5;
+
 	// chars and strings
 
 	public static final int ORB = 10;
@@ -29,9 +32,15 @@ public class PattToken {
 			return null;
 		char c = line.nextChar();
 		int pos;
-		if (Character.isJavaIdentifierStart(c))
-			return new PattToken(Character.isUpperCase(c)?TYPE:VAR, ValidIdentifierToken.from(line));
-		else if (c == '"' || c == '\'') {
+		if (Character.isJavaIdentifierStart(c)) {
+			String tok = ValidIdentifierToken.from(line);
+			if (tok.equals("true"))
+				return new PattToken(PattToken.TRUE, "true");
+			else if (tok.equals("false"))
+				return new PattToken(PattToken.FALSE, "false");
+			else
+				return new PattToken(Character.isUpperCase(c)?TYPE:VAR, tok);
+		} else if (c == '"' || c == '\'') {
 			throw new RuntimeException("Handle string parsing");
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1)))

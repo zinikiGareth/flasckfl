@@ -37,7 +37,6 @@ public class DependencyAnalyzer {
 	}
 
 	public List<Orchard<FunctionDefinition>> analyze(Map<String, FunctionDefinition> map) {
-		System.out.println("in analyze");
 		DirectedCyclicGraph<String> dcg = new DirectedCyclicGraph<String>();
 		Map<String, FunctionDefinition> fdm = new TreeMap<String, FunctionDefinition>();
 		addFunctionsToDCG(dcg, new TreeMap<String, String>(), fdm, map);
@@ -64,20 +63,18 @@ public class DependencyAnalyzer {
 			}
 		}
 
-		System.out.print(dcg);
 		// Then add the links
 		for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
 			FunctionDefinition fd = x.getValue();
 			for (FunctionCaseDefn c : fd.cases)
 				analyzeExpr(dcg, fd.name, c.intro.allVars(), c.expr);
 		}
-		System.out.print(dcg);
 	}
 
 	private void analyzeExpr(DirectedCyclicGraph<String> dcg, String name, Set<String> locals, Object expr) {
 		if (expr == null)
 			return;
-		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
+//		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
 		if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
 			;
 		else if (expr instanceof CardMember) {
@@ -129,7 +126,7 @@ public class DependencyAnalyzer {
 	}
 
 	private Orchard<FunctionDefinition> buildOrchard(DirectedCyclicGraph<String> dcg, Map<String, FunctionDefinition> fdm, Set<String> g) {
-		System.out.println("Attempting to build orchard from " + g);
+//		System.out.println("Attempting to build orchard from " + g);
 		Orchard<FunctionDefinition> ret = new Orchard<FunctionDefinition>();
 		Set<String> topCandidates = new TreeSet<String>();
 
@@ -139,7 +136,7 @@ public class DependencyAnalyzer {
 				topCandidates.add(CollectionUtils.any(dcg.find(s).linksFrom()).getTo());
 		}
 
-		System.out.println("top candidates = " + topCandidates);
+//		System.out.println("top candidates = " + topCandidates);
 		// Go through this list, seeing which ones don't use other people's variables
 		// This must terminate, because scoping, unlike referencing, is tree-based
 		for (String s : topCandidates) {
@@ -148,7 +145,7 @@ public class DependencyAnalyzer {
 			for (Link<String> l : top.linksFrom()) {
 				// If a function depends on a var, check if it is one of its own or an "inherited" one
 				// If it's inherited, we reject this candidate.
-				System.out.println(l);
+//				System.out.println(l);
 				if (l.getTo().startsWith("_var_")) {
 					String s1 = l.getTo().replace("_var_", "");
 					s1 = s1.replace(s, "");

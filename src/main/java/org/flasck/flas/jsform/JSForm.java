@@ -171,6 +171,9 @@ public class JSForm {
 		if (ctor.equals("Number")) {
 			return new JSForm("if (FLEval.isInteger(v" + var.idx + "))").needBlock();
 		}
+		if (ctor.equals("Boolean")) {
+			return new JSForm("if (typeof v" + var.idx + " === 'boolean')").needBlock();
+		}
 		return new JSForm("if (v" + var.idx + " && v" + var.idx+"._ctor == " + ctor +")").needBlock();
 	}
 
@@ -211,12 +214,14 @@ public class JSForm {
 //		if (r.fn != null)
 //			ret.add(new JSForm("return " + r.fn));
 		if (r.var != null) {
-			if (r.deps != null) {
+			if (r.var.idx < form.nformal) {
+				ret.add(new JSForm("return " + r.var));
+			} else if (r.deps != null) {
 				for (Var v : r.deps) {
 					ret.add(new JSForm("var v" + v.idx + " = " + closure(form.mytype, form.getClosure(v))));
 				}
+				ret.add(new JSForm("return " + closure(form.mytype, form.getClosure(r.var))));
 			}
-			ret.add(new JSForm("return " + closure(form.mytype, form.getClosure(r.var))));
 		} else {
 			appendValue(sb, form.mytype, r, 0);
 //		else if (r.ival != null)

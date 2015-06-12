@@ -2,6 +2,7 @@ package org.flasck.flas.hsie;
 
 import static org.junit.Assert.assertNotNull;
 
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parser.FunctionParser;
@@ -15,13 +16,14 @@ import org.zinutils.collections.CollectionUtils;
 
 @Ignore
 public class HSIEFunctionTests {
-
+	private ErrorResult errors = new ErrorResult();
+	
 	@Test
 	public void testConvertingConstant() {
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
 		FunctionDefinition primes = new FunctionDefinition(Type.FUNCTION, "primes", 0, CollectionUtils.listOf(c1));
-		HSIEForm primesForm = HSIE.handle(primes);
+		HSIEForm primesForm = HSIE.handle(errors, primes);
 		assertNotNull(primesForm);
 		HSIETestData.assertHSIE(HSIETestData.testPrimes(), primesForm);
 	}
@@ -33,7 +35,7 @@ public class HSIEFunctionTests {
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 1 = 1"));
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib n = fib (n-1) + fib (n-2)"));
 		FunctionDefinition fib = new FunctionDefinition(Type.FUNCTION, "fib", 1, CollectionUtils.listOf(c1, c2, c3));
-		HSIEForm fibForm = HSIE.handle(fib);
+		HSIEForm fibForm = HSIE.handle(errors, fib);
 		assertNotNull(fibForm);
 		HSIETestData.assertHSIE(HSIETestData.fib(), fibForm);
 	}
@@ -45,7 +47,7 @@ public class HSIEFunctionTests {
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take 0 Cons = []"));
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n (a:b) = a:(take (n-1) b)"));
 		FunctionDefinition take = new FunctionDefinition(Type.FUNCTION, "take", 2, CollectionUtils.listOf(c1, c2, c3));
-		HSIEForm takeForm = HSIE.handle(take);
+		HSIEForm takeForm = HSIE.handle(errors, take);
 		assertNotNull(takeForm);
 		HSIETestData.assertHSIE(HSIETestData.take(), takeForm);
 	}

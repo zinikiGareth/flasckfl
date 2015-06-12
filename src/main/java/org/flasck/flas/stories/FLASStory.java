@@ -175,6 +175,13 @@ public class FLASStory implements StoryProcessor {
 		}
 		{ // text
 			ret.define("String", "String", null);
+			ret.define("concat", "concat",
+				Type.function(Type.simple("List", Type.simple("String")), Type.simple("String")));
+		}
+		{ // boolean logic
+			ret.define("Boolean", "Boolean", null);
+			ret.define("==", "FLEval.compeq",
+				Type.function(Type.polyvar("A"), Type.polyvar("A"), Type.simple("Boolean"))); // Any -> Any -> Boolean
 		}
 		{ // math
 			ret.define("Number", "Number", null);
