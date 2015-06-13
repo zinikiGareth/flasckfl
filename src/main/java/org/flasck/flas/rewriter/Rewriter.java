@@ -24,6 +24,7 @@ import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.EventHandlerInContext;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -373,6 +374,9 @@ public class Rewriter {
 				throw new UtilException("Format type not handled: " + o.getClass());
 		}
 		TemplateLine ret = new TemplateLine(contents, tl.customTag, tl.customTagVar, attrs, formats);
+		for (EventHandler h : tl.handlers) {
+			ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
+		}
 		for (TemplateLine i : tl.nested)
 			ret.nested.add(rewrite(cx, i));
 		return ret;
