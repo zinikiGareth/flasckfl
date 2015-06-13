@@ -250,7 +250,7 @@ public class Expression implements TryParsing {
 	}
 
 	private Object curry1st(Object o) {
-		return new UnresolvedOperator(((UnresolvedOperator)o).op+"_");
+		return new UnresolvedOperator(null, ((UnresolvedOperator)o).op+"_");
 	}
 
 	private Object parseParenthetical(Tokenizable line, String endsWith) {

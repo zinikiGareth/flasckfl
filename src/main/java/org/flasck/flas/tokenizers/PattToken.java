@@ -1,5 +1,7 @@
 package org.flasck.flas.tokenizers;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class PattToken {
 	public static final int VAR = 1;
 	public static final int TYPE = 2;
@@ -18,10 +20,12 @@ public class PattToken {
 	public static final int COLON = 16;
 	public static final int COMMA = 17;
 	
+	public final InputPosition location;
 	public final int type;
 	public final String text;
 
-	public PattToken(int type, String text) {
+	public PattToken(InputPosition loc, int type, String text) {
+		this.location = loc;
 		this.type = type;
 		this.text = text;
 	}
@@ -33,21 +37,25 @@ public class PattToken {
 		char c = line.nextChar();
 		int pos;
 		if (Character.isJavaIdentifierStart(c)) {
-			String tok = ValidIdentifierToken.from(line);
-			if (tok.equals("true"))
-				return new PattToken(PattToken.TRUE, "true");
-			else if (tok.equals("false"))
-				return new PattToken(PattToken.FALSE, "false");
+			ValidIdentifierToken tok = ValidIdentifierToken.from(line);
+			if (tok == null)
+				return null;
+			if (tok.text.equals("true"))
+				return new PattToken(tok.location, PattToken.TRUE, "true");
+			else if (tok.text.equals("false"))
+				return new PattToken(tok.location, PattToken.FALSE, "false");
 			else
-				return new PattToken(Character.isUpperCase(c)?TYPE:VAR, tok);
+				return new PattToken(tok.location, Character.isUpperCase(c)?TYPE:VAR, tok.text);
 		} else if (c == '"' || c == '\'') {
 			throw new RuntimeException("Handle string parsing");
 		}
-		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1)))
-			return new PattToken(NUMBER, NumberToken.from(line));
-		else if ((pos = "()[]{}:,".indexOf(c)) != -1) {
+		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1))) {
+			NumberToken num = NumberToken.from(line);
+			return new PattToken(num.location, NUMBER, num.text);
+		} else if ((pos = "()[]{}:,".indexOf(c)) != -1) {
+			InputPosition loc = line.realinfo();
 			line.advance();
-			return new PattToken(pos+10, null);
+			return new PattToken(loc, pos+10, null);
 		} else
 			return null;
 	}

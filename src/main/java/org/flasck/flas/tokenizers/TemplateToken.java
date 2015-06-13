@@ -1,5 +1,7 @@
 package org.flasck.flas.tokenizers;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class TemplateToken {
 	public static final int IDENTIFIER = 1;
 	public static final int STRING = 2;
@@ -13,10 +15,12 @@ public class TemplateToken {
 	public static final int ORB = 10;
 	public static final int CRB = 11;
 
+	public final InputPosition location;
 	public final int type;
 	public final String text;
 
-	public TemplateToken(int type, String text) {
+	public TemplateToken(InputPosition location, int type, String text) {
+		this.location = location;
 		this.type = type;
 		this.text = text;
 	}
@@ -26,39 +30,43 @@ public class TemplateToken {
 		if (!line.hasMore())
 			return null;
 		
+		InputPosition loc = line.realinfo();
 		char c = line.nextChar();
-		if (Character.isLowerCase(c) && Character.isJavaIdentifierStart(c))
-			return new TemplateToken(IDENTIFIER, ValidIdentifierToken.from(line));
-		else if (c == '"' || c == '\'') {
-			return new TemplateToken(STRING, StringToken.from(line));
+		if (Character.isLowerCase(c) && Character.isJavaIdentifierStart(c)) {
+			ValidIdentifierToken vit = ValidIdentifierToken.from(line);
+			if (vit == null)
+				return null;
+			return new TemplateToken(loc, IDENTIFIER, vit.text);
+		} else if (c == '"' || c == '\'') {
+			return new TemplateToken(loc, STRING, StringToken.from(line));
 		} else if (c == '.') {
 			line.advance();
-			return new TemplateToken(DIV, ".");
+			return new TemplateToken(loc, DIV, ".");
 		} else if (c == '+') {
 			line.advance();
-			return new TemplateToken(LIST, "+");
+			return new TemplateToken(loc, LIST, "+");
 		} else if (c == ':') {
 			line.advance();
-			return new TemplateToken(COLON, ":");
+			return new TemplateToken(loc, COLON, ":");
 		} else if (c == '#') {
 			line.advance();
-			return new TemplateToken(HASH, "#");
+			return new TemplateToken(loc, HASH, "#");
 		} else if (c == '@') {
 			line.advance();
-			return new TemplateToken(ATTR, "@");
+			return new TemplateToken(loc, ATTR, "@");
 		} else if (c == '(') {
 			line.advance();
-			return new TemplateToken(ORB, "(");
+			return new TemplateToken(loc, ORB, "(");
 		} else if (c == ')') {
 			line.advance();
-			return new TemplateToken(CRB, ")");
+			return new TemplateToken(loc, CRB, ")");
 		} else if (c == '=') {
 			line.advance();
 			if (line.nextChar() == '>') {
 				line.advance();
-				return new TemplateToken(ARROW, "=>");
+				return new TemplateToken(loc, ARROW, "=>");
 			} else
-				return new TemplateToken(EQUALS, "=");
+				return new TemplateToken(loc, EQUALS, "=");
 		} else
 			return null;
 	}

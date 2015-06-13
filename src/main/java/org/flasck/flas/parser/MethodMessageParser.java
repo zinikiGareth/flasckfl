@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.tokenizers.MessageToken;
@@ -13,7 +14,7 @@ public class MethodMessageParser implements TryParsing {
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		MessageToken tok = null;
-		List<String> keys = new ArrayList<String>();
+		List<LocatedToken> keys = new ArrayList<LocatedToken>();
 		while (line.hasMore()) {
 			// Odd tokens: first can be <- or ID, after that *must* be an identifier
 			tok = MessageToken.from(line);
@@ -22,7 +23,7 @@ public class MethodMessageParser implements TryParsing {
 			else if (keys.isEmpty() && tok.type == MessageToken.ARROW)
 				break;
 			else if (tok.type == MessageToken.IDENTIFIER)
-				keys.add(tok.text);
+				keys.add(new LocatedToken(tok.location, tok.text));
 			else
 				return ErrorResult.oneMessage(line, "syntax error 1");
 

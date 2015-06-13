@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.EventCaseDefn;
@@ -16,6 +17,7 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
@@ -63,14 +65,14 @@ public class MethodConvertor {
 	private static Object convert(Scope scope, MethodMessage mm) {
 		if (mm.slot != null) {
 			// we want an assign message
-			String slot = mm.slot.get(0);
+			LocatedToken slot = mm.slot.get(0);
 			// TODO: somebody should check it really is a slot
-			return new ApplyExpr(scope.fromRoot("Assign"), ItemExpr.from(new ExprToken(ExprToken.STRING, slot)), mm.expr);
+			return new ApplyExpr(scope.fromRoot("Assign"), ItemExpr.from(new ExprToken(ExprToken.STRING, slot.text)), mm.expr);
 		} else {
 			// we want some kind of invoke message
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr fn = (ApplyExpr)root.fn;
-			if (!(fn.fn instanceof AbsoluteVar) || ((AbsoluteVar)fn.fn).id.equals(".")) throw new UtilException("unhandled case");
+			if (!(fn.fn instanceof AbsoluteVar) || !((AbsoluteVar)fn.fn).id.equals("FLEval.field")) throw new UtilException("unhandled case");
 			return new ApplyExpr(scope.fromRoot("Send"),
 					fn.args.get(0),
 					fn.args.get(1),

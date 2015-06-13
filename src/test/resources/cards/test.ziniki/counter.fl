@@ -15,7 +15,7 @@
 			Number counter <- 0
 
 		template	
-			counter : format
+			counter : 'format'
 
 I would like this to be org.cardstack.Init, but for now, compromise
 

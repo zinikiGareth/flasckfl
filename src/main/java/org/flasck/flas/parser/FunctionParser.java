@@ -21,9 +21,11 @@ public class FunctionParser implements TryParsing {
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		// Read the function name
-		String name = ValidIdentifierToken.from(line);
-		if (name == null)
+		ValidIdentifierToken vit = ValidIdentifierToken.from(line);
+		if (vit == null)
 			return null;
+		
+		String name = vit.text;
 		// don't allow keywords to start line
 		if ("card".equals(name) ||
 			"state".equals(name) ||

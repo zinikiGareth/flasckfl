@@ -13,14 +13,16 @@ public class MethodParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
-		String ud = KeywordToken.from(line);
-		if ("up".equals(ud) || "down".equals(ud))
+		KeywordToken ud = KeywordToken.from(line);
+		if (ud == null)
+			return null;
+		if ("up".equals(ud.text) || "down".equals(ud.text))
 			;
 		else
 			return null; // it can't be a method decl
 		
 		// Read the function name
-		String name = ValidIdentifierToken.from(line);
+		ValidIdentifierToken name = ValidIdentifierToken.from(line);
 		
 		// Collect patterns into an argument
 		List<Object> args = new ArrayList<Object>();
@@ -37,7 +39,7 @@ public class MethodParser implements TryParsing {
 				args.add(o);
 		}
 		
-		return new ContractMethodDecl(ud, name, args);
+		return new ContractMethodDecl(ud.text, name.text, args);
 	}
 
 }

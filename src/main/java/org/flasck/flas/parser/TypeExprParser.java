@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeExprToken;
@@ -12,11 +13,12 @@ public class TypeExprParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
+		InputPosition loc = line.realinfo();
 		TypeExprToken tt = TypeExprToken.from(line);
 		if (tt == null)
 			return null; // not even a valid token (or line ended)
 		if (tt.type == TypeExprToken.NAME)
-			return new TypeReference(tt.text);
+			return new TypeReference(loc, tt.text, null);
 		else if (tt.type == TypeExprToken.ORB) {
 			// either a complex type, grouped OR a tuple type
 			// Start parsing nested expression and see what happens
@@ -52,7 +54,7 @@ public class TypeExprParser implements TryParsing {
 			add = tryParsing(line);
 		} else if (next.type == TypeExprToken.NAME) {
 			// it's a function application of types
-			TypeReference tr = new TypeReference(next.text);
+			TypeReference tr = new TypeReference(next.location, next.text, null);
 			add = tr;
 			TypeExprToken look;
 			mark = line.at();

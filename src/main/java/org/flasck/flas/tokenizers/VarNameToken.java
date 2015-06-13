@@ -1,7 +1,7 @@
 package org.flasck.flas.tokenizers;
 
 public class VarNameToken {
-	public static String from(Tokenizable line) {
+	public static ValidIdentifierToken from(Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;

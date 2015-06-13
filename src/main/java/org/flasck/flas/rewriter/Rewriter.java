@@ -2,7 +2,6 @@ package org.flasck.flas.rewriter;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
@@ -40,6 +41,7 @@ import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -52,7 +54,9 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.stories.FLASStory.State;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
@@ -69,16 +73,16 @@ import org.zinutils.exceptions.UtilException;
 // and ultimately pull these two together
 public class Rewriter {
 	private final ErrorResult errors;
-	public final Map<String, StructDefn> structs = new HashMap<String, StructDefn>();
-	public final Map<String, TypeDefn> types = new HashMap<String, TypeDefn>();
-	public final Map<String, ContractDecl> contracts = new HashMap<String, ContractDecl>();
-	public final Map<String, CardGrouping> cards = new HashMap<String, CardGrouping>();
+	public final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
+	public final Map<String, TypeDefn> types = new TreeMap<String, TypeDefn>();
+	public final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>();
+	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
 	public final List<Template> templates = new ArrayList<Template>();
-	public final Map<String, ContractImplements> cardImplements = new HashMap<String, ContractImplements>();
-	public final Map<String, HandlerImplements> cardHandlers = new HashMap<String, HandlerImplements>();
+	public final Map<String, ContractImplements> cardImplements = new TreeMap<String, ContractImplements>();
+	public final Map<String, HandlerImplements> cardHandlers = new TreeMap<String, HandlerImplements>();
 	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
 	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
-	public final Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
+	public final Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>();
 
 	private abstract class NamingContext {
 		protected final NamingContext nested;
@@ -87,7 +91,7 @@ public class Rewriter {
 			this.nested = inner;
 		}
 
-		public abstract Object resolve(String name);
+		public abstract Object resolve(InputPosition location, String name);
 	}
 
 	/** The Root Context exists exactly one time to include the BuiltinScope and nothing else
@@ -103,7 +107,7 @@ public class Rewriter {
 		}
 
 		@Override
-		public Object resolve(String name) {
+		public Object resolve(InputPosition location, String name) {
 			if (biscope.contains(name))
 				return new AbsoluteVar(biscope.getEntry(name));
 			if (name.contains(".")) {
@@ -125,7 +129,7 @@ public class Rewriter {
 						return new AbsoluteVar(o);
 				}
 			}
-			throw new ResolutionException(name);
+			throw new ResolutionException(location, name);
 		}
 	}
 
@@ -140,10 +144,10 @@ public class Rewriter {
 		}
 
 		@Override
-		public Object resolve(String name) {
+		public Object resolve(InputPosition location, String name) {
 			if (pkg.innerScope().contains(name))
 				return new AbsoluteVar(pkg.innerScope().getEntry(name));
-			return nested.resolve(name);
+			return nested.resolve(location, name);
 		}
 	}
 
@@ -174,14 +178,14 @@ public class Rewriter {
 		}
 
 		@Override
-		public Object resolve(String name) {
+		public Object resolve(InputPosition location, String name) {
 			if (members.contains(name))
-				return new CardMember(prefix, name);
+				return new CardMember(location, prefix, name);
 			if (statics.containsKey(name))
 				return new ObjectReference(prefix, "_H" + statics.get(name));
 			if (innerScope.contains(name))
 				return new CardFunction(prefix, name);
-			return nested.resolve(name);
+			return nested.resolve(location, name);
 		}
 	}
 
@@ -198,10 +202,10 @@ public class Rewriter {
 		}
 		
 		@Override
-		public Object resolve(String name) {
+		public Object resolve(InputPosition location, String name) {
 			if (hi.boundVars.contains(name))
-				return new HandlerLambda(((CardContext)nested).prefix + "._H" + cs, name);
-			return nested.resolve(name);
+				return new HandlerLambda(location, ((CardContext)nested).prefix + "._H" + cs, name);
+			return nested.resolve(location, name);
 		}
 	}
 	
@@ -224,12 +228,12 @@ public class Rewriter {
 			this.fromMethod = fromMethod;
 		}
 
-		public Object resolve(String name) {
+		public Object resolve(InputPosition location, String name) {
 			if (bound.contains(name))
 				return new LocalVar(myname, name);
 			if (inner.contains(name))
 				return new AbsoluteVar(inner.getEntry(name));
-			Object res = nested.resolve(name);
+			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
 				return new ObjectReference((ObjectReference)res, fromMethod);
 			if (res instanceof CardFunction)
@@ -274,7 +278,7 @@ public class Rewriter {
 		CardContext c2 = new CardContext((PackageContext) cx, cd);
 		CardGrouping grp = new CardGrouping();
 		cards.put(cd.name, grp);
-		StructDefn sd = new StructDefn(cd.name);
+		StructDefn sd = new StructDefn(cd.name, false);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
 				sd.fields.add(rewrite(cx, sf));
@@ -289,10 +293,10 @@ public class Rewriter {
 			grp.contracts.add(new ContractGrouping(rw.type, myname, rw.referAsVar));
 			cardImplements.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new StructField(new TypeReference(rw.type), rw.referAsVar));
+				sd.fields.add(new StructField(new TypeReference(null, rw.type, null), rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods)
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_C"+pos, HSIEForm.Type.CONTRACT, m));
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_C"+pos, HSIEForm.Type.CONTRACT, rewrite(c2, m)));
 
 			pos++;
 		}
@@ -302,25 +306,26 @@ public class Rewriter {
 		
 		pos = 0;
 		for (HandlerImplements hi : cd.handlers) {
-			HandlerImplements rw = rewriteHI(c2, hi, pos++);
+			HandlerImplements rw = rewriteHI(c2, hi, pos);
 			String hiName = cd.name +"._H"+pos;
 			cardHandlers.put(hiName, rw);
 			if (!rw.boundVars.isEmpty()) {
 				System.out.println("Creating class for handler " + hiName);
-				StructDefn hsd = new StructDefn(hiName);
+				StructDefn hsd = new StructDefn(hiName, false);
 				// Doing this seems clever, but I'm not really sure that it is
 				// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
 				for (int i=0;i<rw.boundVars.size();i++)
 					hsd.args.add("A"+i);
 				int j=0;
 				for (String s : hi.boundVars) {
-					hsd.fields.add(new StructField(new TypeReference(null, "A"+j), s));
+					hsd.fields.add(new StructField(new TypeReference(null, null, "A"+j), s));
 					j++;
 				}
 				structs.put(hiName, hsd);
 			}
+			HandlerContext hc = new HandlerContext(c2, hi, pos);
 			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_H"+pos, HSIEForm.Type.HANDLER, m));
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_H"+pos, HSIEForm.Type.HANDLER, rewrite(hc, m)));
 			pos++;
 		}
 		
@@ -341,12 +346,20 @@ public class Rewriter {
 				TemplateToken tt = (TemplateToken) o;
 				if (tt.type == TemplateToken.STRING || tt.type == TemplateToken.DIV)
 					contents.add(tt);
+				else if (tt.type == TemplateToken.IDENTIFIER)
+					contents.add(rewriteExpr(cx, ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tt.text))));
 				else
 					throw new UtilException("Content type not handled: " + tt);
 			} else if (o instanceof ApplyExpr) {
 				contents.add(rewriteExpr(cx, o));
 			} else 
 				throw new UtilException("Content type not handled: " + o.getClass());
+		}
+		for (Object o : tl.attrs) {
+			if (o instanceof TemplateExplicitAttr)
+				attrs.add(o);
+			else
+				throw new UtilException("Attr type not handled: " + o.getClass());
 		}
 		for (Object o : tl.formats) {
 			if (o instanceof TemplateToken) {
@@ -368,33 +381,33 @@ public class Rewriter {
 
 	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
 		try {
-			Object av = cx.nested.resolve(ci.type);
+			Object av = cx.nested.resolve(ci.typeLocation, ci.type);
 			if (av == null || !(av instanceof AbsoluteVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + ci.type);
 				return ci;
 			}
-			ContractImplements ret = new ContractImplements(((AbsoluteVar)av).id, ci.referAsVar);
+			ContractImplements ret = new ContractImplements(ci.typeLocation, ((AbsoluteVar)av).id, ci.vlocation, ci.referAsVar);
 			rewrite(cx, ret, ci);
 			return ret;
 		} catch (ResolutionException ex) {
-			errors.message((Block)null, ex.getMessage());
+			errors.message(ex.location, ex.getMessage());
 			return null;
 		}
 	}
 
 	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi, int cs) {
 		try {
-			Object av = cx.nested.resolve(hi.type);
+			Object av = cx.nested.resolve(hi.typeLocation, hi.type);
 			if (av == null || !(av instanceof AbsoluteVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + hi.type);
 				return hi;
 			}
-			HandlerImplements ret = new HandlerImplements(((AbsoluteVar)av).id, hi.boundVars);
+			HandlerImplements ret = new HandlerImplements(hi.typeLocation, ((AbsoluteVar)av).id, hi.boundVars);
 			NamingContext c2 = new HandlerContext(cx, hi, cs);
 			rewrite(c2, ret, hi);
 			return ret;
 		} catch (ResolutionException ex) {
-			errors.message((Block)null, ex.getMessage());
+			errors.message(ex.location, ex.getMessage());
 			return null;
 		}
 	}
@@ -473,10 +486,10 @@ public class Rewriter {
 	private Object rewritePattern(NamingContext scope, Object o) {
 		if (o instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) o;
-			Object type = scope.resolve(tp.type);
+			Object type = scope.resolve(tp.typeLocation, tp.type);
 			if (!(type instanceof AbsoluteVar))
 				errors.message((Block)null, "could not handle " + type);
-			return new TypedPattern(((AbsoluteVar)type).id, tp.var);
+			return new TypedPattern(tp.typeLocation, ((AbsoluteVar)type).id, tp.varLocation, tp.var);
 		} else if (o instanceof VarPattern) {
 			return o;
 		} else {
@@ -486,14 +499,17 @@ public class Rewriter {
 	}
 
 	private MethodMessage rewrite(NamingContext cx, MethodMessage mm) {
-		List<String> newSlot = null;
+		List<LocatedToken> newSlot = null;
 		if (mm.slot != null && !mm.slot.isEmpty()) {
-			newSlot = new ArrayList<String>();
-			Object r = cx.resolve(mm.slot.get(0));
+			newSlot = new ArrayList<LocatedToken>();
+			LocatedToken slot = mm.slot.get(0);
+			Object r = cx.resolve(slot.location, slot.text);
 			if (!(r instanceof CardMember))
 				errors.message((Block)null, mm.slot.get(0) + " needs to be a state member");
-			else
-				newSlot.add(((CardMember)r).var);
+			else {
+				CardMember cm = (CardMember)r;
+				newSlot.add(new LocatedToken(cm.location, cm.var));
+			}
 			for (int i=1;i<mm.slot.size();i++)
 				newSlot.add(mm.slot.get(i));
 		}
@@ -512,13 +528,18 @@ public class Rewriter {
 				return expr;
 			else if (expr instanceof UnresolvedOperator || expr instanceof UnresolvedVar) {
 				String s;
-				if (expr instanceof UnresolvedOperator)
-					 s = ((UnresolvedOperator) expr).op;
-				else if (expr instanceof UnresolvedVar)
-					s = ((UnresolvedVar) expr).var;
-				else
+				InputPosition location;
+				if (expr instanceof UnresolvedOperator) {
+					UnresolvedOperator up = (UnresolvedOperator) expr;
+					s = up.op;
+					location = up.location;  
+				} else if (expr instanceof UnresolvedVar) {
+					UnresolvedVar uv = (UnresolvedVar) expr;
+					s = uv.var;
+					location = uv.location;  
+				} else
 					throw new UtilException("Huh?");
-				Object ret = cx.resolve(s);
+				Object ret = cx.resolve(location, s);
 				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda)
 					return ret;
 				else
@@ -530,8 +551,8 @@ public class Rewriter {
 					// The case where we have an absolute var by package name
 					// Does this need to be here as well as in RootScope?
 					if (!(ae.args.get(0) instanceof ApplyExpr)) {
-						String pkgVar = ((UnresolvedVar)ae.args.get(0)).var;
-						Object pkgEntry = cx.resolve(pkgVar);
+						UnresolvedVar uv0 = (UnresolvedVar)ae.args.get(0);
+						Object pkgEntry = cx.resolve(uv0.location, uv0.var);
 						if (pkgEntry instanceof AbsoluteVar) {
 							Object o = ((AbsoluteVar)pkgEntry).defn;
 							if (o instanceof PackageDefn)
@@ -542,7 +563,7 @@ public class Rewriter {
 					// expr . field
 					Object applyFn = rewriteExpr(cx, ae.args.get(0));
 	
-					return new ApplyExpr(cx.resolve("."), applyFn, new StringLiteral(field.var));
+					return new ApplyExpr(cx.resolve(null, "."), applyFn, new StringLiteral(field.var));
 				}
 				List<Object> args = new ArrayList<Object>();
 				for (Object o : ae.args)
@@ -552,7 +573,7 @@ public class Rewriter {
 			System.out.println("Can't rewrite expr " + expr + " of type " + expr.getClass());
 			return expr;
 		} catch (ResolutionException ex) {
-			errors.message((Block)null, ex.getMessage());
+			errors.message(ex.location, ex.getMessage());
 			return null;
 		}
 	}
@@ -560,12 +581,13 @@ public class Rewriter {
 	private TypeReference rewriteType(NamingContext scope, Object type) {
 		if (type instanceof TypeReference) {
 			TypeReference tr = (TypeReference) type;
-			Object r = scope.resolve(tr.name);
+			Object r = scope.resolve(tr.location, tr.name);
 			if (!(r instanceof AbsoluteVar)) {
 				errors.message((Block)null, tr.name + " is not a type definition");
 				return null;
 			}
-			TypeReference ret = new TypeReference(((AbsoluteVar)r).id);
+			AbsoluteVar av = (AbsoluteVar)r;
+			TypeReference ret = new TypeReference(tr.location, av.id, null);
 			for (Object o : tr.args)
 				ret.args.add(rewriteType(scope, o));
 			return ret;
@@ -577,6 +599,14 @@ public class Rewriter {
 	public void dump() {
 		try {
 			PrintWriter pw = new PrintWriter(System.out);
+			for (Entry<String, StructDefn> x : structs.entrySet())
+				System.out.println("Struct " + x.getKey());
+			for (Entry<String, CardGrouping> x : cards.entrySet())
+				System.out.println("Card " + x.getKey());
+			for (Entry<String, HandlerImplements> x : cardHandlers.entrySet())
+				System.out.println("Handler " + x.getKey());
+			for (Entry<String, ContractImplements> x : cardImplements.entrySet())
+				System.out.println("Impl " + x.getKey());
 			for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
 				x.getValue().dumpTo(pw);
 			}

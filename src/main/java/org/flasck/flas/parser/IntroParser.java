@@ -15,6 +15,7 @@ import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 
 public class IntroParser implements TryParsing {
@@ -28,71 +29,71 @@ public class IntroParser implements TryParsing {
 	public Object tryParsing(Tokenizable line) {
 		if (!line.hasMore())
 			return null;
-		String kw = KeywordToken.from(line);
+		KeywordToken kw = KeywordToken.from(line);
 		if (kw == null)
 			return null; // in the "nothing doing" sense
 		
-		switch (kw) {
+		switch (kw.text) {
 		case "struct": {
-			String tn = TypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
-			StructDefn ret = new StructDefn(state.withPkg(tn));
+			StructDefn ret = new StructDefn(state.withPkg(tn.text), true);
 			while (line.hasMore()) {
-				String ta = TypeNameToken.from(line);
+				TypeNameToken ta = TypeNameToken.from(line);
 				if (ta == null)
 					er.message(line, "invalid type argument");
 				else
-					ret.add(ta);
+					ret.add(ta.text);
 			}
 			if (er.hasErrors())
 				return er;
 			return ret;
 		}
 		case "contract": {
-			String tn = TypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract name");
-			return new ContractDecl(state.withPkg(tn));
+			return new ContractDecl(state.withPkg(tn.text));
 		}
 		case "card": {
-			String tn = TypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid card name");
-			return new CardDefinition(state.scope, state.withPkg(tn));
+			return new CardDefinition(state.scope, state.withPkg(tn.text));
 		}
 		case "state":
 			return "state";
 		case "template":
 			return "template";
 		case "implements": {
-			String tn = QualifiedTypeNameToken.from(line);
+			TypeNameToken tn = QualifiedTypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract reference");
 			if (!line.hasMore())
-				return new ContractImplements(tn, null);
-			String var = VarNameToken.from(line);
+				return new ContractImplements(tn.location, tn.text, null, null);
+			ValidIdentifierToken var = VarNameToken.from(line);
 			if (var == null)
 				return ErrorResult.oneMessage(line, "invalid contract var name");
 			if (line.hasMore())
 				return ErrorResult.oneMessage(line, "extra tokens at end of line");
-			return new ContractImplements(tn, var);
+			return new ContractImplements(tn.location, tn.text, var.location, var.text);
 		}
 		case "handler": {
-			String tn = QualifiedTypeNameToken.from(line);
+			TypeNameToken tn = QualifiedTypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract reference");
 			ArrayList<String> lambdas = new ArrayList<String>();
 			if (!line.hasMore())
-				return new HandlerImplements(tn, lambdas);
+				return new HandlerImplements(tn.location, tn.text, lambdas);
 			while (line.hasMore()) {
-				String var = VarNameToken.from(line);
+				ValidIdentifierToken var = VarNameToken.from(line);
 				if (var == null)
 					return ErrorResult.oneMessage(line, "invalid contract var name");
-				lambdas.add(var);
+				lambdas.add(var.text);
 			}
-			return new HandlerImplements(tn, lambdas);
+			return new HandlerImplements(tn.location, tn.text, lambdas);
 		}
 		case "event": {
 			Object o = new FunctionParser(state).tryParsing(line);

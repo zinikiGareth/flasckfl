@@ -1,17 +1,34 @@
 package org.flasck.flas.tokenizers;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class ExprToken {
 	public static final int IDENTIFIER = 1;
 	public static final int NUMBER = 2;
 	public static final int PUNC = 3;
 	public static final int SYMBOL = 4;
 	public static final int STRING = 5;
+
+	public final InputPosition location;
 	public final int type;
 	public final String text;
 
 	public ExprToken(int type, String text) {
+		this.location = null;
 		this.type = type;
 		this.text = text;
+	}
+
+	public ExprToken(int type, ValidIdentifierToken vit) {
+		this.location = vit.location;
+		this.type = type;
+		this.text = vit.text;
+	}
+
+	public ExprToken(int type, NumberToken from) {
+		this.location = from.location;
+		this.type = type;
+		this.text = from.text;
 	}
 
 	public static ExprToken from(Tokenizable line) {

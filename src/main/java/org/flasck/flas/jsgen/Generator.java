@@ -49,7 +49,9 @@ public class Generator {
 		target.add(ret);
 	}
 
-	public JSForm generate(String name, StructDefn sd) {
+	public void generate(String name, StructDefn sd) {
+		if (!sd.forReal)
+			return;
 		JSForm ret = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 0, 1);
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
@@ -70,7 +72,7 @@ public class Generator {
 				}
 			}
 		}
-		return ret;
+		target.add(ret);
 	}
 
 	private void generateField(JSForm defass, String field, HSIEForm form) {
@@ -134,20 +136,14 @@ public class Generator {
 		for (String s : hi.boundVars) 
 			clz.add(new JSForm("this." + s + " = v" + v++));
 		target.add(clz);
-	}
 
-	public JSForm generateHandlerCtor(String name, HandlerImplements hi, int pos) {
-		String ctorname = name +"._H"+pos;
-		String clzname = name +".__H"+pos;
-		List<Var> vars = new ArrayList<Var>();
-		for (int i=0;i<hi.boundVars.size();i++)
-			vars.add(new Var(i));
-		JSForm ret = JSForm.function(ctorname, vars, 0, hi.boundVars.size());
+		JSForm ctor = JSForm.function(ctorName, vars, 0, hi.boundVars.size());
 		StringBuffer sb = new StringBuffer("this");
-		for (Var v : vars)
-			sb.append(", " + v);
-		ret.add(new JSForm("return new " + clzname + "(" + sb +")"));
-		return ret;
+		vars.remove(vars.size()-1);
+		for (Var vi : vars)
+			sb.append(", " + vi);
+		ctor.add(new JSForm("return new " + clzname + "(" + sb +")"));
+		target.add(ctor);
 	}
 
 	/* We want something like this:

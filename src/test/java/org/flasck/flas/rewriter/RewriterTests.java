@@ -113,7 +113,7 @@ public class RewriterTests {
 	public void testRewritingAStateVar() throws Exception {
 		CardDefinition cd = new CardDefinition(scope, "MyCard");
 		cd.state = new StateDefinition();
-		cd.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
+		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar("counter")));
@@ -155,7 +155,7 @@ public class RewriterTests {
 	public void testRewritingAContractMethod() throws Exception {
 		CardDefinition cd = new CardDefinition(scope, "MyCard");
 		cd.state = new StateDefinition();
-		cd.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
+		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		ContractImplements ci = new ContractImplements("Timer", "timer");
 		cd.contracts.add(ci);
@@ -184,7 +184,7 @@ public class RewriterTests {
 	public void testRewritingAnEventHandler() throws Exception {
 		CardDefinition cd = new CardDefinition(scope, "MyCard");
 		cd.state = new StateDefinition();
-		cd.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
+		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		List<EventCaseDefn> ecds = new ArrayList<EventCaseDefn>();
 		EventHandlerDefinition ehd = new EventHandlerDefinition(new FunctionIntro("ME.MyCard.eh", new ArrayList<Object>()), ecds);

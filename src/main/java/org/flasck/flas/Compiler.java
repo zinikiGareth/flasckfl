@@ -115,13 +115,15 @@ public class Compiler {
 				// 8. Generate Class Definitions
 				JSTarget target = new JSTarget(inPkg);
 				Generator gen = new Generator(target);
-			
+
+				for (Entry<String, StructDefn> sd : rewriter.structs.entrySet())
+					gen.generate(sd.getKey(), sd.getValue());
 				for (Entry<String, CardGrouping> cg : rewriter.cards.entrySet())
 					gen.generate(cg.getKey(), cg.getValue());
 				for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet())
 					gen.generateContract(ci.getKey(), ci.getValue());
-				for (Entry<String, HandlerImplements> ci : rewriter.cardHandlers.entrySet())
-					gen.generateHandler(ci.getKey(), ci.getValue());
+				for (Entry<String, HandlerImplements> hi : rewriter.cardHandlers.entrySet())
+					gen.generateHandler(hi.getKey(), hi.getValue());
 				
 				// 9. Do dependency analysis on functions and group them together in orchards
 				List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(rewriter.functions);

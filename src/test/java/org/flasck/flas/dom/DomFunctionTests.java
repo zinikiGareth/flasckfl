@@ -118,7 +118,7 @@ public class DomFunctionTests {
 		scope.define("tfn", "tfn", null);
 		CardDefinition card = new CardDefinition(scope, "MyCard");
 		card.state = new StateDefinition();
-		card.state.fields.add(new StructField(new TypeReference("Number"), "counter"));
+		card.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 //		scope.define("MyCard", "MyCard", card);
 		FunctionDefinition node1 = generateOne(card, "(tfn counter)");
 		card.innerScope().define("_templateNode_1", "ME.MyCard._templateNode_1", node1);
@@ -154,7 +154,7 @@ public class DomFunctionTests {
 
 	private StateDefinition counterState() {
 		StateDefinition sd = new StateDefinition();
-		sd.fields.add(new StructField(new TypeReference("Number"), "counter"));
+		sd.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 		return sd;
 	}
 

@@ -3,17 +3,16 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class TypeReference {
 	public final String var;
 	public final String name;
+	public final InputPosition location;
 	public final List<TypeReference> args = new ArrayList<TypeReference>();
 
-	public TypeReference(String name) {
-		this.name = name;
-		this.var = null;
-	}
-	
-	public TypeReference(String name, String var) {
+	public TypeReference(InputPosition location, String name, String var) {
+		this.location = location;
 		this.name = name;
 		this.var = var;
 	}

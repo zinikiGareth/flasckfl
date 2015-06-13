@@ -230,8 +230,8 @@ public class TestBasicTypeChecking {
 		tc.addStructDefn(new StructDefn("Number"));
 		tc.addStructDefn(
 				new StructDefn("Cons").add("A")
-				.addField(new StructField(new TypeReference("A"), "head"))
-				.addField(new StructField(new TypeReference("Cons").with(new TypeReference("A")), "tail")));
+				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
+				.addField(new StructField(new TypeReference(null, "Cons", null).with(new TypeReference(null, "A", null)), "tail")));
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
@@ -252,16 +252,16 @@ public class TestBasicTypeChecking {
 	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 		
-		TypeReference list = new TypeReference("List").with(new TypeReference("A"));
+		TypeReference list = new TypeReference(null, "List", null).with(new TypeReference(null, null, "A"));
 		tc.addStructDefn(new StructDefn("Number"));
 		tc.addStructDefn(new StructDefn("Nil"));
 		tc.addStructDefn(
 				new StructDefn("Cons").add("A")
-				.addField(new StructField(new TypeReference("A"), "head"))
+				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
 				.addField(new StructField(list, "tail")));
 		TypeDefn listDefn = new TypeDefn(list);
-		listDefn.addCase(new TypeReference("Nil"));
-		listDefn.addCase(new TypeReference("Cons").with(new TypeReference("A")));
+		listDefn.addCase(new TypeReference(null, "Nil", null));
+		listDefn.addCase(new TypeReference(null, "Cons", null).with(new TypeReference(null, null, "A")));
 		tc.addTypeDefn(listDefn);
 		
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));

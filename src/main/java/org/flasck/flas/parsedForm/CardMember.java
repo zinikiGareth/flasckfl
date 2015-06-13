@@ -1,12 +1,15 @@
 package org.flasck.flas.parsedForm;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.UtilException;
 
 public class CardMember implements ExternalRef {
+	public final InputPosition location;
 	public final String card;
 	public final String var;
 
-	public CardMember(String card, String var) {
+	public CardMember(InputPosition location, String card, String var) {
+		this.location = location;
 		this.card = card;
 		this.var = var;
 	}

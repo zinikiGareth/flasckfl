@@ -33,7 +33,7 @@ public class PatternParser implements TryParsing {
 				if (next.type == PattToken.TYPE) {
 					PattToken after = PattToken.from(line);
 					if (after.type == PattToken.VAR) {
-						TypedPattern ret = new TypedPattern(next.text, after.text);
+						TypedPattern ret = new TypedPattern(next.location, next.text, after.location, after.text);
 						retArr.add(ret);
 					} else if (after.type == PattToken.OCB) {
 						// Subsid case is "(Type { ... })" - again with initial caps

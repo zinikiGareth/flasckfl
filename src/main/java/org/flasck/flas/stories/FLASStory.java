@@ -198,35 +198,35 @@ public class FLASStory implements StoryProcessor {
 		{ // lists
 			ret.define("List", "List", null);
 			ret.define("Nil", "Nil",
-				new StructDefn("Nil"));
+				new StructDefn("Nil", false));
 			ret.define("Cons", "Cons",
-				new StructDefn("Cons")
+				new StructDefn("Cons", false)
 				.add("A")
-				.addField(new StructField(new TypeReference(null, "A"), "head"))
-				.addField(new StructField(new TypeReference("List").with(new TypeReference(null, "A")), "tail")));
+				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
+				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "tail")));
 		}
 		{ // messaging
 			ret.define("Message", "Message", null);
 			ret.define("Assign", "Assign",
-				new StructDefn("Assign")
+				new StructDefn("Assign", false)
 				.add("A")
-				.addField(new StructField(new TypeReference("String"), "slot"))
-				.addField(new StructField(new TypeReference(null, "A"), "value")));
+				.addField(new StructField(new TypeReference(null, "String", null), "slot"))
+				.addField(new StructField(new TypeReference(null, null, "A"), "value")));
 			ret.define("Send", "Send",
-				new StructDefn("Send")
-				.addField(new StructField(new TypeReference("Any"), "dest"))
-				.addField(new StructField(new TypeReference("String"), "method"))
-				.addField(new StructField(new TypeReference("List").with(new TypeReference("Any")), "args")));
+				new StructDefn("Send", false)
+				.addField(new StructField(new TypeReference(null, "Any", null), "dest"))
+				.addField(new StructField(new TypeReference(null, "String", null), "method"))
+				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, "Any", null)), "args")));
 			ret.define("JSNI", "JSNI", null);
 		}
 		{ // DOM
 			PackageDefn dom = new PackageDefn(ret, "DOM");
 			dom.innerScope().define("Element", "DOM.Element",
-				new StructDefn("DOM.Element")
-				.addField(new StructField(new TypeReference("String"), "tag"))
-				.addField(new StructField(new TypeReference("List").with(new TypeReference(null, "A")), "attrs"))
-				.addField(new StructField(new TypeReference("List").with(new TypeReference("DOM.Element")), "content"))
-				.addField(new StructField(new TypeReference("List").with(new TypeReference(null, "B")), "handlers")));
+				new StructDefn("DOM.Element", false)
+				.addField(new StructField(new TypeReference(null, "String", null), "tag"))
+				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "attrs"))
+				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, "DOM.Element", null)), "content"))
+				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "B")), "handlers")));
 		}
 		{ // Ziniki
 			PackageDefn dom = new PackageDefn(ret, "org");
@@ -470,11 +470,12 @@ public class FLASStory implements StoryProcessor {
 			if (!q.isComment())
 				er.message(q, "nested declarations prohibited");
 	}
-
+/*
 	private void assertSomeNonCommentNestedLines(ErrorResult er, Block b) {
 		for (Block q : b.nested)
 			if (!q.isComment())
 				return;
 		er.message(b, "nested declarations required");
 	}
+	*/
 }

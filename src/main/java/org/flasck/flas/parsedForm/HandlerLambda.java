@@ -1,12 +1,15 @@
 package org.flasck.flas.parsedForm;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.UtilException;
 
 public class HandlerLambda implements ExternalRef {
+	public final InputPosition location;
 	public final String hi;
 	public final String var;
 
-	public HandlerLambda(String hi, String var) {
+	public HandlerLambda(InputPosition location, String hi, String var) {
+		this.location = location;
 		this.hi = hi;
 		this.var = var;
 	}

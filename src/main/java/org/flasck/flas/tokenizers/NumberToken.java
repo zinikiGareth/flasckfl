@@ -1,8 +1,17 @@
 package org.flasck.flas.tokenizers;
 
-public class NumberToken {
+import org.flasck.flas.blockForm.InputPosition;
 
-	public static String from(Tokenizable line) {
+public class NumberToken {
+	public final InputPosition location;
+	public final String text;
+
+	public NumberToken(InputPosition pos, String text) {
+		this.location = pos;
+		this.text = text;
+	}
+
+	public static NumberToken from(Tokenizable line) {
 		// TODO: this should handle all number formats, e.g.
 		// 0
 		// 0L
@@ -11,12 +20,13 @@ public class NumberToken {
 		// 3.3e-6
 		line.skipWS();
 		int mark = line.at();
+		InputPosition pos = line.realinfo();
 		if (!Character.isDigit(line.nextChar()))
 			return null;
 		line.advance();
 		while (line.hasMore() && Character.isDigit(line.nextChar()))
 			line.advance();
-		return line.fromMark(mark);
+		return new NumberToken(pos, line.fromMark(mark));
 	}
 
 }

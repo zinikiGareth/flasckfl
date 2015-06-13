@@ -14,9 +14,9 @@ public class ItemExpr {
 		else if (tok.type == ExprToken.STRING)
 			return new StringLiteral(tok.text);
 		else if (tok.type == ExprToken.IDENTIFIER)
-			return new UnresolvedVar(tok.text);
+			return new UnresolvedVar(tok.location, tok.text);
 		else if (tok.type == ExprToken.SYMBOL || tok.type == ExprToken.PUNC)
-			return new UnresolvedOperator(tok.text);
+			return new UnresolvedOperator(tok.location, tok.text);
 		else
 			throw new UtilException("Case not handled");
 	}

@@ -40,8 +40,16 @@ public class DomFunctionGenerator {
 	//  we need to create the maps of overall tree and dependencies
 
 	public void generateTree(TemplateLine template) {
-		RenderTree rt = new RenderTree(prefix, "template", (Element) generate(template));
-		trees.add(rt);
+		Object genned = generate(template);
+		if (genned instanceof Element) {
+			RenderTree rt = new RenderTree(prefix, "template", (Element) genned);
+			trees.add(rt);
+		} else if (genned instanceof List) {
+			for (Object o : (List)genned) {
+				RenderTree rt = new RenderTree(prefix, "template", (Element) o);
+				trees.add(rt);
+			}
+		}
 	}
 
 	public Object generate(TemplateLine template) {
@@ -69,7 +77,7 @@ public class DomFunctionGenerator {
 						// TODO: distinguish between state vars and functions to call
 						// TODO: check that functions are defined on the card and not global
 						String fn = nextFnName();
-						function(fn, new CardMember(prefix, tt.text));
+						function(fn, new CardMember(tt.location, prefix, tt.text));
 						ret.add(new Element("content", fn));
 					} else if (tt.type == TemplateToken.STRING) {
 						String fn = nextFnName();
@@ -81,7 +89,7 @@ public class DomFunctionGenerator {
 						return pair.element; // there can only be one item in this case
 					} else
 						throw new UtilException("template token case not handled: " + tt.type);
-				} else if (x instanceof ApplyExpr) {
+				} else if (x instanceof CardMember || x instanceof ApplyExpr) {
 					// in this case, this is an expression which should return an HTML structure or text value
 					// anyway, it can be directly inserted into the DOM
 					// But, it is effectively curried on the card, so lift that
@@ -98,7 +106,7 @@ public class DomFunctionGenerator {
 	private RenderTree.ElementExpr div(TemplateLine tl) {
 		Object tag;
 		if (tl.customTagVar != null)
-			tag = new UnresolvedVar(tl.customTagVar);
+			tag = new UnresolvedVar(null, tl.customTagVar);
 		else {
 			if (tl.customTag != null)
 				tag = new StringLiteral(tl.customTag);

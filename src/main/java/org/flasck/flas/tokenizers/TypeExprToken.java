@@ -1,5 +1,7 @@
 package org.flasck.flas.tokenizers;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class TypeExprToken {
 	public static final int NAME = 1;
 
@@ -9,10 +11,12 @@ public class TypeExprToken {
 	public static final int CSB = 13;
 	public static final int COMMA = 14;
 	
+	public final InputPosition location;
 	public final int type;
 	public final String text;
 
-	public TypeExprToken(int type, String text) {
+	public TypeExprToken(InputPosition location, int type, String text) {
+		this.location = location;
 		this.type = type;
 		this.text = text;
 	}
@@ -21,13 +25,14 @@ public class TypeExprToken {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
+		InputPosition loc = line.realinfo();
 		char c = line.nextChar();
 		int pos;
 		if (Character.isUpperCase(c))
-			return new TypeExprToken(NAME, ValidIdentifierToken.from(line));
+			return new TypeExprToken(loc, NAME, ValidIdentifierToken.from(line).text);
 		else if ((pos = "()[],".indexOf(c)) != -1) {
 			line.advance();
-			return new TypeExprToken(10+pos, null);
+			return new TypeExprToken(loc, 10+pos, null);
 		}
 		else
 			return null;

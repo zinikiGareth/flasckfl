@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.zinutils.exceptions.UtilException;
 
@@ -78,17 +79,17 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 		return defns.size();
 	}
 
-	public Object resolve(String name) {
+	public Object resolve(InputPosition location, String name) {
 		if (name.contains("."))
 			return name;
 		if (defns.containsKey(name))
 			return new AbsoluteVar(defns.get(name));
 		try {
 			if (outer != null)
-				return outer.resolve(name);
+				return outer.resolve(location, name);
 		} catch (UtilException ex) { /* and rethrow ourselves */ }
 		System.out.println("Could not resolve name " + name + " in " + defns.keySet());
-		throw new ResolutionException(name);
+		throw new ResolutionException(location, name);
 	}
 	
 	public Set<String> keys() {

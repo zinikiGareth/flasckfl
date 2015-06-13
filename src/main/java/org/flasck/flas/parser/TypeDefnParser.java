@@ -11,19 +11,19 @@ public class TypeDefnParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
-		String kw = KeywordToken.from(line);
-		if (!"type".equals(kw))
+		KeywordToken kw = KeywordToken.from(line);
+		if (!"type".equals(kw.text))
 			return null;
-		String tn = TypeNameToken.from(line);
+		TypeNameToken tn = TypeNameToken.from(line);
 		if (tn == null)
 			return null; // invalid type name
 
-		TypeReference defining = new TypeReference(tn);
+		TypeReference defining = new TypeReference(tn.location, tn.text, null);
 		while (line.hasMore() && !PeekToken.is(line, "=")) {
-			String ta = TypeNameToken.from(line);
+			TypeNameToken ta = TypeNameToken.from(line);
 			if (ta == null)
 				return null; // invalid type argument
-			defining.args.add(new TypeReference(ta));
+			defining.args.add(new TypeReference(ta.location, ta.text, null));
 		}
 		if (!PeekToken.accept(line, "="))
 			return null;

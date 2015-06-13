@@ -9,8 +9,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -354,7 +356,7 @@ public class TypeChecker {
 //						idx = form.fnName.lastIndexOf(".prototype.", idx-1);
 					String structName = cm.card; // form.fnName; //.substring(0, idx);
 					if (r.fn.equals("_card"))
-						return freshVarsIn(new TypeReference(structName));
+						return freshVarsIn(new TypeReference(cm.location, structName, null));
 					StructDefn sd = structs.get(structName);
 					if (sd == null)
 						throw new UtilException("There was no struct definition called " + structName);
@@ -373,7 +375,7 @@ public class TypeChecker {
 //						idx = form.fnName.lastIndexOf('.', idx-1);
 					String structName = hl.hi; // form.fnName.substring(0, idx);
 					if (r.fn.equals("_handler"))
-						return freshVarsIn(new TypeReference(structName));
+						return freshVarsIn(new TypeReference(hl.location, structName, null));
 					StructDefn sd = structs.get(structName);
 					for (StructField sf : sd.fields) {
 						if (sf.name.equals(hl.var)) {
@@ -390,7 +392,7 @@ public class TypeChecker {
 				te = knowledge.get(name);
 				if (te == null) {
 					if (structs.containsKey(name))
-						return freshVarsIn(typeForStructCtor(structs.get(name)));
+						return freshVarsIn(typeForStructCtor(null, structs.get(name)));
 					// This is probably a failure on our part rather than user error
 					// We should not be able to get here if r.fn is not already an external which has been resolved
 					for (Entry<String, Type> x : knowledge.entrySet())
@@ -407,11 +409,11 @@ public class TypeChecker {
 			throw new UtilException("Missing cases");
 	}
 
-	private Type typeForStructCtor(StructDefn structDefn) {
+	private Type typeForStructCtor(InputPosition location, StructDefn structDefn) {
 		List<Type> args = new ArrayList<Type>();
 		for (StructField x : structDefn.fields)
 			args.add(fromTypeReference(x.type));
-		args.add(fromTypeReference(new TypeReference(structDefn.typename)));
+		args.add(fromTypeReference(new TypeReference(location, structDefn.typename, null)));
 		return Type.function(args);
 	}
 
@@ -476,7 +478,7 @@ public class TypeChecker {
 		if (knowledge.containsKey(fn))
 			return knowledge.get(fn);
 		if (structs.containsKey(fn))
-			return typeForStructCtor(structs.get(fn));
+			return typeForStructCtor(null, structs.get(fn));
 //		System.out.println(knowledge);
 		throw new UtilException("There is no type: " + fn);
 	}

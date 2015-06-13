@@ -125,7 +125,7 @@ public class JSForm {
 				if (isArray)
 					sep =", ";
 			}
-			if (inArray)
+			if (inArray || (indentLine && !isArray))
 				indent(ret, ind);
 			if (isArray)
 				ret.append("]");
