@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.flasck.flas.dom.RenderTree.Element;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
@@ -29,9 +30,11 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class Generator {
+	private final ErrorResult errors;
 	private final JSTarget target;
 
-	public Generator(JSTarget target) {
+	public Generator(ErrorResult errors, JSTarget target) {
+		this.errors = errors;
 		this.target = target;
 	}
 	
@@ -65,7 +68,7 @@ public class Generator {
 				if (x.init != null) {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
-					HSIEForm form = HSIE.handleExpr(x.init);
+					HSIEForm form = new HSIE(errors).handleExpr(x.init);
 //					form.dump();
 					generateField(defass, x.name, form);
 					generateField(elseBlock, x.name, form);
@@ -91,7 +94,7 @@ public class Generator {
 		for (Entry<String, Object> x : card.inits.entrySet()) {
 			HSIEForm form = null;
 			if (x.getValue() != null) {
-				form = HSIE.handleExpr(x.getValue());
+				form = new HSIE(errors).handleExpr(x.getValue());
 //					form.dump();
 			}
 

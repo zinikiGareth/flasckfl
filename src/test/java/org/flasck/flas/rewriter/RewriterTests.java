@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -56,11 +57,11 @@ public class RewriterTests {
 	@Test
 	public void testRewritingSomethingGloballyDefined() {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		cases.add(new FunctionCaseDefn(scope, "ME.f", new ArrayList<Object>(), new UnresolvedVar("Nil")));
+		cases.add(new FunctionCaseDefn(scope, "ME.f", new ArrayList<Object>(), new UnresolvedVar(null, "Nil")));
 		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f", 0, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
-		fn = (FunctionDefinition) ((PackageDefn)builtinScope.get("ME")).innerScope().get("f");
+		fn = rw.functions.get("ME.f");
 		assertEquals("ME.f", fn.name);
 		assertTrue(fn.cases.get(0).expr instanceof AbsoluteVar);
 		assertEquals("Nil", ((AbsoluteVar)fn.cases.get(0).expr).id);
@@ -71,11 +72,11 @@ public class RewriterTests {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern("x"));
-		cases.add(new FunctionCaseDefn(scope, "ME.f", args, new UnresolvedVar("x")));
+		cases.add(new FunctionCaseDefn(scope, "ME.f", args, new UnresolvedVar(null, "x")));
 		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f", 1, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
-		fn = (FunctionDefinition) ((PackageDefn)builtinScope.get("ME")).innerScope().get("f");
+		fn = rw.functions.get("ME.f");
 		assertEquals("ME.f", fn.name);
 		assertTrue(fn.cases.get(0).expr instanceof LocalVar);
 		assertEquals("x", ((LocalVar)fn.cases.get(0).expr).var);
@@ -97,13 +98,13 @@ public class RewriterTests {
 			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern("y"));
-			cases.add(new FunctionCaseDefn(scope, "ME.f_0.g", args, new UnresolvedVar("x")));
+			cases.add(new FunctionCaseDefn(scope, "ME.f_0.g", args, new UnresolvedVar(null, "x")));
 			FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f_0.g", 1, cases);
-			innerScope.define("g", "ME.f.g", fn);
+			innerScope.define("g", "ME.f_0.g", fn);
 		}
 		rw.rewrite(pkgEntry);
-		FunctionDefinition fn = (FunctionDefinition) ((PackageDefn)builtinScope.get("ME")).innerScope().get("f");
-		FunctionDefinition g = (FunctionDefinition) fn.cases.get(0).innerScope().get("g");
+		FunctionDefinition g = rw.functions.get("ME.f_0.g");
+		System.out.println(rw.functions);
 		assertEquals("ME.f_0.g", g.name);
 		assertTrue(g.cases.get(0).expr instanceof LocalVar);
 		assertEquals("x", ((LocalVar)g.cases.get(0).expr).var);
@@ -116,15 +117,13 @@ public class RewriterTests {
 		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		cases.add(new FunctionCaseDefn(scope, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar("counter")));
+		cases.add(new FunctionCaseDefn(scope, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
 		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out));
 		assertFalse(errors.hasErrors());
-		PackageDefn rp = (PackageDefn)builtinScope.get("ME");
-		CardDefinition rc = (CardDefinition) rp.innerScope().get("MyCard");
-		fn = (FunctionDefinition) rc.fnScope.get("f");
+		fn = rw.functions.get("ME.MyCard.f");
 		assertEquals("ME.MyCard.f", fn.name);
 		assertTrue(fn.cases.get(0).expr instanceof CardMember);
 		assertEquals("counter", ((CardMember)fn.cases.get(0).expr).var);
@@ -134,18 +133,16 @@ public class RewriterTests {
 	public void testRewritingAContractVar() throws Exception {
 		CardDefinition cd = new CardDefinition(scope, "MyCard");
 		// TODO: I would have expected this to complain that it can't find the referenced contract
-		cd.contracts.add(new ContractImplements("Timer", "timer"));
+		cd.contracts.add(new ContractImplements(null, "Timer", null, "timer"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		cases.add(new FunctionCaseDefn(scope, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar("timer")));
+		cases.add(new FunctionCaseDefn(scope, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "timer")));
 		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out));
 		assertFalse(errors.hasErrors());
-		PackageDefn rp = (PackageDefn)builtinScope.get("ME");
-		CardDefinition rc = (CardDefinition) rp.innerScope().get("MyCard");
-		fn = (FunctionDefinition) rc.fnScope.get("f");
+		fn = rw.functions.get("ME.MyCard.f");
 		assertEquals("ME.MyCard.f", fn.name);
 		assertTrue(fn.cases.get(0).expr instanceof CardMember);
 		assertEquals("timer", ((CardMember)fn.cases.get(0).expr).var);
@@ -157,22 +154,19 @@ public class RewriterTests {
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
-		ContractImplements ci = new ContractImplements("Timer", "timer");
+		ContractImplements ci = new ContractImplements(null, "Timer", null, "timer");
 		cd.contracts.add(ci);
 		List<MethodCaseDefn> mcds = new ArrayList<MethodCaseDefn>();
 		MethodDefinition md = new MethodDefinition(new FunctionIntro("ME.MyCard._C0.m", new ArrayList<Object>()), mcds);
 		MethodCaseDefn mcd1 = new MethodCaseDefn(md.intro);
 		mcds.add(mcd1);
-		mcd1.messages.add(new MethodMessage(CollectionUtils.listOf("counter"), new UnresolvedVar("counter")));
+		mcd1.messages.add(new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(md);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out));
 		assertFalse(errors.hasErrors());
-		PackageDefn rp = (PackageDefn)builtinScope.get("ME");
-		CardDefinition rc = (CardDefinition) rp.innerScope().get("MyCard");
-		ci = rc.contracts.get(0);
-		md = ci.methods.get(0);
+		md = rw.methods.get(0).method;
 		assertEquals("ME.MyCard._C0.m", md.intro.name);
 		assertTrue(md.cases.get(0).messages.get(0).expr instanceof CardMember);
 		assertEquals("counter", ((CardMember)md.cases.get(0).messages.get(0).expr).var);
@@ -190,15 +184,13 @@ public class RewriterTests {
 		EventHandlerDefinition ehd = new EventHandlerDefinition(new FunctionIntro("ME.MyCard.eh", new ArrayList<Object>()), ecds);
 		EventCaseDefn ecd1 = new EventCaseDefn(ehd.intro);
 		ecds.add(ecd1);
-		ecd1.messages.add(new MethodMessage(CollectionUtils.listOf("counter"), new UnresolvedVar("counter")));
+		ecd1.messages.add(new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
 		cd.fnScope.define("eh", "ME.MyCard.eh", ehd);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out));
 		assertFalse(errors.hasErrors());
-		PackageDefn rp = (PackageDefn)builtinScope.get("ME");
-		CardDefinition rc = (CardDefinition) rp.innerScope().get("MyCard");
-		ehd = (EventHandlerDefinition) rc.fnScope.get("eh");
+		ehd = (EventHandlerDefinition) rw.eventHandlers.get(0).handler;
 		assertEquals("ME.MyCard.eh", ehd.intro.name);
 		assertTrue(ehd.cases.get(0).messages.get(0).expr instanceof CardMember);
 		assertEquals("counter", ((CardMember)ehd.cases.get(0).messages.get(0).expr).var);

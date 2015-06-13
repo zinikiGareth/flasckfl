@@ -114,7 +114,7 @@ public class Compiler {
 			
 				// 8. Generate Class Definitions
 				JSTarget target = new JSTarget(inPkg);
-				Generator gen = new Generator(target);
+				Generator gen = new Generator(errors, target);
 
 				for (Entry<String, StructDefn> sd : rewriter.structs.entrySet())
 					gen.generate(sd.getKey(), sd.getValue());
@@ -240,7 +240,7 @@ public class Compiler {
 	}
 
 	private void hsieTree(Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
-		HSIEForm hsie = HSIE.handle(errors, node.getEntry());
+		HSIEForm hsie = new HSIE(errors).handle(node.getEntry());
 		if (parent == null) {
 			tree = ret.addTree(hsie);
 			parent = tree.getRoot();

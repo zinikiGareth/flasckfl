@@ -1,6 +1,8 @@
 package org.flasck.flas.jsgen;
 
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIETestData;
+import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Test;
 
@@ -10,8 +12,8 @@ public class TestGeneratingMutualFG {
 	public void testMFG() {
 		HSIEForm f = HSIETestData.mutualF();
 		HSIEForm g = HSIETestData.mutualG();
-		new Generator(null).generate(f);
-		new Generator(null).generate(g);
+		new Generator(new ErrorResult(), new JSTarget("ME")).generate(f);
+		new Generator(new ErrorResult(), new JSTarget("ME")).generate(g);
 	}
 
 	@Test
@@ -19,9 +21,9 @@ public class TestGeneratingMutualFG {
 		HSIEForm f = HSIETestData.splitF();
 		HSIEForm g1 = HSIETestData.splitF_G1();
 		HSIEForm g2 = HSIETestData.splitF_G2();
-		new Generator(null).generate(f);
-		new Generator(null).generate(g1);
-		new Generator(null).generate(g2);
+		new Generator(new ErrorResult(), new JSTarget("ME")).generate(f);
+		new Generator(new ErrorResult(), new JSTarget("ME")).generate(g1);
+		new Generator(new ErrorResult(), new JSTarget("ME")).generate(g2);
 	}
 
 }

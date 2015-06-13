@@ -3,8 +3,6 @@ package org.flasck.flas.method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
@@ -17,7 +15,6 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;

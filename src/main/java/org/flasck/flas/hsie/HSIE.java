@@ -25,11 +25,19 @@ import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIE {
-	public static HSIEForm handle(ErrorResult errors, FunctionDefinition defn) {
-		return handle(errors, defn, 0, new HashMap<String, Var>());
+	private final ErrorResult errors;
+	private int exprIdx;
+
+	public HSIE(ErrorResult errors) {
+		this.errors = errors;
+		exprIdx = 0;
 	}
 	
-	public static HSIEForm handle(ErrorResult errors, FunctionDefinition defn, int alreadyUsed, Map<String, Var> map) {
+	public HSIEForm handle(FunctionDefinition defn) {
+		return handle(defn, 0, new HashMap<String, Var>());
+	}
+	
+	public HSIEForm handle(FunctionDefinition defn, int alreadyUsed, Map<String, Var> map) {
 		HSIEForm ret = new HSIEForm(defn.mytype, defn.name, alreadyUsed, map, defn.nargs);
 		MetaState ms = new MetaState(ret);
 		if (defn.nargs == 0)
@@ -47,43 +55,43 @@ public class HSIE {
 		return ret;
 	}
 
-	public static HSIEForm handleExpr(Object expr) {
+	public HSIEForm handleExpr(Object expr) {
 		MetaState ms = new MetaState(new HSIEForm(Type.FUNCTION, "", 0, new HashMap<String, Var>(), 0));
-		Object ret = ms.getValueFor(new SubstExpr(expr));
+		Object ret = ms.getValueFor(new SubstExpr(expr, exprIdx++));
 		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}
 
-	private static HSIEForm handleConstant(MetaState ms, FunctionDefinition defn) {
+	private HSIEForm handleConstant(MetaState ms, FunctionDefinition defn) {
 		if (defn.cases.size() != 1)
 			throw new UtilException("Constants can only have one case");
-		Object ret = ms.getValueFor(new SubstExpr(defn.cases.get(0).expr));
+		Object ret = ms.getValueFor(new SubstExpr(defn.cases.get(0).expr, exprIdx++));
 		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}
 
-	private static State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, Var> map, int nargs, List<FunctionCaseDefn> cases) {
+	private State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, Var> map, int nargs, List<FunctionCaseDefn> cases) {
 		State s = new State(form);
 		List<Var> formals = new ArrayList<Var>();
 		for (int i=0;i<nargs;i++)
 			formals.add(ms.allocateVar());
 		Map<Object, SubstExpr> exprs = new HashMap<Object, SubstExpr>();
 		for (FunctionCaseDefn c : cases) {
-			SubstExpr ex = new SubstExpr(c.expr);
+			SubstExpr ex = new SubstExpr(c.expr, exprIdx++);
 			ex.alsoSub(map);
 			form.exprs.add(ex);
 			createSubsts(ms, c.intro.args, formals, ex);
-			exprs.put(c.expr, ex);
+			exprs.put(c, ex);
 		}
 		for (int i=0;i<nargs;i++) {
 			for (FunctionCaseDefn c : cases) {
-				s.associate(formals.get(i), c.intro.args.get(i), exprs.get(c.expr));
+				s.associate(formals.get(i), c.intro.args.get(i), exprs.get(c));
 			}
 		}
 		return s;
 	}
 
-	private static void createSubsts(MetaState ms, List<Object> args, List<Var> formals, SubstExpr expr) {
+	private void createSubsts(MetaState ms, List<Object> args, List<Var> formals, SubstExpr expr) {
 		for (int i=0;i<args.size();i++) {
 			Object arg = args.get(i);
 			if (arg instanceof VarPattern)
@@ -99,7 +107,7 @@ public class HSIE {
 		}
 	}
 
-	private static void ctorSub(ConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
+	private void ctorSub(ConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
 		for (Field x : cm.args) {
 			Var v = ms.varFor(from, x.field);
 			if (x.patt instanceof VarPattern)
@@ -114,7 +122,7 @@ public class HSIE {
 		}
 	}
 
-	private static void recurse(MetaState ms, State s) {
+	private void recurse(MetaState ms, State s) {
 //		System.out.println("------ Entering recurse");
 		Table t = buildDecisionTable(s);
 		boolean needChoice = false;
@@ -135,7 +143,7 @@ public class HSIE {
 		}
 //		t.dump();
 		Option elim = chooseBest(t);
-//		System.out.println("Switching on " + elim.var);
+		System.out.println("Choosing cases based on " + elim.var);
 		s.writeTo.head(elim.var);
 		for (String ctor : elim.ctorCases) {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
@@ -160,7 +168,7 @@ public class HSIE {
 				mapFieldNamesToVars.put(b, v);
 			}
 			boolean wantS1 = false;
-			for (NestedBinds nb : elim.ctorCases.get(ctor)) {
+			for (NestedBinds nb : orderIfs(elim.ctorCases.get(ctor))) {
 				if (nb.ifConst != null) {
 //					System.out.println("Handling constant " + nb.ifConst.value);
 					HSIEBlock inner;
@@ -195,16 +203,39 @@ public class HSIE {
 		}
 	}
 
-	private static Set<SubstExpr> casesForConst(List<NestedBinds> nbs, String value) {
+	private List<NestedBinds> orderIfs(List<NestedBinds> list) {
+		List<NestedBinds> ret = new ArrayList<NestedBinds>();
+		for (NestedBinds nb : list) {
+			if (nb.ifConst == null)
+				ret.add(0, nb);
+			else {
+				boolean done = false;
+				for (int j=0;!done && j<ret.size();j++) {
+					NestedBinds other = ret.get(j);
+					if (other.ifConst == null)
+						continue;
+					else if (nb.ifConst.type < other.ifConst.type || (nb.ifConst.type == other.ifConst.type && nb.ifConst.value.compareTo(other.ifConst.value) <= 0)) {
+						ret.add(j, nb);
+						done = true;
+					}
+				}
+				if (!done)
+					ret.add(nb);
+			}
+		}
+		return ret;
+	}
+
+	private Set<SubstExpr> casesForConst(List<NestedBinds> nbs, String value) {
 		Set<SubstExpr> possibles = new HashSet<SubstExpr>();
 		for (NestedBinds nb : nbs) {
 			if (nb.ifConst == null || nb.ifConst.value.equals(value))
-			possibles.add(nb.substExpr);
+				possibles.add(nb.substExpr);
 		}
 		return possibles;
 	}
 
-	private static void addState(MetaState ms, State s, Set<SubstExpr> mycases) {
+	private void addState(MetaState ms, State s, Set<SubstExpr> mycases) {
 		if (s.hasNeeds()) {
 //			System.out.println("Adding state ---");
 //			s.dump();
@@ -218,7 +249,7 @@ public class HSIE {
 		}
 	}
 
-	private static void evalExpr(MetaState ms, State s, Set<SubstExpr> mycases) {
+	private void evalExpr(MetaState ms, State s, Set<SubstExpr> mycases) {
 		SubstExpr e = s.singleExpr(mycases);
 //		System.out.println("Have expr " + e);
 		if (e != null) {
@@ -230,7 +261,7 @@ public class HSIE {
 		}
 	}
 
-	private static Table buildDecisionTable(State s) {
+	private Table buildDecisionTable(State s) {
 		Table t = new Table();
 		for (Entry<Var, PattExpr> e : s) {
 			Option o = t.createOption(e.getKey());
@@ -256,7 +287,7 @@ public class HSIE {
 		return t;
 	}
 
-	private static Option chooseBest(Table t) {
+	private Option chooseBest(Table t) {
 		Option best = null;
 		for (Option o : t) {
 			if (o.dull())

@@ -31,7 +31,6 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
@@ -41,12 +40,12 @@ import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -386,9 +385,7 @@ public class Rewriter {
 				errors.message((Block)null, "cannot find a valid definition of contract " + ci.type);
 				return ci;
 			}
-			ContractImplements ret = new ContractImplements(ci.typeLocation, ((AbsoluteVar)av).id, ci.vlocation, ci.referAsVar);
-			rewrite(cx, ret, ci);
-			return ret;
+			return new ContractImplements(ci.typeLocation, ((AbsoluteVar)av).id, ci.vlocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -403,8 +400,6 @@ public class Rewriter {
 				return hi;
 			}
 			HandlerImplements ret = new HandlerImplements(hi.typeLocation, ((AbsoluteVar)av).id, hi.boundVars);
-			NamingContext c2 = new HandlerContext(cx, hi, cs);
-			rewrite(c2, ret, hi);
 			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
@@ -412,22 +407,15 @@ public class Rewriter {
 		}
 	}
 
-	private void rewrite(NamingContext scope, Implements into, Implements orig) {
-//		System.out.println("Rewriting " + orig.type + " to " + into.type);
-		for (MethodDefinition m : orig.methods) {
-			into.methods.add(rewrite(scope, m));
-		}
-	}
-
 	public FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
-//		System.out.println("Rewriting " + f.name);
+		System.out.println("Rewriting " + f.name);
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
 			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(), c.innerScope(), false), c));
 			cs++;
 		}
-//		System.out.println("rewritten to " + list.get(0).expr);
+		System.out.println("rewritten to " + list.get(0).expr);
 		FunctionDefinition ret = new FunctionDefinition(f.mytype, f.name, f.nargs, list);
 		return ret;
 	}

@@ -19,6 +19,8 @@ public class TypeExpr {
 	public final List<Object> args;
 
 	public TypeExpr(String type, List<Object> args) {
+		if (type == null)
+			throw new UtilException("Cannot have null type");
 		this.type = type;
 		if (args == null)
 			this.args = new ArrayList<Object>();
@@ -144,9 +146,13 @@ public class TypeExpr {
 	}
 
 	public static Object fromReference(TypeReference tr, Map<String, TypeVar> polys) {
-		if (polys.containsKey(tr.name))
-			return polys.get(tr.name);
-		return new TypeExpr(tr.name, fromArgs(tr.args, polys));
+		if (tr.name == null) {
+			if (polys.containsKey(tr.var))
+				return polys.get(tr.var);
+			else
+				throw new UtilException("There is no poly var " + tr.var);
+		} else
+			return new TypeExpr(tr.name, fromArgs(tr.args, polys));
 	}
 	
 	private static List<Object> fromArgs(List<TypeReference> l, Map<String, TypeVar> polys) {

@@ -58,45 +58,46 @@ public class HSIETestData {
 
 	public static HSIEForm fib() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("+");
-		externals.add("-");
+		externals.add("FLEval.plus");
+		externals.add("FLEval.minus");
 		return thingy("fib", 0, 1, 5,
 			externals,
 			"HEAD 0", "SWITCH 0 Number", "{",
-				"IF 0 1", "{",
+				"IF 0 0", "{",
 					"RETURN 1",
 				"}",
-				"IF 0 0", "{",
+				"IF 0 1", "{",
 					"RETURN 1",
 				"}",
 			"}",
 			"RETURN var 5 1 2 3 4", // Since we do this before type checking, there is no guarantee var 0 is an integer
-			"CLOSURE 1",
-				"{", "-", "var 0",
-			"1",
-			"}", "CLOSURE 2",
-				"{", "fib",
-			"var 1",
-			"}", "CLOSURE 3",
-				"{", "-", "var 0",
-			"2",
-			"}", "CLOSURE 4",
-				"{", "fib",
-			"var 3",
-			"}", "CLOSURE 5",
-				"{", "+", "var 2",
-			"var 4", "}"
+			"CLOSURE 1", "{",
+				"FLEval.minus", "var 0", "1",
+			"}",
+			"CLOSURE 2", "{",
+				"fib", "var 1",
+			"}",
+			"CLOSURE 3", "{",
+				"FLEval.minus", "var 0", "2",
+			"}",
+			"CLOSURE 4", "{",
+				"fib", "var 3",
+			"}",
+			"CLOSURE 5", "{",
+				"FLEval.plus", "var 2", "var 4",
+			"}"
 		);
 	}
 
 	public static HSIEForm take() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("Cons");
+		externals.add("FLEval.minus");
 		externals.add("Nil");
-		externals.add("-");
 		return thingy("take", 0, 2, 5,
 			externals,
-			"HEAD 1", "SWITCH 1 Cons", "{",
+			"HEAD 1",
+			"SWITCH 1 Cons", "{",
 				"BIND 2 1 head",
 				"BIND 3 1 tail",
 				"HEAD 0",
@@ -111,15 +112,16 @@ public class HSIETestData {
 				"RETURN Nil",
 			"}",  // it would seem that none of the cases match
 			// when we get here, we know that Arg#1 is NOT Nil or Cons - thus only E1 _could_ match
-			"ERROR", "CLOSURE 4",
-				"{", "-", "var 0",
-			"1",
-			"}", "CLOSURE 5",
-				"{", "take", "var 4",
-			"var 3",
-			"}", "CLOSURE 6",
-				"{", "Cons", "var 2",
-			"var 5", "}"
+			"ERROR",
+			"CLOSURE 4", "{",
+				"FLEval.minus", "var 0", "1",
+			"}",
+			"CLOSURE 5", "{",
+				"take", "var 4", "var 3",
+			"}",
+			"CLOSURE 6", "{",
+				"Cons", "var 2", "var 5",
+			"}"
 		);
 	}
 
@@ -262,7 +264,7 @@ public class HSIETestData {
 	public static HSIEForm plus1Of1() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("plus1");
-		return thingy("f", 0, 0, 1, externals,
+		return thingy("ME.f", 0, 0, 1, externals,
 			"RETURN var 0",
 			"CLOSURE 0", "{",
 				"plus1", "1",
@@ -285,47 +287,49 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("id");
 		externals.add("decode");
-		return thingy("f", 0, 0, 3,
+		return thingy("ME.f", 0, 0, 3,
 			externals,
-			"RETURN var 2 0 1", "CLOSURE 0",
-				"{", "id",
-			"32",
-			"}", "CLOSURE 1",
-				"{", "decode",
-			"var 0",
-			"}", "CLOSURE 2",
-				"{", "id",
-			"var 1", "}"
+			"RETURN var 2 0 1",
+			"CLOSURE 0", "{",
+				"id", "32",
+			"}",
+			"CLOSURE 1", "{",
+				"decode", "var 0",
+			"}", 
+			"CLOSURE 2", "{",
+				"id", "var 1",
+			"}"
 		);
 	}
 
 	public static HSIEForm rdf1() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("-");
-		externals.add("g");
-		return thingy("f", 0, 1, 2,
+		externals.add("FLEval.minus");
+		externals.add("ME.g");
+		return thingy("ME.f", 0, 1, 2,
 			externals,
 			"RETURN var 2 1", "CLOSURE 1",
-				"{", "-", "var 0",
+				"{", "FLEval.minus", "var 0",
 			"1",
 			"}", "CLOSURE 2",
-				"{", "g",
+				"{", "ME.g",
 			"var 1", "}"
 		);
 	}
 
 	public static HSIEForm rdf2() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("+");
-		externals.add("f");
-		return thingy("g", 0, 1, 2,
+		externals.add("FLEval.plus");
+		externals.add("ME.f");
+		return thingy("ME.g", 0, 1, 2,
 			externals,
-			"RETURN var 2 1", "CLOSURE 1",
-				"{", "+", "var 0",
-			"1",
-			"}", "CLOSURE 2",
-				"{", "f",
-			"var 1", "}"
+			"RETURN var 2 1",
+			"CLOSURE 1", "{",
+				"FLEval.plus", "var 0", "1",
+			"}",
+			"CLOSURE 2", "{",
+				"ME.f", "var 1",
+			"}"
 		);
 	}
 

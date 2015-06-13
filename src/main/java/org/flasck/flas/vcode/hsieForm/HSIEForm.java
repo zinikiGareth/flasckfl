@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.hsie.SubstExpr;
 import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.zinutils.exceptions.UtilException;
 
 // So, basically an HSIE definition consists of
@@ -103,9 +104,10 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	public void dependsOn(Object ref) {
-		if (ref instanceof String)
+		if (!(ref instanceof ExternalRef))
 			throw new UtilException("Cannot pass in a string var: " + ref);
-		if (!ref.equals(this.fnName))
+		String name = ((ExternalRef)ref).uniqueName();
+		if (!name.equals(this.fnName))
 			externals.add(ref);
 	}
 

@@ -3,15 +3,10 @@ package org.flasck.flas.dependency;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.PackageDefn;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.sampleData.BlockTestData;
@@ -33,16 +28,9 @@ public class TestDependencyAnalysis {
 		assertTrue(o instanceof ScopeEntry);
 		ScopeEntry se = (ScopeEntry) o;
 		rewriter.rewrite(se);
-		Scope s = ((PackageDefn)se.getValue()).innerScope();
-		Map<String, FunctionDefinition> map = new HashMap<String, FunctionDefinition>();
-		ScopeEntry f = (ScopeEntry) s.getEntry("f");
-		assertNotNull(f);
-		ScopeEntry g = (ScopeEntry) ((FunctionDefinition)f.getValue()).cases.get(0).innerScope().getEntry("g");
-		map.put(f.getKey(), (FunctionDefinition) f.getValue());
-		map.put(g.getKey(), (FunctionDefinition) g.getValue());
 		
 		// Now begins the real test on this data
-		List<Orchard<FunctionDefinition>> orchards = analyzer.analyze(map);
+		List<Orchard<FunctionDefinition>> orchards = analyzer.analyze(rewriter.functions);
 		assertNotNull(orchards);
 	}
 

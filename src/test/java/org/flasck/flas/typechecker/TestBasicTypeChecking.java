@@ -154,22 +154,22 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckTwoFunctionsAtOnceBecauseTheyAreMutuallyRecursive() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addExternal("+", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+		tc.addExternal("FLEval.plus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+		tc.addExternal("FLEval.minus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
 		errors.showTo(new PrintWriter(System.out));
 		assertFalse(errors.hasErrors());
 		// Four things should now be defined: -, +, f, g
 		assertEquals(4, tc.knowledge.size());
 		{
-			Object rdf1 = tc.knowledge.get("f");
+			Object rdf1 = tc.knowledge.get("ME.f");
 			assertNotNull(rdf1);
 			System.out.println(rdf1);
 			assertTrue(rdf1 instanceof Type);
 			assertEquals("Number->A", rdf1.toString());
 		}
 		{
-			Object rdf2 = tc.knowledge.get("g");
+			Object rdf2 = tc.knowledge.get("ME.g");
 			assertNotNull(rdf2);
 			assertTrue(rdf2 instanceof Type);
 			assertEquals("Number->A", rdf2.toString());
@@ -179,7 +179,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanUseSwitchToLimitId() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn("Number"));
+		tc.addStructDefn(new StructDefn("Number", false));
 		PhiSolution phi = new PhiSolution(errors);
 		TypeEnvironment gamma = new TypeEnvironment();
 		gamma = gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(1)));
@@ -210,9 +210,9 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanHandleConstantSwitching() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn("Number"));
-		tc.addExternal("+", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+		tc.addStructDefn(new StructDefn("Number", false));
+		tc.addExternal("FLEval.plus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+		tc.addExternal("FLEval.minus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(orchardOf(HSIETestData.fib()));
 		errors.showTo(new PrintWriter(System.out));
 		assertFalse(errors.hasErrors());
@@ -227,9 +227,9 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanHandleBindForCons() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn("Number"));
+		tc.addStructDefn(new StructDefn("Number", false));
 		tc.addStructDefn(
-				new StructDefn("Cons").add("A")
+				new StructDefn("Cons", false).add("A")
 				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
 				.addField(new StructField(new TypeReference(null, "Cons", null).with(new TypeReference(null, "A", null)), "tail")));
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));
@@ -253,10 +253,10 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker(errors);
 		
 		TypeReference list = new TypeReference(null, "List", null).with(new TypeReference(null, null, "A"));
-		tc.addStructDefn(new StructDefn("Number"));
-		tc.addStructDefn(new StructDefn("Nil"));
+		tc.addStructDefn(new StructDefn("Number", false));
+		tc.addStructDefn(new StructDefn("Nil", false));
 		tc.addStructDefn(
-				new StructDefn("Cons").add("A")
+				new StructDefn("Cons", false).add("A")
 				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
 				.addField(new StructField(list, "tail")));
 		TypeDefn listDefn = new TypeDefn(list);
@@ -266,7 +266,7 @@ public class TestBasicTypeChecking {
 		
 		tc.addExternal("Nil", Type.function(Type.simple("Nil")));
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
-		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+		tc.addExternal("FLEval.minus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(orchardOf(HSIETestData.take()));
 		errors.showTo(new PrintWriter(System.out));
 		assertFalse(errors.hasErrors());
@@ -280,7 +280,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckASimpleNestedFunction() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn("Number"));
+		tc.addStructDefn(new StructDefn("Number", false));
 		tc.addExternal("FLEval.mul", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(orchardOf(HSIETestData.simpleG()));
 		tc.typecheck(orchardOf(HSIETestData.simpleF()));
@@ -306,7 +306,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn("Number"));
+		tc.addStructDefn(new StructDefn("Number", false));
 		tc.addExternal("FLEval.mul", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		Tree<HSIEForm> tree = orchard.addTree(HSIETestData.mutualF());

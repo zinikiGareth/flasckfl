@@ -5,7 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.errors.ErrorResult;
@@ -17,14 +19,18 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.junit.Test;
 
 public class DomFunctionTests {
@@ -44,7 +50,7 @@ public class DomFunctionTests {
 		assertEquals(0, fcd.intro.args.size());
 		assertNotNull(fcd.expr);
 		assertEquals("\"hello\"", fcd.expr.toString());
-		HSIEForm c = HSIE.handle(errors, node1);
+		HSIEForm c = new HSIE(errors).handle(node1);
 		c.dump();
 	}
 
@@ -60,7 +66,7 @@ public class DomFunctionTests {
 		assertEquals("MyCard._templateNode_1", fcd.intro.name);
 		assertEquals(0, fcd.intro.args.size());
 		assertEquals("Card[MyCard.counter]", fcd.expr.toString());
-		HSIEForm c = HSIE.handle(errors, node1);
+		HSIEForm c = new HSIE(errors).handle(node1);
 		c.dump();
 	}
 
@@ -83,7 +89,7 @@ public class DomFunctionTests {
 		assertEquals("Nil", ae.args.get(1).toString());
 		assertEquals("Nil", ae.args.get(2).toString());
 		assertEquals("Nil", ae.args.get(3).toString());
-		HSIEForm c = HSIE.handle(errors, node1);
+		HSIEForm c = new HSIE(errors).handle(node1);
 		c.dump();
 	}
 
@@ -106,7 +112,7 @@ public class DomFunctionTests {
 		assertEquals("Nil", ae.args.get(1).toString());
 		assertEquals("Nil", ae.args.get(2).toString());
 		assertEquals("Nil", ae.args.get(3).toString());
-		HSIEForm c = HSIE.handle(errors, node1);
+		HSIEForm c = new HSIE(errors).handle(node1);
 		c.dump();
 	}
 
@@ -115,7 +121,13 @@ public class DomFunctionTests {
 		Scope biscope = FLASStory.builtinScope();
 		PackageDefn pd = new PackageDefn(biscope, "ME");
 		Scope scope = pd.innerScope();
-		scope.define("tfn", "tfn", null);
+		List<Object> args = new ArrayList<Object>();
+		args.add(new VarPattern("ignore"));
+		List<FunctionCaseDefn> fcds = new ArrayList<FunctionCaseDefn>();
+		FunctionCaseDefn fcd1 = new FunctionCaseDefn(scope, "ME.f", args, new StringLiteral("hello"));
+		fcds.add(fcd1);
+		FunctionDefinition tfn = new FunctionDefinition(Type.FUNCTION, fcd1.intro, fcds);
+		scope.define("tfn", "tfn", tfn);
 		CardDefinition card = new CardDefinition(scope, "MyCard");
 		card.state = new StateDefinition();
 		card.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
@@ -137,14 +149,17 @@ public class DomFunctionTests {
 		assertEquals("counter", ae.args.get(0).toString());
 		Rewriter rewriter = new Rewriter(new ErrorResult());
 		rewriter.rewrite(pd.myEntry());
-		HSIEForm c = HSIE.handle(errors, (FunctionDefinition) ((CardDefinition)((PackageDefn)biscope.get("ME")).innerScope().get("MyCard")).innerScope().get("_templateNode_1"));
+		HSIEForm c = new HSIE(errors).handle(rewriter.functions.get("ME.MyCard._templateNode_1"));
 		c.dump();
 	}
 
 	private FunctionDefinition generateOne(CardDefinition card, String input) throws Exception {
 		Map<String, FunctionDefinition> functions = new HashMap<String, FunctionDefinition>();
-		gen = new DomFunctionGenerator(card.template, functions);
 		TemplateLine tl = parse(input);
+		Template t = card.template;
+		if (t == null)
+			t = new Template(card.name, "template", tl, card.innerScope());
+		gen = new DomFunctionGenerator(t, functions);
 		gen.generateOne(tl);
 		assertEquals(1, functions.size());
 		FunctionDefinition ret = functions.get("MyCard._templateNode_1");

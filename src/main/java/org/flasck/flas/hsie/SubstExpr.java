@@ -8,14 +8,13 @@ import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class SubstExpr {
-	private static int idx = 0;
 	public final Object expr;
 	public final Map<String, Var> substs = new HashMap<String, Var>();
 	private String me;
 
-	public SubstExpr(Object expr) {
+	public SubstExpr(Object expr, int idx) {
 		this.expr = expr;
-		this.me = "E" + (idx++);
+		this.me = "E" + idx;
 	}
 
 	public SubstExpr alsoSub(Map<String, Var> map) {
