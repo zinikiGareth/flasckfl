@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -21,7 +22,7 @@ public class HSIEFunctionTests {
 	
 	@Test
 	public void testConvertingConstant() {
-		PackageDefn pkg = new PackageDefn(FLASStory.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
 		FunctionDefinition primes = new FunctionDefinition(Type.FUNCTION, "primes", 0, CollectionUtils.listOf(c1));
@@ -36,7 +37,7 @@ public class HSIEFunctionTests {
 	
 	@Test
 	public void testConvertingFib() {
-		PackageDefn pkg = new PackageDefn(FLASStory.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 0 = 1"));
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 1 = 1"));
@@ -53,7 +54,7 @@ public class HSIEFunctionTests {
 
 	@Test
 	public void testConvertingTake() {
-		PackageDefn pkg = new PackageDefn(FLASStory.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n [] = []"));
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take 0 Cons = []"));

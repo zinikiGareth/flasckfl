@@ -27,7 +27,7 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
@@ -40,7 +40,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testAString() throws Exception {
-		CardDefinition card = new CardDefinition(FLASStory.builtinScope(), "MyCard");
+		CardDefinition card = new CardDefinition(Builtin.builtinScope(), "MyCard");
 		FunctionDefinition node1 = generateOne(card, "'hello'");
 		assertEquals("MyCard._templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
@@ -56,7 +56,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testSimpleVar() throws Exception {
-		CardDefinition card = new CardDefinition(FLASStory.builtinScope(), "MyCard");
+		CardDefinition card = new CardDefinition(Builtin.builtinScope(), "MyCard");
 		card.state = counterState();
 		FunctionDefinition node1 = generateOne(card, "counter");
 		assertEquals("MyCard._templateNode_1", node1.name);
@@ -72,7 +72,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testAMinimalDiv() throws Exception {
-		CardDefinition card = new CardDefinition(FLASStory.builtinScope(), "MyCard");
+		CardDefinition card = new CardDefinition(Builtin.builtinScope(), "MyCard");
 		FunctionDefinition node1 = generateOne(card, ".");
 		assertEquals("MyCard._templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
@@ -95,7 +95,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testATaggedDiv() throws Exception {
-		CardDefinition card = new CardDefinition(FLASStory.builtinScope(), "MyCard");
+		CardDefinition card = new CardDefinition(Builtin.builtinScope(), "MyCard");
 		FunctionDefinition node1 = generateOne(card, "#nav");
 		assertEquals("MyCard._templateNode_1", node1.name);
 		assertEquals(0, node1.nargs);
@@ -118,7 +118,7 @@ public class DomFunctionTests {
 
 	@Test
 	public void testCallingAFunction() throws Exception {
-		Scope biscope = FLASStory.builtinScope();
+		Scope biscope = Builtin.builtinScope();
 		PackageDefn pd = new PackageDefn(biscope, "ME");
 		Scope scope = pd.innerScope();
 		List<Object> args = new ArrayList<Object>();
@@ -176,7 +176,7 @@ public class DomFunctionTests {
 	protected TemplateLine parse(String input) throws Exception {
 		Object ret = p.tryParsing(new Tokenizable(input));
 		if (ret instanceof ErrorResult)
-			((ErrorResult)ret).showTo(new PrintWriter(System.out));
+			((ErrorResult)ret).showTo(new PrintWriter(System.out), 0);
 		assertNotNull(ret);
 		assertTrue(ret instanceof TemplateLine);
 		return (TemplateLine) ret;

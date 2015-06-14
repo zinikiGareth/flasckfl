@@ -157,7 +157,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("FLEval.plus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.addExternal("FLEval.minus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		// Four things should now be defined: -, +, f, g
 		assertEquals(4, tc.knowledge.size());
@@ -185,7 +185,7 @@ public class TestBasicTypeChecking {
 		gamma = gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(1)));
 		Object te = tc.checkHSIE(new HashMap<String,Object>(), phi, gamma, HSIETestData.numberIdFn());
 		System.out.println(te);
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertNotNull(te);
 		// The type should be Number -> Number
@@ -214,7 +214,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("FLEval.plus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.addExternal("FLEval.minus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(orchardOf(HSIETestData.fib()));
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		Object te = tc.knowledge.get("fib");
 		System.out.println(te);
@@ -236,7 +236,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
 		tc.addExternal("-", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(orchardOf(HSIETestData.takeConsCase()));
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		Object te = tc.knowledge.get("take");
 		System.out.println(te);
@@ -268,7 +268,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("Cons", Type.function(Type.polyvar("A"), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("A"))));
 		tc.addExternal("FLEval.minus", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(orchardOf(HSIETestData.take()));
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		Object te = tc.knowledge.get("take");
 		System.out.println(te);
@@ -284,7 +284,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("FLEval.mul", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		tc.typecheck(orchardOf(HSIETestData.simpleG()));
 		tc.typecheck(orchardOf(HSIETestData.simpleF()));
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		// Four things should now be defined: -, +, f, g
 		assertEquals(3, tc.knowledge.size());
@@ -313,7 +313,7 @@ public class TestBasicTypeChecking {
 		tree.addChild(tree.getRoot(), HSIETestData.mutualG());
 		System.out.println(tree.getChildren(tree.getRoot()));
 		tc.typecheck(orchard);
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		// Four things should now be defined: -, +, f, g
 		assertEquals(3, tc.knowledge.size());

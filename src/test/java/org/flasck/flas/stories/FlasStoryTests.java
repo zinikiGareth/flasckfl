@@ -27,10 +27,11 @@ import org.junit.Test;
 public class FlasStoryTests {
 	private final ErrorResult errors = new ErrorResult();
 	private final Rewriter rewriter = new Rewriter(errors);
+	private final ScopeEntry se = new PackageDefn(Builtin.builtinScope(), "ME").myEntry();
 
 	@Test
 	public void testProcessingFib() {
-		Object o = new FLASStory().process("MathLib", BlockTestData.allFib());
+		Object o = new FLASStory().process(se, BlockTestData.allFib());
 		assertNotNull(o);
 		assertTrue(o instanceof ScopeEntry);
 		ScopeEntry se = (ScopeEntry) o;
@@ -40,7 +41,7 @@ public class FlasStoryTests {
 
 	@Test
 	public void testProcessingMutualRecursion() {
-		Object o = new FLASStory().process("ME", BlockTestData.simpleMutualRecursionBlock());
+		Object o = new FLASStory().process(se, BlockTestData.simpleMutualRecursionBlock());
 		assertNotNull(o);
 		assertTrue(o instanceof ScopeEntry);
 		ScopeEntry se = (ScopeEntry) o;
@@ -61,7 +62,7 @@ public class FlasStoryTests {
 
 	@Test
 	public void testProcessingAMultiPartFunctionWithSeparateNestedScopes() throws IOException {
-		Object o = new FLASStory().process("ME", BlockTestData.splitNestedBlocks());
+		Object o = new FLASStory().process(se, BlockTestData.splitNestedBlocks());
 		assertNotNull(o);
 		assertTrue(o instanceof ScopeEntry);
 		ScopeEntry se = (ScopeEntry) o;
@@ -83,7 +84,7 @@ public class FlasStoryTests {
 	
 	@Test
 	public void testLiftingOfCardMethods() throws Exception {
-		Object o = new FLASStory().process("ME", BlockTestData.cardWithMethods());
+		Object o = new FLASStory().process(se, BlockTestData.cardWithMethods());
 		assertNotNull(o);
 		assertTrue(o instanceof ScopeEntry);
 		ScopeEntry se = (ScopeEntry) o;

@@ -357,7 +357,7 @@ public class TemplateLineParsingTests {
 	private Object doparse(String string) throws Exception {
 		Object ret = p.tryParsing(new Tokenizable(string));
 		if (ret instanceof ErrorResult)
-			((ErrorResult)ret).showTo(new PrintWriter(System.out));
+			((ErrorResult)ret).showTo(new PrintWriter(System.out), 0);
 		return ret;
 
 	}

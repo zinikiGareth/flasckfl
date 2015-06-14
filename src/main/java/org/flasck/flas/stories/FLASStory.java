@@ -31,9 +31,9 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -41,7 +41,6 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateIntro;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateReference;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.FunctionParser;
@@ -51,7 +50,6 @@ import org.flasck.flas.parser.MethodParser;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
@@ -81,16 +79,14 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	@Override
-	public Object process(String pkg, List<Block> blocks) {
-		// TODO: I think this should be a parameter ...
-		Scope top = builtinScope();
-		PackageDefn pd = new PackageDefn(top, pkg);
-		State s = new State(pd.innerScope(), pkg, HSIEForm.Type.FUNCTION);
+	public Object process(ScopeEntry top, List<Block> blocks) {
+		PackageDefn pkg = (PackageDefn) top.getValue();
+		State s = new State(pkg.innerScope(), pkg.name, HSIEForm.Type.FUNCTION);
 		ErrorResult er = new ErrorResult();
 		doScope(er, s, blocks);
 		if (er.hasErrors())
 			return er;
-		return pd.myEntry();
+		return top;
 	}
 	
 	private Object doScope(ErrorResult er, State s, List<Block> blocks) {
@@ -178,75 +174,6 @@ public class FLASStory implements StoryProcessor {
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
 			ret.define(State.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(s.kind, x.getValue().get(0).intro, x.getValue()));
 		}
-	}
-
-	public static Scope builtinScope() {
-		Scope ret = new Scope((ScopeEntry)null);
-		{ // core
-			ret.define(".", "FLEval.field", 
-				Type.function(Type.polyvar("A"), Type.simple("String"), Type.polyvar("B")));
-			ret.define("()", "FLEval.tuple", 
-					null);
-		}
-		{ // text
-			ret.define("String", "String", null);
-			ret.define("concat", "concat",
-				Type.function(Type.simple("List", Type.simple("String")), Type.simple("String")));
-		}
-		{ // boolean logic
-			ret.define("Boolean", "Boolean", null);
-			ret.define("==", "FLEval.compeq",
-				Type.function(Type.polyvar("A"), Type.polyvar("A"), Type.simple("Boolean"))); // Any -> Any -> Boolean
-		}
-		{ // math
-			ret.define("Number", "Number", null);
-			ret.define("+", "FLEval.plus", 
-				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-			ret.define("-", "FLEval.minus", null);
-			ret.define("*", "FLEval.mul", null);
-			ret.define("/", "FLEval.div", null);
-			ret.define("^", "FLEval.exp", null);
-		}
-		{ // lists
-			ret.define("List", "List", null);
-			ret.define("Nil", "Nil",
-				new StructDefn("Nil", false));
-			ret.define("Cons", "Cons",
-				new StructDefn("Cons", false)
-				.add("A")
-				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
-				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "tail")));
-		}
-		{ // messaging
-			ret.define("Message", "Message", null);
-			ret.define("Assign", "Assign",
-				new StructDefn("Assign", false)
-				.add("A")
-				.addField(new StructField(new TypeReference(null, "String", null), "slot"))
-				.addField(new StructField(new TypeReference(null, null, "A"), "value")));
-			ret.define("Send", "Send",
-				new StructDefn("Send", false)
-				.addField(new StructField(new TypeReference(null, "Any", null), "dest"))
-				.addField(new StructField(new TypeReference(null, "String", null), "method"))
-				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, "Any", null)), "args")));
-			ret.define("JSNI", "JSNI", null);
-		}
-		{ // DOM
-			PackageDefn dom = new PackageDefn(ret, "DOM");
-			dom.innerScope().define("Element", "DOM.Element",
-				new StructDefn("DOM.Element", false)
-				.addField(new StructField(new TypeReference(null, "String", null), "tag"))
-				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "attrs"))
-				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, "DOM.Element", null)), "content"))
-				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "B")), "handlers")));
-		}
-		{ // Ziniki
-			PackageDefn dom = new PackageDefn(ret, "org");
-			PackageDefn ziniki = new PackageDefn(dom.innerScope(), "ziniki");
-			ziniki.innerScope().define("Init", "org.ziniki.Init",
-				new ContractDecl("org.ziniki.Init"));
-		}
-		return ret;
 	}
 
 	private void doStructFields(ErrorResult er, StructDefn sd, List<Block> fields) {
@@ -347,9 +274,11 @@ public class FLASStory implements StoryProcessor {
 				}
 				List<TemplateLine> lines = new ArrayList<TemplateLine>();
 				doCardTemplate(er, frTemplates, b.nested, lines, null);
-				if (lines.size() != 1)
+				if (!er.hasErrors() && lines.size() > 1)
 					er.message(b, "multiple lines must be contained in a div or list");
-				else
+				else if (!er.hasErrors() && lines.size() == 0)
+					er.message(b, "a template must have at least one line");
+				else if (!er.hasErrors())
 					templates.add(new TemplateThing(intro.name, intro.args, lines.get(0)));
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
@@ -368,7 +297,8 @@ public class FLASStory implements StoryProcessor {
 		}
 		gatherFunctions(er, s, cd.innerScope(), functions);
 		defineEventMethods(er, s, cd, events);
-		cd.template = new Template(cd.name, unroll(er, frTemplates, templates, new TreeMap<String, Object>()), cd.innerScope());
+		if (!templates.isEmpty())
+			cd.template = new Template(cd.name, unroll(er, frTemplates, templates, new TreeMap<String, Object>()), cd.innerScope());
 	}	
 
 	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {

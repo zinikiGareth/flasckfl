@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -27,7 +28,7 @@ public class HSIECodeGenerator {
 	
 	@Test
 	public void testConvertingIdOf1() throws Exception {
-		PackageDefn pkg = new PackageDefn(FLASStory.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
 		pkg.myEntry().scope().define("plus1", "plus1", null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = plus1 1"));
@@ -35,7 +36,7 @@ public class HSIECodeGenerator {
 		pkg.innerScope().define("f", "ME.f", f);
 		Rewriter rw = new Rewriter(errors);
 		rw.rewrite(pkg.myEntry());
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.errors.size());
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.f"));
@@ -46,7 +47,7 @@ public class HSIECodeGenerator {
 	// This is a pathological case of LET with vars
 	@Test
 	public void testConvertingIdDecode() throws Exception {
-		PackageDefn pkg = new PackageDefn(FLASStory.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
 		pkg.myEntry().scope().define("id", "id", null);
 		pkg.myEntry().scope().define("decode", "decode", null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
@@ -55,7 +56,7 @@ public class HSIECodeGenerator {
 		pkg.innerScope().define("f", "ME.f", f);
 		Rewriter rw = new Rewriter(errors);
 		rw.rewrite(pkg.myEntry());
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.errors.size());
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.f"));
@@ -65,7 +66,7 @@ public class HSIECodeGenerator {
 
 	@Test
 	public void testASimpleRecursivelyDefinedFunction1() throws Exception {
-		PackageDefn pkg = new PackageDefn(FLASStory.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
 		FunctionDefinition f = new FunctionDefinition(Type.FUNCTION, "ME.f", 1, CollectionUtils.listOf(c1));
@@ -75,7 +76,7 @@ public class HSIECodeGenerator {
 		pkg.innerScope().define("g", "ME.g", g);
 		Rewriter rw = new Rewriter(errors);
 		rw.rewrite(pkg.myEntry());
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.errors.size());
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.f"));
@@ -86,7 +87,7 @@ public class HSIECodeGenerator {
 
 	@Test
 	public void testASimpleRecursivelyDefinedFunction2() throws Exception {
-		PackageDefn pkg = new PackageDefn(FLASStory.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
 		FunctionDefinition f = new FunctionDefinition(Type.FUNCTION, "ME.f", 1, CollectionUtils.listOf(c1));
@@ -96,7 +97,7 @@ public class HSIECodeGenerator {
 		pkg.innerScope().define("g", "ME.g", g);
 		Rewriter rw = new Rewriter(errors);
 		rw.rewrite(pkg.myEntry());
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.errors.size());
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.g"));

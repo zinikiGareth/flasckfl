@@ -33,13 +33,19 @@ public class ErrorResult {
 		return !errors.isEmpty();
 	}
 
-	public void showTo(Writer pw) throws IOException {
+	public void showTo(Writer pw, int ind) throws IOException {
+		for (int i=0;i<ind-2;i++)
+			pw.append(' ');
 		pw.write(errors.size() + " error" + (errors.size() != 1?"s":"") + " encountered\n");
 		for (FLASError e : errors) {
+			for (int i=0;i<ind;i++)
+				pw.append(' ');
 			if (e.loc != null) {
 				pw.write(e.loc + ": " + e.loc.text);
 				pw.write('\n');
 			}
+			for (int i=0;i<ind;i++)
+				pw.append(' ');
 			pw.write(e.msg);
 			pw.write('\n');
 		}

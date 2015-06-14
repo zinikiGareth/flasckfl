@@ -32,7 +32,7 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class RewriterTests {
 	
 	@Before
 	public void setup() {
-		builtinScope = FLASStory.builtinScope();
+		builtinScope = Builtin.builtinScope();
 		builtinScope.define("Timer", "Timer", null);
 		PackageDefn pd = new PackageDefn(builtinScope, "ME");
 		scope = pd.innerScope();
@@ -121,7 +121,7 @@ public class RewriterTests {
 		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		fn = rw.functions.get("ME.MyCard.f");
 		assertEquals("ME.MyCard.f", fn.name);
@@ -140,7 +140,7 @@ public class RewriterTests {
 		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		fn = rw.functions.get("ME.MyCard.f");
 		assertEquals("ME.MyCard.f", fn.name);
@@ -164,7 +164,7 @@ public class RewriterTests {
 		ci.methods.add(md);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewrite(pkgEntry);
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		md = rw.methods.get(0).method;
 		assertEquals("ME.MyCard._C0.m", md.intro.name);
@@ -188,7 +188,7 @@ public class RewriterTests {
 		cd.fnScope.define("eh", "ME.MyCard.eh", ehd);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewrite(pkgEntry);
-		errors.showTo(new PrintWriter(System.out));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		ehd = (EventHandlerDefinition) rw.eventHandlers.get(0).handler;
 		assertEquals("ME.MyCard.eh", ehd.intro.name);
