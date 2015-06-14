@@ -14,6 +14,7 @@ public class TemplateToken {
 	public static final int ARROW = 9;
 	public static final int ORB = 10;
 	public static final int CRB = 11;
+	public static final int TEMPLATE = 12;
 
 	public final InputPosition location;
 	public final int type;
@@ -54,6 +55,13 @@ public class TemplateToken {
 		} else if (c == '@') {
 			line.advance();
 			return new TemplateToken(loc, ATTR, "@");
+		} else if (c == '$') {
+			line.advance();
+			line.skipWS();
+			ValidIdentifierToken tok = VarNameToken.from(line);
+			if (tok == null)
+				return null;
+			return new TemplateToken(loc, TEMPLATE, tok.text);
 		} else if (c == '(') {
 			line.advance();
 			return new TemplateToken(loc, ORB, "(");

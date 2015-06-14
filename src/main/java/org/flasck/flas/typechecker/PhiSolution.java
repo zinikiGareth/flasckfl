@@ -90,7 +90,7 @@ public class PhiSolution {
 				return new TypeExpr(te1.type, args);
 			}
 			// we probably want a clearer message than this
-			System.out.println("Cannot unify " + te1 + " and " + te2);
+			System.out.println("First pass does not unify " + te1 + " and " + te2);
 			TypeUnion unified = unionOf(te1, te2);
 			boolean stored = false;
 			for (Entry<TypeVar, Object> x : phi.entrySet()) {

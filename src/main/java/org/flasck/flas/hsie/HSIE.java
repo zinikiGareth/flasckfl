@@ -143,7 +143,7 @@ public class HSIE {
 		}
 //		t.dump();
 		Option elim = chooseBest(t);
-		System.out.println("Choosing cases based on " + elim.var);
+//		System.out.println("Choosing cases based on " + elim.var);
 		s.writeTo.head(elim.var);
 		for (String ctor : elim.ctorCases) {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");

@@ -49,10 +49,10 @@ public class TypeChecker {
 	public void populateTypes(Rewriter rewriter) {
 		for (Entry<String, StructDefn> d : rewriter.structs.entrySet())
 			structs.put(d.getKey(), d.getValue());
-		System.out.println(structs);
+//		System.out.println("structs: " + structs);
 		for (Entry<String, TypeDefn> d : rewriter.types.entrySet())
 			types.put(d.getKey(), d.getValue());
-		System.out.println(types);
+//		System.out.println("types: " + types);
 	}
 
 	public void addStructDefn(StructDefn structDefn) {

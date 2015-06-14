@@ -47,7 +47,11 @@ public class ErrorResult {
 	}
 
 	public static ErrorResult oneMessage(Tokenizable line, String msg) {
-		return  new ErrorResult().message(line, msg);
+		return new ErrorResult().message(line, msg);
+	}
+
+	public static ErrorResult oneMessage(InputPosition location, String msg) {
+		return new ErrorResult().message(location, msg);
 	}
 
 }

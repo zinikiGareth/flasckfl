@@ -310,7 +310,7 @@ public class Rewriter {
 			String hiName = cd.name +"._H"+pos;
 			cardHandlers.put(hiName, rw);
 			if (!rw.boundVars.isEmpty()) {
-				System.out.println("Creating class for handler " + hiName);
+//				System.out.println("Creating class for handler " + hiName);
 				StructDefn hsd = new StructDefn(hiName, false);
 				// Doing this seems clever, but I'm not really sure that it is
 				// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
@@ -334,7 +334,7 @@ public class Rewriter {
 
 	private Template rewrite(CardContext cx, Template template) {
 		// Again, the need for a scope seems dodgy if we've rewritten ...
-		return new Template(template.prefix, template.name, rewrite(cx, template.topLine), template.scope);
+		return new Template(template.prefix, rewrite(cx, template.topLine), template.scope);
 	}
 
 	private TemplateLine rewrite(CardContext cx, TemplateLine tl) {
@@ -350,6 +350,8 @@ public class Rewriter {
 					contents.add(rewriteExpr(cx, ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tt.text))));
 				else
 					throw new UtilException("Content type not handled: " + tt);
+			} else if (o instanceof StringLiteral || o instanceof NumericLiteral) {
+				contents.add(o);
 			} else if (o instanceof ApplyExpr) {
 				contents.add(rewriteExpr(cx, o));
 			} else 
@@ -412,14 +414,14 @@ public class Rewriter {
 	}
 
 	public FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
-		System.out.println("Rewriting " + f.name);
+//		System.out.println("Rewriting " + f.name);
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
 			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(), c.innerScope(), false), c));
 			cs++;
 		}
-		System.out.println("rewritten to " + list.get(0).expr);
+//		System.out.println("rewritten to " + list.get(0).expr);
 		FunctionDefinition ret = new FunctionDefinition(f.mytype, f.name, f.nargs, list);
 		return ret;
 	}

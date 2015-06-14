@@ -104,7 +104,7 @@ public class Compiler {
 				// 6. Convert event handlers to functions
 				MethodConvertor.convertEvents(rewriter.functions, rewriter.eventHandlers);
 				abortIfErrors();
-				rewriter.dump();
+//				rewriter.dump();
 
 				// 7. Prepare Typechecker & load types
 				TypeChecker tc = new TypeChecker(errors);

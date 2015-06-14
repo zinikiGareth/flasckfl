@@ -10,4 +10,9 @@ public class TemplateExplicitAttr {
 		this.type = type;
 		this.value = value;
 	}
+	
+	@Override
+	public String toString() {
+		return "TEA[" + attr + ":" + type + "," + value + "]";
+	}
 }

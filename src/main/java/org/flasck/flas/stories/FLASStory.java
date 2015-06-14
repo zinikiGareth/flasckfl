@@ -2,10 +2,16 @@ package org.flasck.flas.stories;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -25,19 +31,25 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateIntro;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
 import org.flasck.flas.parser.MethodMessageParser;
 import org.flasck.flas.parser.MethodParser;
 import org.flasck.flas.parser.TemplateLineParser;
+import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -277,6 +289,8 @@ public class FLASStory implements StoryProcessor {
 		List<EventCaseDefn> events = new ArrayList<EventCaseDefn>();
 		int hs = 0;
 		int cs = 0;
+		List<TemplateThing> templates = new ArrayList<TemplateThing>();
+		Set<LocatedToken> frTemplates = new TreeSet<LocatedToken>();
 		for (Block b : components) {
 			if (b.isComment())
 				continue;
@@ -297,23 +311,46 @@ public class FLASStory implements StoryProcessor {
 					doCardState(er, s, cd, b.nested);
 					break;
 				}
-				case "template": {
-					if (cd.template != null)
-						er.message(b, "duplicate template definition in card");
-					else {
-						List<TemplateLine> items = new ArrayList<TemplateLine>();
-						doCardTemplate(er, b.nested, items, null);
-						if (items.size() != 1)
-							er.message(b, "top level template must be a div or list");
-						else
-							cd.template = new Template(cd.name, "template", items.get(0), cd.innerScope());
-					}
-					break;
-				}
 				default: {
 					throw new UtilException("Cannot handle " + o);
 				}
 				}
+			} else if (o instanceof TemplateIntro) {
+				TemplateIntro intro = (TemplateIntro) o;
+				if (templates.isEmpty()) {
+					if (intro.name != null) {
+						er.message(b, "first template definition may not have a name");
+						break;
+					}
+				} else {
+					if (intro.name == null) {
+						er.message(b, "template definition must have a name");
+						break;
+					}
+					
+					boolean err = false;
+					for (TemplateThing t : templates)
+						if (intro.name.equals(t.name)) {
+							er.message(b, "duplicate template name " + intro.name);
+							err = true;
+						}
+					if (err)
+						break;
+					boolean found = false;
+					for (LocatedToken tok : frTemplates)
+						if (tok.text.equals(intro.name))
+							found = true;
+					if (!found) {
+						er.message(b, "template " + intro.name + " was defined before being used");
+						break;
+					}
+				}
+				List<TemplateLine> lines = new ArrayList<TemplateLine>();
+				doCardTemplate(er, frTemplates, b.nested, lines, null);
+				if (lines.size() != 1)
+					er.message(b, "multiple lines must be contained in a div or list");
+				else
+					templates.add(new TemplateThing(intro.name, intro.args, lines.get(0)));
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);
@@ -331,6 +368,7 @@ public class FLASStory implements StoryProcessor {
 		}
 		gatherFunctions(er, s, cd.innerScope(), functions);
 		defineEventMethods(er, s, cd, events);
+		cd.template = new Template(cd.name, unroll(er, frTemplates, templates, new TreeMap<String, Object>()), cd.innerScope());
 	}	
 
 	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {
@@ -350,10 +388,9 @@ public class FLASStory implements StoryProcessor {
 				else
 					er.message(q, "cannot handle " + o.getClass());
 			}
-				
 	}
 
-	private List<TemplateLine> doCardTemplate(ErrorResult er, List<Block> nested, List<TemplateLine> ret, List<EventHandler> handlers) {
+	private List<TemplateLine> doCardTemplate(ErrorResult er, Set<LocatedToken> frTemplates, List<Block> nested, List<TemplateLine> ret, List<EventHandler> handlers) {
 		TemplateLineParser tlp = new TemplateLineParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -365,12 +402,16 @@ public class FLASStory implements StoryProcessor {
 				er.merge((ErrorResult) o);
 			else if (o instanceof TemplateLine) {
 				TemplateLine tl = (TemplateLine)o;
+				if (tl.isTemplate()) {
+					TemplateReference tr = (TemplateReference) tl.contents.get(0);
+					frTemplates.add(new LocatedToken(tr.location, tr.name));
+				}
 				ret.add(tl);
 				if (!b.nested.isEmpty()) {
 					if (tl.isDiv()) { 
-						doCardTemplate(er, b.nested, tl.nested, tl.handlers);
+						doCardTemplate(er, frTemplates, b.nested, tl.nested, tl.handlers);
 					} else if (tl.isList()) {
-						doCardTemplate(er, b.nested, tl.nested, tl.handlers);
+						doCardTemplate(er, frTemplates, b.nested, tl.nested, tl.handlers);
 					} else {
 						boolean nc = false;
 						for (Block b1 : b.nested)
@@ -385,6 +426,98 @@ public class FLASStory implements StoryProcessor {
 				er.message(b, "not a valid template line");
 		}
 		return ret;
+	}
+
+	private TemplateLine unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, Map<String, Object> subst) {
+		Map<String, TemplateThing> map = new TreeMap<String, TemplateThing>();
+		TemplateThing ret = templates.get(0);
+		for (TemplateThing t : templates) {
+			if (t.name == null)
+				continue;
+			map.put(t.name, t);
+		}
+		for (LocatedToken s : frTemplates)
+			if (!map.containsKey(s.text))
+				er.message(s.location, "reference to non-existent template " + s.text);
+		
+		TemplateThing main = ret;
+		return unroll(er, map, main.lines, subst);
+	}
+
+	private TemplateLine unroll(ErrorResult er, Map<String, TemplateThing> map, TemplateLine line, Map<String, Object> subst) {
+		if (line.isTemplate()) {
+			TemplateReference tr = (TemplateReference) line.contents.get(0);
+			TemplateThing reffed = map.get(tr.name);
+			if (tr.args.size() != reffed.args.size()) {
+				er.message(tr.location, "incorrect number of actual parameters to " + tr.name + ": expected " + reffed.args.size());
+				return null;
+			}
+			Map<String, Object> nsubst = new TreeMap<String, Object>(subst);
+			for (int i=0;i<tr.args.size();i++) {
+				String key = reffed.args.get(i).text;
+				if (nsubst.containsKey(key)) {
+					er.message(tr.location, "duplicate binding to formal parameter " + key);
+					return null;
+				}
+				nsubst.put(key, tr.args.get(i));
+			}
+			return unroll(er, map, reffed.lines, nsubst);
+		} else {
+			// substitute for vars in contents, attrs and formats
+			List<Object> contents = new ArrayList<Object>();
+			for (Object o : line.contents)
+				contents.add(dosub(o, subst));
+			List<Object> attrs = new ArrayList<Object>();
+			for (Object o : line.attrs)
+				attrs.add(dosub(o, subst));
+			List<Object> formats = new ArrayList<Object>();
+			for (Object o : line.formats)
+				formats.add(dosub(o, subst));
+			TemplateLine ret = new TemplateLine(contents, line.customTag, line.customTagVar, attrs, formats);
+			for (TemplateLine x : line.nested)
+				ret.nested.add(unroll(er, map, x, subst));
+			for (EventHandler y : line.handlers)
+				ret.handlers.add(new EventHandler(y.action, dosub(y.expr, subst)));
+			return ret;
+		}
+	}
+
+	private Object dosub(Object o, Map<String, Object> subst) {
+		if (o instanceof TemplateToken) {
+			TemplateToken tt = (TemplateToken) o;
+			if (tt.type == TemplateToken.IDENTIFIER && subst.containsKey(tt.text))
+				return asTT(subst.get(tt.text));
+		} else if (o instanceof TemplateExplicitAttr) {
+			TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
+			if (tea.type == TemplateToken.IDENTIFIER && subst.containsKey(tea.value)) {
+				TemplateToken tt = asTT(subst.get(tea.value));
+				return new TemplateExplicitAttr(tea.attr, tt.type, tt.text);
+			} else if (tea.type == TemplateToken.STRING) {
+				return tea;
+			} else
+				throw new UtilException("Cannot handle: " + tea);
+		} else if (o instanceof UnresolvedVar) {
+			String s = ((UnresolvedVar)o).var;
+			if (subst.containsKey(s))
+				return subst.get(s);
+			return o;
+		} else if (o instanceof ApplyExpr) {
+			ApplyExpr ae = (ApplyExpr) o;
+			List<Object> args = new ArrayList<Object>();
+			for (Object o2 : ae.args)
+				args.add(dosub(o2, subst));
+			return new ApplyExpr(dosub(ae.fn, subst), args);
+		} else
+			System.out.println("dosub cannot handle: " + o + " "  + o.getClass());
+		return o;
+	}
+
+	private TemplateToken asTT(Object sub) {
+		if (sub instanceof StringLiteral) {
+			StringLiteral s = (StringLiteral) sub;
+			return new TemplateToken(null, TemplateToken.STRING, s.text);
+		}
+		throw new UtilException("Cannot handle: " + sub + ": " + sub.getClass());
 	}
 
 	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested, String clz) {

@@ -133,7 +133,7 @@ public class DomFunctionGenerator {
 				if (tea.type == TemplateToken.STRING)
 					attrs = new ApplyExpr(cons, new ApplyExpr(tuple, new StringLiteral(tea.attr), new StringLiteral(tea.value)), attrs);
 				else
-					throw new UtilException("Cannot handle attribute " + tea.type);
+					throw new UtilException("Cannot handle attribute " + tea);
 			} else
 				throw new UtilException("Attribute " + x + " of type " + x.getClass() + " is not handled");
 		}

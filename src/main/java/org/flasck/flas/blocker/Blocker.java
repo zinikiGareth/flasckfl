@@ -117,7 +117,7 @@ public class Blocker {
 			return blocker.stack.get(0).nested;
 		} catch (IOException ex) {
 			ex.printStackTrace();
-			return ErrorResult.oneMessage(null, "io error: " + ex.getMessage());
+			return ErrorResult.oneMessage(new InputPosition(lnr.getLineNumber(), 0, "<io error>"), "io error: " + ex.getMessage());
 		}
 	}
 }

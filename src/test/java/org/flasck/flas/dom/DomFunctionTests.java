@@ -158,7 +158,7 @@ public class DomFunctionTests {
 		TemplateLine tl = parse(input);
 		Template t = card.template;
 		if (t == null)
-			t = new Template(card.name, "template", tl, card.innerScope());
+			t = new Template(card.name, tl, card.innerScope());
 		gen = new DomFunctionGenerator(t, functions);
 		gen.generateOne(tl);
 		assertEquals(1, functions.size());

@@ -9,6 +9,8 @@ import org.flasck.flas.parsedForm.TemplateAttributeVar;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
+import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.UtilException;
@@ -19,6 +21,7 @@ public class TemplateLineParser implements TryParsing{
 	public Object tryParsing(Tokenizable line) {
 		List<Object> contents = new ArrayList<Object>();
 		boolean seenDivOrList = false;
+		boolean template = false;
 		while (line.hasMore()) {
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
@@ -71,7 +74,35 @@ public class TemplateLineParser implements TryParsing{
 					return new EventHandler(action.text, expr);
 			} else if (tt.type == TemplateToken.IDENTIFIER || tt.type == TemplateToken.STRING)
 				contents.add(tt);
-			else
+			else if (tt.type == TemplateToken.TEMPLATE) {
+				template = true;
+				if (!contents.isEmpty()) {
+					return ErrorResult.oneMessage(line, "template must be the only content item");
+				}
+				Expression expr = new Expression();
+				List<Object> args = new ArrayList<Object>();
+				while (line.hasMore()) {
+					ExprToken et = ExprToken.from(line);
+					if (et == null)
+						return ErrorResult.oneMessage(line, "syntax error");
+					Object ex;
+					if (et.type == ExprToken.PUNC && et.text.equals("(")) {
+						ex = expr.tryParsing(line);
+						if (ex instanceof ErrorResult)
+							return ex;
+						if (!line.hasMore())
+							return ErrorResult.oneMessage(line, "syntax error");
+						et = ExprToken.from(line);
+						if (et == null || et.type != ExprToken.PUNC || !et.text.equals(")"))
+							return ErrorResult.oneMessage(line, "syntax error");
+					} else
+						ex = ItemExpr.from(et);
+					if (ex == null)
+						return ErrorResult.oneMessage(line, "syntax error");
+					args.add(ex);
+				}
+				contents.add(new TemplateReference(tt.location, tt.text, args));
+			} else
 				throw new UtilException("Cannot handle " + tt);
 		}
 		if (seenDivOrList && contents.size() != 1)
@@ -81,6 +112,8 @@ public class TemplateLineParser implements TryParsing{
 		String customTagVar = null;
 		List<Object> attrs = new ArrayList<Object>();
 		if (line.hasMore()) {
+			if (template)
+				return ErrorResult.oneMessage(line, "extra tokens at end of template line");
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
 			if (tt.type == TemplateToken.HASH) {

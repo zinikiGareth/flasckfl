@@ -1,7 +1,10 @@
 package org.flasck.flas.parser;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -10,6 +13,7 @@ import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.TemplateIntro;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
@@ -65,8 +69,24 @@ public class IntroParser implements TryParsing {
 		}
 		case "state":
 			return "state";
-		case "template":
-			return "template";
+		case "template": {
+			if (!line.hasMore())
+				return new TemplateIntro(null, null);
+			ValidIdentifierToken tok = VarNameToken.from(line);
+			if (tok == null)
+				return ErrorResult.oneMessage(line, "invalid template name");
+			TemplateIntro ret = new TemplateIntro(tok.location, tok.text);
+			Set<String> vars = new TreeSet<String>();
+			while (line.hasMore()) {
+				tok = VarNameToken.from(line);
+				if (tok == null)
+					return ErrorResult.oneMessage(line, "invalid var parameter");
+				if (vars.contains(tok.text))
+					return ErrorResult.oneMessage(tok.location, "duplicate var parameter " + tok.text);
+				ret.args.add(new LocatedToken(tok.location, tok.text));
+			}
+			return ret;
+		}
 		case "implements": {
 			TypeNameToken tn = QualifiedTypeNameToken.from(line);
 			if (tn == null)
@@ -106,10 +126,10 @@ public class IntroParser implements TryParsing {
 			} else
 				return ErrorResult.oneMessage(line, "cannot handle " + o.getClass());
 		}
+		default:
+			// we didn't find anything we could handle - "not us"
+			return null;
 		}
-		
-		// we didn't find anything we could handle - "not us"
-		return null;
 	}
 
 }
