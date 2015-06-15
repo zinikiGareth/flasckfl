@@ -8,6 +8,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.TemplateAttributeVar;
+import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
@@ -134,6 +135,22 @@ public class TemplateLineParser implements TryParsing{
 				//   * mode = local|sandbox|trusted|dialog
 				//   * -> handleVar
 				contents.add(new CardReference(loc, cardName, yoyoVar));
+			} else if (tt.type == TemplateToken.CASES) {
+				if (!contents.isEmpty()) {
+					return ErrorResult.oneMessage(line, "cases must be the only content item");
+				}
+				Object expr = null;
+				if (line.hasMore()) {
+					Expression ep = new Expression();
+					expr = ep.tryParsing(line);
+					if (expr == null)
+						return ErrorResult.oneMessage(line, "syntax error");
+					else if (expr instanceof ErrorResult)
+						return expr;
+				}
+				if (line.hasMore())
+					return ErrorResult.oneMessage(line, "extraneous symbols at end of cases line");
+				contents.add(new TemplateCases(expr));
 			} else
 				throw new UtilException("Cannot handle " + tt);
 		}

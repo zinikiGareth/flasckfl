@@ -41,7 +41,7 @@ public class ErrorResult {
 			for (int i=0;i<ind;i++)
 				pw.append(' ');
 			if (e.loc != null) {
-				pw.write(e.loc + ": " + e.loc.text);
+				pw.write(e.loc + ": " + e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off));
 				pw.write('\n');
 			}
 			for (int i=0;i<ind;i++)

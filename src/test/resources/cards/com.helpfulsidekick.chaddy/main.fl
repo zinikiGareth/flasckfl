@@ -5,7 +5,12 @@
 		template
 			.
 				> Navbar
-				"hello world"
+				|| cardShowing
+					| 'dashboard'
+						> Dashboard
+					| 'myqueues'
+						> MyQueues
+					
 			
 		implements org.ziniki.Init
 			load x

@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -103,15 +104,21 @@ public class DomFunctionGenerator {
 					AbsoluteVar nil = scope.fromRoot("Nil");
 					AbsoluteVar create = scope.fromRoot("CreateCard");
 					String fn = nextFnName();
-					// What we want to do is create this div
-					// Then pass that to "createCard"
-					// createCard takes the relevant parameters for yoyo and explicitCard
-					// and it takes something to render into
-					// env.createCard(CLZ, into, services) => CreateCard(CLZ, into, services)  
 					ApplyExpr into = new ApplyExpr(domCtor, new StringLiteral("div"), nil, nil, nil);
+					// TODO: somebody, somewhere, needs to make sure that this card is only created once, even if it is reused/hidden etc.
+					// If we view "CreateCard" as being "pineal" (i.e. just a thought) and we have some sort of ID 
+					// associated with it, the runtime can keep track.  I think that is probably easiest
 					ApplyExpr cc = new ApplyExpr(create, cr.explicitCard, into, nil);
 					function(fn, cc);
 					ret.add(new Element("card", fn));
+				} else if (x instanceof TemplateCases) {
+					TemplateCases tc = (TemplateCases) x;
+					// AH! This needs an if
+					// And a let
+					System.out.println("TC");
+					String fn = nextFnName();
+					function(fn, tc.switchOn);
+					ret.add(new Element("switch", fn));
 				} else
 					throw new UtilException("Non TT not handled: " + x.getClass());
 			}

@@ -1,8 +1,8 @@
 package org.flasck.flas.blockForm;
 
 public class InputPosition {
-	private final int lineNo;
-	private final int off;
+	public final int lineNo;
+	public final int off;
 	public final String text;
 
 	public InputPosition(int lineNo, int off, String text) {

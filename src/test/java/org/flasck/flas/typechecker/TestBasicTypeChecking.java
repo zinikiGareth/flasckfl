@@ -337,19 +337,19 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addStructDefn(new StructDefn("Number", false));
 		tc.addExternal("FLEval.mul", Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+		tc.addExternal("FLEval.compeq", Type.function(Type.polyvar("A"), Type.polyvar("A"), Type.simple("Boolean")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		orchard.addTree(HSIETestData.simpleIf());
 		tc.typecheck(orchard);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		// Four things should now be defined: -, +, f, g
-		assertEquals(2, tc.knowledge.size());
+		assertEquals(3, tc.knowledge.size());
 		System.out.println(tc.knowledge);
 		{
 			Object mf = tc.knowledge.get("ME.fact");
 			assertNotNull(mf);
 			assertTrue(mf instanceof Type);
-			assertEquals("A->Number", mf.toString());
+			assertEquals("Number->Number", mf.toString());
 		}
 	}
 

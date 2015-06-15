@@ -13,6 +13,7 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -32,6 +33,7 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
@@ -396,12 +398,16 @@ public class FLASStory implements StoryProcessor {
 						doCardTemplate(er, frTemplates, b.nested, tl.nested, tl.handlers);
 					} else if (tl.isList()) {
 						doCardTemplate(er, frTemplates, b.nested, tl.nested, tl.handlers);
+					} else if (tl.isCases()) {
+						doCases(er, frTemplates, b.nested, tl.nested);
 					} else {
-						boolean nc = false;
-						for (Block b1 : b.nested)
-							nc |= !b1.isComment();
-						if (nc)
-							er.message(b, "this node cannot have nested content");
+						Block fb = null;
+						for (Block b1 : b.nested) {
+							if (!b1.isComment())
+								fb = b1;
+						}
+						if (fb != null)
+							er.message(fb, "this node cannot be nested here - parent does not support children");
 					}
 				}
 			} else if (o instanceof EventHandler)
@@ -410,6 +416,12 @@ public class FLASStory implements StoryProcessor {
 				er.message(b, "not a valid template line");
 		}
 		return ret;
+	}
+
+	private void doCases(ErrorResult er, Set<LocatedToken> frTemplates,
+			List<Block> nested, List<TemplateLine> nested2) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private TemplateLine unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, Map<String, Object> subst) {
@@ -450,24 +462,26 @@ public class FLASStory implements StoryProcessor {
 			// substitute for vars in contents, attrs and formats
 			List<Object> contents = new ArrayList<Object>();
 			for (Object o : line.contents)
-				contents.add(dosub(o, subst));
+				contents.add(substituteMacroParameters(o, subst));
 			List<Object> attrs = new ArrayList<Object>();
 			for (Object o : line.attrs)
-				attrs.add(dosub(o, subst));
+				attrs.add(substituteMacroParameters(o, subst));
 			List<Object> formats = new ArrayList<Object>();
 			for (Object o : line.formats)
-				formats.add(dosub(o, subst));
+				formats.add(substituteMacroParameters(o, subst));
 			TemplateLine ret = new TemplateLine(contents, line.customTag, line.customTagVar, attrs, formats);
 			for (TemplateLine x : line.nested)
 				ret.nested.add(unroll(er, map, x, subst));
 			for (EventHandler y : line.handlers)
-				ret.handlers.add(new EventHandler(y.action, dosub(y.expr, subst)));
+				ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(y.expr, subst)));
 			return ret;
 		}
 	}
 
-	private Object dosub(Object o, Map<String, Object> subst) {
-		if (o instanceof TemplateToken) {
+	private Object substituteMacroParameters(Object o, Map<String, Object> subst) {
+		if (o == null)
+			return null;
+		else if (o instanceof TemplateToken) {
 			TemplateToken tt = (TemplateToken) o;
 			if (tt.type == TemplateToken.IDENTIFIER && subst.containsKey(tt.text))
 				return asTT(subst.get(tt.text));
@@ -489,8 +503,12 @@ public class FLASStory implements StoryProcessor {
 			ApplyExpr ae = (ApplyExpr) o;
 			List<Object> args = new ArrayList<Object>();
 			for (Object o2 : ae.args)
-				args.add(dosub(o2, subst));
-			return new ApplyExpr(dosub(ae.fn, subst), args);
+				args.add(substituteMacroParameters(o2, subst));
+			return new ApplyExpr(substituteMacroParameters(ae.fn, subst), args);
+		} else if (o instanceof CardReference) {
+			// We don't have any parameters in this yet that could be macro parameters
+		} else if (o instanceof TemplateCases) {
+			return new TemplateCases(substituteMacroParameters(((TemplateCases)o).switchOn, subst));
 		} else
 			System.out.println("dosub cannot handle: " + o + " "  + o.getClass());
 		return o;
