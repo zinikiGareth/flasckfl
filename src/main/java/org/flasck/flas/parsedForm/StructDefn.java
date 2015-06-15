@@ -7,11 +7,11 @@ public class StructDefn {
 	public final String typename;
 	public final List<String> args = new ArrayList<String>();
 	public final List<StructField> fields = new ArrayList<StructField>();
-	public final boolean forReal;
+	public final boolean generate;
 
-	public StructDefn(String tn, boolean forReal) {
+	public StructDefn(String tn, boolean generate) {
 		this.typename = tn;
-		this.forReal = forReal;
+		this.generate = generate;
 	}
 
 	public StructDefn add(String ta) {

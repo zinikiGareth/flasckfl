@@ -2,17 +2,24 @@ package org.flasck.flas.typechecker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.TypeDefn;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.UtilException;
 
 public class PhiSolution {
 	private final Map<TypeVar, Object> phi = new HashMap<TypeVar, Object>();
 	private final ErrorResult errors;
+	private final List<TypeUnion> needTypeResolution = new ArrayList<TypeUnion>();
 	
 	public PhiSolution(ErrorResult errors) {
 		this.errors = errors;
@@ -89,24 +96,28 @@ public class PhiSolution {
 				List<Object> args = unifyl(te1.args, te2.args);
 				return new TypeExpr(te1.type, args);
 			}
-			// we probably want a clearer message than this
-			System.out.println("First pass does not unify " + te1 + " and " + te2);
+			// this is just for debugging; we should catch actual unification errors later
+//			boolean stored = true;
+			if (!isListCtor(te1) || !isListCtor(te2)) {
+				System.out.println("First pass does not unify " + te1 + " and " + te2);
+//				stored = false;
+			}
 			TypeUnion unified = unionOf(te1, te2);
-			boolean stored = false;
 			for (Entry<TypeVar, Object> x : phi.entrySet()) {
 				if (x.getValue() == te1) {
 //					System.out.println(te1 + " at " + x.getKey());
 					x.setValue(unified);
-					stored = true;
+//					stored = true;
 				}
 				if (x.getValue() == te2) {
 //					System.out.println(te2 + " at " + x.getKey());
 					x.setValue(unified);
-					stored = true;
+//					stored = true;
 				}
 			}
-//			if (!stored)
+//			if (!stored) {
 //				errors.message((Block)null, "Could not store the unification " + te1.type + " and " + te2.type + " anywhere");
+			needTypeResolution.add(unified);
 			return unified;
 		} else if (t1 instanceof TypeUnion) {
 			((TypeUnion) t1).add(t2);
@@ -117,6 +128,10 @@ public class PhiSolution {
 		} else
 			throw new UtilException("I claim all the cases should be covered but I could not handle the pair " + t1.getClass() + " and " + t2.getClass());
 //		System.out.println("Unification done: " + this.phi);
+	}
+
+	private boolean isListCtor(TypeExpr expr) {
+		return expr.type.equals("Nil") || expr.type.equals("Cons") || expr.type.equals("List");
 	}
 
 	private TypeUnion unionOf(TypeExpr te1, TypeExpr te2) {
@@ -155,5 +170,45 @@ public class PhiSolution {
 				ret.bind(x.getKey(), x.getValue());
 		}
 		return ret;
+	}
+
+	// Unlike in TypeExpr.convertOne, where we want to be very precise that there is an exact match,
+	// here we just want to check that the two types are "compatible".
+	public void validateUnionTypes(TypeChecker tc) {
+		System.out.println(this.needTypeResolution);
+		checkNextUnion:
+		for (TypeUnion tu : needTypeResolution) {
+			if (tu.containsAny())
+				continue;
+			for (TypeDefn d : tc.types.values()) {
+				Set<Map.Entry<TypeReference, TypeExpr>> match = tu.matchesEnough(d);
+				if (match != null) {
+//					System.out.println("====");
+					Map<String, Object> checkBindings = new LinkedHashMap<String, Object>();
+					for (Entry<TypeReference, TypeExpr> x : match) {
+//						System.out.println("Match: " + x);
+						TypeReference want = x.getKey();
+						Iterator<Object> have = x.getValue().args.iterator();
+						for (Object v : want.args) {
+							// TODO: this is a deprecated case because we don't handle SWITCH properly
+							if (!have.hasNext())
+								continue;
+							TypeReference vr = (TypeReference) v;
+							Object hv = have.next();
+							if (checkBindings.containsKey(vr.name)) {
+								if (!hv.equals(checkBindings.get(vr.name))) {
+									errors.message((Tokenizable)null, "inconsistent parameters to " + want.name);
+								}
+								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.name));
+							} else
+								checkBindings.put(vr.name, hv);
+						}
+					}
+//					System.out.println("====");
+					continue checkNextUnion;
+				}
+			}
+			errors.message((Block)null, "The union of " + tu + " is not a valid type");
+		}
 	}
 }

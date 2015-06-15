@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
@@ -276,9 +277,9 @@ public class Rewriter {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope");
 		CardContext c2 = new CardContext((PackageContext) cx, cd);
-		CardGrouping grp = new CardGrouping();
-		cards.put(cd.name, grp);
 		StructDefn sd = new StructDefn(cd.name, false);
+		CardGrouping grp = new CardGrouping(sd);
+		cards.put(cd.name, grp);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
 				sd.fields.add(rewrite(cx, sf));
@@ -300,7 +301,8 @@ public class Rewriter {
 
 			pos++;
 		}
-		structs.put(cd.name, sd);
+//		While I think we want a struct definition for the state, I don't think that we want to identify it as a struct in the normal way (with constructors and all)
+//		structs.put(cd.name, sd);
 		if (cd.template != null)
 			templates.add(rewrite(c2, cd.template));
 		
@@ -350,6 +352,11 @@ public class Rewriter {
 					contents.add(rewriteExpr(cx, ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tt.text))));
 				else
 					throw new UtilException("Content type not handled: " + tt);
+			} else if (o instanceof CardReference) {
+				CardReference cr = (CardReference) o;
+				Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
+				Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
+				contents.add(new CardReference(cr.location, cardName, yoyoName));
 			} else if (o instanceof StringLiteral || o instanceof NumericLiteral) {
 				contents.add(o);
 			} else if (o instanceof ApplyExpr) {

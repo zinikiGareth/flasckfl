@@ -15,6 +15,11 @@ public class TemplateToken {
 	public static final int ORB = 10;
 	public static final int CRB = 11;
 	public static final int TEMPLATE = 12;
+	public static final int CARD = 13;
+	// PUNNET = 14
+	// CHOICEPUNNET = 15
+	// OR = 16
+	// CASES = 17
 
 	public final InputPosition location;
 	public final int type;
@@ -62,6 +67,9 @@ public class TemplateToken {
 			if (tok == null)
 				return null;
 			return new TemplateToken(loc, TEMPLATE, tok.text);
+		} else if (c == '>') {
+			line.advance();
+			return new TemplateToken(loc, CARD, ">");
 		} else if (c == '(') {
 			line.advance();
 			return new TemplateToken(loc, ORB, "(");

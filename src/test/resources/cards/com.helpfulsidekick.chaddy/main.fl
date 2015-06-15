@@ -1,0 +1,11 @@
+	card Main
+		state
+			String cardShowing
+		
+		template
+			.
+				> Navbar
+				"hello world"
+			
+		implements org.ziniki.Init
+			load x

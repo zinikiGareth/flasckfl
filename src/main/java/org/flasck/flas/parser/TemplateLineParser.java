@@ -3,7 +3,9 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.TemplateAttributeVar;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
@@ -11,8 +13,12 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
+import org.flasck.flas.tokenizers.VarNameToken;
 import org.zinutils.exceptions.UtilException;
 
 public class TemplateLineParser implements TryParsing{
@@ -22,6 +28,7 @@ public class TemplateLineParser implements TryParsing{
 		List<Object> contents = new ArrayList<Object>();
 		boolean seenDivOrList = false;
 		boolean template = false;
+		boolean card = false;
 		while (line.hasMore()) {
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
@@ -102,6 +109,31 @@ public class TemplateLineParser implements TryParsing{
 					args.add(ex);
 				}
 				contents.add(new TemplateReference(tt.location, tt.text, args));
+			} else if (tt.type == TemplateToken.CARD) {
+				card = true;
+				if (!contents.isEmpty()) {
+					return ErrorResult.oneMessage(line, "card must be the only content item");
+				}
+				InputPosition loc;
+				ValidIdentifierToken yoyo;
+				String cardName = null;
+				String yoyoVar = null;
+				TypeNameToken cardNameTok = QualifiedTypeNameToken.from(line);
+				if (cardNameTok != null) {
+					loc = cardNameTok.location;
+					cardName = cardNameTok.text;
+				} else {
+					yoyo = VarNameToken.from(line);
+					if (yoyo == null)
+						return ErrorResult.oneMessage(line, "Must specify card name or variable");
+					loc = yoyo.location;
+					yoyoVar = yoyo.text;
+				}
+
+				// TODO: more card invocation syntax
+				//   * mode = local|sandbox|trusted|dialog
+				//   * -> handleVar
+				contents.add(new CardReference(loc, cardName, yoyoVar));
 			} else
 				throw new UtilException("Cannot handle " + tt);
 		}

@@ -18,7 +18,11 @@ public class CardGrouping {
 		}
 	}
 	
+	public final StructDefn struct;
 	public final Map<String, Object> inits = new HashMap<String, Object>();
 	public final List<ContractGrouping> contracts = new ArrayList<ContractGrouping>();
-
+	
+	public CardGrouping(StructDefn struct) {
+		this.struct = struct;
+	}
 }

@@ -69,6 +69,7 @@ public class Compiler {
 		final List<ScopeEntry> entries = new ArrayList<ScopeEntry>();
 		final List<String> pkgs = new ArrayList<String>();
 		pkgs.add(inPkg);
+		entries.add(pd.myEntry());
 		
 		for (File f : FileUtils.findFilesMatching(file, "*.fl")) {
 			System.out.println(" > " + f.getName());
@@ -81,7 +82,6 @@ public class Compiler {
 				
 				// 2. Use the parser factory and story to convert blocks to a package definition
 				ScopeEntry se = doParsing(pd.myEntry(), blocks);
-				entries.add(se);
 			} catch (ErrorResultException ex) {
 				failed = true;
 				try {
@@ -101,6 +101,7 @@ public class Compiler {
 			return;
 		
 		FileWriter w = null;
+		boolean success = false;
 		try {
 			// 3. Flatten the hierarchy, grouping into things of similar kinds
 			//    Resolve symbols and rewrite expressions to reference "scoped" variables
@@ -188,7 +189,8 @@ public class Compiler {
 
 			target.writeTo(w);
 			abortIfErrors(errors);
-			
+
+			success = true;
 		} catch (ErrorResultException ex) {
 			try {
 				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 4);
@@ -198,9 +200,10 @@ public class Compiler {
 		} catch (IOException ex1) {
 			ex1.printStackTrace();
 		} finally {
-			try { w.close(); } catch (IOException ex) {}
-			FileUtils.copyFileToStream(writeTo, System.out);
-			}
+			try { if (w != null) w.close(); } catch (IOException ex) {}
+			if (success)
+				FileUtils.copyFileToStream(writeTo, System.out);
+		}
 
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
 	}

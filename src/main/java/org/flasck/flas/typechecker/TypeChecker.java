@@ -7,10 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -38,9 +41,10 @@ import org.zinutils.graphs.Tree;
 public class TypeChecker {
 	public final ErrorResult errors;
 	private final VariableFactory factory = new VariableFactory();
-	final Map<String, Type> knowledge = new HashMap<String, Type>();
-	final Map<String, StructDefn> structs = new HashMap<String, StructDefn>();
-	final Map<String, TypeDefn> types = new HashMap<String, TypeDefn>();
+	final Map<String, Type> knowledge = new TreeMap<String, Type>();
+	final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
+	final Map<String, TypeDefn> types = new TreeMap<String, TypeDefn>();
+	final Map<String, StructDefn> cards = new TreeMap<String, StructDefn>();
 
 	public TypeChecker(ErrorResult errors) {
 		this.errors = errors;
@@ -49,10 +53,12 @@ public class TypeChecker {
 	public void populateTypes(Rewriter rewriter) {
 		for (Entry<String, StructDefn> d : rewriter.structs.entrySet())
 			structs.put(d.getKey(), d.getValue());
-//		System.out.println("structs: " + structs);
+		System.out.println("structs: " + structs);
 		for (Entry<String, TypeDefn> d : rewriter.types.entrySet())
 			types.put(d.getKey(), d.getValue());
-//		System.out.println("types: " + types);
+		System.out.println("types: " + types);
+		for (Entry<String, CardGrouping> d : rewriter.cards.entrySet())
+			cards.put(d.getKey(), d.getValue().struct);
 	}
 
 	public void addStructDefn(StructDefn structDefn) {
@@ -103,6 +109,7 @@ public class TypeChecker {
 			Object rwt = phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
 			actualTypes.put(f.fnName, phi.subst(rwt)); 
 		}
+		phi.validateUnionTypes(this);
 //		System.out.println("Done final unification; building types");
 		for (HSIEForm f : rewritten.values()) {
 			Object tmp = phi.subst(actualTypes.get(f.fnName));
@@ -111,6 +118,7 @@ public class TypeChecker {
 				continue;
 			}
 			TypeExpr subst = (TypeExpr) tmp;
+			System.out.println("Storing type knowledge about " + f.fnName);
 			knowledge.put(f.fnName, subst.asType(this));
 //			System.out.println(f.fnName + " :: " + knowledge.get(f.fnName));
 		}
@@ -328,14 +336,16 @@ public class TypeChecker {
 						args.add(te);
 					}
 					Object Tf = args.get(0);
+					System.out.println("Tf = " + Tf);
 					if ("()".equals(Tf)) { // tuples need special handling
 						List<Object> newVars = new ArrayList<Object>();
 						for (int i=1;i<args.size();i++)
 							newVars.add(factory.next());
 						Tf = new TypeExpr("()", newVars);
+					} else {
+						for (int i=1;i<args.size();i++)
+							Tf = checkSingleApplication(phi, Tf, args.get(i));
 					}
-					for (int i=1;i<args.size();i++)
-						Tf = checkSingleApplication(phi, Tf, args.get(i));
 					return Tf;
 				}
 			} else if (r.fn != null) {
@@ -349,14 +359,10 @@ public class TypeChecker {
 				if (r.fn instanceof CardMember) {
 					CardMember cm = (CardMember) r.fn;
 					// try and find the name of the card class
-					// this is a hack and I know it ...
-//					int idx = form.fnName.length();
-//					for (int i=0;i<3;i++)
-//						idx = form.fnName.lastIndexOf(".prototype.", idx-1);
 					String structName = cm.card; // form.fnName; //.substring(0, idx);
 					if (r.fn.equals("_card"))
 						return freshVarsIn(new TypeReference(cm.location, structName, null));
-					StructDefn sd = structs.get(structName);
+					StructDefn sd = cards.get(structName);
 					if (sd == null)
 						throw new UtilException("There was no struct definition called " + structName);
 					for (StructField sf : sd.fields) {
@@ -364,7 +370,8 @@ public class TypeChecker {
 							return freshVarsIn(sf.type);
 						}
 					}
-					throw new UtilException("Could not find field " + cm.var + " in card " + structName);
+					errors.message(cm.location, "there is no field " + cm.var + " in card " + structName);
+					return null;
 				} else if (r.fn instanceof HandlerLambda) {
 					HandlerLambda hl = (HandlerLambda) r.fn;
 					// try and find the name of the handler class
@@ -390,6 +397,8 @@ public class TypeChecker {
 					return te;
 				te = knowledge.get(name);
 				if (te == null) {
+					if (cards.containsKey(name))
+						return new TypeExpr(name);
 					if (structs.containsKey(name))
 						return freshVarsIn(typeForStructCtor(null, structs.get(name)));
 					// This is probably a failure on our part rather than user error

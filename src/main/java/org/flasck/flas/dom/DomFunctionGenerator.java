@@ -8,6 +8,7 @@ import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -96,6 +97,21 @@ public class DomFunctionGenerator {
 					String fn = nextFnName();
 					function(fn, x);
 					ret.add(new Element("content", fn));
+				} else if (x instanceof CardReference) {
+					CardReference cr = (CardReference) x;
+					AbsoluteVar domCtor = scope.fromRoot("DOM.Element");
+					AbsoluteVar nil = scope.fromRoot("Nil");
+					AbsoluteVar create = scope.fromRoot("CreateCard");
+					String fn = nextFnName();
+					// What we want to do is create this div
+					// Then pass that to "createCard"
+					// createCard takes the relevant parameters for yoyo and explicitCard
+					// and it takes something to render into
+					// env.createCard(CLZ, into, services) => CreateCard(CLZ, into, services)  
+					ApplyExpr into = new ApplyExpr(domCtor, new StringLiteral("div"), nil, nil, nil);
+					ApplyExpr cc = new ApplyExpr(create, cr.explicitCard, into, nil);
+					function(fn, cc);
+					ret.add(new Element("card", fn));
 				} else
 					throw new UtilException("Non TT not handled: " + x.getClass());
 			}

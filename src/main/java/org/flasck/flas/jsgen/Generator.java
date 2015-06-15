@@ -53,7 +53,7 @@ public class Generator {
 	}
 
 	public void generate(String name, StructDefn sd) {
-		if (!sd.forReal)
+		if (!sd.generate)
 			return;
 		JSForm ret = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 0, 1);
 		if (!sd.fields.isEmpty()) {

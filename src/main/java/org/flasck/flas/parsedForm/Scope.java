@@ -141,11 +141,16 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 		Scope scope = this;
 		if (idx != -1) {
 			PackageDefn pd = (PackageDefn) this.get(name.substring(0, idx));
+			if (pd == null)
+				throw new UtilException("There is no package " + name.substring(0, idx));
 			scope = pd.innerScope();
 			name = name.substring(idx+1);
 			if (name.indexOf('.') != -1)
 				throw new UtilException("Can't do that");
 		}
-		return new AbsoluteVar(scope.getEntry(name));
+		ScopeEntry entry = scope.getEntry(name);
+		if (entry == null)
+			throw new UtilException("There is no entry " + name);
+		return new AbsoluteVar(entry);
 	}
 }
