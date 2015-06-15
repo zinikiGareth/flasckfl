@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
@@ -33,12 +32,15 @@ import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 
 public class TypeChecker {
+	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	public final ErrorResult errors;
 	private final VariableFactory factory = new VariableFactory();
 	final Map<String, Type> knowledge = new TreeMap<String, Type>();
@@ -103,7 +105,7 @@ public class TypeChecker {
 				return;
 			actualTypes.put(hsie.fnName, te);
 		}
-//		System.out.println("Checked forms: actualTypes = " + actualTypes);
+		System.out.println("Checked forms: actualTypes = " + actualTypes);
 //		System.out.println("Attempting to unify types");
 		for (HSIEForm f : rewritten.values()) {
 			Object rwt = phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
@@ -223,6 +225,7 @@ public class TypeChecker {
 	}
 
 	Object checkHSIE(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm hsie) {
+		logger.info("Checking " + hsie.fnName + " with " + hsie.nformal + " args");
 		// what we need to do is to apply tcExpr to the right hand side with the new gamma
 		Object rhs = checkBlock(new SFTypes(null), localKnowledge, phi, gamma, hsie, hsie);
 		if (rhs == null)
@@ -243,6 +246,7 @@ public class TypeChecker {
 //				System.out.println("Checking expr " + o);
 				Object ret = checkExpr(localKnowledge, phi, gamma, form, o);
 //				System.out.println("Checked expr " + o + " as " + ret);
+//				logger.info(o.toString() + " checked as " + ret);
 				return ret;
 			}
 			else if (o instanceof Head)
@@ -253,6 +257,7 @@ public class TypeChecker {
 				if (s.ctor.equals("Number") || s.ctor.equals("Boolean")) {
 					phi.unify(valueOf.typeExpr, new TypeExpr(s.ctor));
 					returns.add(checkBlock(sft, localKnowledge, phi, gamma, form, s));
+					logger.info(o.toString() + " links " + s.var + " to " + s.ctor);
 				} else {
 					StructDefn sd = structs.get(s.ctor);
 					if (sd == null) {
@@ -282,6 +287,10 @@ public class TypeChecker {
 				}
 			} else if (o instanceof IFCmd) {
 				IFCmd ic = (IFCmd) o;
+				if (ic.value == null) { // closure case
+					logger.info(o.toString() + " forces " + ic.var + " to be boolean");
+					checkClosure(localKnowledge, phi, gamma, form, form.getClosure(ic.var));
+				}
 				// Since we have to have done a SWITCH before we get here, this gives us no new information
 				returns.add(checkBlock(sft, localKnowledge, phi, gamma, form, ic));
 			} else if (o instanceof BindCmd) {
@@ -310,11 +319,13 @@ public class TypeChecker {
 	Object checkExpr(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock cmd) {
 		if (cmd instanceof PushReturn) {
 			PushReturn r = (PushReturn) cmd;
-			if (r.ival != null)
+			if (r.ival != null) {
+				logger.info(r.toString() + " is of type Number");
 				return new TypeExpr("Number");
-			else if (r.sval != null)
+			} else if (r.sval != null) {
+				logger.info(r.toString() + " is of type String");
 				return new TypeExpr("String");
-			else if (r.var != null) {
+			} else if (r.var != null) {
 				HSIEBlock c = form.getClosure(r.var);
 				if (c == null) {
 					// phi is not updated
@@ -328,25 +339,7 @@ public class TypeChecker {
 					return temp.subst(old.typeExpr);
 				} else {
 					// c is a closure, which must be a function application
-					List<Object> args = new ArrayList<Object>();
-					for (HSIEBlock b : c.nestedCommands()) {
-						Object te = checkExpr(localKnowledge, phi, gamma, form, b);
-						if (te == null)
-							return null;
-						args.add(te);
-					}
-					Object Tf = args.get(0);
-					System.out.println("Tf = " + Tf);
-					if ("()".equals(Tf)) { // tuples need special handling
-						List<Object> newVars = new ArrayList<Object>();
-						for (int i=1;i<args.size();i++)
-							newVars.add(factory.next());
-						Tf = new TypeExpr("()", newVars);
-					} else {
-						for (int i=1;i<args.size();i++)
-							Tf = checkSingleApplication(phi, Tf, args.get(i));
-					}
-					return Tf;
+					return checkClosure(localKnowledge, phi, gamma, form, c);
 				}
 			} else if (r.fn != null) {
 				// phi is not updated
@@ -415,6 +408,60 @@ public class TypeChecker {
 				throw new UtilException("What are you returning?");
 		} else
 			throw new UtilException("Missing cases");
+	}
+
+	private Object checkClosure(Map<String, Object> localKnowledge, PhiSolution phi, TypeEnvironment gamma, HSIEForm form, HSIEBlock c) {
+		List<Object> args = new ArrayList<Object>();
+		for (HSIEBlock b : c.nestedCommands()) {
+			Object te = checkExpr(localKnowledge, phi, gamma, form, b);
+			if (te == null)
+				return null;
+			args.add(te);
+		}
+		Object Tf = args.get(0);
+		System.out.println("Tf = " + Tf);
+		if ("()".equals(Tf)) { // tuples need special handling
+			List<Object> newVars = new ArrayList<Object>();
+			for (int i=1;i<args.size();i++)
+				newVars.add(factory.next());
+			Tf = new TypeExpr("()", newVars);
+			logger.info("Closure " + c + " has type " + Tf);
+		} else {
+			logger.info("Closure " + c + " requires " + flatten(new StringBuilder(), Tf, false) + " to apply to " + arrowify(args));
+			for (int i=1;i<args.size();i++)
+				Tf = checkSingleApplication(phi, Tf, args.get(i));
+		}
+		return Tf;
+	}
+
+	private String flatten(StringBuilder sb, Object tf, boolean needParens) {
+//		StringBuilder sb = new StringBuilder();
+		if (tf instanceof TypeExpr) {
+			TypeExpr ae = (TypeExpr) tf;
+			if (ae.type.equals("->")) {
+				if (needParens)
+					sb.append("(");
+				flatten(sb, ae.args.get(0), true);
+				sb.append("->");
+				flatten(sb, ae.args.get(1), false);
+				if (needParens)
+					sb.append(")");
+				return sb.toString();
+			}
+		}
+		sb.append(tf);
+		return sb.toString();
+	}
+
+	private String arrowify(List<Object> args) {
+		StringBuilder sb = new StringBuilder("(");
+		for (int i=1;i<args.size();i++) {
+			if (i > 1)
+				sb.append(",");
+			sb.append(args.get(i));
+		}
+		sb.append(")");
+		return sb.toString();
 	}
 
 	private Type typeForStructCtor(InputPosition location, StructDefn structDefn) {

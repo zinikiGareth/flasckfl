@@ -14,9 +14,12 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 public class PhiSolution {
+	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	private final Map<TypeVar, Object> phi = new HashMap<TypeVar, Object>();
 	private final ErrorResult errors;
 	private final List<TypeUnion> needTypeResolution = new ArrayList<TypeUnion>();
@@ -59,7 +62,7 @@ public class PhiSolution {
 	}
 
 	public Object unify(Object t1, Object t2) {
-//		System.out.println("Unify " + t1 + " and " +t2);
+		logger.info("Need to unify " + t1 + " and " +t2);
 		if (t1 == null || t2 == null)
 			return null;
 		else if (t1 instanceof TypeVar && t2 instanceof TypeVar) {
