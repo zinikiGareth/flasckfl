@@ -11,8 +11,13 @@ public class IFCmd extends HSIEBlock {
 		this.value = value;
 	}
 
+	public IFCmd(Var var) {
+		this.var = var;
+		this.value = null;
+	}
+
 	@Override
 	public String toString() {
-		return "IF " +var + " " + value;
+		return "IF " +var + (value!=null?" " + value:"");
 	}
 }

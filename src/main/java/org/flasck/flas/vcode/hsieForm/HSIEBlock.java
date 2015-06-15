@@ -20,6 +20,12 @@ public class HSIEBlock {
 		return ret;
 	}
 
+	public HSIEBlock ifCmd(Var var) {
+		IFCmd ret = new IFCmd(var);
+		commands.add(ret);
+		return ret;
+	}
+
 	public HSIEBlock ifCmd(Var v, Object value) {
 		IFCmd ret = new IFCmd(v, value);
 		commands.add(ret);
@@ -53,7 +59,8 @@ public class HSIEBlock {
 		else if (o instanceof StringLiteral)
 			ret = new PushCmd((StringLiteral)o);
 		else if (o == null)
-			throw new UtilException("Cannot push null");
+			ret = new PushCmd(new StringLiteral("NULL")); // temporary
+//			throw new UtilException("Cannot push null");
 		else
 			throw new UtilException("Invalid object to push " + o.getClass() + ": " + o);
 		commands.add(pos, ret);

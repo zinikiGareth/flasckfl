@@ -136,11 +136,10 @@ public class HSIETestData {
 				"{",
 				"BIND 2 1 head",
 				"BIND 3 1 tail",
-				"HEAD 0", "SWITCH 0 Number",
-					"{", "IF 0 0",
-						"{", // expr E1
-					"RETURN Nil",
-				"}",
+				"HEAD 0", "SWITCH 0 Number", "{",
+					"IF 0 0", "{", // expr E1
+						"RETURN Nil",
+					"}",
 				"}", // expr E0
 			"RETURN var 6 4 5",
 			"}",  // it would seem that none of the cases match
@@ -333,6 +332,47 @@ public class HSIETestData {
 		);
 	}
 
+	public static HSIEForm simpleIf() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("FLEval.compeq");
+		return thingy("ME.fact", 0, 1, 1,
+			externals,
+			"IF 1", "{",
+				"RETURN 1",
+			"}",
+			"ERROR",
+			"CLOSURE 1", "{",
+				"FLEval.compeq", "var 0", "1",
+			"}"
+		);
+	}
+
+	public static HSIEForm simpleIfElse() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("FLEval.compeq");
+		externals.add("FLEval.mul");
+		externals.add("FLEval.minus");
+		return thingy("ME.fact", 0, 1, 4,
+			externals,
+			"IF 1", "{",
+				"RETURN 1",
+			"}",
+			"RETURN var 4",
+			"CLOSURE 1", "{",
+				"FLEval.compeq", "var 0", "1",
+			"}",
+			"CLOSURE 2", "{",
+				"FLEval.minus", "var 0", "1",
+			"}",
+			"CLOSURE 3", "{",
+				"ME.fact", "var 2",
+			"}",
+			"CLOSURE 4", "{",
+				"FLEval.mul", "var 0", "var 3",
+			"}"
+		);
+	}
+
 	private static HSIEForm thingy(String name, int alreadyUsed, int nformal, int nbound, List<String> dependsOn, String... commands) {
 		HSIEForm ret = new HSIEForm(Type.FUNCTION, name, alreadyUsed, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;
@@ -356,9 +396,17 @@ public class HSIETestData {
 			} else if (ps[0].equals("SWITCH")) {
 				prev = b.switchCmd(ret.var(Integer.parseInt(ps[1])), ps[2]);
 			} else if (ps[0].equals("IF")) {
-				// TODO: the final arg here needs to be any constant
-				// TODO: this whole thing needs to handle a general user-specified test
-				prev = b.ifCmd(ret.var(Integer.parseInt(ps[1])), Integer.parseInt(ps[2]));
+				Var var = ret.var(Integer.parseInt(ps[1]));
+				if (ps.length == 2) {
+					// the closure case
+					prev = b.ifCmd(var);
+				} else {
+					try {
+						prev = b.ifCmd(var, Integer.parseInt(ps[2]));
+					} catch (NumberFormatException ex) {
+						prev = b.ifCmd(var, Boolean.parseBoolean(ps[2]));
+					}
+				}
 			} else if (ps[0].equals("BIND")) {
 				prev = b.bindCmd(ret.var(Integer.parseInt(ps[1])), ret.var(Integer.parseInt(ps[2])), ps[3]);
 			} else if (ps[0].equals("CLOSURE")) {

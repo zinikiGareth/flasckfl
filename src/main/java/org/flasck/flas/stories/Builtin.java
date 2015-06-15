@@ -20,6 +20,8 @@ public class Builtin {
 				Type.function(Type.polyvar("A"), Type.simple("String"), Type.polyvar("B")));
 			ret.define("()", "FLEval.tuple", 
 					null);
+			ret.define("if", "if",
+				Type.function(Type.simple("Boolean"), Type.polyvar("A"), Type.polyvar("A"), Type.polyvar("A")));
 		}
 		{ // text
 			ret.define("String", "String", null);

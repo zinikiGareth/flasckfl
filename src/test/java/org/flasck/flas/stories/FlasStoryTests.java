@@ -110,4 +110,38 @@ public class FlasStoryTests {
 		assertNotNull(actionFD);
 		actionFD.dumpTo(new PrintWriter(System.out));
 	}
+	
+	@Test
+	public void testSimpleIfThatErrors() throws Exception {
+		Object o = new FLASStory().process(se, BlockTestData.simpleIf());
+		System.out.println(o);
+		assertNotNull(o);
+		assertTrue(o instanceof ScopeEntry);
+		ScopeEntry se = (ScopeEntry) o;
+		rewriter.rewrite(se);
+		assertEquals(1, rewriter.functions.size());
+		FunctionDefinition fact = rewriter.functions.get("ME.fact");
+		assertEquals(1, fact.cases.size());
+		HSIEForm form = new HSIE(errors).handle(fact);
+		errors.showTo(new PrintWriter(System.out), 0);
+		assertTrue(!errors.hasErrors());
+		HSIETestData.assertHSIE(HSIETestData.simpleIf(), form);
+	}
+	
+	@Test
+	public void testSimpleIfElse() throws Exception {
+		Object o = new FLASStory().process(se, BlockTestData.simpleIfElse());
+		System.out.println(o);
+		assertNotNull(o);
+		assertTrue(o instanceof ScopeEntry);
+		ScopeEntry se = (ScopeEntry) o;
+		rewriter.rewrite(se);
+		assertEquals(1, rewriter.functions.size());
+		FunctionDefinition fact = rewriter.functions.get("ME.fact");
+		assertEquals(1, fact.cases.size());
+		HSIEForm form = new HSIE(errors).handle(fact);
+		errors.showTo(new PrintWriter(System.out), 0);
+		assertTrue(!errors.hasErrors());
+		HSIETestData.assertHSIE(HSIETestData.simpleIfElse(), form);
+	}
 }

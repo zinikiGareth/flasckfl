@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionClause;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -43,14 +44,18 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.FieldParser;
+import org.flasck.flas.parser.FunctionClauseParser;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
+import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.parser.MethodMessageParser;
 import org.flasck.flas.parser.MethodParser;
 import org.flasck.flas.parser.TemplateLineParser;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.zinutils.bytecode.Expr;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
@@ -122,6 +127,55 @@ public class FLASStory implements StoryProcessor {
 				if (!b.nested.isEmpty()) {
 					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+(cs++), s.kind), b.nested);
 				}
+			} else if (o instanceof FunctionIntro) {
+				FunctionIntro fi = (FunctionIntro) o;
+				// this is a nested-block case
+				// there are two main options:
+				//   the nested block is just the value starting with "="
+				//   the nested block is an if/else statement
+				FunctionClauseParser fcp = new FunctionClauseParser();
+				List<FunctionClause> clauses = new ArrayList<FunctionClause>();
+				Block lastBlock = null;
+				for (Block bi : b.nested) {
+					if (bi.isComment())
+						continue;
+					Object c = fcp.tryParsing(new Tokenizable(bi));
+					if (c == null)
+						er.message(bi, "not a valid clause");
+					else if (c instanceof ErrorResult)
+						er.merge((ErrorResult)c);
+					else {
+						clauses.add(0, (FunctionClause) c); // assemble in reverse order
+						if (lastBlock != null)
+							assertNoNonCommentNestedLines(er, lastBlock);
+						lastBlock = bi;
+					}
+				}
+				// avoid error cascades by only assembling if we successfully parsed everything
+				if (!er.hasErrors()) {
+					Object expr = null;
+					if (clauses.size() == 0) {
+						er.message(b, "function must have at least one clause");
+						continue;
+					}
+					FunctionClause last = clauses.get(0);
+					if (last.guard == null) {
+						clauses.remove(0);
+						expr = last.expr;
+					}
+					for (FunctionClause c : clauses)
+						expr = new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "if")), c.guard, c.expr, expr);
+					FunctionCaseDefn fcd = new FunctionCaseDefn(ret, fi.name, fi.args, expr);
+					fndefns.add(fcd);
+					if (lastFn != null && !fcd.intro.name.equals(lastFn)) {
+						lastFn = fcd.intro.name;
+						cs = 0;
+					}
+					if (!lastBlock.nested.isEmpty()) {
+						doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+(cs++), s.kind), lastBlock.nested);
+					}
+				}
+				
 			} else if (o instanceof StructDefn) {
 				StructDefn sd = (StructDefn)o;
 				ret.define(State.simpleName(sd.typename), sd.typename, sd);

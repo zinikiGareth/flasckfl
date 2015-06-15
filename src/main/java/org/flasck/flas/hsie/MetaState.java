@@ -24,7 +24,7 @@ public class MetaState {
 	public final HSIEForm form;
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
-	private final Map<SubstExpr, Object> retValues = new HashMap<SubstExpr, Object>();
+	private final Map<Object, Object> retValues = new HashMap<Object, Object>();
 	private final Map<Var, List<Var>> closureDepends = new HashMap<Var, List<Var>>();
 
 	public MetaState(HSIEForm form) {
@@ -60,15 +60,43 @@ public class MetaState {
 		return ret;
 	}
 
-	public Object getValueFor(SubstExpr e) {
+	public void writeExpr(SubstExpr se, HSIEBlock writeTo) {
+		writeIfExpr(se, se.expr, writeTo);
+	}
+	
+	private void writeIfExpr(SubstExpr se, Object expr, HSIEBlock writeTo) {
+		if (expr instanceof ApplyExpr) {
+			ApplyExpr ae = (ApplyExpr) expr;
+			if (ae.fn instanceof AbsoluteVar && ((AbsoluteVar)ae.fn).id.equals("if")) {
+				HSIEBlock ifCmd = writeTo.ifCmd((Var) convertValue(se.substs, ae.args.get(0)));
+				writeIfExpr(se, ae.args.get(1), ifCmd);
+				Object orelse = ae.args.size() == 3 ? ae.args.get(2) : null;
+				if (orelse != null)
+					writeIfExpr(se, orelse, writeTo);
+				else
+					writeTo.caseError();
+				return;
+			}
+		}
+		writeFinalExpr(se, expr, writeTo);
+	}
+
+	public void writeFinalExpr(SubstExpr se, Object expr, HSIEBlock writeTo) {
+		Object ret = getValueFor(se, expr);
+		writeTo.doReturn(ret, closureDependencies(ret));
+	}
+
+	public Object getValueFor(SubstExpr se, Object e) {
 		if (!retValues.containsKey(e)) {
-			retValues.put(e, convertValue(e.substs, e.expr));
+			retValues.put(e, convertValue(se.substs, e));
 		}
 		return retValues.get(e);
 	}
 
 	private Object convertValue(Map<String, Var> substs, Object expr) {
-		if (expr instanceof NumericLiteral)
+		if (expr == null) // mainly error trapping, but valid in if .. if .. <no else> case
+			return null;
+		else if (expr instanceof NumericLiteral)
 			return Integer.parseInt(((NumericLiteral)expr).text); // what about floats?
 		else if (expr instanceof StringLiteral)
 			return expr;
@@ -115,7 +143,7 @@ public class MetaState {
 		}
 		else {
 			System.out.println(expr);
-			throw new UtilException("HSIE Cannot handle " + expr.getClass());
+			throw new UtilException("HSIE Cannot handle " + expr + " " + (expr != null? " of type " + expr.getClass() : ""));
 		}
 	}
 

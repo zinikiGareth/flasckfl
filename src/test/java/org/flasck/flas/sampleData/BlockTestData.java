@@ -166,6 +166,27 @@ public class BlockTestData {
 		return ret;
 	}
 
+	public static List<Block> simpleIf() {
+		List<Block> ret = new ArrayList<Block>();
+		ret.add(builder()
+			.line("fact n")
+				.indent()
+				.line("if (n == 1) = 1")
+			.build());
+		return ret;
+	}
+
+	public static List<Block> simpleIfElse() {
+		List<Block> ret = new ArrayList<Block>();
+		ret.add(builder()
+			.line("fact n")
+				.indent()
+				.line("if (n == 1) = 1")
+				.line("else = n * fact (n-1)")
+			.build());
+		return ret;
+	}
+
 	public static Block comment(String string) {
 		return builder().comment(string).build();
 	}

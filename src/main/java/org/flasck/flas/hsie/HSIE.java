@@ -57,16 +57,16 @@ public class HSIE {
 
 	public HSIEForm handleExpr(Object expr) {
 		MetaState ms = new MetaState(new HSIEForm(Type.FUNCTION, "", 0, new HashMap<String, Var>(), 0));
-		Object ret = ms.getValueFor(new SubstExpr(expr, exprIdx++));
-		ms.form.doReturn(ret, ms.closureDependencies(ret));
+		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
+//		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}
 
 	private HSIEForm handleConstant(MetaState ms, FunctionDefinition defn) {
 		if (defn.cases.size() != 1)
 			throw new UtilException("Constants can only have one case");
-		Object ret = ms.getValueFor(new SubstExpr(defn.cases.get(0).expr, exprIdx++));
-		ms.form.doReturn(ret, ms.closureDependencies(ret));
+		ms.writeExpr(new SubstExpr(defn.cases.get(0).expr, exprIdx++), ms.form);
+//		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}
 
@@ -253,8 +253,7 @@ public class HSIE {
 		SubstExpr e = s.singleExpr(mycases);
 //		System.out.println("Have expr " + e);
 		if (e != null) {
-			Object ret = ms.getValueFor(e);
-			s.writeTo.doReturn(ret, ms.closureDependencies(ret));
+			ms.writeExpr(e, s.writeTo);
 		} else {
 			if (s.writeTo instanceof HSIEForm)
 				s.writeTo.caseError();
