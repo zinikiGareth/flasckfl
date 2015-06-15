@@ -47,6 +47,7 @@ import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TypeDefn;
@@ -357,6 +358,8 @@ public class Rewriter {
 				Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
 				Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
 				contents.add(new CardReference(cr.location, cardName, yoyoName));
+			} else if (o instanceof TemplateCases) {
+				contents.add(new TemplateCases(rewriteExpr(cx, ((TemplateCases)o).switchOn)));
 			} else if (o instanceof StringLiteral || o instanceof NumericLiteral) {
 				contents.add(o);
 			} else if (o instanceof ApplyExpr) {

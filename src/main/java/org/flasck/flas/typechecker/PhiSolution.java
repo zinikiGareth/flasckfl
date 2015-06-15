@@ -175,7 +175,7 @@ public class PhiSolution {
 	// Unlike in TypeExpr.convertOne, where we want to be very precise that there is an exact match,
 	// here we just want to check that the two types are "compatible".
 	public void validateUnionTypes(TypeChecker tc) {
-		System.out.println(this.needTypeResolution);
+//		System.out.println(this.needTypeResolution);
 		checkNextUnion:
 		for (TypeUnion tu : needTypeResolution) {
 			if (tu.containsAny())

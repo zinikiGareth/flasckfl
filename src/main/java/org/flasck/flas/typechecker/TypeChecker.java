@@ -53,10 +53,10 @@ public class TypeChecker {
 	public void populateTypes(Rewriter rewriter) {
 		for (Entry<String, StructDefn> d : rewriter.structs.entrySet())
 			structs.put(d.getKey(), d.getValue());
-		System.out.println("structs: " + structs);
+//		System.out.println("structs: " + structs);
 		for (Entry<String, TypeDefn> d : rewriter.types.entrySet())
 			types.put(d.getKey(), d.getValue());
-		System.out.println("types: " + types);
+//		System.out.println("types: " + types);
 		for (Entry<String, CardGrouping> d : rewriter.cards.entrySet())
 			cards.put(d.getKey(), d.getValue().struct);
 	}
@@ -118,7 +118,7 @@ public class TypeChecker {
 				continue;
 			}
 			TypeExpr subst = (TypeExpr) tmp;
-			System.out.println("Storing type knowledge about " + f.fnName);
+//			System.out.println("Storing type knowledge about " + f.fnName);
 			knowledge.put(f.fnName, subst.asType(this));
 //			System.out.println(f.fnName + " :: " + knowledge.get(f.fnName));
 		}
@@ -336,7 +336,7 @@ public class TypeChecker {
 						args.add(te);
 					}
 					Object Tf = args.get(0);
-					System.out.println("Tf = " + Tf);
+//					System.out.println("Tf = " + Tf);
 					if ("()".equals(Tf)) { // tuples need special handling
 						List<Object> newVars = new ArrayList<Object>();
 						for (int i=1;i<args.size();i++)

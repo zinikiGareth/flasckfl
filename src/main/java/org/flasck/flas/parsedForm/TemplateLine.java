@@ -52,4 +52,11 @@ public class TemplateLine {
 		Object o = contents.get(0);
 		return o != null && o instanceof TemplateReference;
 	}
+
+	public boolean isCases() {
+		if (contents.size() != 1)
+			return false;
+		Object o = contents.get(0);
+		return o != null && o instanceof TemplateCases;
+	}
 }

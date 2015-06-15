@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +87,7 @@ public class Compiler {
 			} catch (ErrorResultException ex) {
 				failed = true;
 				try {
-					((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 4);
+					((ErrorResult)ex.errors).showTo(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true), 4);
 				} catch (IOException ex2) {
 					ex2.printStackTrace();
 				}

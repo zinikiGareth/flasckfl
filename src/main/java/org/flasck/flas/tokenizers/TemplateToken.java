@@ -18,8 +18,8 @@ public class TemplateToken {
 	public static final int CARD = 13;
 	// PUNNET = 14
 	// CHOICEPUNNET = 15
-	// OR = 16
-	// CASES = 17
+	public static final int OR = 16;
+	public static final int CASES = 17;
 
 	public final InputPosition location;
 	public final int type;
@@ -51,6 +51,13 @@ public class TemplateToken {
 		} else if (c == '+') {
 			line.advance();
 			return new TemplateToken(loc, LIST, "+");
+		} else if (c == '|') {
+			line.advance();
+			if (line.hasMore() && line.nextChar() == '|') {
+				line.advance();
+				return new TemplateToken(loc, CASES, "||");
+			}
+			return new TemplateToken(loc, OR, "|");
 		} else if (c == ':') {
 			line.advance();
 			return new TemplateToken(loc, COLON, ":");
