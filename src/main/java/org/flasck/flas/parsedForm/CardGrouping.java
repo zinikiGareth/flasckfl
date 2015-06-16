@@ -18,9 +18,22 @@ public class CardGrouping {
 		}
 	}
 	
+	public static class ServiceGrouping {
+		public final String type;
+		public final String implName;
+		public final String referAsVar;
+
+		public ServiceGrouping(String type, String implName, String referAsVar) {
+			this.type = type;
+			this.implName = implName;
+			this.referAsVar = referAsVar;
+		}
+	}
+	
 	public final StructDefn struct;
 	public final Map<String, Object> inits = new HashMap<String, Object>();
 	public final List<ContractGrouping> contracts = new ArrayList<ContractGrouping>();
+	public final List<ServiceGrouping> services = new ArrayList<ServiceGrouping>();
 	
 	public CardGrouping(StructDefn struct) {
 		this.struct = struct;

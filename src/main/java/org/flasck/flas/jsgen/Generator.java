@@ -11,7 +11,9 @@ import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -45,6 +47,7 @@ public class Generator {
 			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
 			idx = jsname.lastIndexOf("._C");
 			if (idx == -1) idx = jsname.lastIndexOf("._H");
+			if (idx == -1) idx = jsname.lastIndexOf("._S");
 			if (idx != -1) jsname = jsname.substring(0, idx+1) + "_" + jsname.substring(idx+1);
 		}
 		JSForm ret = JSForm.function(jsname, input.vars, input.alreadyUsed, input.nformal);
@@ -100,11 +103,17 @@ public class Generator {
 
 			generateField(cf, x.getKey(), form);
 		}
-		cf.add(new JSForm("this.contracts = {}"));
+		cf.add(new JSForm("this._services = {}"));
+		for (ServiceGrouping cs : card.services) {
+			cf.add(new JSForm("this._services['" + cs.type + "'] = " + cs.implName + ".apply(this)"));
+			if (cs.referAsVar != null)
+				cf.add(new JSForm("this." + cs.referAsVar + " = this._services['" + cs.type + "']"));
+		}
+		cf.add(new JSForm("this._contracts = {}"));
 		for (ContractGrouping ci : card.contracts) {
-			cf.add(new JSForm("this.contracts['" + ci.type +"'] = "+ ci.implName + ".apply(this)"));
+			cf.add(new JSForm("this._contracts['" + ci.type +"'] = "+ ci.implName + ".apply(this)"));
 			if (ci.referAsVar != null)
-				cf.add(new JSForm("this." + ci.referAsVar + " = this.contracts['" + ci.type + "']"));
+				cf.add(new JSForm("this." + ci.referAsVar + " = this._contracts['" + ci.type + "']"));
 		}
 		target.add(cf);
 	}
@@ -116,6 +125,21 @@ public class Generator {
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'contract'"));
 		clz.add(new JSForm("this._contract = '" + ci.type + "'"));
+		clz.add(new JSForm("this._onchan = null"));
+		target.add(clz);
+
+		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), 0, 0);
+		ctor.add(new JSForm("return new " + clzname + "(this)"));
+		target.add(ctor);
+	}
+
+	public void generateService(String ctorName, ContractService cs) {
+		String clzname = ctorName.replace("._S", ".__S");
+		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), 0, 1);
+		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
+		clz.add(new JSForm("this._card = v0"));
+		clz.add(new JSForm("this._special = 'service'"));
+		clz.add(new JSForm("this._contract = '" + cs.type + "'"));
 		clz.add(new JSForm("this._onchan = null"));
 		target.add(clz);
 

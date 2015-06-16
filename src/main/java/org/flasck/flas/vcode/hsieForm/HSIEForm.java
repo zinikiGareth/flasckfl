@@ -28,7 +28,7 @@ import org.zinutils.exceptions.UtilException;
 // Each of the Expressions En is modified to be just a simple apply-tree
 public class HSIEForm extends HSIEBlock {
 	public enum Type {
-		FUNCTION, CARD, CONTRACT, HANDLER, EVENTHANDLER
+		FUNCTION, CARD, CONTRACT, SERVICE, HANDLER, EVENTHANDLER
 	}
 
 	public final Type mytype;
@@ -126,6 +126,6 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	public boolean isMethod() {
-		return mytype == Type.CARD || mytype == Type.CONTRACT || mytype == Type.HANDLER || mytype == Type.EVENTHANDLER;
+		return mytype == Type.CARD || mytype == Type.CONTRACT || mytype == Type.SERVICE || mytype == Type.HANDLER || mytype == Type.EVENTHANDLER;
 	}
 }

@@ -20,10 +20,12 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
@@ -83,6 +85,7 @@ public class Rewriter {
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
 	public final List<Template> templates = new ArrayList<Template>();
 	public final Map<String, ContractImplements> cardImplements = new TreeMap<String, ContractImplements>();
+	public final Map<String, ContractService> cardServices = new TreeMap<String, ContractService>();
 	public final Map<String, HandlerImplements> cardHandlers = new TreeMap<String, HandlerImplements>();
 	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
 	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
@@ -172,6 +175,10 @@ public class Rewriter {
 					members.add(sf.name);
 			}
 			for (ContractImplements ci : cd.contracts) {
+				if (ci.referAsVar != null)
+					members.add(ci.referAsVar);
+			}
+			for (ContractService ci : cd.services) {
 				if (ci.referAsVar != null)
 					members.add(ci.referAsVar);
 			}
@@ -304,8 +311,22 @@ public class Rewriter {
 
 			pos++;
 		}
-//		While I think we want a struct definition for the state, I don't think that we want to identify it as a struct in the normal way (with constructors and all)
-//		structs.put(cd.name, sd);
+		
+		pos=0;
+		for (ContractService cs : cd.services) {
+			ContractService rw = rewriteCS(c2, cs);
+			String myname = cd.name +"._S" + pos;
+			grp.services.add(new ServiceGrouping(rw.type, myname, rw.referAsVar));
+			cardServices.put(myname, rw);
+			if (rw.referAsVar != null)
+				sd.fields.add(new StructField(new TypeReference(null, rw.type, null), rw.referAsVar));
+
+			for (MethodDefinition m : cs.methods)
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_S"+pos, HSIEForm.Type.SERVICE, rewrite(c2, m)));
+
+			pos++;
+		}
+
 		if (cd.template != null)
 			templates.add(rewrite(c2, cd.template));
 		
@@ -415,6 +436,20 @@ public class Rewriter {
 				return ci;
 			}
 			return new ContractImplements(ci.typeLocation, ((AbsoluteVar)av).id, ci.vlocation, ci.referAsVar);
+		} catch (ResolutionException ex) {
+			errors.message(ex.location, ex.getMessage());
+			return null;
+		}
+	}
+
+	private ContractService rewriteCS(CardContext cx, ContractService cs) {
+		try {
+			Object av = cx.nested.resolve(cs.typeLocation, cs.type);
+			if (av == null || !(av instanceof AbsoluteVar)) {
+				errors.message((Block)null, "cannot find a valid definition of contract " + cs.type);
+				return cs;
+			}
+			return new ContractService(cs.typeLocation, ((AbsoluteVar)av).id, cs.vlocation, cs.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -622,10 +657,12 @@ public class Rewriter {
 				System.out.println("Struct " + x.getKey());
 			for (Entry<String, CardGrouping> x : cards.entrySet())
 				System.out.println("Card " + x.getKey());
-			for (Entry<String, HandlerImplements> x : cardHandlers.entrySet())
-				System.out.println("Handler " + x.getKey());
 			for (Entry<String, ContractImplements> x : cardImplements.entrySet())
 				System.out.println("Impl " + x.getKey());
+			for (Entry<String, ContractService> x : cardServices.entrySet())
+				System.out.println("Service " + x.getKey());
+			for (Entry<String, HandlerImplements> x : cardHandlers.entrySet())
+				System.out.println("Handler " + x.getKey());
 			for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
 				x.getValue().dumpTo(pw);
 			}

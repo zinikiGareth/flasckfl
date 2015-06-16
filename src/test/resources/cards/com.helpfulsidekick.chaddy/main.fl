@@ -1,6 +1,10 @@
+	contract TabChanger
+		up change (String tab)
+		down changed (String tab)
+	
 	card Main
 		state
-			String cardShowing <- 'myqueues'
+			String cardShowing <- 'dashboard'
 		
 		template
 			.
@@ -10,7 +14,11 @@
 						> Dashboard
 					| 'myqueues'
 						> MyQueues
-					
+		
+		service TabChanger changer
+			change tab
+				cardShowing <- tab
 			
+		
 		implements org.ziniki.Init
 			load x

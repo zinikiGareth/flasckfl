@@ -28,13 +28,14 @@ public class FunctionParser implements TryParsing {
 		String name = vit.text;
 		// don't allow keywords to start line
 		if ("card".equals(name) ||
-			"state".equals(name) ||
-			"template".equals(name) ||
+			"contract".equals(name) ||
+			"event".equals(name) ||
 			"handler".equals(name) ||
 			"implements".equals(name) ||
-			"event".equals(name) ||
+			"service".equals(name) ||
+			"state".equals(name) ||
 			"struct".equals(name) ||
-			"contract".equals(name)) // more
+			"template".equals(name)) // more
 			return null;
 		
 		// Collect patterns into an argument

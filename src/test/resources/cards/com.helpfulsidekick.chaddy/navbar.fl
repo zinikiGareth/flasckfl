@@ -22,10 +22,15 @@
 		
 		event switchTo name ev
 			currentTab <- name
+			<- changer.change name
 
 		implements org.ziniki.Init
 			load obj
 				currentTab <- 'dashboard'
+				
+		implements TabChanger changer
+			changed to
+				currentTab <- to
 
 ... i think this should be more fundamental than here
 ... at least the whole "stringFor" bit ... maybe the abstraction is "propertyFor" of a boolean		

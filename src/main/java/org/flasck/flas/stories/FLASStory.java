@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
@@ -32,34 +33,32 @@ import org.flasck.flas.parsedForm.MessagesHandler;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.TemplateCases;
-import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateCases;
+import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateIntro;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.FunctionClauseParser;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
-import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.parser.MethodMessageParser;
 import org.flasck.flas.parser.MethodParser;
 import org.flasck.flas.parser.TemplateLineParser;
-import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
@@ -133,53 +132,19 @@ public class FLASStory implements StoryProcessor {
 				}
 			} else if (o instanceof FunctionIntro) {
 				FunctionIntro fi = (FunctionIntro) o;
-				// this is a nested-block case
-				// there are two main options:
-				//   the nested block is just the value starting with "="
-				//   the nested block is an if/else statement
-				FunctionClauseParser fcp = new FunctionClauseParser();
-				List<FunctionClause> clauses = new ArrayList<FunctionClause>();
-				Block lastBlock = null;
-				for (Block bi : b.nested) {
-					if (bi.isComment())
-						continue;
-					Object c = fcp.tryParsing(new Tokenizable(bi));
-					if (c == null)
-						er.message(bi, "not a valid clause");
-					else if (c instanceof ErrorResult)
-						er.merge((ErrorResult)c);
-					else {
-						clauses.add(0, (FunctionClause) c); // assemble in reverse order
-						if (lastBlock != null)
-							assertNoNonCommentNestedLines(er, lastBlock);
-						lastBlock = bi;
-					}
+				Object[] arr = doCompoundFunction(er, b, fi);
+				if (arr == null)
+					continue;
+				Block lastBlock = (Block) arr[1];
+				FunctionCaseDefn fcd = new FunctionCaseDefn(ret, fi.name, fi.args, arr[0]);
+				fndefns.add(fcd);
+				if (lastFn != null && !fcd.intro.name.equals(lastFn)) {
+					lastFn = fcd.intro.name;
+					cs = 0;
 				}
-				// avoid error cascades by only assembling if we successfully parsed everything
-				if (!er.hasErrors()) {
-					Object expr = null;
-					if (clauses.size() == 0) {
-						er.message(b, "function must have at least one clause");
-						continue;
-					}
-					FunctionClause last = clauses.get(0);
-					if (last.guard == null) {
-						clauses.remove(0);
-						expr = last.expr;
-					}
-					for (FunctionClause c : clauses)
-						expr = new IfExpr(c.guard, c.expr, expr);
-					FunctionCaseDefn fcd = new FunctionCaseDefn(ret, fi.name, fi.args, expr);
-					fndefns.add(fcd);
-					if (lastFn != null && !fcd.intro.name.equals(lastFn)) {
-						lastFn = fcd.intro.name;
-						cs = 0;
-					}
-					if (!lastBlock.nested.isEmpty()) {
-						doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+(cs++), s.kind), lastBlock.nested);
-					}
+				if (!lastBlock.nested.isEmpty()) {
+					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+(cs++), s.kind), lastBlock.nested);
 				}
-				
 			} else if (o instanceof StructDefn) {
 				StructDefn sd = (StructDefn)o;
 				ret.define(State.simpleName(sd.typename), sd.typename, sd);
@@ -209,6 +174,47 @@ public class FLASStory implements StoryProcessor {
 		if (er.hasErrors())
 			return er;
 		return ret;
+	}
+
+	private Object[] doCompoundFunction(ErrorResult er, Block b, FunctionIntro fi) {
+		// this is a nested-block case
+		// there are two main options:
+		//   the nested block is just the value starting with "="
+		//   the nested block is an if/else statement
+		FunctionClauseParser fcp = new FunctionClauseParser();
+		List<FunctionClause> clauses = new ArrayList<FunctionClause>();
+		Block lastBlock = null;
+		for (Block bi : b.nested) {
+			if (bi.isComment())
+				continue;
+			Object c = fcp.tryParsing(new Tokenizable(bi));
+			if (c == null)
+				er.message(bi, "not a valid clause");
+			else if (c instanceof ErrorResult)
+				er.merge((ErrorResult)c);
+			else {
+				clauses.add(0, (FunctionClause) c); // assemble in reverse order
+				if (lastBlock != null)
+					assertNoNonCommentNestedLines(er, lastBlock);
+				lastBlock = bi;
+			}
+		}
+		// avoid error cascades by only assembling if we successfully parsed everything
+		if (er.hasErrors())
+			return null;
+		Object expr = null;
+		if (clauses.size() == 0) {
+			er.message(b, "function must have at least one clause");
+			return null;
+		}
+		FunctionClause last = clauses.get(0);
+		if (last.guard == null) {
+			clauses.remove(0);
+			expr = last.expr;
+		}
+		for (FunctionClause c : clauses)
+			expr = new IfExpr(c.guard, c.expr, expr);
+		return new Object[] { expr, lastBlock };
 	}
 
 	protected void gatherFunctions(ErrorResult er, State s, Scope ret, List<FunctionCaseDefn> fndefns) {
@@ -272,8 +278,9 @@ public class FLASStory implements StoryProcessor {
 		IntroParser ip = new IntroParser(s);
 		List<FunctionCaseDefn> functions = new ArrayList<FunctionCaseDefn>();
 		List<EventCaseDefn> events = new ArrayList<EventCaseDefn>();
-		int hs = 0;
 		int cs = 0;
+		int hs = 0;
+		int ss = 0;
 		List<TemplateThing> templates = new ArrayList<TemplateThing>();
 		Set<LocatedToken> frTemplates = new TreeSet<LocatedToken>();
 		for (Block b : components) {
@@ -341,11 +348,29 @@ public class FLASStory implements StoryProcessor {
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);
+			} else if (o instanceof ContractService) {
+				cd.addContractService((ContractService)o);
+				doImplementation(s, er, (Implements)o, b.nested, "_S" + ss++);
 			} else if (o instanceof HandlerImplements) {
 				cd.addHandlerImplementation((HandlerImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_H" + hs++);
 			} else if (o instanceof FunctionCaseDefn) {
 				functions.add((FunctionCaseDefn) o);
+			} else if (o instanceof FunctionIntro) {
+				// TODO: this code has never been tested in anger
+				// It was cut-and-paste from the Scope version
+				// It may not quite "fit" here
+				// In particular, "37" is a magic number, but better than cs++ which interfered with the local contract number
+				FunctionIntro fi = (FunctionIntro) o;
+				Object[] arr = doCompoundFunction(er, b, fi);
+				if (arr == null)
+					continue;
+				Block lastBlock = (Block) arr[1];
+				FunctionCaseDefn fcd = new FunctionCaseDefn(s.scope, fi.name, fi.args, arr[0]);
+				functions.add(fcd);
+				if (!lastBlock.nested.isEmpty()) {
+					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+37, s.kind), lastBlock.nested);
+				}
 			} else if (o instanceof EventCaseDefn) {
 				EventCaseDefn ecd = (EventCaseDefn) o;
 				events.add(ecd);
@@ -477,25 +502,27 @@ public class FLASStory implements StoryProcessor {
 			// substitute for vars in contents, attrs and formats
 			List<Object> contents = new ArrayList<Object>();
 			for (Object o : line.contents)
-				contents.add(substituteMacroParameters(o, subst));
+				contents.add(substituteMacroParameters(er, map, o, subst));
 			List<Object> attrs = new ArrayList<Object>();
 			for (Object o : line.attrs)
-				attrs.add(substituteMacroParameters(o, subst));
+				attrs.add(substituteMacroParameters(er, map, o, subst));
 			List<Object> formats = new ArrayList<Object>();
 			for (Object o : line.formats)
-				formats.add(substituteMacroParameters(o, subst));
+				formats.add(substituteMacroParameters(er, map, o, subst));
 			TemplateLine ret = new TemplateLine(contents, line.customTag, line.customTagVar, attrs, formats);
 			for (TemplateLine x : line.nested)
 				ret.nested.add(unroll(er, map, x, subst));
 			for (EventHandler y : line.handlers)
-				ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(y.expr, subst)));
+				ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, map, y.expr, subst)));
 			return ret;
 		}
 	}
 
-	private Object substituteMacroParameters(Object o, Map<String, Object> subst) {
+	private Object substituteMacroParameters(ErrorResult er, Map<String, TemplateThing> map, Object o, Map<String, Object> subst) {
 		if (o == null)
 			return null;
+		else if (o instanceof StringLiteral || o instanceof NumericLiteral)
+			return o;
 		else if (o instanceof TemplateToken) {
 			TemplateToken tt = (TemplateToken) o;
 			if (tt.type == TemplateToken.IDENTIFIER && subst.containsKey(tt.text))
@@ -518,18 +545,25 @@ public class FLASStory implements StoryProcessor {
 			ApplyExpr ae = (ApplyExpr) o;
 			List<Object> args = new ArrayList<Object>();
 			for (Object o2 : ae.args)
-				args.add(substituteMacroParameters(o2, subst));
-			return new ApplyExpr(substituteMacroParameters(ae.fn, subst), args);
+				args.add(substituteMacroParameters(er, map, o2, subst));
+			return new ApplyExpr(substituteMacroParameters(er, map, ae.fn, subst), args);
 		} else if (o instanceof CardReference) {
 			// We don't have any parameters in this yet that could be macro parameters
 		} else if (o instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases)o;
-			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(tc.switchOn, subst));
+			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(er, map, tc.switchOn, subst));
 			for (TemplateOr x : tc.cases)
-				ret.addCase((TemplateOr) substituteMacroParameters(x, subst));
+				ret.addCase((TemplateOr) substituteMacroParameters(er, map, x, subst));
+			return ret;
+		} else if (o instanceof TemplateOr) {
+			TemplateOr tor = (TemplateOr) o;
+			TemplateOr ret = new TemplateOr(substituteMacroParameters(er, map, tor.cond, subst));
+			for (TemplateLine x : tor.template)
+				ret.template.add(unroll(er, map, x, subst));
 			return ret;
 		} else
-			System.out.println("dosub cannot handle: " + o + " "  + o.getClass());
+			System.out.println("subMacroParms cannot handle: " + o + " "  + o.getClass());
+			
 		return o;
 	}
 
@@ -556,7 +590,6 @@ public class FLASStory implements StoryProcessor {
 				FunctionIntro meth = (FunctionIntro)o;
 				MethodCaseDefn mcd = new MethodCaseDefn(meth);
 				cases.add(mcd);
-//				assertSomeNonCommentNestedLines(er, b);
 				handleMessageMethods(er, mcd, b.nested);
 			} else
 				er.message(b, "cannot handle " + o.getClass());

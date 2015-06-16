@@ -9,6 +9,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -99,6 +100,19 @@ public class IntroParser implements TryParsing {
 			if (line.hasMore())
 				return ErrorResult.oneMessage(line, "extra tokens at end of line");
 			return new ContractImplements(tn.location, tn.text, var.location, var.text);
+		}
+		case "service": {
+			TypeNameToken tn = QualifiedTypeNameToken.from(line);
+			if (tn == null)
+				return ErrorResult.oneMessage(line, "invalid contract reference");
+			if (!line.hasMore())
+				return new ContractService(tn.location, tn.text, null, null);
+			ValidIdentifierToken var = VarNameToken.from(line);
+			if (var == null)
+				return ErrorResult.oneMessage(line, "invalid service var name");
+			if (line.hasMore())
+				return ErrorResult.oneMessage(line, "extra tokens at end of line");
+			return new ContractService(tn.location, tn.text, var.location, var.text);
 		}
 		case "handler": {
 			TypeNameToken tn = QualifiedTypeNameToken.from(line);

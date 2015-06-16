@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.PackageDefn;
@@ -146,6 +147,8 @@ public class Compiler {
 				gen.generate(cg.getKey(), cg.getValue());
 			for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet())
 				gen.generateContract(ci.getKey(), ci.getValue());
+			for (Entry<String, ContractService> cs : rewriter.cardServices.entrySet())
+				gen.generateService(cs.getKey(), cs.getValue());
 			for (Entry<String, HandlerImplements> hi : rewriter.cardHandlers.entrySet())
 				gen.generateHandler(hi.getKey(), hi.getValue());
 			

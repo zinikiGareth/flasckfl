@@ -11,6 +11,7 @@ public class CardDefinition implements ContainsScope {
 	public StateDefinition state;
 	public Template template;
 	public final List<ContractImplements> contracts = new ArrayList<ContractImplements>();
+	public final List<ContractService> services = new ArrayList<ContractService>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final Scope fnScope;
 
@@ -22,6 +23,10 @@ public class CardDefinition implements ContainsScope {
 
 	public void addContractImplementation(ContractImplements o) {
 		contracts.add(o);
+	}
+
+	public void addContractService(ContractService o) {
+		services.add(o);
 	}
 
 	public void addHandlerImplementation(HandlerImplements o) {
