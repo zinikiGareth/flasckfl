@@ -373,6 +373,21 @@ public class HSIETestData {
 		);
 	}
 
+	public static HSIEForm directLet() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("FLEval.plus");
+		return thingy("ME.f", 0, 0, 2,
+			externals,
+			"RETURN var 1",
+			"CLOSURE 1", "{",
+				"FLEval.plus", "var 0", "var 0",
+			"}",
+			"CLOSURE 0", "{",
+				"FLEval.plus", "2", "2",
+			"}"
+		);
+	}
+
 	private static HSIEForm thingy(String name, int alreadyUsed, int nformal, int nbound, List<String> dependsOn, String... commands) {
 		HSIEForm ret = new HSIEForm(Type.FUNCTION, name, alreadyUsed, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;

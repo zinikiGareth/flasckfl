@@ -61,34 +61,41 @@ public class MetaState {
 	}
 
 	public void writeExpr(SubstExpr se, HSIEBlock writeTo) {
-		writeIfExpr(se, se.expr, writeTo);
+		writeIfExpr(se.substs, se.expr, writeTo);
 	}
 	
-	private void writeIfExpr(SubstExpr se, Object expr, HSIEBlock writeTo) {
+	private void writeIfExpr(Map<String, Var> substs, Object expr, HSIEBlock writeTo) {
 		if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
-			if (ae.fn instanceof AbsoluteVar && ((AbsoluteVar)ae.fn).id.equals("if")) {
-				HSIEBlock ifCmd = writeTo.ifCmd((Var) convertValue(se.substs, ae.args.get(0)));
-				writeIfExpr(se, ae.args.get(1), ifCmd);
-				Object orelse = ae.args.size() == 3 ? ae.args.get(2) : null;
-				if (orelse != null)
-					writeIfExpr(se, orelse, writeTo);
-				else
-					writeTo.caseError();
-				return;
+			if (ae.fn instanceof AbsoluteVar) {
+				AbsoluteVar fn = (AbsoluteVar)ae.fn;
+				if (fn.id.equals("if")) {
+					HSIEBlock ifCmd = writeTo.ifCmd((Var) convertValue(substs, ae.args.get(0)));
+					writeIfExpr(substs, ae.args.get(1), ifCmd);
+					Object orelse = ae.args.size() == 3 ? ae.args.get(2) : null;
+					if (orelse != null)
+						writeIfExpr(substs, orelse, writeTo);
+					else
+						writeTo.caseError();
+					return;
+				} else if (fn.id.equals("let")) {
+					substs.put(((LocalVar)ae.args.get(0)).var, (Var)getValueFor(substs, ae.args.get(1)));
+					writeIfExpr(substs, ae.args.get(2), writeTo);
+					return;
+				}
 			}
 		}
-		writeFinalExpr(se, expr, writeTo);
+		writeFinalExpr(substs, expr, writeTo);
 	}
 
-	public void writeFinalExpr(SubstExpr se, Object expr, HSIEBlock writeTo) {
-		Object ret = getValueFor(se, expr);
+	public void writeFinalExpr(Map<String, Var> substs, Object expr, HSIEBlock writeTo) {
+		Object ret = getValueFor(substs, expr);
 		writeTo.doReturn(ret, closureDependencies(ret));
 	}
 
-	public Object getValueFor(SubstExpr se, Object e) {
+	public Object getValueFor(Map<String, Var> substs, Object e) {
 		if (!retValues.containsKey(e)) {
-			retValues.put(e, convertValue(se.substs, e));
+			retValues.put(e, convertValue(substs, e));
 		}
 		return retValues.get(e);
 	}

@@ -3,12 +3,16 @@ package org.flasck.flas.hsie;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
@@ -17,7 +21,6 @@ import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
@@ -103,5 +106,19 @@ public class HSIECodeGenerator {
 		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.g"));
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.rdf2(), form);
+	}
+
+	@Test
+	public void testADirectLet() throws Exception {
+		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
+		ApplyExpr expr = new ApplyExpr(
+				new AbsoluteVar("let", null), new LocalVar("ME.f", "_x"),
+					new ApplyExpr(new AbsoluteVar("FLEval.plus", null), new NumericLiteral("2"), new NumericLiteral("2")),
+					new ApplyExpr(new AbsoluteVar("FLEval.plus", null), new LocalVar("ME.f", "_x"), new LocalVar("ME.f", "_x")));
+		FunctionCaseDefn fcd = new FunctionCaseDefn(pkg.innerScope(), "ME.f", new ArrayList<Object>(), expr);
+		FunctionDefinition f = new FunctionDefinition(Type.FUNCTION, fcd.intro, CollectionUtils.listOf(fcd));
+		HSIEForm form = new HSIE(errors).handle(f);
+		assertNotNull(form);
+		HSIETestData.assertHSIE(HSIETestData.directLet(), form);
 	}
 }
