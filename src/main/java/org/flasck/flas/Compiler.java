@@ -118,7 +118,7 @@ public class Compiler {
 			// 4. Promote template tree definition to individual functions
 			List<RenderTree> trees = new ArrayList<RenderTree>();
 			for (Template t : rewriter.templates)
-				promoteTemplateFunctions(rewriter.functions, trees, t);
+				promoteTemplateFunctions(errors, rewriter.functions, trees, t);
 			abortIfErrors(errors);
 			
 			// 5. Extract methods and convert to functions
@@ -215,8 +215,8 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
-	private void promoteTemplateFunctions(Map<String, FunctionDefinition> functions, List<RenderTree> trees, Template template) {
-		DomFunctionGenerator gen = new DomFunctionGenerator(template, functions);
+	private void promoteTemplateFunctions(ErrorResult errors, Map<String, FunctionDefinition> functions, List<RenderTree> trees, Template template) {
+		DomFunctionGenerator gen = new DomFunctionGenerator(errors, template, functions);
 		gen.generateTree(template.topLine);
 		for (Entry<String, FunctionDefinition> x2 : functions.entrySet()) {
 			FunctionDefinition rfn = (FunctionDefinition) x2.getValue();
@@ -274,6 +274,7 @@ public class Compiler {
 
 	private void hsieTree(ErrorResult errors, Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
 		HSIEForm hsie = new HSIE(errors).handle(node.getEntry());
+		hsie.dump();
 		if (parent == null) {
 			tree = ret.addTree(hsie);
 			parent = tree.getRoot();

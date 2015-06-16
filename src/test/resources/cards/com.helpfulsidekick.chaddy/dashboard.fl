@@ -1,0 +1,7 @@
+	card Dashboard
+			
+		template
+			"hello dashboard"
+
+		implements org.ziniki.Init
+			load x			

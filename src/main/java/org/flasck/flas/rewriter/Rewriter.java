@@ -33,6 +33,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
@@ -50,6 +51,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -359,7 +361,11 @@ public class Rewriter {
 				Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
 				contents.add(new CardReference(cr.location, cardName, yoyoName));
 			} else if (o instanceof TemplateCases) {
-				contents.add(new TemplateCases(rewriteExpr(cx, ((TemplateCases)o).switchOn)));
+				TemplateCases tc = (TemplateCases)o;
+				TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
+				for (TemplateOr tor : tc.cases)
+					ret.addCase(rewrite(cx, tor));
+				contents.add(ret);
 			} else if (o instanceof StringLiteral || o instanceof NumericLiteral) {
 				contents.add(o);
 			} else if (o instanceof ApplyExpr) {
@@ -391,6 +397,13 @@ public class Rewriter {
 		}
 		for (TemplateLine i : tl.nested)
 			ret.nested.add(rewrite(cx, i));
+		return ret;
+	}
+
+	private TemplateOr rewrite(CardContext cx, TemplateOr tor) {
+		TemplateOr ret = new TemplateOr(rewriteExpr(cx, tor.cond));
+		for (TemplateLine tl : tor.template)
+			ret.template.add(rewrite(cx, tl));
 		return ret;
 	}
 
@@ -573,9 +586,11 @@ public class Rewriter {
 				for (Object o : ae.args)
 					args.add(rewriteExpr(cx, o));
 				return new ApplyExpr(rewriteExpr(cx, ae.fn), args);
-			}
-			System.out.println("Can't rewrite expr " + expr + " of type " + expr.getClass());
-			return expr;
+			} else if (expr instanceof IfExpr) {
+				IfExpr ie = (IfExpr)expr;
+				return new IfExpr(rewriteExpr(cx, ie.guard), rewriteExpr(cx, ie.ifExpr), rewriteExpr(cx, ie.elseExpr));
+			} else
+				throw new UtilException("Can't rewrite expr " + expr + " of type " + expr.getClass());
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;

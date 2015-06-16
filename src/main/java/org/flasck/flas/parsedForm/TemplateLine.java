@@ -59,4 +59,11 @@ public class TemplateLine {
 		Object o = contents.get(0);
 		return o != null && o instanceof TemplateCases;
 	}
+
+	public boolean isOr() {
+		if (contents.size() != 1)
+			return false;
+		Object o = contents.get(0);
+		return o != null && o instanceof TemplateOr;
+	}
 }

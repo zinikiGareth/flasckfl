@@ -1,6 +1,7 @@
 package org.flasck.flas.hsie;
 
 import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -16,6 +17,8 @@ public class ApplyCurry {
 			PushCmd pc = (PushCmd) c.nestedCommands().get(0);
 
 			if (pc.fn != null) {
+				if (pc.fn instanceof CardMember)
+					continue;
 				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;
 				Type t = tc.getTypeDefn(pc.fn.uniqueName());

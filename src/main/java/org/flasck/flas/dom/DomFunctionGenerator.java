@@ -5,32 +5,43 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.dom.RenderTree.Element;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
+import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionClause;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.IfExpr;
+import org.flasck.flas.parsedForm.LetExpr;
+import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class DomFunctionGenerator {
+	private final ErrorResult errors;
 	private final String prefix;
 	private final Map<String, FunctionDefinition> functions;
 	private final Scope scope;
 	private int node = 0;
 	public final List<RenderTree> trees = new ArrayList<RenderTree>();
 
-	public DomFunctionGenerator(Template template, Map<String, FunctionDefinition> functions) {
+	public DomFunctionGenerator(ErrorResult errors, Template template, Map<String, FunctionDefinition> functions) {
+		this.errors = errors;
 		this.prefix = template.prefix/* + "." + template.name*/;
 		this.functions = functions;
 		this.scope = template.scope;
@@ -41,13 +52,14 @@ public class DomFunctionGenerator {
 	//  we need to generate appropriate functions
 	//  we need to create the maps of overall tree and dependencies
 
+	@SuppressWarnings("unchecked")
 	public void generateTree(TemplateLine template) {
 		Object genned = generate(template);
 		if (genned instanceof Element) {
 			RenderTree rt = new RenderTree(prefix, "template", (Element) genned);
 			trees.add(rt);
 		} else if (genned instanceof List) {
-			for (Object o : (List)genned) {
+			for (Object o : (List<Object>)genned) {
 				RenderTree rt = new RenderTree(prefix, "template", (Element) o);
 				trees.add(rt);
 			}
@@ -113,12 +125,41 @@ public class DomFunctionGenerator {
 					ret.add(new Element("card", fn));
 				} else if (x instanceof TemplateCases) {
 					TemplateCases tc = (TemplateCases) x;
-					// AH! This needs an if
-					// And a let
-					System.out.println("TC");
-					String fn = nextFnName();
-					function(fn, tc.switchOn);
-					ret.add(new Element("switch", fn));
+					Element elt = null;
+					if (tc.switchOn != null) {
+						String swfn = nextFnName();
+						elt = new Element("switch", swfn);
+						ret.add(elt);
+						function(swfn, tc.switchOn);
+					}
+
+					// Build up an if/else tree in functions
+					// Put all of these in the tree as nodes
+					if (tc.cases.isEmpty()) {
+						errors.message(tc.loc, "template cases must have at least one clause");
+						continue;
+					}
+					for (TemplateOr c : tc.cases) {
+						List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+						List<Object> args = new ArrayList<Object>();
+						Object expr;
+						String csfn = nextFnName();
+						Element e;
+						if (tc.switchOn != null) {
+							args.add(new VarPattern("_x"));
+							expr = new ApplyExpr(scope.fromRoot("=="), new LocalVar(csfn+"_0", "_x"), c.cond);
+							e = new Element("case", csfn);
+							elt.children.add(e);
+						} else {
+							expr = c.cond;
+							e = new Element("cond", csfn);
+							ret.add(e);
+						}
+						cases.add(new FunctionCaseDefn(scope, csfn, args, expr));
+						functions.put(csfn, new FunctionDefinition(Type.CARD, csfn, args.size(), cases));
+						for (TemplateLine ti : c.template)
+							e.addChildren(generate(ti));
+					}
 				} else
 					throw new UtilException("Non TT not handled: " + x.getClass());
 			}

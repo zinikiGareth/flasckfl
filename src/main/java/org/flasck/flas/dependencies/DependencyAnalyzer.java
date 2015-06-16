@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
@@ -56,6 +57,7 @@ public class DependencyAnalyzer {
 			for (FunctionCaseDefn c : fd.cases) {
 				for (String v : c.intro.allVars()) {
 					String realname = "_var_" + name+"_" + cs +"."+v;
+//					System.out.println("Ensuring local var in graph: " + realname);
 					dcg.ensure(realname);
 					dcg.ensureLink(realname, name);
 				}
@@ -97,8 +99,14 @@ public class DependencyAnalyzer {
 			analyzeExpr(dcg, name, locals, ae.fn);
 			for (Object x : ae.args)
 				analyzeExpr(dcg, name, locals, x);
+		} else if (expr instanceof LetExpr) {
+			LetExpr let = (LetExpr) expr;
+			analyzeExpr(dcg, name, locals, let.val);
+			Set<String> locals2 = new TreeSet<String>(locals);
+			locals2.add(let.var);
+			analyzeExpr(dcg, name, locals2, let.expr);
 		} else
-			throw new UtilException("Unhandled expr: " + expr + " -> " + expr.getClass());
+			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass());
 	}
 
 	List<Orchard<FunctionDefinition>> buildOrchards(DirectedCyclicGraph<String> dcg, Map<String, FunctionDefinition> fdm) {

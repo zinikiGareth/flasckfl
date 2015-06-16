@@ -203,6 +203,8 @@ public class JSForm {
 		}
 		else if (r.ival != null)
 			into.add(new JSForm(assgn + " = " + r.ival));
+		else if (r.sval != null)
+			into.add(new JSForm(assgn + " = " + r.sval));
 		else
 			throw new UtilException("What are you returning " + r);
 	}

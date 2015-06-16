@@ -1,6 +1,6 @@
 	card Main
 		state
-			String cardShowing
+			String cardShowing <- 'myqueues'
 		
 		template
 			.

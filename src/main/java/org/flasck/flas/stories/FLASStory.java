@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.FunctionClause;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.MessagesHandler;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
@@ -34,6 +35,7 @@ import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.TemplateCases;
+import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
@@ -166,7 +168,7 @@ public class FLASStory implements StoryProcessor {
 						expr = last.expr;
 					}
 					for (FunctionClause c : clauses)
-						expr = new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "if")), c.guard, c.expr, expr);
+						expr = new IfExpr(c.guard, c.expr, expr);
 					FunctionCaseDefn fcd = new FunctionCaseDefn(ret, fi.name, fi.args, expr);
 					fndefns.add(fcd);
 					if (lastFn != null && !fcd.intro.name.equals(lastFn)) {
@@ -399,7 +401,7 @@ public class FLASStory implements StoryProcessor {
 					} else if (tl.isList()) {
 						doCardTemplate(er, frTemplates, b.nested, tl.nested, tl.handlers);
 					} else if (tl.isCases()) {
-						doCases(er, frTemplates, b.nested, tl.nested);
+						doCases(er, frTemplates, b, (TemplateCases)tl.contents.get(0));
 					} else {
 						Block fb = null;
 						for (Block b1 : b.nested) {
@@ -418,10 +420,23 @@ public class FLASStory implements StoryProcessor {
 		return ret;
 	}
 
-	private void doCases(ErrorResult er, Set<LocatedToken> frTemplates,
-			List<Block> nested, List<TemplateLine> nested2) {
-		// TODO Auto-generated method stub
-		
+	private void doCases(ErrorResult er, Set<LocatedToken> frTemplates, Block container, TemplateCases tc) {
+		assertSomeNonCommentNestedLines(er, container);
+		TemplateLineParser tlp = new TemplateLineParser();
+		for (Block b : container.nested) {
+			Object o = tlp.tryParsing(new Tokenizable(b));
+			if (o == null)
+				er.message(b, "syntax error");
+			else if (o instanceof ErrorResult)
+				er.merge((ErrorResult)o);
+			else if (!(o instanceof TemplateLine) || !((TemplateLine)o).isOr())
+				er.message(b, "constituents of template cases must be or items");
+			else {
+				TemplateOr tor = (TemplateOr)((TemplateLine)o).contents.get(0);
+				tc.addCase(tor);
+				doCardTemplate(er, frTemplates, b.nested, tor.template, null);
+			}
+		}
 	}
 
 	private TemplateLine unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, Map<String, Object> subst) {
@@ -508,7 +523,11 @@ public class FLASStory implements StoryProcessor {
 		} else if (o instanceof CardReference) {
 			// We don't have any parameters in this yet that could be macro parameters
 		} else if (o instanceof TemplateCases) {
-			return new TemplateCases(substituteMacroParameters(((TemplateCases)o).switchOn, subst));
+			TemplateCases tc = (TemplateCases)o;
+			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(tc.switchOn, subst));
+			for (TemplateOr x : tc.cases)
+				ret.addCase((TemplateOr) substituteMacroParameters(x, subst));
+			return ret;
 		} else
 			System.out.println("dosub cannot handle: " + o + " "  + o.getClass());
 		return o;
@@ -605,12 +624,11 @@ public class FLASStory implements StoryProcessor {
 			if (!q.isComment())
 				er.message(q, "nested declarations prohibited");
 	}
-/*
+
 	private void assertSomeNonCommentNestedLines(ErrorResult er, Block b) {
 		for (Block q : b.nested)
 			if (!q.isComment())
 				return;
 		er.message(b, "nested declarations required");
 	}
-	*/
 }

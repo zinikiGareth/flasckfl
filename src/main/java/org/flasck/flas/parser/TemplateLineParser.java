@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
+import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
@@ -150,7 +151,23 @@ public class TemplateLineParser implements TryParsing{
 				}
 				if (line.hasMore())
 					return ErrorResult.oneMessage(line, "extraneous symbols at end of cases line");
-				contents.add(new TemplateCases(expr));
+				contents.add(new TemplateCases(line.realinfo(), expr));
+			} else if (tt.type == TemplateToken.OR) {
+				if (!contents.isEmpty()) {
+					return ErrorResult.oneMessage(line, "or must be the only content item");
+				}
+				Object expr = null;
+				if (line.hasMore()) {
+					Expression ep = new Expression();
+					expr = ep.tryParsing(line);
+					if (expr == null)
+						return ErrorResult.oneMessage(line, "syntax error");
+					else if (expr instanceof ErrorResult)
+						return expr;
+				}
+				if (line.hasMore())
+					return ErrorResult.oneMessage(line, "extraneous symbols at end of cases line");
+				contents.add(new TemplateOr(expr));
 			} else
 				throw new UtilException("Cannot handle " + tt);
 		}

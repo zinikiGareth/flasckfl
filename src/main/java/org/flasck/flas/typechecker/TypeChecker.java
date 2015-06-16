@@ -105,7 +105,7 @@ public class TypeChecker {
 				return;
 			actualTypes.put(hsie.fnName, te);
 		}
-		System.out.println("Checked forms: actualTypes = " + actualTypes);
+//		System.out.println("Checked forms: actualTypes = " + actualTypes);
 //		System.out.println("Attempting to unify types");
 		for (HSIEForm f : rewritten.values()) {
 			Object rwt = phi.unify(localKnowledge.get(f.fnName), actualTypes.get(f.fnName));

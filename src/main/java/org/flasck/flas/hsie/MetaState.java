@@ -11,6 +11,8 @@ import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.IfExpr;
+import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
@@ -65,25 +67,29 @@ public class MetaState {
 	}
 	
 	private void writeIfExpr(Map<String, Var> substs, Object expr, HSIEBlock writeTo) {
-		if (expr instanceof ApplyExpr) {
-			ApplyExpr ae = (ApplyExpr) expr;
-			if (ae.fn instanceof AbsoluteVar) {
-				AbsoluteVar fn = (AbsoluteVar)ae.fn;
-				if (fn.id.equals("if")) {
-					HSIEBlock ifCmd = writeTo.ifCmd((Var) convertValue(substs, ae.args.get(0)));
-					writeIfExpr(substs, ae.args.get(1), ifCmd);
-					Object orelse = ae.args.size() == 3 ? ae.args.get(2) : null;
-					if (orelse != null)
-						writeIfExpr(substs, orelse, writeTo);
-					else
-						writeTo.caseError();
-					return;
-				} else if (fn.id.equals("let")) {
-					substs.put(((LocalVar)ae.args.get(0)).var, (Var)getValueFor(substs, ae.args.get(1)));
-					writeIfExpr(substs, ae.args.get(2), writeTo);
-					return;
-				}
+		if (expr instanceof IfExpr) {
+			IfExpr ae = (IfExpr) expr;
+			HSIEBlock ifCmd = writeTo.ifCmd((Var) convertValue(substs, ae.guard));
+			writeIfExpr(substs, ae.ifExpr, ifCmd);
+			if (ae.elseExpr != null)
+				writeIfExpr(substs, ae.elseExpr, writeTo);
+			else
+				writeTo.caseError();
+			return;
+		} else if (expr instanceof LetExpr) {
+			LetExpr let = (LetExpr) expr;
+			Object val = getValueFor(substs, let.val);
+			Var var;
+			if (val instanceof Var)
+				var = (Var) val;
+			else {
+				var = allocateVar();
+				HSIEBlock closure = form.closure(var);
+				closure.push(val);
 			}
+			substs.put(let.var, var);
+			writeIfExpr(substs, let.expr, writeTo);
+			return;
 		}
 		writeFinalExpr(substs, expr, writeTo);
 	}

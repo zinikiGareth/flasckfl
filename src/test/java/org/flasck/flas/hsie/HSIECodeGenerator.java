@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
@@ -111,8 +112,7 @@ public class HSIECodeGenerator {
 	@Test
 	public void testADirectLet() throws Exception {
 		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
-		ApplyExpr expr = new ApplyExpr(
-				new AbsoluteVar("let", null), new LocalVar("ME.f", "_x"),
+		LetExpr expr = new LetExpr("_x",
 					new ApplyExpr(new AbsoluteVar("FLEval.plus", null), new NumericLiteral("2"), new NumericLiteral("2")),
 					new ApplyExpr(new AbsoluteVar("FLEval.plus", null), new LocalVar("ME.f", "_x"), new LocalVar("ME.f", "_x")));
 		FunctionCaseDefn fcd = new FunctionCaseDefn(pkg.innerScope(), "ME.f", new ArrayList<Object>(), expr);

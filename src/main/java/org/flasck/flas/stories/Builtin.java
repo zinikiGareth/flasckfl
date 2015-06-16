@@ -22,6 +22,8 @@ public class Builtin {
 					null);
 			ret.define("if", "if",
 				Type.function(Type.simple("Boolean"), Type.polyvar("A"), Type.polyvar("A"), Type.polyvar("A")));
+			ret.define("let", "let",
+					null);
 		}
 		{ // text
 			ret.define("String", "String", null);

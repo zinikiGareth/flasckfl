@@ -159,7 +159,7 @@ public class DomFunctionTests {
 		Template t = card.template;
 		if (t == null)
 			t = new Template(card.name, tl, card.innerScope());
-		gen = new DomFunctionGenerator(t, functions);
+		gen = new DomFunctionGenerator(errors, t, functions);
 		gen.generateOne(tl);
 		assertEquals(1, functions.size());
 		FunctionDefinition ret = functions.get("MyCard._templateNode_1");
