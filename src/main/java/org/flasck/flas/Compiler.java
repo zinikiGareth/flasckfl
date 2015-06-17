@@ -12,11 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.dom.DomFunctionGenerator;
 import org.flasck.flas.dom.RenderTree;
+import org.flasck.flas.dom.UpdateTree;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.hsie.ApplyCurry;
@@ -52,6 +55,7 @@ import org.zinutils.utils.FileUtils;
 
 public class Compiler {
 	public static void main(String[] args) {
+		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
 		for (String f : args)
 			compiler.compile(new File(f));
@@ -84,7 +88,7 @@ public class Compiler {
 				List<Block> blocks = makeBlocks(r);
 				
 				// 2. Use the parser factory and story to convert blocks to a package definition
-				ScopeEntry se = doParsing(pd.myEntry(), blocks);
+				doParsing(pd.myEntry(), blocks);
 			} catch (ErrorResultException ex) {
 				failed = true;
 				try {
@@ -118,8 +122,10 @@ public class Compiler {
 
 			// 4. Promote template tree definition to individual functions
 			List<RenderTree> trees = new ArrayList<RenderTree>();
+			List<UpdateTree> updates = new ArrayList<UpdateTree>();
 			for (Template t : rewriter.templates)
-				promoteTemplateFunctions(errors, rewriter.functions, trees, t);
+				promoteTemplateFunctions(errors, rewriter.functions, trees, updates, t);
+			System.out.println(updates);
 			abortIfErrors(errors);
 			
 			// 5. Extract methods and convert to functions
@@ -181,7 +187,7 @@ public class Compiler {
 			}
 			
 			// 11. Generate render & dependency trees
-			renderTemplateTrees(gen, trees);
+			renderTemplateTrees(gen, trees, updates);
 			abortIfErrors(errors);
 			
 			// 12. Issue JavaScript
@@ -218,7 +224,7 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
-	private void promoteTemplateFunctions(ErrorResult errors, Map<String, FunctionDefinition> functions, List<RenderTree> trees, Template template) {
+	private void promoteTemplateFunctions(ErrorResult errors, Map<String, FunctionDefinition> functions, List<RenderTree> trees, List<UpdateTree> updates, Template template) {
 		DomFunctionGenerator gen = new DomFunctionGenerator(errors, template, functions);
 		gen.generateTree(template.topLine);
 		for (Entry<String, FunctionDefinition> x2 : functions.entrySet()) {
@@ -226,6 +232,7 @@ public class Compiler {
 			functions.put(rfn.name, rfn);
 		}
 		trees.addAll(gen.trees);
+		updates.add(new UpdateTree(gen.prefix, gen.updates));
 	}
 
 	private ScopeEntry doParsing(ScopeEntry se, List<Block> blocks) throws ErrorResultException {
@@ -277,7 +284,6 @@ public class Compiler {
 
 	private void hsieTree(ErrorResult errors, Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
 		HSIEForm hsie = new HSIE(errors).handle(node.getEntry());
-		hsie.dump();
 		if (parent == null) {
 			tree = ret.addTree(hsie);
 			parent = tree.getRoot();
@@ -305,10 +311,14 @@ public class Compiler {
 			generateTree(gen, t, n);
 	}
 
-	private void renderTemplateTrees(Generator gen, List<RenderTree> trees) {
+	private void renderTemplateTrees(Generator gen, List<RenderTree> trees, List<UpdateTree> updates) {
 		for (RenderTree t : trees) {
 			JSForm block = gen.generateTemplateTree(t.card, t.template);
 			gen.generateTree(block, t.ret);
+		}
+		for (UpdateTree t : updates) {
+			JSForm block = gen.generateUpdateTree(t.prefix);
+			gen.generateUpdates(block, t.prefix, t.updates);
 		}
 	}
 }

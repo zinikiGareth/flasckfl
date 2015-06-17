@@ -29,6 +29,8 @@ public class Builtin {
 			ret.define("String", "String", null);
 			ret.define("concat", "concat",
 				Type.function(Type.simple("List", Type.simple("String")), Type.simple("String")));
+			ret.define("join", "join",
+					Type.function(Type.simple("List", Type.simple("String")), Type.simple("String"), Type.simple("String")));
 		}
 		{ // boolean logic
 			ret.define("Boolean", "Boolean", null);

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.flasck.flas.dom.RenderTree.Element;
+import org.flasck.flas.dom.UpdateTree.Update;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
@@ -29,6 +30,7 @@ import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.CollectionUtils;
+import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
 public class Generator {
@@ -235,22 +237,22 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 		int idx = ret.fn.lastIndexOf(".");
 		String jsname = ret.fn.substring(0, idx+1) + "prototype" + ret.fn.substring(idx);
 
-		StringBuilder thisOne = new StringBuilder("type: '" + ret.type + "', fn: " + jsname + ", class: [");
-		String sep = "";
-		for (String s : ret.classes) {
-			thisOne.append(sep);
-			thisOne.append("'");
-			thisOne.append(s);
-			thisOne.append("'");
-			sep = ", ";
-		}
-		for (String ae : ret.clsexprs) {
-			thisOne.append(sep);
-			int idx2 = ae.lastIndexOf(".");
-			thisOne.append(ae.substring(0, idx2+1) + "prototype" + ae.substring(idx2));
-			sep = ", ";
-		}
-		thisOne.append("]");
+		StringBuilder thisOne = new StringBuilder("type: '" + ret.type + "', fn: " + jsname + ", route: '" +ret.route + "'"); //lass: [");
+//		String sep = "";
+//		for (String s : ret.classes) {
+//			thisOne.append(sep);
+//			thisOne.append("'");
+//			thisOne.append(s);
+//			thisOne.append("'");
+//			sep = ", ";
+//		}
+//		for (String ae : ret.clsexprs) {
+//			thisOne.append(sep);
+//			int idx2 = ae.lastIndexOf(".");
+//			thisOne.append(ae.substring(0, idx2+1) + "prototype" + ae.substring(idx2));
+//			sep = ", ";
+//		}
+//		thisOne.append("]");
 		if (!ret.children.isEmpty())
 			thisOne.append(", children:");
 		JSForm next = new JSForm(thisOne.toString());
@@ -264,6 +266,41 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 				next.add(wrapper);
 				generateTree(wrapper, e);
 			}
+		}
+	}
+
+	public JSForm generateUpdateTree(String prefix) {
+		JSForm ret = new JSForm(prefix + ".updates =").needBlock().needSemi();
+		target.add(ret);
+		return ret;
+	}
+
+	public void generateUpdates(JSForm block, String prefix, ListMap<String, Update> updates) {
+		JSForm prev = null;
+		for (String s : updates.keySet()) {
+			if (prev != null)
+				prev.comma();
+			JSForm f = new JSForm(s +":").nestArray().noSemi();
+			block.add(f);
+			for (Update u : updates.get(s)) {
+				JSForm g = new JSForm("").needBlock().noSemi();
+				g.add(new JSForm("route: '" + u.routeChanges + "', node: " + nodepath(new StringBuilder(prefix+".template"), u.routeChanges) + ", action:'" + u.updateType + "'").noSemi());
+				f.add(g);
+			}
+			prev = f;
+		}
+	}
+
+	private String nodepath(StringBuilder sb, String route) {
+		int idx = route.indexOf(".");
+		if (idx == -1) {
+			sb.append(".children[" + route + "]");
+			return sb.toString();
+		} else if (idx == 0) {
+			return nodepath(sb, route.substring(1));
+		} else {
+			sb.append(".children[" + route.substring(0, idx) + "]");
+			return nodepath(sb, route.substring(idx+1));
 		}
 	}
 

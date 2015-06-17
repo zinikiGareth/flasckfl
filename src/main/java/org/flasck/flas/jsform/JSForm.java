@@ -61,6 +61,7 @@ public class JSForm {
 	public JSForm nestArray() {
 		if (block != null)
 			throw new UtilException("Cannot have both block and array");
+		needBlock();
 		isArray = true;
 		return this;
 	}
