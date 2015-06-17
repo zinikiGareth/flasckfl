@@ -125,7 +125,6 @@ public class Generator {
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'contract'"));
 		clz.add(new JSForm("this._contract = '" + ci.type + "'"));
-		clz.add(new JSForm("this._onchan = null"));
 		target.add(clz);
 
 		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), 0, 0);
@@ -140,7 +139,6 @@ public class Generator {
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'service'"));
 		clz.add(new JSForm("this._contract = '" + cs.type + "'"));
-		clz.add(new JSForm("this._onchan = null"));
 		target.add(clz);
 
 		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), 0, 0);
@@ -158,7 +156,6 @@ public class Generator {
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'handler'"));
 		clz.add(new JSForm("this._contract = '" + hi.type + "'"));
-		clz.add(new JSForm("this._onchan = null"));
 		int v = 1;
 		for (String s : hi.boundVars) 
 			clz.add(new JSForm("this." + s + " = v" + v++));
