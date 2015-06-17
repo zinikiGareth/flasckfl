@@ -1,6 +1,6 @@
 	card Navbar
 		state
-			String currentTab
+			String currentTab <- 'dashboard'
 			
 		template
 			#header : 'nav-bar'
@@ -24,10 +24,6 @@
 			currentTab <- name
 			<- changer.change name
 
-		implements org.ziniki.Init
-			load obj
-				currentTab <- 'dashboard'
-				
 		implements TabChanger changer
 			changed to
 				currentTab <- to

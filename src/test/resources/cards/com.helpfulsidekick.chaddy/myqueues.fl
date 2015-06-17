@@ -2,6 +2,3 @@
 			
 		template
 			"my queues"
-
-		implements org.ziniki.Init
-			load x

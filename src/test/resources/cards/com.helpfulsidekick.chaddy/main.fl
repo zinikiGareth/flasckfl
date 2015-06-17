@@ -19,6 +19,3 @@
 			change tab
 				cardShowing <- tab
 			
-		
-		implements org.ziniki.Init
-			load x
