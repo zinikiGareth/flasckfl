@@ -1,4 +1,11 @@
 	card Dashboard
 			
 		template
-			"hello dashboard"
+			. : 'section' 'main'
+				. : 'w-row'
+					. : 'w-col' 'w-col-3'
+					. : 'w-col' 'w-col-6'
+						'This probably should be some kind of dashboard.' : 'footer-text'
+						'A summary of active items, new items, teams, messages, etc.' : 'footer-text'
+						'On top of that, I want cards here that can respond to user input and configure themselves.' : 'footer-text'
+						'It would also be good to be able to have them configure notifcations and the like if possible.' : 'footer-text'

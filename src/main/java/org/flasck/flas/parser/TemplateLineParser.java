@@ -48,6 +48,7 @@ public class TemplateLineParser implements TryParsing{
 				contents.add(tt);
 			} else if (tt.type == TemplateToken.LIST) {
 				seenDivOrList = true;
+				InputPosition pos = line.realinfo();
 				TemplateToken t2 = TemplateToken.from(line);
 				if (t2.type != TemplateToken.IDENTIFIER)
 					return ErrorResult.oneMessage(line, "list requires a list variable");
@@ -58,7 +59,7 @@ public class TemplateLineParser implements TryParsing{
 					iv = t3.text;
 				else
 					line.reset(mark2);
-				contents.add(new TemplateList(t2.text, iv));
+				contents.add(new TemplateList(pos, t2.text, iv));
 			} else if (tt.type == TemplateToken.ARROW) {
 				if (seenDivOrList || contents.size() == 0 || contents.size() > 2)
 					return ErrorResult.oneMessage(line, "syntax error");
@@ -245,7 +246,9 @@ public class TemplateLineParser implements TryParsing{
 			if (tt.type == TemplateToken.COLON) {
 				while (line.hasMore()) {
 					TemplateToken f = TemplateToken.from(line);
-					if (f!= null && (f.type == TemplateToken.IDENTIFIER || f.type == TemplateToken.STRING))
+					if (f == null)
+						return ErrorResult.oneMessage(line, "syntax error");
+					if (f != null && (f.type == TemplateToken.IDENTIFIER || f.type == TemplateToken.STRING))
 						formats.add(f);
 					else if (f.type == TemplateToken.ORB) {
 						Expression ep = new Expression();

@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -107,6 +108,25 @@ public class DomFunctionGenerator {
 						return pair.element; // there can only be one item in this case
 					} else
 						throw new UtilException("template token case not handled: " + tt.type);
+				} else if (x instanceof TemplateList) {
+					TemplateList list = (TemplateList) x;
+					String fn = nextFnName();
+					StringLiteral tag = new StringLiteral("ul");
+					AbsoluteVar domCtor = scope.fromRoot("DOM.Element");
+					AbsoluteVar nil = scope.fromRoot("Nil");
+//					AbsoluteVar cons = scope.fromRoot("Cons");
+//					AbsoluteVar join = scope.fromRoot("join");
+//					AbsoluteVar tuple = scope.fromRoot("()");
+					Object attrs = nil;
+					Object children = nil; // I think this is just a statement about how we build our trees
+					Object events = nil;
+					function(fn, new ApplyExpr(domCtor, tag, attrs, children, events));
+					Element elt = new Element("list", fn, route);
+					List<CardMember> dependsOn = new ArrayList<CardMember>();
+					traverseForMembers(dependsOn, list.listVar);
+					for (CardMember cm : dependsOn)
+						addUpdate(cm.var, route, "render");
+					return elt;
 				} else if (x instanceof CardMember || x instanceof ApplyExpr) {
 					// in this case, this is an expression which should return an HTML structure or text value
 					// anyway, it can be directly inserted into the DOM

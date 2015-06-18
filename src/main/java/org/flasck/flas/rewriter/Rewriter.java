@@ -53,6 +53,7 @@ import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -361,8 +362,13 @@ public class Rewriter {
 	}
 
 	private Template rewrite(CardContext cx, Template template) {
-		// Again, the need for a scope seems dodgy if we've rewritten ...
-		return new Template(template.prefix, rewrite(cx, template.topLine), template.scope);
+		try {
+			// Again, the need for a scope seems dodgy if we've rewritten ...
+			return new Template(template.prefix, rewrite(cx, template.topLine), template.scope);
+		} catch (ResolutionException ex) {
+			errors.message(ex.location, ex.getMessage());
+			return null;
+		}
 	}
 
 	private TemplateLine rewrite(CardContext cx, TemplateLine tl) {
@@ -383,6 +389,11 @@ public class Rewriter {
 				Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
 				Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
 				contents.add(new CardReference(cr.location, cardName, yoyoName));
+			} else if (o instanceof TemplateList) {
+				TemplateList ul = (TemplateList)o;
+				Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);
+				TemplateList rul = new TemplateList(ul.listLoc, rlistVar, new LocalVar(null, (String) ul.iterVar));
+				contents.add(rul);
 			} else if (o instanceof TemplateCases) {
 				TemplateCases tc = (TemplateCases)o;
 				TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));

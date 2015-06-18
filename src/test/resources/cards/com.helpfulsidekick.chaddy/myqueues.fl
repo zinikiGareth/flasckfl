@@ -1,4 +1,17 @@
 	card MyQueues
+		
+		state
+			List queues <- ['Captured Items', 'TODO Today', 'This Week', 'Flasck Issues', 'Chaddy Bugs']
+			List items <- ['Get Chaddy working', 'Multiple Cards', 'List Elements']
 			
 		template
-			"my queues"
+			. : 'section' 'main'
+				. : 'w-row'
+					. : 'w-col' 'w-col-3'
+						+ queues : 'w-list-unstyled' 'queue-list'
+							. : 'queue-item'
+							. : 'queue-item' 'selected-queue-item'
+					. : 'w-col' 'w-col-9'
+						+ items : 'w-list-unstyled'
+							. : 'queue-list-item'
+							. : 'queue-list-item'
