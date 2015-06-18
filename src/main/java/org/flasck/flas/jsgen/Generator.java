@@ -284,7 +284,7 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 			block.add(f);
 			for (Update u : updates.get(s)) {
 				JSForm g = new JSForm("").needBlock().noSemi();
-				g.add(new JSForm("route: '" + u.routeChanges + "', node: " + nodepath(new StringBuilder(prefix+".template"), u.routeChanges) + ", action:'" + u.updateType + "'").noSemi());
+				g.add(new JSForm("route: '" + u.routeChanges + "', node: " + nodepath(new StringBuilder(prefix+".template"), u.routeChanges) + ", action: '" + u.updateType + "'").noSemi());
 				f.add(g);
 			}
 			prev = f;
@@ -294,10 +294,9 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 	private String nodepath(StringBuilder sb, String route) {
 		int idx = route.indexOf(".");
 		if (idx == -1) {
-			sb.append(".children[" + route + "]");
+			if (route.length() > 0)
+				sb.append(".children[" + route + "]");
 			return sb.toString();
-		} else if (idx == 0) {
-			return nodepath(sb, route.substring(1));
 		} else {
 			sb.append(".children[" + route.substring(0, idx) + "]");
 			return nodepath(sb, route.substring(idx+1));

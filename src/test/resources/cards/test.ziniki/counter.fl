@@ -1,9 +1,6 @@
 	struct CounterObj
 		Number inc <- 0
 
-	contract Init
-		down load (Any obj)
-  
 	contract Timer
 		up requestTicks (OnCounter h) (Number msInterval) 
   
@@ -17,12 +14,19 @@
 		template	
 			counter : 'format'
 
-I would like this to be org.cardstack.Init, but for now, compromise
+OK, so we're now hacking 3
+We want to do this on a restore contract
+But the thing is, that there will be cases where they only care about being initialized
+		implements org.ziniki.Init
+			onready
+				<- timer.requestTicks (OnCounter 3) 1000
 
-		implements Init
-			load (CounterObj c)
-				<- timer.requestTicks (OnCounter c.inc) 1000
-      
+-- I think this is what we actually want here ...      
+implements org.ziniki.Subscribe
+load (CounterObj c)
+<- timer.cancel h
+h <- timer.requestTicks (OnCounter c.inc) 1000
+
 		implements Timer timer
   
 		handler OnCounter inc 

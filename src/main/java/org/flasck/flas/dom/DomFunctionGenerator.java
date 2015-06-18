@@ -96,6 +96,7 @@ public class DomFunctionGenerator {
 						String fn = nextFnName();
 						function(fn, new CardMember(tt.location, prefix, tt.text));
 						ret.add(new Element("content", fn, route));
+						addUpdate(tt.text, route, "render");
 					} else if (tt.type == TemplateToken.STRING) {
 						String fn = nextFnName();
 						function(fn, new StringLiteral(tt.text));
@@ -113,6 +114,10 @@ public class DomFunctionGenerator {
 					String fn = nextFnName();
 					function(fn, x);
 					ret.add(new Element("content", fn, route));
+					List<CardMember> dependsOn = new ArrayList<CardMember>();
+					traverseForMembers(dependsOn, x);
+					for (CardMember cm : dependsOn)
+						addUpdate(cm.var, route, "render");
 				} else if (x instanceof CardReference) {
 					CardReference cr = (CardReference) x;
 					AbsoluteVar domCtor = scope.fromRoot("DOM.Element");
