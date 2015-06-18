@@ -271,6 +271,9 @@ public class HSIE {
 				} else if (patt instanceof ConstructorMatch) {
 					ConstructorMatch cm = (ConstructorMatch) patt;
 					o.ifCtor(cm.ctor, cm.args, pe.getValue());
+				} else if (patt instanceof TypedPattern) {
+					TypedPattern tp = (TypedPattern) patt;
+					o.ifCtor(tp.type, new ArrayList<Field>(), pe.getValue());
 				} else if (patt instanceof ConstPattern) {
 					ConstPattern cp = (ConstPattern) patt;
 					if (cp.type == ConstPattern.INTEGER) {
@@ -280,7 +283,7 @@ public class HSIE {
 					} else
 						throw new UtilException("HSIE Cannot handle constant pattern for " + cp.type);
 				} else
-					System.out.println("HSIE Cannot handle pattern " + patt.getClass());
+					throw new UtilException("HSIE Cannot handle pattern " + patt.getClass());
 			}
 		}
 		return t;

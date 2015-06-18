@@ -94,8 +94,11 @@ public class Builtin {
 		{ // Ziniki
 			PackageDefn dom = new PackageDefn(ret, "org");
 			PackageDefn ziniki = new PackageDefn(dom.innerScope(), "ziniki");
+			// TODO: I think this should be in org.cardstack
 			ziniki.innerScope().define("Init", "org.ziniki.Init",
 				new ContractDecl("org.ziniki.Init"));
+			ziniki.innerScope().define("KeyValue", "org.ziniki.KeyValue",
+					new ContractDecl("org.ziniki.KeyValue"));
 		}
 		return ret;
 	}

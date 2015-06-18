@@ -10,6 +10,7 @@
 	card CounterCard
 		state	
 			Number counter <- 0
+			Timer t
 
 		template	
 			counter : 'format'
@@ -17,15 +18,16 @@
 OK, so we're now hacking 3
 We want to do this on a restore contract
 But the thing is, that there will be cases where they only care about being initialized
-		implements org.ziniki.Init
-			onready
-				<- timer.requestTicks (OnCounter 3) 1000
+.		implements org.ziniki.Init
+.			onready
+.				<- timer.requestTicks (OnCounter 3) 1000
 
--- I think this is what we actually want here ...      
-implements org.ziniki.Subscribe
-load (CounterObj c)
-<- timer.cancel h
-h <- timer.requestTicks (OnCounter c.inc) 1000
+		implements org.ziniki.KeyValue
+			value (CounterObj c)
+				<- timer.requestTicks (OnCounter c.inc) 1000
+
+.				<- timer.cancel t
+# should be: (capturing handle)				<- timer.requestTicks (OnCounter c.inc) 1000 -> t
 
 		implements Timer timer
   

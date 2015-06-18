@@ -61,6 +61,7 @@ public class Generator {
 		if (!sd.generate)
 			return;
 		JSForm ret = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 0, 1);
+		ret.add(new JSForm("this._ctor = '" + sd.typename + "'"));
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
 			ret.add(ifBlock);

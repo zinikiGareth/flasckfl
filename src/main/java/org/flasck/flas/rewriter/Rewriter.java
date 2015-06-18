@@ -300,6 +300,8 @@ public class Rewriter {
 		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
 			ContractImplements rw = rewriteCI(c2, ci);
+			if (rw == null)
+				continue;
 			String myname = cd.name +"._C" + pos;
 			grp.contracts.add(new ContractGrouping(rw.type, myname, rw.referAsVar));
 			cardImplements.put(myname, rw);
