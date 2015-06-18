@@ -96,12 +96,12 @@ public class DomFunctionGenerator {
 						// TODO: check that functions are defined on the card and not global
 						String fn = nextFnName();
 						function(fn, new CardMember(tt.location, prefix, tt.text));
-						ret.add(new Element("content", fn, route));
+						ret.add(new Element("content", fn, null, route));
 						addUpdate(tt.text, route, "render");
 					} else if (tt.type == TemplateToken.STRING) {
 						String fn = nextFnName();
 						function(fn, new StringLiteral(tt.text));
-						ret.add(new Element("content", fn, route));
+						ret.add(new Element("content", fn, null, route));
 					} else if (tt.type == TemplateToken.DIV) {
 						RenderTree.ElementExpr pair = div(tl, route);
 						function(pair.element.fn, pair.expr);
@@ -121,7 +121,9 @@ public class DomFunctionGenerator {
 					Object children = nil; // I think this is just a statement about how we build our trees
 					Object events = nil;
 					function(fn, new ApplyExpr(domCtor, tag, attrs, children, events));
-					Element elt = new Element("list", fn, route);
+					String val = nextFnName();
+					function(val, list.listVar);
+					Element elt = new Element("list", fn, val, route);
 					List<CardMember> dependsOn = new ArrayList<CardMember>();
 					traverseForMembers(dependsOn, list.listVar);
 					for (CardMember cm : dependsOn)
@@ -133,7 +135,7 @@ public class DomFunctionGenerator {
 					// But, it is effectively curried on the card, so lift that
 					String fn = nextFnName();
 					function(fn, x);
-					ret.add(new Element("content", fn, route));
+					ret.add(new Element("content", fn, null, route));
 					List<CardMember> dependsOn = new ArrayList<CardMember>();
 					traverseForMembers(dependsOn, x);
 					for (CardMember cm : dependsOn)
@@ -150,13 +152,13 @@ public class DomFunctionGenerator {
 					// associated with it, the runtime can keep track.  I think that is probably easiest
 					ApplyExpr cc = new ApplyExpr(create, cr.explicitCard, into, nil);
 					function(fn, cc);
-					ret.add(new Element("card", fn, route));
+					ret.add(new Element("card", fn, null, route));
 				} else if (x instanceof TemplateCases) {
 					TemplateCases tc = (TemplateCases) x;
 					Element elt = null;
 					if (tc.switchOn != null) {
 						String swfn = nextFnName();
-						elt = new Element("switch", swfn, route);
+						elt = new Element("switch", null, swfn, route);
 						ret.add(elt);
 						function(swfn, tc.switchOn);
 						List<CardMember> dependsOn = new ArrayList<CardMember>();
@@ -184,13 +186,13 @@ public class DomFunctionGenerator {
 						if (tc.switchOn != null) {
 							args.add(new VarPattern("_x"));
 							expr = new ApplyExpr(scope.fromRoot("=="), new LocalVar(csfn+"_0", "_x"), c.cond);
-							e = new Element("case", csfn, myroute);
+							e = new Element("case", null, csfn, myroute);
 							elt.children.add(e);
 							for (CardMember cm : dependsOn)
 								addUpdate(cm.var, route, "renderChildren"); // I think this is right: we want to update the parent of a switch but only update the children
 						} else {
 							expr = c.cond;
-							e = new Element("cond", csfn, myroute);
+							e = new Element("cond", null, csfn, myroute);
 							ret.add(e);
 							for (CardMember cm : dependsOn)
 								addUpdate(cm.var, route, "renderChildren"); // I think this is right: we want to update the parent of a switch but only update the children
@@ -220,7 +222,7 @@ public class DomFunctionGenerator {
 		}
 			
 		// Create the node in the RenderTree
-		RenderTree.Element rtnode = new Element("div", nextFnName(), route);
+		RenderTree.Element rtnode = new Element("div", nextFnName(), null, route);
 
 		// Create the parts of the DOM element
 		AbsoluteVar domCtor = scope.fromRoot("DOM.Element");

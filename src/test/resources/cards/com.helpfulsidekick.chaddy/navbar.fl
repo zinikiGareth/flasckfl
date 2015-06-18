@@ -1,6 +1,6 @@
 	card Navbar
 		state
-			String currentTab <- 'dashboard'
+			String currentTab <- 'myqueues'
 			
 		template
 			#header : 'nav-bar'

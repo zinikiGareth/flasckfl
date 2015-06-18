@@ -235,25 +235,16 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 	}
 
 	public void generateTree(JSForm block, Element ret) {
-		int idx = ret.fn.lastIndexOf(".");
-		String jsname = ret.fn.substring(0, idx+1) + "prototype" + ret.fn.substring(idx);
-
-		StringBuilder thisOne = new StringBuilder("type: '" + ret.type + "', fn: " + jsname + ", route: '" +ret.route + "'"); //lass: [");
-//		String sep = "";
-//		for (String s : ret.classes) {
-//			thisOne.append(sep);
-//			thisOne.append("'");
-//			thisOne.append(s);
-//			thisOne.append("'");
-//			sep = ", ";
-//		}
-//		for (String ae : ret.clsexprs) {
-//			thisOne.append(sep);
-//			int idx2 = ae.lastIndexOf(".");
-//			thisOne.append(ae.substring(0, idx2+1) + "prototype" + ae.substring(idx2));
-//			sep = ", ";
-//		}
-//		thisOne.append("]");
+		StringBuilder thisOne = new StringBuilder("type: '" + ret.type + "', ");
+		if (ret.fn != null) { 
+			int idx = ret.fn.lastIndexOf(".");
+			thisOne.append("fn: " + ret.fn.substring(0, idx+1) + "prototype" + ret.fn.substring(idx) + ", ");
+		}
+		if (ret.val != null) {
+			int idx = ret.val.lastIndexOf(".");
+			thisOne.append("val: " + ret.val.substring(0, idx+1) + "prototype" + ret.val.substring(idx) + ", ");
+		}
+		thisOne.append("route: '" +ret.route + "'");
 		if (!ret.children.isEmpty())
 			thisOne.append(", children:");
 		JSForm next = new JSForm(thisOne.toString());
