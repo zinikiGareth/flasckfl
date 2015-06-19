@@ -635,7 +635,15 @@ public class Rewriter {
 			} else if (expr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) expr;
 				if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals(".")) {
-					UnresolvedVar field = (UnresolvedVar)ae.args.get(1);
+					String fname;
+					if (ae.args.get(1) instanceof ApplyExpr) { // The field starts with a capital
+						System.out.println("Capital");
+						ApplyExpr inner = (ApplyExpr) ae.args.get(1);
+						fname = ((UnresolvedVar)inner.fn).var;
+					} else {
+						UnresolvedVar field = (UnresolvedVar)ae.args.get(1);
+						fname = field.var;
+					}
 					// The case where we have an absolute var by package name
 					// Does this need to be here as well as in RootScope?
 					if (!(ae.args.get(0) instanceof ApplyExpr)) {
@@ -644,14 +652,14 @@ public class Rewriter {
 						if (pkgEntry instanceof AbsoluteVar) {
 							Object o = ((AbsoluteVar)pkgEntry).defn;
 							if (o instanceof PackageDefn)
-								return new AbsoluteVar(((PackageDefn)o).innerScope().getEntry(field.var));
+								return new AbsoluteVar(((PackageDefn)o).innerScope().getEntry(fname));
 						}
 					}
 					
 					// expr . field
 					Object applyFn = rewriteExpr(cx, ae.args.get(0));
 	
-					return new ApplyExpr(cx.resolve(null, "."), applyFn, new StringLiteral(field.var));
+					return new ApplyExpr(cx.resolve(null, "."), applyFn, new StringLiteral(fname));
 				}
 				List<Object> args = new ArrayList<Object>();
 				for (Object o : ae.args)

@@ -3,7 +3,7 @@
 		state
 			List queues <- [Queue '1' 'Captured Items', Queue '2' 'TODO Today', Queue '3' 'This Week', Queue '4' 'Flasck Issues', Queue '5' 'Chaddy Bugs']
 			List items <- [Item '1' 'Get Chaddy working', Item '2' 'Multiple Cards', Item '3' 'List Elements']
-			String selectedQueue
+			String selectedQueue <- '3'
 			
 		template
 			. : 'section' 'main'
@@ -23,7 +23,7 @@
 		implements org.ziniki.Init
 			onready
 .				<- query.scan 'query/com.helpfulsidekick.omt.personal.chaddy.1/personal/myqueues' 'com.helpfulsidekick.chaddy.Queue' (QueueHandler)
-				<- query.scan 'myqueues' Queue (QueueHandler)
+.				<- query.scan 'myqueues' (type Queue) QueueHandler
 						
 		handler org.ziniki.QueryHandler QueueHandler
 			entry (String key) (Queue value)

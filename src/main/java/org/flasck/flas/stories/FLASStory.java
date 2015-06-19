@@ -279,7 +279,6 @@ public class FLASStory implements StoryProcessor {
 		List<FunctionCaseDefn> functions = new ArrayList<FunctionCaseDefn>();
 		List<EventCaseDefn> events = new ArrayList<EventCaseDefn>();
 		int cs = 0;
-		int hs = 0;
 		int ss = 0;
 		List<TemplateThing> templates = new ArrayList<TemplateThing>();
 		Set<LocatedToken> frTemplates = new TreeSet<LocatedToken>();
@@ -352,8 +351,9 @@ public class FLASStory implements StoryProcessor {
 				cd.addContractService((ContractService)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_S" + ss++);
 			} else if (o instanceof HandlerImplements) {
-				cd.addHandlerImplementation((HandlerImplements)o);
-				doImplementation(s, er, (Implements)o, b.nested, "_H" + hs++);
+				HandlerImplements hi = (HandlerImplements)o;
+				cd.addHandlerImplementation(hi);
+				doImplementation(s, er, hi, b.nested, hi.name);
 			} else if (o instanceof FunctionCaseDefn) {
 				functions.add((FunctionCaseDefn) o);
 			} else if (o instanceof FunctionIntro) {

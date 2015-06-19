@@ -68,10 +68,12 @@ public class Expression implements TryParsing {
 						return ErrorResult.oneMessage(line, "unrecognized punctuation");
 					}
 				} else
-					args.add(ItemExpr.from(s));
+					args.add(promoteConstructors(ItemExpr.from(s)));
 			}
-			if (args.size() == 1)
-				return deparen(args.get(0));
+			if (args.size() == 2 && args.get(0) instanceof UnresolvedVar && ((UnresolvedVar)args.get(0)).var.equals("type") && args.get(1) instanceof ApplyExpr && ((ApplyExpr)args.get(1)).args.isEmpty()) {
+				return ((ApplyExpr)args.get(1)).fn;
+			} else if (args.size() == 1)
+				return promoteConstructors(deparen(args.get(0)));
 			else
 				return deparen(opstack(args));
 		} else if (s.type == ExprToken.PUNC) {
@@ -89,6 +91,15 @@ public class Expression implements TryParsing {
 			System.out.println("What was this? " + s);
 			return null;
 		}
+	}
+
+	private Object promoteConstructors(Object from) {
+		if (from instanceof UnresolvedVar) {
+			UnresolvedVar v = (UnresolvedVar) from;
+			if (Character.isUpperCase(v.var.charAt(0)))
+				return new ApplyExpr(v);
+		}
+		return from;
 	}
 
 	// By the time we get here, all the inner parentheses should have been resolved.

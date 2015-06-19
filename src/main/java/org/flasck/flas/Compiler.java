@@ -55,7 +55,7 @@ import org.zinutils.utils.FileUtils;
 
 public class Compiler {
 	public static void main(String[] args) {
-		LogManager.getLogger("TypeChecker").setLevel(Level.INFO);
+		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
 		for (String f : args)
 			compiler.compile(new File(f));
