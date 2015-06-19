@@ -48,7 +48,6 @@ public class Generator {
 			int idx = jsname.lastIndexOf(".");
 			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
 			idx = jsname.lastIndexOf("._C");
-			if (idx == -1) idx = jsname.lastIndexOf("._H");
 			if (idx == -1) idx = jsname.lastIndexOf("._S");
 			if (idx != -1) jsname = jsname.substring(0, idx+1) + "_" + jsname.substring(idx+1);
 		}
@@ -164,7 +163,8 @@ public class Generator {
 	}
 
 	public void generateHandler(String ctorName, HandlerImplements hi) {
-		String clzname = ctorName.replace("._H", ".__H");
+		int idx = ctorName.lastIndexOf('.');
+		String clzname = ctorName.substring(0, idx+1) + "_" + ctorName.substring(idx+1);
 		List<Var> vars = new ArrayList<Var>();
 		for (int i=0;i<=hi.boundVars.size();i++)
 			vars.add(new Var(i));

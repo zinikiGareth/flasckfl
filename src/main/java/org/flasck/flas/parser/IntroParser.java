@@ -115,19 +115,26 @@ public class IntroParser implements TryParsing {
 			return new ContractService(tn.location, tn.text, var.location, var.text);
 		}
 		case "handler": {
+			if (!line.hasMore())
+				return ErrorResult.oneMessage(line, "missing contract reference");
 			TypeNameToken tn = QualifiedTypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract reference");
+			if (!line.hasMore())
+				return ErrorResult.oneMessage(line, "missing handler name");
+			TypeNameToken named = TypeNameToken.from(line);
+			if (named == null)
+				return ErrorResult.oneMessage(line, "invalid handler name");
 			ArrayList<String> lambdas = new ArrayList<String>();
 			if (!line.hasMore())
-				return new HandlerImplements(tn.location, tn.text, lambdas);
+				return new HandlerImplements(named.location, named.text, tn.text, lambdas);
 			while (line.hasMore()) {
 				ValidIdentifierToken var = VarNameToken.from(line);
 				if (var == null)
 					return ErrorResult.oneMessage(line, "invalid contract var name");
 				lambdas.add(var.text);
 			}
-			return new HandlerImplements(tn.location, tn.text, lambdas);
+			return new HandlerImplements(named.location, named.text, tn.text, lambdas);
 		}
 		case "event": {
 			Object o = new FunctionParser(state).tryParsing(line);

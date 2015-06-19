@@ -22,10 +22,10 @@
 .				<- timer.requestTicks (OnCounter 3) 1000
 		implements org.ziniki.Init
 			onready
-.				<- query.scan 'query/com.helpfulsidekick.omt.personal.chaddy.1/personal/myqueues' 'com.helpfulsidekick.chaddy.Queue' (QueryHandler)
-				<- query.scan 'myqueues' Queue (QueryHandler 13)
+.				<- query.scan 'query/com.helpfulsidekick.omt.personal.chaddy.1/personal/myqueues' 'com.helpfulsidekick.chaddy.Queue' (QueueHandler)
+				<- query.scan 'myqueues' Queue (QueueHandler)
 						
-		handler org.ziniki.QueryHandler
+		handler org.ziniki.QueryHandler QueueHandler
 			entry (String key) (Queue value)
 				<- queues.insert value
 		

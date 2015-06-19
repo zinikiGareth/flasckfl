@@ -165,7 +165,7 @@ public class Rewriter {
 	class CardContext extends NamingContext {
 		private final String prefix;
 		private final Set<String> members = new TreeSet<String>();
-		private final Map<String, Integer> statics = new TreeMap<String, Integer>();
+		private final Map<String, ObjectReference> statics = new TreeMap<String, ObjectReference>();
 		private final Scope innerScope;
 
 		CardContext(PackageContext cx, CardDefinition cd) {
@@ -184,9 +184,8 @@ public class Rewriter {
 				if (ci.referAsVar != null)
 					members.add(ci.referAsVar);
 			}
-			int pos = 0;
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(State.simpleName(hi.type), pos++);
+				statics.put(State.simpleName(hi.name), new ObjectReference(prefix, hi.name));
 			}
 		}
 
@@ -195,7 +194,7 @@ public class Rewriter {
 			if (members.contains(name))
 				return new CardMember(location, prefix, name);
 			if (statics.containsKey(name))
-				return new ObjectReference(prefix, "_H" + statics.get(name));
+				return statics.get(name);
 			if (innerScope.contains(name))
 				return new CardFunction(prefix, name);
 			return nested.resolve(location, name);
@@ -206,18 +205,16 @@ public class Rewriter {
 	 */
 	class HandlerContext extends NamingContext {
 		private final HandlerImplements hi;
-		private final int cs;
 
-		HandlerContext(CardContext card, HandlerImplements hi, int cs) {
+		HandlerContext(CardContext card, HandlerImplements hi) {
 			super(card);
 			this.hi = hi;
-			this.cs = cs;
 		}
 		
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (hi.boundVars.contains(name))
-				return new HandlerLambda(location, ((CardContext)nested).prefix + "._H" + cs, name);
+				return new HandlerLambda(location, ((CardContext)nested).prefix + "." + hi.name, name);
 			return nested.resolve(location, name);
 		}
 	}
@@ -357,17 +354,16 @@ public class Rewriter {
 		if (cd.template != null)
 			templates.add(rewrite(new TemplateContext(c2), cd.template));
 		
-		pos = 0;
 		for (HandlerImplements hi : cd.handlers) {
 			HandlerImplements rw = rewriteHI(c2, hi, pos);
 			if (rw == null)
 				continue;
-			String hiName = cd.name +"._H"+pos;
+			String hiName = cd.name +"."+hi.name;
 			cardHandlers.put(hiName, rw);
+			StructDefn hsd = new StructDefn(hiName, false);
 			if (!rw.boundVars.isEmpty()) {
 //				System.out.println("Creating class for handler " + hiName);
-				StructDefn hsd = new StructDefn(hiName, false);
-				// Doing this seems clever, but I'm not really sure that it is
+				// Using polymorphic vars with random names here seems clever, but I'm not really sure that it is
 				// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
 				for (int i=0;i<rw.boundVars.size();i++)
 					hsd.args.add("A"+i);
@@ -376,12 +372,11 @@ public class Rewriter {
 					hsd.fields.add(new StructField(new TypeReference(null, null, "A"+j), s));
 					j++;
 				}
-				structs.put(hiName, hsd);
 			}
-			HandlerContext hc = new HandlerContext(c2, hi, pos);
+			structs.put(hiName, hsd);
+			HandlerContext hc = new HandlerContext(c2, hi);
 			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_H"+pos, HSIEForm.Type.HANDLER, rewrite(hc, m)));
-			pos++;
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, hi.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
 		}
 		
 		rewriteScope(c2, cd.fnScope);
@@ -504,7 +499,7 @@ public class Rewriter {
 				errors.message((Block)null, "cannot find a valid definition of contract " + hi.type);
 				return hi;
 			}
-			HandlerImplements ret = new HandlerImplements(hi.typeLocation, ((AbsoluteVar)av).id, hi.boundVars);
+			HandlerImplements ret = new HandlerImplements(hi.typeLocation, hi.name, ((AbsoluteVar)av).id, hi.boundVars);
 			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
