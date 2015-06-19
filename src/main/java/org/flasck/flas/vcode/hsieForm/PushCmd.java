@@ -1,24 +1,30 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.TemplateListVar;
 
 public class PushCmd extends PushReturn {
 
-	public PushCmd(Var var) {
-		super(var);
+	public PushCmd(InputPosition loc, Var var) {
+		super(loc, var);
 	}
 
-	public PushCmd(int i) {
-		super(i);
+	public PushCmd(InputPosition loc, int i) {
+		super(loc, i);
 	}
 
-	public PushCmd(ExternalRef ref) {
-		super(ref);
+	public PushCmd(InputPosition loc, ExternalRef ref) {
+		super(loc, ref);
 	}
 
-	public PushCmd(StringLiteral s) {
-		super(s);
+	public PushCmd(InputPosition loc, StringLiteral s) {
+		super(loc, s);
+	}
+
+	public PushCmd(InputPosition loc, TemplateListVar tlv) {
+		super(loc, tlv);
 	}
 
 	@Override

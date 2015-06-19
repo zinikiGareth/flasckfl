@@ -86,7 +86,7 @@ public class MetaState {
 			else {
 				var = allocateVar();
 				HSIEBlock closure = form.closure(var);
-				closure.push(val);
+				closure.push(null, val);
 			}
 			substs.put(let.var, var);
 			writeIfExpr(substs, let.expr, writeTo);
@@ -97,7 +97,7 @@ public class MetaState {
 
 	public void writeFinalExpr(Map<String, Var> substs, Object expr, HSIEBlock writeTo) {
 		Object ret = getValueFor(substs, expr);
-		writeTo.doReturn(ret, closureDependencies(ret));
+		writeTo.doReturn(null, ret, closureDependencies(ret));
 	}
 
 	public Object getValueFor(Map<String, Var> substs, Object e) {
@@ -148,7 +148,7 @@ public class MetaState {
 			HSIEBlock closure = form.closure(var);
 			List<Var> mydeps = new ArrayList<Var>();
 			for (Object o : ops) {
-				closure.push(o);
+				closure.push(null, o);
 				if (o instanceof Var && closureDepends.containsKey(o)) {
 					mydeps.addAll(closureDepends.get(o));
 					mydeps.add((Var) o);

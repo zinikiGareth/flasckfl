@@ -1,6 +1,9 @@
 package org.flasck.flas.stories;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -99,6 +102,12 @@ public class Builtin {
 				new ContractDecl("org.ziniki.Init"));
 			ziniki.innerScope().define("KeyValue", "org.ziniki.KeyValue",
 					new ContractDecl("org.ziniki.KeyValue"));
+			ContractDecl qc = new ContractDecl("org.ziniki.Query");
+			qc.methods.add(new ContractMethodDecl("up", "scan", new ArrayList<Object>()));
+			ziniki.innerScope().define("Query", "org.ziniki.Query",
+					qc);
+			ziniki.innerScope().define("QueryHandler", "org.ziniki.QueryHandler",
+					new ContractDecl("org.ziniki.QueryHandler"));
 		}
 		return ret;
 	}

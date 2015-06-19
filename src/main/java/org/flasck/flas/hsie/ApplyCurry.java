@@ -24,8 +24,8 @@ public class ApplyCurry {
 				Type t = tc.getTypeDefn(pc.fn.uniqueName());
 				if (t.arity() != c.nestedCommands().size()-1) {
 //					System.out.println("need to curry block for type = " + t);
-					c.pushAt(0, new AbsoluteVar("FLEval.curry", null));
-					c.pushAt(2, t.arity());
+					c.pushAt(pc.location, 0, new AbsoluteVar("FLEval.curry", null));
+					c.pushAt(pc.location, 2, t.arity());
 				}
 			} else if (pc.var != null) { // the closure case, q.v.
 				 

@@ -57,10 +57,12 @@ public class Generator {
 		target.add(ret);
 	}
 
-	public void generate(String name, StructDefn sd) {
+	public void generate(StructDefn sd) {
 		if (!sd.generate)
 			return;
-		JSForm ret = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 0, 1);
+		int idx = sd.typename.lastIndexOf(".");
+		String uname = sd.typename.substring(0, idx+1) + "_" + sd.typename.substring(idx+1);
+		JSForm ret = JSForm.function(uname, CollectionUtils.listOf(new Var(0)), 0, 1);
 		ret.add(new JSForm("this._ctor = '" + sd.typename + "'"));
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
@@ -82,6 +84,18 @@ public class Generator {
 			}
 		}
 		target.add(ret);
+
+		List<Var> vars = new ArrayList<Var>();
+		List<String> fields = new ArrayList<String>();
+		int vi = 0;
+		for (StructField sf : sd.fields) {
+			Var v = new Var(vi++);
+			vars.add(v);
+			fields.add(sf.name+": "+ v);
+		}
+		JSForm ctor = JSForm.function(sd.typename, vars, 0, vars.size());
+		ctor.add(new JSForm("return new " + uname + "({" + String.join(", ", fields) + "})"));
+		target.add(ctor);
 	}
 
 	private void generateField(JSForm defass, String field, HSIEForm form) {

@@ -21,14 +21,14 @@ import org.flasck.flas.tokenizers.ExprToken;
 public class ParsedFormTestData {
 	public static FunctionCaseDefn fibDefn1() {
 		List<Object> args = new ArrayList<Object>();
-		args.add(new ConstPattern(ConstPattern.INTEGER, "0"));
+		args.add(new ConstPattern(null, ConstPattern.INTEGER, "0"));
 		Object ie = ItemExpr.from(new ExprToken(ExprToken.NUMBER, "1"));
 		return new FunctionCaseDefn(null, "fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefn2() {
 		List<Object> args = new ArrayList<Object>();
-		args.add(new ConstPattern(ConstPattern.INTEGER, "1"));
+		args.add(new ConstPattern(null, ConstPattern.INTEGER, "1"));
 		Object ie = ItemExpr.from(new ExprToken(ExprToken.NUMBER, "1"));
 		return new FunctionCaseDefn(null, "fib", args, ie);
 	}

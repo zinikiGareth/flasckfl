@@ -3,6 +3,7 @@ package org.flasck.flas.vcode.hsieForm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
@@ -15,8 +16,8 @@ public class HSIEBlock {
 		commands.add(new Head(v));
 	}
 
-	public HSIEBlock switchCmd(Var v, String ctor) {
-		Switch ret = new Switch(v, ctor);
+	public HSIEBlock switchCmd(InputPosition loc, Var v, String ctor) {
+		Switch ret = new Switch(loc, v, ctor);
 		commands.add(ret);
 		return ret;
 	}
@@ -45,41 +46,42 @@ public class HSIEBlock {
 		return ret;
 	}
 	
-	public HSIEBlock push(Object o) {
-		return pushAt(commands.size(), o);
+	public HSIEBlock push(InputPosition loc, Object o) {
+		return pushAt(loc, commands.size(), o);
 	}
 
-	public HSIEBlock pushAt(int pos, Object o) {
+	public HSIEBlock pushAt(InputPosition loc, int pos, Object o) {
 		PushCmd ret;
 		if (o instanceof Var)
-			ret = new PushCmd((Var)o);
+			ret = new PushCmd(loc, (Var)o);
 		else if (o instanceof Integer)
-			ret = new PushCmd((Integer)o);
+			ret = new PushCmd(loc, (Integer)o);
 		else if (o instanceof ExternalRef)
-			ret = new PushCmd((ExternalRef)o);
+			ret = new PushCmd(loc, (ExternalRef)o);
 		else if (o instanceof StringLiteral)
-			ret = new PushCmd((StringLiteral)o);
+			ret = new PushCmd(loc, (StringLiteral)o);
+		else if (o instanceof TemplateListVar)
+			ret = new PushCmd(loc, (TemplateListVar)o);
 		else if (o == null)
-			ret = new PushCmd(new StringLiteral("NULL")); // temporary
-//			throw new UtilException("Cannot push null");
+			throw new UtilException("Cannot push null");
 		else
 			throw new UtilException("Invalid object to push " + o.getClass() + ": " + o);
 		commands.add(pos, ret);
 		return ret;
 	}
 
-	public HSIEBlock doReturn(Object o, List<Var> deps) {
+	public HSIEBlock doReturn(InputPosition loc, Object o, List<Var> deps) {
 		ReturnCmd ret;
 		if (o instanceof Var)
-			ret = new ReturnCmd((Var)o, deps);
+			ret = new ReturnCmd(loc, (Var)o, deps);
 		else if (o instanceof Integer)
-			ret = new ReturnCmd((Integer)o);
+			ret = new ReturnCmd(loc, (Integer)o);
 		else if (o instanceof StringLiteral)
-			ret = new ReturnCmd((StringLiteral)o);
+			ret = new ReturnCmd(loc, (StringLiteral)o);
 		else if (o instanceof ExternalRef)
-			ret = new ReturnCmd((ExternalRef)o);
+			ret = new ReturnCmd(loc, (ExternalRef)o);
 		else if (o instanceof TemplateListVar)
-			ret = new ReturnCmd((TemplateListVar)o);
+			ret = new ReturnCmd(loc, (TemplateListVar)o);
 		else
 			throw new UtilException("Invalid object to return: " + o + " of type " + o.getClass());
 		commands.add(ret);

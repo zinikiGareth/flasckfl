@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -20,12 +21,12 @@ public class Option {
 		this.var = var;
 	}
 
-	public void ifCtor(String ctor, List<Field> args, SubstExpr substExpr) {
-		ctorCases.add(ctor, new NestedBinds(args, substExpr));
+	public void ifCtor(InputPosition location, String ctor, List<Field> args, SubstExpr substExpr) {
+		ctorCases.add(ctor, new NestedBinds(location, args, substExpr));
 	}
 
 	public void ifConst(String ctor, ConstPattern cp, SubstExpr substExpr) {
-		ctorCases.add(ctor, new NestedBinds(cp, substExpr));
+		ctorCases.add(ctor, new NestedBinds(cp.location, cp, substExpr));
 	}
 
 	public void anything(SubstExpr value, String varToSubst) {

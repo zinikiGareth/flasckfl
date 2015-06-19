@@ -148,7 +148,7 @@ public class Compiler {
 			Generator gen = new Generator(errors, target);
 
 			for (Entry<String, StructDefn> sd : rewriter.structs.entrySet())
-				gen.generate(sd.getKey(), sd.getValue());
+				gen.generate(sd.getValue());
 			for (Entry<String, CardGrouping> cg : rewriter.cards.entrySet())
 				gen.generate(cg.getKey(), cg.getValue());
 			for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet())

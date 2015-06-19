@@ -409,7 +409,7 @@ public class HSIETestData {
 				b.head(ret.var(Integer.parseInt(ps[1])));
 				prev = null;
 			} else if (ps[0].equals("SWITCH")) {
-				prev = b.switchCmd(ret.var(Integer.parseInt(ps[1])), ps[2]);
+				prev = b.switchCmd(null, ret.var(Integer.parseInt(ps[1])), ps[2]);
 			} else if (ps[0].equals("IF")) {
 				Var var = ret.var(Integer.parseInt(ps[1]));
 				if (ps.length == 2) {
@@ -434,16 +434,16 @@ public class HSIETestData {
 					for (int j=3;j<ps.length;j++)
 						deps.add(ret.var(Integer.parseInt(ps[j])));
 				}
-				prev = b.doReturn(tmp, deps);
+				prev = b.doReturn(null, tmp, deps);
 			} else if (ps[0].equals("ERROR")) {
 				b.caseError();
 				prev = null;
 			} else if (ps[0].equals("var") && ps.length == 2) {
-				prev = b.push(analyze(ret, ps, 0));
+				prev = b.push(null, analyze(ret, ps, 0));
 			} else if (Character.isDigit(ps[0].charAt(0))) {
-				prev = b.push(Integer.parseInt(ps[0]));
+				prev = b.push(null, Integer.parseInt(ps[0]));
 			} else {
-				prev = b.push(new AbsoluteVar(ps[0], null));
+				prev = b.push(null, new AbsoluteVar(ps[0], null));
 			}
 			
 		}

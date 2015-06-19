@@ -1,19 +1,41 @@
 	card MyQueues
 		
 		state
-			List queues <- ['Captured Items', 'TODO Today', 'This Week', 'Flasck Issues', 'Chaddy Bugs']
-			List items <- ['Get Chaddy working', 'Multiple Cards', 'List Elements']
+			List queues <- [Queue '1' 'Captured Items', Queue '2' 'TODO Today', Queue '3' 'This Week', Queue '4' 'Flasck Issues', Queue '5' 'Chaddy Bugs']
+			List items <- [Item '1' 'Get Chaddy working', Item '2' 'Multiple Cards', Item '3' 'List Elements']
+			String selectedQueue
 			
 		template
 			. : 'section' 'main'
 				. : 'w-row'
 					. : 'w-col' 'w-col-3'
 						+ queues q : 'w-list-unstyled' 'queue-list'
-							. : 'queue-item'
-								q
-. : 'queue-item' 'selected-queue-item'
+							. : 'queue-item' (styleIf 'selected-queue-item' (selectedQueue == q.id))
+								(q.title)
 					. : 'w-col' 'w-col-9'
 						+ items i : 'w-list-unstyled'
 							. : 'queue-list-item'
-								i
-. : 'queue-list-item'
+								(i.id) ". " (i.desc)
+
+.		implements org.ziniki.Init
+.			onready
+.				<- timer.requestTicks (OnCounter 3) 1000
+		implements org.ziniki.Init
+			onready
+.				<- query.scan 'query/com.helpfulsidekick.omt.personal.chaddy.1/personal/myqueues' 'com.helpfulsidekick.chaddy.Queue' (QueryHandler)
+				<- query.scan 'myqueues' Queue (QueryHandler 13)
+						
+		handler org.ziniki.QueryHandler
+			entry (String key) (Queue value)
+				<- queues.insert value
+		
+It still feels like a different keyword would give more of the impression of what's going on here
+And there's a sense in which the syntactic difference is varname or no varname
+But the reality is the implementation is SO similar		
+		implements org.ziniki.Query query
+		
+		
+This is the thing I think we should promote to the top level for Flasck
+
+		styleIf style true = style
+		styleIf style x = ''

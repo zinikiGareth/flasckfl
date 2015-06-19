@@ -1,7 +1,7 @@
 package org.flasck.flas.jsform;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,11 +24,12 @@ public class JSTarget {
 		forms.add(cf);
 	}
 
-	public void writeTo(FileWriter w) throws IOException {
+	public void writeTo(Writer w) throws IOException {
 		for (JSForm js : forms) {
 			js.writeTo(w);
 			w.write("\n");
 		}
 		w.write(pkg + ";\n");
+		w.flush();
 	}
 }

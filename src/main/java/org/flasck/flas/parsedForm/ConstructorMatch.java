@@ -3,6 +3,8 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class ConstructorMatch {
 	public class Field {
 		public final String field;
@@ -16,8 +18,10 @@ public class ConstructorMatch {
 
 	public final String ctor;
 	public final List<Field> args = new ArrayList<Field>();
+	public final InputPosition location;
 
-	public ConstructorMatch(String ctor) {
+	public ConstructorMatch(InputPosition loc, String ctor) {
+		this. location = loc;
 		this.ctor = ctor;
 	}
 	

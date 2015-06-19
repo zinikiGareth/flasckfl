@@ -147,11 +147,12 @@ public class HSIE {
 		s.writeTo.head(elim.var);
 		for (String ctor : elim.ctorCases) {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
-			HSIEBlock blk = s.writeTo.switchCmd(elim.var, ctor);
+			List<NestedBinds> list = elim.ctorCases.get(ctor);
+			HSIEBlock blk = s.writeTo.switchCmd(list.get(0).location, elim.var, ctor);
 			Set<String> binds = new TreeSet<String>();
 			Set<SubstExpr> possibles = new HashSet<SubstExpr>();
 			Set<SubstExpr> mycases = new HashSet<SubstExpr>();
-			for (NestedBinds nb : elim.ctorCases.get(ctor)) {
+			for (NestedBinds nb : list) {
 				if (nb.args != null) {
 					for (Field f : nb.args)
 						binds.add(f.field);
@@ -168,7 +169,7 @@ public class HSIE {
 				mapFieldNamesToVars.put(b, v);
 			}
 			boolean wantS1 = false;
-			for (NestedBinds nb : orderIfs(elim.ctorCases.get(ctor))) {
+			for (NestedBinds nb : orderIfs(list)) {
 				if (nb.ifConst != null) {
 //					System.out.println("Handling constant " + nb.ifConst.value);
 					HSIEBlock inner;
@@ -183,7 +184,7 @@ public class HSIE {
 //					s3.dump();
 //					System.out.println("---");
 					
-					addState(ms, s3, casesForConst(elim.ctorCases.get(ctor), nb.ifConst.value));
+					addState(ms, s3, casesForConst(list, nb.ifConst.value));
 				} else {
 					for (String b : binds) {
 						Object patt = nb.matchField(b);
@@ -270,10 +271,10 @@ public class HSIE {
 					o.anything(pe.getValue(), ((VarPattern)patt).var);
 				} else if (patt instanceof ConstructorMatch) {
 					ConstructorMatch cm = (ConstructorMatch) patt;
-					o.ifCtor(cm.ctor, cm.args, pe.getValue());
+					o.ifCtor(cm.location, cm.ctor, cm.args, pe.getValue());
 				} else if (patt instanceof TypedPattern) {
 					TypedPattern tp = (TypedPattern) patt;
-					o.ifCtor(tp.type, new ArrayList<Field>(), pe.getValue());
+					o.ifCtor(tp.typeLocation, tp.type, new ArrayList<Field>(), pe.getValue());
 				} else if (patt instanceof ConstPattern) {
 					ConstPattern cp = (ConstPattern) patt;
 					if (cp.type == ConstPattern.INTEGER) {

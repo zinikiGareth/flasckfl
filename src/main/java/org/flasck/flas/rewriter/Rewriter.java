@@ -360,6 +360,8 @@ public class Rewriter {
 		pos = 0;
 		for (HandlerImplements hi : cd.handlers) {
 			HandlerImplements rw = rewriteHI(c2, hi, pos);
+			if (rw == null)
+				continue;
 			String hiName = cd.name +"._H"+pos;
 			cardHandlers.put(hiName, rw);
 			if (!rw.boundVars.isEmpty()) {

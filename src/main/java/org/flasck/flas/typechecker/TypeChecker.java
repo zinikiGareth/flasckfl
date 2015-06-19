@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardGrouping;
@@ -161,7 +160,7 @@ public class TypeChecker {
 				ret.head(mapping.get(((Head)b).v));
 			} else if (b instanceof Switch) {
 				Switch sc = (Switch)b;
-				HSIEBlock ib = ret.switchCmd(mapping.get(sc.var), sc.ctor);
+				HSIEBlock ib = ret.switchCmd(sc.location, mapping.get(sc.var), sc.ctor);
 				mapBlock(ib, sc, mapping);
 			} else if (b instanceof IFCmd) {
 				IFCmd ic = (IFCmd) b;
@@ -174,27 +173,29 @@ public class TypeChecker {
 				ReturnCmd rc = (ReturnCmd)b;
 				List<Var> deps = rewriteList(mapping, rc.deps);
 				if (rc.var != null)
-					ret.doReturn(mapping.get(rc.var), deps);
+					ret.doReturn(rc.location, mapping.get(rc.var), deps);
 				else if (rc.ival != null)
-					ret.doReturn(rc.ival, deps);
+					ret.doReturn(rc.location, rc.ival, deps);
 				else if (rc.sval != null)
-					ret.doReturn(rc.sval, deps);
+					ret.doReturn(rc.location, rc.sval, deps);
 				else if (rc.fn != null)
-					ret.doReturn(rc.fn, deps);
+					ret.doReturn(rc.location, rc.fn, deps);
 				else if (rc.tlv != null)
-					ret.doReturn(rc.tlv, deps);
+					ret.doReturn(rc.location, rc.tlv, deps);
 				else
 					throw new UtilException("Unhandled");
 			} else if (b instanceof PushCmd) {
 				PushCmd pc = (PushCmd) b;
 				if (pc.var != null)
-					ret.push(mapping.get(pc.var));
+					ret.push(pc.location, mapping.get(pc.var));
 				else if (pc.ival != null)
-					ret.push(pc.ival);
+					ret.push(pc.location, pc.ival);
 				else if (pc.fn != null)
-					ret.push(pc.fn);
+					ret.push(pc.location, pc.fn);
 				else if (pc.sval != null)
-					ret.push(pc.sval);
+					ret.push(pc.location, pc.sval);
+				else if (pc.tlv != null)
+					ret.push(pc.location, pc.tlv);
 				else
 					throw new UtilException("Unhandled");
 			} else if (b instanceof ErrorCmd)
@@ -256,14 +257,14 @@ public class TypeChecker {
 			else if (o instanceof Switch) {
 				Switch s = (Switch) o;
 				TypeScheme valueOf = gamma.valueOf(s.var);
-				if (s.ctor.equals("Number") || s.ctor.equals("Boolean")) {
+				if (s.ctor.equals("Number") || s.ctor.equals("Boolean") || s.ctor.equals("String")) {
 					phi.unify(valueOf.typeExpr, new TypeExpr(s.ctor));
 					returns.add(checkBlock(sft, localKnowledge, phi, gamma, form, s));
 					logger.info(o.toString() + " links " + s.var + " to " + s.ctor);
 				} else {
 					StructDefn sd = structs.get(s.ctor);
 					if (sd == null) {
-						errors.message((Block)null, "there is no definition for struct " + s.ctor);
+						errors.message(s.location, "there is no definition for struct " + s.ctor);
 						return null;
 					}
 	//				System.out.println(valueOf);
@@ -403,7 +404,7 @@ public class TypeChecker {
 					// We should not be able to get here if r.fn is not already an external which has been resolved
 					for (Entry<String, Type> x : knowledge.entrySet())
 						System.out.println(x.getKey() + " => " + x.getValue());
-					errors.message((Block)null, "There is no type for identifier: " + r.fn + " when checking " + form.fnName); // We need some way to report error location
+					errors.message(r.location, "There is no type for identifier: " + r.fn + " when checking " + form.fnName);
 					return null;
 				} else {
 //					System.out.print("Replacing vars in " + r.fn +": ");

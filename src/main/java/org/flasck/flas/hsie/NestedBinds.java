@@ -2,21 +2,25 @@ package org.flasck.flas.hsie;
 
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 
 public class NestedBinds {
+	public final InputPosition location;
 	public final ConstPattern ifConst;
 	public final List<Field> args;
 	public final SubstExpr substExpr;
 
-	public NestedBinds(ConstPattern patt, SubstExpr substExpr) {
+	public NestedBinds(InputPosition location, ConstPattern patt, SubstExpr substExpr) {
+		this.location = location;
 		this.ifConst = patt;
 		this.args = null;
 		this.substExpr = substExpr;
 	}
 
-	public NestedBinds(List<Field> args, SubstExpr substExpr) {
+	public NestedBinds(InputPosition location, List<Field> args, SubstExpr substExpr) {
+		this.location = location;
 		this.ifConst = null;
 		this.args = args;
 		this.substExpr = substExpr;

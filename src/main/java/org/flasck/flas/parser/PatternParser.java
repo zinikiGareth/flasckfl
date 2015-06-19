@@ -37,7 +37,7 @@ public class PatternParser implements TryParsing {
 						retArr.add(ret);
 					} else if (after.type == PattToken.OCB) {
 						// Subsid case is "(Type { ... })" - again with initial caps
-						ConstructorMatch ret = new ConstructorMatch(next.text);
+						ConstructorMatch ret = new ConstructorMatch(next.location, next.text);
 						retArr.add(ret);
 						while (true) {
 							PattToken field = PattToken.from(line);
@@ -93,17 +93,17 @@ public class PatternParser implements TryParsing {
 		if (tok.type == PattToken.VAR)
 			return new VarPattern(tok.text);
 		else if (tok.type == PattToken.TYPE)
-			return new ConstructorMatch(tok.text);
+			return new ConstructorMatch(tok.location, tok.text);
 		else if (tok.type == PattToken.NUMBER)
-			return new ConstPattern(ConstPattern.INTEGER, tok.text);
+			return new ConstPattern(tok.location, ConstPattern.INTEGER, tok.text);
 		else if (tok.type == PattToken.FALSE || tok.type == PattToken.TRUE)
-			return new ConstPattern(ConstPattern.BOOLEAN, tok.text);
+			return new ConstPattern(tok.location, ConstPattern.BOOLEAN, tok.text);
 		else if (tok.type == PattToken.OSB) {
 			int mark = line.at();
 			PattToken next = PattToken.from(line);
 			List<Object> ps = new ArrayList<Object>();
 			if (next.type == PattToken.CSB)
-				return new ConstructorMatch("Nil");
+				return new ConstructorMatch(tok.location, "Nil");
 			else {
 				line.reset(mark); // put the unknown token back on the front of the input
 				while (true) {
@@ -123,13 +123,13 @@ public class PatternParser implements TryParsing {
 	}
 
 	private Object buildListFromPatterns(List<Object> ps, boolean addNil) {
-		Object ret = addNil?new ConstructorMatch("Nil"):null;
+		Object ret = addNil?new ConstructorMatch(null, "Nil"):null;
 		for (int i=ps.size()-1;i>=0;i--) {
 			if (!addNil && ret == null) {
 				ret = ps.get(i);
 				continue;
 			}
-			ConstructorMatch tmp = new ConstructorMatch("Cons");
+			ConstructorMatch tmp = new ConstructorMatch(null, "Cons");
 			tmp.args.add(tmp.new Field("head", ps.get(i)));
 			tmp.args.add(tmp.new Field("tail", ret));
 			ret = tmp;
