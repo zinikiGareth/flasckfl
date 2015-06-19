@@ -54,6 +54,7 @@ import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
+import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -220,7 +221,30 @@ public class Rewriter {
 			return nested.resolve(location, name);
 		}
 	}
-	
+
+	public class TemplateContext extends NamingContext {
+		private final TemplateListVar listVar;
+
+		public TemplateContext(CardContext cx) {
+			super(cx);
+			listVar = null;
+		}
+		
+		public TemplateContext(TemplateContext cx, TemplateListVar tlv) {
+			super(cx);
+			this.listVar = tlv;
+		}
+		
+		@Override
+		public Object resolve(InputPosition location, String name) {
+			if (listVar != null && listVar.name.equals(name))
+				return listVar;
+			return nested.resolve(location, name);
+		}
+
+	}
+
+
 	// I think I still need ImplementsContext, MethodContext and EventHandlerContext
 	// BUT I think the latter two can just be FunctionContext & ImplementsContext is dull
 	
@@ -331,7 +355,7 @@ public class Rewriter {
 		}
 
 		if (cd.template != null)
-			templates.add(rewrite(c2, cd.template));
+			templates.add(rewrite(new TemplateContext(c2), cd.template));
 		
 		pos = 0;
 		for (HandlerImplements hi : cd.handlers) {
@@ -361,7 +385,7 @@ public class Rewriter {
 		rewriteScope(c2, cd.fnScope);
 	}
 
-	private Template rewrite(CardContext cx, Template template) {
+	private Template rewrite(TemplateContext cx, Template template) {
 		try {
 			// Again, the need for a scope seems dodgy if we've rewritten ...
 			return new Template(template.prefix, rewrite(cx, template.topLine), template.scope);
@@ -371,7 +395,7 @@ public class Rewriter {
 		}
 	}
 
-	private TemplateLine rewrite(CardContext cx, TemplateLine tl) {
+	private TemplateLine rewrite(TemplateContext cx, TemplateLine tl) {
 		List<Object> contents = new ArrayList<Object>();
 		List<Object> attrs = new ArrayList<Object>();
 		List<Object> formats = new ArrayList<Object>();
@@ -392,7 +416,9 @@ public class Rewriter {
 			} else if (o instanceof TemplateList) {
 				TemplateList ul = (TemplateList)o;
 				Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);
-				TemplateList rul = new TemplateList(ul.listLoc, rlistVar, new LocalVar(null, (String) ul.iterVar));
+				TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
+				TemplateList rul = new TemplateList(ul.listLoc, rlistVar, tlv);
+				cx = new TemplateContext(cx, tlv);
 				contents.add(rul);
 			} else if (o instanceof TemplateCases) {
 				TemplateCases tc = (TemplateCases)o;
@@ -434,7 +460,7 @@ public class Rewriter {
 		return ret;
 	}
 
-	private TemplateOr rewrite(CardContext cx, TemplateOr tor) {
+	private TemplateOr rewrite(TemplateContext cx, TemplateOr tor) {
 		TemplateOr ret = new TemplateOr(rewriteExpr(cx, tor.cond));
 		for (TemplateLine tl : tor.template)
 			ret.template.add(rewrite(cx, tl));
@@ -605,7 +631,7 @@ public class Rewriter {
 				} else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(location, s);
-				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda)
+				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());

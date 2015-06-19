@@ -2,6 +2,7 @@ package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.TemplateListVar;
 
 // Push and Return are like REALLY, REALLY similar
 // It helps the typechecker at least to treat them as exactly the same
@@ -10,12 +11,14 @@ public abstract class PushReturn extends HSIEBlock {
 	public final Integer ival;
 	public final StringLiteral sval;
 	public final ExternalRef fn;
+	public final TemplateListVar tlv;
 
 	public PushReturn(Var var) {
 		this.var = var;
 		this.ival = null;
 		this.sval = null;
 		this.fn = null;
+		this.tlv = null;
 	}
 
 	public PushReturn(int i) {
@@ -23,6 +26,7 @@ public abstract class PushReturn extends HSIEBlock {
 		this.ival = i;
 		this.sval = null;
 		this.fn = null;
+		this.tlv = null;
 	}
 
 	public PushReturn(ExternalRef fn) {
@@ -30,6 +34,7 @@ public abstract class PushReturn extends HSIEBlock {
 		this.ival = null;
 		this.sval = null;
 		this.fn = fn;
+		this.tlv = null;
 	}
 
 	public PushReturn(StringLiteral s) {
@@ -37,6 +42,15 @@ public abstract class PushReturn extends HSIEBlock {
 		this.ival = null;
 		this.sval = s;
 		this.fn = null;
+		this.tlv = null;
+	}
+
+	public PushReturn(TemplateListVar tlv) {
+		this.var = null;
+		this.ival = null;
+		this.sval = null;
+		this.fn = null;
+		this.tlv = tlv;
 	}
 
 	protected Object textValue() {

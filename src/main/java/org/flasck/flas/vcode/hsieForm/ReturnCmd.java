@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.TemplateListVar;
 
 public class ReturnCmd extends PushReturn {
 	public final List<Var> deps;
@@ -25,6 +26,11 @@ public class ReturnCmd extends PushReturn {
 
 	public ReturnCmd(ExternalRef fn) {
 		super(fn);
+		this.deps = null;
+	}
+
+	public ReturnCmd(TemplateListVar tlv) {
+		super(tlv);
 		this.deps = null;
 	}
 

@@ -21,15 +21,17 @@ public class RenderTree {
 		public final String type;
 		public final String fn;
 		public final String val;
+		public final String var;
 		public final String route;
 		public final List<Element> children = new ArrayList<Element>();
 		public final List<String> classes = new ArrayList<String>();
 		public final List<String> clsexprs = new ArrayList<String>();
 		
-		public Element(String t, String f, String val, String route) {
+		public Element(String t, String f, String val, String var, String route) {
 			type = t;
 			fn = f;
 			this.val = val;
+			this.var = var;
 			this.route = route.length() == 0 ? "" : route.substring(1);
 		}
 		

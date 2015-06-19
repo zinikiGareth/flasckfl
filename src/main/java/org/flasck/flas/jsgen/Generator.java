@@ -240,6 +240,9 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 			int idx = ret.fn.lastIndexOf(".");
 			thisOne.append("fn: " + ret.fn.substring(0, idx+1) + "prototype" + ret.fn.substring(idx) + ", ");
 		}
+		if (ret.var != null) {
+			thisOne.append("var: '" + ret.var + "', ");
+		}
 		if (ret.val != null) {
 			int idx = ret.val.lastIndexOf(".");
 			thisOne.append("val: " + ret.val.substring(0, idx+1) + "prototype" + ret.val.substring(idx) + ", ");

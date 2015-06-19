@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.TemplateListVar;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIEBlock {
@@ -77,6 +78,8 @@ public class HSIEBlock {
 			ret = new ReturnCmd((StringLiteral)o);
 		else if (o instanceof ExternalRef)
 			ret = new ReturnCmd((ExternalRef)o);
+		else if (o instanceof TemplateListVar)
+			ret = new ReturnCmd((TemplateListVar)o);
 		else
 			throw new UtilException("Invalid object to return: " + o + " of type " + o.getClass());
 		commands.add(ret);

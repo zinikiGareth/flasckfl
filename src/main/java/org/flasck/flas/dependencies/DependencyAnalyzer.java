@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.TemplateListVar;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.DirectedCyclicGraph;
@@ -77,7 +78,7 @@ public class DependencyAnalyzer {
 		if (expr == null)
 			return;
 //		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
-		if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
+		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof TemplateListVar)
 			;
 		else if (expr instanceof CardMember) {
 			dcg.ensure("_var_" + ((CardMember)expr).uniqueName());

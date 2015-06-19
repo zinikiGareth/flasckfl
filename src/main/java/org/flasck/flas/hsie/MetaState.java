@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -112,6 +113,8 @@ public class MetaState {
 		else if (expr instanceof NumericLiteral)
 			return Integer.parseInt(((NumericLiteral)expr).text); // what about floats?
 		else if (expr instanceof StringLiteral)
+			return expr;
+		else if (expr instanceof TemplateListVar)
 			return expr;
 		else if (expr instanceof LocalVar) {
 			String var = ((LocalVar)expr).var;

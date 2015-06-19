@@ -181,6 +181,8 @@ public class TypeChecker {
 					ret.doReturn(rc.sval, deps);
 				else if (rc.fn != null)
 					ret.doReturn(rc.fn, deps);
+				else if (rc.tlv != null)
+					ret.doReturn(rc.tlv, deps);
 				else
 					throw new UtilException("Unhandled");
 			} else if (b instanceof PushCmd) {
@@ -325,6 +327,9 @@ public class TypeChecker {
 			} else if (r.sval != null) {
 				logger.info(r.toString() + " is of type String");
 				return new TypeExpr("String");
+			} else if (r.tlv != null) {
+				// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
+				return factory.next();
 			} else if (r.var != null) {
 				HSIEBlock c = form.getClosure(r.var);
 				if (c == null) {

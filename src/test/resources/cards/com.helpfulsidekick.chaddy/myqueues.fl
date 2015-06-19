@@ -10,10 +10,10 @@
 					. : 'w-col' 'w-col-3'
 						+ queues q : 'w-list-unstyled' 'queue-list'
 							. : 'queue-item'
-								'queue name'
+								q
 . : 'queue-item' 'selected-queue-item'
 					. : 'w-col' 'w-col-9'
-						+ items : 'w-list-unstyled'
+						+ items i : 'w-list-unstyled'
 							. : 'queue-list-item'
-								'item text'
+								i
 . : 'queue-list-item'
