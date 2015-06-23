@@ -175,6 +175,9 @@ public class JSForm {
 		if (ctor.equals("Boolean")) {
 			return new JSForm("if (typeof v" + var.idx + " === 'boolean')").needBlock();
 		}
+		if (ctor.equals("String")) {
+			return new JSForm("if (typeof v" + var.idx + " === 'string')").needBlock();
+		}
 		return new JSForm("if (v" + var.idx + " && v" + var.idx+"._ctor == '" + ctor +"')").needBlock();
 	}
 

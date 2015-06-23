@@ -73,8 +73,11 @@ public class DomFunctionGenerator {
 	public Object generate(TemplateLine template, String route) {
 		Object ret = generateOne(template, route);
 		int pos = 0;
-		for (TemplateLine tl : template.nested)
-			((Element)ret).addChildren(generate(tl, route + "." + pos++));
+		for (TemplateLine tl : template.nested) {
+			Element elt = (Element)ret;
+			System.out.println("route = " + route + "; " + elt.route);
+			elt.addChildren(generate(tl, elt.route + "." + pos++));
+		}
 		return ret;
 	}
 	
@@ -124,11 +127,12 @@ public class DomFunctionGenerator {
 					function(fn, new ApplyExpr(domCtor, tag, attrs, children, events));
 					String val = nextFnName();
 					function(val, list.listVar);
-					Element elt = new Element("list", fn, val, ((TemplateListVar)list.iterVar).name, route);
+					String var = ((TemplateListVar)list.iterVar).name;
+					Element elt = new Element("list", fn, val, var, route + "+" + var);
 					List<CardMember> dependsOn = new ArrayList<CardMember>();
 					traverseForMembers(dependsOn, list.listVar);
 					for (CardMember cm : dependsOn)
-						addUpdate(cm.var, route, "render");
+						addUpdate(cm.var, route + "+" + var, "render");
 					return elt;
 				} else if (x instanceof CardMember || x instanceof ApplyExpr || x instanceof TemplateListVar) {
 					// in this case, this is an expression which should return an HTML structure or text value

@@ -17,13 +17,13 @@
 
 		implements org.ziniki.KeyValue
 			value (CounterObj c)
-				<- timer.requestTicks (OnCounter c.inc) 1000
+				<- timer.requestTicks (CountUp c.inc) 1000
 
 .				<- timer.cancel t
-# should be: (capturing handle)				<- timer.requestTicks (OnCounter c.inc) 1000 -> t
+# should be: (capturing handle)				<- timer.requestTicks (CountUp c.inc) 1000 -> t
 
 		implements Timer timer
   
-		handler OnCounter inc 
+		handler OnCounter CountUp inc 
 			onTick
 				counter <- counter + inc

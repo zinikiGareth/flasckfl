@@ -32,7 +32,7 @@ public class RenderTree {
 			fn = f;
 			this.val = val;
 			this.var = var;
-			this.route = route.length() == 0 ? "" : route.substring(1);
+			this.route = route;
 		}
 		
 		@SuppressWarnings("unchecked")

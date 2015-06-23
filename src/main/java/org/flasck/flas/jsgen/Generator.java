@@ -24,6 +24,7 @@ import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
@@ -47,8 +48,12 @@ public class Generator {
 		if (input.isMethod()) {
 			int idx = jsname.lastIndexOf(".");
 			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
-			idx = jsname.lastIndexOf("._C");
-			if (idx == -1) idx = jsname.lastIndexOf("._S");
+			if (input.mytype == Type.HANDLER) {
+				idx = jsname.lastIndexOf('.', idx-1);
+			} else {
+				idx = jsname.lastIndexOf("._C");
+				if (idx == -1) idx = jsname.lastIndexOf("._S");
+			}
 			if (idx != -1) jsname = jsname.substring(0, idx+1) + "_" + jsname.substring(idx+1);
 		}
 		JSForm ret = JSForm.function(jsname, input.vars, input.alreadyUsed, input.nformal);
@@ -187,14 +192,6 @@ public class Generator {
 		target.add(ctor);
 	}
 
-	/* We want something like this:
-test.ziniki.CounterCard.prototype._templateLine1 = {
-	tag: 'span',
-	render: function(doc, myblock) {
-		myblock.appendChild(doc.createTextNode(this.counter));
-	}
-}
-	 */
 	public JSForm generateTemplateLine(TemplateRenderState trs, TemplateLine tl) {
 		JSForm ret = new JSForm(trs.name + ".prototype._templateLine"+trs.lineNo() + " =").needBlock();
 		ret.add(new JSForm("tag: 'span'").comma());
@@ -261,7 +258,7 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 			int idx = ret.val.lastIndexOf(".");
 			thisOne.append("val: " + ret.val.substring(0, idx+1) + "prototype" + ret.val.substring(idx) + ", ");
 		}
-		thisOne.append("route: '" +ret.route + "'");
+		thisOne.append("route: '" + dropDot(ret.route) + "'");
 		if (!ret.children.isEmpty())
 			thisOne.append(", children:");
 		JSForm next = new JSForm(thisOne.toString());
@@ -276,6 +273,12 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 				generateTree(wrapper, e);
 			}
 		}
+	}
+
+	private String dropDot(String route) {
+		if (route.length() == 0)
+			return route;
+		return route.substring(1);
 	}
 
 	public JSForm generateUpdateTree(String prefix) {
@@ -303,11 +306,19 @@ test.ziniki.CounterCard.prototype._templateLine1 = {
 	private String nodepath(StringBuilder sb, String route) {
 		int idx = route.indexOf(".");
 		if (idx == -1) {
+			String sub = route;
+			int idx2 = sub.indexOf("+");
+			if (idx2 != -1)
+				sub = sub.substring(0, idx2);
 			if (route.length() > 0)
-				sb.append(".children[" + route + "]");
+				sb.append(".children[" + sub + "]");
 			return sb.toString();
 		} else {
-			sb.append(".children[" + route.substring(0, idx) + "]");
+			String sub = route.substring(0, idx);
+			int idx2 = sub.indexOf("+");
+			if (idx2 != -1)
+				sub = sub.substring(0, idx2);
+			sb.append(".children[" + sub + "]");
 			return nodepath(sb, route.substring(idx+1));
 		}
 	}

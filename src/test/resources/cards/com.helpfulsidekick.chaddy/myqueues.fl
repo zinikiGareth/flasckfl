@@ -1,9 +1,9 @@
 	card MyQueues
 		
 		state
-			List queues <- [Queue '1' 'Captured Items', Queue '2' 'TODO Today', Queue '3' 'This Week', Queue '4' 'Flasck Issues', Queue '5' 'Chaddy Bugs']
-			List items <- [Item '1' 'Get Chaddy working', Item '2' 'Multiple Cards', Item '3' 'List Elements']
-			String selectedQueue <- '3'
+			List queues <- [Queue 'Q1' 'Captured Items', Queue 'Q2' 'TODO Today', Queue 'Q3' 'This Week', Queue 'Q4' 'Flasck Issues', Queue 'Q5' 'Chaddy Bugs']
+			List items <- [Item 'I1' 'Get Chaddy working', Item 'I2' 'Multiple Cards', Item 'I3' 'List Elements']
+			String selectedQueue <- 'Q3'
 			
 		template
 			. : 'section' 'main'
@@ -22,12 +22,13 @@
 .				<- timer.requestTicks (OnCounter 3) 1000
 		implements org.ziniki.Init
 			onready
-.				<- query.scan 'query/com.helpfulsidekick.omt.personal.chaddy.1/personal/myqueues' 'com.helpfulsidekick.chaddy.Queue' (QueueHandler)
+				<- query.scan 'query/com.helpfulsidekick.omt.personal.chaddy.1/personal/myqueues' 'com.helpfulsidekick.chaddy.Queue' QueueHandler
 .				<- query.scan 'myqueues' (type Queue) QueueHandler
 						
 		handler org.ziniki.QueryHandler QueueHandler
 			entry (String key) (Queue value)
-				<- queues.insert value
+.				<- queues.insert value
+				queues <- [(Queue '17' 'Hello')]
 		
 It still feels like a different keyword would give more of the impression of what's going on here
 And there's a sense in which the syntactic difference is varname or no varname
