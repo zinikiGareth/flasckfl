@@ -679,19 +679,23 @@ public class Rewriter {
 	private TypeReference rewriteType(NamingContext scope, Object type) {
 		if (type instanceof TypeReference) {
 			TypeReference tr = (TypeReference) type;
-			Object r = scope.resolve(tr.location, tr.name);
-			if (!(r instanceof AbsoluteVar)) {
-				errors.message((Block)null, tr.name + " is not a type definition");
+			try {
+				Object r = scope.resolve(tr.location, tr.name);
+				if (!(r instanceof AbsoluteVar)) {
+					errors.message((Block)null, tr.name + " is not a type definition");
+					return null;
+				}
+				AbsoluteVar av = (AbsoluteVar)r;
+				TypeReference ret = new TypeReference(tr.location, av.id, null);
+				for (Object o : tr.args)
+					ret.args.add(rewriteType(scope, o));
+				return ret;
+			} catch (ResolutionException ex) {
+				errors.message(tr.location, ex.getMessage());
 				return null;
 			}
-			AbsoluteVar av = (AbsoluteVar)r;
-			TypeReference ret = new TypeReference(tr.location, av.id, null);
-			for (Object o : tr.args)
-				ret.args.add(rewriteType(scope, o));
-			return ret;
 		}
-		System.out.println("Can't rewrite type " + type + " of type " + type.getClass());
-		return (TypeReference) type;
+		throw new UtilException("Can't rewrite type " + type + " of type " + type.getClass());
 	}
 
 	public void dump() {

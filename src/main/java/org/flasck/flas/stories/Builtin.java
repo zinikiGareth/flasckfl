@@ -62,6 +62,10 @@ public class Builtin {
 				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
 				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "tail")));
 		}
+		{ // crosets
+			ret.define("Croset", "Croset",
+				new StructDefn("Croset", false).add("A"));
+		}
 		{ // messaging
 			ret.define("Message", "Message", null);
 			ret.define("Assign", "Assign",

@@ -1,7 +1,7 @@
 	card MyQueues
 		
 		state
-			List queues <- [Queue 'Q1' 'Captured Items', Queue 'Q2' 'TODO Today', Queue 'Q3' 'This Week', Queue 'Q4' 'Flasck Issues', Queue 'Q5' 'Chaddy Bugs']
+			Croset queues <- Croset [('13', Queue 'Q1' 'Captured Items'), ('29', Queue 'Q2' 'TODO Today'), ('31', Queue 'Q3' 'This Week'), ('47', Queue 'Q4' 'Flasck Issues'), ('55', Queue 'Q5' 'Chaddy Bugs')]
 			List items <- [Item 'I1' 'Get Chaddy working', Item 'I2' 'Multiple Cards', Item 'I3' 'List Elements']
 			String selectedQueue <- 'Q3'
 			
@@ -27,8 +27,8 @@
 						
 		handler org.ziniki.QueryHandler QueueHandler
 			entry (String key) (Queue value)
-.				<- queues.insert value
-				queues <- [(Queue '17' 'Hello')]
+				<- queues.insert key value
+.				queues <- [(Queue '17' 'Hello')]
 		
 It still feels like a different keyword would give more of the impression of what's going on here
 And there's a sense in which the syntactic difference is varname or no varname
