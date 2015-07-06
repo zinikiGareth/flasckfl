@@ -6,6 +6,7 @@ import java.util.Map;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.EventHandlerInContext;
@@ -15,6 +16,7 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
@@ -70,8 +72,10 @@ public class MethodConvertor {
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr fn = (ApplyExpr)root.fn;
 			if (!(fn.fn instanceof AbsoluteVar) || !((AbsoluteVar)fn.fn).id.equals("FLEval.field")) throw new UtilException("unhandled case");
+			Object target = fn.args.get(0);
+			if (!(target instanceof CardMember)) throw new UtilException("Target must be on the card somewhere");
 			return new ApplyExpr(scope.fromRoot("Send"),
-					fn.args.get(0),
+					new StringLiteral(((CardMember)target).var),
 					fn.args.get(1),
 					asList(scope, root.args));
 		}

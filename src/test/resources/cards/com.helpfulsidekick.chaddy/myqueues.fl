@@ -1,7 +1,7 @@
 	card MyQueues
 		
 		state
-			Croset queues <- Croset [('13', Queue 'Q1' 'Captured Items'), ('29', Queue 'Q2' 'TODO Today'), ('31', Queue 'Q3' 'This Week'), ('47', Queue 'Q4' 'Flasck Issues'), ('55', Queue 'Q5' 'Chaddy Bugs')]
+			Croset queues <- Croset []
 			List items <- [Item 'I1' 'Get Chaddy working', Item 'I2' 'Multiple Cards', Item 'I3' 'List Elements']
 			String selectedQueue <- 'Q3'
 			

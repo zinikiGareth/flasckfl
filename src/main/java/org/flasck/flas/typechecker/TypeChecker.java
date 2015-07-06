@@ -71,7 +71,6 @@ public class TypeChecker {
 	}
 
 	public void addExternal(String name, Type type) {
-		System.out.println("External: " + name);
 		knowledge.put(name, type);
 	}
 

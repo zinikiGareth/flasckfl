@@ -449,6 +449,8 @@ public class FLASStory implements StoryProcessor {
 		assertSomeNonCommentNestedLines(er, container);
 		TemplateLineParser tlp = new TemplateLineParser();
 		for (Block b : container.nested) {
+			if (b.isComment())
+				continue;
 			Object o = tlp.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");

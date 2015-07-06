@@ -125,7 +125,6 @@ public class Compiler {
 			List<UpdateTree> updates = new ArrayList<UpdateTree>();
 			for (Template t : rewriter.templates)
 				promoteTemplateFunctions(errors, rewriter.functions, trees, updates, t);
-			System.out.println(updates);
 			abortIfErrors(errors);
 			
 			// 5. Extract methods and convert to functions
