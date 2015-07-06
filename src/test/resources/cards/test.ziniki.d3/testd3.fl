@@ -1,0 +1,9 @@
+	card TestCard
+		state
+			List data <- [ 5, 8, 2, 16 ]
+			
+		template
+			#svg @width='400' @height='250' 
+			
+		d3 myd3 data elt
+			pattern "rect"

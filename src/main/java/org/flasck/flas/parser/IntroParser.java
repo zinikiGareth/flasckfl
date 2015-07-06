@@ -10,12 +10,14 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.D3Intro;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TemplateIntro;
 import org.flasck.flas.stories.FLASStory.State;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -87,6 +89,22 @@ public class IntroParser implements TryParsing {
 				ret.args.add(new LocatedToken(tok.location, tok.text));
 			}
 			return ret;
+		}
+		case "d3": { // d3 name from-expr element-name
+			ValidIdentifierToken tok = VarNameToken.from(line);
+			if (tok == null)
+				return ErrorResult.oneMessage(line, "invalid D3 template name");
+
+			// TODO: this should allow for expressions if parenthesized
+			ValidIdentifierToken expr = VarNameToken.from(line);
+			if (expr == null)
+				return ErrorResult.oneMessage(line, "invalid D3 expression");
+
+			ValidIdentifierToken var = VarNameToken.from(line);
+			if (var == null)
+				return ErrorResult.oneMessage(line, "invalid D3 expression");
+			
+			return new D3Intro(tok.location, tok.text, new ExprToken(ExprToken.IDENTIFIER, expr.text), var.text);
 		}
 		case "implements": {
 			TypeNameToken tn = QualifiedTypeNameToken.from(line);

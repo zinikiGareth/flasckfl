@@ -21,6 +21,8 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.D3Intro;
+import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
@@ -54,6 +56,7 @@ import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parser.D3PatternLineParser;
 import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.FunctionClauseParser;
 import org.flasck.flas.parser.FunctionParser;
@@ -344,6 +347,10 @@ public class FLASStory implements StoryProcessor {
 				TemplateLine t = doCardTemplate(er, frTemplates, b.nested);
 				if (!er.hasErrors())
 					templates.add(new TemplateThing(intro.name, intro.args, t));
+			} else if (o instanceof D3Intro) {
+				List<D3PatternBlock> lines = new ArrayList<D3PatternBlock>();
+				assertSomeNonCommentNestedLines(er, b);
+				doD3(er, b.nested, lines);
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);
@@ -506,6 +513,25 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
+	private void doD3(ErrorResult er, List<Block> nested, List<D3PatternBlock> ret) {
+		D3PatternLineParser d3lp = new D3PatternLineParser();
+		for (Block b : nested) {
+			if (b.isComment())
+				continue;
+			Object o = d3lp.tryParsing(new Tokenizable(b));
+			if (o == null)
+				er.message(b, "syntax error");
+			else if (o instanceof ErrorResult)
+				er.merge((ErrorResult)o);
+			else if (!(o instanceof D3PatternBlock))
+				er.message(b, "constituents of D3 template must be valid d3 line");
+			else {
+				ret.add((D3PatternBlock)o);
+				// need to handle (possibly empty) inner block
+			}
+		}
+	}
+	
 	private TemplateLine unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, Map<String, Object> subst) {
 		Map<String, TemplateThing> map = new TreeMap<String, TemplateThing>();
 		TemplateThing ret = templates.get(0);
