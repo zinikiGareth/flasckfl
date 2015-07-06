@@ -53,6 +53,8 @@ public class Expression implements TryParsing {
 			while (line.hasMore()) {
 				mark = line.at();
 				s = ExprToken.from(line);
+				if (s == null)
+					return null;
 				if (s.type == ExprToken.PUNC && s.text.equals("(")) {
 					args.add(parseParenthetical(line, ")"));
 				} else if (s.type == ExprToken.PUNC && s.text.equals("[")) {

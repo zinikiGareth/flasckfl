@@ -54,6 +54,8 @@ public class ExprToken {
 			while ("~!$%^&|*/+-=:<>".indexOf(line.nextChar()) != -1) {
 				line.advance();
 			}
+			if (line.at() == mark)
+				return null;
 			return new ExprToken(SYMBOL, line.fromMark(mark));
 		}
 	}

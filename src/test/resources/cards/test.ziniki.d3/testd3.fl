@@ -7,3 +7,6 @@
 			
 		d3 myd3 data elt
 			pattern "rect"
+				enter
+					<- D3Action "append" ["rect"]
+			
