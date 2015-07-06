@@ -14,4 +14,9 @@ public class LocatedToken implements Comparable<LocatedToken> {
 	public int compareTo(LocatedToken other) {
 		return this.text.compareTo(other.text);
 	}
+	
+	@Override
+	public String toString() {
+		return "Tok[" + text + "@"+location +"]";
+	}
 }

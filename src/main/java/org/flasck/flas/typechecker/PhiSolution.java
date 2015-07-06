@@ -189,7 +189,7 @@ public class PhiSolution {
 //					System.out.println("====");
 					Map<String, Object> checkBindings = new LinkedHashMap<String, Object>();
 					for (Entry<TypeReference, TypeExpr> x : match) {
-//						System.out.println("Match: " + x);
+						System.out.println("Match: " + x);
 						TypeReference want = x.getKey();
 						Iterator<Object> have = x.getValue().args.iterator();
 						for (Object v : want.args) {
@@ -197,14 +197,16 @@ public class PhiSolution {
 							if (!have.hasNext())
 								continue;
 							TypeReference vr = (TypeReference) v;
+							if (vr.var == null)
+								throw new UtilException("var should not be null");
 							Object hv = have.next();
-							if (checkBindings.containsKey(vr.name)) {
-								if (!hv.equals(checkBindings.get(vr.name))) {
-									errors.message((Tokenizable)null, "inconsistent parameters to " + want.name);
+							if (checkBindings.containsKey(vr.var)) {
+								if (!hv.equals(checkBindings.get(vr.var))) {
+									errors.message(want.location, "inconsistent parameters to " + want.name);
 								}
-								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.name));
+								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.var));
 							} else
-								checkBindings.put(vr.name, hv);
+								checkBindings.put(vr.var, hv);
 						}
 					}
 //					System.out.println("====");

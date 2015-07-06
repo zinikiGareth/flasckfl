@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class D3PatternBlock {
-	private final StringLiteral pattern;
+	public final StringLiteral pattern;
 	public final Map<String, D3Section> sections = new TreeMap<String, D3Section>();
 
 	public D3PatternBlock(StringLiteral pattern) {

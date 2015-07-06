@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.zinutils.exceptions.UtilException;
@@ -62,6 +63,8 @@ public class HSIEBlock {
 			ret = new PushCmd(loc, (StringLiteral)o);
 		else if (o instanceof TemplateListVar)
 			ret = new PushCmd(loc, (TemplateListVar)o);
+		else if (o instanceof FunctionLiteral)
+			ret = new PushCmd(loc, (FunctionLiteral)o);
 		else if (o == null)
 			throw new UtilException("Cannot push null");
 		else

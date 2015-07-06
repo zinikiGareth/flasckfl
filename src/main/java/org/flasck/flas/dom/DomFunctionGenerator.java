@@ -3,6 +3,7 @@ package org.flasck.flas.dom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.dom.UpdateTree.Update;
@@ -14,9 +15,13 @@ import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
+import org.flasck.flas.parsedForm.D3Invoke;
+import org.flasck.flas.parsedForm.D3PatternBlock;
+import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.Scope;
@@ -31,7 +36,10 @@ import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ItemExpr;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
+import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
@@ -208,9 +216,33 @@ public class DomFunctionGenerator {
 				return elt;
 			} else
 				throw new UtilException("You need to deal with this case, whatever it is");
-
 //			return elt;
 //			throw new UtilException("Can't handle TemplateCases yet");
+		} else if (tl instanceof D3Invoke) {
+			System.out.println("D3 Invoke");
+			D3Invoke d3i = (D3Invoke) tl;
+			String mainName = nextFnName();
+
+			ListMap<String, Object> byKey = new ListMap<String, Object>(new StringComparator());
+			for (D3PatternBlock p : d3i.d3.patterns) {
+				for (Entry<String, D3Section> s : p.sections.entrySet()) {
+					String fnName = nextFnName();
+					
+					function(fnName, ItemExpr.from(ExprToken.from(new Tokenizable("'hello, " + s.getKey() + " " + p.pattern + "'"))));
+					byKey.add(s.getKey(), new FunctionLiteral(fnName));
+				}
+			}
+			Object o = scope.fromRoot("NilMap");
+			AbsoluteVar assoc = scope.fromRoot("Assoc");
+			AbsoluteVar cons = scope.fromRoot("Cons");
+			for (Entry<String, List<Object>> k : byKey.entrySet()) {
+				Object list = scope.fromRoot("Nil");
+				for (Object v : k.getValue())
+					list = new ApplyExpr(cons, v, list);
+				o = new ApplyExpr(assoc, new StringLiteral(k.getKey()), list, o);
+			}
+			function(mainName, o);
+			return new Element("d3", mainName, null, null, route);
 		} else
 			throw new UtilException("Non TT not handled: " + tl.getClass());
 	}

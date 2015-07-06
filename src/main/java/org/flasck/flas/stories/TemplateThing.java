@@ -16,5 +16,8 @@ public class TemplateThing {
 		this.content = content;
 	}
 
-
+	@Override
+	public String toString() {
+		return "TemplateThing[" + name + "]";
+	}
 }

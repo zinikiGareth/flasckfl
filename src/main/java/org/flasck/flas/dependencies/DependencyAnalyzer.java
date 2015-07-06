@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.LocalVar;
@@ -78,7 +79,7 @@ public class DependencyAnalyzer {
 		if (expr == null)
 			return;
 //		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
-		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof TemplateListVar)
+		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof TemplateListVar || expr instanceof FunctionLiteral)
 			;
 		else if (expr instanceof CardMember) {
 			dcg.ensure("_var_" + ((CardMember)expr).uniqueName());

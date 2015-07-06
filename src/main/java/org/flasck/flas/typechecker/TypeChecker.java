@@ -196,6 +196,8 @@ public class TypeChecker {
 					ret.push(pc.location, pc.sval);
 				else if (pc.tlv != null)
 					ret.push(pc.location, pc.tlv);
+				else if (pc.func != null)
+					ret.push(pc.location, pc.func);
 				else
 					throw new UtilException("Unhandled");
 			} else if (b instanceof ErrorCmd)
@@ -410,6 +412,8 @@ public class TypeChecker {
 //					System.out.print("Replacing vars in " + r.fn +": ");
 					return freshVarsIn(te);
 				}
+			} else if (r.func != null) {
+				return new TypeExpr("FunctionLiteral");
 			} else
 				throw new UtilException("What are you returning?");
 		} else

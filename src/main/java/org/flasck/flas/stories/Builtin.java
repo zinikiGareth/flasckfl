@@ -62,6 +62,21 @@ public class Builtin {
 				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
 				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "tail")));
 		}
+		{ // maps
+			ret.define("Map", "Map",
+				new TypeDefn(new TypeReference(null, "Map", null).with(new TypeReference(null, null, "A")).with(new TypeReference(null, null, "B")))
+				.addCase(new TypeReference(null, "NilMap", null))
+				.addCase(new TypeReference(null, "Assoc", null).with(new TypeReference(null, null, "A")).with(new TypeReference(null, null, "B"))));
+			ret.define("NilMap", "NilMap",
+				new StructDefn("NilMap", false));
+			ret.define("Assoc", "Assoc",
+				new StructDefn("Assoc", false)
+				.add("A")
+				.add("B")
+				.addField(new StructField(new TypeReference(null, null, "A"), "key"))
+				.addField(new StructField(new TypeReference(null, null, "B"), "value"))
+				.addField(new StructField(new TypeReference(null, "Map", null).with(new TypeReference(null, null, "A")).with(new TypeReference(null, null, "B")), "rest")));
+		}
 		{ // crosets
 			ret.define("Croset", "Croset",
 				new StructDefn("Croset", false).add("A"));

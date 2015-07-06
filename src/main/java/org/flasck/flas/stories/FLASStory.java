@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3Intro;
+import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.EventCaseDefn;
@@ -291,6 +292,7 @@ public class FLASStory implements StoryProcessor {
 		int cs = 0;
 		int ss = 0;
 		List<TemplateThing> templates = new ArrayList<TemplateThing>();
+		List<D3Thing> d3s = new ArrayList<D3Thing>();
 		Set<LocatedToken> frTemplates = new TreeSet<LocatedToken>();
 		for (Block b : components) {
 			if (b.isComment())
@@ -350,9 +352,12 @@ public class FLASStory implements StoryProcessor {
 				if (!er.hasErrors())
 					templates.add(new TemplateThing(intro.name, intro.args, t));
 			} else if (o instanceof D3Intro) {
+				D3Intro d3 = (D3Intro) o;
 				List<D3PatternBlock> lines = new ArrayList<D3PatternBlock>();
 				assertSomeNonCommentNestedLines(er, b);
 				doD3Pattern(er, b.nested, lines);
+				if (!er.hasErrors())
+					d3s.add(new D3Thing(d3, lines));
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);
@@ -389,8 +394,10 @@ public class FLASStory implements StoryProcessor {
 		}
 		gatherFunctions(er, s, cd.innerScope(), functions);
 		defineEventMethods(er, s, cd, events);
-		if (!templates.isEmpty())
-			cd.template = new Template(cd.name, unroll(er, frTemplates, templates, new TreeMap<String, Object>()), cd.innerScope());
+//		if (!templates.isEmpty())
+		if (er.hasErrors())
+			return;
+		cd.template = new Template(cd.name, unroll(er, frTemplates, templates, d3s, new TreeMap<String, Object>()), cd.innerScope());
 	}	
 
 	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {
@@ -578,12 +585,15 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
-	private TemplateLine unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, Map<String, Object> subst) {
-		Map<String, TemplateThing> map = new TreeMap<String, TemplateThing>();
+	private TemplateLine unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, List<D3Thing> d3s, Map<String, Object> subst) {
+		Map<String, Object> map = new TreeMap<String, Object>();
 		TemplateThing ret = templates.get(0);
 		for (TemplateThing t : templates) {
 			if (t.name == null)
 				continue;
+			map.put(t.name, t);
+		}
+		for (D3Thing t : d3s) {
 			map.put(t.name, t);
 		}
 		for (LocatedToken s : frTemplates)
@@ -594,26 +604,39 @@ public class FLASStory implements StoryProcessor {
 		return unroll(er, map, main.content, subst);
 	}
 
-	private TemplateLine unroll(ErrorResult er, Map<String, TemplateThing> map, TemplateLine content, Map<String, Object> subst) {
+	private TemplateLine unroll(ErrorResult er, Map<String, Object> map, TemplateLine content, Map<String, Object> subst) {
 		if (content instanceof CardReference)
 			return content;
 		if (content instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) content;
-			TemplateThing reffed = map.get(tr.name);
+			TemplateThing reffed = (TemplateThing) map.get(tr.name);
 			if (tr.args.size() != reffed.args.size()) {
 				er.message(tr.location, "incorrect number of actual parameters to " + tr.name + ": expected " + reffed.args.size());
 				return null;
 			}
-			Map<String, Object> nsubst = new TreeMap<String, Object>(subst);
-			for (int i=0;i<tr.args.size();i++) {
-				String key = reffed.args.get(i).text;
-				if (nsubst.containsKey(key)) {
-					er.message(tr.location, "duplicate binding to formal parameter " + key);
+			if (reffed instanceof TemplateThing) {
+				TemplateThing tt = (TemplateThing) reffed;
+				if (tr.args.size() != tt.args.size()) {
+					er.message(tr.location, "incorrect number of actual parameters to " + tr.name + ": expected " + tt.args.size());
 					return null;
 				}
-				nsubst.put(key, tr.args.get(i));
+				Map<String, Object> nsubst = new TreeMap<String, Object>(subst);
+				for (int i=0;i<tr.args.size();i++) {
+					String key = tt.args.get(i).text;
+					if (nsubst.containsKey(key)) {
+						er.message(tr.location, "duplicate binding to formal parameter " + key);
+						return null;
+					}
+					nsubst.put(key, tr.args.get(i));
+				}
+				return unroll(er, map, tt.content, nsubst);
+			} else {
+				D3Thing d3 = (D3Thing) reffed;
+				List<Object> contents = new ArrayList<Object>();
+				contents.add(new D3Invoke(d3));
+				return new TemplateLine(contents, null, null, new ArrayList<Object>(), new ArrayList<Object>());
 			}
-			return unroll(er, map, reffed.content, nsubst);
+			return unroll(er, map, reffed.content, subst);
 		} else if (content instanceof TemplateFormat) {
 			/*
 			// substitute for vars in contents, attrs and formats
@@ -670,7 +693,7 @@ public class FLASStory implements StoryProcessor {
 			throw new UtilException("Not handled: " + content.getClass());
 	}
 
-	private Object substituteMacroParameters(ErrorResult er, Map<String, TemplateThing> map, Object o, Map<String, Object> subst) {
+	private Object substituteMacroParameters(ErrorResult er, Map<String, Object> map, Object o, Map<String, Object> subst) {
 		if (o == null)
 			return null;
 		else if (o instanceof StringLiteral || o instanceof NumericLiteral)

@@ -3,10 +3,14 @@
 			List data <- [ 5, 8, 2, 16 ]
 			
 		template
-			#svg @width='400' @height='250' 
+			#svg @width='400' @height='250'
+				$myd3
 			
 		d3 myd3 data elt
 			pattern "rect"
 				enter
 					<- D3Action "append" ["rect"]
-			
+					
+			pattern "text"
+				enter
+					<- D3Action "append" ["text"]

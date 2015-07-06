@@ -2,6 +2,7 @@ package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
 
@@ -14,6 +15,7 @@ public abstract class PushReturn extends HSIEBlock {
 	public final StringLiteral sval;
 	public final ExternalRef fn;
 	public final TemplateListVar tlv;
+	public final FunctionLiteral func;
 
 	public PushReturn(InputPosition loc, Var var) {
 		this.location = loc;
@@ -22,6 +24,7 @@ public abstract class PushReturn extends HSIEBlock {
 		this.sval = null;
 		this.fn = null;
 		this.tlv = null;
+		this.func = null;
 	}
 
 	public PushReturn(InputPosition loc, int i) {
@@ -31,6 +34,7 @@ public abstract class PushReturn extends HSIEBlock {
 		this.sval = null;
 		this.fn = null;
 		this.tlv = null;
+		this.func = null;
 	}
 
 	public PushReturn(InputPosition loc, ExternalRef fn) {
@@ -40,6 +44,7 @@ public abstract class PushReturn extends HSIEBlock {
 		this.sval = null;
 		this.fn = fn;
 		this.tlv = null;
+		this.func = null;
 	}
 
 	public PushReturn(InputPosition loc, StringLiteral s) {
@@ -49,6 +54,7 @@ public abstract class PushReturn extends HSIEBlock {
 		this.sval = s;
 		this.fn = null;
 		this.tlv = null;
+		this.func = null;
 	}
 
 	public PushReturn(InputPosition loc, TemplateListVar tlv) {
@@ -58,6 +64,17 @@ public abstract class PushReturn extends HSIEBlock {
 		this.sval = null;
 		this.fn = null;
 		this.tlv = tlv;
+		this.func = null;
+	}
+
+	public PushReturn(InputPosition loc, FunctionLiteral func) {
+		this.location = loc;
+		this.var = null;
+		this.ival = null;
+		this.sval = null;
+		this.fn = null;
+		this.tlv = null;
+		this.func = func;
 	}
 
 	protected Object textValue() {

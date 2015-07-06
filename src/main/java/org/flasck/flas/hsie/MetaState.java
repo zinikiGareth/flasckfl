@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.LetExpr;
@@ -112,7 +113,7 @@ public class MetaState {
 			return null;
 		else if (expr instanceof NumericLiteral)
 			return Integer.parseInt(((NumericLiteral)expr).text); // what about floats?
-		else if (expr instanceof StringLiteral)
+		else if (expr instanceof StringLiteral || expr instanceof FunctionLiteral)
 			return expr;
 		else if (expr instanceof TemplateListVar)
 			return expr;

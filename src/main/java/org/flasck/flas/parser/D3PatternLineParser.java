@@ -21,6 +21,9 @@ public class D3PatternLineParser implements TryParsing {
 			return ErrorResult.oneMessage(kw.location, "'pattern' expected");
 		
 		ExprToken sl = ExprToken.from(line);
+		if (sl == null)
+			return ErrorResult.oneMessage(line.realinfo(), "pattern string required");
+		
 		if (sl.type != ExprToken.STRING)
 			return ErrorResult.oneMessage(sl.location, "pattern must be a literal string");
 		
