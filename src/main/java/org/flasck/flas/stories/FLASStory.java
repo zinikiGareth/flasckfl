@@ -41,6 +41,7 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -66,6 +67,7 @@ import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
 import org.flasck.flas.parser.MethodMessageParser;
 import org.flasck.flas.parser.MethodParser;
+import org.flasck.flas.parser.PropertyParser;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -560,7 +562,12 @@ public class FLASStory implements StoryProcessor {
 					er.message(b, "cannot have duplicate sections of name " + s.name);
 				else {
 					sections.put(s.name, s);
-					doD3Methods(er, b.nested, s.actions);
+					if (s.name.equals("enter"))
+						doD3Methods(er, b.nested, s.actions);
+					else if (s.name.equals("layout"))
+						doD3Layout(er, b.nested, s.properties);
+					else
+						throw new UtilException("Have not handled processing of section " + s.name);
 				}
 			}
 		}
@@ -581,6 +588,27 @@ public class FLASStory implements StoryProcessor {
 			else {
 				MethodMessage mm = (MethodMessage)o;
 				actions.add(mm);
+			}
+		}
+	}
+
+	private void doD3Layout(ErrorResult er, List<Block> nested, Map<String, PropertyDefn> properties) {
+		PropertyParser mmp = new PropertyParser();
+		for (Block b : nested) {
+			if (b.isComment())
+				continue;
+			Object o = mmp.tryParsing(new Tokenizable(b));
+			if (o == null)
+				er.message(b, "syntax error");
+			else if (o instanceof ErrorResult)
+				er.merge((ErrorResult)o);
+			else if (!(o instanceof PropertyDefn))
+				er.message(b, "constituents of D3 template must be valid d3 line");
+			else {
+				PropertyDefn prop = (PropertyDefn)o;
+				if (properties.containsKey(prop.name))
+					er.message(b, "cannot specify property " + prop.name +" more than once");
+				properties.put(prop.name, prop);
 			}
 		}
 	}

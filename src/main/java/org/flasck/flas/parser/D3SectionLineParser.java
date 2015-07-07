@@ -15,10 +15,12 @@ public class D3SectionLineParser implements TryParsing {
 		if (kw == null)
 			return null; // in the "nothing doing" sense
 
-		if (kw.text.equals("enter")) {
+		if (kw.text.equals("enter"))
 			return new D3Section("enter");
-		} else
-			return ErrorResult.oneMessage(kw.location, kw.text + " expected");
+		else if (kw.text.equals("layout"))
+			return new D3Section("layout");
+		else
+			return ErrorResult.oneMessage(kw.location, "valid d3 section name expected, not '" + kw.text +"'");
 	}
 
 }

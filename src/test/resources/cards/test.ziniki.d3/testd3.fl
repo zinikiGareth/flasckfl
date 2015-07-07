@@ -4,10 +4,20 @@
 			
 		template
 			#svg @width='400' @height='250'
-				$myd3
+				$chart
 			
-		d3 myd3 data elt
+		d3 chart data elt
 			pattern "rect"
+				layout
+					x = 35
+					y = 20
+					width = 20
+					height = 15
+					fill = 'red'
+
+//					width = elt.idx
+//					height = elt.data
+					
 				enter
 					<- D3Action "append" ["rect"]
 					

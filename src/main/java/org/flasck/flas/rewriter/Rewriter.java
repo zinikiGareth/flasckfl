@@ -49,6 +49,7 @@ import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
@@ -453,6 +454,8 @@ public class Rewriter {
 					rp.sections.put(s.name, rs);
 					for (MethodMessage mm : s.actions)
 						rs.actions.add(rewrite(cx, mm));
+					for (PropertyDefn prop : s.properties.values())
+						rs.properties.put(prop.name, new PropertyDefn(prop.location, prop.name, rewriteExpr(cx, prop.value)));
 				}
 			}
 			D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, patterns);

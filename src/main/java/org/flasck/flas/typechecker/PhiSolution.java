@@ -188,7 +188,7 @@ public class PhiSolution {
 //					System.out.println("====");
 					Map<String, Object> checkBindings = new LinkedHashMap<String, Object>();
 					for (Entry<TypeReference, TypeExpr> x : match) {
-						System.out.println("Match: " + x);
+//						System.out.println("Match: " + x);
 						TypeReference want = x.getKey();
 						Iterator<Object> have = x.getValue().args.iterator();
 						for (Object v : want.args) {

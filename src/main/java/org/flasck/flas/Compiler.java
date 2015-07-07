@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -45,6 +46,8 @@ import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TypeDefn;
@@ -249,12 +252,16 @@ public class Compiler {
 	private void promoteD3Methods(ErrorResult errors, Map<String, FunctionDefinition> functions, List<RenderTree> trees, List<UpdateTree> updates, D3Invoke d3) {
 		for (D3PatternBlock p : d3.d3.patterns) {
 			for (D3Section s : p.sections.values()) {
-				FunctionIntro fi = new FunctionIntro(d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
-				MethodCaseDefn mcd = new MethodCaseDefn(fi);
-				mcd.messages.addAll(s.actions);
-				MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
-				MethodInContext mic = new MethodInContext(d3.scope, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
-				MethodConvertor.convert(functions, CollectionUtils.listOf(mic));
+				if (!s.actions.isEmpty()) { // something like enter, that is a "method"
+					FunctionIntro fi = new FunctionIntro(d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
+					MethodCaseDefn mcd = new MethodCaseDefn(fi);
+					mcd.messages.addAll(s.actions);
+					MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
+					MethodInContext mic = new MethodInContext(d3.scope, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
+					MethodConvertor.convert(functions, CollectionUtils.listOf(mic));
+				} else { // something like layout, that is just a set of definitions
+					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
+				}
 			}
 		}
 	}
