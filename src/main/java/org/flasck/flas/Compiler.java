@@ -33,8 +33,15 @@ import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.D3Invoke;
+import org.flasck.flas.parsedForm.D3PatternBlock;
+import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.MethodDefinition;
+import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -47,6 +54,7 @@ import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
@@ -126,6 +134,10 @@ public class Compiler {
 			for (Template t : rewriter.templates)
 				promoteTemplateFunctions(errors, rewriter.functions, trees, updates, t);
 			abortIfErrors(errors);
+			
+			// 4b. Do the same for D3 invocations
+			for (D3Invoke d3 : rewriter.d3s)
+				promoteD3Methods(errors, rewriter.functions, trees, updates, d3);
 			
 			// 5. Extract methods and convert to functions
 			MethodConvertor.convert(rewriter.functions, rewriter.methods);
@@ -232,6 +244,19 @@ public class Compiler {
 		}
 		trees.addAll(gen.trees);
 		updates.add(new UpdateTree(gen.prefix, gen.updates));
+	}
+
+	private void promoteD3Methods(ErrorResult errors, Map<String, FunctionDefinition> functions, List<RenderTree> trees, List<UpdateTree> updates, D3Invoke d3) {
+		for (D3PatternBlock p : d3.d3.patterns) {
+			for (D3Section s : p.sections.values()) {
+				FunctionIntro fi = new FunctionIntro(d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
+				MethodCaseDefn mcd = new MethodCaseDefn(fi);
+				mcd.messages.addAll(s.actions);
+				MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
+				MethodInContext mic = new MethodInContext(d3.scope, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
+				MethodConvertor.convert(functions, CollectionUtils.listOf(mic));
+			}
+		}
 	}
 
 	private ScopeEntry doParsing(ScopeEntry se, List<Block> blocks) throws ErrorResultException {

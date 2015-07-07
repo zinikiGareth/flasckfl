@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
@@ -226,10 +227,13 @@ public class DomFunctionGenerator {
 			ListMap<String, Object> byKey = new ListMap<String, Object>(new StringComparator());
 			for (D3PatternBlock p : d3i.d3.patterns) {
 				for (Entry<String, D3Section> s : p.sections.entrySet()) {
-					String fnName = nextFnName();
-					
-					function(fnName, ItemExpr.from(ExprToken.from(new Tokenizable("'hello, " + s.getKey() + " " + p.pattern + "'"))));
-					byKey.add(s.getKey(), new FunctionLiteral(fnName));
+//							String fnName = nextFnName();
+//							for (MethodMessage mm : s.getValue().actions) {
+//								
+//							}
+//							Object actions = ItemExpr.from(ExprToken.from(new Tokenizable("'hello, " + s.getKey() + " " + p.pattern + "'")));
+//							function(fnName, actions);
+					byKey.add(s.getKey(), new FunctionLiteral(d3i.d3.prefix + "._d3_" + d3i.d3.name+"_"+s.getKey()+"_"+p.pattern.text));
 				}
 			}
 			Object o = scope.fromRoot("NilMap");

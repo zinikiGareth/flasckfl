@@ -29,6 +29,8 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3Invoke;
+import org.flasck.flas.parsedForm.D3PatternBlock;
+import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
@@ -67,6 +69,8 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ItemExpr;
+import org.flasck.flas.stories.D3Thing;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -89,6 +93,7 @@ public class Rewriter {
 	public final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>();
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
 	public final List<Template> templates = new ArrayList<Template>();
+	public final List<D3Invoke> d3s = new ArrayList<D3Invoke>();
 	public final Map<String, ContractImplements> cardImplements = new TreeMap<String, ContractImplements>();
 	public final Map<String, ContractService> cardServices = new TreeMap<String, ContractService>();
 	public final Map<String, HandlerImplements> cardHandlers = new TreeMap<String, HandlerImplements>();
@@ -334,7 +339,7 @@ public class Rewriter {
 				sd.fields.add(new StructField(new TypeReference(null, rw.type, null), rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods)
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_C"+pos, HSIEForm.Type.CONTRACT, rewrite(c2, m)));
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, HSIEForm.Type.CONTRACT, rewrite(c2, m)));
 
 			pos++;
 		}
@@ -349,7 +354,7 @@ public class Rewriter {
 				sd.fields.add(new StructField(new TypeReference(null, rw.type, null), rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, "_S"+pos, HSIEForm.Type.SERVICE, rewrite(c2, m)));
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, HSIEForm.Type.SERVICE, rewrite(c2, m)));
 
 			pos++;
 		}
@@ -379,7 +384,7 @@ public class Rewriter {
 			structs.put(hiName, hsd);
 			HandlerContext hc = new HandlerContext(c2, hi);
 			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, hi.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
 		}
 		
 		rewriteScope(c2, cd.fnScope);
@@ -437,6 +442,23 @@ public class Rewriter {
 				ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
 			}
 			return ret;
+		} else if (tl instanceof D3Invoke) {
+			D3Invoke prev = (D3Invoke) tl;
+			List<D3PatternBlock> patterns = new ArrayList<D3PatternBlock>();
+			for (D3PatternBlock p : prev.d3.patterns) {
+				D3PatternBlock rp = new D3PatternBlock(p.pattern);
+				patterns.add(rp);
+				for (D3Section s : p.sections.values()) {
+					D3Section rs = new D3Section(s.name);
+					rp.sections.put(s.name, rs);
+					for (MethodMessage mm : s.actions)
+						rs.actions.add(rewrite(cx, mm));
+				}
+			}
+			D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, patterns);
+			D3Invoke rw = new D3Invoke(prev.scope, rwD3);
+			d3s.add(rw);
+			return rw;
 		} else if (tl instanceof TemplateList) {
 			TemplateList ul = (TemplateList)tl;
 			Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);

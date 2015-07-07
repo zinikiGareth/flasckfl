@@ -357,7 +357,7 @@ public class FLASStory implements StoryProcessor {
 				assertSomeNonCommentNestedLines(er, b);
 				doD3Pattern(er, b.nested, lines);
 				if (!er.hasErrors())
-					d3s.add(new D3Thing(d3, lines));
+					d3s.add(new D3Thing(cd.name, d3.name, lines));
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);
@@ -397,7 +397,7 @@ public class FLASStory implements StoryProcessor {
 //		if (!templates.isEmpty())
 		if (er.hasErrors())
 			return;
-		cd.template = new Template(cd.name, unroll(er, frTemplates, templates, d3s, new TreeMap<String, Object>()), cd.innerScope());
+		cd.template = new Template(cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()), cd.innerScope());
 	}	
 
 	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {
@@ -585,7 +585,7 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
-	private TemplateLine unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, List<D3Thing> d3s, Map<String, Object> subst) {
+	private TemplateLine unroll(ErrorResult er, State st, Set<LocatedToken> frTemplates, List<TemplateThing> templates, List<D3Thing> d3s, Map<String, Object> subst) {
 		Map<String, Object> map = new TreeMap<String, Object>();
 		TemplateThing ret = templates.get(0);
 		for (TemplateThing t : templates) {
@@ -633,7 +633,7 @@ public class FLASStory implements StoryProcessor {
 			} else {
 				D3Thing d3 = (D3Thing) reffed;
 				List<Object> contents = new ArrayList<Object>();
-				contents.add(new D3Invoke(d3));
+				contents.add(new D3Invoke(s.scope, d3));
 				return new TemplateLine(contents, null, null, new ArrayList<Object>(), new ArrayList<Object>());
 			}
 			return unroll(er, map, reffed.content, subst);
@@ -693,7 +693,7 @@ public class FLASStory implements StoryProcessor {
 			throw new UtilException("Not handled: " + content.getClass());
 	}
 
-	private Object substituteMacroParameters(ErrorResult er, Map<String, Object> map, Object o, Map<String, Object> subst) {
+	private Object substituteMacroParameters(ErrorResult er, State s, Map<String, Object> map, Object o, Map<String, Object> subst) {
 		if (o == null)
 			return null;
 		else if (o instanceof StringLiteral || o instanceof NumericLiteral)
@@ -712,27 +712,27 @@ public class FLASStory implements StoryProcessor {
 			} else
 				throw new UtilException("Cannot handle: " + tea);
 		} else if (o instanceof UnresolvedVar) {
-			String s = ((UnresolvedVar)o).var;
-			if (subst.containsKey(s))
-				return subst.get(s);
+			String str = ((UnresolvedVar)o).var;
+			if (subst.containsKey(str))
+				return subst.get(str);
 			return o;
 		} else if (o instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) o;
 			List<Object> args = new ArrayList<Object>();
 			for (Object o2 : ae.args)
-				args.add(substituteMacroParameters(er, map, o2, subst));
-			return new ApplyExpr(substituteMacroParameters(er, map, ae.fn, subst), args);
+				args.add(substituteMacroParameters(er, s, map, o2, subst));
+			return new ApplyExpr(substituteMacroParameters(er, s, map, ae.fn, subst), args);
 		} else if (o instanceof CardReference) {
 			// We don't have any parameters in this yet that could be macro parameters
 		} else if (o instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases)o;
-			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(er, map, tc.switchOn, subst));
+			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(er, s, map, tc.switchOn, subst));
 			for (TemplateOr x : tc.cases)
-				ret.addCase((TemplateOr) substituteMacroParameters(er, map, x, subst));
+				ret.addCase((TemplateOr) substituteMacroParameters(er, s, map, x, subst));
 			return ret;
 		} else if (o instanceof TemplateOr) {
 			TemplateOr tor = (TemplateOr) o;
-			TemplateOr ret = new TemplateOr(substituteMacroParameters(er, map, tor.cond, subst), unroll(er, map, tor.template, subst));
+			TemplateOr ret = new TemplateOr(substituteMacroParameters(er, s, map, tor.cond, subst), unroll(er, map, tor.template, subst));
 			return ret;
 		} else
 			System.out.println("subMacroParms cannot handle: " + o + " "  + o.getClass());

@@ -103,6 +103,10 @@ public class Builtin {
 								.with(new TypeReference(null, "String", null))
 								.with(new TypeReference(null, "CardHandle", null))), "contracts")));
 			ret.define("JSNI", "JSNI", null);
+			ret.define("D3Action", "D3Action",
+				new StructDefn("D3Action", false)
+				.addField(new StructField(new TypeReference(null, "String", null), "action"))
+				.addField(new StructField(new TypeReference(null, "List", null), "args")));
 		}
 		{ // DOM
 			PackageDefn dom = new PackageDefn(ret, "DOM");

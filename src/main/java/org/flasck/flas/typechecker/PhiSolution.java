@@ -13,7 +13,6 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.tokenizers.Tokenizable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
