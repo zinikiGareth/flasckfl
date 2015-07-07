@@ -228,7 +228,9 @@ public class DomFunctionGenerator {
 					if (!s.properties.isEmpty()) {
 						Object pl = scope.fromRoot("Nil"); // prepend to an empty list
 						for (PropertyDefn prop : s.properties.values()) {
-							Object pair = new ApplyExpr(scope.fromRoot("()"), new StringLiteral(prop.name), prop.value);
+							String efn = nextFnName();
+							function(efn, prop.value);
+							Object pair = new ApplyExpr(scope.fromRoot("()"), new StringLiteral(prop.name), new FunctionLiteral(efn));
 							pl = new ApplyExpr(scope.fromRoot("Cons"), pair, pl);
 						}
 						pl = new ApplyExpr(scope.fromRoot("()"), p.pattern, pl);
