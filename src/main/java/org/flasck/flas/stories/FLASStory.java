@@ -359,7 +359,7 @@ public class FLASStory implements StoryProcessor {
 				assertSomeNonCommentNestedLines(er, b);
 				doD3Pattern(er, b.nested, lines);
 				if (!er.hasErrors())
-					d3s.add(new D3Thing(cd.name, d3.name, lines));
+					d3s.add(new D3Thing(cd.name, d3.name, d3.var, lines));
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);

@@ -44,10 +44,14 @@ public class Builtin {
 			ret.define("Number", "Number", null);
 			ret.define("+", "FLEval.plus", 
 				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
-			ret.define("-", "FLEval.minus", null);
-			ret.define("*", "FLEval.mul", null);
-			ret.define("/", "FLEval.div", null);
-			ret.define("^", "FLEval.exp", null);
+			ret.define("-", "FLEval.minus",
+				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+			ret.define("*", "FLEval.mul",
+				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+			ret.define("/", "FLEval.div",
+				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+			ret.define("^", "FLEval.exp",
+				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
 		}
 		{ // lists
 			ret.define("List", "List",
@@ -80,6 +84,12 @@ public class Builtin {
 		{ // crosets
 			ret.define("Croset", "Croset",
 				new StructDefn("Croset", false).add("A"));
+		}
+		{ // d3
+			ret.define("D3Element", "D3Element",
+				new StructDefn("D3Element", false).add("A")
+				.addField(new StructField(new TypeReference(null, null, "A"), "data"))
+				.addField(new StructField(new TypeReference(null, "Number", null), "idx")));
 		}
 		{ // messaging
 			ret.define("Message", "Message", null);

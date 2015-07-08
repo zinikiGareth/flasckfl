@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
@@ -89,6 +90,9 @@ public class DependencyAnalyzer {
 		}
 		else if (expr instanceof LocalVar)
 			dcg.ensureLink(name, "_var_" + ((LocalVar)expr).uniqueName());
+		else if (expr instanceof IterVar)
+			// I think because this is synthetic, it's not needed here ...
+			; // dcg.ensureLink(name, "_iter_" + ((IterVar)expr).uniqueName());
 		else if (expr instanceof AbsoluteVar) {
 			dcg.ensure(((AbsoluteVar) expr).id);
 			dcg.ensureLink(name, ((AbsoluteVar) expr).id);

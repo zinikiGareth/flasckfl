@@ -9,14 +9,11 @@
 		d3 chart data elt
 			pattern "rect"
 				layout
-					x = 35
-					y = 20
-					width = 20
-					height = 15
+					x = 22 * elt.idx
+					y = 200 - 10 * elt.data
 					fill = 'red'
-
-//					width = elt.idx
-//					height = elt.data
+					width = 20
+					height = 10*elt.data
 					
 				enter
 					<- D3Action "append" ["rect"]

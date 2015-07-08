@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
+import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
@@ -121,6 +122,11 @@ public class MetaState {
 			String var = ((LocalVar)expr).var;
 			if (!substs.containsKey(var))
 				throw new UtilException("How can this be a local var? " + var + " not in " + substs);
+			return substs.get(var);
+		} else if (expr instanceof IterVar) {
+			String var = ((IterVar)expr).var;
+			if (!substs.containsKey(var))
+				throw new UtilException("How can this be a iter var? " + var + " not in " + substs);
 			return substs.get(var);
 		} else if (expr instanceof AbsoluteVar) {
 			String var = ((AbsoluteVar)expr).id;

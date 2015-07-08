@@ -35,6 +35,7 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.parsedForm.TemplateOr;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -229,7 +230,7 @@ public class DomFunctionGenerator {
 						Object pl = scope.fromRoot("Nil"); // prepend to an empty list
 						for (PropertyDefn prop : s.properties.values()) {
 							String efn = nextFnName();
-							function(efn, prop.value);
+							functionWithArgs(efn, CollectionUtils.listOf(new TypedPattern(null, "D3Element", null, d3i.d3.iter)), prop.value);
 							Object pair = new ApplyExpr(scope.fromRoot("()"), new StringLiteral(prop.name), new FunctionLiteral(efn));
 							pl = new ApplyExpr(scope.fromRoot("Cons"), pair, pl);
 						}
@@ -367,5 +368,11 @@ public class DomFunctionGenerator {
 		List<Object> args = new ArrayList<Object>();
 		cases.add(new FunctionCaseDefn(scope, name, args, expr));
 		functions.put(name, new FunctionDefinition(Type.CARD, name, 0, cases));
+	}
+
+	private void functionWithArgs(String name, List<Object> args, Object expr) {
+		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		cases.add(new FunctionCaseDefn(scope, name, args, expr));
+		functions.put(name, new FunctionDefinition(Type.CARD, name, args.size(), cases));
 	}
 }

@@ -41,6 +41,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
+import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
@@ -250,6 +251,23 @@ public class Rewriter {
 
 	}
 
+	public class D3Context extends NamingContext {
+		private final IterVar iterVar;
+
+		public D3Context(TemplateContext cx, String iv) {
+			super(cx);
+			this.iterVar = new IterVar(((CardContext)cx.nested).prefix, iv);
+		}
+		
+		@Override
+		public Object resolve(InputPosition location, String name) {
+			if (iterVar != null && iterVar.var.equals(name))
+				return iterVar;
+			return nested.resolve(location, name);
+		}
+
+	}
+
 
 	// I think I still need ImplementsContext, MethodContext and EventHandlerContext
 	// BUT I think the latter two can just be FunctionContext & ImplementsContext is dull
@@ -443,25 +461,6 @@ public class Rewriter {
 				ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
 			}
 			return ret;
-		} else if (tl instanceof D3Invoke) {
-			D3Invoke prev = (D3Invoke) tl;
-			List<D3PatternBlock> patterns = new ArrayList<D3PatternBlock>();
-			for (D3PatternBlock p : prev.d3.patterns) {
-				D3PatternBlock rp = new D3PatternBlock(p.pattern);
-				patterns.add(rp);
-				for (D3Section s : p.sections.values()) {
-					D3Section rs = new D3Section(s.name);
-					rp.sections.put(s.name, rs);
-					for (MethodMessage mm : s.actions)
-						rs.actions.add(rewrite(cx, mm));
-					for (PropertyDefn prop : s.properties.values())
-						rs.properties.put(prop.name, new PropertyDefn(prop.location, prop.name, rewriteExpr(cx, prop.value)));
-				}
-			}
-			D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, patterns);
-			D3Invoke rw = new D3Invoke(prev.scope, rwD3);
-			d3s.add(rw);
-			return rw;
 		} else if (tl instanceof TemplateList) {
 			TemplateList ul = (TemplateList)tl;
 			Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);
@@ -476,6 +475,26 @@ public class Rewriter {
 			for (TemplateOr tor : tc.cases)
 				ret.addCase(rewrite(cx, tor));
 			return ret;
+		} else if (tl instanceof D3Invoke) {
+			D3Invoke prev = (D3Invoke) tl;
+			D3Context c2 = new D3Context(cx, prev.d3.iter);
+			List<D3PatternBlock> patterns = new ArrayList<D3PatternBlock>();
+			for (D3PatternBlock p : prev.d3.patterns) {
+				D3PatternBlock rp = new D3PatternBlock(p.pattern);
+				patterns.add(rp);
+				for (D3Section s : p.sections.values()) {
+					D3Section rs = new D3Section(s.name);
+					rp.sections.put(s.name, rs);
+					for (MethodMessage mm : s.actions)
+						rs.actions.add(rewrite(c2, mm));
+					for (PropertyDefn prop : s.properties.values())
+						rs.properties.put(prop.name, new PropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
+				}
+			}
+			D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, prev.d3.iter, patterns);
+			D3Invoke rw = new D3Invoke(prev.scope, rwD3);
+			d3s.add(rw);
+			return rw;
 		} else 
 			throw new UtilException("Content type not handled: " + tl.getClass());
 	}
@@ -648,7 +667,7 @@ public class Rewriter {
 				} else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(location, s);
-				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar)
+				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());
