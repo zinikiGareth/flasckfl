@@ -243,10 +243,12 @@ public class DomFunctionGenerator {
 			Object o = scope.fromRoot("NilMap");
 			AbsoluteVar assoc = scope.fromRoot("Assoc");
 			AbsoluteVar cons = scope.fromRoot("Cons");
+			o = new ApplyExpr(assoc, new StringLiteral("data"), d3i.d3.data, o);
 			for (Entry<String, List<Object>> k : byKey.entrySet()) {
 				Object list = scope.fromRoot("Nil");
-				for (Object v : k.getValue())
-					list = new ApplyExpr(cons, v, list);
+				List<Object> lo = k.getValue();
+				for (int i=lo.size()-1;i>=0;i--)
+					list = new ApplyExpr(cons, lo.get(i), list);
 				o = new ApplyExpr(assoc, new StringLiteral(k.getKey()), list, o);
 			}
 			function(mainName, o);

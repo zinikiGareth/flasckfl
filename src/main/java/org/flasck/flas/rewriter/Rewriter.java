@@ -491,7 +491,7 @@ public class Rewriter {
 						rs.properties.put(prop.name, new PropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
 				}
 			}
-			D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, prev.d3.iter, patterns);
+			D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, prev.d3.dloc, rewriteExpr(c2, prev.d3.data), prev.d3.iter, patterns);
 			D3Invoke rw = new D3Invoke(prev.scope, rwD3);
 			d3s.add(rw);
 			return rw;

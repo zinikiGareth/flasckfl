@@ -104,7 +104,7 @@ public class IntroParser implements TryParsing {
 			if (var == null)
 				return ErrorResult.oneMessage(line, "invalid D3 expression");
 			
-			return new D3Intro(tok.location, tok.text, new ExprToken(ExprToken.IDENTIFIER, expr.text), var.text);
+			return new D3Intro(tok.location, tok.text, ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, expr.text)), var.text);
 		}
 		case "implements": {
 			TypeNameToken tn = QualifiedTypeNameToken.from(line);
