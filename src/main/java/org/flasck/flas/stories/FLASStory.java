@@ -420,11 +420,15 @@ public class FLASStory implements StoryProcessor {
 					frTemplates.add(new LocatedToken(tr.location, tr.name));
 				}
 				ret.add(tl);
+				if (b.nested.isEmpty() && tl.isList())
+					er.message(b, "list must have one nested element");
 				if (!b.nested.isEmpty()) {
 					if (tl.isDiv()) { 
 						doCardTemplate(er, frTemplates, b.nested, tl.nested, tl.handlers);
 					} else if (tl.isList()) {
 						doCardTemplate(er, frTemplates, b.nested, tl.nested, tl.handlers);
+						if (tl.nested.size() > 1)
+							er.message(b, "list may only have one element");
 					} else if (tl.isCases()) {
 						doCases(er, frTemplates, b, (TemplateCases)tl.contents.get(0));
 					} else {
