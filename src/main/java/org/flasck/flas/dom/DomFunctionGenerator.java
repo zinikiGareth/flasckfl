@@ -252,7 +252,15 @@ public class DomFunctionGenerator {
 				o = new ApplyExpr(assoc, new StringLiteral(k.getKey()), list, o);
 			}
 			function(mainName, o);
-			return new Element("d3", mainName, null, null, route);
+			Element ret = new Element("d3", mainName, null, null, route);
+			
+			// notify about updates
+			List<CardMember> dependsOn = new ArrayList<CardMember>();
+			traverseForMembers(dependsOn, d3i.d3.data);
+			for (CardMember cm : dependsOn)
+				addUpdate(cm.var, route, "update");
+			
+			return ret;
 		} else
 			throw new UtilException("Non TT not handled: " + tl.getClass());
 	}
