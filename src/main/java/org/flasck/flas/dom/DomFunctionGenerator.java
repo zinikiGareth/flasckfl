@@ -72,11 +72,16 @@ public class DomFunctionGenerator {
 
 	public Object generate(TemplateLine template, String route) {
 		Object ret = generateOne(template, route);
+		boolean isList = template.isList();
 		int pos = 0;
 		for (TemplateLine tl : template.nested) {
+			if (isList)
+				route = route + "+" + ((TemplateListVar)((TemplateList)(template.contents.get(0))).iterVar).name;
+			else
+				route = route + "." + pos++;
 			Element elt = (Element)ret;
 			System.out.println("route = " + route + "; " + elt.route);
-			elt.addChildren(generate(tl, elt.route + "." + pos++));
+			elt.addChildren(generate(tl, route));
 		}
 		return ret;
 	}
@@ -118,9 +123,6 @@ public class DomFunctionGenerator {
 					StringLiteral tag = new StringLiteral("ul");
 					AbsoluteVar domCtor = scope.fromRoot("DOM.Element");
 					AbsoluteVar nil = scope.fromRoot("Nil");
-//					AbsoluteVar cons = scope.fromRoot("Cons");
-//					AbsoluteVar join = scope.fromRoot("join");
-//					AbsoluteVar tuple = scope.fromRoot("()");
 					Object attrs = nil;
 					Object children = nil; // I think this is just a statement about how we build our trees
 					Object events = nil;
@@ -128,7 +130,7 @@ public class DomFunctionGenerator {
 					String val = nextFnName();
 					function(val, list.listVar);
 					String var = ((TemplateListVar)list.iterVar).name;
-					Element elt = new Element("list", fn, val, var, route + "+" + var);
+					Element elt = new Element("list", fn, val, var, route);
 					List<CardMember> dependsOn = new ArrayList<CardMember>();
 					traverseForMembers(dependsOn, list.listVar);
 					for (CardMember cm : dependsOn)
