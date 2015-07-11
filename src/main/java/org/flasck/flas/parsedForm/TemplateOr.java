@@ -5,7 +5,7 @@ import java.util.List;
 
 public class TemplateOr implements TemplateLine {
 	public final Object cond;
-	public final List<Object> template = new ArrayList<Object>();
+	public final List<TemplateLine> template = new ArrayList<TemplateLine>();
 
 	public TemplateOr(Object expr) {
 		this.cond = expr;

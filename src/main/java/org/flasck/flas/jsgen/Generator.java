@@ -18,8 +18,6 @@ import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TemplateLine;
-import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -32,7 +30,6 @@ import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
-import org.zinutils.exceptions.UtilException;
 
 public class Generator {
 	private final ErrorResult errors;
@@ -190,24 +187,6 @@ public class Generator {
 			sb.append(", " + vi);
 		ctor.add(new JSForm("return new " + clzname + "(" + sb +")"));
 		target.add(ctor);
-	}
-
-	public JSForm generateTemplateLine(TemplateRenderState trs, TemplateLine tl) {
-		JSForm ret = new JSForm(trs.name + ".prototype._templateLine"+trs.lineNo() + " =").needBlock();
-		ret.add(new JSForm("tag: 'span'").comma());
-		JSForm render = new JSForm("render: function(doc, myblock)").strict();
-		ret.add(render);
-		for (Object o : tl.contents) {
-			if (o instanceof TemplateToken) {
-				TemplateToken tt = (TemplateToken) o;
-				if (tt.type == TemplateToken.IDENTIFIER)
-					render.add(new JSForm("myblock.appendChild(doc.createTextNode(this." + tt.text + "))"));
-				else
-					throw new UtilException("Cannot handle " + tt.type);
-			} else
-				throw new UtilException("Cannot handle " + o.getClass());
-		}
-		return ret;
 	}
 
 	private void generateBlock(String fn, HSIEForm form, JSForm into, HSIEBlock input) {
