@@ -8,7 +8,7 @@ public class TemplateList extends TemplateFormat {
 	public final InputPosition listLoc;
 	public final Object listVar;
 	public final Object iterVar;
-	public Object template;
+	public TemplateLine template;
 
 	public TemplateList(InputPosition listLoc, Object listVar, Object iterVar, List<Object> formats) {
 		super(formats);

@@ -15,6 +15,8 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContainsScope;
+import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -339,7 +341,7 @@ public class FLASStory implements StoryProcessor {
 						break;
 					}
 				}
-				Object t = doCardTemplate(er, frTemplates, b.nested);
+				TemplateLine t = doCardTemplate(er, frTemplates, b.nested);
 				if (!er.hasErrors())
 					templates.add(new TemplateThing(intro.name, intro.args, t));
 			} else if (o instanceof ContractImplements) {
@@ -401,9 +403,9 @@ public class FLASStory implements StoryProcessor {
 			}
 	}
 
-	private Object doCardTemplate(ErrorResult er, Set<LocatedToken> frTemplates, List<Block> nested) {
+	private TemplateLine doCardTemplate(ErrorResult er, Set<LocatedToken> frTemplates, List<Block> nested) {
 		TemplateLineParser tlp = new TemplateLineParser();
-		Object ret = null;
+		TemplateLine ret = null;
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;
@@ -453,11 +455,15 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	private TemplateLine doOneLine(ErrorResult er, Set<LocatedToken> frTemplates, Block b, Object o) {
-		TemplateLine ret = null;
 		TemplateLine tl = (TemplateLine)o;
+		if (tl instanceof ContentString || tl instanceof ContentExpr)
+			return tl;
+		TemplateLine ret = null;
 		if (tl instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) tl;
 			frTemplates.add(new LocatedToken(tr.location, tr.name));
+		} else if (tl instanceof CardReference) {
+			return tl;
 		} else if (tl instanceof TemplateList) {
 			ret = tl;
 			TemplateList asList = (TemplateList) ret;
@@ -473,15 +479,8 @@ public class FLASStory implements StoryProcessor {
 		} else if (tl instanceof TemplateCases) {
 			ret = tl;
 			doCases(er, frTemplates, b, (TemplateCases)ret);
-		} else {
-			Block fb = null;
-			for (Block b1 : b.nested) {
-				if (!b1.isComment())
-					fb = b1;
-			}
-			if (fb != null)
-				er.message(fb, "this node cannot be nested here - parent does not support children");
-		}
+		} else
+			throw new UtilException("Something should handle " + tl.getClass());
 		return ret;
 	}
 
@@ -499,8 +498,9 @@ public class FLASStory implements StoryProcessor {
 			else if (!(o instanceof TemplateOr))
 				er.message(b, "constituents of template cases must be OR items");
 			else {
-				tc.addCase((TemplateOr)o);
-				doCardTemplate(er, frTemplates, b.nested);
+				TemplateLine it = doCardTemplate(er, frTemplates, b.nested);
+				if (it != null)
+					tc.addCase(new TemplateOr(((TemplateOr)o).cond, it));
 			}
 		}
 	}
@@ -521,7 +521,9 @@ public class FLASStory implements StoryProcessor {
 		return unroll(er, map, main.content, subst);
 	}
 
-	private TemplateLine unroll(ErrorResult er, Map<String, TemplateThing> map, Object content, Map<String, Object> subst) {
+	private TemplateLine unroll(ErrorResult er, Map<String, TemplateThing> map, TemplateLine content, Map<String, Object> subst) {
+		if (content instanceof CardReference)
+			return content;
 		if (content instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) content;
 			TemplateThing reffed = map.get(tr.name);
@@ -553,25 +555,44 @@ public class FLASStory implements StoryProcessor {
 			List<Object> formats = new ArrayList<Object>();
 			for (Object o : tf.formats)
 				formats.add(substituteMacroParameters(er, map, o, subst));
-			if (tf instanceof TemplateDiv) {
+			if (tf instanceof ContentString) {
+				return new ContentString(((ContentString)tf).text, formats);
+			} else if (tf instanceof ContentExpr) {
+				return new ContentExpr(((ContentExpr)tf).expr, formats);
+			} else if (tf instanceof TemplateDiv) {
 				TemplateDiv td = (TemplateDiv) tf;
 				List<Object> attrs = new ArrayList<Object>();
 				for (Object o : td.attrs)
 					attrs.add(substituteMacroParameters(er, map, o, subst));
 				TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
+				for (TemplateLine x : td.nested)
+					ret.nested.add(unroll(er, map, x, subst));
 				for (EventHandler y : td.handlers)
 					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, map, y.expr, subst)));
 				return ret;
+			} else if (tf instanceof TemplateList) {
+				TemplateList tl = (TemplateList) tf;
+				TemplateList ret = new TemplateList(tl.listLoc, tl.listVar, tl.iterVar, formats);
+				ret.template = unroll(er, map, tl.template, subst);
+				return ret;
+//				return new TemplateList(tl.listLoc, substituteMacroParameters(er, map, tl.listVar, subst), tl.iterVar, formats);
 			}
 			else
 				throw new UtilException("Not supported: " + tf.getClass());
 			/*
 			TemplateLine ret = new TemplateLine(contents, content.customTag, content.customTagVar, attrs, formats);
-			for (TemplateLine x : content.nested)
-				ret.nested.add(unroll(er, map, x, subst));
 			for (EventHandler y : content.handlers)
 				ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, map, y.expr, subst)));
 				*/
+		} else if (content instanceof TemplateCases) {
+			TemplateCases tc = (TemplateCases) content;
+			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(er, map, tc.switchOn, subst));
+			for (TemplateOr i : tc.cases)
+				ret.cases.add((TemplateOr) unroll(er, map, i, subst));
+			return ret;
+		} else if (content instanceof TemplateOr) {
+			TemplateOr tc = (TemplateOr) content;
+			return new TemplateOr(substituteMacroParameters(er, map, tc.cond, subst),  unroll(er, map, tc.template, subst));
 		} else
 			throw new UtilException("Not handled: " + content.getClass());
 	}
@@ -615,9 +636,7 @@ public class FLASStory implements StoryProcessor {
 			return ret;
 		} else if (o instanceof TemplateOr) {
 			TemplateOr tor = (TemplateOr) o;
-			TemplateOr ret = new TemplateOr(substituteMacroParameters(er, map, tor.cond, subst));
-			for (Object x : tor.template)
-				ret.template.add(unroll(er, map, x, subst));
+			TemplateOr ret = new TemplateOr(substituteMacroParameters(er, map, tor.cond, subst), unroll(er, map, tor.template, subst));
 			return ret;
 		} else
 			System.out.println("subMacroParms cannot handle: " + o + " "  + o.getClass());

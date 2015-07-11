@@ -37,6 +37,9 @@ public class RenderTree {
 		
 		@SuppressWarnings("unchecked")
 		public void addChildren(Object obj) {
+			if (obj == null)
+				return;
+			
 			if (obj instanceof Element)
 				children.add((Element)obj);
 			else

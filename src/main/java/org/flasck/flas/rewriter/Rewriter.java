@@ -442,6 +442,7 @@ public class Rewriter {
 			TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
 			TemplateList rul = new TemplateList(ul.listLoc, rlistVar, tlv, formats);
 			cx = new TemplateContext(cx, tlv);
+			rul.template = rewrite(cx, ul.template);
 			return rul;
 		} else if (tl instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases)tl;
@@ -454,10 +455,7 @@ public class Rewriter {
 	}
 
 	private TemplateOr rewrite(TemplateContext cx, TemplateOr tor) {
-		TemplateOr ret = new TemplateOr(rewriteExpr(cx, tor.cond));
-		for (TemplateLine tl : tor.template)
-			ret.template.add(rewrite(cx, tl));
-		return ret;
+		return new TemplateOr(rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
 	}
 
 	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {

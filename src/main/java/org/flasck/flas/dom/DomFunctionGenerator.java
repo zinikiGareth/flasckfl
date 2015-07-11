@@ -76,24 +76,30 @@ public class DomFunctionGenerator {
 	public Object generate(TemplateLine template, String route) {
 		Object ret = generateOne(template, route);
 		if (template instanceof TemplateList) {
-			route = route + "+" + ((TemplateListVar)((TemplateList)template).iterVar).name;
-			((Element)ret).addChildren(generate(template, route));
+			TemplateList tl = (TemplateList)template;
+			route = route + "+" + ((TemplateListVar)tl.iterVar).name;
+			((Element)ret).addChildren(generate(tl.template, route));
 		} else if (template instanceof TemplateDiv) {
 			int pos = 0;
 			Element elt = (Element)ret;
 			TemplateDiv td = (TemplateDiv) template;
 			for (TemplateLine tl : td.nested) {
-				route = route + "." + pos++;
+				String troute = route + "." + pos++;
 				System.out.println("route = " + route + "; " + elt.route);
-				elt.addChildren(generate(tl, route));
+				elt.addChildren(generate(tl, troute));
 			}
 		}
+			
+//		 else
+//				throw new UtilException("Don't do " + template.getClass());
 		return ret;
 	}
 	
 	// I think there should be a name-generator in this class
 	// We should then iterate over the "contents" array (if not a div/list)
 	public Object generateOne(TemplateLine tl, String route) {
+		if (tl == null)
+			throw new UtilException("tl == null");
 		if (tl instanceof TemplateDiv) {
 			RenderTree.ElementExpr pair = div((TemplateDiv) tl, route);
 			function(pair.element.fn, pair.expr);
@@ -104,15 +110,13 @@ public class DomFunctionGenerator {
 			return new Element("content", fn, null, null, route);
 		} else if (tl instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) tl;
-			throw new UtilException("What to do here?");
-			/*
-						// TODO: distinguish between state vars and functions to call
-						// TODO: check that functions are defined on the card and not global
-						String fn = nextFnName();
-						function(fn, new CardMember(tt.location, prefix, tt.text));
-						addUpdate(tt.text, route, "render");
-						return new Element("content", fn, null, null, route);
-						*/
+			String fn = nextFnName();
+			function(fn, ce.expr);
+			List<CardMember> dependsOn = new ArrayList<CardMember>();
+			traverseForMembers(dependsOn, ce.expr);
+			for (CardMember cm : dependsOn)
+				addUpdate(cm.var, route, "render");
+			return new Element("content", fn, null, null, route);
 		} else if (tl instanceof CardMember || tl instanceof ApplyExpr || tl instanceof TemplateListVar) {
 			// in this case, this is an expression which should return an HTML structure or text value
 			// anyway, it can be directly inserted into the DOM
@@ -206,7 +210,8 @@ public class DomFunctionGenerator {
 //					for (TemplateLine ti : c.template)
 //						e.addChildren(generate(ti, myroute + "." + pos++));
 			}
-			throw new UtilException("Can't handle this case yet");
+			return elt;
+//			throw new UtilException("Can't handle TemplateCases yet");
 		} else
 			throw new UtilException("Non TT not handled: " + tl.getClass());
 	}

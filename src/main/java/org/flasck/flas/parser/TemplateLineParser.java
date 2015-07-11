@@ -178,7 +178,7 @@ public class TemplateLineParser implements TryParsing{
 				}
 				if (line.hasMore())
 					return ErrorResult.oneMessage(line, "extraneous symbols at end of cases line");
-				cmd = new TemplateOr(expr);
+				cmd = new TemplateOr(expr, null);
 			} else
 				throw new UtilException("Cannot handle " + tt);
 		}

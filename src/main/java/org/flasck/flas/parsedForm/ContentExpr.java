@@ -12,11 +12,9 @@ import java.util.List;
  */
 public class ContentExpr extends TemplateFormat {
 	public final Object expr;
-	public final List<Object> formats;
 
 	public ContentExpr(Object expr, List<Object> formats) {
 		super(formats);
 		this.expr = expr;
-		this.formats = formats;
 	}
 }

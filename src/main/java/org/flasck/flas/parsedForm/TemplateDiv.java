@@ -8,6 +8,7 @@ public class TemplateDiv extends TemplateFormat {
 	public final String customTagVar;
 	public final List<Object> attrs;
 	public final List<EventHandler> handlers = new ArrayList<EventHandler>();
+	public final List<TemplateLine> nested = new ArrayList<TemplateLine>();
 
 	public TemplateDiv(String customTag, String customTagVar, List<Object> attrs, List<Object> formats) {
 		super(formats);
