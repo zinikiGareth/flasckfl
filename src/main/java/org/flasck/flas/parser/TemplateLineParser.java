@@ -6,14 +6,18 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardReference;
+import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.TemplateAttributeVar;
 import org.flasck.flas.parsedForm.TemplateCases;
+import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -27,10 +31,11 @@ public class TemplateLineParser implements TryParsing{
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
-		List<Object> contents = new ArrayList<Object>();
-		boolean seenDivOrList = false;
+		List<TemplateLine> contents = new ArrayList<TemplateLine>();
+		TemplateLine cmd = null;
+		TemplateList list = null;
+		boolean seenDiv = false;
 		boolean template = false;
-		boolean card = false;
 		while (line.hasMore()) {
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
@@ -39,15 +44,19 @@ public class TemplateLineParser implements TryParsing{
 			if (tt.type == TemplateToken.COLON || tt.type == TemplateToken.HASH) {
 				line.reset(mark);
 				break;
+			} else if (seenDiv || list != null || cmd != null) {
+				return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
 			} else if (tt.type == TemplateToken.ORB) {
 				line.reset(mark);
 				Object pe = new Expression().tryParsing(line);
-				contents.add(pe);
+				contents.add(new ContentExpr(pe, new ArrayList<Object>()));
 			} else if (tt.type == TemplateToken.DIV) {
-				seenDivOrList = true;
-				contents.add(tt);
+				seenDiv = true;
+				if (!contents.isEmpty())
+					return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
 			} else if (tt.type == TemplateToken.LIST) {
-				seenDivOrList = true;
+				if (!contents.isEmpty())
+					return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
 				InputPosition pos = line.realinfo();
 				TemplateToken t2 = TemplateToken.from(line);
 				if (t2.type != TemplateToken.IDENTIFIER)
@@ -59,12 +68,12 @@ public class TemplateLineParser implements TryParsing{
 					iv = t3.text;
 				else
 					line.reset(mark2);
-				contents.add(new TemplateList(pos, t2.text, iv));
+				list = new TemplateList(pos, t2.text, iv, new ArrayList<Object>());
 			} else if (tt.type == TemplateToken.ARROW) {
-				if (seenDivOrList || contents.size() == 0 || contents.size() > 2)
+				if (seenDiv || list != null || contents.size() == 0 || contents.size() > 2)
 					return ErrorResult.oneMessage(line, "syntax error");
-				TemplateToken action = (TemplateToken)contents.get(0);
-				if (action.type != TemplateToken.IDENTIFIER)
+				TemplateLine action = (TemplateLine)contents.get(0);
+				if (!(action instanceof ContentExpr) || !(((ContentExpr)action).expr instanceof UnresolvedVar))
 					return ErrorResult.oneMessage(line, "syntax error");
 				/* Right now, in generating this, I'm unclear what this var was for
 				String var = null;
@@ -81,10 +90,12 @@ public class TemplateLineParser implements TryParsing{
 				else if (expr instanceof ErrorResult)
 					return expr;
 				else
-					return new EventHandler(action.text, expr);
-			} else if (tt.type == TemplateToken.IDENTIFIER || tt.type == TemplateToken.STRING)
-				contents.add(tt);
-			else if (tt.type == TemplateToken.TEMPLATE) {
+					return new EventHandler(((UnresolvedVar)((ContentExpr)action).expr).var, expr);
+			} else if (tt.type == TemplateToken.IDENTIFIER) {
+				contents.add(new ContentExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tt.text)), new ArrayList<Object>()));
+			} else if (tt.type == TemplateToken.STRING) { 
+				contents.add(new ContentString(tt.text, new ArrayList<Object>()));
+			} else if (tt.type == TemplateToken.TEMPLATE) {
 				template = true;
 				if (!contents.isEmpty()) {
 					return ErrorResult.oneMessage(line, "template must be the only content item");
@@ -111,9 +122,8 @@ public class TemplateLineParser implements TryParsing{
 						return ErrorResult.oneMessage(line, "syntax error");
 					args.add(ex);
 				}
-				contents.add(new TemplateReference(tt.location, tt.text, args));
+				cmd = new TemplateReference(tt.location, tt.text, args);
 			} else if (tt.type == TemplateToken.CARD) {
-				card = true;
 				if (!contents.isEmpty()) {
 					return ErrorResult.oneMessage(line, "card must be the only content item");
 				}
@@ -136,7 +146,7 @@ public class TemplateLineParser implements TryParsing{
 				// TODO: more card invocation syntax
 				//   * mode = local|sandbox|trusted|dialog
 				//   * -> handleVar
-				contents.add(new CardReference(loc, cardName, yoyoVar));
+				cmd = new CardReference(loc, cardName, yoyoVar);
 			} else if (tt.type == TemplateToken.CASES) {
 				if (!contents.isEmpty()) {
 					return ErrorResult.oneMessage(line, "cases must be the only content item");
@@ -152,7 +162,7 @@ public class TemplateLineParser implements TryParsing{
 				}
 				if (line.hasMore())
 					return ErrorResult.oneMessage(line, "extraneous symbols at end of cases line");
-				contents.add(new TemplateCases(line.realinfo(), expr));
+				cmd = new TemplateCases(line.realinfo(), expr);
 			} else if (tt.type == TemplateToken.OR) {
 				if (!contents.isEmpty()) {
 					return ErrorResult.oneMessage(line, "or must be the only content item");
@@ -168,12 +178,10 @@ public class TemplateLineParser implements TryParsing{
 				}
 				if (line.hasMore())
 					return ErrorResult.oneMessage(line, "extraneous symbols at end of cases line");
-				contents.add(new TemplateOr(expr));
+				cmd = new TemplateOr(expr);
 			} else
 				throw new UtilException("Cannot handle " + tt);
 		}
-		if (seenDivOrList && contents.size() != 1)
-			return ErrorResult.oneMessage(line, "cannot have other content on line with . or +");
 		List<Object> formats = new ArrayList<Object>();
 		String customTag = null;
 		String customTagVar = null;
@@ -184,8 +192,10 @@ public class TemplateLineParser implements TryParsing{
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
 			if (tt.type == TemplateToken.HASH) {
-				if (!seenDivOrList && !contents.isEmpty())
+				if (!seenDiv && list == null && !contents.isEmpty())
 					return ErrorResult.oneMessage(line, "can only use # by itself or with . or +");
+				if (!seenDiv && list == null)
+					seenDiv = true;
 				if (!line.hasMore())
 					return ErrorResult.oneMessage(line, "missing #tag");
 					
@@ -269,7 +279,16 @@ public class TemplateLineParser implements TryParsing{
 		}
 //		if (line.hasMore())
 //			return ErrorResult.oneMessage(line, "unparsed tokens at end of line");
-		return new TemplateLine(contents, customTag, customTagVar, attrs, formats);
+		if (seenDiv)
+			return new TemplateDiv(customTag, customTagVar, attrs, formats);
+		else if (list != null)
+			return list;
+		else if (cmd != null)
+			return cmd;
+		else if (!contents.isEmpty())
+			return contents;
+		else
+			throw new UtilException("Huh? " + line);
 	}
 
 }

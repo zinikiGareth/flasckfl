@@ -56,7 +56,7 @@ public class DomFunctionGenerator {
 	//  we need to create the maps of overall tree and dependencies
 
 	@SuppressWarnings("unchecked")
-	public void generateTree(TemplateLine template) {
+	public void generateTree(Object template) {
 		Object genned = generate(template, "");
 		if (genned instanceof Element) {
 			RenderTree rt = new RenderTree(prefix, "template", (Element) genned);
@@ -70,7 +70,7 @@ public class DomFunctionGenerator {
 		System.out.println("updates = " + updates);
 	}
 
-	public Object generate(TemplateLine template, String route) {
+	public Object generate(Object template, String route) {
 		Object ret = generateOne(template, route);
 		boolean isList = template.isList();
 		int pos = 0;

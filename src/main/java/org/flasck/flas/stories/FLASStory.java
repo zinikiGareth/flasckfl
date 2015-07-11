@@ -43,9 +43,12 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
+import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
+import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateIntro;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -336,14 +339,9 @@ public class FLASStory implements StoryProcessor {
 						break;
 					}
 				}
-				List<TemplateLine> lines = new ArrayList<TemplateLine>();
-				doCardTemplate(er, frTemplates, b.nested, lines, null);
-				if (!er.hasErrors() && lines.size() > 1)
-					er.message(b, "multiple lines must be contained in a div or list");
-				else if (!er.hasErrors() && lines.size() == 0)
-					er.message(b, "a template must have at least one line");
-				else if (!er.hasErrors())
-					templates.add(new TemplateThing(intro.name, intro.args, lines.get(0)));
+				Object t = doCardTemplate(er, frTemplates, b.nested);
+				if (!er.hasErrors())
+					templates.add(new TemplateThing(intro.name, intro.args, t));
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);
@@ -403,7 +401,31 @@ public class FLASStory implements StoryProcessor {
 			}
 	}
 
-	private List<TemplateLine> doCardTemplate(ErrorResult er, Set<LocatedToken> frTemplates, List<Block> nested, List<TemplateLine> ret, List<EventHandler> handlers) {
+	private Object doCardTemplate(ErrorResult er, Set<LocatedToken> frTemplates, List<Block> nested) {
+		TemplateLineParser tlp = new TemplateLineParser();
+		Object ret = null;
+		for (Block b : nested) {
+			if (b.isComment())
+				continue;
+			if (ret != null) {
+				er.message(b, "multiple lines must be contained in a div");
+				return null;
+			}
+			Object o = tlp.tryParsing(new Tokenizable(b));
+			if (o == null)
+				er.message(b, "syntax error");
+			else if (o instanceof ErrorResult)
+				er.merge((ErrorResult) o);
+			else if (o instanceof TemplateLine) {
+				ret = doOneLine(er, frTemplates, b, o);
+			} else
+				er.message(b, "not a valid template line");
+		}
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void doCardDiv(ErrorResult er, Set<LocatedToken> frTemplates, TemplateDiv asDiv, List<Block> nested) {
 		TemplateLineParser tlp = new TemplateLineParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -413,38 +435,52 @@ public class FLASStory implements StoryProcessor {
 				er.message(b, "syntax error");
 			else if (o instanceof ErrorResult)
 				er.merge((ErrorResult) o);
-			else if (o instanceof TemplateLine) {
-				TemplateLine tl = (TemplateLine)o;
-				if (tl.isTemplate()) {
-					TemplateReference tr = (TemplateReference) tl.contents.get(0);
-					frTemplates.add(new LocatedToken(tr.location, tr.name));
+			else if (o instanceof List) {
+				for (Object o1 : ((List<Object>)o)) {
+					Object item = doOneLine(er, frTemplates, b, o1);
+					if (item != null)
+						asDiv.nested.add(item);
 				}
-				ret.add(tl);
-				if (b.nested.isEmpty() && tl.isList())
-					er.message(b, "list must have one nested element");
-				if (!b.nested.isEmpty()) {
-					if (tl.isDiv()) { 
-						doCardTemplate(er, frTemplates, b.nested, tl.nested, tl.handlers);
-					} else if (tl.isList()) {
-						doCardTemplate(er, frTemplates, b.nested, tl.nested, tl.handlers);
-						if (tl.nested.size() > 1)
-							er.message(b, "list may only have one element");
-					} else if (tl.isCases()) {
-						doCases(er, frTemplates, b, (TemplateCases)tl.contents.get(0));
-					} else {
-						Block fb = null;
-						for (Block b1 : b.nested) {
-							if (!b1.isComment())
-								fb = b1;
-						}
-						if (fb != null)
-							er.message(fb, "this node cannot be nested here - parent does not support children");
-					}
-				}
+			} else if (o instanceof TemplateLine) {
+				Object item = doOneLine(er, frTemplates, b, o);
+				if (item != null)
+					asDiv.nested.add(item);
 			} else if (o instanceof EventHandler)
-				handlers.add((EventHandler)o);
+				asDiv.handlers.add((EventHandler)o);
 			else
 				er.message(b, "not a valid template line");
+		}		
+	}
+
+	private Object doOneLine(ErrorResult er, Set<LocatedToken> frTemplates, Block b, Object o) {
+		Object ret = null;
+		TemplateLine tl = (TemplateLine)o;
+		if (tl instanceof TemplateReference) {
+			TemplateReference tr = (TemplateReference) tl;
+			frTemplates.add(new LocatedToken(tr.location, tr.name));
+		} else if (tl instanceof TemplateList) {
+			ret = tl;
+			TemplateList asList = (TemplateList) ret;
+			if (b.nested.isEmpty()) {
+				er.message(b, "list must have one nested element");
+				return null;
+			}
+			asList.template = doCardTemplate(er, frTemplates, b.nested);
+		} else if (tl instanceof TemplateDiv) { 
+			ret = tl;
+			TemplateDiv asDiv = (TemplateDiv) ret;
+			doCardDiv(er, frTemplates, asDiv, b.nested);
+		} else if (tl instanceof TemplateCases) {
+			ret = tl;
+			doCases(er, frTemplates, b, (TemplateCases)ret);
+		} else {
+			Block fb = null;
+			for (Block b1 : b.nested) {
+				if (!b1.isComment())
+					fb = b1;
+			}
+			if (fb != null)
+				er.message(fb, "this node cannot be nested here - parent does not support children");
 		}
 		return ret;
 	}
@@ -460,17 +496,16 @@ public class FLASStory implements StoryProcessor {
 				er.message(b, "syntax error");
 			else if (o instanceof ErrorResult)
 				er.merge((ErrorResult)o);
-			else if (!(o instanceof TemplateLine) || !((TemplateLine)o).isOr())
-				er.message(b, "constituents of template cases must be or items");
+			else if (!(o instanceof TemplateOr))
+				er.message(b, "constituents of template cases must be OR items");
 			else {
-				TemplateOr tor = (TemplateOr)((TemplateLine)o).contents.get(0);
-				tc.addCase(tor);
-				doCardTemplate(er, frTemplates, b.nested, tor.template, null);
+				tc.addCase((TemplateOr)o);
+				doCardTemplate(er, frTemplates, b.nested);
 			}
 		}
 	}
 
-	private TemplateLine unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, Map<String, Object> subst) {
+	private Object unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, Map<String, Object> subst) {
 		Map<String, TemplateThing> map = new TreeMap<String, TemplateThing>();
 		TemplateThing ret = templates.get(0);
 		for (TemplateThing t : templates) {
@@ -483,12 +518,12 @@ public class FLASStory implements StoryProcessor {
 				er.message(s.location, "reference to non-existent template " + s.text);
 		
 		TemplateThing main = ret;
-		return unroll(er, map, main.lines, subst);
+		return unroll(er, map, main.content, subst);
 	}
 
-	private TemplateLine unroll(ErrorResult er, Map<String, TemplateThing> map, TemplateLine line, Map<String, Object> subst) {
-		if (line.isTemplate()) {
-			TemplateReference tr = (TemplateReference) line.contents.get(0);
+	private Object unroll(ErrorResult er, Map<String, TemplateThing> map, Object content, Map<String, Object> subst) {
+		if (content instanceof TemplateReference) {
+			TemplateReference tr = (TemplateReference) content;
 			TemplateThing reffed = map.get(tr.name);
 			if (tr.args.size() != reffed.args.size()) {
 				er.message(tr.location, "incorrect number of actual parameters to " + tr.name + ": expected " + reffed.args.size());
@@ -503,25 +538,42 @@ public class FLASStory implements StoryProcessor {
 				}
 				nsubst.put(key, tr.args.get(i));
 			}
-			return unroll(er, map, reffed.lines, nsubst);
-		} else {
+			return unroll(er, map, reffed.content, nsubst);
+		} else if (content instanceof TemplateFormat) {
+			/*
 			// substitute for vars in contents, attrs and formats
 			List<Object> contents = new ArrayList<Object>();
-			for (Object o : line.contents)
+			for (Object o : content.contents)
 				contents.add(substituteMacroParameters(er, map, o, subst));
 			List<Object> attrs = new ArrayList<Object>();
-			for (Object o : line.attrs)
+			for (Object o : content.attrs)
 				attrs.add(substituteMacroParameters(er, map, o, subst));
+			*/
+			TemplateFormat tf = (TemplateFormat) content;
 			List<Object> formats = new ArrayList<Object>();
-			for (Object o : line.formats)
+			for (Object o : tf.formats)
 				formats.add(substituteMacroParameters(er, map, o, subst));
-			TemplateLine ret = new TemplateLine(contents, line.customTag, line.customTagVar, attrs, formats);
-			for (TemplateLine x : line.nested)
+			if (tf instanceof TemplateDiv) {
+				TemplateDiv td = (TemplateDiv) tf;
+				List<Object> attrs = new ArrayList<Object>();
+				for (Object o : td.attrs)
+					attrs.add(substituteMacroParameters(er, map, o, subst));
+				TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
+				for (EventHandler y : td.handlers)
+					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, map, y.expr, subst)));
+				return ret;
+			}
+			else
+				throw new UtilException("Not supported: " + tf.getClass());
+			/*
+			TemplateLine ret = new TemplateLine(contents, content.customTag, content.customTagVar, attrs, formats);
+			for (TemplateLine x : content.nested)
 				ret.nested.add(unroll(er, map, x, subst));
-			for (EventHandler y : line.handlers)
+			for (EventHandler y : content.handlers)
 				ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, map, y.expr, subst)));
-			return ret;
-		}
+				*/
+		} else
+			throw new UtilException("Not handled: " + content.getClass());
 	}
 
 	private Object substituteMacroParameters(ErrorResult er, Map<String, TemplateThing> map, Object o, Map<String, Object> subst) {
@@ -564,7 +616,7 @@ public class FLASStory implements StoryProcessor {
 		} else if (o instanceof TemplateOr) {
 			TemplateOr tor = (TemplateOr) o;
 			TemplateOr ret = new TemplateOr(substituteMacroParameters(er, map, tor.cond, subst));
-			for (TemplateLine x : tor.template)
+			for (Object x : tor.template)
 				ret.template.add(unroll(er, map, x, subst));
 			return ret;
 		} else

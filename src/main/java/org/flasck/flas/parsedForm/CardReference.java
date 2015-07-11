@@ -2,7 +2,7 @@ package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class CardReference {
+public class CardReference implements TemplateLine {
 	public final InputPosition location;
 	public final Object explicitCard;
 	public final Object yoyoVar;

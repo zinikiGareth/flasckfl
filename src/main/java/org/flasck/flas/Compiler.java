@@ -225,7 +225,7 @@ public class Compiler {
 
 	private void promoteTemplateFunctions(ErrorResult errors, Map<String, FunctionDefinition> functions, List<RenderTree> trees, List<UpdateTree> updates, Template template) {
 		DomFunctionGenerator gen = new DomFunctionGenerator(errors, template, functions);
-		gen.generateTree(template.topLine);
+		gen.generateTree(template.content);
 		for (Entry<String, FunctionDefinition> x2 : functions.entrySet()) {
 			FunctionDefinition rfn = (FunctionDefinition) x2.getValue();
 			functions.put(rfn.name, rfn);

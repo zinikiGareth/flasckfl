@@ -385,7 +385,7 @@ public class Rewriter {
 	private Template rewrite(TemplateContext cx, Template template) {
 		try {
 			// Again, the need for a scope seems dodgy if we've rewritten ...
-			return new Template(template.prefix, rewrite(cx, template.topLine), template.scope);
+			return new Template(template.prefix, rewrite(cx, template.content), template.scope);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;

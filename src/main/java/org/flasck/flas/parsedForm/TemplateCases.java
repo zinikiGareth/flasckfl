@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class TemplateCases {
+public class TemplateCases implements TemplateLine {
 	public final List<TemplateOr> cases = new ArrayList<TemplateOr>();
 	public final InputPosition loc;
 	public final Object switchOn;

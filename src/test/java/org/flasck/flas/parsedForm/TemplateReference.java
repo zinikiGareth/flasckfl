@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class TemplateReference {
+public class TemplateReference implements TemplateLine {
 	public final InputPosition location;
 	public final String name;
 	public final List<Object> args;
