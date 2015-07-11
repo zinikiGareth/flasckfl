@@ -437,12 +437,12 @@ public class FLASStory implements StoryProcessor {
 				er.merge((ErrorResult) o);
 			else if (o instanceof List) {
 				for (Object o1 : ((List<Object>)o)) {
-					Object item = doOneLine(er, frTemplates, b, o1);
+					TemplateLine item = doOneLine(er, frTemplates, b, o1);
 					if (item != null)
 						asDiv.nested.add(item);
 				}
 			} else if (o instanceof TemplateLine) {
-				Object item = doOneLine(er, frTemplates, b, o);
+				TemplateLine item = doOneLine(er, frTemplates, b, o);
 				if (item != null)
 					asDiv.nested.add(item);
 			} else if (o instanceof EventHandler)
@@ -452,8 +452,8 @@ public class FLASStory implements StoryProcessor {
 		}		
 	}
 
-	private Object doOneLine(ErrorResult er, Set<LocatedToken> frTemplates, Block b, Object o) {
-		Object ret = null;
+	private TemplateLine doOneLine(ErrorResult er, Set<LocatedToken> frTemplates, Block b, Object o) {
+		TemplateLine ret = null;
 		TemplateLine tl = (TemplateLine)o;
 		if (tl instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) tl;
@@ -505,7 +505,7 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
-	private Object unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, Map<String, Object> subst) {
+	private TemplateLine unroll(ErrorResult er, Set<LocatedToken> frTemplates, List<TemplateThing> templates, Map<String, Object> subst) {
 		Map<String, TemplateThing> map = new TreeMap<String, TemplateThing>();
 		TemplateThing ret = templates.get(0);
 		for (TemplateThing t : templates) {
@@ -521,7 +521,7 @@ public class FLASStory implements StoryProcessor {
 		return unroll(er, map, main.content, subst);
 	}
 
-	private Object unroll(ErrorResult er, Map<String, TemplateThing> map, Object content, Map<String, Object> subst) {
+	private TemplateLine unroll(ErrorResult er, Map<String, TemplateThing> map, Object content, Map<String, Object> subst) {
 		if (content instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) content;
 			TemplateThing reffed = map.get(tr.name);

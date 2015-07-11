@@ -23,6 +23,8 @@ import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
+import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
@@ -51,7 +53,9 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
+import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
+import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateListVar;
@@ -393,68 +397,62 @@ public class Rewriter {
 	}
 
 	private TemplateLine rewrite(TemplateContext cx, TemplateLine tl) {
-		List<Object> contents = new ArrayList<Object>();
 		List<Object> attrs = new ArrayList<Object>();
 		List<Object> formats = new ArrayList<Object>();
-		for (Object o : tl.contents) {
-			if (o instanceof TemplateToken) {
-				TemplateToken tt = (TemplateToken) o;
-				if (tt.type == TemplateToken.STRING || tt.type == TemplateToken.DIV)
-					contents.add(tt);
-				else if (tt.type == TemplateToken.IDENTIFIER)
-					contents.add(rewriteExpr(cx, ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tt.text))));
+		if (tl instanceof TemplateFormat) {
+			TemplateFormat tf = (TemplateFormat) tl;
+			for (Object o : tf.formats) {
+				if (o instanceof TemplateToken) {
+					TemplateToken tt = (TemplateToken) o;
+					if (tt.type == TemplateToken.STRING)
+						formats.add(tt);
+					else
+						throw new UtilException("Format type not handled: " + tt);
+				} else if (o instanceof ApplyExpr) {
+					formats.add(rewriteExpr(cx, o));
+				} else 
+					throw new UtilException("Format type not handled: " + o.getClass());
+			}
+		}
+		if (tl instanceof ContentString) {
+			return tl;
+		} else if (tl instanceof ContentExpr) {
+			return new ContentExpr(rewriteExpr(cx, ((ContentExpr)tl).expr), formats);
+		} else if (tl instanceof CardReference) {
+			CardReference cr = (CardReference) tl;
+			Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
+			Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
+			return new CardReference(cr.location, cardName, yoyoName);
+		} else if (tl instanceof TemplateDiv) {
+			TemplateDiv td = (TemplateDiv) tl;
+			for (Object o : td.attrs) {
+				if (o instanceof TemplateExplicitAttr)
+					attrs.add(o);
 				else
-					throw new UtilException("Content type not handled: " + tt);
-			} else if (o instanceof CardReference) {
-				CardReference cr = (CardReference) o;
-				Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
-				Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
-				contents.add(new CardReference(cr.location, cardName, yoyoName));
-			} else if (o instanceof TemplateList) {
-				TemplateList ul = (TemplateList)o;
-				Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);
-				TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
-				TemplateList rul = new TemplateList(ul.listLoc, rlistVar, tlv);
-				cx = new TemplateContext(cx, tlv);
-				contents.add(rul);
-			} else if (o instanceof TemplateCases) {
-				TemplateCases tc = (TemplateCases)o;
-				TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
-				for (TemplateOr tor : tc.cases)
-					ret.addCase(rewrite(cx, tor));
-				contents.add(ret);
-			} else if (o instanceof StringLiteral || o instanceof NumericLiteral) {
-				contents.add(o);
-			} else if (o instanceof ApplyExpr) {
-				contents.add(rewriteExpr(cx, o));
-			} else 
-				throw new UtilException("Content type not handled: " + o.getClass());
-		}
-		for (Object o : tl.attrs) {
-			if (o instanceof TemplateExplicitAttr)
-				attrs.add(o);
-			else
-				throw new UtilException("Attr type not handled: " + o.getClass());
-		}
-		for (Object o : tl.formats) {
-			if (o instanceof TemplateToken) {
-				TemplateToken tt = (TemplateToken) o;
-				if (tt.type == TemplateToken.STRING)
-					formats.add(tt);
-				else
-					throw new UtilException("Format type not handled: " + tt);
-			} else if (o instanceof ApplyExpr) {
-				formats.add(rewriteExpr(cx, o));
-			} else 
-				throw new UtilException("Format type not handled: " + o.getClass());
-		}
-		TemplateLine ret = new TemplateLine(contents, tl.customTag, tl.customTagVar, attrs, formats);
-		for (EventHandler h : tl.handlers) {
-			ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
-		}
-		for (TemplateLine i : tl.nested)
-			ret.nested.add(rewrite(cx, i));
-		return ret;
+					throw new UtilException("Attr type not handled: " + o.getClass());
+			}
+			TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
+			for (TemplateLine i : td.nested)
+				ret.nested.add(rewrite(cx, i));
+			for (EventHandler h : td.handlers) {
+				ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
+			}
+			return ret;
+		} else if (tl instanceof TemplateList) {
+			TemplateList ul = (TemplateList)tl;
+			Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);
+			TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
+			TemplateList rul = new TemplateList(ul.listLoc, rlistVar, tlv, formats);
+			cx = new TemplateContext(cx, tlv);
+			return rul;
+		} else if (tl instanceof TemplateCases) {
+			TemplateCases tc = (TemplateCases)tl;
+			TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
+			for (TemplateOr tor : tc.cases)
+				ret.addCase(rewrite(cx, tor));
+			return ret;
+		} else 
+			throw new UtilException("Content type not handled: " + tl.getClass());
 	}
 
 	private TemplateOr rewrite(TemplateContext cx, TemplateOr tor) {
