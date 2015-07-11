@@ -88,6 +88,43 @@ public class DomFunctionGenerator {
 				System.out.println("route = " + route + "; " + elt.route);
 				elt.addChildren(generate(tl, troute));
 			}
+		} else if (template instanceof TemplateCases) {
+			TemplateCases tc = (TemplateCases) template;
+			Element elt = (Element)ret;
+			// Build up an if/else tree in functions
+			// Put all of these in the tree as nodes
+			if (tc.cases.isEmpty()) {
+				errors.message(tc.loc, "template cases must have at least one clause");
+				return null;
+			}
+			int orc = 0;
+			for (TemplateOr c : tc.cases) {
+				String myroute = route + "." + orc++;
+				List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+				List<Object> args = new ArrayList<Object>();
+				Object expr;
+				String csfn = nextFnName();
+				Element e;
+				List<CardMember> dependsOn = new ArrayList<CardMember>();
+				traverseForMembers(dependsOn, c.cond);
+				if (tc.switchOn != null) {
+					args.add(new VarPattern("_x"));
+					expr = new ApplyExpr(scope.fromRoot("=="), new LocalVar(csfn+"_0", "_x"), c.cond);
+					e = new Element("case", null, csfn, null, myroute);
+					elt.children.add(e);
+					for (CardMember cm : dependsOn)
+						addUpdate(cm.var, route, "renderChildren"); // I think this is right: we want to update the parent of a switch but only update the children
+				} else {
+					expr = c.cond;
+					e = new Element("cond", null, csfn, null, myroute);
+//						ret.add(e);
+					for (CardMember cm : dependsOn)
+						addUpdate(cm.var, route, "renderChildren"); // I think this is right: we want to update the parent of a switch but only update the children
+				}
+				cases.add(new FunctionCaseDefn(scope, csfn, args, expr));
+				functions.put(csfn, new FunctionDefinition(Type.CARD, csfn, args.size(), cases));
+				e.addChildren(generate(c.template, myroute + ".0"));
+			}
 		}
 			
 //		 else
@@ -172,45 +209,11 @@ public class DomFunctionGenerator {
 				traverseForMembers(dependsOn, tc.switchOn);
 				for (CardMember cm : dependsOn)
 					addUpdate(cm.var, route, "renderChildren");
-			}
+				return elt;
+			} else
+				throw new UtilException("You need to deal with this case, whatever it is");
 
-			// Build up an if/else tree in functions
-			// Put all of these in the tree as nodes
-			if (tc.cases.isEmpty()) {
-				errors.message(tc.loc, "template cases must have at least one clause");
-				return null;
-			}
-			int orc = 0;
-			for (TemplateOr c : tc.cases) {
-				String myroute = route + "." + orc++;
-				List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-				List<Object> args = new ArrayList<Object>();
-				Object expr;
-				String csfn = nextFnName();
-				Element e;
-				List<CardMember> dependsOn = new ArrayList<CardMember>();
-				traverseForMembers(dependsOn, c.cond);
-				if (tc.switchOn != null) {
-					args.add(new VarPattern("_x"));
-					expr = new ApplyExpr(scope.fromRoot("=="), new LocalVar(csfn+"_0", "_x"), c.cond);
-					e = new Element("case", null, csfn, null, myroute);
-					elt.children.add(e);
-					for (CardMember cm : dependsOn)
-						addUpdate(cm.var, route, "renderChildren"); // I think this is right: we want to update the parent of a switch but only update the children
-				} else {
-					expr = c.cond;
-					e = new Element("cond", null, csfn, null, myroute);
-//						ret.add(e);
-					for (CardMember cm : dependsOn)
-						addUpdate(cm.var, route, "renderChildren"); // I think this is right: we want to update the parent of a switch but only update the children
-				}
-				cases.add(new FunctionCaseDefn(scope, csfn, args, expr));
-				functions.put(csfn, new FunctionDefinition(Type.CARD, csfn, args.size(), cases));
-				int pos = 0;
-//					for (TemplateLine ti : c.template)
-//						e.addChildren(generate(ti, myroute + "." + pos++));
-			}
-			return elt;
+//			return elt;
 //			throw new UtilException("Can't handle TemplateCases yet");
 		} else
 			throw new UtilException("Non TT not handled: " + tl.getClass());
