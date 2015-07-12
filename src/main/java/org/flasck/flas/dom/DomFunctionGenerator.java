@@ -117,7 +117,6 @@ public class DomFunctionGenerator {
 				} else {
 					expr = c.cond;
 					e = new Element("cond", null, csfn, null, myroute);
-//						ret.add(e);
 					for (CardMember cm : dependsOn)
 						addUpdate(cm.var, route, "renderChildren"); // I think this is right: we want to update the parent of a switch but only update the children
 				}
@@ -126,9 +125,6 @@ public class DomFunctionGenerator {
 				e.addChildren(generate(c.template, myroute + ".0"));
 			}
 		}
-			
-//		 else
-//				throw new UtilException("Don't do " + template.getClass());
 		return ret;
 	}
 	
