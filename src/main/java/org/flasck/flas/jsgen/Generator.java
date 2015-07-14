@@ -30,6 +30,7 @@ import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
+import org.zinutils.exceptions.UtilException;
 
 public class Generator {
 	private final ErrorResult errors;
@@ -237,27 +238,35 @@ public class Generator {
 			int idx = ret.val.lastIndexOf(".");
 			thisOne.append("val: " + ret.val.substring(0, idx+1) + "prototype" + ret.val.substring(idx) + ", ");
 		}
-		thisOne.append("route: '" + dropDot(ret.route) + "'");
-		if (!ret.children.isEmpty())
-			thisOne.append(", children:");
+		thisOne.append("route: '" + ret.route + "'");
+		boolean wantChildrenArray = true;
+		if (!ret.children.isEmpty()) {
+			if ("div".equals(ret.type)) {
+				thisOne.append(", children:");
+			} else if ("switch".equals(ret.type)) {
+				thisOne.append(", cases:");
+			} else if ("case".equals(ret.type) || "list".equals(ret.type)) {
+				thisOne.append(", template:");
+				wantChildrenArray = false;
+			} else
+				throw new UtilException(ret.type + " cannot have children");
+		}
 		JSForm next = new JSForm(thisOne.toString());
 		next.noSemi();
 		block.add(next);
 
 		if (!ret.children.isEmpty()) {
-			next.nestArray();
-			for (Element e : ret.children) {
-				JSForm wrapper = new JSForm("").needBlock();
-				next.add(wrapper);
-				generateTree(wrapper, e);
+			if (wantChildrenArray) {
+				next.nestArray();
+				for (Element e : ret.children) {
+					JSForm wrapper = new JSForm("").needBlock();
+					next.add(wrapper);
+					generateTree(wrapper, e);
+				}
+			} else {
+				generateTree(next, ret.children.get(0));
 			}
 		}
-	}
-
-	private String dropDot(String route) {
-		if (route.length() == 0)
-			return route;
-		return route.substring(1);
 	}
 
 	public JSForm generateUpdateTree(String prefix) {
@@ -275,30 +284,10 @@ public class Generator {
 			block.add(f);
 			for (Update u : updates.get(s)) {
 				JSForm g = new JSForm("").needBlock().noSemi();
-				g.add(new JSForm("route: '" + u.routeChanges + "', node: " + nodepath(new StringBuilder(prefix+".template"), u.routeChanges) + ", action: '" + u.updateType + "'").noSemi());
+				g.add(new JSForm("route: '" + u.routeChanges.name() + "', node: " + u.routeChanges.path(new StringBuilder(prefix+".template")) + ", action: '" + u.updateType + "'").noSemi());
 				f.add(g);
 			}
 			prev = f;
-		}
-	}
-
-	private String nodepath(StringBuilder sb, String route) {
-		int idx = route.indexOf(".");
-		if (idx == -1) {
-			String sub = route;
-			int idx2 = sub.indexOf("+");
-			if (idx2 != -1)
-				sub = sub.substring(0, idx2);
-			if (route.length() > 0)
-				sb.append(".children[" + sub + "]");
-			return sb.toString();
-		} else {
-			String sub = route.substring(0, idx);
-			int idx2 = sub.indexOf("+");
-			if (idx2 != -1)
-				sub = sub.substring(0, idx2);
-			sb.append(".children[" + sub + "]");
-			return nodepath(sb, route.substring(idx+1));
 		}
 	}
 

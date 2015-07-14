@@ -27,12 +27,12 @@ public class RenderTree {
 		public final List<String> classes = new ArrayList<String>();
 		public final List<String> clsexprs = new ArrayList<String>();
 		
-		public Element(String t, String f, String val, String var, String route) {
+		public Element(String t, String f, String val, String var, Route myroute) {
 			type = t;
 			fn = f;
 			this.val = val;
 			this.var = var;
-			this.route = route;
+			this.route = myroute.name();
 		}
 		
 		@SuppressWarnings("unchecked")

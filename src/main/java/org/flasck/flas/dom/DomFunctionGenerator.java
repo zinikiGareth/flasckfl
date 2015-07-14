@@ -60,7 +60,7 @@ public class DomFunctionGenerator {
 
 	@SuppressWarnings("unchecked")
 	public void generateTree(TemplateLine template) {
-		Object genned = generate(template, "");
+		Object genned = generate(template, new Route());
 		if (genned instanceof Element) {
 			RenderTree rt = new RenderTree(prefix, "template", (Element) genned);
 			trees.add(rt);
@@ -73,18 +73,18 @@ public class DomFunctionGenerator {
 		System.out.println("updates = " + updates);
 	}
 
-	public Object generate(TemplateLine template, String route) {
+	public Object generate(TemplateLine template, Route route) {
 		Object ret = generateOne(template, route);
 		if (template instanceof TemplateList) {
 			TemplateList tl = (TemplateList)template;
-			route = route + "+" + ((TemplateListVar)tl.iterVar).name;
+			route = route.extendListVar(((TemplateListVar)tl.iterVar).name);
 			((Element)ret).addChildren(generate(tl.template, route));
 		} else if (template instanceof TemplateDiv) {
 			int pos = 0;
 			Element elt = (Element)ret;
 			TemplateDiv td = (TemplateDiv) template;
 			for (TemplateLine tl : td.nested) {
-				String troute = route + "." + pos++;
+				Route troute = route.extendDivMember(pos++);
 				System.out.println("route = " + route + "; " + elt.route);
 				elt.addChildren(generate(tl, troute));
 			}
@@ -99,7 +99,7 @@ public class DomFunctionGenerator {
 			}
 			int orc = 0;
 			for (TemplateOr c : tc.cases) {
-				String myroute = route + "." + orc++;
+				Route myroute = route.extendCase(orc++);
 				List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 				List<Object> args = new ArrayList<Object>();
 				Object expr;
@@ -122,7 +122,7 @@ public class DomFunctionGenerator {
 				}
 				cases.add(new FunctionCaseDefn(scope, csfn, args, expr));
 				functions.put(csfn, new FunctionDefinition(Type.CARD, csfn, args.size(), cases));
-				e.addChildren(generate(c.template, myroute + ".0"));
+				e.addChildren(generate(c.template, myroute.template()));
 			}
 		}
 		return ret;
@@ -130,7 +130,7 @@ public class DomFunctionGenerator {
 	
 	// I think there should be a name-generator in this class
 	// We should then iterate over the "contents" array (if not a div/list)
-	public Object generateOne(TemplateLine tl, String route) {
+	public Object generateOne(TemplateLine tl, Route route) {
 		if (tl == null)
 			throw new UtilException("tl == null");
 		if (tl instanceof TemplateDiv) {
@@ -191,7 +191,7 @@ public class DomFunctionGenerator {
 			List<CardMember> dependsOn = new ArrayList<CardMember>();
 			traverseForMembers(dependsOn, list.listVar);
 			for (CardMember cm : dependsOn)
-				addUpdate(cm.var, route + "+" + var, "render");
+				addUpdate(cm.var, route.extendListVar(var), "render");
 			return elt;
 		} else if (tl instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases) tl;
@@ -215,7 +215,7 @@ public class DomFunctionGenerator {
 			throw new UtilException("Non TT not handled: " + tl.getClass());
 	}
 
-	private RenderTree.ElementExpr div(TemplateDiv tl, String route) {
+	private RenderTree.ElementExpr div(TemplateDiv tl, Route route) {
 		Object tag;
 		if (tl.customTagVar != null)
 			tag = new UnresolvedVar(null, tl.customTagVar);
@@ -315,8 +315,8 @@ public class DomFunctionGenerator {
 			throw new UtilException("Case not handled: " + f + " "+ (f!=null?f.getClass():""));
 	}
 
-	private void addUpdate(String dependsOn, String routeChanges, String updateType) {
-		updates.add(dependsOn, new Update(routeChanges, updateType));
+	private void addUpdate(String dependsOn, Route route, String updateType) {
+		updates.add(dependsOn, new Update(route, updateType));
 	}
 
 	private String nextFnName() {
