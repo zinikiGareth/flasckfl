@@ -462,6 +462,7 @@ public class FLASStory implements StoryProcessor {
 		if (tl instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) tl;
 			frTemplates.add(new LocatedToken(tr.location, tr.name));
+			return tl;
 		} else if (tl instanceof CardReference) {
 			return tl;
 		} else if (tl instanceof TemplateList) {
@@ -558,7 +559,7 @@ public class FLASStory implements StoryProcessor {
 			if (tf instanceof ContentString) {
 				return new ContentString(((ContentString)tf).text, formats);
 			} else if (tf instanceof ContentExpr) {
-				return new ContentExpr(((ContentExpr)tf).expr, formats);
+				return new ContentExpr(substituteMacroParameters(er, map, ((ContentExpr)tf).expr, subst), formats);
 			} else if (tf instanceof TemplateDiv) {
 				TemplateDiv td = (TemplateDiv) tf;
 				List<Object> attrs = new ArrayList<Object>();
