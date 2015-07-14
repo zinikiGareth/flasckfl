@@ -436,7 +436,15 @@ public class FLASStory implements StoryProcessor {
 				er.message(b, "syntax error");
 			else if (o instanceof ErrorResult)
 				er.merge((ErrorResult) o);
-			else if (o instanceof TemplateLine) {
+			else if (o instanceof List) {
+				@SuppressWarnings("unchecked")
+				List<Object> os = (List<Object>) o;
+				if (os.size() != 1) {
+					er.message(b, "multiple content items must be contained in a div");
+					return null;
+				}
+				ret = doOneLine(er, frTemplates, b, os.get(0));
+			} else if (o instanceof TemplateLine) {
 				ret = doOneLine(er, frTemplates, b, o);
 			} else
 				er.message(b, "not a valid template line");
@@ -629,19 +637,15 @@ public class FLASStory implements StoryProcessor {
 				er.message(s.location, "reference to non-existent template " + s.text);
 		
 		TemplateThing main = ret;
-		return unroll(er, map, main.content, subst);
+		return unroll(er, st, map, main.content, subst);
 	}
 
-	private TemplateLine unroll(ErrorResult er, Map<String, Object> map, TemplateLine content, Map<String, Object> subst) {
+	private TemplateLine unroll(ErrorResult er, State s, Map<String, Object> map, TemplateLine content, Map<String, Object> subst) {
 		if (content instanceof CardReference)
 			return content;
 		if (content instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) content;
-			TemplateThing reffed = (TemplateThing) map.get(tr.name);
-			if (tr.args.size() != reffed.args.size()) {
-				er.message(tr.location, "incorrect number of actual parameters to " + tr.name + ": expected " + reffed.args.size());
-				return null;
-			}
+			Object reffed = map.get(tr.name);
 			if (reffed instanceof TemplateThing) {
 				TemplateThing tt = (TemplateThing) reffed;
 				if (tr.args.size() != tt.args.size()) {
@@ -657,14 +661,12 @@ public class FLASStory implements StoryProcessor {
 					}
 					nsubst.put(key, tr.args.get(i));
 				}
-				return unroll(er, map, tt.content, nsubst);
+				return unroll(er, s, map, tt.content, nsubst);
 			} else {
 				D3Thing d3 = (D3Thing) reffed;
 				List<Object> contents = new ArrayList<Object>();
-				contents.add(new D3Invoke(s.scope, d3));
-				return new TemplateLine(contents, null, null, new ArrayList<Object>(), new ArrayList<Object>());
+				return new D3Invoke(s.scope, d3);
 			}
-			return unroll(er, map, reffed.content, subst);
 		} else if (content instanceof TemplateFormat) {
 			/*
 			// substitute for vars in contents, attrs and formats
@@ -678,26 +680,26 @@ public class FLASStory implements StoryProcessor {
 			TemplateFormat tf = (TemplateFormat) content;
 			List<Object> formats = new ArrayList<Object>();
 			for (Object o : tf.formats)
-				formats.add(substituteMacroParameters(er, map, o, subst));
+				formats.add(substituteMacroParameters(er, s, map, o, subst));
 			if (tf instanceof ContentString) {
 				return new ContentString(((ContentString)tf).text, formats);
 			} else if (tf instanceof ContentExpr) {
-				return new ContentExpr(substituteMacroParameters(er, map, ((ContentExpr)tf).expr, subst), formats);
+				return new ContentExpr(substituteMacroParameters(er, s, map, ((ContentExpr)tf).expr, subst), formats);
 			} else if (tf instanceof TemplateDiv) {
 				TemplateDiv td = (TemplateDiv) tf;
 				List<Object> attrs = new ArrayList<Object>();
 				for (Object o : td.attrs)
-					attrs.add(substituteMacroParameters(er, map, o, subst));
+					attrs.add(substituteMacroParameters(er, s, map, o, subst));
 				TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
 				for (TemplateLine x : td.nested)
-					ret.nested.add(unroll(er, map, x, subst));
+					ret.nested.add(unroll(er, s, map, x, subst));
 				for (EventHandler y : td.handlers)
-					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, map, y.expr, subst)));
+					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
 				return ret;
 			} else if (tf instanceof TemplateList) {
 				TemplateList tl = (TemplateList) tf;
 				TemplateList ret = new TemplateList(tl.listLoc, tl.listVar, tl.iterVar, formats);
-				ret.template = unroll(er, map, tl.template, subst);
+				ret.template = unroll(er, s, map, tl.template, subst);
 				return ret;
 //				return new TemplateList(tl.listLoc, substituteMacroParameters(er, map, tl.listVar, subst), tl.iterVar, formats);
 			}
@@ -710,13 +712,13 @@ public class FLASStory implements StoryProcessor {
 				*/
 		} else if (content instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases) content;
-			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(er, map, tc.switchOn, subst));
+			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(er, s, map, tc.switchOn, subst));
 			for (TemplateOr i : tc.cases)
-				ret.cases.add((TemplateOr) unroll(er, map, i, subst));
+				ret.cases.add((TemplateOr) unroll(er, s, map, i, subst));
 			return ret;
 		} else if (content instanceof TemplateOr) {
 			TemplateOr tc = (TemplateOr) content;
-			return new TemplateOr(substituteMacroParameters(er, map, tc.cond, subst),  unroll(er, map, tc.template, subst));
+			return new TemplateOr(substituteMacroParameters(er, s, map, tc.cond, subst),  unroll(er, s, map, tc.template, subst));
 		} else
 			throw new UtilException("Not handled: " + content.getClass());
 	}
@@ -760,7 +762,7 @@ public class FLASStory implements StoryProcessor {
 			return ret;
 		} else if (o instanceof TemplateOr) {
 			TemplateOr tor = (TemplateOr) o;
-			TemplateOr ret = new TemplateOr(substituteMacroParameters(er, s, map, tor.cond, subst), unroll(er, map, tor.template, subst));
+			TemplateOr ret = new TemplateOr(substituteMacroParameters(er, s, map, tor.cond, subst), unroll(er, s, map, tor.template, subst));
 			return ret;
 		} else
 			System.out.println("subMacroParms cannot handle: " + o + " "  + o.getClass());
