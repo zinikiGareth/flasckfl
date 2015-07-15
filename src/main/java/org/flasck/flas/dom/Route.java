@@ -20,17 +20,21 @@ public class Route {
 	}
 
 	private final List<Element> routes = new ArrayList<Element>();
+	private String myListIs = null;
 	
 	public Route() {
 	}
 	
 	private Route(Route r, Element and) {
+		this.myListIs = r.myListIs;
 		routes.addAll(r.routes);
 		routes.add(and);
 	}
 	
-	public Route extendListVar(String name) {
-		return new Route(this, new Element("+" + name, "template"));
+	public Route extendListVar(String name, String listVar) {
+		Route list = new Route(this, new Element("+" + name, "template"));
+		list.myListIs = listVar;
+		return list;
 	}
 
 	public Route extendDivMember(int pos) {
@@ -64,5 +68,9 @@ public class Route {
 		for (Element e : routes)
 			sb.append("."+e.field);
 		return sb.toString();
+	}
+
+	public String listVar() {
+		return myListIs;
 	}
 }

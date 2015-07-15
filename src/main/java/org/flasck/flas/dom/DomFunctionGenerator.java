@@ -85,7 +85,7 @@ public class DomFunctionGenerator {
 		Object ret = generateOne(template, route);
 		if (template instanceof TemplateList) {
 			TemplateList tl = (TemplateList)template;
-			route = route.extendListVar(((TemplateListVar)tl.iterVar).name);
+			route = route.extendListVar(((TemplateListVar)tl.iterVar).name, ((CardMember)tl.listVar).var);
 			((Element)ret).addChildren(generate(tl.template, route));
 		} else if (template instanceof TemplateDiv) {
 			int pos = 0;
@@ -121,12 +121,12 @@ public class DomFunctionGenerator {
 					e = new Element("case", null, csfn, null, myroute);
 					elt.children.add(e);
 					for (CardMember cm : dependsOn)
-						addUpdate(cm.var, route, "renderChildren"); // I think this is right: we want to update the parent of a switch but only update the children
+						addUpdate(cm.var, route, "renderChildren", null); // I think this is right: we want to update the parent of a switch but only update the children
 				} else {
 					expr = c.cond;
 					e = new Element("cond", null, csfn, null, myroute);
 					for (CardMember cm : dependsOn)
-						addUpdate(cm.var, route, "renderChildren"); // I think this is right: we want to update the parent of a switch but only update the children
+						addUpdate(cm.var, route, "renderChildren", null); // I think this is right: we want to update the parent of a switch but only update the children
 				}
 				cases.add(new FunctionCaseDefn(scope, csfn, args, expr));
 				functions.put(csfn, new FunctionDefinition(Type.CARD, csfn, args.size(), cases));
@@ -156,7 +156,7 @@ public class DomFunctionGenerator {
 			List<CardMember> dependsOn = new ArrayList<CardMember>();
 			traverseForMembers(dependsOn, ce.expr);
 			for (CardMember cm : dependsOn)
-				addUpdate(cm.var, route, "render");
+				addUpdate(cm.var, route, "render", null);
 			return new Element("content", fn, null, null, route);
 		} else if (tl instanceof CardMember || tl instanceof ApplyExpr || tl instanceof TemplateListVar) {
 			// in this case, this is an expression which should return an HTML structure or text value
@@ -167,7 +167,7 @@ public class DomFunctionGenerator {
 			List<CardMember> dependsOn = new ArrayList<CardMember>();
 			traverseForMembers(dependsOn, tl);
 			for (CardMember cm : dependsOn)
-				addUpdate(cm.var, route, "render");
+				addUpdate(cm.var, route, "render", null);
 			return new Element("content", fn, null, null, route);
 		} else if (tl instanceof CardReference) {
 			CardReference cr = (CardReference) tl;
@@ -199,7 +199,7 @@ public class DomFunctionGenerator {
 			List<CardMember> dependsOn = new ArrayList<CardMember>();
 			traverseForMembers(dependsOn, list.listVar);
 			for (CardMember cm : dependsOn)
-				addUpdate(cm.var, route.extendListVar(var), "render");
+				addUpdate(cm.var, route.extendListVar(var, cm.var), "render", cm.var);
 			return elt;
 		} else if (tl instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases) tl;
@@ -212,7 +212,7 @@ public class DomFunctionGenerator {
 				List<CardMember> dependsOn = new ArrayList<CardMember>();
 				traverseForMembers(dependsOn, tc.switchOn);
 				for (CardMember cm : dependsOn)
-					addUpdate(cm.var, route, "renderChildren");
+					addUpdate(cm.var, route, "renderChildren", null);
 				return elt;
 			} else
 				throw new UtilException("You need to deal with this case, whatever it is");
@@ -259,7 +259,7 @@ public class DomFunctionGenerator {
 			List<CardMember> dependsOn = new ArrayList<CardMember>();
 			traverseForMembers(dependsOn, d3i.d3.data);
 			for (CardMember cm : dependsOn)
-				addUpdate(cm.var, route, "update");
+				addUpdate(cm.var, route, "update", null);
 			
 			return ret;
 		} else
@@ -315,7 +315,7 @@ public class DomFunctionGenerator {
 				List<CardMember> dependsOn = new ArrayList<CardMember>();
 				traverseForMembers(dependsOn, f);
 				for (CardMember cm : dependsOn)
-					addUpdate(cm.var, route, "attrs"); // Just update the attrs
+					addUpdate(cm.var, route, "attrs", route.listVar()); // Just update the attrs
 				if (computed == null)
 					computed = new ApplyExpr(nil);
 //				String ename = nextFnName();
@@ -366,8 +366,8 @@ public class DomFunctionGenerator {
 			throw new UtilException("Case not handled: " + f + " "+ (f!=null?f.getClass():""));
 	}
 
-	private void addUpdate(String dependsOn, Route route, String updateType) {
-		updates.add(dependsOn, new Update(route, updateType));
+	private void addUpdate(String dependsOn, Route route, String updateType, String list) {
+		updates.add(dependsOn, new Update(route, updateType, list));
 	}
 
 	private String nextFnName() {

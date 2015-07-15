@@ -284,7 +284,7 @@ public class Generator {
 			block.add(f);
 			for (Update u : updates.get(s)) {
 				JSForm g = new JSForm("").needBlock().noSemi();
-				g.add(new JSForm("route: '" + u.routeChanges.name() + "', node: " + u.routeChanges.path(new StringBuilder(prefix+".template")) + ", action: '" + u.updateType + "'").noSemi());
+				g.add(new JSForm("route: '" + u.routeChanges.name() + "', node: " + u.routeChanges.path(new StringBuilder(prefix+".template")) + ", action: '" + u.updateType + "'" + (u.list != null?", list: '" + u.list +"'":"")).noSemi());
 				f.add(g);
 			}
 			prev = f;
