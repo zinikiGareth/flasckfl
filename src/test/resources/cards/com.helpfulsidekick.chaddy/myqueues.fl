@@ -2,8 +2,8 @@
 		
 		state
 			Croset queues <- Croset []
-			List items <- [Item 'I1' 'Get Chaddy working', Item 'I2' 'Multiple Cards', Item 'I3' 'List Elements']
-			String selectedQueue <- 'Q3'
+			Croset items <- Croset []
+			String selectedQueue
 			
 		template
 			. : 'section' 'main'
@@ -28,9 +28,14 @@
 			entry (String key) (Queue value)
 				<- queues.insert key value
 
+		handler org.ziniki.QueryHandler TaskHandler
+			entry (String key) (Task value)
+				<- items.insert key value
+
 		event selectQueue name
 			selectedQueue <- name
-// todo: we also need to cause the items to be reloaded (presumably over a contract)
+			items <- (Croset [])
+			<- query.scan ('query/com.helpfulsidekick.omt.personal.chaddy.1/personal/queue/' ++ name) 'com.helpfulsidekick.chaddy.Task' TaskHandler 
 			
 It still feels like a different keyword would give more of the impression of what's going on here
 And there's a sense in which the syntactic difference is varname or no varname

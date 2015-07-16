@@ -2,7 +2,7 @@
 		String id
 		String title
 
-	struct Item
+	struct Task
 		String id
 		String desc
 

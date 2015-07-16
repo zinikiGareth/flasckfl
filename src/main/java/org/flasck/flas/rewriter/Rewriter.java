@@ -612,10 +612,15 @@ public class Rewriter {
 	private Object rewritePattern(NamingContext scope, Object o) {
 		if (o instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) o;
-			Object type = scope.resolve(tp.typeLocation, tp.type);
-			if (!(type instanceof AbsoluteVar))
-				errors.message((Block)null, "could not handle " + type);
-			return new TypedPattern(tp.typeLocation, ((AbsoluteVar)type).id, tp.varLocation, tp.var);
+			try {
+				Object type = scope.resolve(tp.typeLocation, tp.type);
+				if (!(type instanceof AbsoluteVar))
+					errors.message((Block)null, "could not handle " + type);
+				return new TypedPattern(tp.typeLocation, ((AbsoluteVar)type).id, tp.varLocation, tp.var);
+			} catch (ResolutionException ex) {
+				errors.message(tp.typeLocation, "no such type: " + ex.name);
+				return null;
+			}
 		} else if (o instanceof VarPattern) {
 			return o;
 		} else {

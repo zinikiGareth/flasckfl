@@ -34,6 +34,8 @@ public class Builtin {
 				Type.function(Type.simple("List", Type.simple("String")), Type.simple("String")));
 			ret.define("join", "join",
 					Type.function(Type.simple("List", Type.simple("String")), Type.simple("String"), Type.simple("String")));
+			ret.define("++", "append",
+					Type.function(Type.simple("String"), Type.simple("String"), Type.simple("String")));
 		}
 		{ // boolean logic
 			ret.define("Boolean", "Boolean", null);
@@ -83,7 +85,8 @@ public class Builtin {
 		}
 		{ // crosets
 			ret.define("Croset", "Croset",
-				new StructDefn("Croset", false).add("A"));
+				new StructDefn("Croset", false).add("A")
+				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "list")));
 		}
 		{ // d3
 			ret.define("D3Element", "D3Element",
