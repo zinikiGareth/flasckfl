@@ -160,6 +160,15 @@ public class JSForm {
 		return new JSForm(fnName + " = function(" + String.join(", ", vars) + ")").strict();
 	}
 
+	// Create functions for non-HSIE things (such as templates)
+	public static JSForm flexFn(String name, List<String> vars) {
+		return new JSForm(name + " = function(" + String.join(", ", vars) + ")").strict();
+	}
+
+	public static JSForm flex(String text) {
+		return new JSForm(text);
+	}
+
 	public static List<JSForm> head(Var v) {
 		return CollectionUtils.listOf(
 			new JSForm("v" + v.idx + " = FLEval.head(v" + v.idx+")"),
@@ -195,9 +204,11 @@ public class JSForm {
 
 	public static void assign(JSForm into, String assgn, HSIEForm form) {
 		ReturnCmd r = (ReturnCmd) form.nestedCommands().get(0);
-		if (r.fn != null)
-			into.add(new JSForm(assgn + " = " + r.fn));
-		else if (r.var != null) {
+		if (r.fn != null) {
+			StringBuilder sb = new StringBuilder(assgn + " = ");
+			appendValue(sb, Type.CARD, r, 0);
+			into.add(new JSForm(sb.toString()));
+		} else if (r.var != null) {
 			if (r.deps != null) {
 				for (Var v : r.deps) {
 					into.add(new JSForm("var v" + v.idx + " = " + closure(form.mytype, form.getClosure(v))));

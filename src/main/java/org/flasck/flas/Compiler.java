@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
+import org.flasck.flas.TemplateAbstractModel.Content;
+import org.flasck.flas.TemplateAbstractModel.Struct;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
@@ -30,6 +32,7 @@ import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardGrouping;
+import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
@@ -47,6 +50,7 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
@@ -197,6 +201,12 @@ public class Compiler {
 				abortIfErrors(errors);
 			}
 			
+			// 11(repl). Generate code for templating
+			for (Template cg : rewriter.templates) {
+				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, cg);
+				gen.generate(tam);
+			}
+
 			// 11. Generate render & dependency trees
 			renderTemplateTrees(gen, trees, updates);
 			abortIfErrors(errors);
@@ -228,6 +238,24 @@ public class Compiler {
 		}
 
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
+	}
+
+	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Template cg) {
+		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix);
+		Struct parent = ret.createStruct();
+		matmRecursive(errors, ret, parent, cg.content);
+		System.out.println(ret);
+		return ret;
+	}
+
+	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, Struct parent, TemplateLine content) {
+		if (content instanceof ContentExpr) {
+			ContentExpr ce = (ContentExpr) content;
+			HSIEForm form = new HSIE(errors).handleExpr(ce.expr);
+			Content c = tam.createContent(parent, form);
+			parent.add(c);
+		} else 
+			throw new UtilException("TL type " + content.getClass() + " not supported");
 	}
 
 	private void abortIfErrors(ErrorResult errors) throws ErrorResultException {

@@ -35,6 +35,7 @@
 		event selectQueue name
 			selectedQueue <- name
 			items <- (Croset [])
+#			TODO: should cancel previous scan.  Suggests also that this should return a handle we can store so we can cancel it			
 			<- query.scan ('query/com.helpfulsidekick.omt.personal.chaddy.1/personal/queue/' ++ name) 'com.helpfulsidekick.chaddy.Task' TaskHandler 
 			
 It still feels like a different keyword would give more of the impression of what's going on here

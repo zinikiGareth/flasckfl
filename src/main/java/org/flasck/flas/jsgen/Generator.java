@@ -2,8 +2,13 @@ package org.flasck.flas.jsgen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import org.flasck.flas.TemplateAbstractModel;
+import org.flasck.flas.TemplateAbstractModel.Base;
+import org.flasck.flas.TemplateAbstractModel.Content;
+import org.flasck.flas.TemplateAbstractModel.Struct;
 import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.dom.UpdateTree.Update;
 import org.flasck.flas.errors.ErrorResult;
@@ -217,6 +222,87 @@ public class Generator {
 				h.dumpOne(0);
 			}
 		}
+	}
+
+	public void generate(TemplateAbstractModel tam) {
+		// Firstly firstly, create the "initialRender" function
+		JSForm ir = JSForm.flexFn(tam.prefix + ".initialRender", CollectionUtils.listOf("doc", "wrapper", "parent", "card"));
+		// first spit out struct items
+		for (Base c : tam.contents) {
+			if (c instanceof Struct) {
+				JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper, parent)"); // I think "parent" here should be a variable
+				ir.add(invoke);
+			}
+		}
+		// now do everything else
+		for (Base c : tam.contents) {
+			if (c instanceof Content) {
+				JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper)");
+				ir.add(invoke);
+			} else if (!(c instanceof Struct))
+				throw new UtilException("not handled: " + c.getClass());
+		}
+		target.add(ir);
+		
+		// Now do the actual functions 
+		for (Base c : tam.contents) {
+			List<String> args;
+			if (c instanceof Struct)
+				args = CollectionUtils.listOf("doc", "wrapper", "parent");
+			else if (c instanceof Content)
+				args = CollectionUtils.listOf("doc", "wrapper");
+			else
+				throw new UtilException("Can't generate " + c.getClass());
+			JSForm ff = JSForm.flexFn(tam.prefix + ".prototype._" + c.id, args);
+			if (c instanceof Struct) {
+				ff.add(JSForm.flex("wrapper.infoAbout['" + c.id + "'] = {}"));
+//				int vidx = 1;
+				for (Base b : ((Struct)c).children) {
+					if (b instanceof Content) {
+						Content cc = (Content) b;
+//						String sid = "sid" + (vidx++);
+//						String span = "span" + (vidx++);
+						ff.add(JSForm.flex("var " + cc.sid + " = wrapper.nextSlotId()"));
+						ff.add(JSForm.flex("var " + cc.span + " = doc.createElement('span')"));
+						ff.add(JSForm.flex(cc.span + ".setAttribute('id', " + cc.sid + ")"));
+						ff.add(JSForm.flex("parent.appendChild(" + cc.span + ")"));
+						ff.add(JSForm.flex("wrapper.infoAbout['" + c.id + "']['" + cc.sid +"'] = " + cc.sid));
+					} else
+						throw new UtilException("not handled: " + c.getClass());
+				}
+			} else if (c instanceof Content) {
+				Content cc = (Content) c;
+				ff.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout['" + cc.struct +"']['" + cc.sid + "'])"));
+				ff.add(JSForm.flex("span.innerHTML = ''"));
+				cc.expr.dump();
+				JSForm.assign(ff, "var textContent", cc.expr);
+				ff.add(JSForm.flex("var text = doc.createTextNode(textContent)"));
+				ff.add(JSForm.flex("span.appendChild(text)"));
+			} else
+				throw new UtilException("not handled: " + c.getClass());
+			target.add(ff);
+		}
+		
+		// Generate the update actions
+		JSForm onUpdate = JSForm.flex(tam.prefix + ".onUpdate =").needBlock();
+		JSForm prev = null;
+		for (String field : tam.fields.key1Set()) {
+			if (prev != null)
+				prev.comma();
+			JSForm curr = JSForm.flex("'" + field + "':").needBlock();
+			JSForm pa = null;
+			for (String action : tam.fields.key2Set(field)) {
+				JSForm ca = JSForm.flex("'" + action + "':").nestArray();
+				ca.add(JSForm.flex(String.join(",", tam.fields.get(field, action))).noSemi());
+				if (pa != null)
+					pa.comma();
+				curr.add(ca);
+				pa = ca;
+			}
+			onUpdate.add(curr);
+			prev = curr;
+		}
+		target.add(onUpdate);
 	}
 
 	public JSForm generateTemplateTree(String name, String templateName) {
