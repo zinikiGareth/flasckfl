@@ -281,9 +281,12 @@ public class TemplateLineParser implements TryParsing{
 //			return ErrorResult.oneMessage(line, "unparsed tokens at end of line");
 		if (seenDiv)
 			return new TemplateDiv(customTag, customTagVar, attrs, formats);
-		else if (list != null)
-			return list;
-		else if (cmd != null)
+		else if (list != null) {
+			if (!formats.isEmpty())
+				return new TemplateList(list.listLoc, list.listVar, list.iterVar, formats);
+			else
+				return list;
+		} else if (cmd != null)
 			return cmd;
 		else if (!contents.isEmpty())
 			return contents;

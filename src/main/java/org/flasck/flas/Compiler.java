@@ -16,6 +16,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.TemplateAbstractModel.Content;
 import org.flasck.flas.TemplateAbstractModel.Struct;
+import org.flasck.flas.TemplateAbstractModel.ULList;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
@@ -32,7 +33,9 @@ import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardGrouping;
+import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
@@ -50,7 +53,10 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateCases;
+import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
@@ -243,17 +249,32 @@ public class Compiler {
 	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Template cg) {
 		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix);
 		Struct parent = ret.createStruct();
-		matmRecursive(errors, ret, parent, cg.content);
-		System.out.println(ret);
+		matmRecursive(errors, ret, parent, "parent", cg.content);
 		return ret;
 	}
 
-	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, Struct parent, TemplateLine content) {
-		if (content instanceof ContentExpr) {
+	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, Struct parent, String inDiv, TemplateLine content) {
+		if (content instanceof TemplateDiv) {
+			TemplateDiv td = (TemplateDiv) content;
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(parent, inDiv, td.customTag, td.attrs, td.formats);
+			parent.add(b);
+			for (TemplateLine x : td.nested)
+				matmRecursive(errors, tam, parent, b.id, x);
+		} else if (content instanceof TemplateList) {
+			TemplateList tl = (TemplateList) content;
+			ULList ul = tam.createList(parent, inDiv, tl.formats);
+			parent.add(ul);
+		} else if (content instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) content;
 			HSIEForm form = new HSIE(errors).handleExpr(ce.expr);
 			Content c = tam.createContent(parent, form);
 			parent.add(c);
+		} else if (content instanceof ContentString) {
+			System.out.println("ContentString should be an easy case");
+		} else if (content instanceof CardReference) {
+			System.out.println("Need to handle card references");
+		} else if (content instanceof TemplateCases) {
+			System.out.println("Need to handle cases");
 		} else 
 			throw new UtilException("TL type " + content.getClass() + " not supported");
 	}

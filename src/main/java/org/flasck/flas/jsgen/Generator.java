@@ -7,8 +7,10 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.TemplateAbstractModel;
 import org.flasck.flas.TemplateAbstractModel.Base;
+import org.flasck.flas.TemplateAbstractModel.Block;
 import org.flasck.flas.TemplateAbstractModel.Content;
 import org.flasck.flas.TemplateAbstractModel.Struct;
+import org.flasck.flas.TemplateAbstractModel.ULList;
 import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.dom.UpdateTree.Update;
 import org.flasck.flas.errors.ErrorResult;
@@ -239,6 +241,8 @@ public class Generator {
 			if (c instanceof Content) {
 				JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper)");
 				ir.add(invoke);
+			} else if (c instanceof Block) {
+				; // I don't think this needs anything here
 			} else if (!(c instanceof Struct))
 				throw new UtilException("not handled: " + c.getClass());
 		}
@@ -251,6 +255,8 @@ public class Generator {
 				args = CollectionUtils.listOf("doc", "wrapper", "parent");
 			else if (c instanceof Content)
 				args = CollectionUtils.listOf("doc", "wrapper");
+			else if (c instanceof Block)
+				continue; // I think this is fine
 			else
 				throw new UtilException("Can't generate " + c.getClass());
 			JSForm ff = JSForm.flexFn(tam.prefix + ".prototype._" + c.id, args);
@@ -260,15 +266,27 @@ public class Generator {
 				for (Base b : ((Struct)c).children) {
 					if (b instanceof Content) {
 						Content cc = (Content) b;
-//						String sid = "sid" + (vidx++);
-//						String span = "span" + (vidx++);
 						ff.add(JSForm.flex("var " + cc.sid + " = wrapper.nextSlotId()"));
 						ff.add(JSForm.flex("var " + cc.span + " = doc.createElement('span')"));
 						ff.add(JSForm.flex(cc.span + ".setAttribute('id', " + cc.sid + ")"));
 						ff.add(JSForm.flex("parent.appendChild(" + cc.span + ")"));
 						ff.add(JSForm.flex("wrapper.infoAbout['" + c.id + "']['" + cc.sid +"'] = " + cc.sid));
+					} else if (b instanceof Block) {
+						Block bb = (Block) b;
+						ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + bb.tag + "')"));
+						for (Entry<String, String> sa : bb.staticAttrs.entrySet())
+							ff.add(JSForm.flex(bb.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
+						ff.add(JSForm.flex(bb.parent + ".appendChild(" + bb.id + ")"));
+					} else if (b instanceof ULList) {
+						ULList ul = (ULList) b;
+						ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + ul.tag + "')"));
+						ff.add(JSForm.flex("var " + ul.sid + " = wrapper.nextSlotId()"));
+						ff.add(JSForm.flex(b.id + ".setAttribute('id', " + ul.sid + ")"));
+						for (Entry<String, String> sa : ul.staticAttrs.entrySet())
+							ff.add(JSForm.flex(ul.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
+						ff.add(JSForm.flex(ul.parent + ".appendChild(" + ul.id + ")"));
 					} else
-						throw new UtilException("not handled: " + c.getClass());
+						throw new UtilException("not handled: " + b.getClass());
 				}
 			} else if (c instanceof Content) {
 				Content cc = (Content) c;
