@@ -23,7 +23,6 @@ import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -228,12 +227,15 @@ public class Generator {
 		}
 	}
 
-	public void generate(TemplateAbstractModel tam) {
+	public void generate(TemplateAbstractModel tam, JSForm function, AbstractTreeNode parent) {
 		for (AbstractTreeNode atn : tam.nodes) {
+			if (atn.nestedIn != parent)
+				continue;
 			if (atn.type == AbstractTreeNode.TOP) {
 				JSForm ir = JSForm.flexFn(tam.prefix + ".prototype._initialRender", CollectionUtils.listOf("doc", "wrapper", "parent"));
 				target.add(ir);
 				generateVisualTree(ir, "parent", false, null, atn.tree);
+				generate(tam, null, atn);
 			} else if (atn.type == AbstractTreeNode.LIST) {
 				JSForm ii = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_itemInserted", CollectionUtils.listOf("doc", "wrapper", "item", "before"));
 				target.add(ii);
@@ -243,11 +245,26 @@ public class Generator {
 					generateVisualTree(ii, "parent", true, atn.id, t);
 				ii.add(JSForm.flex("this._" + atn.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + atn.id + "'][item.id])"));
 				JSForm ic = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_itemChanged", CollectionUtils.listOf("doc", "wrapper", "item"));
+				generate(tam, ic, atn);
 				target.add(ic);
 				JSForm fi = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatItem", CollectionUtils.listOf("doc", "wrapper", "item"));
 				target.add(fi);
 				JSForm fl = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatList", CollectionUtils.listOf("doc", "wrapper"));
 				target.add(fl);
+				JSForm lp = JSForm.flex("for (var x in wrapper.infoAbout['" + atn.id + "'])").needBlock();
+				fl.add(lp);
+				lp.add(JSForm.flex("this._" + atn.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + atn.id + "'][x])"));
+			} else if (atn.type == AbstractTreeNode.CONTENT) {
+				JSForm cc = function;
+				if (cc == null) {
+					cc = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id, CollectionUtils.listOf("doc", "wrapper", "value"));
+					target.add(cc);
+				}
+				cc.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout" + (atn.nestedIn != null?"['" + atn.nestedIn.id + "'][item.id]":"") + "['" + atn.sid + "'])"));
+				cc.add(JSForm.flex("span.innerHTML = ''"));
+				JSForm.assign(cc, "var textContent", atn.expr);
+				cc.add(JSForm.flex("var text = doc.createTextNode(FLEval.full(textContent))"));
+				cc.add(JSForm.flex("span.appendChild(text)"));
 			} else
 				throw new UtilException("Don't handle " + atn.type);
 		}

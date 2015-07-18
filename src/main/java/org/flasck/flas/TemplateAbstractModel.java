@@ -134,9 +134,12 @@ public class TemplateAbstractModel {
 		public final VisualTree tree;
 		public final List<Object> slotUpdaters = new ArrayList<Object>();
 		public final List<Object> slotFormatters = new ArrayList<Object>();
+		public final AbstractTreeNode nestedIn;
+		public HSIEForm expr;
 		
-		public AbstractTreeNode(int type, String id, String sid, VisualTree tree) {
+		public AbstractTreeNode(int type, AbstractTreeNode nestedIn, String id, String sid, VisualTree tree) {
 			this.type = type;
+			this.nestedIn = nestedIn;
 			this.id = id;
 			this.sid = sid;
 			this.tree = tree;

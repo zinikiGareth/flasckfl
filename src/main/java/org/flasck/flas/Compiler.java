@@ -211,7 +211,7 @@ public class Compiler {
 			// 11(repl). Generate code for templating
 			for (Template cg : rewriter.templates) {
 				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, cg);
-				gen.generate(tam);
+				gen.generate(tam, null, null);
 			}
 
 			// 11. Generate render & dependency trees
@@ -263,7 +263,7 @@ public class Compiler {
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, td.customTag, td.attrs, td.formats, handlers);
 			VisualTree vt = new VisualTree(b);
 			if (atn == null) {
-				atn = new AbstractTreeNode(AbstractTreeNode.TOP, null, null, vt);
+				atn = new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, vt);
 				tam.nodes.add(atn);
 			} else
 				tree.children.add(vt);
@@ -276,13 +276,13 @@ public class Compiler {
 			VisualTree pvt = new VisualTree(b);
 			pvt.containsThing = AbstractTreeNode.LIST;
 			if (atn == null)
-				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, pvt));
+				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
 
 			// This is where we separate the "included-in-parent" tree from the "I own this" tree
 			VisualTree vt = new VisualTree(null);
-			atn = new AbstractTreeNode(AbstractTreeNode.LIST, b.id, b.sid, vt);
+			atn = new AbstractTreeNode(AbstractTreeNode.LIST, atn, b.id, b.sid, vt);
 			tam.nodes.add(atn);
 
 			// Now generate the nested template in that
@@ -299,16 +299,15 @@ public class Compiler {
 			VisualTree pvt = new VisualTree(b);
 			pvt.containsThing = AbstractTreeNode.CONTENT;
 			if (atn == null)
-				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, pvt));
+				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
 			
 			// Now we need to create a new ATN for the _content_ function
-			/*
-			HSIEForm form = new HSIE(errors).handleExpr(ce.expr);
-			Content c = tam.createContent(parent, inDiv, form);
-			parent.add(c);
-			*/
+			// VisualTree vt = new VisualTree(null);
+			atn = new AbstractTreeNode(AbstractTreeNode.CONTENT, atn, b.id, b.sid, null);
+			tam.nodes.add(atn);
+			atn.expr = new HSIE(errors).handleExpr(ce.expr);
 		} else if (content instanceof ContentString) {
 			System.out.println("ContentString should be an easy case");
 		} else if (content instanceof CardReference) {
