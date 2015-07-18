@@ -2,7 +2,6 @@ package org.flasck.flas.jsgen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.flasck.flas.TemplateAbstractModel;
@@ -229,7 +228,14 @@ public class Generator {
 	public void generate(TemplateAbstractModel tam) {
 		// Firstly firstly, create the "initialRender" function
 		JSForm ir = JSForm.flexFn(tam.prefix + ".initialRender", CollectionUtils.listOf("doc", "wrapper", "parent", "card"));
-		// first spit out struct items
+		
+		// first prepare any infos
+		for (Base c : tam.contents) {
+			if (c instanceof ULList) {
+				ir.add(JSForm.flex("wrapper.infoAbout['" + c.id + "'] = {}"));
+			}
+		}
+		// next spit out struct items
 		for (Base c : tam.contents) {
 			if (c instanceof Struct) {
 				JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper, parent)"); // I think "parent" here should be a variable
@@ -241,8 +247,9 @@ public class Generator {
 			if (c instanceof Content) {
 				JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper)");
 				ir.add(invoke);
-			} else if (c instanceof Block) {
-				; // I don't think this needs anything here
+			} else if (c instanceof ULList) {
+				JSForm invoke = JSForm.flex("card._" + c.id +"_formatList(doc, wrapper)");
+				ir.add(invoke);
 			} else if (!(c instanceof Struct))
 				throw new UtilException("not handled: " + c.getClass());
 		}
@@ -251,43 +258,22 @@ public class Generator {
 		// Now do the actual functions 
 		for (Base c : tam.contents) {
 			List<String> args;
+			String suffix = "";
 			if (c instanceof Struct)
 				args = CollectionUtils.listOf("doc", "wrapper", "parent");
 			else if (c instanceof Content)
 				args = CollectionUtils.listOf("doc", "wrapper");
-			else if (c instanceof Block)
-				continue; // I think this is fine
-			else
+			else if (c instanceof ULList) {
+				args = CollectionUtils.listOf("doc", "wrapper", "item", "before");
+				suffix = "_itemInserted";
+			} else
 				throw new UtilException("Can't generate " + c.getClass());
-			JSForm ff = JSForm.flexFn(tam.prefix + ".prototype._" + c.id, args);
+			JSForm ff = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + suffix, args);
 			if (c instanceof Struct) {
 				ff.add(JSForm.flex("wrapper.infoAbout['" + c.id + "'] = {}"));
 //				int vidx = 1;
-				for (Base b : ((Struct)c).children) {
-					if (b instanceof Content) {
-						Content cc = (Content) b;
-						ff.add(JSForm.flex("var " + cc.sid + " = wrapper.nextSlotId()"));
-						ff.add(JSForm.flex("var " + cc.span + " = doc.createElement('span')"));
-						ff.add(JSForm.flex(cc.span + ".setAttribute('id', " + cc.sid + ")"));
-						ff.add(JSForm.flex("parent.appendChild(" + cc.span + ")"));
-						ff.add(JSForm.flex("wrapper.infoAbout['" + c.id + "']['" + cc.sid +"'] = " + cc.sid));
-					} else if (b instanceof Block) {
-						Block bb = (Block) b;
-						ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + bb.tag + "')"));
-						for (Entry<String, String> sa : bb.staticAttrs.entrySet())
-							ff.add(JSForm.flex(bb.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
-						ff.add(JSForm.flex(bb.parent + ".appendChild(" + bb.id + ")"));
-					} else if (b instanceof ULList) {
-						ULList ul = (ULList) b;
-						ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + ul.tag + "')"));
-						ff.add(JSForm.flex("var " + ul.sid + " = wrapper.nextSlotId()"));
-						ff.add(JSForm.flex(b.id + ".setAttribute('id', " + ul.sid + ")"));
-						for (Entry<String, String> sa : ul.staticAttrs.entrySet())
-							ff.add(JSForm.flex(ul.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
-						ff.add(JSForm.flex(ul.parent + ".appendChild(" + ul.id + ")"));
-					} else
-						throw new UtilException("not handled: " + b.getClass());
-				}
+				Struct struct = (Struct)c;
+				templateChildren(ff, struct.id, false, struct.children);
 			} else if (c instanceof Content) {
 				Content cc = (Content) c;
 				ff.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout['" + cc.struct +"']['" + cc.sid + "'])"));
@@ -296,6 +282,14 @@ public class Generator {
 				JSForm.assign(ff, "var textContent", cc.expr);
 				ff.add(JSForm.flex("var text = doc.createTextNode(textContent)"));
 				ff.add(JSForm.flex("span.appendChild(text)"));
+			} else if (c instanceof ULList) {
+				ULList l = (ULList) c;
+				ff.add(JSForm.flex("var parent = doc.getElementById(wrapper.infoAbout['" + l.struct + "']['" + l.id + "'])"));
+				ff.add(JSForm.flex("wrapper.infoAbout['" + l.id + "'][item.id] = { item: item }"));
+				boolean hasComplex = templateChildren(ff, l.id, true, l.children);
+				if (hasComplex) {
+					ff.add(JSForm.flex("this._" + l.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + l.id + "'][item.id])"));
+				}
 			} else
 				throw new UtilException("not handled: " + c.getClass());
 			target.add(ff);
@@ -321,6 +315,54 @@ public class Generator {
 			prev = curr;
 		}
 		target.add(onUpdate);
+	}
+
+	protected boolean templateChildren(JSForm ff, String struct, boolean inList, List<Base> children) {
+		boolean hasComplex = false;
+		for (Base b : children) {
+			if (b instanceof Content) {
+				Content cc = (Content) b;
+				ff.add(JSForm.flex("var " + cc.sid + " = wrapper.nextSlotId()"));
+				ff.add(JSForm.flex("var " + cc.span + " = doc.createElement('span')"));
+				ff.add(JSForm.flex(cc.span + ".setAttribute('id', " + cc.sid + ")"));
+				ff.add(JSForm.flex(cc.parent + ".appendChild(" + cc.span + ")"));
+				ff.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + cc.sid +"'] = " + cc.sid));
+			} else if (b instanceof Block) {
+				Block bb = (Block) b;
+				hasComplex |= bb.complexAttrs;
+				ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + bb.tag + "')"));
+				if (bb.sid != null) {
+					ff.add(JSForm.flex("var " + bb.sid + " = wrapper.nextSlotId()"));
+					ff.add(JSForm.flex(bb.id + ".setAttribute('id', " + bb.sid + ")"));
+				}
+				for (Entry<String, String> sa : bb.staticAttrs.entrySet())
+					ff.add(JSForm.flex(bb.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
+				JSForm ip = ff;
+				if (inList) {
+					JSForm ie = JSForm.flex("if (before)").needBlock();
+					ff.add(ie);
+					ie.add(JSForm.flex(bb.parent + ".insertBefore(" + bb.id + ", before)"));
+					JSForm es = JSForm.flex("else").needBlock();
+					ff.add(es);
+					ip = es;
+				}
+				ip.add(JSForm.flex(bb.parent + ".appendChild(" + bb.id + ")"));
+				if (bb.complexAttrs)
+					ff.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + bb.sid +"'] = " + bb.sid));
+			} else if (b instanceof ULList) {
+				ULList ul = (ULList) b;
+				ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + ul.tag + "')"));
+				ff.add(JSForm.flex("var " + ul.sid + " = wrapper.nextSlotId()"));
+				ff.add(JSForm.flex(b.id + ".setAttribute('id', " + ul.sid + ")"));
+				ff.add(JSForm.flex("wrapper.infoAbout['" + struct + "']['" + ul.id + "'] = " + ul.sid));
+				for (Entry<String, String> sa : ul.staticAttrs.entrySet())
+					ff.add(JSForm.flex(ul.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
+				ff.add(JSForm.flex(ul.parent + ".appendChild(" + ul.id + ")"));
+			} else
+				throw new UtilException("not handled: " + b.getClass());
+		}
+		
+		return hasComplex;
 	}
 
 	public JSForm generateTemplateTree(String name, String templateName) {

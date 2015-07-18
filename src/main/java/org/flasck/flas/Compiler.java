@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
+import org.flasck.flas.TemplateAbstractModel.Addable;
 import org.flasck.flas.TemplateAbstractModel.Content;
 import org.flasck.flas.TemplateAbstractModel.Struct;
 import org.flasck.flas.TemplateAbstractModel.ULList;
@@ -253,7 +254,7 @@ public class Compiler {
 		return ret;
 	}
 
-	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, Struct parent, String inDiv, TemplateLine content) {
+	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, Addable parent, String inDiv, TemplateLine content) {
 		if (content instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(parent, inDiv, td.customTag, td.attrs, td.formats);
@@ -263,11 +264,12 @@ public class Compiler {
 		} else if (content instanceof TemplateList) {
 			TemplateList tl = (TemplateList) content;
 			ULList ul = tam.createList(parent, inDiv, tl.formats);
+			matmRecursive(errors, tam, ul, "parent", tl.template);
 			parent.add(ul);
 		} else if (content instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) content;
 			HSIEForm form = new HSIE(errors).handleExpr(ce.expr);
-			Content c = tam.createContent(parent, form);
+			Content c = tam.createContent(parent, inDiv, form);
 			parent.add(c);
 		} else if (content instanceof ContentString) {
 			System.out.println("ContentString should be an easy case");
