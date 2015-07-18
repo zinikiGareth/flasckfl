@@ -64,10 +64,12 @@ public class TemplateAbstractModel {
 	
 	public class Block extends Formattable {
 		public final String parent;
+		public final Map<String, HSIEForm> handlers;
 
-		public Block(String id, String parent, String customTag) {
+		public Block(String id, String parent, String customTag, Map<String, HSIEForm> handlers) {
 			super(id, (customTag != null)?customTag:"div");
 			this.parent = parent;
+			this.handlers = handlers;
 		}
 	}
 	
@@ -112,25 +114,24 @@ public class TemplateAbstractModel {
 	}
 
 	private int nextId = 1;
-	final public List<Base> contents = new ArrayList<Base>();
+	public final Struct root;
 	public final String prefix;
 	public final ListMapMap<String, String, String> fields = new ListMapMap<String, String, String>();
 //	public final Map<String, Map<String, List<String>>> fields = new HashMap<String, Map<String, List<String>>>();
 
 	public TemplateAbstractModel(String prefix) {
 		this.prefix = prefix;
+		this.root = createStruct();
 	}
 
 	public Struct createStruct() {
 		Struct s = new Struct("struct_" + nextId++);
-		contents.add(s);
 		return s;
 	}
 
 	public Content createContent(Addable inside, String inDiv, HSIEForm expr) {
 		String name = "content_" + nextId++;
 		Content s = new Content(name, inside, inDiv, expr);
-		contents.add(s);
 		for (Object x : expr.externals) {
 			if (x instanceof CardMember) {
 				CardMember y = (CardMember)x;
@@ -143,14 +144,13 @@ public class TemplateAbstractModel {
 	public ULList createList(Addable parent, String parentDiv, List<Object> formats) {
 		String name = "list_" + nextId++;
 		ULList ret = new ULList(name, parent, parentDiv);
-		contents.add(ret);
 		handleFormats(parent, ret, formats);
 		return ret;
 	}
 	
-	public Block createBlock(Addable parent, String parentDiv, String customTag, List<Object> attrs, List<Object> formats) {
+	public Block createBlock(Addable parent, String parentDiv, String customTag, List<Object> attrs, List<Object> formats, Map<String, HSIEForm> handlers) {
 		String name = "block_" + nextId++;
-		Block ret = new Block(name, parentDiv, customTag);
+		Block ret = new Block(name, parentDiv, customTag, handlers);
 		for (Object o : attrs) {
 			if (o instanceof TemplateExplicitAttr) {
 				TemplateExplicitAttr tea = (TemplateExplicitAttr) o;

@@ -21,6 +21,7 @@ import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -230,69 +231,21 @@ public class Generator {
 		JSForm ir = JSForm.flexFn(tam.prefix + ".initialRender", CollectionUtils.listOf("doc", "wrapper", "parent", "card"));
 		
 		// first prepare any infos
-		for (Base c : tam.contents) {
+		for (Base c : tam.root.children) {
 			if (c instanceof ULList) {
 				ir.add(JSForm.flex("wrapper.infoAbout['" + c.id + "'] = {}"));
 			}
 		}
-		// next spit out struct items
-		for (Base c : tam.contents) {
-			if (c instanceof Struct) {
-				JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper, parent)"); // I think "parent" here should be a variable
-				ir.add(invoke);
-			}
-		}
-		// now do everything else
-		for (Base c : tam.contents) {
-			if (c instanceof Content) {
-				JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper)");
-				ir.add(invoke);
-			} else if (c instanceof ULList) {
-				JSForm invoke = JSForm.flex("card._" + c.id +"_formatList(doc, wrapper)");
-				ir.add(invoke);
-			} else if (!(c instanceof Struct))
-				throw new UtilException("not handled: " + c.getClass());
+		createSomething(ir, tam.root);
+		for (Base c : tam.root.children) {
+			createSomething(ir, c);
 		}
 		target.add(ir);
 		
-		// Now do the actual functions 
-		for (Base c : tam.contents) {
-			List<String> args;
-			String suffix = "";
-			if (c instanceof Struct)
-				args = CollectionUtils.listOf("doc", "wrapper", "parent");
-			else if (c instanceof Content)
-				args = CollectionUtils.listOf("doc", "wrapper");
-			else if (c instanceof ULList) {
-				args = CollectionUtils.listOf("doc", "wrapper", "item", "before");
-				suffix = "_itemInserted";
-			} else
-				throw new UtilException("Can't generate " + c.getClass());
-			JSForm ff = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + suffix, args);
-			if (c instanceof Struct) {
-				ff.add(JSForm.flex("wrapper.infoAbout['" + c.id + "'] = {}"));
-//				int vidx = 1;
-				Struct struct = (Struct)c;
-				templateChildren(ff, struct.id, false, struct.children);
-			} else if (c instanceof Content) {
-				Content cc = (Content) c;
-				ff.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout['" + cc.struct +"']['" + cc.sid + "'])"));
-				ff.add(JSForm.flex("span.innerHTML = ''"));
-				cc.expr.dump();
-				JSForm.assign(ff, "var textContent", cc.expr);
-				ff.add(JSForm.flex("var text = doc.createTextNode(textContent)"));
-				ff.add(JSForm.flex("span.appendChild(text)"));
-			} else if (c instanceof ULList) {
-				ULList l = (ULList) c;
-				ff.add(JSForm.flex("var parent = doc.getElementById(wrapper.infoAbout['" + l.struct + "']['" + l.id + "'])"));
-				ff.add(JSForm.flex("wrapper.infoAbout['" + l.id + "'][item.id] = { item: item }"));
-				boolean hasComplex = templateChildren(ff, l.id, true, l.children);
-				if (hasComplex) {
-					ff.add(JSForm.flex("this._" + l.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + l.id + "'][item.id])"));
-				}
-			} else
-				throw new UtilException("not handled: " + c.getClass());
-			target.add(ff);
+		// Now do the actual functions
+		genFunction(tam, tam.root);
+		for (Base c : tam.root.children) {
+			genFunction(tam, c);
 		}
 		
 		// Generate the update actions
@@ -315,6 +268,68 @@ public class Generator {
 			prev = curr;
 		}
 		target.add(onUpdate);
+	}
+
+	protected void createSomething(JSForm ir, Base c) {
+		if (c instanceof Content) {
+			JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper)");
+			ir.add(invoke);
+		} else if (c instanceof ULList) {
+			JSForm invoke = JSForm.flex("card._" + c.id +"_formatList(doc, wrapper)");
+			ir.add(invoke);
+		} else if (c instanceof Struct) {
+			JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper, parent)"); // I think "parent" here should be a variable
+			ir.add(invoke);
+		} else if (!(c instanceof Block))
+			throw new UtilException("not handled: " + c.getClass());
+	}
+
+	private void genFunction(TemplateAbstractModel tam, Base c) {
+		List<String> args;
+		String suffix = "";
+		if (c instanceof Struct)
+			args = CollectionUtils.listOf("doc", "wrapper", "parent");
+		else if (c instanceof Content)
+			args = CollectionUtils.listOf("doc", "wrapper");
+		else if (c instanceof ULList) {
+			args = CollectionUtils.listOf("doc", "wrapper", "item", "before");
+			suffix = "_itemInserted";
+		} else if (c instanceof Block) {
+			return;
+		} else
+			throw new UtilException("Can't generate " + c.getClass());
+		JSForm ff = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + suffix, args);
+		target.add(ff);
+		if (c instanceof Struct) {
+			ff.add(JSForm.flex("wrapper.infoAbout['" + c.id + "'] = {}"));
+//			int vidx = 1;
+			Struct struct = (Struct)c;
+			templateChildren(ff, struct.id, false, struct.children);
+		} else if (c instanceof Content) {
+			Content cc = (Content) c;
+			ff.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout['" + cc.struct +"']['" + cc.sid + "'])"));
+			ff.add(JSForm.flex("span.innerHTML = ''"));
+			JSForm.assign(ff, "var textContent", cc.expr);
+			ff.add(JSForm.flex("var text = doc.createTextNode(textContent)"));
+			ff.add(JSForm.flex("span.appendChild(text)"));
+		} else if (c instanceof ULList) {
+			ULList l = (ULList) c;
+			ff.add(JSForm.flex("var parent = doc.getElementById(wrapper.infoAbout['" + l.struct + "']['" + l.id + "'])"));
+			ff.add(JSForm.flex("wrapper.infoAbout['" + l.id + "'][item.id] = { item: item }"));
+			boolean hasComplex = templateChildren(ff, l.id, true, l.children);
+			if (hasComplex) {
+				ff.add(JSForm.flex("this._" + l.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + l.id + "'][item.id])"));
+			}
+			JSForm ic = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + "_itemChanged", CollectionUtils.listOf("doc", "wrapper", "item"));
+			for (Base x : l.children)
+				genFunction(tam, x);
+			target.add(ic);
+			JSForm fi = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + "_formatItem", CollectionUtils.listOf("doc", "wrapper", "item"));
+			target.add(fi);
+			JSForm fl = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + "_formatList", CollectionUtils.listOf("doc", "wrapper"));
+			target.add(fl);
+		} else
+			throw new UtilException("not handled: " + c.getClass());
 	}
 
 	protected boolean templateChildren(JSForm ff, String struct, boolean inList, List<Base> children) {
@@ -349,6 +364,12 @@ public class Generator {
 				ip.add(JSForm.flex(bb.parent + ".appendChild(" + bb.id + ")"));
 				if (bb.complexAttrs)
 					ff.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + bb.sid +"'] = " + bb.sid));
+				for (Entry<String, HSIEForm> eh : bb.handlers.entrySet()) {
+					JSForm.assign(ff, "var eh", eh.getValue());
+					JSForm cev = JSForm.flex(bb.id + "['on" + eh.getKey() + "'] = function(event)").needBlock();
+					cev.add(JSForm.flex("wrapper.dispatchEvent(event, eh)"));
+					ff.add(cev);
+				}
 			} else if (b instanceof ULList) {
 				ULList ul = (ULList) b;
 				ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + ul.tag + "')"));

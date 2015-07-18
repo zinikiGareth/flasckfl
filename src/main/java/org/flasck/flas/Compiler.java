@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +44,7 @@ import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
+import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -249,15 +251,18 @@ public class Compiler {
 
 	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Template cg) {
 		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix);
-		Struct parent = ret.createStruct();
-		matmRecursive(errors, ret, parent, "parent", cg.content);
+		matmRecursive(errors, ret, ret.root, "parent", cg.content);
 		return ret;
 	}
 
 	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, Addable parent, String inDiv, TemplateLine content) {
 		if (content instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(parent, inDiv, td.customTag, td.attrs, td.formats);
+			Map<String, HSIEForm> handlers = new HashMap<>();
+			for (EventHandler eh : td.handlers) {
+				handlers.put(eh.action, new HSIE(errors).handleExpr(eh.expr));
+			}
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(parent, inDiv, td.customTag, td.attrs, td.formats, handlers);
 			parent.add(b);
 			for (TemplateLine x : td.nested)
 				matmRecursive(errors, tam, parent, b.id, x);

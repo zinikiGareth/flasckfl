@@ -312,7 +312,8 @@ public class JSForm {
 		else if (c.sval != null)
 			sb.append("'" + c.sval.text + "'");
 		else if (c.tlv != null) {
-			sb.append("this._wrapper.renderState['" + c.tlv.name + "']");
+			sb.append("item"); // TODO: this does not handle nested lists
+//			sb.append("this._wrapper.renderState['" + c.tlv.name + "']");
 		} else if (c.func != null) {
 			int x = c.func.name.lastIndexOf('.');
 			sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
