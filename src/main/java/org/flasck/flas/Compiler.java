@@ -15,10 +15,8 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.flasck.flas.TemplateAbstractModel.Addable;
-import org.flasck.flas.TemplateAbstractModel.Content;
-import org.flasck.flas.TemplateAbstractModel.Struct;
-import org.flasck.flas.TemplateAbstractModel.ULList;
+import org.flasck.flas.TemplateAbstractModel.AbstractTreeNode;
+import org.flasck.flas.TemplateAbstractModel.VisualTree;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
@@ -251,31 +249,66 @@ public class Compiler {
 
 	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Template cg) {
 		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix);
-		matmRecursive(errors, ret, ret.root, "parent", cg.content);
+		matmRecursive(errors, ret, null, null, cg.content);
 		return ret;
 	}
 
-	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, Addable parent, String inDiv, TemplateLine content) {
+	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, AbstractTreeNode atn, VisualTree tree, TemplateLine content) {
 		if (content instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) content;
 			Map<String, HSIEForm> handlers = new HashMap<>();
 			for (EventHandler eh : td.handlers) {
 				handlers.put(eh.action, new HSIE(errors).handleExpr(eh.expr));
 			}
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(parent, inDiv, td.customTag, td.attrs, td.formats, handlers);
-			parent.add(b);
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, td.customTag, td.attrs, td.formats, handlers);
+			VisualTree vt = new VisualTree(b);
+			if (atn == null) {
+				atn = new AbstractTreeNode(AbstractTreeNode.TOP, null, null, vt);
+				tam.nodes.add(atn);
+			} else
+				tree.children.add(vt);
 			for (TemplateLine x : td.nested)
-				matmRecursive(errors, tam, parent, b.id, x);
+				matmRecursive(errors, tam, atn, vt, x);
 		} else if (content instanceof TemplateList) {
 			TemplateList tl = (TemplateList) content;
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "ul", new ArrayList<Object>(), tl.formats, new HashMap<String, HSIEForm>());
+			b.sid = tam.nextSid();
+			VisualTree pvt = new VisualTree(b);
+			pvt.containsThing = AbstractTreeNode.LIST;
+			if (atn == null)
+				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, pvt));
+			else
+				tree.children.add(pvt);
+
+			// This is where we separate the "included-in-parent" tree from the "I own this" tree
+			VisualTree vt = new VisualTree(null);
+			atn = new AbstractTreeNode(AbstractTreeNode.LIST, b.id, b.sid, vt);
+			tam.nodes.add(atn);
+
+			// Now generate the nested template in that
+			matmRecursive(errors, tam, atn, vt, tl.template);
+			/*
 			ULList ul = tam.createList(parent, inDiv, tl.formats);
 			matmRecursive(errors, tam, ul, "parent", tl.template);
 			parent.add(ul);
+			*/
 		} else if (content instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) content;
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "span", new ArrayList<Object>(), ce.formats, new HashMap<String, HSIEForm>());
+			b.sid = tam.nextSid();
+			VisualTree pvt = new VisualTree(b);
+			pvt.containsThing = AbstractTreeNode.CONTENT;
+			if (atn == null)
+				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, pvt));
+			else
+				tree.children.add(pvt);
+			
+			// Now we need to create a new ATN for the _content_ function
+			/*
 			HSIEForm form = new HSIE(errors).handleExpr(ce.expr);
 			Content c = tam.createContent(parent, inDiv, form);
 			parent.add(c);
+			*/
 		} else if (content instanceof ContentString) {
 			System.out.println("ContentString should be an easy case");
 		} else if (content instanceof CardReference) {

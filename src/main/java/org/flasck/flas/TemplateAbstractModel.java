@@ -113,6 +113,38 @@ public class TemplateAbstractModel {
 		}
 	}
 
+	public static class VisualTree {
+		public int containsThing;
+		public Block divThing;
+		public List<VisualTree> children = new ArrayList<VisualTree>();
+		
+		public VisualTree(Block div) {
+			this.divThing = div;
+		}
+	}
+	
+	public static class AbstractTreeNode {
+		public static final int NOTHING = 0;
+		public static final int TOP = 1;
+		public static final int LIST = 2;
+		public static final int CONTENT = 3;
+		public final int type;
+		public final String id;
+		public final String sid;
+		public final VisualTree tree;
+		public final List<Object> slotUpdaters = new ArrayList<Object>();
+		public final List<Object> slotFormatters = new ArrayList<Object>();
+		
+		public AbstractTreeNode(int type, String id, String sid, VisualTree tree) {
+			this.type = type;
+			this.id = id;
+			this.sid = sid;
+			this.tree = tree;
+		}
+	}
+	
+	public final List<AbstractTreeNode> nodes = new ArrayList<AbstractTreeNode>();
+	
 	private int nextId = 1;
 	public final Struct root;
 	public final String prefix;
@@ -186,10 +218,14 @@ public class TemplateAbstractModel {
 		}
 		if (!allSimple) {
 			ret.complexAttrs = true;
-			ret.sid = "sid" + inside.nextId();
+			ret.sid = "sid" + nextId++; // inside.nextId();
 		}
 		else if (allSimple && simple.length() > 0)
 			ret.staticAttrs.put("class", simple.substring(1));
+	}
+	
+	public String nextSid() {
+		return "sid" + nextId++;
 	}
 	
 	@Override

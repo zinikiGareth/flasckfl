@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.flasck.flas.TemplateAbstractModel;
+import org.flasck.flas.TemplateAbstractModel.AbstractTreeNode;
 import org.flasck.flas.TemplateAbstractModel.Base;
 import org.flasck.flas.TemplateAbstractModel.Block;
 import org.flasck.flas.TemplateAbstractModel.Content;
 import org.flasck.flas.TemplateAbstractModel.Struct;
 import org.flasck.flas.TemplateAbstractModel.ULList;
+import org.flasck.flas.TemplateAbstractModel.VisualTree;
 import org.flasck.flas.dom.RenderTree.Element;
 import org.flasck.flas.dom.UpdateTree.Update;
 import org.flasck.flas.errors.ErrorResult;
@@ -227,6 +229,28 @@ public class Generator {
 	}
 
 	public void generate(TemplateAbstractModel tam) {
+		for (AbstractTreeNode atn : tam.nodes) {
+			if (atn.type == AbstractTreeNode.TOP) {
+				JSForm ir = JSForm.flexFn(tam.prefix + ".prototype._initialRender", CollectionUtils.listOf("doc", "wrapper", "parent"));
+				target.add(ir);
+				generateVisualTree(ir, "parent", false, null, atn.tree);
+			} else if (atn.type == AbstractTreeNode.LIST) {
+				JSForm ii = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_itemInserted", CollectionUtils.listOf("doc", "wrapper", "item", "before"));
+				target.add(ii);
+				ii.add(JSForm.flex("var parent = doc.getElementById(wrapper.infoAbout['" + atn.sid + "'])"));
+				ii.add(JSForm.flex("wrapper.infoAbout['" + atn.id + "'][item.id] = { item: item }"));
+				for (VisualTree t : atn.tree.children)
+					generateVisualTree(ii, "parent", true, atn.id, t);
+				ii.add(JSForm.flex("this._" + atn.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + atn.id + "'][item.id])"));
+				JSForm ic = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_itemChanged", CollectionUtils.listOf("doc", "wrapper", "item"));
+				target.add(ic);
+				JSForm fi = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatItem", CollectionUtils.listOf("doc", "wrapper", "item"));
+				target.add(fi);
+				JSForm fl = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatList", CollectionUtils.listOf("doc", "wrapper"));
+				target.add(fl);
+			} else
+				throw new UtilException("Don't handle " + atn.type);
+		}
 		// Firstly firstly, create the "initialRender" function
 		JSForm ir = JSForm.flexFn(tam.prefix + ".initialRender", CollectionUtils.listOf("doc", "wrapper", "parent", "card"));
 		
@@ -268,6 +292,43 @@ public class Generator {
 			prev = curr;
 		}
 		target.add(onUpdate);
+	}
+
+	private void generateVisualTree(JSForm ir, String parent, boolean considerBefore, String inList, VisualTree tree) {
+		boolean hasComplex = tree.divThing.complexAttrs;
+		ir.add(JSForm.flex("var " + tree.divThing.id + " = doc.createElement('" + tree.divThing.tag + "')"));
+		if (tree.divThing.sid != null) {
+			ir.add(JSForm.flex("var " + tree.divThing.sid + " = wrapper.nextSlotId()"));
+			ir.add(JSForm.flex(tree.divThing.id + ".setAttribute('id', " + tree.divThing.sid + ")"));
+			ir.add(JSForm.flex("wrapper.infoAbout" + (inList != null?"['" + inList + "'][item.id]":"")  + "['" + tree.divThing.sid + "'] = " + tree.divThing.sid));
+		}
+		for (Entry<String, String> sa : tree.divThing.staticAttrs.entrySet())
+			ir.add(JSForm.flex(tree.divThing.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
+		if (tree.containsThing == AbstractTreeNode.LIST) {
+			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
+			ir.add(JSForm.flex("// TODO: insert any current contents of the CROSET using insertItem").noSemi());
+			ir.add(JSForm.flex("this._" + tree.divThing.id + "_formatList(doc, wrapper)"));
+		}
+		JSForm ip = ir;
+		if (considerBefore) {
+			JSForm ie = JSForm.flex("if (before)").needBlock();
+			ir.add(ie);
+			ie.add(JSForm.flex(parent + ".insertBefore(" + tree.divThing.id + ", before)"));
+			JSForm es = JSForm.flex("else").needBlock();
+			ir.add(es);
+			ip = es;
+		}
+		ip.add(JSForm.flex(parent + ".appendChild(" + tree.divThing.id + ")"));
+//		if (tree.divThing.complexAttrs)
+//			ir.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + tree.divThing.sid +"'] = " + tree.divThing.sid));
+		for (Entry<String, HSIEForm> eh : tree.divThing.handlers.entrySet()) {
+			JSForm.assign(ir, "var eh", eh.getValue());
+			JSForm cev = JSForm.flex(tree.divThing.id + "['on" + eh.getKey() + "'] = function(event)").needBlock();
+			cev.add(JSForm.flex("wrapper.dispatchEvent(event, eh)"));
+			ir.add(cev);
+		}
+		for (VisualTree t : tree.children)
+			generateVisualTree(ir, tree.divThing.id, false, inList, t);
 	}
 
 	protected void createSomething(JSForm ir, Base c) {
