@@ -33,6 +33,7 @@ import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardGrouping;
+import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
@@ -213,6 +214,23 @@ public class Compiler {
 				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, cg);
 				gen.generate(tam, null, null);
 				JSForm onUpdate = JSForm.flex(tam.prefix + ".onUpdate =").needBlock();
+				JSForm prev = null;
+				for (String field : tam.fields.key1Set()) {
+					if (prev != null)
+						prev.comma();
+					JSForm curr = JSForm.flex("'" + field + "':").needBlock();
+					JSForm pa = null;
+					for (String action : tam.fields.key2Set(field)) {
+						JSForm ca = JSForm.flex("'" + action + "':").nestArray();
+						ca.add(JSForm.flex(String.join(",", tam.fields.get(field, action))).noSemi());
+						if (pa != null)
+							pa.comma();
+						curr.add(ca);
+						pa = ca;
+					}
+					onUpdate.add(curr);
+					prev = curr;
+				}
 				target.add(onUpdate);
 			}
 
@@ -281,7 +299,10 @@ public class Compiler {
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
-
+			tam.fields.add(((CardMember)tl.listVar).var, "assign", tam.prefix + ".prototype._" + b.id + "_clear");
+			tam.fields.add(((CardMember)tl.listVar).var, "itemInserted", tam.prefix + ".prototype._" + b.id + "_itemInserted");
+			tam.fields.add(((CardMember)tl.listVar).var, "itemChanged", tam.prefix + ".prototype._" + b.id + "_itemChanged");
+			
 			// This is where we separate the "included-in-parent" tree from the "I own this" tree
 			VisualTree vt = new VisualTree(null);
 			atn = new AbstractTreeNode(AbstractTreeNode.LIST, atn, b.id, b.sid, vt);
@@ -289,6 +310,8 @@ public class Compiler {
 
 			// Now generate the nested template in that
 			matmRecursive(errors, tam, atn, vt, tl.template);
+			tam.cardMembersCause(vt, tam.prefix + ".prototype._" + b.id + "_formatList");
+			System.out.println(vt);
 			/*
 			ULList ul = tam.createList(parent, inDiv, tl.formats);
 			matmRecursive(errors, tam, ul, "parent", tl.template);

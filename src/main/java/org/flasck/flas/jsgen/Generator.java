@@ -244,13 +244,17 @@ public class Generator {
 				for (VisualTree t : atn.tree.children)
 					generateVisualTree(ii, "parent", true, atn.id, t);
 				ii.add(JSForm.flex("this._" + atn.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + atn.id + "'][item.id])"));
+				JSForm cl = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_clear", CollectionUtils.listOf("doc", "wrapper"));
+				target.add(cl);
+				cl.add(JSForm.flex("var " + atn.id + " = doc.getElementById(wrapper.infoAbout['" + atn.sid + "'])"));
+				cl.add(JSForm.flex(atn.id + ".innerHTML = ''"));
 				JSForm ic = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_itemChanged", CollectionUtils.listOf("doc", "wrapper", "item"));
-				generate(tam, ic, atn);
 				target.add(ic);
+				generate(tam, ic, atn);
 				JSForm fi = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatItem", CollectionUtils.listOf("doc", "wrapper", "info"));
+				target.add(fi);
 				for (VisualTree t : atn.tree.children)
 					generateFormatsFor(fi, t, "info");
-				target.add(fi);
 				JSForm fl = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatList", CollectionUtils.listOf("doc", "wrapper"));
 				target.add(fl);
 				JSForm lp = JSForm.flex("for (var x in wrapper.infoAbout['" + atn.id + "'])").needBlock();

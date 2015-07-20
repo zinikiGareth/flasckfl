@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
+import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.collections.ListMapMap;
@@ -134,8 +137,6 @@ public class TemplateAbstractModel {
 		public final String id;
 		public final String sid;
 		public final VisualTree tree;
-		public final List<Object> slotUpdaters = new ArrayList<Object>();
-		public final List<Object> slotFormatters = new ArrayList<Object>();
 		public final AbstractTreeNode nestedIn;
 		public HSIEForm expr;
 		
@@ -151,18 +152,18 @@ public class TemplateAbstractModel {
 	public final List<AbstractTreeNode> nodes = new ArrayList<AbstractTreeNode>();
 	
 	private int nextId = 1;
-	public final Struct root;
+//	public final Struct root;
 	public final String prefix;
 	public final ListMapMap<String, String, String> fields = new ListMapMap<String, String, String>();
 	private Scope scope;
-//	public final Map<String, Map<String, List<String>>> fields = new HashMap<String, Map<String, List<String>>>();
 
 	public TemplateAbstractModel(String prefix, Scope scope) {
 		this.prefix = prefix;
-		this.root = createStruct();
+//		this.root = createStruct();
 		this.scope = scope;
 	}
 
+	/*
 	public Struct createStruct() {
 		Struct s = new Struct("struct_" + nextId++);
 		return s;
@@ -186,6 +187,7 @@ public class TemplateAbstractModel {
 		handleFormats(parent, ret, formats);
 		return ret;
 	}
+	*/
 	
 	public Block createBlock(Addable parent, String parentDiv, String customTag, List<Object> attrs, List<Object> formats, Map<String, HSIEForm> handlers) {
 		String name = "block_" + nextId++;
@@ -238,6 +240,31 @@ public class TemplateAbstractModel {
 		return "sid" + nextId++;
 	}
 	
+	public void cardMembersCause(VisualTree vt, String fn) {
+		if (vt.divThing != null) {
+			System.out.println("Analyze " + vt.divThing.complexAttrs);
+			cardMembersCause(vt.divThing.complexAttrs, fn);
+		}
+		for (VisualTree t : vt.children)
+			cardMembersCause(t, fn);
+	}
+	
+	private void cardMembersCause(Object expr, String fn) {
+		if (expr == null)
+			return;
+		else if (expr instanceof StringLiteral || expr instanceof AbsoluteVar || expr instanceof CardFunction || expr instanceof TemplateListVar)
+			return;
+		else if (expr instanceof CardMember) {
+			fields.add(((CardMember)expr).var, "assign", fn);
+		} else if (expr instanceof ApplyExpr) {
+			ApplyExpr ae = (ApplyExpr) expr;
+			cardMembersCause(ae.fn, fn);
+			for (Object a : ae.args)
+				cardMembersCause(a, fn);
+		} else
+			throw new UtilException("Cannot handle " + expr.getClass());
+	}
+
 	@Override
 	public String toString() {
 		return "TAM[" + prefix + "]";
