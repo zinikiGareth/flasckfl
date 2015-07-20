@@ -86,7 +86,7 @@ public class Generator {
 				if (x.init != null) {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
-					HSIEForm form = new HSIE(errors).handleExpr(x.init);
+					HSIEForm form = new HSIE(errors).handleExpr(x.init, Type.FUNCTION);
 //					form.dump();
 					generateField(defass, x.name, form);
 					generateField(elseBlock, x.name, form);
@@ -124,7 +124,7 @@ public class Generator {
 		for (Entry<String, Object> x : card.inits.entrySet()) {
 			HSIEForm form = null;
 			if (x.getValue() != null) {
-				form = new HSIE(errors).handleExpr(x.getValue());
+				form = new HSIE(errors).handleExpr(x.getValue(), Type.FUNCTION);
 //					form.dump();
 			}
 
@@ -247,7 +247,9 @@ public class Generator {
 				JSForm ic = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_itemChanged", CollectionUtils.listOf("doc", "wrapper", "item"));
 				generate(tam, ic, atn);
 				target.add(ic);
-				JSForm fi = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatItem", CollectionUtils.listOf("doc", "wrapper", "item"));
+				JSForm fi = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatItem", CollectionUtils.listOf("doc", "wrapper", "info"));
+				for (VisualTree t : atn.tree.children)
+					generateFormatsFor(fi, t, "info");
 				target.add(fi);
 				JSForm fl = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatList", CollectionUtils.listOf("doc", "wrapper"));
 				target.add(fl);
@@ -268,6 +270,7 @@ public class Generator {
 			} else
 				throw new UtilException("Don't handle " + atn.type);
 		}
+		/*
 		// Firstly firstly, create the "initialRender" function
 		JSForm ir = JSForm.flexFn(tam.prefix + ".initialRender", CollectionUtils.listOf("doc", "wrapper", "parent", "card"));
 		
@@ -309,10 +312,21 @@ public class Generator {
 			prev = curr;
 		}
 		target.add(onUpdate);
+		*/
+	}
+
+	private void generateFormatsFor(JSForm fi, VisualTree t, String var) {
+		if (t.divThing.complexAttrs != null) {
+			fi.add(JSForm.flex("var item = " + var + ".item"));
+			HSIEForm form = new HSIE(errors).handleExpr(t.divThing.complexAttrs, Type.CARD);
+			JSForm.assign(fi, "var attrs", form);
+			fi.add(JSForm.flex("doc.getElementById(" + var + "['" + t.divThing.sid + "']).setAttribute('class', join(FLEval.full(attrs), ' '))"));
+		}
+		for (VisualTree c : t.children)
+			generateFormatsFor(fi, c, var);
 	}
 
 	private void generateVisualTree(JSForm ir, String parent, boolean considerBefore, String inList, VisualTree tree) {
-		boolean hasComplex = tree.divThing.complexAttrs;
 		ir.add(JSForm.flex("var " + tree.divThing.id + " = doc.createElement('" + tree.divThing.tag + "')"));
 		if (tree.divThing.sid != null) {
 			ir.add(JSForm.flex("var " + tree.divThing.sid + " = wrapper.nextSlotId()"));
@@ -422,7 +436,7 @@ public class Generator {
 				ff.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + cc.sid +"'] = " + cc.sid));
 			} else if (b instanceof Block) {
 				Block bb = (Block) b;
-				hasComplex |= bb.complexAttrs;
+				hasComplex |= bb.complexAttrs != null;
 				ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + bb.tag + "')"));
 				if (bb.sid != null) {
 					ff.add(JSForm.flex("var " + bb.sid + " = wrapper.nextSlotId()"));
@@ -440,7 +454,7 @@ public class Generator {
 					ip = es;
 				}
 				ip.add(JSForm.flex(bb.parent + ".appendChild(" + bb.id + ")"));
-				if (bb.complexAttrs)
+				if (bb.complexAttrs != null)
 					ff.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + bb.sid +"'] = " + bb.sid));
 				for (Entry<String, HSIEForm> eh : bb.handlers.entrySet()) {
 					JSForm.assign(ff, "var eh", eh.getValue());

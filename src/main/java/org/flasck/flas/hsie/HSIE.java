@@ -55,8 +55,8 @@ public class HSIE {
 		return ret;
 	}
 
-	public HSIEForm handleExpr(Object expr) {
-		MetaState ms = new MetaState(new HSIEForm(Type.FUNCTION, "", 0, new HashMap<String, Var>(), 0));
+	public HSIEForm handleExpr(Object expr, Type type) {
+		MetaState ms = new MetaState(new HSIEForm(type, "", 0, new HashMap<String, Var>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;

@@ -7,6 +7,8 @@ import java.util.TreeMap;
 
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -54,7 +56,7 @@ public class TemplateAbstractModel {
 		public final String tag;
 		public final Map<String, String> staticAttrs = new TreeMap<String, String>(new StringComparator());
 		public String sid = null;
-		public boolean complexAttrs = false;
+		public Object complexAttrs;
 
 		public Formattable(String id, String tag) {
 			super(id);
@@ -152,11 +154,13 @@ public class TemplateAbstractModel {
 	public final Struct root;
 	public final String prefix;
 	public final ListMapMap<String, String, String> fields = new ListMapMap<String, String, String>();
+	private Scope scope;
 //	public final Map<String, Map<String, List<String>>> fields = new HashMap<String, Map<String, List<String>>>();
 
-	public TemplateAbstractModel(String prefix) {
+	public TemplateAbstractModel(String prefix, Scope scope) {
 		this.prefix = prefix;
 		this.root = createStruct();
+		this.scope = scope;
 	}
 
 	public Struct createStruct() {
@@ -201,8 +205,8 @@ public class TemplateAbstractModel {
 	}
 
 	protected void handleFormats(Addable inside, Formattable ret, List<Object> formats) {
-		boolean allSimple = true;
 		StringBuilder simple = new StringBuilder();
+		Object expr = null;
 		for (Object o : formats) {
 			if (o instanceof TemplateToken) {
 				TemplateToken tt = (TemplateToken) o;
@@ -214,16 +218,19 @@ public class TemplateAbstractModel {
 					throw new UtilException("Cannot handle format of type " + tt.type);
 				}
 			} else if (o instanceof ApplyExpr) {
-				System.out.println("Need to handle expression formats");
-				allSimple = false;
+				if (expr == null)
+					expr = scope.fromRoot("Nil");
+				expr = new ApplyExpr(scope.fromRoot("Cons"), o, expr);
 			} else
 				throw new UtilException("Cannot handle format of type " + o.getClass());
 		}
-		if (!allSimple) {
-			ret.complexAttrs = true;
-			ret.sid = "sid" + nextId++; // inside.nextId();
+		if (expr != null) {
+			if (simple.length() > 0)
+				expr = new ApplyExpr(scope.fromRoot("Cons"), new StringLiteral(simple.substring(1)), expr);
+			ret.complexAttrs = expr;
+			ret.sid = "sid" + nextId++;
 		}
-		else if (allSimple && simple.length() > 0)
+		else if (expr == null && simple.length() > 0)
 			ret.staticAttrs.put("class", simple.substring(1));
 	}
 	

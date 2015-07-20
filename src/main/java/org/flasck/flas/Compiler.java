@@ -212,6 +212,8 @@ public class Compiler {
 			for (Template cg : rewriter.templates) {
 				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, cg);
 				gen.generate(tam, null, null);
+				JSForm onUpdate = JSForm.flex(tam.prefix + ".onUpdate =").needBlock();
+				target.add(onUpdate);
 			}
 
 			// 11. Generate render & dependency trees
@@ -248,7 +250,7 @@ public class Compiler {
 	}
 
 	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Template cg) {
-		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix);
+		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix, cg.scope);
 		matmRecursive(errors, ret, null, null, cg.content);
 		return ret;
 	}
@@ -258,7 +260,7 @@ public class Compiler {
 			TemplateDiv td = (TemplateDiv) content;
 			Map<String, HSIEForm> handlers = new HashMap<>();
 			for (EventHandler eh : td.handlers) {
-				handlers.put(eh.action, new HSIE(errors).handleExpr(eh.expr));
+				handlers.put(eh.action, new HSIE(errors).handleExpr(eh.expr, HSIEForm.Type.FUNCTION));
 			}
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, td.customTag, td.attrs, td.formats, handlers);
 			VisualTree vt = new VisualTree(b);
@@ -307,7 +309,7 @@ public class Compiler {
 			// VisualTree vt = new VisualTree(null);
 			atn = new AbstractTreeNode(AbstractTreeNode.CONTENT, atn, b.id, b.sid, null);
 			tam.nodes.add(atn);
-			atn.expr = new HSIE(errors).handleExpr(ce.expr);
+			atn.expr = new HSIE(errors).handleExpr(ce.expr, HSIEForm.Type.FUNCTION);
 		} else if (content instanceof ContentString) {
 			System.out.println("ContentString should be an easy case");
 		} else if (content instanceof CardReference) {
