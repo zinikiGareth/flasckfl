@@ -286,6 +286,7 @@ public class Compiler {
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("ul", new ArrayList<Object>(), tl.formats, new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
+			pvt.divThing.listVar = ((CardMember)tl.listVar).var;
 			pvt.containsThing = AbstractTreeNode.LIST;
 			if (atn == null)
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));

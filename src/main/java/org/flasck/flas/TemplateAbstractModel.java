@@ -43,6 +43,7 @@ public class TemplateAbstractModel {
 		public final Map<String, String> staticAttrs = new TreeMap<String, String>(new StringComparator());
 		public String sid = null;
 		public Object complexAttrs;
+		public String listVar;
 		public final List<Handler> handlers;
 
 		public Block(String id, String tag, List<Handler> handlers) {

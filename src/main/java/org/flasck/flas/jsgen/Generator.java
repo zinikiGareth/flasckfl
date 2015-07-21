@@ -351,7 +351,13 @@ public class Generator {
 				ir.add(JSForm.flex("this._" + tree.divThing.id + "(doc, wrapper)"));
 		} else if (tree.containsThing == AbstractTreeNode.LIST) {
 			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
-			ir.add(JSForm.flex("// TODO: insert any current contents of the CROSET using insertItem").noSemi());
+			String lv = tree.divThing.listVar;
+			ir.add(JSForm.flex("this." + lv + " = FLEval.full(this." + lv +")"));
+			JSForm loop = JSForm.flex("for (var k=0;k<this." + lv + ".members.length;k++)").needBlock();
+			loop.add(JSForm.flex("var v = this." + lv + ".members[k]"));
+			loop.add(JSForm.flex("this._" + tree.divThing.id + "_itemInserted(doc, wrapper, v.value, null)"));
+			loop.add(JSForm.flex("this._" + tree.divThing.id + "_itemChanged(doc, wrapper, v.value)"));
+			ir.add(loop);
 			ir.add(JSForm.flex("this._" + tree.divThing.id + "_formatList(doc, wrapper)"));
 		} else if (tree.containsThing == AbstractTreeNode.CASES) {
 			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
