@@ -79,6 +79,17 @@ public class TemplateAbstractModel {
 		}
 	}
 	
+	public static class OrCase {
+		public final HSIEForm expr;
+		public final VisualTree tree;
+
+		public OrCase(HSIEForm expr, VisualTree tree) {
+			this.expr = expr;
+			this.tree = tree;
+		}
+
+	}
+
 	public class ULList extends Formattable implements Addable {
 		public final List<Base> children = new ArrayList<Base>();
 		public final String parent;
@@ -137,6 +148,7 @@ public class TemplateAbstractModel {
 		public static final int LIST = 2;
 		public static final int CONTENT = 3;
 		public static final int CARD = 4;
+		public static final int CASES = 5;
 		public final int type;
 		public final String id;
 		public final String sid;
@@ -144,6 +156,7 @@ public class TemplateAbstractModel {
 		public final AbstractTreeNode nestedIn;
 		public HSIEForm expr;
 		public CardReference card;
+		public final List<OrCase> cases = new ArrayList<OrCase>();
 		
 		public AbstractTreeNode(int type, AbstractTreeNode nestedIn, String id, String sid, VisualTree tree) {
 			this.type = type;
@@ -160,7 +173,7 @@ public class TemplateAbstractModel {
 //	public final Struct root;
 	public final String prefix;
 	public final ListMapMap<String, String, String> fields = new ListMapMap<String, String, String>();
-	private Scope scope;
+	public final Scope scope;
 
 	public TemplateAbstractModel(String prefix, Scope scope) {
 		this.prefix = prefix;
@@ -253,7 +266,7 @@ public class TemplateAbstractModel {
 			cardMembersCause(t, fn);
 	}
 	
-	private void cardMembersCause(Object expr, String fn) {
+	public void cardMembersCause(Object expr, String fn) {
 		if (expr == null)
 			return;
 		else if (expr instanceof StringLiteral || expr instanceof AbsoluteVar || expr instanceof CardFunction || expr instanceof TemplateListVar)

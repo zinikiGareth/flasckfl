@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.TemplateAbstractModel.AbstractTreeNode;
+import org.flasck.flas.TemplateAbstractModel.OrCase;
 import org.flasck.flas.TemplateAbstractModel.VisualTree;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
@@ -31,6 +32,7 @@ import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
+import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardMember;
@@ -59,6 +61,7 @@ import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
+import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
@@ -261,7 +264,8 @@ public class Compiler {
 		} finally {
 			try { if (w != null) w.close(); } catch (IOException ex) {}
 			if (success)
-				FileUtils.copyFileToStream(writeTo, System.out);
+				System.out.println("done");
+//				FileUtils.copyFileToStream(writeTo, System.out);
 		}
 
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
@@ -312,6 +316,28 @@ public class Compiler {
 			// Now generate the nested template in that
 			matmRecursive(errors, tam, atn, vt, tl.template);
 			tam.cardMembersCause(vt, tam.prefix + ".prototype._" + b.id + "_formatList");
+		} else if (content instanceof TemplateCases) {
+			TemplateCases cases = (TemplateCases) content;
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "div", new ArrayList<Object>(), new ArrayList<Object>(), new HashMap<String, HSIEForm>());
+			b.sid = tam.nextSid();
+			VisualTree pvt = new VisualTree(b, null);
+			pvt.containsThing = AbstractTreeNode.CASES;
+			if (atn == null)
+				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
+			else
+				tree.children.add(pvt);
+			tam.cardMembersCause(cases.switchOn, tam.prefix + ".prototype._" + b.id + "_switch");
+			
+			// This is where we separate the "included-in-parent" tree from the "I own this" tree
+			atn = new AbstractTreeNode(AbstractTreeNode.CASES, atn, b.id, b.sid, null);
+			tam.nodes.add(atn);
+			for (TemplateOr tor : cases.cases) {
+				// Now generate each nested template in that
+				VisualTree vt = new VisualTree(null, null);
+				matmRecursive(errors, tam, atn, vt, tor.template);
+				tam.cardMembersCause(tor.cond, tam.prefix + ".prototype._" + b.id + "_switch");
+				atn.cases.add(new OrCase(new HSIE(errors).handleExpr(new ApplyExpr(tam.scope.fromRoot("=="), cases.switchOn, tor.cond), HSIEForm.Type.CARD), vt));
+			}
 		} else if (content instanceof ContentString) {
 			ContentString cs = (ContentString) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "span", new ArrayList<Object>(), cs.formats, new HashMap<String, HSIEForm>());
@@ -347,8 +373,6 @@ public class Compiler {
 			atn = new AbstractTreeNode(AbstractTreeNode.CARD, atn, b.id, b.sid, null);
 			tam.nodes.add(atn);
 			atn.card = card;
-		} else if (content instanceof TemplateCases) {
-			System.out.println("Need to handle cases");
 		} else 
 			throw new UtilException("TL type " + content.getClass() + " not supported");
 	}

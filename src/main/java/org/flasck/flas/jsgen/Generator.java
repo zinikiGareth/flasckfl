@@ -9,6 +9,7 @@ import org.flasck.flas.TemplateAbstractModel.AbstractTreeNode;
 import org.flasck.flas.TemplateAbstractModel.Base;
 import org.flasck.flas.TemplateAbstractModel.Block;
 import org.flasck.flas.TemplateAbstractModel.Content;
+import org.flasck.flas.TemplateAbstractModel.OrCase;
 import org.flasck.flas.TemplateAbstractModel.Struct;
 import org.flasck.flas.TemplateAbstractModel.ULList;
 import org.flasck.flas.TemplateAbstractModel.VisualTree;
@@ -263,6 +264,23 @@ public class Generator {
 				JSForm lp = JSForm.flex("for (var x in wrapper.infoAbout['" + atn.id + "'])").needBlock();
 				fl.add(lp);
 				lp.add(JSForm.flex("this._" + atn.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + atn.id + "'][x])"));
+			} else if (atn.type == AbstractTreeNode.CASES) {
+				JSForm sw = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_switch", CollectionUtils.listOf("doc", "wrapper"));
+				target.add(sw);
+				sw.add(JSForm.flex("var " + atn.id + " = doc.getElementById(wrapper.infoAbout['" + atn.sid + "'])"));
+				sw.add(JSForm.flex(atn.id + ".innerHTML = ''"));
+				sw.add(JSForm.flex("var cond"));
+				for (OrCase oc : atn.cases) {
+					JSForm.assign(sw, "cond", oc.expr);
+					JSForm doit = JSForm.flex("if (FLEval.full(cond))").needBlock();
+					for (VisualTree t : oc.tree.children)
+						generateVisualTree(doit, atn.id, false, null, t);
+					doit.add(JSForm.flex("return"));
+					sw.add(doit);
+				}
+				
+				// Generate all the things we're calling
+				generate(tam, null, atn);
 			} else if (atn.type == AbstractTreeNode.CONTENT) {
 				JSForm cc = function;
 				if (cc == null) {
@@ -385,6 +403,9 @@ public class Generator {
 			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
 			ir.add(JSForm.flex("// TODO: insert any current contents of the CROSET using insertItem").noSemi());
 			ir.add(JSForm.flex("this._" + tree.divThing.id + "_formatList(doc, wrapper)"));
+		} else if (tree.containsThing == AbstractTreeNode.CASES) {
+			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
+			ir.add(JSForm.flex("this._" + tree.divThing.id + "_switch(doc, wrapper)"));
 		} else if (tree.containsThing == AbstractTreeNode.CARD) {
 //			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
 			ir.add(JSForm.flex("this._" + tree.divThing.id + "(doc, wrapper)"));
