@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.TemplateAbstractModel;
 import org.flasck.flas.TemplateAbstractModel.AbstractTreeNode;
+import org.flasck.flas.TemplateAbstractModel.Handler;
 import org.flasck.flas.TemplateAbstractModel.OrCase;
 import org.flasck.flas.TemplateAbstractModel.VisualTree;
 import org.flasck.flas.errors.ErrorResult;
@@ -330,10 +331,10 @@ public class Generator {
 		ip.add(JSForm.flex(parent + ".appendChild(" + tree.divThing.id + ")"));
 //		if (tree.divThing.complexAttrs)
 //			ir.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + tree.divThing.sid +"'] = " + tree.divThing.sid));
-		for (Entry<String, HSIEForm> eh : tree.divThing.handlers.entrySet()) {
-			JSForm.assign(ir, "var eh", eh.getValue());
-			JSForm cev = JSForm.flex(tree.divThing.id + "['on" + eh.getKey() + "'] = function(event)").needBlock();
-			cev.add(JSForm.flex("wrapper.dispatchEvent(event, eh)"));
+		for (Handler eh : tree.divThing.handlers) {
+			JSForm.assign(ir, "var eh" + eh.id, eh.code);
+			JSForm cev = JSForm.flex(tree.divThing.id + "['on" + eh.on + "'] = function(event)").needBlock();
+			cev.add(JSForm.flex("wrapper.dispatchEvent(event, eh" + eh.id + ")"));
 			ir.add(cev);
 		}
 		if (tree.text != null) {

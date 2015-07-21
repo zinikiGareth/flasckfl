@@ -10,26 +10,42 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.zinutils.collections.ListMapMap;
+import org.zinutils.collections.SetMapMap;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringComparator;
 
 public class TemplateAbstractModel {
+	public static class Handler {
+		public final int id;
+		public final String on;
+		public final HSIEForm code;
+		
+		public Handler(int id, String on, HSIEForm code) {
+			this.id = id;
+			this.on = on;
+			this.code = code;
+		}
+	}
+
 	public static class Block {
 		public final String id;
 		public final String tag;
 		public final Map<String, String> staticAttrs = new TreeMap<String, String>(new StringComparator());
 		public String sid = null;
 		public Object complexAttrs;
-		public final Map<String, HSIEForm> handlers;
+		public final List<Handler> handlers;
 
-		public Block(String id, String tag, Map<String, HSIEForm> handlers) {
+		public Block(String id, String tag, List<Handler> handlers) {
 			this.id = id;
 			this.tag = (tag != null)?tag:"div";
 			this.handlers = handlers;
@@ -88,15 +104,17 @@ public class TemplateAbstractModel {
 	
 	private int nextId = 1;
 	public final String prefix;
-	public final ListMapMap<String, String, String> fields = new ListMapMap<String, String, String>();
+	public final SetMapMap<String, String, String> fields = new SetMapMap<String, String, String>(new StringComparator(), new StringComparator());
+	private final Rewriter rewriter;
 	public final Scope scope;
 
-	public TemplateAbstractModel(String prefix, Scope scope) {
+	public TemplateAbstractModel(String prefix, Rewriter rewriter, Scope scope) {
 		this.prefix = prefix;
+		this.rewriter = rewriter;
 		this.scope = scope;
 	}
 
-	public Block createBlock(String customTag, List<Object> attrs, List<Object> formats, Map<String, HSIEForm> handlers) {
+	public Block createBlock(String customTag, List<Object> attrs, List<Object> formats, List<Handler> handlers) {
 		String name = "block_" + nextId++;
 		Block ret = new Block(name, customTag, handlers);
 		for (Object o : attrs) {
@@ -146,6 +164,10 @@ public class TemplateAbstractModel {
 	public String nextSid() {
 		return "sid" + nextId++;
 	}
+
+	public int ehId() {
+		return nextId++;
+	}
 	
 	public void cardMembersCause(VisualTree vt, String fn) {
 		if (vt.divThing != null) {
@@ -158,10 +180,18 @@ public class TemplateAbstractModel {
 	public void cardMembersCause(Object expr, String fn) {
 		if (expr == null)
 			return;
-		else if (expr instanceof StringLiteral || expr instanceof AbsoluteVar || expr instanceof CardFunction || expr instanceof TemplateListVar)
+		else if (expr instanceof StringLiteral || expr instanceof AbsoluteVar || expr instanceof TemplateListVar || expr instanceof LocalVar)
 			return;
 		else if (expr instanceof CardMember) {
 			fields.add(((CardMember)expr).var, "assign", fn);
+		} else if (expr instanceof CardFunction) {
+			CardFunction cf = (CardFunction) expr;
+			String fname = cf.clzName + "." + cf.function;
+			if (rewriter.functions.containsKey(fname)) {
+				FunctionDefinition func = rewriter.functions.get(fname);
+				for (FunctionCaseDefn c : func.cases)
+					cardMembersCause(c.expr, fn);
+			}
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			cardMembersCause(ae.fn, fn);

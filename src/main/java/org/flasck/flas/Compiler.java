@@ -8,14 +8,13 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.TemplateAbstractModel.AbstractTreeNode;
+import org.flasck.flas.TemplateAbstractModel.Handler;
 import org.flasck.flas.TemplateAbstractModel.OrCase;
 import org.flasck.flas.TemplateAbstractModel.VisualTree;
 import org.flasck.flas.blockForm.Block;
@@ -205,7 +204,7 @@ public class Compiler {
 			
 			// 11. Generate code for templating
 			for (Template cg : rewriter.templates) {
-				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, cg);
+				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, rewriter, cg);
 				gen.generate(tam, null, null);
 				JSForm onUpdate = JSForm.flex(tam.prefix + ".onUpdate =").needBlock();
 				JSForm prev = null;
@@ -258,8 +257,8 @@ public class Compiler {
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
 	}
 
-	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Template cg) {
-		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix, cg.scope);
+	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Rewriter rewriter, Template cg) {
+		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix, rewriter, cg.scope);
 		matmRecursive(errors, ret, null, null, cg.content);
 		return ret;
 	}
@@ -267,9 +266,9 @@ public class Compiler {
 	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, AbstractTreeNode atn, VisualTree tree, TemplateLine content) {
 		if (content instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) content;
-			Map<String, HSIEForm> handlers = new HashMap<>();
+			List<Handler> handlers = new ArrayList<Handler>();
 			for (EventHandler eh : td.handlers) {
-				handlers.put(eh.action, new HSIE(errors).handleExpr(eh.expr, HSIEForm.Type.FUNCTION));
+				handlers.add(new Handler(tam.ehId(), eh.action, new HSIE(errors).handleExpr(eh.expr, HSIEForm.Type.FUNCTION)));
 			}
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(td.customTag, td.attrs, td.formats, handlers);
 			VisualTree vt = new VisualTree(b, null);
@@ -281,9 +280,10 @@ public class Compiler {
 				tree.children.add(vt);
 			for (TemplateLine x : td.nested)
 				matmRecursive(errors, tam, atn, vt, x);
+			tam.cardMembersCause(vt, tam.prefix + ".prototype._formatTop");
 		} else if (content instanceof TemplateList) {
 			TemplateList tl = (TemplateList) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("ul", new ArrayList<Object>(), tl.formats, new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("ul", new ArrayList<Object>(), tl.formats, new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.LIST;
@@ -305,7 +305,7 @@ public class Compiler {
 			tam.cardMembersCause(vt, tam.prefix + ".prototype._" + b.id + "_formatList");
 		} else if (content instanceof TemplateCases) {
 			TemplateCases cases = (TemplateCases) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.CASES;
@@ -327,12 +327,12 @@ public class Compiler {
 			}
 		} else if (content instanceof ContentString) {
 			ContentString cs = (ContentString) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), cs.formats, new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), cs.formats, new ArrayList<Handler>());
 			VisualTree vt = new VisualTree(b, cs.text);
 			tree.children.add(vt);
 		} else if (content instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), ce.formats, new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), ce.formats, new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.CONTENT;
@@ -348,7 +348,7 @@ public class Compiler {
 			atn.expr = new HSIE(errors).handleExpr(ce.expr, HSIEForm.Type.FUNCTION);
 		} else if (content instanceof CardReference) {
 			CardReference card = (CardReference) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.CARD;
