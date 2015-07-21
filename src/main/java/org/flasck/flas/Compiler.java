@@ -281,10 +281,11 @@ public class Compiler {
 				handlers.put(eh.action, new HSIE(errors).handleExpr(eh.expr, HSIEForm.Type.FUNCTION));
 			}
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, td.customTag, td.attrs, td.formats, handlers);
-			VisualTree vt = new VisualTree(b);
+			VisualTree vt = new VisualTree(b, null);
 			if (atn == null) {
 				atn = new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, vt);
 				tam.nodes.add(atn);
+				vt.containsThing = AbstractTreeNode.TOP;
 			} else
 				tree.children.add(vt);
 			for (TemplateLine x : td.nested)
@@ -293,7 +294,7 @@ public class Compiler {
 			TemplateList tl = (TemplateList) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "ul", new ArrayList<Object>(), tl.formats, new HashMap<String, HSIEForm>());
 			b.sid = tam.nextSid();
-			VisualTree pvt = new VisualTree(b);
+			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.LIST;
 			if (atn == null)
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
@@ -304,24 +305,23 @@ public class Compiler {
 			tam.fields.add(((CardMember)tl.listVar).var, "itemChanged", tam.prefix + ".prototype._" + b.id + "_itemChanged");
 			
 			// This is where we separate the "included-in-parent" tree from the "I own this" tree
-			VisualTree vt = new VisualTree(null);
+			VisualTree vt = new VisualTree(null, null);
 			atn = new AbstractTreeNode(AbstractTreeNode.LIST, atn, b.id, b.sid, vt);
 			tam.nodes.add(atn);
 
 			// Now generate the nested template in that
 			matmRecursive(errors, tam, atn, vt, tl.template);
 			tam.cardMembersCause(vt, tam.prefix + ".prototype._" + b.id + "_formatList");
-			System.out.println(vt);
-			/*
-			ULList ul = tam.createList(parent, inDiv, tl.formats);
-			matmRecursive(errors, tam, ul, "parent", tl.template);
-			parent.add(ul);
-			*/
+		} else if (content instanceof ContentString) {
+			ContentString cs = (ContentString) content;
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "span", new ArrayList<Object>(), cs.formats, new HashMap<String, HSIEForm>());
+			VisualTree vt = new VisualTree(b, cs.text);
+			tree.children.add(vt);
 		} else if (content instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "span", new ArrayList<Object>(), ce.formats, new HashMap<String, HSIEForm>());
 			b.sid = tam.nextSid();
-			VisualTree pvt = new VisualTree(b);
+			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.CONTENT;
 			if (atn == null)
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
@@ -333,10 +333,20 @@ public class Compiler {
 			atn = new AbstractTreeNode(AbstractTreeNode.CONTENT, atn, b.id, b.sid, null);
 			tam.nodes.add(atn);
 			atn.expr = new HSIE(errors).handleExpr(ce.expr, HSIEForm.Type.FUNCTION);
-		} else if (content instanceof ContentString) {
-			System.out.println("ContentString should be an easy case");
 		} else if (content instanceof CardReference) {
-			System.out.println("Need to handle card references");
+			CardReference card = (CardReference) content;
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "div", new ArrayList<Object>(), new ArrayList<Object>(), new HashMap<String, HSIEForm>());
+			b.sid = tam.nextSid();
+			VisualTree pvt = new VisualTree(b, null);
+			pvt.containsThing = AbstractTreeNode.CARD;
+			if (atn == null)
+				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
+			else
+				tree.children.add(pvt);
+			
+			atn = new AbstractTreeNode(AbstractTreeNode.CARD, atn, b.id, b.sid, null);
+			tam.nodes.add(atn);
+			atn.card = card;
 		} else if (content instanceof TemplateCases) {
 			System.out.println("Need to handle cases");
 		} else 

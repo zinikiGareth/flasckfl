@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
@@ -122,9 +123,11 @@ public class TemplateAbstractModel {
 		public int containsThing;
 		public Block divThing;
 		public List<VisualTree> children = new ArrayList<VisualTree>();
+		public final String text;
 		
-		public VisualTree(Block div) {
+		public VisualTree(Block div, String text) {
 			this.divThing = div;
+			this.text = text;
 		}
 	}
 	
@@ -133,12 +136,14 @@ public class TemplateAbstractModel {
 		public static final int TOP = 1;
 		public static final int LIST = 2;
 		public static final int CONTENT = 3;
+		public static final int CARD = 4;
 		public final int type;
 		public final String id;
 		public final String sid;
 		public final VisualTree tree;
 		public final AbstractTreeNode nestedIn;
 		public HSIEForm expr;
+		public CardReference card;
 		
 		public AbstractTreeNode(int type, AbstractTreeNode nestedIn, String id, String sid, VisualTree tree) {
 			this.type = type;
@@ -242,7 +247,6 @@ public class TemplateAbstractModel {
 	
 	public void cardMembersCause(VisualTree vt, String fn) {
 		if (vt.divThing != null) {
-			System.out.println("Analyze " + vt.divThing.complexAttrs);
 			cardMembersCause(vt.divThing.complexAttrs, fn);
 		}
 		for (VisualTree t : vt.children)

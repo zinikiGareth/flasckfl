@@ -78,7 +78,7 @@ public class DomFunctionGenerator {
 				trees.add(rt);
 			}
 		}
-		System.out.println("updates = " + updates);
+//		System.out.println("updates = " + updates);
 	}
 
 	public Object generate(TemplateLine template, Route route) {
@@ -93,7 +93,7 @@ public class DomFunctionGenerator {
 			TemplateDiv td = (TemplateDiv) template;
 			for (TemplateLine tl : td.nested) {
 				Route troute = route.extendDivMember(pos++);
-				System.out.println("route = " + route + "; " + elt.route);
+//				System.out.println("route = " + route + "; " + elt.route);
 				elt.addChildren(generate(tl, troute));
 			}
 		} else if (template instanceof TemplateCases) {

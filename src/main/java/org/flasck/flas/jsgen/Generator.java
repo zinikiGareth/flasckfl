@@ -236,6 +236,9 @@ public class Generator {
 				target.add(ir);
 				generateVisualTree(ir, "parent", false, null, atn.tree);
 				generate(tam, null, atn);
+				JSForm ft = JSForm.flexFn(tam.prefix + ".prototype._formatTop", CollectionUtils.listOf("doc", "wrapper"));
+				target.add(ft);
+				generateFormatsFor(ft, atn.tree, "wrapper.infoAbout");
 			} else if (atn.type == AbstractTreeNode.LIST) {
 				JSForm ii = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_itemInserted", CollectionUtils.listOf("doc", "wrapper", "item", "before"));
 				target.add(ii);
@@ -263,14 +266,23 @@ public class Generator {
 			} else if (atn.type == AbstractTreeNode.CONTENT) {
 				JSForm cc = function;
 				if (cc == null) {
-					cc = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id, CollectionUtils.listOf("doc", "wrapper", "value"));
+					cc = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id, CollectionUtils.listOf("doc", "wrapper"));
 					target.add(cc);
 				}
-				cc.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout" + (atn.nestedIn != null?"['" + atn.nestedIn.id + "'][item.id]":"") + "['" + atn.sid + "'])"));
+				cc.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout" + (atn.nestedIn.id != null?"['" + atn.nestedIn.id + "'][item.id]":"") + "['" + atn.sid + "'])"));
 				cc.add(JSForm.flex("span.innerHTML = ''"));
 				JSForm.assign(cc, "var textContent", atn.expr);
 				cc.add(JSForm.flex("var text = doc.createTextNode(FLEval.full(textContent))"));
 				cc.add(JSForm.flex("span.appendChild(text)"));
+			} else if (atn.type == AbstractTreeNode.CARD) {
+				JSForm cc = function;
+				if (cc == null) {
+					cc = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id, CollectionUtils.listOf("doc", "wrapper"));
+					target.add(cc);
+				}
+//				cc.add(JSForm.flex("var slot = doc.getElementById(wrapper.infoAbout" + (atn.nestedIn.id != null?"['" + atn.nestedIn.id + "'][item.id]":"") + "['" + atn.sid + "'])"));
+//				cc.add(JSForm.flex("slot.innerHTML = ''"));
+				cc.add(JSForm.flex("wrapper.showCard('" + atn.sid + "', { card: " + atn.card.explicitCard + "})"));
 			} else
 				throw new UtilException("Don't handle " + atn.type);
 		}
@@ -339,11 +351,6 @@ public class Generator {
 		}
 		for (Entry<String, String> sa : tree.divThing.staticAttrs.entrySet())
 			ir.add(JSForm.flex(tree.divThing.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
-		if (tree.containsThing == AbstractTreeNode.LIST) {
-			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
-			ir.add(JSForm.flex("// TODO: insert any current contents of the CROSET using insertItem").noSemi());
-			ir.add(JSForm.flex("this._" + tree.divThing.id + "_formatList(doc, wrapper)"));
-		}
 		JSForm ip = ir;
 		if (considerBefore) {
 			JSForm ie = JSForm.flex("if (before)").needBlock();
@@ -362,8 +369,26 @@ public class Generator {
 			cev.add(JSForm.flex("wrapper.dispatchEvent(event, eh)"));
 			ir.add(cev);
 		}
+		if (tree.text != null) {
+			ir.add(JSForm.flex(tree.divThing.id +".appendChild(doc.createTextNode('" + tree.text + "'))"));
+		}
 		for (VisualTree t : tree.children)
 			generateVisualTree(ir, tree.divThing.id, false, inList, t);
+		// TODO: surely this should only happen at the top level of calling the tree?
+		// Does that work because of the setting of containsThing?
+		if (tree.containsThing == AbstractTreeNode.TOP) {
+			ir.add(JSForm.flex("this._formatTop(doc, wrapper)"));
+		} else if (tree.containsThing == AbstractTreeNode.CONTENT) {
+			if (inList == null)
+				ir.add(JSForm.flex("this._" + tree.divThing.id + "(doc, wrapper)"));
+		} else if (tree.containsThing == AbstractTreeNode.LIST) {
+			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
+			ir.add(JSForm.flex("// TODO: insert any current contents of the CROSET using insertItem").noSemi());
+			ir.add(JSForm.flex("this._" + tree.divThing.id + "_formatList(doc, wrapper)"));
+		} else if (tree.containsThing == AbstractTreeNode.CARD) {
+//			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
+			ir.add(JSForm.flex("this._" + tree.divThing.id + "(doc, wrapper)"));
+		}
 	}
 
 	protected void createSomething(JSForm ir, Base c) {
