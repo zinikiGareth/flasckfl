@@ -6,15 +6,8 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.TemplateAbstractModel;
 import org.flasck.flas.TemplateAbstractModel.AbstractTreeNode;
-import org.flasck.flas.TemplateAbstractModel.Base;
-import org.flasck.flas.TemplateAbstractModel.Block;
-import org.flasck.flas.TemplateAbstractModel.Content;
 import org.flasck.flas.TemplateAbstractModel.OrCase;
-import org.flasck.flas.TemplateAbstractModel.Struct;
-import org.flasck.flas.TemplateAbstractModel.ULList;
 import org.flasck.flas.TemplateAbstractModel.VisualTree;
-import org.flasck.flas.dom.RenderTree.Element;
-import org.flasck.flas.dom.UpdateTree.Update;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
@@ -38,7 +31,6 @@ import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.CollectionUtils;
-import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
 public class Generator {
@@ -304,49 +296,6 @@ public class Generator {
 			} else
 				throw new UtilException("Don't handle " + atn.type);
 		}
-		/*
-		// Firstly firstly, create the "initialRender" function
-		JSForm ir = JSForm.flexFn(tam.prefix + ".initialRender", CollectionUtils.listOf("doc", "wrapper", "parent", "card"));
-		
-		// first prepare any infos
-		for (Base c : tam.root.children) {
-			if (c instanceof ULList) {
-				ir.add(JSForm.flex("wrapper.infoAbout['" + c.id + "'] = {}"));
-			}
-		}
-		createSomething(ir, tam.root);
-		for (Base c : tam.root.children) {
-			createSomething(ir, c);
-		}
-		target.add(ir);
-		
-		// Now do the actual functions
-		genFunction(tam, tam.root);
-		for (Base c : tam.root.children) {
-			genFunction(tam, c);
-		}
-		
-		// Generate the update actions
-		JSForm onUpdate = JSForm.flex(tam.prefix + ".onUpdate =").needBlock();
-		JSForm prev = null;
-		for (String field : tam.fields.key1Set()) {
-			if (prev != null)
-				prev.comma();
-			JSForm curr = JSForm.flex("'" + field + "':").needBlock();
-			JSForm pa = null;
-			for (String action : tam.fields.key2Set(field)) {
-				JSForm ca = JSForm.flex("'" + action + "':").nestArray();
-				ca.add(JSForm.flex(String.join(",", tam.fields.get(field, action))).noSemi());
-				if (pa != null)
-					pa.comma();
-				curr.add(ca);
-				pa = ca;
-			}
-			onUpdate.add(curr);
-			prev = curr;
-		}
-		target.add(onUpdate);
-		*/
 	}
 
 	private void generateFormatsFor(JSForm fi, VisualTree t, String var) {
@@ -411,193 +360,4 @@ public class Generator {
 			ir.add(JSForm.flex("this._" + tree.divThing.id + "(doc, wrapper)"));
 		}
 	}
-
-	protected void createSomething(JSForm ir, Base c) {
-		if (c instanceof Content) {
-			JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper)");
-			ir.add(invoke);
-		} else if (c instanceof ULList) {
-			JSForm invoke = JSForm.flex("card._" + c.id +"_formatList(doc, wrapper)");
-			ir.add(invoke);
-		} else if (c instanceof Struct) {
-			JSForm invoke = JSForm.flex("card._" + c.id +"(doc, wrapper, parent)"); // I think "parent" here should be a variable
-			ir.add(invoke);
-		} else if (!(c instanceof Block))
-			throw new UtilException("not handled: " + c.getClass());
-	}
-
-	private void genFunction(TemplateAbstractModel tam, Base c) {
-		List<String> args;
-		String suffix = "";
-		if (c instanceof Struct)
-			args = CollectionUtils.listOf("doc", "wrapper", "parent");
-		else if (c instanceof Content)
-			args = CollectionUtils.listOf("doc", "wrapper");
-		else if (c instanceof ULList) {
-			args = CollectionUtils.listOf("doc", "wrapper", "item", "before");
-			suffix = "_itemInserted";
-		} else if (c instanceof Block) {
-			return;
-		} else
-			throw new UtilException("Can't generate " + c.getClass());
-		JSForm ff = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + suffix, args);
-		target.add(ff);
-		if (c instanceof Struct) {
-			ff.add(JSForm.flex("wrapper.infoAbout['" + c.id + "'] = {}"));
-//			int vidx = 1;
-			Struct struct = (Struct)c;
-			templateChildren(ff, struct.id, false, struct.children);
-		} else if (c instanceof Content) {
-			Content cc = (Content) c;
-			ff.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout['" + cc.struct +"']['" + cc.sid + "'])"));
-			ff.add(JSForm.flex("span.innerHTML = ''"));
-			JSForm.assign(ff, "var textContent", cc.expr);
-			ff.add(JSForm.flex("var text = doc.createTextNode(textContent)"));
-			ff.add(JSForm.flex("span.appendChild(text)"));
-		} else if (c instanceof ULList) {
-			ULList l = (ULList) c;
-			ff.add(JSForm.flex("var parent = doc.getElementById(wrapper.infoAbout['" + l.struct + "']['" + l.id + "'])"));
-			ff.add(JSForm.flex("wrapper.infoAbout['" + l.id + "'][item.id] = { item: item }"));
-			boolean hasComplex = templateChildren(ff, l.id, true, l.children);
-			if (hasComplex) {
-				ff.add(JSForm.flex("this._" + l.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + l.id + "'][item.id])"));
-			}
-			JSForm ic = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + "_itemChanged", CollectionUtils.listOf("doc", "wrapper", "item"));
-			for (Base x : l.children)
-				genFunction(tam, x);
-			target.add(ic);
-			JSForm fi = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + "_formatItem", CollectionUtils.listOf("doc", "wrapper", "item"));
-			target.add(fi);
-			JSForm fl = JSForm.flexFn(tam.prefix + ".prototype._" + c.id + "_formatList", CollectionUtils.listOf("doc", "wrapper"));
-			target.add(fl);
-		} else
-			throw new UtilException("not handled: " + c.getClass());
-	}
-
-	protected boolean templateChildren(JSForm ff, String struct, boolean inList, List<Base> children) {
-		boolean hasComplex = false;
-		for (Base b : children) {
-			if (b instanceof Content) {
-				Content cc = (Content) b;
-				ff.add(JSForm.flex("var " + cc.sid + " = wrapper.nextSlotId()"));
-				ff.add(JSForm.flex("var " + cc.span + " = doc.createElement('span')"));
-				ff.add(JSForm.flex(cc.span + ".setAttribute('id', " + cc.sid + ")"));
-				ff.add(JSForm.flex(cc.parent + ".appendChild(" + cc.span + ")"));
-				ff.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + cc.sid +"'] = " + cc.sid));
-			} else if (b instanceof Block) {
-				Block bb = (Block) b;
-				hasComplex |= bb.complexAttrs != null;
-				ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + bb.tag + "')"));
-				if (bb.sid != null) {
-					ff.add(JSForm.flex("var " + bb.sid + " = wrapper.nextSlotId()"));
-					ff.add(JSForm.flex(bb.id + ".setAttribute('id', " + bb.sid + ")"));
-				}
-				for (Entry<String, String> sa : bb.staticAttrs.entrySet())
-					ff.add(JSForm.flex(bb.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
-				JSForm ip = ff;
-				if (inList) {
-					JSForm ie = JSForm.flex("if (before)").needBlock();
-					ff.add(ie);
-					ie.add(JSForm.flex(bb.parent + ".insertBefore(" + bb.id + ", before)"));
-					JSForm es = JSForm.flex("else").needBlock();
-					ff.add(es);
-					ip = es;
-				}
-				ip.add(JSForm.flex(bb.parent + ".appendChild(" + bb.id + ")"));
-				if (bb.complexAttrs != null)
-					ff.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + bb.sid +"'] = " + bb.sid));
-				for (Entry<String, HSIEForm> eh : bb.handlers.entrySet()) {
-					JSForm.assign(ff, "var eh", eh.getValue());
-					JSForm cev = JSForm.flex(bb.id + "['on" + eh.getKey() + "'] = function(event)").needBlock();
-					cev.add(JSForm.flex("wrapper.dispatchEvent(event, eh)"));
-					ff.add(cev);
-				}
-			} else if (b instanceof ULList) {
-				ULList ul = (ULList) b;
-				ff.add(JSForm.flex("var " + b.id + " = doc.createElement('" + ul.tag + "')"));
-				ff.add(JSForm.flex("var " + ul.sid + " = wrapper.nextSlotId()"));
-				ff.add(JSForm.flex(b.id + ".setAttribute('id', " + ul.sid + ")"));
-				ff.add(JSForm.flex("wrapper.infoAbout['" + struct + "']['" + ul.id + "'] = " + ul.sid));
-				for (Entry<String, String> sa : ul.staticAttrs.entrySet())
-					ff.add(JSForm.flex(ul.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
-				ff.add(JSForm.flex(ul.parent + ".appendChild(" + ul.id + ")"));
-			} else
-				throw new UtilException("not handled: " + b.getClass());
-		}
-		
-		return hasComplex;
-	}
-
-	public JSForm generateTemplateTree(String name, String templateName) {
-		JSForm ret = new JSForm(name + "." + templateName + " =").needBlock().needSemi();
-		target.add(ret);
-		return ret;
-	}
-
-	public void generateTree(JSForm block, Element ret) {
-		StringBuilder thisOne = new StringBuilder("type: '" + ret.type + "', ");
-		if (ret.fn != null) { 
-			int idx = ret.fn.lastIndexOf(".");
-			thisOne.append("fn: " + ret.fn.substring(0, idx+1) + "prototype" + ret.fn.substring(idx) + ", ");
-		}
-		if (ret.var != null) {
-			thisOne.append("var: '" + ret.var + "', ");
-		}
-		if (ret.val != null) {
-			int idx = ret.val.lastIndexOf(".");
-			thisOne.append("val: " + ret.val.substring(0, idx+1) + "prototype" + ret.val.substring(idx) + ", ");
-		}
-		thisOne.append("route: '" + ret.route + "'");
-		boolean wantChildrenArray = true;
-		if (!ret.children.isEmpty()) {
-			if ("div".equals(ret.type)) {
-				thisOne.append(", children:");
-			} else if ("switch".equals(ret.type)) {
-				thisOne.append(", cases:");
-			} else if ("case".equals(ret.type) || "list".equals(ret.type)) {
-				thisOne.append(", template:");
-				wantChildrenArray = false;
-			} else
-				throw new UtilException(ret.type + " cannot have children");
-		}
-		JSForm next = new JSForm(thisOne.toString());
-		next.noSemi();
-		block.add(next);
-
-		if (!ret.children.isEmpty()) {
-			if (wantChildrenArray) {
-				next.nestArray();
-				for (Element e : ret.children) {
-					JSForm wrapper = new JSForm("").needBlock();
-					next.add(wrapper);
-					generateTree(wrapper, e);
-				}
-			} else {
-				generateTree(next, ret.children.get(0));
-			}
-		}
-	}
-
-	public JSForm generateUpdateTree(String prefix) {
-		JSForm ret = new JSForm(prefix + ".updates =").needBlock().needSemi();
-		target.add(ret);
-		return ret;
-	}
-
-	public void generateUpdates(JSForm block, String prefix, ListMap<String, Update> updates) {
-		JSForm prev = null;
-		for (String s : updates.keySet()) {
-			if (prev != null)
-				prev.comma();
-			JSForm f = new JSForm(s +":").nestArray().noSemi();
-			block.add(f);
-			for (Update u : updates.get(s)) {
-				JSForm g = new JSForm("").needBlock().noSemi();
-				g.add(new JSForm("route: '" + u.routeChanges.name() + "', node: " + u.routeChanges.path(new StringBuilder(prefix+".template")) + ", action: '" + u.updateType + "'" + (u.list != null?", list: '" + u.list +"'":"")).noSemi());
-				f.add(g);
-			}
-			prev = f;
-		}
-	}
-
 }

@@ -21,9 +21,6 @@ import org.flasck.flas.TemplateAbstractModel.VisualTree;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
-import org.flasck.flas.dom.DomFunctionGenerator;
-import org.flasck.flas.dom.RenderTree;
-import org.flasck.flas.dom.UpdateTree;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.hsie.ApplyCurry;
@@ -42,16 +39,9 @@ import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.D3Invoke;
-import org.flasck.flas.parsedForm.D3PatternBlock;
-import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.MethodCaseDefn;
-import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -69,7 +59,6 @@ import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
@@ -143,6 +132,7 @@ public class Compiler {
 				rewriter.rewrite(se);
 			abortIfErrors(errors);
 
+			/*
 			// 4. Promote template tree definition to individual functions
 			List<RenderTree> trees = new ArrayList<RenderTree>();
 			List<UpdateTree> updates = new ArrayList<UpdateTree>();
@@ -153,6 +143,7 @@ public class Compiler {
 			// 4b. Do the same for D3 invocations
 			for (D3Invoke d3 : rewriter.d3s)
 				promoteD3Methods(errors, rewriter.functions, trees, updates, d3);
+			*/
 			
 			// 5. Extract methods and convert to functions
 			MethodConvertor.convert(rewriter.functions, rewriter.methods);
@@ -212,7 +203,7 @@ public class Compiler {
 				abortIfErrors(errors);
 			}
 			
-			// 11(repl). Generate code for templating
+			// 11. Generate code for templating
 			for (Template cg : rewriter.templates) {
 				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, cg);
 				gen.generate(tam, null, null);
@@ -237,10 +228,6 @@ public class Compiler {
 				target.add(onUpdate);
 			}
 
-			// 11. Generate render & dependency trees
-			renderTemplateTrees(gen, trees, updates);
-			abortIfErrors(errors);
-			
 			// 12. Issue JavaScript
 			try {
 				w = new FileWriter(writeTo);
@@ -284,7 +271,7 @@ public class Compiler {
 			for (EventHandler eh : td.handlers) {
 				handlers.put(eh.action, new HSIE(errors).handleExpr(eh.expr, HSIEForm.Type.FUNCTION));
 			}
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, td.customTag, td.attrs, td.formats, handlers);
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(td.customTag, td.attrs, td.formats, handlers);
 			VisualTree vt = new VisualTree(b, null);
 			if (atn == null) {
 				atn = new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, vt);
@@ -296,7 +283,7 @@ public class Compiler {
 				matmRecursive(errors, tam, atn, vt, x);
 		} else if (content instanceof TemplateList) {
 			TemplateList tl = (TemplateList) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "ul", new ArrayList<Object>(), tl.formats, new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("ul", new ArrayList<Object>(), tl.formats, new HashMap<String, HSIEForm>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.LIST;
@@ -318,7 +305,7 @@ public class Compiler {
 			tam.cardMembersCause(vt, tam.prefix + ".prototype._" + b.id + "_formatList");
 		} else if (content instanceof TemplateCases) {
 			TemplateCases cases = (TemplateCases) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "div", new ArrayList<Object>(), new ArrayList<Object>(), new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new HashMap<String, HSIEForm>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.CASES;
@@ -340,12 +327,12 @@ public class Compiler {
 			}
 		} else if (content instanceof ContentString) {
 			ContentString cs = (ContentString) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "span", new ArrayList<Object>(), cs.formats, new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), cs.formats, new HashMap<String, HSIEForm>());
 			VisualTree vt = new VisualTree(b, cs.text);
 			tree.children.add(vt);
 		} else if (content instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "span", new ArrayList<Object>(), ce.formats, new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), ce.formats, new HashMap<String, HSIEForm>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.CONTENT;
@@ -361,7 +348,7 @@ public class Compiler {
 			atn.expr = new HSIE(errors).handleExpr(ce.expr, HSIEForm.Type.FUNCTION);
 		} else if (content instanceof CardReference) {
 			CardReference card = (CardReference) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(null, null, "div", new ArrayList<Object>(), new ArrayList<Object>(), new HashMap<String, HSIEForm>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new HashMap<String, HSIEForm>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.CARD;
@@ -382,6 +369,7 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
+	/*
 	private void promoteTemplateFunctions(ErrorResult errors, Map<String, FunctionDefinition> functions, List<RenderTree> trees, List<UpdateTree> updates, Template template) {
 		DomFunctionGenerator gen = new DomFunctionGenerator(errors, template, functions);
 		gen.generateTree(template.content);
@@ -409,6 +397,7 @@ public class Compiler {
 			}
 		}
 	}
+	*/
 
 	private ScopeEntry doParsing(ScopeEntry se, List<Block> blocks) throws ErrorResultException {
 		Object obj = new FLASStory().process(se, blocks);
@@ -484,16 +473,5 @@ public class Compiler {
 		gen.generate(node.getEntry());
 		for (Node<HSIEForm> n : t.getChildren(node))
 			generateTree(gen, t, n);
-	}
-
-	private void renderTemplateTrees(Generator gen, List<RenderTree> trees, List<UpdateTree> updates) {
-		for (RenderTree t : trees) {
-			JSForm block = gen.generateTemplateTree(t.card, t.template);
-			gen.generateTree(block, t.ret);
-		}
-		for (UpdateTree t : updates) {
-			JSForm block = gen.generateUpdateTree(t.prefix);
-			gen.generateUpdates(block, t.prefix, t.updates);
-		}
 	}
 }
