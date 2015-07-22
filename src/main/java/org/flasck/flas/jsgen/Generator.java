@@ -194,7 +194,6 @@ public class Generator {
 
 	private void generateBlock(String fn, HSIEForm form, JSForm into, HSIEBlock input) {
 		for (HSIEBlock h : input.nestedCommands()) {
-//			System.out.println(h.getClass());
 			if (h instanceof Head) {
 				into.addAll(JSForm.head(((Head)h).v));
 			} else if (h instanceof Switch) {
@@ -280,7 +279,7 @@ public class Generator {
 					cc = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id, CollectionUtils.listOf("doc", "wrapper"));
 					target.add(cc);
 				}
-				cc.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout" + (atn.nestedIn.id != null?"['" + atn.nestedIn.id + "'][item.id]":"") + "['" + atn.sid + "'])"));
+				cc.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout" + (atn.nestedIn != null && atn.nestedIn.id != null?"['" + atn.nestedIn.id + "'][item.id]":"") + "['" + atn.sid + "'])"));
 				cc.add(JSForm.flex("span.innerHTML = ''"));
 				JSForm.assign(cc, "var textContent", atn.expr);
 				cc.add(JSForm.flex("var text = doc.createTextNode(FLEval.full(textContent))"));

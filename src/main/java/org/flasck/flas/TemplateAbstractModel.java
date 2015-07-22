@@ -179,34 +179,34 @@ public class TemplateAbstractModel {
 		return nextId++;
 	}
 	
-	public void cardMembersCause(VisualTree vt, String fn) {
+	public void cardMembersCause(VisualTree vt, String action, String fn) {
 		if (vt.divThing != null) {
-			cardMembersCause(vt.divThing.complexAttrs, fn);
+			cardMembersCause(vt.divThing.complexAttrs, action, fn);
 		}
 		for (VisualTree t : vt.children)
-			cardMembersCause(t, fn);
+			cardMembersCause(t, action, fn);
 	}
 	
-	public void cardMembersCause(Object expr, String fn) {
+	public void cardMembersCause(Object expr, String action, String fn) {
 		if (expr == null)
 			return;
 		else if (expr instanceof StringLiteral || expr instanceof AbsoluteVar || expr instanceof TemplateListVar || expr instanceof LocalVar)
 			return;
 		else if (expr instanceof CardMember) {
-			fields.add(((CardMember)expr).var, "assign", fn);
+			fields.add(((CardMember)expr).var, action, fn);
 		} else if (expr instanceof CardFunction) {
 			CardFunction cf = (CardFunction) expr;
 			String fname = cf.clzName + "." + cf.function;
 			if (rewriter.functions.containsKey(fname)) {
 				FunctionDefinition func = rewriter.functions.get(fname);
 				for (FunctionCaseDefn c : func.cases)
-					cardMembersCause(c.expr, fn);
+					cardMembersCause(c.expr, action, fn);
 			}
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
-			cardMembersCause(ae.fn, fn);
+			cardMembersCause(ae.fn, action, fn);
 			for (Object a : ae.args)
-				cardMembersCause(a, fn);
+				cardMembersCause(a, action, fn);
 		} else
 			throw new UtilException("Cannot handle " + expr.getClass());
 	}

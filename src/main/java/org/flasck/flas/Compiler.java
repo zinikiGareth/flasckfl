@@ -299,7 +299,7 @@ public class Compiler {
 				tree.children.add(vt);
 			for (TemplateLine x : td.nested)
 				matmRecursive(errors, tam, atn, vt, x);
-			tam.cardMembersCause(vt, tam.prefix + ".prototype._formatTop");
+			tam.cardMembersCause(vt, "assign", tam.prefix + ".prototype._formatTop");
 		} else if (content instanceof TemplateList) {
 			TemplateList tl = (TemplateList) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("ul", new ArrayList<Object>(), tl.formats, new ArrayList<Handler>());
@@ -322,7 +322,7 @@ public class Compiler {
 
 			// Now generate the nested template in that
 			matmRecursive(errors, tam, atn, vt, tl.template);
-			tam.cardMembersCause(vt, tam.prefix + ".prototype._" + b.id + "_formatList");
+			tam.cardMembersCause(vt, "assign", tam.prefix + ".prototype._" + b.id + "_formatList");
 		} else if (content instanceof TemplateCases) {
 			TemplateCases cases = (TemplateCases) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
@@ -333,7 +333,7 @@ public class Compiler {
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
-			tam.cardMembersCause(cases.switchOn, tam.prefix + ".prototype._" + b.id + "_switch");
+			tam.cardMembersCause(cases.switchOn, "assign", tam.prefix + ".prototype._" + b.id + "_switch");
 			
 			// This is where we separate the "included-in-parent" tree from the "I own this" tree
 			atn = new AbstractTreeNode(AbstractTreeNode.CASES, atn, b.id, b.sid, null);
@@ -342,7 +342,7 @@ public class Compiler {
 				// Now generate each nested template in that
 				VisualTree vt = new VisualTree(null, null);
 				matmRecursive(errors, tam, atn, vt, tor.template);
-				tam.cardMembersCause(tor.cond, tam.prefix + ".prototype._" + b.id + "_switch");
+				tam.cardMembersCause(tor.cond, "assign", tam.prefix + ".prototype._" + b.id + "_switch");
 				atn.cases.add(new OrCase(new HSIE(errors).handleExpr(new ApplyExpr(tam.scope.fromRoot("=="), cases.switchOn, tor.cond), HSIEForm.Type.CARD), vt));
 			}
 		} else if (content instanceof ContentString) {
@@ -360,6 +360,7 @@ public class Compiler {
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
+			tam.cardMembersCause(ce.expr, "assign", tam.prefix + ".prototype._" + b.id);
 			
 			// Now we need to create a new ATN for the _content_ function
 			// VisualTree vt = new VisualTree(null);
@@ -405,19 +406,6 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
-	/*
-	private void promoteTemplateFunctions(ErrorResult errors, Map<String, FunctionDefinition> functions, List<RenderTree> trees, List<UpdateTree> updates, Template template) {
-		DomFunctionGenerator gen = new DomFunctionGenerator(errors, template, functions);
-		gen.generateTree(template.content);
-		for (Entry<String, FunctionDefinition> x2 : functions.entrySet()) {
-			FunctionDefinition rfn = (FunctionDefinition) x2.getValue();
-			functions.put(rfn.name, rfn);
-		}
-		trees.addAll(gen.trees);
-		updates.add(new UpdateTree(gen.prefix, gen.updates));
-	}
-
-	 */
 	private void promoteD3Methods(ErrorResult errors, Map<String, FunctionDefinition> functions, D3Invoke d3) {
 		Object init = d3.scope.fromRoot("NilMap");
 		AbsoluteVar assoc = d3.scope.fromRoot("Assoc");
@@ -427,7 +415,6 @@ public class Compiler {
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
 		for (D3PatternBlock p : d3.d3.patterns) {
 			for (D3Section s : p.sections.values()) {
-//				Object ls = nil;
 				if (!s.properties.isEmpty()) {
 					Object pl = nil; // prepend to an empty list
 					for (PropertyDefn prop : s.properties.values()) {
@@ -437,7 +424,6 @@ public class Compiler {
 						Object pair = new ApplyExpr(tuple, new StringLiteral(prop.name), efn);
 						pl = new ApplyExpr(cons, pair, pl);
 					}
-//					ls = new ApplyExpr(cons, , ls);
 					byKey.add(s.name, new ApplyExpr(tuple, p.pattern, pl));
 				}
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
@@ -478,7 +464,6 @@ public class Compiler {
 		FunctionDefinition func = new FunctionDefinition(HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 
-		System.out.println("Creating function " + func);
 		return new FunctionLiteral(d3f.name);
 	}
 
