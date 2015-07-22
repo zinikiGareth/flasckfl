@@ -316,7 +316,10 @@ public class JSForm {
 //			sb.append("this._wrapper.renderState['" + c.tlv.name + "']");
 		} else if (c.func != null) {
 			int x = c.func.name.lastIndexOf('.');
-			sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
+			if (x == -1)
+				throw new UtilException("Invalid function name: " + c.func.name);
+			else
+				sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
 		} else
 			throw new UtilException("What are you pushing? " + c);
 	}

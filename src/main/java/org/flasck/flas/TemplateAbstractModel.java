@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
+import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.LocalVar;
@@ -39,16 +40,22 @@ public class TemplateAbstractModel {
 
 	public static class Block {
 		public final String id;
+		public final String ns;
 		public final String tag;
 		public final Map<String, String> staticAttrs = new TreeMap<String, String>(new StringComparator());
 		public String sid = null;
 		public Object complexAttrs;
 		public String listVar;
+		public String name;
 		public final List<Handler> handlers;
 
 		public Block(String id, String tag, List<Handler> handlers) {
 			this.id = id;
 			this.tag = (tag != null)?tag:"div";
+			if (this.tag.equals("svg"))
+				this.ns = "http://www.w3.org/2000/svg";
+			else
+				this.ns = null;
 			this.handlers = handlers;
 		}
 	}
@@ -83,6 +90,7 @@ public class TemplateAbstractModel {
 		public static final int CONTENT = 3;
 		public static final int CARD = 4;
 		public static final int CASES = 5;
+		public static final int D3 = 6;
 		public final int type;
 		public final String id;
 		public final String sid;
@@ -90,6 +98,7 @@ public class TemplateAbstractModel {
 		public final AbstractTreeNode nestedIn;
 		public HSIEForm expr;
 		public CardReference card;
+		public D3Invoke d3;
 		public final List<OrCase> cases = new ArrayList<OrCase>();
 		
 		public AbstractTreeNode(int type, AbstractTreeNode nestedIn, String id, String sid, VisualTree tree) {

@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Level;
@@ -28,6 +29,7 @@ import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardGrouping;
@@ -38,12 +40,23 @@ import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.D3Invoke;
+import org.flasck.flas.parsedForm.D3PatternBlock;
+import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.EventHandler;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.MethodDefinition;
+import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
@@ -52,12 +65,15 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TypeDefn;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.zinutils.collections.CollectionUtils;
+import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
@@ -72,6 +88,9 @@ public class Compiler {
 			compiler.compile(new File(f));
 	}
 
+	// TODO: move this into a separate class, like DOMFG used to be
+	int nextFn = 1;
+	
 	public void compile(File file) {
 		String inPkg = file.getName();
 		if (!file.isDirectory()) {
@@ -138,11 +157,11 @@ public class Compiler {
 			for (Template t : rewriter.templates)
 				promoteTemplateFunctions(errors, rewriter.functions, trees, updates, t);
 			abortIfErrors(errors);
+			 */
 			
 			// 4b. Do the same for D3 invocations
 			for (D3Invoke d3 : rewriter.d3s)
-				promoteD3Methods(errors, rewriter.functions, trees, updates, d3);
-			*/
+				promoteD3Methods(errors, rewriter.functions, d3);
 			
 			// 5. Extract methods and convert to functions
 			MethodConvertor.convert(rewriter.functions, rewriter.methods);
@@ -361,6 +380,22 @@ public class Compiler {
 			atn = new AbstractTreeNode(AbstractTreeNode.CARD, atn, b.id, b.sid, null);
 			tam.nodes.add(atn);
 			atn.card = card;
+		} else if (content instanceof D3Invoke) {
+			D3Invoke d3i = (D3Invoke) content;
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
+			b.sid = tam.nextSid();
+			VisualTree pvt = new VisualTree(b, null);
+			pvt.containsThing = AbstractTreeNode.D3;
+			pvt.divThing.name = d3i.d3.name;
+			if (atn == null)
+				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
+			else
+				tree.children.add(pvt);
+			tam.fields.add(((CardMember)d3i.d3.data).var, "assign", tam.prefix + ".prototype._" + b.id);
+			
+			atn = new AbstractTreeNode(AbstractTreeNode.D3, atn, b.id, b.sid, null);
+			tam.nodes.add(atn);
+			atn.d3 = d3i;
 		} else 
 			throw new UtilException("TL type " + content.getClass() + " not supported");
 	}
@@ -382,23 +417,70 @@ public class Compiler {
 		updates.add(new UpdateTree(gen.prefix, gen.updates));
 	}
 
-	private void promoteD3Methods(ErrorResult errors, Map<String, FunctionDefinition> functions, List<RenderTree> trees, List<UpdateTree> updates, D3Invoke d3) {
+	 */
+	private void promoteD3Methods(ErrorResult errors, Map<String, FunctionDefinition> functions, D3Invoke d3) {
+		Object init = d3.scope.fromRoot("NilMap");
+		AbsoluteVar assoc = d3.scope.fromRoot("Assoc");
+		AbsoluteVar cons = d3.scope.fromRoot("Cons");
+		AbsoluteVar nil = d3.scope.fromRoot("Nil");
+		AbsoluteVar tuple = d3.scope.fromRoot("()");
+		ListMap<String, Object> byKey = new ListMap<String, Object>();
 		for (D3PatternBlock p : d3.d3.patterns) {
 			for (D3Section s : p.sections.values()) {
-				if (!s.actions.isEmpty()) { // something like enter, that is a "method"
+//				Object ls = nil;
+				if (!s.properties.isEmpty()) {
+					Object pl = nil; // prepend to an empty list
+					for (PropertyDefn prop : s.properties.values()) {
+						// TODO: only create functions for things that depend on the class
+						// constants can just be used directly
+						FunctionLiteral efn = functionWithArgs(d3.d3.prefix, functions, d3.scope, CollectionUtils.listOf(new TypedPattern(null, "D3Element", null, d3.d3.iter)), prop.value);
+						Object pair = new ApplyExpr(tuple, new StringLiteral(prop.name), efn);
+						pl = new ApplyExpr(cons, pair, pl);
+					}
+//					ls = new ApplyExpr(cons, , ls);
+					byKey.add(s.name, new ApplyExpr(tuple, p.pattern, pl));
+				}
+				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
 					FunctionIntro fi = new FunctionIntro(d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
 					MethodCaseDefn mcd = new MethodCaseDefn(fi);
 					mcd.messages.addAll(s.actions);
 					MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
 					MethodInContext mic = new MethodInContext(d3.scope, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
 					MethodConvertor.convert(functions, CollectionUtils.listOf(mic));
+					byKey.add(s.name, new FunctionLiteral(fi.name));
+//					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);
 				} else { // something like layout, that is just a set of definitions
 					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
 				}
 			}
 		}
+		for (Entry<String, List<Object>> k : byKey.entrySet()) {
+			Object list = nil;
+			List<Object> lo = k.getValue();
+			for (int i=lo.size()-1;i>=0;i--)
+				list = new ApplyExpr(cons, lo.get(i), list);
+			init = new ApplyExpr(assoc, new StringLiteral(k.getKey()), list, init);
+		}
+		FunctionLiteral data = functionWithArgs(d3.d3.prefix, functions, d3.scope, new ArrayList<Object>(), d3.d3.data);
+		init = new ApplyExpr(assoc, new StringLiteral("data"), data, init);
+
+		FunctionIntro d3f = new FunctionIntro(d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>());
+		FunctionCaseDefn fcd = new FunctionCaseDefn(d3.scope, d3f.name, d3f.args, init);
+		FunctionDefinition func = new FunctionDefinition(HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
+		functions.put(d3f.name, func);
 	}
-	*/
+
+	private FunctionLiteral functionWithArgs(String prefix, Map<String, FunctionDefinition> functions, Scope scope, List<Object> args, Object expr) {
+		String name = "_gen_" + (nextFn++);
+
+		FunctionIntro d3f = new FunctionIntro(prefix + "." + name, args);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(scope, d3f.name, d3f.args, expr);
+		FunctionDefinition func = new FunctionDefinition(HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
+		functions.put(d3f.name, func);
+
+		System.out.println("Creating function " + func);
+		return new FunctionLiteral(d3f.name);
+	}
 
 	private ScopeEntry doParsing(ScopeEntry se, List<Block> blocks) throws ErrorResultException {
 		Object obj = new FLASStory().process(se, blocks);

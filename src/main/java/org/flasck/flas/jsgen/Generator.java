@@ -291,9 +291,16 @@ public class Generator {
 					cc = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id, CollectionUtils.listOf("doc", "wrapper"));
 					target.add(cc);
 				}
-//				cc.add(JSForm.flex("var slot = doc.getElementById(wrapper.infoAbout" + (atn.nestedIn.id != null?"['" + atn.nestedIn.id + "'][item.id]":"") + "['" + atn.sid + "'])"));
-//				cc.add(JSForm.flex("slot.innerHTML = ''"));
 				cc.add(JSForm.flex("wrapper.showCard('" + atn.sid + "', { card: " + atn.card.explicitCard + "})"));
+			} else if (atn.type == AbstractTreeNode.D3) {
+				JSForm cc = function;
+				if (cc == null) {
+					cc = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id, CollectionUtils.listOf("doc", "wrapper"));
+					target.add(cc);
+				}
+				cc.add(JSForm.flex("var slot = wrapper.infoAbout['" + atn.sid + "']"));
+				cc.add(JSForm.flex("var info = wrapper.infoAbout['" + atn.id + "']"));
+				cc.add(JSForm.flex("wrapper.updateD3(slot, info)"));
 			} else
 				throw new UtilException("Don't handle " + atn.type);
 		}
@@ -311,24 +318,34 @@ public class Generator {
 	}
 
 	private void generateVisualTree(JSForm ir, String parent, boolean considerBefore, String inList, VisualTree tree) {
-		ir.add(JSForm.flex("var " + tree.divThing.id + " = doc.createElement('" + tree.divThing.tag + "')"));
+		if (tree.containsThing != AbstractTreeNode.D3) {
+			if (tree.divThing.ns == null)
+				ir.add(JSForm.flex("var " + tree.divThing.id + " = doc.createElement('" + tree.divThing.tag + "')"));
+			else
+				ir.add(JSForm.flex("var " + tree.divThing.id + " = doc.createElementNS('" + tree.divThing.ns + "', '" + tree.divThing.tag + "')"));
+		}
 		if (tree.divThing.sid != null) {
 			ir.add(JSForm.flex("var " + tree.divThing.sid + " = wrapper.nextSlotId()"));
-			ir.add(JSForm.flex(tree.divThing.id + ".setAttribute('id', " + tree.divThing.sid + ")"));
+			if (tree.containsThing != AbstractTreeNode.D3) {
+				ir.add(JSForm.flex(tree.divThing.id + ".setAttribute('id', " + tree.divThing.sid + ")"));
+			} else
+				ir.add(JSForm.flex(parent + ".setAttribute('id', " + tree.divThing.sid + ")"));
 			ir.add(JSForm.flex("wrapper.infoAbout" + (inList != null?"['" + inList + "'][item.id]":"")  + "['" + tree.divThing.sid + "'] = " + tree.divThing.sid));
 		}
 		for (Entry<String, String> sa : tree.divThing.staticAttrs.entrySet())
 			ir.add(JSForm.flex(tree.divThing.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
-		JSForm ip = ir;
-		if (considerBefore) {
-			JSForm ie = JSForm.flex("if (before)").needBlock();
-			ir.add(ie);
-			ie.add(JSForm.flex(parent + ".insertBefore(" + tree.divThing.id + ", before)"));
-			JSForm es = JSForm.flex("else").needBlock();
-			ir.add(es);
-			ip = es;
+		if (tree.containsThing != AbstractTreeNode.D3) {
+			JSForm ip = ir;
+			if (considerBefore) {
+				JSForm ie = JSForm.flex("if (before)").needBlock();
+				ir.add(ie);
+				ie.add(JSForm.flex(parent + ".insertBefore(" + tree.divThing.id + ", before)"));
+				JSForm es = JSForm.flex("else").needBlock();
+				ir.add(es);
+				ip = es;
+			}
+			ip.add(JSForm.flex(parent + ".appendChild(" + tree.divThing.id + ")"));
 		}
-		ip.add(JSForm.flex(parent + ".appendChild(" + tree.divThing.id + ")"));
 //		if (tree.divThing.complexAttrs)
 //			ir.add(JSForm.flex("wrapper.infoAbout['" + struct + "']" + (inList?"[item.id]":"")  + "['" + tree.divThing.sid +"'] = " + tree.divThing.sid));
 		for (Handler eh : tree.divThing.handlers) {
@@ -365,6 +382,9 @@ public class Generator {
 		} else if (tree.containsThing == AbstractTreeNode.CARD) {
 //			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = {}"));
 			ir.add(JSForm.flex("this._" + tree.divThing.id + "(doc, wrapper)"));
+		} else if (tree.containsThing == AbstractTreeNode.D3) {
+			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = FLEval.full(this._d3init_" + tree.divThing.name + "())"));
+			ir.add(JSForm.flex("this._" + tree.divThing.id +"(doc, wrapper)"));
 		}
 	}
 }
