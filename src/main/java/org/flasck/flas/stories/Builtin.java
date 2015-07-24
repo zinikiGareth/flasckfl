@@ -111,6 +111,10 @@ public class Builtin {
 				.addField(new StructField(new TypeReference(null, "Any", null), "explicitCard")) // type should probably be String|Card where Card is some kind of "interface" type thing
 				.addField(new StructField(new TypeReference(null, "Any", null), "value"))
 				.addField(new StructField(
+						new TypeReference(null, "Map", null).
+						with(new TypeReference(null, "String", null)).
+						with(new TypeReference(null, "Any", null)), "opts"))
+				.addField(new StructField(
 						new TypeReference(null, "List", null)
 							.with(new TypeReference(null, "()", null)
 								.with(new TypeReference(null, "String", null))

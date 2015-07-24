@@ -73,10 +73,10 @@ public class MethodConvertor {
 				// a case where we're building a message
 				AbsoluteVar av = (AbsoluteVar) root.fn;
 				String name = av.id;
-				if (name.equals("D3Action")) { // one of many (I think) OK cases
+				if (name.equals("D3Action") || name.equals("CreateCard")) { // one of many (I think) OK cases
 					return root; // I think this is fine just as it is, as long as it gets combined in a list
 				} else
-					throw new UtilException("unhandled case");
+					throw new UtilException("unhandled case, with name = " + name);
 			} else {
 				ApplyExpr fn = (ApplyExpr)root.fn;
 				if (!(fn.fn instanceof AbsoluteVar) || !((AbsoluteVar)fn.fn).id.equals("FLEval.field")) throw new UtilException("unhandled case");

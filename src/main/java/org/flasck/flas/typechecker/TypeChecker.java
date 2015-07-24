@@ -481,6 +481,13 @@ public class TypeChecker {
 		return Type.function(args);
 	}
 
+	private Type typeForCardCtor(InputPosition location, StructDefn structDefn) {
+		List<Type> args = new ArrayList<Type>();
+		args.add(fromTypeReference(new TypeReference(location, "_Wrapper", null)));
+		args.add(fromTypeReference(new TypeReference(location, structDefn.typename, null)));
+		return Type.function(args);
+	}
+
 	private Type fromTypeReference(TypeReference type) {
 		if (type.var != null)
 			return Type.polyvar(type.var);
@@ -543,6 +550,8 @@ public class TypeChecker {
 			return knowledge.get(fn);
 		if (structs.containsKey(fn))
 			return typeForStructCtor(null, structs.get(fn));
+		if (cards.containsKey(fn))
+			return typeForCardCtor(null, cards.get(fn));
 //		System.out.println(knowledge);
 		throw new UtilException("There is no type: " + fn);
 	}

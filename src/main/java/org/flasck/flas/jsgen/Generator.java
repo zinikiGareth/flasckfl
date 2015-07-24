@@ -110,7 +110,8 @@ public class Generator {
 	}
 
 	public void generate(String name, CardGrouping card) {
-		JSForm cf = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 0, 1);
+		String lname = lname(name, false);
+		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), 0, 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
@@ -137,6 +138,9 @@ public class Generator {
 				cf.add(new JSForm("this." + ci.referAsVar + " = this._contracts['" + ci.type + "']"));
 		}
 		target.add(cf);
+		JSForm ci = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 0, 1);
+		ci.add(new JSForm("return new " + lname + "(v0)"));
+		target.add(ci);
 	}
 
 	public void generateContract(String ctorName, ContractImplements ci) {
@@ -168,8 +172,7 @@ public class Generator {
 	}
 
 	public void generateHandler(String ctorName, HandlerImplements hi) {
-		int idx = ctorName.lastIndexOf('.');
-		String clzname = ctorName.substring(0, idx+1) + "_" + ctorName.substring(idx+1);
+		String clzname = lname(ctorName, false);
 		List<Var> vars = new ArrayList<Var>();
 		for (int i=0;i<=hi.boundVars.size();i++)
 			vars.add(new Var(i));
@@ -225,39 +228,39 @@ public class Generator {
 			if (atn.nestedIn != parent)
 				continue;
 			if (atn.type == AbstractTreeNode.TOP) {
-				JSForm ir = JSForm.flexFn(tam.prefix + ".prototype._initialRender", CollectionUtils.listOf("doc", "wrapper", "parent"));
+				JSForm ir = JSForm.flexFn(lname(tam.prefix, true) + "_initialRender", CollectionUtils.listOf("doc", "wrapper", "parent"));
 				target.add(ir);
 				generateVisualTree(ir, "parent", false, null, atn.tree);
 				generate(tam, null, atn);
-				JSForm ft = JSForm.flexFn(tam.prefix + ".prototype._formatTop", CollectionUtils.listOf("doc", "wrapper"));
+				JSForm ft = JSForm.flexFn(lname(tam.prefix, true) + "_formatTop", CollectionUtils.listOf("doc", "wrapper"));
 				target.add(ft);
 				generateFormatsFor(ft, atn.tree, "wrapper.infoAbout");
 			} else if (atn.type == AbstractTreeNode.LIST) {
-				JSForm ii = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_itemInserted", CollectionUtils.listOf("doc", "wrapper", "item", "before"));
+				JSForm ii = JSForm.flexFn(lname(tam.prefix, true) + "_" + atn.id + "_itemInserted", CollectionUtils.listOf("doc", "wrapper", "item", "before"));
 				target.add(ii);
 				ii.add(JSForm.flex("var parent = doc.getElementById(wrapper.infoAbout['" + atn.sid + "'])"));
 				ii.add(JSForm.flex("wrapper.infoAbout['" + atn.id + "'][item.id] = { item: item }"));
 				for (VisualTree t : atn.tree.children)
 					generateVisualTree(ii, "parent", true, atn.id, t);
 				ii.add(JSForm.flex("this._" + atn.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + atn.id + "'][item.id])"));
-				JSForm cl = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_clear", CollectionUtils.listOf("doc", "wrapper"));
+				JSForm cl = JSForm.flexFn(lname(tam.prefix, true) + "_" + atn.id + "_clear", CollectionUtils.listOf("doc", "wrapper"));
 				target.add(cl);
 				cl.add(JSForm.flex("var " + atn.id + " = doc.getElementById(wrapper.infoAbout['" + atn.sid + "'])"));
 				cl.add(JSForm.flex(atn.id + ".innerHTML = ''"));
-				JSForm ic = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_itemChanged", CollectionUtils.listOf("doc", "wrapper", "item"));
+				JSForm ic = JSForm.flexFn(lname(tam.prefix, true) + "_" + atn.id + "_itemChanged", CollectionUtils.listOf("doc", "wrapper", "item"));
 				target.add(ic);
 				generate(tam, ic, atn);
-				JSForm fi = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatItem", CollectionUtils.listOf("doc", "wrapper", "info"));
+				JSForm fi = JSForm.flexFn(lname(tam.prefix, true) + "_" + atn.id + "_formatItem", CollectionUtils.listOf("doc", "wrapper", "info"));
 				target.add(fi);
 				for (VisualTree t : atn.tree.children)
 					generateFormatsFor(fi, t, "info");
-				JSForm fl = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_formatList", CollectionUtils.listOf("doc", "wrapper"));
+				JSForm fl = JSForm.flexFn(lname(tam.prefix, true) + "_" + atn.id + "_formatList", CollectionUtils.listOf("doc", "wrapper"));
 				target.add(fl);
 				JSForm lp = JSForm.flex("for (var x in wrapper.infoAbout['" + atn.id + "'])").needBlock();
 				fl.add(lp);
 				lp.add(JSForm.flex("this._" + atn.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + atn.id + "'][x])"));
 			} else if (atn.type == AbstractTreeNode.CASES) {
-				JSForm sw = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id + "_switch", CollectionUtils.listOf("doc", "wrapper"));
+				JSForm sw = JSForm.flexFn(lname(tam.prefix, true) + "_" + atn.id + "_switch", CollectionUtils.listOf("doc", "wrapper"));
 				target.add(sw);
 				sw.add(JSForm.flex("var " + atn.id + " = doc.getElementById(wrapper.infoAbout['" + atn.sid + "'])"));
 				sw.add(JSForm.flex(atn.id + ".innerHTML = ''"));
@@ -276,7 +279,7 @@ public class Generator {
 			} else if (atn.type == AbstractTreeNode.CONTENT) {
 				JSForm cc = function;
 				if (cc == null) {
-					cc = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id, CollectionUtils.listOf("doc", "wrapper"));
+					cc = JSForm.flexFn(lname(tam.prefix, true) + "_" + atn.id, CollectionUtils.listOf("doc", "wrapper"));
 					target.add(cc);
 				}
 				cc.add(JSForm.flex("var span = doc.getElementById(wrapper.infoAbout" + (atn.nestedIn != null && atn.nestedIn.id != null?"['" + atn.nestedIn.id + "'][item.id]":"") + "['" + atn.sid + "'])"));
@@ -287,7 +290,7 @@ public class Generator {
 			} else if (atn.type == AbstractTreeNode.CARD) {
 				JSForm cc = function;
 				if (cc == null) {
-					cc = JSForm.flexFn(tam.prefix + ".prototype._" + atn.id, CollectionUtils.listOf("doc", "wrapper"));
+					cc = JSForm.flexFn(lname(tam.prefix, true) + "_" + atn.id, CollectionUtils.listOf("doc", "wrapper"));
 					target.add(cc);
 				}
 				cc.add(JSForm.flex("wrapper.showCard('" + atn.sid + "', { card: " + atn.card.explicitCard + "})"));
@@ -385,5 +388,13 @@ public class Generator {
 			ir.add(JSForm.flex("wrapper.infoAbout['" + tree.divThing.id + "'] = FLEval.full(this._d3init_" + tree.divThing.name + "())"));
 			ir.add(JSForm.flex("this._" + tree.divThing.id +"(doc, wrapper)"));
 		}
+	}
+
+	public static String lname(String name, boolean appendProto) {
+		int idx = name.lastIndexOf('.');
+		String lname = name.substring(0, idx+1) + "_" + name.substring(idx+1);
+		if (appendProto)
+			return lname + ".prototype.";
+		return lname;
 	}
 }

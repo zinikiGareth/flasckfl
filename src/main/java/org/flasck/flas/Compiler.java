@@ -299,7 +299,7 @@ public class Compiler {
 				tree.children.add(vt);
 			for (TemplateLine x : td.nested)
 				matmRecursive(errors, tam, atn, vt, x);
-			tam.cardMembersCause(vt, "assign", tam.prefix + ".prototype._formatTop");
+			tam.cardMembersCause(vt, "assign", Generator.lname(tam.prefix, true) + "_formatTop");
 		} else if (content instanceof TemplateList) {
 			TemplateList tl = (TemplateList) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("ul", new ArrayList<Object>(), tl.formats, new ArrayList<Handler>());
@@ -311,9 +311,9 @@ public class Compiler {
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
-			tam.fields.add(((CardMember)tl.listVar).var, "assign", tam.prefix + ".prototype._" + b.id + "_clear");
-			tam.fields.add(((CardMember)tl.listVar).var, "itemInserted", tam.prefix + ".prototype._" + b.id + "_itemInserted");
-			tam.fields.add(((CardMember)tl.listVar).var, "itemChanged", tam.prefix + ".prototype._" + b.id + "_itemChanged");
+			tam.fields.add(((CardMember)tl.listVar).var, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_clear");
+			tam.fields.add(((CardMember)tl.listVar).var, "itemInserted", Generator.lname(tam.prefix, true) + "_" + b.id + "_itemInserted");
+			tam.fields.add(((CardMember)tl.listVar).var, "itemChanged", Generator.lname(tam.prefix, true) + "_" + b.id + "_itemChanged");
 			
 			// This is where we separate the "included-in-parent" tree from the "I own this" tree
 			VisualTree vt = new VisualTree(null, null);
@@ -322,7 +322,7 @@ public class Compiler {
 
 			// Now generate the nested template in that
 			matmRecursive(errors, tam, atn, vt, tl.template);
-			tam.cardMembersCause(vt, "assign", tam.prefix + ".prototype._" + b.id + "_formatList");
+			tam.cardMembersCause(vt, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_formatList");
 		} else if (content instanceof TemplateCases) {
 			TemplateCases cases = (TemplateCases) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
@@ -333,7 +333,7 @@ public class Compiler {
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
-			tam.cardMembersCause(cases.switchOn, "assign", tam.prefix + ".prototype._" + b.id + "_switch");
+			tam.cardMembersCause(cases.switchOn, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_switch");
 			
 			// This is where we separate the "included-in-parent" tree from the "I own this" tree
 			atn = new AbstractTreeNode(AbstractTreeNode.CASES, atn, b.id, b.sid, null);
@@ -342,14 +342,17 @@ public class Compiler {
 				// Now generate each nested template in that
 				VisualTree vt = new VisualTree(null, null);
 				matmRecursive(errors, tam, atn, vt, tor.template);
-				tam.cardMembersCause(tor.cond, "assign", tam.prefix + ".prototype._" + b.id + "_switch");
+				tam.cardMembersCause(tor.cond, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_switch");
 				atn.cases.add(new OrCase(new HSIE(errors).handleExpr(new ApplyExpr(tam.scope.fromRoot("=="), cases.switchOn, tor.cond), HSIEForm.Type.CARD), vt));
 			}
 		} else if (content instanceof ContentString) {
 			ContentString cs = (ContentString) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), cs.formats, new ArrayList<Handler>());
 			VisualTree vt = new VisualTree(b, cs.text);
-			tree.children.add(vt);
+			if (atn == null)
+				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, vt));
+			else
+				tree.children.add(vt);
 		} else if (content instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), ce.formats, new ArrayList<Handler>());
@@ -360,7 +363,7 @@ public class Compiler {
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
-			tam.cardMembersCause(ce.expr, "assign", tam.prefix + ".prototype._" + b.id);
+			tam.cardMembersCause(ce.expr, "assign", Generator.lname(tam.prefix, true) + "_" + b.id);
 			
 			// Now we need to create a new ATN for the _content_ function
 			// VisualTree vt = new VisualTree(null);

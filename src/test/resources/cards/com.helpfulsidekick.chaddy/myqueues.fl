@@ -4,6 +4,7 @@
 			Croset queues <- Croset []
 			Croset items <- Croset []
 			String selectedQueue
+			String selectedItem
 			
 		template
 			. : 'section' 'main'
@@ -15,8 +16,10 @@
 								click => selectQueue q.id
 					. : 'w-col' 'w-col-9'
 						+ items i : 'w-list-unstyled'
-							. : 'queue-list-item'
-								(i.id) ". " (i.desc)
+							. : 'queue-list-item' (styleIf 'selected-queue-list-item' (selectedItem == i.id))
+								(i.id) ". " (i.title)
+								click => selectItem i.id
+								dblclick => openItem i.id
 
 		implements org.ziniki.Init
 			onready
@@ -36,7 +39,13 @@
 			selectedQueue <- name
 			items <- (Croset [])
 #			TODO: should cancel previous scan.  Suggests also that this should return a handle we can store so we can cancel it			
-			<- query.scan ('query/com.helpfulsidekick.omt.personal.chaddy.1/personal/queue/' ++ name) 'com.helpfulsidekick.chaddy.Task' TaskHandler 
+			<- query.scan ('arena/com.helpfulsidekick.omt.personal.chaddy.1/personal/queue/' ++ name) 'com.helpfulsidekick.chaddy.Task' TaskHandler 
+
+		event selectItem name
+			selectedItem <- name
+
+		event openItem name
+			<- CreateCard ShowTask name (Assoc 'where' 'overlay' NilMap) Nil
 			
 It still feels like a different keyword would give more of the impression of what's going on here
 And there's a sense in which the syntactic difference is varname or no varname
