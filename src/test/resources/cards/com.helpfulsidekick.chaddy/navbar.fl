@@ -14,6 +14,9 @@
 							$navItem 'dashboard' 'D' 'dashboard'
 							$navItem 'my queues' 'Q' 'myqueues'
 							$navItem 'organization and teams' 'T' 'teams'
+							#a  @title='logout' : 'nav-link'
+								'X'
+								click => logout
 							
 		template navItem title label key
 			#a  @title=title : (selectedTab key) 'nav-link'
@@ -24,9 +27,14 @@
 			currentTab <- name
 			<- changer.change name
 
+		event logout
+			<- creds.logout
+
 		implements TabChanger changer
 			changed to
 				currentTab <- to
+
+		implements org.ziniki.Credentials creds
 
 ... i think this should be more fundamental than here
 ... at least the whole "stringFor" bit ... maybe the abstraction is "propertyFor" of a boolean		

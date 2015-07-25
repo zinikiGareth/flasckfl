@@ -142,10 +142,12 @@ public class Builtin {
 				new ContractDecl("org.ziniki.Init"));
 			ziniki.innerScope().define("KeyValue", "org.ziniki.KeyValue",
 					new ContractDecl("org.ziniki.KeyValue"));
+			ContractDecl creds = new ContractDecl("org.ziniki.Credentials");
+			creds.methods.add(new ContractMethodDecl("up", "logout", new ArrayList<Object>()));
+			ziniki.innerScope().define("Credentials", "org.ziniki.Credentials", creds);
 			ContractDecl qc = new ContractDecl("org.ziniki.Query");
 			qc.methods.add(new ContractMethodDecl("up", "scan", new ArrayList<Object>()));
-			ziniki.innerScope().define("Query", "org.ziniki.Query",
-					qc);
+			ziniki.innerScope().define("Query", "org.ziniki.Query",	qc);
 			ziniki.innerScope().define("QueryHandler", "org.ziniki.QueryHandler",
 					new ContractDecl("org.ziniki.QueryHandler"));
 		}

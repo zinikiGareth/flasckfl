@@ -69,24 +69,31 @@ public class MethodConvertor {
 			return new ApplyExpr(scope.fromRoot("Assign"), ItemExpr.from(new ExprToken(ExprToken.STRING, slot.text)), mm.expr);
 		} else {
 			ApplyExpr root = (ApplyExpr) mm.expr;
+			ApplyExpr sender;
+			List<Object> args;
 			if (root.fn instanceof AbsoluteVar) {
 				// a case where we're building a message
 				AbsoluteVar av = (AbsoluteVar) root.fn;
 				String name = av.id;
 				if (name.equals("D3Action") || name.equals("CreateCard")) { // one of many (I think) OK cases
 					return root; // I think this is fine just as it is, as long as it gets combined in a list
+				} else if (name.equals("FLEval.field")) {
+					sender = root;
+					args = new ArrayList<Object>();
 				} else
 					throw new UtilException("unhandled case, with name = " + name);
 			} else {
 				ApplyExpr fn = (ApplyExpr)root.fn;
 				if (!(fn.fn instanceof AbsoluteVar) || !((AbsoluteVar)fn.fn).id.equals("FLEval.field")) throw new UtilException("unhandled case");
-				Object target = fn.args.get(0);
-				if (!(target instanceof CardMember)) throw new UtilException("Target must be on the card somewhere");
-				return new ApplyExpr(scope.fromRoot("Send"),
-						new StringLiteral(((CardMember)target).var),
-						fn.args.get(1),
-						asList(scope, root.args));
+				sender = fn;
+				args = root.args;
 			}
+			Object target = sender.args.get(0);
+			if (!(target instanceof CardMember)) throw new UtilException("Target must be on the card somewhere");
+			return new ApplyExpr(scope.fromRoot("Send"),
+					new StringLiteral(((CardMember)target).var),
+					sender.args.get(1),
+					asList(scope, args));
 		}
 	}
 
