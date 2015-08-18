@@ -1,13 +1,15 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StructDefn {
+@SuppressWarnings("serial")
+public class StructDefn implements Serializable {
 	public final String typename;
 	public final List<String> args = new ArrayList<String>();
 	public final List<StructField> fields = new ArrayList<StructField>();
-	public final boolean generate;
+	public final transient boolean generate;
 
 	public StructDefn(String tn, boolean generate) {
 		this.typename = tn;

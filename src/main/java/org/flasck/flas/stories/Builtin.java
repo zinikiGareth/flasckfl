@@ -57,7 +57,7 @@ public class Builtin {
 		}
 		{ // lists
 			ret.define("List", "List",
-				new TypeDefn(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")))
+				new TypeDefn(false, new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")))
 				.addCase(new TypeReference(null, "Nil", null))
 				.addCase(new TypeReference(null, "Cons", null).with(new TypeReference(null, null, "A"))));
 			ret.define("Nil", "Nil",
@@ -72,7 +72,7 @@ public class Builtin {
 		}
 		{ // maps
 			ret.define("Map", "Map",
-				new TypeDefn(new TypeReference(null, "Map", null).with(new TypeReference(null, null, "A")).with(new TypeReference(null, null, "B")))
+				new TypeDefn(false, new TypeReference(null, "Map", null).with(new TypeReference(null, null, "A")).with(new TypeReference(null, null, "B")))
 				.addCase(new TypeReference(null, "NilMap", null))
 				.addCase(new TypeReference(null, "Assoc", null).with(new TypeReference(null, null, "A")).with(new TypeReference(null, null, "B"))));
 			ret.define("NilMap", "NilMap",

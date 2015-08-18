@@ -1,14 +1,16 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class TypeReference {
+@SuppressWarnings("serial")
+public class TypeReference implements Serializable {
 	public final String var;
 	public final String name;
-	public final InputPosition location;
+	public final transient InputPosition location;
 	public final List<TypeReference> args = new ArrayList<TypeReference>();
 
 	public TypeReference(InputPosition location, String name, String var) {

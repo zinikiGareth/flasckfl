@@ -27,7 +27,7 @@ public class TypeDefnParser implements TryParsing {
 		}
 		if (!PeekToken.accept(line, "="))
 			return null;
-		TypeDefn ret = new TypeDefn(defining);
+		TypeDefn ret = new TypeDefn(true, defining);
 		while (line.hasMore()) {
 			Object tr = new TypeExprParser().tryOneExpr(line);
 			if (tr == null)

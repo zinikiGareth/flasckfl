@@ -259,7 +259,7 @@ public class TestBasicTypeChecking {
 				new StructDefn("Cons", false).add("A")
 				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
 				.addField(new StructField(list, "tail")));
-		TypeDefn listDefn = new TypeDefn(list);
+		TypeDefn listDefn = new TypeDefn(true, list);
 		listDefn.addCase(new TypeReference(null, "Nil", null));
 		listDefn.addCase(new TypeReference(null, "Cons", null).with(new TypeReference(null, null, "A")));
 		tc.addTypeDefn(listDefn);

@@ -1,5 +1,8 @@
 package org.flasck.flas.typechecker;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +49,8 @@ public class TypeChecker {
 	final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
 	final Map<String, TypeDefn> types = new TreeMap<String, TypeDefn>();
 	final Map<String, StructDefn> cards = new TreeMap<String, StructDefn>();
-
+	// TODO: should have contracts
+	
 	public TypeChecker(ErrorResult errors) {
 		this.errors = errors;
 	}
@@ -554,5 +558,26 @@ public class TypeChecker {
 			return typeForCardCtor(null, cards.get(fn));
 //		System.out.println(knowledge);
 		throw new UtilException("There is no type: " + fn);
+	}
+
+	public void writeLearnedKnowledge(OutputStream wex) throws IOException {
+		ObjectOutputStream oos = new ObjectOutputStream(wex);
+		List<StructDefn> str = new ArrayList<StructDefn>();
+		for (StructDefn sd : structs.values()) {
+			if (sd.generate) {
+				str.add(sd);
+			}
+		}
+		oos.writeObject(str);
+		List<TypeDefn> ts = new ArrayList<TypeDefn>();
+		for (TypeDefn td : types.values()) {
+			if (td.generate) {
+				ts.add(td);
+			}
+		}
+		oos.writeObject(ts);
+		
+		// TODO: should write contracts
+		oos.flush();
 	}
 }

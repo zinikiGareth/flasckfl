@@ -1,6 +1,7 @@
 package org.flasck.flas;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -103,6 +104,7 @@ public class Compiler {
 			return;
 		}
 		File writeTo = new File(file, inPkg + ".js");
+		File exportTo = new File(file, inPkg + ".flim");
 		System.out.println("compiling package " + inPkg + " to " + writeTo);
 			
 		boolean failed = false;
@@ -142,7 +144,8 @@ public class Compiler {
 		if (failed)
 			return;
 		
-		FileWriter w = null;
+		FileWriter wjs = null;
+		FileOutputStream wex = null;
 		success = false;
 		try {
 			// 3. Flatten the hierarchy, grouping into things of similar kinds
@@ -251,15 +254,24 @@ public class Compiler {
 				target.add(onUpdate);
 			}
 
-			// 12. Issue JavaScript
+			// 12a. Issue JavaScript
 			try {
-				w = new FileWriter(writeTo);
+				wjs = new FileWriter(writeTo);
 			} catch (IOException ex) {
 				System.err.println("Cannot write to " + writeTo + ": " + ex.getMessage());
 				return;
 			}
+			target.writeTo(wjs);
 
-			target.writeTo(w);
+			// 12b. Save learned state for export
+			try {
+				wex = new FileOutputStream(exportTo);
+			} catch (IOException ex) {
+				System.err.println("Cannot write to " + exportTo + ": " + ex.getMessage());
+				return;
+			}
+			tc.writeLearnedKnowledge(wex);
+
 			abortIfErrors(errors);
 
 			success = true;
@@ -272,7 +284,8 @@ public class Compiler {
 		} catch (IOException ex1) {
 			ex1.printStackTrace();
 		} finally {
-			try { if (w != null) w.close(); } catch (IOException ex) {}
+			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
+			try { if (wex != null) wex.close(); } catch (IOException ex) {}
 			if (success)
 				System.out.println("done");
 //				FileUtils.copyFileToStream(writeTo, System.out);
