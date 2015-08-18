@@ -51,7 +51,7 @@ public class ExprToken {
 			line.advance();
 			return new ExprToken(PUNC, line.fromMark(mark));
 		} else {
-			while ("~!$%^&|*/+-=:<>".indexOf(line.nextChar()) != -1) {
+			while (line.hasMore() && "~!$%^&|*/+-=:<>".indexOf(line.nextChar()) != -1) {
 				line.advance();
 			}
 			if (line.at() == mark)

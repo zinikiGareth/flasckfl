@@ -67,6 +67,8 @@ public class Builtin {
 				.add("A")
 				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
 				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "tail")));
+			ret.define("map", "map",
+				Type.function(Type.function(Type.polyvar("A"), Type.polyvar("B")), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("B"))));
 		}
 		{ // maps
 			ret.define("Map", "Map",
@@ -139,17 +141,17 @@ public class Builtin {
 			PackageDefn ziniki = new PackageDefn(dom.innerScope(), "ziniki");
 			// TODO: I think this should be in org.cardstack
 			ziniki.innerScope().define("Init", "org.ziniki.Init",
-				new ContractDecl("org.ziniki.Init"));
+				new ContractDecl(null, "org.ziniki.Init"));
 			ziniki.innerScope().define("KeyValue", "org.ziniki.KeyValue",
-					new ContractDecl("org.ziniki.KeyValue"));
-			ContractDecl creds = new ContractDecl("org.ziniki.Credentials");
+					new ContractDecl(null, "org.ziniki.KeyValue"));
+			ContractDecl creds = new ContractDecl(null, "org.ziniki.Credentials");
 			creds.methods.add(new ContractMethodDecl("up", "logout", new ArrayList<Object>()));
 			ziniki.innerScope().define("Credentials", "org.ziniki.Credentials", creds);
-			ContractDecl qc = new ContractDecl("org.ziniki.Query");
+			ContractDecl qc = new ContractDecl(null, "org.ziniki.Query");
 			qc.methods.add(new ContractMethodDecl("up", "scan", new ArrayList<Object>()));
 			ziniki.innerScope().define("Query", "org.ziniki.Query",	qc);
 			ziniki.innerScope().define("QueryHandler", "org.ziniki.QueryHandler",
-					new ContractDecl("org.ziniki.QueryHandler"));
+					new ContractDecl(null, "org.ziniki.QueryHandler"));
 		}
 		return ret;
 	}

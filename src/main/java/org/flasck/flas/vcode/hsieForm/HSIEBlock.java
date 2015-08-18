@@ -75,6 +75,8 @@ public class HSIEBlock {
 
 	public HSIEBlock doReturn(InputPosition loc, Object o, List<Var> deps) {
 		ReturnCmd ret;
+		if (o == null)
+			throw new UtilException("Attempt to return null");
 		if (o instanceof Var)
 			ret = new ReturnCmd(loc, (Var)o, deps);
 		else if (o instanceof Integer)

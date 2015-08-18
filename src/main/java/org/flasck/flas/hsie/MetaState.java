@@ -49,10 +49,7 @@ public class MetaState {
 	}
 
 	public Var allocateVar() {
-		Var ret = new Var(form.vars.size());
-//		System.out.println("Allocating var " + ret);
-		form.vars.add(ret);
-		return ret;
+		return form.allocateVar();
 	}
 
 	public Var varFor(Var from, String field) {

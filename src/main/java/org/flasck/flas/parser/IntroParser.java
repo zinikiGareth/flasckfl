@@ -62,7 +62,7 @@ public class IntroParser implements TryParsing {
 			TypeNameToken tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract name");
-			return new ContractDecl(state.withPkg(tn.text));
+			return new ContractDecl(tn.location, state.withPkg(tn.text));
 		}
 		case "card": {
 			TypeNameToken tn = TypeNameToken.from(line);

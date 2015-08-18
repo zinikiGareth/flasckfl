@@ -13,6 +13,8 @@ public class SubstExpr {
 	private String me;
 
 	public SubstExpr(Object expr, int idx) {
+		if (expr == null)
+			throw new UtilException("Cannot create subst expr with null");
 		this.expr = expr;
 		this.me = "E" + idx;
 	}

@@ -3,6 +3,8 @@ package org.flasck.flas.parsedForm;
 import java.io.Writer;
 import java.util.List;
 
+import org.zinutils.exceptions.UtilException;
+
 public class FunctionCaseDefn implements ContainsScope{
 	public final FunctionIntro intro;
 	public final Object expr;
@@ -10,6 +12,8 @@ public class FunctionCaseDefn implements ContainsScope{
 
 	public FunctionCaseDefn(Scope inside, String name, List<Object> args, Object expr) {
 		intro = new FunctionIntro(name, args);
+		if (expr == null)
+			throw new UtilException("Cannot build function case with null expr");
 		this.expr = expr;
 		this.scope = new Scope(inside);
 	}

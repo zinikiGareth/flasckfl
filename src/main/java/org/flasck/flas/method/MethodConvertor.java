@@ -80,8 +80,10 @@ public class MethodConvertor {
 				} else if (name.equals("FLEval.field")) {
 					sender = root;
 					args = new ArrayList<Object>();
-				} else
-					throw new UtilException("unhandled case, with name = " + name);
+				} else {
+					System.out.println("unhandled case, with name = " + name + "; assuming it can be processed as an expression returning either one action or a list of actions");
+					return root;
+				}
 			} else {
 				ApplyExpr fn = (ApplyExpr)root.fn;
 				if (!(fn.fn instanceof AbsoluteVar) || !((AbsoluteVar)fn.fn).id.equals("FLEval.field")) throw new UtilException("unhandled case");

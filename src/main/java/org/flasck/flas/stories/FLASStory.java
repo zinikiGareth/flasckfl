@@ -391,6 +391,8 @@ public class FLASStory implements StoryProcessor {
 				EventCaseDefn ecd = (EventCaseDefn) o;
 				events.add(ecd);
 				handleMessageMethods(er, ecd, b.nested);
+			} else if (o instanceof ContractDecl) {
+				er.message(((ContractDecl)o).location, "cannot embed contract declarations in a card");
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
@@ -494,8 +496,8 @@ public class FLASStory implements StoryProcessor {
 		} else if (tl instanceof TemplateList) {
 			ret = tl;
 			TemplateList asList = (TemplateList) ret;
-			if (b.nested.isEmpty()) {
-				er.message(b, "list must have one nested element");
+			if (!hasNonCommentNestedLines(b)) {
+				er.message(b, "list must have exactly one nested element");
 				return null;
 			}
 			asList.template = doCardTemplate(er, frTemplates, b.nested);
@@ -641,6 +643,8 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	private TemplateLine unroll(ErrorResult er, State s, Map<String, Object> map, TemplateLine content, Map<String, Object> subst) {
+		if (content == null)
+			throw new UtilException("Null template line");
 		if (content instanceof CardReference)
 			return content;
 		if (content instanceof TemplateReference) {
@@ -855,16 +859,20 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
-	private void assertNoNonCommentNestedLines(ErrorResult er, Block b) {
+	private boolean hasNonCommentNestedLines(Block b) {
 		for (Block q : b.nested)
 			if (!q.isComment())
-				er.message(q, "nested declarations prohibited");
+				return true;
+		return false;
+	}
+
+	private void assertNoNonCommentNestedLines(ErrorResult er, Block b) {
+		if (hasNonCommentNestedLines(b))
+			er.message(b, "this line may not have nested declarations");
 	}
 
 	private void assertSomeNonCommentNestedLines(ErrorResult er, Block b) {
-		for (Block q : b.nested)
-			if (!q.isComment())
-				return;
-		er.message(b, "nested declarations required");
+		if (!hasNonCommentNestedLines(b))
+			er.message(b, "this line must have at least one nested declaration");
 	}
 }

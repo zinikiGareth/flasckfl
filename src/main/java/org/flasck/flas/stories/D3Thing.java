@@ -14,7 +14,11 @@ public class D3Thing {
 	public final List<D3PatternBlock> patterns;
 
 	public D3Thing(String prefix, String name, InputPosition dloc, Object data, String iter, List<D3PatternBlock> patterns) {
-		this.prefix = prefix;
+		int idx = prefix.lastIndexOf(".");
+		if (prefix.charAt(idx+1) == '_')
+			this.prefix = prefix;
+		else
+			this.prefix = prefix.substring(0, idx+1) + "_" + prefix.substring(idx+1);
 		this.name = name;
 		this.dloc = dloc;
 		this.data = data;

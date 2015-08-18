@@ -66,6 +66,8 @@ public class FunctionParser implements TryParsing {
 			return ErrorResult.oneMessage(line, "= expected");
 		// Now parse the expression on the right hand side
 		Object expr = new Expression().tryParsing(line);
+		if (expr == null)
+			return ErrorResult.oneMessage(line, "syntax error");
 		if (line.hasMore())
 			return ErrorResult.oneMessage(line, "unexpected tokens at end of line");
 

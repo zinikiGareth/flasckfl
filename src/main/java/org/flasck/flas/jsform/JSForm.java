@@ -255,8 +255,22 @@ public class JSForm {
 	private static String closure(Type fntype, HSIEBlock closure) {
 		StringBuilder sb;
 		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
-		if (fn instanceof ObjectReference || fn instanceof CardFunction)
-			sb = new StringBuilder("FLEval.oclosure(" + (((ExternalRef)fn).fromHandler()?"this._card":"this") + ", ");
+		boolean needsObject = false;
+		boolean fromHandler = false;
+		if (fn != null) {
+			if (fn instanceof ObjectReference || fn instanceof CardFunction) {
+				needsObject = true;
+				fromHandler = fn.fromHandler();
+			} else if (fn.toString().equals("FLEval.curry")) {
+				ExternalRef f2 = ((PushCmd)closure.nestedCommands().get(1)).fn;
+				if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
+					needsObject = true;
+					fromHandler = f2.fromHandler();
+				}
+			}
+		}
+		if (needsObject)
+			sb = new StringBuilder("FLEval.oclosure(" + (fromHandler?"this._card":"this") + ", ");
 		else
 			sb = new StringBuilder("FLEval.closure(");
 		int pos = 0;
@@ -268,7 +282,7 @@ public class JSForm {
 			if (c.fn != null && pos == 0) {
 				isField = "FLEval.field".equals(c.fn);
 			}
-			 if (c.fn != null && isField && pos == 2)
+			if (c.fn != null && isField && pos == 2)
 				sb.append("'" + c.fn + "'");
 			else
 				appendValue(sb, fntype, c, pos);

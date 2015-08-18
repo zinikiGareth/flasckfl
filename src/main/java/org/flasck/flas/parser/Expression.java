@@ -47,6 +47,8 @@ public class Expression implements TryParsing {
 	public Object tryParsing(Tokenizable line) {
 		int mark = line.at(); // do this now in case we need it later
 		ExprToken s = ExprToken.from(line);
+		if (s == null)
+			return null; // we presumably saw an error?
 		if (s.type == ExprToken.NUMBER || s.type == ExprToken.STRING || s.type == ExprToken.IDENTIFIER || s.type == ExprToken.SYMBOL) {
 			List<Object> args = new ArrayList<Object>();
 			args.add(ItemExpr.from(s));

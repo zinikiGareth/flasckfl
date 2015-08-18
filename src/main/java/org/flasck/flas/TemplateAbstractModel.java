@@ -100,6 +100,7 @@ public class TemplateAbstractModel {
 		public CardReference card;
 		public D3Invoke d3;
 		public final List<OrCase> cases = new ArrayList<OrCase>();
+		public String var;
 		
 		public AbstractTreeNode(int type, AbstractTreeNode nestedIn, String id, String sid, VisualTree tree) {
 			this.type = type;

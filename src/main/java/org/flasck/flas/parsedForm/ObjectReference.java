@@ -14,7 +14,7 @@ public class ObjectReference implements ExternalRef {
 	public ObjectReference(ObjectReference inner, boolean fromHandler) {
 		this.clzName = inner.clzName;
 		this.handle = inner.handle;
-		this.fromHandler = true;
+		this.fromHandler = fromHandler;
 	}
 
 	public String uniqueName() {

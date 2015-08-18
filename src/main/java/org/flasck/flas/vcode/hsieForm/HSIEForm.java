@@ -85,6 +85,13 @@ public class HSIEForm extends HSIEBlock {
 		return vars.get(v);
 	}
 
+	public Var allocateVar() {
+		Var ret = new Var(vars.size());
+//		System.out.println("Allocating var " + ret);
+		vars.add(ret);
+		return ret;
+	}
+
 	public HSIEBlock closure(Var var) {
 		ClosureCmd ret = new ClosureCmd(var);
 		closures.put(var, ret);

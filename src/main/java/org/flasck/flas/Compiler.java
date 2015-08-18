@@ -86,10 +86,15 @@ public class Compiler {
 		Compiler compiler = new Compiler();
 		for (String f : args)
 			compiler.compile(new File(f));
+		if (compiler.success)
+			System.exit(0);
+		else
+			System.exit(1);
 	}
 
 	// TODO: move this into a separate class, like DOMFG used to be
 	int nextFn = 1;
+	private boolean success;
 	
 	public void compile(File file) {
 		String inPkg = file.getName();
@@ -138,7 +143,7 @@ public class Compiler {
 			return;
 		
 		FileWriter w = null;
-		boolean success = false;
+		success = false;
 		try {
 			// 3. Flatten the hierarchy, grouping into things of similar kinds
 			//    Resolve symbols and rewrite expressions to reference "scoped" variables
@@ -311,13 +316,14 @@ public class Compiler {
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
-			tam.fields.add(((CardMember)tl.listVar).var, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_clear");
+			tam.fields.add(((CardMember)tl.listVar).var, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_assign");
 			tam.fields.add(((CardMember)tl.listVar).var, "itemInserted", Generator.lname(tam.prefix, true) + "_" + b.id + "_itemInserted");
 			tam.fields.add(((CardMember)tl.listVar).var, "itemChanged", Generator.lname(tam.prefix, true) + "_" + b.id + "_itemChanged");
 			
 			// This is where we separate the "included-in-parent" tree from the "I own this" tree
 			VisualTree vt = new VisualTree(null, null);
 			atn = new AbstractTreeNode(AbstractTreeNode.LIST, atn, b.id, b.sid, vt);
+			atn.var = pvt.divThing.listVar;
 			tam.nodes.add(atn);
 
 			// Now generate the nested template in that
@@ -395,7 +401,7 @@ public class Compiler {
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
 			else
 				tree.children.add(pvt);
-			tam.fields.add(((CardMember)d3i.d3.data).var, "assign", tam.prefix + ".prototype._" + b.id);
+			tam.fields.add(((CardMember)d3i.d3.data).var, "assign", Generator.lname(tam.prefix, true) + "_" + b.id);
 			
 			atn = new AbstractTreeNode(AbstractTreeNode.D3, atn, b.id, b.sid, null);
 			tam.nodes.add(atn);
