@@ -20,6 +20,7 @@ public class TemplateToken {
 	// CHOICEPUNNET = 15
 	public static final int OR = 16;
 	public static final int CASES = 17;
+	public static final int EDITABLE = 18;
 
 	public final InputPosition location;
 	public final int type;
@@ -90,6 +91,9 @@ public class TemplateToken {
 				return new TemplateToken(loc, ARROW, "=>");
 			} else
 				return new TemplateToken(loc, EQUALS, "=");
+		} else if (c == '?') {
+			line.advance();
+			return new TemplateToken(loc, EDITABLE, "?");
 		} else
 			return null;
 	}

@@ -12,9 +12,18 @@ import java.util.List;
  */
 public class ContentExpr extends TemplateFormat {
 	public final Object expr;
+	private boolean editable;
 
 	public ContentExpr(Object expr, List<Object> formats) {
 		super(formats);
 		this.expr = expr;
+	}
+	
+	public void makeEditable() {
+		this.editable = true;
+	}
+	
+	public boolean editable() {
+		return this.editable;
 	}
 }

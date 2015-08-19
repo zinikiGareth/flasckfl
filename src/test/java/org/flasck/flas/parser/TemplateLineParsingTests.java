@@ -384,6 +384,57 @@ public class TemplateLineParsingTests {
 		assertEquals("string", ((StringLiteral)lv.args.get(2)).text);
 	}
 	
+	@Test
+	public void testWeCanEditASimpleVar() throws Exception {
+		List<TemplateLine> tls = parseContent("counter?");
+		assertEquals(1, tls.size());
+		assertUVar("counter", tls, 0);
+		assertEditable(tls, 0);
+		assertFormats(0, tls, 0);
+	}
+
+	@Test
+	public void testWeCanEditAField() throws Exception {
+		List<TemplateLine> tls = parseContent("data.counter?");
+		assertEquals(1, tls.size());
+		ContentExpr eh = (ContentExpr) tls.get(0);
+		assertTrue(eh.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) eh.expr;
+		assertEquals(".", ae.fn.toString());
+		assertEquals("data", ae.args.get(0).toString());
+		assertEquals("counter", ae.args.get(1).toString());
+		assertEditable(tls, 0);
+		assertFormats(0, tls, 0);
+	}
+
+	@Test
+	public void testWeCannotEditADiv() throws Exception {
+		ErrorResult er = parseError(".?");
+		assertEquals(1, er.errors.size());
+		assertEquals("div or list must be only item on line", er.errors.get(0).msg);
+	}
+
+	@Test
+	public void testWeCannotEditLineStart() throws Exception {
+		ErrorResult er = parseError("? x");
+		assertEquals(1, er.errors.size());
+		assertEquals("cannot have edit marker at start of line", er.errors.get(0).msg);
+	}
+
+	@Test
+	public void testWeCannotEditAConstant() throws Exception {
+		ErrorResult er = parseError("'hello'?");
+		assertEquals(1, er.errors.size());
+		assertEquals("not an editable field", er.errors.get(0).msg);
+	}
+
+	@Test
+	public void testWeCannotEditAnApplication() throws Exception {
+		ErrorResult er = parseError("(f 3)?");
+		assertEquals(1, er.errors.size());
+		assertEquals("not an editable field", er.errors.get(0).msg);
+	}
+
 	protected TemplateLine parse(String input) throws Exception {
 		Object o = doparse(input);
 		assertNotNull(o);
@@ -440,6 +491,12 @@ public class TemplateLineParsingTests {
 		ContentExpr tl = (ContentExpr) tls.get(pos);
 		assertTrue(tl.expr instanceof UnresolvedVar);
 		assertEquals(uvar, ((UnresolvedVar)tl.expr).var);
+	}
+
+	private void assertEditable(List<TemplateLine> tls, int pos) {
+		assertTrue(tls.get(pos) instanceof ContentExpr);
+		ContentExpr tl = (ContentExpr) tls.get(pos);
+		assertTrue(tl.editable());
 	}
 
 	private void assertString(String str, List<TemplateLine> tls, int pos) {

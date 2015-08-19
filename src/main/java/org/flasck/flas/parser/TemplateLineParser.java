@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
@@ -111,6 +112,22 @@ public class TemplateLineParser implements TryParsing{
 					extractField = false;
 				} else
 					contents.add(new ContentExpr(me, new ArrayList<Object>()));
+			} else if (tt.type == TemplateToken.EDITABLE) {
+				if (contents.isEmpty())
+					return ErrorResult.oneMessage(line, "cannot have edit marker at start of line");
+				Object o = contents.get(contents.size()-1);
+				if (!(o instanceof ContentExpr))
+					return ErrorResult.oneMessage(line, "not an editable field");
+				ContentExpr ce = (ContentExpr) o;
+				if (ce.editable())
+					return ErrorResult.oneMessage(line, "cannot specify editable more than once");
+				Object expr = ce.expr;
+				if (expr instanceof ApplyExpr) {
+					Object fn = ((ApplyExpr)expr).fn;
+					if (!(fn instanceof UnresolvedOperator) || !((UnresolvedOperator)fn).op.equals("."))
+						return ErrorResult.oneMessage(line, "not an editable field");
+				}
+				ce.makeEditable();
 			} else if (tt.type == TemplateToken.STRING) { 
 				contents.add(new ContentString(tt.text, new ArrayList<Object>()));
 			} else if (tt.type == TemplateToken.TEMPLATE) {
