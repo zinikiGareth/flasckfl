@@ -464,7 +464,7 @@ public class Rewriter {
 			TemplateList ul = (TemplateList)tl;
 			Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);
 			TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
-			TemplateList rul = new TemplateList(ul.listLoc, rlistVar, tlv, formats);
+			TemplateList rul = new TemplateList(ul.listLoc, rlistVar, tlv, null, null, formats);
 			cx = new TemplateContext(cx, tlv);
 			rul.template = rewrite(cx, ul.template);
 			return rul;

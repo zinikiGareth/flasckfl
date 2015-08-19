@@ -388,7 +388,7 @@ public class Compiler {
 			// VisualTree vt = new VisualTree(null);
 			atn = new AbstractTreeNode(AbstractTreeNode.CONTENT, atn, b.id, b.sid, null);
 			tam.nodes.add(atn);
-			atn.expr = new HSIE(errors).handleExpr(ce.expr, HSIEForm.Type.FUNCTION);
+			atn.expr = new HSIE(errors).handleExpr(ce.expr, HSIEForm.Type.CARD);
 		} else if (content instanceof CardReference) {
 			CardReference card = (CardReference) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());

@@ -6,14 +6,19 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateAttributeVar;
+import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
+import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateReference;
@@ -27,148 +32,154 @@ public class TemplateLineParsingTests {
 
 	@Test
 	public void testSimpleVar() throws Exception {
-		TemplateLine tl = parse("counter");
-		assertEquals(1, tl.contents.size());
-		assertEquals(0, tl.formats.size());
-		assertToken(TemplateToken.IDENTIFIER, "counter", tl, 0);
+		List<TemplateLine> tls = parseContent("counter");
+		assertEquals(1, tls.size());
+		assertUVar("counter", tls, 0);
+		assertFormats(0, tls, 0);
 	}
 
 	@Test
 	public void testSimpleWithFormat() throws Exception {
-		TemplateLine tl = parse("counter: 'format'");
-		assertEquals(1, tl.contents.size());
-		assertToken(TemplateToken.IDENTIFIER, "counter", tl, 0);
-		assertEquals(1, tl.formats.size());
-		assertFormat(TemplateToken.STRING, "format", tl, 0);
+		List<TemplateLine> tls = parseContent("counter: 'format'");
+		assertEquals(1, tls.size());
+		assertUVar("counter", tls, 0);
+		assertFormats(1, tls, 0);
+		assertFormat("format", tls, 0, 0);
 	}
 
 	@Test
 	public void testSimpleWithMultipleFormats() throws Exception {
-		TemplateLine tl = parse("counter: format 'style' settings");
-		assertEquals(1, tl.contents.size());
-		assertToken(TemplateToken.IDENTIFIER, "counter", tl, 0);
-		assertEquals(3, tl.formats.size());
-		assertFormat(TemplateToken.IDENTIFIER, "format", tl, 0);
-		assertFormat(TemplateToken.STRING, "style", tl, 1);
-		assertFormat(TemplateToken.IDENTIFIER, "settings", tl, 2);
+		List<TemplateLine> tls = parseContent("counter: format 'style' settings");
+		assertEquals(1, tls.size());
+		assertUVar("counter", tls, 0);
+		assertFormats(3, tls, 0);
+		assertFormatVar("format", tls, 0, 0);
+		assertFormat("style", tls, 0, 1);
+		assertFormatVar("settings", tls, 0, 2);
 	}
 
 	@Test
 	public void testLiteralText() throws Exception {
-		TemplateLine tl = parse("'counter is: '");
-		assertEquals(1, tl.contents.size());
-		assertToken(TemplateToken.STRING, "counter is: ", tl, 0);
-		assertEquals(0, tl.formats.size());
+		List<TemplateLine> tls = parseContent("'counter is: '");
+		assertEquals(1, tls.size());
+		assertString("counter is: ", tls, 0);
+		assertFormats(0, tls, 0);
 	}
 
 	@Test
 	public void testMultipleTokens() throws Exception {
-		TemplateLine tl = parse("'counter is: ' counter");
-		assertEquals(2, tl.contents.size());
-		assertToken(TemplateToken.STRING, "counter is: ", tl, 0);
-		assertToken(TemplateToken.IDENTIFIER, "counter", tl, 1);
-		assertEquals(0, tl.formats.size());
+		List<TemplateLine> tls = parseContent("'counter is: ' counter");
+		assertEquals(2, tls.size());
+		assertString("counter is: ", tls, 0);
+		assertFormats(0, tls, 0);
+		assertUVar("counter", tls, 1);
+		assertFormats(0, tls, 1);
 	}
 
 	@Test
 	public void testDiv() throws Exception {
-		TemplateLine tl = parse(".");
-		assertEquals(1, tl.contents.size());
-		assertToken(TemplateToken.DIV, ".", tl, 0);
+		TemplateDiv tl = parseDiv(".");
+		assertEquals(0, tl.attrs.size());
+		assertNull(tl.customTag);
+		assertNull(tl.customTagVar);
 		assertEquals(0, tl.formats.size());
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
 	public void testDivCantBePartOfLongerLine() throws Exception {
 		ErrorResult er = parseError(". counter");
 		assertEquals(1, er.errors.size());
-		assertEquals("cannot have other content on line with . or +", er.errors.get(0).msg);
+		assertEquals("div or list must be only item on line", er.errors.get(0).msg);
 	}
 
 	@Test
 	public void testDivWithFormat() throws Exception {
-		TemplateLine tl = parse(". : 'format'");
-		assertEquals(1, tl.contents.size());
-		assertToken(TemplateToken.DIV, ".", tl, 0);
+		TemplateDiv tl = parseDiv(". : 'format'");
+		assertEquals(0, tl.attrs.size());
+		assertNull(tl.customTag);
+		assertNull(tl.customTagVar);
 		assertEquals(1, tl.formats.size());
-		assertFormat(TemplateToken.STRING, "format", tl, 0);
+		assertFormat("format", tl, 0);
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
 	public void testSimpleList() throws Exception {
-		TemplateLine tl = parse("+ list");
-		assertEquals(1, tl.contents.size());
-		assertTrue(tl.contents.get(0) instanceof TemplateList);
-		TemplateList lv = (TemplateList) tl.contents.get(0);
-		assertEquals("list", lv.listVar);
-		assertNull(lv.iterVar);
+		TemplateList tl = parseList("+ list");
+		assertEquals("list", tl.listVar);
+		assertNull(tl.iterVar);
+		assertNull(tl.customTag);
+		assertNull(tl.customTagVar);
 		assertEquals(0, tl.formats.size());
 	}
 
 	@Test
 	public void testSimpleListWithIterator() throws Exception {
-		TemplateLine tl = parse("+ list iter");
-		assertEquals(1, tl.contents.size());
-		assertTrue(tl.contents.get(0) instanceof TemplateList);
-		TemplateList lv = (TemplateList) tl.contents.get(0);
-		assertEquals("list", lv.listVar);
-		assertEquals("iter", lv.iterVar);
+		TemplateList tl = parseList("+ list iter");
+		assertEquals("list", tl.listVar);
+		assertEquals("iter", tl.iterVar);
+		assertNull(tl.customTag);
+		assertNull(tl.customTagVar);
 		assertEquals(0, tl.formats.size());
 	}
 
 	@Test
 	public void testSimpleListWithFormat() throws Exception {
-		TemplateLine tl = parse("+ list : format");
-		assertEquals(1, tl.contents.size());
-		assertTrue(tl.contents.get(0) instanceof TemplateList);
-		TemplateList lv = (TemplateList) tl.contents.get(0);
-		assertEquals("list", lv.listVar);
-		assertNull(lv.iterVar);
+		TemplateList tl = parseList("+ list : 'format'");
+		assertEquals("list", tl.listVar);
+		assertNull(tl.iterVar);
+		assertNull(tl.customTag);
+		assertNull(tl.customTagVar);
 		assertEquals(1, tl.formats.size());
-		assertFormat(TemplateToken.IDENTIFIER, "format", tl, 0);
+		assertFormat("format", tl, 0);
 	}
 
 	@Test
 	public void testSimpleListWithIteratorAndFormat() throws Exception {
-		TemplateLine tl = parse("+ list iter : format");
-		assertEquals(1, tl.contents.size());
-		assertTrue(tl.contents.get(0) instanceof TemplateList);
-		TemplateList lv = (TemplateList) tl.contents.get(0);
-		assertEquals("list", lv.listVar);
-		assertEquals("iter", lv.iterVar);
+		TemplateList tl = parseList("+ list iter : 'format'");
+		assertEquals("list", tl.listVar);
+		assertEquals("iter", tl.iterVar);
+		assertNull(tl.customTag);
+		assertNull(tl.customTagVar);
 		assertEquals(1, tl.formats.size());
-		assertFormat(TemplateToken.IDENTIFIER, "format", tl, 0);
+		assertFormat("format", tl, 0);
 	}
 
 	@Test
 	public void testDivWithCustomTag() throws Exception {
-		TemplateLine tl = parse(". #blockquote");
-		assertEquals(1, tl.contents.size());
-		assertToken(TemplateToken.DIV, ".", tl, 0);
+		TemplateDiv tl = parseDiv(". #blockquote");
+		assertEquals(0, tl.attrs.size());
 		assertEquals("blockquote", tl.customTag);
 		assertNull(tl.customTagVar);
 		assertEquals(0, tl.formats.size());
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
 	public void testDivWithCustomTagVar() throws Exception {
-		TemplateLine tl = parse(". ## tag");
-		assertEquals(1, tl.contents.size());
-		assertToken(TemplateToken.DIV, ".", tl, 0);
+		TemplateDiv tl = parseDiv(". ## tag");
+		assertEquals(0, tl.attrs.size());
 		assertNull(tl.customTag);
 		assertEquals("tag", tl.customTagVar);
 		assertEquals(0, tl.formats.size());
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
 	public void testDivWithCustomTagAndFormat() throws Exception {
-		TemplateLine tl = parse(". #blockquote : 'quoted-text'");
-		assertEquals(1, tl.contents.size());
-		assertToken(TemplateToken.DIV, ".", tl, 0);
+		TemplateDiv tl = parseDiv(". #blockquote : 'quoted-text'");
+		assertEquals(0, tl.attrs.size());
 		assertEquals("blockquote", tl.customTag);
 		assertNull(tl.customTagVar);
 		assertEquals(1, tl.formats.size());
-		assertFormat(TemplateToken.STRING, "quoted-text", tl, 0);
+		assertFormat("quoted-text", tl, 0);
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
@@ -187,30 +198,32 @@ public class TemplateLineParsingTests {
 
 	@Test
 	public void testCustomTagDoesNotRequireDot() throws Exception {
-		TemplateLine tl = parse("#blockquote");
-		assertEquals(0, tl.contents.size());
+		TemplateDiv tl = parseDiv("#blockquote");
+		assertEquals(0, tl.attrs.size());
 		assertEquals("blockquote", tl.customTag);
 		assertNull(tl.customTagVar);
 		assertEquals(0, tl.formats.size());
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
 	public void testCustomTagDoesNotRequireDotButCanStillHaveFormat() throws Exception {
-		TemplateLine tl = parse("#blockquote : format");
-		assertEquals(0, tl.contents.size());
+		TemplateDiv tl = parseDiv("#blockquote : 'format'");
+		assertEquals(0, tl.attrs.size());
 		assertEquals("blockquote", tl.customTag);
 		assertNull(tl.customTagVar);
 		assertEquals(1, tl.formats.size());
-		assertFormat(TemplateToken.IDENTIFIER, "format", tl, 0);
+		assertFormat("format", tl, 0);
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
 	public void testListWithCustomTag() throws Exception {
-		TemplateLine tl = parse("+ list #ol");
-		assertEquals(1, tl.contents.size());
-		assertTrue(tl.contents.get(0) instanceof TemplateList);
-		TemplateList lv = (TemplateList) tl.contents.get(0);
-		assertEquals("list", lv.listVar);
+		TemplateList tl = parseList("+ list #ol");
+		assertEquals("list", tl.listVar);
+		assertNull(tl.iterVar);
 		assertEquals("ol", tl.customTag);
 		assertNull(tl.customTagVar);
 		assertEquals(0, tl.formats.size());
@@ -218,54 +231,55 @@ public class TemplateLineParsingTests {
 
 	@Test
 	public void testTagCanHaveExplicitAttribute() throws Exception {
-		TemplateLine tl = parse("#blockquote @id=famous");
-		assertEquals(0, tl.contents.size());
+		TemplateDiv tl = parseDiv("#blockquote @id=famous");
+		assertEquals(1, tl.attrs.size());
+		TemplateExplicitAttr tea = (TemplateExplicitAttr) tl.attrs.get(0);
+		assertEquals(TemplateToken.IDENTIFIER, tea.type);
+		assertEquals("id", tea.attr);
+		assertEquals("famous", tea.value);
 		assertEquals("blockquote", tl.customTag);
 		assertNull(tl.customTagVar);
-		assertEquals(1, tl.attrs.size());
-		assertTrue(tl.attrs.get(0) instanceof TemplateExplicitAttr);
-		TemplateExplicitAttr attr = (TemplateExplicitAttr) tl.attrs.get(0);
-		assertEquals("id", attr.attr);
-		assertEquals(TemplateToken.IDENTIFIER, attr.type);
-		assertEquals("famous", attr.value);
 		assertEquals(0, tl.formats.size());
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
 	public void testTagCanHaveExplicitStringAttribute() throws Exception {
-		TemplateLine tl = parse("#blockquote @id='famous'");
-		assertEquals(0, tl.contents.size());
+		TemplateDiv tl = parseDiv("#blockquote @id='famous'");
+		assertEquals(1, tl.attrs.size());
+		TemplateExplicitAttr tea = (TemplateExplicitAttr) tl.attrs.get(0);
+		assertEquals(TemplateToken.STRING, tea.type);
+		assertEquals("id", tea.attr);
+		assertEquals("famous", tea.value);
 		assertEquals("blockquote", tl.customTag);
 		assertNull(tl.customTagVar);
-		assertEquals(1, tl.attrs.size());
-		assertTrue(tl.attrs.get(0) instanceof TemplateExplicitAttr);
-		TemplateExplicitAttr attr = (TemplateExplicitAttr) tl.attrs.get(0);
-		assertEquals("id", attr.attr);
-		assertEquals(TemplateToken.STRING, attr.type);
-		assertEquals("famous", attr.value);
 		assertEquals(0, tl.formats.size());
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
 	public void testTagCanHaveVariableForAttribute() throws Exception {
-		TemplateLine tl = parse("#blockquote @@id");
-		assertEquals(0, tl.contents.size());
+		TemplateDiv tl = parseDiv("#blockquote @@id");
+		assertEquals(1, tl.attrs.size());
+		TemplateAttributeVar tav = (TemplateAttributeVar) tl.attrs.get(0);
+		assertEquals("id", tav.var);
 		assertEquals("blockquote", tl.customTag);
 		assertNull(tl.customTagVar);
-		assertEquals(1, tl.attrs.size());
-		assertTrue(tl.attrs.get(0) instanceof TemplateAttributeVar);
-		TemplateAttributeVar attr = (TemplateAttributeVar) tl.attrs.get(0);
-		assertEquals("id", attr.var);
 		assertEquals(0, tl.formats.size());
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
 	}
 
 	@Test
 	public void testWeCanHaveAnExpressionInATemplate() throws Exception {
-		TemplateLine tl = parse("(fnCall 'hello' 3 x)");
-		assertEquals(1, tl.contents.size());
-		System.out.println(tl.contents.get(0).getClass());
-		assertTrue(tl.contents.get(0) instanceof ApplyExpr);
-		ApplyExpr ae = (ApplyExpr) tl.contents.get(0);
+		List<TemplateLine> tls = parseContent("(fnCall 'hello' 3 x)");
+		assertEquals(1, tls.size());
+		assertTrue(tls.get(0) instanceof ContentExpr);
+		ContentExpr tl = (ContentExpr) tls.get(0);
+		assertTrue(tl.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) tl.expr;
 		assertEquals("fnCall", ae.fn.toString());
 		assertEquals(3, ae.args.size());
 		assertEquals("\"hello\"", ae.args.get(0).toString());
@@ -277,7 +291,6 @@ public class TemplateLineParsingTests {
 	public void testWeCanDefineAClickHandler() throws Exception {
 		EventHandler eh = parseHandler("click => handleClick 7 (u:x)");
 		assertEquals("click", eh.action);
-//		assertNull(eh.var);
 		assertNotNull(eh.expr);
 		assertTrue(eh.expr instanceof ApplyExpr);
 		ApplyExpr ae = (ApplyExpr) eh.expr;
@@ -294,10 +307,7 @@ public class TemplateLineParsingTests {
 
 	@Test
 	public void testReferencingAnotherTemplateByName() throws Exception {
-		TemplateLine tl = parse("$inner fred 3 'string'");
-		assertEquals(1, tl.contents.size());
-		assertTrue(tl.contents.get(0) instanceof TemplateReference);
-		TemplateReference lv = (TemplateReference) tl.contents.get(0);
+		TemplateReference lv = (TemplateReference) parse("$inner fred 3 'string'");
 		assertEquals("inner", lv.name);
 		assertEquals(3, lv.args.size());
 		assertTrue(lv.args.get(0) instanceof UnresolvedVar);
@@ -306,38 +316,35 @@ public class TemplateLineParsingTests {
 		assertEquals("3", ((NumericLiteral)lv.args.get(1)).text);
 		assertTrue(lv.args.get(2) instanceof StringLiteral);
 		assertEquals("string", ((StringLiteral)lv.args.get(2)).text);
-		assertNull(tl.customTag);
-		assertNull(tl.customTagVar);
-		assertEquals(0, tl.formats.size());
-		
 	}
-	/* I think I deny this ...
-	 * All event handlers receive an event object.  The expression here is a curried event handler
-	@Test
-	public void testAHandlerCanTakeAnEvent() throws Exception {
-		EventHandler eh = parseHandler("mousedown ev => handleClick 7 (u:x)");
-		assertEquals("mousedown", eh.action);
-		assertEquals("ev", eh.var);
-		assertNotNull(eh.expr);
-		assertTrue(eh.expr instanceof ApplyExpr);
-		ApplyExpr ae = (ApplyExpr) eh.expr;
-		assertEquals("handleClick", ae.fn.toString());
-		assertEquals(2, ae.args.size());
-		assertEquals("7", ae.args.get(0).toString());
-		assertTrue(ae.args.get(1) instanceof ApplyExpr);
-		ae = (ApplyExpr) ae.args.get(1);
-		assertEquals("Cons", ae.fn.toString());
-		assertEquals(2, ae.args.size());
-		assertEquals("u", ae.args.get(0).toString());
-		assertEquals("x", ae.args.get(1).toString());
-	}
-	*/
-
+	
 	protected TemplateLine parse(String input) throws Exception {
 		Object o = doparse(input);
 		assertNotNull(o);
 		assertTrue(o instanceof TemplateLine);
 		return (TemplateLine) o;
+	}
+
+	@SuppressWarnings("unchecked")
+	protected List<TemplateLine> parseContent(String input) throws Exception {
+		Object o = doparse(input);
+		assertNotNull(o);
+		assertTrue(o instanceof List);
+		return (List<TemplateLine>) o;
+	}
+
+	protected TemplateDiv parseDiv(String input) throws Exception {
+		Object o = doparse(input);
+		assertNotNull(o);
+		assertTrue("was " + o.getClass() + " not TemplateDiv", o instanceof TemplateDiv);
+		return (TemplateDiv) o;
+	}
+
+	protected TemplateList parseList(String input) throws Exception {
+		Object o = doparse(input);
+		assertNotNull(o);
+		assertTrue(o instanceof TemplateList);
+		return (TemplateList) o;
 	}
 
 	protected EventHandler parseHandler(String input) throws Exception {
@@ -362,15 +369,42 @@ public class TemplateLineParsingTests {
 
 	}
 
-	private void assertToken(int type, String text, TemplateLine tl, int which) {
-		TemplateToken x = (TemplateToken) tl.contents.get(which);
-		assertEquals("type of token " + which + " was wrong", type, x.type);
-		assertEquals("text of token " + which + " was wrong", text, x.text);
+	private void assertUVar(String uvar, List<TemplateLine> tls, int pos) {
+		assertTrue(tls.get(pos) instanceof ContentExpr);
+		ContentExpr tl = (ContentExpr) tls.get(pos);
+		assertTrue(tl.expr instanceof UnresolvedVar);
+		assertEquals(uvar, ((UnresolvedVar)tl.expr).var);
 	}
 
-	private void assertFormat(int type, String text, TemplateLine tl, int which) {
-		TemplateToken x = (TemplateToken) tl.formats.get(which);
-		assertEquals("type of format " + which + " was wrong", type, x.type);
-		assertEquals("text of format " + which + " was wrong", text, x.text);
+	private void assertString(String str, List<TemplateLine> tls, int pos) {
+		assertTrue(tls.get(pos) instanceof ContentString);
+		ContentString tl = (ContentString) tls.get(pos);
+		assertEquals(str, tl.text);
+	}
+
+	private void assertFormats(int count, List<TemplateLine> tls, int pos) {
+		assertTrue(tls.get(pos) instanceof TemplateFormat);
+		TemplateFormat tl = (TemplateFormat) tls.get(pos);
+		assertEquals(count, tl.formats.size());
+	}
+
+	private void assertFormat(String label, TemplateFormat tl, int which) {
+		TemplateToken tt = (TemplateToken) tl.formats.get(which);
+		assertEquals(TemplateToken.STRING, tt.type);
+		assertEquals(label, tt.text);
+	}
+
+	private void assertFormat(String label, List<TemplateLine> tls, int pos, int which) {
+		assertTrue(tls.get(pos) instanceof TemplateFormat);
+		TemplateFormat tl = (TemplateFormat) tls.get(pos);
+		assertFormat(label, tl, which);
+	}
+
+	private void assertFormatVar(String var, List<TemplateLine> tls, int pos, int which) {
+		assertTrue(tls.get(pos) instanceof ContentExpr);
+		ContentExpr tl = (ContentExpr) tls.get(pos);
+		TemplateToken tt = (TemplateToken) tl.formats.get(which);
+		assertEquals(TemplateToken.IDENTIFIER, tt.type);
+		assertEquals(var, tt.text);
 	}
 }

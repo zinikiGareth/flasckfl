@@ -156,7 +156,7 @@ public class BlockTestData {
 					.exdent()
 				.line("template")
 					.indent()
-					.line("render 'hello'")
+					.line("(render 'hello')")
 					.exdent()
 				.line("render s = DOM.Element 'h1' [] [] [('action', action title s)]")
 				.line("event action curr s ev")

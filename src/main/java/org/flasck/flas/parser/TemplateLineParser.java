@@ -68,7 +68,7 @@ public class TemplateLineParser implements TryParsing{
 					iv = t3.text;
 				else
 					line.reset(mark2);
-				list = new TemplateList(pos, t2.text, iv, new ArrayList<Object>());
+				list = new TemplateList(pos, t2.text, iv, null, null, new ArrayList<Object>());
 			} else if (tt.type == TemplateToken.ARROW) {
 				if (seenDiv || list != null || contents.size() == 0 || contents.size() > 2)
 					return ErrorResult.oneMessage(line, "syntax error");
@@ -282,15 +282,19 @@ public class TemplateLineParser implements TryParsing{
 		if (seenDiv)
 			return new TemplateDiv(customTag, customTagVar, attrs, formats);
 		else if (list != null) {
-			if (!formats.isEmpty())
-				return new TemplateList(list.listLoc, list.listVar, list.iterVar, formats);
+			if (!formats.isEmpty() || customTag != null || customTagVar != null)
+				return new TemplateList(list.listLoc, list.listVar, list.iterVar, customTag, customTagVar, formats);
 			else
 				return list;
 		} else if (cmd != null)
 			return cmd;
-		else if (!contents.isEmpty())
+		else if (!contents.isEmpty()) {
+			for (TemplateLine o : contents) {
+				if (o instanceof ContentExpr)
+					((ContentExpr)o).formats.addAll(formats);
+			}
 			return contents;
-		else
+		} else
 			throw new UtilException("Huh? " + line);
 	}
 
