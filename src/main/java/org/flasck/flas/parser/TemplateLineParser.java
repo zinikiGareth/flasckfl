@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
@@ -25,6 +26,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class TemplateLineParser implements TryParsing{
@@ -36,6 +38,7 @@ public class TemplateLineParser implements TryParsing{
 		TemplateList list = null;
 		boolean seenDiv = false;
 		boolean template = false;
+		boolean extractField = false;
 		while (line.hasMore()) {
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
@@ -51,9 +54,18 @@ public class TemplateLineParser implements TryParsing{
 				Object pe = new Expression().tryParsing(line);
 				contents.add(new ContentExpr(pe, new ArrayList<Object>()));
 			} else if (tt.type == TemplateToken.DIV) {
-				seenDiv = true;
-				if (!contents.isEmpty())
+				if (!contents.isEmpty()) {
+					// This logic handles the "special case" where we want to support field extraction without parens
+					TemplateLine o = contents.get(contents.size()-1);
+					if (o instanceof ContentExpr) {
+						if (extractField)
+							return ErrorResult.oneMessage(line.realinfo(), "syntax error");
+						extractField = true;
+						continue;
+					}
 					return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
+				}
+				seenDiv = true;
 			} else if (tt.type == TemplateToken.LIST) {
 				if (!contents.isEmpty())
 					return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
@@ -92,7 +104,13 @@ public class TemplateLineParser implements TryParsing{
 				else
 					return new EventHandler(((UnresolvedVar)((ContentExpr)action).expr).var, expr);
 			} else if (tt.type == TemplateToken.IDENTIFIER) {
-				contents.add(new ContentExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tt.text)), new ArrayList<Object>()));
+				Object me = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tt.text));
+				if (extractField) { // handle the "special" case of a.b
+					ContentExpr tl = (ContentExpr) contents.remove(contents.size()-1);
+					contents.add(new ContentExpr(new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.PUNC, ".")), CollectionUtils.listOf(tl.expr, me)), new ArrayList<Object>()));
+					extractField = false;
+				} else
+					contents.add(new ContentExpr(me, new ArrayList<Object>()));
 			} else if (tt.type == TemplateToken.STRING) { 
 				contents.add(new ContentString(tt.text, new ArrayList<Object>()));
 			} else if (tt.type == TemplateToken.TEMPLATE) {
@@ -182,6 +200,8 @@ public class TemplateLineParser implements TryParsing{
 			} else
 				throw new UtilException("Cannot handle " + tt);
 		}
+		if (extractField)
+			return ErrorResult.oneMessage(line, "missing field");
 		List<Object> formats = new ArrayList<Object>();
 		String customTag = null;
 		String customTagVar = null;

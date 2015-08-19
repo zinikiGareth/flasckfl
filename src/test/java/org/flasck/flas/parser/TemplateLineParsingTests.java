@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
@@ -288,6 +289,71 @@ public class TemplateLineParsingTests {
 	}
 
 	@Test
+	public void testAsASpecialCaseWeCanHaveADottedExpressionInATemplateWithoutParens() throws Exception {
+		List<TemplateLine> tls = parseContent("x.b");
+		assertEquals(1, tls.size());
+		assertTrue(tls.get(0) instanceof ContentExpr);
+		ContentExpr tl = (ContentExpr) tls.get(0);
+		assertTrue("was " + tl.expr.getClass() + " not ApplyExpr", tl.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) tl.expr;
+		assertEquals(".", ae.fn.toString());
+		assertEquals(2, ae.args.size());
+		assertEquals("x", ae.args.get(0).toString());
+		assertEquals("b", ae.args.get(1).toString());
+	}
+
+	@Test
+	public void testADottedExpressionInATemplateWithoutParensMustHaveAField() throws Exception {
+		ErrorResult er = parseError("x.");
+		assertEquals(1, er.errors.size());
+		FLASError err = er.errors.get(0);
+		assertEquals("missing field", err.msg);
+	}
+
+	@Test
+	public void testADottedExpressionInATemplateWithoutParensCannotHaveTwoDots() throws Exception {
+		ErrorResult er = parseError("x..b");
+		assertEquals(1, er.errors.size());
+		FLASError err = er.errors.get(0);
+		assertEquals("syntax error", err.msg);
+	}
+
+	@Test
+	public void testASpecialCaseDottedExpressionCanHaveTwoApplies() throws Exception {
+		List<TemplateLine> tls = parseContent("x.b.c");
+		assertEquals(1, tls.size());
+		assertTrue(tls.get(0) instanceof ContentExpr);
+		ContentExpr tl = (ContentExpr) tls.get(0);
+		assertTrue("was " + tl.expr.getClass() + " not ApplyExpr", tl.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) tl.expr;
+		assertEquals(".", ae.fn.toString());
+		assertEquals(2, ae.args.size());
+		ApplyExpr a2 = (ApplyExpr) ae.args.get(0);
+		assertEquals(".", a2.fn.toString());
+		assertEquals(2, a2.args.size());
+		assertEquals("x", a2.args.get(0).toString());
+		assertEquals("b", a2.args.get(1).toString());
+		assertEquals("c", ae.args.get(1).toString());
+	}
+
+	@Test
+	public void testASpecialCaseDottedExpressionCanHaveAnArbitraryExpressionToTheLeft() throws Exception {
+		List<TemplateLine> tls = parseContent("(f 3).c");
+		assertEquals(1, tls.size());
+		assertTrue(tls.get(0) instanceof ContentExpr);
+		ContentExpr tl = (ContentExpr) tls.get(0);
+		assertTrue("was " + tl.expr.getClass() + " not ApplyExpr", tl.expr instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) tl.expr;
+		assertEquals(".", ae.fn.toString());
+		assertEquals(2, ae.args.size());
+		ApplyExpr a2 = (ApplyExpr) ae.args.get(0);
+		assertEquals(1, a2.args.size());
+		assertEquals("f", a2.fn.toString());
+		assertEquals("3", a2.args.get(0).toString());
+		assertEquals("c", ae.args.get(1).toString());
+	}
+
+	@Test
 	public void testWeCanDefineAClickHandler() throws Exception {
 		EventHandler eh = parseHandler("click => handleClick 7 (u:x)");
 		assertEquals("click", eh.action);
@@ -329,7 +395,7 @@ public class TemplateLineParsingTests {
 	protected List<TemplateLine> parseContent(String input) throws Exception {
 		Object o = doparse(input);
 		assertNotNull(o);
-		assertTrue(o instanceof List);
+		assertTrue("was " + o.getClass() + " not List<Content>", o instanceof List);
 		return (List<TemplateLine>) o;
 	}
 
@@ -357,7 +423,7 @@ public class TemplateLineParsingTests {
 	protected ErrorResult parseError(String string) throws Exception {
 		Object o = doparse(string);
 		assertNotNull(o);
-		assertTrue(o instanceof ErrorResult);
+		assertTrue("was " + o.getClass() + " when expecting Error", o instanceof ErrorResult);
 		return (ErrorResult) o;
 	}
 
