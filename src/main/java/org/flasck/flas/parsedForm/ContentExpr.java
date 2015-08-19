@@ -15,10 +15,15 @@ public class ContentExpr extends TemplateFormat {
 	private boolean editable;
 
 	public ContentExpr(Object expr, List<Object> formats) {
-		super(formats);
-		this.expr = expr;
+		this(expr, false, formats);
 	}
 	
+	public ContentExpr(Object expr, boolean edit, List<Object> formats) {
+		super(formats);
+		this.expr = expr;
+		this.editable = edit;
+	}
+
 	public void makeEditable() {
 		this.editable = true;
 	}

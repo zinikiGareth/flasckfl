@@ -356,6 +356,8 @@ public class Generator {
 			} else
 				ir.add(JSForm.flex(parent + ".setAttribute('id', " + tree.divThing.sid + ")"));
 			ir.add(JSForm.flex("wrapper.infoAbout" + (inList != null?"['" + inList + "'][item.id]":"")  + "['" + tree.divThing.sid + "'] = " + tree.divThing.sid));
+			if (tree.editable)
+				ir.add(JSForm.flex("wrapper.editField(" + tree.divThing.id + ", " + "null" + ")")); // TODO: the second arg should be the "edit rules" if any
 		}
 		for (Entry<String, String> sa : tree.divThing.staticAttrs.entrySet())
 			ir.add(JSForm.flex(tree.divThing.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));

@@ -439,7 +439,8 @@ public class Rewriter {
 		if (tl instanceof ContentString) {
 			return tl;
 		} else if (tl instanceof ContentExpr) {
-			return new ContentExpr(rewriteExpr(cx, ((ContentExpr)tl).expr), formats);
+			ContentExpr ce = (ContentExpr)tl;
+			return new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats);
 		} else if (tl instanceof CardReference) {
 			CardReference cr = (CardReference) tl;
 			Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);

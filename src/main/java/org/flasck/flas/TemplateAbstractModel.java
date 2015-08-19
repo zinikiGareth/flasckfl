@@ -76,10 +76,16 @@ public class TemplateAbstractModel {
 		public Block divThing;
 		public List<VisualTree> children = new ArrayList<VisualTree>();
 		public final String text;
+		public boolean editable;
 		
 		public VisualTree(Block div, String text) {
+			this(div, text, false);
+		}
+
+		public VisualTree(Block div, String text, boolean editable) {
 			this.divThing = div;
 			this.text = text;
+			this.editable = editable;
 		}
 	}
 	

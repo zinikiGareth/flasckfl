@@ -376,7 +376,7 @@ public class Compiler {
 			ContentExpr ce = (ContentExpr) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), ce.formats, new ArrayList<Handler>());
 			b.sid = tam.nextSid();
-			VisualTree pvt = new VisualTree(b, null);
+			VisualTree pvt = new VisualTree(b, null, ce.editable());
 			pvt.containsThing = AbstractTreeNode.CONTENT;
 			if (atn == null)
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
