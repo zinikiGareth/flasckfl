@@ -107,6 +107,9 @@ public class TemplateAbstractModel {
 		public D3Invoke d3;
 		public final List<OrCase> cases = new ArrayList<OrCase>();
 		public String var;
+		public boolean editable;
+		public HSIEForm editobject;
+		public String editfield;
 		
 		public AbstractTreeNode(int type, AbstractTreeNode nestedIn, String id, String sid, VisualTree tree) {
 			this.type = type;

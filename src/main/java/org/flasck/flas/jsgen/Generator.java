@@ -310,6 +310,27 @@ public class Generator {
 				JSForm.assign(cc, "var textContent", atn.expr);
 				cc.add(JSForm.flex("var text = doc.createTextNode(FLEval.full(textContent))"));
 				cc.add(JSForm.flex("span.appendChild(text)"));
+				if (atn.editable) {
+					JSForm rules = JSForm.flex(lname(tam.prefix, true) + "_" + atn.id + "_rules =").needBlock();
+					String inside = "b"; // This gratuituous hack should read "the iteration var we need in assign" which will be bound to "item" in the call
+					JSForm save = JSForm.flex("save: function(wrapper, " + inside + ", text)").needBlock();
+					String containingObject = "this";
+					if (atn.editobject != null) {
+						containingObject = "saveTo";
+						JSForm.assign(save, "var saveTo", atn.editobject);
+					}
+					// TODO: we may need to convert the text field to a more complex object type (e.g. integer) as specified in the rules we are given
+					save.add(JSForm.flex(containingObject + "." + atn.editfield + " = text"));
+					// TODO: we need to consider which of the four types of change was just made (based on something put on atn)
+					// 1. Transient local state (do nothing more)
+					// 2. Persistent local state (save state object)
+					// 3. Main object field or 4. Loaded object field (save data object using the appropriate contract)
+					save.add(JSForm.flex("wrapper.saveObject(" + containingObject + ")"));
+					save.add(JSForm.flex("console.log('saved to:', " + containingObject + ")"));
+					rules.add(save);
+					// if we add another block, need "save.comma();"
+					target.add(rules);
+				}
 			} else if (atn.type == AbstractTreeNode.CARD) {
 				JSForm cc = function;
 				if (cc == null) {
@@ -357,10 +378,10 @@ public class Generator {
 				ir.add(JSForm.flex(parent + ".setAttribute('id', " + tree.divThing.sid + ")"));
 			ir.add(JSForm.flex("wrapper.infoAbout" + (inList != null?"['" + inList + "'][item.id]":"")  + "['" + tree.divThing.sid + "'] = " + tree.divThing.sid));
 			if (tree.editable)
-				ir.add(JSForm.flex("wrapper.editField(" + tree.divThing.id + ", " + "null" + ")")); // TODO: the second arg should be the "edit rules" if any
+				ir.add(JSForm.flex("wrapper.editableField(" + tree.divThing.id + ", this._" + tree.divThing.id + "_rules, " +(inList != null?"item":"this") + ")"));
 		}
 		for (Entry<String, String> sa : tree.divThing.staticAttrs.entrySet())
-			ir.add(JSForm.flex(tree.divThing.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() +"')"));
+			ir.add(JSForm.flex(tree.divThing.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() + "')"));
 		if (tree.containsThing != AbstractTreeNode.D3) {
 			JSForm ip = ir;
 			if (considerBefore) {

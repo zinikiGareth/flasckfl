@@ -220,6 +220,8 @@ public class JSForm {
 			into.add(new JSForm(assgn + " = " + r.ival));
 		else if (r.sval != null)
 			into.add(new JSForm(assgn + " = " + r.sval));
+		else if (r.tlv != null)
+			into.add(new JSForm(assgn + " = " + r.tlv.name));
 		else
 			throw new UtilException("What are you returning " + r);
 	}

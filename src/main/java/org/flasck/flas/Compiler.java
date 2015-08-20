@@ -389,6 +389,19 @@ public class Compiler {
 			atn = new AbstractTreeNode(AbstractTreeNode.CONTENT, atn, b.id, b.sid, null);
 			tam.nodes.add(atn);
 			atn.expr = new HSIE(errors).handleExpr(ce.expr, HSIEForm.Type.CARD);
+			if (ce.editable()) {
+				atn.editable = ce.editable();
+				if (ce.expr instanceof CardMember) {
+					atn.editfield = ((CardMember)ce.expr).var;
+				} else if (ce.expr instanceof ApplyExpr) {
+					ApplyExpr ae = (ApplyExpr) ce.expr;
+					if (!(ae.fn instanceof AbsoluteVar) || !(((AbsoluteVar)ae.fn).id.equals("FLEval.field")))
+						throw new UtilException("Invalid expr for edit field " + ae.fn);
+					atn.editobject = new HSIE(errors).handleExpr(ae.args.get(0), HSIEForm.Type.CARD);
+					atn.editfield = ((StringLiteral)ae.args.get(1)).text;
+				} else
+					throw new UtilException("Do not know how to/you should not be able to edit a field of type " + ce.expr.getClass());
+			}
 		} else if (content instanceof CardReference) {
 			CardReference card = (CardReference) content;
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
