@@ -12,7 +12,4 @@ public class ResolutionException extends RuntimeException {
 		this.location = location;
 		this.name = name;
 	}
-	
-	
-
 }

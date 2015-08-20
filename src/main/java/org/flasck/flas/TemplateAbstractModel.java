@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
@@ -43,8 +44,9 @@ public class TemplateAbstractModel {
 		public final String ns;
 		public final String tag;
 		public final Map<String, String> staticAttrs = new TreeMap<String, String>(new StringComparator());
+		public final Map<String, Object> exprAttrs = new TreeMap<String, Object>(new StringComparator());
 		public String sid = null;
-		public Object complexAttrs;
+		public Object complexFormats;
 		public String listVar;
 		public String name;
 		public final List<Handler> handlers;
@@ -134,15 +136,21 @@ public class TemplateAbstractModel {
 		this.scope = scope;
 	}
 
-	public Block createBlock(String customTag, List<Object> attrs, List<Object> formats, List<Handler> handlers) {
+	public Block createBlock(ErrorResult errors, String customTag, List<Object> attrs, List<Object> formats, List<Handler> handlers) {
 		String name = "block_" + nextId++;
 		Block ret = new Block(name, customTag, handlers);
 		for (Object o : attrs) {
 			if (o instanceof TemplateExplicitAttr) {
 				TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
+				if (ret.staticAttrs.containsKey(tea.attr) || ret.exprAttrs.containsKey(tea.attr)) {
+					errors.message(tea.location, "cannot specify attribute '" + tea.attr + "' multiple times");
+					continue;
+				}
 				if (tea.type == TemplateToken.STRING)
-					ret.staticAttrs.put(tea.attr, tea.value);
-				else
+					ret.staticAttrs.put(tea.attr, (String)tea.value);
+				else if (tea.type == TemplateToken.IDENTIFIER) {
+					ret.exprAttrs.put(tea.attr, tea.value);
+				} else
 					throw new UtilException("cannot handle attribute value of type " + tea.type);
 			} else
 				throw new UtilException("cannot handle " + o.getClass() + " as an attribute");
@@ -174,7 +182,7 @@ public class TemplateAbstractModel {
 		if (expr != null) {
 			if (simple.length() > 0)
 				expr = new ApplyExpr(scope.fromRoot("Cons"), new StringLiteral(simple.substring(1)), expr);
-			ret.complexAttrs = expr;
+			ret.complexFormats = expr;
 			ret.sid = "sid" + nextId++;
 		}
 		else if (expr == null && simple.length() > 0)
@@ -191,7 +199,7 @@ public class TemplateAbstractModel {
 	
 	public void cardMembersCause(VisualTree vt, String action, String fn) {
 		if (vt.divThing != null) {
-			cardMembersCause(vt.divThing.complexAttrs, action, fn);
+			cardMembersCause(vt.divThing.complexFormats, action, fn);
 		}
 		for (VisualTree t : vt.children)
 			cardMembersCause(t, action, fn);

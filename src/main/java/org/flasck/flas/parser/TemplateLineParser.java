@@ -278,9 +278,25 @@ public class TemplateLineParser implements TryParsing{
 							break;
 						}
 						TemplateToken val = TemplateToken.from(line);
-						if (val == null || (val.type != TemplateToken.IDENTIFIER && val.type != TemplateToken.STRING))
+						if (val == null)
 							return ErrorResult.oneMessage(line, "syntax error");
-						attrs.add(new TemplateExplicitAttr(n.text, val.type, val.text));
+						else if (val.type == TemplateToken.STRING)
+							attrs.add(new TemplateExplicitAttr(val.location, n.text, val.type, val.text));
+						else if  (val.type == TemplateToken.IDENTIFIER)
+							attrs.add(new TemplateExplicitAttr(val.location, n.text, val.type, new UnresolvedVar(val.location, val.text)));
+						else if (val.type == TemplateToken.ORB) {
+							Expression ep = new Expression();
+							Object ave = ep.tryParsing(line);
+							if (ave == null)
+								return ErrorResult.oneMessage(line, "could not parse attribute value expression");
+							else if (ave instanceof ErrorResult)
+								return ave;
+							f = TemplateToken.from(line);
+							if (f == null || f.type != TemplateToken.CRB)
+								return ErrorResult.oneMessage(line, "expected )");
+							attrs.add(new TemplateExplicitAttr(val.location, n.text, TemplateToken.IDENTIFIER, ave));
+						} else
+							throw new UtilException("Cannot handle value of TEA: " + val.type);
 					}
 				}
 			} else

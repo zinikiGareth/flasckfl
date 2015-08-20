@@ -449,9 +449,13 @@ public class Rewriter {
 		} else if (tl instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) tl;
 			for (Object o : td.attrs) {
-				if (o instanceof TemplateExplicitAttr)
-					attrs.add(o);
-				else
+				if (o instanceof TemplateExplicitAttr) {
+					TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
+					Object value = tea.value;
+					if (tea.type == TemplateToken.IDENTIFIER) // any type of expression
+						value = rewriteExpr(cx, value);
+					attrs.add(new TemplateExplicitAttr(tea.location, tea.attr, tea.type, value));
+				} else
 					throw new UtilException("Attr type not handled: " + o.getClass());
 			}
 			TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
@@ -583,7 +587,10 @@ public class Rewriter {
 
 	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {
 		FunctionIntro intro = rewrite(cx, c.intro);
-		FunctionCaseDefn ret = new FunctionCaseDefn(c.innerScope().outer, intro.name, intro.args, rewriteExpr(cx, c.expr));
+		Object expr = rewriteExpr(cx, c.expr);
+		if (expr == null)
+			return null;
+		FunctionCaseDefn ret = new FunctionCaseDefn(c.innerScope().outer, intro.name, intro.args, expr);
 		rewriteScope(cx, c.innerScope());
 		return ret;
 	}

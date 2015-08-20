@@ -1,11 +1,15 @@
 package org.flasck.flas.parsedForm;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class TemplateExplicitAttr {
+	public final InputPosition location;
 	public final String attr;
 	public final int type;
-	public final String value;
+	public final Object value;
 
-	public TemplateExplicitAttr(String attr, int type, String value) {
+	public TemplateExplicitAttr(InputPosition loc, String attr, int type, Object value) {
+		this.location = loc;
 		this.attr = attr;
 		this.type = type;
 		this.value = value;

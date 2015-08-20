@@ -353,11 +353,21 @@ public class Generator {
 	}
 
 	private void generateFormatsFor(JSForm fi, VisualTree t, String var) {
-		if (t.divThing.complexAttrs != null) {
+		if (t.divThing.complexFormats != null) {
 			fi.add(JSForm.flex("var item = " + var + ".item"));
-			HSIEForm form = new HSIE(errors).handleExpr(t.divThing.complexAttrs, Type.CARD);
-			JSForm.assign(fi, "var attrs", form);
-			fi.add(JSForm.flex("doc.getElementById(" + var + "['" + t.divThing.sid + "']).setAttribute('class', join(FLEval.full(attrs), ' '))"));
+			HSIEForm form = new HSIE(errors).handleExpr(t.divThing.complexFormats, Type.CARD);
+			JSForm.assign(fi, "var cls", form);
+			fi.add(JSForm.flex("doc.getElementById(" + var + "['" + t.divThing.sid + "']).setAttribute('class', join(FLEval.full(cls), ' '))"));
+		}
+		for (Entry<String, Object> x : t.divThing.exprAttrs.entrySet()) {
+			System.out.println("Need to handle expr attr " + x.getKey());
+			fi.add(JSForm.flex("var item = " + var + ".item"));
+			HSIEForm form = new HSIE(errors).handleExpr(x.getValue(), Type.CARD);
+			JSForm.assign(fi, "var attr", form);
+			fi.add(JSForm.flex("attr = FLEval.full(attr)"));
+			JSForm ifassign = JSForm.flex("if (attr)").needBlock();
+			fi.add(ifassign);
+			ifassign.add(JSForm.flex("doc.getElementById(" + var + "['" + t.divThing.sid + "']).setAttribute('" + x.getKey() + "', attr)"));
 		}
 		for (VisualTree c : t.children)
 			generateFormatsFor(fi, c, var);

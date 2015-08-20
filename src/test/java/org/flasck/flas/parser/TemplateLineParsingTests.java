@@ -231,11 +231,11 @@ public class TemplateLineParsingTests {
 	}
 
 	@Test
-	public void testTagCanHaveExplicitAttribute() throws Exception {
-		TemplateDiv tl = parseDiv("#blockquote @id=famous");
+	public void testTagCanHaveExplicitStringAttribute() throws Exception {
+		TemplateDiv tl = parseDiv("#blockquote @id='famous'");
 		assertEquals(1, tl.attrs.size());
 		TemplateExplicitAttr tea = (TemplateExplicitAttr) tl.attrs.get(0);
-		assertEquals(TemplateToken.IDENTIFIER, tea.type);
+		assertEquals(TemplateToken.STRING, tea.type);
 		assertEquals("id", tea.attr);
 		assertEquals("famous", tea.value);
 		assertEquals("blockquote", tl.customTag);
@@ -246,14 +246,34 @@ public class TemplateLineParsingTests {
 	}
 
 	@Test
-	public void testTagCanHaveExplicitStringAttribute() throws Exception {
-		TemplateDiv tl = parseDiv("#blockquote @id='famous'");
+	public void testTagCanHaveExplicitVariableAttribute() throws Exception {
+		TemplateDiv tl = parseDiv("#blockquote @id=famous");
+		assertEquals("blockquote", tl.customTag);
 		assertEquals(1, tl.attrs.size());
 		TemplateExplicitAttr tea = (TemplateExplicitAttr) tl.attrs.get(0);
-		assertEquals(TemplateToken.STRING, tea.type);
+		assertEquals(TemplateToken.IDENTIFIER, tea.type);
 		assertEquals("id", tea.attr);
-		assertEquals("famous", tea.value);
+		assertTrue("was " + tea.value.getClass() + "; not UnresolvedVar", tea.value instanceof UnresolvedVar);
+		assertEquals("famous", ((UnresolvedVar)tea.value).var);
+		assertNull(tl.customTagVar);
+		assertEquals(0, tl.formats.size());
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
+	}
+
+	@Test
+	public void testTagCanHaveParenedExprAsExplicitAttribute() throws Exception {
+		TemplateDiv tl = parseDiv("#blockquote @id=(famous 36)");
 		assertEquals("blockquote", tl.customTag);
+		assertEquals(1, tl.attrs.size());
+		TemplateExplicitAttr tea = (TemplateExplicitAttr) tl.attrs.get(0);
+		assertEquals(TemplateToken.IDENTIFIER, tea.type);
+		assertEquals("id", tea.attr);
+		assertTrue("was " + tea.value.getClass() + "; not ApplyExpr", tea.value instanceof ApplyExpr);
+		ApplyExpr ae = (ApplyExpr) tea.value;
+		assertTrue(ae.fn instanceof UnresolvedVar);
+		assertEquals("famous", ((UnresolvedVar)ae.fn).var);
+		assertEquals("36", ae.args.get(0).toString());
 		assertNull(tl.customTagVar);
 		assertEquals(0, tl.formats.size());
 		assertEquals(0, tl.handlers.size());

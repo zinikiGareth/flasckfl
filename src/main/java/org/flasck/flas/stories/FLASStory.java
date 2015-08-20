@@ -739,9 +739,8 @@ public class FLASStory implements StoryProcessor {
 				return asTT(subst.get(tt.text));
 		} else if (o instanceof TemplateExplicitAttr) {
 			TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
-			if (tea.type == TemplateToken.IDENTIFIER && subst.containsKey(tea.value)) {
-				TemplateToken tt = asTT(subst.get(tea.value));
-				return new TemplateExplicitAttr(tea.attr, tt.type, tt.text);
+			if (tea.type == TemplateToken.IDENTIFIER) { // any kind of expression
+				return new TemplateExplicitAttr(tea.location, tea.attr, tea.type, substituteMacroParameters(er, s, map, tea.value, subst));
 			} else if (tea.type == TemplateToken.STRING) {
 				return tea;
 			} else

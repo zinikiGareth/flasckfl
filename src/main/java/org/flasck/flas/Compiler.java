@@ -307,7 +307,8 @@ public class Compiler {
 			for (EventHandler eh : td.handlers) {
 				handlers.add(new Handler(tam.ehId(), eh.action, new HSIE(errors).handleExpr(eh.expr, HSIEForm.Type.FUNCTION)));
 			}
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(td.customTag, td.attrs, td.formats, handlers);
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, td.customTag, td.attrs, td.formats, handlers);
+			b.sid = tam.nextSid();
 			VisualTree vt = new VisualTree(b, null);
 			if (atn == null) {
 				atn = new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, vt);
@@ -320,7 +321,7 @@ public class Compiler {
 			tam.cardMembersCause(vt, "assign", Generator.lname(tam.prefix, true) + "_formatTop");
 		} else if (content instanceof TemplateList) {
 			TemplateList tl = (TemplateList) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("ul", new ArrayList<Object>(), tl.formats, new ArrayList<Handler>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "ul", new ArrayList<Object>(), tl.formats, new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.divThing.listVar = ((CardMember)tl.listVar).var;
@@ -344,7 +345,7 @@ public class Compiler {
 			tam.cardMembersCause(vt, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_formatList");
 		} else if (content instanceof TemplateCases) {
 			TemplateCases cases = (TemplateCases) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.CASES;
@@ -366,7 +367,7 @@ public class Compiler {
 			}
 		} else if (content instanceof ContentString) {
 			ContentString cs = (ContentString) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), cs.formats, new ArrayList<Handler>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "span", new ArrayList<Object>(), cs.formats, new ArrayList<Handler>());
 			VisualTree vt = new VisualTree(b, cs.text);
 			if (atn == null)
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, vt));
@@ -374,7 +375,7 @@ public class Compiler {
 				tree.children.add(vt);
 		} else if (content instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("span", new ArrayList<Object>(), ce.formats, new ArrayList<Handler>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "span", new ArrayList<Object>(), ce.formats, new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null, ce.editable());
 			pvt.containsThing = AbstractTreeNode.CONTENT;
@@ -404,7 +405,7 @@ public class Compiler {
 			}
 		} else if (content instanceof CardReference) {
 			CardReference card = (CardReference) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.CARD;
@@ -418,7 +419,7 @@ public class Compiler {
 			atn.card = card;
 		} else if (content instanceof D3Invoke) {
 			D3Invoke d3i = (D3Invoke) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock("div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
+			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.containsThing = AbstractTreeNode.D3;
