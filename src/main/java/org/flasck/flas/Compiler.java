@@ -85,17 +85,30 @@ public class Compiler {
 	public static void main(String[] args) {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
-		for (String f : args)
+		for (String f : args) {
+			if (f.startsWith("-")) {
+				if (f.equals("--dump"))
+					compiler.dumpTypes = true;
+				else {
+					System.out.println("unknown option: " + f);
+					compiler.success = false;
+					break;
+				}
+				continue;
+			}
 			compiler.compile(new File(f));
-		if (compiler.success)
+		}
+		if (compiler.success) {
+			System.out.println("done");
 			System.exit(0);
-		else
+		} else
 			System.exit(1);
 	}
 
 	// TODO: move this into a separate class, like DOMFG used to be
 	int nextFn = 1;
 	private boolean success;
+	private boolean dumpTypes = false;
 	
 	public void compile(File file) {
 		String inPkg = file.getName();
@@ -270,7 +283,7 @@ public class Compiler {
 				System.err.println("Cannot write to " + exportTo + ": " + ex.getMessage());
 				return;
 			}
-			tc.writeLearnedKnowledge(wex);
+			tc.writeLearnedKnowledge(wex, dumpTypes);
 
 			abortIfErrors(errors);
 
@@ -286,8 +299,7 @@ public class Compiler {
 		} finally {
 			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
 			try { if (wex != null) wex.close(); } catch (IOException ex) {}
-			if (success)
-				System.out.println("done");
+//			if (success)
 //				FileUtils.copyFileToStream(writeTo, System.out);
 		}
 

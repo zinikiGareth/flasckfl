@@ -58,6 +58,7 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.D3PatternLineParser;
 import org.flasck.flas.parser.D3SectionLineParser;
@@ -749,6 +750,8 @@ public class FLASStory implements StoryProcessor {
 			String str = ((UnresolvedVar)o).var;
 			if (subst.containsKey(str))
 				return subst.get(str);
+			return o;
+		} else if (o instanceof UnresolvedOperator) {
 			return o;
 		} else if (o instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) o;

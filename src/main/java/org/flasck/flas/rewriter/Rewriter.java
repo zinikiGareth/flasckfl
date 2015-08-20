@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
@@ -403,6 +404,8 @@ public class Rewriter {
 			HandlerContext hc = new HandlerContext(c2, hi);
 			for (MethodDefinition m : hi.methods)
 				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
+			
+			grp.handlers.add(new HandlerGrouping(cd.name + "." + rw.name));
 		}
 		
 		rewriteScope(c2, cd.fnScope);
@@ -644,7 +647,7 @@ public class Rewriter {
 			LocatedToken slot = mm.slot.get(0);
 			Object r = cx.resolve(slot.location, slot.text);
 			if (!(r instanceof CardMember))
-				errors.message((Block)null, mm.slot.get(0) + " needs to be a state member");
+				errors.message(slot.location, slot.text + " needs to be a state member");
 			else {
 				CardMember cm = (CardMember)r;
 				newSlot.add(new LocatedToken(cm.location, cm.var));

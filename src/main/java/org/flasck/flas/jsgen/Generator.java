@@ -360,7 +360,6 @@ public class Generator {
 			fi.add(JSForm.flex("doc.getElementById(" + var + "['" + t.divThing.sid + "']).setAttribute('class', join(FLEval.full(cls), ' '))"));
 		}
 		for (Entry<String, Object> x : t.divThing.exprAttrs.entrySet()) {
-			System.out.println("Need to handle expr attr " + x.getKey());
 			fi.add(JSForm.flex("var item = " + var + ".item"));
 			HSIEForm form = new HSIE(errors).handleExpr(x.getValue(), Type.CARD);
 			JSForm.assign(fi, "var attr", form);

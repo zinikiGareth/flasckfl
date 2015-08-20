@@ -46,4 +46,12 @@ public class StructDefn implements Serializable {
 		}
 		return sb.toString();
 	}
+
+	public String asString() {
+		StringBuilder sb = new StringBuilder(typename);
+		if (!args.isEmpty()) {
+			sb.append(args);
+		}
+		return sb.toString();
+	}
 }

@@ -15,6 +15,8 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardGrouping;
+import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -40,6 +42,7 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
+import org.zinutils.utils.StringComparator;
 
 public class TypeChecker {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
@@ -48,8 +51,10 @@ public class TypeChecker {
 	final Map<String, Type> knowledge = new TreeMap<String, Type>();
 	final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
 	final Map<String, TypeDefn> types = new TreeMap<String, TypeDefn>();
-	final Map<String, StructDefn> cards = new TreeMap<String, StructDefn>();
-	// TODO: should have contracts
+	final Map<String, CardTypeInfo> cards = new TreeMap<String, CardTypeInfo>();
+	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>(new StringComparator());
+	// TODO: should have contract definitions
+	// TODO: should have something to latch implementations onto
 	
 	public TypeChecker(ErrorResult errors) {
 		this.errors = errors;
@@ -62,8 +67,21 @@ public class TypeChecker {
 		for (Entry<String, TypeDefn> d : rewriter.types.entrySet())
 			types.put(d.getKey(), d.getValue());
 //		System.out.println("types: " + types);
-		for (Entry<String, CardGrouping> d : rewriter.cards.entrySet())
-			cards.put(d.getKey(), d.getValue().struct);
+		for (Entry<String, CardGrouping> d : rewriter.cards.entrySet()) {
+			CardTypeInfo cti = new CardTypeInfo(d.getValue());
+			cards.put(d.getKey(), cti);
+			prefixes.put(d.getKey(), cti);
+			for (ContractGrouping x : d.getValue().contracts) {
+				TypeHolder ctr = new TypeHolder(x.type);
+				cti.contracts.add(ctr);
+				prefixes.put(x.implName, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
+			}
+			for (HandlerGrouping x : d.getValue().handlers) {
+				TypeHolder ctr = new TypeHolder(x.type);
+				cti.handlers.add(ctr);
+				prefixes.put(x.type, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
+			}
+		}
 	}
 
 	public void addStructDefn(StructDefn structDefn) {
@@ -87,7 +105,7 @@ public class TypeChecker {
 		// nested equations should share their parent's variables
 		Map<String, Object> localKnowledge = new HashMap<String, Object>();
 		Map<String, HSIEForm> rewritten = new HashMap<String, HSIEForm>();
-		int from = 201; // the actual number doesn't matter but might make debugging easier
+		int from = 201; // the actual number doesn't matter but something big makes it different from the pre-rewritten numbers
 		Map<Var, Var> rwvars = new HashMap<Var, Var>();
 //		System.out.println("Rewriting function tree");
 		for (Tree<HSIEForm> tree : functionsToCheck)
@@ -124,8 +142,17 @@ public class TypeChecker {
 			}
 			TypeExpr subst = (TypeExpr) tmp;
 //			System.out.println("Storing type knowledge about " + f.fnName);
-			knowledge.put(f.fnName, subst.asType(this));
-//			System.out.println(f.fnName + " :: " + knowledge.get(f.fnName));
+			Type mytype = subst.asType(this);
+			knowledge.put(f.fnName, mytype);
+			int idx = f.fnName.lastIndexOf(".");
+			if (idx == -1)
+				throw new UtilException("This may or may not be possible for " + f.fnName);
+			String pfx = f.fnName.substring(0, idx);
+			TypeHolder found = prefixes.get(pfx);
+			if (found == null)
+				throw new UtilException("Didn't find anything that could hold " + f.fnName);
+			found.add(f.fnName.substring(idx+1), mytype);
+			System.out.println(f.fnName + " :: " + mytype);
 		}
 //		System.out.println("---- Done with typecheck");
 	}
@@ -364,18 +391,17 @@ public class TypeChecker {
 				if (r.fn instanceof CardMember) {
 					CardMember cm = (CardMember) r.fn;
 					// try and find the name of the card class
-					String structName = cm.card; // form.fnName; //.substring(0, idx);
 					if (r.fn.equals("_card"))
-						return freshVarsIn(new TypeReference(cm.location, structName, null));
-					StructDefn sd = cards.get(structName);
-					if (sd == null)
-						throw new UtilException("There was no struct definition called " + structName);
-					for (StructField sf : sd.fields) {
+						return freshVarsIn(new TypeReference(cm.location, cm.card, null));
+					CardTypeInfo cti = cards.get(cm.card);
+					if (cti == null)
+						throw new UtilException("There was no card definition called " + cm.card);
+					for (StructField sf : cti.struct.fields) {
 						if (sf.name.equals(cm.var)) {
 							return freshVarsIn(sf.type);
 						}
 					}
-					errors.message(cm.location, "there is no field " + cm.var + " in card " + structName);
+					errors.message(cm.location, "there is no field " + cm.var + " in card " + cm.card);
 					return null;
 				} else if (r.fn instanceof HandlerLambda) {
 					HandlerLambda hl = (HandlerLambda) r.fn;
@@ -555,17 +581,19 @@ public class TypeChecker {
 		if (structs.containsKey(fn))
 			return typeForStructCtor(null, structs.get(fn));
 		if (cards.containsKey(fn))
-			return typeForCardCtor(null, cards.get(fn));
+			return typeForCardCtor(null, cards.get(fn).struct);
 //		System.out.println(knowledge);
 		throw new UtilException("There is no type: " + fn);
 	}
 
-	public void writeLearnedKnowledge(OutputStream wex) throws IOException {
+	public void writeLearnedKnowledge(OutputStream wex, boolean copyToScreen) throws IOException {
+		System.out.println("Inferred types:");
 		ObjectOutputStream oos = new ObjectOutputStream(wex);
 		List<StructDefn> str = new ArrayList<StructDefn>();
 		for (StructDefn sd : structs.values()) {
 			if (sd.generate) {
 				str.add(sd);
+				System.out.println("  struct " + sd.asString());
 			}
 		}
 		oos.writeObject(str);
@@ -573,11 +601,25 @@ public class TypeChecker {
 		for (TypeDefn td : types.values()) {
 			if (td.generate) {
 				ts.add(td);
+				System.out.println("  type " + td.defining);
 			}
 		}
 		oos.writeObject(ts);
 		
+		for (CardTypeInfo cti : this.cards.values()) {
+			System.out.println("  card " + cti.name);
+			for (TypeHolder x : cti.contracts) {
+				System.out.println("    contract " + x.name);
+				x.dump(6);
+			}
+			for (TypeHolder x : cti.handlers) {
+				System.out.println("    handler " + x.name);
+				x.dump(6);
+			}
+			cti.dump(4);
+		}
 		// TODO: should write contracts
+		// functions, methods, cards
 		oos.flush();
 	}
 }
