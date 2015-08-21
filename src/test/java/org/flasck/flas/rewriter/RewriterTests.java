@@ -40,7 +40,7 @@ import org.zinutils.collections.CollectionUtils;
 
 public class RewriterTests {
 	private final ErrorResult errors = new ErrorResult();
-	private final Rewriter rw = new Rewriter(errors);
+	private final Rewriter rw = new Rewriter(errors, null);
 	private Scope scope;
 	private Scope builtinScope;
 	private ScopeEntry pkgEntry;

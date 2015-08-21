@@ -1,3 +1,4 @@
 bin/
 src/test/resources/**/*.js
 src/test/resources/**/*.flim
+src/main/resources/**/*.flim

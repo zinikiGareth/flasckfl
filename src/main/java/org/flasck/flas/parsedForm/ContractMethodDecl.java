@@ -1,8 +1,10 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ContractMethodDecl {
+@SuppressWarnings("serial")
+public class ContractMethodDecl implements Serializable {
 	public final String dir;
 	public final String name;
 	public final List<Object> args;

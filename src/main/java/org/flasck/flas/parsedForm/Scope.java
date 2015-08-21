@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.utils.StringComparator;
 
 public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 	public class ScopeEntry implements Entry<String, Object> {
@@ -47,7 +48,7 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 	}
 
 	public final Scope outer;
-	private final Map<String, ScopeEntry> defns = new TreeMap<String, ScopeEntry>();
+	private final Map<String, ScopeEntry> defns = new TreeMap<String, ScopeEntry>(new StringComparator());
 	public final ScopeEntry outerEntry;
 
 	@Deprecated

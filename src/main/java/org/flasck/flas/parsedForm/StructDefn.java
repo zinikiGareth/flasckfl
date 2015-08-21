@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("serial")
-public class StructDefn implements Serializable {
+public class StructDefn implements AsString, Serializable {
 	public final String typename;
 	public final List<String> args = new ArrayList<String>();
 	public final List<StructField> fields = new ArrayList<StructField>();

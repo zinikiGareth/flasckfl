@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.flasck.flas.PackageFinder;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
@@ -90,6 +91,7 @@ import org.zinutils.exceptions.UtilException;
 // and ultimately pull these two together
 public class Rewriter {
 	private final ErrorResult errors;
+	private final PackageFinder pkgFinder;
 	public final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
 	public final Map<String, TypeDefn> types = new TreeMap<String, TypeDefn>();
 	public final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>();
@@ -137,16 +139,26 @@ public class Rewriter {
 				while ((idx = tmp.indexOf('.')) != -1) {
 					String pkg = tmp.substring(0, idx);
 					Object o = scope.get(pkg);
-					if (o == null || !(o instanceof PackageDefn))
+					if (o == null)
 						break;
+					if  (!(o instanceof PackageDefn)) {
+						errors.message(location, "The name " + pkg + " is not a package and thus cannot contain " + name);
+						return null;
+					}
 					tmp = tmp.substring(idx+1);
 					scope = ((PackageDefn)o).innerScope();
 				}
-				if (!tmp.contains(".")) {
-					ScopeEntry o = scope.getEntry(tmp);
-					if (o != null)
-						return new AbsoluteVar(o);
+				if (tmp.contains(".")) { // we don't yet have the scope
+					idx = name.lastIndexOf(".");
+					String pkgName = name.substring(0, idx);
+					scope = pkgFinder.loadFlim(biscope, pkgName);
+					if (scope == null)
+						throw new ResolutionException(location, name);
+					tmp = name.substring(idx+1);
 				}
+				ScopeEntry o = scope.getEntry(tmp);
+				if (o != null)
+					return new AbsoluteVar(o);
 			}
 			throw new ResolutionException(location, name);
 		}
@@ -302,8 +314,9 @@ public class Rewriter {
 		}
 	}
 
-	public Rewriter(ErrorResult errors) {
+	public Rewriter(ErrorResult errors, PackageFinder finder) {
 		this.errors = errors;
+		this.pkgFinder = finder;
 	}
 	
 	public void rewrite(ScopeEntry pkgEntry) {

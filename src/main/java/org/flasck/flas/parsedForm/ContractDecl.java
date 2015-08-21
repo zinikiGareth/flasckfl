@@ -1,12 +1,14 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class ContractDecl {
-	public final InputPosition location;
+@SuppressWarnings("serial")
+public class ContractDecl implements Serializable {
+	public final transient InputPosition location;
 	public final String contractName;
 	public final List<ContractMethodDecl> methods = new ArrayList<ContractMethodDecl>();
 

@@ -1,0 +1,4 @@
+	contract Init
+		down update (Any obj)
+		
+	contract KeyValue

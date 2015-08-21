@@ -38,7 +38,7 @@ public class HSIECodeGenerator {
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = plus1 1"));
 		FunctionDefinition f = new FunctionDefinition(Type.FUNCTION, "ME.f", 0, CollectionUtils.listOf(c1));
 		pkg.innerScope().define("f", "ME.f", f);
-		Rewriter rw = new Rewriter(errors);
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.errors.size());
@@ -58,7 +58,7 @@ public class HSIECodeGenerator {
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = id (decode (id 32))"));
 		FunctionDefinition f = new FunctionDefinition(Type.FUNCTION, "ME.f", 0, CollectionUtils.listOf(c1));
 		pkg.innerScope().define("f", "ME.f", f);
-		Rewriter rw = new Rewriter(errors);
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.errors.size());
@@ -78,7 +78,7 @@ public class HSIECodeGenerator {
 		FunctionDefinition g = new FunctionDefinition(Type.FUNCTION, "ME.g", 1, CollectionUtils.listOf(g1));
 		pkg.innerScope().define("f", "ME.f", f);
 		pkg.innerScope().define("g", "ME.g", g);
-		Rewriter rw = new Rewriter(errors);
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.errors.size());
@@ -99,7 +99,7 @@ public class HSIECodeGenerator {
 		FunctionDefinition g = new FunctionDefinition(Type.FUNCTION, "ME.g", 1, CollectionUtils.listOf(g1));
 		pkg.innerScope().define("f", "ME.f", f);
 		pkg.innerScope().define("g", "ME.g", g);
-		Rewriter rw = new Rewriter(errors);
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.errors.size());

@@ -14,10 +14,13 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.AsString;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -42,6 +45,7 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
+import org.zinutils.utils.Justification;
 import org.zinutils.utils.StringComparator;
 
 public class TypeChecker {
@@ -51,10 +55,9 @@ public class TypeChecker {
 	final Map<String, Type> knowledge = new TreeMap<String, Type>();
 	final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
 	final Map<String, TypeDefn> types = new TreeMap<String, TypeDefn>();
+	final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>(new StringComparator());
 	final Map<String, CardTypeInfo> cards = new TreeMap<String, CardTypeInfo>();
 	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>(new StringComparator());
-	// TODO: should have contract definitions
-	// TODO: should have something to latch implementations onto
 	
 	public TypeChecker(ErrorResult errors) {
 		this.errors = errors;
@@ -67,6 +70,8 @@ public class TypeChecker {
 		for (Entry<String, TypeDefn> d : rewriter.types.entrySet())
 			types.put(d.getKey(), d.getValue());
 //		System.out.println("types: " + types);
+		for (Entry<String, ContractDecl> d : rewriter.contracts.entrySet())
+			contracts.put(d.getKey(), d.getValue());
 		for (Entry<String, CardGrouping> d : rewriter.cards.entrySet()) {
 			CardTypeInfo cti = new CardTypeInfo(d.getValue());
 			cards.put(d.getKey(), cti);
@@ -152,7 +157,7 @@ public class TypeChecker {
 			if (found == null)
 				throw new UtilException("Didn't find anything that could hold " + f.fnName);
 			found.add(f.fnName.substring(idx+1), mytype);
-			System.out.println(f.fnName + " :: " + mytype);
+//			System.out.println(f.fnName + " :: " + mytype);
 		}
 //		System.out.println("---- Done with typecheck");
 	}
@@ -605,6 +610,24 @@ public class TypeChecker {
 			}
 		}
 		oos.writeObject(ts);
+		List<ContractDecl> cds = new ArrayList<ContractDecl>();
+		for (ContractDecl cd : contracts.values()) {
+			cds.add(cd);
+			System.out.println("  contract " + cd.contractName);
+			for (ContractMethodDecl m : cd.methods) {
+				System.out.print(Justification.LEFT.format("", 4));
+				System.out.print(Justification.PADRIGHT.format(m.dir, 5));
+				System.out.print(Justification.PADRIGHT.format(m.name, 12));
+				System.out.print(" ::");
+				String sep = " ";
+				for (Object o : m.args) {
+					System.out.print(sep + ((AsString)o).asString());
+					sep = " -> ";
+				}
+				System.out.println();
+			}
+		}
+		oos.writeObject(cds);
 		
 		for (CardTypeInfo cti : this.cards.values()) {
 			System.out.println("  card " + cti.name);
@@ -618,8 +641,8 @@ public class TypeChecker {
 			}
 			cti.dump(4);
 		}
-		// TODO: should write contracts
-		// functions, methods, cards
 		oos.flush();
+		
+		// TODO: functions?
 	}
 }

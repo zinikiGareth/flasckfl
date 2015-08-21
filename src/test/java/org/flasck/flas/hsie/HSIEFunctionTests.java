@@ -27,7 +27,7 @@ public class HSIEFunctionTests {
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
 		FunctionDefinition primes = new FunctionDefinition(Type.FUNCTION, "primes", 0, CollectionUtils.listOf(c1));
 		pkg.innerScope().define("primes", "primes", primes);
-		Rewriter rw = new Rewriter(errors);
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		System.out.println(rw.functions);
 		HSIEForm primesForm = new HSIE(errors).handle(rw.functions.get("primes"));
@@ -44,7 +44,7 @@ public class HSIEFunctionTests {
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib n = fib (n-1) + fib (n-2)"));
 		FunctionDefinition fib = new FunctionDefinition(Type.FUNCTION, "fib", 1, CollectionUtils.listOf(c1, c2, c3));
 		pkg.innerScope().define("fib", "fib", fib);
-		Rewriter rw = new Rewriter(errors);
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		System.out.println(rw.functions);
 		HSIEForm fibForm = new HSIE(errors).handle(rw.functions.get("fib"));
@@ -61,7 +61,7 @@ public class HSIEFunctionTests {
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n (a:b) = a:(take (n-1) b)"));
 		FunctionDefinition take = new FunctionDefinition(Type.FUNCTION, "take", 2, CollectionUtils.listOf(c1, c2, c3));
 		pkg.innerScope().define("take", "take", take);
-		Rewriter rw = new Rewriter(errors);
+		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		System.out.println(rw.functions);
 		HSIEForm takeForm = new HSIE(errors).handle(rw.functions.get("take"));

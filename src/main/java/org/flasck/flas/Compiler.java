@@ -85,11 +85,19 @@ public class Compiler {
 	public static void main(String[] args) {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
-		for (String f : args) {
+		for (int i=0;i<args.length;i++) {
+			String f = args[i];
+			int hasMore = args.length-i-1;
 			if (f.startsWith("-")) {
 				if (f.equals("--dump"))
 					compiler.dumpTypes = true;
-				else {
+				else if (f.equals("--flim")) {
+					if (hasMore == 0) {
+						System.out.println("--flim <file>");
+						System.exit(1);
+					}
+					compiler.pkgFinder.searchIn(new File(args[++i]));
+				} else {
 					System.out.println("unknown option: " + f);
 					compiler.success = false;
 					break;
@@ -109,6 +117,7 @@ public class Compiler {
 	int nextFn = 1;
 	private boolean success;
 	private boolean dumpTypes = false;
+	private final PackageFinder pkgFinder = new PackageFinder();
 	
 	public void compile(File file) {
 		String inPkg = file.getName();
@@ -164,7 +173,7 @@ public class Compiler {
 			// 3. Flatten the hierarchy, grouping into things of similar kinds
 			//    Resolve symbols and rewrite expressions to reference "scoped" variables
 			final ErrorResult errors = new ErrorResult();
-			final Rewriter rewriter = new Rewriter(errors);
+			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
 			final ApplyCurry curry = new ApplyCurry();
 
 			for (ScopeEntry se : entries)

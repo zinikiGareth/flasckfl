@@ -1,11 +1,14 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
+
 import org.flasck.flas.blockForm.InputPosition;
 
-public class TypedPattern {
-	public final InputPosition typeLocation;
+@SuppressWarnings("serial")
+public class TypedPattern implements AsString, Serializable {
+	public final transient InputPosition typeLocation;
 	public final String type;
-	public final InputPosition varLocation;
+	public final transient InputPosition varLocation;
 	public final String var;
 
 	public TypedPattern(InputPosition location, String type, InputPosition vlocation, String var) {
@@ -18,5 +21,10 @@ public class TypedPattern {
 	@Override
 	public String toString() {
 		return "TypedPattern[" + type + ":" + var +"]";
+	}
+
+	@Override
+	public String asString() {
+		return "(" + type + " " + var + ")";
 	}
 }

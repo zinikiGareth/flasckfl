@@ -1,9 +1,5 @@
 package org.flasck.flas.stories;
 
-import java.util.ArrayList;
-
-import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -137,21 +133,21 @@ public class Builtin {
 				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "B")), "handlers")));
 		}
 		{ // Ziniki
-			PackageDefn dom = new PackageDefn(ret, "org");
-			PackageDefn ziniki = new PackageDefn(dom.innerScope(), "ziniki");
+//			PackageDefn dom = new PackageDefn(ret, "org");
+//			PackageDefn ziniki = new PackageDefn(dom.innerScope(), "ziniki");
 			// TODO: I think this should be in org.cardstack
-			ziniki.innerScope().define("Init", "org.ziniki.Init",
-				new ContractDecl(null, "org.ziniki.Init"));
-			ziniki.innerScope().define("KeyValue", "org.ziniki.KeyValue",
-					new ContractDecl(null, "org.ziniki.KeyValue"));
-			ContractDecl creds = new ContractDecl(null, "org.ziniki.Credentials");
-			creds.methods.add(new ContractMethodDecl("up", "logout", new ArrayList<Object>()));
-			ziniki.innerScope().define("Credentials", "org.ziniki.Credentials", creds);
-			ContractDecl qc = new ContractDecl(null, "org.ziniki.Query");
-			qc.methods.add(new ContractMethodDecl("up", "scan", new ArrayList<Object>()));
-			ziniki.innerScope().define("Query", "org.ziniki.Query",	qc);
-			ziniki.innerScope().define("QueryHandler", "org.ziniki.QueryHandler",
-					new ContractDecl(null, "org.ziniki.QueryHandler"));
+//			ziniki.innerScope().define("Init", "org.ziniki.Init",
+//				new ContractDecl(null, "org.ziniki.Init"));
+//			ziniki.innerScope().define("KeyValue", "org.ziniki.KeyValue",
+//					new ContractDecl(null, "org.ziniki.KeyValue"));
+//			ContractDecl creds = new ContractDecl(null, "org.ziniki.Credentials");
+//			creds.methods.add(new ContractMethodDecl("up", "logout", new ArrayList<Object>()));
+//			ziniki.innerScope().define("Credentials", "org.ziniki.Credentials", creds);
+//			ContractDecl qc = new ContractDecl(null, "org.ziniki.Query");
+//			qc.methods.add(new ContractMethodDecl("up", "scan", new ArrayList<Object>()));
+//			ziniki.innerScope().define("Query", "org.ziniki.Query",	qc);
+//			ziniki.innerScope().define("QueryHandler", "org.ziniki.QueryHandler",
+//					new ContractDecl(null, "org.ziniki.QueryHandler"));
 		}
 		return ret;
 	}
