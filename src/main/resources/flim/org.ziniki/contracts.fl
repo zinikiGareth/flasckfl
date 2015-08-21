@@ -2,3 +2,6 @@
 		down update (Any obj)
 		
 	contract KeyValue
+
+	contract KVUpdate
+		down update (Any obj)

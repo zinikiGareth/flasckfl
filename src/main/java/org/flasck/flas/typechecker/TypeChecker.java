@@ -612,19 +612,21 @@ public class TypeChecker {
 		oos.writeObject(ts);
 		List<ContractDecl> cds = new ArrayList<ContractDecl>();
 		for (ContractDecl cd : contracts.values()) {
-			cds.add(cd);
-			System.out.println("  contract " + cd.contractName);
-			for (ContractMethodDecl m : cd.methods) {
-				System.out.print(Justification.LEFT.format("", 4));
-				System.out.print(Justification.PADRIGHT.format(m.dir, 5));
-				System.out.print(Justification.PADRIGHT.format(m.name, 12));
-				System.out.print(" ::");
-				String sep = " ";
-				for (Object o : m.args) {
-					System.out.print(sep + ((AsString)o).asString());
-					sep = " -> ";
+			if (cd.generate) {
+				cds.add(cd);
+				System.out.println("  contract " + cd.contractName);
+				for (ContractMethodDecl m : cd.methods) {
+					System.out.print(Justification.LEFT.format("", 4));
+					System.out.print(Justification.PADRIGHT.format(m.dir, 5));
+					System.out.print(Justification.PADRIGHT.format(m.name, 12));
+					System.out.print(" ::");
+					String sep = " ";
+					for (Object o : m.args) {
+						System.out.print(sep + ((AsString)o).asString());
+						sep = " -> ";
+					}
+					System.out.println();
 				}
-				System.out.println();
 			}
 		}
 		oos.writeObject(cds);

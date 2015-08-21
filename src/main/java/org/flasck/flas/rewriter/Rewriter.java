@@ -157,8 +157,12 @@ public class Rewriter {
 					tmp = name.substring(idx+1);
 				}
 				ScopeEntry o = scope.getEntry(tmp);
-				if (o != null)
+				if (o != null) {
+					Object defn = o.getValue();
+					if (defn instanceof ContractDecl)
+						contracts.put(name, (ContractDecl) defn);
 					return new AbsoluteVar(o);
+				}
 			}
 			throw new ResolutionException(location, name);
 		}
