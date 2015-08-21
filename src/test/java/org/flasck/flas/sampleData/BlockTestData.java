@@ -192,7 +192,7 @@ public class BlockTestData {
 	}
 
 	private static BlockBuilder builder() {
-		return new BlockBuilder();
+		return new BlockBuilder("test");
 	}
 
 	public static void assertBlocksEqual(Block expected, Block actual) {

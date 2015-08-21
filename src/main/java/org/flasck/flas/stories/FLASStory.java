@@ -150,7 +150,7 @@ public class FLASStory implements StoryProcessor {
 				if (arr == null)
 					continue;
 				Block lastBlock = (Block) arr[1];
-				FunctionCaseDefn fcd = new FunctionCaseDefn(ret, fi.name, fi.args, arr[0]);
+				FunctionCaseDefn fcd = new FunctionCaseDefn(ret, fi.location, fi.name, fi.args, arr[0]);
 				fndefns.add(fcd);
 				if (lastFn != null && !fcd.intro.name.equals(lastFn)) {
 					lastFn = fcd.intro.name;
@@ -383,7 +383,7 @@ public class FLASStory implements StoryProcessor {
 				if (arr == null)
 					continue;
 				Block lastBlock = (Block) arr[1];
-				FunctionCaseDefn fcd = new FunctionCaseDefn(s.scope, fi.name, fi.args, arr[0]);
+				FunctionCaseDefn fcd = new FunctionCaseDefn(s.scope, fi.location, fi.name, fi.args, arr[0]);
 				functions.add(fcd);
 				if (!lastBlock.nested.isEmpty()) {
 					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+37, s.kind), lastBlock.nested);

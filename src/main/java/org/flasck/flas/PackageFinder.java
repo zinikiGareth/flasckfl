@@ -20,8 +20,6 @@ public class PackageFinder {
 		for (File d : dirs) {
 			File pkg = new File(d, pkgName);
 			if (pkg.isDirectory()) {
-				System.out.println("Load from " + pkg);
-				
 				// Create the scope
 				String tmp = pkgName;
 				Scope scope = rootScope;

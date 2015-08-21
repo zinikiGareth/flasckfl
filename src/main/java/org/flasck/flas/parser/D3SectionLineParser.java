@@ -16,9 +16,9 @@ public class D3SectionLineParser implements TryParsing {
 			return null; // in the "nothing doing" sense
 
 		if (kw.text.equals("enter"))
-			return new D3Section("enter");
+			return new D3Section(line.realinfo(), "enter");
 		else if (kw.text.equals("layout"))
-			return new D3Section("layout");
+			return new D3Section(line.realinfo(), "layout");
 		else
 			return ErrorResult.oneMessage(kw.location, "valid d3 section name expected, not '" + kw.text +"'");
 	}

@@ -18,5 +18,9 @@ public class Implements {
 	public void addMethod(MethodDefinition meth) {
 		methods.add(meth);
 	}
-
+	
+	@Override
+	public String toString() {
+		return type;
+	}
 }

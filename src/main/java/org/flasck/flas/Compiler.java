@@ -9,9 +9,13 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -34,12 +38,14 @@ import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardGrouping;
+import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
@@ -80,6 +86,7 @@ import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 import org.zinutils.utils.FileUtils;
+import org.zinutils.utils.StringComparator;
 
 public class Compiler {
 	public static void main(String[] args) {
@@ -144,7 +151,7 @@ public class Compiler {
 				r = new FileReader(f);
 
 				// 1. Use indentation to break the input file up into blocks
-				List<Block> blocks = makeBlocks(r);
+				List<Block> blocks = makeBlocks(f.getName(), r);
 				
 				// 2. Use the parser factory and story to convert blocks to a package definition
 				doParsing(pd.myEntry(), blocks);
@@ -170,7 +177,7 @@ public class Compiler {
 		FileOutputStream wex = null;
 		success = false;
 		try {
-			// 3. Flatten the hierarchy, grouping into things of similar kinds
+			// 1. Flatten the hierarchy, grouping into things of similar kinds
 			//    Resolve symbols and rewrite expressions to reference "scoped" variables
 			final ErrorResult errors = new ErrorResult();
 			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
@@ -180,42 +187,53 @@ public class Compiler {
 				rewriter.rewrite(se);
 			abortIfErrors(errors);
 
-			/*
-			// 4. Promote template tree definition to individual functions
-			List<RenderTree> trees = new ArrayList<RenderTree>();
-			List<UpdateTree> updates = new ArrayList<UpdateTree>();
-			for (Template t : rewriter.templates)
-				promoteTemplateFunctions(errors, rewriter.functions, trees, updates, t);
-			abortIfErrors(errors);
-			 */
-			
-			// 4b. Do the same for D3 invocations
-			for (D3Invoke d3 : rewriter.d3s)
-				promoteD3Methods(errors, rewriter.functions, d3);
-			
-			// 5. Extract methods and convert to functions
-			MethodConvertor.convert(rewriter.functions, rewriter.methods);
-			abortIfErrors(errors);
-
-			// 6. Convert event handlers to functions
-			MethodConvertor.convertEvents(rewriter.functions, rewriter.eventHandlers);
-			abortIfErrors(errors);
-//				rewriter.dump();
-
-			// 7. Prepare Typechecker & load types
+			// 2. Prepare Typechecker & load types
 			TypeChecker tc = new TypeChecker(errors);
 			populateTypes(tc, top, pkgs); // this is intended to just load in builtin stuff.  We should have a better pre-flattened version of that
 			tc.populateTypes(rewriter);
 			abortIfErrors(errors);
 		
-			// 8. Generate Class Definitions
+			// 3. Generate Class Definitions
 			JSTarget target = new JSTarget(inPkg);
 			Generator gen = new Generator(errors, target);
 
 			for (Entry<String, StructDefn> sd : rewriter.structs.entrySet())
 				gen.generate(sd.getValue());
-			for (Entry<String, CardGrouping> cg : rewriter.cards.entrySet())
-				gen.generate(cg.getKey(), cg.getValue());
+			for (Entry<String, CardGrouping> kv : rewriter.cards.entrySet()) {
+				CardGrouping grp = kv.getValue();
+				gen.generate(kv.getKey(), grp);
+				for (ContractGrouping ctr : grp.contracts) {
+					ContractImplements ci = rewriter.cardImplements.get(ctr.implName);
+					if (ci == null)
+						throw new UtilException("How did this happen?");
+					ContractDecl cd = rewriter.contracts.get(ci.type);
+					if (cd == null)
+						throw new UtilException("How did this happen?");
+					Set<ContractMethodDecl> requireds = new TreeSet<ContractMethodDecl>(); 
+					for (ContractMethodDecl m : cd.methods) {
+						if (m.dir.equals("down") /* && is required */)
+							requireds.add(m);
+					}
+					for (MethodDefinition m : ci.methods) {
+						boolean haveMethod = false;
+						for (ContractMethodDecl dc : cd.methods) {
+							if (dc.dir.equals("down") && (ctr.implName +"." + dc.name).equals(m.intro.name)) {
+								if (dc.args.size() != m.intro.args.size())
+									errors.message(m.intro.location, "incorrect number of arguments in declaration, expected " + dc.args.size());
+								requireds.remove(dc);
+								haveMethod = true;
+								break;
+							}
+						}
+						if (!haveMethod)
+							errors.message(m.intro.location, "cannot implement down method " + m.intro.name + " because it is not in the contract declaration");
+					}
+					if (!requireds.isEmpty()) {
+						for (ContractMethodDecl d : requireds)
+							errors.message(ci.typeLocation, ci.type + " does not implement " + d);
+					}
+				}
+			}
 			for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet())
 				gen.generateContract(ci.getKey(), ci.getValue());
 			for (Entry<String, ContractService> cs : rewriter.cardServices.entrySet())
@@ -223,35 +241,40 @@ public class Compiler {
 			for (Entry<String, HandlerImplements> hi : rewriter.cardHandlers.entrySet())
 				gen.generateHandler(hi.getKey(), hi.getValue());
 			
-			// 9. Do dependency analysis on functions and group them together in orchards
+			// 4. Do dependency analysis on functions and group them together in orchards
 			List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(rewriter.functions);
 			abortIfErrors(errors);
 
-			// 10. Now process each orchard
+			// 5. Now process each orchard
 			//   a. convert functions to HSIE
 			//   b. typechecking
-			//   c. curry functions that don't have enough args
-			//   d. generate JSForms
 		
+			HSIE hsie = new HSIE(errors);
+			Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 			for (Orchard<FunctionDefinition> d : defns) {
-				// 10a. Convert each orchard to HSIE
+				// 6a. Convert each orchard to HSIE
 				Orchard<HSIEForm> oh = hsieOrchard(errors, d);
 				abortIfErrors(errors);
 				
-				// 10b. Typecheck an orchard together
+				// 6b. Typecheck an orchard together
 				tc.typecheck(oh);
 				abortIfErrors(errors);
 
-				// 10c. Check whether functions are curried and add in the appropriate indications if so
-				handleCurrying(curry, tc, oh);
-				abortIfErrors(errors);
-
-				// 10d. generation of JSForms
-				generateOrchard(gen, oh);
-				abortIfErrors(errors);
+				for (Tree<HSIEForm> t : oh)
+					for (HSIEForm h : t.allNodes())
+						forms.put(h.fnName, h);
 			}
+
+			// Now go back and handle all the "special cases" that sit at the top of the tree, such as methods and templates
 			
-			// 11. Generate code for templating
+			MethodConvertor mc = new MethodConvertor(errors, hsie, tc);
+
+			// 6. Typecheck contract methods and event handlers, convert to functions and compile to HSIE
+			mc.convert(forms, rewriter.methods);
+			mc.convertEvents(forms, rewriter.eventHandlers);
+			abortIfErrors(errors);
+
+			// 7. Generate code from templates
 			for (Template cg : rewriter.templates) {
 				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, rewriter, cg);
 				gen.generate(tam, null, null);
@@ -276,7 +299,19 @@ public class Compiler {
 				target.add(onUpdate);
 			}
 
-			// 12a. Issue JavaScript
+			// 8. D3 definitions may generate card functions; promote these onto the cards
+			for (D3Invoke d3 : rewriter.d3s)
+				promoteD3Methods(errors, mc, forms, rewriter.functions, d3);
+			
+			// 9. Check whether functions are curried and add in the appropriate indications if so
+			handleCurrying(curry, tc, forms.values());
+			abortIfErrors(errors);
+
+			// 10. generation of JSForms
+			generateForms(gen, forms.values());
+			abortIfErrors(errors);
+
+			// 11a. Issue JavaScript
 			try {
 				wjs = new FileWriter(writeTo);
 			} catch (IOException ex) {
@@ -285,7 +320,7 @@ public class Compiler {
 			}
 			target.writeTo(wjs);
 
-			// 12b. Save learned state for export
+			// 11b. Save learned state for export
 			try {
 				wex = new FileOutputStream(exportTo);
 			} catch (IOException ex) {
@@ -463,7 +498,7 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
-	private void promoteD3Methods(ErrorResult errors, Map<String, FunctionDefinition> functions, D3Invoke d3) {
+	private void promoteD3Methods(ErrorResult errors, MethodConvertor mc, Map<String, HSIEForm> forms, Map<String, FunctionDefinition> functions, D3Invoke d3) {
 		Object init = d3.scope.fromRoot("NilMap");
 		AbsoluteVar assoc = d3.scope.fromRoot("Assoc");
 		AbsoluteVar cons = d3.scope.fromRoot("Cons");
@@ -484,12 +519,12 @@ public class Compiler {
 					byKey.add(s.name, new ApplyExpr(tuple, p.pattern, pl));
 				}
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
-					FunctionIntro fi = new FunctionIntro(d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
+					FunctionIntro fi = new FunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
 					MethodCaseDefn mcd = new MethodCaseDefn(fi);
 					mcd.messages.addAll(s.actions);
 					MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
 					MethodInContext mic = new MethodInContext(d3.scope, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
-					MethodConvertor.convert(functions, CollectionUtils.listOf(mic));
+					mc.convert(forms, CollectionUtils.listOf(mic));
 					byKey.add(s.name, new FunctionLiteral(fi.name));
 //					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);
 				} else { // something like layout, that is just a set of definitions
@@ -507,8 +542,8 @@ public class Compiler {
 		FunctionLiteral data = functionWithArgs(d3.d3.prefix, functions, d3.scope, new ArrayList<Object>(), d3.d3.data);
 		init = new ApplyExpr(assoc, new StringLiteral("data"), data, init);
 
-		FunctionIntro d3f = new FunctionIntro(d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(d3.scope, d3f.name, d3f.args, init);
+		FunctionIntro d3f = new FunctionIntro(d3.d3.dloc, d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>());
+		FunctionCaseDefn fcd = new FunctionCaseDefn(d3.scope, d3.d3.dloc, d3f.name, d3f.args, init);
 		FunctionDefinition func = new FunctionDefinition(HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 	}
@@ -516,8 +551,8 @@ public class Compiler {
 	private FunctionLiteral functionWithArgs(String prefix, Map<String, FunctionDefinition> functions, Scope scope, List<Object> args, Object expr) {
 		String name = "_gen_" + (nextFn++);
 
-		FunctionIntro d3f = new FunctionIntro(prefix + "." + name, args);
-		FunctionCaseDefn fcd = new FunctionCaseDefn(scope, d3f.name, d3f.args, expr);
+		FunctionIntro d3f = new FunctionIntro(null, prefix + "." + name, args);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(scope, null, d3f.name, d3f.args, expr);
 		FunctionDefinition func = new FunctionDefinition(HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 
@@ -535,8 +570,8 @@ public class Compiler {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Block> makeBlocks(FileReader r) throws IOException, ErrorResultException {
-		Object res = Blocker.block(r);
+	private List<Block> makeBlocks(String file, FileReader r) throws IOException, ErrorResultException {
+		Object res = Blocker.block(file, r);
 		if (res instanceof ErrorResult)
 			throw new ErrorResultException((ErrorResult) res);
 		return (List<Block>) res;
@@ -583,20 +618,13 @@ public class Compiler {
 			hsieTree(errors, ret, t, x, tree, parent);
 	}
 
-	private void handleCurrying(ApplyCurry curry, TypeChecker tc, Orchard<HSIEForm> oh) {
-		for (Tree<HSIEForm> t : oh)
-			for (HSIEForm h : t.allNodes())
-				curry.rewrite(tc, h);
+	private void handleCurrying(ApplyCurry curry, TypeChecker tc, Collection<HSIEForm> collection) {
+		for (HSIEForm h : collection)
+			curry.rewrite(tc, h);
 	}
 
-	private void generateOrchard(Generator gen, Orchard<HSIEForm> oh) {
-		for (Tree<HSIEForm> t : oh)
-			generateTree(gen,  t, t.getRoot());
-	}
-	
-	private void generateTree(Generator gen, Tree<HSIEForm> t, Node<HSIEForm> node) {
-		gen.generate(node.getEntry());
-		for (Node<HSIEForm> n : t.getChildren(node))
-			generateTree(gen, t, n);
+	private void generateForms(Generator gen, Collection<HSIEForm> collection) {
+		for (HSIEForm h : collection)
+			gen.generate(h);
 	}
 }

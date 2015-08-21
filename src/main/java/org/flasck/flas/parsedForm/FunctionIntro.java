@@ -4,14 +4,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.zinutils.exceptions.UtilException;
 
 public class FunctionIntro {
+	public final InputPosition location;
 	public final String name;
 	public final List<Object> args;
 
-	public FunctionIntro(String name, List<Object> args) {
+	public FunctionIntro(InputPosition location, String name, List<Object> args) {
+		this.location = location;
 		this.name = name;
 		this.args = args;
 	}

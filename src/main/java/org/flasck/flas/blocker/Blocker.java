@@ -16,11 +16,13 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class Blocker {
+	private final String file;
 	private final ErrorResult errors = new ErrorResult();
 	private int lineNo = 0;
 	private final List<Block> stack = new ArrayList<Block>();
 	
-	private Blocker() {
+	private Blocker(String file) {
+		this.file = file;
 		Block b = new Block(); // a transient block
 		stack.add(b);
 	}
@@ -39,10 +41,10 @@ public class Blocker {
 			pushBlock(null, text, true, false);
 		} else if (ind.tabs == 0 && ind.spaces != 0) {
 			// can't have a line with spaces at start and no tabs
-			errors.message(new InputPosition(lineNo, 0, l), "line cannot start with spaces");
+			errors.message(new InputPosition(file, lineNo, 0, l), "line cannot start with spaces");
 		} else if (ind.tabs == cind() && ind.spaces > 0) {
 			// this is a continuation line
-			stack.get(stack.size()-1).line.lines.add(new SingleLine(lineNo, ind, text));
+			stack.get(stack.size()-1).line.lines.add(new SingleLine(file, lineNo, ind, text));
 		} else if (ind.tabs == cind()+1 && ind.spaces == 0) {
 			// this is an indented line
 			pushBlock(ind, text, true, true);
@@ -70,7 +72,7 @@ public class Blocker {
 	private Block pushBlock(Indent ind, String text, boolean addToParent, boolean addToStack) {
 		Block b = new Block();
 		b.line = new ContinuedLine();
-		b.line.lines.add(new SingleLine(lineNo, ind, text));
+		b.line.lines.add(new SingleLine(file, lineNo, ind, text));
 		if (addToParent)
 			stack.get(stack.size()-1).nested.add(b);
 		if (addToStack)
@@ -94,7 +96,7 @@ public class Blocker {
 	}
 
 	public static List<Block> block(List<String> lines) {
-		Blocker blocker = new Blocker();
+		Blocker blocker = new Blocker("unknown");
 		for (String l : lines)
 			blocker.accept(l);
 		return blocker.stack.get(0).nested;
@@ -105,9 +107,9 @@ public class Blocker {
 		return block(lines);
 	}
 
-	public static Object block(Reader reader) {
+	public static Object block(String file, Reader reader) {
 		LineNumberReader lnr = new LineNumberReader(reader);
-		Blocker blocker = new Blocker();
+		Blocker blocker = new Blocker(file);
 		try {
 			String s;
 			while ((s = lnr.readLine()) != null)
@@ -117,7 +119,7 @@ public class Blocker {
 			return blocker.stack.get(0).nested;
 		} catch (IOException ex) {
 			ex.printStackTrace();
-			return ErrorResult.oneMessage(new InputPosition(lnr.getLineNumber(), 0, "<io error>"), "io error: " + ex.getMessage());
+			return ErrorResult.oneMessage(new InputPosition(blocker.file, lnr.getLineNumber(), 0, "<io error>"), "io error: " + ex.getMessage());
 		}
 	}
 }

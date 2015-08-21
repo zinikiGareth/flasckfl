@@ -22,5 +22,9 @@ public class ContractDecl implements Serializable {
 	public void addMethod(ContractMethodDecl md) {
 		methods.add(md);
 	}
-
+	
+	@Override
+	public String toString() {
+		return contractName;
+	}
 }

@@ -9,11 +9,13 @@ import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.SingleLine;
 
 public class BlockBuilder {
+	private final String file;
 	private Block block = new Block();
 	private List<Block> stack = new ArrayList<Block>();
 	private int lineNo = 1;
 	
-	public BlockBuilder() {
+	public BlockBuilder(String file) {
+		this.file = file;
 		stack.add(block);
 	}
 	
@@ -34,7 +36,7 @@ public class BlockBuilder {
 			cl = new ContinuedLine();
 			b.line = cl;
 		}
-		cl.lines.add(new SingleLine(lineNo++, new Indent(stack.size(), 0), line));
+		cl.lines.add(new SingleLine(file, lineNo++, new Indent(stack.size(), 0), line));
 		return this;
 	}
 	
@@ -42,7 +44,7 @@ public class BlockBuilder {
 		ContinuedLine cl = stack.get(stack.size()-1).line;
 		if (cl == null) 
 			throw new RuntimeException("cannot continue line before started");
-		cl.lines.add(new SingleLine(lineNo++, new Indent(stack.size(), ind), line));
+		cl.lines.add(new SingleLine(file, lineNo++, new Indent(stack.size(), ind), line));
 		return this;
 	}
 
@@ -55,7 +57,7 @@ public class BlockBuilder {
 			b.line = cl;
 		} else
 			cl = stack.get(stack.size()-1).line = new ContinuedLine();
-		cl.lines.add(new SingleLine(lineNo++, null, line));
+		cl.lines.add(new SingleLine(file, lineNo++, null, line));
 		return this;
 	}
 	

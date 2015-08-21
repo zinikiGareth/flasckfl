@@ -374,9 +374,12 @@ public class Rewriter {
 			if (rw.referAsVar != null)
 				sd.fields.add(new StructField(new TypeReference(null, rw.type, null), rw.referAsVar));
 
-			for (MethodDefinition m : ci.methods)
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, HSIEForm.Type.CONTRACT, rewrite(c2, m)));
-
+			for (MethodDefinition m : ci.methods) {
+				MethodDefinition rwm = rewrite(c2, m);
+				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, HSIEForm.Type.CONTRACT, rwm));
+				rw.methods.add(rwm);
+			}
+			
 			pos++;
 		}
 		
@@ -507,7 +510,7 @@ public class Rewriter {
 				D3PatternBlock rp = new D3PatternBlock(p.pattern);
 				patterns.add(rp);
 				for (D3Section s : p.sections.values()) {
-					D3Section rs = new D3Section(s.name);
+					D3Section rs = new D3Section(s.location, s.name);
 					rp.sections.put(s.name, rs);
 					for (MethodMessage mm : s.actions)
 						rs.actions.add(rewrite(c2, mm));
@@ -534,7 +537,7 @@ public class Rewriter {
 				errors.message((Block)null, "cannot find a valid definition of contract " + ci.type);
 				return ci;
 			}
-			return new ContractImplements(ci.typeLocation, ((AbsoluteVar)av).id, ci.vlocation, ci.referAsVar);
+			return new ContractImplements(ci.typeLocation, ((AbsoluteVar)av).id, ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -610,7 +613,7 @@ public class Rewriter {
 		Object expr = rewriteExpr(cx, c.expr);
 		if (expr == null)
 			return null;
-		FunctionCaseDefn ret = new FunctionCaseDefn(c.innerScope().outer, intro.name, intro.args, expr);
+		FunctionCaseDefn ret = new FunctionCaseDefn(c.innerScope().outer, intro.location, intro.name, intro.args, expr);
 		rewriteScope(cx, c.innerScope());
 		return ret;
 	}
@@ -634,7 +637,7 @@ public class Rewriter {
 		for (Object o : intro.args) {
 			args.add(rewritePattern(cx, o));
 		}
-		return new FunctionIntro(intro.name, args);
+		return new FunctionIntro(intro.location, intro.name, args);
 	}
 
 	private Object rewritePattern(NamingContext scope, Object o) {

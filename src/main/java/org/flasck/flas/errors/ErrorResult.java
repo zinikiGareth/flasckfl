@@ -8,6 +8,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.zinutils.utils.Justification;
 
 public class ErrorResult {
 	public final List<FLASError> errors = new ArrayList<FLASError>();
@@ -41,7 +42,7 @@ public class ErrorResult {
 			for (int i=0;i<ind;i++)
 				pw.append(' ');
 			if (e.loc != null) {
-				pw.write(e.loc + ": " + e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off));
+				pw.write(Justification.PADRIGHT.format(e.loc + ": ", 22) + e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off));
 				pw.write('\n');
 			}
 			for (int i=0;i<ind;i++)

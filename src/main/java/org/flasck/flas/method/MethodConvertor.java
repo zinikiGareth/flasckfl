@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
@@ -19,32 +21,44 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.typechecker.TypeChecker;
+import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class MethodConvertor {
+	private final ErrorResult errors;
+	private final HSIE hsie;
+	private final TypeChecker tc;
 
-	public static void convert(Map<String, FunctionDefinition> functions, List<MethodInContext> methods) {
+	public MethodConvertor(ErrorResult errors, HSIE hsie, TypeChecker tc) {
+		this.errors = errors;
+		this.hsie = hsie;
+		this.tc = tc;
+	}
+
+	public void convert(Map<String, HSIEForm> functions, List<MethodInContext> methods) {
 		for (MethodInContext m : methods) {
 			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 			for (MethodCaseDefn mcd : m.method.cases) {
-				cases.add(new FunctionCaseDefn(null, mcd.intro.name, mcd.intro.args, convert(m.scope, mcd.messages)));
+				cases.add(new FunctionCaseDefn(null, mcd.intro.location, mcd.intro.name, mcd.intro.args, convert(m.scope, mcd.messages)));
 			}
-			functions.put(m.method.intro.name, new FunctionDefinition(m.type, m.method.intro.name, m.method.intro.args.size(), cases));
+			FunctionDefinition fd = new FunctionDefinition(m.type, m.method.intro.name, m.method.intro.args.size(), cases);
+			functions.put(m.method.intro.name, hsie.handle(fd));
 		}
 	}
 
-	public static void convertEvents(Map<String, FunctionDefinition> functions, List<EventHandlerInContext> eventHandlers) {
+	public void convertEvents(Map<String, HSIEForm> functions, List<EventHandlerInContext> eventHandlers) {
 		for (EventHandlerInContext x : eventHandlers) {
 			FunctionDefinition fd = MethodConvertor.convert(x.scope, x.name, x.handler);
-			functions.put(x.name, fd);
+			functions.put(x.name, hsie.handle(fd));
 		}
 	}
 
 	public static FunctionDefinition convert(Scope scope, String card, EventHandlerDefinition eh) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		for (EventCaseDefn c : eh.cases) {
-			cases.add(new FunctionCaseDefn(null, c.intro.name, c.intro.args, convert(scope, c.messages)));
+			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, convert(scope, c.messages)));
 		}
 		return new FunctionDefinition(Type.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
 	}

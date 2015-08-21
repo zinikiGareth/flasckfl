@@ -3,6 +3,7 @@ package org.flasck.flas.parsedForm;
 import java.io.Writer;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.UtilException;
 
 public class FunctionCaseDefn implements ContainsScope{
@@ -10,8 +11,8 @@ public class FunctionCaseDefn implements ContainsScope{
 	public final Object expr;
 	private final Scope scope;
 
-	public FunctionCaseDefn(Scope inside, String name, List<Object> args, Object expr) {
-		intro = new FunctionIntro(name, args);
+	public FunctionCaseDefn(Scope inside, InputPosition location, String name, List<Object> args, Object expr) {
+		intro = new FunctionIntro(location, name, args);
 		if (expr == null)
 			throw new UtilException("Cannot build function case with null expr");
 		this.expr = expr;

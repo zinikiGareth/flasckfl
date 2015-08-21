@@ -21,11 +21,11 @@ public class ContinuedLine {
 		for (SingleLine l : lines) {
 			String trim = l.line.trim();
 			if (pos < off + trim.length())
-				return new InputPosition(l.lineNo, pos-off, trim);
+				return new InputPosition(l.file, l.lineNo, pos-off, trim);
 			off += trim.length()+1;
 		}
 		SingleLine l = lines.get(lines.size()-1);
-		return new InputPosition(l.lineNo, l.line.trim().length(), l.line.trim());
+		return new InputPosition(l.file, l.lineNo, l.line.trim().length(), l.line.trim());
 	}
 	
 	@Override
