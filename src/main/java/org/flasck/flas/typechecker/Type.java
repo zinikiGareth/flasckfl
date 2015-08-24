@@ -5,19 +5,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.Locatable;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
-public class Type {
+public class Type implements Locatable {
+	private final InputPosition location;
 	public enum WhatAmI { SIMPLE, POLYVAR, FUNCTION, TUPLE };
 	public final WhatAmI iam;
 	private final String name;
 	private final List<Type> args;
 	
-	private Type(WhatAmI iam, String name, List<Type> args) {
+	private Type(InputPosition location, WhatAmI iam, String name, List<Type> args) {
+		this.location = location;
 		this.iam = iam;
 		this.name = name;
 		this.args = args;
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
 	}
 
 	public String name() {
@@ -47,28 +56,28 @@ public class Type {
 		return args.get(i);
 	}
 	
-	public static Type simple(String name, List<Type> args) {
-		return new Type(WhatAmI.SIMPLE, name, args);
+	public static Type simple(InputPosition loc, String name, List<Type> args) {
+		return new Type(loc, WhatAmI.SIMPLE, name, args);
 	}
 
-	public static Type simple(String name, Type... args) {
-		return new Type(WhatAmI.SIMPLE, name, CollectionUtils.listOf(args));
+	public static Type simple(InputPosition loc, String name, Type... args) {
+		return new Type(loc, WhatAmI.SIMPLE, name, CollectionUtils.listOf(args));
 	}
 	
-	public static Type polyvar(String name) {
-		return new Type(WhatAmI.POLYVAR, name, null);
+	public static Type polyvar(InputPosition loc, String name) {
+		return new Type(loc, WhatAmI.POLYVAR, name, null);
 	}
 	
-	public static Type function(List<Type> args) {
-		return new Type(WhatAmI.FUNCTION, null, args);
+	public static Type function(InputPosition loc, List<Type> args) {
+		return new Type(loc, WhatAmI.FUNCTION, null, args);
 	}
 
-	public static Type function(Type... args) {
-		return Type.function(CollectionUtils.listOf(args));
+	public static Type function(InputPosition loc, Type... args) {
+		return Type.function(loc, CollectionUtils.listOf(args));
 	}
 	
-	public static Type tuple(List<Type> args) {
-		return new Type(WhatAmI.TUPLE, null, args);
+	public static Type tuple(InputPosition loc, List<Type> args) {
+		return new Type(loc, WhatAmI.TUPLE, null, args);
 	}
 	
 	public Object asExpr(VariableFactory factory) {
@@ -82,7 +91,7 @@ public class Type {
 			List<Object> myargs = new ArrayList<Object>();
 			for (Type t : args)
 				myargs.add(t.convertToExpr(factory, mapping));
-			return new TypeExpr(name, myargs);
+			return new TypeExpr(null, name, myargs);
 		}
 		case POLYVAR: {
 			if (mapping.containsKey(name))
@@ -95,7 +104,7 @@ public class Type {
 			Object ret = args.get(args.size()-1).convertToExpr(factory, mapping);
 			for (int i=args.size()-2;i>=0;i--) {
 				Object left = args.get(i).convertToExpr(factory, mapping);
-				ret = new TypeExpr("->", left, ret);
+				ret = new TypeExpr(null, "->", left, ret);
 			}
 			return ret;
 		}

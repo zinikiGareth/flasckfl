@@ -22,14 +22,14 @@ public class ParsedFormTestData {
 	public static FunctionCaseDefn fibDefn1() {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(null, ConstPattern.INTEGER, "0"));
-		Object ie = ItemExpr.from(new ExprToken(ExprToken.NUMBER, "1"));
+		Object ie = ItemExpr.from(new ExprToken(null, ExprToken.NUMBER, "1"));
 		return new FunctionCaseDefn(null, null, "fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefn2() {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(null, ConstPattern.INTEGER, "1"));
-		Object ie = ItemExpr.from(new ExprToken(ExprToken.NUMBER, "1"));
+		Object ie = ItemExpr.from(new ExprToken(null, ExprToken.NUMBER, "1"));
 		return new FunctionCaseDefn(null, null, "fib", args, ie);
 	}
 
@@ -37,25 +37,25 @@ public class ParsedFormTestData {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern("n"));
 		
-		ApplyExpr minus1 = new ApplyExpr(se("-"), ie("n"), ne("1"));
-		ApplyExpr lhs = new ApplyExpr(ie("fib"), minus1);
-		ApplyExpr minus2 = new ApplyExpr(se("-"), ie("n"), ne("2"));
-		ApplyExpr rhs = new ApplyExpr(ie("fib"), minus2);
-		ApplyExpr top = new ApplyExpr(se("+"), lhs, rhs);
+		ApplyExpr minus1 = new ApplyExpr(null, se("-"), ie("n"), ne("1"));
+		ApplyExpr lhs = new ApplyExpr(null, ie("fib"), minus1);
+		ApplyExpr minus2 = new ApplyExpr(null, se("-"), ie("n"), ne("2"));
+		ApplyExpr rhs = new ApplyExpr(null, ie("fib"), minus2);
+		ApplyExpr top = new ApplyExpr(null, se("+"), lhs, rhs);
 		
 		return new FunctionCaseDefn(null, null, "fib", args, top);
 	}
 
 	private static Object ie(String tok) {
-		return ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tok));
+		return ItemExpr.from(new ExprToken(null, ExprToken.IDENTIFIER, tok));
 	}
 
 	private static Object ne(String tok) {
-		return ItemExpr.from(new ExprToken(ExprToken.NUMBER, tok));
+		return ItemExpr.from(new ExprToken(null, ExprToken.NUMBER, tok));
 	}
 
 	private static Object se(String tok) {
-		return ItemExpr.from(new ExprToken(ExprToken.SYMBOL, tok));
+		return ItemExpr.from(new ExprToken(null, ExprToken.SYMBOL, tok));
 	}
 
 	public static void assertFormsEqual(Object expected, Object actual) {

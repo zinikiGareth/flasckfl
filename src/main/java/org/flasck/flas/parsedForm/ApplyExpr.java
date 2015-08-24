@@ -3,21 +3,31 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApplyExpr {
+import org.flasck.flas.blockForm.InputPosition;
+
+public class ApplyExpr implements Locatable {
+	public final InputPosition location;
 	public final Object fn;
 	public final List<Object> args = new ArrayList<Object>();
 
-	public ApplyExpr(Object op, List<Object> args) {
+	public ApplyExpr(InputPosition location, Object op, List<Object> args) {
+		this.location = location;
 		this.fn = op;
 		this.args.addAll(args);
 	}
 
-	public ApplyExpr(Object op, Object... args) {
+	public ApplyExpr(InputPosition location, Object op, Object... args) {
+		this.location = location;
 		this.fn = op;
 		for (Object o : args)
 			this.args.add(o);
 	}
 
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+	
 	public void showTree(int ind) {
 		showOne(ind, fn);
 		for (Object o : args) {

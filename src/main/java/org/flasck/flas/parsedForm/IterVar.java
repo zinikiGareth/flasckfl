@@ -1,10 +1,14 @@
 package org.flasck.flas.parsedForm;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class IterVar {
+	public final InputPosition location;
 	public final String definedBy;
 	public final String var;
 
-	public IterVar(String definedBy, String var) {
+	public IterVar(InputPosition location, String definedBy, String var) {
+		this.location = location;
 		this.definedBy = definedBy;
 		this.var = var;
 	}

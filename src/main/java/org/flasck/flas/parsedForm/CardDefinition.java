@@ -3,10 +3,12 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.stories.FLASStory.State;
 
-public class CardDefinition implements ContainsScope {
+public class CardDefinition implements ContainsScope, Locatable {
+	public final InputPosition location;
 	public final String name;
 	public StateDefinition state;
 	public Template template;
@@ -15,10 +17,16 @@ public class CardDefinition implements ContainsScope {
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final Scope fnScope;
 
-	public CardDefinition(Scope outer, String name) {
+	public CardDefinition(InputPosition location, Scope outer, String name) {
+		this.location = location;
 		ScopeEntry se = outer.define(State.simpleName(name), name, this);
 		this.name = name;
 		this.fnScope = new Scope(se);
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
 	}
 
 	public void addContractImplementation(ContractImplements o) {

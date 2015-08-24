@@ -27,7 +27,7 @@ import org.junit.Test;
 public class FlasStoryTests {
 	private final ErrorResult errors = new ErrorResult();
 	private final Rewriter rewriter = new Rewriter(errors, null);
-	private final ScopeEntry se = new PackageDefn(Builtin.builtinScope(), "ME").myEntry();
+	private final ScopeEntry se = new PackageDefn(null, Builtin.builtinScope(), "ME").myEntry();
 
 	@Test
 	public void testProcessingFib() {
@@ -56,7 +56,7 @@ public class FlasStoryTests {
 		FunctionDefinition g = rewriter.functions.get("ME.f_0.g");
 		HSIEForm gorm = new HSIE(errors).handle(g, form.vars.size(), form.varsFor(0));
 		assertEquals(1, gorm.externals.size());
-		assertTrue(gorm.externals.contains(new AbsoluteVar("FLEval.mul", null)));
+		assertTrue(gorm.externals.contains(new AbsoluteVar(null, "FLEval.mul", null)));
 		HSIETestData.assertHSIE(HSIETestData.mutualG(), gorm);
 	}
 

@@ -41,6 +41,7 @@ public class TemplateLineParser implements TryParsing{
 		boolean template = false;
 		boolean extractField = false;
 		while (line.hasMore()) {
+			InputPosition loc = line.realinfo();
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
 			if (tt == null)
@@ -105,10 +106,10 @@ public class TemplateLineParser implements TryParsing{
 				else
 					return new EventHandler(((UnresolvedVar)((ContentExpr)action).expr).var, expr);
 			} else if (tt.type == TemplateToken.IDENTIFIER) {
-				Object me = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, tt.text));
+				Object me = ItemExpr.from(new ExprToken(tt.location, ExprToken.IDENTIFIER, tt.text));
 				if (extractField) { // handle the "special" case of a.b
 					ContentExpr tl = (ContentExpr) contents.remove(contents.size()-1);
-					contents.add(new ContentExpr(new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.PUNC, ".")), CollectionUtils.listOf(tl.expr, me)), new ArrayList<Object>()));
+					contents.add(new ContentExpr(new ApplyExpr(tt.location, ItemExpr.from(new ExprToken(tt.location, ExprToken.PUNC, ".")), CollectionUtils.listOf(tl.expr, me)), new ArrayList<Object>()));
 					extractField = false;
 				} else
 					contents.add(new ContentExpr(me, new ArrayList<Object>()));
@@ -162,7 +163,6 @@ public class TemplateLineParser implements TryParsing{
 				if (!contents.isEmpty()) {
 					return ErrorResult.oneMessage(line, "card must be the only content item");
 				}
-				InputPosition loc;
 				ValidIdentifierToken yoyo;
 				String cardName = null;
 				String yoyoVar = null;
@@ -213,7 +213,7 @@ public class TemplateLineParser implements TryParsing{
 				}
 				if (line.hasMore())
 					return ErrorResult.oneMessage(line, "extraneous symbols at end of cases line");
-				cmd = new TemplateOr(expr, null);
+				cmd = new TemplateOr(loc, expr, null);
 			} else
 				throw new UtilException("Cannot handle " + tt);
 		}

@@ -15,6 +15,11 @@ public class CardMember implements ExternalRef {
 	}
 	
 	@Override
+	public InputPosition location() {
+		return location;
+	}
+
+	@Override
 	public int compareTo(Object o) {
 		return this.toString().compareTo(o.toString());
 	}

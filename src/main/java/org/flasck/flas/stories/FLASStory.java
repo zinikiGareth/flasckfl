@@ -250,7 +250,7 @@ public class FLASStory implements StoryProcessor {
 			groups.add(cfn, fcd);
 		}
 		for (Entry<String, List<FunctionCaseDefn>> x : groups.entrySet()) {
-			ret.define(State.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(s.kind, x.getValue().get(0).intro, x.getValue()));
+			ret.define(State.simpleName(x.getKey()), x.getKey(), new FunctionDefinition(null, s.kind, x.getValue().get(0).intro, x.getValue()));
 		}
 	}
 
@@ -529,8 +529,10 @@ public class FLASStory implements StoryProcessor {
 				er.message(b, "constituents of template cases must be OR items");
 			else {
 				TemplateLine it = doCardTemplate(er, frTemplates, b.nested);
-				if (it != null)
-					tc.addCase(new TemplateOr(((TemplateOr)o).cond, it));
+				if (it != null) {
+					TemplateOr tor = (TemplateOr)o;
+					tc.addCase(new TemplateOr(tor.location(), tor.cond, it));
+				}
 			}
 		}
 	}
@@ -724,7 +726,7 @@ public class FLASStory implements StoryProcessor {
 			return ret;
 		} else if (content instanceof TemplateOr) {
 			TemplateOr tc = (TemplateOr) content;
-			return new TemplateOr(substituteMacroParameters(er, s, map, tc.cond, subst),  unroll(er, s, map, tc.template, subst));
+			return new TemplateOr(tc.location(), substituteMacroParameters(er, s, map, tc.cond, subst),  unroll(er, s, map, tc.template, subst));
 		} else
 			throw new UtilException("Not handled: " + content.getClass());
 	}
@@ -758,7 +760,7 @@ public class FLASStory implements StoryProcessor {
 			List<Object> args = new ArrayList<Object>();
 			for (Object o2 : ae.args)
 				args.add(substituteMacroParameters(er, s, map, o2, subst));
-			return new ApplyExpr(substituteMacroParameters(er, s, map, ae.fn, subst), args);
+			return new ApplyExpr(ae.location, substituteMacroParameters(er, s, map, ae.fn, subst), args);
 		} else if (o instanceof CardReference) {
 			// We don't have any parameters in this yet that could be macro parameters
 		} else if (o instanceof TemplateCases) {
@@ -769,7 +771,7 @@ public class FLASStory implements StoryProcessor {
 			return ret;
 		} else if (o instanceof TemplateOr) {
 			TemplateOr tor = (TemplateOr) o;
-			TemplateOr ret = new TemplateOr(substituteMacroParameters(er, s, map, tor.cond, subst), unroll(er, s, map, tor.template, subst));
+			TemplateOr ret = new TemplateOr(tor.location(), substituteMacroParameters(er, s, map, tor.cond, subst), unroll(er, s, map, tor.template, subst));
 			return ret;
 		} else
 			System.out.println("subMacroParms cannot handle: " + o + " "  + o.getClass());

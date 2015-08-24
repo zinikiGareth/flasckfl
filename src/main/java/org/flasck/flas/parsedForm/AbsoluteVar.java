@@ -1,28 +1,45 @@
 package org.flasck.flas.parsedForm;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.zinutils.exceptions.UtilException;
 
 public class AbsoluteVar implements ExternalRef {
+	public final InputPosition location;
 	public final String id;
 	public final Object defn;
 
 	@Deprecated
-	public AbsoluteVar(String id) {
+	public AbsoluteVar(InputPosition location, String id) {
+		this.location = location;
 		this.id = id;
 		this.defn = null; // not a good idea
 	}
 
-	public AbsoluteVar(String id, Object defn) {
+	public AbsoluteVar(InputPosition location, String id, Object defn) {
+		this.location = location;
 		this.id = id;
 		this.defn = defn;
 	}
 
-	public AbsoluteVar(ScopeEntry entry) {
+	public AbsoluteVar(InputPosition location, ScopeEntry entry) {
+		if (location == null)
+			System.out.println("null location");
+		this.location = location != null ? location : entry.location();
 		this.id = entry.getKey();
 		this.defn = entry.getValue();
 	}
 	
+	public AbsoluteVar(ScopeEntry entry) {
+		this.location = entry.location();
+		this.id = entry.getKey();
+		this.defn = entry.getValue();
+	}
+	
+	public InputPosition location() {
+		return location;
+	}
+
 	@Override
 	public String uniqueName() {
 		return id;

@@ -22,10 +22,10 @@ public class HSIEFunctionTests {
 	
 	@Test
 	public void testConvertingConstant() {
-		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(null, Builtin.builtinScope(), "ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
-		FunctionDefinition primes = new FunctionDefinition(Type.FUNCTION, "primes", 0, CollectionUtils.listOf(c1));
+		FunctionDefinition primes = new FunctionDefinition(null, Type.FUNCTION, "primes", 0, CollectionUtils.listOf(c1));
 		pkg.innerScope().define("primes", "primes", primes);
 		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
@@ -37,12 +37,12 @@ public class HSIEFunctionTests {
 	
 	@Test
 	public void testConvertingFib() {
-		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(null, Builtin.builtinScope(), "ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 0 = 1"));
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 1 = 1"));
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib n = fib (n-1) + fib (n-2)"));
-		FunctionDefinition fib = new FunctionDefinition(Type.FUNCTION, "fib", 1, CollectionUtils.listOf(c1, c2, c3));
+		FunctionDefinition fib = new FunctionDefinition(null, Type.FUNCTION, "fib", 1, CollectionUtils.listOf(c1, c2, c3));
 		pkg.innerScope().define("fib", "fib", fib);
 		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
@@ -54,12 +54,12 @@ public class HSIEFunctionTests {
 
 	@Test
 	public void testConvertingTake() {
-		PackageDefn pkg = new PackageDefn(Builtin.builtinScope(), "ME");
+		PackageDefn pkg = new PackageDefn(null, Builtin.builtinScope(), "ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n [] = []"));
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take 0 Cons = []"));
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n (a:b) = a:(take (n-1) b)"));
-		FunctionDefinition take = new FunctionDefinition(Type.FUNCTION, "take", 2, CollectionUtils.listOf(c1, c2, c3));
+		FunctionDefinition take = new FunctionDefinition(null, Type.FUNCTION, "take", 2, CollectionUtils.listOf(c1, c2, c3));
 		pkg.innerScope().define("take", "take", take);
 		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());

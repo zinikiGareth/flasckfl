@@ -130,7 +130,7 @@ public class Rewriter {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (biscope.contains(name))
-				return new AbsoluteVar(biscope.getEntry(name));
+				return new AbsoluteVar(location, biscope.getEntry(name));
 			if (name.contains(".")) {
 				// try and resolve through a sequence of packages
 				String tmp = name;
@@ -161,7 +161,7 @@ public class Rewriter {
 					Object defn = o.getValue();
 					if (defn instanceof ContractDecl)
 						contracts.put(name, (ContractDecl) defn);
-					return new AbsoluteVar(o);
+					return new AbsoluteVar(location, o);
 				}
 			}
 			throw new ResolutionException(location, name);
@@ -181,7 +181,7 @@ public class Rewriter {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (pkg.innerScope().contains(name))
-				return new AbsoluteVar(pkg.innerScope().getEntry(name));
+				return new AbsoluteVar(location, pkg.innerScope().getEntry(name));
 			return nested.resolve(location, name);
 		}
 	}
@@ -211,7 +211,7 @@ public class Rewriter {
 					members.add(ci.referAsVar);
 			}
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(State.simpleName(hi.name), new ObjectReference(prefix, hi.name));
+				statics.put(State.simpleName(hi.name), new ObjectReference(hi.typeLocation, prefix, hi.name));
 			}
 		}
 
@@ -222,7 +222,7 @@ public class Rewriter {
 			if (statics.containsKey(name))
 				return statics.get(name);
 			if (innerScope.contains(name))
-				return new CardFunction(prefix, name);
+				return new CardFunction(location, prefix, name);
 			return nested.resolve(location, name);
 		}
 	}
@@ -270,9 +270,9 @@ public class Rewriter {
 	public class D3Context extends NamingContext {
 		private final IterVar iterVar;
 
-		public D3Context(TemplateContext cx, String iv) {
+		public D3Context(TemplateContext cx, InputPosition location, String iv) {
 			super(cx);
-			this.iterVar = new IterVar(((CardContext)cx.nested).prefix, iv);
+			this.iterVar = new IterVar(location, ((CardContext)cx.nested).prefix, iv);
 		}
 		
 		@Override
@@ -306,14 +306,14 @@ public class Rewriter {
 
 		public Object resolve(InputPosition location, String name) {
 			if (bound.contains(name))
-				return new LocalVar(myname, name);
+				return new LocalVar(location, myname, name);
 			if (inner.contains(name))
 				return new AbsoluteVar(inner.getEntry(name));
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
-				return new ObjectReference((ObjectReference)res, fromMethod);
+				return new ObjectReference(location, (ObjectReference)res, fromMethod);
 			if (res instanceof CardFunction)
-				return new CardFunction((CardFunction)res, fromMethod);
+				return new CardFunction(location, (CardFunction)res, fromMethod);
 			return res;
 		}
 	}
@@ -353,7 +353,7 @@ public class Rewriter {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope");
 		CardContext c2 = new CardContext((PackageContext) cx, cd);
-		StructDefn sd = new StructDefn(cd.name, false);
+		StructDefn sd = new StructDefn(cd.location, cd.name, false);
 		CardGrouping grp = new CardGrouping(sd);
 		cards.put(cd.name, grp);
 		if (cd.state != null) {
@@ -376,7 +376,7 @@ public class Rewriter {
 
 			for (MethodDefinition m : ci.methods) {
 				MethodDefinition rwm = rewrite(c2, m);
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, HSIEForm.Type.CONTRACT, rwm));
+				methods.add(new MethodInContext(cd.innerScope(), ci.type, m.intro.name, HSIEForm.Type.CONTRACT, rwm));
 				rw.methods.add(rwm);
 			}
 			
@@ -393,7 +393,7 @@ public class Rewriter {
 				sd.fields.add(new StructField(new TypeReference(null, rw.type, null), rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, HSIEForm.Type.SERVICE, rewrite(c2, m)));
+				methods.add(new MethodInContext(cd.innerScope(), cs.type, m.intro.name, HSIEForm.Type.SERVICE, rewrite(c2, m)));
 
 			pos++;
 		}
@@ -407,7 +407,7 @@ public class Rewriter {
 				continue;
 			String hiName = cd.name +"."+hi.name;
 			cardHandlers.put(hiName, rw);
-			StructDefn hsd = new StructDefn(hiName, false);
+			StructDefn hsd = new StructDefn(hi.typeLocation, hiName, false);
 			if (!rw.boundVars.isEmpty()) {
 //				System.out.println("Creating class for handler " + hiName);
 				// Using polymorphic vars with random names here seems clever, but I'm not really sure that it is
@@ -423,7 +423,7 @@ public class Rewriter {
 			structs.put(hiName, hsd);
 			HandlerContext hc = new HandlerContext(c2, hi);
 			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(cd.innerScope(), m.intro.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
+				methods.add(new MethodInContext(cd.innerScope(), hi.type, m.intro.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
 			
 			grp.handlers.add(new HandlerGrouping(cd.name + "." + rw.name));
 		}
@@ -504,7 +504,7 @@ public class Rewriter {
 			return ret;
 		} else if (tl instanceof D3Invoke) {
 			D3Invoke prev = (D3Invoke) tl;
-			D3Context c2 = new D3Context(cx, prev.d3.iter);
+			D3Context c2 = new D3Context(cx, prev.d3.dloc, prev.d3.iter);
 			List<D3PatternBlock> patterns = new ArrayList<D3PatternBlock>();
 			for (D3PatternBlock p : prev.d3.patterns) {
 				D3PatternBlock rp = new D3PatternBlock(p.pattern);
@@ -527,7 +527,7 @@ public class Rewriter {
 	}
 
 	private TemplateOr rewrite(TemplateContext cx, TemplateOr tor) {
-		return new TemplateOr(rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
+		return new TemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
 	}
 
 	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
@@ -582,7 +582,7 @@ public class Rewriter {
 			cs++;
 		}
 //		System.out.println("rewritten to " + list.get(0).expr);
-		FunctionDefinition ret = new FunctionDefinition(f.mytype, f.name, f.nargs, list);
+		FunctionDefinition ret = new FunctionDefinition(f.location, f.mytype, f.name, f.nargs, list);
 		return ret;
 	}
 
@@ -710,13 +710,16 @@ public class Rewriter {
 				ApplyExpr ae = (ApplyExpr) expr;
 				if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals(".")) {
 					String fname;
+					InputPosition loc;
 					if (ae.args.get(1) instanceof ApplyExpr) { // The field starts with a capital
 						System.out.println("Capital");
 						ApplyExpr inner = (ApplyExpr) ae.args.get(1);
 						fname = ((UnresolvedVar)inner.fn).var;
+						loc = ((UnresolvedVar)inner.fn).location;
 					} else {
 						UnresolvedVar field = (UnresolvedVar)ae.args.get(1);
 						fname = field.var;
+						loc = field.location;
 					}
 					// The case where we have an absolute var by package name
 					// Does this need to be here as well as in RootScope?
@@ -733,12 +736,12 @@ public class Rewriter {
 					// expr . field
 					Object applyFn = rewriteExpr(cx, ae.args.get(0));
 	
-					return new ApplyExpr(cx.resolve(null, "."), applyFn, new StringLiteral(fname));
+					return new ApplyExpr(ae.location, cx.resolve(ae.location, "."), applyFn, new StringLiteral(loc, fname));
 				}
 				List<Object> args = new ArrayList<Object>();
 				for (Object o : ae.args)
 					args.add(rewriteExpr(cx, o));
-				return new ApplyExpr(rewriteExpr(cx, ae.fn), args);
+				return new ApplyExpr(ae.location, rewriteExpr(cx, ae.fn), args);
 			} else if (expr instanceof IfExpr) {
 				IfExpr ie = (IfExpr)expr;
 				return new IfExpr(rewriteExpr(cx, ie.guard), rewriteExpr(cx, ie.ifExpr), rewriteExpr(cx, ie.elseExpr));

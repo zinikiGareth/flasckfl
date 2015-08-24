@@ -46,7 +46,7 @@ public class IntroParser implements TryParsing {
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
-			StructDefn ret = new StructDefn(state.withPkg(tn.text), true);
+			StructDefn ret = new StructDefn(tn.location, state.withPkg(tn.text), true);
 			while (line.hasMore()) {
 				TypeNameToken ta = TypeNameToken.from(line);
 				if (ta == null)
@@ -68,7 +68,7 @@ public class IntroParser implements TryParsing {
 			TypeNameToken tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid card name");
-			return new CardDefinition(state.scope, state.withPkg(tn.text));
+			return new CardDefinition(tn.location, state.scope, state.withPkg(tn.text));
 		}
 		case "state":
 			return "state";
@@ -104,7 +104,7 @@ public class IntroParser implements TryParsing {
 			if (var == null)
 				return ErrorResult.oneMessage(line, "invalid D3 expression");
 			
-			return new D3Intro(tok.location, tok.text, ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, expr.text)), var.text);
+			return new D3Intro(tok.location, tok.text, ItemExpr.from(new ExprToken(expr.location, ExprToken.IDENTIFIER, expr.text)), var.text);
 		}
 		case "implements": {
 			TypeNameToken tn = QualifiedTypeNameToken.from(line);

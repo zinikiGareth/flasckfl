@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
@@ -69,7 +70,8 @@ public class MetaState {
 	private void writeIfExpr(Map<String, Var> substs, Object expr, HSIEBlock writeTo) {
 		if (expr instanceof IfExpr) {
 			IfExpr ae = (IfExpr) expr;
-			HSIEBlock ifCmd = writeTo.ifCmd((Var) convertValue(substs, ae.guard));
+			List<InputPosition> elocs = new ArrayList<InputPosition>();
+			HSIEBlock ifCmd = writeTo.ifCmd((Var) convertValue(elocs, substs, ae.guard));
 			writeIfExpr(substs, ae.ifExpr, ifCmd);
 			if (ae.elseExpr != null)
 				writeIfExpr(substs, ae.elseExpr, writeTo);
@@ -101,63 +103,87 @@ public class MetaState {
 
 	public Object getValueFor(Map<String, Var> substs, Object e) {
 		if (!retValues.containsKey(e)) {
-			retValues.put(e, convertValue(substs, e));
+			List<InputPosition> elocs = new ArrayList<InputPosition>();
+			retValues.put(e, convertValue(elocs, substs, e));
 		}
 		return retValues.get(e);
 	}
 
-	private Object convertValue(Map<String, Var> substs, Object expr) {
+	private Object convertValue(List<InputPosition> locs, Map<String, Var> substs, Object expr) {
 		if (expr == null) // mainly error trapping, but valid in if .. if .. <no else> case
 			return null;
-		else if (expr instanceof NumericLiteral)
+		else if (expr instanceof NumericLiteral) {
+			locs.add(((NumericLiteral)expr).location);
 			return Integer.parseInt(((NumericLiteral)expr).text); // what about floats?
-		else if (expr instanceof StringLiteral || expr instanceof FunctionLiteral)
+		} else if (expr instanceof StringLiteral) {
+			locs.add(((StringLiteral)expr).location);
 			return expr;
-		else if (expr instanceof TemplateListVar)
+		} else if (expr instanceof FunctionLiteral) {
+			locs.add(((FunctionLiteral)expr).location);
 			return expr;
-		else if (expr instanceof LocalVar) {
+		} else if (expr instanceof TemplateListVar) {
+			locs.add(((TemplateListVar)expr).location);
+			return expr;
+		} else if (expr instanceof LocalVar) {
+			locs.add(((LocalVar)expr).location);
 			String var = ((LocalVar)expr).var;
 			if (!substs.containsKey(var))
 				throw new UtilException("How can this be a local var? " + var + " not in " + substs);
 			return substs.get(var);
 		} else if (expr instanceof IterVar) {
+			locs.add(((IterVar)expr).location);
 			String var = ((IterVar)expr).var;
 			if (!substs.containsKey(var))
 				throw new UtilException("How can this be a iter var? " + var + " not in " + substs);
 			return substs.get(var);
 		} else if (expr instanceof AbsoluteVar) {
+			locs.add(((AbsoluteVar)expr).location);
 			String var = ((AbsoluteVar)expr).id;
 			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
+			locs.add(((ExternalRef)expr).location());
 			String var = ((ExternalRef)expr).uniqueName();
 			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof CardMember) {
+			locs.add(((ExternalRef)expr).location());
 			String var = ((CardMember)expr).uniqueName();
 			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof HandlerLambda) {
+			locs.add(((ExternalRef)expr).location());
 			String var = ((HandlerLambda)expr).uniqueName();
 			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr e2 = (ApplyExpr) expr;
 			List<Object> ops = new ArrayList<Object>();
-			ops.add(convertValue(substs, e2.fn));
+			List<InputPosition> elocs = new ArrayList<InputPosition>();
+			ops.add(convertValue(elocs, substs, e2.fn));
 			for (Object o : e2.args)
-				ops.add(convertValue(substs, o));
+				ops.add(convertValue(elocs, substs, o));
 			// TODO: check this doesn't already exist
 			Var var = allocateVar();
 			HSIEBlock closure = form.closure(var);
 			List<Var> mydeps = new ArrayList<Var>();
-			for (Object o : ops) {
-				closure.push(null, o);
+			if (ops.size() != elocs.size())
+				throw new UtilException("Misplaced location or op " +  elocs.size() + " != " + ops.size());
+			for (int i=0;i<ops.size();i++) {
+				Object o = ops.get(i);
+				if (elocs.get(i) == null) {
+					System.out.println(e2);
+					System.out.println(ops);
+					System.out.println(elocs);
+					System.out.println("Did not find loc for " + i);
+				}
+				closure.push(elocs.get(i), o);
 				if (o instanceof Var && closureDepends.containsKey(o)) {
 					mydeps.addAll(closureDepends.get(o));
 					mydeps.add((Var) o);
 				}
 			}
+			locs.add(e2.location);
 			closureDepends.put(var, mydeps);
 			return var;
 		}

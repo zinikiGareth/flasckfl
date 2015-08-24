@@ -49,7 +49,7 @@ public class RewriterTests {
 	public void setup() {
 		builtinScope = Builtin.builtinScope();
 		builtinScope.define("Timer", "Timer", null);
-		PackageDefn pd = new PackageDefn(builtinScope, "ME");
+		PackageDefn pd = new PackageDefn(null, builtinScope, "ME");
 		scope = pd.innerScope();
 		pkgEntry = pd.innerScope().outerEntry;
 	}
@@ -58,7 +58,7 @@ public class RewriterTests {
 	public void testRewritingSomethingGloballyDefined() {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, null, "ME.f", new ArrayList<Object>(), new UnresolvedVar(null, "Nil")));
-		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f", 0, cases);
+		FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.f", 0, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
 		fn = rw.functions.get("ME.f");
@@ -73,7 +73,7 @@ public class RewriterTests {
 		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern("x"));
 		cases.add(new FunctionCaseDefn(scope, null, "ME.f", args, new UnresolvedVar(null, "x")));
-		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f", 1, cases);
+		FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.f", 1, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
 		fn = rw.functions.get("ME.f");
@@ -89,8 +89,8 @@ public class RewriterTests {
 			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern("x"));
-			cases.add(new FunctionCaseDefn(scope, null, "ME.f", args, new StringLiteral("x")));
-			FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f", 1, cases);
+			cases.add(new FunctionCaseDefn(scope, null, "ME.f", args, new StringLiteral(null, "x")));
+			FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.f", 1, cases);
 			scope.define("f", "ME.f", fn);
 			innerScope = cases.get(0).innerScope();
 		}
@@ -99,7 +99,7 @@ public class RewriterTests {
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern("y"));
 			cases.add(new FunctionCaseDefn(scope, null, "ME.f_0.g", args, new UnresolvedVar(null, "x")));
-			FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.f_0.g", 1, cases);
+			FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.f_0.g", 1, cases);
 			innerScope.define("g", "ME.f_0.g", fn);
 		}
 		rw.rewrite(pkgEntry);
@@ -112,13 +112,13 @@ public class RewriterTests {
 	
 	@Test
 	public void testRewritingAStateVar() throws Exception {
-		CardDefinition cd = new CardDefinition(scope, "MyCard");
+		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
-		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
+		FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -131,13 +131,13 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAContractVar() throws Exception {
-		CardDefinition cd = new CardDefinition(scope, "MyCard");
+		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		cd.contracts.add(new ContractImplements(null, "Timer", null, "timer"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "timer")));
-		FunctionDefinition fn = new FunctionDefinition(Type.FUNCTION, "ME.MyCard.f", 0, cases);
+		FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -150,7 +150,7 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAContractMethod() throws Exception {
-		CardDefinition cd = new CardDefinition(scope, "MyCard");
+		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
@@ -176,7 +176,7 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAnEventHandler() throws Exception {
-		CardDefinition cd = new CardDefinition(scope, "MyCard");
+		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract

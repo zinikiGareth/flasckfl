@@ -96,7 +96,7 @@ public class PhiSolution {
 			TypeExpr te2 = (TypeExpr) t2;
 			if (te1.type.equals(te2.type)) {
 				List<Object> args = unifyl(te1.args, te2.args);
-				return new TypeExpr(te1.type, args);
+				return new TypeExpr(null, te1.type, args);
 			}
 			// this is just for debugging; we should catch actual unification errors later
 //			boolean stored = true;

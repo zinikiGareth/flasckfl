@@ -78,7 +78,7 @@ public class HSIEForm extends HSIEBlock {
 		for (int i=0;i<nbound;i++)
 			vars.add(new Var(alreadyUsed + nformal + i));
 		for (String s : dependsOn)
-			this.externals.add(new AbsoluteVar(s, null));
+			this.externals.add(new AbsoluteVar(null, s, null));
 	}
 
 	public Var var(int v) {

@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
@@ -28,7 +29,7 @@ public class PackageFinder {
 					String pp = (idx == -1)?tmp:tmp.substring(0, idx);
 					Object o = scope.get(pp);
 					if (o == null) {
-						o = new PackageDefn(scope, pp);
+						o = new PackageDefn(new InputPosition(pkg.getName(), 0, 0, pkgName), scope, pp);
 					}
 					scope = ((PackageDefn)o).innerScope();
 					if (idx == -1)

@@ -24,6 +24,7 @@ import org.flasck.flas.TemplateAbstractModel.Handler;
 import org.flasck.flas.TemplateAbstractModel.OrCase;
 import org.flasck.flas.TemplateAbstractModel.VisualTree;
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.errors.ErrorResult;
@@ -138,7 +139,7 @@ public class Compiler {
 			
 		boolean failed = false;
 		Scope top = Builtin.builtinScope();
-		PackageDefn pd = new PackageDefn(top, inPkg);
+		PackageDefn pd = new PackageDefn(new InputPosition(file.getName(), 0, 0, inPkg), top, inPkg);
 		final List<ScopeEntry> entries = new ArrayList<ScopeEntry>();
 		final List<String> pkgs = new ArrayList<String>();
 		pkgs.add(inPkg);
@@ -419,7 +420,7 @@ public class Compiler {
 				VisualTree vt = new VisualTree(null, null);
 				matmRecursive(errors, tam, atn, vt, tor.template);
 				tam.cardMembersCause(tor.cond, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_switch");
-				atn.cases.add(new OrCase(new HSIE(errors).handleExpr(new ApplyExpr(tam.scope.fromRoot("=="), cases.switchOn, tor.cond), HSIEForm.Type.CARD), vt));
+				atn.cases.add(new OrCase(new HSIE(errors).handleExpr(new ApplyExpr(tor.location(), tam.scope.fromRoot(tor.location(), "=="), cases.switchOn, tor.cond), HSIEForm.Type.CARD), vt));
 			}
 		} else if (content instanceof ContentString) {
 			ContentString cs = (ContentString) content;
@@ -499,11 +500,11 @@ public class Compiler {
 	}
 
 	private void promoteD3Methods(ErrorResult errors, MethodConvertor mc, Map<String, HSIEForm> forms, Map<String, FunctionDefinition> functions, D3Invoke d3) {
-		Object init = d3.scope.fromRoot("NilMap");
-		AbsoluteVar assoc = d3.scope.fromRoot("Assoc");
-		AbsoluteVar cons = d3.scope.fromRoot("Cons");
-		AbsoluteVar nil = d3.scope.fromRoot("Nil");
-		AbsoluteVar tuple = d3.scope.fromRoot("()");
+		Object init = d3.scope.fromRoot(d3.d3.dloc, "NilMap");
+		AbsoluteVar assoc = d3.scope.fromRoot(d3.d3.dloc, "Assoc");
+		AbsoluteVar cons = d3.scope.fromRoot(d3.d3.dloc, "Cons");
+		AbsoluteVar nil = d3.scope.fromRoot(d3.d3.dloc, "Nil");
+		AbsoluteVar tuple = d3.scope.fromRoot(d3.d3.dloc, "()");
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
 		for (D3PatternBlock p : d3.d3.patterns) {
 			for (D3Section s : p.sections.values()) {
@@ -513,19 +514,19 @@ public class Compiler {
 						// TODO: only create functions for things that depend on the class
 						// constants can just be used directly
 						FunctionLiteral efn = functionWithArgs(d3.d3.prefix, functions, d3.scope, CollectionUtils.listOf(new TypedPattern(null, "D3Element", null, d3.d3.iter)), prop.value);
-						Object pair = new ApplyExpr(tuple, new StringLiteral(prop.name), efn);
-						pl = new ApplyExpr(cons, pair, pl);
+						Object pair = new ApplyExpr(null, tuple, new StringLiteral(prop.location, prop.name), efn);
+						pl = new ApplyExpr(null, cons, pair, pl);
 					}
-					byKey.add(s.name, new ApplyExpr(tuple, p.pattern, pl));
+					byKey.add(s.name, new ApplyExpr(null, tuple, p.pattern, pl));
 				}
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
 					FunctionIntro fi = new FunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
 					MethodCaseDefn mcd = new MethodCaseDefn(fi);
 					mcd.messages.addAll(s.actions);
 					MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
-					MethodInContext mic = new MethodInContext(d3.scope, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
+					MethodInContext mic = new MethodInContext(d3.scope, null, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
 					mc.convert(forms, CollectionUtils.listOf(mic));
-					byKey.add(s.name, new FunctionLiteral(fi.name));
+					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 //					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);
 				} else { // something like layout, that is just a set of definitions
 					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
@@ -536,15 +537,15 @@ public class Compiler {
 			Object list = nil;
 			List<Object> lo = k.getValue();
 			for (int i=lo.size()-1;i>=0;i--)
-				list = new ApplyExpr(cons, lo.get(i), list);
-			init = new ApplyExpr(assoc, new StringLiteral(k.getKey()), list, init);
+				list = new ApplyExpr(null, cons, lo.get(i), list);
+			init = new ApplyExpr(null, assoc, new StringLiteral(null, k.getKey()), list, init);
 		}
 		FunctionLiteral data = functionWithArgs(d3.d3.prefix, functions, d3.scope, new ArrayList<Object>(), d3.d3.data);
-		init = new ApplyExpr(assoc, new StringLiteral("data"), data, init);
+		init = new ApplyExpr(null, assoc, new StringLiteral(null, "data"), data, init);
 
 		FunctionIntro d3f = new FunctionIntro(d3.d3.dloc, d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(d3.scope, d3.d3.dloc, d3f.name, d3f.args, init);
-		FunctionDefinition func = new FunctionDefinition(HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
+		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 	}
 
@@ -553,10 +554,10 @@ public class Compiler {
 
 		FunctionIntro d3f = new FunctionIntro(null, prefix + "." + name, args);
 		FunctionCaseDefn fcd = new FunctionCaseDefn(scope, null, d3f.name, d3f.args, expr);
-		FunctionDefinition func = new FunctionDefinition(HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
+		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 
-		return new FunctionLiteral(d3f.name);
+		return new FunctionLiteral(d3f.location, d3f.name);
 	}
 
 	private ScopeEntry doParsing(ScopeEntry se, List<Block> blocks) throws ErrorResultException {

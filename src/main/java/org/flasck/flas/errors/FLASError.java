@@ -2,7 +2,7 @@ package org.flasck.flas.errors;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class FLASError {
+public class FLASError implements Comparable<FLASError> {
 	public final InputPosition loc;
 	public final String msg;
 
@@ -14,5 +14,10 @@ public class FLASError {
 	@Override
 	public String toString() {
 		return "" + loc + ": " + msg;
+	}
+
+	@Override
+	public int compareTo(FLASError o) {
+		return loc.compareTo(o.loc);
 	}
 }

@@ -3,9 +3,11 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -101,7 +103,7 @@ public class Expression implements TryParsing {
 		if (from instanceof UnresolvedVar) {
 			UnresolvedVar v = (UnresolvedVar) from;
 			if (Character.isUpperCase(v.var.charAt(0)))
-				return new ApplyExpr(v);
+				return new ApplyExpr(null, v);
 		}
 		return from;
 	}
@@ -115,9 +117,9 @@ public class Expression implements TryParsing {
 			if (isDot(args.get(i))) {
 				--i;
 				Object left = args.remove(i);
-				Object dot = args.remove(i);
+				Locatable dot = (Locatable) args.remove(i);
 				Object right = args.remove(i);
-				ApplyExpr ae = new ApplyExpr(dot, left, right);
+				ApplyExpr ae = new ApplyExpr(dot.location(), dot, left, right);
 				args.add(i, ae);
 			}
 		}
@@ -130,8 +132,8 @@ public class Expression implements TryParsing {
 					for (int k=j+1;k<i;k++) {
 						inargs.add(deparen(args.remove(j+1)));
 					}
-					Object op = args.remove(j);
-					ApplyExpr ae = new ApplyExpr(deparen(op), inargs);
+					Locatable op = (Locatable) args.remove(j);
+					ApplyExpr ae = new ApplyExpr(op.location(), deparen(op), inargs);
 					args.add(j, ae);
 				}
 				if (j == i)
@@ -179,23 +181,23 @@ public class Expression implements TryParsing {
 							stack.remove(0);
 						Object o1 = deparen(args.remove(i-2));
 						Object o2 = deparen(args.remove(i-2));
-						args.add(i-2, new ApplyExpr(o1, o2));
+						args.add(i-2, new ApplyExpr(null, o1, o2));
 						i--;
 					}
 					else {
 						if (stack.size() > 0)
 							stack.remove(0);
 						Object o1 = deparen(args.remove(i-3));
-						Object o2 = deparen(args.remove(i-3));
+						Locatable o2 = (Locatable) deparen(args.remove(i-3));
 						Object o3 = deparen(args.remove(i-3));
 						if (isCurryVar(o1) && isCurryVar(o3))
 							return new ParenExpr(o2);
 						else if (isCurryVar(o1))
-							args.add(i-3, new ApplyExpr(curry1st(o2), o3));
+							args.add(i-3, new ApplyExpr(o2.location(), curry1st(o2), o3));
 						else if (isCurryVar(o3))
-							args.add(i-3, new ApplyExpr(o2, o1));
+							args.add(i-3, new ApplyExpr(o2.location(), o2, o1));
 						else
-							args.add(i-3, new ApplyExpr(o2, o1, o3));
+							args.add(i-3, new ApplyExpr(o2.location(), o2, o1, o3));
 						i-=2;
 					}
 				} while (action == REDUCE);
@@ -218,7 +220,7 @@ public class Expression implements TryParsing {
 			List<Object> args = new ArrayList<Object>();
 			for (Object o : ae.args)
 				args.add(deparen(o));
-			return new ApplyExpr(deparen(ae.fn), args);
+			return new ApplyExpr(ae.location, deparen(ae.fn), args);
 		} else if (pe instanceof NumericLiteral || pe instanceof AbsoluteVar || pe instanceof UnresolvedVar || pe instanceof UnresolvedOperator || pe instanceof StringLiteral)
 			return pe;
 		else
@@ -227,7 +229,7 @@ public class Expression implements TryParsing {
 
 	private Object rehash(UnresolvedOperator ie) {
 		if (ie.op.equals(":"))
-			return new AbsoluteVar("Cons");
+			return new AbsoluteVar(null, "Cons");
 		return ie;
 	}
 
@@ -273,6 +275,7 @@ public class Expression implements TryParsing {
 		while (true) {
 			// TODO: I'm not sure about this way of doing it
 			// It seems to me that [,,] might end up not an error but []
+			InputPosition startsAt = line.realinfo();
 			Object expr = tryParsing(line);
 			if (expr != null)
 				objs.add(expr);
@@ -288,13 +291,15 @@ public class Expression implements TryParsing {
 							return new ParenExpr(objs.get(0));
 						else {
 							// The tuple case
-							return new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.SYMBOL, "()")), objs);
+							return new ApplyExpr(null, ItemExpr.from(new ExprToken(startsAt, ExprToken.SYMBOL, "()")), objs);
 						}
 					}
 					else if (endsWith.equals("]")) {
-						Object base = ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Nil"));
-						for (int i=objs.size()-1;i>=0;i--)
-							base = new ApplyExpr(ItemExpr.from(new ExprToken(ExprToken.IDENTIFIER, "Cons")), objs.get(i), base);
+						Object base = ItemExpr.from(new ExprToken(startsAt, ExprToken.IDENTIFIER, "Nil"));
+						for (int i=objs.size()-1;i>=0;i--) {
+							Locatable o = (Locatable) objs.get(i);
+							base = new ApplyExpr(o.location(), ItemExpr.from(new ExprToken(o.location(), ExprToken.IDENTIFIER, "Cons")), o, base);
+						}
 						return base;
 					} else {
 						System.out.println("huh?");

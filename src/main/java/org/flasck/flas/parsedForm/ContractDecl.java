@@ -7,7 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 
 @SuppressWarnings("serial")
-public class ContractDecl implements Serializable {
+public class ContractDecl implements Serializable, Locatable {
 	public final transient InputPosition location;
 	public final transient boolean generate;
 	public final String contractName;
@@ -17,6 +17,11 @@ public class ContractDecl implements Serializable {
 		this.location = location;
 		this.contractName = contractName;
 		this.generate = true;
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
 	}
 
 	public void addMethod(ContractMethodDecl md) {

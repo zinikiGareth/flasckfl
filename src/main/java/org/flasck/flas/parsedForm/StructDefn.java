@@ -4,16 +4,25 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 @SuppressWarnings("serial")
-public class StructDefn implements AsString, Serializable {
+public class StructDefn implements AsString, Serializable, Locatable {
+	private final InputPosition location;
 	public final String typename;
 	public final List<String> args = new ArrayList<String>();
 	public final List<StructField> fields = new ArrayList<StructField>();
 	public final transient boolean generate;
 
-	public StructDefn(String tn, boolean generate) {
+	public StructDefn(InputPosition location, String tn, boolean generate) {
+		this.location = location;
 		this.typename = tn;
 		this.generate = generate;
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
 	}
 
 	public StructDefn add(String ta) {

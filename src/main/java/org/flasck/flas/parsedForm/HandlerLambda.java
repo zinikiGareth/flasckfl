@@ -14,6 +14,11 @@ public class HandlerLambda implements ExternalRef {
 		this.var = var;
 	}
 
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
 	public String uniqueName() {
 		return hi + "." + var;
 	}

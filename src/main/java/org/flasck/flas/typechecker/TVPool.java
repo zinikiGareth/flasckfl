@@ -10,7 +10,7 @@ public class TVPool {
 	public Type get(TypeVar var) {
 		if (already.containsKey(var))
 			return already.get(var);
-		Type nv = Type.polyvar(new String(new char[] { next++ }));
+		Type nv = Type.polyvar(var.from.posn, new String(new char[] { next++ }));
 		already.put(var, nv);
 		return nv;
 	}

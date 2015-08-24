@@ -2,8 +2,8 @@ package org.flasck.flas.errors;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
@@ -11,7 +11,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.utils.Justification;
 
 public class ErrorResult {
-	public final List<FLASError> errors = new ArrayList<FLASError>();
+	public final Set<FLASError> errors = new TreeSet<FLASError>();
 
 	public ErrorResult message(Block b, String msg) {
 		return message(new Tokenizable(b), msg);
@@ -44,9 +44,11 @@ public class ErrorResult {
 			if (e.loc != null) {
 				pw.write(Justification.PADRIGHT.format(e.loc + ": ", 22) + e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off));
 				pw.write('\n');
-			}
+			} else
+				pw.write("<unknown location>\n");
 			for (int i=0;i<ind;i++)
 				pw.append(' ');
+			pw.write(Justification.PADRIGHT.format("", 26));
 			pw.write(e.msg);
 			pw.write('\n');
 		}

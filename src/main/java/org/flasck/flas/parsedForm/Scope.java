@@ -13,10 +13,12 @@ import org.zinutils.utils.StringComparator;
 
 public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 	public class ScopeEntry implements Entry<String, Object> {
+		private final InputPosition location;
 		private final String name;
 		private Object defn;
 
 		public ScopeEntry(String name, Object defn) {
+			location = (defn == null)?null:((Locatable)defn).location();
 			this.name = name;
 			this.defn = defn;
 		}
@@ -31,6 +33,10 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 			return defn;
 		}
 
+		public InputPosition location() {
+			return location;
+		}
+		
 		@Override
 		public Object setValue(Object value) {
 			this.defn = value;
@@ -133,11 +139,11 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 		return name;
 	}
 
-	public AbsoluteVar fromRoot(String name) {
+	public AbsoluteVar fromRoot(InputPosition location, String name) {
 		if (outerEntry != null)
-			return outerEntry.scope().fromRoot(name);
+			return outerEntry.scope().fromRoot(location, name);
 		else if (outer != null)
-			return outer.fromRoot(name);
+			return outer.fromRoot(location, name);
 		int idx = name.indexOf('.');
 		Scope scope = this;
 		if (idx != -1) {
@@ -152,6 +158,6 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 		ScopeEntry entry = scope.getEntry(name);
 		if (entry == null)
 			throw new UtilException("There is no entry " + name);
-		return new AbsoluteVar(entry);
+		return new AbsoluteVar(location, entry);
 	}
 }

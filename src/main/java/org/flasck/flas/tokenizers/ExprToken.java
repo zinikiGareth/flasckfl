@@ -13,8 +13,8 @@ public class ExprToken {
 	public final int type;
 	public final String text;
 
-	public ExprToken(int type, String text) {
-		this.location = null;
+	public ExprToken(InputPosition location, int type, String text) {
+		this.location = location;
 		this.type = type;
 		this.text = text;
 	}
@@ -35,6 +35,7 @@ public class ExprToken {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
+		InputPosition loc = line.realinfo();
 		int mark = line.at();
 		char c = line.nextChar();
 		if (Character.isJavaIdentifierStart(c))
@@ -43,20 +44,20 @@ public class ExprToken {
 			String tok = StringToken.from(line);
 			if (tok == null)
 				return null;
-			return new ExprToken(STRING, tok);
+			return new ExprToken(loc, STRING, tok);
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1)))
 			return new ExprToken(NUMBER, NumberToken.from(line));
 		else if ("()[]{}.,".indexOf(c) != -1) {
 			line.advance();
-			return new ExprToken(PUNC, line.fromMark(mark));
+			return new ExprToken(loc, PUNC, line.fromMark(mark));
 		} else {
 			while (line.hasMore() && "~!$%^&|*/+-=:<>".indexOf(line.nextChar()) != -1) {
 				line.advance();
 			}
 			if (line.at() == mark)
 				return null;
-			return new ExprToken(SYMBOL, line.fromMark(mark));
+			return new ExprToken(loc, SYMBOL, line.fromMark(mark));
 		}
 	}
 

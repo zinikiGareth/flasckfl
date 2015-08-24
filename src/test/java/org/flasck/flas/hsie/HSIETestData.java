@@ -443,7 +443,7 @@ public class HSIETestData {
 			} else if (Character.isDigit(ps[0].charAt(0))) {
 				prev = b.push(null, Integer.parseInt(ps[0]));
 			} else {
-				prev = b.push(null, new AbsoluteVar(ps[0], null));
+				prev = b.push(null, new AbsoluteVar(null, ps[0], null));
 			}
 			
 		}
@@ -456,7 +456,7 @@ public class HSIETestData {
 		else if (Character.isDigit(ps[from].charAt(0)))
 			return Integer.parseInt(ps[from]);
 		else
-			return new AbsoluteVar(ps[from], null);
+			return new AbsoluteVar(null, ps[from], null);
 	}
 	
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {

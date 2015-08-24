@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
@@ -162,6 +163,7 @@ public class TemplateAbstractModel {
 	protected void handleFormats(Block ret, List<Object> formats) {
 		StringBuilder simple = new StringBuilder();
 		Object expr = null;
+		InputPosition first = null;
 		for (Object o : formats) {
 			if (o instanceof TemplateToken) {
 				TemplateToken tt = (TemplateToken) o;
@@ -173,15 +175,18 @@ public class TemplateAbstractModel {
 					throw new UtilException("Cannot handle format of type " + tt.type);
 				}
 			} else if (o instanceof ApplyExpr) {
+				ApplyExpr ae = (ApplyExpr) o;
+				if (first == null)
+					first = ae.location;
 				if (expr == null)
-					expr = scope.fromRoot("Nil");
-				expr = new ApplyExpr(scope.fromRoot("Cons"), o, expr);
+					expr = scope.fromRoot(ae.location, "Nil");
+				expr = new ApplyExpr(null, scope.fromRoot(ae.location, "Cons"), o, expr);
 			} else
 				throw new UtilException("Cannot handle format of type " + o.getClass());
 		}
 		if (expr != null) {
 			if (simple.length() > 0)
-				expr = new ApplyExpr(scope.fromRoot("Cons"), new StringLiteral(simple.substring(1)), expr);
+				expr = new ApplyExpr(null, scope.fromRoot(first, "Cons"), new StringLiteral(null, simple.substring(1)), expr);
 			ret.complexFormats = expr;
 			ret.sid = "sid" + nextId++;
 		}

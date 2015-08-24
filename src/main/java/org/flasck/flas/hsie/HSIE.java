@@ -23,6 +23,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.utils.StringComparator;
 
 public class HSIE {
 	private final ErrorResult errors;

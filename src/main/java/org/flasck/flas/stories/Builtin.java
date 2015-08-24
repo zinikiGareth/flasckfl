@@ -1,5 +1,6 @@
 package org.flasck.flas.stories;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -13,68 +14,74 @@ public class Builtin {
 
 	public static Scope builtinScope() {
 		Scope ret = new Scope((ScopeEntry)null);
+		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
 		{ // core
-			/* PackageDefn fleval = */new PackageDefn(ret, "FLEval");
+			/* PackageDefn fleval = */new PackageDefn(posn, ret, "FLEval");
 			ret.define(".", "FLEval.field", 
-				Type.function(Type.polyvar("A"), Type.simple("String"), Type.polyvar("B")));
+				null); // special case handling
 			ret.define("()", "FLEval.tuple", 
-					null);
+				null); // special case handling
 			ret.define("if", "if",
-				Type.function(Type.simple("Boolean"), Type.polyvar("A"), Type.polyvar("A"), Type.polyvar("A")));
+				Type.function(posn, Type.simple(posn, "Boolean"), Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.polyvar(posn, "A")));
 			ret.define("let", "let",
-					null);
+				null);
+			ret.define("Any", "Any",
+				Type.simple(posn, "Any"));
 		}
 		{ // text
-			ret.define("String", "String", null);
+			ret.define("String", "String",
+				Type.simple(posn, "String"));
 			ret.define("concat", "concat",
-				Type.function(Type.simple("List", Type.simple("String")), Type.simple("String")));
+				Type.function(posn, Type.simple(posn, "List", Type.simple(posn, "String")), Type.simple(posn, "String")));
 			ret.define("join", "join",
-					Type.function(Type.simple("List", Type.simple("String")), Type.simple("String"), Type.simple("String")));
+				Type.function(posn, Type.simple(posn, "List", Type.simple(posn, "String")), Type.simple(posn, "String"), Type.simple(posn, "String")));
 			ret.define("++", "append",
-					Type.function(Type.simple("String"), Type.simple("String"), Type.simple("String")));
+				Type.function(posn, Type.simple(posn, "String"), Type.simple(posn, "String"), Type.simple(posn, "String")));
 		}
 		{ // boolean logic
-			ret.define("Boolean", "Boolean", null);
+			ret.define("Boolean", "Boolean",
+				Type.simple(posn, "Boolean"));
 			ret.define("==", "FLEval.compeq",
-				Type.function(Type.polyvar("A"), Type.polyvar("A"), Type.simple("Boolean"))); // Any -> Any -> Boolean
+				Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.simple(posn, "Boolean"))); // Any -> Any -> Boolean
 		}
 		{ // math
-			ret.define("Number", "Number", null);
+			ret.define("Number", "Number",
+				Type.simple(posn, "Number"));
 			ret.define("+", "FLEval.plus", 
-				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+				Type.function(posn, Type.simple(posn, "Number"), Type.simple(posn, "Number"), Type.simple(posn, "Number")));
 			ret.define("-", "FLEval.minus",
-				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+				Type.function(posn, Type.simple(posn, "Number"), Type.simple(posn, "Number"), Type.simple(posn, "Number")));
 			ret.define("*", "FLEval.mul",
-				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+				Type.function(posn, Type.simple(posn, "Number"), Type.simple(posn, "Number"), Type.simple(posn, "Number")));
 			ret.define("/", "FLEval.div",
-				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+				Type.function(posn, Type.simple(posn, "Number"), Type.simple(posn, "Number"), Type.simple(posn, "Number")));
 			ret.define("^", "FLEval.exp",
-				Type.function(Type.simple("Number"), Type.simple("Number"), Type.simple("Number")));
+				Type.function(posn, Type.simple(posn, "Number"), Type.simple(posn, "Number"), Type.simple(posn, "Number")));
 		}
 		{ // lists
 			ret.define("List", "List",
-				new TypeDefn(false, new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")))
+				new TypeDefn(posn, false, new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")))
 				.addCase(new TypeReference(null, "Nil", null))
 				.addCase(new TypeReference(null, "Cons", null).with(new TypeReference(null, null, "A"))));
 			ret.define("Nil", "Nil",
-				new StructDefn("Nil", false));
+				new StructDefn(posn, "Nil", false));
 			ret.define("Cons", "Cons",
-				new StructDefn("Cons", false)
+				new StructDefn(posn, "Cons", false)
 				.add("A")
 				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
 				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "tail")));
 			ret.define("map", "map",
-				Type.function(Type.function(Type.polyvar("A"), Type.polyvar("B")), Type.simple("List", Type.polyvar("A")), Type.simple("List", Type.polyvar("B"))));
+				Type.function(posn, Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "B")), Type.simple(posn, "List", Type.polyvar(posn, "A")), Type.simple(posn, "List", Type.polyvar(posn, "B"))));
 		}
 		{ // maps
 			ret.define("Map", "Map",
-				new TypeDefn(false, new TypeReference(null, "Map", null).with(new TypeReference(null, null, "A")).with(new TypeReference(null, null, "B")))
+				new TypeDefn(posn, false, new TypeReference(null, "Map", null).with(new TypeReference(null, null, "A")).with(new TypeReference(null, null, "B")))
 				.addCase(new TypeReference(null, "NilMap", null))
 				.addCase(new TypeReference(null, "Assoc", null).with(new TypeReference(null, null, "A")).with(new TypeReference(null, null, "B"))));
 			ret.define("NilMap", "NilMap",
-				new StructDefn("NilMap", false));
+				new StructDefn(posn, "NilMap", false));
 			ret.define("Assoc", "Assoc",
-				new StructDefn("Assoc", false)
+				new StructDefn(posn, "Assoc", false)
 				.add("A")
 				.add("B")
 				.addField(new StructField(new TypeReference(null, null, "A"), "key"))
@@ -83,29 +90,29 @@ public class Builtin {
 		}
 		{ // crosets
 			ret.define("Croset", "Croset",
-				new StructDefn("Croset", false).add("A")
+				new StructDefn(posn, "Croset", false).add("A")
 				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "list")));
 		}
 		{ // d3
 			ret.define("D3Element", "D3Element",
-				new StructDefn("D3Element", false).add("A")
+				new StructDefn(posn, "D3Element", false).add("A")
 				.addField(new StructField(new TypeReference(null, null, "A"), "data"))
 				.addField(new StructField(new TypeReference(null, "Number", null), "idx")));
 		}
 		{ // messaging
 			ret.define("Message", "Message", null);
 			ret.define("Assign", "Assign",
-				new StructDefn("Assign", false)
+				new StructDefn(posn, "Assign", false)
 				.add("A")
 				.addField(new StructField(new TypeReference(null, "String", null), "slot"))
 				.addField(new StructField(new TypeReference(null, null, "A"), "value")));
 			ret.define("Send", "Send",
-				new StructDefn("Send", false)
+				new StructDefn(posn, "Send", false)
 				.addField(new StructField(new TypeReference(null, "Any", null), "dest"))
 				.addField(new StructField(new TypeReference(null, "String", null), "method"))
 				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, "Any", null)), "args")));
 			ret.define("CreateCard", "CreateCard",
-				new StructDefn("CreateCard", false)
+				new StructDefn(posn, "CreateCard", false)
 				.addField(new StructField(new TypeReference(null, "Any", null), "explicitCard")) // type should probably be String|Card where Card is some kind of "interface" type thing
 				.addField(new StructField(new TypeReference(null, "Any", null), "value"))
 				.addField(new StructField(
@@ -119,14 +126,14 @@ public class Builtin {
 								.with(new TypeReference(null, "CardHandle", null))), "contracts")));
 			ret.define("JSNI", "JSNI", null);
 			ret.define("D3Action", "D3Action",
-				new StructDefn("D3Action", false)
+				new StructDefn(posn, "D3Action", false)
 				.addField(new StructField(new TypeReference(null, "String", null), "action"))
 				.addField(new StructField(new TypeReference(null, "List", null), "args")));
 		}
 		{ // DOM
-			PackageDefn dom = new PackageDefn(ret, "DOM");
+			PackageDefn dom = new PackageDefn(posn, ret, "DOM");
 			dom.innerScope().define("Element", "DOM.Element",
-				new StructDefn("DOM.Element", false)
+				new StructDefn(posn, "DOM.Element", false)
 				.addField(new StructField(new TypeReference(null, "String", null), "tag"))
 				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "attrs"))
 				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, "DOM.Element", null)), "content"))

@@ -90,9 +90,9 @@ public class TypeExpr {
 			stack.add(te);
 			for (Object o : stack)
 				args.add(convertOne(tc, pool, o));
-			return Type.function(convertArgs(tc, pool, stack));
+			return Type.function(this.from != null ? this.from.posn : null, convertArgs(tc, pool, stack));
 		} else { // standard, possibly polymorphic
-			return Type.simple(type, convertArgs(tc, pool, args));
+			return Type.simple(this.from != null ? this.from.posn : null, type, convertArgs(tc, pool, args));
 		}
 	}
 
@@ -136,7 +136,7 @@ public class TypeExpr {
 						}
 					}
 					System.out.println("====");
-					return Type.simple(d.defining.name, convertArgs(tc, pool, checkBindings.values()));
+					return Type.simple(null, d.defining.name, convertArgs(tc, pool, checkBindings.values()));
 				}
 			}
 			tc.errors.message((Block)null, "The union of " + tu + " is not a valid type");
@@ -152,7 +152,7 @@ public class TypeExpr {
 			else
 				throw new UtilException("There is no poly var " + tr.var);
 		} else
-			return new TypeExpr(tr.name, fromArgs(tr.args, polys));
+			return new TypeExpr(null, tr.name, fromArgs(tr.args, polys));
 	}
 	
 	private static List<Object> fromArgs(List<TypeReference> l, Map<String, TypeVar> polys) {
