@@ -21,7 +21,7 @@ public class TypeExpr {
 
 	public TypeExpr(GarneredFrom from, String type, List<Object> args) {
 		this.from = from;
-		if (this.from == null && type.equals("Any"))
+		if (this.from == null)
 			System.out.println("Didn't see a from for " + type);
 		if (type == null)
 			throw new UtilException("Cannot have null type");
@@ -159,7 +159,7 @@ public class TypeExpr {
 			else
 				throw new UtilException("There is no poly var " + tr.var);
 		} else
-			return new TypeExpr(null, tr.name, fromArgs(tr.args, polys));
+			return new TypeExpr(new GarneredFrom(tr.location), tr.name, fromArgs(tr.args, polys));
 	}
 	
 	private static List<Object> fromArgs(List<TypeReference> l, Map<String, TypeVar> polys) {

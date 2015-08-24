@@ -363,7 +363,7 @@ public class TypeChecker {
 						inner.put(sw.var, x.name, fr);
 //						System.out.println(fr);
 					}
-					s.phi.unify(valueOf.typeExpr, new TypeExpr(null, sw.ctor, targs));
+					s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), sw.ctor, targs));
 					returns.add(checkBlock(inner, s, form, sw));
 				}
 			} else if (o instanceof IFCmd) {
@@ -517,7 +517,6 @@ public class TypeChecker {
 			InputPosition posn = ((TypeExpr)Tf).from.posn;
 			Object T1 = s.phi.subst(args.get(1));
 			if (T1 instanceof TypeExpr) {
-				System.out.println(T1);
 				TypeExpr te = (TypeExpr) T1;
 				String tn = te.type;
 				StructDefn sd = this.structs.get(tn);
@@ -647,13 +646,24 @@ public class TypeChecker {
 		}
 	}
 
-	public Type getTypeDefn(String fn) {
+	public Type getTypeAsCtor(String fn) {
 		if (knowledge.containsKey(fn))
 			return knowledge.get(fn);
 		if (structs.containsKey(fn))
 			return typeForStructCtor(null, structs.get(fn));
 		if (cards.containsKey(fn))
 			return typeForCardCtor(null, cards.get(fn).struct);
+//		System.out.println(knowledge);
+		throw new UtilException("There is no type: " + fn);
+	}
+
+	public Type getType(InputPosition loc, String fn) {
+		if (structs.containsKey(fn))
+			return Type.simple(loc, fn);
+		if (knowledge.containsKey(fn))
+			return knowledge.get(fn);
+//		if (cards.containsKey(fn))
+//			return typeForCardCtor(null, cards.get(fn).struct);
 //		System.out.println(knowledge);
 		throw new UtilException("There is no type: " + fn);
 	}

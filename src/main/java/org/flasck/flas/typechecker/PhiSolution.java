@@ -82,7 +82,7 @@ public class PhiSolution {
 			List<Object> mapped = new ArrayList<Object>();
 			for (Object o : te.args)
 				mapped.add(subst(o));
-			return new TypeExpr(null, te.type, mapped);
+			return new TypeExpr(te.from, te.type, mapped);
 		} else if (in instanceof TypeUnion) {
 			TypeUnion ret = new TypeUnion();
 			for (TypeExpr te : (TypeUnion)in)
@@ -133,7 +133,7 @@ public class PhiSolution {
 			TypeExpr te2 = (TypeExpr) t2;
 			if (te1.type.equals(te2.type)) {
 				List<Object> args = unifyl(te1.args, te2.args);
-				return new TypeExpr(null, te1.type, args);
+				return new TypeExpr(te1.from, te1.type, args);
 			}
 			// this is just for debugging; we should catch actual unification errors later
 //			boolean stored = true;

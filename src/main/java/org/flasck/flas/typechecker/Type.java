@@ -91,7 +91,7 @@ public class Type implements Locatable {
 			List<Object> myargs = new ArrayList<Object>();
 			for (Type t : args)
 				myargs.add(t.convertToExpr(factory, mapping));
-			return new TypeExpr(null, name, myargs);
+			return new TypeExpr(new GarneredFrom(location), name, myargs);
 		}
 		case POLYVAR: {
 			if (mapping.containsKey(name))
@@ -104,7 +104,7 @@ public class Type implements Locatable {
 			Object ret = args.get(args.size()-1).convertToExpr(factory, mapping);
 			for (int i=args.size()-2;i>=0;i--) {
 				Object left = args.get(i).convertToExpr(factory, mapping);
-				ret = new TypeExpr(null, "->", left, ret);
+				ret = new TypeExpr(null /* TODO: as f/arg */, "->", left, ret);
 			}
 			return ret;
 		}

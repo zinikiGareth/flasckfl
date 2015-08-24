@@ -43,7 +43,7 @@ public class ApplyCurry {
 					continue;
 				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;
-				Type t = tc.getTypeDefn(pc.fn.uniqueName());
+				Type t = tc.getTypeAsCtor(pc.fn.uniqueName());
 				if (t.arity() != c.nestedCommands().size()-1) {
 					c.pushAt(pc.location, 0, new AbsoluteVar(null, "FLEval.curry", null));
 					c.pushAt(pc.location, 2, t.arity());
@@ -67,7 +67,7 @@ public class ApplyCurry {
 			PushCmd pc = (PushCmd) r.inside.nestedCommands().get(r.pos);
 			Var v = h.allocateVar();
 			HSIEBlock oclos = h.closure(v);
-			Type t = tc.getTypeDefn(pc.fn.uniqueName());
+			Type t = tc.getTypeAsCtor(pc.fn.uniqueName());
 			if (t.arity() > 0) {
 //				System.out.println("need to curry block for type = " + t);
 				oclos.push(pc.location, new AbsoluteVar(null, "FLEval.curry", null));

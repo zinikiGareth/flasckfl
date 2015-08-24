@@ -63,8 +63,9 @@ public class MethodConvertor {
 			List<Type> types = new ArrayList<Type>();
 			for (Object o : cmd.args) {
 				if (o instanceof TypedPattern) {
-					String tn = ((TypedPattern)o).type;
-					Type t = tc.getTypeDefn(tn);
+					TypedPattern to = (TypedPattern)o;
+					String tn = to.type;
+					Type t = tc.getType(to.typeLocation, tn);
 					if (t == null)
 						throw new UtilException("Cannot find type " + tn); // TODO: should be a real error, I think
 					types.add(t);
@@ -73,13 +74,31 @@ public class MethodConvertor {
 			}
 			for (MethodCaseDefn mcd : m.method.cases) {
 				for (MethodMessage msg : mcd.messages) {
-					System.out.println(msg.slot + " <- " + msg.expr);
+					List<Type> mytypes = new ArrayList<Type>();
+					System.out.println("Convert method: " + msg.slot + " <- " + msg.expr);
 					List<String> args = new ArrayList<String>();
-					for (Object x : mcd.intro.args)
-						args.add(((VarPattern)x).var);
-					Type ty = tc.checkExpr(hsie.handleExprWith(msg.expr, HSIEForm.Type.CONTRACT, args), types);
+					for (int i=0;i<mcd.intro.args.size();i++) {
+						Object x = mcd.intro.args.get(i);
+						if (x instanceof VarPattern) {
+							mytypes.add(types.get(i));
+							args.add(((VarPattern)x).var);
+						} else if (x instanceof TypedPattern) {
+							TypedPattern tx = (TypedPattern)x;
+							args.add(tx.var);
+							Type ty = tc.getType(tx.typeLocation, tx.type);
+							// we have an obligation to check that ty is a sub-type of types.get(i);
+							Type prev = types.get(i);
+							if (prev.name().equals("Any"))
+								;	// this has to be OK
+							else
+								throw new UtilException("Need to cover the case where the parent type is " + prev.name() + " and we want to restrict to " + tx.type);
+							mytypes.add(ty);
+						} else
+							throw new UtilException("Cannot map " + x.getClass());
+					}
+					Type ty = tc.checkExpr(hsie.handleExprWith(msg.expr, HSIEForm.Type.CONTRACT, args), mytypes);
 					if (ty != null)
-						System.out.println(msg.slot + " <- " + msg.expr + " :: " + ty);
+						System.out.println("Type for method message - " + msg.slot + " <- " + msg.expr + " :: " + ty);
 				}
 				cases.add(new FunctionCaseDefn(null, mcd.intro.location, mcd.intro.name, mcd.intro.args, convert(mcd.intro.location, m.scope, mcd.messages)));
 			}
