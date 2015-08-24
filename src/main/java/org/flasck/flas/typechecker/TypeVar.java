@@ -1,9 +1,11 @@
 package org.flasck.flas.typechecker;
 
 public class TypeVar {
+	public final GarneredFrom from;
 	public final int ivar;
 	
-	public TypeVar(int which) {
+	public TypeVar(GarneredFrom from, int which) {
+		this.from = from;
 		this.ivar = which;
 	}
 	

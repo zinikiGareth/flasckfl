@@ -15,10 +15,14 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeExpr {
+	public final GarneredFrom from;
 	public final String type;
 	public final List<Object> args;
 
-	public TypeExpr(String type, List<Object> args) {
+	public TypeExpr(GarneredFrom from, String type, List<Object> args) {
+		this.from = from;
+		if (this.from == null && type.equals("Any"))
+			System.out.println("Didn't see a from for " + type);
 		if (type == null)
 			throw new UtilException("Cannot have null type");
 		this.type = type;
@@ -28,7 +32,10 @@ public class TypeExpr {
 			this.args = args;
 	}
 
-	public TypeExpr(String type, Object... exprs) {
+	public TypeExpr(GarneredFrom from, String type, Object... exprs) {
+		this.from = from;
+		if (this.from == null)
+			System.out.println("Didn't see a from for " + type);
 		this.type = type;
 		this.args = new ArrayList<Object>();
 		for (Object o : exprs)
@@ -78,7 +85,7 @@ public class TypeExpr {
 
 	protected Type convertToType(TypeChecker tc, TVPool pool) {
 		if (this.type.equals("()")) { // tuple
-			return Type.tuple(convertArgs(tc, pool, args));
+			return Type.tuple(this.from.posn, convertArgs(tc, pool, args));
 		} else if (this.type.equals("->")) { // function
 			List<Type> args = new ArrayList<Type>();
 			List<Object> stack = new ArrayList<Object>();

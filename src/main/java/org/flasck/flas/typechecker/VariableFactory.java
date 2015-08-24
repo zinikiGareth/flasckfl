@@ -4,7 +4,6 @@ public class VariableFactory {
 	private int nextVar = 1;
 	
 	public TypeVar next() {
-		return new TypeVar(nextVar++);
+		return new TypeVar(null, nextVar++);
 	}
-	
 }

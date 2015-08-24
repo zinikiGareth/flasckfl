@@ -268,7 +268,7 @@ public class Compiler {
 
 			// Now go back and handle all the "special cases" that sit at the top of the tree, such as methods and templates
 			
-			MethodConvertor mc = new MethodConvertor(errors, hsie, tc);
+			MethodConvertor mc = new MethodConvertor(errors, hsie, tc, rewriter.contracts);
 
 			// 6. Typecheck contract methods and event handlers, convert to functions and compile to HSIE
 			mc.convert(forms, rewriter.methods);
@@ -514,10 +514,10 @@ public class Compiler {
 						// TODO: only create functions for things that depend on the class
 						// constants can just be used directly
 						FunctionLiteral efn = functionWithArgs(d3.d3.prefix, functions, d3.scope, CollectionUtils.listOf(new TypedPattern(null, "D3Element", null, d3.d3.iter)), prop.value);
-						Object pair = new ApplyExpr(null, tuple, new StringLiteral(prop.location, prop.name), efn);
-						pl = new ApplyExpr(null, cons, pair, pl);
+						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
+						pl = new ApplyExpr(prop.location, cons, pair, pl);
 					}
-					byKey.add(s.name, new ApplyExpr(null, tuple, p.pattern, pl));
+					byKey.add(s.name, new ApplyExpr(s.location, tuple, p.pattern, pl));
 				}
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
 					FunctionIntro fi = new FunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());

@@ -63,6 +63,22 @@ public class HSIE {
 		return ms.form;
 	}
 
+	public HSIEForm handleExprWith(Object expr, Type type, List<String> vars) {
+		HSIEForm blk = new HSIEForm(type, "_expr_", 0, new TreeMap<String, Var>(new StringComparator()), vars.size());
+		MetaState ms = new MetaState(blk);
+//		State s = new State(blk);
+//		ms.add(s);
+		Map<String, Var> map = new TreeMap<String, Var>(new StringComparator());
+		for (String v : vars) {
+			map.put(v, ms.allocateVar());
+		}
+		SubstExpr se = new SubstExpr(expr, exprIdx++);
+		se.alsoSub(map);
+		ms.writeExpr(se, ms.form);
+//		ms.form.doReturn(ret, ms.closureDependencies(ret));
+		return ms.form;
+	}
+
 	private HSIEForm handleConstant(MetaState ms, FunctionDefinition defn) {
 		if (defn.cases.size() != 1)
 			throw new UtilException("Constants can only have one case");
