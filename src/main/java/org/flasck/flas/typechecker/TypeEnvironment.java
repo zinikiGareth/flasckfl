@@ -14,6 +14,8 @@ public class TypeEnvironment {
 		TypeEnvironment ret = new TypeEnvironment();
 		ret.mapping.putAll(mapping);
 		ret.mapping.put(var, tv);
+		if (mapping.containsKey(var))
+			throw new UtilException("This is overwriting " + var + " which may or may not be OK");
 		return ret;
 	}
 

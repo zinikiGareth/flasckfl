@@ -9,17 +9,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.Block;
-import org.flasck.flas.parsedForm.TypeDefn;
-import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.typechecker.Type.WhatAmI;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeExpr {
 	public final GarneredFrom from;
-	public final String type;
+	public final Type type;
 	public final List<Object> args;
 
-	public TypeExpr(GarneredFrom from, String type, List<Object> args) {
+	public TypeExpr(GarneredFrom from, Type type, List<Object> args) {
 		this.from = from;
 		if (this.from == null)
 			System.out.println("Didn't see a from for " + type);
@@ -32,20 +33,14 @@ public class TypeExpr {
 			this.args = args;
 	}
 
-	public TypeExpr(GarneredFrom from, String type, Object... exprs) {
-		this.from = from;
-		if (this.from == null)
-			System.out.println("Didn't see a from for " + type);
-		this.type = type;
-		this.args = new ArrayList<Object>();
-		for (Object o : exprs)
-			args.add(o);
+	public TypeExpr(GarneredFrom from, Type type, Object... exprs) {
+		this(from, type, CollectionUtils.listOf(exprs));
 	}
 
 	// Test if two type expressions are exactly the same, to the very comma
 	// Type variables would need to be THE SAME variables to pass this test - they are not all created equal
 	public boolean identicalTo(TypeExpr other) {
-		if (!this.type.equals(other.type))
+		if (this.type != other.type)
 			return false;
 		if (this.args.size() != other.args.size())
 			return false;
@@ -84,13 +79,13 @@ public class TypeExpr {
 	}
 
 	protected Type convertToType(TypeChecker tc, TVPool pool) {
-		if (this.type.equals("()")) { // tuple
+		if (this.type.name().equals("()")) { // tuple
 			return Type.tuple(this.from.posn, convertArgs(tc, pool, args));
-		} else if (this.type.equals("->")) { // function
+		} else if (this.type.name().equals("->")) { // function
 			List<Type> args = new ArrayList<Type>();
 			List<Object> stack = new ArrayList<Object>();
 			Object te = this;
-			while (te instanceof TypeExpr && ((TypeExpr)te).type.equals("->")) {
+			while (te instanceof TypeExpr && ((TypeExpr)te).type.name().equals("->")) {
 				stack.add(((TypeExpr)te).args.get(0)); // lhs
 				te = ((TypeExpr)te).args.get(1);
 			}
@@ -99,7 +94,10 @@ public class TypeExpr {
 				args.add(convertOne(tc, pool, o));
 			return Type.function(this.from != null ? this.from.posn : null, convertArgs(tc, pool, stack));
 		} else { // standard, possibly polymorphic
-			return Type.simple(this.from != null ? this.from.posn : null, type, convertArgs(tc, pool, args));
+			if (!type.hasPolys())
+				return type;
+			return type.instance(null, convertArgs(tc, pool, args));
+//			return Type.reference(this.from != null ? this.from.posn : null, type, convertArgs(tc, pool, args));
 		}
 	}
 
@@ -117,33 +115,32 @@ public class TypeExpr {
 			return ((TypeExpr)o).asType(tc);
 		else if (o instanceof TypeUnion) {
 			TypeUnion tu = (TypeUnion)o;
-			for (TypeDefn d : tc.types.values()) {
-				Set<Map.Entry<TypeReference, TypeExpr>> match = tu.matchesExactly(d);
+			for (UnionTypeDefn d : tc.types.values()) {
+				Set<Map.Entry<Type, TypeExpr>> match = tu.matchesExactly(d);
 				if (match != null) {
 					System.out.println("====");
 					Map<String, Object> checkBindings = new LinkedHashMap<String, Object>();
-					for (Entry<TypeReference, TypeExpr> x : match) {
-						System.out.println(x);
-						TypeReference want = x.getKey();
+					for (Entry<Type, TypeExpr> x : match) {
+						System.out.println("matching up type " + x);
+						Type want = x.getKey();
 						Iterator<Object> have = x.getValue().args.iterator();
-						for (Object v : want.args) {
+						for (Type vr : want.polys()) {
 							// TODO: this is a deprecated case because we don't handle SWITCH properly
 							if (!have.hasNext())
 								continue;
-							TypeReference vr = (TypeReference) v;
 							Object hv = have.next();
-							if (checkBindings.containsKey(vr.name)) {
-								if (!hv.equals(checkBindings.get(vr.name))) {
-									tc.errors.message((Tokenizable)null, "inconsistent parameters to " + want.name);
+							if (checkBindings.containsKey(vr.name())) {
+								if (!hv.equals(checkBindings.get(vr.name()))) {
+									tc.errors.message((Tokenizable)null, "inconsistent parameters to " + want.name());
 									throw new TypeUnion.FailException();
 								}
-								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.name));
+								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.name()));
 							} else
-								checkBindings.put(vr.name, hv);
+								checkBindings.put(vr.name(), hv);
 						}
 					}
 					System.out.println("====");
-					return Type.simple(null, d.defining.name, convertArgs(tc, pool, checkBindings.values()));
+					return d.instance(null, convertArgs(tc, pool, checkBindings.values()));
 				}
 			}
 			tc.errors.message((Block)null, "The union of " + tu + " is not a valid type");
@@ -152,20 +149,20 @@ public class TypeExpr {
 			throw new UtilException("Cannot convert " + (o == null?"null":o.getClass()));
 	}
 
-	public static Object fromReference(TypeReference tr, Map<String, TypeVar> polys) {
-		if (tr.name == null) {
-			if (polys.containsKey(tr.var))
-				return polys.get(tr.var);
+	public static Object fromReference(Type tr, Map<String, TypeVar> polys) {
+		if (tr.iam == WhatAmI.POLYVAR) {
+			if (polys.containsKey(tr.name()))
+				return polys.get(tr.name());
 			else
-				throw new UtilException("There is no poly var " + tr.var);
+				throw new UtilException("There is no poly var " + tr.name());
 		} else
-			return new TypeExpr(new GarneredFrom(tr.location), tr.name, fromArgs(tr.args, polys));
+			return new TypeExpr(new GarneredFrom(tr.location()), tr, fromArgs(tr, polys));
 	}
 	
-	private static List<Object> fromArgs(List<TypeReference> l, Map<String, TypeVar> polys) {
+	private static List<Object> fromArgs(Type tr, Map<String, TypeVar> polys) {
 		List<Object> ret = new ArrayList<Object>();
-		for (TypeReference o : l)
-			ret.add(fromReference(o, polys));
+		for (Type poly : tr.polys())
+			ret.add(fromReference(poly, polys));
 		return ret;
 	}
 

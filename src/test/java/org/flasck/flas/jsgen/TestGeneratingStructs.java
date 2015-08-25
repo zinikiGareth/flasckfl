@@ -11,7 +11,7 @@ import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.typechecker.Type;
 import org.junit.Test;
 
 public class TestGeneratingStructs {
@@ -37,8 +37,8 @@ public class TestGeneratingStructs {
 	@Test
 	public void testACaseWithTwoFields() throws IOException {
 		StructDefn sd = new StructDefn(null, "ME.Hello", true);
-		sd.addField(new StructField(new TypeReference(null, "String", null), "name"));
-		sd.addField(new StructField(new TypeReference(null, "Number", null), "quant"));
+		sd.addField(new StructField(Type.reference(null, "String"), "name"));
+		sd.addField(new StructField(Type.reference(null, "Number"), "quant"));
 		ErrorResult errors = new ErrorResult();
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(errors, target);

@@ -64,10 +64,10 @@ public class Generator {
 	public void generate(StructDefn sd) {
 		if (!sd.generate)
 			return;
-		int idx = sd.typename.lastIndexOf(".");
-		String uname = sd.typename.substring(0, idx+1) + "_" + sd.typename.substring(idx+1);
+		int idx = sd.name().lastIndexOf(".");
+		String uname = sd.name().substring(0, idx+1) + "_" + sd.name().substring(idx+1);
 		JSForm ret = JSForm.function(uname, CollectionUtils.listOf(new Var(0)), 0, 1);
-		ret.add(new JSForm("this._ctor = '" + sd.typename + "'"));
+		ret.add(new JSForm("this._ctor = '" + sd.name() + "'"));
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
 			ret.add(ifBlock);
@@ -97,11 +97,11 @@ public class Generator {
 			vars.add(v);
 			fields.add(sf.name+": "+ v);
 		}
-		JSForm ctor = JSForm.function(sd.typename, vars, 0, vars.size());
+		JSForm ctor = JSForm.function(sd.name(), vars, 0, vars.size());
 		ctor.add(new JSForm("return new " + uname + "({" + String.join(", ", fields) + "})"));
 		target.add(ctor);
 		
-		target.add(JSForm.flex("FLEval.registerStruct('" + sd.typename +"', " + sd.typename + ", " + uname + ")"));
+		target.add(JSForm.flex("FLEval.registerStruct('" + sd.name() +"', " + sd.name() + ", " + uname + ")"));
 	}
 
 	private void generateField(JSForm defass, String field, HSIEForm form) {

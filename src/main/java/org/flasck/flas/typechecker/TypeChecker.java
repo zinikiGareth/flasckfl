@@ -26,8 +26,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypeDefn;
-import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -57,7 +56,7 @@ public class TypeChecker {
 	final Map<String, Type> knowledge = new TreeMap<String, Type>();
 	final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
 	final Map<String, ObjectDefn> objects = new TreeMap<String, ObjectDefn>();
-	final Map<String, TypeDefn> types = new TreeMap<String, TypeDefn>();
+	final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
 	final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>(new StringComparator());
 	final Map<String, CardTypeInfo> cards = new TreeMap<String, CardTypeInfo>();
 	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>(new StringComparator());
@@ -70,7 +69,7 @@ public class TypeChecker {
 		for (Entry<String, StructDefn> d : rewriter.structs.entrySet())
 			structs.put(d.getKey(), d.getValue());
 //		System.out.println("structs: " + structs);
-		for (Entry<String, TypeDefn> d : rewriter.types.entrySet())
+		for (Entry<String, UnionTypeDefn> d : rewriter.types.entrySet())
 			types.put(d.getKey(), d.getValue());
 //		System.out.println("types: " + types);
 		for (Entry<String, ContractDecl> d : rewriter.contracts.entrySet())
@@ -93,15 +92,15 @@ public class TypeChecker {
 	}
 
 	public void addStructDefn(StructDefn structDefn) {
-		structs.put(structDefn.typename, structDefn);
+		structs.put(structDefn.name(), structDefn);
 	}
 
 	public void addObjectDefn(ObjectDefn objDefn) {
-		objects.put(objDefn.typename, objDefn);
+		objects.put(objDefn.name(), objDefn);
 	}
 
-	public void addTypeDefn(TypeDefn typeDefn) {
-		types.put(typeDefn.defining.name, typeDefn);
+	public void addTypeDefn(UnionTypeDefn typeDefn) {
+		types.put(typeDefn.name(), typeDefn);
 	}
 
 	public void addExternal(String name, Type type) {
@@ -174,7 +173,7 @@ public class TypeChecker {
 		Map<Var, Var> rwvars = new HashMap<Var, Var>();
 //		System.out.println("Rewriting function tree");
 		for (Tree<HSIEForm> tree : functionsToCheck)
-			rewriteFunctionTree(tree, s.localKnowledge, rwvars, rewritten, from, tree.getRoot());
+			from = rewriteFunctionTree(tree, s.localKnowledge, rwvars, rewritten, from, tree.getRoot());
 //		System.out.println("Finished rewriting");
 		allocateVars(s, rewritten);
 		return rewritten;
@@ -210,13 +209,14 @@ public class TypeChecker {
 		return actualTypes;
 	}
 
-	private void rewriteFunctionTree(Tree<HSIEForm> functionsToCheck, Map<String, Object> localKnowledge, Map<Var, Var> rwvars, Map<String, HSIEForm> rewritten, int from, Node<HSIEForm> nh) {
+	private int rewriteFunctionTree(Tree<HSIEForm> functionsToCheck, Map<String, Object> localKnowledge, Map<Var, Var> rwvars, Map<String, HSIEForm> rewritten, int from, Node<HSIEForm> nh) {
 		HSIEForm hsie = nh.getEntry();
 		Map<Var, Var> rwvars2 = new HashMap<Var, Var>(rwvars);
 		rewritten.put(hsie.fnName, rewriteWithFreshVars(rwvars2, hsie, from));
 		from += hsie.vars.size();
 		for (Node<HSIEForm> c : functionsToCheck.getChildren(nh))
-			rewriteFunctionTree(functionsToCheck, localKnowledge, rwvars2, rewritten, from, c);
+			from = rewriteFunctionTree(functionsToCheck, localKnowledge, rwvars2, rewritten, from, c);
+		return from;
 	}
 
 	private HSIEForm rewriteWithFreshVars(Map<Var, Var> mapping, HSIEForm hsie, int from) {
@@ -305,7 +305,7 @@ public class TypeChecker {
 //			throw new UtilException("Need to make sure these are reused from existing parent, even after renaming");
 		for (int i=0;i<hsie.nformal;i++) {
 			TypeVar tv = factory.next();
-//			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + (i+hsie.alreadyUsed));
+//			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + hsie.vars.get(i+hsie.alreadyUsed));
 			s.gamma = s.gamma.bind(hsie.vars.get(i+hsie.alreadyUsed), new TypeScheme(null, tv));
 			vars.add(tv);
 		}
@@ -322,7 +322,7 @@ public class TypeChecker {
 		for (int i=hsie.nformal-1;i>=0;i--) {
 			Var myarg = hsie.vars.get(hsie.alreadyUsed+i);
 			Object tv = s.gamma.valueOf(myarg).typeExpr;
-			rhs = new TypeExpr(null, "->", s.phi.subst(tv), rhs);
+			rhs = new TypeExpr(null, Type.builtin(null, "->"), s.phi.subst(tv), rhs);
 		}
 		return rhs;
 	}
@@ -343,7 +343,7 @@ public class TypeChecker {
 				Switch sw = (Switch) o;
 				TypeScheme valueOf = s.gamma.valueOf(sw.var);
 				if (sw.ctor.equals("Number") || sw.ctor.equals("Boolean") || sw.ctor.equals("String")) {
-					s.phi.unify(valueOf.typeExpr, new TypeExpr(null, sw.ctor));
+					s.phi.unify(valueOf.typeExpr, new TypeExpr(null, Type.builtin(null, sw.ctor)));
 					returns.add(checkBlock(sft, s, form, sw));
 					logger.info(o.toString() + " links " + sw.var + " to " + sw.ctor);
 				} else {
@@ -357,10 +357,10 @@ public class TypeChecker {
 					// we need a complex map of form var -> ctor -> field -> type
 					// and type needs to be cunningly constructed from TypeReference
 					List<Object> targs = new ArrayList<Object>();
-					for (String x : sd.args) {
+					for (Type x : sd.polys()) {
 						TypeVar tv = factory.next();
 						targs.add(tv);
-						polys.put(x, tv);
+						polys.put(x.name(), tv);
 					}
 	//				System.out.println(polys);
 					SFTypes inner = new SFTypes(sft);
@@ -370,7 +370,7 @@ public class TypeChecker {
 						inner.put(sw.var, x.name, fr);
 //						System.out.println(fr);
 					}
-					s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), sw.ctor, targs));
+					s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), sd, targs));
 					returns.add(checkBlock(inner, s, form, sw));
 				}
 			} else if (o instanceof IFCmd) {
@@ -409,10 +409,10 @@ public class TypeChecker {
 			PushReturn r = (PushReturn) cmd;
 			if (r.ival != null) {
 				logger.info(r.toString() + " is a constant of type Number");
-				return new TypeExpr(null, "Number");
+				return new TypeExpr(null, Type.builtin(null, "Number"));
 			} else if (r.sval != null) {
 				logger.info(r.toString() + " is a constant of type String");
-				return new TypeExpr(null, "String");
+				return new TypeExpr(null, Type.builtin(null, "String"));
 			} else if (r.tlv != null) {
 				// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
 				TypeVar ret = factory.next();
@@ -451,7 +451,8 @@ public class TypeChecker {
 					CardMember cm = (CardMember) r.fn;
 					// try and find the name of the card class
 					if (r.fn.equals("_card"))
-						return freshVarsIn(new TypeReference(cm.location, cm.card, null));
+						throw new UtilException("Died in housefire");
+						// return freshVarsIn(new TypeReference(cm.location, cm.card, null));
 					CardTypeInfo cti = cards.get(cm.card);
 					if (cti == null)
 						throw new UtilException("There was no card definition called " + cm.card);
@@ -472,7 +473,8 @@ public class TypeChecker {
 //						idx = form.fnName.lastIndexOf('.', idx-1);
 					String structName = hl.hi; // form.fnName.substring(0, idx);
 					if (r.fn.equals("_handler"))
-						return freshVarsIn(new TypeReference(hl.location, structName, null));
+						throw new UtilException("Died in housefire");
+//						return freshVarsIn(new TypeReference(hl.location, structName, null));
 					StructDefn sd = structs.get(structName);
 					for (StructField sf : sd.fields) {
 						if (sf.name.equals(hl.var)) {
@@ -485,7 +487,7 @@ public class TypeChecker {
 				String name = r.fn.uniqueName();
 				if (name.equals("FLEval.field")) {
 					logger.info(r.fn + " implies field handling");
-					return new TypeExpr(new GarneredFrom(r.location), ".");
+					return new TypeExpr(new GarneredFrom(r.location), Type.builtin(null, "."));
 				}
 				Object te = s.localKnowledge.get(name);
 				if (te != null) {
@@ -496,7 +498,7 @@ public class TypeChecker {
 				if (te == null) {
 					if (cards.containsKey(name)) {
 						logger.info(r.fn + " is card " + name);
-						return new TypeExpr(null, name);
+						return new TypeExpr(null, cards.get(name).struct);
 					}
 					if (structs.containsKey(name)) {
 						logger.info(r.fn + " is struct ctor " + name);
@@ -515,7 +517,7 @@ public class TypeChecker {
 				}
 			} else if (r.func != null) {
 				logger.info(r.fn + " is a function literal");
-				return new TypeExpr(null, "FunctionLiteral");
+				return new TypeExpr(null, Type.builtin(null, "FunctionLiteral")); // do we not want the type signature of r.func?
 			} else
 				throw new UtilException("What are you returning?");
 		} else
@@ -535,21 +537,21 @@ public class TypeChecker {
 			List<Object> newVars = new ArrayList<Object>();
 			for (int i=1;i<args.size();i++)
 				newVars.add(factory.next());
-			Tf = new TypeExpr(null, "()", newVars);
+			Tf = new TypeExpr(null, Type.builtin(null, "()"), newVars);
 			logger.info("Closure " + c + " has type " + Tf);
 		} else if (Tf instanceof TypeExpr && ".".equals(((TypeExpr)Tf).type)) { // so does "." notation
 			InputPosition posn = ((TypeExpr)Tf).from.posn;
 			Object T1 = s.phi.subst(args.get(1));
 			if (T1 instanceof TypeExpr) {
 				TypeExpr te = (TypeExpr) T1;
-				String tn = te.type;
+				String tn = te.type.name();
 				String fn = ((PushCmd)c.nestedCommands().get(2)).sval.text;
 				StructDefn sd = this.structs.get(tn);
 				if (sd != null) {
 					for (StructField f : sd.fields) {
 						if (f.name.equals(fn)) {
 							Object r = freshVarsIn(f.type);
-							logger.info("field " + f.name + " of " + sd.typename + " has type " + f.type + " with fresh vars as " + r);
+							logger.info("field " + f.name + " of " + sd.name() + " has type " + f.type + " with fresh vars as " + r);
 							return r;
 						}
 					}
@@ -561,7 +563,7 @@ public class TypeChecker {
 					for (ObjectMethod m : od.methods) {
 						if (m.name.equals(fn)) {
 							Object r = freshVarsIn(m.type);
-							logger.info("field " + m.name + " of " + od.typename + " has type " + m.type + " with fresh vars as " + r);
+							logger.info("field " + m.name + " of " + od.name() + " has type " + m.type + " with fresh vars as " + r);
 							return r;
 						}
 					}
@@ -619,31 +621,27 @@ public class TypeChecker {
 	private Type typeForStructCtor(InputPosition location, StructDefn structDefn) {
 		List<Type> args = new ArrayList<Type>();
 		for (StructField x : structDefn.fields)
-			args.add(fromTypeReference(x.type));
-		args.add(fromTypeReference(new TypeReference(location, structDefn.typename, null)));
+			args.add(x.type);
+		// TODO: I deny that this is "builtin", but none of the other categories work for me
+		System.out.println("FIX use of builtin");
+		args.add(Type.builtin(location, structDefn.name()));
 		return Type.function(location, args);
 	}
 
 	private Type typeForCardCtor(InputPosition location, StructDefn structDefn) {
 		List<Type> args = new ArrayList<Type>();
-		args.add(fromTypeReference(new TypeReference(location, "_Wrapper", null)));
-		args.add(fromTypeReference(new TypeReference(location, structDefn.typename, null)));
+		// I think this is OK being builtin ...
+		args.add(Type.builtin(location, "_Wrapper"));
+		// TODO: I deny that this is "builtin", but none of the other categories work for me
+		System.out.println("FIX use of builtin");
+		args.add(Type.builtin(location, structDefn.name()));
 		return Type.function(location, args);
-	}
-
-	private Type fromTypeReference(TypeReference type) {
-		if (type.var != null)
-			return Type.polyvar(type.location, type.var);
-		List<Type> args = new ArrayList<Type>();
-		for (TypeReference tr : type.args)
-			args.add(fromTypeReference(tr));
-		return Type.simple(type.location, type.name, args);
 	}
 
 	private Object checkSingleApplication(TypeState s, Object Tf, Object Tx) {
 		TypeVar Tr = factory.next();
 //		System.out.println("Allocating " + Tr + " for new application of " + Tf + " to " + Tx);
-		TypeExpr Tf2 = new TypeExpr(null, "->", Tx, Tr);
+		TypeExpr Tf2 = new TypeExpr(null, Type.builtin(null, "->"), Tx, Tr);
 		s.phi.unify(Tf, Tf2);
 		if (errors.hasErrors())
 			return null;
@@ -651,20 +649,20 @@ public class TypeChecker {
 	}
 
 	private Object freshVarsIn(Object te) {
-		if (te instanceof TypeReference)
-			te = fromTypeReference((TypeReference) te);
 		if (te instanceof Type) {
 			Object ret = ((Type)te).asExpr(factory);
 			return ret;
 		}
-		Set<TypeVar> vs = new HashSet<TypeVar>();
-		findVarsIn(vs, te);
-		Map<TypeVar, TypeVar> map = new HashMap<TypeVar, TypeVar>();
-		for (TypeVar tv : vs)
-			map.put(tv, factory.next());
-		return substVars(map, te);
+		throw new UtilException("I think this is dead code.  What do you have? " + te.getClass());
+//		Set<TypeVar> vs = new HashSet<TypeVar>();
+//		findVarsIn(vs, te);
+//		Map<TypeVar, TypeVar> map = new HashMap<TypeVar, TypeVar>();
+//		for (TypeVar tv : vs)
+//			map.put(tv, factory.next());
+//		return substVars(map, te);
 	}
 
+	/*
 	private void findVarsIn(Set<TypeVar> vs, Object te) {
 		if (te instanceof TypeVar)
 			vs.add((TypeVar) te);
@@ -687,6 +685,7 @@ public class TypeChecker {
 			return new TypeExpr(null, te2.type, newArgs);
 		}
 	}
+	*/
 
 	public Type getTypeAsCtor(String fn) {
 		if (knowledge.containsKey(fn))
@@ -701,7 +700,7 @@ public class TypeChecker {
 
 	public Type getType(InputPosition loc, String fn) {
 		if (structs.containsKey(fn))
-			return Type.simple(loc, fn);
+			return Type.reference(loc, fn);
 		if (knowledge.containsKey(fn))
 			return knowledge.get(fn);
 //		if (cards.containsKey(fn))
@@ -721,11 +720,11 @@ public class TypeChecker {
 			}
 		}
 		oos.writeObject(str);
-		List<TypeDefn> ts = new ArrayList<TypeDefn>();
-		for (TypeDefn td : types.values()) {
+		List<UnionTypeDefn> ts = new ArrayList<UnionTypeDefn>();
+		for (UnionTypeDefn td : types.values()) {
 			if (td.generate) {
 				ts.add(td);
-				System.out.println("  type " + td.defining);
+				System.out.println("  type " + td.name());
 			}
 		}
 		oos.writeObject(ts);

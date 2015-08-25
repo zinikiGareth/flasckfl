@@ -11,8 +11,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypeDefn;
-import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.junit.Test;
@@ -32,7 +31,7 @@ public class TestBasicTypeChecking {
 		assertNotNull(te);
 		assertTrue(te instanceof TypeExpr);
 		TypeExpr rte = (TypeExpr) te;
-		assertEquals("Number", rte.type);
+		assertEquals("Number", rte.type.name());
 		assertTrue(rte.args.isEmpty());
 	}
 
@@ -47,10 +46,10 @@ public class TestBasicTypeChecking {
 		// The type should be A -> Number
 		assertTrue(te instanceof TypeExpr);
 		TypeExpr rte = (TypeExpr) te;
-		assertEquals("->", rte.type);
+		assertEquals("->", rte.type.name());
 		assertEquals(2, rte.args.size());
 		assertTrue(rte.args.get(0) instanceof TypeVar);
-		assertEquals("Number", ((TypeExpr)rte.args.get(1)).type);
+		assertEquals("Number", ((TypeExpr)rte.args.get(1)).type.name());
 	}
 
 	@Test
@@ -64,7 +63,7 @@ public class TestBasicTypeChecking {
 		// The type should be A -> A
 		assertTrue(te instanceof TypeExpr);
 		TypeExpr rte = (TypeExpr) te;
-		assertEquals("->", rte.type);
+		assertEquals("->", rte.type.name());
 		assertEquals(2, rte.args.size());
 		assertTrue(rte.args.get(0) instanceof TypeVar);
 		assertTrue(rte.args.get(1) instanceof TypeVar);
@@ -75,7 +74,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testExternalPlus1HasExpectedType() {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addExternal("plus1", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number")));
+		tc.addExternal("plus1", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		TypeState s = new TypeState(errors);
 		HSIEForm fn = HSIETestData.returnPlus1();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
@@ -85,18 +84,18 @@ public class TestBasicTypeChecking {
 		assertTrue(te instanceof TypeExpr);
 		TypeExpr rte = (TypeExpr) te;
 //		assertEquals("Number->Number", rte.asType(tc).toString());
-		assertEquals("->", rte.type);
+		assertEquals("->", rte.type.name());
 		assertEquals(2, rte.args.size());
 		assertTrue(rte.args.get(0) instanceof TypeExpr);
 		assertTrue(rte.args.get(1) instanceof TypeExpr);
-		assertEquals("Number", ((TypeExpr)rte.args.get(0)).type);
-		assertEquals("Number", ((TypeExpr)rte.args.get(1)).type);
+		assertEquals("Number", ((TypeExpr)rte.args.get(0)).type.name());
+		assertEquals("Number", ((TypeExpr)rte.args.get(1)).type.name());
 	}
 
 	@Test
 	public void testWeCanTypecheckSimpleFunctionApplication() {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addExternal("plus1", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number")));
+		tc.addExternal("plus1", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		TypeState s = new TypeState(errors);
 		HSIEForm fn = HSIETestData.plus1Of1();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
@@ -105,14 +104,14 @@ public class TestBasicTypeChecking {
 		// The type should be Number
 		assertTrue(te instanceof TypeExpr);
 		TypeExpr rte = (TypeExpr) te;
-		assertEquals("Number", rte.type);
+		assertEquals("Number", rte.type.name());
 		assertTrue(rte.args.isEmpty());
 	}
 
 	@Test
 	public void testWeCanTypecheckAFunctionApplicationWithTwoArguments() {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addExternal("plus", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
+		tc.addExternal("plus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		TypeState s = new TypeState(errors);
 		HSIEForm fn = HSIETestData.plus2And2();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
@@ -121,7 +120,7 @@ public class TestBasicTypeChecking {
 		// The type should be Number
 		assertTrue(te instanceof TypeExpr);
 		TypeExpr rte = (TypeExpr) te;
-		assertEquals("Number", rte.type);
+		assertEquals("Number", rte.type.name());
 		assertTrue(rte.args.isEmpty());
 	}
 
@@ -129,7 +128,7 @@ public class TestBasicTypeChecking {
 	public void testWeCanUseIDTwiceWithDifferentInstationsOfItsSchematicVar() {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("id", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A")));
-		tc.addExternal("decode", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Char")));
+		tc.addExternal("decode", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Char")));
 		TypeState s = new TypeState(errors);
 		HSIEForm fn = HSIETestData.idDecode();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
@@ -139,15 +138,15 @@ public class TestBasicTypeChecking {
 		// The type should be Char
 		assertTrue(te instanceof TypeExpr);
 		TypeExpr rte = (TypeExpr) te;
-		assertEquals("Char", rte.type);
+		assertEquals("Char", rte.type.name());
 		assertTrue(rte.args.isEmpty());
 	}
 	
 	@Test
 	public void testWeCanCheckTwoFunctionsAtOnceBecauseTheyAreMutuallyRecursive() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addExternal("FLEval.plus", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
-		tc.addExternal("FLEval.minus", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
+		tc.addExternal("FLEval.plus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
+		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -182,18 +181,18 @@ public class TestBasicTypeChecking {
 		// The type should be Number -> Number
 		assertTrue(te instanceof TypeExpr);
 		TypeExpr rte = (TypeExpr) te;
-		assertEquals("->", rte.type);
+		assertEquals("->", rte.type.name());
 		assertEquals(2, rte.args.size());
 		{
 			Object te1 = rte.args.get(0);
 			assertTrue(te1 instanceof TypeExpr);
-			assertEquals("Number", ((TypeExpr)te1).type);
+			assertEquals("Number", ((TypeExpr)te1).type.name());
 			assertEquals(0, ((TypeExpr)te1).args.size());
 		}
 		{
 			Object te2 = rte.args.get(1);
 			assertTrue(te2 instanceof TypeExpr);
-			assertEquals("Number", ((TypeExpr)te2).type);
+			assertEquals("Number", ((TypeExpr)te2).type.name());
 			assertEquals(0, ((TypeExpr)te2).args.size());
 		}
 	}
@@ -202,8 +201,8 @@ public class TestBasicTypeChecking {
 	public void testWeCanHandleConstantSwitching() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addStructDefn(new StructDefn(null, "Number", false));
-		tc.addExternal("FLEval.plus", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
-		tc.addExternal("FLEval.minus", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
+		tc.addExternal("FLEval.plus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
+		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.typecheck(orchardOf(HSIETestData.fib()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -219,13 +218,21 @@ public class TestBasicTypeChecking {
 	public void testWeCanHandleBindForCons() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addStructDefn(new StructDefn(null, "Number", false));
-		tc.addStructDefn(
-				new StructDefn(null, "Cons", false).add("A")
-				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
-				.addField(new StructField(new TypeReference(null, "Cons", null).with(new TypeReference(null, "A", null)), "tail")));
-		tc.addExternal("Nil", Type.function(null, Type.simple(null, "Nil")));
-		tc.addExternal("Cons", Type.function(null, Type.polyvar(null, "A"), Type.simple(null, "List", Type.polyvar(null, "A")), Type.simple(null, "List", Type.polyvar(null, "A"))));
-		tc.addExternal("-", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
+		Type varA = Type.polyvar(null, "A");
+		StructDefn nil = new StructDefn(null, "Nil", false);
+		tc.addStructDefn(nil);
+		StructDefn cons = new StructDefn(null, "Cons", false, varA); 
+		cons.addField(new StructField(varA, "head"));
+		cons.addField(new StructField(cons, "tail"));
+		tc.addStructDefn(cons);
+		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
+		list.addCase(nil);
+		list.addCase(cons);
+		tc.addTypeDefn(list);
+				
+		tc.addExternal("Nil", Type.function(null, nil));
+		tc.addExternal("Cons", Type.function(null, varA, list, list));
+		tc.addExternal("-", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.typecheck(orchardOf(HSIETestData.takeConsCase()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -242,22 +249,23 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		
-		TypeReference list = new TypeReference(null, "List", null).with(new TypeReference(null, null, "A"));
-		tc.addStructDefn(new StructDefn(null, "Number", false));
-		tc.addStructDefn(new StructDefn(null, "Nil", false));
-		tc.addStructDefn(
-				new StructDefn(null, "Cons", false).add("A")
-				.addField(new StructField(new TypeReference(null, null, "A"), "head"))
-				.addField(new StructField(list, "tail")));
-		TypeDefn listDefn = new TypeDefn(null, true, list);
-		listDefn.addCase(new TypeReference(null, "Nil", null));
-		listDefn.addCase(new TypeReference(null, "Cons", null).with(new TypeReference(null, null, "A")));
-		tc.addTypeDefn(listDefn);
-		
-		tc.addExternal("Nil", Type.function(null, Type.simple(null, "Nil")));
-		tc.addExternal("Cons", Type.function(null, Type.polyvar(null, "A"), Type.simple(null, "List", Type.polyvar(null, "A")), Type.simple(null, "List", Type.polyvar(null, "A"))));
-		tc.addExternal("FLEval.minus", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
+
+		Type varA = Type.polyvar(null, "A");
+		StructDefn nil = new StructDefn(null, "Nil", false);
+		tc.addStructDefn(nil);
+		StructDefn cons = new StructDefn(null, "Cons", false, varA); 
+		cons.addField(new StructField(varA, "head"));
+		cons.addField(new StructField(cons, "tail"));
+		tc.addStructDefn(cons);
+		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
+		list.addCase(nil);
+		list.addCase(cons);
+		tc.addTypeDefn(list);
+				
+		tc.addExternal("Nil", Type.function(null, nil));
+		tc.addExternal("Cons", Type.function(null, varA, list, list));
+
+		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.typecheck(orchardOf(HSIETestData.take()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -272,7 +280,7 @@ public class TestBasicTypeChecking {
 	public void testWeCanCheckASimpleNestedFunction() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addStructDefn(new StructDefn(null, "Number", false));
-		tc.addExternal("FLEval.mul", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
+		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.typecheck(orchardOf(HSIETestData.simpleG()));
 		tc.typecheck(orchardOf(HSIETestData.simpleF()));
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -298,7 +306,7 @@ public class TestBasicTypeChecking {
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addStructDefn(new StructDefn(null, "Number", false));
-		tc.addExternal("FLEval.mul", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
+		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		Tree<HSIEForm> tree = orchard.addTree(HSIETestData.mutualF());
 		tree.addChild(tree.getRoot(), HSIETestData.mutualG());
@@ -327,8 +335,8 @@ public class TestBasicTypeChecking {
 	public void testWeCanCheckSimpleIf() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addStructDefn(new StructDefn(null, "Number", false));
-		tc.addExternal("FLEval.mul", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
-		tc.addExternal("FLEval.compeq", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A"), Type.simple(null, "Boolean")));
+		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
+		tc.addExternal("FLEval.compeq", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A"), Type.builtin(null, "Boolean")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		orchard.addTree(HSIETestData.simpleIf());
 		tc.typecheck(orchard);
@@ -348,9 +356,9 @@ public class TestBasicTypeChecking {
 	public void testWeCanCheckSimpleIfElse() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addStructDefn(new StructDefn(null, "Number", false));
-		tc.addExternal("FLEval.mul", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
-		tc.addExternal("FLEval.minus", Type.function(null, Type.simple(null, "Number"), Type.simple(null, "Number"), Type.simple(null, "Number")));
-		tc.addExternal("FLEval.compeq", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A"), Type.simple(null, "Boolean")));
+		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
+		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
+		tc.addExternal("FLEval.compeq", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A"), Type.builtin(null, "Boolean")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		orchard.addTree(HSIETestData.simpleIfElse());
 		tc.typecheck(orchard);

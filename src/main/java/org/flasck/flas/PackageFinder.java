@@ -11,7 +11,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.TypeDefn;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.zinutils.exceptions.UtilException;
 
 public class PackageFinder {
@@ -45,7 +45,7 @@ public class PackageFinder {
 					@SuppressWarnings("unchecked")
 					List<StructDefn> structs = (List<StructDefn>) ois.readObject();
 					@SuppressWarnings("unchecked")
-					List<TypeDefn> types = (List<TypeDefn>) ois.readObject();
+					List<UnionTypeDefn> types = (List<UnionTypeDefn>) ois.readObject();
 					@SuppressWarnings("unchecked")
 					List<ContractDecl> contracts = (List<ContractDecl>)ois.readObject();
 					for (ContractDecl c : contracts) {

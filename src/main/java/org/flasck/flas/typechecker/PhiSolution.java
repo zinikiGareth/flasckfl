@@ -11,8 +11,8 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.TypeDefn;
-import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
@@ -170,7 +170,7 @@ public class PhiSolution {
 	}
 
 	private boolean isListCtor(TypeExpr expr) {
-		return expr.type.equals("Nil") || expr.type.equals("Cons") || expr.type.equals("List");
+		return expr.type.name().equals("Nil") || expr.type.name().equals("Cons") || expr.type.name().equals("List");
 	}
 
 	private TypeUnion unionOf(TypeExpr te1, TypeExpr te2) {
@@ -194,8 +194,10 @@ public class PhiSolution {
 	
 	private List<Object> unifyl(List<Object> l1, List<Object> l2) {
 		List<Object> ret = new ArrayList<Object>();
-		if (l1.size() != l2.size())
-			throw new UtilException("This really shouldn't be possible");
+		if (l1.size() != l2.size()) {
+			System.out.println("This really shouldn't be possible - inconsistent number of args to a constructor");
+			return ret;
+		}
 		for (int i=0;i<l1.size();i++)
 			ret.add(unify(l1.get(i), l2.get(i)));
 		return ret;
@@ -219,30 +221,29 @@ public class PhiSolution {
 		for (TypeUnion tu : needTypeResolution) {
 			if (tu.containsAny())
 				continue;
-			for (TypeDefn d : tc.types.values()) {
-				Set<Map.Entry<TypeReference, TypeExpr>> match = tu.matchesEnough(d);
+			for (UnionTypeDefn d : tc.types.values()) {
+				Set<Map.Entry<Type, TypeExpr>> match = tu.matchesEnough(d);
 				if (match != null) {
 //					System.out.println("====");
 					Map<String, Object> checkBindings = new LinkedHashMap<String, Object>();
-					for (Entry<TypeReference, TypeExpr> x : match) {
+					for (Entry<Type, TypeExpr> x : match) {
 //						System.out.println("Match: " + x);
-						TypeReference want = x.getKey();
+						Type want = x.getKey();
 						Iterator<Object> have = x.getValue().args.iterator();
-						for (Object v : want.args) {
+						for (Type vr : want.polys()) {
 							// TODO: this is a deprecated case because we don't handle SWITCH properly
 							if (!have.hasNext())
 								continue;
-							TypeReference vr = (TypeReference) v;
-							if (vr.var == null)
-								throw new UtilException("var should not be null");
+							if (vr.iam != WhatAmI.POLYVAR)
+								throw new UtilException("should be a polyvar");
 							Object hv = have.next();
-							if (checkBindings.containsKey(vr.var)) {
-								if (!hv.equals(checkBindings.get(vr.var))) {
-									errors.message(want.location, "inconsistent parameters to " + want.name);
+							if (checkBindings.containsKey(vr.name())) {
+								if (!hv.equals(checkBindings.get(vr.name()))) {
+									errors.message(want.location(), "inconsistent parameters to " + want.name());
 								}
-								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.var));
+								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.name()));
 							} else
-								checkBindings.put(vr.var, hv);
+								checkBindings.put(vr.name(), hv);
 						}
 					}
 //					System.out.println("====");

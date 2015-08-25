@@ -1,6 +1,7 @@
 package org.flasck.flas.typechecker;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,16 +13,46 @@ import org.zinutils.exceptions.UtilException;
 
 public class Type implements Locatable {
 	private final InputPosition location;
-	public enum WhatAmI { SIMPLE, POLYVAR, FUNCTION, TUPLE };
+	public enum WhatAmI { REFERENCE, BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT };
 	public final WhatAmI iam;
 	private final String name;
-	private final List<Type> args;
+	private final Type type;
+	private final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
+	private final List<Type> fnargs; // arguments to function or tuple
 	
-	private Type(InputPosition location, WhatAmI iam, String name, List<Type> args) {
+	protected Type(InputPosition location, WhatAmI iam, String name, List<Type> polys) {
 		this.location = location;
 		this.iam = iam;
 		this.name = name;
-		this.args = args;
+		this.type = null;
+		this.polys = polys;
+		this.fnargs = null;
+		
+		// for anything which is not an instance, all the args MUST be polymorphic vars
+		if (polys != null && iam != WhatAmI.REFERENCE && iam != WhatAmI.INSTANCE)
+			for (Type t : polys)
+				if (t.iam != WhatAmI.POLYVAR)
+					throw new UtilException("All arguments to type defn must be poly vars");
+	}
+
+	protected Type(InputPosition location, WhatAmI iam, Type type, List<Type> args) {
+		this.location = location;
+		this.iam = iam;
+		this.name = null;
+		this.type = type;
+		this.polys = args;
+		this.fnargs = null;
+	}
+
+	protected Type(InputPosition location, WhatAmI iam, List<Type> subtypes) {
+		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE)
+			throw new UtilException("Only applicable to FUNCTION and TUPLE");
+		this.location = location;
+		this.iam = iam;
+		this.name = null;
+		this.type = null;
+		this.polys = null;
+		this.fnargs = subtypes;
 	}
 
 	@Override
@@ -30,38 +61,72 @@ public class Type implements Locatable {
 	}
 
 	public String name() {
-		if (iam == WhatAmI.SIMPLE || iam == WhatAmI.POLYVAR)
+		if (iam == WhatAmI.INSTANCE)
+			return type.name;
+		else if (iam == WhatAmI.REFERENCE || iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT)
 			return name;
 		else
-			throw new UtilException("Can only ask for the name of a simple of polymorphic type");
+			throw new UtilException("Cannot ask for the name of a " + iam);
+	}
+
+	public boolean hasPolys() {
+		return polys != null && !polys.isEmpty();
 	}
 	
+	public Collection<Type> polys() {
+		if (polys == null)
+			throw new UtilException("Cannot obtain poly vars of " + iam);
+		return polys;
+	}
+
+	public Type poly(int i) {
+		if (polys == null)
+			throw new UtilException("Cannot obtain poly vars of " + iam);
+		return polys.get(i);
+	}
+
 	public int arity() {
 		if (iam == WhatAmI.FUNCTION)
-			return args.size() - 1;
+			return fnargs.size() - 1;
 		else
 			throw new UtilException("Can only ask for the arity of a function");
 	}
 	
 	public int width() {
 		if (iam != WhatAmI.TUPLE)
-			return args.size();
+			return fnargs.size();
 		else
-			throw new UtilException("Can only ask for the arity of a function");
+			throw new UtilException("Can only ask for the width of a tuple");
 	}
 	
 	public Type arg(int i) {
 		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE)
 			throw new UtilException("Can only ask for the argument of a function or tuple");
-		return args.get(i);
+		return fnargs.get(i);
 	}
 	
-	public static Type simple(InputPosition loc, String name, List<Type> args) {
-		return new Type(loc, WhatAmI.SIMPLE, name, args);
+	// defining a "reference" says you know a thing's name and arguments but you don't actually know anything about it
+	public static Type reference(InputPosition loc, String name, List<Type> args) {
+		return new Type(loc, WhatAmI.REFERENCE, name, args);
 	}
 
-	public static Type simple(InputPosition loc, String name, Type... args) {
-		return new Type(loc, WhatAmI.SIMPLE, name, CollectionUtils.listOf(args));
+	public static Type reference(InputPosition loc, String name, Type... args) {
+		return new Type(loc, WhatAmI.REFERENCE, name, CollectionUtils.listOf(args));
+	}
+	
+	// This one is DELIBERATELY not static - you need a type that you would otherwise have to pass in as "base"
+	public Type instance(InputPosition loc, Type... with) {
+		return new Type(loc, WhatAmI.INSTANCE, this, CollectionUtils.listOf(with));
+	}
+
+	public Type instance(InputPosition loc, List<Type> with) {
+		return new Type(loc, WhatAmI.INSTANCE, this, with);
+	}
+
+	// a "builtin" is something very simple - "number" and "string" are the only obvious examples that come to mind
+	// this should ONLY be called from Builtin
+	public static Type builtin(InputPosition loc, String name) {
+		return new Type(loc, WhatAmI.BUILTIN, name, null);
 	}
 	
 	public static Type polyvar(InputPosition loc, String name) {
@@ -69,7 +134,7 @@ public class Type implements Locatable {
 	}
 	
 	public static Type function(InputPosition loc, List<Type> args) {
-		return new Type(loc, WhatAmI.FUNCTION, null, args);
+		return new Type(loc, WhatAmI.FUNCTION, args);
 	}
 
 	public static Type function(InputPosition loc, Type... args) {
@@ -77,7 +142,7 @@ public class Type implements Locatable {
 	}
 	
 	public static Type tuple(InputPosition loc, List<Type> args) {
-		return new Type(loc, WhatAmI.TUPLE, null, args);
+		return new Type(loc, WhatAmI.TUPLE, args);
 	}
 	
 	public Object asExpr(VariableFactory factory) {
@@ -87,11 +152,23 @@ public class Type implements Locatable {
 
 	protected Object convertToExpr(VariableFactory factory, Map<String, TypeVar> mapping) {
 		switch (iam) {
-		case SIMPLE: {
-			List<Object> myargs = new ArrayList<Object>();
-			for (Type t : args)
-				myargs.add(t.convertToExpr(factory, mapping));
-			return new TypeExpr(new GarneredFrom(location), name, myargs);
+		// I don't think references to types should make it this far
+//		case REFERENCE: {
+//			List<Object> myargs = new ArrayList<Object>();
+//			for (Type t : polys)
+//				myargs.add(t.convertToExpr(factory, mapping));
+//			return new TypeExpr(new GarneredFrom(location), name, myargs);
+//		}
+		case BUILTIN: {
+			return new TypeExpr(new GarneredFrom(location), this);
+		}
+		case STRUCT:
+		case UNION:
+		{
+			List<Object> mypolys = new ArrayList<Object>();
+			for (Type t : polys)
+				mypolys.add(t.convertToExpr(factory, mapping));
+			return new TypeExpr(new GarneredFrom(location), this, mypolys);
 		}
 		case POLYVAR: {
 			if (mapping.containsKey(name))
@@ -101,10 +178,10 @@ public class Type implements Locatable {
 			return var;
 		}
 		case FUNCTION: {
-			Object ret = args.get(args.size()-1).convertToExpr(factory, mapping);
-			for (int i=args.size()-2;i>=0;i--) {
-				Object left = args.get(i).convertToExpr(factory, mapping);
-				ret = new TypeExpr(null /* TODO: as f/arg */, "->", left, ret);
+			Object ret = fnargs.get(fnargs.size()-1).convertToExpr(factory, mapping);
+			for (int i=fnargs.size()-2;i>=0;i--) {
+				Object left = fnargs.get(i).convertToExpr(factory, mapping);
+				ret = new TypeExpr(null /* TODO: as f/arg */, Type.builtin(null, "->"), left, ret);
 			}
 			return ret;
 		}
@@ -120,14 +197,11 @@ public class Type implements Locatable {
 	}
 
 	protected void show(StringBuilder sb) {
-		if (iam == WhatAmI.SIMPLE) {
+		if (iam == WhatAmI.REFERENCE || iam == WhatAmI.STRUCT) {
 			sb.append(name);
-			if (args != null && !args.isEmpty()) {
-				sb.append("[");
-				showArgs(sb, ",");
-				sb.append("]");
-			}
 		} else if (iam == WhatAmI.POLYVAR) {
+			sb.append(name);
+		} else if (iam == WhatAmI.BUILTIN) {
 			sb.append(name);
 		} else if (iam == WhatAmI.FUNCTION) {
 			showArgs(sb, "->");
@@ -135,13 +209,24 @@ public class Type implements Locatable {
 			sb.append("(");
 			showArgs(sb, ",");
 			sb.append(")");
+		} else if (iam == WhatAmI.UNION) {
+			sb.append("UNION!!??");
+		} else if (iam == WhatAmI.INSTANCE) {
+			sb.append(type.name());
+			showPolys(sb);
 		} else
 			throw new UtilException("Cannot handle " + iam);
 	}
 
+	private void showPolys(StringBuilder sb) {
+		if (polys != null && !polys.isEmpty()) {
+			sb.append(polys);
+		}
+	}
+
 	private void showArgs(StringBuilder sb, String withSep) {
 		String sep = "";
-		for (Type t : args) {
+		for (Type t : fnargs) {
 			if (t == null) {
 				sb.append("--NULL--");
 				return;
@@ -155,5 +240,18 @@ public class Type implements Locatable {
 			} else
 				t.show(sb);
 		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Type))
+			return false;
+		Type other = (Type)obj;
+		if (name != null)
+			return name.equals(other.name);
+		else
+			return type.equals(other.type);
 	}
 }

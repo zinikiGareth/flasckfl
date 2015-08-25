@@ -73,7 +73,7 @@ import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
-import org.flasck.flas.parsedForm.TypeDefn;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
@@ -591,8 +591,8 @@ public class Compiler {
 			} else if (val instanceof ObjectDefn) {
 //				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
 				tc.addObjectDefn((ObjectDefn) val);
-			} else if (val instanceof TypeDefn) {
-				tc.addTypeDefn((TypeDefn) val);
+			} else if (val instanceof UnionTypeDefn) {
+				tc.addTypeDefn((UnionTypeDefn) val);
 			} else if (val instanceof Type) {
 				tc.addExternal(x.getValue().getKey(), (Type)val);
 			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {

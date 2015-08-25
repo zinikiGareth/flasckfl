@@ -1,11 +1,14 @@
 package org.flasck.flas.parser;
 
-import org.flasck.flas.parsedForm.TypeDefn;
-import org.flasck.flas.parsedForm.TypeReference;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PeekToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
+import org.flasck.flas.typechecker.Type;
 
 public class TypeDefnParser implements TryParsing {
 
@@ -18,22 +21,22 @@ public class TypeDefnParser implements TryParsing {
 		if (tn == null)
 			return null; // invalid type name
 
-		TypeReference defining = new TypeReference(tn.location, tn.text, null);
+		List<Type> args = new ArrayList<Type>();
 		while (line.hasMore() && !PeekToken.is(line, "=")) {
 			TypeNameToken ta = TypeNameToken.from(line);
 			if (ta == null)
 				return null; // invalid type argument
-			defining.args.add(new TypeReference(ta.location, ta.text, null));
+			args.add(Type.polyvar(ta.location, ta.text));
 		}
 		if (!PeekToken.accept(line, "="))
 			return null;
-		TypeDefn ret = new TypeDefn(line.realinfo(), true, defining);
+		UnionTypeDefn ret = new UnionTypeDefn(line.realinfo(), true, tn.text, args);
 		while (line.hasMore()) {
 			Object tr = new TypeExprParser().tryOneExpr(line);
 			if (tr == null)
 				return null; // invalid type argument
 			else
-				ret.cases.add((TypeReference) tr);
+				ret.cases.add((Type) tr);
 			if (line.hasMore())
 				PeekToken.accept(line, "|");
 		}

@@ -2,16 +2,16 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
+import org.flasck.flas.typechecker.Type;
 
 public class FieldParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
-		TypeReference type = (TypeReference) new TypeExprParser().tryParsing(line);
+		Type type = (Type) new TypeExprParser().tryParsing(line);
 		if (type == null)
 			return null; // errors should have been reported already, propagate
 		ValidIdentifierToken kw = VarNameToken.from(line);

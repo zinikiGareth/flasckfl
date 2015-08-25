@@ -30,11 +30,11 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.Builtin;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
+import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Before;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
@@ -59,7 +59,7 @@ public class RewriterTests {
 	public void testRewritingSomethingGloballyDefined() {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, null, "ME.f", new ArrayList<Object>(), new UnresolvedVar(null, "Nil")));
-		FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.f", 0, cases);
+		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, "ME.f", 0, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
 		fn = rw.functions.get("ME.f");
@@ -74,7 +74,7 @@ public class RewriterTests {
 		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern("x"));
 		cases.add(new FunctionCaseDefn(scope, null, "ME.f", args, new UnresolvedVar(null, "x")));
-		FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.f", 1, cases);
+		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, "ME.f", 1, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
 		fn = rw.functions.get("ME.f");
@@ -86,7 +86,7 @@ public class RewriterTests {
 	@Test
 	public void testAStructReferencingAListFieldMustHaveATypeArgument() {
 		StructDefn sd = new StructDefn(null, "Container", true);
-		sd.addField(new StructField(new TypeReference(null, "List", null), "list"));
+		sd.addField(new StructField(Type.reference(null, "List"), "list"));
 		scope.define("Container", "ME.Container", sd);
 		rw.rewrite(pkgEntry);
 		sd = rw.structs.get("ME.Container");
@@ -103,7 +103,7 @@ public class RewriterTests {
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern("x"));
 			cases.add(new FunctionCaseDefn(scope, null, "ME.f", args, new StringLiteral(null, "x")));
-			FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.f", 1, cases);
+			FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, "ME.f", 1, cases);
 			scope.define("f", "ME.f", fn);
 			innerScope = cases.get(0).innerScope();
 		}
@@ -112,7 +112,7 @@ public class RewriterTests {
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern("y"));
 			cases.add(new FunctionCaseDefn(scope, null, "ME.f_0.g", args, new UnresolvedVar(null, "x")));
-			FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.f_0.g", 1, cases);
+			FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, "ME.f_0.g", 1, cases);
 			innerScope.define("g", "ME.f_0.g", fn);
 		}
 		rw.rewrite(pkgEntry);
@@ -127,11 +127,11 @@ public class RewriterTests {
 	public void testRewritingAStateVar() throws Exception {
 		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
 		cd.state = new StateDefinition();
-		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
+		cd.state.fields.add(new StructField(Type.reference(null, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
-		FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.MyCard.f", 0, cases);
+		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -150,7 +150,7 @@ public class RewriterTests {
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(scope, null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "timer")));
-		FunctionDefinition fn = new FunctionDefinition(null, Type.FUNCTION, "ME.MyCard.f", 0, cases);
+		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -165,7 +165,7 @@ public class RewriterTests {
 	public void testRewritingAContractMethod() throws Exception {
 		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
 		cd.state = new StateDefinition();
-		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
+		cd.state.fields.add(new StructField(Type.reference(null, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		ContractImplements ci = new ContractImplements(null, "Timer", null, "timer");
 		cd.contracts.add(ci);
@@ -191,7 +191,7 @@ public class RewriterTests {
 	public void testRewritingAnEventHandler() throws Exception {
 		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
 		cd.state = new StateDefinition();
-		cd.state.fields.add(new StructField(new TypeReference(null, "Number", null), "counter"));
+		cd.state.fields.add(new StructField(Type.reference(null, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		List<EventCaseDefn> ecds = new ArrayList<EventCaseDefn>();
 		EventHandlerDefinition ehd = new EventHandlerDefinition(new FunctionIntro(null, "ME.MyCard.eh", new ArrayList<Object>()), ecds);

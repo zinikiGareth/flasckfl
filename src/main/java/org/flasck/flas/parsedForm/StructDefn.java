@@ -5,49 +5,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.typechecker.Type;
+import org.zinutils.collections.CollectionUtils;
 
 @SuppressWarnings("serial")
-public class StructDefn implements AsString, Serializable, Locatable {
-	private final InputPosition location;
-	public final String typename;
-	public final List<String> args = new ArrayList<String>();
+public class StructDefn extends Type implements AsString, Serializable {
 	public final List<StructField> fields = new ArrayList<StructField>();
 	public final transient boolean generate;
 
-	public StructDefn(InputPosition location, String tn, boolean generate) {
-		this.location = location;
-		this.typename = tn;
+	public StructDefn(InputPosition location, String tn, boolean generate, Type... polys) {
+		this(location, tn, generate, CollectionUtils.listOf(polys));
+	}
+	
+	public StructDefn(InputPosition location, String tn, boolean generate, List<Type> polys) {
+		super(location, WhatAmI.STRUCT, tn, polys);
 		this.generate = generate;
 	}
 
-	@Override
-	public InputPosition location() {
-		return location;
-	}
-
-	public StructDefn add(String ta) {
-		args.add(ta);
-		return this;
-	}
-
 	public StructDefn addField(StructField sf) {
+		// TODO: validate that any poly fields here are defined in the provided list of polys
 		fields.add(sf);
 		return this;
 	}
-	
-	@Override
+
 	public String toString() {
-		StringBuilder sb = new StringBuilder(typename);
-		if (!args.isEmpty()) {
-			sb.append(args);
-		}
+		return asString();
+	}
+	
+	public String dump() {
+		StringBuilder sb = new StringBuilder(asString());
 		if (!fields.isEmpty()) {
 			sb.append("{");
 			String sep = "";
 			for (StructField f : fields) {
 				sb.append(sep);
 				sep = ",";
-				sb.append(f.type.toString());
+				sb.append(f.type.name());
 				sb.append(" ");
 				sb.append(f.name);
 			}
@@ -57,9 +50,9 @@ public class StructDefn implements AsString, Serializable, Locatable {
 	}
 
 	public String asString() {
-		StringBuilder sb = new StringBuilder(typename);
-		if (!args.isEmpty()) {
-			sb.append(args);
+		StringBuilder sb = new StringBuilder(name());
+		if (!polys().isEmpty()) {
+			sb.append(polys());
 		}
 		return sb.toString();
 	}

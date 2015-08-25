@@ -161,7 +161,7 @@ public class FLASStory implements StoryProcessor {
 				}
 			} else if (o instanceof StructDefn) {
 				StructDefn sd = (StructDefn)o;
-				ret.define(State.simpleName(sd.typename), sd.typename, sd);
+				ret.define(State.simpleName(sd.name()), sd.name(), sd);
 				doStructFields(er, sd, b.nested);
 			} else if (o instanceof ContractDecl) {
 				ContractDecl cd = (ContractDecl) o;

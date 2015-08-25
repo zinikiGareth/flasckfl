@@ -12,7 +12,7 @@ public class CardTypeInfo extends TypeHolder {
 	public final Set<TypeHolder> handlers = new TreeSet<TypeHolder>();
 
 	public CardTypeInfo(CardGrouping cg) {
-		super(cg.struct.typename);
+		super(cg.struct.name());
 		this.struct = cg.struct;
 	}
 }

@@ -1,6 +1,7 @@
 package org.flasck.flas.parser;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -24,6 +25,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
+import org.flasck.flas.typechecker.Type;
 
 public class IntroParser implements TryParsing {
 	private final State state;
@@ -46,17 +48,17 @@ public class IntroParser implements TryParsing {
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
-			StructDefn ret = new StructDefn(tn.location, state.withPkg(tn.text), true);
+			List<Type> args = new ArrayList<Type>();
 			while (line.hasMore()) {
 				TypeNameToken ta = TypeNameToken.from(line);
 				if (ta == null)
 					er.message(line, "invalid type argument");
 				else
-					ret.add(ta.text);
+					args.add(Type.polyvar(ta.location, ta.text));
 			}
 			if (er.hasErrors())
 				return er;
-			return ret;
+			return new StructDefn(tn.location, state.withPkg(tn.text), true, args);
 		}
 		case "contract": {
 			TypeNameToken tn = TypeNameToken.from(line);

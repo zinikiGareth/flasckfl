@@ -9,8 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.flasck.flas.parsedForm.TypeDefn;
-import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringComparator;
 
@@ -39,16 +38,16 @@ public class TypeUnion implements Iterable<TypeExpr> {
 			throw new UtilException("Can't add a " + toAdd.getClass() + " to a union type");
 	}
 
-	public Set<Entry<TypeReference, TypeExpr>> matchesEnough(TypeDefn d) {
-		Map<TypeReference, TypeExpr> used = new HashMap<TypeReference, TypeExpr>();
+	public Set<Entry<Type, TypeExpr>> matchesEnough(UnionTypeDefn d) {
+		Map<Type, TypeExpr> used = new HashMap<Type, TypeExpr>();
 		Map<String, TypeExpr> unused = new TreeMap<String, TypeExpr>(new StringComparator());
 		if (!buildCompositeLists(d, used, unused))
 			return null;
 		return used.entrySet();
 	}
 
-	public Set<Map.Entry<TypeReference, TypeExpr>> matchesExactly(TypeDefn d) {
-		Map<TypeReference, TypeExpr> used = new HashMap<TypeReference, TypeExpr>();
+	public Set<Map.Entry<Type, TypeExpr>> matchesExactly(UnionTypeDefn d) {
+		Map<Type, TypeExpr> used = new HashMap<Type, TypeExpr>();
 		Map<String, TypeExpr> unused = new TreeMap<String, TypeExpr>(new StringComparator());
 		if (!buildCompositeLists(d, used, unused))
 			return null;
@@ -60,24 +59,24 @@ public class TypeUnion implements Iterable<TypeExpr> {
 	// Build a list of all the constructors which are used in the union
 	// If the actual type is used, that's fine, but don't include it
 	// Also build a list of all the ones that aren't used
-	private boolean buildCompositeLists(TypeDefn d,  Map<TypeReference, TypeExpr> used, Map<String, TypeExpr> unused) {
+	private boolean buildCompositeLists(UnionTypeDefn d,  Map<Type, TypeExpr> used, Map<String, TypeExpr> unused) {
 		boolean haveDefn = false;
 		for (TypeExpr te : union)
-			if (te.type.equals(d.defining.name)) {
-				used.put(d.defining, te);
+			if (te.type.name().equals(d.name())) {
+				used.put(d, te);
 				haveDefn = true;
 				continue;
 			} else
-				unused.put(te.type, te);
+				unused.put(te.type.name(), te);
 		// Now go through all the official case defns; if any of them is not in our list, return false
 		// Otherwise, check that ALL of them are there by removing them and asserting that the list is then empty
-		for (TypeReference x : d.cases) {
-			if (!unused.containsKey(x.name))
+		for (Type x : d.cases) {
+			if (!unused.containsKey(x.name()))
 				if (!haveDefn)
 					return false;
 				else
 					continue;
-			used.put(x, unused.remove(x.name));
+			used.put(x, unused.remove(x.name()));
 		}
 		return true;
 	}

@@ -67,8 +67,7 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.parsedForm.TemplateOr;
-import org.flasck.flas.parsedForm.TypeDefn;
-import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -76,6 +75,8 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.D3Thing;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.TemplateToken;
+import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
 
@@ -93,7 +94,7 @@ public class Rewriter {
 	private final ErrorResult errors;
 	private final PackageFinder pkgFinder;
 	public final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
-	public final Map<String, TypeDefn> types = new TreeMap<String, TypeDefn>();
+	public final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
 	public final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>();
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
 	public final List<Template> templates = new ArrayList<Template>();
@@ -340,8 +341,8 @@ public class Rewriter {
 				eventHandlers.add(new EventHandlerInContext(from, name, rewrite(cx, (EventHandlerDefinition)val)));
 			else if (val instanceof StructDefn) {
 				structs.put(name, (StructDefn)val);
-			} else if (val instanceof TypeDefn) {
-				types.put(name, (TypeDefn)val);
+			} else if (val instanceof UnionTypeDefn) {
+				types.put(name, (UnionTypeDefn)val);
 			} else if (val instanceof ContractDecl) {
 				contracts.put(name, (ContractDecl)val);
 			} else
@@ -372,7 +373,7 @@ public class Rewriter {
 			grp.contracts.add(new ContractGrouping(rw.type, myname, rw.referAsVar));
 			cardImplements.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new StructField(new TypeReference(null, rw.type, null), rw.referAsVar));
+				sd.fields.add(new StructField(Type.reference(rw.typeLocation, rw.type), rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods) {
 				MethodDefinition rwm = rewrite(c2, m);
@@ -390,7 +391,7 @@ public class Rewriter {
 			grp.services.add(new ServiceGrouping(rw.type, myname, rw.referAsVar));
 			cardServices.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new StructField(new TypeReference(null, rw.type, null), rw.referAsVar));
+				sd.fields.add(new StructField(Type.reference(rw.typeLocation, rw.type), rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
 				methods.add(new MethodInContext(cd.innerScope(), cs.type, m.intro.name, HSIEForm.Type.SERVICE, rewrite(c2, m)));
@@ -407,18 +408,17 @@ public class Rewriter {
 				continue;
 			String hiName = cd.name +"."+hi.name;
 			cardHandlers.put(hiName, rw);
-			StructDefn hsd = new StructDefn(hi.typeLocation, hiName, false);
-			if (!rw.boundVars.isEmpty()) {
-//				System.out.println("Creating class for handler " + hiName);
-				// Using polymorphic vars with random names here seems clever, but I'm not really sure that it is
-				// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
-				for (int i=0;i<rw.boundVars.size();i++)
-					hsd.args.add("A"+i);
-				int j=0;
-				for (String s : hi.boundVars) {
-					hsd.fields.add(new StructField(new TypeReference(null, null, "A"+j), s));
-					j++;
-				}
+			List<Type> args = new ArrayList<Type>();
+			//				System.out.println("Creating class for handler " + hiName);
+			// Using polymorphic vars with random names here seems clever, but I'm not really sure that it is
+			// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
+			for (int i=0;i<rw.boundVars.size();i++)
+				args.add(Type.polyvar(null, "A"+i));
+			StructDefn hsd = new StructDefn(hi.typeLocation, hiName, false, args);
+			int j=0;
+			for (String s : hi.boundVars) {
+				hsd.fields.add(new StructField(Type.polyvar(rw.typeLocation, "A"+j), s));
+				j++;
 			}
 			structs.put(hiName, hsd);
 			HandlerContext hc = new HandlerContext(c2, hi);
@@ -753,22 +753,20 @@ public class Rewriter {
 		}
 	}
 
-	private TypeReference rewriteType(NamingContext scope, Object type) {
-		if (type instanceof TypeReference) {
-			TypeReference tr = (TypeReference) type;
+	private Type rewriteType(NamingContext scope, Object type) {
+		if (type instanceof Type) {
+			Type tr = (Type) type;
+			if (tr.iam != WhatAmI.REFERENCE)
+				return tr;
 			try {
-				Object r = scope.resolve(tr.location, tr.name);
+				Object r = scope.resolve(tr.location(), tr.name());
 				if (!(r instanceof AbsoluteVar)) {
-					errors.message((Block)null, tr.name + " is not a type definition");
+					errors.message((Block)null, tr.name() + " is not a type definition");
 					return null;
 				}
-				AbsoluteVar av = (AbsoluteVar)r;
-				TypeReference ret = new TypeReference(tr.location, av.id, null);
-				for (Object o : tr.args)
-					ret.args.add(rewriteType(scope, o));
-				return ret;
+				return (Type) ((AbsoluteVar)r).defn;
 			} catch (ResolutionException ex) {
-				errors.message(tr.location, ex.getMessage());
+				errors.message(tr.location(), ex.getMessage());
 				return null;
 			}
 		}
