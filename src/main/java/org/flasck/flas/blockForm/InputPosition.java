@@ -1,12 +1,15 @@
 package org.flasck.flas.blockForm;
 
+import java.io.Serializable;
+
 import org.zinutils.utils.Justification;
 
-public class InputPosition implements Comparable<InputPosition> {
+@SuppressWarnings("serial")
+public class InputPosition implements Comparable<InputPosition>, Serializable {
 	public final String file;
 	public final int lineNo;
 	public final int off;
-	public final String text;
+	public transient final String text;
 
 	public InputPosition(String file, int lineNo, int off, String text) {
 		this.file = file;

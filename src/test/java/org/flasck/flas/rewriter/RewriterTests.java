@@ -28,6 +28,7 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -80,6 +81,18 @@ public class RewriterTests {
 		assertEquals("ME.f", fn.name);
 		assertTrue(fn.cases.get(0).expr instanceof LocalVar);
 		assertEquals("x", ((LocalVar)fn.cases.get(0).expr).var);
+	}
+	
+	@Test
+	public void testAStructReferencingAListFieldMustHaveATypeArgument() {
+		StructDefn sd = new StructDefn(null, "Container", true);
+		sd.addField(new StructField(new TypeReference(null, "List", null), "list"));
+		scope.define("Container", "ME.Container", sd);
+		rw.rewrite(pkgEntry);
+		sd = rw.structs.get("ME.Container");
+		StructField sf = sd.fields.get(0);
+		assertEquals("list", sf.name);
+//		assertEquals("List", sf.type);
 	}
 	
 	@Test

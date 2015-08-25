@@ -357,7 +357,7 @@ public class HSIETestData {
 			"IF 1", "{",
 				"RETURN 1",
 			"}",
-			"RETURN var 4",
+			"RETURN var 4 2 3",
 			"CLOSURE 1", "{",
 				"FLEval.compeq", "var 0", "1",
 			"}",
@@ -378,7 +378,7 @@ public class HSIETestData {
 		externals.add("FLEval.plus");
 		return thingy("ME.f", 0, 0, 2,
 			externals,
-			"RETURN var 1",
+			"RETURN var 1 0",
 			"CLOSURE 1", "{",
 				"FLEval.plus", "var 0", "var 0",
 			"}",

@@ -43,6 +43,8 @@ public class ApplyCurry {
 					continue;
 				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;
+				if (pc.fn.uniqueName().equals("FLEval.field"))
+					continue;
 				Type t = tc.getTypeAsCtor(pc.fn.uniqueName());
 				if (t.arity() != c.nestedCommands().size()-1) {
 					c.pushAt(pc.location, 0, new AbsoluteVar(null, "FLEval.curry", null));
@@ -76,21 +78,33 @@ public class ApplyCurry {
 			} else
 				oclos.push(pc.location, pc.fn);
 			r.inside.nestedCommands().set(r.pos, new PushCmd(pc.location, v));
-			ReturnCmd rc = (ReturnCmd) h.nestedCommands().get(0);
-			int at = -1;
 			Var myVar = ((ClosureCmd)r.inside).var;
-			if (rc.var == myVar) {
-				rc.deps.add(v);
-			} else {
-				for (int i=0;i<rc.deps.size();i++)
-					if (rc.deps.get(i) == myVar) {
-						at = i;
-						break;
-					}
-				if (at == -1)
-					throw new UtilException("Did not find " + myVar + " in " + rc.deps);
-				rc.deps.add(at, v);
-			}
+			updateAllReturnCommands(h, myVar, v);
+		}
+	}
+
+	private void updateAllReturnCommands(HSIEBlock h, Var before, Var newClos) {
+		for (HSIEBlock x : h.nestedCommands()) {
+			if (x instanceof ReturnCmd)
+				addClosureBefore((ReturnCmd)x, before, newClos);
+			updateAllReturnCommands(x, before, newClos);
+		}
+	}
+
+	protected void addClosureBefore(ReturnCmd rc, Var before, Var newClos) {
+		System.out.println("Adding " + newClos + " to " + rc + " before " + before);
+		int at = -1;
+		if (rc.var == before) {
+			rc.deps.add(newClos);
+		} else {
+			for (int i=0;i<rc.deps.size();i++)
+				if (rc.deps.get(i) == before) {
+					at = i;
+					break;
+				}
+			if (at == -1)
+				throw new UtilException("Did not find " + before + " in " + rc.deps);
+			rc.deps.add(at, newClos);
 		}
 	}
 

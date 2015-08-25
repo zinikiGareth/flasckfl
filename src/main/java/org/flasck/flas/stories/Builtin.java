@@ -1,6 +1,8 @@
 package org.flasck.flas.stories;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -90,8 +92,11 @@ public class Builtin {
 		}
 		{ // crosets
 			ret.define("Croset", "Croset",
-				new StructDefn(posn, "Croset", false).add("A")
-				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "list")));
+				new ObjectDefn(posn, "Croset", false).add("A")
+				.addMethod(new ObjectMethod(Type.function(posn, Type.polyvar(posn, "A")), "put"))
+				.addMethod(new ObjectMethod(Type.function(posn, Type.polyvar(posn, "A")), "mergeAppend"))
+//				.addField(new StructField(new TypeReference(null, "List", null).with(new TypeReference(null, null, "A")), "list")))
+				);
 		}
 		{ // d3
 			ret.define("D3Element", "D3Element",

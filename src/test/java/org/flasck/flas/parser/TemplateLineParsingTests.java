@@ -92,7 +92,7 @@ public class TemplateLineParsingTests {
 	public void testDivCantBePartOfLongerLine() throws Exception {
 		ErrorResult er = parseError(". counter");
 		assertEquals(1, er.errors.size());
-		assertEquals("div or list must be only item on line", er.errors.get(0).msg);
+		assertEquals("div or list must be only item on line", er.get(0).msg);
 	}
 
 	@Test
@@ -187,14 +187,14 @@ public class TemplateLineParsingTests {
 	public void testSimpleContentCannotHaveCustomTag() throws Exception {
 		ErrorResult err = parseError("counter #blockquote");
 		assertEquals(1, err.errors.size());
-		assertEquals("can only use # by itself or with . or +", err.errors.get(0).msg);
+		assertEquals("can only use # by itself or with . or +", err.get(0).msg);
 	}
 
 	@Test
 	public void testCustomTagCannotHaveSimpleContent() throws Exception {
 		ErrorResult err = parseError("#blockquote counter");
 		assertEquals(1, err.errors.size());
-		assertEquals("syntax error", err.errors.get(0).msg);
+		assertEquals("syntax error", err.get(0).msg);
 	}
 
 	@Test
@@ -326,7 +326,7 @@ public class TemplateLineParsingTests {
 	public void testADottedExpressionInATemplateWithoutParensMustHaveAField() throws Exception {
 		ErrorResult er = parseError("x.");
 		assertEquals(1, er.errors.size());
-		FLASError err = er.errors.get(0);
+		FLASError err = er.get(0);
 		assertEquals("missing field", err.msg);
 	}
 
@@ -334,7 +334,7 @@ public class TemplateLineParsingTests {
 	public void testADottedExpressionInATemplateWithoutParensCannotHaveTwoDots() throws Exception {
 		ErrorResult er = parseError("x..b");
 		assertEquals(1, er.errors.size());
-		FLASError err = er.errors.get(0);
+		FLASError err = er.get(0);
 		assertEquals("syntax error", err.msg);
 	}
 
@@ -431,28 +431,28 @@ public class TemplateLineParsingTests {
 	public void testWeCannotEditADiv() throws Exception {
 		ErrorResult er = parseError(".?");
 		assertEquals(1, er.errors.size());
-		assertEquals("div or list must be only item on line", er.errors.get(0).msg);
+		assertEquals("div or list must be only item on line", er.get(0).msg);
 	}
 
 	@Test
 	public void testWeCannotEditLineStart() throws Exception {
 		ErrorResult er = parseError("? x");
 		assertEquals(1, er.errors.size());
-		assertEquals("cannot have edit marker at start of line", er.errors.get(0).msg);
+		assertEquals("cannot have edit marker at start of line", er.get(0).msg);
 	}
 
 	@Test
 	public void testWeCannotEditAConstant() throws Exception {
 		ErrorResult er = parseError("'hello'?");
 		assertEquals(1, er.errors.size());
-		assertEquals("not an editable field", er.errors.get(0).msg);
+		assertEquals("not an editable field", er.get(0).msg);
 	}
 
 	@Test
 	public void testWeCannotEditAnApplication() throws Exception {
 		ErrorResult er = parseError("(f 3)?");
 		assertEquals(1, er.errors.size());
-		assertEquals("not an editable field", er.errors.get(0).msg);
+		assertEquals("not an editable field", er.get(0).msg);
 	}
 
 	protected TemplateLine parse(String input) throws Exception {

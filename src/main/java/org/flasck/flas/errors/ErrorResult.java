@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.utils.Justification;
 
 public class ErrorResult {
@@ -34,6 +35,10 @@ public class ErrorResult {
 		return !errors.isEmpty();
 	}
 
+	public FLASError get(int i) {
+		return CollectionUtils.nth(errors, i);
+	}
+	
 	public void showTo(Writer pw, int ind) throws IOException {
 		for (int i=0;i<ind-2;i++)
 			pw.append(' ');

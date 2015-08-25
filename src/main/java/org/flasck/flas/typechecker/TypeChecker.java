@@ -22,6 +22,8 @@ import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeDefn;
@@ -54,6 +56,7 @@ public class TypeChecker {
 	private final VariableFactory factory = new VariableFactory();
 	final Map<String, Type> knowledge = new TreeMap<String, Type>();
 	final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
+	final Map<String, ObjectDefn> objects = new TreeMap<String, ObjectDefn>();
 	final Map<String, TypeDefn> types = new TreeMap<String, TypeDefn>();
 	final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>(new StringComparator());
 	final Map<String, CardTypeInfo> cards = new TreeMap<String, CardTypeInfo>();
@@ -91,6 +94,10 @@ public class TypeChecker {
 
 	public void addStructDefn(StructDefn structDefn) {
 		structs.put(structDefn.typename, structDefn);
+	}
+
+	public void addObjectDefn(ObjectDefn objDefn) {
+		objects.put(objDefn.typename, objDefn);
 	}
 
 	public void addTypeDefn(TypeDefn typeDefn) {
@@ -401,14 +408,16 @@ public class TypeChecker {
 		if (cmd instanceof PushReturn) {
 			PushReturn r = (PushReturn) cmd;
 			if (r.ival != null) {
-				logger.info(r.toString() + " is of type Number");
+				logger.info(r.toString() + " is a constant of type Number");
 				return new TypeExpr(null, "Number");
 			} else if (r.sval != null) {
-				logger.info(r.toString() + " is of type String");
+				logger.info(r.toString() + " is a constant of type String");
 				return new TypeExpr(null, "String");
 			} else if (r.tlv != null) {
 				// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
-				return factory.next();
+				TypeVar ret = factory.next();
+				logger.info(r.tlv.name + " is a template variable, assigning " + ret);
+				return ret;
 			} else if (r.var != null) {
 				HSIEBlock c = form.getClosure(r.var);
 				if (c == null) {
@@ -420,8 +429,11 @@ public class TypeChecker {
 						temp.bind(tv, factory.next());
 //						System.out.println("Allocating tv " + temp.meaning(tv) + " for " + tv + " when instantiating typescheme");
 					}
-					return temp.subst(old.typeExpr);
+					Object ret = temp.subst(old.typeExpr);
+					logger.info(r.var + " is a pre-defined var of type " + old.typeExpr + " becoming " + ret);
+					return ret;
 				} else {
+					logger.info(r.var + " needs a closure");
 					// c is a closure, which must be a function application
 					return checkClosure(s, form, c);
 				}
@@ -431,9 +443,11 @@ public class TypeChecker {
 				// all lambdas should be variables by now
 				
 				if (r.fn.uniqueName().equals("FLEval.tuple")) {
+					logger.info(r.fn + " needs tuple handling");
 					return "()";
 				}
 				if (r.fn instanceof CardMember) {
+					logger.info(r.fn + " is a card member");
 					CardMember cm = (CardMember) r.fn;
 					// try and find the name of the card class
 					if (r.fn.equals("_card"))
@@ -449,6 +463,7 @@ public class TypeChecker {
 					errors.message(cm.location, "there is no field " + cm.var + " in card " + cm.card);
 					return null;
 				} else if (r.fn instanceof HandlerLambda) {
+					logger.info(r.fn + " is a lambda");
 					HandlerLambda hl = (HandlerLambda) r.fn;
 					// try and find the name of the handler class
 					// this is likewise a hack and I know it ...
@@ -469,17 +484,24 @@ public class TypeChecker {
 				
 				String name = r.fn.uniqueName();
 				if (name.equals("FLEval.field")) {
+					logger.info(r.fn + " implies field handling");
 					return new TypeExpr(new GarneredFrom(r.location), ".");
 				}
 				Object te = s.localKnowledge.get(name);
-				if (te != null)
+				if (te != null) {
+					logger.info(r.fn + " is locally inferred " + te);
 					return te;
+				}
 				te = knowledge.get(name);
 				if (te == null) {
-					if (cards.containsKey(name))
+					if (cards.containsKey(name)) {
+						logger.info(r.fn + " is card " + name);
 						return new TypeExpr(null, name);
-					if (structs.containsKey(name))
+					}
+					if (structs.containsKey(name)) {
+						logger.info(r.fn + " is struct ctor " + name);
 						return freshVarsIn(typeForStructCtor(null, structs.get(name)));
+					}
 					// This is probably a failure on our part rather than user error
 					// We should not be able to get here if r.fn is not already an external which has been resolved
 					for (Entry<String, Type> x : knowledge.entrySet())
@@ -487,10 +509,12 @@ public class TypeChecker {
 					errors.message(r.location, "There is no type for identifier: " + r.fn + " when checking " + form.fnName);
 					return null;
 				} else {
+					logger.info(r.fn + " is globally implanted " + te);
 //					System.out.print("Replacing vars in " + r.fn +": ");
 					return freshVarsIn(te);
 				}
 			} else if (r.func != null) {
+				logger.info(r.fn + " is a function literal");
 				return new TypeExpr(null, "FunctionLiteral");
 			} else
 				throw new UtilException("What are you returning?");
@@ -519,17 +543,34 @@ public class TypeChecker {
 			if (T1 instanceof TypeExpr) {
 				TypeExpr te = (TypeExpr) T1;
 				String tn = te.type;
+				String fn = ((PushCmd)c.nestedCommands().get(2)).sval.text;
 				StructDefn sd = this.structs.get(tn);
-				if (sd == null) {
-					errors.message(posn, "cannot use '.' with " + tn + " as it is not a struct definition");
+				if (sd != null) {
+					for (StructField f : sd.fields) {
+						if (f.name.equals(fn)) {
+							Object r = freshVarsIn(f.type);
+							logger.info("field " + f.name + " of " + sd.typename + " has type " + f.type + " with fresh vars as " + r);
+							return r;
+						}
+					}
+					errors.message(posn, "there is no field '" + fn + "' in '" + tn +"'");
 					return null;
 				}
-				String fn = ((PushCmd)c.nestedCommands().get(2)).sval.text;
-				for (StructField f : sd.fields) {
-					if (f.name.equals(fn))
-						return freshVarsIn(f.type);
+				ObjectDefn od = this.objects.get(tn);
+				if (od != null) {
+					for (ObjectMethod m : od.methods) {
+						if (m.name.equals(fn)) {
+							Object r = freshVarsIn(m.type);
+							logger.info("field " + m.name + " of " + od.typename + " has type " + m.type + " with fresh vars as " + r);
+							return r;
+						}
+					}
+					// TODO: handle . from object method
+					errors.message(posn, "there is no method '" + fn + "' in '" + tn +"'");
+					return null;
 				}
-				errors.message(posn, "there is no field '" + fn + "' in '" + tn +"'");
+				
+				errors.message(posn, "cannot use '.' with " + tn + " as it is not a struct or object definition");
 				return null;
 			} else if (T1 instanceof TypeVar) {
 				errors.message(posn, "cannot use '.' notation without defined type for expression");
@@ -541,6 +582,7 @@ public class TypeChecker {
 			for (int i=1;i<args.size();i++)
 				Tf = checkSingleApplication(s, Tf, args.get(i));
 		}
+		logger.info("Closure " + c + " has type " + Tf);
 		return Tf;
 	}
 

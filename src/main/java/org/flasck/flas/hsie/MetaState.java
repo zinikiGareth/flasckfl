@@ -178,7 +178,7 @@ public class MetaState {
 					System.out.println("Did not find loc for " + i);
 				}
 				closure.push(elocs.get(i), o);
-				if (o instanceof Var && closureDepends.containsKey(o)) {
+				if (o instanceof Var && closureDepends.containsKey(o) && !mydeps.contains(o)) {
 					mydeps.addAll(closureDepends.get(o));
 					mydeps.add((Var) o);
 				}

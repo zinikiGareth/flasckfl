@@ -60,6 +60,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodInContext;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
@@ -587,6 +588,9 @@ public class Compiler {
 			} else if (val instanceof StructDefn) {
 //				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
 				tc.addStructDefn((StructDefn) val);
+			} else if (val instanceof ObjectDefn) {
+//				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
+				tc.addObjectDefn((ObjectDefn) val);
 			} else if (val instanceof TypeDefn) {
 				tc.addTypeDefn((TypeDefn) val);
 			} else if (val instanceof Type) {
