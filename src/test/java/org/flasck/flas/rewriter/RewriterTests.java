@@ -50,7 +50,7 @@ public class RewriterTests {
 	@Before
 	public void setup() {
 		builtinScope = Builtin.builtinScope();
-		builtinScope.define("Timer", "Timer", null);
+		builtinScope.define("Timer", "Timer", Type.builtin(null, "Timer"));
 		PackageDefn pd = new PackageDefn(null, builtinScope, "ME");
 		scope = pd.innerScope();
 		pkgEntry = pd.innerScope().outerEntry;
@@ -208,7 +208,7 @@ public class RewriterTests {
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out), 0);
-		assertFalse(errors.hasErrors());
+		assertFalse(errors.singleString(), errors.hasErrors());
 		md = rw.methods.get(0).method;
 		assertEquals("ME.MyCard._C0.m", md.intro.name);
 		assertTrue(md.cases.get(0).messages.get(0).expr instanceof CardMember);

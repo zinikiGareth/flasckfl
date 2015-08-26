@@ -764,10 +764,14 @@ public class Rewriter {
 		try {
 			Object r = cx.resolve(type.location(), type.name());
 			if (!(r instanceof AbsoluteVar)) {
-				errors.message((Block)null, type.name() + " is not a type definition");
+				errors.message(type.location(), type.name() + " is not a type definition");
 				return null;
 			}
 			Type ret = (Type) ((AbsoluteVar)r).defn;
+			if (ret == null) {
+				errors.message(type.location(), "there is no definition in var for " + type.name());
+				return null;
+			}
 			if (ret.hasPolys() && !type.hasPolys()) {
 				errors.message(type.location(), "cannot use " + ret.name() + " without specifying polymorphic arguments");
 				return null;

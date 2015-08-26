@@ -15,8 +15,10 @@ public class QualifiedTypeNameToken {
 			line.advance();
 		String proto = line.fromMark(mark);
 		int pos = proto.lastIndexOf('.')+1;
-		if (!Character.isUpperCase(proto.charAt(pos)))
+		if (!Character.isUpperCase(proto.charAt(pos))) {
+			line.reset(mark);
 			return null; // doesn't qualify
+		}
 		return new TypeNameToken(loc, proto);
 	}
 }

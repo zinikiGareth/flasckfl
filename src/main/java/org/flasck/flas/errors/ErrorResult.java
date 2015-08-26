@@ -1,6 +1,7 @@
 package org.flasck.flas.errors;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Set;
 import java.util.TreeSet;
@@ -60,6 +61,11 @@ public class ErrorResult {
 		pw.flush();
 	}
 
+	public String singleString() throws IOException {
+		Writer w = new StringWriter();
+		showTo(w, 0);
+		return w.toString();
+	}
 	public static ErrorResult oneMessage(Tokenizable line, String msg) {
 		return new ErrorResult().message(line, msg);
 	}
