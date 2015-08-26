@@ -165,10 +165,10 @@ public class FLASStory implements StoryProcessor {
 				doStructFields(er, sd, b.nested);
 			} else if (o instanceof ContractDecl) {
 				ContractDecl cd = (ContractDecl) o;
-				if (ret.contains(cd.contractName))
-					er.message(b, "duplicate definition for name " + cd.contractName);
+				if (ret.contains(cd.name()))
+					er.message(b, "duplicate definition for name " + cd.name());
 				else
-					ret.define(State.simpleName(cd.contractName), cd.contractName, cd);
+					ret.define(State.simpleName(cd.name()), cd.name(), cd);
 				doContractMethods(er, cd, b.nested);
 			} else if (o instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) o;
@@ -393,7 +393,7 @@ public class FLASStory implements StoryProcessor {
 				events.add(ecd);
 				handleMessageMethods(er, ecd, b.nested);
 			} else if (o instanceof ContractDecl) {
-				er.message(((ContractDecl)o).location, "cannot embed contract declarations in a card");
+				er.message(((ContractDecl)o).location(), "cannot embed contract declarations in a card");
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}

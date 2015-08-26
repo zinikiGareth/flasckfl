@@ -13,12 +13,29 @@ public class TypeExprParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
-		InputPosition loc = line.realinfo();
 		TypeExprToken tt = TypeExprToken.from(line);
 		if (tt == null)
 			return null; // not even a valid token (or line ended)
-		if (tt.type == TypeExprToken.NAME)
-			return Type.reference(loc, tt.text);
+		if (tt.type == TypeExprToken.NAME) {
+			List<Type> polys = new ArrayList<Type>();
+			int mark = line.at();
+			TypeExprToken osb = TypeExprToken.from(line);
+			if (osb != null && osb.type == TypeExprToken.OSB) {
+				while (line.hasMore()) {
+					Type tmp = (Type) tryParsing(line);
+					if (tmp == null)
+						return null;
+					polys.add(tmp);
+					osb = TypeExprToken.from(line);
+					if (osb.type == TypeExprToken.CSB)
+						break;
+					else if (osb.type != TypeExprToken.COMMA)
+						return null;
+				}
+			} else
+				line.reset(mark);
+			return Type.reference(tt.location, tt.text, polys);
+		}
 		else if (tt.type == TypeExprToken.ORB) {
 			// either a complex type, grouped OR a tuple type
 			// Start parsing nested expression and see what happens

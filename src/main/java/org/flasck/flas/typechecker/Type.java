@@ -1,5 +1,6 @@
 package org.flasck.flas.typechecker;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,9 +12,10 @@ import org.flasck.flas.parsedForm.Locatable;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
-public class Type implements Locatable {
+@SuppressWarnings("serial")
+public class Type implements Serializable, Locatable {
 	private final InputPosition location;
-	public enum WhatAmI { REFERENCE, BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT };
+	public enum WhatAmI { REFERENCE, BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT };
 	public final WhatAmI iam;
 	private final String name;
 	private final Type type;
@@ -63,7 +65,7 @@ public class Type implements Locatable {
 	public String name() {
 		if (iam == WhatAmI.INSTANCE)
 			return type.name;
-		else if (iam == WhatAmI.REFERENCE || iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT)
+		else if (iam == WhatAmI.REFERENCE || iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT || iam == WhatAmI.CONTRACT)
 			return name;
 		else
 			throw new UtilException("Cannot ask for the name of a " + iam);
@@ -75,13 +77,13 @@ public class Type implements Locatable {
 	
 	public Collection<Type> polys() {
 		if (polys == null)
-			throw new UtilException("Cannot obtain poly vars of " + iam);
+			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
 		return polys;
 	}
 
 	public Type poly(int i) {
 		if (polys == null)
-			throw new UtilException("Cannot obtain poly vars of " + iam);
+			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
 		return polys.get(i);
 	}
 
@@ -145,12 +147,12 @@ public class Type implements Locatable {
 		return new Type(loc, WhatAmI.TUPLE, args);
 	}
 	
-	public Object asExpr(VariableFactory factory) {
+	public Object asExpr(GarneredFrom from, VariableFactory factory) {
 		Map<String, TypeVar> mapping = new HashMap<String, TypeVar>();
-		return convertToExpr(factory, mapping);
+		return convertToExpr(from, factory, mapping);
 	}
 
-	protected Object convertToExpr(VariableFactory factory, Map<String, TypeVar> mapping) {
+	protected Object convertToExpr(GarneredFrom from, VariableFactory factory, Map<String, TypeVar> mapping) {
 		switch (iam) {
 		// I don't think references to types should make it this far
 //		case REFERENCE: {
@@ -159,16 +161,19 @@ public class Type implements Locatable {
 //				myargs.add(t.convertToExpr(factory, mapping));
 //			return new TypeExpr(new GarneredFrom(location), name, myargs);
 //		}
-		case BUILTIN: {
-			return new TypeExpr(new GarneredFrom(location), this);
+		case BUILTIN:
+		case CONTRACT:
+		{
+			return new TypeExpr(from, this);
 		}
 		case STRUCT:
 		case UNION:
+		case INSTANCE:
 		{
 			List<Object> mypolys = new ArrayList<Object>();
 			for (Type t : polys)
-				mypolys.add(t.convertToExpr(factory, mapping));
-			return new TypeExpr(new GarneredFrom(location), this, mypolys);
+				mypolys.add(t.convertToExpr(null, factory, mapping));
+			return new TypeExpr(from, this, mypolys);
 		}
 		case POLYVAR: {
 			if (mapping.containsKey(name))
@@ -178,15 +183,15 @@ public class Type implements Locatable {
 			return var;
 		}
 		case FUNCTION: {
-			Object ret = fnargs.get(fnargs.size()-1).convertToExpr(factory, mapping);
+			Object ret = fnargs.get(fnargs.size()-1).convertToExpr(from, factory, mapping);
 			for (int i=fnargs.size()-2;i>=0;i--) {
-				Object left = fnargs.get(i).convertToExpr(factory, mapping);
-				ret = new TypeExpr(null /* TODO: as f/arg */, Type.builtin(null, "->"), left, ret);
+				Object left = fnargs.get(i).convertToExpr(from, factory, mapping);
+				ret = new TypeExpr(from /* TODO: as f/arg */, Type.builtin(null, "->"), left, ret);
 			}
 			return ret;
 		}
 		default:
-			throw new UtilException("error: "+ iam);
+			throw new UtilException("error: "+ iam + " " + name());
 		}
 	}
 

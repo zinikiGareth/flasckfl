@@ -25,7 +25,7 @@ public class TypeEnvironment {
 		return mapping.get(var);
 	}
 
-	public TypeEnvironment subst(PhiSolution phi) {
+	public TypeEnvironment subst(TypeVariableMappings phi) {
 		TypeEnvironment ret = new TypeEnvironment();
 		for (Entry<Var, TypeScheme> x : mapping.entrySet()) {
 			ret.bind(x.getKey(), x.getValue().subst(phi));

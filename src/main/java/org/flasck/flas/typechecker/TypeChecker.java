@@ -5,11 +5,9 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -115,7 +113,7 @@ public class TypeChecker {
 		s.localKnowledge.put(expr.fnName, factory.next());
 		for (int i=0;i<expr.nformal;i++) {
 //			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + (i+hsie.alreadyUsed));
-			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, freshVarsIn(args.get(i))));
+			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, args.get(i).asExpr(null, factory)));
 		}
 				
 		Map<String, Object> typeinfo = checkAndUnify(s, forms);
@@ -329,7 +327,9 @@ public class TypeChecker {
 
 	private Object checkBlock(SFTypes sft, TypeState s, HSIEForm form, HSIEBlock hsie) {
 		List<Object> returns = new ArrayList<Object>();
+		logger.info("Checking block " + hsie);
 		for (HSIEBlock o : hsie.nestedCommands()) {
+			logger.info("Checking command " + o);
 			if (o instanceof ReturnCmd) {
 //				System.out.println("Checking expr " + o);
 				Object ret = checkExpr(s, form, o);
@@ -352,6 +352,7 @@ public class TypeChecker {
 						errors.message(sw.location, "there is no definition for struct " + sw.ctor);
 						return null;
 					}
+					logger.info(o + " asserts that " + sw.var + " is of type " + sw.ctor + " with type scheme " + valueOf);
 	//				System.out.println(valueOf);
 					Map<String, TypeVar> polys = new HashMap<String, TypeVar>();
 					// we need a complex map of form var -> ctor -> field -> type
@@ -384,7 +385,9 @@ public class TypeChecker {
 			} else if (o instanceof BindCmd) {
 				BindCmd bc = (BindCmd) o;
 				TypeVar tv = factory.next();
-				s.phi.unify(tv, sft.get(bc.from, bc.field));
+				Object bt = sft.get(bc.from, bc.field);
+				logger.info(o + " introduces var " + tv + " with type " + bt);
+				s.phi.unify(tv, bt);
 //				System.out.println("binding " + bc.bind + " to " + tv);
 				s.gamma = s.gamma.bind(bc.bind, new TypeScheme(null, tv));
 			} else if (o instanceof ErrorCmd) {
@@ -405,14 +408,15 @@ public class TypeChecker {
 	}
 
 	Object checkExpr(TypeState s, HSIEForm form, HSIEBlock cmd) {
+		logger.info("Checking command " + cmd);
 		if (cmd instanceof PushReturn) {
 			PushReturn r = (PushReturn) cmd;
 			if (r.ival != null) {
 				logger.info(r.toString() + " is a constant of type Number");
-				return new TypeExpr(null, Type.builtin(null, "Number"));
+				return new TypeExpr(new GarneredFrom(r.location), Type.builtin(new InputPosition("builtin", 0, 0, null), "Number")); // TODO: it would be good to look this up; we should be able to do that
 			} else if (r.sval != null) {
 				logger.info(r.toString() + " is a constant of type String");
-				return new TypeExpr(null, Type.builtin(null, "String"));
+				return new TypeExpr(new GarneredFrom(r.location), Type.builtin(new InputPosition("builtin", 0, 0, null), "String"));
 			} else if (r.tlv != null) {
 				// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
 				TypeVar ret = factory.next();
@@ -424,7 +428,7 @@ public class TypeChecker {
 					// phi is not updated
 					// assume it must be a bound var; we will fail to get the existing type scheme if not
 					TypeScheme old = s.gamma.valueOf(r.var);
-					PhiSolution temp = new PhiSolution(errors);
+					TypeVariableMappings temp = new TypeVariableMappings(errors);
 					for (TypeVar tv : old.schematicVars) {
 						temp.bind(tv, factory.next());
 //						System.out.println("Allocating tv " + temp.meaning(tv) + " for " + tv + " when instantiating typescheme");
@@ -433,7 +437,7 @@ public class TypeChecker {
 					logger.info(r.var + " is a pre-defined var of type " + old.typeExpr + " becoming " + ret);
 					return ret;
 				} else {
-					logger.info(r.var + " needs a closure");
+					logger.info("Checking closure " + r.var);
 					// c is a closure, which must be a function application
 					return checkClosure(s, form, c);
 				}
@@ -444,7 +448,7 @@ public class TypeChecker {
 				
 				if (r.fn.uniqueName().equals("FLEval.tuple")) {
 					logger.info(r.fn + " needs tuple handling");
-					return "()";
+					return new TypeExpr(new GarneredFrom(r.location), Type.builtin(null, "()"));
 				}
 				if (r.fn instanceof CardMember) {
 					logger.info(r.fn + " is a card member");
@@ -458,7 +462,7 @@ public class TypeChecker {
 						throw new UtilException("There was no card definition called " + cm.card);
 					for (StructField sf : cti.struct.fields) {
 						if (sf.name.equals(cm.var)) {
-							return freshVarsIn(sf.type);
+							return sf.type.asExpr(null, factory);
 						}
 					}
 					errors.message(cm.location, "there is no field " + cm.var + " in card " + cm.card);
@@ -478,7 +482,7 @@ public class TypeChecker {
 					StructDefn sd = structs.get(structName);
 					for (StructField sf : sd.fields) {
 						if (sf.name.equals(hl.var)) {
-							return freshVarsIn(sf.type);
+							return sf.type.asExpr(null, factory);
 						}
 					}
 					throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
@@ -502,7 +506,7 @@ public class TypeChecker {
 					}
 					if (structs.containsKey(name)) {
 						logger.info(r.fn + " is struct ctor " + name);
-						return freshVarsIn(typeForStructCtor(null, structs.get(name)));
+						return typeForStructCtor(null, structs.get(name)).asExpr(null, factory);
 					}
 					// This is probably a failure on our part rather than user error
 					// We should not be able to get here if r.fn is not already an external which has been resolved
@@ -513,7 +517,7 @@ public class TypeChecker {
 				} else {
 					logger.info(r.fn + " is globally implanted " + te);
 //					System.out.print("Replacing vars in " + r.fn +": ");
-					return freshVarsIn(te);
+					return ((Type)te).asExpr(new GarneredFrom(r.fn, te), factory);
 				}
 			} else if (r.func != null) {
 				logger.info(r.fn + " is a function literal");
@@ -533,13 +537,14 @@ public class TypeChecker {
 			args.add(te);
 		}
 		Object Tf = args.get(0);
-		if ("()".equals(Tf)) { // tuples need special handling
+		if (Tf instanceof TypeExpr && "()".equals(((TypeExpr)Tf).type.name())) { // tuples need special handling
 			List<Object> newVars = new ArrayList<Object>();
 			for (int i=1;i<args.size();i++)
 				newVars.add(factory.next());
-			Tf = new TypeExpr(null, Type.builtin(null, "()"), newVars);
+			TypeExpr TfE = (TypeExpr)Tf;
+			Tf = new TypeExpr(TfE.from, TfE.type, newVars);
 			logger.info("Closure " + c + " has type " + Tf);
-		} else if (Tf instanceof TypeExpr && ".".equals(((TypeExpr)Tf).type)) { // so does "." notation
+		} else if (Tf instanceof TypeExpr && ".".equals(((TypeExpr)Tf).type.name())) { // so does "." notation
 			InputPosition posn = ((TypeExpr)Tf).from.posn;
 			Object T1 = s.phi.subst(args.get(1));
 			if (T1 instanceof TypeExpr) {
@@ -550,7 +555,7 @@ public class TypeChecker {
 				if (sd != null) {
 					for (StructField f : sd.fields) {
 						if (f.name.equals(fn)) {
-							Object r = freshVarsIn(f.type);
+							Object r = f.type.asExpr(new GarneredFrom(f), factory);
 							logger.info("field " + f.name + " of " + sd.name() + " has type " + f.type + " with fresh vars as " + r);
 							return r;
 						}
@@ -562,7 +567,7 @@ public class TypeChecker {
 				if (od != null) {
 					for (ObjectMethod m : od.methods) {
 						if (m.name.equals(fn)) {
-							Object r = freshVarsIn(m.type);
+							Object r = m.type.asExpr(null, factory);
 							logger.info("field " + m.name + " of " + od.name() + " has type " + m.type + " with fresh vars as " + r);
 							return r;
 						}
@@ -580,7 +585,7 @@ public class TypeChecker {
 			} else
 				throw new UtilException("What is " + T1);
 		} else {
-			logger.info("Closure " + c + " requires " + flatten(new StringBuilder(), Tf, false) + " to apply to " + arrowify(args));
+			logger.info(c + " requires " + flatten(new StringBuilder(), Tf, false) + " to apply to " + arrowify(args));
 			for (int i=1;i<args.size();i++)
 				Tf = checkSingleApplication(s, Tf, args.get(i));
 		}
@@ -648,45 +653,6 @@ public class TypeChecker {
 		return s.phi.meaning(Tr);
 	}
 
-	private Object freshVarsIn(Object te) {
-		if (te instanceof Type) {
-			Object ret = ((Type)te).asExpr(factory);
-			return ret;
-		}
-		throw new UtilException("I think this is dead code.  What do you have? " + te.getClass());
-//		Set<TypeVar> vs = new HashSet<TypeVar>();
-//		findVarsIn(vs, te);
-//		Map<TypeVar, TypeVar> map = new HashMap<TypeVar, TypeVar>();
-//		for (TypeVar tv : vs)
-//			map.put(tv, factory.next());
-//		return substVars(map, te);
-	}
-
-	/*
-	private void findVarsIn(Set<TypeVar> vs, Object te) {
-		if (te instanceof TypeVar)
-			vs.add((TypeVar) te);
-		else if (te instanceof TypeExpr) {
-			TypeExpr te2 = (TypeExpr) te;
-			for (Object o : te2.args)
-				findVarsIn(vs, o);
-		} else
-			throw new UtilException("case not handled " + te.getClass());
-	}
-
-	private Object substVars(Map<TypeVar, TypeVar> map, Object te) {
-		if (te instanceof TypeVar)
-			return map.get(te);
-		else {
-			TypeExpr te2 = (TypeExpr) te;
-			List<Object> newArgs = new ArrayList<Object>();
-			for (Object o : te2.args)
-				newArgs.add(substVars(map, o));
-			return new TypeExpr(null, te2.type, newArgs);
-		}
-	}
-	*/
-
 	public Type getTypeAsCtor(String fn) {
 		if (knowledge.containsKey(fn))
 			return knowledge.get(fn);
@@ -700,7 +666,7 @@ public class TypeChecker {
 
 	public Type getType(InputPosition loc, String fn) {
 		if (structs.containsKey(fn))
-			return Type.reference(loc, fn);
+			return structs.get(fn);
 		if (knowledge.containsKey(fn))
 			return knowledge.get(fn);
 //		if (cards.containsKey(fn))
@@ -732,7 +698,7 @@ public class TypeChecker {
 		for (ContractDecl cd : contracts.values()) {
 			if (cd.generate) {
 				cds.add(cd);
-				System.out.println("  contract " + cd.contractName);
+				System.out.println("  contract " + cd.name());
 				for (ContractMethodDecl m : cd.methods) {
 					System.out.print(Justification.LEFT.format("", 4));
 					System.out.print(Justification.PADRIGHT.format(m.dir, 5));

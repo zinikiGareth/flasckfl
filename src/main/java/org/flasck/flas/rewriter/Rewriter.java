@@ -340,7 +340,7 @@ public class Rewriter {
 			else if (val instanceof EventHandlerDefinition)
 				eventHandlers.add(new EventHandlerInContext(from, name, rewrite(cx, (EventHandlerDefinition)val)));
 			else if (val instanceof StructDefn) {
-				structs.put(name, (StructDefn)val);
+				structs.put(name, rewrite(cx, (StructDefn)val));
 			} else if (val instanceof UnionTypeDefn) {
 				types.put(name, (UnionTypeDefn)val);
 			} else if (val instanceof ContractDecl) {
@@ -359,7 +359,7 @@ public class Rewriter {
 		cards.put(cd.name, grp);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
-				sd.fields.add(rewrite(cx, sf));
+				sd.fields.add(new StructField(rewrite(cx, sf.type), sf.name, rewriteExpr(cx, sf.init)));
 				grp.inits.put(sf.name, rewriteExpr(cx, sf.init));
 			}
 		}
@@ -373,7 +373,7 @@ public class Rewriter {
 			grp.contracts.add(new ContractGrouping(rw.type, myname, rw.referAsVar));
 			cardImplements.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new StructField(Type.reference(rw.typeLocation, rw.type), rw.referAsVar));
+				sd.fields.add(new StructField(rewrite(cx, Type.reference(rw.typeLocation, rw.type)), rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods) {
 				MethodDefinition rwm = rewrite(c2, m);
@@ -391,7 +391,7 @@ public class Rewriter {
 			grp.services.add(new ServiceGrouping(rw.type, myname, rw.referAsVar));
 			cardServices.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new StructField(Type.reference(rw.typeLocation, rw.type), rw.referAsVar));
+				sd.fields.add(new StructField(rewrite(cx, Type.reference(rw.typeLocation, rw.type)), rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
 				methods.add(new MethodInContext(cd.innerScope(), cs.type, m.intro.name, HSIEForm.Type.SERVICE, rewrite(c2, m)));
@@ -608,6 +608,15 @@ public class Rewriter {
 		return new EventHandlerDefinition(ehd.intro, list);
 	}
 
+	private StructDefn rewrite(NamingContext cx, StructDefn sd) {
+		StructDefn ret = new StructDefn(sd.location(), sd.name(), sd.generate, (List<Type>)sd.polys());
+		for (StructField sf : sd.fields) {
+			StructField rsf = new StructField(rewrite(cx, sf.type), sf.name, rewriteExpr(cx, sf.init));
+			ret.addField(rsf);
+		}
+		return ret;
+	}
+
 	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {
 		FunctionIntro intro = rewrite(cx, c.intro);
 		Object expr = rewriteExpr(cx, c.expr);
@@ -676,10 +685,6 @@ public class Rewriter {
 				newSlot.add(mm.slot.get(i));
 		}
 		return new MethodMessage(newSlot, rewriteExpr(cx, mm.expr));
-	}
-
-	private StructField rewrite(NamingContext scope, StructField sf) {
-		return new StructField(rewriteType(scope, sf.type), sf.name, rewriteExpr(scope, sf.init));
 	}
 
 	private Object rewriteExpr(NamingContext cx, Object expr) {
@@ -753,24 +758,39 @@ public class Rewriter {
 		}
 	}
 
-	private Type rewriteType(NamingContext scope, Object type) {
-		if (type instanceof Type) {
-			Type tr = (Type) type;
-			if (tr.iam != WhatAmI.REFERENCE)
-				return tr;
-			try {
-				Object r = scope.resolve(tr.location(), tr.name());
-				if (!(r instanceof AbsoluteVar)) {
-					errors.message((Block)null, tr.name() + " is not a type definition");
-					return null;
-				}
-				return (Type) ((AbsoluteVar)r).defn;
-			} catch (ResolutionException ex) {
-				errors.message(tr.location(), ex.getMessage());
+	private Type rewrite(NamingContext cx, Type type) {
+		if (type.iam != WhatAmI.REFERENCE)
+			return type;
+		try {
+			Object r = cx.resolve(type.location(), type.name());
+			if (!(r instanceof AbsoluteVar)) {
+				errors.message((Block)null, type.name() + " is not a type definition");
 				return null;
 			}
+			Type ret = (Type) ((AbsoluteVar)r).defn;
+			if (ret.hasPolys() && !type.hasPolys()) {
+				errors.message(type.location(), "cannot use " + ret.name() + " without specifying polymorphic arguments");
+				return null;
+			} else if (!ret.hasPolys() && type.hasPolys()) {
+				errors.message(type.location(), "cannot use polymorphic arguments to type " + ret.name());
+				return null;
+			} else if (ret.hasPolys() && type.hasPolys()) {
+				// check and instantiate
+				if (type.polys().size() != ret.polys().size()) {
+					errors.message(type.location(), "incorrect number of polymorphic arguments to type " + ret.name());
+					return null;
+				} else {
+					List<Type> rwp = new ArrayList<Type>();
+					for (Type p : type.polys())
+						rwp.add(rewrite(cx, p));
+					return ret.instance(type.location(), rwp);
+				}
+			} else
+				return ret;
+		} catch (ResolutionException ex) {
+			errors.message(type.location(), ex.getMessage());
+			return null;
 		}
-		throw new UtilException("Can't rewrite type " + type + " of type " + type.getClass());
 	}
 
 	public void dump() {

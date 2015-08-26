@@ -1,3 +1,6 @@
+	struct ID
+		String id
+
 	contract Init
 		down update (Any obj)
 		

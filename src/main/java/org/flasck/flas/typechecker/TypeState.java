@@ -7,12 +7,12 @@ import org.flasck.flas.errors.ErrorResult;
 
 public class TypeState {
 	TypeEnvironment gamma;
-	final PhiSolution phi;
+	final TypeVariableMappings phi;
 	final Map<String, Object> localKnowledge;
 
 	public TypeState(ErrorResult errors) {
 		gamma = new TypeEnvironment();
-		phi = new PhiSolution(errors);
+		phi = new TypeVariableMappings(errors);
 		localKnowledge = new HashMap<String, Object>();
 	}
 

@@ -9,7 +9,9 @@ import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.PattToken;
+import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class PatternParser implements TryParsing {
 
@@ -28,10 +30,12 @@ public class PatternParser implements TryParsing {
 			List<Object> retArr = new ArrayList<Object>();
 			while (true) {
 				// The next symbol can be any valid pattern token
-				PattToken next = PattToken.from(line);
+				TypeNameToken next = QualifiedTypeNameToken.from(line);
 				// Main case is "(Type var)" - and we know types have initial caps
-				if (next.type == PattToken.TYPE) {
+				if (next != null) {
 					PattToken after = PattToken.from(line);
+					if (after == null)
+						return null;
 					if (after.type == PattToken.VAR) {
 						TypedPattern ret = new TypedPattern(next.location, next.text, after.location, after.text);
 						retArr.add(ret);
@@ -59,12 +63,15 @@ public class PatternParser implements TryParsing {
 					}
 					// Likewise magic list syntax is "(P : var)"
 				} else {
-					Object p = simplePattern(next, line);
+					PattToken var = PattToken.from(line);
+					Object p = simplePattern(var, line);
 					if (p == null)
 						return null;
 					retArr.add(p);
 				}
 				PattToken sep = PattToken.from(line);
+				if (sep == null)
+					return null;
 				if (sep.type == PattToken.CRB) {
 					if (retArr.size() == 1)
 						return retArr.get(0);

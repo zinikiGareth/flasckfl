@@ -44,13 +44,21 @@ public class PackageFinder {
 					ois = new ObjectInputStream(new FileInputStream(new File(pkg, pkgName + ".flim")));
 					@SuppressWarnings("unchecked")
 					List<StructDefn> structs = (List<StructDefn>) ois.readObject();
+					for (StructDefn sd : structs) {
+						int idx = sd.name().lastIndexOf(".");
+						scope.define(sd.name().substring(idx+1), sd.name(), sd);
+					}
 					@SuppressWarnings("unchecked")
 					List<UnionTypeDefn> types = (List<UnionTypeDefn>) ois.readObject();
+					for (UnionTypeDefn td : types) {
+						int idx = td.name().lastIndexOf(".");
+						scope.define(td.name().substring(idx+1), td.name(), td);
+					}
 					@SuppressWarnings("unchecked")
 					List<ContractDecl> contracts = (List<ContractDecl>)ois.readObject();
 					for (ContractDecl c : contracts) {
-						int idx = c.contractName.lastIndexOf(".");
-						scope.define(c.contractName.substring(idx+1), c.contractName, c);
+						int idx = c.name().lastIndexOf(".");
+						scope.define(c.name().substring(idx+1), c.name(), c);
 					}
 				} catch (Exception ex) {
 					throw UtilException.wrap(ex);

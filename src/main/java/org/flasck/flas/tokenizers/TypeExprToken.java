@@ -28,9 +28,13 @@ public class TypeExprToken {
 		InputPosition loc = line.realinfo();
 		char c = line.nextChar();
 		int pos;
-		if (Character.isUpperCase(c))
-			return new TypeExprToken(loc, NAME, ValidIdentifierToken.from(line).text);
-		else if ((pos = "()[],".indexOf(c)) != -1) {
+		if (Character.isLetter(c)) {
+			TypeNameToken tmp = QualifiedTypeNameToken.from(line);
+			if (tmp != null)
+				return new TypeExprToken(loc, NAME, tmp.text);
+			else
+				return null;
+		} else if ((pos = "()[],".indexOf(c)) != -1) {
 			line.advance();
 			return new TypeExprToken(loc, 10+pos, null);
 		}

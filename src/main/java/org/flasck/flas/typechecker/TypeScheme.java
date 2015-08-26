@@ -18,8 +18,8 @@ public class TypeScheme {
 	}
 	
 	// See PH p173
-	public TypeScheme subst(PhiSolution phi) {
-		PhiSolution phi2 = phi.exclude(schematicVars);
+	public TypeScheme subst(TypeVariableMappings phi) {
+		TypeVariableMappings phi2 = phi.exclude(schematicVars);
 		return new TypeScheme(schematicVars, phi2.subst(typeExpr));
 	}
 	

@@ -5,23 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.typechecker.Type;
 
 @SuppressWarnings("serial")
-public class ContractDecl implements Serializable, Locatable {
-	public final transient InputPosition location;
-	public final transient boolean generate;
-	public final String contractName;
+public class ContractDecl extends Type implements Serializable {
 	public final List<ContractMethodDecl> methods = new ArrayList<ContractMethodDecl>();
+	public final transient boolean generate;
 
 	public ContractDecl(InputPosition location, String contractName) {
-		this.location = location;
-		this.contractName = contractName;
+		super(location, WhatAmI.CONTRACT, contractName, null);
 		this.generate = true;
-	}
-
-	@Override
-	public InputPosition location() {
-		return location;
 	}
 
 	public void addMethod(ContractMethodDecl md) {
@@ -30,6 +23,6 @@ public class ContractDecl implements Serializable, Locatable {
 	
 	@Override
 	public String toString() {
-		return contractName;
+		return "contract " + name();
 	}
 }

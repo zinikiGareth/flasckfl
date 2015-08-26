@@ -160,6 +160,8 @@ public class TypeExpr {
 	}
 	
 	private static List<Object> fromArgs(Type tr, Map<String, TypeVar> polys) {
+		if (!tr.hasPolys())
+			return null;
 		List<Object> ret = new ArrayList<Object>();
 		for (Type poly : tr.polys())
 			ret.add(fromReference(poly, polys));

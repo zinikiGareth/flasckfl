@@ -34,15 +34,12 @@ public class Builtin {
 				null);
 			ret.define("Any", "Any", any);
 		}
+		UnionTypeDefn list = new UnionTypeDefn(posn, false, "List", Type.polyvar(posn, "A"));
 		{ // text
-			ret.define("String", "String",
-				string);
-			ret.define("concat", "concat",
-				Type.function(posn, Type.reference(posn, "List", Type.reference(posn, "String")), Type.reference(posn, "String")));
-			ret.define("join", "join",
-				Type.function(posn, Type.reference(posn, "List", Type.reference(posn, "String")), Type.reference(posn, "String"), Type.reference(posn, "String")));
-			ret.define("++", "append",
-				Type.function(posn, Type.reference(posn, "String"), Type.reference(posn, "String"), Type.reference(posn, "String")));
+			ret.define("String", "String", string);
+			ret.define("concat", "concat", Type.function(posn, list.instance(posn, string), string));
+			ret.define("join", "join", Type.function(posn, list.instance(posn, string), string, string));
+			ret.define("++", "append", Type.function(posn, string, string, string));
 		}
 		{ // boolean logic
 			ret.define("Boolean", "Boolean",
@@ -64,7 +61,6 @@ public class Builtin {
 			ret.define("^", "FLEval.exp",
 				Type.function(posn, number, number, number));
 		}
-		UnionTypeDefn list = new UnionTypeDefn(posn, false, "List", Type.polyvar(posn, "A"));
 		{ // lists
 			StructDefn nil = new StructDefn(posn, "Nil", false);
 			StructDefn cons = new StructDefn(posn, "Cons", false, varA);
@@ -75,8 +71,7 @@ public class Builtin {
 			ret.define("List", "List", list);
 			ret.define("Nil", "Nil", nil);
 			ret.define("Cons", "Cons", cons);
-			ret.define("map", "map",
-				Type.function(posn, Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "B")), Type.reference(posn, "List", Type.polyvar(posn, "A")), Type.reference(posn, "List", Type.polyvar(posn, "B"))));
+			ret.define("map", "map", Type.function(posn, Type.function(posn, varA, varB), list.instance(posn, varA), list.instance(posn, varB)));
 		}
 		UnionTypeDefn map = new UnionTypeDefn(posn, false, "Map", varA, varB);
 		{ // maps

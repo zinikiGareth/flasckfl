@@ -35,13 +35,13 @@ import org.zinutils.exceptions.UtilException;
  * @author Gareth Powell
  *
  */
-public class PhiSolution {
+public class TypeVariableMappings {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	private final Map<TypeVar, Object> phi = new HashMap<TypeVar, Object>();
 	private final ErrorResult errors;
 	private final List<TypeUnion> needTypeResolution = new ArrayList<TypeUnion>();
 	
-	public PhiSolution(ErrorResult errors) {
+	public TypeVariableMappings(ErrorResult errors) {
 		this.errors = errors;
 	}
 	
@@ -98,7 +98,7 @@ public class PhiSolution {
 	 * @return a single type variable or expression which is "valid" for both of the input types
 	 */
 	public Object unify(Object t1, Object t2) {
-		logger.info("Need to unify " + t1 + " and " +t2);
+		logger.info("unifying " + t1 + " and " +t2);
 		if (t1 == null || t2 == null)
 			return null;
 		else if (t1 instanceof TypeVar && t2 instanceof TypeVar) {
@@ -137,6 +137,10 @@ public class PhiSolution {
 			}
 			// this is just for debugging; we should catch actual unification errors later
 //			boolean stored = true;
+			if (te1.type.name().equals("Any"))
+				return te1;
+			else if (te2.type.name().equals("Any"))
+				return te2;
 			if (!isListCtor(te1) || !isListCtor(te2)) {
 				System.out.println("First pass does not unify " + te1 + " and " + te2);
 //				stored = false;
@@ -181,12 +185,15 @@ public class PhiSolution {
 	}
 
 	private Object extend(TypeVar tv, Object te) {
-		if (te instanceof TypeVar && tv.equals(te))
+		if (te instanceof TypeVar && tv.equals(te)) {
+			logger.info(tv + " and " + te + " are identical");
 			return te; // we known that tv == tv
-		else if (te instanceof TypeExpr && ((TypeExpr)te).containsVar(tv)) {
+		} else if (te instanceof TypeExpr && ((TypeExpr)te).containsVar(tv)) {
+			logger.info(te + " contains " + tv + " and is an error case");
 			errors.message((Block)null, "This is a circularity");
 			return null;
 		} else {
+			logger.info("defining " + tv + " to be " + te);
 			bind(tv, te);
 			return te;
 		}
@@ -204,8 +211,8 @@ public class PhiSolution {
 	}
 
 	// See PH p173
-	public PhiSolution exclude(List<TypeVar> varsToExclude) {
-		PhiSolution ret = new PhiSolution(errors);
+	public TypeVariableMappings exclude(List<TypeVar> varsToExclude) {
+		TypeVariableMappings ret = new TypeVariableMappings(errors);
 		for (Entry<TypeVar, Object> x : phi.entrySet()){
 			if (!varsToExclude.contains(x.getKey()))
 				ret.bind(x.getKey(), x.getValue());

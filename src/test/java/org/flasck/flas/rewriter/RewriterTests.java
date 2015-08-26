@@ -34,6 +34,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,15 +85,44 @@ public class RewriterTests {
 	}
 	
 	@Test
-	public void testAStructReferencingAListFieldMustHaveATypeArgument() {
+	public void testWeRewriteStructFields() {
+		StructDefn sd = new StructDefn(null, "Fred", true);
+		sd.addField(new StructField(Type.reference(null, "String"), "f"));
+		scope.define("Container", "ME.Container", sd);
+		rw.rewrite(pkgEntry);
+		sd = rw.structs.get("ME.Container");
+		StructField sf = sd.fields.get(0);
+		assertEquals("f", sf.name);
+		assertEquals("String", sf.type.name());
+		assertEquals(WhatAmI.BUILTIN, sf.type.iam);
+	}
+	
+	@Test
+	public void testAStructReferencingAListFieldGetsARewrittenParameterList() {
 		StructDefn sd = new StructDefn(null, "Container", true);
-		sd.addField(new StructField(Type.reference(null, "List"), "list"));
+		sd.addField(new StructField(Type.reference(null, "List", Type.reference(null, "String")), "list"));
 		scope.define("Container", "ME.Container", sd);
 		rw.rewrite(pkgEntry);
 		sd = rw.structs.get("ME.Container");
 		StructField sf = sd.fields.get(0);
 		assertEquals("list", sf.name);
-//		assertEquals("List", sf.type);
+		assertEquals("List", sf.type.name());
+		assertEquals(WhatAmI.INSTANCE, sf.type.iam);
+		assertTrue(sf.type.hasPolys());
+		assertEquals(1, sf.type.polys().size());
+		assertEquals("String", sf.type.poly(0).name());
+		assertEquals(WhatAmI.BUILTIN, sf.type.poly(0).iam);
+	}
+	
+	@Test
+	public void testAStructReferencingAListFieldMustHaveATypeArgument() {
+		StructDefn sd = new StructDefn(null, "Container", true);
+		sd.addField(new StructField(Type.reference(null, "List"), "list"));
+		scope.define("Container", "ME.Container", sd);
+		rw.rewrite(pkgEntry);
+		assertTrue(errors.hasErrors());
+		assertEquals(1, errors.errors.size());
+		assertEquals("cannot use List without specifying polymorphic arguments", errors.get(0).msg);
 	}
 	
 	@Test
