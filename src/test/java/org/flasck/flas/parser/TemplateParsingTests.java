@@ -41,7 +41,7 @@ public class TemplateParsingTests {
 		Object ret = parser.tryParsing(new Tokenizable("template inner (foo)"));
 		assertNotNull(ret);
 		assertTrue(ret instanceof ErrorResult);
-		assertEquals(1, ((ErrorResult)ret).errors.size());
+		assertEquals(1, ((ErrorResult)ret).count());
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class TemplateParsingTests {
 		Object ret = parser.tryParsing(new Tokenizable("template Class"));
 		assertNotNull(ret);
 		assertTrue(ret instanceof ErrorResult);
-		assertEquals(1, ((ErrorResult)ret).errors.size());
+		assertEquals(1, ((ErrorResult)ret).count());
 	}
 
 }

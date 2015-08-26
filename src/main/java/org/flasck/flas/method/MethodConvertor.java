@@ -48,62 +48,7 @@ public class MethodConvertor {
 
 	public void convert(Map<String, HSIEForm> functions, List<MethodInContext> methods) {
 		for (MethodInContext m : methods) {
-			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-			ContractDecl cd = contracts.get(m.fromContract);
-			if (cd == null)
-				throw new UtilException("Cannot find contract for method " + m.name + " called " + m.fromContract);
-			ContractMethodDecl cmd = null;
-			for (ContractMethodDecl md : cd.methods) {
-				if (m.name.endsWith("." + md.name))
-					cmd = md;
-			}
-			if (cmd == null)
-				throw new UtilException("Cannot find method called " + m.name + " in " + m.fromContract);
-			
-			List<Type> types = new ArrayList<Type>();
-			for (Object o : cmd.args) {
-				if (o instanceof TypedPattern) {
-					TypedPattern to = (TypedPattern)o;
-					String tn = to.type;
-					Type t = tc.getType(to.typeLocation, tn);
-					if (t == null)
-						throw new UtilException("Cannot find type " + tn); // TODO: should be a real error, I think
-					types.add(t);
-				} else
-					throw new UtilException("Cannot handle " + o.getClass().getName());
-			}
-			for (MethodCaseDefn mcd : m.method.cases) {
-				for (MethodMessage msg : mcd.messages) {
-					List<Type> mytypes = new ArrayList<Type>();
-					System.out.println("Convert method: " + msg.slot + " <- " + msg.expr);
-					List<String> args = new ArrayList<String>();
-					for (int i=0;i<mcd.intro.args.size();i++) {
-						Object x = mcd.intro.args.get(i);
-						if (x instanceof VarPattern) {
-							mytypes.add(types.get(i));
-							args.add(((VarPattern)x).var);
-						} else if (x instanceof TypedPattern) {
-							TypedPattern tx = (TypedPattern)x;
-							args.add(tx.var);
-							Type ty = tc.getType(tx.typeLocation, tx.type);
-							// we have an obligation to check that ty is a sub-type of types.get(i);
-							Type prev = types.get(i);
-							if (prev.name().equals("Any"))
-								;	// this has to be OK
-							else
-								throw new UtilException("Need to cover the case where the parent type is " + prev.name() + " and we want to restrict to " + tx.type);
-							mytypes.add(ty);
-						} else
-							throw new UtilException("Cannot map " + x.getClass());
-					}
-					Type ty = tc.checkExpr(hsie.handleExprWith(msg.expr, HSIEForm.Type.CONTRACT, args), mytypes);
-					if (ty != null)
-						System.out.println("Type for method message - " + msg.slot + " <- " + msg.expr + " :: " + ty);
-				}
-				cases.add(new FunctionCaseDefn(null, mcd.intro.location, mcd.intro.name, mcd.intro.args, convert(mcd.intro.location, m.scope, mcd.messages)));
-			}
-			FunctionDefinition fd = new FunctionDefinition(m.method.intro.location, m.type, m.method.intro.name, m.method.intro.args.size(), cases);
-			functions.put(m.method.intro.name, hsie.handle(fd));
+			convertMIC(functions, m);
 		}
 	}
 
@@ -112,6 +57,94 @@ public class MethodConvertor {
 			FunctionDefinition fd = MethodConvertor.convert(x.scope, x.name, x.handler);
 			functions.put(x.name, hsie.handle(fd));
 		}
+	}
+
+	protected void convertMIC(Map<String, HSIEForm> functions, MethodInContext m) {
+		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		
+		// Get the contract and from that find the method
+		ContractMethodDecl cmd = figureCMD(m);
+		if (cmd == null)
+			return;
+		
+		// Get the types of the input arguments from the contract
+		List<Type> types = new ArrayList<Type>();
+		boolean fail = false;
+		for (Object o : cmd.args) {
+			if (o instanceof TypedPattern) {
+				TypedPattern to = (TypedPattern)o;
+				String tn = to.type;
+				Type t = tc.getType(to.typeLocation, tn);
+				if (t == null) {
+					errors.message(to.typeLocation, "there is no type " + tn);
+					fail = true;
+				}
+				types.add(t);
+			} else
+				throw new UtilException("Cannot handle " + o.getClass().getName());
+		}
+		if (fail)
+			return;
+		
+		// Now process all of the method cases
+		if (m.method.cases.isEmpty())
+			throw new UtilException("Method without any cases - valid or not valid?");
+		for (MethodCaseDefn mcd : m.method.cases) {
+			for (MethodMessage msg : mcd.messages) {
+				List<Type> mytypes = new ArrayList<Type>();
+				System.out.println("Convert method: " + msg.slot + " <- " + msg.expr);
+				List<String> args = new ArrayList<String>();
+				for (int i=0;i<mcd.intro.args.size();i++) {
+					Object x = mcd.intro.args.get(i);
+					if (x instanceof VarPattern) {
+						mytypes.add(types.get(i));
+						args.add(((VarPattern)x).var);
+					} else if (x instanceof TypedPattern) {
+						TypedPattern tx = (TypedPattern)x;
+						args.add(tx.var);
+						Type ty = tc.getType(tx.typeLocation, tx.type);
+						// we have an obligation to check that ty is a sub-type of types.get(i);
+						Type prev = types.get(i);
+						if (prev.name().equals("Any"))
+							;	// this has to be OK
+						else
+							throw new UtilException("Need to cover the case where the parent type is " + prev.name() + " and we want to restrict to " + tx.type);
+						mytypes.add(ty);
+					} else
+						throw new UtilException("Cannot map " + x.getClass());
+				}
+				Type ty = tc.checkExpr(hsie.handleExprWith(msg.expr, HSIEForm.Type.CONTRACT, args), mytypes);
+				if (ty != null)
+					System.out.println("Type for method message - " + msg.slot + " <- " + msg.expr + " :: " + ty);
+			}
+			cases.add(new FunctionCaseDefn(null, mcd.intro.location, mcd.intro.name, mcd.intro.args, convert(mcd.intro.location, m.scope, mcd.messages)));
+		}
+		FunctionDefinition fd = new FunctionDefinition(m.method.intro.location, m.type, m.method.intro.name, m.method.intro.args.size(), cases);
+		HSIEForm hs = hsie.handle(fd);
+		if (hs != null)
+			functions.put(m.method.intro.name, hs);
+	}
+
+	protected ContractMethodDecl figureCMD(MethodInContext m) {
+		ContractDecl cd = contracts.get(m.fromContract);
+		if (cd == null) {
+			errors.message(m.contractLocation, "cannot find contract " + m.fromContract);
+			return null;
+		}
+		ContractMethodDecl cmd = null;
+		int idx = m.name.lastIndexOf(".");
+		String mn = m.name.substring(idx+1);
+		for (ContractMethodDecl md : cd.methods) {
+			if (mn.equals(md.name)) { // TODO: should we check "dir"?
+				cmd = md;
+				break;
+			}
+		}
+		if (cmd == null) {
+			errors.message(m.contractLocation, "cannot find method " + mn + " in " + m.fromContract);
+			return null;
+		}
+		return cmd;
 	}
 
 	public static FunctionDefinition convert(Scope scope, String card, EventHandlerDefinition eh) {

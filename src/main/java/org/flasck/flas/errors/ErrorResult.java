@@ -13,8 +13,12 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.utils.Justification;
 
 public class ErrorResult {
-	public final Set<FLASError> errors = new TreeSet<FLASError>();
+	private final Set<FLASError> errors = new TreeSet<FLASError>();
 
+	public int count() {
+		return errors.size();
+	}
+	
 	public ErrorResult message(Block b, String msg) {
 		return message(new Tokenizable(b), msg);
 	}

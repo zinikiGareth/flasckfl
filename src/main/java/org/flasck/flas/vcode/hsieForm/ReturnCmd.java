@@ -37,6 +37,6 @@ public class ReturnCmd extends PushReturn {
 
 	@Override
 	public String toString() {
-		return "RETURN " + textValue() + " " + deps;
+		return "RETURN " + textValue() + (deps == null? "" : " " + deps);
 	}
 }

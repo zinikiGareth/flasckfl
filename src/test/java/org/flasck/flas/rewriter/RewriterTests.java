@@ -121,7 +121,7 @@ public class RewriterTests {
 		scope.define("Container", "ME.Container", sd);
 		rw.rewrite(pkgEntry);
 		assertTrue(errors.hasErrors());
-		assertEquals(1, errors.errors.size());
+		assertEquals(1, errors.count());
 		assertEquals("cannot use List without specifying polymorphic arguments", errors.get(0).msg);
 	}
 	

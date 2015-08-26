@@ -66,7 +66,7 @@ public class HSIEFunctionTests {
 		System.out.println(rw.functions);
 		HSIEForm takeForm = new HSIE(errors).handle(rw.functions.get("take"));
 		assertNotNull(takeForm);
-		assertEquals(0, errors.errors.size());
+		assertEquals(0, errors.count());
 		HSIETestData.assertHSIE(HSIETestData.take(), takeForm);
 	}
 }
