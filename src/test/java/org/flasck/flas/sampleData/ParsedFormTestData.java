@@ -35,7 +35,7 @@ public class ParsedFormTestData {
 
 	public static FunctionCaseDefn fibDefnN() {
 		List<Object> args = new ArrayList<Object>();
-		args.add(new VarPattern("n"));
+		args.add(new VarPattern(null, "n"));
 		
 		ApplyExpr minus1 = new ApplyExpr(null, se("-"), ie("n"), ne("1"));
 		ApplyExpr lhs = new ApplyExpr(null, ie("fib"), minus1);

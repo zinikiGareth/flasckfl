@@ -98,7 +98,7 @@ public class PatternParser implements TryParsing {
 	
 	private Object simplePattern(PattToken tok, Tokenizable line) {
 		if (tok.type == PattToken.VAR)
-			return new VarPattern(tok.text);
+			return new VarPattern(tok.location, tok.text);
 		else if (tok.type == PattToken.TYPE)
 			return new ConstructorMatch(tok.location, tok.text);
 		else if (tok.type == PattToken.NUMBER)

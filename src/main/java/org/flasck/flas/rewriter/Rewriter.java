@@ -242,8 +242,9 @@ public class Rewriter {
 		
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			if (hi.boundVars.contains(name))
-				return new HandlerLambda(location, ((CardContext)nested).prefix + "." + hi.name, name);
+			for (Object o : hi.boundVars)
+				if (((HandlerLambda)o).var.equals(name))
+					return o;
 			return nested.resolve(location, name);
 		}
 	}
@@ -428,12 +429,12 @@ public class Rewriter {
 				args.add(Type.polyvar(null, "A"+i));
 			StructDefn hsd = new StructDefn(hi.location(), hiName, false, args);
 			int j=0;
-			for (String s : hi.boundVars) {
-				hsd.fields.add(new StructField(Type.polyvar(rw.location(), "A"+j), s));
+			for (Object s : rw.boundVars) {
+				hsd.fields.add(new StructField(Type.polyvar(rw.location(), "A"+j), ((HandlerLambda)s).var));
 				j++;
 			}
 			structs.put(hiName, hsd);
-			HandlerContext hc = new HandlerContext(c2, hi);
+			HandlerContext hc = new HandlerContext(c2, rw);
 			for (MethodDefinition m : hi.methods)
 				methods.add(new MethodInContext(cd.innerScope(), null, hi.name(), m.intro.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
 			
@@ -577,7 +578,26 @@ public class Rewriter {
 				errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
 				return hi;
 			}
-			HandlerImplements ret = new HandlerImplements(hi.location(), hi.name, ((AbsoluteVar)av).id, hi.boundVars);
+			List<Object> bvs = new ArrayList<Object>();
+			for (Object o : hi.boundVars) {
+				HandlerLambda hl;
+				if (o instanceof VarPattern) {
+					VarPattern vp = (VarPattern) o;
+					hl = new HandlerLambda(vp.varLoc, hi.name, null, vp.var);
+				} else if (o instanceof TypedPattern) {
+					TypedPattern vp = (TypedPattern) o;
+					Object type = cx.resolve(vp.typeLocation, vp.type);
+					if (type instanceof AbsoluteVar && ((AbsoluteVar)type).defn instanceof Type) {
+						hl = new HandlerLambda(vp.varLocation, hi.name, (Type) ((AbsoluteVar)type).defn, vp.var);
+					} else {
+						errors.message(vp.typeLocation, vp.type + " is not a type");
+						continue;
+					}
+				} else
+					throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
+				bvs.add(hl);
+			}
+			HandlerImplements ret = new HandlerImplements(hi.location(), hi.name, ((AbsoluteVar)av).id, bvs);
 			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());

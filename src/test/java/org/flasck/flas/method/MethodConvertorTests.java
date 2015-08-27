@@ -17,6 +17,8 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
@@ -25,7 +27,10 @@ import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
@@ -49,6 +54,7 @@ public class MethodConvertorTests {
 	private CardDefinition cd;
 	private ContractImplements ce;
 	private ContractService se;
+	private HandlerImplements he;
 
 	public MethodConvertorTests() {
 		errors = new ErrorResult();
@@ -70,6 +76,18 @@ public class MethodConvertorTests {
 			contracts.put(service1.name(), service1);
 			ps.define("Service1", service1.name(), service1);
 		}
+		{
+			ContractDecl handler1 = new ContractDecl(null, "org.foo.Handler1");
+			ContractMethodDecl m1 = new ContractMethodDecl("down", "handle", new ArrayList<>());
+			handler1.methods.add(m1);
+			contracts.put(handler1.name(), handler1);
+			ps.define("Handler1", handler1.name(), handler1);
+		}
+		{
+			StructDefn struct = new StructDefn(null, "Thing", true);
+			struct.addField(new StructField(Type.reference(null, "String"), "x"));
+			ps.define("Thing", struct.name(), struct);
+		}
 		
 		{
 			rewriter = new Rewriter(errors, null);
@@ -83,6 +101,10 @@ public class MethodConvertorTests {
 			{
 				se = new ContractService(null, "org.foo.Service1", null, "se");
 				cd.services.add(se);
+			}
+			{
+				he = new HandlerImplements(null, "org.foo.MyHandler", "org.foo.Handler1", CollectionUtils.listOf((Object)new TypedPattern(null, "Thing", null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
+				cd.handlers.add(he);
 			}
 		}
 		
@@ -191,7 +213,16 @@ public class MethodConvertorTests {
 		assertEquals("cannot assign to non-state member: map", errors.get(0).msg);
 	}
 
-	protected void defineMethod(ContractImplements on, String name, MethodMessage... msgs) {
+	@Test
+	public void testWeCannotDirectlyAssignToAStructLambda() throws Exception {
+		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("cannot assign String to slot of type Thing", errors.get(0).msg);
+	}
+
+	protected void defineMethod(Implements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
 		List<MethodCaseDefn> cases = new ArrayList<>();
 		MethodCaseDefn cs = new MethodCaseDefn(intro);

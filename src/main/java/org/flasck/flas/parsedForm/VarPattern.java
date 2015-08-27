@@ -1,9 +1,13 @@
 package org.flasck.flas.parsedForm;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class VarPattern {
+	public final InputPosition varLoc;
 	public final String var;
 
-	public VarPattern(String text) {
+	public VarPattern(InputPosition varLoc, String text) {
+		this.varLoc = varLoc;
 		this.var = text;
 	}
 	

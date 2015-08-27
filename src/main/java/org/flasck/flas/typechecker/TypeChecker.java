@@ -476,7 +476,7 @@ public class TypeChecker {
 //					int idx = form.fnName.length();
 //					for (int i=0;i<2;i++)
 //						idx = form.fnName.lastIndexOf('.', idx-1);
-					String structName = hl.hi; // form.fnName.substring(0, idx);
+					String structName = hl.clzName; // form.fnName.substring(0, idx);
 					if (r.fn.equals("_handler"))
 						throw new UtilException("Died in housefire");
 //						return freshVarsIn(new TypeReference(hl.location, structName, null));

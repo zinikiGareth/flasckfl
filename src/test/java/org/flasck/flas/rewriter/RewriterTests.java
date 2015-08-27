@@ -73,7 +73,7 @@ public class RewriterTests {
 	public void testRewritingAParameter() {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		ArrayList<Object> args = new ArrayList<Object>();
-		args.add(new VarPattern("x"));
+		args.add(new VarPattern(null, "x"));
 		cases.add(new FunctionCaseDefn(scope, null, "ME.f", args, new UnresolvedVar(null, "x")));
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, "ME.f", 1, cases);
 		scope.define("f", "ME.f", fn);
@@ -131,7 +131,7 @@ public class RewriterTests {
 		{
 			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 			ArrayList<Object> args = new ArrayList<Object>();
-			args.add(new VarPattern("x"));
+			args.add(new VarPattern(null, "x"));
 			cases.add(new FunctionCaseDefn(scope, null, "ME.f", args, new StringLiteral(null, "x")));
 			FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, "ME.f", 1, cases);
 			scope.define("f", "ME.f", fn);
@@ -140,7 +140,7 @@ public class RewriterTests {
 		{
 			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 			ArrayList<Object> args = new ArrayList<Object>();
-			args.add(new VarPattern("y"));
+			args.add(new VarPattern(null, "y"));
 			cases.add(new FunctionCaseDefn(scope, null, "ME.f_0.g", args, new UnresolvedVar(null, "x")));
 			FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, "ME.f_0.g", 1, cases);
 			innerScope.define("g", "ME.f_0.g", fn);

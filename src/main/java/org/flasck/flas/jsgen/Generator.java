@@ -19,6 +19,7 @@ import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -185,8 +186,8 @@ public class Generator {
 		clz.add(new JSForm("this._special = 'handler'"));
 		clz.add(new JSForm("this._contract = '" + hi.name() + "'"));
 		int v = 1;
-		for (String s : hi.boundVars) 
-			clz.add(new JSForm("this." + s + " = v" + v++));
+		for (Object s : hi.boundVars) 
+			clz.add(new JSForm("this." + ((HandlerLambda)s).var + " = v" + v++));
 		target.add(clz);
 
 		JSForm ctor = JSForm.function(ctorName, vars, 0, hi.boundVars.size());

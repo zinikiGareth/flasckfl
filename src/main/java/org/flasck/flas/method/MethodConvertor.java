@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.EventHandlerInContext;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodInContext;
@@ -177,6 +178,14 @@ public class MethodConvertor {
 					return null;
 				}
 				slotType = sf.type;
+			} else if (slot instanceof HandlerLambda) {
+				HandlerLambda hl = (HandlerLambda) slot;
+				System.out.println("HL");
+				if (hl.type == null) {
+					errors.message(slot.location(), "cannot assign to untyped handler lambda: " + hl.var);
+					return null;
+				}
+				slotType = hl.type;
 			} else if (slot instanceof ExternalRef) {
 				errors.message(slot.location(), "cannot assign to non-state member: " + ((ExternalRef)slot).uniqueName());
 				return null;
