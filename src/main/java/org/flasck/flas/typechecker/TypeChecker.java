@@ -664,15 +664,15 @@ public class TypeChecker {
 		throw new UtilException("There is no type: " + fn);
 	}
 
-	public Type getType(InputPosition loc, String fn) {
-		if (structs.containsKey(fn))
-			return structs.get(fn);
-		if (knowledge.containsKey(fn))
-			return knowledge.get(fn);
-//		if (cards.containsKey(fn))
-//			return typeForCardCtor(null, cards.get(fn).struct);
+	public Type getType(InputPosition loc, String name) {
+		if (structs.containsKey(name))
+			return structs.get(name);
+		if (knowledge.containsKey(name))
+			return knowledge.get(name);
+		if (cards.containsKey(name))
+			return cards.get(name).struct;
 //		System.out.println(knowledge);
-		throw new UtilException("There is no type: " + fn);
+		throw new UtilException("There is no type: " + name);
 	}
 
 	public void writeLearnedKnowledge(OutputStream wex, boolean copyToScreen) throws IOException {

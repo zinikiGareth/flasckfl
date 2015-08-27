@@ -272,7 +272,7 @@ public class Compiler {
 			MethodConvertor mc = new MethodConvertor(errors, hsie, tc, rewriter.contracts);
 
 			// 6. Typecheck contract methods and event handlers, convert to functions and compile to HSIE
-			mc.convert(forms, rewriter.methods);
+			mc.convertContractMethods(forms, rewriter.methods);
 			mc.convertEvents(forms, rewriter.eventHandlers);
 			abortIfErrors(errors);
 
@@ -526,7 +526,7 @@ public class Compiler {
 					mcd.messages.addAll(s.actions);
 					MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
 					MethodInContext mic = new MethodInContext(d3.scope, null, null, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
-					mc.convert(forms, CollectionUtils.listOf(mic));
+					mc.convertContractMethods(forms, CollectionUtils.listOf(mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 //					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);
 				} else { // something like layout, that is just a set of definitions

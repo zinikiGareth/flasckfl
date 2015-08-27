@@ -45,6 +45,7 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodInContext;
@@ -118,7 +119,7 @@ public class Rewriter {
 
 	/** The Root Context exists exactly one time to include the BuiltinScope and nothing else
 	 */
-	class RootContext extends NamingContext {
+	public class RootContext extends NamingContext {
 		private final Scope biscope;
 
 		public RootContext(Scope biscope) {
@@ -171,7 +172,7 @@ public class Rewriter {
 
 	/** The Package Context represents one package which must exist exactly in the builtin scope
 	 */
-	class PackageContext extends NamingContext {
+	public class PackageContext extends NamingContext {
 		private PackageDefn pkg;
 
 		public PackageContext(RootContext cx, PackageDefn pkg) {
@@ -189,13 +190,13 @@ public class Rewriter {
 
 	/** The Card Context can only be found directly in a Package Context 
 	 */
-	class CardContext extends NamingContext {
+	public class CardContext extends NamingContext {
 		private final String prefix;
 		private final Set<String> members = new TreeSet<String>();
 		private final Map<String, ObjectReference> statics = new TreeMap<String, ObjectReference>();
 		private final Scope innerScope;
 
-		CardContext(PackageContext cx, CardDefinition cd) {
+		public CardContext(PackageContext cx, CardDefinition cd) {
 			super(cx);
 			this.prefix = cd.name;
 			this.innerScope = cd.innerScope();
@@ -669,18 +670,13 @@ public class Rewriter {
 		}
 	}
 
-	private MethodMessage rewrite(NamingContext cx, MethodMessage mm) {
-		List<LocatedToken> newSlot = null;
+	public MethodMessage rewrite(NamingContext cx, MethodMessage mm) {
+		List<Locatable> newSlot = null;
 		if (mm.slot != null && !mm.slot.isEmpty()) {
-			newSlot = new ArrayList<LocatedToken>();
-			LocatedToken slot = mm.slot.get(0);
-			Object r = cx.resolve(slot.location, slot.text);
-			if (!(r instanceof CardMember))
-				errors.message(slot.location, slot.text + " needs to be a state member");
-			else {
-				CardMember cm = (CardMember)r;
-				newSlot.add(new LocatedToken(cm.location, cm.var));
-			}
+			newSlot = new ArrayList<Locatable>();
+			LocatedToken slot = (LocatedToken) mm.slot.get(0);
+			Locatable r = (Locatable) cx.resolve(slot.location, slot.text);
+			newSlot.add(r);
 			for (int i=1;i<mm.slot.size();i++)
 				newSlot.add(mm.slot.get(i));
 		}

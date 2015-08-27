@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.AbsoluteVar;
@@ -24,10 +23,10 @@ import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parser.ItemExpr;
-import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -46,86 +45,57 @@ public class MethodConvertor {
 		this.contracts = contracts;
 	}
 
-	public void convert(Map<String, HSIEForm> functions, List<MethodInContext> methods) {
-		for (MethodInContext m : methods) {
-			convertMIC(functions, m);
-		}
+	// 1. Main entry points to convert different kinds of things
+	public void convertContractMethods(Map<String, HSIEForm> functions, List<MethodInContext> methods) {
+		for (MethodInContext m : methods)
+			addFunction(functions, convertMIC(m));
 	}
 
 	public void convertEvents(Map<String, HSIEForm> functions, List<EventHandlerInContext> eventHandlers) {
-		for (EventHandlerInContext x : eventHandlers) {
-			FunctionDefinition fd = MethodConvertor.convert(x.scope, x.name, x.handler);
-			functions.put(x.name, hsie.handle(fd));
+		for (EventHandlerInContext x : eventHandlers)
+			addFunction(functions, convertEventHandler(x.scope, x.name, x.handler));
+	}
+
+	private void addFunction(Map<String, HSIEForm> functions, FunctionDefinition fd) {
+		if (fd != null) {
+			HSIEForm hs = hsie.handle(fd);
+			if (hs != null)
+				functions.put(hs.fnName, hs);
 		}
 	}
 
-	protected void convertMIC(Map<String, HSIEForm> functions, MethodInContext m) {
+	// 2. Convert An individual element
+	protected FunctionDefinition convertMIC(MethodInContext m) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		
-		// Get the contract and from that find the method
-		ContractMethodDecl cmd = figureCMD(m);
-		if (cmd == null)
-			return;
-		
-		// Get the types of the input arguments from the contract
-		List<Type> types = new ArrayList<Type>();
-		boolean fail = false;
-		for (Object o : cmd.args) {
-			if (o instanceof TypedPattern) {
-				TypedPattern to = (TypedPattern)o;
-				String tn = to.type;
-				Type t = tc.getType(to.typeLocation, tn);
-				if (t == null) {
-					errors.message(to.typeLocation, "there is no type " + tn);
-					fail = true;
-				}
-				types.add(t);
-			} else
-				throw new UtilException("Cannot handle " + o.getClass().getName());
-		}
-		if (fail)
-			return;
-		
-		// Now process all of the method cases
+		// Get the contract and from that find the method and thus the argument types
+		List<Type> types = figureCMD(m);
+		if (types == null)
+			return null;
+
 		if (m.method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
-		for (MethodCaseDefn mcd : m.method.cases) {
-			for (MethodMessage msg : mcd.messages) {
-				List<Type> mytypes = new ArrayList<Type>();
-				System.out.println("Convert method: " + msg.slot + " <- " + msg.expr);
-				List<String> args = new ArrayList<String>();
-				for (int i=0;i<mcd.intro.args.size();i++) {
-					Object x = mcd.intro.args.get(i);
-					if (x instanceof VarPattern) {
-						mytypes.add(types.get(i));
-						args.add(((VarPattern)x).var);
-					} else if (x instanceof TypedPattern) {
-						TypedPattern tx = (TypedPattern)x;
-						args.add(tx.var);
-						Type ty = tc.getType(tx.typeLocation, tx.type);
-						// we have an obligation to check that ty is a sub-type of types.get(i);
-						Type prev = types.get(i);
-						if (prev.name().equals("Any"))
-							;	// this has to be OK
-						else
-							throw new UtilException("Need to cover the case where the parent type is " + prev.name() + " and we want to restrict to " + tx.type);
-						mytypes.add(ty);
-					} else
-						throw new UtilException("Cannot map " + x.getClass());
-				}
-				Type ty = tc.checkExpr(hsie.handleExprWith(msg.expr, HSIEForm.Type.CONTRACT, args), mytypes);
-				if (ty != null)
-					System.out.println("Type for method message - " + msg.slot + " <- " + msg.expr + " :: " + ty);
-			}
-			cases.add(new FunctionCaseDefn(null, mcd.intro.location, mcd.intro.name, mcd.intro.args, convert(mcd.intro.location, m.scope, mcd.messages)));
-		}
-		FunctionDefinition fd = new FunctionDefinition(m.method.intro.location, m.type, m.method.intro.name, m.method.intro.args.size(), cases);
-		HSIEForm hs = hsie.handle(fd);
-		if (hs != null)
-			functions.put(m.method.intro.name, hs);
+
+		// Now process all of the method cases
+		for (MethodCaseDefn mcd : m.method.cases)
+			cases.add(new FunctionCaseDefn(null, mcd.intro.location, mcd.intro.name, mcd.intro.args, convertMessagesToActionList(mcd.intro.location, m.scope, mcd.intro.args, types, mcd.messages)));
+
+		return new FunctionDefinition(m.method.intro.location, m.type, m.method.intro.name, m.method.intro.args.size(), cases);
 	}
 
-	protected ContractMethodDecl figureCMD(MethodInContext m) {
+	public FunctionDefinition convertEventHandler(Scope scope, String card, EventHandlerDefinition eh) {
+		List<Type> types = new ArrayList<Type>();
+		for (@SuppressWarnings("unused") Object o : eh.intro.args) {
+			types.add(tc.getType(null, "Any"));
+		}
+		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		for (EventCaseDefn c : eh.cases) {
+			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, convertMessagesToActionList(eh.intro.location, scope, eh.intro.args, types, c.messages)));
+		}
+		return new FunctionDefinition(eh.intro.location, HSIEForm.Type.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
+	}
+
+	protected List<Type> figureCMD(MethodInContext m) {
 		ContractDecl cd = contracts.get(m.fromContract);
 		if (cd == null) {
 			errors.message(m.contractLocation, "cannot find contract " + m.fromContract);
@@ -144,36 +114,74 @@ public class MethodConvertor {
 			errors.message(m.contractLocation, "cannot find method " + mn + " in " + m.fromContract);
 			return null;
 		}
-		return cmd;
-	}
-
-	public static FunctionDefinition convert(Scope scope, String card, EventHandlerDefinition eh) {
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		for (EventCaseDefn c : eh.cases) {
-			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, convert(eh.intro.location, scope, c.messages)));
+		
+		List<Type> types = new ArrayList<Type>();
+		boolean fail = false;
+		for (Object o : cmd.args) {
+			if (o instanceof TypedPattern) {
+				TypedPattern to = (TypedPattern)o;
+				String tn = to.type;
+				Type t = tc.getType(to.typeLocation, tn);
+				if (t == null) {
+					errors.message(to.typeLocation, "there is no type " + tn);
+					fail = true;
+				}
+				types.add(t);
+			} else
+				throw new UtilException("Cannot handle " + o.getClass().getName());
 		}
-		return new FunctionDefinition(eh.intro.location, HSIEForm.Type.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
+		if (fail)
+			return null;
+
+		return types;
 	}
 
-	// TODO: this is more complicated than I make it appear here, but the proper thing requires typechecking
-	private static Object convert(InputPosition location, Scope scope, List<MethodMessage> messages) {
+	private Object convertMessagesToActionList(InputPosition location, Scope scope, List<Object> args, List<Type> types, List<MethodMessage> messages) {
 		Object ret = scope.fromRoot(location, "Nil");
 		for (int n = messages.size()-1;n>=0;n--) {
 			MethodMessage mm = messages.get(n);
-			Object me = convert(scope, mm);
+			Object me = convertMessageToAction(scope, args, types, mm);
+			if (me == null) continue;
 			InputPosition loc = ((Locatable)mm.expr).location();
 			ret = new ApplyExpr(loc, scope.fromRoot(loc, "Cons"), me, ret);
 		}
 		return ret;
 	}
 
-	// TODO: ALL OF THIS IS SPECIFICALLY MORE COMPLEX THAN THIS!!
-	private static Object convert(Scope scope, MethodMessage mm) {
+	private Object convertMessageToAction(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm) {
+		Type exprType = calculateExprType(margs, types, mm);
 		if (mm.slot != null) {
 			// we want an assign message
-			LocatedToken slot = mm.slot.get(0);
-			// TODO: somebody should check it really is a slot
-			return new ApplyExpr(slot.location, scope.fromRoot(slot.location, "Assign"), ItemExpr.from(new ExprToken(slot.location, ExprToken.STRING, slot.text)), mm.expr);
+			Locatable slot = (Locatable) mm.slot.get(0);
+			Type slotType;
+			if (slot instanceof CardMember) {
+				CardMember cm = (CardMember) slot;
+				Type cti = tc.getType(cm.location(), cm.card);
+				if (!(cti instanceof StructDefn))
+					throw new UtilException("this should have been a struct");
+				StructDefn sd = (StructDefn) cti;
+				StructField sf = sd.findField(cm.var);
+				if (sf == null) {
+					errors.message(cm.location, "there is no card state member " + cm.var);
+					return null;
+				}
+				slotType = sf.type;
+				System.out.println(slotType);
+			} else
+				throw new UtilException("Cannot handle slots of type " + slot.getClass());
+			if (mm.slot.size() > 1) {
+				// update slotType each time
+				// build up an expression of where to assign
+				// everything has to be a struct (except the final slot)
+				throw new UtilException("Need to iterate through nested slots here");
+			}
+			if (!slotType.equals(exprType)) {
+				errors.message(slot.location(), "cannot assign " + exprType + " to slot of type " + slotType);
+				return null;
+			}
+			// TODO: how are we supposed to build an expression that is common to both "CardMember" and "something inside x"?
+			// TODO: I think we need to have two parameters for slot; one is "into" (such as "card") and the other is the name of the slot (as a StringLiteral)
+			return new ApplyExpr(slot.location(), scope.fromRoot(slot.location(), "Assign"), slot, mm.expr);
 		} else {
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr sender;
@@ -204,6 +212,35 @@ public class MethodConvertor {
 					new StringLiteral(((CardMember)target).location, ((CardMember)target).var),
 					sender.args.get(1), asList(root.location, scope, args));
 		}
+	}
+
+	protected Type calculateExprType(List<Object> margs, List<Type> types, MethodMessage mm) {
+		List<Type> mytypes = new ArrayList<Type>();
+		System.out.println("Convert method: " + mm.slot + " <- " + mm.expr);
+		List<String> args = new ArrayList<String>();
+		for (int i=0;i<margs.size();i++) {
+			Object x = margs.get(i);
+			if (x instanceof VarPattern) {
+				mytypes.add(types.get(i));
+				args.add(((VarPattern)x).var);
+			} else if (x instanceof TypedPattern) {
+				TypedPattern tx = (TypedPattern)x;
+				args.add(tx.var);
+				Type ty = tc.getType(tx.typeLocation, tx.type);
+				// we have an obligation to check that ty is a sub-type of types.get(i);
+				Type prev = types.get(i);
+				if (prev.name().equals("Any"))
+					;	// this has to be OK
+				else
+					throw new UtilException("Need to cover the case where the parent type is " + prev.name() + " and we want to restrict to " + tx.type);
+				mytypes.add(ty);
+			} else
+				throw new UtilException("Cannot map " + x.getClass());
+		}
+		Type ret = tc.checkExpr(hsie.handleExprWith(mm.expr, HSIEForm.Type.CONTRACT, args), mytypes);
+		if (ret != null)
+			System.out.println("Type for method message - " + mm.slot + " <- " + mm.expr + " :: " + ret);
+		return ret;
 	}
 
 	private static Object asList(InputPosition loc, Scope scope, List<Object> args) {

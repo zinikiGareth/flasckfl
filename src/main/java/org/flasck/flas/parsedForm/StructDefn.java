@@ -28,6 +28,13 @@ public class StructDefn extends Type implements AsString, Serializable {
 		return this;
 	}
 
+	public StructField findField(String var) {
+		for (StructField sf : fields)
+			if (sf.name.equals(var))
+				return sf;
+		return null;
+	}
+
 	public String toString() {
 		return asString();
 	}

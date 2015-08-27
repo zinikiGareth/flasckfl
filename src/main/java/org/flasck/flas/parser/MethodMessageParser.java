@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.tokenizers.MessageToken;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -14,7 +15,7 @@ public class MethodMessageParser implements TryParsing {
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		MessageToken tok = null;
-		List<LocatedToken> keys = new ArrayList<LocatedToken>();
+		List<Locatable> keys = new ArrayList<Locatable>();
 		while (line.hasMore()) {
 			// Odd tokens: first can be <- or ID, after that *must* be an identifier
 			tok = MessageToken.from(line);
