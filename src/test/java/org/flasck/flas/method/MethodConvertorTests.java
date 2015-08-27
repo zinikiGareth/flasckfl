@@ -137,7 +137,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testTheImplementedMethodMustExist() {
-		defineMethod(ce, "foo");
+		defineContractMethod(ce, "foo");
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(1, errors.count());
@@ -146,7 +146,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanHaveAMethodWithNoActions() throws Exception {
-		defineMethod(ce, "bar");
+		defineContractMethod(ce, "bar");
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -170,13 +170,13 @@ public class MethodConvertorTests {
 
 	@Test(expected=ResolutionException.class)
 	public void testTheTopLevelSlotInAnAssignmentMustBeResolvable() throws Exception {
-		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36")));
+		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36")));
 		stage2();
 	}
 
 	@Test
 	public void testWeCanOnlyAssignASlotWithTheRightType() throws Exception {
-		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new NumericLiteral(null, "36")));
+		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new NumericLiteral(null, "36")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(1, errors.count());
@@ -185,7 +185,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanAssignToACardMember() throws Exception {
-		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -209,7 +209,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAContractVar() throws Exception {
-		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "ce")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "ce")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -218,7 +218,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAServiceVar() throws Exception {
-		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "se")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "se")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -227,13 +227,13 @@ public class MethodConvertorTests {
 
 	@Test(expected=ResolutionException.class)
 	public void testWeCannotAssignToAMethod() throws Exception {
-		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "bar")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "bar")), new StringLiteral(null, "hello")));
 		stage2();
 	}
 
 	@Test
 	public void testWeCannotAssignToAFunction() throws Exception {
-		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "map")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "map")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -242,7 +242,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAFreeLambda() throws Exception {
-		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "freeArg")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "freeArg")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -251,7 +251,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotDirectlyAssignToAStructLambda() throws Exception {
-		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -260,7 +260,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAFieldOfAString() throws Exception {
-		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -269,7 +269,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanAssignToAFieldInAStructLambda() throws Exception {
-		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -280,12 +280,46 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	public void testAnEventHandlerCanAssignToAFieldInALocalStatefulVar() throws Exception {
+		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "t"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertEventHandlers(functions, rewriter.eventHandlers);
+		assertEquals(errors.singleString(), 0, errors.count());
+		assertEquals(1, functions.size());
+		HSIEForm hsieForm = CollectionUtils.any(functions.values());
+		hsieForm.dump();
+		assertEquals("RETURN v3 [v2]", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
+	}
+
+	@Test
+	public void testAnEventHandlerCannotAssignToAnUntypedVar() throws Exception {
+		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "ev"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertEventHandlers(functions, rewriter.eventHandlers);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("cannot use untyped argument as assign target: ev", errors.get(0).msg);
+	}
+
+	// TODO: I think there's another case here where we can't assign to ev just because it's the event argument and therefore transient and you can't make it not transient
+	
+	@Test
 	public void testWeCannotAssignToANonField() throws Exception {
-		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "y")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "y")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
 		assertEquals("there is no field 'y' in type Thing", errors.get(0).msg);
+	}
+
+	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
+		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
+		List<MethodCaseDefn> cases = new ArrayList<>();
+		MethodCaseDefn cs = new MethodCaseDefn(intro);
+		for (MethodMessage m : msgs)
+			cs.messages.add(m);
+		cases.add(cs);
+		MethodDefinition method = new MethodDefinition(intro, cases);
+		on.methods.add(method);
 	}
 
 	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
@@ -299,17 +333,6 @@ public class MethodConvertorTests {
 		s.define(name, intro.name, ev);
 	}
 	
-	protected void defineMethod(Implements on, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
-		List<MethodCaseDefn> cases = new ArrayList<>();
-		MethodCaseDefn cs = new MethodCaseDefn(intro);
-		for (MethodMessage m : msgs)
-			cs.messages.add(m);
-		cases.add(cs);
-		MethodDefinition method = new MethodDefinition(intro, cases);
-		on.methods.add(method);
-	}
-
 	// the other cases are where it's just <- ...
 	//   - it could be "Send"
 	//   - it could be <Action> but unknown exactly what

@@ -127,7 +127,7 @@ public class MetaState {
 			locs.add(((TemplateListVar)expr).location);
 			return expr;
 		} else if (expr instanceof LocalVar) {
-			locs.add(((LocalVar)expr).location);
+			locs.add(((LocalVar)expr).varLoc);
 			String var = ((LocalVar)expr).var;
 			if (!substs.containsKey(var))
 				throw new UtilException("How can this be a local var? " + var + " not in " + substs);

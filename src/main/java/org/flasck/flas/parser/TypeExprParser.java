@@ -3,7 +3,6 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeExprToken;
 import org.flasck.flas.typechecker.Type;

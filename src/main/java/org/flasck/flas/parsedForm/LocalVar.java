@@ -1,20 +1,30 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.typechecker.Type;
 
-public class LocalVar {
-	public final InputPosition location;
+public class LocalVar implements Locatable {
+	public final InputPosition varLoc;
 	public final String definedBy;
 	public final String var;
+	public final InputPosition typeLoc;
+	public final Type type;
 
-	public LocalVar(InputPosition location, String definedBy, String var) {
-		this.location = location;
+	public LocalVar(String definedBy, InputPosition varLoc, String var, InputPosition typeLoc, Type type) {
+		this.varLoc = varLoc;
 		this.definedBy = definedBy;
 		this.var = var;
+		this.typeLoc = typeLoc;
+		this.type = type;
 	}
 	
 	public String uniqueName() {
 		return definedBy + "." + var;
+	}
+	
+	@Override
+	public InputPosition location() {
+		return varLoc;
 	}
 	
 	@Override

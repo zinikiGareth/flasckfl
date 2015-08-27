@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodInContext;
@@ -197,6 +198,15 @@ public class MethodConvertor {
 				intoObj = hl;
 				slotName = null;
 				slotType = hl.type;
+			} else if (slot instanceof LocalVar) {
+				LocalVar lv = (LocalVar) slot;
+				if (lv.type == null) {
+					errors.message(lv.varLoc, "cannot use untyped argument as assign target: " + lv.var);
+					return null;
+				}
+				intoObj = lv;
+				slotName = null;
+				slotType = lv.type;
 			} else if (slot instanceof ExternalRef) {
 				errors.message(slot.location(), "cannot assign to non-state member: " + ((ExternalRef)slot).uniqueName());
 				return null;

@@ -2,7 +2,7 @@ package org.flasck.flas.rewriter;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -107,7 +107,7 @@ public class Rewriter {
 	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
 	public final Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>();
 
-	private abstract class NamingContext {
+	public abstract class NamingContext {
 		protected final NamingContext nested;
 		
 		public NamingContext(NamingContext inner) {
@@ -296,11 +296,11 @@ public class Rewriter {
 	 */
 	class FunctionCaseContext extends NamingContext {
 		private final String myname;
-		protected final Set<String> bound;
+		protected final Map<String, LocalVar> bound;
 		private final Scope inner;
 		private final boolean fromMethod;
 
-		FunctionCaseContext(NamingContext cx, String myname, int cs, Set<String> locals, Scope inner, boolean fromMethod) {
+		FunctionCaseContext(NamingContext cx, String myname, int cs, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
 			super(cx);
 			this.myname = myname +"_"+cs;
 			this.bound = locals;
@@ -309,8 +309,8 @@ public class Rewriter {
 		}
 
 		public Object resolve(InputPosition location, String name) {
-			if (bound.contains(name))
-				return new LocalVar(location, myname, name);
+			if (bound.containsKey(name))
+				return bound.get(name); // a local var
 			if (inner.contains(name))
 				return new AbsoluteVar(inner.getEntry(name));
 			Object res = nested.resolve(location, name);
@@ -610,7 +610,7 @@ public class Rewriter {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(), c.innerScope(), false), c));
+			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(errors, cx, f.name + "_" + cs), c.innerScope(), false), c));
 			cs++;
 		}
 //		System.out.println("rewritten to " + list.get(0).expr);
@@ -622,7 +622,7 @@ public class Rewriter {
 		List<MethodCaseDefn> list = new ArrayList<MethodCaseDefn>();
 		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(), c.innerScope(), true), c));
+			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(errors, cx, m.intro.name + "_" + cs), c.innerScope(), true), c));
 			cs++;
 		}
 		return new MethodDefinition(m.intro, list);
@@ -632,9 +632,9 @@ public class Rewriter {
 		List<EventCaseDefn> list = new ArrayList<EventCaseDefn>();
 		int cs = 0;
 		for (EventCaseDefn c : ehd.cases) {
-			Set<String> locals = new HashSet<String>();
-			ehd.intro.gatherVars(locals);
-			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name, cs, locals, c.innerScope(), false), c));
+			Map<String, LocalVar> locals = new HashMap<String, LocalVar>();
+			ehd.intro.gatherVars(errors, cx, ehd.intro.name, locals);
+			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, locals, c.innerScope(), false), c));
 			cs++;
 		}
 		return new EventHandlerDefinition(ehd.intro, list);

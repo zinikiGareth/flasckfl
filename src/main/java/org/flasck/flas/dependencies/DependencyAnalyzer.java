@@ -58,9 +58,9 @@ public class DependencyAnalyzer {
 			fdm.put(name,  fd);
 			int cs = 0;
 			for (FunctionCaseDefn c : fd.cases) {
-				for (String v : c.intro.allVars()) {
+				for (String v : c.intro.allVars(errors, null, null).keySet()) {
 					String realname = "_var_" + name+"_" + cs +"."+v;
-//					System.out.println("Ensuring local var in graph: " + realname);
+					System.out.println("Ensuring local var in graph: " + realname);
 					dcg.ensure(realname);
 					dcg.ensureLink(realname, name);
 				}
@@ -72,7 +72,7 @@ public class DependencyAnalyzer {
 		for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
 			FunctionDefinition fd = x.getValue();
 			for (FunctionCaseDefn c : fd.cases)
-				analyzeExpr(dcg, fd.name, c.intro.allVars(), c.expr);
+				analyzeExpr(dcg, fd.name, c.intro.allVars(errors, null, null).keySet(), c.expr);
 		}
 	}
 

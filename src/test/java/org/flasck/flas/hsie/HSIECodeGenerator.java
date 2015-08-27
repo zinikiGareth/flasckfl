@@ -114,7 +114,7 @@ public class HSIECodeGenerator {
 		PackageDefn pkg = new PackageDefn(null, Builtin.builtinScope(), "ME");
 		LetExpr expr = new LetExpr("_x",
 					new ApplyExpr(null, new AbsoluteVar(null, "FLEval.plus", null), new NumericLiteral(null, "2"), new NumericLiteral(null, "2")),
-					new ApplyExpr(null, new AbsoluteVar(null, "FLEval.plus", null), new LocalVar(null, "ME.f", "_x"), new LocalVar(null, "ME.f", "_x")));
+					new ApplyExpr(null, new AbsoluteVar(null, "FLEval.plus", null), new LocalVar("ME.f", null, "_x", null, null), new LocalVar("ME.f", null, "_x", null, null)));
 		FunctionCaseDefn fcd = new FunctionCaseDefn(pkg.innerScope(), null, "ME.f", new ArrayList<Object>(), expr);
 		FunctionDefinition f = new FunctionDefinition(null, Type.FUNCTION, fcd.intro, CollectionUtils.listOf(fcd));
 		HSIEForm form = new HSIE(errors).handle(f);
