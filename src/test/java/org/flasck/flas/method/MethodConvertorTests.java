@@ -13,6 +13,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
@@ -27,9 +28,6 @@ import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewriter.Rewriter.CardContext;
-import org.flasck.flas.rewriter.Rewriter.PackageContext;
-import org.flasck.flas.rewriter.Rewriter.RootContext;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -39,80 +37,84 @@ import org.zinutils.collections.CollectionUtils;
 
 public class MethodConvertorTests {
 	private Scope scope;
+	private PackageDefn org;
 	private PackageDefn pkg;
 	private Rewriter rewriter;
-	private CardContext cx;
 	private ErrorResult errors;
 	private HSIE hsie;
 	private TypeChecker tc;
 	private Map<String, ContractDecl> contracts = new HashMap<>();
 	private MethodConvertor convertor;
 	private Map<String, HSIEForm> functions = new HashMap<>(); 
-	private List<MethodInContext> methods = new ArrayList<>();
+	private ContractImplements ce;
+	private CardDefinition cd;
 
 	public MethodConvertorTests() {
-		scope = Builtin.builtinScope();
-		pkg = new PackageDefn(null, scope, "org.foo");
-		{
-			rewriter = new Rewriter(errors, null);
-			CardDefinition cd = new CardDefinition(null, pkg.innerScope(), "org.foo.Card");
-			cd.state = new StateDefinition();
-			cd.state.addField(new StructField(Type.reference(null, "String"), "str"));
-			RootContext rx = rewriter.new RootContext(scope);
-			PackageContext px = rewriter.new PackageContext(rx, pkg);
-			cx = rewriter.new CardContext(px, cd);
-			rewriter.rewrite(pkg.myEntry());
-		}
-		
 		errors = new ErrorResult();
-		hsie = new HSIE(errors);
-		tc = new TypeChecker(errors);
-		tc.populateTypes(rewriter);
-		
+		scope = Builtin.builtinScope();
+		org = new PackageDefn(null, scope, "org");
+		pkg = new PackageDefn(null, org.innerScope(), "foo");
+		Scope ps = pkg.innerScope();
 		{
 			ContractDecl contract1 = new ContractDecl(null, "org.foo.Contract1");
 			ContractMethodDecl m1 = new ContractMethodDecl("down", "bar", new ArrayList<>());
 			contract1.methods.add(m1);
 			contracts.put(contract1.name(), contract1);
+			ps.define("Contract1", contract1.name(), contract1);
 		}
 		
-		convertor = new MethodConvertor(errors, hsie, tc, contracts);
+		{
+			rewriter = new Rewriter(errors, null);
+			cd = new CardDefinition(null, ps, "org.foo.Card");
+			cd.state = new StateDefinition();
+			cd.state.addField(new StructField(Type.reference(null, "String"), "str"));
+			{
+				ce = new ContractImplements(null, "org.foo.Contract1", null, "ce");
+				cd.contracts.add(ce);
+			}
+//			RootContext rx = rewriter.new RootContext(scope);
+//			PackageContext px = rewriter.new PackageContext(rx, pkg);
+//			cx = rewriter.new CardContext(px, cd);
+		}
+		
+		hsie = new HSIE(errors);
+		tc = new TypeChecker(errors);
 	}
 	
+	public void stage2() {
+		rewriter.rewrite(pkg.myEntry());
+		tc.populateTypes(rewriter);
+		convertor = new MethodConvertor(errors, hsie, tc, contracts);
+	}
+
 	@Test
 	public void testWeCanConvertNothingToNothing() {
-		convertor.convertContractMethods(functions, methods);
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
 	}
 
 	@Test
 	public void testTheImplementedContractMustExist() {
-		MethodDefinition method = null;
-		MethodInContext mic = new MethodInContext(scope, null, "NoContract", "org.foo.Card._C0.foo", HSIEForm.Type.CONTRACT, method);
-		methods.add(mic);
-		convertor.convertContractMethods(functions, methods);
+		cd.contracts.add(new ContractImplements(null, "NoContract", null, "cf"));
+		stage2();
 		assertEquals(1, errors.count());
-		assertEquals("cannot find contract NoContract", errors.get(0).msg);
+		assertEquals("could not resolve name NoContract", errors.get(0).msg);
 	}
 
 	@Test
 	public void testTheImplementedMethodMustExist() {
-		MethodDefinition method = null;
-		MethodInContext mic = new MethodInContext(scope, null, "org.foo.Contract1", "org.foo.Card._C0.foo", HSIEForm.Type.CONTRACT, method);
-		methods.add(mic);
-		convertor.convertContractMethods(functions, methods);
+		defineMethod(ce, "foo");
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(1, errors.count());
 		assertEquals("cannot find method foo in org.foo.Contract1", errors.get(0).msg);
 	}
 
 	@Test
 	public void testWeCanHaveAMethodWithNoActions() throws Exception {
-		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0.bar", new ArrayList<>());
-		List<MethodCaseDefn> cases = new ArrayList<>();
-		cases.add(new MethodCaseDefn(intro));
-		MethodDefinition method = new MethodDefinition(intro, cases);
-		MethodInContext mic = new MethodInContext(scope, null, "org.foo.Contract1", "org.foo.Card._C0.bar", HSIEForm.Type.CONTRACT, method);
-		methods.add(mic);
-		convertor.convertContractMethods(functions, methods);
+		defineMethod(ce, "bar");
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
@@ -122,36 +124,49 @@ public class MethodConvertorTests {
 
 	@Test(expected=ResolutionException.class)
 	public void testTheTopLevelSlotInAnAssignmentMustBeResolvable() throws Exception {
-		MethodMessage msg1 = new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36"));
-		rewriter.rewrite(cx, msg1);
+		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36")));
+		stage2();
 	}
 
 	@Test
 	public void testWeCanOnlyAssignASlotWithTheRightType() throws Exception {
-		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0.bar", new ArrayList<>());
-		List<MethodCaseDefn> cases = new ArrayList<>();
-		MethodCaseDefn cs = new MethodCaseDefn(intro);
-		MethodMessage msg1 = new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new NumericLiteral(null, "36"));
-		cs.messages.add(rewriter.rewrite(cx, msg1));
-		cases.add(cs);
-		MethodDefinition method = new MethodDefinition(intro, cases);
-		MethodInContext mic = new MethodInContext(scope, null, "org.foo.Contract1", "org.foo.Card._C0.bar", HSIEForm.Type.CONTRACT, method);
-		methods.add(mic);
-		convertor.convertContractMethods(functions, methods);
+		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new NumericLiteral(null, "36")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(1, errors.count());
 		assertEquals("cannot assign Number to slot of type String", errors.get(0).msg);
 	}
 
+	@Test
+	public void testWeCanAssignToACardMember() throws Exception {
+		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertFalse(errors.singleString(), errors.hasErrors());
+		assertEquals(1, functions.size());
+		HSIEForm hsieForm = CollectionUtils.any(functions.values());
+		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
+		hsieForm.dump();
+	}
+
+	protected void defineMethod(ContractImplements on, String name, MethodMessage... msgs) {
+		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
+		List<MethodCaseDefn> cases = new ArrayList<>();
+		MethodCaseDefn cs = new MethodCaseDefn(intro);
+		for (MethodMessage m : msgs)
+			cs.messages.add(m);
+		cases.add(cs);
+		MethodDefinition method = new MethodDefinition(intro, cases);
+		on.methods.add(method);
+	}
+
 	// TODO 2: divide this up into multiple cases some of which should pass and some should fail
-	//   - the var cannot be found
-	//   - the var is a parameter
-	//   - (DENY explicit stateful keyword) the var is a parameter specifically marked with "stateful" (and all that that implies, which probably needs picking up in some other set of tests)
-	//   - the var is a state member
+	//   - the var is a parameter or HL and CAN be assigned
+	//   - the var is a parameter or HL and CANNOT be assigned
 	//   - the var is a contract var
 	//   - the var is a function name
-	//   - the var is of the wrong type
+	//   - we can traverse a list of nested slots
 	
-	// Then comes the issue of having multiple things with dots between them
 	// the other cases are where it's just <- ...
 	//   - it could be "Send"
 	//   - it could be <Action> but unknown exactly what
@@ -164,24 +179,4 @@ public class MethodConvertorTests {
 	//  - handler
 	//  - event
 	//  - standalone
-	@Test
-	public void testWeCanConvertASimpleAssignment() throws Exception {
-		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0.bar", new ArrayList<>());
-		List<MethodCaseDefn> cases = new ArrayList<>();
-		MethodCaseDefn cs = new MethodCaseDefn(intro);
-		MethodMessage msg1 = new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello"));
-
-		cs.messages.add(rewriter.rewrite(cx, msg1));
-		cases.add(cs);
-		MethodDefinition method = new MethodDefinition(intro, cases);
-		MethodInContext mic = new MethodInContext(scope, null, "org.foo.Contract1", "org.foo.Card._C0.bar", HSIEForm.Type.CONTRACT, method);
-		methods.add(mic);
-		convertor.convertContractMethods(functions, methods);
-		assertFalse(errors.singleString(), errors.hasErrors());
-		assertEquals(1, functions.size());
-		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
-		hsieForm.dump();
-	}
-
 }

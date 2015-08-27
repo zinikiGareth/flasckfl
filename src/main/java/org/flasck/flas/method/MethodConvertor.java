@@ -166,7 +166,6 @@ public class MethodConvertor {
 					return null;
 				}
 				slotType = sf.type;
-				System.out.println(slotType);
 			} else
 				throw new UtilException("Cannot handle slots of type " + slot.getClass());
 			if (mm.slot.size() > 1) {

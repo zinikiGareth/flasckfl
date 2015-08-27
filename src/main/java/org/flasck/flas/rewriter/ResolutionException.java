@@ -8,7 +8,7 @@ public class ResolutionException extends RuntimeException {
 	public final InputPosition location;
 
 	public ResolutionException(InputPosition location, String name) {
-		super("Could not resolve name " + name);
+		super("could not resolve name " + name);
 		this.location = location;
 		this.name = name;
 	}

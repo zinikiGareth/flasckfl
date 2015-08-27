@@ -81,7 +81,7 @@ public class HSIECodeGenerator {
 		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		errors.showTo(new PrintWriter(System.out), 0);
-		assertEquals(0, errors.count());
+		assertEquals(errors.singleString(), 0, errors.count());
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.f"));
 		assertNotNull(form);
@@ -102,7 +102,7 @@ public class HSIECodeGenerator {
 		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		errors.showTo(new PrintWriter(System.out), 0);
-		assertEquals(0, errors.count());
+		assertEquals(errors.singleString(), 0, errors.count());
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.g"));
 		assertNotNull(form);

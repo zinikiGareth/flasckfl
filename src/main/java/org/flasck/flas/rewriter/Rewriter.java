@@ -153,7 +153,8 @@ public class Rewriter {
 				if (tmp.contains(".")) { // we don't yet have the scope
 					idx = name.lastIndexOf(".");
 					String pkgName = name.substring(0, idx);
-					scope = pkgFinder.loadFlim(biscope, pkgName);
+					if (pkgFinder != null)
+						scope = pkgFinder.loadFlim(biscope, pkgName);
 					if (scope == null)
 						throw new ResolutionException(location, name);
 					tmp = name.substring(idx+1);
@@ -175,7 +176,7 @@ public class Rewriter {
 	public class PackageContext extends NamingContext {
 		private PackageDefn pkg;
 
-		public PackageContext(RootContext cx, PackageDefn pkg) {
+		public PackageContext(NamingContext cx, PackageDefn pkg) {
 			super(cx);
 			this.pkg = pkg;
 		}
@@ -327,14 +328,24 @@ public class Rewriter {
 	
 	public void rewrite(ScopeEntry pkgEntry) {
 		PackageDefn pkg = (PackageDefn) pkgEntry.getValue();
-		rewriteScope(new PackageContext(new RootContext(pkgEntry.scope()), pkg), pkg.innerScope());
+		rewriteScope(figureBaseContext(pkgEntry), pkg.innerScope());
+	}
+	
+	public NamingContext figureBaseContext(ScopeEntry pkgEntry) {
+		PackageDefn pkg = (PackageDefn) pkgEntry.getValue();
+		Scope s = pkgEntry.scope();
+		if (s.outerEntry == null)
+			return new PackageContext(new RootContext(s), pkg);
+		return new PackageContext(figureBaseContext(s.outerEntry), pkg);
 	}
 
 	protected void rewriteScope(NamingContext cx, Scope from) {
 		for (Entry<String, ScopeEntry> x : from) {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
-			if (val instanceof CardDefinition)
+			if (val instanceof PackageDefn)
+				rewriteScope(cx, ((PackageDefn)val).innerScope());
+			else if (val instanceof CardDefinition)
 				rewriteCard(cx, (CardDefinition)val);
 			else if (val instanceof FunctionDefinition)
 				functions.put(name, rewrite(cx, (FunctionDefinition)val));
