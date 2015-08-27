@@ -214,7 +214,7 @@ public class Rewriter {
 					members.add(ci.referAsVar);
 			}
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(State.simpleName(hi.name), new ObjectReference(hi.typeLocation, prefix, hi.name));
+				statics.put(State.simpleName(hi.name), new ObjectReference(hi.location(), prefix, hi.name));
 			}
 		}
 
@@ -371,7 +371,7 @@ public class Rewriter {
 		cards.put(cd.name, grp);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
-				sd.fields.add(new StructField(rewrite(cx, sf.type), sf.name, rewriteExpr(cx, sf.init)));
+				sd.addField(new StructField(rewrite(cx, sf.type), sf.name, rewriteExpr(cx, sf.init)));
 				grp.inits.put(sf.name, rewriteExpr(cx, sf.init));
 			}
 		}
@@ -382,14 +382,14 @@ public class Rewriter {
 			if (rw == null)
 				continue;
 			String myname = cd.name +"._C" + pos;
-			grp.contracts.add(new ContractGrouping(rw.type, myname, rw.referAsVar));
+			grp.contracts.add(new ContractGrouping(rw.name(), myname, rw.referAsVar));
 			cardImplements.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new StructField(rewrite(cx, Type.reference(rw.typeLocation, rw.type)), rw.referAsVar));
+				sd.addField(new StructField(rw, rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods) {
 				MethodDefinition rwm = rewrite(c2, m);
-				methods.add(new MethodInContext(cd.innerScope(), ci.typeLocation, ci.type, m.intro.name, HSIEForm.Type.CONTRACT, rwm));
+				methods.add(new MethodInContext(cd.innerScope(), ci.location(), ci.name(), m.intro.name, HSIEForm.Type.CONTRACT, rwm));
 				rw.methods.add(rwm);
 			}
 			
@@ -400,13 +400,13 @@ public class Rewriter {
 		for (ContractService cs : cd.services) {
 			ContractService rw = rewriteCS(c2, cs);
 			String myname = cd.name +"._S" + pos;
-			grp.services.add(new ServiceGrouping(rw.type, myname, rw.referAsVar));
+			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
 			cardServices.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new StructField(rewrite(cx, Type.reference(rw.typeLocation, rw.type)), rw.referAsVar));
+				sd.fields.add(new StructField(rw, rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
-				methods.add(new MethodInContext(cd.innerScope(), null, cs.type, m.intro.name, HSIEForm.Type.SERVICE, rewrite(c2, m)));
+				methods.add(new MethodInContext(cd.innerScope(), null, cs.name(), m.intro.name, HSIEForm.Type.SERVICE, rewrite(c2, m)));
 
 			pos++;
 		}
@@ -426,16 +426,16 @@ public class Rewriter {
 			// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
 			for (int i=0;i<rw.boundVars.size();i++)
 				args.add(Type.polyvar(null, "A"+i));
-			StructDefn hsd = new StructDefn(hi.typeLocation, hiName, false, args);
+			StructDefn hsd = new StructDefn(hi.location(), hiName, false, args);
 			int j=0;
 			for (String s : hi.boundVars) {
-				hsd.fields.add(new StructField(Type.polyvar(rw.typeLocation, "A"+j), s));
+				hsd.fields.add(new StructField(Type.polyvar(rw.location(), "A"+j), s));
 				j++;
 			}
 			structs.put(hiName, hsd);
 			HandlerContext hc = new HandlerContext(c2, hi);
 			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(cd.innerScope(), null, hi.type, m.intro.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
+				methods.add(new MethodInContext(cd.innerScope(), null, hi.name(), m.intro.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
 			
 			grp.handlers.add(new HandlerGrouping(cd.name + "." + rw.name));
 		}
@@ -544,12 +544,12 @@ public class Rewriter {
 
 	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
 		try {
-			Object av = cx.nested.resolve(ci.typeLocation, ci.type);
+			Object av = cx.nested.resolve(ci.location(), ci.name());
 			if (av == null || !(av instanceof AbsoluteVar)) {
-				errors.message((Block)null, "cannot find a valid definition of contract " + ci.type);
+				errors.message((Block)null, "cannot find a valid definition of contract " + ci.name());
 				return ci;
 			}
-			return new ContractImplements(ci.typeLocation, ((AbsoluteVar)av).id, ci.varLocation, ci.referAsVar);
+			return new ContractImplements(ci.location(), ((AbsoluteVar)av).id, ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -558,12 +558,12 @@ public class Rewriter {
 
 	private ContractService rewriteCS(CardContext cx, ContractService cs) {
 		try {
-			Object av = cx.nested.resolve(cs.typeLocation, cs.type);
+			Object av = cx.nested.resolve(cs.location(), cs.name());
 			if (av == null || !(av instanceof AbsoluteVar)) {
-				errors.message((Block)null, "cannot find a valid definition of contract " + cs.type);
+				errors.message((Block)null, "cannot find a valid definition of contract " + cs.name());
 				return cs;
 			}
-			return new ContractService(cs.typeLocation, ((AbsoluteVar)av).id, cs.vlocation, cs.referAsVar);
+			return new ContractService(cs.location(), ((AbsoluteVar)av).id, cs.vlocation, cs.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -572,12 +572,12 @@ public class Rewriter {
 
 	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi, int cs) {
 		try {
-			Object av = cx.nested.resolve(hi.typeLocation, hi.type);
+			Object av = cx.nested.resolve(hi.location(), hi.name());
 			if (av == null || !(av instanceof AbsoluteVar)) {
-				errors.message((Block)null, "cannot find a valid definition of contract " + hi.type);
+				errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
 				return hi;
 			}
-			HandlerImplements ret = new HandlerImplements(hi.typeLocation, hi.name, ((AbsoluteVar)av).id, hi.boundVars);
+			HandlerImplements ret = new HandlerImplements(hi.location(), hi.name, ((AbsoluteVar)av).id, hi.boundVars);
 			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());

@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.typechecker.Type;
 
-public class Implements {
-	public final InputPosition typeLocation;
-	public final String type;
+@SuppressWarnings("serial")
+public class Implements extends Type {
 	public final List<MethodDefinition> methods = new ArrayList<MethodDefinition>();
 
-	public Implements(InputPosition location, String type) {
-		this.typeLocation = location;
-		this.type = type;
+	public Implements(InputPosition location, WhatAmI iam, String type) {
+		super(location, iam, type, null);
 	}
 
 	public void addMethod(MethodDefinition meth) {
@@ -21,6 +20,6 @@ public class Implements {
 	
 	@Override
 	public String toString() {
-		return type;
+		return name();
 	}
 }

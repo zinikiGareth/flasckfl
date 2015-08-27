@@ -15,10 +15,10 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
@@ -46,8 +46,9 @@ public class MethodConvertorTests {
 	private Map<String, ContractDecl> contracts = new HashMap<>();
 	private MethodConvertor convertor;
 	private Map<String, HSIEForm> functions = new HashMap<>(); 
-	private ContractImplements ce;
 	private CardDefinition cd;
+	private ContractImplements ce;
+	private ContractService se;
 
 	public MethodConvertorTests() {
 		errors = new ErrorResult();
@@ -62,6 +63,13 @@ public class MethodConvertorTests {
 			contracts.put(contract1.name(), contract1);
 			ps.define("Contract1", contract1.name(), contract1);
 		}
+		{
+			ContractDecl service1 = new ContractDecl(null, "org.foo.Service1");
+			ContractMethodDecl m1 = new ContractMethodDecl("up", "request", new ArrayList<>());
+			service1.methods.add(m1);
+			contracts.put(service1.name(), service1);
+			ps.define("Service1", service1.name(), service1);
+		}
 		
 		{
 			rewriter = new Rewriter(errors, null);
@@ -72,9 +80,10 @@ public class MethodConvertorTests {
 				ce = new ContractImplements(null, "org.foo.Contract1", null, "ce");
 				cd.contracts.add(ce);
 			}
-//			RootContext rx = rewriter.new RootContext(scope);
-//			PackageContext px = rewriter.new PackageContext(rx, pkg);
-//			cx = rewriter.new CardContext(px, cd);
+			{
+				se = new ContractService(null, "org.foo.Service1", null, "se");
+				cd.services.add(se);
+			}
 		}
 		
 		hsie = new HSIE(errors);
@@ -147,6 +156,24 @@ public class MethodConvertorTests {
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
 		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
 		hsieForm.dump();
+	}
+
+	@Test
+	public void testWeCannotAssignToAContractVar() throws Exception {
+		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "ce")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("cannot assign to a contract var: ce", errors.get(0).msg);
+	}
+
+	@Test
+	public void testWeCannotAssignToAServiceVar() throws Exception {
+		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "se")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("cannot assign to a service var: se", errors.get(0).msg);
 	}
 
 	protected void defineMethod(ContractImplements on, String name, MethodMessage... msgs) {

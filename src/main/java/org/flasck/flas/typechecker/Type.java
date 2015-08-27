@@ -15,7 +15,7 @@ import org.zinutils.exceptions.UtilException;
 @SuppressWarnings("serial")
 public class Type implements Serializable, Locatable {
 	private final InputPosition location;
-	public enum WhatAmI { REFERENCE, BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT };
+	public enum WhatAmI { REFERENCE, BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS };
 	public final WhatAmI iam;
 	private final String name;
 	private final Type type;
@@ -65,7 +65,8 @@ public class Type implements Serializable, Locatable {
 	public String name() {
 		if (iam == WhatAmI.INSTANCE)
 			return type.name;
-		else if (iam == WhatAmI.REFERENCE || iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT || iam == WhatAmI.CONTRACT)
+		else if (iam == WhatAmI.REFERENCE || iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
+				 iam == WhatAmI.CONTRACT || iam == WhatAmI.CONTRACTIMPL || iam == WhatAmI.CONTRACTSERVICE || iam == WhatAmI.HANDLERIMPLEMENTS)
 			return name;
 		else
 			throw new UtilException("Cannot ask for the name of a " + iam);

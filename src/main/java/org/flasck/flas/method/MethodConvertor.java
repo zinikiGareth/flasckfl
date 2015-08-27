@@ -11,7 +11,9 @@ import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.EventHandlerInContext;
@@ -163,6 +165,14 @@ public class MethodConvertor {
 				StructField sf = sd.findField(cm.var);
 				if (sf == null) {
 					errors.message(cm.location, "there is no card state member " + cm.var);
+					return null;
+				}
+				if (sf.type instanceof ContractImplements) {
+					errors.message(cm.location, "cannot assign to a contract var: " + cm.var);
+					return null;
+				}
+				if (sf.type instanceof ContractService) {
+					errors.message(cm.location, "cannot assign to a service var: " + cm.var);
 					return null;
 				}
 				slotType = sf.type;

@@ -208,7 +208,7 @@ public class Compiler {
 					ContractImplements ci = rewriter.cardImplements.get(ctr.implName);
 					if (ci == null)
 						throw new UtilException("How did this happen?");
-					ContractDecl cd = rewriter.contracts.get(ci.type);
+					ContractDecl cd = rewriter.contracts.get(ci.name());
 					if (cd == null)
 						throw new UtilException("How did this happen?");
 					Set<ContractMethodDecl> requireds = new TreeSet<ContractMethodDecl>(); 
@@ -232,7 +232,7 @@ public class Compiler {
 					}
 					if (!requireds.isEmpty()) {
 						for (ContractMethodDecl d : requireds)
-							errors.message(ci.typeLocation, ci.type + " does not implement " + d);
+							errors.message(ci.location(), ci.name() + " does not implement " + d);
 					}
 				}
 			}
