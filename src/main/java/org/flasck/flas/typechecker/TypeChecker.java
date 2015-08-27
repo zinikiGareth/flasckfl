@@ -312,6 +312,7 @@ public class TypeChecker {
 
 	Object checkHSIE(TypeState s, HSIEForm hsie) {
 		logger.info("Checking " + hsie.fnName + " with " + hsie.nformal + " args");
+//		hsie.dump();
 		// what we need to do is to apply tcExpr to the right hand side with the new gamma
 		Object rhs = checkBlock(new SFTypes(null), s, hsie, hsie);
 		if (rhs == null)

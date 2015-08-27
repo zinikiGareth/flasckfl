@@ -176,6 +176,21 @@ public class MethodConvertorTests {
 		assertEquals("cannot assign to a service var: se", errors.get(0).msg);
 	}
 
+	@Test(expected=ResolutionException.class)
+	public void testWeCannotAssignToAMethod() throws Exception {
+		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "bar")), new StringLiteral(null, "hello")));
+		stage2();
+	}
+
+	@Test
+	public void testWeCannotAssignToAFunction() throws Exception {
+		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "map")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("cannot assign to non-state member: map", errors.get(0).msg);
+	}
+
 	protected void defineMethod(ContractImplements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
 		List<MethodCaseDefn> cases = new ArrayList<>();
@@ -190,8 +205,6 @@ public class MethodConvertorTests {
 	// TODO 2: divide this up into multiple cases some of which should pass and some should fail
 	//   - the var is a parameter or HL and CAN be assigned
 	//   - the var is a parameter or HL and CANNOT be assigned
-	//   - the var is a contract var
-	//   - the var is a function name
 	//   - we can traverse a list of nested slots
 	
 	// the other cases are where it's just <- ...

@@ -17,6 +17,7 @@ import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.EventHandlerInContext;
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Locatable;
@@ -176,8 +177,12 @@ public class MethodConvertor {
 					return null;
 				}
 				slotType = sf.type;
-			} else
+			} else if (slot instanceof ExternalRef) {
+				errors.message(slot.location(), "cannot assign to non-state member: " + ((ExternalRef)slot).uniqueName());
+				return null;
+			} else {
 				throw new UtilException("Cannot handle slots of type " + slot.getClass());
+			}
 			if (mm.slot.size() > 1) {
 				// update slotType each time
 				// build up an expression of where to assign
