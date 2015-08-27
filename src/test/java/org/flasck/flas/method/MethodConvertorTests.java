@@ -16,6 +16,8 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
@@ -41,9 +43,9 @@ import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
 public class MethodConvertorTests {
-	private Scope scope;
 	private PackageDefn org;
 	private PackageDefn pkg;
+	private Scope orgFooScope;
 	private Rewriter rewriter;
 	private ErrorResult errors;
 	private HSIE hsie;
@@ -58,40 +60,40 @@ public class MethodConvertorTests {
 
 	public MethodConvertorTests() {
 		errors = new ErrorResult();
-		scope = Builtin.builtinScope();
-		org = new PackageDefn(null, scope, "org");
+		Scope biscope = Builtin.builtinScope();
+		org = new PackageDefn(null, biscope, "org");
 		pkg = new PackageDefn(null, org.innerScope(), "foo");
-		Scope ps = pkg.innerScope();
+		orgFooScope = pkg.innerScope();
 		{
 			ContractDecl contract1 = new ContractDecl(null, "org.foo.Contract1");
 			ContractMethodDecl m1 = new ContractMethodDecl("down", "bar", new ArrayList<>());
 			contract1.methods.add(m1);
 			contracts.put(contract1.name(), contract1);
-			ps.define("Contract1", contract1.name(), contract1);
+			orgFooScope.define("Contract1", contract1.name(), contract1);
 		}
 		{
 			ContractDecl service1 = new ContractDecl(null, "org.foo.Service1");
 			ContractMethodDecl m1 = new ContractMethodDecl("up", "request", new ArrayList<>());
 			service1.methods.add(m1);
 			contracts.put(service1.name(), service1);
-			ps.define("Service1", service1.name(), service1);
+			orgFooScope.define("Service1", service1.name(), service1);
 		}
 		{
 			ContractDecl handler1 = new ContractDecl(null, "org.foo.Handler1");
 			ContractMethodDecl m1 = new ContractMethodDecl("down", "handle", new ArrayList<>());
 			handler1.methods.add(m1);
 			contracts.put(handler1.name(), handler1);
-			ps.define("Handler1", handler1.name(), handler1);
+			orgFooScope.define("Handler1", handler1.name(), handler1);
 		}
 		{
 			StructDefn struct = new StructDefn(null, "Thing", true);
 			struct.addField(new StructField(Type.reference(null, "String"), "x"));
-			ps.define("Thing", struct.name(), struct);
+			orgFooScope.define("Thing", struct.name(), struct);
 		}
 		
 		{
 			rewriter = new Rewriter(errors, null);
-			cd = new CardDefinition(null, ps, "org.foo.Card");
+			cd = new CardDefinition(null, orgFooScope, "org.foo.Card");
 			cd.state = new StateDefinition();
 			cd.state.addField(new StructField(Type.reference(null, "String"), "str"));
 			{
@@ -110,6 +112,7 @@ public class MethodConvertorTests {
 		
 		hsie = new HSIE(errors);
 		tc = new TypeChecker(errors);
+		tc.addExternal("Any", (Type) biscope.get("Any"));
 	}
 	
 	public void stage2() {
@@ -153,6 +156,18 @@ public class MethodConvertorTests {
 		hsieForm.dump();
 	}
 
+	@Test
+	public void testWeCanHaveAnEventHandlerWithNoActions() throws Exception {
+		defineEHMethod(orgFooScope, "bar");
+		stage2();
+		convertor.convertEventHandlers(functions, rewriter.eventHandlers);
+		assertFalse(errors.singleString(), errors.hasErrors());
+		assertEquals(1, functions.size());
+		HSIEForm hsieForm = CollectionUtils.any(functions.values());
+		hsieForm.dump();
+		assertEquals("RETURN Nil", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
+	}
+
 	@Test(expected=ResolutionException.class)
 	public void testTheTopLevelSlotInAnAssignmentMustBeResolvable() throws Exception {
 		defineMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36")));
@@ -178,6 +193,18 @@ public class MethodConvertorTests {
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
 		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
 		hsieForm.dump();
+	}
+
+	@Test
+	public void testAnEventHandlerCanAssignToACardMember() throws Exception {
+		defineEHMethod(cd.innerScope(), "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertEventHandlers(functions, rewriter.eventHandlers);
+		assertFalse(errors.singleString(), errors.hasErrors());
+		assertEquals(1, functions.size());
+		HSIEForm hsieForm = CollectionUtils.any(functions.values());
+		hsieForm.dump();
+		assertEquals("RETURN v3 [v2]", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
 	}
 
 	@Test
@@ -261,6 +288,17 @@ public class MethodConvertorTests {
 		assertEquals("there is no field 'y' in type Thing", errors.get(0).msg);
 	}
 
+	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
+		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card." + name, CollectionUtils.listOf((Object)new TypedPattern(null, "Thing", null, "t"), (Object)new VarPattern(null, "ev")));
+		List<EventCaseDefn> cases = new ArrayList<>();
+		EventCaseDefn cs = new EventCaseDefn(intro);
+		for (MethodMessage m : msgs)
+			cs.messages.add(m);
+		cases.add(cs);
+		EventHandlerDefinition ev = new EventHandlerDefinition(intro, cases);
+		s.define(name, intro.name, ev);
+	}
+	
 	protected void defineMethod(Implements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
 		List<MethodCaseDefn> cases = new ArrayList<>();
@@ -272,11 +310,6 @@ public class MethodConvertorTests {
 		on.methods.add(method);
 	}
 
-	// TODO 2: divide this up into multiple cases some of which should pass and some should fail
-	//   - the var is a parameter or HL and CAN be assigned
-	//   - the var is a parameter or HL and CANNOT be assigned
-	//   - we can traverse a list of nested slots
-	
 	// the other cases are where it's just <- ...
 	//   - it could be "Send"
 	//   - it could be <Action> but unknown exactly what

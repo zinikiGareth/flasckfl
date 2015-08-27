@@ -35,6 +35,7 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
+import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
 
@@ -57,7 +58,7 @@ public class MethodConvertor {
 			addFunction(functions, convertMIC(m));
 	}
 
-	public void convertEvents(Map<String, HSIEForm> functions, List<EventHandlerInContext> eventHandlers) {
+	public void convertEventHandlers(Map<String, HSIEForm> functions, List<EventHandlerInContext> eventHandlers) {
 		for (EventHandlerInContext x : eventHandlers)
 			addFunction(functions, convertEventHandler(x.scope, x.name, x.handler));
 	}
@@ -94,6 +95,9 @@ public class MethodConvertor {
 		for (@SuppressWarnings("unused") Object o : eh.intro.args) {
 			types.add(tc.getType(null, "Any"));
 		}
+		if (eh.cases.isEmpty())
+			throw new UtilException("Method without any cases - valid or not valid?");
+
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		for (EventCaseDefn c : eh.cases) {
 			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, convertMessagesToActionList(eh.intro.location, scope, eh.intro.args, types, c.messages)));
@@ -283,8 +287,14 @@ public class MethodConvertor {
 				throw new UtilException("Cannot map " + x.getClass());
 		}
 		Type ret = tc.checkExpr(hsie.handleExprWith(mm.expr, HSIEForm.Type.CONTRACT, args), mytypes);
-		if (ret != null)
+		if (ret != null) {
+			if (!margs.isEmpty()) {
+				if (ret.iam != WhatAmI.FUNCTION)
+					throw new UtilException("Should be function, but isn't");
+				ret = ret.arg(margs.size());
+			}
 			System.out.println("Type for method message - " + mm.slot + " <- " + mm.expr + " :: " + ret);
+		}
 		return ret;
 	}
 
