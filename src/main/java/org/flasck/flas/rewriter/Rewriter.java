@@ -625,7 +625,7 @@ public class Rewriter {
 			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(errors, cx, m.intro.name + "_" + cs), c.innerScope(), true), c));
 			cs++;
 		}
-		return new MethodDefinition(m.intro, list);
+		return new MethodDefinition(rewrite(cx, m.intro), list);
 	}
 
 	private EventHandlerDefinition rewrite(NamingContext cx, EventHandlerDefinition ehd) {
@@ -637,7 +637,7 @@ public class Rewriter {
 			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, locals, c.innerScope(), false), c));
 			cs++;
 		}
-		return new EventHandlerDefinition(ehd.intro, list);
+		return new EventHandlerDefinition(rewrite(cx, ehd.intro), list);
 	}
 
 	private StructDefn rewrite(NamingContext cx, StructDefn sd) {
@@ -687,7 +687,7 @@ public class Rewriter {
 			try {
 				Object type = scope.resolve(tp.typeLocation, tp.type);
 				if (!(type instanceof AbsoluteVar))
-					errors.message((Block)null, "could not handle " + type);
+					errors.message(tp.typeLocation, "could not handle " + type);
 				return new TypedPattern(tp.typeLocation, ((AbsoluteVar)type).id, tp.varLocation, tp.var);
 			} catch (ResolutionException ex) {
 				errors.message(tp.typeLocation, "no such type: " + ex.name);

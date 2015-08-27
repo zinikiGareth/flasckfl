@@ -1,8 +1,8 @@
 	card MyQueues
 		
 		state
-			Croset queues <- Croset []
-			Croset items <- Croset []
+			Croset[Queue] queues <- Croset []
+			Croset[Task] items <- Croset []
 			String selectedQueue
 			String selectedItem
 			

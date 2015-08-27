@@ -164,6 +164,7 @@ public class Type implements Serializable, Locatable {
 //		}
 		case BUILTIN:
 		case CONTRACT:
+		case CONTRACTIMPL:
 		{
 			return new TypeExpr(from, this);
 		}

@@ -4,7 +4,14 @@
 	contract Init
 		down update (Any obj)
 		
+	
+	contract Credentials
+	
 	contract KeyValue
 
 	contract KVUpdate
 		down update (Any obj)
+		
+	contract Query
+	
+	contract QueryHandler

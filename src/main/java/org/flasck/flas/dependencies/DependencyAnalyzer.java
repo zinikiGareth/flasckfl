@@ -60,7 +60,7 @@ public class DependencyAnalyzer {
 			for (FunctionCaseDefn c : fd.cases) {
 				for (String v : c.intro.allVars(errors, null, null).keySet()) {
 					String realname = "_var_" + name+"_" + cs +"."+v;
-					System.out.println("Ensuring local var in graph: " + realname);
+//					System.out.println("Ensuring local var in graph: " + realname);
 					dcg.ensure(realname);
 					dcg.ensureLink(realname, name);
 				}

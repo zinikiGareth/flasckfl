@@ -46,10 +46,11 @@ public class ApplyCurry {
 				if (pc.fn.uniqueName().equals("FLEval.field"))
 					continue;
 				Type t = tc.getTypeAsCtor(pc.fn.uniqueName());
-				if (t.arity() != c.nestedCommands().size()-1) {
+				if (t.arity() > c.nestedCommands().size()-1) {
 					c.pushAt(pc.location, 0, new AbsoluteVar(null, "FLEval.curry", null));
 					c.pushAt(pc.location, 2, t.arity());
-				}
+				} else if (t.arity() < c.nestedCommands().size()-1)
+					throw new UtilException("Have too many arguments for the function " + pc.fn + " - error or need to replace f x y with (f x) y?");
 			} else if (pc.var != null) { // the closure case, q.v.
 				 
 			} else {

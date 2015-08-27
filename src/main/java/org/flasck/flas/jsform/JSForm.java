@@ -336,6 +336,11 @@ public class JSForm {
 				throw new UtilException("Invalid function name: " + c.func.name);
 			else
 				sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
+		} else if (c.csr != null) {
+			if (c.csr.fromHandler)
+				sb.append("this._card");
+			else
+				sb.append("this");
 		} else
 			throw new UtilException("What are you pushing? " + c);
 	}

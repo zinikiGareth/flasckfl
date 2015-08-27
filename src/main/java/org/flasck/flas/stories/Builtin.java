@@ -107,7 +107,8 @@ public class Builtin {
 			message.addCase(assign);
 			message.addCase(send);
 			message.addCase(crCard);
-			assign.addField(new StructField(string, "slot")); // I have doubts about this; should it not also have "object" - null would be the main state, but we need the option to have multiple things on the left
+			assign.addField(new StructField(any, "into"));
+			assign.addField(new StructField(string, "slot"));
 			assign.addField(new StructField(varA, "value"));
 				
 			send.addField(new StructField(any, "dest"));
