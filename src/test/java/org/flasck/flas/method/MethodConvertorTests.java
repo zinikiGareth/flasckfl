@@ -214,12 +214,51 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	public void testWeCannotAssignToAFreeLambda() throws Exception {
+		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "freeArg")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("cannot assign to untyped handler lambda: freeArg", errors.get(0).msg);
+	}
+
+	@Test
 	public void testWeCannotDirectlyAssignToAStructLambda() throws Exception {
 		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg")), new StringLiteral(null, "hello")));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
-		assertEquals("cannot assign String to slot of type Thing", errors.get(0).msg);
+		assertEquals("cannot assign directly to an object", errors.get(0).msg);
+	}
+
+	@Test
+	public void testWeCannotAssignToAFieldOfAString() throws Exception {
+		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("cannot extract member of a non-struct: x", errors.get(0).msg);
+	}
+
+	@Test
+	public void testWeCanAssignToAFieldInAStructLambda() throws Exception {
+		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 0, errors.count());
+		assertEquals(1, functions.size());
+		HSIEForm hsieForm = CollectionUtils.any(functions.values());
+		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
+		hsieForm.dump();
+	}
+
+	@Test
+	public void testWeCannotAssignToANonField() throws Exception {
+		defineMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "y")), new StringLiteral(null, "hello")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("there is no field 'y' in type Thing", errors.get(0).msg);
 	}
 
 	protected void defineMethod(Implements on, String name, MethodMessage... msgs) {

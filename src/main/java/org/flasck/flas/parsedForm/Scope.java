@@ -146,7 +146,7 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 			return outer.fromRoot(location, name);
 		int idx = name.indexOf('.');
 		Scope scope = this;
-		if (idx != -1) {
+		if (idx > 0) {
 			PackageDefn pd = (PackageDefn) this.get(name.substring(0, idx));
 			if (pd == null)
 				throw new UtilException("There is no package " + name.substring(0, idx));

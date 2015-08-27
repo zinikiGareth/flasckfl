@@ -34,7 +34,7 @@ public class CardMember implements ExternalRef {
 	
 	@Override
 	public String toString() {
-		return "Card[" + uniqueName() + "]";
+		return "CardMember[" + uniqueName() + "]";
 	}
 
 }

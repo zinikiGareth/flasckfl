@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -157,9 +159,13 @@ public class MethodConvertor {
 		if (mm.slot != null) {
 			// we want an assign message
 			Locatable slot = (Locatable) mm.slot.get(0);
+			Object intoObj;
+			StringLiteral slotName;
 			Type slotType;
 			if (slot instanceof CardMember) {
 				CardMember cm = (CardMember) slot;
+				intoObj = new CardStateRef(cm.location(), true); // TODO: only if from a handler ... how can we tell from here?
+				slotName = new StringLiteral(cm.location(), cm.var);
 				Type cti = tc.getType(cm.location(), cm.card);
 				if (!(cti instanceof StructDefn))
 					throw new UtilException("this should have been a struct");
@@ -180,11 +186,12 @@ public class MethodConvertor {
 				slotType = sf.type;
 			} else if (slot instanceof HandlerLambda) {
 				HandlerLambda hl = (HandlerLambda) slot;
-				System.out.println("HL");
 				if (hl.type == null) {
 					errors.message(slot.location(), "cannot assign to untyped handler lambda: " + hl.var);
 					return null;
 				}
+				intoObj = hl;
+				slotName = null;
 				slotType = hl.type;
 			} else if (slot instanceof ExternalRef) {
 				errors.message(slot.location(), "cannot assign to non-state member: " + ((ExternalRef)slot).uniqueName());
@@ -193,18 +200,33 @@ public class MethodConvertor {
 				throw new UtilException("Cannot handle slots of type " + slot.getClass());
 			}
 			if (mm.slot.size() > 1) {
-				// update slotType each time
-				// build up an expression of where to assign
-				// everything has to be a struct (except the final slot)
-				throw new UtilException("Need to iterate through nested slots here");
+				for (int i=1;i<mm.slot.size();i++) {
+					LocatedToken si = (LocatedToken) mm.slot.get(i);
+					if (!(slotType instanceof StructDefn)) {
+						// There may be some valid cases mixed up in here; if so, fix them later
+						errors.message(si.location(), "cannot extract member of a non-struct: " + si.text);
+						return null;
+					}
+					StructDefn sd = (StructDefn) slotType;
+					StructField sf = sd.findField(si.text);
+					if (sf == null) {
+						errors.message(si.location, "there is no field '" + si.text + "' in type " + sd);
+						return null;
+					}
+					slotType = sf.type;
+					if (slotName != null)
+						intoObj = new ApplyExpr(si.location, scope.fromRoot(slot.location(), "."), intoObj, slotName);
+					slotName = new StringLiteral(si.location, si.text);
+				}
+			} else if (slotName == null) {
+				errors.message(slot.location(), "cannot assign directly to an object");
+				return null;
 			}
 			if (!slotType.equals(exprType)) {
 				errors.message(slot.location(), "cannot assign " + exprType + " to slot of type " + slotType);
 				return null;
 			}
-			// TODO: how are we supposed to build an expression that is common to both "CardMember" and "something inside x"?
-			// TODO: I think we need to have two parameters for slot; one is "into" (such as "card") and the other is the name of the slot (as a StringLiteral)
-			return new ApplyExpr(slot.location(), scope.fromRoot(slot.location(), "Assign"), slot, mm.expr);
+			return new ApplyExpr(slot.location(), scope.fromRoot(slot.location(), "Assign"), intoObj, slotName, mm.expr);
 		} else {
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			ApplyExpr sender;

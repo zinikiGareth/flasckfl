@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
+import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -110,9 +111,10 @@ public class MetaState {
 	}
 
 	private Object convertValue(List<InputPosition> locs, Map<String, Var> substs, Object expr) {
-		if (expr == null) // mainly error trapping, but valid in if .. if .. <no else> case
+		if (expr == null) { // mainly error trapping, but valid in if .. if .. <no else> case
+			locs.add(null);
 			return null;
-		else if (expr instanceof NumericLiteral) {
+		} else if (expr instanceof NumericLiteral) {
 			locs.add(((NumericLiteral)expr).location);
 			return Integer.parseInt(((NumericLiteral)expr).text); // what about floats?
 		} else if (expr instanceof StringLiteral) {
@@ -151,6 +153,9 @@ public class MetaState {
 			String var = ((CardMember)expr).uniqueName();
 			form.dependsOn(expr);
 			return expr;
+		} else if (expr instanceof CardStateRef) {
+			locs.add(((CardStateRef)expr).location());
+			return expr;
 		} else if (expr instanceof HandlerLambda) {
 			locs.add(((ExternalRef)expr).location());
 			String var = ((HandlerLambda)expr).uniqueName();
@@ -168,7 +173,7 @@ public class MetaState {
 			HSIEBlock closure = form.closure(var);
 			List<Var> mydeps = new ArrayList<Var>();
 			if (ops.size() != elocs.size())
-				throw new UtilException("Misplaced location or op " +  elocs.size() + " != " + ops.size());
+				throw new UtilException("Misplaced location or operation: " +  elocs.size() + " != " + ops.size());
 			for (int i=0;i<ops.size();i++) {
 				Object o = ops.get(i);
 				if (elocs.get(i) == null) {

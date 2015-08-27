@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
@@ -65,6 +66,8 @@ public class HSIEBlock {
 			ret = new PushCmd(loc, (TemplateListVar)o);
 		else if (o instanceof FunctionLiteral)
 			ret = new PushCmd(loc, (FunctionLiteral)o);
+		else if (o instanceof CardStateRef)
+			ret = new PushCmd(loc, (CardStateRef)o);
 		else if (o == null)
 			throw new UtilException("Cannot push null");
 		else
