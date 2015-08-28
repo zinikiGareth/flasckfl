@@ -73,15 +73,17 @@ public class MethodConvertorTests {
 			ContractDecl contract1 = new ContractDecl(null, "org.foo.Contract1");
 			ContractMethodDecl m1 = new ContractMethodDecl("down", "bar", new ArrayList<>());
 			contract1.methods.add(m1);
+			ContractMethodDecl m2 = new ContractMethodDecl("up", "start", new ArrayList<>());
+			contract1.methods.add(m2);
+			ContractMethodDecl m3 = new ContractMethodDecl("up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
+			contract1.methods.add(m3);
 			contracts.put(contract1.name(), contract1);
 			orgFooScope.define("Contract1", contract1.name(), contract1);
 		}
 		{
 			ContractDecl service1 = new ContractDecl(null, "org.foo.Service1");
-			ContractMethodDecl m1 = new ContractMethodDecl("up", "start", new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl("up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl("up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
-			service1.methods.add(m2);
 			contracts.put(service1.name(), service1);
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
@@ -124,6 +126,8 @@ public class MethodConvertorTests {
 		tc.addExternal("List", (Type) biscope.get("List"));
 		tc.addExternal("Cons", (Type) biscope.get("Cons"));
 		tc.addExternal("join", (Type) biscope.get("join"));
+		tc.addExternal("Assign", (Type) biscope.get("Assign"));
+		tc.addExternal("Send", (Type) biscope.get("Send"));
 	}
 	
 	public void stage2() {
@@ -348,7 +352,7 @@ public class MethodConvertorTests {
 	/* ---- Send tests ---- */
 	@Test
 	public void testWeCanSendAMessageToAServiceWithNoArgs() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- se.start"), new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "se"), new UnresolvedVar(null, "start")))));
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(null, "start")))));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -357,12 +361,23 @@ public class MethodConvertorTests {
 		hsieForm.dump();
 		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
 		assertEquals("PUSH Send", hsieForm.getClosure(new Var(0)).nestedCommands().get(0).toString());
-		assertEquals("PUSH CardMember[org.foo.Card.se]", hsieForm.getClosure(new Var(0)).nestedCommands().get(1).toString());
+		assertEquals("PUSH CardMember[org.foo.Card.ce]", hsieForm.getClosure(new Var(0)).nestedCommands().get(1).toString());
 		assertEquals("PUSH \"start\"", hsieForm.getClosure(new Var(0)).nestedCommands().get(2).toString());
 		assertEquals("PUSH Nil", hsieForm.getClosure(new Var(0)).nestedCommands().get(3).toString());
 	}
 
-	// test the method has to exist
+	@Test
+	public void testWeCannotSendAMessageToAServiceWhichDoesNotHaveThatMethod() throws Exception {
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.unknown"), "unknown")))));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("there is no method 'unknown' in org.foo.Contract1", errors.get(0).msg);
+		assertEquals("test:         1.6", errors.get(0).loc.toString());
+	}
+
+	// something about ups & downs (i.e. a down method can only call up methods)
+	
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
 		List<MethodCaseDefn> cases = new ArrayList<>();

@@ -8,7 +8,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.typechecker.Type;
 
 @SuppressWarnings("serial")
-public class ContractDecl extends Type implements Serializable {
+public class ContractDecl extends TypeWithMethods implements Serializable {
 	public final List<ContractMethodDecl> methods = new ArrayList<ContractMethodDecl>();
 	public final transient boolean generate;
 
@@ -19,6 +19,14 @@ public class ContractDecl extends Type implements Serializable {
 
 	public void addMethod(ContractMethodDecl md) {
 		methods.add(md);
+	}
+	
+	@Override
+	public boolean hasMethod(String named) {
+		for (ContractMethodDecl m : methods)
+			if (m.name.equals(named))
+				return true;
+		return false;
 	}
 	
 	@Override

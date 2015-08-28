@@ -661,7 +661,6 @@ public class TypeChecker {
 			return typeForStructCtor(null, structs.get(fn));
 		if (cards.containsKey(fn))
 			return typeForCardCtor(null, cards.get(fn).struct);
-//		System.out.println(knowledge);
 		throw new UtilException("There is no type: " + fn);
 	}
 
@@ -672,7 +671,8 @@ public class TypeChecker {
 			return knowledge.get(name);
 		if (cards.containsKey(name))
 			return cards.get(name).struct;
-//		System.out.println(knowledge);
+		if (contracts.containsKey(name))
+			return contracts.get(name);
 		throw new UtilException("There is no type: " + name);
 	}
 

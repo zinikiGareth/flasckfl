@@ -32,6 +32,8 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeWithMethods;
+import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.typechecker.Type;
@@ -172,8 +174,8 @@ public class MethodConvertor {
 					Object sender = fn.args.get(0);
 					StringLiteral method = (StringLiteral) fn.args.get(1);
 					Type senderType = calculateExprType(margs, types, sender);
-					if (senderType instanceof ContractImplements || senderType instanceof ContractService)
-						return handleMethodCase(scope, (Locatable) sender, method, root.args);
+					if (senderType instanceof TypeWithMethods)
+						return handleMethodCase(scope, (Implements) senderType, (Locatable) sender, method, root.args);
 					else
 						return handleExprCase(scope, root);
 				}
@@ -186,8 +188,8 @@ public class MethodConvertor {
 					Object sender = root.args.get(0);
 					StringLiteral method = (StringLiteral) root.args.get(1);
 					Type senderType = calculateExprType(margs, types, sender);
-					if (senderType instanceof ContractImplements)
-						return handleMethodCase(scope, (Locatable) sender, method, new ArrayList<Object>());
+					if (senderType instanceof TypeWithMethods)
+						return handleMethodCase(scope, (Implements) senderType, (Locatable) sender, method, new ArrayList<Object>());
 					else
 						return handleExprCase(scope, root);
 				}
@@ -282,7 +284,14 @@ public class MethodConvertor {
 		return new ApplyExpr(slot.location(), scope.fromRoot(slot.location(), "Assign"), intoObj, slotName, mm.expr);
 	}
 
-	private Object handleMethodCase(Scope scope, Locatable sender, StringLiteral method, List<Object> args) {
+	private Object handleMethodCase(Scope scope, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
+		if (senderType instanceof ContractService || senderType instanceof ContractImplements) {
+			senderType = (ContractDecl) tc.getType(senderType.location(), senderType.name());
+		}
+		if (!senderType.hasMethod(method.text)) {
+			errors.message(method.location, "there is no method '" + method.text + "' in " + senderType.name());
+			return null;
+		}
 		// TODO: need to do all the remaining checking, e.g. method exists, types and the like ...
 		return new ApplyExpr(sender.location(),	scope.fromRoot(sender.location(), "Send"), sender, method, asList(sender.location(), scope, args));
 	}
