@@ -390,7 +390,7 @@ public class Rewriter {
 
 			for (MethodDefinition m : ci.methods) {
 				MethodDefinition rwm = rewrite(c2, m);
-				methods.add(new MethodInContext(cd.innerScope(), ci.location(), ci.name(), m.intro.name, HSIEForm.Type.CONTRACT, rwm));
+				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, ci.location(), ci.name(), m.intro.name, HSIEForm.Type.CONTRACT, rwm));
 				rw.methods.add(rwm);
 			}
 			
@@ -407,7 +407,7 @@ public class Rewriter {
 				sd.fields.add(new StructField(rw, rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
-				methods.add(new MethodInContext(cd.innerScope(), null, cs.name(), m.intro.name, HSIEForm.Type.SERVICE, rewrite(c2, m)));
+				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.UP, cs.location(), cs.name(), m.intro.name, HSIEForm.Type.SERVICE, rewrite(c2, m)));
 
 			pos++;
 		}
@@ -436,7 +436,7 @@ public class Rewriter {
 			structs.put(hiName, hsd);
 			HandlerContext hc = new HandlerContext(c2, rw);
 			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(cd.innerScope(), null, hi.name(), m.intro.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
+				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, hi.location(), hi.name(), m.intro.name, HSIEForm.Type.HANDLER, rewrite(hc, m)));
 			
 			grp.handlers.add(new HandlerGrouping(cd.name + "." + rw.name));
 		}

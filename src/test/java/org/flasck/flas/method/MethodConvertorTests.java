@@ -84,6 +84,8 @@ public class MethodConvertorTests {
 			ContractDecl service1 = new ContractDecl(null, "org.foo.Service1");
 			ContractMethodDecl m1 = new ContractMethodDecl("up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
 			service1.methods.add(m1);
+			ContractMethodDecl m2 = new ContractMethodDecl("down", "respond", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
+			service1.methods.add(m2);
 			contracts.put(service1.name(), service1);
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
@@ -121,6 +123,7 @@ public class MethodConvertorTests {
 		
 		hsie = new HSIE(errors);
 		tc = new TypeChecker(errors);
+		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("Any", (Type) biscope.get("Any"));
 		tc.addExternal("Nil", (Type) biscope.get("Nil"));
 		tc.addExternal("List", (Type) biscope.get("List"));
@@ -158,6 +161,24 @@ public class MethodConvertorTests {
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(1, errors.count());
 		assertEquals("cannot find method foo in org.foo.Contract1", errors.get(0).msg);
+	}
+
+	@Test
+	public void testTheImplementedMethodMustBeInTheRightDirection() {
+		defineContractMethod(ce, "start");
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(1, errors.count());
+		assertEquals("cannot implement 'start' because it is an up method", errors.get(0).msg);
+	}
+
+	@Test
+	public void testTheImplementedServiceMethodMustBeInTheRightDirection() {
+		defineContractMethod(se, "respond");
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(1, errors.count());
+		assertEquals("cannot implement 'respond' because it is a down method", errors.get(0).msg);
 	}
 
 	@Test
@@ -376,7 +397,25 @@ public class MethodConvertorTests {
 		assertEquals("test:         1.6", errors.get(0).loc.toString());
 	}
 
-	// something about ups & downs (i.e. a down method can only call up methods)
+	@Test
+	public void testWeCannotSendADownMessageFromADownServiceHandler() throws Exception {
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.bar"), "bar")))));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("can only call up methods on contract implementations", errors.get(0).msg);
+		assertEquals("test:         1.6", errors.get(0).loc.toString());
+	}
+
+	@Test
+	public void testWeCannotSendAnUpMessageFromAnUpServiceHandler() throws Exception {
+		defineContractMethod(se, "request", new MethodMessage(null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "se"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- se.request"), "request")))));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("can only call down methods on service implementations", errors.get(0).msg);
+		assertEquals("test:         1.6", errors.get(0).loc.toString());
+	}
 	
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());

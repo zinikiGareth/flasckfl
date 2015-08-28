@@ -525,7 +525,7 @@ public class Compiler {
 					MethodCaseDefn mcd = new MethodCaseDefn(fi);
 					mcd.messages.addAll(s.actions);
 					MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
-					MethodInContext mic = new MethodInContext(d3.scope, null, null, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
+					MethodInContext mic = new MethodInContext(d3.scope, MethodInContext.EVENT, null, null, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
 					mc.convertContractMethods(forms, CollectionUtils.listOf(mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 //					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.typechecker.Type;
 
 @SuppressWarnings("serial")
 public class ContractDecl extends TypeWithMethods implements Serializable {
@@ -26,6 +25,13 @@ public class ContractDecl extends TypeWithMethods implements Serializable {
 		for (ContractMethodDecl m : methods)
 			if (m.name.equals(named))
 				return true;
+		return false;
+	}
+	
+	public boolean checkMethodDir(String named, String dir) {
+		for (ContractMethodDecl m : methods)
+			if (m.name.equals(named))
+				return m.dir.equals(dir);
 		return false;
 	}
 	

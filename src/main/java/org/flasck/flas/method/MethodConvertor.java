@@ -118,7 +118,15 @@ public class MethodConvertor {
 		int idx = m.name.lastIndexOf(".");
 		String mn = m.name.substring(idx+1);
 		for (ContractMethodDecl md : cd.methods) {
-			if (mn.equals(md.name)) { // TODO: should we check "dir"?
+			if (mn.equals(md.name)) {
+				if (m.direction == MethodInContext.DOWN && md.dir.equals("up")) {
+					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is an up method");
+					return null;
+				}
+				if (m.direction == MethodInContext.UP && md.dir.equals("down")) {
+					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is a down method");
+					return null;
+				}
 				cmd = md;
 				break;
 			}
@@ -285,11 +293,20 @@ public class MethodConvertor {
 	}
 
 	private Object handleMethodCase(Scope scope, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
+		TypeWithMethods proto = senderType;
 		if (senderType instanceof ContractService || senderType instanceof ContractImplements) {
-			senderType = (ContractDecl) tc.getType(senderType.location(), senderType.name());
+			proto = (ContractDecl) tc.getType(senderType.location(), senderType.name());
 		}
-		if (!senderType.hasMethod(method.text)) {
-			errors.message(method.location, "there is no method '" + method.text + "' in " + senderType.name());
+		if (!proto.hasMethod(method.text)) {
+			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());
+			return null;
+		}
+		if (senderType instanceof ContractImplements && !((ContractDecl)proto).checkMethodDir(method.text, "up")) {
+			errors.message(method.location, "can only call up methods on contract implementations");
+			return null;
+		}
+		if (senderType instanceof ContractService && !((ContractDecl)proto).checkMethodDir(method.text, "down")) {
+			errors.message(method.location, "can only call down methods on service implementations");
 			return null;
 		}
 		// TODO: need to do all the remaining checking, e.g. method exists, types and the like ...
