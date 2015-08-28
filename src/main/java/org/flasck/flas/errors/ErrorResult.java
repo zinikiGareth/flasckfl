@@ -19,6 +19,11 @@ public class ErrorResult {
 		return errors.size();
 	}
 	
+	public ErrorResult message(FLASError e) {
+		errors.add(e);
+		return this;
+	}
+	
 	public ErrorResult message(Block b, String msg) {
 		return message(new Tokenizable(b), msg);
 	}
@@ -28,8 +33,7 @@ public class ErrorResult {
 	}
 
 	public ErrorResult message(InputPosition pos, String msg) {
-		errors.add(new FLASError(pos, msg));
-		return this;
+		return message(new FLASError(pos, msg));
 	}
 
 	public void merge(ErrorResult from) {

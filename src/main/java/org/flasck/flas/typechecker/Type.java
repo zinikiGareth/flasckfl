@@ -192,7 +192,7 @@ public class Type implements Serializable, Locatable {
 			return var;
 		}
 		case FUNCTION: {
-			Object ret = fnargs.get(fnargs.size()-1).convertToExpr(from, factory, mapping);
+			Object ret = fnargs.get(fnargs.size()-1).convertToExpr(new GarneredFrom(this, fnargs.size()-1), factory, mapping);
 			for (int i=fnargs.size()-2;i>=0;i--) {
 				Object left = fnargs.get(i).convertToExpr(from, factory, mapping);
 				ret = new TypeExpr(from /* TODO: as f/arg */, Type.builtin(null, "->"), left, ret);
@@ -218,6 +218,8 @@ public class Type implements Serializable, Locatable {
 		} else if (iam == WhatAmI.BUILTIN) {
 			sb.append(name);
 		} else if (iam == WhatAmI.FUNCTION) {
+			if (fnargs.size() == 1)
+				sb.append("->");
 			showArgs(sb, "->");
 		} else if (iam == WhatAmI.TUPLE) {
 			sb.append("(");

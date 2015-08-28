@@ -419,14 +419,14 @@ public class MethodConvertorTests {
 	}
 
 	@Test
-	@Ignore
 	public void testWeCannotSendAMessageWithTooManyArgs() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new UnresolvedOperator(new InputPosition("test", 1, 3, "<- ce.start"), "."), new UnresolvedVar(new InputPosition("test", 1, 3, "<- ce.start"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- ce.start"), "start")), new StringLiteral(new InputPosition("test", 1, 3, "<- ce.start"), "hello"))));
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start 'hello'"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new UnresolvedOperator(new InputPosition("test", 1, 6, "<- ce.start 'hello'"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.start 'hello'"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 7, "<- ce.start 'hello'"), "start")), new StringLiteral(new InputPosition("test", 1, 12, "<- ce.start 'hello'"), "hello"))));
 		stage2();
 		convertor.convertContractMethods(functions, rewriter.methods);
+		System.out.println(errors.singleString());
 		assertEquals(errors.singleString(), 1, errors.count());
-		assertEquals("can only call down methods on service implementations", errors.get(0).msg);
-		assertEquals("test:         1.6", errors.get(0).loc.toString());
+		assertEquals(errors.singleString(), "called with too many arguments", errors.get(0).msg);
+		assertEquals("test:         1.12", errors.get(0).loc.toString());
 	}
 	
 	/* ---- Helper Methods ---- */

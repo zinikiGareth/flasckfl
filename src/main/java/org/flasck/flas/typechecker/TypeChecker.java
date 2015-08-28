@@ -536,11 +536,17 @@ public class TypeChecker {
 		if (c == null)
 			throw new UtilException("Error on recovering block to check");
 		List<Object> args = new ArrayList<Object>();
+		List<InputPosition> locs = new ArrayList<InputPosition>();
 		for (HSIEBlock b : c.nestedCommands()) {
 			Object te = checkExpr(s, form, b);
 			if (te == null)
 				return null;
 			args.add(te);
+			InputPosition ip = null;
+			if (b instanceof PushReturn)
+				locs.add(((PushReturn)b).location);
+			else
+				locs.add(null);
 		}
 		Object Tf = args.get(0);
 		if (Tf instanceof TypeExpr && "()".equals(((TypeExpr)Tf).type.name())) { // tuples need special handling
@@ -593,7 +599,7 @@ public class TypeChecker {
 		} else {
 			logger.info(c + " requires " + flatten(new StringBuilder(), Tf, false) + " to apply to " + arrowify(args));
 			for (int i=1;i<args.size();i++)
-				Tf = checkSingleApplication(s, Tf, args.get(i));
+				Tf = checkSingleApplication(s, Tf, locs.get(i), args.get(i));
 		}
 		logger.info("Closure " + c + " has type " + Tf);
 		return Tf;
@@ -649,9 +655,9 @@ public class TypeChecker {
 		return Type.function(location, args);
 	}
 
-	private Object checkSingleApplication(TypeState s, Object fnType, Object argType) {
+	private Object checkSingleApplication(TypeState s, Object fnType, InputPosition pos, Object argType) {
 		TypeVar resultType = factory.next();
-		TypeExpr hypoFunctionType = new TypeExpr(null, Type.builtin(null, "->"), argType, resultType);
+		TypeExpr hypoFunctionType = new TypeExpr(new GarneredFrom(pos), Type.builtin(new InputPosition("builtin", 0, 0, null), "->"), argType, resultType);
 		s.phi.unify(fnType, hypoFunctionType);
 		if (errors.hasErrors())
 			return null;

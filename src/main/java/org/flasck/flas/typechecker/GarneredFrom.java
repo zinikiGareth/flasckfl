@@ -8,6 +8,7 @@ public class GarneredFrom {
 	public final InputPosition posn;
 	public final ExternalRef exref;
 	public final Object type;
+	int arg = -1;
 
 	public GarneredFrom(InputPosition posn) {
 		this.posn = posn;
@@ -25,5 +26,12 @@ public class GarneredFrom {
 		this.posn = null;
 		this.exref = null;
 		this.type = f.type;
+	}
+
+	public GarneredFrom(Type type, int i) {
+		this.posn = null;
+		this.exref = null;
+		this.type = type;
+		this.arg = i;
 	}
 }

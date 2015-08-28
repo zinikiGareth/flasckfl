@@ -141,7 +141,8 @@ public class TypeVariableMappings {
 			else if (te2.type.name().equals("Any"))
 				return te2;
 			if (!isCtorBased(te1) || !isCtorBased(te2)) {
-				errors.message(te1.from != null ? te1.from.posn : null, "unification failed here: " + te1 + " <> " + te2);
+				UnificationError ue = new UnificationError(te1, te2);
+				errors.message(ue);
 				return null;
 			}
 
