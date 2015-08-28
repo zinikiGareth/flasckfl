@@ -160,122 +160,141 @@ public class MethodConvertor {
 	}
 
 	private Object convertMessageToAction(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm) {
-		Type exprType = calculateExprType(margs, types, mm);
 		if (mm.slot != null) {
-			// we want an assign message
-			Locatable slot = (Locatable) mm.slot.get(0);
-			Object intoObj;
-			StringLiteral slotName;
-			Type slotType;
-			if (slot instanceof CardMember) {
-				CardMember cm = (CardMember) slot;
-				intoObj = new CardStateRef(cm.location(), true); // TODO: only if from a handler ... how can we tell from here?
-				slotName = new StringLiteral(cm.location(), cm.var);
-				Type cti = tc.getType(cm.location(), cm.card);
-				if (!(cti instanceof StructDefn))
-					throw new UtilException("this should have been a struct");
-				StructDefn sd = (StructDefn) cti;
-				StructField sf = sd.findField(cm.var);
-				if (sf == null) {
-					errors.message(cm.location, "there is no card state member " + cm.var);
-					return null;
-				}
-				if (sf.type instanceof ContractImplements) {
-					errors.message(cm.location, "cannot assign to a contract var: " + cm.var);
-					return null;
-				}
-				if (sf.type instanceof ContractService) {
-					errors.message(cm.location, "cannot assign to a service var: " + cm.var);
-					return null;
-				}
-				slotType = sf.type;
-			} else if (slot instanceof HandlerLambda) {
-				HandlerLambda hl = (HandlerLambda) slot;
-				if (hl.type == null) {
-					errors.message(slot.location(), "cannot assign to untyped handler lambda: " + hl.var);
-					return null;
-				}
-				intoObj = hl;
-				slotName = null;
-				slotType = hl.type;
-			} else if (slot instanceof LocalVar) {
-				LocalVar lv = (LocalVar) slot;
-				if (lv.type == null) {
-					errors.message(lv.varLoc, "cannot use untyped argument as assign target: " + lv.var);
-					return null;
-				}
-				intoObj = lv;
-				slotName = null;
-				slotType = lv.type;
-			} else if (slot instanceof ExternalRef) {
-				errors.message(slot.location(), "cannot assign to non-state member: " + ((ExternalRef)slot).uniqueName());
-				return null;
-			} else {
-				throw new UtilException("Cannot handle slots of type " + slot.getClass());
-			}
-			if (mm.slot.size() > 1) {
-				for (int i=1;i<mm.slot.size();i++) {
-					LocatedToken si = (LocatedToken) mm.slot.get(i);
-					if (!(slotType instanceof StructDefn)) {
-						// There may be some valid cases mixed up in here; if so, fix them later
-						errors.message(si.location(), "cannot extract member of a non-struct: " + si.text);
-						return null;
-					}
-					StructDefn sd = (StructDefn) slotType;
-					StructField sf = sd.findField(si.text);
-					if (sf == null) {
-						errors.message(si.location, "there is no field '" + si.text + "' in type " + sd);
-						return null;
-					}
-					slotType = sf.type;
-					if (slotName != null)
-						intoObj = new ApplyExpr(si.location, scope.fromRoot(slot.location(), "."), intoObj, slotName);
-					slotName = new StringLiteral(si.location, si.text);
-				}
-			} else if (slotName == null) {
-				errors.message(slot.location(), "cannot assign directly to an object");
-				return null;
-			}
-			if (!slotType.equals(exprType)) {
-				errors.message(slot.location(), "cannot assign " + exprType + " to slot of type " + slotType);
-				return null;
-			}
-			return new ApplyExpr(slot.location(), scope.fromRoot(slot.location(), "Assign"), intoObj, slotName, mm.expr);
-		} else {
+			return convertAssignMessage(scope, margs, types, mm);
+		} else if (mm.expr instanceof ApplyExpr) {
+			
+			// TODO: these two halves are very similar.  Try and refactor them back together at some point
 			ApplyExpr root = (ApplyExpr) mm.expr;
-			ApplyExpr sender;
-			List<Object> args;
-			if (root.fn instanceof AbsoluteVar) {
+			if (root instanceof ApplyExpr) {
+				ApplyExpr fn = (ApplyExpr)root.fn;
+				if (fn.fn instanceof AbsoluteVar && ((AbsoluteVar)fn.fn).id.equals("FLEval.field")) {
+					Object sender = fn.args.get(0);
+					StringLiteral method = (StringLiteral) fn.args.get(1);
+					Type senderType = calculateExprType(margs, types, sender);
+					if (senderType instanceof ContractImplements)
+						return handleMethodCase(scope, (Locatable) sender, method, root.args);
+					else
+						return handleExprCase(scope, root);
+				}
+			}
+			else if (root.fn instanceof AbsoluteVar) {
 				// a case where we're building a message
 				AbsoluteVar av = (AbsoluteVar) root.fn;
 				String name = av.id;
-				if (name.equals("D3Action") || name.equals("CreateCard")) { // one of many (I think) OK cases
-					return root; // I think this is fine just as it is, as long as it gets combined in a list
-				} else if (name.equals("FLEval.field")) {
-					sender = root;
-					args = new ArrayList<Object>();
-				} else {
-//					System.out.println("unhandled case, with name = " + name + "; assuming it can be processed as an expression returning either one action or a list of actions");
-					return root;
+				if (name.equals("FLEval.field")) {
+					Object sender = root.args.get(0);
+					StringLiteral method = (StringLiteral) root.args.get(1);
+					Type senderType = calculateExprType(margs, types, sender);
+					if (senderType instanceof ContractImplements)
+						return handleMethodCase(scope, (Locatable) sender, method, new ArrayList<Object>());
+					else
+						return handleExprCase(scope, root);
 				}
-			} else {
-				ApplyExpr fn = (ApplyExpr)root.fn;
-				if (!(fn.fn instanceof AbsoluteVar) || !((AbsoluteVar)fn.fn).id.equals("FLEval.field")) throw new UtilException("unhandled case");
-				sender = fn;
-				args = root.args;
 			}
-			Object target = sender.args.get(0);
-			if (!(target instanceof CardMember)) throw new UtilException("Target must be on the card somewhere");
-			return new ApplyExpr(root.location,
-					scope.fromRoot(root.location, "Send"),
-					new StringLiteral(((CardMember)target).location, ((CardMember)target).var),
-					sender.args.get(1), asList(root.location, scope, args));
 		}
+		InputPosition loc = null;
+		if (mm.expr instanceof Locatable)
+			loc = ((Locatable)mm.expr).location();
+		errors.message(loc, "not a valid method message");
+		return null;
 	}
 
-	protected Type calculateExprType(List<Object> margs, List<Type> types, MethodMessage mm) {
+	protected Object convertAssignMessage(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm) {
+		Type exprType = calculateExprType(margs, types, mm.expr);
+		Locatable slot = (Locatable) mm.slot.get(0);
+		Object intoObj;
+		StringLiteral slotName;
+		Type slotType;
+		if (slot instanceof CardMember) {
+			CardMember cm = (CardMember) slot;
+			intoObj = new CardStateRef(cm.location(), true); // TODO: only if from a handler ... how can we tell from here?
+			slotName = new StringLiteral(cm.location(), cm.var);
+			Type cti = tc.getType(cm.location(), cm.card);
+			if (!(cti instanceof StructDefn))
+				throw new UtilException("this should have been a struct");
+			StructDefn sd = (StructDefn) cti;
+			StructField sf = sd.findField(cm.var);
+			if (sf == null) {
+				errors.message(cm.location, "there is no card state member " + cm.var);
+				return null;
+			}
+			if (sf.type instanceof ContractImplements) {
+				errors.message(cm.location, "cannot assign to a contract var: " + cm.var);
+				return null;
+			}
+			if (sf.type instanceof ContractService) {
+				errors.message(cm.location, "cannot assign to a service var: " + cm.var);
+				return null;
+			}
+			slotType = sf.type;
+		} else if (slot instanceof HandlerLambda) {
+			HandlerLambda hl = (HandlerLambda) slot;
+			if (hl.type == null) {
+				errors.message(slot.location(), "cannot assign to untyped handler lambda: " + hl.var);
+				return null;
+			}
+			intoObj = hl;
+			slotName = null;
+			slotType = hl.type;
+		} else if (slot instanceof LocalVar) {
+			LocalVar lv = (LocalVar) slot;
+			if (lv.type == null) {
+				errors.message(lv.varLoc, "cannot use untyped argument as assign target: " + lv.var);
+				return null;
+			}
+			intoObj = lv;
+			slotName = null;
+			slotType = lv.type;
+		} else if (slot instanceof ExternalRef) {
+			errors.message(slot.location(), "cannot assign to non-state member: " + ((ExternalRef)slot).uniqueName());
+			return null;
+		} else {
+			throw new UtilException("Cannot handle slots of type " + slot.getClass());
+		}
+		if (mm.slot.size() > 1) {
+			for (int i=1;i<mm.slot.size();i++) {
+				LocatedToken si = (LocatedToken) mm.slot.get(i);
+				if (!(slotType instanceof StructDefn)) {
+					// There may be some valid cases mixed up in here; if so, fix them later
+					errors.message(si.location(), "cannot extract member of a non-struct: " + si.text);
+					return null;
+				}
+				StructDefn sd = (StructDefn) slotType;
+				StructField sf = sd.findField(si.text);
+				if (sf == null) {
+					errors.message(si.location, "there is no field '" + si.text + "' in type " + sd);
+					return null;
+				}
+				slotType = sf.type;
+				if (slotName != null)
+					intoObj = new ApplyExpr(si.location, scope.fromRoot(slot.location(), "."), intoObj, slotName);
+				slotName = new StringLiteral(si.location, si.text);
+			}
+		} else if (slotName == null) {
+			errors.message(slot.location(), "cannot assign directly to an object");
+			return null;
+		}
+		if (!slotType.equals(exprType)) {
+			errors.message(slot.location(), "cannot assign " + exprType + " to slot of type " + slotType);
+			return null;
+		}
+		return new ApplyExpr(slot.location(), scope.fromRoot(slot.location(), "Assign"), intoObj, slotName, mm.expr);
+	}
+
+	private Object handleMethodCase(Scope scope, Locatable sender, StringLiteral method, List<Object> args) {
+		// TODO: need to do all the remaining checking, e.g. method exists, types and the like ...
+		return new ApplyExpr(sender.location(),	scope.fromRoot(sender.location(), "Send"), sender, method, asList(sender.location(), scope, args));
+	}
+
+	private Object handleExprCase(Scope scope, ApplyExpr root) {
+		// TODO: need to check that it returns Action or [Action] at least
+		return root;
+	}
+
+	protected Type calculateExprType(List<Object> margs, List<Type> types, Object expr) {
 		List<Type> mytypes = new ArrayList<Type>();
-		System.out.println("Convert method: " + mm.slot + " <- " + mm.expr);
+//		System.out.println("Convert method: " + mm.slot + " <- " + mm.expr);
 		List<String> args = new ArrayList<String>();
 		for (int i=0;i<margs.size();i++) {
 			Object x = margs.get(i);
@@ -296,14 +315,14 @@ public class MethodConvertor {
 			} else
 				throw new UtilException("Cannot map " + x.getClass());
 		}
-		Type ret = tc.checkExpr(hsie.handleExprWith(mm.expr, HSIEForm.Type.CONTRACT, args), mytypes);
+		Type ret = tc.checkExpr(hsie.handleExprWith(expr, HSIEForm.Type.CONTRACT, args), mytypes);
 		if (ret != null) {
 			if (!margs.isEmpty()) {
 				if (ret.iam != WhatAmI.FUNCTION)
 					throw new UtilException("Should be function, but isn't");
 				ret = ret.arg(margs.size());
 			}
-			System.out.println("Type for method message - " + mm.slot + " <- " + mm.expr + " :: " + ret);
+//			System.out.println("Type for method message - " + mm.slot + " <- " + mm.expr + " :: " + ret);
 		}
 		return ret;
 	}

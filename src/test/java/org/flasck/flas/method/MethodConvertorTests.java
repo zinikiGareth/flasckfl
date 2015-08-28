@@ -8,9 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
+import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -32,6 +34,7 @@ import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.flasck.flas.rewriter.Rewriter;
@@ -113,6 +116,10 @@ public class MethodConvertorTests {
 		hsie = new HSIE(errors);
 		tc = new TypeChecker(errors);
 		tc.addExternal("Any", (Type) biscope.get("Any"));
+		tc.addExternal("Nil", (Type) biscope.get("Nil"));
+		tc.addExternal("List", (Type) biscope.get("List"));
+		tc.addExternal("Cons", (Type) biscope.get("Cons"));
+		tc.addExternal("join", (Type) biscope.get("join"));
 	}
 	
 	public void stage2() {
@@ -121,6 +128,7 @@ public class MethodConvertorTests {
 		convertor = new MethodConvertor(errors, hsie, tc, contracts);
 	}
 
+	/* ---- Trivial Tests of top level functionality ---- */
 	@Test
 	public void testWeCanConvertNothingToNothing() {
 		stage2();
@@ -168,7 +176,28 @@ public class MethodConvertorTests {
 		assertEquals("RETURN Nil", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
 	}
 
-	@Test(expected=ResolutionException.class)
+	@Test
+	public void testWeCannotFathomANumericExpressionByItself() throws Exception {
+		defineContractMethod(ce, "bar", new MethodMessage(null, new NumericLiteral(new InputPosition("test", 1, 3, "<- 36"), "36")));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(1, errors.count());
+		assertEquals("not a valid method message", errors.get(0).msg);
+		assertEquals("test:         1.3", errors.get(0).loc.toString());
+	}
+
+	@Test
+	public void testWeCannotFathomARandomFunctionNotAField() throws Exception {
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new ApplyExpr(null, new UnresolvedVar(null, "join"), new UnresolvedVar(null, "Nil")), new StringLiteral(null, ""))));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("not a valid method message", errors.get(0).msg);
+		assertEquals("test:         1.3", errors.get(0).loc.toString());
+	}
+
+	/* ---- Tests of Assignment to a single slot ---- */
+	@Test(expected=ResolutionException.class) // TODO: is it just that somebody else will catch this, or is this a bad pattern?  Should the rewriter catch this error and give me a proper message?
 	public void testTheTopLevelSlotInAnAssignmentMustBeResolvable() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36")));
 		stage2();
@@ -258,6 +287,7 @@ public class MethodConvertorTests {
 		assertEquals("cannot assign directly to an object", errors.get(0).msg);
 	}
 
+	/* ---- Tests of Assignment to a nested slot ---- */
 	@Test
 	public void testWeCannotAssignToAFieldOfAString() throws Exception {
 		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));

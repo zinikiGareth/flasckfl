@@ -24,42 +24,30 @@ public class Builtin {
 		Type any = Type.builtin(posn, "Any"); // is this really builtin?  It should be a TypeUnion of everything ...
 		{ // core
 			/* PackageDefn fleval = */new PackageDefn(posn, ret, "FLEval");
-			ret.define(".", "FLEval.field", 
-				null); // special case handling
-			ret.define("()", "FLEval.tuple", 
-				null); // special case handling
-			ret.define("if", "if",
-				Type.function(posn, bool, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.polyvar(posn, "A")));
-			ret.define("let", "let",
-				null);
-			ret.define("Any", "Any", any);
+			ret.define(".", "FLEval.field",		null); // special case handling
+			ret.define("()", "FLEval.tuple",	null); // special case handling
+			ret.define("if", "if",				Type.function(posn, bool, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.polyvar(posn, "A")));
+			ret.define("let", "let", 			null);
+			ret.define("Any", "Any", 			any);
 		}
 		UnionTypeDefn list = new UnionTypeDefn(posn, false, "List", Type.polyvar(posn, "A"));
 		{ // text
-			ret.define("String", "String", string);
-			ret.define("concat", "concat", Type.function(posn, list.instance(posn, string), string));
-			ret.define("join", "join", Type.function(posn, list.instance(posn, string), string, string));
-			ret.define("++", "append", Type.function(posn, string, string, string));
+			ret.define("String", "String",		string);
+			ret.define("concat", "concat",		Type.function(posn, list.instance(posn, string), string));
+			ret.define("join", "join",			Type.function(posn, list.instance(posn, string), string, string));
+			ret.define("++", "append",			Type.function(posn, string, string, string));
 		}
 		{ // boolean logic
-			ret.define("Boolean", "Boolean",
-				bool);
-			ret.define("==", "FLEval.compeq",
-				Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), bool)); // Any -> Any -> Boolean
+			ret.define("Boolean", "Boolean",	bool);
+			ret.define("==", "FLEval.compeq",	Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), bool)); // Any -> Any -> Boolean
 		}
 		{ // math
-			ret.define("Number", "Number",
-				number);
-			ret.define("+", "FLEval.plus", 
-				Type.function(posn, number, number, number));
-			ret.define("-", "FLEval.minus",
-				Type.function(posn, number, number, number));
-			ret.define("*", "FLEval.mul",
-				Type.function(posn, number, number, number));
-			ret.define("/", "FLEval.div",
-				Type.function(posn, number, number, number));
-			ret.define("^", "FLEval.exp",
-				Type.function(posn, number, number, number));
+			ret.define("Number", "Number",		number);
+			ret.define("+", "FLEval.plus",		Type.function(posn, number, number, number));
+			ret.define("-", "FLEval.minus",		Type.function(posn, number, number, number));
+			ret.define("*", "FLEval.mul",		Type.function(posn, number, number, number));
+			ret.define("/", "FLEval.div",		Type.function(posn, number, number, number));
+			ret.define("^", "FLEval.exp",		Type.function(posn, number, number, number));
 		}
 		{ // lists
 			StructDefn nil = new StructDefn(posn, "Nil", false);
@@ -68,10 +56,10 @@ public class Builtin {
 			cons.addField(new StructField(list, "tail"));
 			list.addCase(nil);
 			list.addCase(cons);
-			ret.define("List", "List", list);
-			ret.define("Nil", "Nil", nil);
-			ret.define("Cons", "Cons", cons);
-			ret.define("map", "map", Type.function(posn, Type.function(posn, varA, varB), list.instance(posn, varA), list.instance(posn, varB)));
+			ret.define("List", "List",			list);
+			ret.define("Nil", "Nil",			nil);
+			ret.define("Cons", "Cons",			cons);
+			ret.define("map", "map",			Type.function(posn, Type.function(posn, varA, varB), list.instance(posn, varA), list.instance(posn, varB)));
 		}
 		UnionTypeDefn map = new UnionTypeDefn(posn, false, "Map", varA, varB);
 		{ // maps
