@@ -172,7 +172,7 @@ public class MethodConvertor {
 					Object sender = fn.args.get(0);
 					StringLiteral method = (StringLiteral) fn.args.get(1);
 					Type senderType = calculateExprType(margs, types, sender);
-					if (senderType instanceof ContractImplements)
+					if (senderType instanceof ContractImplements || senderType instanceof ContractService)
 						return handleMethodCase(scope, (Locatable) sender, method, root.args);
 					else
 						return handleExprCase(scope, root);

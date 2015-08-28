@@ -34,6 +34,7 @@ import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.ResolutionException;
@@ -42,6 +43,7 @@ import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.Var;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
@@ -76,8 +78,10 @@ public class MethodConvertorTests {
 		}
 		{
 			ContractDecl service1 = new ContractDecl(null, "org.foo.Service1");
-			ContractMethodDecl m1 = new ContractMethodDecl("up", "request", new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl("up", "start", new ArrayList<>());
 			service1.methods.add(m1);
+			ContractMethodDecl m2 = new ContractMethodDecl("up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
+			service1.methods.add(m2);
 			contracts.put(service1.name(), service1);
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
@@ -341,6 +345,24 @@ public class MethodConvertorTests {
 		assertEquals("there is no field 'y' in type Thing", errors.get(0).msg);
 	}
 
+	/* ---- Send tests ---- */
+	@Test
+	public void testWeCanSendAMessageToAServiceWithNoArgs() throws Exception {
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- se.start"), new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "se"), new UnresolvedVar(null, "start")))));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 0, errors.count());
+		assertEquals(1, functions.size());
+		HSIEForm hsieForm = CollectionUtils.any(functions.values());
+		hsieForm.dump();
+		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
+		assertEquals("PUSH Send", hsieForm.getClosure(new Var(0)).nestedCommands().get(0).toString());
+		assertEquals("PUSH CardMember[org.foo.Card.se]", hsieForm.getClosure(new Var(0)).nestedCommands().get(1).toString());
+		assertEquals("PUSH \"start\"", hsieForm.getClosure(new Var(0)).nestedCommands().get(2).toString());
+		assertEquals("PUSH Nil", hsieForm.getClosure(new Var(0)).nestedCommands().get(3).toString());
+	}
+
+	// test the method has to exist
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
 		List<MethodCaseDefn> cases = new ArrayList<>();
@@ -364,7 +386,6 @@ public class MethodConvertorTests {
 	}
 	
 	// the other cases are where it's just <- ...
-	//   - it could be "Send"
 	//   - it could be <Action> but unknown exactly what
 	//   - it could be [Action], with a function/method return
 	//   - we could be calling "map" or "filter" over other methods
