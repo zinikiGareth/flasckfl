@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.flasck.flas.vcode.hsieForm.Var;
+import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.zinutils.exceptions.UtilException;
 
 public class SubstExpr {
 	public final Object expr;
-	public final Map<String, Var> substs = new HashMap<String, Var>();
+	public final Map<String, CreationOfVar> substs = new HashMap<String, CreationOfVar>();
 	private String me;
 
 	public SubstExpr(Object expr, int idx) {
@@ -19,13 +19,13 @@ public class SubstExpr {
 		this.me = "E" + idx;
 	}
 
-	public SubstExpr alsoSub(Map<String, Var> map) {
-		for (Entry<String, Var> x : map.entrySet())
+	public SubstExpr alsoSub(Map<String, CreationOfVar> map) {
+		for (Entry<String, CreationOfVar> x : map.entrySet())
 			subst(x.getKey(), x.getValue());
 		return this;
 	}
 
-	public SubstExpr subst(String varToSubst, Var var) {
+	public SubstExpr subst(String varToSubst, CreationOfVar var) {
 		if (substs.containsKey(varToSubst))
 			throw new UtilException("Duplicate var in patterns: " + varToSubst); // TODO: this should be proper error handling
 		substs.put(varToSubst, var);
@@ -39,7 +39,7 @@ public class SubstExpr {
 
 	private String substsString() {
 		StringBuilder ret = new StringBuilder();
-		for (Entry<String, Var> e : substs.entrySet()) {
+		for (Entry<String, CreationOfVar> e : substs.entrySet()) {
 			ret.append(","+e.getKey()+"/"+e.getValue());
 		}
 		if (ret.length() > 0)

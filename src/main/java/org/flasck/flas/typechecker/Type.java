@@ -72,6 +72,10 @@ public class Type implements Serializable, Locatable {
 			throw new UtilException("Cannot ask for the name of a " + iam);
 	}
 
+	public Type innerType() {
+		return type;
+	}
+
 	public boolean hasPolys() {
 		return polys != null && !polys.isEmpty();
 	}
@@ -137,6 +141,8 @@ public class Type implements Serializable, Locatable {
 	}
 	
 	public static Type function(InputPosition loc, List<Type> args) {
+		if (args.size() < 1)
+			throw new UtilException("Can you have a function/method type with less than 1 arg? (the result)  Really?");
 		return new Type(loc, WhatAmI.FUNCTION, args);
 	}
 
@@ -175,7 +181,7 @@ public class Type implements Serializable, Locatable {
 		{
 			List<Object> mypolys = new ArrayList<Object>();
 			for (Type t : polys)
-				mypolys.add(t.convertToExpr(null, factory, mapping));
+				mypolys.add(t.convertToExpr(from, factory, mapping));
 			return new TypeExpr(from, this, mypolys);
 		}
 		case POLYVAR: {

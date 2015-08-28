@@ -38,9 +38,11 @@ import org.zinutils.exceptions.UtilException;
 public class Generator {
 	private final ErrorResult errors;
 	private final JSTarget target;
+	private final HSIE hsie;
 
-	public Generator(ErrorResult errors, JSTarget target) {
+	public Generator(ErrorResult errors, HSIE hsie, JSTarget target) {
 		this.errors = errors;
+		this.hsie = hsie;
 		this.target = target;
 	}
 	
@@ -81,7 +83,7 @@ public class Generator {
 				if (x.init != null) {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
-					HSIEForm form = new HSIE(errors).handleExpr(x.init, Type.FUNCTION);
+					HSIEForm form = hsie.handleExpr(x.init, Type.FUNCTION);
 //					form.dump();
 					generateField(defass, x.name, form);
 					generateField(elseBlock, x.name, form);
@@ -122,7 +124,7 @@ public class Generator {
 		for (Entry<String, Object> x : card.inits.entrySet()) {
 			HSIEForm form = null;
 			if (x.getValue() != null) {
-				form = new HSIE(errors).handleExpr(x.getValue(), Type.FUNCTION);
+				form = hsie.handleExpr(x.getValue(), Type.FUNCTION);
 //					form.dump();
 			}
 
@@ -356,13 +358,13 @@ public class Generator {
 	private void generateFormatsFor(JSForm fi, VisualTree t, String var) {
 		if (t.divThing.complexFormats != null) {
 			fi.add(JSForm.flex("var item = " + var + ".item"));
-			HSIEForm form = new HSIE(errors).handleExpr(t.divThing.complexFormats, Type.CARD);
+			HSIEForm form = hsie.handleExpr(t.divThing.complexFormats, Type.CARD);
 			JSForm.assign(fi, "var cls", form);
 			fi.add(JSForm.flex("doc.getElementById(" + var + "['" + t.divThing.sid + "']).setAttribute('class', join(FLEval.full(cls), ' '))"));
 		}
 		for (Entry<String, Object> x : t.divThing.exprAttrs.entrySet()) {
 			fi.add(JSForm.flex("var item = " + var + ".item"));
-			HSIEForm form = new HSIE(errors).handleExpr(x.getValue(), Type.CARD);
+			HSIEForm form = hsie.handleExpr(x.getValue(), Type.CARD);
 			JSForm.assign(fi, "var attr", form);
 			fi.add(JSForm.flex("attr = FLEval.full(attr)"));
 			JSForm ifassign = JSForm.flex("if (attr)").needBlock();

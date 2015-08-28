@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.zinutils.exceptions.UtilException;
 
 public class Table implements Iterable<Option> {
 	private final List<Option> options = new ArrayList<Option>();
@@ -16,6 +17,8 @@ public class Table implements Iterable<Option> {
 	}
 
 	public void remove(Option o) {
+		if (!options.contains(o))
+			throw new UtilException("Option " + o + " is not in my list");
 		options.remove(o);
 	}
 

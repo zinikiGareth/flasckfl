@@ -11,13 +11,17 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
@@ -27,18 +31,20 @@ import org.zinutils.utils.StringComparator;
 
 public class HSIE {
 	private final ErrorResult errors;
+	private final Rewriter rewriter;
 	private int exprIdx;
 
-	public HSIE(ErrorResult errors) {
+	public HSIE(ErrorResult errors, Rewriter rewriter) {
 		this.errors = errors;
+		this.rewriter = rewriter;
 		exprIdx = 0;
 	}
 	
 	public HSIEForm handle(FunctionDefinition defn) {
-		return handle(defn, 0, new HashMap<String, Var>());
+		return handle(defn, 0, new HashMap<String, CreationOfVar>());
 	}
 	
-	public HSIEForm handle(FunctionDefinition defn, int alreadyUsed, Map<String, Var> map) {
+	public HSIEForm handle(FunctionDefinition defn, int alreadyUsed, Map<String, CreationOfVar> map) {
 		HSIEForm ret = new HSIEForm(defn.mytype, defn.name, alreadyUsed, map, defn.nargs);
 		MetaState ms = new MetaState(ret);
 		if (defn.nargs == 0)
@@ -57,20 +63,20 @@ public class HSIE {
 	}
 
 	public HSIEForm handleExpr(Object expr, Type type) {
-		MetaState ms = new MetaState(new HSIEForm(type, "", 0, new HashMap<String, Var>(), 0));
+		MetaState ms = new MetaState(new HSIEForm(type, "", 0, new HashMap<String, CreationOfVar>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}
 
 	public HSIEForm handleExprWith(Object expr, Type type, List<String> vars) {
-		HSIEForm blk = new HSIEForm(type, "_expr_", 0, new TreeMap<String, Var>(new StringComparator()), vars.size());
+		HSIEForm blk = new HSIEForm(type, "_expr_", 0, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
 		MetaState ms = new MetaState(blk);
 //		State s = new State(blk);
 //		ms.add(s);
-		Map<String, Var> map = new TreeMap<String, Var>(new StringComparator());
+		Map<String, CreationOfVar> map = new TreeMap<String, CreationOfVar>(new StringComparator());
 		for (String v : vars) {
-			map.put(v, ms.allocateVar());
+			map.put(v, new CreationOfVar(ms.allocateVar(), null, v));
 		}
 		SubstExpr se = new SubstExpr(expr, exprIdx++);
 		se.alsoSub(map);
@@ -87,7 +93,7 @@ public class HSIE {
 		return ms.form;
 	}
 
-	private State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, Var> map, int nargs, List<FunctionCaseDefn> cases) {
+	private State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, CreationOfVar> map, int nargs, List<FunctionCaseDefn> cases) {
 		State s = new State(form);
 		List<Var> formals = new ArrayList<Var>();
 		for (int i=0;i<nargs;i++)
@@ -111,15 +117,19 @@ public class HSIE {
 	private void createSubsts(MetaState ms, List<Object> args, List<Var> formals, SubstExpr expr) {
 		for (int i=0;i<args.size();i++) {
 			Object arg = args.get(i);
-			if (arg instanceof VarPattern)
-				expr.subst(((VarPattern)arg).var, formals.get(i));
-			else if (arg instanceof ConstructorMatch)
+			if (arg instanceof VarPattern) {
+				VarPattern vp = (VarPattern) arg;
+				String called = vp.var;
+				expr.subst(called, new CreationOfVar(formals.get(i), vp.varLoc, called));
+			} else if (arg instanceof ConstructorMatch)
 				ctorSub((ConstructorMatch) arg, ms, formals.get(i), expr);
 			else if (arg instanceof ConstPattern)
 				;
-			else if (arg instanceof TypedPattern)
-				expr.subst(((TypedPattern)arg).var, formals.get(i));
-			else
+			else if (arg instanceof TypedPattern) {
+				TypedPattern tp = (TypedPattern) arg;
+				String called = tp.var;
+				expr.subst(called, new CreationOfVar(formals.get(i), tp.varLocation, called));
+			} else
 				throw new UtilException("Not substituting into " + arg.getClass());
 		}
 	}
@@ -127,9 +137,11 @@ public class HSIE {
 	private void ctorSub(ConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
 		for (Field x : cm.args) {
 			Var v = ms.varFor(from, x.field);
-			if (x.patt instanceof VarPattern)
-				expr.subst(((VarPattern)x.patt).var, v);
-			else if (x.patt instanceof ConstructorMatch)
+			if (x.patt instanceof VarPattern) {
+				VarPattern vp = (VarPattern)x.patt;
+				String called = vp.var;
+				expr.subst(called, new CreationOfVar(v, vp.varLoc, called));
+			} else if (x.patt instanceof ConstructorMatch)
 				ctorSub((ConstructorMatch)x.patt, ms, v, expr);
 			else if (x.patt instanceof ConstPattern)
 				;
@@ -142,6 +154,7 @@ public class HSIE {
 	private void recurse(MetaState ms, State s) {
 //		System.out.println("------ Entering recurse");
 		Table t = buildDecisionTable(s);
+//		t.dump();
 		boolean needChoice = false;
 		List<Option> dulls = new ArrayList<Option>();
 		for (Option o : t) {
@@ -162,9 +175,11 @@ public class HSIE {
 		Option elim = chooseBest(t);
 //		System.out.println("Choosing cases based on " + elim.var);
 		s.writeTo.head(elim.var);
-		for (String ctor : elim.ctorCases) {
+		CreationOfVar cv = new CreationOfVar(elim.var, null, "ev"+elim.var.idx);
+		for (ExternalRef ctor : elim.ctorCases) {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
 			List<NestedBinds> list = elim.ctorCases.get(ctor);
+			ms.form.dependsOn(ctor);
 			HSIEBlock blk = s.writeTo.switchCmd(list.get(0).location, elim.var, ctor);
 			Set<String> binds = new TreeSet<String>();
 			Set<SubstExpr> possibles = new HashSet<SubstExpr>();
@@ -191,9 +206,9 @@ public class HSIE {
 //					System.out.println("Handling constant " + nb.ifConst.value);
 					HSIEBlock inner;
 					if (nb.ifConst.type == ConstPattern.INTEGER)
-						inner = blk.ifCmd(elim.var, Integer.parseInt(nb.ifConst.value));
+						inner = blk.ifCmd(cv, Integer.parseInt(nb.ifConst.value));
 					else if (nb.ifConst.type == ConstPattern.BOOLEAN)
-						inner = blk.ifCmd(elim.var, Boolean.parseBoolean(nb.ifConst.value));
+						inner = blk.ifCmd(cv, Boolean.parseBoolean(nb.ifConst.value));
 					else
 						throw new UtilException("Cannot handle " + nb.ifConst);
 					State s3 = s1.duplicate(inner);
@@ -261,9 +276,9 @@ public class HSIE {
 			ms.allStates.add(s);
 		} else {
 //			System.out.println("Resolving to ---");
-			evalExpr(ms, s, mycases);
 //			s.dump();
 //			System.out.println("---");
+			evalExpr(ms, s, mycases);
 		}
 	}
 
@@ -288,16 +303,16 @@ public class HSIE {
 					o.anything(pe.getValue(), ((VarPattern)patt).var);
 				} else if (patt instanceof ConstructorMatch) {
 					ConstructorMatch cm = (ConstructorMatch) patt;
-					o.ifCtor(cm.location, cm.ctor, cm.args, pe.getValue());
+					o.ifCtor(cm.location, cm.ref, cm.args, pe.getValue());
 				} else if (patt instanceof TypedPattern) {
 					TypedPattern tp = (TypedPattern) patt;
-					o.ifCtor(tp.typeLocation, tp.type, new ArrayList<Field>(), pe.getValue());
+					o.ifCtor(tp.typeLocation, tp.ref, new ArrayList<Field>(), pe.getValue());
 				} else if (patt instanceof ConstPattern) {
 					ConstPattern cp = (ConstPattern) patt;
 					if (cp.type == ConstPattern.INTEGER) {
-						o.ifConst("Number", cp, pe.getValue());
+						o.ifConst(new AbsoluteVar(null, "Number", rewriter.structs.get("Number")), cp, pe.getValue());
 					} else if (cp.type == ConstPattern.BOOLEAN) {
-						o.ifConst("Boolean", cp, pe.getValue());
+						o.ifConst(new AbsoluteVar(null, "Boolean", null), cp, pe.getValue());
 					} else
 						throw new UtilException("HSIE Cannot handle constant pattern for " + cp.type);
 				} else

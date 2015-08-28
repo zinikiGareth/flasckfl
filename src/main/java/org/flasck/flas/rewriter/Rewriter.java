@@ -25,10 +25,13 @@ import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
+import org.flasck.flas.parsedForm.ConstructorMatch;
+import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
@@ -68,8 +71,8 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.parsedForm.TemplateOr;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -357,7 +360,7 @@ public class Rewriter {
 			} else if (val instanceof UnionTypeDefn) {
 				types.put(name, (UnionTypeDefn)val);
 			} else if (val instanceof ContractDecl) {
-				contracts.put(name, (ContractDecl)val);
+				contracts.put(name, rewrite(cx, (ContractDecl)val));
 			} else
 				throw new UtilException("Cannot handle " + val.getClass());
 		}
@@ -649,6 +652,22 @@ public class Rewriter {
 		return ret;
 	}
 
+	private ContractDecl rewrite(NamingContext cx, ContractDecl ctr) {
+		ContractDecl ret = new ContractDecl(ctr.location(), ctr.name());
+		for (ContractMethodDecl cmd : ctr.methods) {
+			ret.addMethod(rewrite(cx, cmd));
+		}
+		return ret;
+	}
+
+	private ContractMethodDecl rewrite(NamingContext cx, ContractMethodDecl cmd) {
+		List<Object> args = new ArrayList<Object>();
+		for (Object o : cmd.args) {
+			args.add(rewritePattern(cx, o));
+		}
+		return new ContractMethodDecl(cmd.dir, cmd.name, args, rewrite(cx, cmd.type));
+	}
+
 	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {
 		FunctionIntro intro = rewrite(cx, c.intro);
 		Object expr = rewriteExpr(cx, c.expr);
@@ -681,23 +700,31 @@ public class Rewriter {
 		return new FunctionIntro(intro.location, intro.name, args);
 	}
 
-	private Object rewritePattern(NamingContext scope, Object o) {
-		if (o instanceof TypedPattern) {
-			TypedPattern tp = (TypedPattern) o;
-			try {
-				Object type = scope.resolve(tp.typeLocation, tp.type);
+	private Object rewritePattern(NamingContext cx, Object o) {
+		try {
+			if (o instanceof TypedPattern) {
+				TypedPattern tp = (TypedPattern) o;
+				Object type = cx.resolve(tp.typeLocation, tp.type);
 				if (!(type instanceof AbsoluteVar))
 					errors.message(tp.typeLocation, "could not handle " + type);
-				return new TypedPattern(tp.typeLocation, ((AbsoluteVar)type).id, tp.varLocation, tp.var);
-			} catch (ResolutionException ex) {
-				errors.message(tp.typeLocation, "no such type: " + ex.name);
-				return null;
+				return new TypedPattern(tp.typeLocation, (AbsoluteVar)type, tp.varLocation, tp.var);
+			} else if (o instanceof VarPattern) {
+				return o;
+			} else if (o instanceof ConstructorMatch) {
+				ConstructorMatch cm = (ConstructorMatch) o;
+				Object type = cx.resolve(cm.location, cm.ctor);
+				if (!(type instanceof AbsoluteVar))
+					errors.message(cm.location, "could not handle " + type);
+				ConstructorMatch ret = new ConstructorMatch(cm.location, (AbsoluteVar)type);
+				for (Field x : cm.args)
+					ret.args.add(ret.new Field(x.field, rewritePattern(cx, x.patt)));
+				return ret;
+			} else {
+				return o;
 			}
-		} else if (o instanceof VarPattern) {
-			return o;
-		} else {
-//			System.out.println("Couldn't rewrite pattern " + o.getClass());
-			return o;
+		} catch (ResolutionException ex) {
+			errors.message(ex.location, "no such type: " + ex.name);
+			return null;
 		}
 	}
 
@@ -786,18 +813,22 @@ public class Rewriter {
 	}
 
 	private Type rewrite(NamingContext cx, Type type) {
-		if (type.iam != WhatAmI.REFERENCE)
-			return type;
 		try {
-			Object r = cx.resolve(type.location(), type.name());
-			if (!(r instanceof AbsoluteVar)) {
-				errors.message(type.location(), type.name() + " is not a type definition");
-				return null;
-			}
-			Type ret = (Type) ((AbsoluteVar)r).defn;
-			if (ret == null) {
-				errors.message(type.location(), "there is no definition in var for " + type.name());
-				return null;
+			Type ret;
+			ret = null;
+			if (type.iam != WhatAmI.REFERENCE)
+				ret = type;
+			else {
+				Object r = cx.resolve(type.location(), type.name());
+				if (!(r instanceof AbsoluteVar)) {
+					errors.message(type.location(), type.name() + " is not a type definition");
+					return null;
+				}
+				ret = (Type) ((AbsoluteVar)r).defn;
+				if (ret == null) {
+					errors.message(type.location(), "there is no definition in var for " + type.name());
+					return null;
+				}
 			}
 			if (ret.hasPolys() && !type.hasPolys()) {
 				errors.message(type.location(), "cannot use " + ret.name() + " without specifying polymorphic arguments");
@@ -814,10 +845,23 @@ public class Rewriter {
 					List<Type> rwp = new ArrayList<Type>();
 					for (Type p : type.polys())
 						rwp.add(rewrite(cx, p));
-					return ret.instance(type.location(), rwp);
+					ret = ret.instance(type.location(), rwp);
 				}
-			} else
+			}
+			int k = -1;
+			List<Type> fnargs = new ArrayList<Type>();
+			if (ret.iam == WhatAmI.FUNCTION)
+				k = ret.arity() + 1;
+			else if (ret.iam == WhatAmI.TUPLE)
+				k = ret.width();
+			else
 				return ret;
+			for (int i=0;i<k;i++)
+				fnargs.add(rewrite(cx, ret.arg(i)));
+			if (ret.iam == WhatAmI.FUNCTION)
+				return Type.function(ret.location(), fnargs);
+			else
+				return Type.tuple(ret.location(), fnargs);
 		} catch (ResolutionException ex) {
 			errors.message(type.location(), ex.getMessage());
 			return null;

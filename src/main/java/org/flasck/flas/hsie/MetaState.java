@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -32,7 +33,7 @@ public class MetaState {
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<Object, Object> retValues = new HashMap<Object, Object>();
-	private final Map<Var, List<Var>> closureDepends = new HashMap<Var, List<Var>>();
+	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
 
 	public MetaState(HSIEForm form) {
 		this.form = form;
@@ -68,11 +69,11 @@ public class MetaState {
 		writeIfExpr(se.substs, se.expr, writeTo);
 	}
 	
-	private void writeIfExpr(Map<String, Var> substs, Object expr, HSIEBlock writeTo) {
+	private void writeIfExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
 		if (expr instanceof IfExpr) {
 			IfExpr ae = (IfExpr) expr;
 			List<InputPosition> elocs = new ArrayList<InputPosition>();
-			HSIEBlock ifCmd = writeTo.ifCmd((Var) convertValue(elocs, substs, ae.guard));
+			HSIEBlock ifCmd = writeTo.ifCmd((CreationOfVar) convertValue(elocs, substs, ae.guard));
 			writeIfExpr(substs, ae.ifExpr, ifCmd);
 			if (ae.elseExpr != null)
 				writeIfExpr(substs, ae.elseExpr, writeTo);
@@ -82,12 +83,14 @@ public class MetaState {
 		} else if (expr instanceof LetExpr) {
 			LetExpr let = (LetExpr) expr;
 			Object val = getValueFor(substs, let.val);
-			Var var;
-			if (val instanceof Var)
-				var = (Var) val;
-			else {
-				var = allocateVar();
-				HSIEBlock closure = form.closure(var);
+			CreationOfVar var;
+			if (val instanceof CreationOfVar) {
+				var = (CreationOfVar) val;
+				var = new CreationOfVar(var.var, var.loc, let.var);
+			} else {
+				Var v = allocateVar();
+				var = new CreationOfVar(v, null, let.var);
+				HSIEBlock closure = form.closure(v);
 				closure.push(null, val);
 			}
 			substs.put(let.var, var);
@@ -97,12 +100,12 @@ public class MetaState {
 		writeFinalExpr(substs, expr, writeTo);
 	}
 
-	public void writeFinalExpr(Map<String, Var> substs, Object expr, HSIEBlock writeTo) {
+	public void writeFinalExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
 		Object ret = getValueFor(substs, expr);
 		writeTo.doReturn(null, ret, closureDependencies(ret));
 	}
 
-	public Object getValueFor(Map<String, Var> substs, Object e) {
+	public Object getValueFor(Map<String, CreationOfVar> substs, Object e) {
 		if (!retValues.containsKey(e)) {
 			List<InputPosition> elocs = new ArrayList<InputPosition>();
 			retValues.put(e, convertValue(elocs, substs, e));
@@ -110,7 +113,7 @@ public class MetaState {
 		return retValues.get(e);
 	}
 
-	private Object convertValue(List<InputPosition> locs, Map<String, Var> substs, Object expr) {
+	private Object convertValue(List<InputPosition> locs, Map<String, CreationOfVar> substs, Object expr) {
 		if (expr == null) { // mainly error trapping, but valid in if .. if .. <no else> case
 			locs.add(null);
 			return null;
@@ -171,7 +174,7 @@ public class MetaState {
 			// TODO: check this doesn't already exist
 			Var var = allocateVar();
 			HSIEBlock closure = form.closure(var);
-			List<Var> mydeps = new ArrayList<Var>();
+			List<CreationOfVar> mydeps = new ArrayList<CreationOfVar>();
 			if (ops.size() != elocs.size())
 				throw new UtilException("Misplaced location or operation: " +  elocs.size() + " != " + ops.size());
 			for (int i=0;i<ops.size();i++) {
@@ -183,14 +186,14 @@ public class MetaState {
 					System.out.println("Did not find loc for " + i);
 				}
 				closure.push(elocs.get(i), o);
-				if (o instanceof Var && closureDepends.containsKey(o) && !mydeps.contains(o)) {
+				if (o instanceof CreationOfVar && closureDepends.containsKey(o) && !mydeps.contains(o)) {
 					mydeps.addAll(closureDepends.get(o));
-					mydeps.add((Var) o);
+					mydeps.add((CreationOfVar) o);
 				}
 			}
 			locs.add(e2.location);
 			closureDepends.put(var, mydeps);
-			return var;
+			return new CreationOfVar(var, e2.location, "clos" + var.idx);
 		}
 		else {
 			System.out.println(expr);
@@ -198,9 +201,11 @@ public class MetaState {
 		}
 	}
 
-	public List<Var> closureDependencies(Object ret) {
-		if (!(ret instanceof Var))
-			return null;
-		return closureDepends.get(ret);
+	public List<CreationOfVar> closureDependencies(Object ret) {
+		if (ret instanceof Var)
+			return closureDepends.get(ret);
+		else if (ret instanceof CreationOfVar)
+			return closureDepends.get(((CreationOfVar)ret).var);
+		return null;
 	}
 }

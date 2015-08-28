@@ -8,24 +8,24 @@ import java.util.Set;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.ListMap;
-import org.zinutils.utils.StringComparator;
 
 public class Option {
 	public final Var var;
-	public final ListMap<String, NestedBinds> ctorCases = new ListMap<String, NestedBinds>(new StringComparator());
+	public final ListMap<ExternalRef, NestedBinds> ctorCases = new ListMap<ExternalRef, NestedBinds>(new ExternalRef.Comparator());
 	public final Set<SubstExpr> undecidedCases = new HashSet<SubstExpr>();
 
 	public Option(Var var) {
 		this.var = var;
 	}
 
-	public void ifCtor(InputPosition location, String ctor, List<Field> args, SubstExpr substExpr) {
+	public void ifCtor(InputPosition location, ExternalRef ctor, List<Field> args, SubstExpr substExpr) {
 		ctorCases.add(ctor, new NestedBinds(location, args, substExpr));
 	}
 
-	public void ifConst(String ctor, ConstPattern cp, SubstExpr substExpr) {
+	public void ifConst(ExternalRef ctor, ConstPattern cp, SubstExpr substExpr) {
 		ctorCases.add(ctor, new NestedBinds(cp.location, cp, substExpr));
 	}
 
@@ -39,14 +39,14 @@ public class Option {
 	
 	public double valuation() {
 		double tot = 0;
-		for (String x : ctorCases.keySet())
+		for (ExternalRef x : ctorCases.keySet())
 			tot += ctorCases.size(x);
 		return tot/ctorCases.keySet().size() + undecidedCases.size();
 	}
 	
 	public void dump() {
 		System.out.println("Option " + var + "[" + valuation() + "] ->");
-		for (Entry<String, List<NestedBinds>> e : ctorCases.entrySet()) {
+		for (Entry<ExternalRef, List<NestedBinds>> e : ctorCases.entrySet()) {
 			System.out.println("  " + e.getKey() + " ->");
 			for (NestedBinds nb : e.getValue())
 				nb.dump();

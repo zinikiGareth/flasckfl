@@ -8,9 +8,9 @@ import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
 
 public class ReturnCmd extends PushReturn {
-	public final List<Var> deps;
+	public final List<CreationOfVar> deps;
 
-	public ReturnCmd(InputPosition loc, Var var, List<Var> deps) {
+	public ReturnCmd(InputPosition loc, CreationOfVar var, List<CreationOfVar> deps) {
 		super(loc, var);
 		this.deps = deps;
 	}

@@ -43,7 +43,7 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.f"));
+		HSIEForm form = new HSIE(errors, rw).handle(rw.functions.get("ME.f"));
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.plus1Of1(), form);
 	}
@@ -63,7 +63,7 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.f"));
+		HSIEForm form = new HSIE(errors, rw).handle(rw.functions.get("ME.f"));
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.idDecode(), form);
 	}
@@ -83,7 +83,7 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.f"));
+		HSIEForm form = new HSIE(errors, rw).handle(rw.functions.get("ME.f"));
 		assertNotNull(form);
 		form.dump();
 		HSIETestData.assertHSIE(HSIETestData.rdf1(), form);
@@ -104,7 +104,7 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors).handle(rw.functions.get("ME.g"));
+		HSIEForm form = new HSIE(errors, rw).handle(rw.functions.get("ME.g"));
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.rdf2(), form);
 	}
@@ -117,7 +117,7 @@ public class HSIECodeGenerator {
 					new ApplyExpr(null, new AbsoluteVar(null, "FLEval.plus", null), new LocalVar("ME.f", null, "_x", null, null), new LocalVar("ME.f", null, "_x", null, null)));
 		FunctionCaseDefn fcd = new FunctionCaseDefn(pkg.innerScope(), null, "ME.f", new ArrayList<Object>(), expr);
 		FunctionDefinition f = new FunctionDefinition(null, Type.FUNCTION, fcd.intro, CollectionUtils.listOf(fcd));
-		HSIEForm form = new HSIE(errors).handle(f);
+		HSIEForm form = new HSIE(errors, null).handle(f);
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.directLet(), form);
 	}

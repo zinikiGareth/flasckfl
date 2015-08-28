@@ -21,7 +21,7 @@ public class TestGeneratingStructs {
 		StructDefn sd = new StructDefn(null, "ME.Hello", true);
 		ErrorResult errors = new ErrorResult();
 		JSTarget target = new JSTarget("ME");
-		Generator gen = new Generator(errors, target);
+		Generator gen = new Generator(errors, null, target);
 		gen.generate(sd);
 		target.writeTo(new PrintWriter(System.out, true));
 		assertEquals(4, target.forms.size());
@@ -41,7 +41,7 @@ public class TestGeneratingStructs {
 		sd.addField(new StructField(Type.reference(null, "Number"), "quant"));
 		ErrorResult errors = new ErrorResult();
 		JSTarget target = new JSTarget("ME");
-		Generator gen = new Generator(errors, target);
+		Generator gen = new Generator(errors, null, target);
 		gen.generate(sd);
 		target.writeTo(new PrintWriter(System.out, true));
 		assertEquals(4, target.forms.size());

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.typechecker.Type;
+import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
 public class ContractDecl extends TypeWithMethods implements Serializable {
@@ -33,6 +35,14 @@ public class ContractDecl extends TypeWithMethods implements Serializable {
 			if (m.name.equals(named))
 				return m.dir.equals(dir);
 		return false;
+	}
+	
+	public Type getMethodType(String named) {
+		for (ContractMethodDecl m : methods)
+			if (m.name.equals(named)) {
+				return m.getType();
+			}
+		throw new UtilException("There is no method " + named);
 	}
 	
 	@Override

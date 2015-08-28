@@ -34,6 +34,11 @@ public class NestedBinds {
 		return null;
 	}
 
+	@Override
+	public String toString() {
+		return "NestedBinds[" + (ifConst != null?"const":"#args - " + args.size()) +"]";
+	}
+	
 	public void dump() {
 		System.out.print("    ");
 		if (ifConst != null)

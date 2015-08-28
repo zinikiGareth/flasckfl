@@ -13,6 +13,7 @@ import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
+import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
@@ -177,17 +178,17 @@ public class JSForm {
 		);
 	}
 
-	public static JSForm switchOn(String ctor, Var var) {
-		if (ctor.equals("Number")) {
+	public static JSForm switchOn(ExternalRef ctor, Var var) {
+		if (ctor.uniqueName().equals("Number")) {
 			return new JSForm("if (FLEval.isInteger(v" + var.idx + "))").needBlock();
 		}
-		if (ctor.equals("Boolean")) {
+		if (ctor.uniqueName().equals("Boolean")) {
 			return new JSForm("if (typeof v" + var.idx + " === 'boolean')").needBlock();
 		}
-		if (ctor.equals("String")) {
+		if (ctor.uniqueName().equals("String")) {
 			return new JSForm("if (typeof v" + var.idx + " === 'string')").needBlock();
 		}
-		return new JSForm("if (v" + var.idx + " && v" + var.idx+"._ctor == '" + ctor +"')").needBlock();
+		return new JSForm("if (v" + var.idx + " && v" + var.idx+"._ctor == '" + ctor.uniqueName() +"')").needBlock();
 	}
 
 	public static JSForm bind(BindCmd h) {
@@ -195,7 +196,7 @@ public class JSForm {
 	}
 
 	public static JSForm ifCmd(IFCmd c) {
-		return new JSForm("if (v" + c.var.idx + " === " + c.value +")").needBlock();
+		return new JSForm("if (v" + c.var.var.idx + " === " + c.value +")").needBlock();
 	}
 
 	public static JSForm error(String fnName) {
@@ -210,11 +211,11 @@ public class JSForm {
 			into.add(new JSForm(sb.toString()));
 		} else if (r.var != null) {
 			if (r.deps != null) {
-				for (Var v : r.deps) {
-					into.add(new JSForm("var v" + v.idx + " = " + closure(form.mytype, form.getClosure(v))));
+				for (CreationOfVar v : r.deps) {
+					into.add(new JSForm("var v" + v.var.idx + " = " + closure(form.mytype, form.getClosure(v.var))));
 				}
 			}
-			into.add(new JSForm(assgn + " = " + closure(form.mytype, form.getClosure(r.var))));
+			into.add(new JSForm(assgn + " = " + closure(form.mytype, form.getClosure(r.var.var))));
 		}
 		else if (r.ival != null)
 			into.add(new JSForm(assgn + " = " + r.ival));
@@ -233,13 +234,13 @@ public class JSForm {
 //		if (r.fn != null)
 //			ret.add(new JSForm("return " + r.fn));
 		if (r.var != null) {
-			if (r.var.idx < form.nformal) {
+			if (r.var.var.idx < form.nformal) {
 				ret.add(new JSForm("return " + r.var));
 			} else if (r.deps != null) {
-				for (Var v : r.deps) {
-					ret.add(new JSForm("var v" + v.idx + " = " + closure(form.mytype, form.getClosure(v))));
+				for (CreationOfVar v : r.deps) {
+					ret.add(new JSForm("var v" + v.var.idx + " = " + closure(form.mytype, form.getClosure(v.var))));
 				}
-				ret.add(new JSForm("return " + closure(form.mytype, form.getClosure(r.var))));
+				ret.add(new JSForm("return " + closure(form.mytype, form.getClosure(r.var.var))));
 			}
 		} else {
 			appendValue(sb, form.mytype, r, 0);
@@ -324,7 +325,7 @@ public class JSForm {
 		} else if (c.ival != null)
 			sb.append(c.ival);
 		else if (c.var != null)
-			sb.append("v"+ c.var.idx);
+			sb.append("v"+ c.var.var.idx);
 		else if (c.sval != null)
 			sb.append("'" + c.sval.text + "'");
 		else if (c.tlv != null) {

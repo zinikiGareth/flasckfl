@@ -9,7 +9,7 @@ import org.flasck.flas.parsedForm.TemplateListVar;
 
 public class PushCmd extends PushReturn {
 
-	public PushCmd(InputPosition loc, Var var) {
+	public PushCmd(InputPosition loc, CreationOfVar var) {
 		super(loc, var);
 	}
 

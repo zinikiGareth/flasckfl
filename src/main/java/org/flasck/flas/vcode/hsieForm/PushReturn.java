@@ -11,7 +11,7 @@ import org.flasck.flas.parsedForm.TemplateListVar;
 // It helps the typechecker at least to treat them as exactly the same
 public abstract class PushReturn extends HSIEBlock {
 	public final InputPosition location;
-	public final Var var;
+	public final CreationOfVar var;
 	public final Integer ival;
 	public final StringLiteral sval;
 	public final ExternalRef fn;
@@ -19,7 +19,7 @@ public abstract class PushReturn extends HSIEBlock {
 	public final FunctionLiteral func;
 	public final CardStateRef csr;
 
-	public PushReturn(InputPosition loc, Var var) {
+	public PushReturn(InputPosition loc, CreationOfVar var) {
 		this.location = loc;
 		this.var = var;
 		this.ival = null;

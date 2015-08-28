@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.slf4j.Logger;
@@ -135,31 +136,28 @@ public class TypeVariableMappings {
 				List<Object> args = unifyl(te1.args, te2.args);
 				return new TypeExpr(te1.from, te1.type, args);
 			}
-			// this is just for debugging; we should catch actual unification errors later
-//			boolean stored = true;
 			if (te1.type.name().equals("Any"))
 				return te1;
 			else if (te2.type.name().equals("Any"))
 				return te2;
+			if (!isCtorBased(te1) || !isCtorBased(te2)) {
+				errors.message(te1.from != null ? te1.from.posn : null, "unification failed here: " + te1 + " <> " + te2);
+				return null;
+			}
+
+			// this is just for debugging; we should catch actual unification errors later
 			if (!isListCtor(te1) || !isListCtor(te2)) {
 				System.out.println("First pass does not unify " + te1 + " and " + te2);
-//				stored = false;
 			}
 			TypeUnion unified = unionOf(te1, te2);
 			for (Entry<TypeVar, Object> x : phi.entrySet()) {
 				if (x.getValue() == te1) {
-//					System.out.println(te1 + " at " + x.getKey());
 					x.setValue(unified);
-//					stored = true;
 				}
 				if (x.getValue() == te2) {
-//					System.out.println(te2 + " at " + x.getKey());
 					x.setValue(unified);
-//					stored = true;
 				}
 			}
-//			if (!stored) {
-//				errors.message((Block)null, "Could not store the unification " + te1.type + " and " + te2.type + " anywhere");
 			needTypeResolution.add(unified);
 			return unified;
 		} else if (t1 instanceof TypeUnion) {
@@ -171,6 +169,15 @@ public class TypeVariableMappings {
 		} else
 			throw new UtilException("I claim all the cases should be covered but I could not handle the pair " + t1.getClass() + " and " + t2.getClass());
 //		System.out.println("Unification done: " + this.phi);
+	}
+
+	private boolean isCtorBased(TypeExpr te) {
+		Type ty  = te.type;
+		while (ty.iam == WhatAmI.INSTANCE)
+			ty = ty.innerType();
+		if (ty instanceof StructDefn || ty instanceof UnionTypeDefn)
+			return true;
+		return false;
 	}
 
 	private boolean isListCtor(TypeExpr expr) {

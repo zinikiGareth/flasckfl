@@ -21,12 +21,12 @@ public class Var {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (obj instanceof CreationOfVar)
+			obj = ((CreationOfVar)obj).var;
+		if (!(obj instanceof Var))
 			return false;
 		Var other = (Var) obj;
-		if (idx != other.idx)
-			return false;
-		return true;
+		return (idx == other.idx);
 	}
 
 	@Override

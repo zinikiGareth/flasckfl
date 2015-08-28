@@ -14,20 +14,32 @@ public class ConstructorMatch {
 			this.field = field;
 			this.patt = patt;
 		}
+		@Override
+		public String toString() {
+			return "CMF[" + field + "]";
+		}
 	}
 
 	public final String ctor;
+	public final ExternalRef ref;
 	public final List<Field> args = new ArrayList<Field>();
 	public final InputPosition location;
 
 	public ConstructorMatch(InputPosition loc, String ctor) {
-		this. location = loc;
+		this.location = loc;
 		this.ctor = ctor;
+		this.ref = null;
+	}
+	
+	public ConstructorMatch(InputPosition loc, ExternalRef ref) {
+		this.location = loc;
+		this.ctor = null;
+		this.ref = ref;
 	}
 	
 	@Override
 	public String toString() {
-		StringBuilder ret = new StringBuilder(ctor);
+		StringBuilder ret = new StringBuilder(ctor != null?ctor:ref.uniqueName());
 		if (!args.isEmpty()) {
 			ret.append(" { ");
 			for (Field f : args) {

@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.AsString;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
@@ -28,6 +29,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
+import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -246,16 +248,16 @@ public class TypeChecker {
 				mapBlock(ib, sc, mapping);
 			} else if (b instanceof IFCmd) {
 				IFCmd ic = (IFCmd) b;
-				HSIEBlock ib = ret.ifCmd(mapping.get(ic.var), ic.value);
+				HSIEBlock ib = ret.ifCmd(new CreationOfVar(mapping.get(ic.var), ic.var.loc, ic.var.called), ic.value);
 				mapBlock(ib, ic, mapping);
 			} else if (b instanceof BindCmd) {
 				BindCmd bc = (BindCmd) b;
 				ret.bindCmd(mapping.get(bc.bind), mapping.get(bc.from), bc.field);
 			} else if (b instanceof ReturnCmd) {
 				ReturnCmd rc = (ReturnCmd)b;
-				List<Var> deps = rewriteList(mapping, rc.deps);
+				List<CreationOfVar> deps = rewriteList(mapping, rc.deps);
 				if (rc.var != null)
-					ret.doReturn(rc.location, mapping.get(rc.var), deps);
+					ret.doReturn(rc.location, new CreationOfVar(mapping.get(rc.var), rc.var.loc, rc.var.called), deps);
 				else if (rc.ival != null)
 					ret.doReturn(rc.location, rc.ival, deps);
 				else if (rc.sval != null)
@@ -269,7 +271,7 @@ public class TypeChecker {
 			} else if (b instanceof PushCmd) {
 				PushCmd pc = (PushCmd) b;
 				if (pc.var != null)
-					ret.push(pc.location, mapping.get(pc.var));
+					ret.push(pc.location, new CreationOfVar(mapping.get(pc.var), pc.var.loc, pc.var.called));
 				else if (pc.ival != null)
 					ret.push(pc.location, pc.ival);
 				else if (pc.fn != null)
@@ -289,12 +291,12 @@ public class TypeChecker {
 		}
 	}
 
-	private List<Var> rewriteList(Map<Var, Var> mapping, List<Var> deps) {
+	private List<CreationOfVar> rewriteList(Map<Var, Var> mapping, List<CreationOfVar> deps) {
 		if (deps == null)
 			return null;
-		List<Var> ret = new ArrayList<Var>();
-		for (Var var : deps)
-			ret.add(mapping.get(var));
+		List<CreationOfVar> ret = new ArrayList<CreationOfVar>();
+		for (CreationOfVar var : deps)
+			ret.add(new CreationOfVar(mapping.get(var), var.loc, var.called));
 		return ret;
 	}
 
@@ -319,7 +321,7 @@ public class TypeChecker {
 			return null;
 		// then we need to build an expr tv0 -> tv1 -> tv2 -> E with all the vars substituted
 		for (int i=hsie.nformal-1;i>=0;i--) {
-			Var myarg = hsie.vars.get(hsie.alreadyUsed+i);
+			CreationOfVar myarg = new CreationOfVar(hsie.vars.get(hsie.alreadyUsed+i), null, "??");
 			Object tv = s.gamma.valueOf(myarg).typeExpr;
 			rhs = new TypeExpr(null, Type.builtin(null, "->"), s.phi.subst(tv), rhs);
 		}
@@ -342,9 +344,10 @@ public class TypeChecker {
 				;
 			else if (o instanceof Switch) {
 				Switch sw = (Switch) o;
-				TypeScheme valueOf = s.gamma.valueOf(sw.var);
-				if (sw.ctor.equals("Number") || sw.ctor.equals("Boolean") || sw.ctor.equals("String")) {
-					s.phi.unify(valueOf.typeExpr, new TypeExpr(null, Type.builtin(null, sw.ctor)));
+				String scname = sw.ctor.uniqueName();
+				TypeScheme valueOf = s.gamma.valueOf(new CreationOfVar(sw.var, null, "??"));
+				if (scname.equals("Number") || scname.equals("Boolean") || scname.equals("String")) {
+					s.phi.unify(valueOf.typeExpr, new TypeExpr(null, (Type)((AbsoluteVar)sw.ctor).defn));
 					returns.add(checkBlock(sft, s, form, sw));
 					logger.info(o.toString() + " links " + sw.var + " to " + sw.ctor);
 				} else {
@@ -379,7 +382,7 @@ public class TypeChecker {
 				IFCmd ic = (IFCmd) o;
 				if (ic.value == null) { // closure case
 					logger.info(o.toString() + " forces " + ic.var + " to be boolean");
-					checkClosure(s, form, form.getClosure(ic.var));
+					checkClosure(s, form, form.getClosure(ic.var.var));
 				}
 				// Since we have to have done a SWITCH before we get here, this gives us no new information
 				returns.add(checkBlock(sft, s, form, ic));
@@ -424,7 +427,7 @@ public class TypeChecker {
 				logger.info(r.tlv.name + " is a template variable, assigning " + ret);
 				return ret;
 			} else if (r.var != null) {
-				HSIEBlock c = form.getClosure(r.var);
+				HSIEBlock c = form.getClosure(r.var.var);
 				if (c == null) {
 					// phi is not updated
 					// assume it must be a bound var; we will fail to get the existing type scheme if not
@@ -463,7 +466,7 @@ public class TypeChecker {
 						throw new UtilException("There was no card definition called " + cm.card);
 					for (StructField sf : cti.struct.fields) {
 						if (sf.name.equals(cm.var)) {
-							return sf.type.asExpr(null, factory);
+							return sf.type.asExpr(new GarneredFrom(cm.location), factory);
 						}
 					}
 					errors.message(cm.location, "there is no field " + cm.var + " in card " + cm.card);
@@ -530,6 +533,8 @@ public class TypeChecker {
 	}
 
 	private Object checkClosure(TypeState s, HSIEForm form, HSIEBlock c) {
+		if (c == null)
+			throw new UtilException("Error on recovering block to check");
 		List<Object> args = new ArrayList<Object>();
 		for (HSIEBlock b : c.nestedCommands()) {
 			Object te = checkExpr(s, form, b);
@@ -644,14 +649,13 @@ public class TypeChecker {
 		return Type.function(location, args);
 	}
 
-	private Object checkSingleApplication(TypeState s, Object Tf, Object Tx) {
-		TypeVar Tr = factory.next();
-//		System.out.println("Allocating " + Tr + " for new application of " + Tf + " to " + Tx);
-		TypeExpr Tf2 = new TypeExpr(null, Type.builtin(null, "->"), Tx, Tr);
-		s.phi.unify(Tf, Tf2);
+	private Object checkSingleApplication(TypeState s, Object fnType, Object argType) {
+		TypeVar resultType = factory.next();
+		TypeExpr hypoFunctionType = new TypeExpr(null, Type.builtin(null, "->"), argType, resultType);
+		s.phi.unify(fnType, hypoFunctionType);
 		if (errors.hasErrors())
 			return null;
-		return s.phi.meaning(Tr);
+		return s.phi.meaning(resultType);
 	}
 
 	public Type getTypeAsCtor(String fn) {

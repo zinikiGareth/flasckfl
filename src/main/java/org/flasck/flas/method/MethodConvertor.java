@@ -40,6 +40,7 @@ import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class MethodConvertor {
@@ -293,23 +294,29 @@ public class MethodConvertor {
 	}
 
 	private Object handleMethodCase(Scope scope, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
+		ContractDecl cd = null;
 		TypeWithMethods proto = senderType;
+		Type methodType = null;
 		if (senderType instanceof ContractService || senderType instanceof ContractImplements) {
-			proto = (ContractDecl) tc.getType(senderType.location(), senderType.name());
+			proto = cd = (ContractDecl) tc.getType(senderType.location(), senderType.name());
+			if (proto.hasMethod(method.text))
+				methodType = cd.getMethodType(method.text);
 		}
 		if (!proto.hasMethod(method.text)) {
 			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());
 			return null;
 		}
-		if (senderType instanceof ContractImplements && !((ContractDecl)proto).checkMethodDir(method.text, "up")) {
+		if (senderType instanceof ContractImplements && !cd.checkMethodDir(method.text, "up")) {
 			errors.message(method.location, "can only call up methods on contract implementations");
 			return null;
 		}
-		if (senderType instanceof ContractService && !((ContractDecl)proto).checkMethodDir(method.text, "down")) {
+		if (senderType instanceof ContractService && !cd.checkMethodDir(method.text, "down")) {
 			errors.message(method.location, "can only call down methods on service implementations");
 			return null;
 		}
-		// TODO: need to do all the remaining checking, e.g. method exists, types and the like ...
+		if (methodType == null)
+			throw new UtilException("We should have figured out the type by now");
+		Type ct = calculateExprType(CollectionUtils.listOf(new VarPattern(null, "__m")), CollectionUtils.listOf(methodType), new ApplyExpr(null, new LocalVar("__me", null, "__m", null, methodType), args));
 		return new ApplyExpr(sender.location(),	scope.fromRoot(sender.location(), "Send"), sender, method, asList(sender.location(), scope, args));
 	}
 
@@ -330,7 +337,7 @@ public class MethodConvertor {
 			} else if (x instanceof TypedPattern) {
 				TypedPattern tx = (TypedPattern)x;
 				args.add(tx.var);
-				Type ty = tc.getType(tx.typeLocation, tx.type);
+				Type ty = (Type) ((AbsoluteVar)tx.ref).defn;
 				// we have an obligation to check that ty is a sub-type of types.get(i);
 				Type prev = types.get(i);
 				if (prev.name().equals("Any"))

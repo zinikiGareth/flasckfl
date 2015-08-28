@@ -10,6 +10,7 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
+import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.PushCmd;
@@ -78,7 +79,7 @@ public class ApplyCurry {
 				oclos.push(pc.location, t.arity());
 			} else
 				oclos.push(pc.location, pc.fn);
-			r.inside.nestedCommands().set(r.pos, new PushCmd(pc.location, v));
+			r.inside.nestedCommands().set(r.pos, new PushCmd(pc.location, new CreationOfVar(v, null, null)));
 			Var myVar = ((ClosureCmd)r.inside).var;
 			updateAllReturnCommands(h, myVar, v);
 		}
@@ -95,17 +96,17 @@ public class ApplyCurry {
 	protected void addClosureBefore(ReturnCmd rc, Var before, Var newClos) {
 		System.out.println("Adding " + newClos + " to " + rc + " before " + before);
 		int at = -1;
-		if (rc.var == before) {
-			rc.deps.add(newClos);
+		if (rc.var.var == before) {
+			rc.deps.add(new CreationOfVar(newClos, null, null));
 		} else {
 			for (int i=0;i<rc.deps.size();i++)
-				if (rc.deps.get(i) == before) {
+				if (rc.deps.get(i).var == before) {
 					at = i;
 					break;
 				}
 			if (at == -1)
 				throw new UtilException("Did not find " + before + " in " + rc.deps);
-			rc.deps.add(at, newClos);
+			rc.deps.add(at, new CreationOfVar(newClos, null, null));
 		}
 	}
 

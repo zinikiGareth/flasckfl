@@ -87,8 +87,8 @@ public class Builtin {
 			d3.addField(new StructField(number, "idx"));
 		}
 		{ // messaging
-			UnionTypeDefn message = new UnionTypeDefn(posn, false, "Message", varA);
-			StructDefn assign = new StructDefn(posn, "Assign", false, varA);
+			UnionTypeDefn message = new UnionTypeDefn(posn, false, "Message");
+			StructDefn assign = new StructDefn(posn, "Assign", false);
 			StructDefn send = new StructDefn(posn, "Send", false);
 			StructDefn crCard = new StructDefn(posn, "CreateCard", false);
 			StructDefn d3 = new StructDefn(posn, "D3Action", false);
@@ -97,7 +97,7 @@ public class Builtin {
 			message.addCase(crCard);
 			assign.addField(new StructField(any, "into"));
 			assign.addField(new StructField(string, "slot"));
-			assign.addField(new StructField(varA, "value"));
+			assign.addField(new StructField(any, "value"));
 				
 			send.addField(new StructField(any, "dest"));
 			send.addField(new StructField(string, "method"));

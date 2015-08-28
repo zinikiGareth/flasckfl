@@ -18,25 +18,25 @@ public class HSIEBlock {
 		commands.add(new Head(v));
 	}
 
-	public HSIEBlock switchCmd(InputPosition loc, Var v, String ctor) {
+	public HSIEBlock switchCmd(InputPosition loc, Var v, ExternalRef ctor) {
 		Switch ret = new Switch(loc, v, ctor);
 		commands.add(ret);
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(Var var) {
+	public HSIEBlock ifCmd(CreationOfVar var) {
 		IFCmd ret = new IFCmd(var);
 		commands.add(ret);
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(Var v, Object value) {
+	public HSIEBlock ifCmd(CreationOfVar v, Object value) {
 		IFCmd ret = new IFCmd(v, value);
 		commands.add(ret);
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(Var v, boolean value) {
+	public HSIEBlock ifCmd(CreationOfVar v, boolean value) {
 		IFCmd ret = new IFCmd(v, value);
 		commands.add(ret);
 		return ret;
@@ -54,8 +54,8 @@ public class HSIEBlock {
 
 	public HSIEBlock pushAt(InputPosition loc, int pos, Object o) {
 		PushCmd ret;
-		if (o instanceof Var)
-			ret = new PushCmd(loc, (Var)o);
+		if (o instanceof CreationOfVar)
+			ret = new PushCmd(loc, (CreationOfVar)o);
 		else if (o instanceof Integer)
 			ret = new PushCmd(loc, (Integer)o);
 		else if (o instanceof ExternalRef)
@@ -76,12 +76,12 @@ public class HSIEBlock {
 		return ret;
 	}
 
-	public HSIEBlock doReturn(InputPosition loc, Object o, List<Var> deps) {
+	public HSIEBlock doReturn(InputPosition loc, Object o, List<CreationOfVar> deps) {
 		ReturnCmd ret;
 		if (o == null)
 			throw new UtilException("Attempt to return null");
-		if (o instanceof Var)
-			ret = new ReturnCmd(loc, (Var)o, deps);
+		if (o instanceof CreationOfVar)
+			ret = new ReturnCmd(loc, (CreationOfVar)o, deps);
 		else if (o instanceof Integer)
 			ret = new ReturnCmd(loc, (Integer)o);
 		else if (o instanceof StringLiteral)

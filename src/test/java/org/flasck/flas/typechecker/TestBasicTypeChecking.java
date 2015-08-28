@@ -235,7 +235,7 @@ public class TestBasicTypeChecking {
 		tc.addExternal("-", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.typecheck(orchardOf(HSIETestData.takeConsCase()));
 		errors.showTo(new PrintWriter(System.out), 0);
-		assertFalse(errors.hasErrors());
+		assertFalse(errors.singleString(), errors.hasErrors());
 		Object te = tc.knowledge.get("take");
 		System.out.println(te);
 		assertNotNull(te);
@@ -250,6 +250,8 @@ public class TestBasicTypeChecking {
 	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 
+		Type number = Type.builtin(null, "Number");
+		tc.addExternal("Number", number);
 		Type varA = Type.polyvar(null, "A");
 		StructDefn nil = new StructDefn(null, "Nil", false);
 		tc.addStructDefn(nil);
@@ -265,10 +267,10 @@ public class TestBasicTypeChecking {
 		tc.addExternal("Nil", Type.function(null, nil));
 		tc.addExternal("Cons", Type.function(null, varA, list, list));
 
-		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
+		tc.addExternal("FLEval.minus", Type.function(null, number, number, number));
 		tc.typecheck(orchardOf(HSIETestData.take()));
 		errors.showTo(new PrintWriter(System.out), 0);
-		assertFalse(errors.hasErrors());
+		assertFalse(errors.singleString(), errors.hasErrors());
 		Object te = tc.knowledge.get("take");
 		System.out.println(te);
 		assertNotNull(te);

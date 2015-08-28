@@ -41,15 +41,15 @@ public class HSIEForm extends HSIEBlock {
 	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 
 	// This constructor is the one for real code
-	public HSIEForm(Type mytype, String name, int alreadyUsed, Map<String, Var> map, int nformal) {
+	public HSIEForm(Type mytype, String name, int alreadyUsed, Map<String, CreationOfVar> map, int nformal) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
 		this.alreadyUsed = alreadyUsed;
 		for (int i=0;i<alreadyUsed;i++)
 			vars.add(null);
-		for (Var v : map.values())
-			vars.set(v.idx, v);
+		for (CreationOfVar v : map.values())
+			vars.set(v.var.idx, v.var);
 		this.nformal = nformal;
 	}
 
@@ -123,7 +123,7 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	// Get the vars which are bound in for ExprN
-	public Map<String, Var> varsFor(int eN) {
+	public Map<String, CreationOfVar> varsFor(int eN) {
 		return exprs.get(eN).substs;
 	}
 

@@ -44,6 +44,7 @@ import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
@@ -121,7 +122,7 @@ public class MethodConvertorTests {
 			}
 		}
 		
-		hsie = new HSIE(errors);
+		hsie = new HSIE(errors, rewriter);
 		tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("Any", (Type) biscope.get("Any"));
@@ -249,7 +250,7 @@ public class MethodConvertorTests {
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
+		assertEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0).toString());
 		hsieForm.dump();
 	}
 
@@ -262,7 +263,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
 		hsieForm.dump();
-		assertEquals("RETURN v3 [v2]", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
+		assertEquals("RETURN v3:clos3 [v2:clos2]", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
 	}
 
 	@Test
@@ -334,7 +335,7 @@ public class MethodConvertorTests {
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
+		assertEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0).toString());
 		hsieForm.dump();
 	}
 
@@ -347,7 +348,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
 		hsieForm.dump();
-		assertEquals("RETURN v3 [v2]", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
+		assertEquals("RETURN v3:clos3 [v2:clos2]", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
 	}
 
 	@Test
@@ -380,7 +381,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
 		hsieForm.dump();
-		assertEquals("RETURN v1 [v0]", hsieForm.nestedCommands().get(0).toString());
+		assertEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0).toString());
 		assertEquals("PUSH Send", hsieForm.getClosure(new Var(0)).nestedCommands().get(0).toString());
 		assertEquals("PUSH CardMember[org.foo.Card.ce]", hsieForm.getClosure(new Var(0)).nestedCommands().get(1).toString());
 		assertEquals("PUSH \"start\"", hsieForm.getClosure(new Var(0)).nestedCommands().get(2).toString());
@@ -416,7 +417,19 @@ public class MethodConvertorTests {
 		assertEquals("can only call down methods on service implementations", errors.get(0).msg);
 		assertEquals("test:         1.6", errors.get(0).loc.toString());
 	}
+
+	@Test
+	@Ignore
+	public void testWeCannotSendAMessageWithTooManyArgs() throws Exception {
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new UnresolvedOperator(new InputPosition("test", 1, 3, "<- ce.start"), "."), new UnresolvedVar(new InputPosition("test", 1, 3, "<- ce.start"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- ce.start"), "start")), new StringLiteral(new InputPosition("test", 1, 3, "<- ce.start"), "hello"))));
+		stage2();
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("can only call down methods on service implementations", errors.get(0).msg);
+		assertEquals("test:         1.6", errors.get(0).loc.toString());
+	}
 	
+	/* ---- Helper Methods ---- */
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
 		List<MethodCaseDefn> cases = new ArrayList<>();

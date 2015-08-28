@@ -184,6 +184,7 @@ public class Compiler {
 			final ErrorResult errors = new ErrorResult();
 			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
 			final ApplyCurry curry = new ApplyCurry();
+			final HSIE hsie = new HSIE(errors, rewriter);
 
 			for (ScopeEntry se : entries)
 				rewriter.rewrite(se);
@@ -197,7 +198,7 @@ public class Compiler {
 		
 			// 3. Generate Class Definitions
 			JSTarget target = new JSTarget(inPkg);
-			Generator gen = new Generator(errors, target);
+			Generator gen = new Generator(errors, hsie, target);
 
 			for (Entry<String, StructDefn> sd : rewriter.structs.entrySet())
 				gen.generate(sd.getValue());
@@ -251,11 +252,10 @@ public class Compiler {
 			//   a. convert functions to HSIE
 			//   b. typechecking
 		
-			HSIE hsie = new HSIE(errors);
 			Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 			for (Orchard<FunctionDefinition> d : defns) {
 				// 6a. Convert each orchard to HSIE
-				Orchard<HSIEForm> oh = hsieOrchard(errors, d);
+				Orchard<HSIEForm> oh = hsieOrchard(errors, hsie, d);
 				abortIfErrors(errors);
 				
 				// 6b. Typecheck an orchard together
@@ -278,7 +278,7 @@ public class Compiler {
 
 			// 7. Generate code from templates
 			for (Template cg : rewriter.templates) {
-				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, rewriter, cg);
+				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, rewriter, hsie, cg);
 				gen.generate(tam, null, null);
 				JSForm onUpdate = JSForm.flex(tam.prefix + ".onUpdate =").needBlock();
 				JSForm prev = null;
@@ -352,18 +352,18 @@ public class Compiler {
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
 	}
 
-	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Rewriter rewriter, Template cg) {
+	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Rewriter rewriter, HSIE hsie, Template cg) {
 		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix, rewriter, cg.scope);
-		matmRecursive(errors, ret, null, null, cg.content);
+		matmRecursive(errors, hsie, ret, null, null, cg.content);
 		return ret;
 	}
 
-	private void matmRecursive(ErrorResult errors, TemplateAbstractModel tam, AbstractTreeNode atn, VisualTree tree, TemplateLine content) {
+	private void matmRecursive(ErrorResult errors, HSIE hsie, TemplateAbstractModel tam, AbstractTreeNode atn, VisualTree tree, TemplateLine content) {
 		if (content instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) content;
 			List<Handler> handlers = new ArrayList<Handler>();
 			for (EventHandler eh : td.handlers) {
-				handlers.add(new Handler(tam.ehId(), eh.action, new HSIE(errors).handleExpr(eh.expr, HSIEForm.Type.FUNCTION)));
+				handlers.add(new Handler(tam.ehId(), eh.action, hsie.handleExpr(eh.expr, HSIEForm.Type.FUNCTION)));
 			}
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, td.customTag, td.attrs, td.formats, handlers);
 			b.sid = tam.nextSid();
@@ -375,7 +375,7 @@ public class Compiler {
 			} else
 				tree.children.add(vt);
 			for (TemplateLine x : td.nested)
-				matmRecursive(errors, tam, atn, vt, x);
+				matmRecursive(errors, hsie, tam, atn, vt, x);
 			tam.cardMembersCause(vt, "assign", Generator.lname(tam.prefix, true) + "_formatTop");
 		} else if (content instanceof TemplateList) {
 			TemplateList tl = (TemplateList) content;
@@ -399,7 +399,7 @@ public class Compiler {
 			tam.nodes.add(atn);
 
 			// Now generate the nested template in that
-			matmRecursive(errors, tam, atn, vt, tl.template);
+			matmRecursive(errors, hsie, tam, atn, vt, tl.template);
 			tam.cardMembersCause(vt, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_formatList");
 		} else if (content instanceof TemplateCases) {
 			TemplateCases cases = (TemplateCases) content;
@@ -419,9 +419,9 @@ public class Compiler {
 			for (TemplateOr tor : cases.cases) {
 				// Now generate each nested template in that
 				VisualTree vt = new VisualTree(null, null);
-				matmRecursive(errors, tam, atn, vt, tor.template);
+				matmRecursive(errors, hsie, tam, atn, vt, tor.template);
 				tam.cardMembersCause(tor.cond, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_switch");
-				atn.cases.add(new OrCase(new HSIE(errors).handleExpr(new ApplyExpr(tor.location(), tam.scope.fromRoot(tor.location(), "=="), cases.switchOn, tor.cond), HSIEForm.Type.CARD), vt));
+				atn.cases.add(new OrCase(hsie.handleExpr(new ApplyExpr(tor.location(), tam.scope.fromRoot(tor.location(), "=="), cases.switchOn, tor.cond), HSIEForm.Type.CARD), vt));
 			}
 		} else if (content instanceof ContentString) {
 			ContentString cs = (ContentString) content;
@@ -447,7 +447,7 @@ public class Compiler {
 			// VisualTree vt = new VisualTree(null);
 			atn = new AbstractTreeNode(AbstractTreeNode.CONTENT, atn, b.id, b.sid, null);
 			tam.nodes.add(atn);
-			atn.expr = new HSIE(errors).handleExpr(ce.expr, HSIEForm.Type.CARD);
+			atn.expr = hsie.handleExpr(ce.expr, HSIEForm.Type.CARD);
 			if (ce.editable()) {
 				atn.editable = ce.editable();
 				if (ce.expr instanceof CardMember) {
@@ -456,7 +456,7 @@ public class Compiler {
 					ApplyExpr ae = (ApplyExpr) ce.expr;
 					if (!(ae.fn instanceof AbsoluteVar) || !(((AbsoluteVar)ae.fn).id.equals("FLEval.field")))
 						throw new UtilException("Invalid expr for edit field " + ae.fn);
-					atn.editobject = new HSIE(errors).handleExpr(ae.args.get(0), HSIEForm.Type.CARD);
+					atn.editobject = hsie.handleExpr(ae.args.get(0), HSIEForm.Type.CARD);
 					atn.editfield = ((StringLiteral)ae.args.get(1)).text;
 				} else
 					throw new UtilException("Do not know how to/you should not be able to edit a field of type " + ce.expr.getClass());
@@ -604,23 +604,23 @@ public class Compiler {
 		}
 	}
 
-	private Orchard<HSIEForm> hsieOrchard(ErrorResult errors, Orchard<FunctionDefinition> d) {
+	private Orchard<HSIEForm> hsieOrchard(ErrorResult errors, HSIE hsie, Orchard<FunctionDefinition> d) {
 		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();
 		for (Tree<FunctionDefinition> t : d)
-			hsieTree(errors, ret, t, t.getRoot(), null, null);
+			hsieTree(errors, hsie, ret, t, t.getRoot(), null, null);
 		return ret;
 	}
 
-	private void hsieTree(ErrorResult errors, Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
-		HSIEForm hsie = new HSIE(errors).handle(node.getEntry());
+	private void hsieTree(ErrorResult errors, HSIE hsie, Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
+		HSIEForm form = hsie.handle(node.getEntry());
 		if (parent == null) {
-			tree = ret.addTree(hsie);
+			tree = ret.addTree(form);
 			parent = tree.getRoot();
 		} else
-			parent = tree.addChild(parent, hsie);
+			parent = tree.addChild(parent, form);
 
 		for (Node<FunctionDefinition> x : t.getChildren(node))
-			hsieTree(errors, ret, t, x, tree, parent);
+			hsieTree(errors, hsie, ret, t, x, tree, parent);
 	}
 
 	private void handleCurrying(ApplyCurry curry, TypeChecker tc, Collection<HSIEForm> collection) {
