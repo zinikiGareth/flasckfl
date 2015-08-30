@@ -314,6 +314,16 @@ public class MethodConvertor {
 		if (methodType == null)
 			throw new UtilException("We should have figured out the type by now");
 		Type ct = calculateExprType(CollectionUtils.listOf(new VarPattern(null, "__m")), CollectionUtils.listOf(methodType), new ApplyExpr(null, new LocalVar("__me", null, "__m", null, methodType), args));
+		if (ct == null)
+			return null; // should have reported the error already
+		if (ct.iam == WhatAmI.FUNCTION) {
+			errors.message(method.location, "missing arguments in call of " + method.text);
+			return null;
+		}
+		if (ct.iam != WhatAmI.STRUCT || !ct.name().equals("Send")) {
+			errors.message(method.location, "type checking error"); // I don't actually see how this could happen ... maybe should throw exception?
+			return null;
+		}
 		return new ApplyExpr(sender.location(),	scope.fromRoot(sender.location(), "Send"), sender, method, asList(sender.location(), scope, args));
 	}
 
@@ -351,7 +361,15 @@ public class MethodConvertor {
 			if (!margs.isEmpty()) {
 				if (ret.iam != WhatAmI.FUNCTION)
 					throw new UtilException("Should be function, but isn't");
-				ret = ret.arg(margs.size());
+				if (ret.arity() > margs.size()) {
+					List<Type> tmp = new ArrayList<>();
+					for (int i=margs.size();i<=ret.arity();i++)
+						tmp.add(ret.arg(i));
+					ret = Type.function(ret.location(), tmp);
+				} else if (ret.arity() < margs.size())
+					throw new UtilException("I don't think this should be possible");
+				else
+					ret = ret.arg(margs.size());
 			}
 //			System.out.println("Type for method message - " + mm.slot + " <- " + mm.expr + " :: " + ret);
 		}

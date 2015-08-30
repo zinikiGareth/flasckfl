@@ -43,6 +43,7 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
+import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.junit.Test;
@@ -387,6 +388,24 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	public void testWeCanSendAMessageToAServiceWithOneArgs() throws Exception {
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request 'hello'"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request 'hello'"), new UnresolvedOperator(new InputPosition("test", 1, 6, "<- ce.request 'hello'"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.request 'hello'"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 7, "<- ce.request 'hello'"), "request")), new StringLiteral(new InputPosition("test", 1, 14, "<- ce.request 'hello'"), "hello"))));
+		stage2(true);
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 0, errors.count());
+		assertEquals(1, functions.size());
+		HSIEForm hsieForm = CollectionUtils.any(functions.values());
+		hsieForm.dump(null);
+		assertEquals("RETURN v2:clos2 [v0:clos0, v1:clos1]", hsieForm.nestedCommands().get(0).toString());
+		List<HSIEBlock> clos1 = hsieForm.getClosure(new Var(1)).nestedCommands();
+		assertEquals(4, clos1.size());
+		assertEquals("PUSH Send", clos1.get(0).toString());
+		assertEquals("PUSH CardMember[org.foo.Card.ce]", clos1.get(1).toString());
+		assertEquals("PUSH \"request\"", clos1.get(2).toString());
+		assertEquals("PUSH v0:clos0", clos1.get(3).toString());
+	}
+
+	@Test
 	public void testWeCannotSendAMessageToAServiceWhichDoesNotHaveThatMethod() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.unknown"), "unknown")))));
 		stage2(true);
@@ -425,6 +444,17 @@ public class MethodConvertorTests {
 		assertEquals(errors.singleString(), 1, errors.count());
 		assertEquals(errors.singleString(), "called with too many arguments", errors.get(0).msg);
 		assertEquals("test:         1.12", errors.get(0).loc.toString());
+	}
+	
+	@Test
+	public void testSendRequiresTheMethodToHaveAllItsArgs() throws Exception {
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request"), new UnresolvedOperator(new InputPosition("test", 1, 5, "<- ce.request"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.request"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.request"), "request"))));
+		stage2(true);
+		convertor.convertContractMethods(functions, rewriter.methods);
+		System.out.println(errors.singleString());
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals(errors.singleString(), "missing arguments in call of request", errors.get(0).msg);
+		assertEquals("test:         1.6", errors.get(0).loc.toString());
 	}
 	
 	/* ---- Helper Methods ---- */

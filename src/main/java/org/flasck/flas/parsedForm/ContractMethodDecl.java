@@ -31,7 +31,7 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 			} else
 				throw new UtilException("Cannot handle type " + o.getClass());
 		}
-		types.add(Type.reference(null, "List", CollectionUtils.listOf(Type.reference(null, "Message"))));
+		types.add(Type.reference(null, "Send"));
 		this.type = Type.function(null, types);
 	}
 
