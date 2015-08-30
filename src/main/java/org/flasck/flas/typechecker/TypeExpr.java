@@ -1,6 +1,7 @@
 package org.flasck.flas.typechecker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,7 +11,6 @@ import java.util.Set;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -19,11 +19,13 @@ public class TypeExpr {
 	public final GarneredFrom from;
 	public final Type type;
 	public final List<Object> args;
+	private static int debugId = 1;
+	private int myId;
 
 	public TypeExpr(GarneredFrom from, Type type, List<Object> args) {
+		this.myId = debugId++;
 		this.from = from;
-		if (this.from == null)
-			System.out.println("Didn't see a from for " + type);
+		TypeChecker.logger.info("Creating type expression " + myId + " for " + type + " with " + args + " from " + from);
 		if (type == null)
 			throw new UtilException("Cannot have null type");
 		this.type = type;
@@ -72,10 +74,58 @@ public class TypeExpr {
 	// Convert to a "standard" type, not a working one
 	public Type asType(TypeChecker tc) {
 		try {
-			return convertToType(tc, new TVPool());
+			return convertToType(tc, new TVPool(populationCount(), tc.types.get("Any")));
 		} catch (TypeUnion.FailException ex) {
 			return null;
 		}
+	}
+
+	private Map<TypeVar, Integer> populationCount() {
+		Map<TypeVar, Integer> ret = new HashMap<>();
+		countVars(ret);
+		return ret;
+	}
+
+	private void countVars(Map<TypeVar, Integer> ret) {
+		if (this.type.name().equals("()")) { // tuple
+			countArgs(ret, args);
+		} else if (this.type.name().equals("->")) { // function
+			Object te = this;
+			while (te instanceof TypeExpr && ((TypeExpr)te).type.name().equals("->")) {
+				count(ret, ((TypeExpr)te).args.get(0));
+				te = ((TypeExpr)te).args.get(1);
+			}
+			count(ret, te);
+		} else {
+			countArgs(ret, args);
+		}
+	}
+
+	private void countArgs(Map<TypeVar, Integer> ret, List<Object> args) {
+		for (Object o : args) {
+			count(ret, o);
+		}
+	}
+
+	private void count(Map<TypeVar, Integer> ret, Object o) {
+		if (o instanceof TypeVar) {
+			TypeVar tv = (TypeVar) o;
+			if (!ret.containsKey(tv))
+				ret.put(tv, 1);
+			else
+				ret.put(tv, ret.get(tv)+1);
+		} else if (o instanceof TypeExpr)
+			((TypeExpr)o).countVars(ret);
+		else if (o instanceof TypeUnion) {
+			TypeUnion tu = (TypeUnion)o;
+			
+			// TODO: It seems that there is a possibility for "multi-counting" here, and we should possibly start over with a new map, and then only count "1" in ret for each entry (of whatever magnitude) in the new map
+			for (TypeExpr x : tu.union) {
+				count(ret, x);
+			}
+		}
+		else
+			throw new UtilException("more cases");
 	}
 
 	protected Type convertToType(TypeChecker tc, TVPool pool) {
@@ -97,7 +147,6 @@ public class TypeExpr {
 			if (!type.hasPolys())
 				return type;
 			return type.instance(null, convertArgs(tc, pool, args));
-//			return Type.reference(this.from != null ? this.from.posn : null, type, convertArgs(tc, pool, args));
 		}
 	}
 
@@ -112,7 +161,7 @@ public class TypeExpr {
 		if (o instanceof TypeVar)
 			return pool.get((TypeVar)o);
 		else if (o instanceof TypeExpr)
-			return ((TypeExpr)o).asType(tc);
+			return ((TypeExpr)o).convertToType(tc, pool);
 		else if (o instanceof TypeUnion) {
 			TypeUnion tu = (TypeUnion)o;
 			for (UnionTypeDefn d : tc.types.values()) {
@@ -131,7 +180,7 @@ public class TypeExpr {
 							Object hv = have.next();
 							if (checkBindings.containsKey(vr.name())) {
 								if (!hv.equals(checkBindings.get(vr.name()))) {
-									tc.errors.message((Tokenizable)null, "inconsistent parameters to " + want.name());
+									tc.errors.message(want.location(), "inconsistent parameters to " + want.name());
 									throw new TypeUnion.FailException();
 								}
 								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.name()));
@@ -149,7 +198,7 @@ public class TypeExpr {
 			throw new UtilException("Cannot convert " + (o == null?"null":o.getClass()));
 	}
 
-	public static Object fromReference(Type tr, Map<String, TypeVar> polys) {
+	public static Object from(Type tr, Map<String, TypeVar> polys) {
 		if (tr.iam == WhatAmI.POLYVAR) {
 			if (polys.containsKey(tr.name()))
 				return polys.get(tr.name());
@@ -164,12 +213,17 @@ public class TypeExpr {
 			return null;
 		List<Object> ret = new ArrayList<Object>();
 		for (Type poly : tr.polys())
-			ret.add(fromReference(poly, polys));
+			ret.add(from(poly, polys));
 		return ret;
 	}
 
 	@Override
 	public String toString() {
-		return type+(args.isEmpty()?"":"("+args+")");
+		String at = "";
+		if (!args.isEmpty()) {
+			at = args.toString();
+			at = "(" + at.substring(1, at.length()-1) +")";
+		}
+		return "TE#"+myId+"{" +type.name()+at + "}";
 	}
 }

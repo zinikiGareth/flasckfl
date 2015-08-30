@@ -495,9 +495,9 @@ public class HSIETestData {
 	
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {
 		System.out.println("---- Check expecting:");
-		expected.dump();
+		expected.dump(null);
 		System.out.println("---------- actual:");
-		actual.dump();
+		actual.dump(null);
 		System.out.println("----------");
 		assertEquals("incorrect name", expected.fnName, actual.fnName);
 		assertEquals("incorrect # of formals", expected.nformal, actual.nformal);

@@ -224,7 +224,7 @@ public class Generator {
 				into.add(JSForm.error(fn));
 			} else {
 				System.out.println("Cannot generate block:");
-				h.dumpOne(0);
+				h.dumpOne(null, 0);
 			}
 		}
 	}

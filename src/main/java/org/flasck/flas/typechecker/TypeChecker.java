@@ -104,11 +104,14 @@ public class TypeChecker {
 	}
 
 	public void addExternal(String name, Type type) {
+		if (type instanceof StructDefn || type instanceof UnionTypeDefn || type instanceof ObjectDefn)
+			throw new UtilException("Not just a type ... call special thing");
 		knowledge.put(name, type);
 	}
 	
 	public Type checkExpr(HSIEForm expr, List<Type> args) {
 		TypeState s = new TypeState(errors);
+		expr.dump(logger);
 		Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>();
 		forms.put(expr.fnName, expr);
 		
@@ -118,8 +121,9 @@ public class TypeChecker {
 			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, args.get(i).asExpr(null, factory)));
 		}
 				
+		int inErrors = errors.count();
 		Map<String, Object> typeinfo = checkAndUnify(s, forms);
-		if (errors.hasErrors())
+		if (errors.count() > inErrors)
 			return null;
 		Object tmp = s.phi.subst(typeinfo.get(expr.fnName));
 		if (!(tmp instanceof TypeExpr)) {
@@ -176,6 +180,10 @@ public class TypeChecker {
 			from = rewriteFunctionTree(tree, s.localKnowledge, rwvars, rewritten, from, tree.getRoot());
 //		System.out.println("Finished rewriting");
 		allocateVars(s, rewritten);
+		for (Entry<String, HSIEForm> x : rewritten.entrySet()) {
+			logger.info(x.getKey() + ":");
+			x.getValue().dump(logger);
+		}
 		return rewritten;
 	}
 
@@ -323,7 +331,7 @@ public class TypeChecker {
 		for (int i=hsie.nformal-1;i>=0;i--) {
 			CreationOfVar myarg = new CreationOfVar(hsie.vars.get(hsie.alreadyUsed+i), null, "??");
 			Object tv = s.gamma.valueOf(myarg).typeExpr;
-			rhs = new TypeExpr(null, Type.builtin(null, "->"), s.phi.subst(tv), rhs);
+			rhs = new TypeExpr(new GarneredFrom(hsie.fnName, i), Type.builtin(new InputPosition("->", 0,0,null), "->"), s.phi.subst(tv), rhs);
 		}
 		return rhs;
 	}
@@ -347,36 +355,49 @@ public class TypeChecker {
 				String scname = sw.ctor.uniqueName();
 				TypeScheme valueOf = s.gamma.valueOf(new CreationOfVar(sw.var, null, "??"));
 				if (scname.equals("Number") || scname.equals("Boolean") || scname.equals("String")) {
-					s.phi.unify(valueOf.typeExpr, new TypeExpr(null, (Type)((AbsoluteVar)sw.ctor).defn));
+					s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), (Type)((AbsoluteVar)sw.ctor).defn));
 					returns.add(checkBlock(sft, s, form, sw));
 					logger.info(o.toString() + " links " + sw.var + " to " + sw.ctor);
 				} else {
 					StructDefn sd = structs.get(sw.ctor);
-					if (sd == null) {
-						errors.message(sw.location, "there is no definition for struct " + sw.ctor);
+					Type pt = sd;
+					UnionTypeDefn ud = types.get(sw.ctor);
+					if (pt == null) pt = ud;
+					if (sd == null && ud == null) {
+						errors.message(sw.location, "there is no definition for struct/union " + sw.ctor);
 						return null;
 					}
-					logger.info(o + " asserts that " + sw.var + " is of type " + sw.ctor + " with type scheme " + valueOf);
 	//				System.out.println(valueOf);
 					Map<String, TypeVar> polys = new HashMap<String, TypeVar>();
 					// we need a complex map of form var -> ctor -> field -> type
 					// and type needs to be cunningly constructed from TypeReference
 					List<Object> targs = new ArrayList<Object>();
-					for (Type x : sd.polys()) {
+					for (Type x : pt.polys()) {
 						TypeVar tv = factory.next();
 						targs.add(tv);
 						polys.put(x.name(), tv);
 					}
 	//				System.out.println(polys);
-					SFTypes inner = new SFTypes(sft);
-					for (StructField x : sd.fields) {
-//						System.out.println("field " + x.name + " has " + x.type);
-						Object fr = TypeExpr.fromReference(x.type, polys);
-						inner.put(sw.var, x.name, fr);
-//						System.out.println(fr);
-					}
-					s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), sd, targs));
-					returns.add(checkBlock(inner, s, form, sw));
+					if (sd != null) {
+						logger.info(o + " asserts that " + sw.var + " is of type " + sw.ctor + " with type scheme " + valueOf);
+						SFTypes inner = new SFTypes(sft);
+						for (StructField x : sd.fields) {
+	//						System.out.println("field " + x.name + " has " + x.type);
+							Object fr = TypeExpr.from(x.type, polys);
+							inner.put(sw.var, x.name, fr);
+	//						System.out.println(fr);
+						}
+						s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), sd, targs));
+						returns.add(checkBlock(inner, s, form, sw));
+					} else if (ud != null) {
+						if (ud.name().equals("Any")) { // this is a special case
+							logger.info(sw + " says " + sw.var + " is of Any type; of course it is ...");
+							s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), ud, targs));
+							returns.add(checkBlock(sft, s, form, sw));
+						} else
+							throw new UtilException("Typechecker does not yet handle real type unions (" + ud.name() +"); this requires rework to the switch statement for a start");
+					} else
+						throw new UtilException("Added case");
 				}
 			} else if (o instanceof IFCmd) {
 				IFCmd ic = (IFCmd) o;
@@ -510,7 +531,7 @@ public class TypeChecker {
 					}
 					if (structs.containsKey(name)) {
 						logger.info(r.fn + " is struct ctor " + name);
-						return typeForStructCtor(null, structs.get(name)).asExpr(null, factory);
+						return typeForStructCtor(r.fn.location(), structs.get(name)).asExpr(new GarneredFrom(r.fn.location()), factory);
 					}
 					// This is probably a failure on our part rather than user error
 					// We should not be able to get here if r.fn is not already an external which has been resolved
@@ -535,6 +556,7 @@ public class TypeChecker {
 	private Object checkClosure(TypeState s, HSIEForm form, HSIEBlock c) {
 		if (c == null)
 			throw new UtilException("Error on recovering block to check");
+		c.dumpOne(logger, 0);
 		List<Object> args = new ArrayList<Object>();
 		List<InputPosition> locs = new ArrayList<InputPosition>();
 		for (HSIEBlock b : c.nestedCommands()) {
@@ -544,9 +566,8 @@ public class TypeChecker {
 			args.add(te);
 			InputPosition ip = null;
 			if (b instanceof PushReturn)
-				locs.add(((PushReturn)b).location);
-			else
-				locs.add(null);
+				ip = ((PushReturn)b).location;
+			locs.add(ip);
 		}
 		Object Tf = args.get(0);
 		if (Tf instanceof TypeExpr && "()".equals(((TypeExpr)Tf).type.name())) { // tuples need special handling
@@ -639,9 +660,7 @@ public class TypeChecker {
 		List<Type> args = new ArrayList<Type>();
 		for (StructField x : structDefn.fields)
 			args.add(x.type);
-		// TODO: I deny that this is "builtin", but none of the other categories work for me
-		System.out.println("FIX use of builtin");
-		args.add(Type.builtin(location, structDefn.name()));
+		args.add(structDefn);
 		return Type.function(location, args);
 	}
 
@@ -649,9 +668,7 @@ public class TypeChecker {
 		List<Type> args = new ArrayList<Type>();
 		// I think this is OK being builtin ...
 		args.add(Type.builtin(location, "_Wrapper"));
-		// TODO: I deny that this is "builtin", but none of the other categories work for me
-		System.out.println("FIX use of builtin");
-		args.add(Type.builtin(location, structDefn.name()));
+		args.add(structDefn);
 		return Type.function(location, args);
 	}
 
@@ -675,8 +692,12 @@ public class TypeChecker {
 	}
 
 	public Type getType(InputPosition loc, String name) {
+		if (name == null)
+			throw new UtilException("Cannot get a type with null name");
 		if (structs.containsKey(name))
 			return structs.get(name);
+		if (types.containsKey(name))
+			return types.get(name);
 		if (knowledge.containsKey(name))
 			return knowledge.get(name);
 		if (cards.containsKey(name))

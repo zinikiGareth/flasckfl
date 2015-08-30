@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import org.flasck.flas.hsie.SubstExpr;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ExternalRef;
+import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
 
 // So, basically an HSIE definition consists of
@@ -102,12 +103,14 @@ public class HSIEForm extends HSIEBlock {
 		return closures.get(v);
 	}
 
-	public void dump() {
-		System.out.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal) + " externals: " + externals);
-		System.out.println("Vars = " + vars);
-		dump(0);
+	public void dump(Logger logTo) {
+		if (logTo == null)
+			logTo = logger;
+		logTo.info("#Args: " + nformal + " #bound: " + (vars.size()-nformal) + " externals: " + externals);
+		logTo.info("Vars = " + vars);
+		dump(logTo, 0);
 		for (HSIEBlock c : closures.values())
-			c.dumpOne(0);
+			c.dumpOne(logTo, 0);
 	}
 
 	public void dependsOn(Object ref) {

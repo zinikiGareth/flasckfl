@@ -705,8 +705,10 @@ public class Rewriter {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;
 				Object type = cx.resolve(tp.typeLocation, tp.type);
-				if (!(type instanceof AbsoluteVar))
+				if (!(type instanceof AbsoluteVar)) {
 					errors.message(tp.typeLocation, "could not handle " + type);
+					return null;
+				}
 				return new TypedPattern(tp.typeLocation, (AbsoluteVar)type, tp.varLocation, tp.var);
 			} else if (o instanceof VarPattern) {
 				return o;

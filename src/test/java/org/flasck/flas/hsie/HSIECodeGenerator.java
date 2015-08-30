@@ -85,7 +85,7 @@ public class HSIECodeGenerator {
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors, rw).handle(rw.functions.get("ME.f"));
 		assertNotNull(form);
-		form.dump();
+		form.dump(null);
 		HSIETestData.assertHSIE(HSIETestData.rdf1(), form);
 	}
 

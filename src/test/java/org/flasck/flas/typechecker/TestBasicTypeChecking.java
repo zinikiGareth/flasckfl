@@ -8,13 +8,27 @@ import static org.junit.Assert.assertTrue;
 import java.io.PrintWriter;
 
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parser.ExprTester;
+import org.flasck.flas.parser.Expression;
+import org.flasck.flas.parser.FunctionParser;
+import org.flasck.flas.parser.IntroParser;
+import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.stories.Builtin;
+import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.junit.Test;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 
@@ -147,6 +161,7 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("FLEval.plus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
+		tc.addTypeDefn(new UnionTypeDefn(null, false, "Any"));
 		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -157,13 +172,13 @@ public class TestBasicTypeChecking {
 			assertNotNull(rdf1);
 			System.out.println(rdf1);
 			assertTrue(rdf1 instanceof Type);
-			assertEquals("Number->A", rdf1.toString());
+			assertEquals("Number->Any", rdf1.toString());
 		}
 		{
 			Object rdf2 = tc.knowledge.get("ME.g");
 			assertNotNull(rdf2);
 			assertTrue(rdf2 instanceof Type);
-			assertEquals("Number->A", rdf2.toString());
+			assertEquals("Number->Any", rdf2.toString());
 		}
 	}
 
@@ -217,6 +232,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanHandleBindForCons() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
+		tc.addTypeDefn(new UnionTypeDefn(null, false, "Any"));
 		tc.addStructDefn(new StructDefn(null, "Number", false));
 		Type varA = Type.polyvar(null, "A");
 		StructDefn nil = new StructDefn(null, "Nil", false);
@@ -241,7 +257,6 @@ public class TestBasicTypeChecking {
 		assertNotNull(te);
 		// The type should be Number -> Cons -> List
 		assertTrue(te instanceof Type);
-//		assertEquals("Number->Cons->List[A]", te.toString());
 		assertEquals("Number->Cons[A]->List[A]", te.toString());
 	}
 
@@ -374,6 +389,57 @@ public class TestBasicTypeChecking {
 			assertNotNull(mf);
 			assertTrue(mf instanceof Type);
 			assertEquals("Number->Number", mf.toString());
+		}
+	}
+
+	@Test
+	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
+		Scope biscope = Builtin.builtinScope();
+		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
+		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
+		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
+		assertEquals(errors.singleString(), 0, errors.count());
+		assertNotNull(f1);
+		FunctionDefinition f = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, f1.intro, CollectionUtils.listOf(f1));
+		pkg.innerScope().define("f", "ME.f", f);
+		FunctionCaseDefn g1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("g x = f [ 42, 'hello']"));
+		assertEquals(errors.singleString(), 0, errors.count());
+		assertNotNull(g1);
+		FunctionDefinition g = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, g1.intro, CollectionUtils.listOf(g1));
+		pkg.innerScope().define("g", "ME.g", g);
+		TypeChecker tc = new TypeChecker(errors);
+		tc.addExternal("String", (Type) biscope.get("String"));
+		tc.addExternal("join", (Type) biscope.get("join"));
+		tc.addTypeDefn((UnionTypeDefn) biscope.get("Any"));
+		tc.addStructDefn((StructDefn) biscope.get("Nil"));
+		tc.addTypeDefn((UnionTypeDefn) biscope.get("List"));
+		tc.addStructDefn((StructDefn) biscope.get("Cons"));
+		tc.addStructDefn((StructDefn) biscope.get("Assign"));
+		tc.addStructDefn((StructDefn) biscope.get("Send"));
+		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
+		Rewriter rewriter = new Rewriter(errors, null);
+		rewriter.rewrite(pkg.myEntry());
+		assertEquals(errors.singleString(), 0, errors.count());
+		HSIE hsie = new HSIE(errors, rewriter);
+		tc.typecheck(orchardOf(hsie.handle(rewriter.functions.get("ME.f"))));
+		assertEquals(errors.singleString(), 0, errors.count());
+		tc.typecheck(orchardOf(hsie.handle(rewriter.functions.get("ME.g"))));
+//		assertEquals(errors.singleString(), 0, errors.count());
+		tc.typecheck(orchard);
+		assertEquals(errors.singleString(), 0, errors.count());
+//		// Four things should now be defined: -, +, f, g
+		assertEquals(4, tc.knowledge.size());
+		{
+			Object mf = tc.knowledge.get("ME.f");
+			assertNotNull(mf);
+			assertTrue(mf instanceof Type);
+			assertEquals("Any->Number", mf.toString());
+		}
+		{
+			Object mg = tc.knowledge.get("ME.g");
+			assertNotNull(mg);
+			assertTrue(mg instanceof Type);
+			assertEquals("Any->Number", mg.toString());
 		}
 	}
 

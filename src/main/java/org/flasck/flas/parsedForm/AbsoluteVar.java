@@ -1,10 +1,13 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.zinutils.exceptions.UtilException;
 
-public class AbsoluteVar implements ExternalRef {
+@SuppressWarnings("serial")
+public class AbsoluteVar implements Serializable, ExternalRef {
 	public final InputPosition location;
 	public final String id;
 	public final Object defn;

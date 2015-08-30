@@ -9,10 +9,14 @@ import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.utils.Justification;
 
 public class HSIEBlock {
 	private final List<HSIEBlock> commands = new ArrayList<HSIEBlock>();
+	protected static final Logger logger = LoggerFactory.getLogger("HSIE");
 
 	public void head(Var v) {
 		commands.add(new Head(v));
@@ -105,15 +109,15 @@ public class HSIEBlock {
 		return commands;
 	}
 
-	protected void dump(int ind) {
+	protected void dump(Logger logTo, int ind) {
 		for (HSIEBlock c : commands)
-			c.dumpOne(ind);
+			c.dumpOne(logTo, ind);
 	}
 
-	public void dumpOne(int ind) {
-		for (int i=0;i<ind;i++)
-			System.out.print(' ');
-		System.out.println(this);
-		dump(ind+2);
+	public void dumpOne(Logger logTo, int ind) {
+		if (logTo == null)
+			logTo = logger ;
+		logTo.info(Justification.LEFT.format("", ind) + this);
+		dump(logTo, ind+2);
 	}
 }

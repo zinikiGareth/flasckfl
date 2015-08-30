@@ -21,7 +21,7 @@ public class Builtin {
 		Type bool = Type.builtin(posn, "Boolean");
 		Type number = Type.builtin(posn, "Number");
 		Type string = Type.builtin(posn, "String");
-		Type any = Type.builtin(posn, "Any"); // is this really builtin?  It should be a TypeUnion of everything ...
+		UnionTypeDefn any = new UnionTypeDefn(posn, false, "Any");
 		{ // core
 			/* PackageDefn fleval = */new PackageDefn(posn, ret, "FLEval");
 			ret.define(".", "FLEval.field",		null); // special case handling

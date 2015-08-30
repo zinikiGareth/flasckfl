@@ -211,27 +211,34 @@ public class Type implements Serializable, Locatable {
 	}
 
 	protected void show(StringBuilder sb) {
-		if (iam == WhatAmI.REFERENCE || iam == WhatAmI.STRUCT) {
+		switch (iam) {
+		case REFERENCE:
+		case STRUCT:
+		case UNION:
+		case BUILTIN:
 			sb.append(name);
-		} else if (iam == WhatAmI.POLYVAR) {
+			showPolys(sb);
+			break;
+		case POLYVAR:
 			sb.append(name);
-		} else if (iam == WhatAmI.BUILTIN) {
-			sb.append(name);
-		} else if (iam == WhatAmI.FUNCTION) {
+			break;
+		case FUNCTION:
 			if (fnargs.size() == 1)
 				sb.append("->");
 			showArgs(sb, "->");
-		} else if (iam == WhatAmI.TUPLE) {
+			break;
+		case TUPLE:
 			sb.append("(");
 			showArgs(sb, ",");
 			sb.append(")");
-		} else if (iam == WhatAmI.UNION) {
-			sb.append("UNION!!??");
-		} else if (iam == WhatAmI.INSTANCE) {
+			break;
+		case INSTANCE:
 			sb.append(type.name());
 			showPolys(sb);
-		} else
+			break;
+		default:
 			throw new UtilException("Cannot handle " + iam);
+		}
 	}
 
 	private void showPolys(StringBuilder sb) {

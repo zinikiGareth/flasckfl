@@ -23,7 +23,7 @@ public class UnificationError extends FLASError {
 		
 		if (te1.from == null || te2.from == null)
 			return "unification failed: " + te1 + " <> " + te2;
-		if (te1.from.arg >= 0) { // we were trying to call a function, the most likely case
+		if (te1.from.type != null && te1.from.arg >= 0) { // we were trying to call a function, the most likely case
 			int arity = ((Type)te1.from.type).arity();
 			int calledWith = figureArgsInDeepCall(te2);
 			if (arity < calledWith)

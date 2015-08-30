@@ -174,6 +174,8 @@ public class TypeVariableMappings {
 
 	private boolean isCtorBased(TypeExpr te) {
 		Type ty  = te.type;
+		while (ty.iam == WhatAmI.FUNCTION && ty.arity() == 0)
+			ty = ty.arg(0);
 		while (ty.iam == WhatAmI.INSTANCE)
 			ty = ty.innerType();
 		if (ty instanceof StructDefn || ty instanceof UnionTypeDefn)
@@ -253,10 +255,10 @@ public class TypeVariableMappings {
 								throw new UtilException("should be a polyvar");
 							Object hv = have.next();
 							if (checkBindings.containsKey(vr.name())) {
-								if (!hv.equals(checkBindings.get(vr.name()))) {
-									errors.message(want.location(), "inconsistent parameters to " + want.name());
+								Object bound = checkBindings.get(vr.name());
+								if (!hv.equals(bound)) {
+									errors.message(want.location(), "inconsistent parameters to " + want.name() + ": " + hv + " and " + bound);
 								}
-								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.name()));
 							} else
 								checkBindings.put(vr.name(), hv);
 						}

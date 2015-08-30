@@ -141,14 +141,7 @@ public class MethodConvertor {
 		boolean fail = false;
 		for (Object o : cmd.args) {
 			if (o instanceof TypedPattern) {
-				TypedPattern to = (TypedPattern)o;
-				String tn = to.type;
-				Type t = tc.getType(to.typeLocation, tn);
-				if (t == null) {
-					errors.message(to.typeLocation, "there is no type " + tn);
-					fail = true;
-				}
-				types.add(t);
+				types.add((Type) ((AbsoluteVar)((TypedPattern)o).ref).defn);
 			} else
 				throw new UtilException("Cannot handle " + o.getClass().getName());
 		}
@@ -177,7 +170,7 @@ public class MethodConvertor {
 			
 			// TODO: these two halves are very similar.  Try and refactor them back together at some point
 			ApplyExpr root = (ApplyExpr) mm.expr;
-			if (root instanceof ApplyExpr) {
+			if (root.fn instanceof ApplyExpr) {
 				ApplyExpr fn = (ApplyExpr)root.fn;
 				if (fn.fn instanceof AbsoluteVar && ((AbsoluteVar)fn.fn).id.equals("FLEval.field")) {
 					Object sender = fn.args.get(0);
@@ -187,7 +180,8 @@ public class MethodConvertor {
 						return handleMethodCase(scope, (Implements) senderType, (Locatable) sender, method, root.args);
 					else
 						return handleExprCase(scope, root);
-				}
+				} else
+					return handleExprCase(scope, root);
 			}
 			else if (root.fn instanceof AbsoluteVar) {
 				// a case where we're building a message
@@ -201,7 +195,8 @@ public class MethodConvertor {
 						return handleMethodCase(scope, (Implements) senderType, (Locatable) sender, method, new ArrayList<Object>());
 					else
 						return handleExprCase(scope, root);
-				}
+				} else
+					return handleExprCase(scope, root);
 			}
 		}
 		InputPosition loc = null;
@@ -213,6 +208,8 @@ public class MethodConvertor {
 
 	protected Object convertAssignMessage(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm) {
 		Type exprType = calculateExprType(margs, types, mm.expr);
+		if (exprType == null)
+			return null;
 		Locatable slot = (Locatable) mm.slot.get(0);
 		Object intoObj;
 		StringLiteral slotName;
@@ -348,7 +345,8 @@ public class MethodConvertor {
 			} else
 				throw new UtilException("Cannot map " + x.getClass());
 		}
-		Type ret = tc.checkExpr(hsie.handleExprWith(expr, HSIEForm.Type.CONTRACT, args), mytypes);
+		HSIEForm hs = hsie.handleExprWith(expr, HSIEForm.Type.CONTRACT, args);
+		Type ret = tc.checkExpr(hs, mytypes);
 		if (ret != null) {
 			if (!margs.isEmpty()) {
 				if (ret.iam != WhatAmI.FUNCTION)
