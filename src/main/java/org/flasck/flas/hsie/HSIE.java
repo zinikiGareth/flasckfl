@@ -24,7 +24,7 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringComparator;
@@ -62,14 +62,14 @@ public class HSIE {
 		return ret;
 	}
 
-	public HSIEForm handleExpr(Object expr, Type type) {
+	public HSIEForm handleExpr(Object expr, CodeType type) {
 		MetaState ms = new MetaState(new HSIEForm(type, "", 0, new HashMap<String, CreationOfVar>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}
 
-	public HSIEForm handleExprWith(Object expr, Type type, List<String> vars) {
+	public HSIEForm handleExprWith(Object expr, CodeType type, List<String> vars) {
 		HSIEForm blk = new HSIEForm(type, "_expr_", 0, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
 		MetaState ms = new MetaState(blk);
 //		State s = new State(blk);

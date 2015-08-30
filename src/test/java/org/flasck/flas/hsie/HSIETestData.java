@@ -14,7 +14,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIETestData {
@@ -417,7 +417,7 @@ public class HSIETestData {
 	}
 
 	private static HSIEForm thingy(String name, int alreadyUsed, int nformal, int nbound, List<String> dependsOn, Map<String, AbsoluteVar> ctorTypes, String... commands) {
-		HSIEForm ret = new HSIEForm(Type.FUNCTION, name, alreadyUsed, nformal, nbound, dependsOn);
+		HSIEForm ret = new HSIEForm(CodeType.FUNCTION, name, alreadyUsed, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;
 		List<HSIEBlock> stack = new ArrayList<HSIEBlock>();
 		stack.add(0, ret);

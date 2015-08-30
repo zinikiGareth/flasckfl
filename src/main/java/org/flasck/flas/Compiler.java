@@ -363,7 +363,7 @@ public class Compiler {
 			TemplateDiv td = (TemplateDiv) content;
 			List<Handler> handlers = new ArrayList<Handler>();
 			for (EventHandler eh : td.handlers) {
-				handlers.add(new Handler(tam.ehId(), eh.action, hsie.handleExpr(eh.expr, HSIEForm.Type.FUNCTION)));
+				handlers.add(new Handler(tam.ehId(), eh.action, hsie.handleExpr(eh.expr, HSIEForm.CodeType.FUNCTION)));
 			}
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, td.customTag, td.attrs, td.formats, handlers);
 			b.sid = tam.nextSid();
@@ -421,7 +421,7 @@ public class Compiler {
 				VisualTree vt = new VisualTree(null, null);
 				matmRecursive(errors, hsie, tam, atn, vt, tor.template);
 				tam.cardMembersCause(tor.cond, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_switch");
-				atn.cases.add(new OrCase(hsie.handleExpr(new ApplyExpr(tor.location(), tam.scope.fromRoot(tor.location(), "=="), cases.switchOn, tor.cond), HSIEForm.Type.CARD), vt));
+				atn.cases.add(new OrCase(hsie.handleExpr(new ApplyExpr(tor.location(), tam.scope.fromRoot(tor.location(), "=="), cases.switchOn, tor.cond), HSIEForm.CodeType.CARD), vt));
 			}
 		} else if (content instanceof ContentString) {
 			ContentString cs = (ContentString) content;
@@ -447,7 +447,7 @@ public class Compiler {
 			// VisualTree vt = new VisualTree(null);
 			atn = new AbstractTreeNode(AbstractTreeNode.CONTENT, atn, b.id, b.sid, null);
 			tam.nodes.add(atn);
-			atn.expr = hsie.handleExpr(ce.expr, HSIEForm.Type.CARD);
+			atn.expr = hsie.handleExpr(ce.expr, HSIEForm.CodeType.CARD);
 			if (ce.editable()) {
 				atn.editable = ce.editable();
 				if (ce.expr instanceof CardMember) {
@@ -456,7 +456,7 @@ public class Compiler {
 					ApplyExpr ae = (ApplyExpr) ce.expr;
 					if (!(ae.fn instanceof AbsoluteVar) || !(((AbsoluteVar)ae.fn).id.equals("FLEval.field")))
 						throw new UtilException("Invalid expr for edit field " + ae.fn);
-					atn.editobject = hsie.handleExpr(ae.args.get(0), HSIEForm.Type.CARD);
+					atn.editobject = hsie.handleExpr(ae.args.get(0), HSIEForm.CodeType.CARD);
 					atn.editfield = ((StringLiteral)ae.args.get(1)).text;
 				} else
 					throw new UtilException("Do not know how to/you should not be able to edit a field of type " + ce.expr.getClass());
@@ -525,7 +525,7 @@ public class Compiler {
 					MethodCaseDefn mcd = new MethodCaseDefn(fi);
 					mcd.messages.addAll(s.actions);
 					MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
-					MethodInContext mic = new MethodInContext(d3.scope, MethodInContext.EVENT, null, null, fi.name, HSIEForm.Type.CARD, method); // PROB NEEDS D3Action type
+					MethodInContext mic = new MethodInContext(d3.scope, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method); // PROB NEEDS D3Action type
 					mc.convertContractMethods(forms, CollectionUtils.listOf(mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 //					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);
@@ -546,7 +546,7 @@ public class Compiler {
 
 		FunctionIntro d3f = new FunctionIntro(d3.d3.dloc, d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>());
 		FunctionCaseDefn fcd = new FunctionCaseDefn(d3.scope, d3.d3.dloc, d3f.name, d3f.args, init);
-		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
+		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 	}
 
@@ -555,7 +555,7 @@ public class Compiler {
 
 		FunctionIntro d3f = new FunctionIntro(null, prefix + "." + name, args);
 		FunctionCaseDefn fcd = new FunctionCaseDefn(scope, null, d3f.name, d3f.args, expr);
-		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.Type.CARD, d3f, CollectionUtils.listOf(fcd));
+		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 
 		return new FunctionLiteral(d3f.location, d3f.name);

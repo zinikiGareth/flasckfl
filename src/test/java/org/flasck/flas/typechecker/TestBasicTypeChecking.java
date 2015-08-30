@@ -396,16 +396,16 @@ public class TestBasicTypeChecking {
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
 		Scope biscope = Builtin.builtinScope();
 		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
-		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.Type.FUNCTION));
+		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);
-		FunctionDefinition f = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, f1.intro, CollectionUtils.listOf(f1));
+		FunctionDefinition f = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, f1.intro, CollectionUtils.listOf(f1));
 		pkg.innerScope().define("f", "ME.f", f);
 		FunctionCaseDefn g1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("g x = f [ 42, 'hello']"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(g1);
-		FunctionDefinition g = new FunctionDefinition(null, HSIEForm.Type.FUNCTION, g1.intro, CollectionUtils.listOf(g1));
+		FunctionDefinition g = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, g1.intro, CollectionUtils.listOf(g1));
 		pkg.innerScope().define("g", "ME.g", g);
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));

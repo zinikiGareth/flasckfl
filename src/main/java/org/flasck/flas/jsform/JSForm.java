@@ -16,7 +16,7 @@ import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushCmd;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
@@ -207,7 +207,7 @@ public class JSForm {
 		ReturnCmd r = (ReturnCmd) form.nestedCommands().get(0);
 		if (r.fn != null) {
 			StringBuilder sb = new StringBuilder(assgn + " = ");
-			appendValue(sb, Type.CARD, r, 0);
+			appendValue(sb, CodeType.CARD, r, 0);
 			into.add(new JSForm(sb.toString()));
 		} else if (r.var != null) {
 			if (r.deps != null) {
@@ -255,7 +255,7 @@ public class JSForm {
 		return ret;
 	}
 
-	private static String closure(Type fntype, HSIEBlock closure) {
+	private static String closure(CodeType fntype, HSIEBlock closure) {
 		StringBuilder sb;
 		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
 		boolean needsObject = false;
@@ -295,7 +295,7 @@ public class JSForm {
 		return sb.toString();
 	}
 
-	private static void appendValue(StringBuilder sb, Type fntype, PushReturn c, int pos) {
+	private static void appendValue(StringBuilder sb, CodeType fntype, PushReturn c, int pos) {
 		if (c.fn != null) {
 			if (c.fn instanceof AbsoluteVar)
 				sb.append(c.fn.uniqueName());
@@ -307,15 +307,15 @@ public class JSForm {
 				jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
 				sb.append(jsname);
 			} else if (c.fn instanceof CardMember) {
-				if (fntype == Type.CARD || fntype == Type.EVENTHANDLER)
+				if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
 					sb.append("this." + ((CardMember)c.fn).var);
-				else if (fntype == Type.HANDLER || fntype == Type.CONTRACT)
+				else if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT)
 					sb.append("this._card." + ((CardMember)c.fn).var);
 				else
 					throw new UtilException("Can't handle " + fntype + " with card member");
 			}
 			else if (c.fn instanceof HandlerLambda) {
-				if (fntype == Type.HANDLER)
+				if (fntype == CodeType.HANDLER)
 					sb.append("this." + ((HandlerLambda)c.fn).var);
 				else
 					throw new UtilException("Can't handle " + fntype + " with handler lambda");

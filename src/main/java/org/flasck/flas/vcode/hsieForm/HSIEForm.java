@@ -28,11 +28,11 @@ import org.zinutils.exceptions.UtilException;
 
 // Each of the Expressions En is modified to be just a simple apply-tree
 public class HSIEForm extends HSIEBlock {
-	public enum Type {
+	public enum CodeType {
 		FUNCTION, CARD, CONTRACT, SERVICE, HANDLER, EVENTHANDLER
 	}
 
-	public final Type mytype;
+	public final CodeType mytype;
 	public final String fnName;
 	public final int alreadyUsed;
 	public final int nformal;
@@ -42,7 +42,7 @@ public class HSIEForm extends HSIEBlock {
 	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 
 	// This constructor is the one for real code
-	public HSIEForm(Type mytype, String name, int alreadyUsed, Map<String, CreationOfVar> map, int nformal) {
+	public HSIEForm(CodeType mytype, String name, int alreadyUsed, Map<String, CreationOfVar> map, int nformal) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
@@ -55,7 +55,7 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	// This is the copy/rewrite constructor
-	public HSIEForm(Type mytype, String name, int alreadyUsed, int nformal, List<Var> vars, Collection<Object> externals) {
+	public HSIEForm(CodeType mytype, String name, int alreadyUsed, int nformal, List<Var> vars, Collection<Object> externals) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
@@ -66,7 +66,7 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	// This constructor is for testing
-	public HSIEForm(Type mytype, String name, int alreadyUsed, int nformal, int nbound, Collection<String> dependsOn) {
+	public HSIEForm(CodeType mytype, String name, int alreadyUsed, int nformal, int nbound, Collection<String> dependsOn) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		fnName = name;
@@ -136,6 +136,6 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	public boolean isMethod() {
-		return mytype == Type.CARD || mytype == Type.CONTRACT || mytype == Type.SERVICE || mytype == Type.HANDLER || mytype == Type.EVENTHANDLER;
+		return mytype == CodeType.CARD || mytype == CodeType.CONTRACT || mytype == CodeType.SERVICE || mytype == CodeType.HANDLER || mytype == CodeType.EVENTHANDLER;
 	}
 }

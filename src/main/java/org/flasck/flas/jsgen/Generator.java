@@ -26,7 +26,7 @@ import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
@@ -51,7 +51,7 @@ public class Generator {
 		if (input.isMethod()) {
 			int idx = jsname.lastIndexOf(".");
 			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
-			if (input.mytype == Type.HANDLER) {
+			if (input.mytype == CodeType.HANDLER) {
 				idx = jsname.lastIndexOf('.', idx-1);
 			} else {
 				idx = jsname.lastIndexOf("._C");
@@ -83,7 +83,7 @@ public class Generator {
 				if (x.init != null) {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
-					HSIEForm form = hsie.handleExpr(x.init, Type.FUNCTION);
+					HSIEForm form = hsie.handleExpr(x.init, CodeType.FUNCTION);
 //					form.dump();
 					generateField(defass, x.name, form);
 					generateField(elseBlock, x.name, form);
@@ -124,7 +124,7 @@ public class Generator {
 		for (Entry<String, Object> x : card.inits.entrySet()) {
 			HSIEForm form = null;
 			if (x.getValue() != null) {
-				form = hsie.handleExpr(x.getValue(), Type.FUNCTION);
+				form = hsie.handleExpr(x.getValue(), CodeType.FUNCTION);
 //					form.dump();
 			}
 
@@ -358,13 +358,13 @@ public class Generator {
 	private void generateFormatsFor(JSForm fi, VisualTree t, String var) {
 		if (t.divThing.complexFormats != null) {
 			fi.add(JSForm.flex("var item = " + var + ".item"));
-			HSIEForm form = hsie.handleExpr(t.divThing.complexFormats, Type.CARD);
+			HSIEForm form = hsie.handleExpr(t.divThing.complexFormats, CodeType.CARD);
 			JSForm.assign(fi, "var cls", form);
 			fi.add(JSForm.flex("doc.getElementById(" + var + "['" + t.divThing.sid + "']).setAttribute('class', join(FLEval.full(cls), ' '))"));
 		}
 		for (Entry<String, Object> x : t.divThing.exprAttrs.entrySet()) {
 			fi.add(JSForm.flex("var item = " + var + ".item"));
-			HSIEForm form = hsie.handleExpr(x.getValue(), Type.CARD);
+			HSIEForm form = hsie.handleExpr(x.getValue(), CodeType.CARD);
 			JSForm.assign(fi, "var attr", form);
 			fi.add(JSForm.flex("attr = FLEval.full(attr)"));
 			JSForm ifassign = JSForm.flex("if (attr)").needBlock();

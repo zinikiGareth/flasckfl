@@ -1,7 +1,7 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class MethodInContext {
 	public static final int DOWN = 1;
@@ -13,10 +13,10 @@ public class MethodInContext {
 	public final InputPosition contractLocation;
 	public final int direction;
 	public final String name;
-	public final Type type;
+	public final CodeType type;
 	public final MethodDefinition method;
 
-	public MethodInContext(Scope scope, int dir, InputPosition cloc, String fromContract, String name, Type type, MethodDefinition method) {
+	public MethodInContext(Scope scope, int dir, InputPosition cloc, String fromContract, String name, CodeType type, MethodDefinition method) {
 		this.scope = scope;
 		this.direction = dir;
 		this.contractLocation = cloc;

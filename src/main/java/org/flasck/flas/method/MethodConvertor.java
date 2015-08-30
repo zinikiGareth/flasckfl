@@ -106,7 +106,7 @@ public class MethodConvertor {
 		for (EventCaseDefn c : eh.cases) {
 			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, convertMessagesToActionList(eh.intro.location, scope, eh.intro.args, types, c.messages)));
 		}
-		return new FunctionDefinition(eh.intro.location, HSIEForm.Type.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
+		return new FunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
 	}
 
 	protected List<Type> figureCMD(MethodInContext m) {
@@ -345,7 +345,7 @@ public class MethodConvertor {
 			} else
 				throw new UtilException("Cannot map " + x.getClass());
 		}
-		HSIEForm hs = hsie.handleExprWith(expr, HSIEForm.Type.CONTRACT, args);
+		HSIEForm hs = hsie.handleExprWith(expr, HSIEForm.CodeType.CONTRACT, args);
 		Type ret = tc.checkExpr(hs, mytypes);
 		if (ret != null) {
 			if (!margs.isEmpty()) {

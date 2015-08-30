@@ -4,17 +4,17 @@ import java.io.Writer;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
 public class FunctionDefinition implements Locatable {
 	public final InputPosition location;
-	public final Type mytype;
+	public final CodeType mytype;
 	public final String name;
 	public final int nargs;
 	public final List<FunctionCaseDefn> cases;
 
-	public FunctionDefinition(InputPosition location, Type mytype, String name, int nargs, List<FunctionCaseDefn> list) {
+	public FunctionDefinition(InputPosition location, CodeType mytype, String name, int nargs, List<FunctionCaseDefn> list) {
 		this.location = location;
 		if (mytype == null)
 			throw new UtilException("Null mytype");
@@ -24,7 +24,7 @@ public class FunctionDefinition implements Locatable {
 		this.cases = list;
 	}
 
-	public FunctionDefinition(InputPosition location, Type mytype, FunctionIntro intro, List<FunctionCaseDefn> list) {
+	public FunctionDefinition(InputPosition location, CodeType mytype, FunctionIntro intro, List<FunctionCaseDefn> list) {
 		this(location, mytype, intro.name, intro.args.size(), list);
 	}
 

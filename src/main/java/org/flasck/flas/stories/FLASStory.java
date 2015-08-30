@@ -80,9 +80,9 @@ public class FLASStory implements StoryProcessor {
 	public static class State {
 		private String pkg;
 		public final Scope scope;
-		public final HSIEForm.Type kind;
+		public final HSIEForm.CodeType kind;
 
-		public State(Scope scope, String pkg, HSIEForm.Type kind) {
+		public State(Scope scope, String pkg, HSIEForm.CodeType kind) {
 			this.scope = scope;
 			this.pkg = pkg;
 			this.kind = kind;
@@ -103,7 +103,7 @@ public class FLASStory implements StoryProcessor {
 	@Override
 	public Object process(ScopeEntry top, List<Block> blocks) {
 		PackageDefn pkg = (PackageDefn) top.getValue();
-		State s = new State(pkg.innerScope(), pkg.name, HSIEForm.Type.FUNCTION);
+		State s = new State(pkg.innerScope(), pkg.name, HSIEForm.CodeType.FUNCTION);
 		ErrorResult er = new ErrorResult();
 		doScope(er, s, blocks);
 		if (er.hasErrors())
@@ -176,7 +176,7 @@ public class FLASStory implements StoryProcessor {
 //					er.message(b, "duplicate definition for name " + cd.name);
 //				else
 //					ret.define(State.simpleName(cd.name), cd.name, cd);
-				doCardDefinition(er, new State(cd.innerScope(), cd.name, HSIEForm.Type.CARD), cd, b.nested);
+				doCardDefinition(er, new State(cd.innerScope(), cd.name, HSIEForm.CodeType.CARD), cd, b.nested);
 			} else
 				throw new UtilException("Need to handle " + o.getClass());
 		}
