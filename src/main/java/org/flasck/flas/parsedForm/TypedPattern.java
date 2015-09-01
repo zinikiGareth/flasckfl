@@ -30,7 +30,7 @@ public class TypedPattern implements AsString, Serializable {
 	
 	@Override
 	public String toString() {
-		return "TypedPattern[" + type + ":" + var +"]";
+		return "TypedPattern[" + (ref!=null?ref.uniqueName():type) + ":" + var +"]";
 	}
 
 	@Override

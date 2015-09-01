@@ -109,7 +109,7 @@ public class TypeChecker {
 		knowledge.put(name, type);
 	}
 	
-	public Type checkExpr(HSIEForm expr, List<Type> args) {
+	public Type checkExpr(HSIEForm expr, List<Type> args, List<InputPosition> locs) {
 		TypeState s = new TypeState(errors);
 		expr.dump(logger);
 		Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>();
@@ -118,13 +118,15 @@ public class TypeChecker {
 		s.localKnowledge.put(expr.fnName, factory.next());
 		for (int i=0;i<expr.nformal;i++) {
 //			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + (i+hsie.alreadyUsed));
-			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, args.get(i).asExpr(null, factory)));
+			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, args.get(i).asExpr(new GarneredFrom(locs.get(i)), factory)));
 		}
 				
 		int inErrors = errors.count();
 		Map<String, Object> typeinfo = checkAndUnify(s, forms);
 		if (errors.count() > inErrors)
 			return null;
+		if (!typeinfo.containsKey(expr.fnName))
+			throw new UtilException("Did not record a type for " + expr.fnName);
 		Object tmp = s.phi.subst(typeinfo.get(expr.fnName));
 		if (!(tmp instanceof TypeExpr)) {
 			System.out.println("I truly believe tmp should be a TypeExpr, not " + tmp.getClass());
@@ -134,13 +136,14 @@ public class TypeChecker {
 	}
 
 	public void typecheck(Orchard<HSIEForm> functionsToCheck) {
+		int mark = errors.count();
 //		System.out.println("---- Starting to typecheck");
 		TypeState s = new TypeState(errors);
 		Map<String, HSIEForm> rewritten = rewriteForms(s, functionsToCheck);
 //		System.out.println("Allocated new type vars; checking forms");
 		Map<String, Object> actualTypes = checkAndUnify(s, rewritten);
 //		System.out.println("Done final unification; building types");
-		if (errors.hasErrors())
+		if (errors.moreErrors(mark))
 			return;
 		for (HSIEForm f : rewritten.values()) {
 			Object tmp = s.phi.subst(actualTypes.get(f.fnName));
@@ -198,6 +201,7 @@ public class TypeChecker {
 	}
 
 	protected Map<String, Object> checkAndUnify(TypeState s, Map<String, HSIEForm> forms) {
+		int mark = errors.count();
 		Map<String, Object> actualTypes = new HashMap<String, Object>();
 		for (HSIEForm hsie : forms.values()) {
 			Object te = checkHSIE(s, hsie);
@@ -207,7 +211,7 @@ public class TypeChecker {
 		}
 //		System.out.println("Checked forms: actualTypes = " + actualTypes);
 //		System.out.println("Attempting to unify types");
-		if (errors.hasErrors())
+		if (errors.moreErrors(mark))
 			return actualTypes;
 		for (HSIEForm f : forms.values()) {
 			Object rwt = s.phi.unify(s.localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
@@ -675,8 +679,9 @@ public class TypeChecker {
 	private Object checkSingleApplication(TypeState s, Object fnType, InputPosition pos, Object argType) {
 		TypeVar resultType = factory.next();
 		TypeExpr hypoFunctionType = new TypeExpr(new GarneredFrom(pos), Type.builtin(new InputPosition("builtin", 0, 0, null), "->"), argType, resultType);
+		int mark = errors.count();
 		s.phi.unify(fnType, hypoFunctionType);
-		if (errors.hasErrors())
+		if (errors.moreErrors(mark))
 			return null;
 		return s.phi.meaning(resultType);
 	}

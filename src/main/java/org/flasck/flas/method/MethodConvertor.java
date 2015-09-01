@@ -28,19 +28,18 @@ import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeWithMethods;
-import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.typechecker.Type;
-import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.typechecker.Type.WhatAmI;
+import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class MethodConvertor {
@@ -176,15 +175,16 @@ public class MethodConvertor {
 					Object sender = fn.args.get(0);
 					StringLiteral method = (StringLiteral) fn.args.get(1);
 					Type senderType = calculateExprType(margs, types, sender);
+					while (senderType.iam == WhatAmI.INSTANCE)
+						senderType = senderType.innerType();
 					if (senderType instanceof TypeWithMethods)
-						return handleMethodCase(scope, (Implements) senderType, (Locatable) sender, method, root.args);
+						return handleMethodCase(scope, fn.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, root.args);
 					else
 						return handleExprCase(scope, root);
 				} else
 					return handleExprCase(scope, root);
 			}
 			else if (root.fn instanceof AbsoluteVar) {
-				// a case where we're building a message
 				AbsoluteVar av = (AbsoluteVar) root.fn;
 				String name = av.id;
 				if (name.equals("FLEval.field")) {
@@ -192,7 +192,7 @@ public class MethodConvertor {
 					StringLiteral method = (StringLiteral) root.args.get(1);
 					Type senderType = calculateExprType(margs, types, sender);
 					if (senderType instanceof TypeWithMethods)
-						return handleMethodCase(scope, (Implements) senderType, (Locatable) sender, method, new ArrayList<Object>());
+						return handleMethodCase(scope, root.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, new ArrayList<Object>());
 					else
 						return handleExprCase(scope, root);
 				} else
@@ -290,7 +290,7 @@ public class MethodConvertor {
 		return new ApplyExpr(slot.location(), scope.fromRoot(slot.location(), "Assign"), intoObj, slotName, mm.expr);
 	}
 
-	private Object handleMethodCase(Scope scope, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
+	private Object handleMethodCase(Scope scope, InputPosition location, List<Object> margs, List<Type> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
 		ContractDecl cd = null;
 		TypeWithMethods proto = senderType;
 		Type methodType = null;
@@ -298,6 +298,10 @@ public class MethodConvertor {
 			proto = cd = (ContractDecl) tc.getType(senderType.location(), senderType.name());
 			if (proto.hasMethod(method.text))
 				methodType = cd.getMethodType(method.text);
+		} else if (senderType instanceof ObjectDefn) {
+			ObjectDefn od = (ObjectDefn) senderType;
+			if (senderType.hasMethod(method.text))
+				methodType = od.getMethod(method.text);
 		}
 		if (!proto.hasMethod(method.text)) {
 			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());
@@ -313,7 +317,11 @@ public class MethodConvertor {
 		}
 		if (methodType == null)
 			throw new UtilException("We should have figured out the type by now");
-		Type ct = calculateExprType(CollectionUtils.listOf(new VarPattern(null, "__m")), CollectionUtils.listOf(methodType), new ApplyExpr(null, new LocalVar("__me", null, "__m", null, methodType), args));
+		List<Object> m1 = new ArrayList<>(margs);
+		m1.add(new VarPattern(location, "__m"));
+		List<Type> t1 = new ArrayList<>(types);
+		t1.add(methodType);
+		Type ct = calculateExprType(m1, t1, new ApplyExpr(location, new LocalVar("__me", location, "__m", location, methodType), args));
 		if (ct == null)
 			return null; // should have reported the error already
 		if (ct.iam == WhatAmI.FUNCTION) {
@@ -336,11 +344,13 @@ public class MethodConvertor {
 		List<Type> mytypes = new ArrayList<Type>();
 //		System.out.println("Convert method: " + mm.slot + " <- " + mm.expr);
 		List<String> args = new ArrayList<String>();
+		List<InputPosition> locs = new ArrayList<>();
 		for (int i=0;i<margs.size();i++) {
 			Object x = margs.get(i);
 			if (x instanceof VarPattern) {
 				mytypes.add(types.get(i));
 				args.add(((VarPattern)x).var);
+				locs.add(((VarPattern)x).varLoc);
 			} else if (x instanceof TypedPattern) {
 				TypedPattern tx = (TypedPattern)x;
 				args.add(tx.var);
@@ -352,11 +362,12 @@ public class MethodConvertor {
 				else
 					throw new UtilException("Need to cover the case where the parent type is " + prev.name() + " and we want to restrict to " + tx.type);
 				mytypes.add(ty);
+				locs.add(tx.typeLocation);
 			} else
 				throw new UtilException("Cannot map " + x.getClass());
 		}
 		HSIEForm hs = hsie.handleExprWith(expr, HSIEForm.CodeType.CONTRACT, args);
-		Type ret = tc.checkExpr(hs, mytypes);
+		Type ret = tc.checkExpr(hs, mytypes, locs);
 		if (ret != null) {
 			if (!margs.isEmpty()) {
 				if (ret.iam != WhatAmI.FUNCTION)

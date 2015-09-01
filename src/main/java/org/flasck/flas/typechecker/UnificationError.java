@@ -18,7 +18,7 @@ public class UnificationError extends FLASError {
 	}
 
 	private static String reportMessage(TypeExpr te1, TypeExpr te2, boolean switchedAlready) {
-		if (!switchedAlready && (te1.from == null && te2.from != null) || (te1.from.posn != null && (te2.from != null || te2.from.posn == null)))
+		if (!switchedAlready && ((te1.from == null && te2.from != null) || (te1.from.posn != null && (te2.from != null || te2.from.posn == null))))
 			return reportMessage(te2, te1, true);
 		
 		if (te1.from == null || te2.from == null)

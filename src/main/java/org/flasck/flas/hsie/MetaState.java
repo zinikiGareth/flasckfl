@@ -29,10 +29,20 @@ import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class MetaState {
+	public class LocatedObject {
+		InputPosition loc;
+		Object obj;
+
+		public LocatedObject(InputPosition loc, Object obj) {
+			this.loc = loc;
+			this.obj = obj;
+		}
+	}
+
 	public final HSIEForm form;
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
-	private final Map<Object, Object> retValues = new HashMap<Object, Object>();
+	private final Map<Object, LocatedObject> retValues = new HashMap<Object, LocatedObject>();
 	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
 
 	public MetaState(HSIEForm form) {
@@ -82,16 +92,16 @@ public class MetaState {
 			return;
 		} else if (expr instanceof LetExpr) {
 			LetExpr let = (LetExpr) expr;
-			Object val = getValueFor(substs, let.val);
+			LocatedObject lo = getValueFor(substs, let.val);
 			CreationOfVar var;
-			if (val instanceof CreationOfVar) {
-				var = (CreationOfVar) val;
-				var = new CreationOfVar(var.var, var.loc, let.var);
+			if (lo.obj instanceof CreationOfVar) {
+				var = (CreationOfVar) lo.obj;
+				var = new CreationOfVar(var.var, lo.loc, let.var);
 			} else {
 				Var v = allocateVar();
 				var = new CreationOfVar(v, null, let.var);
 				HSIEBlock closure = form.closure(v);
-				closure.push(null, val);
+				closure.push(lo.loc, lo.obj);
 			}
 			substs.put(let.var, var);
 			writeIfExpr(substs, let.expr, writeTo);
@@ -101,14 +111,15 @@ public class MetaState {
 	}
 
 	public void writeFinalExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
-		Object ret = getValueFor(substs, expr);
-		writeTo.doReturn(null, ret, closureDependencies(ret));
+		LocatedObject lo = getValueFor(substs, expr);
+		writeTo.doReturn(lo.loc, lo.obj, closureDependencies(lo.obj));
 	}
 
-	public Object getValueFor(Map<String, CreationOfVar> substs, Object e) {
+	public LocatedObject getValueFor(Map<String, CreationOfVar> substs, Object e) {
 		if (!retValues.containsKey(e)) {
 			List<InputPosition> elocs = new ArrayList<InputPosition>();
-			retValues.put(e, convertValue(elocs, substs, e));
+			Object val = convertValue(elocs, substs, e);
+			retValues.put(e, new LocatedObject(elocs.get(0), val));
 		}
 		return retValues.get(e);
 	}

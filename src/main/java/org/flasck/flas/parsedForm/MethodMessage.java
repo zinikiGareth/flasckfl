@@ -10,4 +10,9 @@ public class MethodMessage {
 		this.slot = slot;
 		this.expr = expr;
 	}
+	
+	@Override
+	public String toString() {
+		return (slot != null ? slot.toString() : "") + " <- " + expr.toString();
+	}
 }

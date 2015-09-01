@@ -74,22 +74,16 @@ public class Builtin {
 			assoc.addField(new StructField(varB, "value"));
 			assoc.addField(new StructField(map, "rest"));
 		}
-		{ // crosets
-			ObjectDefn croset = new ObjectDefn(posn, "Croset", false, varA);
-			ret.define("Croset", "Croset", croset);
-			croset.addMethod(new ObjectMethod(Type.function(posn, Type.polyvar(posn, "A")), "put"));
-			croset.addMethod(new ObjectMethod(Type.function(posn, Type.polyvar(posn, "A")), "mergeAppend"));
-		}
 		{ // d3
 			StructDefn d3 = new StructDefn(posn, "D3Element", false, varA);
 			ret.define("D3Element", "D3Element", d3);
 			d3.addField(new StructField(varA, "data"));
 			d3.addField(new StructField(number, "idx"));
 		}
+		StructDefn send = new StructDefn(posn, "Send", false);
 		{ // messaging
 			UnionTypeDefn message = new UnionTypeDefn(posn, false, "Message");
 			StructDefn assign = new StructDefn(posn, "Assign", false);
-			StructDefn send = new StructDefn(posn, "Send", false);
 			StructDefn crCard = new StructDefn(posn, "CreateCard", false);
 			StructDefn d3 = new StructDefn(posn, "D3Action", false);
 			message.addCase(assign);
@@ -125,24 +119,12 @@ public class Builtin {
 			elt.addField(new StructField(list.instance(posn, elt), "content"));
 			elt.addField(new StructField(list.instance(posn, varB), "handlers"));
 		}
-		{ // Ziniki
-//			PackageDefn dom = new PackageDefn(ret, "org");
-//			PackageDefn ziniki = new PackageDefn(dom.innerScope(), "ziniki");
-			// TODO: I think this should be in org.cardstack
-//			ziniki.innerScope().define("Init", "org.ziniki.Init",
-//				new ContractDecl(null, "org.ziniki.Init"));
-//			ziniki.innerScope().define("KeyValue", "org.ziniki.KeyValue",
-//					new ContractDecl(null, "org.ziniki.KeyValue"));
-//			ContractDecl creds = new ContractDecl(null, "org.ziniki.Credentials");
-//			creds.methods.add(new ContractMethodDecl("up", "logout", new ArrayList<Object>()));
-//			ziniki.innerScope().define("Credentials", "org.ziniki.Credentials", creds);
-//			ContractDecl qc = new ContractDecl(null, "org.ziniki.Query");
-//			qc.methods.add(new ContractMethodDecl("up", "scan", new ArrayList<Object>()));
-//			ziniki.innerScope().define("Query", "org.ziniki.Query",	qc);
-//			ziniki.innerScope().define("QueryHandler", "org.ziniki.QueryHandler",
-//					new ContractDecl(null, "org.ziniki.QueryHandler"));
+		{ // crosets
+			ObjectDefn croset = new ObjectDefn(posn, "Croset", false, varA);
+			ret.define("Croset", "Croset", croset);
+			croset.addMethod(new ObjectMethod(Type.function(posn, any, send), "put"));
+			croset.addMethod(new ObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));
 		}
 		return ret;
 	}
-
 }

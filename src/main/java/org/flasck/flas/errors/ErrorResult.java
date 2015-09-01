@@ -44,6 +44,10 @@ public class ErrorResult {
 		return !errors.isEmpty();
 	}
 
+	public boolean moreErrors(int mark) {
+		return errors.size() > mark;
+	}
+
 	public FLASError get(int i) {
 		return CollectionUtils.nth(errors, i);
 	}

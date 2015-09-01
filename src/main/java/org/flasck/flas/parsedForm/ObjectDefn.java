@@ -9,7 +9,7 @@ import org.flasck.flas.typechecker.Type;
 import org.zinutils.collections.CollectionUtils;
 
 @SuppressWarnings("serial")
-public class ObjectDefn extends Type implements AsString, Serializable, Locatable {
+public class ObjectDefn extends TypeWithMethods implements AsString, Serializable, Locatable {
 	public final List<ObjectMethod> methods = new ArrayList<ObjectMethod>();
 	public final transient boolean generate;
 
@@ -22,9 +22,24 @@ public class ObjectDefn extends Type implements AsString, Serializable, Locatabl
 		this.generate = generate;
 	}
 
+	@Override
+	public boolean hasMethod(String named) {
+		for (ObjectMethod m : methods)
+			if (m.name.equals(named))
+				return true;
+		return false;
+	}
+
 	public ObjectDefn addMethod(ObjectMethod m) {
 		methods.add(m);
 		return this;
+	}
+
+	public Type getMethod(String named) {
+		for (ObjectMethod m : methods)
+			if (m.name.equals(named))
+				return m.type;
+		return null;
 	}
 
 	@Override
