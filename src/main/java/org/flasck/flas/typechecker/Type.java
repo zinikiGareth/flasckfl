@@ -64,7 +64,7 @@ public class Type implements Serializable, Locatable {
 
 	public String name() {
 		if (iam == WhatAmI.INSTANCE)
-			return type.name;
+			return type.name();
 		else if (iam == WhatAmI.REFERENCE || iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
 				 iam == WhatAmI.CONTRACT || iam == WhatAmI.CONTRACTIMPL || iam == WhatAmI.CONTRACTSERVICE || iam == WhatAmI.HANDLERIMPLEMENTS)
 			return name;

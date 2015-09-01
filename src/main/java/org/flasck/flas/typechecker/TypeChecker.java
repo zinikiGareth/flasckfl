@@ -104,6 +104,8 @@ public class TypeChecker {
 	}
 
 	public void addExternal(String name, Type type) {
+		if (type == null)
+			throw new UtilException("Don't give me null types");
 		if (type instanceof StructDefn || type instanceof UnionTypeDefn || type instanceof ObjectDefn)
 			throw new UtilException("Not just a type ... call special thing");
 		knowledge.put(name, type);

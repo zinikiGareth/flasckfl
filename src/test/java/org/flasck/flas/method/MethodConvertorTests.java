@@ -67,9 +67,12 @@ public class MethodConvertorTests {
 	public MethodConvertorTests() {
 		errors = new ErrorResult();
 		Scope biscope = Builtin.builtinScope();
+		UnionTypeDefn any = (UnionTypeDefn) biscope.get("Any");
+		StructDefn send = (StructDefn) biscope.get("Send");
 		org = new PackageDefn(null, biscope, "org");
 		pkg = new PackageDefn(null, org.innerScope(), "foo");
 		orgFooScope = pkg.innerScope();
+		orgFooScope.define("doSend", "org.foo.doSend", Type.function(null, any, send));
 		{
 			ContractDecl contract1 = new ContractDecl(null, "org.foo.Contract1");
 			ContractMethodDecl m1 = new ContractMethodDecl("down", "bar", new ArrayList<>());
@@ -123,12 +126,14 @@ public class MethodConvertorTests {
 		tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("join", (Type) biscope.get("join"));
-		tc.addTypeDefn((UnionTypeDefn) biscope.get("Any"));
+		tc.addExternal("map", (Type) biscope.get("map"));
+		tc.addExternal("org.foo.doSend", (Type) orgFooScope.get("doSend"));
+		tc.addTypeDefn(any);
 		tc.addStructDefn((StructDefn) biscope.get("Nil"));
 		tc.addTypeDefn((UnionTypeDefn) biscope.get("List"));
 		tc.addStructDefn((StructDefn) biscope.get("Cons"));
 		tc.addStructDefn((StructDefn) biscope.get("Assign"));
-		tc.addStructDefn((StructDefn) biscope.get("Send"));
+		tc.addStructDefn(send);
 	}
 	
 	public void stage2(boolean checkErrors) throws Exception {
@@ -216,12 +221,15 @@ public class MethodConvertorTests {
 	}
 
 	@Test
-	public void testWeCannotFathomARandomFunctionNotAField() throws Exception {
+	public void testWeCannotFathomARandomFunctionNotAMethod() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new ApplyExpr(null, new UnresolvedVar(null, "join"), new UnresolvedVar(null, "Nil")), new StringLiteral(null, ""))));
 		stage2(true);
 		convertor.convertContractMethods(functions, rewriter.methods);
+//		HSIEForm hsieForm = CollectionUtils.any(functions.values());
+//		hsieForm.dump(null);
+//		assertEquals(0, functions.size());
 		assertEquals(errors.singleString(), 1, errors.count());
-		assertEquals("not a valid method message", errors.get(0).msg);
+		assertEquals("method expression must be of type Message or List[Message]", errors.get(0).msg);
 		assertEquals("test:         1.3", errors.get(0).loc.toString());
 	}
 
@@ -457,6 +465,23 @@ public class MethodConvertorTests {
 		assertEquals("test:         1.6", errors.get(0).loc.toString());
 	}
 	
+	/* ---- Function case tests ---- */
+	@Test
+	public void testWeCanSendACallMapAcrossSomethingThatReturnsSend() throws Exception {
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- map doSend []"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- map doSend []"), "map"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- map doSend []"), "doSend"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- map doSend []"), "Nil"))));
+		stage2(true);
+		convertor.convertContractMethods(functions, rewriter.methods);
+		assertEquals(errors.singleString(), 0, errors.count());
+		assertEquals(1, functions.size());
+		HSIEForm hsieForm = CollectionUtils.any(functions.values());
+		hsieForm.dump(null);
+		assertEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0).toString());
+		List<HSIEBlock> clos0 = hsieForm.getClosure(new Var(0)).nestedCommands();
+		assertEquals("PUSH map", clos0.get(0).toString());
+		assertEquals("PUSH org.foo.doSend", clos0.get(1).toString());
+		assertEquals("PUSH Nil", clos0.get(2).toString());
+	}
+
 	/* ---- Helper Methods ---- */
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());

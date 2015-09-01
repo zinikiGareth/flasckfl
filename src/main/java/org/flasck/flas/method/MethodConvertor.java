@@ -163,6 +163,7 @@ public class MethodConvertor {
 	}
 
 	private Object convertMessageToAction(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm) {
+		System.out.println("Converting " + mm);
 		if (mm.slot != null) {
 			return convertAssignMessage(scope, margs, types, mm);
 		} else if (mm.expr instanceof ApplyExpr) {
@@ -180,9 +181,9 @@ public class MethodConvertor {
 					if (senderType instanceof TypeWithMethods)
 						return handleMethodCase(scope, fn.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, root.args);
 					else
-						return handleExprCase(scope, root);
+						return handleExprCase(scope, margs, types, root);
 				} else
-					return handleExprCase(scope, root);
+					return handleExprCase(scope, margs, types, root);
 			}
 			else if (root.fn instanceof AbsoluteVar) {
 				AbsoluteVar av = (AbsoluteVar) root.fn;
@@ -194,9 +195,9 @@ public class MethodConvertor {
 					if (senderType instanceof TypeWithMethods)
 						return handleMethodCase(scope, root.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, new ArrayList<Object>());
 					else
-						return handleExprCase(scope, root);
+						return handleExprCase(scope, margs, types, root);
 				} else
-					return handleExprCase(scope, root);
+					return handleExprCase(scope, margs, types, root);
 			}
 		}
 		InputPosition loc = null;
@@ -335,9 +336,29 @@ public class MethodConvertor {
 		return new ApplyExpr(sender.location(),	scope.fromRoot(sender.location(), "Send"), sender, method, asList(sender.location(), scope, args));
 	}
 
-	private Object handleExprCase(Scope scope, ApplyExpr root) {
-		// TODO: need to check that it returns Action or [Action] at least
-		return root;
+	private Object handleExprCase(Scope scope, List<Object> margs, List<Type> types, ApplyExpr expr) {
+		Type t = calculateExprType(margs, types, expr);
+		if (t == null)
+			return null;
+		if (t.iam == WhatAmI.INSTANCE) {
+			// to be an instance, it must be a List of one of the types
+			if (!t.name().equals("List") && !t.name().equals("Cons")) {
+				errors.message(expr.location, "method expression must be of type Message or List[Message]");
+				return null;
+			}
+			// if it is a list, check what it's a list of ...
+			t = t.poly(0);
+		}
+		if (t.iam != WhatAmI.STRUCT) {
+			errors.message(expr.location, "method expression must be of type Message or List[Message]");
+			return null;
+		}
+		String name = t.name();
+		if (!name.equals("Message") && !name.equals("Send") && !name.equals("Assign")) {
+			errors.message(expr.location, "expression must be of type Message or List[Message]");
+			return null;
+		}
+		return expr;
 	}
 
 	protected Type calculateExprType(List<Object> margs, List<Type> types, Object expr) {
@@ -369,6 +390,7 @@ public class MethodConvertor {
 		HSIEForm hs = hsie.handleExprWith(expr, HSIEForm.CodeType.CONTRACT, args);
 		Type ret = tc.checkExpr(hs, mytypes, locs);
 		if (ret != null) {
+			System.out.println("Returned type was " + ret + " and margs was " + margs);
 			if (!margs.isEmpty()) {
 				if (ret.iam != WhatAmI.FUNCTION)
 					throw new UtilException("Should be function, but isn't");

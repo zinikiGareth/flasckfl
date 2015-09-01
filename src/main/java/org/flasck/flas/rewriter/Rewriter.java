@@ -361,6 +361,8 @@ public class Rewriter {
 				types.put(name, (UnionTypeDefn)val);
 			} else if (val instanceof ContractDecl) {
 				contracts.put(name, rewrite(cx, (ContractDecl)val));
+			} else if (val instanceof Type) {
+				; // don't do anything - is that OK? 
 			} else
 				throw new UtilException("Cannot handle " + val.getClass());
 		}
