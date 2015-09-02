@@ -19,10 +19,6 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.flasck.flas.TemplateAbstractModel.AbstractTreeNode;
-import org.flasck.flas.TemplateAbstractModel.Handler;
-import org.flasck.flas.TemplateAbstractModel.OrCase;
-import org.flasck.flas.TemplateAbstractModel.VisualTree;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
@@ -31,7 +27,6 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
@@ -40,10 +35,6 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
-import org.flasck.flas.parsedForm.CardMember;
-import org.flasck.flas.parsedForm.CardReference;
-import org.flasck.flas.parsedForm.ContentExpr;
-import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -51,7 +42,6 @@ import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
-import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -67,17 +57,12 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.Template;
-import org.flasck.flas.parsedForm.TemplateCases;
-import org.flasck.flas.parsedForm.TemplateDiv;
-import org.flasck.flas.parsedForm.TemplateLine;
-import org.flasck.flas.parsedForm.TemplateList;
-import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -185,6 +170,7 @@ public class Compiler {
 			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter);
+			final TemplateGenerator tgen = new TemplateGenerator(errors, rewriter, hsie, curry);
 
 			for (ScopeEntry se : entries)
 				rewriter.rewrite(se);
@@ -198,7 +184,7 @@ public class Compiler {
 		
 			// 3. Generate Class Definitions
 			JSTarget target = new JSTarget(inPkg);
-			Generator gen = new Generator(errors, hsie, target);
+			Generator gen = new Generator(hsie, target);
 
 			for (Entry<String, StructDefn> sd : rewriter.structs.entrySet())
 				gen.generate(sd.getValue());
@@ -277,29 +263,7 @@ public class Compiler {
 			abortIfErrors(errors);
 
 			// 7. Generate code from templates
-			for (Template cg : rewriter.templates) {
-				TemplateAbstractModel tam = makeAbstractTemplateModel(errors, rewriter, hsie, cg);
-				gen.generate(tam, null, null);
-				JSForm onUpdate = JSForm.flex(tam.prefix + ".onUpdate =").needBlock();
-				JSForm prev = null;
-				for (String field : tam.fields.key1Set()) {
-					if (prev != null)
-						prev.comma();
-					JSForm curr = JSForm.flex("'" + field + "':").needBlock();
-					JSForm pa = null;
-					for (String action : tam.fields.key2Set(field)) {
-						JSForm ca = JSForm.flex("'" + action + "':").nestArray();
-						ca.add(JSForm.flex(String.join(",", tam.fields.get(field, action))).noSemi());
-						if (pa != null)
-							pa.comma();
-						curr.add(ca);
-						pa = ca;
-					}
-					onUpdate.add(curr);
-					prev = curr;
-				}
-				target.add(onUpdate);
-			}
+			tgen.generate(target);
 
 			// 8. D3 definitions may generate card functions; promote these onto the cards
 			for (D3Invoke d3 : rewriter.d3s)
@@ -350,150 +314,6 @@ public class Compiler {
 		}
 
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
-	}
-
-	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Rewriter rewriter, HSIE hsie, Template cg) {
-		TemplateAbstractModel ret = new TemplateAbstractModel(cg.prefix, rewriter, cg.scope);
-		matmRecursive(errors, hsie, ret, null, null, cg.content);
-		return ret;
-	}
-
-	private void matmRecursive(ErrorResult errors, HSIE hsie, TemplateAbstractModel tam, AbstractTreeNode atn, VisualTree tree, TemplateLine content) {
-		if (content instanceof TemplateDiv) {
-			TemplateDiv td = (TemplateDiv) content;
-			List<Handler> handlers = new ArrayList<Handler>();
-			for (EventHandler eh : td.handlers) {
-				HSIEForm expr = hsie.handleExpr(eh.expr, HSIEForm.CodeType.FUNCTION);
-				handlers.add(new Handler(tam.ehId(), eh.action, expr));
-			}
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, td.customTag, td.attrs, td.formats, handlers);
-			b.sid = tam.nextSid();
-			VisualTree vt = new VisualTree(b, null);
-			if (atn == null) {
-				atn = new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, vt);
-				tam.nodes.add(atn);
-				vt.containsThing = AbstractTreeNode.TOP;
-			} else
-				tree.children.add(vt);
-			for (TemplateLine x : td.nested)
-				matmRecursive(errors, hsie, tam, atn, vt, x);
-			tam.cardMembersCause(vt, "assign", Generator.lname(tam.prefix, true) + "_formatTop");
-		} else if (content instanceof TemplateList) {
-			TemplateList tl = (TemplateList) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "ul", new ArrayList<Object>(), tl.formats, new ArrayList<Handler>());
-			b.sid = tam.nextSid();
-			VisualTree pvt = new VisualTree(b, null);
-			pvt.divThing.listVar = ((CardMember)tl.listVar).var;
-			pvt.containsThing = AbstractTreeNode.LIST;
-			if (atn == null)
-				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
-			else
-				tree.children.add(pvt);
-			tam.fields.add(((CardMember)tl.listVar).var, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_assign");
-			tam.fields.add(((CardMember)tl.listVar).var, "itemInserted", Generator.lname(tam.prefix, true) + "_" + b.id + "_itemInserted");
-			tam.fields.add(((CardMember)tl.listVar).var, "itemChanged", Generator.lname(tam.prefix, true) + "_" + b.id + "_itemChanged");
-			
-			// This is where we separate the "included-in-parent" tree from the "I own this" tree
-			VisualTree vt = new VisualTree(null, null);
-			atn = new AbstractTreeNode(AbstractTreeNode.LIST, atn, b.id, b.sid, vt);
-			atn.var = pvt.divThing.listVar;
-			tam.nodes.add(atn);
-
-			// Now generate the nested template in that
-			matmRecursive(errors, hsie, tam, atn, vt, tl.template);
-			tam.cardMembersCause(vt, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_formatList");
-		} else if (content instanceof TemplateCases) {
-			TemplateCases cases = (TemplateCases) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
-			b.sid = tam.nextSid();
-			VisualTree pvt = new VisualTree(b, null);
-			pvt.containsThing = AbstractTreeNode.CASES;
-			if (atn == null)
-				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
-			else
-				tree.children.add(pvt);
-			tam.cardMembersCause(cases.switchOn, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_switch");
-			
-			// This is where we separate the "included-in-parent" tree from the "I own this" tree
-			atn = new AbstractTreeNode(AbstractTreeNode.CASES, atn, b.id, b.sid, null);
-			tam.nodes.add(atn);
-			for (TemplateOr tor : cases.cases) {
-				// Now generate each nested template in that
-				VisualTree vt = new VisualTree(null, null);
-				matmRecursive(errors, hsie, tam, atn, vt, tor.template);
-				tam.cardMembersCause(tor.cond, "assign", Generator.lname(tam.prefix, true) + "_" + b.id + "_switch");
-				atn.cases.add(new OrCase(hsie.handleExpr(new ApplyExpr(tor.location(), tam.scope.fromRoot(tor.location(), "=="), cases.switchOn, tor.cond), HSIEForm.CodeType.CARD), vt));
-			}
-		} else if (content instanceof ContentString) {
-			ContentString cs = (ContentString) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "span", new ArrayList<Object>(), cs.formats, new ArrayList<Handler>());
-			VisualTree vt = new VisualTree(b, cs.text);
-			if (atn == null)
-				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, vt));
-			else
-				tree.children.add(vt);
-		} else if (content instanceof ContentExpr) {
-			ContentExpr ce = (ContentExpr) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "span", new ArrayList<Object>(), ce.formats, new ArrayList<Handler>());
-			b.sid = tam.nextSid();
-			VisualTree pvt = new VisualTree(b, null, ce.editable());
-			pvt.containsThing = AbstractTreeNode.CONTENT;
-			if (atn == null)
-				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
-			else
-				tree.children.add(pvt);
-			tam.cardMembersCause(ce.expr, "assign", Generator.lname(tam.prefix, true) + "_" + b.id);
-			
-			// Now we need to create a new ATN for the _content_ function
-			// VisualTree vt = new VisualTree(null);
-			atn = new AbstractTreeNode(AbstractTreeNode.CONTENT, atn, b.id, b.sid, null);
-			tam.nodes.add(atn);
-			atn.expr = hsie.handleExpr(ce.expr, HSIEForm.CodeType.CARD);
-			if (ce.editable()) {
-				atn.editable = ce.editable();
-				if (ce.expr instanceof CardMember) {
-					atn.editfield = ((CardMember)ce.expr).var;
-				} else if (ce.expr instanceof ApplyExpr) {
-					ApplyExpr ae = (ApplyExpr) ce.expr;
-					if (!(ae.fn instanceof AbsoluteVar) || !(((AbsoluteVar)ae.fn).id.equals("FLEval.field")))
-						throw new UtilException("Invalid expr for edit field " + ae.fn);
-					atn.editobject = hsie.handleExpr(ae.args.get(0), HSIEForm.CodeType.CARD);
-					atn.editfield = ((StringLiteral)ae.args.get(1)).text;
-				} else
-					throw new UtilException("Do not know how to/you should not be able to edit a field of type " + ce.expr.getClass());
-			}
-		} else if (content instanceof CardReference) {
-			CardReference card = (CardReference) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
-			b.sid = tam.nextSid();
-			VisualTree pvt = new VisualTree(b, null);
-			pvt.containsThing = AbstractTreeNode.CARD;
-			if (atn == null)
-				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
-			else
-				tree.children.add(pvt);
-			
-			atn = new AbstractTreeNode(AbstractTreeNode.CARD, atn, b.id, b.sid, null);
-			tam.nodes.add(atn);
-			atn.card = card;
-		} else if (content instanceof D3Invoke) {
-			D3Invoke d3i = (D3Invoke) content;
-			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, "div", new ArrayList<Object>(), new ArrayList<Object>(), new ArrayList<Handler>());
-			b.sid = tam.nextSid();
-			VisualTree pvt = new VisualTree(b, null);
-			pvt.containsThing = AbstractTreeNode.D3;
-			pvt.divThing.name = d3i.d3.name;
-			if (atn == null)
-				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
-			else
-				tree.children.add(pvt);
-			tam.fields.add(((CardMember)d3i.d3.data).var, "assign", Generator.lname(tam.prefix, true) + "_" + b.id);
-			
-			atn = new AbstractTreeNode(AbstractTreeNode.D3, atn, b.id, b.sid, null);
-			tam.nodes.add(atn);
-			atn.d3 = d3i;
-		} else 
-			throw new UtilException("TL type " + content.getClass() + " not supported");
 	}
 
 	private void abortIfErrors(ErrorResult errors) throws ErrorResultException {

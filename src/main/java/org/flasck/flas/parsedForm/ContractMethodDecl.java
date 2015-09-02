@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.typechecker.Type;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")

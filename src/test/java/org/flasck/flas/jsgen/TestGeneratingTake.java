@@ -1,6 +1,5 @@
 package org.flasck.flas.jsgen;
 
-import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -70,6 +69,6 @@ StdLib.take = function(v0, v1) {
 	@Test
 	public void test() {
 		HSIEForm input = HSIETestData.take();
-		new Generator(new ErrorResult(), null, new JSTarget("ME")).generate(input);
+		new Generator(null, new JSTarget("ME")).generate(input);
 	}
 }

@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -19,9 +18,8 @@ public class TestGeneratingStructs {
 	@Test
 	public void testACaseWithNoFields() throws IOException {
 		StructDefn sd = new StructDefn(null, "ME.Hello", true);
-		ErrorResult errors = new ErrorResult();
 		JSTarget target = new JSTarget("ME");
-		Generator gen = new Generator(errors, null, target);
+		Generator gen = new Generator(null, target);
 		gen.generate(sd);
 		target.writeTo(new PrintWriter(System.out, true));
 		assertEquals(4, target.forms.size());
@@ -39,9 +37,8 @@ public class TestGeneratingStructs {
 		StructDefn sd = new StructDefn(null, "ME.Hello", true);
 		sd.addField(new StructField(Type.reference(null, "String"), "name"));
 		sd.addField(new StructField(Type.reference(null, "Number"), "quant"));
-		ErrorResult errors = new ErrorResult();
 		JSTarget target = new JSTarget("ME");
-		Generator gen = new Generator(errors, null, target);
+		Generator gen = new Generator(null, target);
 		gen.generate(sd);
 		target.writeTo(new PrintWriter(System.out, true));
 		assertEquals(4, target.forms.size());
