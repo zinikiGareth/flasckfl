@@ -216,6 +216,7 @@ public class Type implements Serializable, Locatable {
 		case STRUCT:
 		case UNION:
 		case BUILTIN:
+		case CONTRACTIMPL:
 			sb.append(name);
 			showPolys(sb);
 			break;

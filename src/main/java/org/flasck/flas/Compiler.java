@@ -363,7 +363,8 @@ public class Compiler {
 			TemplateDiv td = (TemplateDiv) content;
 			List<Handler> handlers = new ArrayList<Handler>();
 			for (EventHandler eh : td.handlers) {
-				handlers.add(new Handler(tam.ehId(), eh.action, hsie.handleExpr(eh.expr, HSIEForm.CodeType.FUNCTION)));
+				HSIEForm expr = hsie.handleExpr(eh.expr, HSIEForm.CodeType.FUNCTION);
+				handlers.add(new Handler(tam.ehId(), eh.action, expr));
 			}
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, td.customTag, td.attrs, td.formats, handlers);
 			b.sid = tam.nextSid();

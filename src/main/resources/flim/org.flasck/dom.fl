@@ -1,0 +1,4 @@
+	struct ChangeEvent
+		Number index
+		String value
+		String label
