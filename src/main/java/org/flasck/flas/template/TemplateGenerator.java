@@ -31,6 +31,7 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.collections.CollectionUtils;
@@ -40,12 +41,14 @@ public class TemplateGenerator {
 	private final ErrorResult errors;
 	private final Rewriter rewriter;
 	private final HSIE hsie;
+	private final TypeChecker tc;
 	private final ApplyCurry curry;
 
-	public TemplateGenerator(ErrorResult errors, Rewriter rewriter, HSIE hsie, ApplyCurry curry) {
+	public TemplateGenerator(ErrorResult errors, Rewriter rewriter, HSIE hsie, TypeChecker tc, ApplyCurry curry) {
 		this.errors = errors;
 		this.rewriter = rewriter;
 		this.hsie = hsie;
+		this.tc = tc;
 		this.curry = curry;
 	}
 
@@ -87,6 +90,7 @@ public class TemplateGenerator {
 			List<Handler> handlers = new ArrayList<Handler>();
 			for (EventHandler eh : td.handlers) {
 				HSIEForm expr = hsie.handleExpr(eh.expr, HSIEForm.CodeType.FUNCTION);
+				curry.rewrite(tc, expr);
 				handlers.add(new Handler(tam.ehId(), eh.action, expr));
 			}
 			org.flasck.flas.TemplateAbstractModel.Block b = tam.createBlock(errors, td.customTag, td.attrs, td.formats, handlers);
@@ -401,7 +405,7 @@ public class TemplateGenerator {
 		for (Handler eh : tree.divThing.handlers) {
 			JSForm.assign(ir, "var eh" + eh.id, eh.code);
 			JSForm cev = JSForm.flex(tree.divThing.id + "['on" + eh.on + "'] = function(event)").needBlock();
-			cev.add(JSForm.flex("wrapper.dispatchEvent(event, eh" + eh.id + ")"));
+			cev.add(JSForm.flex("wrapper.dispatchEvent(eh" + eh.id + ", event)"));
 			ir.add(cev);
 		}
 		if (tree.text != null) {

@@ -1,4 +1,4 @@
 	struct ChangeEvent
 		Number index
+		String id
 		String value
-		String label

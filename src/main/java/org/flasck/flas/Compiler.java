@@ -170,7 +170,6 @@ public class Compiler {
 			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter);
-			final TemplateGenerator tgen = new TemplateGenerator(errors, rewriter, hsie, curry);
 
 			for (ScopeEntry se : entries)
 				rewriter.rewrite(se);
@@ -263,6 +262,7 @@ public class Compiler {
 			abortIfErrors(errors);
 
 			// 7. Generate code from templates
+			final TemplateGenerator tgen = new TemplateGenerator(errors, rewriter, hsie, tc, curry);
 			tgen.generate(target);
 
 			// 8. D3 definitions may generate card functions; promote these onto the cards

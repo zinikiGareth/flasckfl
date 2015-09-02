@@ -39,6 +39,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
+import org.flasck.flas.typechecker.TypedObject;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
 
@@ -47,12 +48,14 @@ public class MethodConvertor {
 	private final HSIE hsie;
 	private final TypeChecker tc;
 	private final Map<String, ContractDecl> contracts;
+	private final Type messageList;
 
 	public MethodConvertor(ErrorResult errors, HSIE hsie, TypeChecker tc, Map<String, ContractDecl> contracts) {
 		this.errors = errors;
 		this.hsie = hsie;
 		this.tc = tc;
 		this.contracts = contracts;
+		this.messageList = tc.getType(null, "List").instance(null, tc.getType(null, "Message"));
 	}
 
 	// 1. Main entry points to convert different kinds of things
@@ -87,9 +90,16 @@ public class MethodConvertor {
 			throw new UtilException("Method without any cases - valid or not valid?");
 
 		// Now process all of the method cases
-		for (MethodCaseDefn mcd : m.method.cases)
-			cases.add(new FunctionCaseDefn(null, mcd.intro.location, mcd.intro.name, mcd.intro.args, convertMessagesToActionList(mcd.intro.location, m.scope, mcd.intro.args, types, mcd.messages)));
-
+		Type ofType = null;
+		for (MethodCaseDefn mcd : m.method.cases) {
+			TypedObject typedObject = convertMessagesToActionList(mcd.intro.location, m.scope, mcd.intro.args, types, mcd.messages);
+			cases.add(new FunctionCaseDefn(null, mcd.intro.location, mcd.intro.name, mcd.intro.args, typedObject.expr));
+			if (ofType == null)
+				ofType = typedObject.type;
+		}
+		if (ofType != null)
+			tc.addExternal(m.method.intro.name, ofType);
+		
 		return new FunctionDefinition(m.method.intro.location, m.type, m.method.intro.name, m.method.intro.args.size(), cases);
 	}
 
@@ -102,9 +112,15 @@ public class MethodConvertor {
 			throw new UtilException("Method without any cases - valid or not valid?");
 
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		Type ofType = null;
 		for (EventCaseDefn c : eh.cases) {
-			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, convertMessagesToActionList(eh.intro.location, scope, eh.intro.args, types, c.messages)));
+			TypedObject typedObject = convertMessagesToActionList(eh.intro.location, scope, eh.intro.args, types, c.messages);
+			if (ofType == null)
+				ofType = typedObject.type;
+			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
 		}
+		if (ofType != null)
+			tc.addExternal(eh.intro.name, ofType);
 		return new FunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
 	}
 
@@ -150,7 +166,7 @@ public class MethodConvertor {
 		return types;
 	}
 
-	private Object convertMessagesToActionList(InputPosition location, Scope scope, List<Object> args, List<Type> types, List<MethodMessage> messages) {
+	private TypedObject convertMessagesToActionList(InputPosition location, Scope scope, List<Object> args, List<Type> types, List<MethodMessage> messages) {
 		Object ret = scope.fromRoot(location, "Nil");
 		for (int n = messages.size()-1;n>=0;n--) {
 			MethodMessage mm = messages.get(n);
@@ -159,7 +175,9 @@ public class MethodConvertor {
 			InputPosition loc = ((Locatable)mm.expr).location();
 			ret = new ApplyExpr(loc, scope.fromRoot(loc, "Cons"), me, ret);
 		}
-		return ret;
+		List<Type> fnargs = new ArrayList<Type>(types);
+		fnargs.add(messageList);
+		return new TypedObject(Type.function(location, fnargs), ret);
 	}
 
 	private Object convertMessageToAction(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm) {
