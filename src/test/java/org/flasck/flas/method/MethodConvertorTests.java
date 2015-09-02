@@ -133,6 +133,7 @@ public class MethodConvertorTests {
 		tc.addTypeDefn((UnionTypeDefn) biscope.get("List"));
 		tc.addStructDefn((StructDefn) biscope.get("Cons"));
 		tc.addStructDefn((StructDefn) biscope.get("Assign"));
+		tc.addTypeDefn((UnionTypeDefn) biscope.get("Message"));
 		tc.addStructDefn(send);
 	}
 	
@@ -222,7 +223,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotFathomARandomFunctionNotAMethod() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new ApplyExpr(null, new UnresolvedVar(null, "join"), new UnresolvedVar(null, "Nil")), new StringLiteral(null, ""))));
+		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new UnresolvedVar(null, "join"), new UnresolvedVar(null, "Nil")), new StringLiteral(null, ""))));
 		stage2(true);
 		convertor.convertContractMethods(functions, rewriter.methods);
 //		HSIEForm hsieForm = CollectionUtils.any(functions.values());

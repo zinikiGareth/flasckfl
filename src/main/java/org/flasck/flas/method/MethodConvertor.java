@@ -188,35 +188,39 @@ public class MethodConvertor {
 			
 			// TODO: these two halves are very similar.  Try and refactor them back together at some point
 			ApplyExpr root = (ApplyExpr) mm.expr;
+			List<Object> args;
 			if (root.fn instanceof ApplyExpr) {
-				ApplyExpr fn = (ApplyExpr)root.fn;
-				if (fn.fn instanceof AbsoluteVar && ((AbsoluteVar)fn.fn).id.equals("FLEval.field")) {
-					Object sender = fn.args.get(0);
-					StringLiteral method = (StringLiteral) fn.args.get(1);
-					Type senderType = calculateExprType(margs, types, sender);
-					while (senderType.iam == WhatAmI.INSTANCE)
-						senderType = senderType.innerType();
-					if (senderType instanceof TypeWithMethods)
-						return handleMethodCase(scope, fn.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, root.args);
-					else
-						return handleExprCase(scope, margs, types, root);
-				} else
+				args = root.args; 
+				root = (ApplyExpr)root.fn;
+			} else
+				args = new ArrayList<Object>();
+			if (root.fn instanceof AbsoluteVar && ((AbsoluteVar)root.fn).id.equals("FLEval.field")) {
+				Object sender = root.args.get(0);
+				StringLiteral method = (StringLiteral) root.args.get(1);
+				Type senderType = calculateExprType(margs, types, sender);
+				while (senderType.iam == WhatAmI.INSTANCE)
+					senderType = senderType.innerType();
+				if (senderType instanceof TypeWithMethods)
+					return handleMethodCase(scope, root.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, args);
+				else
 					return handleExprCase(scope, margs, types, root);
-			}
-			else if (root.fn instanceof AbsoluteVar) {
-				AbsoluteVar av = (AbsoluteVar) root.fn;
-				String name = av.id;
-				if (name.equals("FLEval.field")) {
-					Object sender = root.args.get(0);
-					StringLiteral method = (StringLiteral) root.args.get(1);
-					Type senderType = calculateExprType(margs, types, sender);
-					if (senderType instanceof TypeWithMethods)
-						return handleMethodCase(scope, root.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, new ArrayList<Object>());
-					else
-						return handleExprCase(scope, margs, types, root);
-				} else
-					return handleExprCase(scope, margs, types, root);
-			}
+			} else
+				return handleExprCase(scope, margs, types, root);
+//			}
+//			else if (root.fn instanceof AbsoluteVar) {
+//				AbsoluteVar av = (AbsoluteVar) root.fn;
+//				String name = av.id;
+//				if (name.equals("FLEval.field")) {
+//					Object sender = root.args.get(0);
+//					StringLiteral method = (StringLiteral) root.args.get(1);
+//					Type senderType = calculateExprType(margs, types, sender);
+//					if (senderType instanceof TypeWithMethods)
+//						return handleMethodCase(scope, root.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, new ArrayList<Object>());
+//					else
+//						return handleExprCase(scope, margs, types, root);
+//				} else
+//					return handleExprCase(scope, margs, types, root);
+//			}
 		}
 		InputPosition loc = null;
 		if (mm.expr instanceof Locatable)
