@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
+import org.flasck.flas.rewriter.ResolutionException;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewriter.Rewriter.NamingContext;
 import org.flasck.flas.typechecker.Type;
@@ -42,12 +43,16 @@ public class FunctionIntro {
 			else if (arg instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern)arg;
 				Type t = null;
-				if (cx != null) { // the DA can pass in null 'coz it only wants the var names
-					Object o = cx.resolve(tp.typeLocation, tp.type);
-					if (!(o instanceof AbsoluteVar) || !(((AbsoluteVar)o).defn instanceof Type)) {
-						errors.message(tp.typeLocation, tp.type + " is not a type");
-					} else
-						t = (Type)((AbsoluteVar)o).defn;
+				if (cx != null) { // the DependencyAnalyzer can pass in null for the NamingContext 'coz it only wants the var names
+					try {
+						Object o = cx.resolve(tp.typeLocation, tp.type);
+						if (!(o instanceof AbsoluteVar) || !(((AbsoluteVar)o).defn instanceof Type)) {
+							errors.message(tp.typeLocation, tp.type + " is not a type");
+						} else
+							t = (Type)((AbsoluteVar)o).defn;
+					} catch (ResolutionException ex) {
+						throw new UtilException("Need to consider if " + tp.type + " might be a polymorphic var");
+					}
 				}
 				into.put(tp.var, new LocalVar(definedBy, tp.varLocation, tp.var, tp.typeLocation, t));
 			} else

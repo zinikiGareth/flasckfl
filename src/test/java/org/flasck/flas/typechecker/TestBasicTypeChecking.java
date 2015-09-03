@@ -24,6 +24,7 @@ import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.graphs.Orchard;
@@ -288,6 +289,39 @@ public class TestBasicTypeChecking {
 		assertNotNull(te);
 		assertTrue(te instanceof Type);
 		assertEquals("Number->List[A]->List[A]", te.toString());
+	}
+
+	@Test
+	@Ignore
+	public void testWeCanCheckUnionTypes() throws Exception {
+		TypeChecker tc = new TypeChecker(errors);
+
+		Type number = Type.builtin(null, "Number");
+		tc.addExternal("Number", number);
+		Type varA = Type.polyvar(null, "A");
+		StructDefn nil = new StructDefn(null, "Nil", false);
+		tc.addStructDefn(nil);
+		StructDefn cons = new StructDefn(null, "Cons", false, varA); 
+		cons.addField(new StructField(varA, "head"));
+		cons.addField(new StructField(cons, "tail"));
+		tc.addStructDefn(cons);
+		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
+		list.addCase(nil);
+		list.addCase(cons);
+		tc.addTypeDefn(list);
+				
+		tc.addExternal("Nil", Type.function(null, nil));
+		tc.addExternal("Cons", Type.function(null, varA, list, list));
+
+		tc.addExternal("FLEval.minus", Type.function(null, number, number, number));
+		tc.typecheck(orchardOf(HSIETestData.unionType()));
+		errors.showTo(new PrintWriter(System.out), 0);
+		assertFalse(errors.singleString(), errors.hasErrors());
+		Object te = tc.knowledge.get("ME.f");
+		System.out.println(te);
+		assertNotNull(te);
+		assertTrue(te instanceof Type);
+		assertEquals("List[Any]->Number", te.toString());
 	}
 
 	@Test

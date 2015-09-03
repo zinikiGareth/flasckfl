@@ -396,12 +396,14 @@ public class TypeChecker {
 						s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), sd, targs));
 						returns.add(checkBlock(inner, s, form, sw));
 					} else if (ud != null) {
-						if (ud.name().equals("Any")) { // this is a special case
-							logger.info(sw + " says " + sw.var + " is of Any type; of course it is ...");
+//						if (ud.name().equals("Any")) { // this is a special case
+//							logger.info(sw + " says " + sw.var + " is of Any type; of course it is ...");
+//							s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), ud, targs));
+//							returns.add(checkBlock(sft, s, form, sw));
+//						} else {
 							s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), ud, targs));
 							returns.add(checkBlock(sft, s, form, sw));
-						} else
-							throw new UtilException("Typechecker does not yet handle real type unions (" + ud.name() +"); this requires rework to the switch statement for a start");
+//						}
 					} else
 						throw new UtilException("Added case");
 				}

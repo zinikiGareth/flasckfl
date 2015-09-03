@@ -22,6 +22,7 @@ import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
@@ -66,6 +67,43 @@ public class HSIECodeGenerator {
 		HSIEForm form = new HSIE(errors, rw).handle(rw.functions.get("ME.f"));
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.idDecode(), form);
+	}
+
+	@Test
+	@Ignore
+	public void testPatternMatchingAPolyVar() throws Exception {
+		PackageDefn pkg = new PackageDefn(null, Builtin.builtinScope(), "ME");
+		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("push (Cons[A] x) (A y) = Cons y x"));
+		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, "ME.push", 1, CollectionUtils.listOf(c1));
+		pkg.innerScope().define("f", "ME.push", f);
+		Rewriter rw = new Rewriter(errors, null);
+		rw.rewrite(pkg.myEntry());
+		errors.showTo(new PrintWriter(System.out), 0);
+		assertEquals(errors.singleString(), 0, errors.count());
+		System.out.println(rw.functions);
+		HSIEForm form = new HSIE(errors, rw).handle(rw.functions.get("ME.push"));
+		assertNotNull(form);
+		form.dump(null);
+		HSIETestData.assertHSIE(HSIETestData.unionType(), form);
+	}
+
+	@Test
+	public void testPatternMatchingAUnionType() throws Exception {
+		PackageDefn pkg = new PackageDefn(null, Builtin.builtinScope(), "ME");
+		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f (List x) = 10"));
+		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, "ME.f", 1, CollectionUtils.listOf(c1));
+		pkg.innerScope().define("f", "ME.f", f);
+		Rewriter rw = new Rewriter(errors, null);
+		rw.rewrite(pkg.myEntry());
+		errors.showTo(new PrintWriter(System.out), 0);
+		assertEquals(errors.singleString(), 0, errors.count());
+		System.out.println(rw.functions);
+		HSIEForm form = new HSIE(errors, rw).handle(rw.functions.get("ME.f"));
+		assertNotNull(form);
+		form.dump(null);
+		HSIETestData.assertHSIE(HSIETestData.unionType(), form);
 	}
 
 	@Test

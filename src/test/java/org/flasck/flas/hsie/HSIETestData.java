@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -22,8 +24,14 @@ public class HSIETestData {
 	static Map<String, AbsoluteVar> ctorTypes = new HashMap<>();
 	static {
 		ctorTypes.put("Number", new AbsoluteVar(null, "Number", org.flasck.flas.typechecker.Type.builtin(null, "Number")));
-		ctorTypes.put("Cons", new AbsoluteVar(null, "Cons", new StructDefn(null, "Cons", false)));
-		ctorTypes.put("Nil", new AbsoluteVar(null, "Nil", new StructDefn(null, "Nil", false)));
+		AbsoluteVar nil = new AbsoluteVar(null, "Nil", new StructDefn(null, "Nil", false));
+		AbsoluteVar cons = new AbsoluteVar(null, "Cons", new StructDefn(null, "Cons", false));
+		AbsoluteVar list = new AbsoluteVar(null, "List", new UnionTypeDefn(null, false, "List"));
+		ctorTypes.put("Cons", cons);
+		ctorTypes.put("Nil", nil);
+		ctorTypes.put("List", list);
+		((UnionTypeDefn)list.defn).addCase((Type)nil.defn);
+		((UnionTypeDefn)list.defn).addCase((Type)cons.defn);
 	}
 	
 	public static HSIEForm testPrimes() {
@@ -325,6 +333,20 @@ public class HSIETestData {
 			"}", "CLOSURE 2",
 				"{", "id",
 			"var 1 clos1", "}"
+		);
+	}
+
+	public static HSIEForm unionType() {
+		ArrayList<String> externals = new ArrayList<String>();
+		externals.add("List");
+		return thingy("ME.f", 0, 1, 0,
+			externals,
+			ctorTypes,
+			"HEAD 0",
+			"SWITCH 0 List", "{",
+				"RETURN 10",
+			"}",
+			"ERROR"
 		);
 	}
 
