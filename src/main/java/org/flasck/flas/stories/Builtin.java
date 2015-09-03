@@ -36,6 +36,7 @@ public class Builtin {
 			ret.define("concat", "concat",		Type.function(posn, list.instance(posn, string), string));
 			ret.define("join", "join",			Type.function(posn, list.instance(posn, string), string, string));
 			ret.define("++", "append",			Type.function(posn, string, string, string));
+			ret.define("string", "asString",	Type.function(posn, any, string));
 		}
 		{ // boolean logic
 			ret.define("Boolean", "Boolean",	bool);
@@ -124,6 +125,7 @@ public class Builtin {
 			ret.define("Croset", "Croset", croset);
 			croset.addMethod(new ObjectMethod(Type.function(posn, any, send), "put"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));
+			croset.addMethod(new ObjectMethod(Type.function(posn, string, send), "delete"));
 		}
 		return ret;
 	}

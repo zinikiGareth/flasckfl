@@ -59,6 +59,7 @@ import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -78,6 +79,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.D3Thing;
 import org.flasck.flas.stories.FLASStory.State;
+import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
@@ -462,6 +464,7 @@ public class Rewriter {
 	private TemplateLine rewrite(TemplateContext cx, TemplateLine tl) {
 		List<Object> attrs = new ArrayList<Object>();
 		List<Object> formats = new ArrayList<Object>();
+		List<TemplateToken> specials = new ArrayList<TemplateToken>();
 		if (tl instanceof TemplateFormat) {
 			TemplateFormat tf = (TemplateFormat) tl;
 			for (Object o : tf.formats) {
@@ -469,6 +472,13 @@ public class Rewriter {
 					TemplateToken tt = (TemplateToken) o;
 					if (tt.type == TemplateToken.STRING)
 						formats.add(tt);
+					else if (tt.type == TemplateToken.IDENTIFIER) {
+						// handle special cases
+						if (tt.text.equals("dragOrder")) {
+							specials.add(tt);
+						} else
+							formats.add(rewriteExpr(cx, ItemExpr.from(new ExprToken(tt.location, ExprToken.IDENTIFIER, tt.text))));
+					}
 					else
 						throw new UtilException("Format type not handled: " + tt);
 				} else if (o instanceof ApplyExpr) {
@@ -477,71 +487,86 @@ public class Rewriter {
 					throw new UtilException("Format type not handled: " + o.getClass());
 			}
 		}
-		if (tl instanceof ContentString) {
-			return tl;
-		} else if (tl instanceof ContentExpr) {
-			ContentExpr ce = (ContentExpr)tl;
-			return new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats);
-		} else if (tl instanceof CardReference) {
-			CardReference cr = (CardReference) tl;
-			Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
-			Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
-			return new CardReference(cr.location, cardName, yoyoName);
-		} else if (tl instanceof TemplateDiv) {
-			TemplateDiv td = (TemplateDiv) tl;
-			for (Object o : td.attrs) {
-				if (o instanceof TemplateExplicitAttr) {
-					TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
-					Object value = tea.value;
-					if (tea.type == TemplateToken.IDENTIFIER) // any type of expression
-						value = rewriteExpr(cx, value);
-					attrs.add(new TemplateExplicitAttr(tea.location, tea.attr, tea.type, value));
-				} else
-					throw new UtilException("Attr type not handled: " + o.getClass());
-			}
-			TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
-			for (TemplateLine i : td.nested)
-				ret.nested.add(rewrite(cx, i));
-			for (EventHandler h : td.handlers) {
-				ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
-			}
-			return ret;
-		} else if (tl instanceof TemplateList) {
-			TemplateList ul = (TemplateList)tl;
-			Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);
-			TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
-			TemplateList rul = new TemplateList(ul.listLoc, rlistVar, tlv, null, null, formats);
-			cx = new TemplateContext(cx, tlv);
-			rul.template = rewrite(cx, ul.template);
-			return rul;
-		} else if (tl instanceof TemplateCases) {
-			TemplateCases tc = (TemplateCases)tl;
-			TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
-			for (TemplateOr tor : tc.cases)
-				ret.addCase(rewrite(cx, tor));
-			return ret;
-		} else if (tl instanceof D3Invoke) {
-			D3Invoke prev = (D3Invoke) tl;
-			D3Context c2 = new D3Context(cx, prev.d3.dloc, prev.d3.iter);
-			List<D3PatternBlock> patterns = new ArrayList<D3PatternBlock>();
-			for (D3PatternBlock p : prev.d3.patterns) {
-				D3PatternBlock rp = new D3PatternBlock(p.pattern);
-				patterns.add(rp);
-				for (D3Section s : p.sections.values()) {
-					D3Section rs = new D3Section(s.location, s.name);
-					rp.sections.put(s.name, rs);
-					for (MethodMessage mm : s.actions)
-						rs.actions.add(rewrite(c2, mm));
-					for (PropertyDefn prop : s.properties.values())
-						rs.properties.put(prop.name, new PropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
+		try {
+			if (tl instanceof ContentString) {
+				return tl;
+			} else if (tl instanceof ContentExpr) {
+				ContentExpr ce = (ContentExpr)tl;
+				return new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats);
+			} else if (tl instanceof CardReference) {
+				CardReference cr = (CardReference) tl;
+				Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
+				Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
+				return new CardReference(cr.location, cardName, yoyoName);
+			} else if (tl instanceof TemplateDiv) {
+				TemplateDiv td = (TemplateDiv) tl;
+				for (Object o : td.attrs) {
+					if (o instanceof TemplateExplicitAttr) {
+						TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
+						Object value = tea.value;
+						if (tea.type == TemplateToken.IDENTIFIER) // any type of expression
+							value = rewriteExpr(cx, value);
+						attrs.add(new TemplateExplicitAttr(tea.location, tea.attr, tea.type, value));
+					} else
+						throw new UtilException("Attr type not handled: " + o.getClass());
 				}
+				TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
+				for (TemplateLine i : td.nested)
+					ret.nested.add(rewrite(cx, i));
+				for (EventHandler h : td.handlers) {
+					ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
+				}
+				return ret;
+			} else if (tl instanceof TemplateList) {
+				TemplateList ul = (TemplateList)tl;
+				Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);
+				TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
+				boolean supportDragOrdering = false;
+				for (TemplateToken tt : specials) {
+					if (tt.text.equals("dragOrder")) {
+						supportDragOrdering = true;
+						specials.remove(tt);
+						break;
+					}
+				}
+				TemplateList rul = new TemplateList(ul.listLoc, rlistVar, tlv, null, null, formats, supportDragOrdering);
+				cx = new TemplateContext(cx, tlv);
+				rul.template = rewrite(cx, ul.template);
+				return rul;
+			} else if (tl instanceof TemplateCases) {
+				TemplateCases tc = (TemplateCases)tl;
+				TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
+				for (TemplateOr tor : tc.cases)
+					ret.addCase(rewrite(cx, tor));
+				return ret;
+			} else if (tl instanceof D3Invoke) {
+				D3Invoke prev = (D3Invoke) tl;
+				D3Context c2 = new D3Context(cx, prev.d3.dloc, prev.d3.iter);
+				List<D3PatternBlock> patterns = new ArrayList<D3PatternBlock>();
+				for (D3PatternBlock p : prev.d3.patterns) {
+					D3PatternBlock rp = new D3PatternBlock(p.pattern);
+					patterns.add(rp);
+					for (D3Section s : p.sections.values()) {
+						D3Section rs = new D3Section(s.location, s.name);
+						rp.sections.put(s.name, rs);
+						for (MethodMessage mm : s.actions)
+							rs.actions.add(rewrite(c2, mm));
+						for (PropertyDefn prop : s.properties.values())
+							rs.properties.put(prop.name, new PropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
+					}
+				}
+				D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, prev.d3.dloc, rewriteExpr(c2, prev.d3.data), prev.d3.iter, patterns);
+				D3Invoke rw = new D3Invoke(prev.scope, rwD3);
+				d3s.add(rw);
+				return rw;
+			} else 
+				throw new UtilException("Content type not handled: " + tl.getClass());
+		} finally {
+			if (!specials.isEmpty()) {
+				for (TemplateToken tt : specials)
+					errors.message(tt.location, "cannot use format '" + tt.text + "' on this item");
 			}
-			D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, prev.d3.dloc, rewriteExpr(c2, prev.d3.data), prev.d3.iter, patterns);
-			D3Invoke rw = new D3Invoke(prev.scope, rwD3);
-			d3s.add(rw);
-			return rw;
-		} else 
-			throw new UtilException("Content type not handled: " + tl.getClass());
+		}
 	}
 
 	private TemplateOr rewrite(TemplateContext cx, TemplateOr tor) {

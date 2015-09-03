@@ -111,6 +111,7 @@ public class TemplateGenerator {
 			b.sid = tam.nextSid();
 			VisualTree pvt = new VisualTree(b, null);
 			pvt.divThing.listVar = ((CardMember)tl.listVar).var;
+			pvt.divThing.supportDrag = tl.supportDragOrdering;
 			pvt.containsThing = AbstractTreeNode.LIST;
 			if (atn == null)
 				tam.nodes.add(new AbstractTreeNode(AbstractTreeNode.TOP, null, null, null, pvt));
@@ -124,6 +125,7 @@ public class TemplateGenerator {
 			VisualTree vt = new VisualTree(null, null);
 			atn = new AbstractTreeNode(AbstractTreeNode.LIST, atn, b.id, b.sid, vt);
 			atn.var = pvt.divThing.listVar;
+			vt.draggable = tl.supportDragOrdering;
 			tam.nodes.add(atn);
 
 			// Now generate the nested template in that
@@ -260,8 +262,11 @@ public class TemplateGenerator {
 				target.add(ii);
 				ii.add(JSForm.flex("var parent = doc.getElementById(wrapper.infoAbout['" + atn.sid + "'])"));
 				ii.add(JSForm.flex("wrapper.infoAbout['" + atn.id + "'][item.id] = { item: item }"));
-				for (VisualTree t : atn.tree.children)
+				for (VisualTree t : atn.tree.children) {
+					if (atn.tree.draggable)
+						t.draggable = true;
 					generateVisualTree(ii, "parent", true, atn.id, t);
+				}
 				ii.add(JSForm.flex("this._" + atn.id + "_formatItem(doc, wrapper, wrapper.infoAbout['" + atn.id + "'][item.id])"));
 				JSForm cl = JSForm.flexFn(Generator.lname(tam.prefix, true) + "_" + atn.id + "_clear", CollectionUtils.listOf("doc", "wrapper"));
 				target.add(cl);
@@ -385,6 +390,22 @@ public class TemplateGenerator {
 			ir.add(JSForm.flex("wrapper.infoAbout" + (inList != null?"['" + inList + "'][item.id]":"")  + "['" + tree.divThing.sid + "'] = " + tree.divThing.sid));
 			if (tree.editable)
 				ir.add(JSForm.flex("wrapper.editableField(" + tree.divThing.id + ", this._" + tree.divThing.id + "_rules, " +(inList != null?"item":"this") + ")"));
+		}
+		if (tree.divThing.supportDrag) {
+			JSForm dragover = JSForm.flex(tree.divThing.id + "['ondragover'] = function(event)").needBlock();
+			dragover.add(JSForm.flex("_Croset.listDragOver(event, " + tree.divThing.sid + ")"));
+			ir.add(dragover);
+			JSForm drop = JSForm.flex(tree.divThing.id + "['ondrop'] = function(event)").needBlock();
+			drop.add(JSForm.flex("_Croset.listDrop(event, " + tree.divThing.sid + ")"));
+			ir.add(drop);
+			ir.add(JSForm.flex(tree.divThing.id + "['croset'] = this." + tree.divThing.listVar));
+		}
+		if (tree.draggable) {
+			ir.add(JSForm.flex(tree.divThing.id + ".setAttribute('draggable', 'true')"));
+			JSForm drag = JSForm.flex(tree.divThing.id + "['ondragstart'] = function(event)").needBlock();
+			drag.add(JSForm.flex("_Croset.listDrag(event)"));
+			ir.add(drag);
+			ir.add(JSForm.flex(tree.divThing.id + "['item_id'] = item.id"));
 		}
 		for (Entry<String, String> sa : tree.divThing.staticAttrs.entrySet())
 			ir.add(JSForm.flex(tree.divThing.id+".setAttribute('" + sa.getKey() +"', '" + sa.getValue() + "')"));

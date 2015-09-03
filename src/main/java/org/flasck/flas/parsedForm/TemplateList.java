@@ -10,15 +10,17 @@ public class TemplateList extends TemplateFormat {
 	public final Object iterVar;
 	public final String customTag;
 	public final String customTagVar;
+	public final boolean supportDragOrdering;
 	public TemplateLine template;
 
-	public TemplateList(InputPosition listLoc, Object listVar, Object iterVar, String customTag, String customTagVar, List<Object> formats) {
+	public TemplateList(InputPosition listLoc, Object listVar, Object iterVar, String customTag, String customTagVar, List<Object> formats, boolean supportDragOrdering) {
 		super(formats);
 		this.listLoc = listLoc;
 		this.listVar = listVar;
 		this.iterVar = iterVar;
 		this.customTag = customTag;
 		this.customTagVar = customTagVar;
+		this.supportDragOrdering = supportDragOrdering;
 	}
 
 }

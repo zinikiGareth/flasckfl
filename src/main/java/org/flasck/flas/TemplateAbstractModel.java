@@ -51,6 +51,7 @@ public class TemplateAbstractModel {
 		public String listVar;
 		public String name;
 		public final List<Handler> handlers;
+		public boolean supportDrag = false;
 
 		public Block(String id, String tag, List<Handler> handlers) {
 			this.id = id;
@@ -80,6 +81,7 @@ public class TemplateAbstractModel {
 		public List<VisualTree> children = new ArrayList<VisualTree>();
 		public final String text;
 		public boolean editable;
+		public boolean draggable;
 		
 		public VisualTree(Block div, String text) {
 			this(div, text, false);

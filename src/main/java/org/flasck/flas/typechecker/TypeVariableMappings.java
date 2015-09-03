@@ -133,6 +133,7 @@ public class TypeVariableMappings {
 			TypeExpr te1 = (TypeExpr) t1;
 			TypeExpr te2 = (TypeExpr) t2;
 			if (te1.type.equals(te2.type)) {
+				// TODO: in doing this, we want to replace each of the TEs args "Garnered From" with GarneredFrom(te, arg#) if it is a "type" rather than a position (i.e. for the type var)
 				List<Object> args = unifyl(te1.args, te2.args);
 				return new TypeExpr(te1.from, te1.type, args);
 			}

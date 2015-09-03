@@ -706,7 +706,7 @@ public class FLASStory implements StoryProcessor {
 				return ret;
 			} else if (tf instanceof TemplateList) {
 				TemplateList tl = (TemplateList) tf;
-				TemplateList ret = new TemplateList(tl.listLoc, tl.listVar, tl.iterVar, null, null, formats);
+				TemplateList ret = new TemplateList(tl.listLoc, tl.listVar, tl.iterVar, null, null, formats, false);
 				ret.template = unroll(er, s, map, tl.template, subst);
 				return ret;
 //				return new TemplateList(tl.listLoc, substituteMacroParameters(er, map, tl.listVar, subst), tl.iterVar, formats);
