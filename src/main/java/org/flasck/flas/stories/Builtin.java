@@ -33,7 +33,7 @@ public class Builtin {
 		UnionTypeDefn list = new UnionTypeDefn(posn, false, "List", Type.polyvar(posn, "A"));
 		{ // text
 			ret.define("String", "String",		string);
-			ret.define("concat", "concat",		Type.function(posn, list.instance(posn, string), string));
+			ret.define("concat", "StdLib.concat",		Type.function(posn, list.instance(posn, string), string));
 			ret.define("join", "join",			Type.function(posn, list.instance(posn, string), string, string));
 			ret.define("++", "append",			Type.function(posn, string, string, string));
 			ret.define("string", "asString",	Type.function(posn, any, string));
