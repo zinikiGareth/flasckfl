@@ -222,7 +222,9 @@ public class JSForm {
 		else if (r.sval != null)
 			into.add(new JSForm(assgn + " = " + r.sval));
 		else if (r.tlv != null)
-			into.add(new JSForm(assgn + " = " + r.tlv.name));
+			// This is specific to accessing the TLV from the template, which seems the most likely case :-)
+			// If not, we should probably add more cases to CodeType and distinguish them here
+			into.add(new JSForm(assgn + " = this._src_" + r.tlv.name + "." + r.tlv.name));
 		else
 			throw new UtilException("What are you returning " + r);
 	}
@@ -329,8 +331,7 @@ public class JSForm {
 		else if (c.sval != null)
 			sb.append("'" + c.sval.text + "'");
 		else if (c.tlv != null) {
-			sb.append("item"); // TODO: this does not handle nested lists
-//			sb.append("this._wrapper.renderState['" + c.tlv.name + "']");
+			sb.append("this._src_" + c.tlv.name + "." + c.tlv.name);
 		} else if (c.func != null) {
 			int x = c.func.name.lastIndexOf('.');
 			if (x == -1)

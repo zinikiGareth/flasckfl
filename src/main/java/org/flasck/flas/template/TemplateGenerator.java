@@ -9,6 +9,7 @@ import org.flasck.flas.TemplateAbstractModel.AbstractTreeNode;
 import org.flasck.flas.TemplateAbstractModel.Handler;
 import org.flasck.flas.TemplateAbstractModel.OrCase;
 import org.flasck.flas.TemplateAbstractModel.VisualTree;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
@@ -17,6 +18,7 @@ import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContentExpr;
@@ -27,10 +29,14 @@ import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
+import org.flasck.flas.parsedForm.TemplateExplicitAttr;
+import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
+import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -38,6 +44,52 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class TemplateGenerator {
+	public class GeneratorContext {
+
+		private final JSTarget target;
+		private final String simpleName;
+		private final String protoName;
+		private int areaNo = 1;
+		private String introduceVarHere;
+		private final List<String> varsToCopy = new ArrayList<String>();
+		private final Object nil;
+		private final Object cons;
+
+		public GeneratorContext(JSTarget target, Template cg) {
+			this.target = target;
+			this.simpleName = Generator.lname(cg.prefix, false);
+			this.protoName = Generator.lname(cg.prefix, true);
+			this.nil = cg.scope.fromRoot(null, "Nil").defn;
+			this.cons = cg.scope.fromRoot(null, "Cons").defn;
+		}
+		
+		String nextArea() {
+			return this.simpleName + ".B" + (areaNo++);
+		}
+
+		public String currentVar() {
+			return "b" + areaNo;
+		}
+		
+		public void varToCopy(String s) {
+			varsToCopy.add(s);
+		}
+		
+		public void removeLastCopyVar() {
+			varsToCopy.remove(varsToCopy.size()-1);
+		}
+
+		public void newVar(String tlv) {
+			introduceVarHere = tlv;
+		}
+
+		public String extractNewVar() {
+			String ret = introduceVarHere;
+			introduceVarHere = null;
+			return ret;
+		}
+	}
+
 	private final ErrorResult errors;
 	private final Rewriter rewriter;
 	private final HSIE hsie;
@@ -54,6 +106,10 @@ public class TemplateGenerator {
 
 	public void generate(JSTarget target) {
 		for (Template cg : rewriter.templates) {
+			if (cg.prefix.equals("net.ziniki.perspocpoc.EditProfile")) {
+				latestTemplateGeneration(target, cg);
+				continue;
+			}
 			TemplateAbstractModel tam = makeAbstractTemplateModel(errors, rewriter, hsie, cg);
 			generate(target, tam, null, null);
 			JSForm onUpdate = JSForm.flex(tam.prefix + ".onUpdate =").needBlock();
@@ -76,6 +132,253 @@ public class TemplateGenerator {
 			}
 			target.add(onUpdate);
 		}
+	}
+
+	private void latestTemplateGeneration(JSTarget target, Template cg) {
+		GeneratorContext cx = new GeneratorContext(target, cg);
+		// TODO: when compatibility mode is over, I want to just make this "_render"
+		JSForm ir = JSForm.flexFn(cx.protoName + "_initialRender", CollectionUtils.listOf("doc", "wrapper", "parent"));
+		String topBlock = cx.nextArea();
+		ir.add(JSForm.flex("new " + topBlock + "(new CardArea(parent, wrapper, this))"));
+		target.add(ir);
+		
+		latestRecurse(cx, topBlock, cg.content);
+	}
+
+	private JSForm latestRecurse(GeneratorContext cx, String called, TemplateLine tl) {
+		JSForm fn = JSForm.flex(called +" = function(parent)").needBlock();
+		cx.target.add(fn);
+		String base;
+		String moreArgs = "";
+		boolean isEditable = false;
+		if (tl instanceof TemplateDiv) {
+			TemplateDiv td = (TemplateDiv) tl;
+			base = "DivArea";
+			if (td.customTag != null)
+				moreArgs = ", '" + td.customTag + "'";
+			// TODO: custom tag var is hard & needs "assign" logic
+		} else if (tl instanceof TemplateList) {
+			base = "ListArea";
+		} else if (tl instanceof ContentString || tl instanceof ContentExpr) {
+			base = "TextArea";
+			isEditable = tl instanceof ContentExpr && ((ContentExpr)tl).editable();
+		} else {
+			throw new UtilException("Template of type " + tl.getClass() + " not supported");
+		}
+		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
+		for (String s : cx.varsToCopy)
+			fn.add(JSForm.flex("this._src_" + s + " = parent._src_" + s));
+		String newVar = cx.extractNewVar();
+		if (newVar != null) {
+			fn.add(JSForm.flex("this._src_"+newVar+ " = this"));
+			cx.varToCopy(newVar);
+		}
+		cx.target.add(JSForm.flex(called +".prototype = new " + base + "()"));
+		cx.target.add(JSForm.flex(called +".prototype.constructor = " + called));
+		if (newVar != null) {
+			JSForm nda = JSForm.flex(called +".prototype._assignToVar = function(obj)").needBlock();
+			// TODO: remove previous version if any
+			nda.add(JSForm.flex("if (this. " + newVar + " == obj) return"));
+			JSForm ifremove = JSForm.flex("if (this." + newVar+ ")");
+			ifremove.add(JSForm.flex(" this._wrapper.removeOnUpdate('crorepl', this._parent._croset, obj.id, this)"));
+			nda.add(ifremove);
+			nda.add(JSForm.flex("this." + newVar + " = obj"));
+			JSForm ifload = JSForm.flex("if (this." + newVar+ ")").needBlock();
+			ifload.add(JSForm.flex("this._wrapper.onUpdate('crorepl', this._parent._croset, obj.id, this)"));
+			nda.add(ifload);
+			nda.add(JSForm.flex("this._fireInterests()"));
+			cx.target.add(nda);
+		}
+		if (tl instanceof TemplateDiv) {
+			TemplateDiv td = (TemplateDiv) tl;
+			int an = 1;
+			for (Object a : td.attrs) {
+				if (a instanceof TemplateExplicitAttr) {
+					TemplateExplicitAttr tea = (TemplateExplicitAttr) a;
+					switch (tea.type) {
+					case TemplateToken.STRING: {
+						fn.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr + "', '" + tea.value +"')"));
+						break;
+					}
+					case TemplateToken.IDENTIFIER: {
+						String saf = called + ".prototype._setAttr_" + an;
+						JSForm sak = JSForm.flex(saf + " = function()").needBlock();
+						HSIEForm form = hsie.handleExpr(tea.value, CodeType.CARD);
+						JSForm.assign(sak, "var attr", form);
+						sak.add(JSForm.flex("attr = FLEval.full(attr)"));
+						JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
+						sak.add(ifassign);
+//						ifassign.add(JSForm.flex("console.log('setting attribute " + tea.attr +" on', this._mydiv.id, 'to', attr)"));
+						ifassign.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr +"', attr)"));
+						cx.target.add(sak);
+//						fn.add(JSForm.flex("this._setAttr_" + an +"()"));
+						callOnAssign(fn, tea.value, saf);
+						an++;
+						break;
+					}
+					default:
+						throw new UtilException("Cannot handle TEA type " + tea.type);
+					}
+				} else
+					throw new UtilException("Cannot handle attr " + a.getClass());
+			}
+			for (EventHandler eh : td.handlers) {
+				HSIEForm expr = hsie.handleExpr(eh.expr, HSIEForm.CodeType.FUNCTION);
+				curry.rewrite(tc, expr);
+				
+				JSForm.assign(fn, "var eh" + eh.action, expr);
+				JSForm cev = JSForm.flex("this._mydiv['on" + eh.action + "'] = function(event)").needBlock();
+				cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(eh" + eh.action + ", event)"));
+				fn.add(cev);
+				
+				cx.target.add(fn);
+			}
+			for (TemplateLine c : td.nested) {
+				String v = cx.currentVar();
+				String cn = cx.nextArea();
+				fn.add(JSForm.flex("var " + v + " = new " + cn + "(this)"));
+				latestRecurse(cx, cn, c);
+				if (c instanceof TemplateList) {
+					TemplateList l = (TemplateList) c;
+					CardMember ce = (CardMember) l.listVar; // may need to consider alternatives
+					fn.add(JSForm.flex(v + "._assignToVar(this._card."+ce.var+")"));
+				}
+			}
+		} else if (tl instanceof TemplateList) {
+			TemplateList l = (TemplateList) tl;
+			String tlv = ((TemplateListVar)l.iterVar).name;
+			JSForm nc = JSForm.flex(called +".prototype._newChild = function()").needBlock();
+			String item = cx.nextArea();
+			nc.add(JSForm.flex("return new " + item + "(this)"));
+			cx.target.add(nc);
+			JSForm fmt = JSForm.flex(called +".prototype._format = function()").needBlock();
+			fmt.add(JSForm.flex("ListArea.prototype._format.call(this)"));
+			cx.target.add(fmt);
+			cx.newVar(tlv);
+			latestRecurse(cx, item, l.template);
+		} else if (tl instanceof ContentString) {
+			ContentString cs = (ContentString) tl;
+			fn.add(JSForm.flex("this._setText('" + cs.text + "')"));
+		} else if (tl instanceof ContentExpr) {
+			ContentExpr ce = (ContentExpr)tl;
+			Object valExpr = ce.expr;
+			callOnAssign(fn, valExpr, called + ".prototype._assignToText");
+			if (isEditable) {
+				// for it to be editable, it must be a clear field of a clear object
+				if (valExpr instanceof CardMember) {
+					CardMember cm = (CardMember) valExpr;
+					fn.add(JSForm.flex("this._editable(" + called + "._rules)"));
+					createRules(cx, called, null, cm.var);
+				} else if (valExpr instanceof ApplyExpr) {
+					ApplyExpr ae = (ApplyExpr) valExpr;
+					if (!(ae.fn instanceof AbsoluteVar) || !((AbsoluteVar)ae.fn).uniqueName().equals("FLEval.field"))
+						throw new UtilException("Cannot edit: " + ae);
+					fn.add(JSForm.flex("this._editable(" + called + "._rules)"));
+					createRules(cx, called, ae.args.get(0), ((StringLiteral)ae.args.get(1)).text);
+				} else 
+					throw new UtilException("Cannot edit: " + valExpr);
+			}
+		} else {
+			throw new UtilException("Template of type " + tl.getClass() + " not supported");
+		}
+		if (tl instanceof TemplateFormat) {
+			handleFormats(cx, fn, isEditable, ((TemplateFormat)tl).formats);
+		}
+		if (newVar != null) {
+			cx.removeLastCopyVar();
+		}
+		return fn;
+	}
+
+	protected void handleFormats(GeneratorContext cx, JSForm fn, boolean isEditable, List<Object> formats) {
+		StringBuilder simple = new StringBuilder();
+		if (isEditable)
+			simple.append(" flasck-editable");
+		Object expr = null;
+		InputPosition first = null;
+		for (Object o : formats) {
+			if (o instanceof TemplateToken) {
+				TemplateToken tt = (TemplateToken) o;
+				if (tt.type == TemplateToken.STRING) {
+					simple.append(" ");
+					simple.append(tt.text);
+				} else {
+					System.out.println(tt);
+					throw new UtilException("Cannot handle format of type " + tt.type);
+				}
+			} else if (o instanceof ApplyExpr) {
+				// TODO: need to collect object/field pairs that we depend on
+				ApplyExpr ae = (ApplyExpr) o;
+				if (first == null)
+					first = ae.location;
+				if (expr == null)
+					expr = cx.nil;
+				expr = new ApplyExpr(null, cx.cons, o, expr);
+			} else
+				throw new UtilException("Cannot handle format of type " + o.getClass());
+		}
+		if (expr != null) {
+			if (simple.length() > 0)
+				expr = new ApplyExpr(null, cx.cons, new StringLiteral(null, simple.substring(1)), expr);
+			// Basically we need to add a new function
+			// Add code for "onAssign" for each of the variables mentioned in the list we haven't collected yet
+			// But we don't have any test cases just yet
+			throw new UtilException("variable format case");
+//			ret.complexFormats = expr;
+//			ret.sid = "sid" + nextId++;
+		}
+		else if (expr == null && simple.length() > 0) {
+			fn.add(JSForm.flex("this._mydiv.className = '" + simple.substring(1) + "'"));
+		}
+	}
+	
+	private void createRules(GeneratorContext cx, String area, Object container, String field) {
+		JSForm rules = JSForm.flex(area + "._rules =").needBlock();
+		JSForm save = JSForm.flex("save: function(wrapper, text)").needBlock();
+		if (container != null) {
+			JSForm.assign(save, "var containingObject", hsie.handleExpr(container, CodeType.CARD));
+		} else
+			save.add(JSForm.flex("var containingObject = this._card"));
+		// TODO: we may need to convert the text field to a more complex object type (e.g. integer) as specified in the rules we are given
+		save.add(JSForm.flex("containingObject." + field + " = text"));
+		// TODO: we need to consider which of the four types of change was just made (based on something put on atn)
+		// 1. Transient local state (do nothing more)
+		// 2. Persistent local state (save state object)
+		// 3. Main object field or 4. Loaded object field (save data object using the appropriate contract)
+		save.add(JSForm.flex("wrapper.saveObject(containingObject)"));
+		save.add(JSForm.flex("console.log('saved to:', containingObject)"));
+		rules.add(save);
+		// if we add another block, need "save.comma();"
+		cx.target.add(rules);
+	}
+
+	protected void callOnAssign(JSForm fn, Object valExpr, String call) {
+		if (valExpr instanceof CardMember) {
+			fn.add(JSForm.flex("this._onAssign(this._card, '" + ((CardMember)valExpr).var + "', " + call + ")"));
+		} else if (valExpr instanceof TemplateListVar) {
+			String var = ((TemplateListVar)valExpr).name;
+			fn.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));
+			
+		} else if (valExpr instanceof CardFunction || valExpr instanceof StringLiteral) {
+			// nothing to do here, not variable
+		} else if (valExpr instanceof ApplyExpr) {
+			ApplyExpr ae = (ApplyExpr) valExpr;
+			if (ae.fn instanceof AbsoluteVar && ((AbsoluteVar)ae.fn).id.equals("FLEval.field")) {
+				Object expr = ae.args.get(0);
+				if (expr instanceof TemplateListVar) {
+					String name = ((TemplateListVar)expr).name;
+					expr = "this._src_" + name + "." + name;
+				} else 
+					throw new UtilException("Handle apply expr: " + expr);
+				String field = ((StringLiteral)ae.args.get(1)).text;
+				fn.add(JSForm.flex("this._onAssign(" + expr +", '" + field + "', " + call + ")"));
+			} else {
+				callOnAssign(fn, ae.fn, call);
+				for (Object o : ae.args)
+					callOnAssign(fn, o, call);
+			}
+		} else
+			throw new UtilException("Not handled: " + valExpr.getClass());
 	}
 
 	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Rewriter rewriter, HSIE hsie, Template cg) {

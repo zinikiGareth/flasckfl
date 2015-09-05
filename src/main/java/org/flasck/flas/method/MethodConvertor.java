@@ -181,12 +181,11 @@ public class MethodConvertor {
 	}
 
 	private Object convertMessageToAction(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm) {
-		System.out.println("Converting " + mm);
+//		System.out.println("Converting " + mm);
 		if (mm.slot != null) {
 			return convertAssignMessage(scope, margs, types, mm);
 		} else if (mm.expr instanceof ApplyExpr) {
 			
-			// TODO: these two halves are very similar.  Try and refactor them back together at some point
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			List<Object> args;
 			if (root.fn instanceof ApplyExpr) {
@@ -206,21 +205,6 @@ public class MethodConvertor {
 					return handleExprCase(scope, margs, types, root);
 			} else
 				return handleExprCase(scope, margs, types, root);
-//			}
-//			else if (root.fn instanceof AbsoluteVar) {
-//				AbsoluteVar av = (AbsoluteVar) root.fn;
-//				String name = av.id;
-//				if (name.equals("FLEval.field")) {
-//					Object sender = root.args.get(0);
-//					StringLiteral method = (StringLiteral) root.args.get(1);
-//					Type senderType = calculateExprType(margs, types, sender);
-//					if (senderType instanceof TypeWithMethods)
-//						return handleMethodCase(scope, root.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, new ArrayList<Object>());
-//					else
-//						return handleExprCase(scope, margs, types, root);
-//				} else
-//					return handleExprCase(scope, margs, types, root);
-//			}
 		}
 		InputPosition loc = null;
 		if (mm.expr instanceof Locatable)
@@ -412,7 +396,7 @@ public class MethodConvertor {
 		HSIEForm hs = hsie.handleExprWith(expr, HSIEForm.CodeType.CONTRACT, args);
 		Type ret = tc.checkExpr(hs, mytypes, locs);
 		if (ret != null) {
-			System.out.println("Returned type was " + ret + " and margs was " + margs);
+//			System.out.println("Returned type was " + ret + " and margs was " + margs);
 			if (!margs.isEmpty()) {
 				if (ret.iam != WhatAmI.FUNCTION)
 					throw new UtilException("Should be function, but isn't");
