@@ -106,7 +106,7 @@ public class TemplateGenerator {
 
 	public void generate(JSTarget target) {
 		for (Template cg : rewriter.templates) {
-			if (cg.prefix.equals("net.ziniki.perspocpoc.EditProfile")) {
+			if (cg.prefix.startsWith("net.ziniki.perspocpoc")) {
 				latestTemplateGeneration(target, cg);
 				continue;
 			}
@@ -134,6 +134,7 @@ public class TemplateGenerator {
 		}
 	}
 
+	// rename this
 	private void latestTemplateGeneration(JSTarget target, Template cg) {
 		GeneratorContext cx = new GeneratorContext(target, cg);
 		// TODO: when compatibility mode is over, I want to just make this "_render"
@@ -145,6 +146,7 @@ public class TemplateGenerator {
 		latestRecurse(cx, topBlock, cg.content);
 	}
 
+	// rename this
 	private JSForm latestRecurse(GeneratorContext cx, String called, TemplateLine tl) {
 		JSForm fn = JSForm.flex(called +" = function(parent)").needBlock();
 		cx.target.add(fn);
@@ -177,7 +179,6 @@ public class TemplateGenerator {
 		cx.target.add(JSForm.flex(called +".prototype.constructor = " + called));
 		if (newVar != null) {
 			JSForm nda = JSForm.flex(called +".prototype._assignToVar = function(obj)").needBlock();
-			// TODO: remove previous version if any
 			nda.add(JSForm.flex("if (this. " + newVar + " == obj) return"));
 			JSForm ifremove = JSForm.flex("if (this." + newVar+ ")");
 			ifremove.add(JSForm.flex(" this._wrapper.removeOnUpdate('crorepl', this._parent._croset, obj.id, this)"));
@@ -223,15 +224,17 @@ public class TemplateGenerator {
 					throw new UtilException("Cannot handle attr " + a.getClass());
 			}
 			for (EventHandler eh : td.handlers) {
-				HSIEForm expr = hsie.handleExpr(eh.expr, HSIEForm.CodeType.FUNCTION);
+				JSForm ahf = JSForm.flex(called +".prototype._add_handlers = function()").needBlock();
+				HSIEForm expr = hsie.handleExpr(eh.expr, HSIEForm.CodeType.AREA);
 				curry.rewrite(tc, expr);
 				
-				JSForm.assign(fn, "var eh" + eh.action, expr);
+				JSForm.assign(ahf, "var eh" + eh.action, expr);
 				JSForm cev = JSForm.flex("this._mydiv['on" + eh.action + "'] = function(event)").needBlock();
 				cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(eh" + eh.action + ", event)"));
-				fn.add(cev);
-				
-				cx.target.add(fn);
+				ahf.add(cev);
+				cx.target.add(ahf);
+
+				callOnAssign(fn, eh.expr, called + ".prototype._add_handlers");
 			}
 			for (TemplateLine c : td.nested) {
 				String v = cx.currentVar();
@@ -251,9 +254,6 @@ public class TemplateGenerator {
 			String item = cx.nextArea();
 			nc.add(JSForm.flex("return new " + item + "(this)"));
 			cx.target.add(nc);
-			JSForm fmt = JSForm.flex(called +".prototype._format = function()").needBlock();
-			fmt.add(JSForm.flex("ListArea.prototype._format.call(this)"));
-			cx.target.add(fmt);
 			cx.newVar(tlv);
 			latestRecurse(cx, item, l.template);
 		} else if (tl instanceof ContentString) {
@@ -379,6 +379,7 @@ public class TemplateGenerator {
 			}
 		} else
 			throw new UtilException("Not handled: " + valExpr.getClass());
+		fn.add(JSForm.flex(call + ".call(this)"));
 	}
 
 	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Rewriter rewriter, HSIE hsie, Template cg) {

@@ -261,16 +261,16 @@ public class JSForm {
 		StringBuilder sb;
 		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
 		boolean needsObject = false;
-		boolean fromHandler = false;
+		boolean fromHandler = fntype == CodeType.AREA;
 		if (fn != null) {
 			if (fn instanceof ObjectReference || fn instanceof CardFunction) {
 				needsObject = true;
-				fromHandler = fn.fromHandler();
+				fromHandler |= fn.fromHandler();
 			} else if (fn.toString().equals("FLEval.curry")) {
 				ExternalRef f2 = ((PushCmd)closure.nestedCommands().get(1)).fn;
 				if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
 					needsObject = true;
-					fromHandler = f2.fromHandler();
+					fromHandler |= f2.fromHandler();
 				}
 			}
 		}
