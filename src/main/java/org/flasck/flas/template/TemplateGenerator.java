@@ -250,12 +250,15 @@ public class TemplateGenerator {
 		} else if (tl instanceof TemplateList) {
 			TemplateList l = (TemplateList) tl;
 			String tlv = ((TemplateListVar)l.iterVar).name;
+			if (l.supportDragOrdering)
+				fn.add(JSForm.flex("this._supportDragging()"));
 			JSForm nc = JSForm.flex(called +".prototype._newChild = function()").needBlock();
 			String item = cx.nextArea();
 			nc.add(JSForm.flex("return new " + item + "(this)"));
 			cx.target.add(nc);
 			cx.newVar(tlv);
-			latestRecurse(cx, item, l.template);
+			JSForm cfn = latestRecurse(cx, item, l.template);
+			cfn.add(JSForm.flex("this._makeDraggable()"));
 		} else if (tl instanceof ContentString) {
 			ContentString cs = (ContentString) tl;
 			fn.add(JSForm.flex("this._setText('" + cs.text + "')"));
