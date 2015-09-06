@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
@@ -58,6 +59,7 @@ public class TypeChecker {
 	final Map<String, ObjectDefn> objects = new TreeMap<String, ObjectDefn>();
 	final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
 	final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>(new StringComparator());
+	final Map<String, HandlerImplements> handlers = new TreeMap<String, HandlerImplements>();
 	final Map<String, CardTypeInfo> cards = new TreeMap<String, CardTypeInfo>();
 	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>(new StringComparator());
 	
@@ -86,6 +88,7 @@ public class TypeChecker {
 			for (HandlerGrouping x : d.getValue().handlers) {
 				TypeHolder ctr = new TypeHolder(x.type);
 				cti.handlers.add(ctr);
+				handlers.put(ctr.name, x.impl);
 				prefixes.put(x.type, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
 			}
 		}
@@ -444,12 +447,13 @@ public class TypeChecker {
 		logger.info("Checking command " + cmd);
 		if (cmd instanceof PushReturn) {
 			PushReturn r = (PushReturn) cmd;
+			GarneredFrom myloc = new GarneredFrom(r.location);
 			if (r.ival != null) {
 				logger.info(r.toString() + " is a constant of type Number");
-				return new TypeExpr(new GarneredFrom(r.location), Type.builtin(new InputPosition("builtin", 0, 0, null), "Number")); // TODO: it would be good to look this up; we should be able to do that
+				return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "Number")); // TODO: it would be good to look this up; we should be able to do that
 			} else if (r.sval != null) {
 				logger.info(r.toString() + " is a constant of type String");
-				return new TypeExpr(new GarneredFrom(r.location), Type.builtin(new InputPosition("builtin", 0, 0, null), "String"));
+				return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "String"));
 			} else if (r.tlv != null) {
 				// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
 				TypeVar ret = factory.next();
@@ -481,7 +485,7 @@ public class TypeChecker {
 				
 				if (r.fn.uniqueName().equals("FLEval.tuple")) {
 					logger.info(r.fn + " needs tuple handling");
-					return new TypeExpr(new GarneredFrom(r.location), Type.builtin(null, "()"));
+					return new TypeExpr(myloc, Type.builtin(null, "()"));
 				}
 				if (r.fn instanceof CardMember) {
 					logger.info(r.fn + " is a card member");
@@ -524,7 +528,7 @@ public class TypeChecker {
 				String name = r.fn.uniqueName();
 				if (name.equals("FLEval.field")) {
 					logger.info(r.fn + " implies field handling");
-					return new TypeExpr(new GarneredFrom(r.location), Type.builtin(null, "."));
+					return new TypeExpr(myloc, Type.builtin(null, "."));
 				}
 				Object te = s.localKnowledge.get(name);
 				if (te != null) {
@@ -535,11 +539,19 @@ public class TypeChecker {
 				if (te == null) {
 					if (cards.containsKey(name)) {
 						logger.info(r.fn + " is card " + name);
-						return new TypeExpr(null, cards.get(name).struct);
+						return new TypeExpr(myloc, cards.get(name).struct);
+					}
+					if (handlers.containsKey(name)) {
+						logger.info(r.fn + " is card " + name);
+						return typeForHandlerCtor(r.fn.location(), handlers.get(name)).asExpr(myloc, factory);
 					}
 					if (structs.containsKey(name)) {
 						logger.info(r.fn + " is struct ctor " + name);
-						return typeForStructCtor(r.fn.location(), structs.get(name)).asExpr(new GarneredFrom(r.fn.location()), factory);
+						return ((TypeExpr)typeForStructCtor(r.fn.location(), structs.get(name)).asExpr(myloc, factory)).butFrom(myloc);
+					}
+					if (objects.containsKey(name)) {
+						logger.info(r.fn + " is object ctor " + name);
+						return ((TypeExpr)typeForObjectCtor(r.fn.location(), objects.get(name)).asExpr(myloc, factory)).butFrom(myloc);
 					}
 					// This is probably a failure on our part rather than user error
 					// We should not be able to get here if r.fn is not already an external which has been resolved
@@ -567,15 +579,22 @@ public class TypeChecker {
 		c.dumpOne(logger, 0);
 		List<Object> args = new ArrayList<Object>();
 		List<InputPosition> locs = new ArrayList<InputPosition>();
+		Object fnCall = null;
+//		int argN = 0;
 		for (HSIEBlock b : c.nestedCommands()) {
 			Object te = checkExpr(s, form, b);
 			if (te == null)
 				return null;
+			if (fnCall == null)
+				fnCall = te;
+//			else if (te instanceof TypeExpr && fnCall instanceof TypeExpr && ((TypeExpr)fnCall).type.equals("->"))
+//				te = ((TypeExpr)te).butFrom(new GarneredFrom(((TypeExpr)fnCall).asType(this), argN));
 			args.add(te);
 			InputPosition ip = null;
 			if (b instanceof PushReturn)
 				ip = ((PushReturn)b).location;
 			locs.add(ip);
+//			argN++;
 		}
 		Object Tf = args.get(0);
 		if (Tf instanceof TypeExpr && "()".equals(((TypeExpr)Tf).type.name())) { // tuples need special handling
@@ -672,11 +691,27 @@ public class TypeChecker {
 		return Type.function(location, args);
 	}
 
+	private Type typeForObjectCtor(InputPosition location, ObjectDefn objectDefn) {
+		List<Type> args = new ArrayList<Type>();
+		for (StructField x : objectDefn.ctorArgs)
+			args.add(x.type);
+		args.add(objectDefn);
+		return Type.function(location, args);
+	}
+
 	private Type typeForCardCtor(InputPosition location, StructDefn structDefn) {
 		List<Type> args = new ArrayList<Type>();
 		// I think this is OK being builtin ...
 		args.add(Type.builtin(location, "_Wrapper"));
 		args.add(structDefn);
+		return Type.function(location, args);
+	}
+
+	private Type typeForHandlerCtor(InputPosition location, HandlerImplements impl) {
+		List<Type> args = new ArrayList<Type>();
+		for (Object x : impl.boundVars)
+			args.add(((HandlerLambda)x).type);
+		args.add(impl);
 		return Type.function(location, args);
 	}
 
@@ -695,6 +730,8 @@ public class TypeChecker {
 			return knowledge.get(fn);
 		if (structs.containsKey(fn))
 			return typeForStructCtor(null, structs.get(fn));
+		if (objects.containsKey(fn))
+			return typeForObjectCtor(null, objects.get(fn));
 		if (cards.containsKey(fn))
 			return typeForCardCtor(null, cards.get(fn).struct);
 		throw new UtilException("There is no type: " + fn);

@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
@@ -32,11 +33,13 @@ import org.zinutils.utils.StringComparator;
 public class HSIE {
 	private final ErrorResult errors;
 	private final Rewriter rewriter;
+	private final Scope biscope;
 	private int exprIdx;
 
-	public HSIE(ErrorResult errors, Rewriter rewriter) {
+	public HSIE(ErrorResult errors, Rewriter rewriter, Scope biscope) {
 		this.errors = errors;
 		this.rewriter = rewriter;
+		this.biscope = biscope;
 		exprIdx = 0;
 	}
 	
@@ -310,9 +313,9 @@ public class HSIE {
 				} else if (patt instanceof ConstPattern) {
 					ConstPattern cp = (ConstPattern) patt;
 					if (cp.type == ConstPattern.INTEGER) {
-						o.ifConst(new AbsoluteVar(null, "Number", rewriter.structs.get("Number")), cp, pe.getValue());
+						o.ifConst(biscope.fromRoot(null, "Number"), cp, pe.getValue());
 					} else if (cp.type == ConstPattern.BOOLEAN) {
-						o.ifConst(new AbsoluteVar(null, "Boolean", null), cp, pe.getValue());
+						o.ifConst(biscope.fromRoot(null, "Boolean"), cp, pe.getValue());
 					} else
 						throw new UtilException("HSIE Cannot handle constant pattern for " + cp.type);
 				} else

@@ -169,7 +169,7 @@ public class Compiler {
 			final ErrorResult errors = new ErrorResult();
 			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
 			final ApplyCurry curry = new ApplyCurry();
-			final HSIE hsie = new HSIE(errors, rewriter);
+			final HSIE hsie = new HSIE(errors, rewriter, top);
 
 			for (ScopeEntry se : entries)
 				rewriter.rewrite(se);
@@ -199,7 +199,7 @@ public class Compiler {
 						throw new UtilException("How did this happen?");
 					Set<ContractMethodDecl> requireds = new TreeSet<ContractMethodDecl>(); 
 					for (ContractMethodDecl m : cd.methods) {
-						if (m.dir.equals("down") /* && is required */)
+						if (m.dir.equals("down") && m.required)
 							requireds.add(m);
 					}
 					for (MethodDefinition m : ci.methods) {

@@ -16,6 +16,13 @@ public class MethodParser implements TryParsing {
 		KeywordToken ud = KeywordToken.from(line);
 		if (ud == null)
 			return null;
+		boolean required = true;
+		if ("optional".equals(ud.text)) {
+			required = false;
+			ud = KeywordToken.from(line);
+			if (ud == null)
+				return ErrorResult.oneMessage(line, "missing declaration");
+		}
 		if ("up".equals(ud.text) || "down".equals(ud.text))
 			;
 		else
@@ -39,7 +46,7 @@ public class MethodParser implements TryParsing {
 				args.add(o);
 		}
 		
-		return new ContractMethodDecl(ud.text, name.text, args);
+		return new ContractMethodDecl(required, ud.text, name.text, args);
 	}
 
 }

@@ -75,25 +75,27 @@ public class MethodConvertorTests {
 		orgFooScope.define("doSend", "org.foo.doSend", Type.function(null, any, send));
 		{
 			ContractDecl contract1 = new ContractDecl(null, "org.foo.Contract1");
-			ContractMethodDecl m1 = new ContractMethodDecl("down", "bar", new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl(true, "down", "bar", new ArrayList<>());
 			contract1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl("up", "start", new ArrayList<>());
+			ContractMethodDecl m2 = new ContractMethodDecl(true, "up", "start", new ArrayList<>());
 			contract1.methods.add(m2);
-			ContractMethodDecl m3 = new ContractMethodDecl("up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
+			ContractMethodDecl m3 = new ContractMethodDecl(true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
 			contract1.methods.add(m3);
 			orgFooScope.define("Contract1", contract1.name(), contract1);
 		}
 		{
 			ContractDecl service1 = new ContractDecl(null, "org.foo.Service1");
-			ContractMethodDecl m1 = new ContractMethodDecl("up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
+			ContractMethodDecl m0 = new ContractMethodDecl(true, "up", "go", new ArrayList<>());
+			service1.methods.add(m0);
+			ContractMethodDecl m1 = new ContractMethodDecl(true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl("down", "respond", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
+			ContractMethodDecl m2 = new ContractMethodDecl(true, "down", "respond", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
 			service1.methods.add(m2);
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
 		{
 			ContractDecl handler1 = new ContractDecl(null, "org.foo.Handler1");
-			ContractMethodDecl m1 = new ContractMethodDecl("down", "handle", new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl(true, "down", "handle", new ArrayList<>());
 			handler1.methods.add(m1);
 			orgFooScope.define("Handler1", handler1.name(), handler1);
 		}
@@ -122,7 +124,7 @@ public class MethodConvertorTests {
 			}
 		}
 		
-		hsie = new HSIE(errors, rewriter);
+		hsie = new HSIE(errors, rewriter, biscope);
 		tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("join", (Type) biscope.get("join"));
@@ -436,7 +438,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotSendAnUpMessageFromAnUpServiceHandler() throws Exception {
-		defineContractMethod(se, "request", new MethodMessage(null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "se"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- se.request"), "request")))));
+		defineContractMethod(se, "go", new MethodMessage(null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "se"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- se.request"), "request")))));
 		stage2(true);
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());

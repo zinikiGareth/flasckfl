@@ -2,10 +2,11 @@
 		String id
 
 	contract Init
-		down update (Any obj)
-		
+		optional down onready
+		optional down update (Any obj)
 	
 	contract Credentials
+		up logout
 	
 	contract KeyValue
 		up   save (Any obj)
@@ -14,5 +15,8 @@
 		down update (Any obj)
 		
 	contract Query
+		up	 scan  (String resource) (String type) (QueryHandler handler)
 	
+// I wonder if the key here should be a Crokey
 	contract QueryHandler
+		down entry  (String key) (Any value)

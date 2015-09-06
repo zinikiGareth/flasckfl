@@ -23,7 +23,7 @@
 				label
 				click => switchTo key
 		
-		event switchTo name ev
+		event switchTo (String name) ev
 			currentTab <- name
 			<- changer.change name
 

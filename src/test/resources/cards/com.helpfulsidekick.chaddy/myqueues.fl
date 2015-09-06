@@ -35,16 +35,19 @@
 			entry (String key) (Task value)
 				<- items.insert key value
 
-		event selectQueue name
+		event selectQueue (String name)
 			selectedQueue <- name
-			items <- (Croset [])
-#			TODO: should cancel previous scan.  Suggests also that this should return a handle we can store so we can cancel it			
+			items <- Croset []
+#			TODO: should cancel previous scan.  Suggests also that this should return a handle we can store so we can cancel it
+#			Store handle using right arrow, e.g. -> queueQuery
+#			cancel using <- queueQuery.cancel
+#			need to deal with "null" handles ... just ignore operations on null objects?	
 			<- query.scan ('arena/com.helpfulsidekick.omt.personal.chaddy.1/personal/queue/' ++ name) 'com.helpfulsidekick.chaddy.Task' TaskHandler 
 
-		event selectItem name
+		event selectItem (String name)
 			selectedItem <- name
 
-		event openItem name
+		event openItem (String name)
 			<- CreateCard ShowTask name (Assoc 'where' 'overlay' NilMap) Nil
 			
 It still feels like a different keyword would give more of the impression of what's going on here

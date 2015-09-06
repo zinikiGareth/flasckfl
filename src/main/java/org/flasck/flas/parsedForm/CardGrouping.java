@@ -32,9 +32,11 @@ public class CardGrouping {
 	
 	public static class HandlerGrouping {
 		public final String type;
+		public final HandlerImplements impl;
 
-		public HandlerGrouping(String type) {
+		public HandlerGrouping(String type, HandlerImplements impl) {
 			this.type = type;
+			this.impl = impl;
 		}
 	}
 	

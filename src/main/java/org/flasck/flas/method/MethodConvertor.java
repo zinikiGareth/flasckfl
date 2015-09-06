@@ -92,8 +92,15 @@ public class MethodConvertor {
 		// Now process all of the method cases
 		Type ofType = null;
 		for (MethodCaseDefn mcd : m.method.cases) {
-			TypedObject typedObject = convertMessagesToActionList(mcd.intro.location, m.scope, mcd.intro.args, types, mcd.messages);
-			cases.add(new FunctionCaseDefn(null, mcd.intro.location, mcd.intro.name, mcd.intro.args, typedObject.expr));
+			InputPosition loc = mcd.intro.location;
+			if (mcd.intro.args.size() != types.size()) {
+				if (!mcd.intro.args.isEmpty())
+					loc = ((Locatable)mcd.intro.args.get(0)).location();
+				errors.message(loc, "incorrect number of formal parameters to contract method '" + mcd.intro.name +"': expected " + types.size() + " but was " + mcd.intro.args.size());
+				continue;
+			}
+			TypedObject typedObject = convertMessagesToActionList(loc, m.scope, mcd.intro.args, types, mcd.messages);
+			cases.add(new FunctionCaseDefn(null, loc, mcd.intro.name, mcd.intro.args, typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
@@ -245,7 +252,7 @@ public class MethodConvertor {
 			slotType = sf.type;
 		} else if (slot instanceof HandlerLambda) {
 			HandlerLambda hl = (HandlerLambda) slot;
-			if (hl.type == null) {
+			if (hl.type == null || hl.type.name().equals("Any")) {
 				errors.message(slot.location(), "cannot assign to untyped handler lambda: " + hl.var);
 				return null;
 			}
@@ -360,7 +367,7 @@ public class MethodConvertor {
 			return null;
 		}
 		String name = t.name();
-		if (!name.equals("Message") && !name.equals("Send") && !name.equals("Assign")) {
+		if (!name.equals("Message") && !name.equals("Send") && !name.equals("Assign") && !name.equals("CreateCard")) {
 			errors.message(expr.location, "expression must be of type Message or List[Message]");
 			return null;
 		}
@@ -386,8 +393,11 @@ public class MethodConvertor {
 				Type prev = types.get(i);
 				if (prev.name().equals("Any"))
 					;	// this has to be OK
+				else if (prev.name().equals(ty.name())) {
+					;	// this should be OK - but do we need to consider poly vars?
+				}
 				else
-					throw new UtilException("Need to cover the case where the parent type is " + prev.name() + " and we want to restrict to " + tx.type);
+					throw new UtilException("Need to cover the case where the parent type is " + prev.name() + " and we want to restrict to " + ty);
 				mytypes.add(ty);
 				locs.add(tx.typeLocation);
 			} else

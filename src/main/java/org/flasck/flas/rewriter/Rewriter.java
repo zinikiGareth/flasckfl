@@ -59,7 +59,6 @@ import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -77,6 +76,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.stories.D3Thing;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -101,6 +101,7 @@ public class Rewriter {
 	private final PackageFinder pkgFinder;
 	public final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
 	public final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
+	public final Map<String, Object> builtins = new TreeMap<String, Object>();
 	public final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>();
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
 	public final List<Template> templates = new ArrayList<Template>();
@@ -300,14 +301,12 @@ public class Rewriter {
 	/** A function context can appear in lots of places, including inside other functions
 	 */
 	class FunctionCaseContext extends NamingContext {
-		private final String myname;
 		protected final Map<String, LocalVar> bound;
 		private final Scope inner;
 		private final boolean fromMethod;
 
 		FunctionCaseContext(NamingContext cx, String myname, int cs, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
 			super(cx);
-			this.myname = myname +"_"+cs;
 			this.bound = locals;
 			this.inner = inner;
 			this.fromMethod = fromMethod;
@@ -397,7 +396,7 @@ public class Rewriter {
 
 			for (MethodDefinition m : ci.methods) {
 				MethodDefinition rwm = rewrite(c2, m);
-				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, ci.location(), ci.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm));
+				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm));
 				rw.methods.add(rwm);
 			}
 			
@@ -407,6 +406,8 @@ public class Rewriter {
 		pos=0;
 		for (ContractService cs : cd.services) {
 			ContractService rw = rewriteCS(c2, cs);
+			if (rw == null)
+				continue;
 			String myname = cd.name +"._S" + pos;
 			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
 			cardServices.put(myname, rw);
@@ -414,7 +415,7 @@ public class Rewriter {
 				sd.fields.add(new StructField(rw, rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
-				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.UP, cs.location(), cs.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m)));
+				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m)));
 
 			pos++;
 		}
@@ -445,7 +446,7 @@ public class Rewriter {
 			for (MethodDefinition m : hi.methods)
 				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, hi.location(), hi.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m)));
 			
-			grp.handlers.add(new HandlerGrouping(cd.name + "." + rw.name));
+			grp.handlers.add(new HandlerGrouping(cd.name + "." + rw.name, rw));
 		}
 		
 		rewriteScope(c2, cd.fnScope);
@@ -603,6 +604,7 @@ public class Rewriter {
 
 	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi, int cs) {
 		try {
+			Type any = (Type) ((AbsoluteVar)cx.nested.resolve(null, "Any")).defn;
 			Object av = cx.nested.resolve(hi.location(), hi.name());
 			if (av == null || !(av instanceof AbsoluteVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
@@ -613,7 +615,7 @@ public class Rewriter {
 				HandlerLambda hl;
 				if (o instanceof VarPattern) {
 					VarPattern vp = (VarPattern) o;
-					hl = new HandlerLambda(vp.varLoc, hi.name, null, vp.var);
+					hl = new HandlerLambda(vp.varLoc, hi.name, any, vp.var);
 				} else if (o instanceof TypedPattern) {
 					TypedPattern vp = (TypedPattern) o;
 					Object type = cx.resolve(vp.typeLocation, vp.type);
@@ -692,7 +694,7 @@ public class Rewriter {
 		for (Object o : cmd.args) {
 			args.add(rewritePattern(cx, o));
 		}
-		return new ContractMethodDecl(cmd.dir, cmd.name, args, rewrite(cx, cmd.type));
+		return new ContractMethodDecl(cmd.required, cmd.dir, cmd.name, args, rewrite(cx, cmd.type));
 	}
 
 	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {

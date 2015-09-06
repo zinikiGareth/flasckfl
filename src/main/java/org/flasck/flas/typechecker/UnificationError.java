@@ -31,9 +31,14 @@ public class UnificationError extends FLASError {
 				return "called with too many arguments";
 			else if (arity > calledWith)
 				return "called with too few arguments"; // but I think this should possibly be curried?
+			else if (!te1.type.name().equals(te2.type.name()))
+				return "cannot pass " + te2.type.name() + " as " + te1.type.name();
 			return "some unidentified function error";
 		}
 		
+		if (!te1.type.name().equals(te2.type.name()))
+			return "inconsistent types: " + te2.type.name() + " and " + te1.type.name();
+
 		return "unification failed with previously unreported case " + te1 + " <> " + te2;
 	}
 

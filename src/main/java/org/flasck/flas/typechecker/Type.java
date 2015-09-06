@@ -172,12 +172,14 @@ public class Type implements Serializable, Locatable {
 		case CONTRACT:
 		case CONTRACTIMPL:
 		case CONTRACTSERVICE:
+		case HANDLERIMPLEMENTS:
 		{
 			return new TypeExpr(from, this);
 		}
 		case STRUCT:
 		case UNION:
 		case INSTANCE:
+		case OBJECT:
 		{
 			List<Object> mypolys = new ArrayList<Object>();
 			for (Type t : polys)
@@ -195,7 +197,7 @@ public class Type implements Serializable, Locatable {
 			Object ret = fnargs.get(fnargs.size()-1).convertToExpr(new GarneredFrom(this, fnargs.size()-1), factory, mapping);
 			for (int i=fnargs.size()-2;i>=0;i--) {
 				Object left = fnargs.get(i).convertToExpr(from, factory, mapping);
-				ret = new TypeExpr(from /* TODO: as f/arg */, Type.builtin(null, "->"), left, ret);
+				ret = new TypeExpr(from, Type.builtin(null, "->"), left, ret);
 			}
 			return ret;
 		}
@@ -215,8 +217,11 @@ public class Type implements Serializable, Locatable {
 		case REFERENCE:
 		case STRUCT:
 		case UNION:
+		case OBJECT:
 		case BUILTIN:
 		case CONTRACTIMPL:
+		case CONTRACT:
+		case HANDLERIMPLEMENTS:
 			sb.append(name);
 			showPolys(sb);
 			break;

@@ -10,6 +10,7 @@ import org.zinutils.collections.CollectionUtils;
 
 @SuppressWarnings("serial")
 public class ObjectDefn extends TypeWithMethods implements AsString, Serializable, Locatable {
+	public final List<StructField> ctorArgs = new ArrayList<StructField>();
 	public final List<ObjectMethod> methods = new ArrayList<ObjectMethod>();
 	public final transient boolean generate;
 
@@ -22,6 +23,10 @@ public class ObjectDefn extends TypeWithMethods implements AsString, Serializabl
 		this.generate = generate;
 	}
 
+	public void constructorArg(Type type, String name) {
+		ctorArgs.add(new StructField(type, name));
+	}
+	
 	@Override
 	public boolean hasMethod(String named) {
 		for (ObjectMethod m : methods)
@@ -49,12 +54,12 @@ public class ObjectDefn extends TypeWithMethods implements AsString, Serializabl
 
 	public String asString() {
 		StringBuilder sb = new StringBuilder(name());
-		if (arity() > 0) {
+		if (hasPolys()) {
 			sb.append("[");
 			String sep = "";
-			for (int i=0;i<arity();i++) {
+			for (int i=0;i<polys().size();i++) {
 				sb.append(sep);
-				sb.append(arg(i));
+				sb.append(poly(i));
 				sep = ",";
 			}
 			sb.append("]");

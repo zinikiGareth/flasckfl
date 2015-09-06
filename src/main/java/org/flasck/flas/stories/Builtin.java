@@ -122,10 +122,12 @@ public class Builtin {
 		}
 		{ // crosets
 			ObjectDefn croset = new ObjectDefn(posn, "Croset", false, varA);
+			croset.constructorArg(list, "init");
 			ret.define("Croset", "Croset", croset);
 			croset.addMethod(new ObjectMethod(Type.function(posn, any, send), "put"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, string, send), "delete"));
+			croset.addMethod(new ObjectMethod(Type.function(posn, string, any, send), "insert"));
 		}
 		return ret;
 	}

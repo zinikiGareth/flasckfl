@@ -42,6 +42,10 @@ public class TypeExpr {
 		this(from, type, CollectionUtils.listOf(exprs));
 	}
 
+	public TypeExpr butFrom(GarneredFrom from) {
+		return new TypeExpr(from, type, args);
+	}
+	
 	// Test if two type expressions are exactly the same, to the very comma
 	// Type variables would need to be THE SAME variables to pass this test - they are not all created equal
 	public boolean identicalTo(TypeExpr other) {

@@ -9,13 +9,15 @@ import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
 public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Serializable {
+	public final boolean required;
 	public final String dir;
 	public final String name;
 	public final List<Object> args;
 	public final Type type;
 
 	// TODO: does this not need a location?
-	public ContractMethodDecl(String dir, String name, List<Object> args) {
+	public ContractMethodDecl(boolean required, String dir, String name, List<Object> args) {
+		this.required = required;
 		this.dir = dir;
 		this.name = name;
 		this.args = args;
@@ -34,7 +36,8 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 		this.type = Type.function(null, types);
 	}
 
-	public ContractMethodDecl(String dir, String name, List<Object> args, Type type) {
+	public ContractMethodDecl(boolean required, String dir, String name, List<Object> args, Type type) {
+		this.required = required;
 		this.dir = dir;
 		this.name = name;
 		this.args = args;

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.flasck.flas.blockForm.InputPosition;
 
 @SuppressWarnings("serial")
-public class TypedPattern implements AsString, Serializable {
+public class TypedPattern implements Locatable, AsString, Serializable {
 	public final transient InputPosition typeLocation;
 	public final String type;
 	public final ExternalRef ref;
@@ -26,6 +26,11 @@ public class TypedPattern implements AsString, Serializable {
 		this.ref = type;
 		this.varLocation = vlocation;
 		this.var = var;
+	}
+	
+	@Override
+	public InputPosition location() {
+		return typeLocation;
 	}
 	
 	@Override
