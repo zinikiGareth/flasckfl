@@ -262,7 +262,7 @@ public class Compiler {
 			abortIfErrors(errors);
 
 			// 7. Generate code from templates
-			final TemplateGenerator tgen = new TemplateGenerator(errors, rewriter, hsie, tc, curry);
+			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tc, curry);
 			tgen.generate(target);
 
 			// 8. D3 definitions may generate card functions; promote these onto the cards
