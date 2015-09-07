@@ -13,6 +13,7 @@
 		up logout
 	
 	contract KeyValue
+		up   subscribe (String resource) (KVUpdate handler)
 		up   save (Any obj)
 
 	contract KVUpdate

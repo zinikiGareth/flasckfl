@@ -636,7 +636,10 @@ public class TypeChecker {
 					errors.message(posn, "there is no method '" + fn + "' in '" + tn +"'");
 					return null;
 				}
-				
+				if (this.contracts.containsKey(tn)) {
+					errors.message(posn, "contract methods must be called at the top level (check parens)");
+					return null;
+				}
 				errors.message(posn, "cannot use '.' with " + tn + " as it is not a struct or object definition");
 				return null;
 			} else if (T1 instanceof TypeVar) {

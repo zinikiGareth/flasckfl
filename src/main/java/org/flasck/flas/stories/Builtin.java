@@ -121,6 +121,15 @@ public class Builtin {
 			elt.addField(new StructField(list.instance(posn, varB), "handlers"));
 		}
 		{ // crosets
+			StructDefn crokey = new StructDefn(posn, "Crokey", false);
+			ret.define("Crokey", "Crokey", crokey);
+			crokey.addField(new StructField(string, "id"));
+			crokey.addField(new StructField(string, "key"));
+			
+			StructDefn crokeys = new StructDefn(posn, "Crokeys", false);
+			ret.define("Crokeys", "Crokeys", crokeys);
+			crokeys.addField(new StructField(list.instance(null,  crokey), "keys"));
+
 			ObjectDefn croset = new ObjectDefn(posn, "Croset", false, varA);
 			croset.constructorArg(list, "init");
 			ret.define("Croset", "Croset", croset);

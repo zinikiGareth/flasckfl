@@ -400,8 +400,20 @@ public class TemplateGenerator {
 					callOnAssign(addToFunc, expr, call, false);
 					String name = ((TemplateListVar)expr).name;
 					expr = "this._src_" + name + "." + name;
-				} else 
-					throw new UtilException("Handle apply expr: " + expr);
+				} else {
+					// This includes the case where we have delegated knowledge of our state to some other function.
+					// It needs to interact with the parent through some kind of dependency analysis to identify
+					// what state elements have changed, in particular if presented with a local variable, what that would signify.
+					
+					// I think there are two routes to get here:
+					//  - you have a complicated expression in the "main" function
+					//  - you have a local variable in a subsidiary function (see CardFunction case above)
+					
+					// I think what we need to do is to pass down when we call with regard to card functions a set of the expressions we're passing down
+					// and then down here to traverse the ApplyExpr's and if we come across a local variable to look up an expr in that map and re-traverse it ...
+					System.out.println("There is an update case here with regard to local variables that I don't really understand how to process");
+					return;
+				}
 				String field = ((StringLiteral)ae.args.get(1)).text;
 				addToFunc.add(JSForm.flex("this._onAssign(" + expr +", '" + field + "', " + call + ")"));
 			} else {
