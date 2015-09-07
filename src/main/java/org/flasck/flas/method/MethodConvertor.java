@@ -155,7 +155,7 @@ public class MethodConvertor {
 			}
 		}
 		if (cmd == null) {
-			errors.message(m.contractLocation, "cannot find method " + mn + " in " + m.fromContract);
+			errors.message(m.contractLocation, "contract '" + m.fromContract + "' does not have a method '" + mn +"' to implement");
 			return null;
 		}
 		

@@ -444,7 +444,7 @@ public class Rewriter {
 			structs.put(hiName, hsd);
 			HandlerContext hc = new HandlerContext(c2, rw);
 			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, hi.location(), hi.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m)));
+				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m)));
 			
 			grp.handlers.add(new HandlerGrouping(cd.name + "." + rw.name, rw));
 		}
@@ -610,17 +610,19 @@ public class Rewriter {
 				errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
 				return hi;
 			}
+			AbsoluteVar ctr = (AbsoluteVar) av;
+			String rwname = cx.prefix + "." + hi.name;
 			List<Object> bvs = new ArrayList<Object>();
 			for (Object o : hi.boundVars) {
 				HandlerLambda hl;
 				if (o instanceof VarPattern) {
 					VarPattern vp = (VarPattern) o;
-					hl = new HandlerLambda(vp.varLoc, hi.name, any, vp.var);
+					hl = new HandlerLambda(vp.varLoc, rwname, any, vp.var);
 				} else if (o instanceof TypedPattern) {
 					TypedPattern vp = (TypedPattern) o;
 					Object type = cx.resolve(vp.typeLocation, vp.type);
 					if (type instanceof AbsoluteVar && ((AbsoluteVar)type).defn instanceof Type) {
-						hl = new HandlerLambda(vp.varLocation, hi.name, (Type) ((AbsoluteVar)type).defn, vp.var);
+						hl = new HandlerLambda(vp.varLocation, rwname, (Type) ctr.defn, vp.var);
 					} else {
 						errors.message(vp.typeLocation, vp.type + " is not a type");
 						continue;
@@ -629,7 +631,7 @@ public class Rewriter {
 					throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 				bvs.add(hl);
 			}
-			HandlerImplements ret = new HandlerImplements(hi.location(), hi.name, ((AbsoluteVar)av).id, bvs);
+			HandlerImplements ret = new HandlerImplements(hi.location(), rwname, ctr.id, bvs);
 			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());

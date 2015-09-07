@@ -188,6 +188,9 @@ public class JSForm {
 		if (ctor.uniqueName().equals("String")) {
 			return new JSForm("if (typeof v" + var.idx + " === 'string')").needBlock();
 		}
+		if (ctor.uniqueName().equals("Any")) {
+			return new JSForm("if (v" + var.idx + ")").needBlock();
+		}
 		return new JSForm("if (v" + var.idx + " && v" + var.idx+"._ctor == '" + ctor.uniqueName() +"')").needBlock();
 	}
 
@@ -237,7 +240,7 @@ public class JSForm {
 //			ret.add(new JSForm("return " + r.fn));
 		if (r.var != null) {
 			if (r.var.var.idx < form.nformal) {
-				ret.add(new JSForm("return " + r.var));
+				ret.add(new JSForm("return " + r.var.var));
 			} else if (r.deps != null) {
 				for (CreationOfVar v : r.deps) {
 					ret.add(new JSForm("var v" + v.var.idx + " = " + closure(form.mytype, form.getClosure(v.var))));
@@ -311,10 +314,10 @@ public class JSForm {
 			} else if (c.fn instanceof CardMember) {
 				if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
 					sb.append("this." + ((CardMember)c.fn).var);
-				else if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT)
+				else if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT || fntype == CodeType.AREA)
 					sb.append("this._card." + ((CardMember)c.fn).var);
 				else
-					throw new UtilException("Can't handle " + fntype + " with card member");
+					throw new UtilException("Can't handle " + fntype + " for card member");
 			}
 			else if (c.fn instanceof HandlerLambda) {
 				if (fntype == CodeType.HANDLER)

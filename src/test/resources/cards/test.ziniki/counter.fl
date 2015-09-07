@@ -15,8 +15,8 @@
 		template	
 			counter : 'format'
 
-		implements org.ziniki.KeyValue
-			value (CounterObj c)
+		implements org.ziniki.Init
+			update (CounterObj c)
 				<- timer.requestTicks (CountUp c.inc) 1000
 
 .				<- timer.cancel t

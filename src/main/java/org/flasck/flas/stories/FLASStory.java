@@ -692,7 +692,13 @@ public class FLASStory implements StoryProcessor {
 				return new ContentString(((ContentString)tf).text, formats);
 			} else if (tf instanceof ContentExpr) {
 				ContentExpr ce = (ContentExpr)tf;
-				return new ContentExpr(substituteMacroParameters(er, s, map, ce.expr, subst), ce.editable(), formats);
+				Object sub = substituteMacroParameters(er, s, map, ce.expr, subst);
+				if (sub instanceof StringLiteral)
+					return new ContentString(((StringLiteral)sub).text, formats);
+				else if (sub instanceof NumericLiteral)
+					return new ContentString(((NumericLiteral)sub).text, formats);
+				else
+					return new ContentExpr(sub, ce.editable(), formats);
 			} else if (tf instanceof TemplateDiv) {
 				TemplateDiv td = (TemplateDiv) tf;
 				List<Object> attrs = new ArrayList<Object>();

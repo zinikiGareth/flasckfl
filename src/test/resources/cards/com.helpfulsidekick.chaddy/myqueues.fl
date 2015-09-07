@@ -24,25 +24,40 @@
 		implements org.ziniki.Init
 			onready
 . I still think I would prefer this ...
-.				<- query.scan 'myqueues' (type Queue) QueueHandler
-				<- query.scan 'query/com.helpfulsidekick.omt.personal.chaddy.1/personal/myqueues' 'com.helpfulsidekick.chaddy.Queue' QueueHandler
-						
-		handler org.ziniki.QueryHandler QueueHandler
-			entry (String key) (Queue value)
-				<- queues.insert key value
+.				<- query.scan 'myqueues' (type Queue) QueueScanHandler
+				<- query.scan 'query/com.helpfulsidekick.omt.personal.chaddy.1/personal/myqueues' 'com.helpfulsidekick.chaddy.Queue' QueueScanHandler
 
-		handler org.ziniki.QueryHandler TaskHandler
-			entry (String key) (Task value)
-				<- items.insert key value
+		implements org.ziniki.KeyValue kv
+
+		handler org.ziniki.QueryHandler QueueScanHandler
+			keys (Any crokeys)
+				<- queues.mergeAppend crokeys
+				<- map requestQueue crokeys
+
+		handler org.ziniki.QueryHandler TaskScanHandler
+			keys (Any crokeys)
+				<- items.mergeAppend crokeys
+				<- map requestTask crokeys
+
+		requestQueue (org.ziniki.Crokey ck) = Send kv 'subscribe' ['typedObject/com.helpfulsidekick.chaddy.Queue/' ++ ck.id, QueueHandler]
+		requestTask (org.ziniki.Crokey ck) = Send kv 'subscribe' ['typedObject/com.helpfulsidekick.chaddy.Task/' ++ ck.id, TaskHandler]
+
+		handler org.ziniki.KVUpdate QueueHandler
+			update obj
+				<- queues.put obj
+
+		handler org.ziniki.KVUpdate TaskHandler
+			update obj
+				<- items.put obj
 
 		event selectQueue (String name)
 			selectedQueue <- name
-			items <- Croset []
+			<- items.clear
 #			TODO: should cancel previous scan.  Suggests also that this should return a handle we can store so we can cancel it
 #			Store handle using right arrow, e.g. -> queueQuery
 #			cancel using <- queueQuery.cancel
 #			need to deal with "null" handles ... just ignore operations on null objects?	
-			<- query.scan ('arena/com.helpfulsidekick.omt.personal.chaddy.1/personal/queue/' ++ name) 'com.helpfulsidekick.chaddy.Task' TaskHandler 
+			<- query.scan ('arena/com.helpfulsidekick.omt.personal.chaddy.1/personal/queue/' ++ name) 'com.helpfulsidekick.chaddy.Task' TaskScanHandler 
 
 		event selectItem (String name)
 			selectedItem <- name

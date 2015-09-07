@@ -1,6 +1,10 @@
 	struct ID
 		String id
 
+	struct Crokey
+		String id
+		String key
+
 	contract Init
 		optional down onready
 		optional down update (Any obj)
@@ -17,6 +21,7 @@
 	contract Query
 		up	 scan  (String resource) (String type) (QueryHandler handler)
 	
-// I wonder if the key here should be a Crokey
+// This should actually be something along the lines of a Croset, but not the whole set, just the things we use with mergeAppend
+// So probably specifically List[(Crokey, ID)] but we might give that pair (or the whole thing) a name, such as CroMapping
 	contract QueryHandler
-		down entry  (String key) (Any value)
+		down keys (Any value)

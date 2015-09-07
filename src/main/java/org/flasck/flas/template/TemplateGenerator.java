@@ -25,6 +25,9 @@ import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.EventHandler;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
@@ -52,15 +55,17 @@ public class TemplateGenerator {
 		private int areaNo = 1;
 		private String introduceVarHere;
 		private final List<String> varsToCopy = new ArrayList<String>();
-		private final Object nil;
-		private final Object cons;
+		private final AbsoluteVar nil;
+		private final AbsoluteVar cons;
+		private final AbsoluteVar equals;
 
 		public GeneratorContext(JSTarget target, Template cg) {
 			this.target = target;
 			this.simpleName = Generator.lname(cg.prefix, false);
 			this.protoName = Generator.lname(cg.prefix, true);
-			this.nil = cg.scope.fromRoot(null, "Nil").defn;
-			this.cons = cg.scope.fromRoot(null, "Cons").defn;
+			this.nil = cg.scope.fromRoot(null, "Nil");
+			this.cons = cg.scope.fromRoot(null, "Cons");
+			this.equals = cg.scope.fromRoot(null, "==");
 		}
 		
 		String nextArea() {
@@ -106,7 +111,7 @@ public class TemplateGenerator {
 
 	public void generate(JSTarget target) {
 		for (Template cg : rewriter.templates) {
-			if (cg.prefix.startsWith("net.ziniki.perspocpoc")) {
+			if (cg.prefix != null) {
 				latestTemplateGeneration(target, cg);
 				continue;
 			}
@@ -164,10 +169,17 @@ public class TemplateGenerator {
 		} else if (tl instanceof ContentString || tl instanceof ContentExpr) {
 			base = "TextArea";
 			isEditable = tl instanceof ContentExpr && ((ContentExpr)tl).editable();
+		} else if (tl instanceof CardReference) {
+			CardReference cr = (CardReference) tl;
+			base = "CardSlotArea";
+			moreArgs = ", { card: " + cr.explicitCard + "}";
+		} else if (tl instanceof TemplateCases) {
+			base = "CasesArea";
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
+		fn.add(JSForm.flex("if (!parent) return"));
 		for (String s : cx.varsToCopy)
 			fn.add(JSForm.flex("this._src_" + s + " = parent._src_" + s));
 		String newVar = cx.extractNewVar();
@@ -213,7 +225,7 @@ public class TemplateGenerator {
 						ifassign.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr +"', attr)"));
 						cx.target.add(sak);
 //						fn.add(JSForm.flex("this._setAttr_" + an +"()"));
-						callOnAssign(fn, tea.value, saf);
+						callOnAssign(fn, tea.value, saf, true);
 						an++;
 						break;
 					}
@@ -223,18 +235,22 @@ public class TemplateGenerator {
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
 			}
-			for (EventHandler eh : td.handlers) {
+			if (!td.handlers.isEmpty()) {
 				JSForm ahf = JSForm.flex(called +".prototype._add_handlers = function()").needBlock();
-				HSIEForm expr = hsie.handleExpr(eh.expr, HSIEForm.CodeType.AREA);
-				curry.rewrite(tc, expr);
-				
-				JSForm.assign(ahf, "var eh" + eh.action, expr);
-				JSForm cev = JSForm.flex("this._mydiv['on" + eh.action + "'] = function(event)").needBlock();
-				cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(eh" + eh.action + ", event)"));
-				ahf.add(cev);
 				cx.target.add(ahf);
-
-				callOnAssign(fn, eh.expr, called + ".prototype._add_handlers");
+				boolean first = true;
+				for (EventHandler eh : td.handlers) {
+					HSIEForm expr = hsie.handleExpr(eh.expr, HSIEForm.CodeType.AREA);
+					curry.rewrite(tc, expr);
+					
+					JSForm.assign(ahf, "var eh" + eh.action, expr);
+					JSForm cev = JSForm.flex("this._mydiv['on" + eh.action + "'] = function(event)").needBlock();
+					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(eh" + eh.action + ", event)"));
+					ahf.add(cev);
+	
+					callOnAssign(fn, eh.expr, called + ".prototype._add_handlers", first);
+					first = false;
+				}
 			}
 			for (TemplateLine c : td.nested) {
 				String v = cx.currentVar();
@@ -258,14 +274,22 @@ public class TemplateGenerator {
 			cx.target.add(nc);
 			cx.newVar(tlv);
 			JSForm cfn = latestRecurse(cx, item, l.template);
-			cfn.add(JSForm.flex("this._makeDraggable()"));
+			if (l.supportDragOrdering)
+				cfn.add(JSForm.flex("this._makeDraggable()"));
 		} else if (tl instanceof ContentString) {
 			ContentString cs = (ContentString) tl;
 			fn.add(JSForm.flex("this._setText('" + cs.text + "')"));
 		} else if (tl instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr)tl;
 			Object valExpr = ce.expr;
-			callOnAssign(fn, valExpr, called + ".prototype._assignToText");
+			callOnAssign(fn, valExpr, called + ".prototype._contentExpr", true);
+
+			JSForm cexpr = JSForm.flex(called +".prototype._contentExpr = function()").needBlock();
+			HSIEForm form = hsie.handleExpr(valExpr, CodeType.CARD);
+			JSForm.assign(cexpr, "var str", form);
+			cexpr.add(JSForm.flex("this._assignToText(str)"));
+			cx.target.add(cexpr);
+
 			if (isEditable) {
 				// for it to be editable, it must be a clear field of a clear object
 				if (valExpr instanceof CardMember) {
@@ -281,11 +305,34 @@ public class TemplateGenerator {
 				} else 
 					throw new UtilException("Cannot edit: " + valExpr);
 			}
+		} else if (tl instanceof CardReference) {
+			// Not sure if we need to do something or not ...
+		} else if (tl instanceof TemplateCases) {
+			TemplateCases tc = (TemplateCases) tl;
+			String sn = called + ".prototype._chooseCase";
+			JSForm sw = JSForm.flex(sn +" = function(parent)").needBlock();
+			sw.add(JSForm.flex("\"use strict\""));
+			sw.add(JSForm.flex("var cond"));
+			cx.target.add(sw);
+			callOnAssign(fn, tc.switchOn, sn, true);
+
+			for (TemplateOr oc : tc.cases) {
+				String cn = cx.nextArea();
+
+				JSForm.assign(sw, "cond", hsie.handleExpr(new ApplyExpr(oc.location(), cx.equals, tc.switchOn, oc.cond), CodeType.AREA));
+				JSForm doit = JSForm.flex("if (FLEval.full(cond))").needBlock();
+				doit.add(JSForm.flex("this._setTo(" + cn +")"));
+//				doit.add(JSForm.flex("var v = new " + cn + "(this)"));
+				doit.add(JSForm.flex("return"));
+				sw.add(doit);
+				latestRecurse(cx, cn, oc.template);
+				callOnAssign(fn, oc.cond, sn, false);
+			}
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
 		if (tl instanceof TemplateFormat) {
-			handleFormats(cx, fn, isEditable, ((TemplateFormat)tl).formats);
+			handleFormats(cx, called, fn, isEditable, ((TemplateFormat)tl).formats);
 		}
 		if (newVar != null) {
 			cx.removeLastCopyVar();
@@ -293,7 +340,7 @@ public class TemplateGenerator {
 		return fn;
 	}
 
-	protected void handleFormats(GeneratorContext cx, JSForm fn, boolean isEditable, List<Object> formats) {
+	protected void handleFormats(GeneratorContext cx, String called, JSForm fn, boolean isEditable, List<Object> formats) {
 		StringBuilder simple = new StringBuilder();
 		if (isEditable)
 			simple.append(" flasck-editable");
@@ -323,12 +370,14 @@ public class TemplateGenerator {
 		if (expr != null) {
 			if (simple.length() > 0)
 				expr = new ApplyExpr(null, cx.cons, new StringLiteral(null, simple.substring(1)), expr);
-			// Basically we need to add a new function
-			// Add code for "onAssign" for each of the variables mentioned in the list we haven't collected yet
-			// But we don't have any test cases just yet
-			throw new UtilException("variable format case");
-//			ret.complexFormats = expr;
-//			ret.sid = "sid" + nextId++;
+			String scf = called + ".prototype._setVariableFormats";
+			JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
+			HSIEForm form = hsie.handleExpr(expr, CodeType.AREA);
+			JSForm.assign(scvs, "var attr", form);
+			scvs.add(JSForm.flex("attr = FLEval.full(attr)"));
+			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(attr), ' '))"));
+			cx.target.add(scvs);
+			callOnAssign(fn, expr, scf, true);
 		}
 		else if (expr == null && simple.length() > 0) {
 			fn.add(JSForm.flex("this._mydiv.className = '" + simple.substring(1) + "'"));
@@ -355,34 +404,43 @@ public class TemplateGenerator {
 		cx.target.add(rules);
 	}
 
-	protected void callOnAssign(JSForm fn, Object valExpr, String call) {
+	protected void callOnAssign(JSForm addToFunc, Object valExpr, String call, boolean addAssign) {
 		if (valExpr instanceof CardMember) {
-			fn.add(JSForm.flex("this._onAssign(this._card, '" + ((CardMember)valExpr).var + "', " + call + ")"));
+			addToFunc.add(JSForm.flex("this._onAssign(this._card, '" + ((CardMember)valExpr).var + "', " + call + ")"));
 		} else if (valExpr instanceof TemplateListVar) {
 			String var = ((TemplateListVar)valExpr).name;
-			fn.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));
-			
-		} else if (valExpr instanceof CardFunction || valExpr instanceof StringLiteral) {
+			addToFunc.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));
+		} else if (valExpr instanceof CardFunction) {
+			// we need to track down the function (if it's not in the object already) and callOnAssign it's definition
+			CardFunction cf = (CardFunction) valExpr;
+			String fullName = cf.clzName + "." + cf.function;
+			FunctionDefinition fd = rewriter.functions.get(fullName);
+			if (fd != null)
+				for (FunctionCaseDefn fcd : fd.cases)
+					callOnAssign(addToFunc, fcd.expr, call, false);
+		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof AbsoluteVar) {
 			// nothing to do here, not variable
 		} else if (valExpr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) valExpr;
 			if (ae.fn instanceof AbsoluteVar && ((AbsoluteVar)ae.fn).id.equals("FLEval.field")) {
 				Object expr = ae.args.get(0);
 				if (expr instanceof TemplateListVar) {
+					callOnAssign(addToFunc, expr, call, false);
 					String name = ((TemplateListVar)expr).name;
 					expr = "this._src_" + name + "." + name;
 				} else 
 					throw new UtilException("Handle apply expr: " + expr);
 				String field = ((StringLiteral)ae.args.get(1)).text;
-				fn.add(JSForm.flex("this._onAssign(" + expr +", '" + field + "', " + call + ")"));
+				addToFunc.add(JSForm.flex("this._onAssign(" + expr +", '" + field + "', " + call + ")"));
 			} else {
-				callOnAssign(fn, ae.fn, call);
+				callOnAssign(addToFunc, ae.fn, call, false);
 				for (Object o : ae.args)
-					callOnAssign(fn, o, call);
+					callOnAssign(addToFunc, o, call, false);
 			}
 		} else
 			throw new UtilException("Not handled: " + valExpr.getClass());
-		fn.add(JSForm.flex(call + ".call(this)"));
+		if (addAssign)
+			addToFunc.add(JSForm.flex(call + ".call(this)"));
 	}
 
 	private TemplateAbstractModel makeAbstractTemplateModel(ErrorResult errors, Rewriter rewriter, HSIE hsie, Template cg) {

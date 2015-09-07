@@ -40,6 +40,6 @@ public class TypedPattern implements Locatable, AsString, Serializable {
 
 	@Override
 	public String asString() {
-		return "(" + type + " " + var + ")";
+		return "(" + (ref != null ? ref.uniqueName():type) + " " + var + ")";
 	}
 }
