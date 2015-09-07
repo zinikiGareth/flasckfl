@@ -446,7 +446,7 @@ public class Rewriter {
 			for (MethodDefinition m : hi.methods)
 				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m)));
 			
-			grp.handlers.add(new HandlerGrouping(cd.name + "." + rw.name, rw));
+			grp.handlers.add(new HandlerGrouping(rw.name, rw));
 		}
 		
 		rewriteScope(c2, cd.fnScope);

@@ -216,7 +216,7 @@ public class TemplateGenerator {
 					case TemplateToken.IDENTIFIER: {
 						String saf = called + ".prototype._setAttr_" + an;
 						JSForm sak = JSForm.flex(saf + " = function()").needBlock();
-						HSIEForm form = hsie.handleExpr(tea.value, CodeType.CARD);
+						HSIEForm form = hsie.handleExpr(tea.value, CodeType.AREA);
 						JSForm.assign(sak, "var attr", form);
 						sak.add(JSForm.flex("attr = FLEval.full(attr)"));
 						JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
@@ -285,7 +285,8 @@ public class TemplateGenerator {
 			callOnAssign(fn, valExpr, called + ".prototype._contentExpr", true);
 
 			JSForm cexpr = JSForm.flex(called +".prototype._contentExpr = function()").needBlock();
-			HSIEForm form = hsie.handleExpr(valExpr, CodeType.CARD);
+			HSIEForm form = hsie.handleExpr(valExpr, CodeType.AREA);
+			form.dump(TypeChecker.logger);
 			JSForm.assign(cexpr, "var str", form);
 			cexpr.add(JSForm.flex("this._assignToText(str)"));
 			cx.target.add(cexpr);

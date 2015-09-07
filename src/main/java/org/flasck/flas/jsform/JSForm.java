@@ -210,7 +210,7 @@ public class JSForm {
 		ReturnCmd r = (ReturnCmd) form.nestedCommands().get(0);
 		if (r.fn != null) {
 			StringBuilder sb = new StringBuilder(assgn + " = ");
-			appendValue(sb, CodeType.CARD, r, 0);
+			appendValue(sb, form.mytype, r, 0);
 			into.add(new JSForm(sb.toString()));
 		} else if (r.var != null) {
 			if (r.deps != null) {
