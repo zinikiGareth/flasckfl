@@ -23,6 +23,8 @@ public class Type implements Serializable, Locatable {
 	private final List<Type> fnargs; // arguments to function or tuple
 	
 	protected Type(InputPosition location, WhatAmI iam, String name, List<Type> polys) {
+		if (location == null)
+			System.out.println("Type without input location");
 		this.location = location;
 		this.iam = iam;
 		this.name = name;
@@ -197,7 +199,7 @@ public class Type implements Serializable, Locatable {
 			Object ret = fnargs.get(fnargs.size()-1).convertToExpr(new GarneredFrom(this, fnargs.size()-1), factory, mapping);
 			for (int i=fnargs.size()-2;i>=0;i--) {
 				Object left = fnargs.get(i).convertToExpr(from, factory, mapping);
-				ret = new TypeExpr(from, Type.builtin(null, "->"), left, ret);
+				ret = new TypeExpr(from, Type.builtin(new InputPosition("builtin", 0, 0, null), "->"), left, ret);
 			}
 			return ret;
 		}

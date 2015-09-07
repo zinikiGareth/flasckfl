@@ -94,7 +94,7 @@ public class ApplyCurry {
 	}
 
 	protected void addClosureBefore(ReturnCmd rc, Var before, Var newClos) {
-		System.out.println("Adding " + newClos + " to " + rc + " before " + before);
+//		System.out.println("Adding " + newClos + " to " + rc + " before " + before);
 		int at = -1;
 		if (rc.var.var == before) {
 			rc.deps.add(new CreationOfVar(newClos, null, null));

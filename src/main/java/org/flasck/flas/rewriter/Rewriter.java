@@ -434,7 +434,7 @@ public class Rewriter {
 			// Using polymorphic vars with random names here seems clever, but I'm not really sure that it is
 			// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
 			for (int i=0;i<rw.boundVars.size();i++)
-				args.add(Type.polyvar(null, "A"+i));
+				args.add(Type.polyvar(hi.location(), "A"+i));
 			StructDefn hsd = new StructDefn(hi.location(), hiName, false, args);
 			int j=0;
 			for (Object s : rw.boundVars) {
@@ -604,7 +604,7 @@ public class Rewriter {
 
 	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi, int cs) {
 		try {
-			Type any = (Type) ((AbsoluteVar)cx.nested.resolve(null, "Any")).defn;
+			Type any = (Type) ((AbsoluteVar)cx.nested.resolve(hi.location(), "Any")).defn;
 			Object av = cx.nested.resolve(hi.location(), hi.name());
 			if (av == null || !(av instanceof AbsoluteVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
@@ -766,10 +766,15 @@ public class Rewriter {
 		if (mm.slot != null && !mm.slot.isEmpty()) {
 			newSlot = new ArrayList<Locatable>();
 			LocatedToken slot = (LocatedToken) mm.slot.get(0);
-			Locatable r = (Locatable) cx.resolve(slot.location, slot.text);
-			newSlot.add(r);
-			for (int i=1;i<mm.slot.size();i++)
-				newSlot.add(mm.slot.get(i));
+			try {
+				Locatable r = (Locatable) cx.resolve(slot.location, slot.text);
+				newSlot.add(r);
+				for (int i=1;i<mm.slot.size();i++)
+					newSlot.add(mm.slot.get(i));
+			} catch (ResolutionException ex) {
+				errors.message(slot.location, ex.getMessage());
+				return null;
+			}
 		}
 		return new MethodMessage(newSlot, rewriteExpr(cx, mm.expr));
 	}
@@ -804,7 +809,6 @@ public class Rewriter {
 					String fname;
 					InputPosition loc;
 					if (ae.args.get(1) instanceof ApplyExpr) { // The field starts with a capital
-						System.out.println("Capital");
 						ApplyExpr inner = (ApplyExpr) ae.args.get(1);
 						fname = ((UnresolvedVar)inner.fn).var;
 						loc = ((UnresolvedVar)inner.fn).location;

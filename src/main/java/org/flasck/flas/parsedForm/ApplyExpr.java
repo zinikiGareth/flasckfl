@@ -11,12 +11,16 @@ public class ApplyExpr implements Locatable {
 	public final List<Object> args = new ArrayList<Object>();
 
 	public ApplyExpr(InputPosition location, Object op, List<Object> args) {
+		if (location == null)
+			System.out.println("ApplyExpr without location");
 		this.location = location;
 		this.fn = op;
 		this.args.addAll(args);
 	}
 
 	public ApplyExpr(InputPosition location, Object op, Object... args) {
+		if (location == null)
+			System.out.println("ApplyExpr without location");
 		this.location = location;
 		this.fn = op;
 		for (Object o : args)

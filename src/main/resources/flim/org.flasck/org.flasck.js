@@ -27,6 +27,4 @@ org.flasck.ChangeEvent = function(v0, v1, v2) {
   return new org.flasck._ChangeEvent({index: v0, id: v1, value: v2});
 }
 
-FLEval.registerStruct('org.flasck.ChangeEvent', org.flasck.ChangeEvent, org.flasck._ChangeEvent);
-
 org.flasck;

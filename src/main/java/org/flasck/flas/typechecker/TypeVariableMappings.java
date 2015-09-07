@@ -147,10 +147,10 @@ public class TypeVariableMappings {
 				return null;
 			}
 
-			// this is just for debugging; we should catch actual unification errors later
-			if (!isListCtor(te1) || !isListCtor(te2)) {
-				System.out.println("First pass does not unify " + te1 + " and " + te2);
-			}
+//			// this is just for debugging; we should catch actual unification errors later
+//			if (!isListCtor(te1) || !isListCtor(te2)) {
+//				System.out.println("First pass does not unify " + te1 + " and " + te2);
+//			}
 			TypeUnion unified = unionOf(te1, te2);
 			for (Entry<TypeVar, Object> x : phi.entrySet()) {
 				if (x.getValue() == te1) {

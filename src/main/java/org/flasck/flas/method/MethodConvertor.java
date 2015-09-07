@@ -197,7 +197,6 @@ public class MethodConvertor {
 		if (mm.slot != null) {
 			return convertAssignMessage(scope, margs, types, mm);
 		} else if (mm.expr instanceof ApplyExpr) {
-			
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			List<Object> args;
 			if (root.fn instanceof ApplyExpr) {

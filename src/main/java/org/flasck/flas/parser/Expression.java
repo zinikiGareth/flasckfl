@@ -103,7 +103,7 @@ public class Expression implements TryParsing {
 		if (from instanceof UnresolvedVar) {
 			UnresolvedVar v = (UnresolvedVar) from;
 			if (Character.isUpperCase(v.var.charAt(0)))
-				return new ApplyExpr(null, v);
+				return new ApplyExpr(v.location, v);
 		}
 		return from;
 	}

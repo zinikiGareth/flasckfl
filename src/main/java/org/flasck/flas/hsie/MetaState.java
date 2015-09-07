@@ -191,10 +191,10 @@ public class MetaState {
 			for (int i=0;i<ops.size();i++) {
 				Object o = ops.get(i);
 				if (elocs.get(i) == null) {
-					System.out.println(e2);
-					System.out.println(ops);
-					System.out.println(elocs);
-					System.out.println("Did not find loc for " + i);
+					System.out.println("Failed to find location for " + i + " in:");
+					System.out.println("   -> " + e2);
+					System.out.println("   -> " + ops);
+					System.out.println("   -> " + elocs);
 				}
 				closure.push(elocs.get(i), o);
 				if (o instanceof CreationOfVar && closureDepends.containsKey(o) && !mydeps.contains(o)) {

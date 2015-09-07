@@ -94,8 +94,6 @@ public class Generator {
 		JSForm ctor = JSForm.function(sd.name(), vars, 0, vars.size());
 		ctor.add(new JSForm("return new " + uname + "({" + String.join(", ", fields) + "})"));
 		target.add(ctor);
-		
-		target.add(JSForm.flex("FLEval.registerStruct('" + sd.name() +"', " + sd.name() + ", " + uname + ")"));
 	}
 
 	private void generateField(JSForm defass, String field, HSIEForm form) {

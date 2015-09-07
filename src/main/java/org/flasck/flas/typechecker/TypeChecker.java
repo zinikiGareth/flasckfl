@@ -528,7 +528,7 @@ public class TypeChecker {
 				String name = r.fn.uniqueName();
 				if (name.equals("FLEval.field")) {
 					logger.info(r.fn + " implies field handling");
-					return new TypeExpr(myloc, Type.builtin(null, "."));
+					return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "."));
 				}
 				Object te = s.localKnowledge.get(name);
 				if (te != null) {

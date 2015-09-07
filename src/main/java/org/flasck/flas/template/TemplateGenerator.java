@@ -56,9 +56,10 @@ public class TemplateGenerator {
 			this.target = target;
 			this.simpleName = Generator.lname(cg.prefix, false);
 			this.protoName = Generator.lname(cg.prefix, true);
-			this.nil = cg.scope.fromRoot(null, "Nil");
-			this.cons = cg.scope.fromRoot(null, "Cons");
-			this.equals = cg.scope.fromRoot(null, "==");
+			InputPosition gen = new InputPosition("generator", 0, 0, null);
+			this.nil = cg.scope.fromRoot(gen, "Nil");
+			this.cons = cg.scope.fromRoot(gen, "Cons");
+			this.equals = cg.scope.fromRoot(gen, "==");
 		}
 		
 		String nextArea() {
@@ -360,7 +361,7 @@ public class TemplateGenerator {
 		JSForm rules = JSForm.flex(area + "._rules =").needBlock();
 		JSForm save = JSForm.flex("save: function(wrapper, text)").needBlock();
 		if (container != null) {
-			JSForm.assign(save, "var containingObject", hsie.handleExpr(container, CodeType.CARD));
+			JSForm.assign(save, "var containingObject", hsie.handleExpr(container, CodeType.AREA));
 		} else
 			save.add(JSForm.flex("var containingObject = this._card"));
 		// TODO: we may need to convert the text field to a more complex object type (e.g. integer) as specified in the rules we are given
@@ -400,6 +401,11 @@ public class TemplateGenerator {
 					callOnAssign(addToFunc, expr, call, false);
 					String name = ((TemplateListVar)expr).name;
 					expr = "this._src_" + name + "." + name;
+				} else if (expr instanceof CardMember) {
+					// need to handle if the whole member gets assigned
+					callOnAssign(addToFunc, expr, call, false);
+					// also handle if this field gets assigned
+					expr = "this._card." + ((CardMember)expr).var;
 				} else {
 					// This includes the case where we have delegated knowledge of our state to some other function.
 					// It needs to interact with the parent through some kind of dependency analysis to identify
@@ -412,6 +418,7 @@ public class TemplateGenerator {
 					// I think what we need to do is to pass down when we call with regard to card functions a set of the expressions we're passing down
 					// and then down here to traverse the ApplyExpr's and if we come across a local variable to look up an expr in that map and re-traverse it ...
 					System.out.println("There is an update case here with regard to local variables that I don't really understand how to process");
+					System.out.println("  -> " + expr);
 					return;
 				}
 				String field = ((StringLiteral)ae.args.get(1)).text;
