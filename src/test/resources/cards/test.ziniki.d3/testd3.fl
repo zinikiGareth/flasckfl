@@ -1,6 +1,7 @@
 	card TestCard
 		state
-			List data <- [ 5, 8, 2, 16 ]
+// should be (but we can't assign Cons to List):			List[Number] data <- [ 5, 8, 2, 16 ]
+			Cons[Number] data <- [ 5, 8, 2, 16 ]
 			
 		template
 			.

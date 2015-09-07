@@ -69,7 +69,7 @@ public class MethodConvertor {
 			addFunction(functions, convertEventHandler(x.scope, x.name, x.handler));
 	}
 
-	private void addFunction(Map<String, HSIEForm> functions, FunctionDefinition fd) {
+	public void addFunction(Map<String, HSIEForm> functions, FunctionDefinition fd) {
 		if (fd != null) {
 			HSIEForm hs = hsie.handle(fd);
 			if (hs != null)
@@ -82,10 +82,15 @@ public class MethodConvertor {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		
 		// Get the contract and from that find the method and thus the argument types
-		List<Type> types = figureCMD(m);
-		if (types == null)
-			return null;
-
+		List<Type> types;
+		if (m.fromContract == null) {
+			types = new ArrayList<Type>();
+		} else {
+			types = figureCMD(m);
+			if (types == null)
+				return null;
+		}
+		
 		if (m.method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
@@ -367,7 +372,7 @@ public class MethodConvertor {
 			return null;
 		}
 		String name = t.name();
-		if (!name.equals("Message") && !name.equals("Send") && !name.equals("Assign") && !name.equals("CreateCard")) {
+		if (!name.equals("Message") && !name.equals("Send") && !name.equals("Assign") && !name.equals("CreateCard") && !name.equals("D3Action")) {
 			errors.message(expr.location, "expression must be of type Message or List[Message]");
 			return null;
 		}

@@ -267,7 +267,7 @@ public class Compiler {
 
 			// 8. D3 definitions may generate card functions; promote these onto the cards
 			for (D3Invoke d3 : rewriter.d3s)
-				promoteD3Methods(errors, mc, forms, rewriter.functions, d3);
+				promoteD3Methods(errors, mc, forms, d3);
 			
 			// 9. Check whether functions are curried and add in the appropriate indications if so
 			handleCurrying(curry, tc, forms.values());
@@ -321,12 +321,14 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
-	private void promoteD3Methods(ErrorResult errors, MethodConvertor mc, Map<String, HSIEForm> forms, Map<String, FunctionDefinition> functions, D3Invoke d3) {
+	private void promoteD3Methods(ErrorResult errors, MethodConvertor mc, Map<String, HSIEForm> forms, D3Invoke d3) {
+		Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>(new StringComparator()); 
 		Object init = d3.scope.fromRoot(d3.d3.dloc, "NilMap");
 		AbsoluteVar assoc = d3.scope.fromRoot(d3.d3.dloc, "Assoc");
 		AbsoluteVar cons = d3.scope.fromRoot(d3.d3.dloc, "Cons");
 		AbsoluteVar nil = d3.scope.fromRoot(d3.d3.dloc, "Nil");
 		AbsoluteVar tuple = d3.scope.fromRoot(d3.d3.dloc, "()");
+		AbsoluteVar d3Elt = d3.scope.fromRoot(d3.d3.dloc, "D3Element");
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
 		for (D3PatternBlock p : d3.d3.patterns) {
 			for (D3Section s : p.sections.values()) {
@@ -335,7 +337,7 @@ public class Compiler {
 					for (PropertyDefn prop : s.properties.values()) {
 						// TODO: only create functions for things that depend on the class
 						// constants can just be used directly
-						FunctionLiteral efn = functionWithArgs(d3.d3.prefix, functions, d3.scope, CollectionUtils.listOf(new TypedPattern(null, "D3Element", null, d3.d3.iter)), prop.value);
+						FunctionLiteral efn = functionWithArgs(d3.d3.prefix, functions, d3.scope, CollectionUtils.listOf(new TypedPattern(null, d3Elt, null, d3.d3.iter)), prop.value);
 						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
 						pl = new ApplyExpr(prop.location, cons, pair, pl);
 					}
@@ -369,6 +371,9 @@ public class Compiler {
 		FunctionCaseDefn fcd = new FunctionCaseDefn(d3.scope, d3.d3.dloc, d3f.name, d3f.args, init);
 		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
+		
+		for (FunctionDefinition fd : functions.values())
+			mc.addFunction(forms, fd);
 	}
 
 	private FunctionLiteral functionWithArgs(String prefix, Map<String, FunctionDefinition> functions, Scope scope, List<Object> args, Object expr) {

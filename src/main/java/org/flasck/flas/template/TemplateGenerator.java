@@ -161,9 +161,12 @@ public class TemplateGenerator {
 		if (tl instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) tl;
 			base = "DivArea";
-			if (td.customTag != null)
+			if (td.customTag != null) {
 				moreArgs = ", '" + td.customTag + "'";
-			// TODO: custom tag var is hard & needs "assign" logic
+				if (td.customTag.equals("svg"))
+					moreArgs = moreArgs + ", 'http://www.w3.org/2000/svg'";
+			}
+			// TODO: a variable custom tag is hard & needs "assign" logic
 		} else if (tl instanceof TemplateList) {
 			base = "ListArea";
 		} else if (tl instanceof ContentString || tl instanceof ContentExpr) {
@@ -175,6 +178,8 @@ public class TemplateGenerator {
 			moreArgs = ", { card: " + cr.explicitCard + "}";
 		} else if (tl instanceof TemplateCases) {
 			base = "CasesArea";
+		} else if (tl instanceof D3Invoke) {
+			base = "D3Area";
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
@@ -329,6 +334,9 @@ public class TemplateGenerator {
 				latestRecurse(cx, cn, oc.template);
 				callOnAssign(fn, oc.cond, sn, false);
 			}
+		} else if (tl instanceof D3Invoke) {
+			D3Invoke d3 = (D3Invoke) tl;
+			callOnAssign(fn, d3.d3.data, "D3Area.prototype._onUpdate", false);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
