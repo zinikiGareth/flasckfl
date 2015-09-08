@@ -13,7 +13,8 @@
 		up logout
 	
 	contract KeyValue
-		up   subscribe (String resource) (KVUpdate handler)
+		up   typed (String type) (String id) (KVUpdate handler)
+		up   resource (String resource) (KVUpdate handler)
 		up   save (Any obj)
 
 	contract KVUpdate
@@ -22,7 +23,17 @@
 	contract Query
 		up	 scan  (String resource) (String type) (QueryHandler handler)
 	
-// This should actually be something along the lines of a Croset, but not the whole set, just the things we use with mergeAppend
-// So probably specifically List[(Crokey, ID)] but we might give that pair (or the whole thing) a name, such as CroMapping
 	contract QueryHandler
-		down keys (Any value)
+		down keys (Crokeys value)
+		
+	contract Persona
+		up	 forApplication (String appl) (String type) (PersonaHandler handler)
+		
+	contract PersonaHandler
+		down update (Any persona)
+		
+	contract Croset
+		up	 range (ID set) (Number from) (Number size) (CrosetHandler handler)
+		
+	contract CrosetHandler
+		down update (Crokeys keys)
