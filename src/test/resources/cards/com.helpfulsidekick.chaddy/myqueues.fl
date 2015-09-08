@@ -30,17 +30,17 @@
 		implements org.ziniki.KeyValue kv
 
 		handler org.ziniki.QueryHandler QueueScanHandler
-			keys (Any crokeys)
+			keys (Crokeys crokeys)
 				<- queues.mergeAppend crokeys
-				<- map requestQueue crokeys
+				<- map requestQueue crokeys.keys
 
 		handler org.ziniki.QueryHandler TaskScanHandler
-			keys (Any crokeys)
+			keys (Crokeys crokeys)
 				<- items.mergeAppend crokeys
-				<- map requestTask crokeys
+				<- map requestTask crokeys.keys
 
-		requestQueue (org.ziniki.Crokey ck) = Send kv 'subscribe' ['typedObject/com.helpfulsidekick.chaddy.Queue/' ++ ck.id, QueueHandler]
-		requestTask (org.ziniki.Crokey ck) = Send kv 'subscribe' ['typedObject/com.helpfulsidekick.chaddy.Task/' ++ ck.id, TaskHandler]
+		requestQueue (org.ziniki.Crokey ck) = Send kv 'typed' ['com.helpfulsidekick.chaddy.Queue', ck.id, QueueHandler]
+		requestTask (org.ziniki.Crokey ck) = Send kv 'typed' ['com.helpfulsidekick.chaddy.Task', ck.id, TaskHandler]
 
 		handler org.ziniki.KVUpdate QueueHandler
 			update obj

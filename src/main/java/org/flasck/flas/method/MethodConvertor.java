@@ -400,8 +400,9 @@ public class MethodConvertor {
 				else if (prev.name().equals(ty.name())) {
 					;	// this should be OK - but do we need to consider poly vars?
 				}
-				else
-					throw new UtilException("Need to cover the case where the parent type is " + prev.name() + " and we want to restrict to " + ty);
+				else {
+					errors.message(tx.typeLocation, "cannot change method type from " + prev.name() + " to " + ty.name());
+				}
 				mytypes.add(ty);
 				locs.add(tx.typeLocation);
 			} else
