@@ -1,8 +1,0 @@
-	struct Queue
-		String id
-		String title
-
-	struct Task
-		String id
-		String title
-

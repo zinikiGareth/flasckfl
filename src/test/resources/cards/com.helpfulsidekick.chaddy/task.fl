@@ -1,4 +1,0 @@
-	card ShowTask
-		template
-			.
-				'This is a Task popup'
