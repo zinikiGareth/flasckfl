@@ -455,6 +455,46 @@ public class FLASStory implements StoryProcessor {
 		return ret;
 	}
 
+	private TemplateLine doOneLine(ErrorResult er, Set<LocatedToken> frTemplates, Block b, Object o) {
+		TemplateLine tl = (TemplateLine)o;
+		if (tl instanceof ContentString || tl instanceof ContentExpr)
+			return tl;
+		TemplateLine ret = null;
+		if (tl instanceof TemplateReference) {
+			TemplateReference tr = (TemplateReference) tl;
+			frTemplates.add(new LocatedToken(tr.location, tr.name));
+			return tl;
+		} else if (tl instanceof CardReference) {
+			return tl;
+		} else if (tl instanceof TemplateList) {
+			ret = tl;
+			TemplateList asList = (TemplateList) ret;
+			if (!hasNonCommentNestedLines(b)) {
+				er.message(b, "list must have exactly one nested element");
+				return null;
+			}
+			asList.template = doCardTemplate(er, frTemplates, b.nested);
+			if (!(asList.template instanceof TemplateDiv)) {
+				er.message(getNCNestedBlock(b, 0), "element inside list must be a div");
+				return null;
+			}
+			TemplateDiv td = (TemplateDiv) asList.template;
+			if (td.customTag == null && td.customTagVar == null) {
+				asList.template = new TemplateDiv("li", null, td.attrs, td.formats);
+				((TemplateDiv)asList.template).nested.addAll(td.nested);
+			}
+		} else if (tl instanceof TemplateDiv) { 
+			ret = tl;
+			TemplateDiv asDiv = (TemplateDiv) ret;
+			doCardDiv(er, frTemplates, asDiv, b.nested);
+		} else if (tl instanceof TemplateCases) {
+			ret = tl;
+			doCases(er, frTemplates, b, (TemplateCases)ret);
+		} else
+			throw new UtilException("Something should handle " + tl.getClass());
+		return ret;
+	}
+
 	@SuppressWarnings("unchecked")
 	private void doCardDiv(ErrorResult er, Set<LocatedToken> frTemplates, TemplateDiv asDiv, List<Block> nested) {
 		TemplateLineParser tlp = new TemplateLineParser();
@@ -481,37 +521,6 @@ public class FLASStory implements StoryProcessor {
 			else
 				er.message(b, "not a valid template line");
 		}		
-	}
-
-	private TemplateLine doOneLine(ErrorResult er, Set<LocatedToken> frTemplates, Block b, Object o) {
-		TemplateLine tl = (TemplateLine)o;
-		if (tl instanceof ContentString || tl instanceof ContentExpr)
-			return tl;
-		TemplateLine ret = null;
-		if (tl instanceof TemplateReference) {
-			TemplateReference tr = (TemplateReference) tl;
-			frTemplates.add(new LocatedToken(tr.location, tr.name));
-			return tl;
-		} else if (tl instanceof CardReference) {
-			return tl;
-		} else if (tl instanceof TemplateList) {
-			ret = tl;
-			TemplateList asList = (TemplateList) ret;
-			if (!hasNonCommentNestedLines(b)) {
-				er.message(b, "list must have exactly one nested element");
-				return null;
-			}
-			asList.template = doCardTemplate(er, frTemplates, b.nested);
-		} else if (tl instanceof TemplateDiv) { 
-			ret = tl;
-			TemplateDiv asDiv = (TemplateDiv) ret;
-			doCardDiv(er, frTemplates, asDiv, b.nested);
-		} else if (tl instanceof TemplateCases) {
-			ret = tl;
-			doCases(er, frTemplates, b, (TemplateCases)ret);
-		} else
-			throw new UtilException("Something should handle " + tl.getClass());
-		return ret;
 	}
 
 	private void doCases(ErrorResult er, Set<LocatedToken> frTemplates, Block container, TemplateCases tc) {
@@ -868,6 +877,13 @@ public class FLASStory implements StoryProcessor {
 			else
 				throw new UtilException("What is " + o + "?");
 		}
+	}
+
+	private Block getNCNestedBlock(Block b, int i) {
+		for (Block q : b.nested)
+			if (!q.isComment() && i-- == 0)
+				return q;
+		return null;
 	}
 
 	private boolean hasNonCommentNestedLines(Block b) {
