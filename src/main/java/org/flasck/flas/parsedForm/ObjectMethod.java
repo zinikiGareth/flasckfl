@@ -1,8 +1,11 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
+
 import org.flasck.flas.typechecker.Type;
 
-public class ObjectMethod {
+@SuppressWarnings("serial")
+public class ObjectMethod implements Serializable {
 	public final String name;
 	public final Type type;
 

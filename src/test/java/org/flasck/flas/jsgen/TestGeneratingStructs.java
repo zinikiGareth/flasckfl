@@ -22,7 +22,7 @@ public class TestGeneratingStructs {
 		Generator gen = new Generator(null, target);
 		gen.generate(sd);
 		target.writeTo(new PrintWriter(System.out, true));
-		assertEquals(4, target.forms.size());
+		assertEquals(3, target.forms.size());
 		JSForm f = target.forms.get(1);
 		assertNotNull(f);
 		assertEquals("ME._Hello = function(v0) {\n  \"use strict\";\n  this._ctor = 'ME.Hello';\n}\n", f.toString());
@@ -41,7 +41,7 @@ public class TestGeneratingStructs {
 		Generator gen = new Generator(null, target);
 		gen.generate(sd);
 		target.writeTo(new PrintWriter(System.out, true));
-		assertEquals(4, target.forms.size());
+		assertEquals(3, target.forms.size());
 		JSForm f = target.forms.get(1);
 		assertNotNull(f);
 		assertEquals("ME._Hello = function(v0) {\n  \"use strict\";\n  this._ctor = 'ME.Hello';\n  if (v0) {\n    if (v0.name) {\n      this.name = v0.name;\n    }\n    if (v0.quant) {\n      this.quant = v0.quant;\n    }\n  }\n  else {\n  }\n}\n", f.toString());

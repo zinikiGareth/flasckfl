@@ -728,15 +728,15 @@ public class TypeChecker {
 		return s.phi.meaning(resultType);
 	}
 
-	public Type getTypeAsCtor(String fn) {
+	public Type getTypeAsCtor(InputPosition loc, String fn) {
 		if (knowledge.containsKey(fn))
 			return knowledge.get(fn);
 		if (structs.containsKey(fn))
-			return typeForStructCtor(null, structs.get(fn));
+			return typeForStructCtor(loc, structs.get(fn));
 		if (objects.containsKey(fn))
-			return typeForObjectCtor(null, objects.get(fn));
+			return typeForObjectCtor(loc, objects.get(fn));
 		if (cards.containsKey(fn))
-			return typeForCardCtor(null, cards.get(fn).struct);
+			return typeForCardCtor(loc, cards.get(fn).struct);
 		throw new UtilException("There is no type: " + fn);
 	}
 

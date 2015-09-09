@@ -75,27 +75,27 @@ public class MethodConvertorTests {
 		orgFooScope.define("doSend", "org.foo.doSend", Type.function(null, any, send));
 		{
 			ContractDecl contract1 = new ContractDecl(null, "org.foo.Contract1");
-			ContractMethodDecl m1 = new ContractMethodDecl(true, "down", "bar", new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "down", "bar", new ArrayList<>());
 			contract1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(true, "up", "start", new ArrayList<>());
+			ContractMethodDecl m2 = new ContractMethodDecl(null, true, "up", "start", new ArrayList<>());
 			contract1.methods.add(m2);
-			ContractMethodDecl m3 = new ContractMethodDecl(true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
+			ContractMethodDecl m3 = new ContractMethodDecl(null, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
 			contract1.methods.add(m3);
 			orgFooScope.define("Contract1", contract1.name(), contract1);
 		}
 		{
 			ContractDecl service1 = new ContractDecl(null, "org.foo.Service1");
-			ContractMethodDecl m0 = new ContractMethodDecl(true, "up", "go", new ArrayList<>());
+			ContractMethodDecl m0 = new ContractMethodDecl(null, true, "up", "go", new ArrayList<>());
 			service1.methods.add(m0);
-			ContractMethodDecl m1 = new ContractMethodDecl(true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
+			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(true, "down", "respond", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
+			ContractMethodDecl m2 = new ContractMethodDecl(null, true, "down", "respond", CollectionUtils.listOf(new TypedPattern(null, "String", null, "s")));
 			service1.methods.add(m2);
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
 		{
 			ContractDecl handler1 = new ContractDecl(null, "org.foo.Handler1");
-			ContractMethodDecl m1 = new ContractMethodDecl(true, "down", "handle", new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "down", "handle", new ArrayList<>());
 			handler1.methods.add(m1);
 			orgFooScope.define("Handler1", handler1.name(), handler1);
 		}
@@ -168,7 +168,7 @@ public class MethodConvertorTests {
 		stage2(false);
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(1, errors.count());
-		assertEquals("cannot find method foo in org.foo.Contract1", errors.get(0).msg);
+		assertEquals("contract 'org.foo.Contract1' does not have a method 'foo' to implement", errors.get(0).msg);
 	}
 
 	@Test
@@ -237,10 +237,11 @@ public class MethodConvertorTests {
 	}
 
 	/* ---- Tests of Assignment to a single slot ---- */
-	@Test(expected=ResolutionException.class) // TODO: is it just that somebody else will catch this, or is this a bad pattern?  Should the rewriter catch this error and give me a proper message?
 	public void testTheTopLevelSlotInAnAssignmentMustBeResolvable() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36")));
 		stage2(true);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("cannot assign to non-state member: map", errors.get(0).msg);
 	}
 
 	@Test
@@ -294,10 +295,11 @@ public class MethodConvertorTests {
 		assertEquals("cannot assign to a service var: se", errors.get(0).msg);
 	}
 
-	@Test(expected=ResolutionException.class)
 	public void testWeCannotAssignToAMethod() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "bar")), new StringLiteral(null, "hello")));
 		stage2(true);
+		assertEquals(errors.singleString(), 1, errors.count());
+		assertEquals("cannot assign to non-state member: map", errors.get(0).msg);
 	}
 
 	@Test
@@ -334,7 +336,7 @@ public class MethodConvertorTests {
 		stage2(true);
 		convertor.convertContractMethods(functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
-		assertEquals("cannot extract member of a non-struct: x", errors.get(0).msg);
+		assertEquals("cannot extract member 'x' of a non-struct: 'String'", errors.get(0).msg);
 	}
 
 	@Test

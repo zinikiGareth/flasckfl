@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -16,6 +17,7 @@ public class MethodParser implements TryParsing {
 		KeywordToken ud = KeywordToken.from(line);
 		if (ud == null)
 			return null;
+		InputPosition loc = line.realinfo();
 		boolean required = true;
 		if ("optional".equals(ud.text)) {
 			required = false;
@@ -46,7 +48,7 @@ public class MethodParser implements TryParsing {
 				args.add(o);
 		}
 		
-		return new ContractMethodDecl(required, ud.text, name.text, args);
+		return new ContractMethodDecl(loc, required, ud.text, name.text, args);
 	}
 
 }

@@ -132,9 +132,10 @@ public class TypeVariableMappings {
 			// case 3 : check for same constructors and then unify the lists
 			TypeExpr te1 = (TypeExpr) t1;
 			TypeExpr te2 = (TypeExpr) t2;
-			if (te1.type.equals(te2.type)) {
+			if (te1.type.name().equals(te2.type.name())) {
 				// TODO: in doing this, we want to replace each of the TEs args "Garnered From" with GarneredFrom(te, arg#) if it is a "type" rather than a position (i.e. for the type var)
 				List<Object> args = unifyl(te1.args, te2.args);
+				// TODO: in passing in the "type" here, we are passing in something that already has poly vars (either var or instantiated).  Is this right?  It doesn't seem it
 				return new TypeExpr(te1.from, te1.type, args);
 			}
 			if (te1.type.name().equals("Any"))

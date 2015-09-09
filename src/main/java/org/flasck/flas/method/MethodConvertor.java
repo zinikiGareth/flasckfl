@@ -283,7 +283,7 @@ public class MethodConvertor {
 				LocatedToken si = (LocatedToken) mm.slot.get(i);
 				if (!(slotType instanceof StructDefn)) {
 					// There may be some valid cases mixed up in here; if so, fix them later
-					errors.message(si.location(), "cannot extract member of a non-struct: " + si.text);
+					errors.message(si.location(), "cannot extract member '" + si.text + "' of a non-struct: '" + slotType.name() + "'");
 					return null;
 				}
 				StructDefn sd = (StructDefn) slotType;
@@ -395,7 +395,9 @@ public class MethodConvertor {
 				Type ty = (Type) ((AbsoluteVar)tx.ref).defn;
 				// we have an obligation to check that ty is a sub-type of types.get(i);
 				Type prev = types.get(i);
-				if (prev.name().equals("Any"))
+				if (prev == null)
+					; // not a lot we can do, but there's probably an error out there somewhere
+				else if (prev.name().equals("Any"))
 					;	// this has to be OK
 				else if (prev.name().equals(ty.name())) {
 					;	// this should be OK - but do we need to consider poly vars?

@@ -23,7 +23,7 @@ public class Type implements Serializable, Locatable {
 	private final List<Type> fnargs; // arguments to function or tuple
 	
 	protected Type(InputPosition location, WhatAmI iam, String name, List<Type> polys) {
-		if (location == null)
+		if (location == null && iam != WhatAmI.POLYVAR)
 			System.out.println("Type without input location");
 		this.location = location;
 		this.iam = iam;

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
@@ -15,8 +16,7 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 	public final List<Object> args;
 	public final Type type;
 
-	// TODO: does this not need a location?
-	public ContractMethodDecl(boolean required, String dir, String name, List<Object> args) {
+	public ContractMethodDecl(InputPosition pos, boolean required, String dir, String name, List<Object> args) {
 		this.required = required;
 		this.dir = dir;
 		this.name = name;
@@ -32,8 +32,8 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 			} else
 				throw new UtilException("Cannot handle type " + o.getClass());
 		}
-		types.add(Type.reference(null, "Send"));
-		this.type = Type.function(null, types);
+		types.add(Type.reference(pos, "Send"));
+		this.type = Type.function(pos, types);
 	}
 
 	public ContractMethodDecl(boolean required, String dir, String name, List<Object> args, Type type) {

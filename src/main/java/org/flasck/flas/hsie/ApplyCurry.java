@@ -9,6 +9,7 @@ import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
+import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -46,7 +47,7 @@ public class ApplyCurry {
 					continue;
 				if (pc.fn.uniqueName().equals("FLEval.field"))
 					continue;
-				Type t = tc.getTypeAsCtor(pc.fn.uniqueName());
+				Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
 				if (t.arity() > c.nestedCommands().size()-1) {
 					c.pushAt(pc.location, 0, new AbsoluteVar(null, "FLEval.curry", null));
 					c.pushAt(pc.location, 2, t.arity());
@@ -71,8 +72,8 @@ public class ApplyCurry {
 			PushCmd pc = (PushCmd) r.inside.nestedCommands().get(r.pos);
 			Var v = h.allocateVar();
 			HSIEBlock oclos = h.closure(v);
-			Type t = tc.getTypeAsCtor(pc.fn.uniqueName());
-			if (t.arity() > 0) {
+			Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
+			if (t.iam == WhatAmI.FUNCTION && t.arity() > 0) {
 //				System.out.println("need to curry block for type = " + t);
 				oclos.push(pc.location, new AbsoluteVar(null, "FLEval.curry", null));
 				oclos.push(pc.location, pc.fn);

@@ -325,6 +325,7 @@ public class TemplateGenerator {
 				if (tt.type == TemplateToken.STRING) {
 					simple.append(" ");
 					simple.append(tt.text);
+					first = tt.location;
 				} else {
 					System.out.println(tt);
 					throw new UtilException("Cannot handle format of type " + tt.type);
@@ -332,17 +333,15 @@ public class TemplateGenerator {
 			} else if (o instanceof ApplyExpr) {
 				// TODO: need to collect object/field pairs that we depend on
 				ApplyExpr ae = (ApplyExpr) o;
-				if (first == null)
-					first = ae.location;
 				if (expr == null)
 					expr = cx.nil;
-				expr = new ApplyExpr(null, cx.cons, o, expr);
+				expr = new ApplyExpr(ae.location, cx.cons, o, expr);
 			} else
 				throw new UtilException("Cannot handle format of type " + o.getClass());
 		}
 		if (expr != null) {
 			if (simple.length() > 0)
-				expr = new ApplyExpr(null, cx.cons, new StringLiteral(null, simple.substring(1)), expr);
+				expr = new ApplyExpr(first, cx.cons, new StringLiteral(first, simple.substring(1)), expr);
 			String scf = called + ".prototype._setVariableFormats";
 			JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
 			HSIEForm form = hsie.handleExpr(expr, CodeType.AREA);
