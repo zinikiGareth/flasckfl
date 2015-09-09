@@ -1,10 +1,6 @@
 	struct ID
 		String id
 
-	struct Crokey
-		String id
-		String key
-
 	contract Init
 		optional down onready
 		optional down update (Any obj)
@@ -21,7 +17,8 @@
 		down update (Any obj)
 		
 	contract Query
-		up	 scan  (String resource) (String type) (QueryHandler handler)
+// TODO: this should be a map, but Map[String, String] doesn't parse
+		up	 scan  (String resource) (String type) (String options) (QueryHandler handler)
 	
 	contract QueryHandler
 		down keys (Crokeys value)

@@ -123,15 +123,15 @@ public class Builtin {
 		{ // crosets
 			StructDefn crokey = new StructDefn(posn, "Crokey", false);
 			ret.define("Crokey", "Crokey", crokey);
-			crokey.addField(new StructField(string, "id"));
 			crokey.addField(new StructField(string, "key"));
+			crokey.addField(new StructField(string, "id"));
 			
 			StructDefn crokeys = new StructDefn(posn, "Crokeys", false);
 			ret.define("Crokeys", "Crokeys", crokeys);
 			crokeys.addField(new StructField(list.instance(null,  crokey), "keys"));
 
 			ObjectDefn croset = new ObjectDefn(posn, "Croset", false, varA);
-			croset.constructorArg(list, "init");
+			croset.constructorArg(crokeys, "init");
 			ret.define("Croset", "Croset", croset);
 			croset.addMethod(new ObjectMethod(Type.function(posn, any, send), "put"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));

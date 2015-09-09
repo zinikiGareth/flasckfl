@@ -520,7 +520,6 @@ public class Rewriter {
 				return ret;
 			} else if (tl instanceof TemplateList) {
 				TemplateList ul = (TemplateList)tl;
-				Object rlistVar = cx.resolve(ul.listLoc, (String) ul.listVar);
 				TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
 				boolean supportDragOrdering = false;
 				for (TemplateToken tt : specials) {
@@ -530,7 +529,7 @@ public class Rewriter {
 						break;
 					}
 				}
-				TemplateList rul = new TemplateList(ul.listLoc, rlistVar, tlv, null, null, formats, supportDragOrdering);
+				TemplateList rul = new TemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, tlv, null, null, formats, supportDragOrdering);
 				cx = new TemplateContext(cx, tlv);
 				rul.template = rewrite(cx, ul.template);
 				return rul;
@@ -622,7 +621,7 @@ public class Rewriter {
 					TypedPattern vp = (TypedPattern) o;
 					Object type = cx.resolve(vp.typeLocation, vp.type);
 					if (type instanceof AbsoluteVar && ((AbsoluteVar)type).defn instanceof Type) {
-						hl = new HandlerLambda(vp.varLocation, rwname, (Type) ctr.defn, vp.var);
+						hl = new HandlerLambda(vp.varLocation, rwname, (Type) ((AbsoluteVar)type).defn, vp.var);
 					} else {
 						errors.message(vp.typeLocation, vp.type + " is not a type");
 						continue;

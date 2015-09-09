@@ -73,16 +73,25 @@ public class TemplateLineParser implements TryParsing{
 					return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
 				InputPosition pos = line.realinfo();
 				TemplateToken t2 = TemplateToken.from(line);
-				if (t2.type != TemplateToken.IDENTIFIER)
-					return ErrorResult.oneMessage(line, "list requires a list variable");
+				Object lv;
+				if (t2.type == TemplateToken.IDENTIFIER) {
+					lv = new UnresolvedVar(pos, t2.text);
+				} else if (t2.type == TemplateToken.ORB) {
+					lv = new Expression().tryParsing(line);
+					TemplateToken crb = TemplateToken.from(line);
+					if (crb.type != TemplateToken.CRB)
+						return ErrorResult.oneMessage(line, "invalid list expression");
+				} else
+					return ErrorResult.oneMessage(line, "list requires a list variable or parenthesized expression");
 				int mark2 = line.at();
 				TemplateToken t3 = TemplateToken.from(line);
+				InputPosition ivp = line.realinfo();
 				String iv = null;
 				if (t3 != null && t3.type == TemplateToken.IDENTIFIER)
 					iv = t3.text;
 				else
 					line.reset(mark2);
-				list = new TemplateList(pos, t2.text, iv, null, null, new ArrayList<Object>(), false);
+				list = new TemplateList(pos, lv, ivp, iv, null, null, new ArrayList<Object>(), false);
 			} else if (tt.type == TemplateToken.ARROW) {
 				if (seenDiv || list != null || contents.size() == 0 || contents.size() > 2)
 					return ErrorResult.oneMessage(line, "syntax error");
@@ -336,7 +345,7 @@ public class TemplateLineParser implements TryParsing{
 			return new TemplateDiv(customTag, customTagVar, attrs, formats);
 		else if (list != null) {
 			if (!formats.isEmpty() || customTag != null || customTagVar != null)
-				return new TemplateList(list.listLoc, list.listVar, list.iterVar, customTag, customTagVar, formats, false);
+				return new TemplateList(list.listLoc, list.listVar, list.iterLoc, list.iterVar, customTag, customTagVar, formats, false);
 			else
 				return list;
 		} else if (cmd != null)

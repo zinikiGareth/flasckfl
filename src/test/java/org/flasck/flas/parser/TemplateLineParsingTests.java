@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.PrintWriter;
 import java.util.List;
@@ -110,7 +111,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testSimpleList() throws Exception {
 		TemplateList tl = parseList("+ list");
-		assertEquals("list", tl.listVar);
+		assertTrue(tl.listVar instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
 		assertNull(tl.iterVar);
 		assertNull(tl.customTag);
 		assertNull(tl.customTagVar);
@@ -120,7 +122,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testSimpleListWithIterator() throws Exception {
 		TemplateList tl = parseList("+ list iter");
-		assertEquals("list", tl.listVar);
+		assertTrue(tl.listVar instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
 		assertEquals("iter", tl.iterVar);
 		assertNull(tl.customTag);
 		assertNull(tl.customTagVar);
@@ -130,7 +133,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testSimpleListWithFormat() throws Exception {
 		TemplateList tl = parseList("+ list : 'format'");
-		assertEquals("list", tl.listVar);
+		assertTrue(tl.listVar instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
 		assertNull(tl.iterVar);
 		assertNull(tl.customTag);
 		assertNull(tl.customTagVar);
@@ -141,7 +145,20 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testSimpleListWithIteratorAndFormat() throws Exception {
 		TemplateList tl = parseList("+ list iter : 'format'");
-		assertEquals("list", tl.listVar);
+		assertTrue(tl.listVar instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
+		assertEquals("iter", tl.iterVar);
+		assertNull(tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(1, tl.formats.size());
+		assertFormat("format", tl, 0);
+	}
+
+	@Test
+	public void testListWIthExpressionIterator() throws Exception {
+		TemplateList tl = parseList("+ (x.list) iter : 'format'");
+		assertTrue(tl.listVar instanceof ApplyExpr);
+		assertEquals("(. x list)", tl.listVar.toString());
 		assertEquals("iter", tl.iterVar);
 		assertNull(tl.customTag);
 		assertNull(tl.customTagVar);
@@ -223,7 +240,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testListWithCustomTag() throws Exception {
 		TemplateList tl = parseList("+ list #ol");
-		assertEquals("list", tl.listVar);
+		assertTrue(tl.listVar instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
 		assertNull(tl.iterVar);
 		assertEquals("ol", tl.customTag);
 		assertNull(tl.customTagVar);
@@ -473,6 +491,8 @@ public class TemplateLineParsingTests {
 	protected TemplateDiv parseDiv(String input) throws Exception {
 		Object o = doparse(input);
 		assertNotNull(o);
+		if (o instanceof ErrorResult)
+			fail(((ErrorResult)o).singleString());
 		assertTrue("was " + o.getClass() + " not TemplateDiv", o instanceof TemplateDiv);
 		return (TemplateDiv) o;
 	}
@@ -480,13 +500,17 @@ public class TemplateLineParsingTests {
 	protected TemplateList parseList(String input) throws Exception {
 		Object o = doparse(input);
 		assertNotNull(o);
-		assertTrue(o instanceof TemplateList);
+		if (o instanceof ErrorResult)
+			fail(((ErrorResult)o).singleString());
+		assertTrue(o.toString(), o instanceof TemplateList);
 		return (TemplateList) o;
 	}
 
 	protected EventHandler parseHandler(String input) throws Exception {
 		Object o = doparse(input);
 		assertNotNull(o);
+		if (o instanceof ErrorResult)
+			fail(((ErrorResult)o).singleString());
 		assertTrue(o instanceof EventHandler);
 		return (EventHandler) o;
 	}
