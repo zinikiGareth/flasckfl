@@ -14,7 +14,6 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
-import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
@@ -178,7 +177,7 @@ public class HSIE {
 //		System.out.println("Choosing cases based on " + elim.var);
 		s.writeTo.head(elim.var);
 		CreationOfVar cv = new CreationOfVar(elim.var, null, "ev"+elim.var.idx);
-		for (ExternalRef ctor : elim.ctorCases) {
+		for (String ctor : elim.ctorCases) {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
 			List<NestedBinds> list = elim.ctorCases.get(ctor);
 			ms.form.dependsOn(ctor);
@@ -305,16 +304,16 @@ public class HSIE {
 					o.anything(pe.getValue(), ((VarPattern)patt).var);
 				} else if (patt instanceof ConstructorMatch) {
 					ConstructorMatch cm = (ConstructorMatch) patt;
-					o.ifCtor(cm.location, cm.ref, cm.args, pe.getValue());
+					o.ifCtor(cm.location, cm.ref.uniqueName(), cm.args, pe.getValue());
 				} else if (patt instanceof TypedPattern) {
 					TypedPattern tp = (TypedPattern) patt;
-					o.ifCtor(tp.typeLocation, tp.ref, new ArrayList<Field>(), pe.getValue());
+					o.ifCtor(tp.typeLocation, tp.type.name(), new ArrayList<Field>(), pe.getValue());
 				} else if (patt instanceof ConstPattern) {
 					ConstPattern cp = (ConstPattern) patt;
 					if (cp.type == ConstPattern.INTEGER) {
-						o.ifConst(biscope.fromRoot(null, "Number"), cp, pe.getValue());
+						o.ifConst("Number", cp, pe.getValue());
 					} else if (cp.type == ConstPattern.BOOLEAN) {
-						o.ifConst(biscope.fromRoot(null, "Boolean"), cp, pe.getValue());
+						o.ifConst("Boolean", cp, pe.getValue());
 					} else
 						throw new UtilException("HSIE Cannot handle constant pattern for " + cp.type);
 				} else

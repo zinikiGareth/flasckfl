@@ -378,7 +378,7 @@ public class Rewriter {
 		cards.put(cd.name, grp);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
-				sd.addField(new StructField(rewrite(cx, sf.type), sf.name, rewriteExpr(cx, sf.init)));
+				sd.addField(new StructField(rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init)));
 				grp.inits.put(sf.name, rewriteExpr(cx, sf.init));
 			}
 		}
@@ -619,13 +619,7 @@ public class Rewriter {
 					hl = new HandlerLambda(vp.varLoc, rwname, any, vp.var);
 				} else if (o instanceof TypedPattern) {
 					TypedPattern vp = (TypedPattern) o;
-					Object type = cx.resolve(vp.typeLocation, vp.type);
-					if (type instanceof AbsoluteVar && ((AbsoluteVar)type).defn instanceof Type) {
-						hl = new HandlerLambda(vp.varLocation, rwname, (Type) ((AbsoluteVar)type).defn, vp.var);
-					} else {
-						errors.message(vp.typeLocation, vp.type + " is not a type");
-						continue;
-					}
+					hl = new HandlerLambda(vp.varLocation, rwname, rewrite(cx, vp.type, false), vp.var);
 				} else
 					throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 				bvs.add(hl);
@@ -643,7 +637,7 @@ public class Rewriter {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(errors, cx, f.name + "_" + cs), c.innerScope(), false), c));
+			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(errors, this, cx, f.name + "_" + cs), c.innerScope(), false), c));
 			cs++;
 		}
 //		System.out.println("rewritten to " + list.get(0).expr);
@@ -655,7 +649,7 @@ public class Rewriter {
 		List<MethodCaseDefn> list = new ArrayList<MethodCaseDefn>();
 		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(errors, cx, m.intro.name + "_" + cs), c.innerScope(), true), c));
+			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(errors, this, cx, m.intro.name + "_" + cs), c.innerScope(), true), c));
 			cs++;
 		}
 		return new MethodDefinition(rewrite(cx, m.intro), list);
@@ -666,7 +660,7 @@ public class Rewriter {
 		int cs = 0;
 		for (EventCaseDefn c : ehd.cases) {
 			Map<String, LocalVar> locals = new HashMap<String, LocalVar>();
-			ehd.intro.gatherVars(errors, cx, ehd.intro.name, locals);
+			ehd.intro.gatherVars(errors, this, cx, ehd.intro.name, locals);
 			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, locals, c.innerScope(), false), c));
 			cs++;
 		}
@@ -676,7 +670,7 @@ public class Rewriter {
 	private StructDefn rewrite(NamingContext cx, StructDefn sd) {
 		StructDefn ret = new StructDefn(sd.location(), sd.name(), sd.generate, (List<Type>)sd.polys());
 		for (StructField sf : sd.fields) {
-			StructField rsf = new StructField(rewrite(cx, sf.type), sf.name, rewriteExpr(cx, sf.init));
+			StructField rsf = new StructField(rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init));
 			ret.addField(rsf);
 		}
 		return ret;
@@ -695,7 +689,7 @@ public class Rewriter {
 		for (Object o : cmd.args) {
 			args.add(rewritePattern(cx, o));
 		}
-		return new ContractMethodDecl(cmd.required, cmd.dir, cmd.name, args, rewrite(cx, cmd.type));
+		return new ContractMethodDecl(cmd.required, cmd.dir, cmd.name, args, rewrite(cx, cmd.type, false));
 	}
 
 	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {
@@ -734,12 +728,7 @@ public class Rewriter {
 		try {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;
-				Object type = cx.resolve(tp.typeLocation, tp.type);
-				if (!(type instanceof AbsoluteVar)) {
-					errors.message(tp.typeLocation, "could not handle " + type);
-					return null;
-				}
-				return new TypedPattern(tp.typeLocation, (AbsoluteVar)type, tp.varLocation, tp.var);
+				return new TypedPattern(tp.typeLocation, rewrite(cx, tp.type, false), tp.varLocation, tp.var);
 			} else if (o instanceof VarPattern) {
 				return o;
 			} else if (o instanceof ConstructorMatch) {
@@ -848,22 +837,28 @@ public class Rewriter {
 		}
 	}
 
-	private Type rewrite(NamingContext cx, Type type) {
+	public Type rewrite(NamingContext cx, Type type, boolean allowPolys) {
 		try {
 			Type ret;
 			ret = null;
 			if (type.iam != WhatAmI.REFERENCE)
 				ret = type;
 			else {
-				Object r = cx.resolve(type.location(), type.name());
-				if (!(r instanceof AbsoluteVar)) {
-					errors.message(type.location(), type.name() + " is not a type definition");
-					return null;
-				}
-				ret = (Type) ((AbsoluteVar)r).defn;
-				if (ret == null) {
-					errors.message(type.location(), "there is no definition in var for " + type.name());
-					return null;
+				try {
+					Object r = cx.resolve(type.location(), type.name());
+					if (!(r instanceof AbsoluteVar)) {
+						errors.message(type.location(), type.name() + " is not a type definition");
+						return null;
+					}
+					ret = (Type) ((AbsoluteVar)r).defn;
+					if (ret == null) {
+						errors.message(type.location(), "there is no definition in var for " + type.name());
+						return null;
+					}
+				} catch (ResolutionException ex) {
+					if (allowPolys)
+						return Type.polyvar(type.location(), type.name());
+					throw ex;
 				}
 			}
 			if (ret.hasPolys() && !type.hasPolys()) {
@@ -880,7 +875,7 @@ public class Rewriter {
 				} else {
 					List<Type> rwp = new ArrayList<Type>();
 					for (Type p : type.polys())
-						rwp.add(rewrite(cx, p));
+						rwp.add(rewrite(cx, p, true));
 					ret = ret.instance(type.location(), rwp);
 				}
 			}
@@ -893,7 +888,7 @@ public class Rewriter {
 			else
 				return ret;
 			for (int i=0;i<k;i++)
-				fnargs.add(rewrite(cx, ret.arg(i)));
+				fnargs.add(rewrite(cx, ret.arg(i), allowPolys));
 			if (ret.iam == WhatAmI.FUNCTION)
 				return Type.function(ret.location(), fnargs);
 			else

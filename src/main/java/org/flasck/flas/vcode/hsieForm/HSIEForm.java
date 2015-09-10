@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.hsie.SubstExpr;
-import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
@@ -79,7 +78,7 @@ public class HSIEForm extends HSIEBlock {
 		for (int i=0;i<nbound;i++)
 			vars.add(new Var(alreadyUsed + nformal + i));
 		for (String s : dependsOn)
-			this.externals.add(new AbsoluteVar(null, s, null));
+			this.externals.add(s);
 	}
 
 	public Var var(int v) {
@@ -114,11 +113,15 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	public void dependsOn(Object ref) {
-		if (!(ref instanceof ExternalRef))
-			throw new UtilException("Cannot pass in a string var: " + ref);
-		String name = ((ExternalRef)ref).uniqueName();
+		String name;
+		if (ref instanceof String)
+			name = (String) ref;
+		else if (ref instanceof ExternalRef)
+			name = ((ExternalRef)ref).uniqueName();
+		else
+			throw new UtilException("Cannot pass in: " + ref);
 		if (!name.equals(this.fnName))
-			externals.add(ref);
+			externals.add(name);
 	}
 
 	public Collection<HSIEBlock> closures() {

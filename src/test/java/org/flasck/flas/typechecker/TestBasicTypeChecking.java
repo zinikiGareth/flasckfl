@@ -183,7 +183,8 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanUseSwitchToLimitId() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn(null, "Number", false));
+		Type number = Type.builtin(null, "Number");
+		tc.addExternal("Number", number);
 		TypeState s = new TypeState(errors);
 		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
 		Object te = tc.checkHSIE(s, HSIETestData.numberIdFn());
@@ -213,9 +214,10 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanHandleConstantSwitching() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn(null, "Number", false));
-		tc.addExternal("FLEval.plus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
-		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
+		Type number = Type.builtin(null, "Number");
+		tc.addExternal("Number", number);
+		tc.addExternal("FLEval.plus", Type.function(null, number, number, number));
+		tc.addExternal("FLEval.minus", Type.function(null, number, number, number));
 		tc.typecheck(orchardOf(HSIETestData.fib()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -231,7 +233,8 @@ public class TestBasicTypeChecking {
 	public void testWeCanHandleBindForCons() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addTypeDefn(new UnionTypeDefn(null, false, "Any"));
-		tc.addStructDefn(new StructDefn(null, "Number", false));
+		Type number = Type.builtin(null, "Number");
+		tc.addExternal("Number", number);
 		Type varA = Type.polyvar(null, "A");
 		StructDefn nil = new StructDefn(null, "Nil", false);
 		tc.addStructDefn(nil);

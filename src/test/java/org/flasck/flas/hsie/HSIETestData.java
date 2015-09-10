@@ -461,10 +461,10 @@ public class HSIETestData {
 			} else if (ps[0].equals("SWITCH")) {
 				if (ctorTypes == null)
 					throw new UtilException("need to pass in ctortypes");
-				AbsoluteVar av = ctorTypes.get(ps[2]);
-				if (av == null)
-					throw new UtilException("You need to define the AV for test type " + ps[2]);
-				prev = b.switchCmd(null, ret.var(Integer.parseInt(ps[1])), av);
+//				AbsoluteVar av = ctorTypes.get(ps[2]);
+//				if (av == null)
+//					throw new UtilException("You need to define the AV for test type " + ps[2]);
+				prev = b.switchCmd(null, ret.var(Integer.parseInt(ps[1])), ps[2]);
 			} else if (ps[0].equals("IF")) {
 				int vidx = Integer.parseInt(ps[1]);
 				CreationOfVar var = new CreationOfVar(ret.var(vidx), null, ps[2]);

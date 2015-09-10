@@ -8,6 +8,7 @@ import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.typechecker.Type;
 import org.junit.Test;
 
 public class PatternMatchingTests {
@@ -27,7 +28,36 @@ public class PatternMatchingTests {
 		Object patt = pp.tryParsing(new Tokenizable("(List l)"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof TypedPattern);
-		assertEquals("List", ((TypedPattern)patt).type);
+		assertEquals("List", ((TypedPattern)patt).type.name());
+		assertEquals("l", ((TypedPattern)patt).var);
+	}
+
+	@Test
+	public void testTypedPolyVar() {
+		PatternParser pp = new PatternParser();
+		Object patt = pp.tryParsing(new Tokenizable("(List[String] l)"));
+		assertNotNull(patt);
+		assertTrue(patt instanceof TypedPattern);
+		Type ty = ((TypedPattern)patt).type;
+		assertEquals("List", ty.name());
+		assertTrue(ty.hasPolys());
+		assertEquals(1, ty.polys().size());
+		assertEquals("String", ty.poly(0).name());
+		assertEquals("l", ((TypedPattern)patt).var);
+	}
+
+	@Test
+	public void testTypedPolyVar2() {
+		PatternParser pp = new PatternParser();
+		Object patt = pp.tryParsing(new Tokenizable("(Dict[String,Number] l)"));
+		assertNotNull(patt);
+		assertTrue(patt instanceof TypedPattern);
+		Type ty = ((TypedPattern)patt).type;
+		assertEquals("Dict", ty.name());
+		assertTrue(ty.hasPolys());
+		assertEquals(2, ty.polys().size());
+		assertEquals("String", ty.poly(0).name());
+		assertEquals("Number", ty.poly(1).name());
 		assertEquals("l", ((TypedPattern)patt).var);
 	}
 
@@ -80,7 +110,7 @@ public class PatternMatchingTests {
 		assertTrue(patt instanceof TuplePattern);
 		assertEquals(2, ((TuplePattern)patt).args.size());
 		TypedPattern foo = (TypedPattern)((TuplePattern)patt).args.get(0);
-		assertEquals("List", foo.type);
+		assertEquals("List", foo.type.name());
 		assertEquals("l", foo.var);
 		assertEquals("m", ((VarPattern)((TuplePattern)patt).args.get(1)).var);
 	}

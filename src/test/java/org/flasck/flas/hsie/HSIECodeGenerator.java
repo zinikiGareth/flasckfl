@@ -97,7 +97,7 @@ public class HSIECodeGenerator {
 		Scope biscope = Builtin.builtinScope();
 		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
-		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f (List x) = 10"));
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f (List[A] x) = 10"));
 		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, "ME.f", 1, CollectionUtils.listOf(c1));
 		pkg.innerScope().define("f", "ME.f", f);
 		Rewriter rw = new Rewriter(errors, null);

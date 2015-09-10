@@ -328,7 +328,7 @@ public class Compiler {
 		AbsoluteVar cons = d3.scope.fromRoot(d3.d3.dloc, "Cons");
 		AbsoluteVar nil = d3.scope.fromRoot(d3.d3.dloc, "Nil");
 		AbsoluteVar tuple = d3.scope.fromRoot(d3.d3.dloc, "()");
-		AbsoluteVar d3Elt = d3.scope.fromRoot(d3.d3.dloc, "D3Element");
+		Type d3Elt = (Type)d3.scope.fromRoot(d3.d3.dloc, "D3Element").defn;
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
 		for (D3PatternBlock p : d3.d3.patterns) {
 			for (D3Section s : p.sections.values()) {

@@ -17,8 +17,7 @@
 		down update (Any obj)
 		
 	contract Query
-// TODO: this should be a map, but Map[String, String] doesn't parse
-		up	 scan  (String resource) (String type) (String options) (QueryHandler handler)
+		up	 scan  (String resource) (String type) (Map[String] options) (QueryHandler handler)
 	
 	contract QueryHandler
 		down keys (Crokeys value)

@@ -24,9 +24,8 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 		List<Type> types = new ArrayList<Type>();
 		for (Object o : args) {
 			if (o instanceof TypedPattern) {
-				// It seems to me that TypedPattern should already have resolved this to a type for us ...
 				TypedPattern tp = (TypedPattern)o;
-				types.add(Type.reference(tp.typeLocation, tp.type));
+				types.add(tp.type);
 			} else if (o instanceof VarPattern) {
 				types.add(Type.reference(null, "Any"));
 			} else

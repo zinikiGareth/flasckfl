@@ -178,20 +178,20 @@ public class JSForm {
 		);
 	}
 
-	public static JSForm switchOn(ExternalRef ctor, Var var) {
-		if (ctor.uniqueName().equals("Number")) {
+	public static JSForm switchOn(String ctor, Var var) {
+		if (ctor.equals("Number")) {
 			return new JSForm("if (FLEval.isInteger(v" + var.idx + "))").needBlock();
 		}
-		if (ctor.uniqueName().equals("Boolean")) {
+		if (ctor.equals("Boolean")) {
 			return new JSForm("if (typeof v" + var.idx + " === 'boolean')").needBlock();
 		}
-		if (ctor.uniqueName().equals("String")) {
+		if (ctor.equals("String")) {
 			return new JSForm("if (typeof v" + var.idx + " === 'string')").needBlock();
 		}
-		if (ctor.uniqueName().equals("Any")) {
+		if (ctor.equals("Any")) {
 			return new JSForm("if (v" + var.idx + ")").needBlock();
 		}
-		return new JSForm("if (v" + var.idx + " && v" + var.idx+"._ctor == '" + ctor.uniqueName() +"')").needBlock();
+		return new JSForm("if (v" + var.idx + " && v" + var.idx+"._ctor == '" + ctor +"')").needBlock();
 	}
 
 	public static JSForm bind(BindCmd h) {

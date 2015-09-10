@@ -62,17 +62,17 @@ public class Builtin {
 			ret.define("Cons", "Cons",			cons);
 			ret.define("map", "map",			Type.function(posn, Type.function(posn, varA, varB), list.instance(posn, varA), list.instance(posn, varB)));
 		}
-		UnionTypeDefn map = new UnionTypeDefn(posn, false, "Map", varA, varB);
+		UnionTypeDefn map = new UnionTypeDefn(posn, false, "Map", varA);
 		{ // maps
 			StructDefn nilMap = new StructDefn(posn, "NilMap", false);
-			StructDefn assoc = new StructDefn(posn, "Assoc", false);
+			StructDefn assoc = new StructDefn(posn, "Assoc", false, varA);
 			map.addCase(nilMap);
 			map.addCase(assoc);
 			ret.define("Map", "Map", map);
 			ret.define("NilMap", "NilMap", nilMap);
 			ret.define("Assoc", "Assoc", assoc);
-			assoc.addField(new StructField(varA, "key"));
-			assoc.addField(new StructField(varB, "value"));
+			assoc.addField(new StructField(string, "key"));
+			assoc.addField(new StructField(varA, "value"));
 			assoc.addField(new StructField(map, "rest"));
 		}
 		{ // d3

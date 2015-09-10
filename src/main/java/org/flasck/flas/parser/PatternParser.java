@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.TuplePattern;
@@ -12,6 +13,7 @@ import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
+import org.flasck.flas.typechecker.Type;
 
 public class PatternParser implements TryParsing {
 
@@ -36,8 +38,20 @@ public class PatternParser implements TryParsing {
 					PattToken after = PattToken.from(line);
 					if (after == null)
 						return null;
+					Type type;
+					if (after.type == PattToken.OSB) {
+						// TODO: we should actually process this
+						Object ty = processPolyArg(next, line);
+						if (ty instanceof ErrorResult)
+							return ty;
+						type = (Type) ty;
+						after = PattToken.from(line);
+						if (after == null)
+							return ErrorResult.oneMessage(line, "unexpected end of pattern");
+					} else
+						type = Type.reference(next.location, next.text);
 					if (after.type == PattToken.VAR) {
-						TypedPattern ret = new TypedPattern(next.location, next.text, after.location, after.text);
+						TypedPattern ret = new TypedPattern(next.location, type, after.location, after.text);
 						retArr.add(ret);
 					} else if (after.type == PattToken.OCB) {
 						// Subsid case is "(Type { ... })" - again with initial caps
@@ -94,6 +108,30 @@ public class PatternParser implements TryParsing {
 			}
 		}  else
 			return simplePattern(tok, line);
+	}
+
+	protected Object processPolyArg(TypeNameToken ty, Tokenizable line) {
+		List<Type> ret = new ArrayList<Type>();
+		while (true) {
+			PattToken after;
+			TypeNameToken tn = QualifiedTypeNameToken.from(line);
+			if (tn == null)
+				return ErrorResult.oneMessage(line, "type name expected");
+			after = PattToken.from(line);
+			Type type;
+			if (after.type == PattToken.OSB) {
+				Object o = processPolyArg(tn, line);
+				if (o instanceof ErrorResult)
+					return o;
+				type = (Type) o;
+			} else
+				type = Type.reference(tn.location, tn.text);
+			ret.add(type);
+			if (after.type == PattToken.CSB) {
+				return Type.reference(ty.location, ty.text, ret);
+			} else if (after.type != PattToken.COMMA)
+				return ErrorResult.oneMessage(line, "syntax error");
+		}
 	}
 	
 	private Object simplePattern(PattToken tok, Tokenizable line) {

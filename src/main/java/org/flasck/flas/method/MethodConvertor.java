@@ -168,7 +168,7 @@ public class MethodConvertor {
 		boolean fail = false;
 		for (Object o : cmd.args) {
 			if (o instanceof TypedPattern) {
-				types.add((Type) ((AbsoluteVar)((TypedPattern)o).ref).defn);
+				types.add(((TypedPattern)o).type);
 			} else
 				throw new UtilException("Cannot handle " + o.getClass().getName());
 		}
@@ -392,7 +392,7 @@ public class MethodConvertor {
 			} else if (x instanceof TypedPattern) {
 				TypedPattern tx = (TypedPattern)x;
 				args.add(tx.var);
-				Type ty = (Type) ((AbsoluteVar)tx.ref).defn;
+				Type ty = tx.type;
 				// we have an obligation to check that ty is a sub-type of types.get(i);
 				Type prev = types.get(i);
 				if (prev == null)

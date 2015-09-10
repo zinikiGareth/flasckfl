@@ -12,7 +12,6 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.AsString;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
@@ -361,10 +360,10 @@ public class TypeChecker {
 				;
 			else if (o instanceof Switch) {
 				Switch sw = (Switch) o;
-				String scname = sw.ctor.uniqueName();
+				String scname = sw.ctor;
 				TypeScheme valueOf = s.gamma.valueOf(new CreationOfVar(sw.var, null, "??"));
 				if (scname.equals("Number") || scname.equals("Boolean") || scname.equals("String")) {
-					s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), (Type)((AbsoluteVar)sw.ctor).defn));
+					s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), this.knowledge.get(scname)));
 					returns.add(checkBlock(sft, s, form, sw));
 					logger.info(o.toString() + " links " + sw.var + " to " + sw.ctor);
 				} else {

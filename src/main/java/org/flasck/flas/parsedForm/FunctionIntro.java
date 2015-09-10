@@ -24,13 +24,13 @@ public class FunctionIntro {
 		this.args = args;
 	}
 	
-	public Map<String, LocalVar> allVars(ErrorResult errors, Rewriter.NamingContext cx, String definedBy) {
+	public Map<String, LocalVar> allVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, String definedBy) {
 		Map<String, LocalVar> ret = new TreeMap<>();
-		gatherVars(errors, cx, definedBy, ret);
+		gatherVars(errors, rewriter, cx, definedBy, ret);
 		return ret;
 	}
 	
-	public void gatherVars(ErrorResult errors, Rewriter.NamingContext cx, String definedBy, Map<String, LocalVar> into) {
+	public void gatherVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, String definedBy, Map<String, LocalVar> into) {
 		for (int i=0;i<args.size();i++) {
 			Object arg = args.get(i);
 			if (arg instanceof VarPattern) {
@@ -45,11 +45,7 @@ public class FunctionIntro {
 				Type t = null;
 				if (cx != null) { // the DependencyAnalyzer can pass in null for the NamingContext 'coz it only wants the var names
 					try {
-						Object o = cx.resolve(tp.typeLocation, tp.type);
-						if (!(o instanceof AbsoluteVar) || !(((AbsoluteVar)o).defn instanceof Type)) {
-							errors.message(tp.typeLocation, tp.type + " is not a type");
-						} else
-							t = (Type)((AbsoluteVar)o).defn;
+						t = rewriter.rewrite(cx, tp.type, false);
 					} catch (ResolutionException ex) {
 						throw new UtilException("Need to consider if " + tp.type + " might be a polymorphic var");
 					}

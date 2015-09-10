@@ -22,7 +22,7 @@ public class HSIEBlock {
 		commands.add(new Head(v));
 	}
 
-	public HSIEBlock switchCmd(InputPosition loc, Var v, ExternalRef ctor) {
+	public HSIEBlock switchCmd(InputPosition loc, Var v, String ctor) {
 		Switch ret = new Switch(loc, v, ctor);
 		commands.add(ret);
 		return ret;
