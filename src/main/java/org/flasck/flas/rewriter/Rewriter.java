@@ -491,10 +491,10 @@ public class Rewriter {
 		}
 		try {
 			if (tl instanceof ContentString) {
-				return rewriteEventHandlers(cx, (TemplateFormatEvents)tl);
+				return rewriteEventHandlers(cx, (TemplateFormatEvents)tl, ((TemplateFormatEvents)tl).handlers);
 			} else if (tl instanceof ContentExpr) {
 				ContentExpr ce = (ContentExpr)tl;
-				return rewriteEventHandlers(cx, new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats));
+				return rewriteEventHandlers(cx, new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats), ((TemplateFormatEvents)tl).handlers);
 			} else if (tl instanceof CardReference) {
 				CardReference cr = (CardReference) tl;
 				Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
@@ -515,7 +515,7 @@ public class Rewriter {
 				TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
 				for (TemplateLine i : td.nested)
 					ret.nested.add(rewrite(cx, i));
-				rewriteEventHandlers(cx, ret);
+				rewriteEventHandlers(cx, ret, td.handlers);
 				return ret;
 			} else if (tl instanceof TemplateList) {
 				TemplateList ul = (TemplateList)tl;
@@ -568,8 +568,9 @@ public class Rewriter {
 		}
 	}
 
-	private TemplateLine rewriteEventHandlers(TemplateContext cx, TemplateFormatEvents ret) {
-		List<EventHandler> handlers = new ArrayList<EventHandler>(ret.handlers);
+	private TemplateLine rewriteEventHandlers(TemplateContext cx, TemplateFormatEvents ret, List<EventHandler> handlers) {
+		// It may or may not be the same array ... copy it to be sure ...
+		handlers = new ArrayList<EventHandler>(handlers);
 		ret.handlers.clear();
 		for (EventHandler h : handlers) {
 			ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
