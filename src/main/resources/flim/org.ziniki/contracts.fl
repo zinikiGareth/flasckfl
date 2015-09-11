@@ -9,12 +9,16 @@
 		up logout
 	
 	contract KeyValue
+		up   create (String type) (KVCreated handler)
 		up   typed (String type) (String id) (KVUpdate handler)
 		up   resource (String resource) (KVUpdate handler)
 		up   save (Any obj)
 
 	contract KVUpdate
 		down update (Any obj)
+		
+	contract KVCreated
+		down itemCreated (Any obj)
 		
 	contract Query
 		up	 scan  (String resource) (String type) (Map[String] options) (QueryHandler handler)

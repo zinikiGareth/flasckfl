@@ -53,6 +53,7 @@ import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateFormat;
+import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TemplateIntro;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
@@ -457,8 +458,24 @@ public class FLASStory implements StoryProcessor {
 
 	private TemplateLine doOneLine(ErrorResult er, Set<LocatedToken> frTemplates, Block b, Object o) {
 		TemplateLine tl = (TemplateLine)o;
-		if (tl instanceof ContentString || tl instanceof ContentExpr)
+		if (tl instanceof ContentString || tl instanceof ContentExpr) {
+			TemplateFormatEvents asEH = (TemplateFormatEvents)tl;
+			TemplateLineParser tlp = new TemplateLineParser();
+			for (Block ib : b.nested) {
+				if (ib.isComment())
+					continue;
+				Object eh = tlp.tryParsing(new Tokenizable(ib));
+				if (eh == null)
+					er.message(b, "syntax error");
+				else if (eh instanceof ErrorResult)
+					er.merge((ErrorResult) eh);
+				else if (eh instanceof EventHandler)
+					asEH.handlers.add((EventHandler)eh);
+				else
+					er.message(ib, "not a valid template line");
+			}
 			return tl;
+		}
 		TemplateLine ret = null;
 		if (tl instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) tl;
@@ -482,6 +499,7 @@ public class FLASStory implements StoryProcessor {
 			if (td.customTag == null && td.customTagVar == null) {
 				asList.template = new TemplateDiv("li", null, td.attrs, td.formats);
 				((TemplateDiv)asList.template).nested.addAll(td.nested);
+				((TemplateDiv)asList.template).handlers.addAll(td.handlers);
 			}
 		} else if (tl instanceof TemplateDiv) { 
 			ret = tl;
@@ -684,30 +702,29 @@ public class FLASStory implements StoryProcessor {
 				return new D3Invoke(s.scope, d3);
 			}
 		} else if (content instanceof TemplateFormat) {
-			/*
-			// substitute for vars in contents, attrs and formats
-			List<Object> contents = new ArrayList<Object>();
-			for (Object o : content.contents)
-				contents.add(substituteMacroParameters(er, map, o, subst));
-			List<Object> attrs = new ArrayList<Object>();
-			for (Object o : content.attrs)
-				attrs.add(substituteMacroParameters(er, map, o, subst));
-			*/
 			TemplateFormat tf = (TemplateFormat) content;
 			List<Object> formats = new ArrayList<Object>();
 			for (Object o : tf.formats)
 				formats.add(substituteMacroParameters(er, s, map, o, subst));
 			if (tf instanceof ContentString) {
-				return new ContentString(((ContentString)tf).text, formats);
+				ContentString cs = (ContentString)tf;
+				ContentString ret = new ContentString(((ContentString)tf).text, formats);
+				for (EventHandler y : cs.handlers)
+					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
+				return ret;
 			} else if (tf instanceof ContentExpr) {
 				ContentExpr ce = (ContentExpr)tf;
 				Object sub = substituteMacroParameters(er, s, map, ce.expr, subst);
+				TemplateFormatEvents ret;
 				if (sub instanceof StringLiteral)
-					return new ContentString(((StringLiteral)sub).text, formats);
+					ret = new ContentString(((StringLiteral)sub).text, formats);
 				else if (sub instanceof NumericLiteral)
-					return new ContentString(((NumericLiteral)sub).text, formats);
+					ret = new ContentString(((NumericLiteral)sub).text, formats);
 				else
-					return new ContentExpr(sub, ce.editable(), formats);
+					ret = new ContentExpr(sub, ce.editable(), formats);
+				for (EventHandler y : ce.handlers)
+					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
+				return ret;
 			} else if (tf instanceof TemplateDiv) {
 				TemplateDiv td = (TemplateDiv) tf;
 				List<Object> attrs = new ArrayList<Object>();

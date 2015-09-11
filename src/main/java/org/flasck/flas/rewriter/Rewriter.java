@@ -67,6 +67,7 @@ import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateFormat;
+import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateListVar;
@@ -490,10 +491,10 @@ public class Rewriter {
 		}
 		try {
 			if (tl instanceof ContentString) {
-				return tl;
+				return rewriteEventHandlers(cx, (TemplateFormatEvents)tl);
 			} else if (tl instanceof ContentExpr) {
 				ContentExpr ce = (ContentExpr)tl;
-				return new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats);
+				return rewriteEventHandlers(cx, new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats));
 			} else if (tl instanceof CardReference) {
 				CardReference cr = (CardReference) tl;
 				Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
@@ -514,9 +515,7 @@ public class Rewriter {
 				TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
 				for (TemplateLine i : td.nested)
 					ret.nested.add(rewrite(cx, i));
-				for (EventHandler h : td.handlers) {
-					ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
-				}
+				rewriteEventHandlers(cx, ret);
 				return ret;
 			} else if (tl instanceof TemplateList) {
 				TemplateList ul = (TemplateList)tl;
@@ -567,6 +566,15 @@ public class Rewriter {
 					errors.message(tt.location, "cannot use format '" + tt.text + "' on this item");
 			}
 		}
+	}
+
+	private TemplateLine rewriteEventHandlers(TemplateContext cx, TemplateFormatEvents ret) {
+		List<EventHandler> handlers = new ArrayList<EventHandler>(ret.handlers);
+		ret.handlers.clear();
+		for (EventHandler h : handlers) {
+			ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
+		}
+		return ret;
 	}
 
 	private TemplateOr rewrite(TemplateContext cx, TemplateOr tor) {

@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * Messy and slow, I know, but at least fairly realistic
  */
-public class ContentExpr extends TemplateFormat {
+public class ContentExpr extends TemplateFormatEvents {
 	public final Object expr;
 	private boolean editable;
 

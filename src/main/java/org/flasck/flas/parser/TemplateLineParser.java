@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.TemplateAttributeVar;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
+import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
@@ -352,8 +353,8 @@ public class TemplateLineParser implements TryParsing{
 			return cmd;
 		else if (!contents.isEmpty()) {
 			for (TemplateLine o : contents) {
-				if (o instanceof ContentExpr)
-					((ContentExpr)o).formats.addAll(formats);
+				if (o instanceof TemplateFormat)
+					((TemplateFormat)o).formats.addAll(formats);
 			}
 			return contents;
 		} else

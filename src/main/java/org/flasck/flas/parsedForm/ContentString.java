@@ -10,13 +10,11 @@ import java.util.List;
  * 
  * Messy and slow, I know, but at least fairly realistic
  */
-public class ContentString extends TemplateFormat {
+public class ContentString extends TemplateFormatEvents {
 	public final String text;
-	public final List<Object> formats;
 
 	public ContentString(String text, List<Object> formats) {
 		super(formats);
 		this.text = text;
-		this.formats = formats;
 	}
 }

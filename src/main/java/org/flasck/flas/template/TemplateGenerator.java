@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateFormat;
+import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateListVar;
@@ -204,23 +205,6 @@ public class TemplateGenerator {
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
 			}
-			if (!td.handlers.isEmpty()) {
-				JSForm ahf = JSForm.flex(called +".prototype._add_handlers = function()").needBlock();
-				cx.target.add(ahf);
-				boolean first = true;
-				for (EventHandler eh : td.handlers) {
-					HSIEForm expr = hsie.handleExpr(eh.expr, HSIEForm.CodeType.AREA);
-					curry.rewrite(tc, expr);
-					
-					JSForm.assign(ahf, "var eh" + eh.action, expr);
-					JSForm cev = JSForm.flex("this._mydiv['on" + eh.action + "'] = function(event)").needBlock();
-					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(eh" + eh.action + ", event)"));
-					ahf.add(cev);
-	
-					callOnAssign(fn, eh.expr, called + ".prototype._add_handlers", first, null);
-					first = false;
-				}
-			}
 			for (TemplateLine c : td.nested) {
 				String v = cx.currentVar();
 				String cn = cx.nextArea();
@@ -308,7 +292,7 @@ public class TemplateGenerator {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
 		if (tl instanceof TemplateFormat) {
-			handleFormats(cx, called, fn, isEditable, ((TemplateFormat)tl).formats);
+			handleFormatsAndEvents(cx, called, fn, isEditable, (TemplateFormat)tl);
 		}
 		if (newVar != null) {
 			cx.removeLastCopyVar();
@@ -316,13 +300,13 @@ public class TemplateGenerator {
 		return fn;
 	}
 
-	protected void handleFormats(GeneratorContext cx, String called, JSForm fn, boolean isEditable, List<Object> formats) {
+	protected void handleFormatsAndEvents(GeneratorContext cx, String called, JSForm fn, boolean isEditable, TemplateFormat tl) {
 		StringBuilder simple = new StringBuilder();
 		if (isEditable)
 			simple.append(" flasck-editable");
 		Object expr = null;
 		InputPosition first = null;
-		for (Object o : formats) {
+		for (Object o : tl.formats) {
 			if (o instanceof TemplateToken) {
 				TemplateToken tt = (TemplateToken) o;
 				if (tt.type == TemplateToken.STRING) {
@@ -356,6 +340,26 @@ public class TemplateGenerator {
 		}
 		else if (expr == null && simple.length() > 0) {
 			fn.add(JSForm.flex("this._mydiv.className = '" + simple.substring(1) + "'"));
+		}
+		if (tl instanceof TemplateFormatEvents) {
+			TemplateFormatEvents tfe = (TemplateFormatEvents) tl;
+			if (!tfe.handlers.isEmpty()) {
+				JSForm ahf = JSForm.flex(called +".prototype._add_handlers = function()").needBlock();
+				cx.target.add(ahf);
+				boolean isFirst = true;
+				for (EventHandler eh : tfe.handlers) {
+					HSIEForm exprn = hsie.handleExpr(eh.expr, HSIEForm.CodeType.AREA);
+					curry.rewrite(tc, exprn);
+					
+					JSForm.assign(ahf, "var eh" + eh.action, exprn);
+					JSForm cev = JSForm.flex("this._mydiv['on" + eh.action + "'] = function(event)").needBlock();
+					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(eh" + eh.action + ", event)"));
+					ahf.add(cev);
+	
+					callOnAssign(fn, eh.expr, called + ".prototype._add_handlers", isFirst, null);
+					isFirst = false;
+				}
+			}
 		}
 	}
 	
