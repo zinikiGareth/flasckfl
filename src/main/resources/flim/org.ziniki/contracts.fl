@@ -33,7 +33,8 @@
 		down update (Any persona)
 		
 	contract Croset
-		up	 range (ID set) (Number from) (Number size) (CrosetHandler handler)
+		up	 get (String set) (String after) (Number size) (CrosetHandler handler)
+		up	 range (String set) (Number from) (Number size) (CrosetHandler handler)
 		
 	contract CrosetHandler
 		down update (Crokeys keys)
