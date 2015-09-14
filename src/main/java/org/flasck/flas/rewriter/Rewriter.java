@@ -425,21 +425,17 @@ public class Rewriter {
 			templates.add(rewrite(new TemplateContext(c2), cd.template));
 		
 		for (HandlerImplements hi : cd.handlers) {
+			Type any = (Type) ((AbsoluteVar)cx.nested.resolve(hi.location(), "Any")).defn;
 			HandlerImplements rw = rewriteHI(c2, hi, pos);
 			if (rw == null)
 				continue;
 			String hiName = cd.name +"."+hi.name;
 			cardHandlers.put(hiName, rw);
-			List<Type> args = new ArrayList<Type>();
-			//				System.out.println("Creating class for handler " + hiName);
-			// Using polymorphic vars with random names here seems clever, but I'm not really sure that it is
-			// We need to make sure that in doing this, everything typechecks to the same set of variables, whereas we normally insert fresh variables every time we use the type
-			for (int i=0;i<rw.boundVars.size();i++)
-				args.add(Type.polyvar(hi.location(), "A"+i));
-			StructDefn hsd = new StructDefn(hi.location(), hiName, false, args);
+			StructDefn hsd = new StructDefn(hi.location(), hiName, false);
 			int j=0;
 			for (Object s : rw.boundVars) {
-				hsd.fields.add(new StructField(Type.polyvar(rw.location(), "A"+j), ((HandlerLambda)s).var));
+				HandlerLambda hl = (HandlerLambda) s;
+				hsd.fields.add(new StructField(hl.type, hl.var));
 				j++;
 			}
 			structs.put(hiName, hsd);
@@ -528,7 +524,7 @@ public class Rewriter {
 						break;
 					}
 				}
-				TemplateList rul = new TemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, tlv, null, null, formats, supportDragOrdering);
+				TemplateList rul = new TemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, tlv, ul.customTag, ul.customTagVar, formats, supportDragOrdering);
 				cx = new TemplateContext(cx, tlv);
 				rul.template = rewrite(cx, ul.template);
 				return rul;

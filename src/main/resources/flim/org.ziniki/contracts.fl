@@ -1,4 +1,4 @@
-	struct ID
+\	struct ID
 		String id
 
 	contract Init
@@ -34,7 +34,6 @@
 		
 	contract Croset
 		up	 get (String set) (String after) (Number size) (CrosetHandler handler)
-		up	 range (String set) (Number from) (Number size) (CrosetHandler handler)
 		
 	contract CrosetHandler
 		down update (Crokeys keys)

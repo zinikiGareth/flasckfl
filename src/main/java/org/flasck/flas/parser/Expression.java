@@ -51,18 +51,45 @@ public class Expression implements TryParsing {
 		ExprToken s = ExprToken.from(line);
 		if (s == null)
 			return null; // we presumably saw an error?
-		if (s.type == ExprToken.NUMBER || s.type == ExprToken.STRING || s.type == ExprToken.IDENTIFIER || s.type == ExprToken.SYMBOL) {
+		if (s.type == ExprToken.PUNC) {
+			if (s.text.equals("(") || s.text.equals("[")) {
+				; // drop through to main case
+			} else if (s.text.equals(")") || s.text.equals("]") || s.text.equals(",")) {
+				line.reset(mark);
+				return null;
+			} else {
+				System.out.println("What was this punc? " + s);
+				return null;
+			}
+		}
+		if (s.type == ExprToken.NUMBER || s.type == ExprToken.STRING || s.type == ExprToken.IDENTIFIER || s.type == ExprToken.SYMBOL || s.type == ExprToken.PUNC) {
 			List<Object> args = new ArrayList<Object>();
-			args.add(ItemExpr.from(s));
+			if (s.type != ExprToken.PUNC)
+				args.add(ItemExpr.from(s));
+			else {
+				if (s.text.equals("(")) {
+					Object pp = parseParenthetical(line, ")");
+					if (pp == null) return null;
+					args.add(pp);
+				} else if (s.text.equals("[")) {
+					Object pp = parseParenthetical(line, "]");
+					if (pp == null) return null;
+					args.add(pp);
+				}
+			}
 			while (line.hasMore()) {
 				mark = line.at();
 				s = ExprToken.from(line);
 				if (s == null)
 					return null;
 				if (s.type == ExprToken.PUNC && s.text.equals("(")) {
-					args.add(parseParenthetical(line, ")"));
+					Object pp = parseParenthetical(line, ")");
+					if (pp == null) return null;
+					args.add(pp);
 				} else if (s.type == ExprToken.PUNC && s.text.equals("[")) {
-					args.add(parseParenthetical(line, "]"));
+					Object pp = parseParenthetical(line, "]");
+					if (pp == null) return null;
+					args.add(pp);
 				} else if (s.type == ExprToken.PUNC && (s.text.equals(")") || s.text.equals(",") || s.text.equals("]"))) {
 					line.reset(mark);
 					break;
@@ -76,22 +103,14 @@ public class Expression implements TryParsing {
 				} else
 					args.add(promoteConstructors(ItemExpr.from(s)));
 			}
-			if (args.size() == 2 && args.get(0) instanceof UnresolvedVar && ((UnresolvedVar)args.get(0)).var.equals("type") && args.get(1) instanceof ApplyExpr && ((ApplyExpr)args.get(1)).args.isEmpty()) {
+			if (args.size() == 2 && args.get(0) instanceof UnresolvedVar && ((UnresolvedVar)args.get(0)).var.equals("type") && (args.get(1) instanceof UnresolvedVar || args.get(1) instanceof ApplyExpr && ((ApplyExpr)args.get(1)).args.isEmpty())) {
+				if (args.get(1) instanceof UnresolvedVar)
+					return args.get(1);
 				return ((ApplyExpr)args.get(1)).fn;
 			} else if (args.size() == 1)
 				return promoteConstructors(deparen(args.get(0)));
 			else
 				return deparen(opstack(args));
-		} else if (s.type == ExprToken.PUNC) {
-			if (s.text.equals("(") || s.text.equals("[")) {
-				return deparen(parseParenthetical(line, s.text.equals("(")?")":"]"));
-			} else if (s.text.equals(")") || s.text.equals("]") || s.text.equals(",")) {
-				line.reset(mark);
-				return null;
-			} else {
-				System.out.println("What was this punc? " + s);
-				return null;
-			}
 		} else {
 			// error reporting - some sort of syntax error
 			System.out.println("What was this? " + s);
@@ -99,10 +118,14 @@ public class Expression implements TryParsing {
 		}
 	}
 
+	/* In 90% of cases, constructors are functions, even if they don't take arguments.
+	 * The other 10% constitute the ones that are outside Cards (Handlers and the like take the card as an implicit argument).
+	 * Technically, we only need to promote the ones that have hidden args, but that's hard to check here, but we do know that Nil is a common exception - handle that one specially
+	 */
 	private Object promoteConstructors(Object from) {
 		if (from instanceof UnresolvedVar) {
 			UnresolvedVar v = (UnresolvedVar) from;
-			if (Character.isUpperCase(v.var.charAt(0)))
+			if (Character.isUpperCase(v.var.charAt(0)) && !v.var.equals("Nil"))
 				return new ApplyExpr(v.location, v);
 		}
 		return from;
@@ -229,7 +252,7 @@ public class Expression implements TryParsing {
 
 	private Object rehash(UnresolvedOperator ie) {
 		if (ie.op.equals(":"))
-			return new AbsoluteVar(null, "Cons");
+			return new UnresolvedVar(ie.location, "Cons");
 		return ie;
 	}
 
@@ -280,6 +303,8 @@ public class Expression implements TryParsing {
 			if (expr != null)
 				objs.add(expr);
 			ExprToken crb = ExprToken.from(line);
+			if (crb == null)
+				return null;
 			if (crb.type == ExprToken.PUNC) {
 				if (crb.text.equals(endsWith)) {
 					if (endsWith.equals(")")) {

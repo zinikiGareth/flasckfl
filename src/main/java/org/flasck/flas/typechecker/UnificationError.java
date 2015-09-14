@@ -7,6 +7,7 @@ public class UnificationError extends FLASError {
 
 	public UnificationError(TypeExpr te1, TypeExpr te2) {
 		super(bestLocation(te1.from, te2.from), reportMessage(te1, te2, false));
+		TypeChecker.logger.warn(this.toString());
 	}
 
 	private static InputPosition bestLocation(GarneredFrom from1, GarneredFrom from2) {

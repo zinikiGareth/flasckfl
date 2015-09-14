@@ -47,15 +47,17 @@ public class TemplateLineParser implements TryParsing{
 			TemplateToken tt = TemplateToken.from(line);
 			if (tt == null)
 				return ErrorResult.oneMessage(line, "unrecognized token");
-			if (tt.type == TemplateToken.COLON || tt.type == TemplateToken.HASH) {
+			if (tt.type == TemplateToken.COLON || tt.type == TemplateToken.HASH || tt.type == TemplateToken.ATTR) {
 				line.reset(mark);
 				break;
 			} else if (seenDiv || list != null || cmd != null) {
 				return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
 			} else if (tt.type == TemplateToken.ORB) {
-				line.reset(mark);
 				Object pe = new Expression().tryParsing(line);
 				contents.add(new ContentExpr(pe, new ArrayList<Object>()));
+				tt = TemplateToken.from(line);
+				if (tt.type != TemplateToken.CRB)
+					return ErrorResult.oneMessage(line.realinfo(), "missing )");
 			} else if (tt.type == TemplateToken.DIV) {
 				if (!contents.isEmpty()) {
 					// This logic handles the "special case" where we want to support field extraction without parens
@@ -238,7 +240,7 @@ public class TemplateLineParser implements TryParsing{
 				return ErrorResult.oneMessage(line, "extra tokens at end of template line");
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
-			if (tt.type == TemplateToken.HASH) {
+			if (tt.type == TemplateToken.HASH || tt.type == TemplateToken.ATTR) {
 				if (!seenDiv && list == null && !contents.isEmpty())
 					return ErrorResult.oneMessage(line, "can only use # by itself or with . or +");
 				if (!seenDiv && list == null)
@@ -246,19 +248,22 @@ public class TemplateLineParser implements TryParsing{
 				if (!line.hasMore())
 					return ErrorResult.oneMessage(line, "missing #tag");
 					
-				TemplateToken f = TemplateToken.from(line);
-				if (f.type == TemplateToken.HASH) {
-					if (!line.hasMore())
-						return ErrorResult.oneMessage(line, "missing #tag");
-					f = TemplateToken.from(line);
-					if (f.type == TemplateToken.IDENTIFIER)
-						customTagVar = f.text;
+				if (tt.type == TemplateToken.HASH) {
+					TemplateToken f = TemplateToken.from(line);
+					if (f.type == TemplateToken.HASH) {
+						if (!line.hasMore())
+							return ErrorResult.oneMessage(line, "missing #tag");
+						f = TemplateToken.from(line);
+						if (f.type == TemplateToken.IDENTIFIER)
+							customTagVar = f.text;
+						else
+							return ErrorResult.oneMessage(line, "invalid #tag");
+					} else if (f.type == TemplateToken.IDENTIFIER)
+						customTag = f.text;
 					else
 						return ErrorResult.oneMessage(line, "invalid #tag");
-				} else if (f.type == TemplateToken.IDENTIFIER)
-					customTag = f.text;
-				else
-					return ErrorResult.oneMessage(line, "invalid #tag");
+				} else
+					line.reset(mark);
 				while (line.hasMore()) {
 					mark = line.at();
 					TemplateToken at = TemplateToken.from(line);
@@ -301,8 +306,8 @@ public class TemplateLineParser implements TryParsing{
 								return ErrorResult.oneMessage(line, "could not parse attribute value expression");
 							else if (ave instanceof ErrorResult)
 								return ave;
-							f = TemplateToken.from(line);
-							if (f == null || f.type != TemplateToken.CRB)
+							TemplateToken crb = TemplateToken.from(line);
+							if (crb == null || crb.type != TemplateToken.CRB)
 								return ErrorResult.oneMessage(line, "expected )");
 							attrs.add(new TemplateExplicitAttr(val.location, n.text, TemplateToken.IDENTIFIER, ave));
 						} else

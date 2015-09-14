@@ -264,6 +264,21 @@ public class TemplateLineParsingTests {
 	}
 
 	@Test
+	public void testAnExplicitStringAttributeCanStandByItself() throws Exception {
+		TemplateDiv tl = parseDiv("@id='famous'");
+		assertEquals(1, tl.attrs.size());
+		TemplateExplicitAttr tea = (TemplateExplicitAttr) tl.attrs.get(0);
+		assertEquals(TemplateToken.STRING, tea.type);
+		assertEquals("id", tea.attr);
+		assertEquals("famous", tea.value);
+		assertNull(tl.customTag);
+		assertNull(tl.customTagVar);
+		assertEquals(0, tl.formats.size());
+		assertEquals(0, tl.handlers.size());
+		assertEquals(0, tl.nested.size());
+	}
+
+	@Test
 	public void testTagCanHaveExplicitVariableAttribute() throws Exception {
 		TemplateDiv tl = parseDiv("#blockquote @id=famous");
 		assertEquals("blockquote", tl.customTag);

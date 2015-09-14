@@ -272,6 +272,10 @@ public class Type implements Serializable, Locatable {
 				t.show(sb);
 		}
 	}
+
+	public Type applyInstanceVarsFrom(Type existing) {
+		return instance(location, existing.polys);
+	}
 	
 	@Override
 	public boolean equals(Object obj) {

@@ -151,7 +151,6 @@ public class IntroParser implements TryParsing {
 			while (line.hasMore()) {
 				PatternParser pp = new PatternParser();
 				Object patt = pp.tryParsing(line);
-//				ValidIdentifierToken var = VarNameToken.from(line);
 				if (patt == null)
 					return ErrorResult.oneMessage(line, "invalid contract argument pattern");
 				lambdas.add(patt);

@@ -35,10 +35,12 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeWithMethods;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
+import org.flasck.flas.typechecker.TypeUnion;
 import org.flasck.flas.typechecker.TypedObject;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
@@ -302,8 +304,25 @@ public class MethodConvertor {
 			return null;
 		}
 		if (!slotType.equals(exprType)) {
-			errors.message(slot.location(), "cannot assign " + exprType + " to slot of type " + slotType);
-			return null;
+			boolean isOK = false;
+			Type foo = slotType;
+			if (slotType.iam == WhatAmI.INSTANCE)
+				foo = slotType.innerType();
+			if (foo instanceof UnionTypeDefn) {
+				for (Type t : ((UnionTypeDefn)foo).cases) {
+					Type u = t;
+					if (slotType.iam == WhatAmI.INSTANCE)
+						u = t.applyInstanceVarsFrom(slotType);
+					if (u.equals(exprType)) {
+						isOK = true;
+						break;
+					}
+				}
+			}
+			if (!isOK) {
+				errors.message(slot.location(), "cannot assign " + exprType + " to slot of type " + slotType);
+				return null;
+			}
 		}
 		return new ApplyExpr(slot.location(), scope.fromRoot(slot.location(), "Assign"), intoObj, slotName, mm.expr);
 	}

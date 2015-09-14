@@ -496,7 +496,7 @@ public class FLASStory implements StoryProcessor {
 				return null;
 			}
 			TemplateDiv td = (TemplateDiv) asList.template;
-			if (td.customTag == null && td.customTagVar == null) {
+			if (td.customTag == null && td.customTagVar == null && asList.customTag == null && asList.customTagVar == null) {
 				asList.template = new TemplateDiv("li", null, td.attrs, td.formats);
 				((TemplateDiv)asList.template).nested.addAll(td.nested);
 				((TemplateDiv)asList.template).handlers.addAll(td.handlers);
@@ -738,7 +738,7 @@ public class FLASStory implements StoryProcessor {
 				return ret;
 			} else if (tf instanceof TemplateList) {
 				TemplateList tl = (TemplateList) tf;
-				TemplateList ret = new TemplateList(tl.listLoc, tl.listVar, tl.iterLoc, tl.iterVar, null, null, formats, false);
+				TemplateList ret = new TemplateList(tl.listLoc, tl.listVar, tl.iterLoc, tl.iterVar, tl.customTag, tl.customTagVar, formats, false);
 				ret.template = unroll(er, s, map, tl.template, subst);
 				return ret;
 //				return new TemplateList(tl.listLoc, substituteMacroParameters(er, map, tl.listVar, subst), tl.iterVar, formats);

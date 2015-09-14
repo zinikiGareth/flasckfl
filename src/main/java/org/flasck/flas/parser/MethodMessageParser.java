@@ -46,6 +46,8 @@ public class MethodMessageParser implements TryParsing {
 			return ErrorResult.oneMessage(line, "syntax error");
 		else if (expr instanceof ErrorResult)
 			return expr;
+		if (line.hasMore())
+			return ErrorResult.oneMessage(line, "tokens at end of line");
 		else
 			return new MethodMessage(keys.isEmpty()?null:keys, expr);
 	}

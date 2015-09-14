@@ -133,7 +133,14 @@ public class TemplateGenerator {
 			}
 			// TODO: a variable custom tag is hard & needs "assign" logic
 		} else if (tl instanceof TemplateList) {
+			TemplateList ul = (TemplateList) tl;
 			base = "ListArea";
+			if (ul.customTag != null) {
+				moreArgs = ", '" + ul.customTag + "'";
+				if (ul.customTag.equals("svg"))
+					moreArgs = moreArgs + ", 'http://www.w3.org/2000/svg'";
+			}
+			// TODO: a variable custom tag is hard & needs "assign" logic
 		} else if (tl instanceof ContentString || tl instanceof ContentExpr) {
 			base = "TextArea";
 			isEditable = tl instanceof ContentExpr && ((ContentExpr)tl).editable();

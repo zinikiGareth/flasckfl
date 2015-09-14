@@ -74,6 +74,7 @@ public class Builtin {
 			assoc.addField(new StructField(string, "key"));
 			assoc.addField(new StructField(varA, "value"));
 			assoc.addField(new StructField(map, "rest"));
+			ret.define("assoc", "StdLib.assoc",		Type.function(posn, map.instance(posn, varA), string, varA));
 		}
 		{ // d3
 			StructDefn d3 = new StructDefn(posn, "D3Element", false, varA);
