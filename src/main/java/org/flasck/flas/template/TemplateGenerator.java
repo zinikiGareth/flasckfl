@@ -147,7 +147,7 @@ public class TemplateGenerator {
 		} else if (tl instanceof CardReference) {
 			CardReference cr = (CardReference) tl;
 			base = "CardSlotArea";
-			moreArgs = ", { card: " + cr.explicitCard + "}";
+			moreArgs = ", { explicit: " + cr.explicitCard + "}";
 		} else if (tl instanceof TemplateCases) {
 			base = "CasesArea";
 		} else if (tl instanceof D3Invoke) {

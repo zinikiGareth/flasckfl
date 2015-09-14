@@ -98,8 +98,6 @@ public class Builtin {
 			send.addField(new StructField(any, "dest"));
 			send.addField(new StructField(string, "method"));
 			send.addField(new StructField(list.instance(posn, any), "args"));
-			crCard.addField(new StructField(any, "explicitCard")); // type should probably be String|Card where Card is some kind of "interface" type thing
-			crCard.addField(new StructField(any, "value"));
 			crCard.addField(new StructField(map.instance(posn, string, any), "opts"));
 			crCard.addField(new StructField(list.instance(posn, any), "contracts")); // maybe List[(String, CardHandle)] ?  what is CardHandle?  This is what I had "before"
 			ret.define("Assign", "Assign", assign);
