@@ -23,6 +23,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
+import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.hsie.ApplyCurry;
@@ -66,6 +67,7 @@ import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
@@ -90,7 +92,7 @@ public class Compiler {
 						System.out.println("--flim <file>");
 						System.exit(1);
 					}
-					compiler.pkgFinder.searchIn(new File(args[++i]));
+					compiler.searchIn(new File(args[++i]));
 				} else {
 					System.out.println("unknown option: " + f);
 					compiler.success = false;
@@ -112,7 +114,18 @@ public class Compiler {
 	private boolean success;
 	private boolean dumpTypes = false;
 	private final PackageFinder pkgFinder = new PackageFinder();
+	private ByteCodeEnvironment bce = new ByteCodeEnvironment();
+	private File androidDir;
+
+	public void searchIn(File file) {
+		pkgFinder.searchIn(file);
+	}
 	
+	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put it
+	public void writeDroidTo(File file) {
+		androidDir = file;
+	}
+
 	public void compile(File file) {
 		String inPkg = file.getName();
 		if (!file.isDirectory()) {
@@ -170,6 +183,7 @@ public class Compiler {
 			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter, top);
+			final DroidGenerator dg = new DroidGenerator(hsie, bce, androidDir);
 
 			for (ScopeEntry se : entries)
 				rewriter.rewrite(se);
@@ -185,11 +199,14 @@ public class Compiler {
 			JSTarget target = new JSTarget(inPkg);
 			Generator gen = new Generator(hsie, target);
 
-			for (Entry<String, StructDefn> sd : rewriter.structs.entrySet())
+			for (Entry<String, StructDefn> sd : rewriter.structs.entrySet()) {
 				gen.generate(sd.getValue());
+				dg.generate(sd.getValue());
+			}
 			for (Entry<String, CardGrouping> kv : rewriter.cards.entrySet()) {
 				CardGrouping grp = kv.getValue();
 				gen.generate(kv.getKey(), grp);
+				dg.generate(kv.getKey(), grp);
 				for (ContractGrouping ctr : grp.contracts) {
 					ContractImplements ci = rewriter.cardImplements.get(ctr.implName);
 					if (ci == null)
@@ -222,12 +239,18 @@ public class Compiler {
 					}
 				}
 			}
-			for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet())
+			for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet()) {
 				gen.generateContract(ci.getKey(), ci.getValue());
-			for (Entry<String, ContractService> cs : rewriter.cardServices.entrySet())
+				dg.generateContract(ci.getKey(), ci.getValue());
+			}
+			for (Entry<String, ContractService> cs : rewriter.cardServices.entrySet()) {
 				gen.generateService(cs.getKey(), cs.getValue());
-			for (Entry<String, HandlerImplements> hi : rewriter.cardHandlers.entrySet())
+				dg.generateService(cs.getKey(), cs.getValue());
+			}
+			for (Entry<String, HandlerImplements> hi : rewriter.cardHandlers.entrySet()) {
 				gen.generateHandler(hi.getKey(), hi.getValue());
+				dg.generateHandler(hi.getKey(), hi.getValue());
+			}
 			
 			// 4. Do dependency analysis on functions and group them together in orchards
 			List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(rewriter.functions);
@@ -262,7 +285,7 @@ public class Compiler {
 			abortIfErrors(errors);
 
 			// 7. Generate code from templates
-			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tc, curry);
+			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tc, curry, dg);
 			tgen.generate(target);
 
 			// 8. D3 definitions may generate card functions; promote these onto the cards
@@ -275,6 +298,7 @@ public class Compiler {
 
 			// 10. generation of JSForms
 			generateForms(gen, forms.values());
+			dg.generate(forms.values());
 			abortIfErrors(errors);
 
 			// 11a. Issue JavaScript
@@ -286,6 +310,7 @@ public class Compiler {
 			}
 			target.writeTo(wjs);
 
+			
 			// 11b. Save learned state for export
 			try {
 				wex = new FileOutputStream(exportTo);
@@ -457,5 +482,9 @@ public class Compiler {
 	private void generateForms(Generator gen, Collection<HSIEForm> collection) {
 		for (HSIEForm h : collection)
 			gen.generate(h);
+	}
+
+	public ByteCodeEnvironment getBCE() {
+		return bce;
 	}
 }

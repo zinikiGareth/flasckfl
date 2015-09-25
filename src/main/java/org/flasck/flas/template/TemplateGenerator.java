@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
@@ -94,12 +95,14 @@ public class TemplateGenerator {
 	private final HSIE hsie;
 	private final TypeChecker tc;
 	private final ApplyCurry curry;
+	private final DroidGenerator dg;
 
-	public TemplateGenerator(Rewriter rewriter, HSIE hsie, TypeChecker tc, ApplyCurry curry) {
+	public TemplateGenerator(Rewriter rewriter, HSIE hsie, TypeChecker tc, ApplyCurry curry, DroidGenerator dg) {
 		this.rewriter = rewriter;
 		this.hsie = hsie;
 		this.tc = tc;
 		this.curry = curry;
+		this.dg = dg;
 	}
 
 	public void generate(JSTarget target) {

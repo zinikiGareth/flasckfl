@@ -1,16 +1,10 @@
 	struct CounterObj
 		Number inc <- 0
 
-	contract Timer
-		up requestTicks (OnCounter h) (Number msInterval) 
-  
-	contract OnCounter
-		down onTick 
-  
 	card CounterCard
 		state	
 			Number counter <- 0
-			Timer t
+			org.ziniki.Timer t
 
 		template	
 			counter : 'format'
@@ -22,8 +16,8 @@
 .				<- timer.cancel t
 # should be: (capturing handle)				<- timer.requestTicks (CountUp c.inc) 1000 -> t
 
-		implements Timer timer
+		implements org.ziniki.Timer timer
   
-		handler OnCounter CountUp inc 
+		handler org.ziniki.TimerCallback CountUp inc 
 			onTick
 				counter <- counter + inc

@@ -756,13 +756,15 @@ public class TypeChecker {
 	}
 
 	public void writeLearnedKnowledge(OutputStream wex, boolean copyToScreen) throws IOException {
-		System.out.println("Inferred types:");
+		if (copyToScreen)
+			System.out.println("Inferred types:");
 		ObjectOutputStream oos = new ObjectOutputStream(wex);
 		List<StructDefn> str = new ArrayList<StructDefn>();
 		for (StructDefn sd : structs.values()) {
 			if (sd.generate) {
 				str.add(sd);
-				System.out.println("  struct " + sd.asString());
+				if (copyToScreen)
+					System.out.println("  struct " + sd.asString());
 			}
 		}
 		oos.writeObject(str);
@@ -770,7 +772,8 @@ public class TypeChecker {
 		for (UnionTypeDefn td : types.values()) {
 			if (td.generate) {
 				ts.add(td);
-				System.out.println("  type " + td.name());
+				if (copyToScreen)
+					System.out.println("  type " + td.name());
 			}
 		}
 		oos.writeObject(ts);
@@ -778,34 +781,38 @@ public class TypeChecker {
 		for (ContractDecl cd : contracts.values()) {
 			if (cd.generate) {
 				cds.add(cd);
-				System.out.println("  contract " + cd.name());
-				for (ContractMethodDecl m : cd.methods) {
-					System.out.print(Justification.LEFT.format("", 4));
-					System.out.print(Justification.PADRIGHT.format(m.dir, 5));
-					System.out.print(Justification.PADRIGHT.format(m.name, 12));
-					System.out.print(" ::");
-					String sep = " ";
-					for (Object o : m.args) {
-						System.out.print(sep + ((AsString)o).asString());
-						sep = " -> ";
+				if (copyToScreen) {
+					System.out.println("  contract " + cd.name());
+					for (ContractMethodDecl m : cd.methods) {
+						System.out.print(Justification.LEFT.format("", 4));
+						System.out.print(Justification.PADRIGHT.format(m.dir, 5));
+						System.out.print(Justification.PADRIGHT.format(m.name, 12));
+						System.out.print(" ::");
+						String sep = " ";
+						for (Object o : m.args) {
+							System.out.print(sep + ((AsString)o).asString());
+							sep = " -> ";
+						}
+						System.out.println();
 					}
-					System.out.println();
 				}
 			}
 		}
 		oos.writeObject(cds);
 		
-		for (CardTypeInfo cti : this.cards.values()) {
-			System.out.println("  card " + cti.name);
-			for (TypeHolder x : cti.contracts) {
-				System.out.println("    contract " + x.name);
-				x.dump(6);
+		if (copyToScreen) {
+			for (CardTypeInfo cti : this.cards.values()) {
+				System.out.println("  card " + cti.name);
+				for (TypeHolder x : cti.contracts) {
+					System.out.println("    contract " + x.name);
+					x.dump(6);
+				}
+				for (TypeHolder x : cti.handlers) {
+					System.out.println("    handler " + x.name);
+					x.dump(6);
+				}
+				cti.dump(4);
 			}
-			for (TypeHolder x : cti.handlers) {
-				System.out.println("    handler " + x.name);
-				x.dump(6);
-			}
-			cti.dump(4);
 		}
 		oos.flush();
 		

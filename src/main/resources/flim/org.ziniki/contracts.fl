@@ -4,6 +4,12 @@
 	contract Init
 		optional down onready
 		optional down update (Any obj)
+
+	contract Timer
+		up requestTicks (TimerCallback h) (Number msInterval) 
+  
+	contract TimerCallback
+		down onTick 
 	
 	contract Credentials
 		up logout
