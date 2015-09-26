@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.flasck.flas.PackageFinder;
 import org.flasck.flas.blockForm.Block;
@@ -200,7 +198,7 @@ public class Rewriter {
 	 */
 	public class CardContext extends NamingContext {
 		private final String prefix;
-		private final Set<String> members = new TreeSet<String>();
+		private final Map<String, Type> members = new TreeMap<String, Type>();
 		private final Map<String, ObjectReference> statics = new TreeMap<String, ObjectReference>();
 		private final Scope innerScope;
 
@@ -210,15 +208,15 @@ public class Rewriter {
 			this.innerScope = cd.innerScope();
 			if (cd.state != null) {
 				for (StructField sf : cd.state.fields)
-					members.add(sf.name);
+					members.put(sf.name, (Type)((AbsoluteVar)cx.resolve(sf.type.location(), sf.type.name())).defn);
 			}
 			for (ContractImplements ci : cd.contracts) {
 				if (ci.referAsVar != null)
-					members.add(ci.referAsVar);
+					members.put(ci.referAsVar, ci);
 			}
-			for (ContractService ci : cd.services) {
-				if (ci.referAsVar != null)
-					members.add(ci.referAsVar);
+			for (ContractService cs : cd.services) {
+				if (cs.referAsVar != null)
+					members.put(cs.referAsVar, cs);
 			}
 			for (HandlerImplements hi : cd.handlers) {
 				statics.put(State.simpleName(hi.name), new ObjectReference(hi.location(), prefix, hi.name));
@@ -227,8 +225,8 @@ public class Rewriter {
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			if (members.contains(name))
-				return new CardMember(location, prefix, name);
+			if (members.containsKey(name))
+				return new CardMember(location, prefix, name, members.get(name));
 			if (statics.containsKey(name))
 				return statics.get(name);
 			if (innerScope.contains(name))
@@ -425,18 +423,15 @@ public class Rewriter {
 			templates.add(rewrite(new TemplateContext(c2), cd.template));
 		
 		for (HandlerImplements hi : cd.handlers) {
-			Type any = (Type) ((AbsoluteVar)cx.nested.resolve(hi.location(), "Any")).defn;
 			HandlerImplements rw = rewriteHI(c2, hi, pos);
 			if (rw == null)
 				continue;
 			String hiName = cd.name +"."+hi.name;
 			cardHandlers.put(hiName, rw);
 			StructDefn hsd = new StructDefn(hi.location(), hiName, false);
-			int j=0;
 			for (Object s : rw.boundVars) {
 				HandlerLambda hl = (HandlerLambda) s;
 				hsd.fields.add(new StructField(hl.type, hl.var));
-				j++;
 			}
 			structs.put(hiName, hsd);
 			HandlerContext hc = new HandlerContext(c2, rw);

@@ -38,7 +38,7 @@ public class AndroidCGRunner extends CGHarnessRunner {
 		compare(bce, zcl, ret, "test.ziniki.CounterObj");
 //		compare(bce, zcl, ret, "test.ziniki.CounterCard");
 		compare(bce, zcl, ret, "test.ziniki.CounterCard$B1");
-//		compare(bce, zcl, ret, "test.ziniki.CounterCard$_C0");
+		compare(bce, zcl, ret, "test.ziniki.CounterCard$_C0");
 		compare(bce, zcl, ret, "test.ziniki.CounterCard$_C1");
 		compare(bce, zcl, ret, "test.ziniki.CounterCard$CountUp");
 		return ret.toArray(new Class<?>[ret.size()]);

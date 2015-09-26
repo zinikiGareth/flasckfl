@@ -3,24 +3,42 @@ package org.flasck.flas.droidgen;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.hsie.HSIE;
+import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
+import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
+import org.flasck.flas.vcode.hsieForm.BindCmd;
+import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.ErrorCmd;
+import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.flas.vcode.hsieForm.Head;
+import org.flasck.flas.vcode.hsieForm.IFCmd;
+import org.flasck.flas.vcode.hsieForm.PushCmd;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.ReturnCmd;
+import org.flasck.flas.vcode.hsieForm.Switch;
+import org.zinutils.bytecode.BlockExpr;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.Expr;
@@ -29,13 +47,16 @@ import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.utils.StringUtil;
 
 public class DroidGenerator {
 	private final ByteCodeEnvironment bce;
 	private final File androidDir;
+//	private final static Logger logger = LoggerFactory.getLogger("DroidGen");
 
 	public DroidGenerator(HSIE hsie, ByteCodeEnvironment bce, File androidDir) {
 		this.bce = bce;
@@ -105,7 +126,6 @@ public class DroidGenerator {
 			oc.setAccess(Access.PROTECTED);
 			oc.callSuper("void", "org.flasck.android.FlasckActivity", "onCreate", sis.getVar()).flush();
 			for (ContractGrouping x : grp.contracts) {
-				System.out.println(x.type + " " + x.implName + " " + x.referAsVar);
 				Expr impl = oc.makeNew(javaNestedName(x.implName), oc.myThis());
 				if (x.referAsVar != null) {
 					oc.assign(oc.getField(x.referAsVar), impl).flush();
@@ -185,7 +205,6 @@ public class DroidGenerator {
 			PendingVar argsArg = gen.argument("[java.lang.Object", "args");
 			gen.returns("java.lang.Object");
 			NewMethodDefiner eval = gen.done();
-			eval.lenientMode(true);
 			List<Expr> naList = new ArrayList<Expr>();
 			naList.add(cardArg.getVar());
 			for (int k=0;k<hi.boundVars.size();k++)
@@ -204,6 +223,227 @@ public class DroidGenerator {
 	public void generate(Collection<HSIEForm> forms) {
 		if (androidDir == null)
 			return;
+		for (HSIEForm f : forms) {
+//			f.dump(logger);
+			int idx = f.fnName.lastIndexOf(".");
+			String fn = f.fnName.substring(idx+1);
+			int idx2 = f.fnName.lastIndexOf(".", idx-1);
+			String clz = f.fnName.substring(0, idx2);
+			String sub = f.fnName.substring(idx2+1, idx);
+			ByteCodeCreator bcc = bce.get(clz +"$"+sub);
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, fn);
+			gen.returns("java.lang.Object");
+			Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
+			List<PendingVar> tmp = new ArrayList<PendingVar>();
+			for (int i=0;i<f.nformal;i++)
+				tmp.add(gen.argument("java.lang.Object", "_"+i));
+			MethodDefiner meth = gen.done();
+			for (int i=0;i<f.nformal;i++)
+				vars.put(f.vars.get(i), tmp.get(i).getVar());
+			Expr blk = generateBlock(meth, vars, f, f);
+			if (blk != null)
+				blk.flush();
+//			meth.returnObject(meth.myThis()).flush();
+		}
+	}
+
+	private Expr generateBlock(MethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, HSIEForm f, HSIEBlock blk) {
+		List<Expr> stmts = new ArrayList<Expr>();
+		for (HSIEBlock h : blk.nestedCommands()) {
+			if (h instanceof Head) {
+				Head hh = (Head) h;
+				Var hv = vars.get(hh.v);
+				stmts.add(meth.assign(hv, meth.callStatic("org.flasck.android.FLEval", "java.lang.Object", "head", hv)));
+				stmts.add(meth.ifBoolean(meth.instanceOf(hv, "org.flasck.android.FLError"), meth.returnObject(hv), null));
+			} else if (h instanceof Switch) {
+				Switch s = (Switch)h;
+				Var hv = vars.get(s.var);
+				stmts.add(meth.ifBoolean(meth.instanceOf(hv, s.ctor), generateBlock(meth, vars, f, s), null));
+			} else if (h instanceof IFCmd) {
+				IFCmd c = (IFCmd)h;
+				generateBlock(meth, vars, f, c);
+			} else if (h instanceof BindCmd) {
+//				into.add(JSForm.bind((BindCmd) h));
+			} else if (h instanceof ReturnCmd) {
+				ReturnCmd r = (ReturnCmd) h;
+				if (r.var != null) {
+					Var hv = vars.get(r.var.var);
+					if (r.var.var.idx < f.nformal)
+						stmts.add(meth.returnObject(hv));
+					else {
+						if (r.deps != null) {
+							for (CreationOfVar cov : r.deps) {
+								Var v = vars.get(cov.var);
+								if (v == null) {
+									v = meth.avar("java.lang.Object", cov.var.toString());
+									vars.put(cov.var, v);
+								}
+								Expr cl = closure(meth, vars, f.mytype, f.getClosure(cov.var));
+								stmts.add(meth.assign(v, cl));
+							}
+						}
+						Expr cl = closure(meth, vars, f.mytype, f.getClosure(r.var.var));
+						stmts.add(meth.returnObject(cl));
+					}
+				}
+			} else if (h instanceof ErrorCmd) {
+				stmts.add(meth.returnObject(meth.makeNew("org.flasck.android.FLError", meth.stringConst(meth.getName() + ": case not handled"))));
+			} else {
+				System.out.println("Cannot generate block:");
+				h.dumpOne(null, 0);
+			}
+		}
+		if (stmts.isEmpty())
+			return null;
+		else if (stmts.size() == 1)
+			return stmts.get(0);
+		else
+			return new BlockExpr(meth, stmts);
+	}
+
+	private Expr closure(MethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
+		// Loop over everything in the closure pushing it onto the stack (in al)
+		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
+		Expr needsObject = null;
+		boolean fromHandler = fntype == CodeType.AREA;
+		if (fn != null) {
+			if (fn instanceof ObjectReference || fn instanceof CardFunction) {
+				needsObject = meth.myThis();
+				fromHandler |= fn.fromHandler();
+			} else if (fn.toString().equals("FLEval.curry")) {
+				ExternalRef f2 = ((PushCmd)closure.nestedCommands().get(1)).fn;
+				if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
+					needsObject = meth.myThis();
+					fromHandler |= f2.fromHandler();
+				}
+			}
+		}
+		if (needsObject != null && fromHandler)
+			needsObject = meth.getField("_card");
+		int pos = 0;
+		boolean isField = false;
+		List<Expr> al = new ArrayList<Expr>();
+		for (HSIEBlock b : closure.nestedCommands()) {
+			PushCmd c = (PushCmd) b;
+			if (c.fn != null && pos == 0) {
+				isField = "FLEval.field".equals(c.fn);
+			}
+			if (c.fn != null && isField && pos == 2)
+				System.out.println("c.fn = " + c.fn);
+			else
+				al.add(appendValue(meth, vars, fntype, c, pos));
+			pos++;
+		}
+		Expr clz = al.remove(0);
+		if (needsObject != null)
+			return meth.makeNew("org.flasck.android.FLClosure", meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
+		else
+			return meth.makeNew("org.flasck.android.FLClosure", clz, meth.arrayOf("java.lang.Object", al));
+	}
+
+	private static Expr appendValue(NewMethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, PushReturn c, int pos) {
+		if (c.fn != null) {
+			if (c.fn instanceof AbsoluteVar || c.fn instanceof ObjectReference) {
+				System.out.println(c.fn.getClass() + " c.fn = " + c.fn.uniqueName());
+				boolean wantEval = false;
+				if (pos != 0 && c.fn instanceof AbsoluteVar) {
+					Object defn = ((AbsoluteVar)c.fn).defn;
+					if (defn instanceof StructDefn && ((StructDefn)defn).fields.isEmpty())
+						wantEval = true;
+				}
+				int idx = c.fn.uniqueName().lastIndexOf(".");
+				String clz;
+				if (idx == -1)
+					clz = "org.flasck.android.builtin." + c.fn.uniqueName();
+				else {
+					String first = c.fn.uniqueName().substring(0, idx);
+					String inside;
+					String member;
+					if ("FLEval".equals(first)) {
+						inside = "org.flasck.android.FLEval";
+						member = StringUtil.capitalize(c.fn.uniqueName().substring(idx+1));
+					} else {
+						inside = c.fn.uniqueName().substring(0, idx);
+						member = c.fn.uniqueName().substring(idx+1);
+					}
+					clz = inside + "$" + member;
+					meth.getBCC().addInnerClassReference(Access.PUBLICSTATIC, inside, member);
+				}
+				if (!wantEval) { // handle the simple class case ...
+					return meth.classConst(clz);
+				} else {
+					return meth.callStatic(clz, "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<Expr>()));
+				}
+//			} else if (c.fn instanceof CardFunction) {
+//				String jsname = c.fn.uniqueName();
+//				int idx = jsname.lastIndexOf(".");
+//				jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
+//				sb.append(jsname);
+			} else if (c.fn instanceof CardMember) {
+				System.out.println("fntype = " + fntype);
+//				if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
+//					sb.append("this." + ((CardMember)c.fn).var);
+//				else
+					if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT || fntype == CodeType.AREA) {
+						CardMember cm = (CardMember)c.fn;
+						Expr field = meth.getField(meth.getField("_card"), cm.var);
+						if (cm.type.iam == WhatAmI.BUILTIN) {
+							if (cm.type.name().equals("Number"))
+								field = meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", field);
+						}
+						return field;
+					}
+//				else
+//					throw new UtilException("Can't handle " + fntype + " for card member");
+			} else if (c.fn instanceof HandlerLambda) {
+				if (fntype == CodeType.HANDLER)
+					return meth.getField(((HandlerLambda)c.fn).var);
+				else
+					throw new UtilException("Can't handle " + fntype + " with handler lambda");
+			} else
+				throw new UtilException("Can't handle " + c.fn + " of type " + c.fn.getClass());
+//					sb.append(mapName(c.fn.uniqueName()));
+		} else if (c.ival != null)
+			return meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(c.ival));
+		else if (c.var != null)
+			return vars.get(c.var.var);
+		else if (c.sval != null)
+			return meth.stringConst(c.sval.text);
+//		else if (c.tlv != null) {
+//			sb.append("this._src_" + c.tlv.name + "." + c.tlv.name);
+//		} else if (c.func != null) {
+//			int x = c.func.name.lastIndexOf('.');
+//			if (x == -1)
+//				throw new UtilException("Invalid function name: " + c.func.name);
+//			else
+//				sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
+//		}
+		else if (c.csr != null) {
+			if (c.csr.fromHandler)
+				return meth.getField("_card");
+			else
+				return meth.myThis();
+		} else
+			throw new UtilException("What are you pushing? " + c);
+		return null;
+	}
+
+	private String javaBaseName(String clz) {
+		int idx = clz.lastIndexOf(".");
+		return clz.substring(0, idx);
+	}
+
+	private String javaNestedName(String clz) {
+		int idx = clz.lastIndexOf(".");
+		return clz.substring(0, idx) + "$" + clz.substring(idx+1);
+	}
+
+	private String javaNestedSimpleName(String clz) {
+		int idx = clz.lastIndexOf(".");
+		return clz.substring(idx+1);
+	}
+
+	public void hackB1() {
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.ziniki.CounterCard$B1");
 		bcc.superclass("org.flasck.android.TextArea");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, "test.ziniki.CounterCard", "B1");
@@ -228,20 +468,5 @@ public class DroidGenerator {
 			meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
 			meth.returnVoid().flush();
 		}
-	}
-
-	private String javaBaseName(String clz) {
-		int idx = clz.lastIndexOf(".");
-		return clz.substring(0, idx);
-	}
-
-	private String javaNestedName(String clz) {
-		int idx = clz.lastIndexOf(".");
-		return clz.substring(0, idx) + "$" + clz.substring(idx+1);
-	}
-
-	private String javaNestedSimpleName(String clz) {
-		int idx = clz.lastIndexOf(".");
-		return clz.substring(idx+1);
 	}
 }

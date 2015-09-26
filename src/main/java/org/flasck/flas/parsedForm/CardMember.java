@@ -1,17 +1,20 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class CardMember implements ExternalRef {
 	public final InputPosition location;
 	public final String card;
 	public final String var;
+	public final Type type;
 
-	public CardMember(InputPosition location, String card, String var) {
+	public CardMember(InputPosition location, String card, String var, Type type) {
 		this.location = location;
 		this.card = card;
 		this.var = var;
+		this.type = type;
 	}
 	
 	@Override

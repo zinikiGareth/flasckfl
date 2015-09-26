@@ -236,8 +236,6 @@ public class JSForm {
 		List<JSForm> ret = new ArrayList<JSForm>();
 		StringBuilder sb = new StringBuilder();
 		sb.append("return ");
-//		if (r.fn != null)
-//			ret.add(new JSForm("return " + r.fn));
 		if (r.var != null) {
 			if (r.var.var.idx < form.nformal) {
 				ret.add(new JSForm("return " + r.var.var));
@@ -249,12 +247,6 @@ public class JSForm {
 			}
 		} else {
 			appendValue(sb, form.mytype, r, 0);
-//		else if (r.ival != null)
-//			ret.add(new JSForm("return " + r.ival));
-//		else if (r.sval != null)
-//			ret.add(new JSForm("return '" + r.sval.text + "'"));
-//		else
-//			throw new UtilException("What are you returning " + r);
 			ret.add(new JSForm(sb.toString()));
 		}
 		return ret;

@@ -103,6 +103,7 @@ public class TemplateGenerator {
 		this.tc = tc;
 		this.curry = curry;
 		this.dg = dg;
+		dg.hackB1();
 	}
 
 	public void generate(JSTarget target) {
