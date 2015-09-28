@@ -36,7 +36,7 @@ public class AndroidCGRunner extends CGHarnessRunner {
 
 		ByteCodeEnvironment bce = compiler.getBCE();
 		compare(bce, zcl, ret, "test.ziniki.CounterObj");
-//		compare(bce, zcl, ret, "test.ziniki.CounterCard");
+		compare(bce, zcl, ret, "test.ziniki.CounterCard");
 		compare(bce, zcl, ret, "test.ziniki.CounterCard$B1");
 		compare(bce, zcl, ret, "test.ziniki.CounterCard$_C0");
 		compare(bce, zcl, ret, "test.ziniki.CounterCard$_C1");

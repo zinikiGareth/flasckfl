@@ -47,6 +47,7 @@ import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.MethodCreator;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
@@ -135,13 +136,6 @@ public class DroidGenerator {
 			}
 			oc.callSuper("void", "org.flasck.android.FlasckActivity", "ready").flush();
 			oc.returnVoid().flush();
-		}
-		{
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
-			PendingVar into = gen.argument("java.lang.String", "into");
-			gen.returns("void");
-			NewMethodDefiner render = gen.done();
-			render.returnVoid().flush();
 		}
 	}
 
@@ -247,7 +241,7 @@ public class DroidGenerator {
 		}
 	}
 
-	private Expr generateBlock(MethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, HSIEForm f, HSIEBlock blk) {
+	private Expr generateBlock(NewMethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, HSIEForm f, HSIEBlock blk) {
 		List<Expr> stmts = new ArrayList<Expr>();
 		for (HSIEBlock h : blk.nestedCommands()) {
 			if (h instanceof Head) {
@@ -285,6 +279,9 @@ public class DroidGenerator {
 						Expr cl = closure(meth, vars, f.mytype, f.getClosure(r.var.var));
 						stmts.add(meth.returnObject(cl));
 					}
+				} else {
+					Expr expr = appendValue(meth, vars, f.mytype, r, 0);
+					stmts.add(expr);
 				}
 			} else if (h instanceof ErrorCmd) {
 				stmts.add(meth.returnObject(meth.makeNew("org.flasck.android.FLError", meth.stringConst(meth.getName() + ": case not handled"))));
@@ -301,7 +298,7 @@ public class DroidGenerator {
 			return new BlockExpr(meth, stmts);
 	}
 
-	private Expr closure(MethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
+	private Expr closure(NewMethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
 		// Loop over everything in the closure pushing it onto the stack (in al)
 		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
 		Expr needsObject = null;
@@ -344,7 +341,6 @@ public class DroidGenerator {
 	private static Expr appendValue(NewMethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, PushReturn c, int pos) {
 		if (c.fn != null) {
 			if (c.fn instanceof AbsoluteVar || c.fn instanceof ObjectReference) {
-				System.out.println(c.fn.getClass() + " c.fn = " + c.fn.uniqueName());
 				boolean wantEval = false;
 				if (pos != 0 && c.fn instanceof AbsoluteVar) {
 					Object defn = ((AbsoluteVar)c.fn).defn;
@@ -380,7 +376,6 @@ public class DroidGenerator {
 //				jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
 //				sb.append(jsname);
 			} else if (c.fn instanceof CardMember) {
-				System.out.println("fntype = " + fntype);
 //				if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
 //					sb.append("this." + ((CardMember)c.fn).var);
 //				else
@@ -388,8 +383,9 @@ public class DroidGenerator {
 						CardMember cm = (CardMember)c.fn;
 						Expr field = meth.getField(meth.getField("_card"), cm.var);
 						if (cm.type.iam == WhatAmI.BUILTIN) {
-							if (cm.type.name().equals("Number"))
+							if (cm.type.name().equals("Number")) {
 								field = meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", field);
+							}
 						}
 						return field;
 					}
@@ -428,6 +424,18 @@ public class DroidGenerator {
 		return null;
 	}
 
+	public NewMethodDefiner generateRender(String clz, String topBlock) {
+		ByteCodeCreator bcc = bce.get(clz);
+		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
+		PendingVar into = gen.argument("java.lang.String", "into");
+		gen.returns("void");
+		NewMethodDefiner render = gen.done();
+		render.makeNewVoid(javaNestedName(topBlock), render.myThis(), render.as(render.makeNew("org.flasck.android.CardArea", render.getField(render.myThis(), "_wrapper"), render.as(render.myThis(), "org.flasck.android.FlasckActivity"), into.getVar()), "org.flasck.android.Area")).flush();
+		render.returnVoid().flush();
+		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(topBlock), javaNestedSimpleName(topBlock));
+		return render;
+	}
+
 	private String javaBaseName(String clz) {
 		int idx = clz.lastIndexOf(".");
 		return clz.substring(0, idx);
@@ -443,30 +451,56 @@ public class DroidGenerator {
 		return clz.substring(idx+1);
 	}
 
-	public void hackB1() {
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.ziniki.CounterCard$B1");
-		bcc.superclass("org.flasck.android.TextArea");
-		bcc.addInnerClassReference(Access.PUBLICSTATIC, "test.ziniki.CounterCard", "B1");
+	public CGRContext area(String clz, String base) {
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, javaNestedName(clz));
+		String baseClz = "org.flasck.android." + base;
+		bcc.superclass(baseClz);
+		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(clz), javaNestedSimpleName(clz));
 		FieldInfo card = bcc.defineField(true, Access.PRIVATE, new JavaType("test.ziniki.CounterCard"), "_card");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar counter = gen.argument("test.ziniki.CounterCard", "counter");
+			PendingVar cardArg = gen.argument(javaBaseName(clz), "cardArg");
 			PendingVar parent = gen.argument("org/flasck/android/Area", "parent");
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", "org/flasck/android/TextArea", "<init>", parent.getVar(), ctor.as(ctor.aNull(), "java.lang.String")).flush();
-			ctor.assign(card.asExpr(ctor), counter.getVar()).flush();
-			ctor.callVirtual("void", ctor.getField(card.asExpr(ctor), "_wrapper"), "onAssign", ctor.stringConst("counter"), ctor.as(ctor.myThis(), "org.flasck.android.Area"), ctor.stringConst("_contentExpr")).flush();
-			ctor.callVirtual("void", ctor.myThis(), "_contentExpr").flush();
-			ctor.returnVoid().flush();
+			ctor.callSuper("void", baseClz, "<init>", parent.getVar(), ctor.as(ctor.aNull(), "java.lang.String")).flush();
+			ctor.assign(card.asExpr(ctor), cardArg.getVar()).flush();
+//			ctor.callVirtual("void", ctor.getField(card.asExpr(ctor), "_wrapper"), "onAssign", ctor.stringConst("counter"), ctor.as(ctor.myThis(), "org.flasck.android.Area"), ctor.stringConst("_contentExpr")).flush();
+//			ctor.callVirtual("void", ctor.myThis(), "_contentExpr").flush();
+			return new CGRContext(bcc, ctor);
+//			ctor.returnVoid().flush();
+			
 		}
-		{
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_contentExpr");
-			gen.returns("void");
-			NewMethodDefiner meth = gen.done();
-			Var str = meth.avar("java.lang.String", "str");
-			meth.assign(str, meth.callStatic("java.lang.Integer", "java.lang.String", "toString", meth.getField(meth.getField(meth.myThis(), "_card"), "counter"))).flush();
-			meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
-			meth.returnVoid().flush();
-		}
+	}
+
+	public void contentExpr(CGRContext cgrx, HSIEForm form) {
+		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_contentExpr");
+		gen.returns("void");
+		NewMethodDefiner meth = gen.done();
+		Var str = meth.avar("java.lang.String", "str");
+		Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
+		Expr blk = generateBlock(meth, vars, form, form);
+		if (blk.getType().equals("java.lang.String")) {
+			// nothing to do ...
+		} else if (blk.getType().equals("java.lang.Integer") || blk.getType().equals("int")) {
+			blk = meth.callStatic("java.lang.Integer", "java.lang.String", "toString", blk);
+		} else
+			throw new UtilException("Cannot handle " + blk.getType());
+		meth.assign(str, blk).flush();
+		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
+		meth.returnVoid().flush();
+	}
+
+	public void onAssign(CGRContext cgrx, CardMember valExpr) {
+		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.stringConst("counter"), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.Area"), cgrx.ctor.stringConst("_contentExpr")).flush();
+	}
+	
+	public void addAssign(CGRContext cgrx, String call) {
+		int idx = call.lastIndexOf(".prototype");
+		call = call.substring(idx+11);
+		cgrx.ctor.callVirtual("void", cgrx.ctor.myThis(), call).flush();
+	}
+
+	public void done(CGRContext cgrx) {
+		cgrx.ctor.returnVoid().flush();
 	}
 }
