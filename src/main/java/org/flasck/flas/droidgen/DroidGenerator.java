@@ -22,8 +22,11 @@ import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectReference;
+import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.android.AndroidLabel;
+import org.flasck.flas.parsedForm.android.AndroidLaunch;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -38,6 +41,7 @@ import org.flasck.flas.vcode.hsieForm.PushCmd;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
+import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.BlockExpr;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -136,6 +140,18 @@ public class DroidGenerator {
 			}
 			oc.callSuper("void", "org.flasck.android.FlasckActivity", "ready").flush();
 			oc.returnVoid().flush();
+		}
+		if (grp.platforms.containsKey("android")) {
+			PlatformSpec spec = grp.platforms.get("android");
+			for (Object d : spec.defns) {
+				if (d instanceof AndroidLaunch)
+					bcc.addRTVAnnotation("com.gmmapowell.quickbuild.annotations.android.MainActivity");
+				else if (d instanceof AndroidLabel) {
+					Annotation label = bcc.addRTVAnnotation("com.gmmapowell.quickbuild.annotations.android.Label");
+					label.addParam("value", ((AndroidLabel)d).label);
+				} else
+					throw new UtilException("Cannot handle android platform spec of type " + d.getClass());
+			}
 		}
 	}
 
@@ -328,7 +344,7 @@ public class DroidGenerator {
 			if (c.fn != null && isField && pos == 2)
 				System.out.println("c.fn = " + c.fn);
 			else
-				al.add(appendValue(meth, vars, fntype, c, pos));
+				al.add(upcast(meth, appendValue(meth, vars, fntype, c, pos)));
 			pos++;
 		}
 		Expr clz = al.remove(0);
@@ -336,6 +352,12 @@ public class DroidGenerator {
 			return meth.makeNew("org.flasck.android.FLClosure", meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
 		else
 			return meth.makeNew("org.flasck.android.FLClosure", clz, meth.arrayOf("java.lang.Object", al));
+	}
+
+	private Expr upcast(NewMethodDefiner meth, Expr expr) {
+		if (expr.getType().equals("int"))
+			return meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", expr);
+		return expr;
 	}
 
 	private static Expr appendValue(NewMethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, PushReturn c, int pos) {
@@ -382,11 +404,6 @@ public class DroidGenerator {
 					if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT || fntype == CodeType.AREA) {
 						CardMember cm = (CardMember)c.fn;
 						Expr field = meth.getField(meth.getField("_card"), cm.var);
-						if (cm.type.iam == WhatAmI.BUILTIN) {
-							if (cm.type.name().equals("Number")) {
-								field = meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", field);
-							}
-						}
 						return field;
 					}
 //				else
@@ -434,21 +451,6 @@ public class DroidGenerator {
 		render.returnVoid().flush();
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(topBlock), javaNestedSimpleName(topBlock));
 		return render;
-	}
-
-	private String javaBaseName(String clz) {
-		int idx = clz.lastIndexOf(".");
-		return clz.substring(0, idx);
-	}
-
-	private String javaNestedName(String clz) {
-		int idx = clz.lastIndexOf(".");
-		return clz.substring(0, idx) + "$" + clz.substring(idx+1);
-	}
-
-	private String javaNestedSimpleName(String clz) {
-		int idx = clz.lastIndexOf(".");
-		return clz.substring(idx+1);
 	}
 
 	public CGRContext area(String clz, String base) {
@@ -502,5 +504,20 @@ public class DroidGenerator {
 
 	public void done(CGRContext cgrx) {
 		cgrx.ctor.returnVoid().flush();
+	}
+
+	private String javaBaseName(String clz) {
+		int idx = clz.lastIndexOf(".");
+		return clz.substring(0, idx);
+	}
+
+	private String javaNestedName(String clz) {
+		int idx = clz.lastIndexOf(".");
+		return clz.substring(0, idx) + "$" + clz.substring(idx+1);
+	}
+
+	private String javaNestedSimpleName(String clz) {
+		int idx = clz.lastIndexOf(".");
+		return clz.substring(idx+1);
 	}
 }

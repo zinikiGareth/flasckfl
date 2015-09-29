@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class CardGrouping {
 	public static class ContractGrouping {
@@ -45,6 +46,7 @@ public class CardGrouping {
 	public final List<ContractGrouping> contracts = new ArrayList<ContractGrouping>();
 	public final List<ServiceGrouping> services = new ArrayList<ServiceGrouping>();
 	public final List<HandlerGrouping> handlers = new ArrayList<HandlerGrouping>();
+	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
 	
 	public CardGrouping(StructDefn struct) {
 		this.struct = struct;

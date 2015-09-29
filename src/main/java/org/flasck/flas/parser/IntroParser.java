@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.D3Intro;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TemplateIntro;
 import org.flasck.flas.stories.FLASStory.State;
@@ -71,6 +72,12 @@ public class IntroParser implements TryParsing {
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid card name");
 			return new CardDefinition(tn.location, state.scope, state.withPkg(tn.text));
+		}
+		case "platform": {
+			ValidIdentifierToken tok = VarNameToken.from(line);
+			if (tok == null)
+				return ErrorResult.oneMessage(line, "must specify a platform descriptor");
+			return new PlatformSpec(tok.location, tok.text);
 		}
 		case "state":
 			return "state";

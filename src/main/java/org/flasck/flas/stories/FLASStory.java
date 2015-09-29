@@ -41,6 +41,7 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -69,8 +70,10 @@ import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
 import org.flasck.flas.parser.MethodMessageParser;
 import org.flasck.flas.parser.MethodParser;
+import org.flasck.flas.parser.PlatformAndroidSpecParser;
 import org.flasck.flas.parser.PropertyParser;
 import org.flasck.flas.parser.TemplateLineParser;
+import org.flasck.flas.parser.TryParsing;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -322,6 +325,14 @@ public class FLASStory implements StoryProcessor {
 					throw new UtilException("Cannot handle " + o);
 				}
 				}
+			} else if (o instanceof PlatformSpec) {
+				PlatformSpec ps = (PlatformSpec) o;
+				if (cd.platforms.containsKey(ps.spec)) {
+					er.message(ps.location, "cannot have multiple platform definitions for '" + ps.spec + "'");
+					break;
+				}
+				cd.platforms.put(ps.spec, ps);
+				readPlatformSpec(er, b.nested, ps);
 			} else if (o instanceof TemplateIntro) {
 				TemplateIntro intro = (TemplateIntro) o;
 				if (templates.isEmpty()) {
@@ -405,6 +416,26 @@ public class FLASStory implements StoryProcessor {
 			return;
 		cd.template = new Template(cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()), cd.innerScope());
 	}	
+
+	private void readPlatformSpec(ErrorResult er, List<Block> nested, PlatformSpec ps) {
+		TryParsing inner;
+		if (ps.spec.equals("android"))
+			inner = new PlatformAndroidSpecParser(ps);
+		else {
+			System.out.println("warning: ignoring unsupported platform '" + ps.spec + "'");
+			return;
+		}
+		
+		for (Block b : nested) {
+			Object o = inner.tryParsing(new Tokenizable(b));
+			if (o == null)
+				er.message(b, "syntax error");
+			else if (o instanceof ErrorResult)
+				er.merge((ErrorResult) o);
+			else
+				ps.defns.add(o);
+		}
+	}
 
 	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {
 		if (cd.state != null)

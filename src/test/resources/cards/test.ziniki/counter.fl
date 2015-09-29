@@ -9,6 +9,10 @@
 		template	
 			counter : 'format'
 
+		platform android
+			launcher
+			label "Counter"
+
 		implements org.ziniki.Init
 			update (CounterObj c)
 				<- timer.requestTicks (CountUp c.inc) 1000

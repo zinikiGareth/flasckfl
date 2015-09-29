@@ -7,6 +7,7 @@ public class StringToken {
 	 * in the string if doubled, e.g. 'Fred''s world' is the same as "Fred's world"
 	 */
 	public static String from(Tokenizable line) {
+		line.skipWS();
 		if (!line.hasMore())
 			return null;
 		char oq = line.nextChar();

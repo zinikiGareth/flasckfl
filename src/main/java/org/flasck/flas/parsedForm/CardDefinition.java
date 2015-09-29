@@ -2,6 +2,8 @@ package org.flasck.flas.parsedForm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -12,6 +14,7 @@ public class CardDefinition implements ContainsScope, Locatable {
 	public final String name;
 	public StateDefinition state;
 	public Template template;
+	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
 	public final List<ContractImplements> contracts = new ArrayList<ContractImplements>();
 	public final List<ContractService> services = new ArrayList<ContractService>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();

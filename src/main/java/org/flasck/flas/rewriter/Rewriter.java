@@ -441,6 +441,7 @@ public class Rewriter {
 			grp.handlers.add(new HandlerGrouping(rw.name, rw));
 		}
 		
+		grp.platforms.putAll(cd.platforms);
 		rewriteScope(c2, cd.fnScope);
 	}
 
