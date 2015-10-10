@@ -1,6 +1,5 @@
 package org.flasck.flas.droidgen;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,7 +13,6 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
-import org.zinutils.bytecode.ByteCodeFile;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
 import org.zinutils.cgharness.CGHarnessRunner;
 import org.zinutils.utils.FileUtils;
@@ -27,7 +25,7 @@ public class AndroidCGRunner extends CGHarnessRunner {
 	private static Class<?>[] figureClasses() throws FileNotFoundException {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
-		compiler.writeDroidTo(new File("/tmp"));
+		compiler.writeDroidTo(new File("null"));
 		compiler.searchIn(new File("src/main/resources/flim"));
 		compiler.compile(new File("src/test/resources/cards/test.ziniki"));
 
@@ -47,7 +45,6 @@ public class AndroidCGRunner extends CGHarnessRunner {
 	private static void compare(ByteCodeEnvironment bce, CGHClassLoaderImpl zcl, List<Class<?>> ret, String clz) {
 		try {
 			byte[] bs = FileUtils.readAllStream(new FileInputStream("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/qbout/classes/" + FileUtils.convertDottedToSlashPath(clz) + ".class"));
-			ByteCodeFile bcf = new ByteCodeFile(new ByteArrayInputStream(bs));
 			expected.put(clz, bs);
 		} catch (FileNotFoundException ex) {
 			// it doesn't exist so won't be found later ...

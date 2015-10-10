@@ -113,7 +113,7 @@ public class Generator {
 		for (Entry<String, Object> x : card.inits.entrySet()) {
 			HSIEForm form = null;
 			if (x.getValue() != null) {
-				form = hsie.handleExpr(x.getValue(), CodeType.FUNCTION);
+				form = (HSIEForm)x.getValue();
 //					form.dump();
 			}
 

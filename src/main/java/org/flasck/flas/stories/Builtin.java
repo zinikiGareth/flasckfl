@@ -127,6 +127,7 @@ public class Builtin {
 			
 			StructDefn crokeys = new StructDefn(posn, "Crokeys", false);
 			ret.define("Crokeys", "Crokeys", crokeys);
+			crokeys.addField(new StructField(string, "id"));
 			crokeys.addField(new StructField(list.instance(null,  crokey), "keys"));
 
 			ObjectDefn croset = new ObjectDefn(posn, "Croset", false, varA);

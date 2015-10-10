@@ -483,7 +483,8 @@ public class Rewriter {
 		}
 		try {
 			if (tl instanceof ContentString) {
-				return rewriteEventHandlers(cx, (TemplateFormatEvents)tl, ((TemplateFormatEvents)tl).handlers);
+				ContentString cs = (ContentString)tl;
+				return rewriteEventHandlers(cx, new ContentString(cs.text, formats), ((TemplateFormatEvents)tl).handlers);
 			} else if (tl instanceof ContentExpr) {
 				ContentExpr ce = (ContentExpr)tl;
 				return rewriteEventHandlers(cx, new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats), ((TemplateFormatEvents)tl).handlers);

@@ -48,6 +48,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodInContext;
@@ -58,6 +59,7 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
@@ -67,6 +69,7 @@ import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
@@ -93,6 +96,12 @@ public class Compiler {
 						System.exit(1);
 					}
 					compiler.searchIn(new File(args[++i]));
+				} else if (f.equals("--android")) {
+					if (hasMore == 0) {
+						System.out.println("--android <build-dir>");
+						System.exit(1);
+					}
+					compiler.writeDroidTo(new File(args[++i]));
 				} else {
 					System.out.println("unknown option: " + f);
 					compiler.success = false;
@@ -205,6 +214,8 @@ public class Compiler {
 			}
 			for (Entry<String, CardGrouping> kv : rewriter.cards.entrySet()) {
 				CardGrouping grp = kv.getValue();
+				compileInits(hsie, tc, kv.getValue());
+
 				gen.generate(kv.getKey(), grp);
 				dg.generate(kv.getKey(), grp);
 				for (ContractGrouping ctr : grp.contracts) {
@@ -283,7 +294,7 @@ public class Compiler {
 			mc.convertContractMethods(forms, rewriter.methods);
 			mc.convertEventHandlers(forms, rewriter.eventHandlers);
 			abortIfErrors(errors);
-
+			
 			// 7. Generate code from templates
 			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tc, curry, dg);
 			tgen.generate(target);
@@ -320,6 +331,13 @@ public class Compiler {
 			}
 			tc.writeLearnedKnowledge(wex, dumpTypes);
 
+			try {
+				dg.write();
+			} catch (Exception ex) {
+				System.err.println("Cannot write to " + androidDir + ": " + ex.getMessage());
+				ex.printStackTrace();
+				return;
+			}
 			abortIfErrors(errors);
 
 			success = true;
@@ -339,6 +357,28 @@ public class Compiler {
 		}
 
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
+	}
+
+	private void compileInits(HSIE hsie, TypeChecker tc, CardGrouping c) {
+		for (Entry<String, Object> kv : c.inits.entrySet()) {
+			if (kv.getValue() == null)
+				continue;
+			InputPosition loc = ((Locatable)kv.getValue()).location();
+			HSIEForm form = hsie.handleExpr(kv.getValue(), CodeType.FUNCTION);
+			kv.setValue(form);
+			Type t = tc.checkExpr(form, new ArrayList<Type>(), new ArrayList<InputPosition>());
+			if (t != null) {
+				// it should be the same as the field type
+				System.out.println(kv.getKey() + " " + t.iam + ": " + t);
+				for (StructField sf : c.struct.fields) {
+					if (sf.name.equals(kv.getKey())) {
+						System.out.println("And should be " + sf.type);
+						if (!sf.type.equals(t))
+							tc.errors.message(loc, "cannot initialize " + sf.name + " with value of type " + t);
+					}
+				}
+			}
+		}
 	}
 
 	private void abortIfErrors(ErrorResult errors) throws ErrorResultException {

@@ -51,12 +51,27 @@ import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
-import org.zinutils.bytecode.MethodCreator;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.parser.TokenizedLine;
+import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
+
+import com.gmmapowell.quickbuild.app.BuildOutput;
+import com.gmmapowell.quickbuild.app.QuickBuild;
+import com.gmmapowell.quickbuild.build.BuildContext;
+import com.gmmapowell.quickbuild.build.BuildExecutor;
+import com.gmmapowell.quickbuild.build.android.AdbInstallCommand;
+import com.gmmapowell.quickbuild.build.android.AdbStartCommand;
+import com.gmmapowell.quickbuild.build.android.AndroidCommand;
+import com.gmmapowell.quickbuild.build.android.AndroidNature;
+import com.gmmapowell.quickbuild.build.android.AndroidUseLibraryCommand;
+import com.gmmapowell.quickbuild.build.java.ExcludeCommand;
+import com.gmmapowell.quickbuild.build.java.JavaNature;
+import com.gmmapowell.quickbuild.config.Config;
+import com.gmmapowell.quickbuild.config.ConfigFactory;
 
 public class DroidGenerator {
 	private final ByteCodeEnvironment bce;
@@ -69,6 +84,8 @@ public class DroidGenerator {
 	}
 	
 	public void generate(StructDefn value) {
+		if (androidDir == null || !value.generate)
+			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, value.name());
 		Map<String, FieldInfo> fields = new TreeMap<String,FieldInfo>();
 		for (StructField sf : value.fields) {
@@ -92,6 +109,8 @@ public class DroidGenerator {
 	}
 
 	public void generate(String key, CardGrouping grp) {
+		if (androidDir == null)
+			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, grp.struct.name());
 		bcc.superclass("org.flasck.android.FlasckActivity");
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
@@ -442,6 +461,8 @@ public class DroidGenerator {
 	}
 
 	public NewMethodDefiner generateRender(String clz, String topBlock) {
+		if (androidDir == null)
+			return null;
 		ByteCodeCreator bcc = bce.get(clz);
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
 		PendingVar into = gen.argument("java.lang.String", "into");
@@ -475,6 +496,8 @@ public class DroidGenerator {
 	}
 
 	public void contentExpr(CGRContext cgrx, HSIEForm form) {
+		if (androidDir == null)
+			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_contentExpr");
 		gen.returns("void");
 		NewMethodDefiner meth = gen.done();
@@ -493,17 +516,85 @@ public class DroidGenerator {
 	}
 
 	public void onAssign(CGRContext cgrx, CardMember valExpr) {
+		if (androidDir == null)
+			return;
 		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.stringConst("counter"), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.Area"), cgrx.ctor.stringConst("_contentExpr")).flush();
 	}
 	
 	public void addAssign(CGRContext cgrx, String call) {
+		if (androidDir == null)
+			return;
 		int idx = call.lastIndexOf(".prototype");
 		call = call.substring(idx+11);
 		cgrx.ctor.callVirtual("void", cgrx.ctor.myThis(), call).flush();
 	}
 
 	public void done(CGRContext cgrx) {
+		if (androidDir == null)
+			return;
 		cgrx.ctor.returnVoid().flush();
+	}
+
+	public void write() {
+		if (androidDir == null || androidDir.getPath().equals("null"))
+			return;
+		File qbcdir = new File(androidDir, "qbout/classes");
+		if (!androidDir.exists()) {
+			// create a directory structure to put things in
+			FileUtils.assertDirectory(androidDir);
+			FileUtils.assertDirectory(new File(androidDir, "src"));
+			FileUtils.assertDirectory(new File(androidDir, "src/main"));
+			FileUtils.assertDirectory(new File(androidDir, "src/main/java"));
+			FileUtils.assertDirectory(new File(androidDir, "src/android"));
+			FileUtils.assertDirectory(new File(androidDir, "src/android/assets"));
+			FileUtils.assertDirectory(new File(androidDir, "src/android/gen"));
+			FileUtils.assertDirectory(new File(androidDir, "src/android/lib"));
+			FileUtils.assertDirectory(new File(androidDir, "src/android/res"));
+			FileUtils.assertDirectory(new File(androidDir, "src/android/rawapk"));
+			FileUtils.assertDirectory(new File(androidDir, "qbout"));
+		}
+		FileUtils.assertDirectory(qbcdir);
+		FileUtils.cleanDirectory(qbcdir);
+		// HACK ALERT! This is to pick up the "support library" for FlasckAndroid, which should probably be in a well-known JAR
+//		cmd.addToJRR(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/qbout/classes"));
+		FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/qbout/classes", "org"), new File(qbcdir, "org"));
+		FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid", "src/android/assets"), new File(androidDir, "src/android/assets"));
+		FileUtils.copyRecursive(new File("/Users/gareth/Ziniki/Code/Tools/QuickBuild/qbout/classes/", "com/gmmapowell/quickbuild/annotations/android/"), new File(qbcdir, "com/gmmapowell/quickbuild/annotations/android/"));
+		for (ByteCodeCreator bcc : bce.all()) {
+			File wto = new File(qbcdir, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
+			bcc.writeTo(wto);
+		}
+		
+		// there are a number of possibilities here:
+		// just build and deploy "in memory"
+		// build from a QB file (by name)
+		// defer the building
+		// for now, just do the "easy and obvious thing", i.e. build this app
+		ConfigFactory cf = new ConfigFactory();
+		BuildOutput outlog = new BuildOutput(false);
+		Config config = new Config(cf, outlog, androidDir, "xx", null);
+		JavaNature jn = cf.getNature(config, JavaNature.class);
+		jn.addLib(new File("/Users/gareth/user/Personal/Projects/Android/qb/libs"), new ArrayList<ExcludeCommand>());
+		cf.getNature(config, AndroidNature.class);
+		QuickBuild.readHomeConfig(config, null);
+//		LibsCommand lc = new LibsCommand(new TokenizedLine(0, "libs /Users/gareth/user/Personal/Projects/Android/qb/libs"));
+//		config.addChild(lc);
+		TokenizedLine toks = new TokenizedLine(1, "android " + androidDir.getName());
+		AndroidCommand cmd = new AndroidCommand(toks);
+		cmd.addChild(new AndroidUseLibraryCommand(new TokenizedLine(4, "use ZinUtils.jar")));
+		config.addChild(cmd);
+		AdbInstallCommand install = new AdbInstallCommand(new TokenizedLine(2, "adbinstall " + androidDir.getName() + " qbout/" + androidDir.getName() + ".apk"));
+		config.addChild(install);
+		AdbStartCommand start = new AdbStartCommand(new TokenizedLine(3, "adbstart AdbInstalled\\[qbout_" + androidDir.getName() + " test.ziniki/test.ziniki.CounterCard"));
+		config.addChild(start);
+		
+		config.done();
+		cf.done();
+
+		BuildContext cxt = new BuildContext(config, cf, outlog, true, true, false, new ArrayList<String>(), new ArrayList<String>(), false, null, null, false, true, false);
+		cxt.configure();
+
+		new BuildExecutor(cxt, false).doBuild();
 	}
 
 	private String javaBaseName(String clz) {

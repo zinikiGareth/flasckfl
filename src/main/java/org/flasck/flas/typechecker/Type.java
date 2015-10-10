@@ -284,6 +284,7 @@ public class Type implements Serializable, Locatable {
 		if (!(obj instanceof Type))
 			return false;
 		Type other = (Type)obj;
+		// TODO: for completeness, we should check any polymorphic args
 		if (name != null)
 			return name.equals(other.name);
 		else
