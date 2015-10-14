@@ -12,6 +12,7 @@ import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.typechecker.CardTypeInfo;
 import org.zinutils.exceptions.UtilException;
 
 public class PackageFinder {
@@ -60,6 +61,12 @@ public class PackageFinder {
 						int idx = c.name().lastIndexOf(".");
 						scope.define(c.name().substring(idx+1), c.name(), c);
 					}
+					@SuppressWarnings("unchecked")
+					List<CardTypeInfo> cards = (List<CardTypeInfo>) ois.readObject();
+					for (CardTypeInfo c : cards) {
+						int idx = c.name.lastIndexOf(".");
+						scope.define(c.name.substring(idx+1), c.name, c);
+					}
 				} catch (Exception ex) {
 					throw UtilException.wrap(ex);
 				} finally {
@@ -73,7 +80,7 @@ public class PackageFinder {
 
 	public void searchIn(File file) {
 		if (!file.isDirectory())
-			throw new UtilException("Can only search for FLIMs in directories");
+			throw new ArgumentException("Cannot search for FLIMs in " + file + " as it is not a valid directory");
 		dirs.add(file);
 	}
 }

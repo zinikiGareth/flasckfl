@@ -158,8 +158,11 @@ public class Rewriter {
 				if (tmp.contains(".")) { // we don't yet have the scope
 					idx = name.lastIndexOf(".");
 					String pkgName = name.substring(0, idx);
-					if (pkgFinder != null)
+					if (pkgFinder != null) {
 						scope = pkgFinder.loadFlim(biscope, pkgName);
+						if (scope == null)
+							throw new ResolutionException(location, 0, pkgName);
+					}
 					if (scope == null)
 						throw new ResolutionException(location, name);
 					tmp = name.substring(idx+1);

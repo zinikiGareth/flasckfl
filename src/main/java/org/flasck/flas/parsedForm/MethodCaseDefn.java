@@ -1,9 +1,11 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MethodCaseDefn implements MessagesHandler, ContainsScope {
+@SuppressWarnings("serial")
+public class MethodCaseDefn implements MessagesHandler, ContainsScope, Serializable {
 	public final FunctionIntro intro;
 	public final List<MethodMessage> messages = new ArrayList<MethodMessage>();
 	public final Scope scope;

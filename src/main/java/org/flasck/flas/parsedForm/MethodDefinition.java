@@ -1,8 +1,10 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class MethodDefinition {
+@SuppressWarnings("serial")
+public class MethodDefinition implements Serializable {
 	public final FunctionIntro intro;
 	public final List<MethodCaseDefn> cases;
 	

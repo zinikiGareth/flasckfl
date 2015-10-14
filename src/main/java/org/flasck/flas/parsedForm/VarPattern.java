@@ -1,8 +1,11 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
+
 import org.flasck.flas.blockForm.InputPosition;
 
-public class VarPattern {
+@SuppressWarnings("serial")
+public class VarPattern implements Serializable {
 	public final InputPosition varLoc;
 	public final String var;
 

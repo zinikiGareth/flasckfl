@@ -1,4 +1,4 @@
-\	struct ID
+	struct ID
 		String id
 
 	contract Init

@@ -105,6 +105,10 @@ public class TypeChecker {
 		types.put(typeDefn.name(), typeDefn);
 	}
 
+	public void addExternalCard(CardTypeInfo val) {
+		cards.put(val.name, val);
+	}
+
 	public void addExternal(String name, Type type) {
 		if (type == null)
 			throw new UtilException("Don't give me null types");
@@ -800,8 +804,10 @@ public class TypeChecker {
 		}
 		oos.writeObject(cds);
 		
-		if (copyToScreen) {
-			for (CardTypeInfo cti : this.cards.values()) {
+		List<CardTypeInfo> ctis = new ArrayList<CardTypeInfo>();
+		for (CardTypeInfo cti : this.cards.values()) {
+			ctis.add(cti);
+			if (copyToScreen) {
 				System.out.println("  card " + cti.name);
 				for (TypeHolder x : cti.contracts) {
 					System.out.println("    contract " + x.name);
@@ -814,6 +820,7 @@ public class TypeChecker {
 				cti.dump(4);
 			}
 		}
+		oos.writeObject(ctis);
 		oos.flush();
 		
 		// TODO: functions?

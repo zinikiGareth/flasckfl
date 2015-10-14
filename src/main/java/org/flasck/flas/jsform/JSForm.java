@@ -151,7 +151,9 @@ public class JSForm {
 	// nested inside it
 	@Deprecated
 	public static JSForm packageForm(String key) {
-		return new JSForm(key + " = function()").needBlock();
+		JSForm ret = JSForm.flex("if (typeof " + key + " === 'undefined')").needBlock();
+		ret.add(new JSForm(key + " = function()").needBlock());
+		return ret;
 	}
 
 	public static JSForm function(String fnName, List<Var> hsvs, int alreadyUsed, int nformal) {

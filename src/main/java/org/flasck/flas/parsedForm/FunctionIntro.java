@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,7 +14,8 @@ import org.flasck.flas.rewriter.Rewriter.NamingContext;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
-public class FunctionIntro {
+@SuppressWarnings("serial")
+public class FunctionIntro implements Serializable {
 	public final InputPosition location;
 	public final String name;
 	public final List<Object> args;

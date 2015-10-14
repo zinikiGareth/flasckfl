@@ -12,6 +12,7 @@ import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.FLASError;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
@@ -59,10 +60,9 @@ public class Blocker {
 			pushBlock(ind, text, true, true);
 		} else if (ind.tabs > cind()+1) {
 			// error - indenting too much
-			System.out.println("HANDLE ERROR");
+			throw new BlockerException("excess indent");
 		} else if (ind.tabs == cind()+1 && ind.spaces > 0) {
-			// error - first line can't be a continuation line
-			System.out.println("HANDLE ERROR");
+			throw new BlockerException("illegal continuation line (spaces at front)");
 		} else {
 			// incredibly, we didn't think about this case
 			throw new UtilException("We didn't think of that");
@@ -112,8 +112,13 @@ public class Blocker {
 		Blocker blocker = new Blocker(file);
 		try {
 			String s;
-			while ((s = lnr.readLine()) != null)
-				blocker.accept(s);
+			while ((s = lnr.readLine()) != null) {
+				try {
+					blocker.accept(s);
+				} catch (BlockerException ex) {
+					blocker.errors.message(new InputPosition(file, lnr.getLineNumber(), blocker.getIndent(s).tabs, s), ex.getMessage());
+				}
+			}
 			if (blocker.errors.hasErrors())
 				return blocker.errors;
 			return blocker.stack.get(0).nested;

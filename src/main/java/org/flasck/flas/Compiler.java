@@ -66,6 +66,7 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.template.TemplateGenerator;
+import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -84,32 +85,37 @@ public class Compiler {
 	public static void main(String[] args) {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
-		for (int i=0;i<args.length;i++) {
-			String f = args[i];
-			int hasMore = args.length-i-1;
-			if (f.startsWith("-")) {
-				if (f.equals("--dump"))
-					compiler.dumpTypes = true;
-				else if (f.equals("--flim")) {
-					if (hasMore == 0) {
-						System.out.println("--flim <file>");
-						System.exit(1);
+		try {
+			for (int i=0;i<args.length;i++) {
+				String f = args[i];
+				int hasMore = args.length-i-1;
+				if (f.startsWith("-")) {
+					if (f.equals("--dump"))
+						compiler.dumpTypes = true;
+					else if (f.equals("--flim")) {
+						if (hasMore == 0) {
+							System.out.println("--flim <file>");
+							System.exit(1);
+						}
+						compiler.searchIn(new File(args[++i]));
+					} else if (f.equals("--android")) {
+						if (hasMore == 0) {
+							System.out.println("--android <build-dir>");
+							System.exit(1);
+						}
+						compiler.writeDroidTo(new File(args[++i]));
+					} else {
+						System.out.println("unknown option: " + f);
+						compiler.success = false;
+						break;
 					}
-					compiler.searchIn(new File(args[++i]));
-				} else if (f.equals("--android")) {
-					if (hasMore == 0) {
-						System.out.println("--android <build-dir>");
-						System.exit(1);
-					}
-					compiler.writeDroidTo(new File(args[++i]));
-				} else {
-					System.out.println("unknown option: " + f);
-					compiler.success = false;
-					break;
+					continue;
 				}
-				continue;
+				compiler.compile(new File(f));
 			}
-			compiler.compile(new File(f));
+		} catch (ArgumentException ex) {
+			System.err.println(ex.getMessage());
+			System.exit(1);
 		}
 		if (compiler.success) {
 			System.out.println("done");
@@ -486,6 +492,8 @@ public class Compiler {
 				tc.addTypeDefn((UnionTypeDefn) val);
 			} else if (val instanceof Type) {
 				tc.addExternal(x.getValue().getKey(), (Type)val);
+			} else if (val instanceof CardTypeInfo) {
+				tc.addExternalCard((CardTypeInfo)val);
 			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
 //				System.out.println("Not adding anything for " + x.getValue().getKey() + " " + val);
 			} else if (val == null) {
