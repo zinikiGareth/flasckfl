@@ -88,9 +88,11 @@ public class Builtin {
 			StructDefn assign = new StructDefn(posn, "Assign", false);
 			StructDefn crCard = new StructDefn(posn, "CreateCard", false);
 			StructDefn d3 = new StructDefn(posn, "D3Action", false);
+			StructDefn debug = new StructDefn(posn, "Debug", false);
 			message.addCase(assign);
 			message.addCase(send);
 			message.addCase(crCard);
+			message.addCase(debug);
 			assign.addField(new StructField(any, "into"));
 			assign.addField(new StructField(string, "slot"));
 			assign.addField(new StructField(any, "value"));
@@ -98,17 +100,22 @@ public class Builtin {
 			send.addField(new StructField(any, "dest"));
 			send.addField(new StructField(string, "method"));
 			send.addField(new StructField(list.instance(posn, any), "args"));
+
 			crCard.addField(new StructField(map.instance(posn, string, any), "opts"));
 			crCard.addField(new StructField(list.instance(posn, any), "contracts")); // maybe List[(String, CardHandle)] ?  what is CardHandle?  This is what I had "before"
+			
+			d3.addField(new StructField(string, "action"));
+			d3.addField(new StructField(list.instance(posn, any), "args"));
+
+			debug.addField(new StructField(any, "value"));
+
 			ret.define("Assign", "Assign", assign);
 			ret.define("Send", "Send", send);
 			ret.define("CreateCard", "CreateCard", crCard);
 			ret.define("D3Action", "D3Action", d3);
+			ret.define("Debug", "Debug", debug);
 			ret.define("Message", "Message", message);
 //			ret.define("JSNI", "JSNI", null);
-				
-			d3.addField(new StructField(string, "action"));
-			d3.addField(new StructField(list.instance(posn, any), "args"));
 		}
 		{ // DOM
 			PackageDefn domPkg = new PackageDefn(posn, ret, "DOM");
@@ -124,16 +131,27 @@ public class Builtin {
 			ret.define("Crokey", "Crokey", crokey);
 			crokey.addField(new StructField(string, "key"));
 			crokey.addField(new StructField(string, "id"));
+
+			// It is not abundantly clear to me that we want to project this level of detail into the API
+			// This comes from having two separate classes down in the JS layer
+			// At some level, we DO need to distinguish between them, but I'm not sure we should put it on the user
+			StructDefn ncrokey = new StructDefn(posn, "NaturalCrokey", false);
+			ret.define("NaturalCrokey", "NaturalCrokey", ncrokey);
+			ncrokey.addField(new StructField(string, "key"));
+			ncrokey.addField(new StructField(string, "id"));
 			
 			StructDefn crokeys = new StructDefn(posn, "Crokeys", false);
 			ret.define("Crokeys", "Crokeys", crokeys);
 			crokeys.addField(new StructField(string, "id"));
+			crokeys.addField(new StructField(string, "keytype"));
 			crokeys.addField(new StructField(list.instance(null,  crokey), "keys"));
 
 			ObjectDefn croset = new ObjectDefn(posn, "Croset", false, varA);
 			croset.constructorArg(crokeys, "init");
 			ret.define("Croset", "Croset", croset);
 			croset.addMethod(new ObjectMethod(Type.function(posn, any, send), "put"));
+			croset.addMethod(new ObjectMethod(Type.function(posn, string, any), "item"));
+			croset.addMethod(new ObjectMethod(Type.function(posn, any, any), "member")); // crokey, natural crokey or string as input
 			croset.addMethod(new ObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, string, send), "delete"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, string, any, send), "insert"));

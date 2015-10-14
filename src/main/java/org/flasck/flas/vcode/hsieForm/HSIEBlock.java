@@ -52,6 +52,10 @@ public class HSIEBlock {
 		return ret;
 	}
 	
+	public void removeAt(int pos) {
+		commands.remove(pos);
+	}
+
 	public HSIEBlock push(InputPosition loc, Object o) {
 		return pushAt(loc, commands.size(), o);
 	}

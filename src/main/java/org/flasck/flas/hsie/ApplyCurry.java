@@ -7,9 +7,10 @@ import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.typechecker.Type;
-import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.typechecker.Type.WhatAmI;
+import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -32,9 +33,10 @@ public class ApplyCurry {
 	
 	public void rewrite(TypeChecker tc, HSIEForm h) {
 		List<Rewrite> rewrites = new ArrayList<Rewrite>();
-		
+//		Logger logger = LoggerFactory.getLogger("Hello");
 		for (HSIEBlock c : h.closures()) {
-//			c.dumpOne(4);
+//			logger.info("-----");
+//			c.dumpOne(logger, 4);
 			PushCmd pc = (PushCmd) c.nestedCommands().get(0);
 			if (pc.sval != null)
 				continue;
@@ -45,8 +47,24 @@ public class ApplyCurry {
 					continue;
 				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;
-				if (pc.fn.uniqueName().equals("FLEval.field"))
+				if (pc.fn.uniqueName().equals("FLEval.field")) {
+					PushCmd ofObj = (PushCmd) c.nestedCommands().get(1);
+					PushCmd fld = (PushCmd)c.nestedCommands().get(2);
+					if (ofObj.fn instanceof CardMember) {
+						CardMember cm = (CardMember) ofObj.fn;
+						if (cm.type instanceof ObjectDefn) {
+							ObjectDefn od = (ObjectDefn) cm.type;
+							if (od.hasMethod(fld.sval.text)) {
+								Type t = od.getMethod(fld.sval.text);
+								c.pushAt(pc.location, 0, new AbsoluteVar(pc.location, "FLEval.curry", null));
+								c.removeAt(1);
+								c.pushAt(pc.location, 1, new AbsoluteVar(pc.location, "FLEval.method", null));
+								c.pushAt(pc.location, 2, t.arity()+2);
+							}
+						}
+					}
 					continue;
+				}
 				Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
 				if (t.arity() > c.nestedCommands().size()-1) {
 					c.pushAt(pc.location, 0, new AbsoluteVar(null, "FLEval.curry", null));

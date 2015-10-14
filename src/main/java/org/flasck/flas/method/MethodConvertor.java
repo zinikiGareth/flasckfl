@@ -379,19 +379,19 @@ public class MethodConvertor {
 		if (t.iam == WhatAmI.INSTANCE) {
 			// to be an instance, it must be a List of one of the types
 			if (!t.name().equals("List") && !t.name().equals("Cons")) {
-				errors.message(expr.location, "method expression must be of type Message or List[Message]");
+				errors.message(expr.location, "method expression must be of type Message or List[Message], not " + t.name());
 				return null;
 			}
 			// if it is a list, check what it's a list of ...
 			t = t.poly(0);
 		}
 		if (t.iam != WhatAmI.STRUCT) {
-			errors.message(expr.location, "method expression must be of type Message or List[Message]");
+			errors.message(expr.location, "method expression must be of type Message or List[Message], not " + t.name());
 			return null;
 		}
 		String name = t.name();
-		if (!name.equals("Message") && !name.equals("Send") && !name.equals("Assign") && !name.equals("CreateCard") && !name.equals("D3Action")) {
-			errors.message(expr.location, "expression must be of type Message or List[Message]");
+		if (!name.equals("Message") && !name.equals("Send") && !name.equals("Assign") && !name.equals("CreateCard") && !name.equals("D3Action") && !name.equals("Debug")) {
+			errors.message(expr.location, "expression must be of type Message or List[Message], not " + name);
 			return null;
 		}
 		return expr;
