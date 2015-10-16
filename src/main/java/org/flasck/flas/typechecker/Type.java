@@ -125,10 +125,14 @@ public class Type implements Serializable, Locatable {
 	
 	// This one is DELIBERATELY not static - you need a type that you would otherwise have to pass in as "base"
 	public Type instance(InputPosition loc, Type... with) {
+		if (this.iam == WhatAmI.INSTANCE)
+			throw new UtilException("Instance of an instance?  Huh?");
 		return new Type(loc, WhatAmI.INSTANCE, this, CollectionUtils.listOf(with));
 	}
 
 	public Type instance(InputPosition loc, List<Type> with) {
+		if (this.iam == WhatAmI.INSTANCE)
+			throw new UtilException("Instance of an instance?  Huh?");
 		return new Type(loc, WhatAmI.INSTANCE, this, with);
 	}
 

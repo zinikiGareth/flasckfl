@@ -376,6 +376,8 @@ public class MethodConvertor {
 		Type t = calculateExprType(margs, types, expr);
 		if (t == null)
 			return null;
+		if (t.name().equals("Nil"))
+			return expr;
 		if (t.iam == WhatAmI.INSTANCE) {
 			// to be an instance, it must be a List of one of the types
 			if (!t.name().equals("List") && !t.name().equals("Cons")) {
@@ -390,7 +392,7 @@ public class MethodConvertor {
 			return null;
 		}
 		String name = t.name();
-		if (!name.equals("Message") && !name.equals("Send") && !name.equals("Assign") && !name.equals("CreateCard") && !name.equals("D3Action") && !name.equals("Debug")) {
+		if (!name.equals("Nil") && !name.equals("Message") && !name.equals("Send") && !name.equals("Assign") && !name.equals("CreateCard") && !name.equals("D3Action") && !name.equals("Debug")) {
 			errors.message(expr.location, "expression must be of type Message or List[Message], not " + name);
 			return null;
 		}

@@ -28,9 +28,11 @@ public class TypeExpr {
 		// This has to be commented out for unit tests to pass since they pass null around like crazy people
 //		if (this.from == null)
 //			throw new UtilException("Cannot have null from");
-		TypeChecker.logger.info("Creating type expression " + myId + " for " + type + " with " + args + " from " + from);
 		if (type == null)
 			throw new UtilException("Cannot have null type");
+		if (type.iam == WhatAmI.INSTANCE)
+			type = type.innerType();
+		TypeChecker.logger.info("Creating type expression " + myId + " for " + type + " with " + args + " from " + from);
 		this.type = type;
 		if (args == null)
 			this.args = new ArrayList<Object>();
