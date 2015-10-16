@@ -15,6 +15,8 @@ import org.flasck.flas.parsedForm.D3Intro;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TemplateIntro;
@@ -27,6 +29,7 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 import org.flasck.flas.typechecker.Type;
+import org.zinutils.bytecode.Var;
 
 public class IntroParser implements TryParsing {
 	private final State state;
@@ -174,6 +177,22 @@ public class IntroParser implements TryParsing {
 				return new EventCaseDefn((FunctionIntro)o);
 			} else
 				return ErrorResult.oneMessage(line, "cannot handle " + o.getClass());
+		}
+		case "method": {
+			if (!line.hasMore())
+				return ErrorResult.oneMessage(line, "missing method name");
+			ValidIdentifierToken tn = VarNameToken.from(line);
+			if (tn == null)
+				return ErrorResult.oneMessage(line, "invalid method name");
+			ArrayList<Object> args = new ArrayList<Object>();
+			while (line.hasMore()) {
+				PatternParser pp = new PatternParser();
+				Object patt = pp.tryParsing(line);
+				if (patt == null)
+					return ErrorResult.oneMessage(line, "invalid contract argument pattern");
+				args.add(patt);
+			}
+			return new MethodCaseDefn(new FunctionIntro(tn.location, state.withPkg(tn.text), args));
 		}
 		default:
 			// we didn't find anything we could handle - "not us"

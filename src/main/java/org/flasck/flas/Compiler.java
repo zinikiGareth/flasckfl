@@ -299,6 +299,7 @@ public class Compiler {
 			// 6. Typecheck contract methods and event handlers, convert to functions and compile to HSIE
 			mc.convertContractMethods(forms, rewriter.methods);
 			mc.convertEventHandlers(forms, rewriter.eventHandlers);
+			mc.convertStandaloneMethods(forms, rewriter.standalone);
 			abortIfErrors(errors);
 			
 			// 7. Generate code from templates

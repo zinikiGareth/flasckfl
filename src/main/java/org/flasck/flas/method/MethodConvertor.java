@@ -26,6 +26,7 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -40,7 +41,6 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
-import org.flasck.flas.typechecker.TypeUnion;
 import org.flasck.flas.typechecker.TypedObject;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
@@ -71,6 +71,11 @@ public class MethodConvertor {
 			addFunction(functions, convertEventHandler(x.scope, x.name, x.handler));
 	}
 
+	public void convertStandaloneMethods(Map<String, HSIEForm> functions, List<MethodInContext> methods) {
+		for (MethodInContext x : methods)
+			addFunction(functions, convertStandalone(x));
+	}
+
 	public void addFunction(Map<String, HSIEForm> functions, FunctionDefinition fd) {
 		if (fd != null) {
 			HSIEForm hs = hsie.handle(fd);
@@ -83,6 +88,8 @@ public class MethodConvertor {
 	protected FunctionDefinition convertMIC(MethodInContext m) {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		
+		if (m.direction == MethodInContext.STANDALONE)
+			System.out.println("converting " + m.name);
 		// Get the contract and from that find the method and thus the argument types
 		List<Type> types;
 		if (m.fromContract == null) {
@@ -136,6 +143,28 @@ public class MethodConvertor {
 		if (ofType != null)
 			tc.addExternal(eh.intro.name, ofType);
 		return new FunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
+	}
+
+	public FunctionDefinition convertStandalone(MethodInContext mic) {
+		List<Type> types = new ArrayList<Type>();
+		MethodDefinition method = mic.method;
+		for (@SuppressWarnings("unused") Object o : method.intro.args) {
+			types.add(tc.getType(null, "Any"));
+		}
+		if (method.cases.isEmpty())
+			throw new UtilException("Method without any cases - valid or not valid?");
+
+		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		Type ofType = null;
+		for (MethodCaseDefn c : method.cases) {
+			TypedObject typedObject = convertMessagesToActionList(method.intro.location, mic.scope, method.intro.args, types, c.messages);
+			if (ofType == null)
+				ofType = typedObject.type;
+			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
+		}
+		if (ofType != null)
+			tc.addExternal(method.intro.name, ofType);
+		return new FunctionDefinition(method.intro.location, HSIEForm.CodeType.EVENTHANDLER, method.intro.name, method.intro.args.size(), cases);
 	}
 
 	protected List<Type> figureCMD(MethodInContext m) {
@@ -387,7 +416,7 @@ public class MethodConvertor {
 			// if it is a list, check what it's a list of ...
 			t = t.poly(0);
 		}
-		if (t.iam != WhatAmI.STRUCT) {
+		if (t.iam != WhatAmI.STRUCT && t.iam != WhatAmI.UNION) {
 			errors.message(expr.location, "method expression must be of type Message or List[Message], not " + t.name());
 			return null;
 		}

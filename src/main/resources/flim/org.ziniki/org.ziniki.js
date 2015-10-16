@@ -1,7 +1,11 @@
-org = function() {
+if (typeof org === 'undefined') {
+  org = function() {
+  }
 }
 
-org.ziniki = function() {
+if (typeof org.ziniki === 'undefined') {
+  org.ziniki = function() {
+  }
 }
 
 org.ziniki._ID = function(v0) {

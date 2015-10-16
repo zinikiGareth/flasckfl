@@ -21,11 +21,14 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -90,6 +93,21 @@ public class TypeChecker {
 				handlers.put(ctr.name, x.impl);
 				prefixes.put(x.type, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
 			}
+		}
+		for (MethodInContext m : rewriter.standalone) {
+			List<Type> args = new ArrayList<Type>();
+			// find the arg types, as claimed
+			for (Object x : m.method.intro.args) {
+				if (x instanceof TypedPattern)
+					args.add(((TypedPattern)x).type);
+				else if (x instanceof VarPattern)
+					args.add(types.get("Any"));
+				else
+					throw new UtilException("Cannot handle " + x.getClass());
+			}
+			// by definition, these must return a "Message"
+			args.add(types.get("Message"));
+			knowledge.put(m.name, Type.function(m.contractLocation, args));
 		}
 	}
 
@@ -560,7 +578,7 @@ public class TypeChecker {
 					// We should not be able to get here if r.fn is not already an external which has been resolved
 					for (Entry<String, Type> x : knowledge.entrySet())
 						System.out.println(x.getKey() + " => " + x.getValue());
-					errors.message(r.location, "There is no type for identifier: " + r.fn + " when checking " + form.fnName);
+					errors.message(r.location, "there is no type for identifier: " + r.fn + " when checking " + form.fnName);
 					return null;
 				} else {
 					logger.info(r.fn + " is globally implanted " + te);

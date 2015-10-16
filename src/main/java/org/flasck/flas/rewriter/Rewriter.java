@@ -110,6 +110,7 @@ public class Rewriter {
 	public final Map<String, HandlerImplements> cardHandlers = new TreeMap<String, HandlerImplements>();
 	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
 	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
+	public final List<MethodInContext> standalone = new ArrayList<MethodInContext>();
 	public final Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>();
 
 	public abstract class NamingContext {
@@ -356,6 +357,8 @@ public class Rewriter {
 				rewriteCard(cx, (CardDefinition)val);
 			else if (val instanceof FunctionDefinition)
 				functions.put(name, rewrite(cx, (FunctionDefinition)val));
+			else if (val instanceof MethodDefinition)
+				standalone.add(rewriteStandaloneMethod(cx, from, (MethodDefinition)val));
 			else if (val instanceof EventHandlerDefinition)
 				eventHandlers.add(new EventHandlerInContext(from, name, rewrite(cx, (EventHandlerDefinition)val)));
 			else if (val instanceof StructDefn) {
@@ -397,7 +400,7 @@ public class Rewriter {
 				sd.addField(new StructField(rw, rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods) {
-				MethodDefinition rwm = rewrite(c2, m);
+				MethodDefinition rwm = rewrite(c2, m, true);
 				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm));
 				rw.methods.add(rwm);
 			}
@@ -417,7 +420,7 @@ public class Rewriter {
 				sd.fields.add(new StructField(rw, rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
-				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m)));
+				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m, true)));
 
 			pos++;
 		}
@@ -439,7 +442,7 @@ public class Rewriter {
 			structs.put(hiName, hsd);
 			HandlerContext hc = new HandlerContext(c2, rw);
 			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m)));
+				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m, true)));
 			
 			grp.handlers.add(new HandlerGrouping(rw.name, rw));
 		}
@@ -650,11 +653,16 @@ public class Rewriter {
 		return ret;
 	}
 
-	private MethodDefinition rewrite(NamingContext cx, MethodDefinition m) {
+	private MethodInContext rewriteStandaloneMethod(NamingContext cx, Scope from, MethodDefinition m) {
+		MethodDefinition rw = rewrite(cx, m, false);
+		return new MethodInContext(from, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, HSIEForm.CodeType.CARD, rw);
+	}
+	
+	private MethodDefinition rewrite(NamingContext cx, MethodDefinition m, boolean fromHandler) {
 		List<MethodCaseDefn> list = new ArrayList<MethodCaseDefn>();
 		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(errors, this, cx, m.intro.name + "_" + cs), c.innerScope(), true), c));
+			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(errors, this, cx, m.intro.name + "_" + cs), c.innerScope(), fromHandler), c));
 			cs++;
 		}
 		return new MethodDefinition(rewrite(cx, m.intro), list);

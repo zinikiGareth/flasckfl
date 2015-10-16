@@ -1,7 +1,11 @@
-org = function() {
+if (typeof org === 'undefined') {
+  org = function() {
+  }
 }
 
-org.flasck = function() {
+if (typeof org.flasck === 'undefined') {
+  org.flasck = function() {
+  }
 }
 
 org.flasck._ChangeEvent = function(v0) {

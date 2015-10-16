@@ -258,6 +258,28 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
+	protected void gatherStandaloneMethods(ErrorResult er, State s, Scope ret, List<MethodCaseDefn> fndefns) {
+		ListMap<String, MethodCaseDefn> groups = new ListMap<String, MethodCaseDefn>();
+		String cfn = null;
+		int pnargs = 0;
+		for (MethodCaseDefn mcd : fndefns) {
+			// group together all function defns for a given function
+			String n = mcd.intro.name;
+			if (cfn == null || !cfn.equals(n)) {
+				cfn = n;
+				pnargs = mcd.intro.args.size();
+				if (groups.contains(cfn))
+					er.message((Tokenizable)null, "split definition of function " + cfn);
+				else if (ret.contains(cfn))
+					er.message((Tokenizable)null, "duplicate definition of " + cfn);
+			} else if (mcd.intro.args.size() != pnargs)
+				er.message((Block)null, "inconsistent numbers of arguments in definitions of " + cfn);
+			groups.add(cfn, mcd);
+		}
+		for (Entry<String, List<MethodCaseDefn>> x : groups.entrySet())
+			ret.define(State.simpleName(x.getKey()), x.getKey(), new MethodDefinition(x.getValue().get(0).intro, x.getValue()));
+	}
+
 	private void doStructFields(ErrorResult er, StructDefn sd, List<Block> fields) {
 		FieldParser fp = new FieldParser();
 		for (Block b : fields) {
@@ -295,6 +317,7 @@ public class FLASStory implements StoryProcessor {
 	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
 		IntroParser ip = new IntroParser(s);
 		List<FunctionCaseDefn> functions = new ArrayList<FunctionCaseDefn>();
+		List<MethodCaseDefn> methods = new ArrayList<MethodCaseDefn>();
 		List<EventCaseDefn> events = new ArrayList<EventCaseDefn>();
 		int cs = 0;
 		int ss = 0;
@@ -400,6 +423,22 @@ public class FLASStory implements StoryProcessor {
 				if (!lastBlock.nested.isEmpty()) {
 					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+37, s.kind), lastBlock.nested);
 				}
+			} else if (o instanceof MethodCaseDefn) {
+				MethodCaseDefn mcd = (MethodCaseDefn) o;
+				MethodMessageParser mmp = new MethodMessageParser();
+				for (Block ib : b.nested) {
+					assertNoNonCommentNestedLines(er, ib);
+					Object ibo = mmp.tryParsing(new Tokenizable(ib.line));
+					if (ibo == null)
+						er.message(ib, "expected method message");
+					else if (ibo instanceof ErrorResult)
+						er.merge((ErrorResult) ibo);
+					else if (!(ibo instanceof MethodMessage))
+						er.message(ib, "expected method message");
+					else
+						mcd.messages.add((MethodMessage) ibo);
+				}
+				methods.add(mcd);
 			} else if (o instanceof EventCaseDefn) {
 				EventCaseDefn ecd = (EventCaseDefn) o;
 				events.add(ecd);
@@ -410,6 +449,7 @@ public class FLASStory implements StoryProcessor {
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
 		gatherFunctions(er, s, cd.innerScope(), functions);
+		gatherStandaloneMethods(er, s, cd.innerScope(), methods);
 		defineEventMethods(er, s, cd, events);
 //		if (!templates.isEmpty())
 		if (er.hasErrors())
@@ -729,7 +769,6 @@ public class FLASStory implements StoryProcessor {
 				return unroll(er, s, map, tt.content, nsubst);
 			} else {
 				D3Thing d3 = (D3Thing) reffed;
-				List<Object> contents = new ArrayList<Object>();
 				return new D3Invoke(s.scope, d3);
 			}
 		} else if (content instanceof TemplateFormat) {

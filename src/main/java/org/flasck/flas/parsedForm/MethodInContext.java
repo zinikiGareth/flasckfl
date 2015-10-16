@@ -8,6 +8,7 @@ public class MethodInContext {
 	public static final int UP = 2;
 	public static final int EVENT = 3;
 	public static final int OBJECT = 4;
+	public static final int STANDALONE = 5;
 	public final Scope scope;
 	public final String fromContract;
 	public final InputPosition contractLocation;
