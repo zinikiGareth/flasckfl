@@ -108,7 +108,7 @@ public class Rewriter {
 	public final List<D3Invoke> d3s = new ArrayList<D3Invoke>();
 	public final Map<String, ContractImplements> cardImplements = new TreeMap<String, ContractImplements>();
 	public final Map<String, ContractService> cardServices = new TreeMap<String, ContractService>();
-	public final Map<String, HandlerImplements> cardHandlers = new TreeMap<String, HandlerImplements>();
+	public final Map<String, HandlerImplements> callbackHandlers = new TreeMap<String, HandlerImplements>();
 	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
 	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
 	public final List<MethodInContext> standalone = new ArrayList<MethodInContext>();
@@ -224,7 +224,7 @@ public class Rewriter {
 					members.put(cs.referAsVar, cs);
 			}
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(State.simpleName(hi.name), new ObjectReference(hi.location(), prefix, hi.name));
+				statics.put(State.simpleName(hi.hiName), new ObjectReference(hi.location(), prefix, hi.hiName));
 			}
 		}
 
@@ -245,8 +245,8 @@ public class Rewriter {
 	class HandlerContext extends NamingContext {
 		private final HandlerImplements hi;
 
-		HandlerContext(CardContext card, HandlerImplements hi) {
-			super(card);
+		HandlerContext(NamingContext cx, HandlerImplements hi) {
+			super(cx);
 			this.hi = hi;
 		}
 		
@@ -368,6 +368,8 @@ public class Rewriter {
 				types.put(name, (UnionTypeDefn)val);
 			} else if (val instanceof ContractDecl) {
 				contracts.put(name, rewrite(cx, (ContractDecl)val));
+			} else if (val instanceof HandlerImplements) {
+				callbackHandlers.put(name, rewriteHI(cx, (HandlerImplements)val, from));
 			} else if (val instanceof Type) {
 				; // don't do anything - is that OK? 
 			} else
@@ -430,22 +432,9 @@ public class Rewriter {
 			templates.add(rewrite(new TemplateContext(c2), cd.template));
 		
 		for (HandlerImplements hi : cd.handlers) {
-			HandlerImplements rw = rewriteHI(c2, hi, pos);
-			if (rw == null)
-				continue;
-			String hiName = cd.name +"."+hi.name;
-			cardHandlers.put(hiName, rw);
-			StructDefn hsd = new StructDefn(hi.location(), hiName, false);
-			for (Object s : rw.boundVars) {
-				HandlerLambda hl = (HandlerLambda) s;
-				hsd.fields.add(new StructField(hl.type, hl.var));
-			}
-			structs.put(hiName, hsd);
-			HandlerContext hc = new HandlerContext(c2, rw);
-			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m, true)));
-			
-			grp.handlers.add(new HandlerGrouping(rw.name, rw));
+			HandlerImplements rw = rewriteHI(c2, hi, cd.innerScope());
+			if (rw != null)
+				grp.handlers.add(new HandlerGrouping(rw.hiName, rw));
 		}
 		
 		grp.platforms.putAll(cd.platforms);
@@ -610,7 +599,7 @@ public class Rewriter {
 		}
 	}
 
-	private HandlerImplements rewriteHI(CardContext cx, HandlerImplements hi, int cs) {
+	private HandlerImplements rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
 		try {
 			Type any = (Type) ((AbsoluteVar)cx.nested.resolve(hi.location(), "Any")).defn;
 			Object av = cx.nested.resolve(hi.location(), hi.name());
@@ -619,7 +608,8 @@ public class Rewriter {
 				return hi;
 			}
 			AbsoluteVar ctr = (AbsoluteVar) av;
-			String rwname = cx.prefix + "." + hi.name;
+//			String rwname = cx.prefix + "." + hi.name;
+			String rwname = hi.hiName;
 			List<Object> bvs = new ArrayList<Object>();
 			for (Object o : hi.boundVars) {
 				HandlerLambda hl;
@@ -634,6 +624,16 @@ public class Rewriter {
 				bvs.add(hl);
 			}
 			HandlerImplements ret = new HandlerImplements(hi.location(), rwname, ctr.id, bvs);
+			callbackHandlers.put(ret.hiName, ret);
+			StructDefn hsd = new StructDefn(hi.location(), ret.hiName, false);
+			for (Object s : ret.boundVars) {
+				HandlerLambda hl = (HandlerLambda) s;
+				hsd.fields.add(new StructField(hl.type, hl.var));
+			}
+			structs.put(ret.hiName, hsd);
+			HandlerContext hc = new HandlerContext(cx, ret);
+			for (MethodDefinition m : hi.methods)
+				methods.add(new MethodInContext(scope, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m, true)));
 			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
@@ -646,7 +646,9 @@ public class Rewriter {
 		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
 		int cs = 0;
 		for (FunctionCaseDefn c : f.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(errors, this, cx, f.name + "_" + cs), c.innerScope(), false), c));
+			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(errors, this, cx, f.name + "_" + cs), c.innerScope(), false);
+			list.add(rewrite(fccx, c));
+			rewriteScope(fccx, c.innerScope());
 			cs++;
 		}
 //		System.out.println("rewritten to " + list.get(0).expr);
@@ -945,7 +947,7 @@ public class Rewriter {
 				System.out.println("Impl " + x.getKey());
 			for (Entry<String, ContractService> x : cardServices.entrySet())
 				System.out.println("Service " + x.getKey());
-			for (Entry<String, HandlerImplements> x : cardHandlers.entrySet())
+			for (Entry<String, HandlerImplements> x : callbackHandlers.entrySet())
 				System.out.println("Handler " + x.getKey());
 			for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
 				x.getValue().dumpTo(pw);

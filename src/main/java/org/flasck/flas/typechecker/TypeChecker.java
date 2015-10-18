@@ -90,10 +90,12 @@ public class TypeChecker {
 			for (HandlerGrouping x : d.getValue().handlers) {
 				TypeHolder ctr = new TypeHolder(x.type);
 				cti.handlers.add(ctr);
-				handlers.put(ctr.name, x.impl);
+//				handlers.put(ctr.name, x.impl);
 				prefixes.put(x.type, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
 			}
 		}
+		for (Entry<String, HandlerImplements> x : rewriter.callbackHandlers.entrySet())
+			handlers.put(x.getKey(), x.getValue());
 		for (MethodInContext m : rewriter.standalone) {
 			List<Type> args = new ArrayList<Type>();
 			// find the arg types, as claimed

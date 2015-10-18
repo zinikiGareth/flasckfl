@@ -134,7 +134,7 @@ public class DroidGenerator {
 			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), javaNestedSimpleName(x.implName));
 		}
 		for (HandlerGrouping h : grp.handlers) {
-			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), javaNestedSimpleName(h.impl.name));
+			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), javaNestedSimpleName(h.impl.hiName));
 		}
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);

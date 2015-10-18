@@ -264,7 +264,7 @@ public class Compiler {
 				gen.generateService(cs.getKey(), cs.getValue());
 				dg.generateService(cs.getKey(), cs.getValue());
 			}
-			for (Entry<String, HandlerImplements> hi : rewriter.cardHandlers.entrySet()) {
+			for (Entry<String, HandlerImplements> hi : rewriter.callbackHandlers.entrySet()) {
 				gen.generateHandler(hi.getKey(), hi.getValue());
 				dg.generateHandler(hi.getKey(), hi.getValue());
 			}

@@ -29,7 +29,7 @@ public class ObjectReference implements ExternalRef {
 	}
 
 	public String uniqueName() {
-		return this.clzName + "." + this.handle;
+		return this.handle;
 	}
 
 	@Override

@@ -6,12 +6,12 @@ import org.flasck.flas.blockForm.InputPosition;
 
 @SuppressWarnings("serial")
 public class HandlerImplements extends Implements {
-	public final String name;
+	public final String hiName;
 	public final List<Object> boundVars;
 
 	public HandlerImplements(InputPosition location, String named, String type, List<Object> lambdas) {
 		super(location, WhatAmI.HANDLERIMPLEMENTS, type);
-		this.name = named;
+		this.hiName = named;
 		this.boundVars = lambdas;
 	}
 
