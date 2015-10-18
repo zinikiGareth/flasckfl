@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.List;
 
 /* How to test this?
@@ -10,7 +11,8 @@ import java.util.List;
  * 
  * Messy and slow, I know, but at least fairly realistic
  */
-public class ContentString extends TemplateFormatEvents {
+@SuppressWarnings("serial")
+public class ContentString extends TemplateFormatEvents implements Serializable {
 	public final String text;
 
 	public ContentString(String text, List<Object> formats) {

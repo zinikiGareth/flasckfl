@@ -14,7 +14,7 @@ import org.zinutils.utils.StringComparator;
 
 @SuppressWarnings("serial")
 public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Serializable {
-	public class ScopeEntry implements Entry<String, Object> {
+	public class ScopeEntry implements Entry<String, Object>, Serializable {
 		private final InputPosition location;
 		private final String name;
 		private Object defn;

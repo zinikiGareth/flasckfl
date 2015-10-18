@@ -1,9 +1,11 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StateDefinition {
+@SuppressWarnings("serial")
+public class StateDefinition implements Serializable {
 	public final List<StructField> fields = new ArrayList<StructField>();
 
 	public void addField(StructField o) {

@@ -353,9 +353,11 @@ public class Compiler {
 				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 4);
 			} catch (IOException ex2) {
 				ex2.printStackTrace();
+				System.err.println(ex2);
 			}
-		} catch (IOException ex1) {
+		} catch (Exception ex1) {
 			ex1.printStackTrace();
+			System.err.println(UtilException.unwrap(ex1));
 		} finally {
 			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
 			try { if (wex != null) wex.close(); } catch (IOException ex) {}

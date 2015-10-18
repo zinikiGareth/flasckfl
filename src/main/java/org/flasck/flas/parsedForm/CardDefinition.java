@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.stories.FLASStory.State;
 
-public class CardDefinition implements ContainsScope, Locatable {
+@SuppressWarnings("serial")
+public class CardDefinition implements ContainsScope, Locatable, Serializable {
 	public final InputPosition location;
 	public final String name;
 	public StateDefinition state;

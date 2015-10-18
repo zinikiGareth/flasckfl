@@ -1,8 +1,11 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
+
 import org.flasck.flas.blockForm.InputPosition;
 
-public class CardReference implements TemplateLine {
+@SuppressWarnings("serial")
+public class CardReference implements TemplateLine, Serializable {
 	public final InputPosition location;
 	public final Object explicitCard;
 	public final Object yoyoVar;

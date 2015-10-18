@@ -1,9 +1,12 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 
-public class PackageDefn implements ContainsScope, Locatable {
+@SuppressWarnings("serial")
+public class PackageDefn implements ContainsScope, Locatable, Serializable {
 	public final InputPosition location;
 	public final String name;
 	private final Scope scope;

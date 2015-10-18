@@ -1,10 +1,12 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class EventHandlerDefinition implements Locatable {
+@SuppressWarnings("serial")
+public class EventHandlerDefinition implements Locatable, Serializable {
 	public final FunctionIntro intro;
 	public final List<EventCaseDefn> cases;
 	

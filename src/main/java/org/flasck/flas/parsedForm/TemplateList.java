@@ -1,10 +1,12 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class TemplateList extends TemplateFormat {
+@SuppressWarnings("serial")
+public class TemplateList extends TemplateFormat implements Serializable {
 	public final InputPosition listLoc;
 	public final Object listVar;
 	public final InputPosition iterLoc;

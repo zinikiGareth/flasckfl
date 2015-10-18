@@ -1,12 +1,14 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.UtilException;
 
-public class FunctionCaseDefn implements ContainsScope{
+@SuppressWarnings("serial")
+public class FunctionCaseDefn implements ContainsScope, Serializable {
 	public final FunctionIntro intro;
 	public final Object expr;
 	private final Scope scope;

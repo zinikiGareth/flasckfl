@@ -1,8 +1,11 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
+
 import org.flasck.flas.blockForm.InputPosition;
 
-public class UnresolvedVar implements Locatable {
+@SuppressWarnings("serial")
+public class UnresolvedVar implements Locatable, Serializable {
 	public final InputPosition location;
 	public final String var;
 

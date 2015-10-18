@@ -1,5 +1,6 @@
 package org.flasck.flas.parsedForm;
 
+import java.io.Serializable;
 import java.io.Writer;
 import java.util.List;
 
@@ -7,7 +8,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
-public class FunctionDefinition implements Locatable {
+@SuppressWarnings("serial")
+public class FunctionDefinition implements Locatable, Serializable {
 	public final InputPosition location;
 	public final CodeType mytype;
 	public final String name;
