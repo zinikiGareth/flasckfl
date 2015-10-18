@@ -114,7 +114,7 @@ public class MethodConvertor {
 				continue;
 			}
 			TypedObject typedObject = convertMessagesToActionList(loc, m.scope, mcd.intro.args, types, mcd.messages);
-			cases.add(new FunctionCaseDefn(null, loc, mcd.intro.name, mcd.intro.args, typedObject.expr));
+			cases.add(new FunctionCaseDefn(loc, mcd.intro.name, mcd.intro.args, typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
@@ -138,7 +138,7 @@ public class MethodConvertor {
 			TypedObject typedObject = convertMessagesToActionList(eh.intro.location, scope, eh.intro.args, types, c.messages);
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
+			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
 		}
 		if (ofType != null)
 			tc.addExternal(eh.intro.name, ofType);
@@ -160,7 +160,7 @@ public class MethodConvertor {
 			TypedObject typedObject = convertMessagesToActionList(method.intro.location, mic.scope, method.intro.args, types, c.messages);
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new FunctionCaseDefn(null, c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
+			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
 		}
 		if (ofType != null)
 			tc.addExternal(method.intro.name, ofType);

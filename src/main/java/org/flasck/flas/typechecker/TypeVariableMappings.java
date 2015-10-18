@@ -72,6 +72,8 @@ public class TypeVariableMappings {
 	 * @return a type variable or expression with all the variables in our solution replaced with their current meanings
 	 */
 	public Object subst(Object in) {
+		if (in == null)
+			return null;
 		if (in instanceof TypeVar) {
 			TypeVar tv = (TypeVar) in;
 			if (phi.containsKey(tv))

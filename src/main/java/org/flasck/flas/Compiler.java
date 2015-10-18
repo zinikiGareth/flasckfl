@@ -440,7 +440,7 @@ public class Compiler {
 		init = new ApplyExpr(null, assoc, new StringLiteral(null, "data"), data, init);
 
 		FunctionIntro d3f = new FunctionIntro(d3.d3.dloc, d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(d3.scope, d3.d3.dloc, d3f.name, d3f.args, init);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(d3.d3.dloc, d3f.name, d3f.args, init);
 		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 		
@@ -452,7 +452,7 @@ public class Compiler {
 		String name = "_gen_" + (nextFn++);
 
 		FunctionIntro d3f = new FunctionIntro(null, prefix + "." + name, args);
-		FunctionCaseDefn fcd = new FunctionCaseDefn(scope, null, d3f.name, d3f.args, expr);
+		FunctionCaseDefn fcd = new FunctionCaseDefn(null, d3f.name, d3f.args, expr);
 		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 

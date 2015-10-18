@@ -59,7 +59,7 @@ public class RewriterTests {
 	@Test
 	public void testRewritingSomethingGloballyDefined() {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		cases.add(new FunctionCaseDefn(scope, null, "ME.f", new ArrayList<Object>(), new UnresolvedVar(null, "Nil")));
+		cases.add(new FunctionCaseDefn(null, "ME.f", new ArrayList<Object>(), new UnresolvedVar(null, "Nil")));
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 0, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
@@ -74,7 +74,7 @@ public class RewriterTests {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern(null, "x"));
-		cases.add(new FunctionCaseDefn(scope, null, "ME.f", args, new UnresolvedVar(null, "x")));
+		cases.add(new FunctionCaseDefn(null, "ME.f", args, new UnresolvedVar(null, "x")));
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 1, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
@@ -132,7 +132,7 @@ public class RewriterTests {
 			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(null, "x"));
-			cases.add(new FunctionCaseDefn(scope, null, "ME.f", args, new StringLiteral(null, "x")));
+			cases.add(new FunctionCaseDefn(null, "ME.f", args, new StringLiteral(null, "x")));
 			FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 1, cases);
 			scope.define("f", "ME.f", fn);
 			innerScope = cases.get(0).innerScope();
@@ -141,7 +141,7 @@ public class RewriterTests {
 			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(null, "y"));
-			cases.add(new FunctionCaseDefn(scope, null, "ME.f_0.g", args, new UnresolvedVar(null, "x")));
+			cases.add(new FunctionCaseDefn(null, "ME.f_0.g", args, new UnresolvedVar(null, "x")));
 			FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f_0.g", 1, cases);
 			innerScope.define("g", "ME.f_0.g", fn);
 		}
@@ -160,7 +160,7 @@ public class RewriterTests {
 		cd.state.fields.add(new StructField(Type.reference(null, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		cases.add(new FunctionCaseDefn(scope, null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
+		cases.add(new FunctionCaseDefn(null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);
@@ -179,7 +179,7 @@ public class RewriterTests {
 		cd.contracts.add(new ContractImplements(null, "Timer", null, "timer"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		cases.add(new FunctionCaseDefn(scope, null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "timer")));
+		cases.add(new FunctionCaseDefn(null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "timer")));
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
 		rw.rewrite(pkgEntry);

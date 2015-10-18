@@ -175,6 +175,10 @@ public class TypeChecker {
 			return;
 		for (HSIEForm f : rewritten.values()) {
 			Object tmp = s.phi.subst(actualTypes.get(f.fnName));
+			if (tmp == null) {
+				System.out.println("Encountered a null during typechecking; this is probably bad");
+				continue;
+			}
 			if (!(tmp instanceof TypeExpr)) {
 				System.out.println("I truly believe tmp should be a TypeExpr, not " + tmp.getClass());
 				continue;
@@ -456,6 +460,8 @@ public class TypeChecker {
 			} else
 				throw new UtilException("Missing cases " + o.getClass());
 		}
+		if (returns.isEmpty())
+			return null;
 		Object t1 = returns.get(0);
 		for (int i=1;i<returns.size();i++) {
 			if (t1 == null || returns.get(i) == null)

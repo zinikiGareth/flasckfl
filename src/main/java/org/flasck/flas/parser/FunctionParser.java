@@ -75,7 +75,7 @@ public class FunctionParser implements TryParsing {
 			return ErrorResult.oneMessage(line, "unexpected tokens at end of line");
 
 		// Build a response object
-		return new FunctionCaseDefn(state.scope, init, state.withPkg(name), args, expr);
+		return new FunctionCaseDefn(init, state.withPkg(name), args, expr);
 	}
 
 }

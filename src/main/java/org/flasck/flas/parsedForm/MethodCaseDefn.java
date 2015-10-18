@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.zinutils.exceptions.UtilException;
+
 @SuppressWarnings("serial")
 public class MethodCaseDefn implements MessagesHandler, ContainsScope, Serializable {
 	public final FunctionIntro intro;
@@ -12,10 +15,17 @@ public class MethodCaseDefn implements MessagesHandler, ContainsScope, Serializa
 
 	public MethodCaseDefn(FunctionIntro fi) {
 		intro = fi;
-		scope = new Scope((Scope)null); // TODO: null is not really acceptable
+		scope = null;
+	}
+	
+	public MethodCaseDefn(ScopeEntry entry, MethodCaseDefn mcd) {
+		this.scope = new Scope(entry);
+		this.intro = mcd.intro;
 	}
 
 	public void addMessage(MethodMessage mm) {
+		if (scope == null)
+			throw new UtilException("Can't add messages to the one without the scope");
 		messages.add(mm);
 	}
 	

@@ -713,7 +713,7 @@ public class Rewriter {
 		Object expr = rewriteExpr(cx, c.expr);
 		if (expr == null)
 			return null;
-		FunctionCaseDefn ret = new FunctionCaseDefn(c.innerScope().outer, intro.location, intro.name, intro.args, expr);
+		FunctionCaseDefn ret = new FunctionCaseDefn(intro.location, intro.name, intro.args, expr);
 		rewriteScope(cx, c.innerScope());
 		return ret;
 	}

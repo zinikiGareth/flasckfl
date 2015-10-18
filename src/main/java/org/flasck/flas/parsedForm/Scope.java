@@ -59,12 +59,6 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 	private final Map<String, ScopeEntry> defns = new TreeMap<String, ScopeEntry>(new StringComparator());
 	public final ScopeEntry outerEntry;
 
-	@Deprecated
-	public Scope(Scope inside) {
-		this.outer = inside;
-		this.outerEntry = null;
-	}
-	
 	public Scope(ScopeEntry inside) {
 		this.outer = null;
 		this.outerEntry = inside;
