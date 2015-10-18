@@ -332,6 +332,8 @@ public class MethodConvertor {
 			errors.message(slot.location(), "cannot assign directly to an object");
 			return null;
 		}
+		if (exprType.name() != null && exprType.name().equals("MessageWrapper"))
+			exprType = exprType.poly(0);
 		if (!slotType.equals(exprType)) {
 			boolean isOK = false;
 			Type foo = slotType;

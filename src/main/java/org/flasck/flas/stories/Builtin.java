@@ -116,6 +116,13 @@ public class Builtin {
 			ret.define("Debug", "Debug", debug);
 			ret.define("Message", "Message", message);
 //			ret.define("JSNI", "JSNI", null);
+			
+			Type polyT = Type.polyvar(posn, "T");
+			StructDefn mw = new StructDefn(posn, "MessageWrapper", false, polyT);
+			mw.addField(new StructField(polyT, "value"));
+			mw.addField(new StructField(list.instance(posn, message), "msgs"));
+			ret.define("MessageWrapper", "MessageWrapper", mw);
+
 		}
 		{ // DOM
 			PackageDefn domPkg = new PackageDefn(posn, ret, "DOM");
