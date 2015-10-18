@@ -9,12 +9,15 @@ import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.flasck.flas.typechecker.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Justification;
 
 public class HSIEBlock {
+	// The downcast operator has the ability to set the output type of this block "by fiat"
+	public Type downcastType;
 	private final List<HSIEBlock> commands = new ArrayList<HSIEBlock>();
 	protected static final Logger logger = LoggerFactory.getLogger("HSIE");
 

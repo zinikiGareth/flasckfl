@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardStateRef;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -22,6 +23,7 @@ import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -205,6 +207,12 @@ public class MetaState {
 			locs.add(e2.location);
 			closureDepends.put(var, mydeps);
 			return new CreationOfVar(var, e2.location, "clos" + var.idx);
+		} else if (expr instanceof CastExpr) {
+			CastExpr ce = (CastExpr) expr;
+			CreationOfVar cv = (CreationOfVar) convertValue(locs, substs, ce.expr);
+			HSIEBlock closure = form.getClosure(cv.var);
+			closure.downcastType = (Type) ((AbsoluteVar)ce.castTo).defn;
+			return cv;
 		}
 		else {
 			System.out.println(expr);

@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
@@ -69,11 +70,11 @@ public class Expression implements TryParsing {
 			else {
 				if (s.text.equals("(")) {
 					Object pp = parseParenthetical(line, ")");
-					if (pp == null) return null;
+					if (pp == null || pp instanceof ErrorResult) return pp;
 					args.add(pp);
 				} else if (s.text.equals("[")) {
 					Object pp = parseParenthetical(line, "]");
-					if (pp == null) return null;
+					if (pp == null || pp instanceof ErrorResult) return pp;
 					args.add(pp);
 				}
 			}
@@ -84,11 +85,11 @@ public class Expression implements TryParsing {
 					return null;
 				if (s.type == ExprToken.PUNC && s.text.equals("(")) {
 					Object pp = parseParenthetical(line, ")");
-					if (pp == null) return null;
+					if (pp == null || pp instanceof ErrorResult) return pp;
 					args.add(pp);
 				} else if (s.type == ExprToken.PUNC && s.text.equals("[")) {
 					Object pp = parseParenthetical(line, "]");
-					if (pp == null) return null;
+					if (pp == null || pp instanceof ErrorResult) return pp;
 					args.add(pp);
 				} else if (s.type == ExprToken.PUNC && (s.text.equals(")") || s.text.equals(",") || s.text.equals("]"))) {
 					line.reset(mark);
@@ -107,6 +108,17 @@ public class Expression implements TryParsing {
 				if (args.get(1) instanceof UnresolvedVar)
 					return args.get(1);
 				return ((ApplyExpr)args.get(1)).fn;
+			} else if (args.size() == 3 && args.get(0) instanceof UnresolvedVar && ((UnresolvedVar)args.get(0)).var.equals("downcast")) {
+				Object ex = args.get(1);
+				if (ex instanceof ApplyExpr) {
+					ApplyExpr ae = (ApplyExpr) ex;
+					if (ae.args.isEmpty())
+						ex = ae.fn;
+				}
+				if (!(ex instanceof UnresolvedVar))
+					return ErrorResult.oneMessage(((Locatable)args.get(1)).location(), "cannot downcast to " + args.get(1));
+				UnresolvedVar type = (UnresolvedVar)ex;
+				return new CastExpr(type.location, type.var, args.get(2));
 			} else if (args.size() == 1)
 				return promoteConstructors(deparen(args.get(0)));
 			else
@@ -234,7 +246,9 @@ public class Expression implements TryParsing {
 	}
 
 	private Object deparen(Object pe) {
-		if (pe instanceof UnresolvedOperator)
+		if (pe instanceof ErrorResult)
+			return pe;
+		else if (pe instanceof UnresolvedOperator)
 			return rehash((UnresolvedOperator) pe);
 		else if (pe instanceof ParenExpr)
 			return deparen(((ParenExpr)pe).nested);
@@ -244,6 +258,9 @@ public class Expression implements TryParsing {
 			for (Object o : ae.args)
 				args.add(deparen(o));
 			return new ApplyExpr(ae.location, deparen(ae.fn), args);
+		} else if (pe instanceof CastExpr) {
+			CastExpr ce = (CastExpr) pe;
+			return new CastExpr(ce.location, ce.castTo, deparen(ce.expr));
 		} else if (pe instanceof NumericLiteral || pe instanceof AbsoluteVar || pe instanceof UnresolvedVar || pe instanceof UnresolvedOperator || pe instanceof StringLiteral)
 			return pe;
 		else
@@ -300,6 +317,8 @@ public class Expression implements TryParsing {
 			// It seems to me that [,,] might end up not an error but []
 			InputPosition startsAt = line.realinfo();
 			Object expr = tryParsing(line);
+			if (expr instanceof ErrorResult)
+				return expr;
 			if (expr != null)
 				objs.add(expr);
 			ExprToken crb = ExprToken.from(line);

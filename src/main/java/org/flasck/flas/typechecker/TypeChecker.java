@@ -269,7 +269,9 @@ public class TypeChecker {
 		HSIEForm ret = new HSIEForm(hsie.mytype, hsie.fnName, hsie.alreadyUsed, hsie.nformal, vars, hsie.externals);
 		mapBlock(ret, hsie, mapping);
 		for (HSIEBlock b : hsie.closures()) {
-			HSIEBlock closure = ret.closure(mapping.get(((ClosureCmd)b).var));
+			ClosureCmd cc = (ClosureCmd)b;
+			HSIEBlock closure = ret.closure(mapping.get(cc.var));
+			closure.downcastType = cc.downcastType;
 			mapBlock(closure, b, mapping);
 		}
 //		ret.dump();
@@ -674,6 +676,8 @@ public class TypeChecker {
 				Tf = checkSingleApplication(s, Tf, locs.get(i), args.get(i));
 		}
 		logger.info("Closure " + c + " has type " + Tf);
+		if (c.downcastType != null)
+			return TypeExpr.from(c.downcastType, new HashMap<String, TypeVar>());
 		return Tf;
 	}
 

@@ -376,10 +376,8 @@ public class Compiler {
 			Type t = tc.checkExpr(form, new ArrayList<Type>(), new ArrayList<InputPosition>());
 			if (t != null) {
 				// it should be the same as the field type
-				System.out.println(kv.getKey() + " " + t.iam + ": " + t);
 				for (StructField sf : c.struct.fields) {
 					if (sf.name.equals(kv.getKey())) {
-						System.out.println("And should be " + sf.type);
 						if (!sf.type.equals(t))
 							tc.errors.message(loc, "cannot initialize " + sf.name + " with value of type " + t);
 					}

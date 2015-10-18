@@ -10,6 +10,6 @@ public class ClosureCmd extends HSIEBlock {
 
 	@Override
 	public String toString() {
-		return "CLOSURE " + var;
+		return "CLOSURE " + var + (downcastType != null?" " + downcastType:"");
 	}
 }

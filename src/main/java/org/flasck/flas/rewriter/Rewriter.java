@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContentExpr;
@@ -820,18 +821,34 @@ public class Rewriter {
 					}
 					// The case where we have an absolute var by package name
 					// Does this need to be here as well as in RootScope?
-					if (!(ae.args.get(0) instanceof ApplyExpr)) {
-						UnresolvedVar uv0 = (UnresolvedVar)ae.args.get(0);
+					Object aefn = ae.args.get(0);
+					Object castTo = null;
+					InputPosition castLoc = null;
+					while (aefn instanceof CastExpr) {
+						CastExpr ce = (CastExpr)aefn;
+						if (castTo == null) {
+							castLoc = ce.location;
+							castTo = cx.resolve(ce.location, (String) ce.castTo);
+						}
+						aefn = ((CastExpr)aefn).expr;
+					}
+					if (aefn instanceof UnresolvedVar) {
+						UnresolvedVar uv0 = (UnresolvedVar)aefn;
 						Object pkgEntry = cx.resolve(uv0.location, uv0.var);
 						if (pkgEntry instanceof AbsoluteVar) {
 							Object o = ((AbsoluteVar)pkgEntry).defn;
 							if (o instanceof PackageDefn)
 								return new AbsoluteVar(((PackageDefn)o).innerScope().getEntry(fname));
 						}
-					}
+					} 
+					
+					if (!(aefn instanceof ApplyExpr) && !(aefn instanceof UnresolvedVar))
+						throw new UtilException("That case is not handled: " + aefn.getClass());
 					
 					// expr . field
-					Object applyFn = rewriteExpr(cx, ae.args.get(0));
+					Object applyFn = rewriteExpr(cx, aefn);
+					if (castTo != null)
+						applyFn = new CastExpr(castLoc, castTo, applyFn);
 	
 					return new ApplyExpr(ae.location, cx.resolve(ae.location, "."), applyFn, new StringLiteral(loc, fname));
 				}
@@ -839,6 +856,11 @@ public class Rewriter {
 				for (Object o : ae.args)
 					args.add(rewriteExpr(cx, o));
 				return new ApplyExpr(ae.location, rewriteExpr(cx, ae.fn), args);
+			} else if (expr instanceof CastExpr) {
+				CastExpr ce = (CastExpr) expr;
+				Object resolve = cx.resolve(ce.location, (String) ce.castTo);
+				System.out.println(resolve.getClass());
+				return new CastExpr(ce.location, resolve, rewriteExpr(cx, ce.expr));
 			} else if (expr instanceof IfExpr) {
 				IfExpr ie = (IfExpr)expr;
 				return new IfExpr(rewriteExpr(cx, ie.guard), rewriteExpr(cx, ie.ifExpr), rewriteExpr(cx, ie.elseExpr));
