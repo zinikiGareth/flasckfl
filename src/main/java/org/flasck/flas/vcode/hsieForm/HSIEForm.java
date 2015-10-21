@@ -28,7 +28,7 @@ import org.zinutils.exceptions.UtilException;
 // Each of the Expressions En is modified to be just a simple apply-tree
 public class HSIEForm extends HSIEBlock {
 	public enum CodeType {
-		FUNCTION, CARD, CONTRACT, SERVICE, HANDLER, EVENTHANDLER, AREA
+		FUNCTION, CARD, CONTRACT, SERVICE, HANDLER, EVENTHANDLER, STANDALONE, AREA
 	}
 
 	public final CodeType mytype;

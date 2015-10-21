@@ -1,6 +1,11 @@
 package org.flasck.flas.parsedForm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewriter.Rewriter.NamingContext;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class MethodInContext {
@@ -16,8 +21,9 @@ public class MethodInContext {
 	public final String name;
 	public final CodeType type;
 	public final MethodDefinition method;
+	public final List<Object> enclosingPatterns = new ArrayList<Object>();
 
-	public MethodInContext(Scope scope, int dir, InputPosition cloc, String fromContract, String name, CodeType type, MethodDefinition method) {
+	public MethodInContext(Rewriter rw, NamingContext cx, Scope scope, int dir, InputPosition cloc, String fromContract, String name, CodeType type, MethodDefinition method) {
 		this.scope = scope;
 		this.direction = dir;
 		this.contractLocation = cloc;
@@ -25,5 +31,22 @@ public class MethodInContext {
 		this.name = name;
 		this.type = type;
 		this.method = method;
+		gatherEnclosing(rw, cx, scope);
+	}
+
+	private void gatherEnclosing(Rewriter rw, NamingContext cx, Scope s) {
+		if (s == null)
+			return;
+		if (s.container != null) {
+			gatherEnclosing(rw, cx, s.outer);
+			Object ctr = s.container;
+			if (ctr instanceof FunctionCaseDefn) { // Surely this should be a function case defn?
+				FunctionCaseDefn fn = (FunctionCaseDefn)ctr;
+				System.out.println("Add in " + fn.intro.args + " local vars");
+				for (Object o : fn.intro.args) {
+					enclosingPatterns.add(rw.rewritePattern(cx, o));
+				}
+			}
+		}
 	}
 }

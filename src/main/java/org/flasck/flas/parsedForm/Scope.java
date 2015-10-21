@@ -58,10 +58,12 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 	public final Scope outer;
 	private final Map<String, ScopeEntry> defns = new TreeMap<String, ScopeEntry>(new StringComparator());
 	public final ScopeEntry outerEntry;
+	public final Object container;
 
-	public Scope(ScopeEntry inside) {
+	public Scope(ScopeEntry inside, Object container) {
 		this.outer = null;
 		this.outerEntry = inside;
+		this.container = container;
 	}
 	
 	public boolean contains(String key) {

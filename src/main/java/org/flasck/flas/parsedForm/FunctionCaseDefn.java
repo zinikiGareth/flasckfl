@@ -25,7 +25,7 @@ public class FunctionCaseDefn implements ContainsScope, Serializable {
 	public FunctionCaseDefn(ScopeEntry me, FunctionCaseDefn starter) {
 		this.intro = starter.intro;
 		this.expr = starter.expr;
-		this.scope = new Scope(me);
+		this.scope = new Scope(me, this);
 	}
 
 	@Override

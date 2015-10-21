@@ -26,6 +26,7 @@ import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.slf4j.LoggerFactory;
 import org.zinutils.collections.CollectionUtils;
 
 public class Generator {
@@ -38,6 +39,7 @@ public class Generator {
 	}
 	
 	public void generate(HSIEForm input) {
+//		input.dump(LoggerFactory.getLogger("Generator"));
 		String jsname = input.fnName;
 		if (input.isMethod()) {
 			int idx = jsname.lastIndexOf(".");
@@ -167,6 +169,7 @@ public class Generator {
 	}
 
 	public void generateHandler(String ctorName, HandlerImplements hi) {
+		target.ensurePackagesFor(ctorName);
 		String clzname = lname(ctorName, false);
 		List<Var> vars = new ArrayList<Var>();
 		for (int i=0;i<=hi.boundVars.size();i++)

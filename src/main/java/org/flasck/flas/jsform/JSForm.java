@@ -193,7 +193,7 @@ public class JSForm {
 		if (ctor.equals("Any")) {
 			return new JSForm("if (v" + var.idx + ")").needBlock();
 		}
-		return new JSForm("if (v" + var.idx + " && v" + var.idx+"._ctor == '" + ctor +"')").needBlock();
+		return new JSForm("if (FLEval.isA(v" + var.idx + ", '" + ctor +"'))").needBlock();
 	}
 
 	public static JSForm bind(BindCmd h) {
@@ -296,9 +296,12 @@ public class JSForm {
 
 	private static void appendValue(StringBuilder sb, CodeType fntype, PushReturn c, int pos) {
 		if (c.fn != null) {
-			if (c.fn instanceof AbsoluteVar)
+			if (c.fn instanceof AbsoluteVar) {
 				sb.append(c.fn.uniqueName());
-			else if (c.fn instanceof ObjectReference) {
+				for (Object o : c.inheritArgs) {
+					sb.append(", " + o);
+				}
+			} else if (c.fn instanceof ObjectReference) {
 				sb.append(c.fn.uniqueName());
 			} else if (c.fn instanceof CardFunction) {
 				String jsname = c.fn.uniqueName();

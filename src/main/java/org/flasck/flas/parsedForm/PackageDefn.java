@@ -16,14 +16,14 @@ public class PackageDefn implements ContainsScope, Locatable, Serializable {
 		this.location = location;
 		this.name = pn;
 		myEntry = scope.define(pn, scope.fullName(pn), this);
-		this.scope = new Scope(myEntry);
+		this.scope = new Scope(myEntry, this);
 	}
 
 	public PackageDefn(InputPosition location, PackageDefn from) {
 		this.location = location;
 		this.name = from.name;
 		this.myEntry = from.scope.outerEntry;
-		this.scope = new Scope(from.scope.outerEntry);
+		this.scope = new Scope(from.scope.outerEntry, this);
 	}
 	
 	@Override

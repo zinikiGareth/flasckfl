@@ -146,9 +146,11 @@ public class MethodConvertor {
 	}
 
 	public FunctionDefinition convertStandalone(MethodInContext mic) {
-		List<Type> types = new ArrayList<Type>();
 		MethodDefinition method = mic.method;
-		for (@SuppressWarnings("unused") Object o : method.intro.args) {
+		List<Object> margs = new ArrayList<Object>(mic.enclosingPatterns);
+		margs.addAll(method.intro.args);
+		List<Type> types = new ArrayList<Type>();
+		for (@SuppressWarnings("unused") Object o : margs) {
 			types.add(tc.getType(null, "Any"));
 		}
 		if (method.cases.isEmpty())
@@ -157,14 +159,14 @@ public class MethodConvertor {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		Type ofType = null;
 		for (MethodCaseDefn c : method.cases) {
-			TypedObject typedObject = convertMessagesToActionList(method.intro.location, mic.scope, method.intro.args, types, c.messages);
+			TypedObject typedObject = convertMessagesToActionList(method.intro.location, mic.scope, margs, types, c.messages);
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
+			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, margs, typedObject.expr));
 		}
 		if (ofType != null)
 			tc.addExternal(method.intro.name, ofType);
-		return new FunctionDefinition(method.intro.location, HSIEForm.CodeType.EVENTHANDLER, method.intro.name, method.intro.args.size(), cases);
+		return new FunctionDefinition(method.intro.location, mic.type, method.intro.name, margs.size(), cases);
 	}
 
 	protected List<Type> figureCMD(MethodInContext m) {
@@ -362,7 +364,11 @@ public class MethodConvertor {
 		ContractDecl cd = null;
 		TypeWithMethods proto = senderType;
 		Type methodType = null;
-		if (senderType instanceof ContractService || senderType instanceof ContractImplements) {
+		if (senderType instanceof ContractDecl) {
+			proto = cd = (ContractDecl) senderType;
+			if (proto.hasMethod(method.text))
+				methodType = cd.getMethodType(method.text);
+		} else if (senderType instanceof ContractService || senderType instanceof ContractImplements) {
 			proto = cd = (ContractDecl) tc.getType(senderType.location(), senderType.name());
 			if (proto.hasMethod(method.text))
 				methodType = cd.getMethodType(method.text);

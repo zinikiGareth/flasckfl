@@ -13,12 +13,14 @@ import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.StringLiteral;
@@ -27,6 +29,7 @@ import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.PushCmd;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
@@ -155,18 +158,27 @@ public class MetaState {
 				throw new UtilException("How can this be a iter var? " + var + " not in " + substs);
 			return substs.get(var);
 		} else if (expr instanceof AbsoluteVar) {
-			locs.add(((AbsoluteVar)expr).location);
-			String var = ((AbsoluteVar)expr).id;
-			form.dependsOn(expr);
-			return expr;
+			AbsoluteVar av = (AbsoluteVar)expr;
+			locs.add(av.location);
+			form.dependsOn(av);
+			// If we are calling a nested function or method, make sure to record the variables
+			// that it "assumes" are in its scope so that we can include them in later calls if needed
+			if ((av.defn instanceof MethodDefinition || av.defn instanceof FunctionDefinition) && av.id.startsWith(form.fnName + "_")) {
+				Var var = allocateVar();
+				HSIEBlock closure = form.closure(var);
+				PushCmd pc = closure.push(av.location, av);
+				for (int j=0;j<form.nformal;j++)
+					pc.inheritArgs.add(form.vars.get(j));
+				closureDepends.put(var, new ArrayList<CreationOfVar>());
+				return new CreationOfVar(var, av.location, "clos" + var.idx);
+			} else
+				return expr;
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
 			locs.add(((ExternalRef)expr).location());
-			String var = ((ExternalRef)expr).uniqueName();
 			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof CardMember) {
 			locs.add(((ExternalRef)expr).location());
-			String var = ((CardMember)expr).uniqueName();
 			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof CardStateRef) {
@@ -174,7 +186,6 @@ public class MetaState {
 			return expr;
 		} else if (expr instanceof HandlerLambda) {
 			locs.add(((ExternalRef)expr).location());
-			String var = ((HandlerLambda)expr).uniqueName();
 			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof ApplyExpr) {

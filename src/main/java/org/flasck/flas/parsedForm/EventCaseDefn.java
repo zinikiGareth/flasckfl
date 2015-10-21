@@ -20,7 +20,7 @@ public class EventCaseDefn implements MessagesHandler, ContainsScope, Serializab
 
 	public EventCaseDefn(ScopeEntry se, EventCaseDefn starter) {
 		this.intro = starter.intro;
-		this.scope = new Scope(se);
+		this.scope = new Scope(se, this);
 	}
 
 	public void addMessage(MethodMessage mm) {

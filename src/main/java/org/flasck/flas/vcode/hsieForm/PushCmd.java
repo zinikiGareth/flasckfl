@@ -1,5 +1,8 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.ExternalRef;

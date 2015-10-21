@@ -156,6 +156,8 @@ public class TypeChecker {
 		if (!typeinfo.containsKey(expr.fnName))
 			throw new UtilException("Did not record a type for " + expr.fnName);
 		Object tmp = s.phi.subst(typeinfo.get(expr.fnName));
+		if (tmp == null)
+			return null;
 		if (!(tmp instanceof TypeExpr)) {
 			System.out.println("I truly believe tmp should be a TypeExpr, not " + tmp.getClass());
 			return null;
@@ -401,8 +403,10 @@ public class TypeChecker {
 					Type pt = sd;
 					UnionTypeDefn ud = types.get(sw.ctor);
 					if (pt == null) pt = ud;
-					if (sd == null && ud == null) {
-						errors.message(sw.location, "there is no definition for struct/union " + sw.ctor);
+					ContractDecl cd = contracts.get(sw.ctor);
+					if (pt == null) pt = cd;
+					if (pt == null) {
+						errors.message(sw.location, "there is no definition for type " + sw.ctor);
 						return null;
 					}
 	//				System.out.println(valueOf);
@@ -410,10 +414,12 @@ public class TypeChecker {
 					// we need a complex map of form var -> ctor -> field -> type
 					// and type needs to be cunningly constructed from TypeReference
 					List<Object> targs = new ArrayList<Object>();
-					for (Type x : pt.polys()) {
-						TypeVar tv = factory.next();
-						targs.add(tv);
-						polys.put(x.name(), tv);
+					if (pt.hasPolys()) {
+						for (Type x : pt.polys()) {
+							TypeVar tv = factory.next();
+							targs.add(tv);
+							polys.put(x.name(), tv);
+						}
 					}
 	//				System.out.println(polys);
 					if (sd != null) {
@@ -436,6 +442,9 @@ public class TypeChecker {
 							s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), ud, targs));
 							returns.add(checkBlock(sft, s, form, sw));
 //						}
+					} else if (cd != null) {
+						s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), cd));
+						returns.add(checkBlock(sft, s, form, sw));
 					} else
 						throw new UtilException("Added case");
 				}

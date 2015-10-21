@@ -5,7 +5,6 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -14,7 +13,7 @@ import org.flasck.flas.typechecker.Type;
 public class Builtin {
 
 	public static Scope builtinScope() {
-		Scope ret = new Scope((ScopeEntry)null);
+		Scope ret = new Scope(null, null);
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
 		Type varA = Type.polyvar(posn, "A");
 		Type varB = Type.polyvar(posn, "B");

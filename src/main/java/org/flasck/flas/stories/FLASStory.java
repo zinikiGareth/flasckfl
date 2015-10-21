@@ -200,7 +200,7 @@ public class FLASStory implements StoryProcessor {
 			} else if (o instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements)o;
 				ScopeEntry se = ret.define(State.simpleName(hi.hiName), hi.hiName, hi);
-				doImplementation(s, er, se, hi, b.nested, hi.hiName);
+				doImplementation(s, er, se, hi, b.nested, State.simpleName(hi.hiName));
 			} else
 				throw new UtilException("Need to handle " + o.getClass());
 		}
@@ -458,7 +458,7 @@ public class FLASStory implements StoryProcessor {
 			} else if (o instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements)o;
 				cd.addHandlerImplementation(hi);
-				doImplementation(s, er, se, hi, b.nested, hi.hiName);
+				doImplementation(s, er, se, hi, b.nested, State.simpleName(hi.hiName));
 			} else if (o instanceof FunctionCaseDefn) {
 				functions.add(new FCDWrapper(b.nested, (FunctionCaseDefn) o));
 			} else if (o instanceof FunctionIntro) {

@@ -59,11 +59,11 @@ public class HSIEBlock {
 		commands.remove(pos);
 	}
 
-	public HSIEBlock push(InputPosition loc, Object o) {
+	public PushCmd push(InputPosition loc, Object o) {
 		return pushAt(loc, commands.size(), o);
 	}
 
-	public HSIEBlock pushAt(InputPosition loc, int pos, Object o) {
+	public PushCmd pushAt(InputPosition loc, int pos, Object o) {
 		PushCmd ret;
 		if (o instanceof CreationOfVar)
 			ret = new PushCmd(loc, (CreationOfVar)o);

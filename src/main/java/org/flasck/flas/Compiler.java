@@ -308,7 +308,7 @@ public class Compiler {
 
 			// 8. D3 definitions may generate card functions; promote these onto the cards
 			for (D3Invoke d3 : rewriter.d3s)
-				promoteD3Methods(errors, mc, forms, d3);
+				promoteD3Methods(errors, rewriter, mc, forms, d3);
 			
 			// 9. Check whether functions are curried and add in the appropriate indications if so
 			handleCurrying(curry, tc, forms.values());
@@ -393,7 +393,7 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
-	private void promoteD3Methods(ErrorResult errors, MethodConvertor mc, Map<String, HSIEForm> forms, D3Invoke d3) {
+	private void promoteD3Methods(ErrorResult errors, Rewriter rewriter, MethodConvertor mc, Map<String, HSIEForm> forms, D3Invoke d3) {
 		Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>(new StringComparator()); 
 		Object init = d3.scope.fromRoot(d3.d3.dloc, "NilMap");
 		AbsoluteVar assoc = d3.scope.fromRoot(d3.d3.dloc, "Assoc");
@@ -420,7 +420,7 @@ public class Compiler {
 					MethodCaseDefn mcd = new MethodCaseDefn(fi);
 					mcd.messages.addAll(s.actions);
 					MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
-					MethodInContext mic = new MethodInContext(d3.scope, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method); // PROB NEEDS D3Action type
+					MethodInContext mic = new MethodInContext(rewriter, null, d3.scope, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method); // PROB NEEDS D3Action type
 					mc.convertContractMethods(forms, CollectionUtils.listOf(mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 //					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);

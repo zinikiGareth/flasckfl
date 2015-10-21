@@ -19,7 +19,7 @@ public class MethodCaseDefn implements MessagesHandler, ContainsScope, Serializa
 	}
 	
 	public MethodCaseDefn(ScopeEntry entry, MethodCaseDefn mcd) {
-		this.scope = new Scope(entry);
+		this.scope = new Scope(entry, this);
 		this.intro = mcd.intro;
 	}
 

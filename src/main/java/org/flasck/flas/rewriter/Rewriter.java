@@ -84,6 +84,7 @@ import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
 /** The objective of this class is to resolve all of the names of all of the
@@ -122,6 +123,12 @@ public class Rewriter {
 		}
 
 		public abstract Object resolve(InputPosition location, String name);
+
+		public boolean hasCard() {
+			if (nested != null)
+				return nested.hasCard();
+			return false;
+		}
 	}
 
 	/** The Root Context exists exactly one time to include the BuiltinScope and nothing else
@@ -237,6 +244,11 @@ public class Rewriter {
 			if (innerScope.contains(name))
 				return new CardFunction(location, prefix, name);
 			return nested.resolve(location, name);
+		}
+
+		@Override
+		public boolean hasCard() {
+			return true;
 		}
 	}
 
@@ -359,7 +371,7 @@ public class Rewriter {
 			else if (val instanceof FunctionDefinition)
 				functions.put(name, rewrite(cx, (FunctionDefinition)val));
 			else if (val instanceof MethodDefinition)
-				standalone.add(rewriteStandaloneMethod(cx, from, (MethodDefinition)val));
+				standalone.add(rewriteStandaloneMethod(cx, from, (MethodDefinition)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE));
 			else if (val instanceof EventHandlerDefinition)
 				eventHandlers.add(new EventHandlerInContext(from, name, rewrite(cx, (EventHandlerDefinition)val)));
 			else if (val instanceof StructDefn) {
@@ -404,7 +416,7 @@ public class Rewriter {
 
 			for (MethodDefinition m : ci.methods) {
 				MethodDefinition rwm = rewrite(c2, m, true);
-				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm));
+				methods.add(new MethodInContext(this, cx, cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm));
 				rw.methods.add(rwm);
 			}
 			
@@ -423,7 +435,7 @@ public class Rewriter {
 				sd.fields.add(new StructField(rw, rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
-				methods.add(new MethodInContext(cd.innerScope(), MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m, true)));
+				methods.add(new MethodInContext(this, cx, cd.innerScope(), MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m, true)));
 
 			pos++;
 		}
@@ -633,7 +645,7 @@ public class Rewriter {
 			structs.put(ret.hiName, hsd);
 			HandlerContext hc = new HandlerContext(cx, ret);
 			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(scope, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m, true)));
+				methods.add(new MethodInContext(this, cx, scope, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m, true)));
 			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
@@ -656,9 +668,9 @@ public class Rewriter {
 		return ret;
 	}
 
-	private MethodInContext rewriteStandaloneMethod(NamingContext cx, Scope from, MethodDefinition m) {
+	private MethodInContext rewriteStandaloneMethod(NamingContext cx, Scope from, MethodDefinition m, HSIEForm.CodeType codeType) {
 		MethodDefinition rw = rewrite(cx, m, false);
-		return new MethodInContext(from, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, HSIEForm.CodeType.CARD, rw);
+		return new MethodInContext(this, cx, from, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, codeType, rw);
 	}
 	
 	private MethodDefinition rewrite(NamingContext cx, MethodDefinition m, boolean fromHandler) {
@@ -740,7 +752,7 @@ public class Rewriter {
 		return new FunctionIntro(intro.location, intro.name, args);
 	}
 
-	private Object rewritePattern(NamingContext cx, Object o) {
+	public Object rewritePattern(NamingContext cx, Object o) {
 		try {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;

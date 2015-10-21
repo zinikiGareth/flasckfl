@@ -1,5 +1,8 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.ExternalRef;
@@ -18,6 +21,7 @@ public abstract class PushReturn extends HSIEBlock {
 	public final TemplateListVar tlv;
 	public final FunctionLiteral func;
 	public final CardStateRef csr;
+	public List<Object> inheritArgs = new ArrayList<Object>();
 
 	public PushReturn(InputPosition loc, CreationOfVar var) {
 		this.location = loc;

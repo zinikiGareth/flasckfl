@@ -26,7 +26,7 @@ public class CardDefinition implements ContainsScope, Locatable, Serializable {
 		this.location = location;
 		ScopeEntry se = outer.define(State.simpleName(name), name, this);
 		this.name = name;
-		this.fnScope = new Scope(se);
+		this.fnScope = new Scope(se, this);
 	}
 
 	@Override

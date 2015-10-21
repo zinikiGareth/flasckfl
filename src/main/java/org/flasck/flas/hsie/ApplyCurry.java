@@ -66,7 +66,9 @@ public class ApplyCurry {
 					continue;
 				}
 				Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
-				if (t.arity() > c.nestedCommands().size()-1) {
+				if (t.iam != Type.WhatAmI.FUNCTION)
+					;
+				else if (t.arity() > c.nestedCommands().size()-1 + pc.inheritArgs.size()) {
 					c.pushAt(pc.location, 0, new AbsoluteVar(null, "FLEval.curry", null));
 					c.pushAt(pc.location, 2, t.arity());
 				} else if (t.arity() < c.nestedCommands().size()-1)
