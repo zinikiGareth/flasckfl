@@ -276,7 +276,7 @@ public class FLASStory implements StoryProcessor {
 			groups.add(cfn, w);
 		}
 		for (Entry<String, List<FCDWrapper>> x : groups.entrySet()) {
-			FunctionDefinition fd = new FunctionDefinition(null, s.kind, x.getValue().get(0).starter.intro, new ArrayList<FunctionCaseDefn>());
+			FunctionDefinition fd = new FunctionDefinition(x.getValue().get(0).starter.intro.location, s.kind, x.getValue().get(0).starter.intro, new ArrayList<FunctionCaseDefn>());
 			ScopeEntry me = ret.define(State.simpleName(x.getKey()), x.getKey(), fd);
 			int cs = 0;
 			for (FCDWrapper q : x.getValue()) {

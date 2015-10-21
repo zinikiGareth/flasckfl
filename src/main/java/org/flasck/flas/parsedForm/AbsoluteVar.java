@@ -12,14 +12,9 @@ public class AbsoluteVar implements Serializable, ExternalRef {
 	public final String id;
 	public final Object defn;
 
-	@Deprecated
-	public AbsoluteVar(InputPosition location, String id) {
-		this.location = location;
-		this.id = id;
-		this.defn = null; // not a good idea
-	}
-
 	public AbsoluteVar(InputPosition location, String id, Object defn) {
+		if (defn != null && location == null)
+			System.out.println("null location");
 		this.location = location;
 		this.id = id;
 		this.defn = defn;
@@ -34,6 +29,8 @@ public class AbsoluteVar implements Serializable, ExternalRef {
 	}
 	
 	public AbsoluteVar(ScopeEntry entry) {
+		if (entry.location() == null)
+			System.out.println("null location");
 		this.location = entry.location();
 		this.id = entry.getKey();
 		this.defn = entry.getValue();

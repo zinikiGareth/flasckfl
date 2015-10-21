@@ -21,6 +21,8 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 
 		public ScopeEntry(String name, Object defn) {
 			location = (defn == null)?null:((Locatable)defn).location();
+			if (defn != null && this.location == null)
+				System.out.println("null location");
 			this.name = name;
 			this.defn = defn;
 		}

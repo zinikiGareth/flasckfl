@@ -42,7 +42,6 @@ public class MethodInContext {
 			Object ctr = s.container;
 			if (ctr instanceof FunctionCaseDefn) { // Surely this should be a function case defn?
 				FunctionCaseDefn fn = (FunctionCaseDefn)ctr;
-				System.out.println("Add in " + fn.intro.args + " local vars");
 				for (Object o : fn.intro.args) {
 					enclosingPatterns.add(rw.rewritePattern(cx, o));
 				}
