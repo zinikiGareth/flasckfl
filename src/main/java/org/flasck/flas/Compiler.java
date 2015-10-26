@@ -87,7 +87,8 @@ public class Compiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	
 	public static void main(String[] args) {
-		LogManager.getLogger("TypeChecker").setLevel(Level.INFO);
+		LogManager.getLogger("Compiler").setLevel(Level.WARN);
+		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
 		try {
 			for (int i=0;i<args.length;i++) {
@@ -303,7 +304,7 @@ public class Compiler {
 			// 6. Typecheck contract methods and event handlers, convert to functions and compile to HSIE
 			mc.convertContractMethods(forms, rewriter.methods);
 			mc.convertEventHandlers(forms, rewriter.eventHandlers);
-			mc.convertStandaloneMethods(forms, rewriter.standalone);
+			mc.convertStandaloneMethods(forms, rewriter.standalone.values());
 			abortIfErrors(errors);
 			
 			// 7. Generate code from templates

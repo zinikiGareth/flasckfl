@@ -41,9 +41,11 @@ public class TypeVariableMappings {
 	private final Map<TypeVar, Object> phi = new HashMap<TypeVar, Object>();
 	private final ErrorResult errors;
 	private final List<TypeUnion> needTypeResolution = new ArrayList<TypeUnion>();
+	private final TypeChecker tc;
 	
-	public TypeVariableMappings(ErrorResult errors) {
+	public TypeVariableMappings(ErrorResult errors, TypeChecker tc) {
 		this.errors = errors;
+		this.tc = tc;
 	}
 	
 	/** Define the meaning of a variable
@@ -145,7 +147,7 @@ public class TypeVariableMappings {
 			else if (te2.type.name().equals("Any"))
 				return te2;
 			if (!isCtorBased(te1) || !isCtorBased(te2)) {
-				UnificationError ue = new UnificationError(te1, te2);
+				UnificationError ue = new UnificationError(tc, te1, te2);
 				errors.message(ue);
 				return null;
 			}
@@ -226,7 +228,7 @@ public class TypeVariableMappings {
 
 	// See PH p173
 	public TypeVariableMappings exclude(List<TypeVar> varsToExclude) {
-		TypeVariableMappings ret = new TypeVariableMappings(errors);
+		TypeVariableMappings ret = new TypeVariableMappings(errors, tc);
 		for (Entry<TypeVar, Object> x : phi.entrySet()){
 			if (!varsToExclude.contains(x.getKey()))
 				ret.bind(x.getKey(), x.getValue());

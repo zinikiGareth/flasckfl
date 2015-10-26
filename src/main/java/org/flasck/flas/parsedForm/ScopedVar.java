@@ -65,6 +65,6 @@ public class ScopedVar implements Serializable, ExternalRef {
 
 	@Override
 	public String toString() {
-		return id;
+		return "Scoped[" + id + "]";
 	}
 }

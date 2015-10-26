@@ -109,7 +109,7 @@ public class HSIEForm extends HSIEBlock {
 	public void dump(Logger logTo) {
 		if (logTo == null)
 			logTo = logger;
-		logTo.debug("Defining " + fnName);
+		logTo.debug("HSIE for " + fnName);
 		logTo.debug("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
 		logTo.debug("    externals: " + externals + " scoped = " + scoped);
 		logTo.debug("    all vars = " + vars);

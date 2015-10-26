@@ -148,6 +148,8 @@ public class MetaState {
 					continue;
 				else if (sv.defn instanceof FunctionDefinition) {
 					gatherScopedVars(avars, rewriter.functions.get(sv.id));
+				} else if (sv.defn instanceof MethodDefinition) {
+					gatherScopedVars(avars, rewriter.standalone.get(sv.id).method);
 				} else if (sv.defn instanceof HandlerImplements) {
 					gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
 				} else
@@ -162,16 +164,19 @@ public class MetaState {
 		for (ScopedVar sv : set) {
 			if (sv.defn instanceof LocalVar)
 				continue;
+//			if (!sv.definedLocally)
+//				continue;
 			Var cv = form.allocateVar();
 			ClosureCmd closure = form.closure(cv);
-			closure.justScoping = true;
 			TreeSet<ScopedVar> avars = new TreeSet<ScopedVar>();
 			if (sv.defn instanceof MethodDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
-				gatherScopedVars(avars, (MethodDefinition)sv.defn);
+				gatherScopedVars(avars, rewriter.standalone.get(sv.id).method);
+				closure.justScoping = true;
 			} else if (sv.defn instanceof FunctionDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
 				gatherScopedVars(avars, rewriter.functions.get(sv.id));
+				closure.justScoping = true;
 			} else if (sv.defn instanceof HandlerImplements) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
 				gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
@@ -186,6 +191,8 @@ public class MetaState {
 		}
 		for (TrailItem ti : tis) {
 			for (ScopedVar av : ti.avars) {
+//				if (!av.definedLocally)
+//					continue;
 				CreationOfVar cov = substs.get(av.id);
 				if (cov == null)
 					throw new UtilException("Yet another unknown case");
@@ -274,7 +281,12 @@ public class MetaState {
 			ApplyExpr e2 = (ApplyExpr) expr;
 			List<Object> ops = new ArrayList<Object>();
 			List<InputPosition> elocs = new ArrayList<InputPosition>();
-			ops.add(convertValue(elocs, substs, e2.fn));
+			Object val = convertValue(elocs, substs, e2.fn);
+			if (val instanceof CreationOfVar && e2.args.isEmpty()) {
+				locs.add(e2.location);
+				return val;
+			}
+			ops.add(val);
 			for (Object o : e2.args)
 				ops.add(convertValue(elocs, substs, o));
 			// TODO: check this doesn't already exist
@@ -328,6 +340,11 @@ public class MetaState {
 	}
 
 	private static void gatherScopedVars(TreeSet<ScopedVar> set, HandlerImplements hi) {
+		for (Object o : hi.boundVars) {
+			HandlerLambda hl = (HandlerLambda)o;
+			if (hl.scopedFrom != null)
+				set.add(hl.scopedFrom);
+		}
 		for (MethodDefinition m : hi.methods) {
 			gatherScopedVars(set, m);
 		}

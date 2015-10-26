@@ -36,7 +36,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanTypecheckANumber() {
 		TypeChecker tc = new TypeChecker(errors);
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.simpleFn();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
 		assertFalse(errors.hasErrors());
@@ -50,7 +50,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanTypecheckAVerySimpleLambda() {
 		TypeChecker tc = new TypeChecker(errors);
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, tc);
 		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
 		Object te = tc.checkHSIE(s, HSIETestData.simpleFn());
 		assertFalse(errors.hasErrors());
@@ -67,7 +67,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanTypecheckID() {
 		TypeChecker tc = new TypeChecker(errors);
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, tc);
 		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
 		Object te = tc.checkHSIE(s, HSIETestData.idFn());
 		assertFalse(errors.hasErrors());
@@ -87,7 +87,7 @@ public class TestBasicTypeChecking {
 	public void testExternalPlus1HasExpectedType() {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("plus1", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number")));
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.returnPlus1();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
 		assertFalse(errors.hasErrors());
@@ -108,7 +108,7 @@ public class TestBasicTypeChecking {
 	public void testWeCanTypecheckSimpleFunctionApplication() {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("plus1", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number")));
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.plus1Of1();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
 		assertFalse(errors.hasErrors());
@@ -124,7 +124,7 @@ public class TestBasicTypeChecking {
 	public void testWeCanTypecheckAFunctionApplicationWithTwoArguments() {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("plus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.plus2And2();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
 		assertFalse(errors.hasErrors());
@@ -141,7 +141,7 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("id", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A")));
 		tc.addExternal("decode", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Char")));
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.idDecode();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
 		assertFalse(errors.hasErrors());
@@ -185,7 +185,7 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker(errors);
 		Type number = Type.builtin(null, "Number");
 		tc.addExternal("Number", number);
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, tc);
 		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
 		Object te = tc.checkHSIE(s, HSIETestData.numberIdFn());
 		System.out.println(te);

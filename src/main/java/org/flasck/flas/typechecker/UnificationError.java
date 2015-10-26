@@ -5,8 +5,8 @@ import org.flasck.flas.errors.FLASError;
 
 public class UnificationError extends FLASError {
 
-	public UnificationError(TypeExpr te1, TypeExpr te2) {
-		super(bestLocation(te1.from, te2.from), reportMessage(te1, te2, false));
+	public UnificationError(TypeChecker tc, TypeExpr te1, TypeExpr te2) {
+		super(bestLocation(te1.from, te2.from), reportMessage(tc, te1, te2, false));
 		TypeChecker.logger.warn(this.toString());
 	}
 
@@ -18,9 +18,9 @@ public class UnificationError extends FLASError {
 		return null;
 	}
 
-	private static String reportMessage(TypeExpr te1, TypeExpr te2, boolean switchedAlready) {
+	private static String reportMessage(TypeChecker tc, TypeExpr te1, TypeExpr te2, boolean switchedAlready) {
 		if (!switchedAlready && ((te1.from == null && te2.from != null) || (te1.from.posn != null && (te2.from != null || te2.from.posn == null))))
-			return reportMessage(te2, te1, true);
+			return reportMessage(tc, te2, te1, true);
 		
 		if (te1.from == null || te2.from == null)
 			return "unification failed: " + te1 + " <> " + te2;
@@ -38,7 +38,7 @@ public class UnificationError extends FLASError {
 		}
 		
 		if (!te1.type.name().equals(te2.type.name()))
-			return "inconsistent types: " + te2.type.name() + " and " + te1.type.name();
+			return "inconsistent types: " + te2.asType(tc) + " and " + te1.asType(tc);
 
 		return "unification failed with previously unreported case " + te1 + " <> " + te2;
 	}

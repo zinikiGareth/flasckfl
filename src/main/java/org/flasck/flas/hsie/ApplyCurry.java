@@ -74,9 +74,8 @@ public class ApplyCurry {
 				else if (t.arity() > c.nestedCommands().size()-1 + pc.inheritArgs.size()) {
 					c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
 					c.pushAt(pc.location, 2, t.arity());
-				} else if (t.arity() < c.nestedCommands().size()-1) {
-					System.out.println("Fix this, y'know");
-//					throw new UtilException("Have too many arguments for the function " + pc.fn + " - error or need to replace f x y with (f x) y?");
+				} else if (t.arity() < c.nestedCommands().size()-1 && !((ClosureCmd)c).justScoping) {
+					throw new UtilException("Have too many arguments for the function " + pc.fn + " - error or need to replace f x y with (f x) y?");
 				}
 			} else if (pc.var != null) { // the closure case, q.v.
 			} else if (pc.func != null) {

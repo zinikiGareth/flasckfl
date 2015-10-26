@@ -1,6 +1,7 @@
 package org.flasck.flas.method;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -71,7 +72,7 @@ public class MethodConvertor {
 			addFunction(functions, convertEventHandler(x.scope, x.name, x.handler));
 	}
 
-	public void convertStandaloneMethods(Map<String, HSIEForm> functions, List<MethodInContext> methods) {
+	public void convertStandaloneMethods(Map<String, HSIEForm> functions, Collection<MethodInContext> methods) {
 		for (MethodInContext x : methods)
 			addFunction(functions, convertStandalone(x));
 	}

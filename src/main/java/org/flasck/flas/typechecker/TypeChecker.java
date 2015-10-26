@@ -98,7 +98,7 @@ public class TypeChecker {
 		}
 		for (Entry<String, HandlerImplements> x : rewriter.callbackHandlers.entrySet())
 			handlers.put(x.getKey(), x.getValue());
-		for (MethodInContext m : rewriter.standalone) {
+		for (MethodInContext m : rewriter.standalone.values()) {
 			List<Type> args = new ArrayList<Type>();
 			// find the arg types, as claimed
 			for (Object x : m.method.intro.args) {
@@ -140,7 +140,7 @@ public class TypeChecker {
 	}
 	
 	public Type checkExpr(HSIEForm expr, List<Type> args, List<InputPosition> locs) {
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, this);
 		expr.dump(logger);
 		Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>();
 		forms.put(expr.fnName, expr);
@@ -170,7 +170,7 @@ public class TypeChecker {
 	public void typecheck(Orchard<HSIEForm> functionsToCheck) {
 		int mark = errors.count();
 //		System.out.println("---- Starting to typecheck");
-		TypeState s = new TypeState(errors);
+		TypeState s = new TypeState(errors, this);
 		Map<String, HSIEForm> rewritten = rewriteForms(s, functionsToCheck);
 //		System.out.println("Allocated new type vars; checking forms");
 		Map<String, Object> actualTypes = checkAndUnify(s, rewritten);
@@ -508,7 +508,7 @@ public class TypeChecker {
 					// phi is not updated
 					// assume it must be a bound var; we will fail to get the existing type scheme if not
 					TypeScheme old = s.gamma.valueOf(r.var);
-					TypeVariableMappings temp = new TypeVariableMappings(errors);
+					TypeVariableMappings temp = new TypeVariableMappings(errors, this);
 					for (TypeVar tv : old.schematicVars) {
 						temp.bind(tv, factory.next());
 //						System.out.println("Allocating tv " + temp.meaning(tv) + " for " + tv + " when instantiating typescheme");
@@ -517,7 +517,6 @@ public class TypeChecker {
 					logger.debug(r.var + " is a pre-defined var of type " + old.typeExpr + " becoming " + ret);
 					return ret;
 				} else {
-					logger.debug("Checking closure " + r.var);
 					// c is a closure, which must be a function application
 					return checkClosure(s, form, c);
 				}
@@ -593,7 +592,7 @@ public class TypeChecker {
 						return new TypeExpr(myloc, cards.get(name).struct);
 					}
 					if (handlers.containsKey(name)) {
-						logger.debug(r.fn + " is card " + name);
+						logger.debug(r.fn + " is handler " + name);
 						return typeForHandlerCtor(r.fn.location(), handlers.get(name)).asExpr(myloc, this, factory);
 					}
 					if (structs.containsKey(name)) {
@@ -629,9 +628,12 @@ public class TypeChecker {
 	private Object checkClosure(TypeState s, HSIEForm form, ClosureCmd c) {
 		if (c == null)
 			throw new UtilException("Error on recovering block to check");
-		if (c.justScoping)
-			return checkExpr(s, form, c.nestedCommands().get(0));
+		logger.debug("Checking closure " + c.var);
 		c.dumpOne(logger, 0);
+		if (c.justScoping) {
+			logger.debug("Just checking first expr to handle scoping case");
+			return checkExpr(s, form, c.nestedCommands().get(0));
+		}
 		List<Object> args = new ArrayList<Object>();
 		List<InputPosition> locs = new ArrayList<InputPosition>();
 		Object fnCall = null;
@@ -769,8 +771,11 @@ public class TypeChecker {
 
 	private Type typeForHandlerCtor(InputPosition location, HandlerImplements impl) {
 		List<Type> args = new ArrayList<Type>();
-		for (Object x : impl.boundVars)
-			args.add(((HandlerLambda)x).type);
+		for (Object x : impl.boundVars) {
+			HandlerLambda hl = (HandlerLambda)x;
+			if (hl.scopedFrom == null)
+				args.add(hl.type);
+		}
 		args.add(impl);
 		return Type.function(location, args);
 	}

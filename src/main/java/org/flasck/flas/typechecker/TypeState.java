@@ -10,9 +10,9 @@ public class TypeState {
 	final TypeVariableMappings phi;
 	final Map<String, Object> localKnowledge;
 
-	public TypeState(ErrorResult errors) {
+	public TypeState(ErrorResult errors, TypeChecker tc) {
 		gamma = new TypeEnvironment();
-		phi = new TypeVariableMappings(errors);
+		phi = new TypeVariableMappings(errors, tc);
 		localKnowledge = new HashMap<String, Object>();
 	}
 

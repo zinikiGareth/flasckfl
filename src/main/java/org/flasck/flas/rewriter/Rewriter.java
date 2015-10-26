@@ -114,7 +114,7 @@ public class Rewriter {
 	public final Map<String, HandlerImplements> callbackHandlers = new TreeMap<String, HandlerImplements>();
 	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
 	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
-	public final List<MethodInContext> standalone = new ArrayList<MethodInContext>();
+	public final Map<String, MethodInContext> standalone = new TreeMap<String, MethodInContext>();
 	public final Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>();
 
 	public abstract class NamingContext {
@@ -274,6 +274,7 @@ public class Rewriter {
 				InputPosition loc = ((ScopedVar) ret).location();
 				Type type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
 				HandlerLambda hl = new HandlerLambda(loc, hi.hiName, type, name);
+				hl.scopedFrom = (ScopedVar) ret;
 				hi.boundVars.add(hl);
 				return hl;
 			}
@@ -400,9 +401,10 @@ public class Rewriter {
 				rewriteCard(cx, (CardDefinition)val);
 			else if (val instanceof FunctionDefinition)
 				functions.put(name, rewrite(cx, (FunctionDefinition)val));
-			else if (val instanceof MethodDefinition)
-				standalone.add(rewriteStandaloneMethod(cx, from, (MethodDefinition)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE));
-			else if (val instanceof EventHandlerDefinition)
+			else if (val instanceof MethodDefinition) {
+				MethodInContext mic = rewriteStandaloneMethod(cx, from, (MethodDefinition)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE);
+				standalone.put(mic.name, mic);
+			} else if (val instanceof EventHandlerDefinition)
 				eventHandlers.add(new EventHandlerInContext(from, name, rewrite(cx, (EventHandlerDefinition)val)));
 			else if (val instanceof StructDefn) {
 				structs.put(name, rewrite(cx, (StructDefn)val));
