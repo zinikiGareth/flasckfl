@@ -455,9 +455,9 @@ public class TestBasicTypeChecking {
 		rewriter.rewrite(pkg.myEntry());
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIE hsie = new HSIE(errors, rewriter, biscope);
-		tc.typecheck(orchardOf(hsie.handle(rewriter.functions.get("ME.f"))));
+		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.f"))));
 		assertEquals(errors.singleString(), 0, errors.count());
-		tc.typecheck(orchardOf(hsie.handle(rewriter.functions.get("ME.g"))));
+		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.g"))));
 //		assertEquals(errors.singleString(), 0, errors.count());
 		tc.typecheck(orchard);
 		assertEquals(errors.singleString(), 0, errors.count());

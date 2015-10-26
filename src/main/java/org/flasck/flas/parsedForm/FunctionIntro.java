@@ -68,8 +68,8 @@ public class FunctionIntro implements Serializable {
 				Type t = null;
 				if (cx != null) {
 					Object sd = cx.resolve(cm.location, cm.ctor);
-					if (sd instanceof AbsoluteVar && ((AbsoluteVar)sd).defn instanceof StructDefn) {
-						StructDefn sdf = (StructDefn) ((AbsoluteVar)sd).defn;
+					if (sd instanceof PackageVar && ((PackageVar)sd).defn instanceof StructDefn) {
+						StructDefn sdf = (StructDefn) ((PackageVar)sd).defn;
 						StructField sf = sdf.findField(x.field);
 						if (sf != null) {
 							t = sf.type;

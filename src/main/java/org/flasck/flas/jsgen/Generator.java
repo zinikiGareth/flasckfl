@@ -3,6 +3,7 @@ package org.flasck.flas.jsgen;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
@@ -39,7 +40,7 @@ public class Generator {
 	}
 	
 	public void generate(HSIEForm input) {
-//		input.dump(LoggerFactory.getLogger("Generator"));
+		input.dump(LoggerFactory.getLogger("Generator"));
 		String jsname = input.fnName;
 		if (input.isMethod()) {
 			int idx = jsname.lastIndexOf(".");
@@ -52,7 +53,7 @@ public class Generator {
 			}
 			if (idx != -1) jsname = jsname.substring(0, idx+1) + "_" + jsname.substring(idx+1);
 		}
-		JSForm ret = JSForm.function(jsname, input.vars, input.alreadyUsed, input.nformal);
+		JSForm ret = JSForm.function(jsname, input.vars, input.scoped, input.nformal);
 		generateBlock(input.fnName, input, ret, input);
 		target.add(ret);
 	}
@@ -62,7 +63,7 @@ public class Generator {
 			return;
 		int idx = sd.name().lastIndexOf(".");
 		String uname = sd.name().substring(0, idx+1) + "_" + sd.name().substring(idx+1);
-		JSForm ret = JSForm.function(uname, CollectionUtils.listOf(new Var(0)), 0, 1);
+		JSForm ret = JSForm.function(uname, CollectionUtils.listOf(new Var(0)), new TreeSet<Object>(), 1);
 		ret.add(new JSForm("this._ctor = '" + sd.name() + "'"));
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
@@ -93,7 +94,7 @@ public class Generator {
 			vars.add(v);
 			fields.add(sf.name+": "+ v);
 		}
-		JSForm ctor = JSForm.function(sd.name(), vars, 0, vars.size());
+		JSForm ctor = JSForm.function(sd.name(), vars, new TreeSet<Object>(), vars.size());
 		ctor.add(new JSForm("return new " + uname + "({" + String.join(", ", fields) + "})"));
 		target.add(ctor);
 	}
@@ -107,7 +108,7 @@ public class Generator {
 
 	public void generate(String name, CardGrouping card) {
 		String lname = lname(name, false);
-		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), 0, 1);
+		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), new TreeSet<Object>(), 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
@@ -135,35 +136,35 @@ public class Generator {
 				cf.add(new JSForm("this." + ci.referAsVar + " = this._contracts['" + ci.type + "']"));
 		}
 		target.add(cf);
-		JSForm ci = JSForm.function(name, CollectionUtils.listOf(new Var(0)), 0, 1);
+		JSForm ci = JSForm.function(name, CollectionUtils.listOf(new Var(0)), new TreeSet<Object>(), 1);
 		ci.add(new JSForm("return new " + lname + "(v0)"));
 		target.add(ci);
 	}
 
 	public void generateContract(String ctorName, ContractImplements ci) {
 		String clzname = ctorName.replace("._C", ".__C");
-		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), 0, 1);
+		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<Object>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'contract'"));
 		clz.add(new JSForm("this._contract = '" + ci.name() + "'"));
 		target.add(clz);
 
-		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), 0, 0);
+		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), new TreeSet<Object>(), 0);
 		ctor.add(new JSForm("return new " + clzname + "(this)"));
 		target.add(ctor);
 	}
 
 	public void generateService(String ctorName, ContractService cs) {
 		String clzname = ctorName.replace("._S", ".__S");
-		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), 0, 1);
+		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<Object>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'service'"));
 		clz.add(new JSForm("this._contract = '" + cs.name() + "'"));
 		target.add(clz);
 
-		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), 0, 0);
+		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), new TreeSet<Object>(), 0);
 		ctor.add(new JSForm("return new " + clzname + "(this)"));
 		target.add(ctor);
 	}
@@ -174,21 +175,30 @@ public class Generator {
 		List<Var> vars = new ArrayList<Var>();
 		for (int i=0;i<=hi.boundVars.size();i++)
 			vars.add(new Var(i));
-		JSForm clz = JSForm.function(clzname, vars, 0, hi.boundVars.size() + 1);
+		
+		int v = hi.inCard?1:0;
+		JSForm clz = JSForm.function(clzname, vars, new TreeSet<Object>(), hi.boundVars.size() + v);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
-		clz.add(new JSForm("this._card = v0"));
+		if (hi.inCard)
+			clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'handler'"));
 		clz.add(new JSForm("this._contract = '" + hi.name() + "'"));
-		int v = 1;
 		for (Object s : hi.boundVars) 
 			clz.add(new JSForm("this." + ((HandlerLambda)s).var + " = v" + v++));
 		target.add(clz);
 
-		JSForm ctor = JSForm.function(ctorName, vars, 0, hi.boundVars.size());
-		StringBuffer sb = new StringBuffer("this");
+		JSForm ctor = JSForm.function(ctorName, vars, new TreeSet<Object>(), hi.boundVars.size());
+		StringBuffer sb = new StringBuffer();
+		String sep = "";
+		if (hi.inCard) {
+			sb.append("this");
+			sep = ", ";
+		}
 		vars.remove(vars.size()-1);
-		for (Var vi : vars)
-			sb.append(", " + vi);
+		for (Var vi : vars) {
+			sb.append(sep + vi);
+			sep = ", ";
+		}
 		ctor.add(new JSForm("return new " + clzname + "(" + sb +")"));
 		target.add(ctor);
 	}

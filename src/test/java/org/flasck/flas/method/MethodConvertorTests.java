@@ -118,7 +118,7 @@ public class MethodConvertorTests {
 				cd.services.add(se);
 			}
 			{
-				he = new HandlerImplements(null, "org.foo.MyHandler", "org.foo.Handler1", CollectionUtils.listOf((Object)new TypedPattern(null, Type.reference(null, "Thing"), null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
+				he = new HandlerImplements(null, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(null, Type.reference(null, "Thing"), null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
 				cd.handlers.add(he);
 			}
 		}

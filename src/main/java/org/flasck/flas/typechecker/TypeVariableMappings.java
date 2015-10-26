@@ -101,7 +101,7 @@ public class TypeVariableMappings {
 	 * @return a single type variable or expression which is "valid" for both of the input types
 	 */
 	public Object unify(Object t1, Object t2) {
-		logger.info("unifying " + t1 + " and " +t2);
+		logger.debug("unifying " + t1 + " and " +t2);
 		if (t1 == null || t2 == null)
 			return null;
 		else if (t1 instanceof TypeVar && t2 instanceof TypeVar) {
@@ -200,14 +200,14 @@ public class TypeVariableMappings {
 
 	private Object extend(TypeVar tv, Object te) {
 		if (te instanceof TypeVar && tv.equals(te)) {
-			logger.info(tv + " and " + te + " are identical");
+			logger.debug(tv + " and " + te + " are identical");
 			return te; // we known that tv == tv
 		} else if (te instanceof TypeExpr && ((TypeExpr)te).containsVar(tv)) {
-			logger.info(te + " contains " + tv + " and is an error case");
+			logger.debug(te + " contains " + tv + " and is an error case");
 			errors.message((Block)null, "This is a circularity");
 			return null;
 		} else {
-			logger.info("defining " + tv + " to be " + te);
+			logger.debug("defining " + tv + " to be " + te);
 			bind(tv, te);
 			return te;
 		}

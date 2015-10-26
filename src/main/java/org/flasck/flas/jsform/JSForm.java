@@ -5,12 +5,20 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.PackageVar;
+import org.flasck.flas.parsedForm.ScopedVar;
+import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
@@ -156,10 +164,13 @@ public class JSForm {
 		return ret;
 	}
 
-	public static JSForm function(String fnName, List<Var> hsvs, int alreadyUsed, int nformal) {
+	public static JSForm function(String fnName, List<Var> hsvs, Set<Object> scoped, int nformal) {
 		List<String> vars = new ArrayList<String>();
+		int j=0;
+		for (Object s : scoped)
+			vars.add("s"+(j++));
 		for (int i=0;i<nformal;i++)
-			vars.add(hsvs.get(alreadyUsed + i).toString());
+			vars.add(hsvs.get(i).toString());
 		return new JSForm(fnName + " = function(" + String.join(", ", vars) + ")").strict();
 	}
 
@@ -212,15 +223,15 @@ public class JSForm {
 		ReturnCmd r = (ReturnCmd) form.nestedCommands().get(0);
 		if (r.fn != null) {
 			StringBuilder sb = new StringBuilder(assgn + " = ");
-			appendValue(sb, form.mytype, r, 0);
+			appendValue(form, sb, r, 0);
 			into.add(new JSForm(sb.toString()));
 		} else if (r.var != null) {
 			if (r.deps != null) {
 				for (CreationOfVar v : r.deps) {
-					into.add(new JSForm("var v" + v.var.idx + " = " + closure(form.mytype, form.getClosure(v.var))));
+					into.add(new JSForm("var v" + v.var.idx + " = " + closure(form, form.getClosure(v.var))));
 				}
 			}
-			into.add(new JSForm(assgn + " = " + closure(form.mytype, form.getClosure(r.var.var))));
+			into.add(new JSForm(assgn + " = " + closure(form, form.getClosure(r.var.var))));
 		}
 		else if (r.ival != null)
 			into.add(new JSForm(assgn + " = " + r.ival));
@@ -243,22 +254,22 @@ public class JSForm {
 				ret.add(new JSForm("return " + r.var.var));
 			} else if (r.deps != null) {
 				for (CreationOfVar v : r.deps) {
-					ret.add(new JSForm("var v" + v.var.idx + " = " + closure(form.mytype, form.getClosure(v.var))));
+					ret.add(new JSForm("var v" + v.var.idx + " = " + closure(form, form.getClosure(v.var))));
 				}
-				ret.add(new JSForm("return " + closure(form.mytype, form.getClosure(r.var.var))));
+				ret.add(new JSForm("return " + closure(form, form.getClosure(r.var.var))));
 			}
 		} else {
-			appendValue(sb, form.mytype, r, 0);
+			appendValue(form, sb, r, 0);
 			ret.add(new JSForm(sb.toString()));
 		}
 		return ret;
 	}
 
-	private static String closure(CodeType fntype, HSIEBlock closure) {
+	private static String closure(HSIEForm form, HSIEBlock closure) {
 		StringBuilder sb;
 		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
 		boolean needsObject = false;
-		boolean fromHandler = fntype == CodeType.AREA;
+		boolean fromHandler = form.mytype == CodeType.AREA;
 		if (fn != null) {
 			if (fn instanceof ObjectReference || fn instanceof CardFunction) {
 				needsObject = true;
@@ -287,20 +298,30 @@ public class JSForm {
 			if (c.fn != null && isField && pos == 2)
 				sb.append("'" + c.fn + "'");
 			else
-				appendValue(sb, fntype, c, pos);
+				appendValue(form, sb, c, pos);
 			pos++;
 		}
 		sb.append(")");
 		return sb.toString();
 	}
 
-	private static void appendValue(StringBuilder sb, CodeType fntype, PushReturn c, int pos) {
+	private static void appendValue(HSIEForm form, StringBuilder sb, PushReturn c, int pos) {
 		if (c.fn != null) {
-			if (c.fn instanceof AbsoluteVar) {
+			if (c.fn instanceof PackageVar) {
 				sb.append(c.fn.uniqueName());
-				for (Object o : c.inheritArgs) {
-					sb.append(", " + o);
+			} else if (c.fn instanceof ScopedVar) {
+				int j = 0;
+				ScopedVar sv = (ScopedVar) c.fn;
+				if (sv.definedLocally) {
+					return;
 				}
+				for (Object s : form.scoped)
+					if (s.equals(c.fn.uniqueName())) {
+						sb.append("s" + j);
+						return;
+					} else
+						j++;
+				throw new UtilException("ScopedVar not in scope: " + c.fn);
 			} else if (c.fn instanceof ObjectReference) {
 				sb.append(c.fn.uniqueName());
 			} else if (c.fn instanceof CardFunction) {
@@ -309,18 +330,18 @@ public class JSForm {
 				jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
 				sb.append(jsname);
 			} else if (c.fn instanceof CardMember) {
-				if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
+				if (form.mytype == CodeType.CARD || form.mytype == CodeType.EVENTHANDLER)
 					sb.append("this." + ((CardMember)c.fn).var);
-				else if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT || fntype == CodeType.AREA)
+				else if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.AREA)
 					sb.append("this._card." + ((CardMember)c.fn).var);
 				else
-					throw new UtilException("Can't handle " + fntype + " for card member");
+					throw new UtilException("Can't handle " + form.mytype + " for card member");
 			}
 			else if (c.fn instanceof HandlerLambda) {
-				if (fntype == CodeType.HANDLER)
+				if (form.mytype == CodeType.HANDLER)
 					sb.append("this." + ((HandlerLambda)c.fn).var);
 				else
-					throw new UtilException("Can't handle " + fntype + " with handler lambda");
+					throw new UtilException("Can't handle " + form.mytype + " with handler lambda");
 			} else
 				throw new UtilException("Can't handle " + c.fn + " of type " + c.fn.getClass());
 //					sb.append(mapName(c.fn.uniqueName()));

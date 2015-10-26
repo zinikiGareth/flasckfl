@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.typechecker.Type;
@@ -21,12 +21,12 @@ import org.zinutils.exceptions.UtilException;
 
 public class HSIETestData {
 
-	static Map<String, AbsoluteVar> ctorTypes = new HashMap<>();
+	static Map<String, PackageVar> ctorTypes = new HashMap<>();
 	static {
-		ctorTypes.put("Number", new AbsoluteVar(null, "Number", org.flasck.flas.typechecker.Type.builtin(null, "Number")));
-		AbsoluteVar nil = new AbsoluteVar(null, "Nil", new StructDefn(null, "Nil", false));
-		AbsoluteVar cons = new AbsoluteVar(null, "Cons", new StructDefn(null, "Cons", false));
-		AbsoluteVar list = new AbsoluteVar(null, "List", new UnionTypeDefn(null, false, "List"));
+		ctorTypes.put("Number", new PackageVar(null, "Number", org.flasck.flas.typechecker.Type.builtin(null, "Number")));
+		PackageVar nil = new PackageVar(null, "Nil", new StructDefn(null, "Nil", false));
+		PackageVar cons = new PackageVar(null, "Cons", new StructDefn(null, "Cons", false));
+		PackageVar list = new PackageVar(null, "List", new UnionTypeDefn(null, false, "List"));
 		ctorTypes.put("Cons", cons);
 		ctorTypes.put("Nil", nil);
 		ctorTypes.put("List", list);
@@ -438,7 +438,7 @@ public class HSIETestData {
 		);
 	}
 
-	private static HSIEForm thingy(String name, int alreadyUsed, int nformal, int nbound, List<String> dependsOn, Map<String, AbsoluteVar> ctorTypes, String... commands) {
+	private static HSIEForm thingy(String name, int alreadyUsed, int nformal, int nbound, List<String> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
 		HSIEForm ret = new HSIEForm(CodeType.FUNCTION, name, alreadyUsed, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;
 		List<HSIEBlock> stack = new ArrayList<HSIEBlock>();
@@ -499,7 +499,7 @@ public class HSIETestData {
 			} else if (Character.isDigit(ps[0].charAt(0))) {
 				prev = b.push(null, Integer.parseInt(ps[0]));
 			} else {
-				prev = b.push(null, new AbsoluteVar(null, ps[0], null));
+				prev = b.push(null, new PackageVar(null, ps[0], null));
 			}
 			
 		}
@@ -512,7 +512,7 @@ public class HSIETestData {
 		else if (Character.isDigit(ps[from].charAt(0)))
 			return Integer.parseInt(ps[from]);
 		else
-			return new AbsoluteVar(null, ps[from], null);
+			return new PackageVar(null, ps[from], null);
 	}
 	
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {

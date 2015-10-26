@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -65,8 +65,8 @@ public class RewriterTests {
 		rw.rewrite(pkgEntry);
 		fn = rw.functions.get("ME.f");
 		assertEquals("ME.f", fn.name);
-		assertTrue(fn.cases.get(0).expr instanceof AbsoluteVar);
-		assertEquals("Nil", ((AbsoluteVar)fn.cases.get(0).expr).id);
+		assertTrue(fn.cases.get(0).expr instanceof PackageVar);
+		assertEquals("Nil", ((PackageVar)fn.cases.get(0).expr).id);
 	}
 
 	@Test

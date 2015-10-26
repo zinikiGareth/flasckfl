@@ -32,7 +32,7 @@ public class TypeExpr {
 			throw new UtilException("Cannot have null type");
 		if (type.iam == WhatAmI.INSTANCE)
 			type = type.innerType();
-		TypeChecker.logger.info("Creating type expression " + myId + " for " + type + " with " + args + " from " + from);
+		TypeChecker.logger.debug("Creating type expression " + myId + " for " + type + " with " + args + " from " + from);
 		this.type = type;
 		if (args == null)
 			this.args = new ArrayList<Object>();

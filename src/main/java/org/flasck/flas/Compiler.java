@@ -31,7 +31,6 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
-import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardGrouping;
@@ -54,6 +53,7 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -71,6 +71,8 @@ import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
@@ -82,8 +84,10 @@ import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringComparator;
 
 public class Compiler {
+	static final Logger logger = LoggerFactory.getLogger("Compiler");
+	
 	public static void main(String[] args) {
-		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
+		LogManager.getLogger("TypeChecker").setLevel(Level.INFO);
 		Compiler compiler = new Compiler();
 		try {
 			for (int i=0;i<args.length;i++) {
@@ -280,7 +284,7 @@ public class Compiler {
 			Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 			for (Orchard<FunctionDefinition> d : defns) {
 				// 6a. Convert each orchard to HSIE
-				Orchard<HSIEForm> oh = hsieOrchard(errors, hsie, d);
+				Orchard<HSIEForm> oh = hsieOrchard(errors, hsie, forms, d);
 				abortIfErrors(errors);
 				
 				// 6b. Typecheck an orchard together
@@ -396,10 +400,10 @@ public class Compiler {
 	private void promoteD3Methods(ErrorResult errors, Rewriter rewriter, MethodConvertor mc, Map<String, HSIEForm> forms, D3Invoke d3) {
 		Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>(new StringComparator()); 
 		Object init = d3.scope.fromRoot(d3.d3.dloc, "NilMap");
-		AbsoluteVar assoc = d3.scope.fromRoot(d3.d3.dloc, "Assoc");
-		AbsoluteVar cons = d3.scope.fromRoot(d3.d3.dloc, "Cons");
-		AbsoluteVar nil = d3.scope.fromRoot(d3.d3.dloc, "Nil");
-		AbsoluteVar tuple = d3.scope.fromRoot(d3.d3.dloc, "()");
+		PackageVar assoc = d3.scope.fromRoot(d3.d3.dloc, "Assoc");
+		PackageVar cons = d3.scope.fromRoot(d3.d3.dloc, "Cons");
+		PackageVar nil = d3.scope.fromRoot(d3.d3.dloc, "Nil");
+		PackageVar tuple = d3.scope.fromRoot(d3.d3.dloc, "()");
 		Type d3Elt = (Type)d3.scope.fromRoot(d3.d3.dloc, "D3Element").defn;
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
 		for (D3PatternBlock p : d3.d3.patterns) {
@@ -504,15 +508,17 @@ public class Compiler {
 		}
 	}
 
-	private Orchard<HSIEForm> hsieOrchard(ErrorResult errors, HSIE hsie, Orchard<FunctionDefinition> d) {
+	private Orchard<HSIEForm> hsieOrchard(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<FunctionDefinition> d) {
+		logger.info("HSIE transforming orchard in parallel: " + d);
 		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();
 		for (Tree<FunctionDefinition> t : d)
-			hsieTree(errors, hsie, ret, t, t.getRoot(), null, null);
+			hsieTree(errors, hsie, previous, ret, t, t.getRoot(), null, null);
 		return ret;
 	}
 
-	private void hsieTree(ErrorResult errors, HSIE hsie, Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
-		HSIEForm form = hsie.handle(node.getEntry());
+	private void hsieTree(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
+		logger.info("HSIE transforming " + node.getEntry().name);
+		HSIEForm form = hsie.handle(previous, node.getEntry());
 		if (parent == null) {
 			tree = ret.addTree(form);
 			parent = tree.getRoot();
@@ -520,7 +526,7 @@ public class Compiler {
 			parent = tree.addChild(parent, form);
 
 		for (Node<FunctionDefinition> x : t.getChildren(node))
-			hsieTree(errors, hsie, ret, t, x, tree, parent);
+			hsieTree(errors, hsie, previous, ret, t, x, tree, parent);
 	}
 
 	private void handleCurrying(ApplyCurry curry, TypeChecker tc, Collection<HSIEForm> collection) {

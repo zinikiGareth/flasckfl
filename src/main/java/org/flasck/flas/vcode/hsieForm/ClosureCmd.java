@@ -3,6 +3,7 @@ package org.flasck.flas.vcode.hsieForm;
 
 public class ClosureCmd extends HSIEBlock {
 	public final Var var;
+	public boolean justScoping = false;
 
 	public ClosureCmd(Var var) {
 		this.var = var;

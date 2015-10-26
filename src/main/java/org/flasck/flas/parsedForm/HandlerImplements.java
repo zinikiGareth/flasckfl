@@ -8,11 +8,12 @@ import org.flasck.flas.blockForm.InputPosition;
 public class HandlerImplements extends Implements {
 	public final String hiName;
 	public final List<Object> boundVars;
+	public final boolean inCard;
 
-	public HandlerImplements(InputPosition location, String named, String type, List<Object> lambdas) {
+	public HandlerImplements(InputPosition location, String named, String type, boolean inCard, List<Object> lambdas) {
 		super(location, WhatAmI.HANDLERIMPLEMENTS, type);
 		this.hiName = named;
+		this.inCard = inCard;
 		this.boundVars = lambdas;
 	}
-
 }

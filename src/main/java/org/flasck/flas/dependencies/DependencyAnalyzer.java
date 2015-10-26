@@ -9,7 +9,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.PackageVar;
+import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
@@ -93,9 +94,12 @@ public class DependencyAnalyzer {
 		else if (expr instanceof IterVar)
 			// I think because this is synthetic, it's not needed here ...
 			; // dcg.ensureLink(name, "_iter_" + ((IterVar)expr).uniqueName());
-		else if (expr instanceof AbsoluteVar) {
-			dcg.ensure(((AbsoluteVar) expr).id);
-			dcg.ensureLink(name, ((AbsoluteVar) expr).id);
+		else if (expr instanceof PackageVar) {
+			dcg.ensure(((PackageVar) expr).id);
+			dcg.ensureLink(name, ((PackageVar) expr).id);
+		} else if (expr instanceof ScopedVar) {
+			dcg.ensure(((ScopedVar) expr).id);
+			dcg.ensureLink(name, ((ScopedVar) expr).id);
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
 			String orname = ((ExternalRef)expr).uniqueName();
 			dcg.ensure(orname);

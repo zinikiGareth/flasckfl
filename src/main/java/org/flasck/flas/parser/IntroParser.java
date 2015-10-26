@@ -28,6 +28,7 @@ import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
 import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class IntroParser implements TryParsing {
 	private final State state;
@@ -155,7 +156,7 @@ public class IntroParser implements TryParsing {
 				return ErrorResult.oneMessage(line, "invalid handler name");
 			ArrayList<Object> lambdas = new ArrayList<Object>();
 			if (!line.hasMore())
-				return new HandlerImplements(tn.location, state.withPkg(named.text), tn.text, lambdas);
+				return new HandlerImplements(tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
 			while (line.hasMore()) {
 				PatternParser pp = new PatternParser();
 				Object patt = pp.tryParsing(line);
@@ -163,7 +164,7 @@ public class IntroParser implements TryParsing {
 					return ErrorResult.oneMessage(line, "invalid contract argument pattern");
 				lambdas.add(patt);
 			}
-			return new HandlerImplements(tn.location, state.withPkg(named.text), tn.text, lambdas);
+			return new HandlerImplements(tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
 		}
 		case "event": {
 			Object o = new FunctionParser(state).tryParsing(line);

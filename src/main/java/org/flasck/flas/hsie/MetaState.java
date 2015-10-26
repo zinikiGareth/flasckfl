@@ -4,36 +4,55 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionLiteral;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
+import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
+import org.flasck.flas.parsedForm.PackageVar;
+import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.PushCmd;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class MetaState {
+	public class TrailItem {
+		private ClosureCmd closure;
+		private TreeSet<ScopedVar> avars;
+		private List<CreationOfVar> depends;
+
+		public TrailItem(List<CreationOfVar> depends, ClosureCmd closure, TreeSet<ScopedVar> avars) {
+			this.depends = depends;
+			this.closure = closure;
+			this.avars = avars;
+		}
+	}
+
 	public class LocatedObject {
 		InputPosition loc;
 		Object obj;
@@ -44,13 +63,17 @@ public class MetaState {
 		}
 	}
 
+	private final Rewriter rewriter;
 	public final HSIEForm form;
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<Object, LocatedObject> retValues = new HashMap<Object, LocatedObject>();
 	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
+	private Map<String, HSIEForm> previous;
 
-	public MetaState(HSIEForm form) {
+	public MetaState(Rewriter rewriter, Map<String, HSIEForm> previous, HSIEForm form) {
+		this.rewriter = rewriter;
+		this.previous = previous;
 		this.form = form;
 	}
 
@@ -112,6 +135,65 @@ public class MetaState {
 			writeIfExpr(substs, let.expr, writeTo);
 			return;
 		}
+		List<TrailItem> tis = new ArrayList<TrailItem>();
+		TreeSet<ScopedVar> set = new TreeSet<ScopedVar>();
+		gatherScopedVars(set, expr);
+		// Transitively close the set
+		TreeSet<ScopedVar> newOnes = new TreeSet<ScopedVar>(set);
+		while (!newOnes.isEmpty()) {
+			TreeSet<ScopedVar> discovered = new TreeSet<ScopedVar>();
+			for (ScopedVar sv : newOnes) {
+				TreeSet<ScopedVar> avars = new TreeSet<ScopedVar>();
+				if (sv.defn instanceof LocalVar)
+					continue;
+				else if (sv.defn instanceof FunctionDefinition) {
+					gatherScopedVars(avars, rewriter.functions.get(sv.id));
+				} else if (sv.defn instanceof HandlerImplements) {
+					gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
+				} else
+					throw new UtilException("Not handling " + sv.id + " of class " + sv.defn.getClass());
+				for (ScopedVar o : avars)
+					if (!set.contains(o))
+						discovered.add(o);
+			}
+			set.addAll(discovered);
+			newOnes = discovered;
+		}
+		for (ScopedVar sv : set) {
+			if (sv.defn instanceof LocalVar)
+				continue;
+			Var cv = form.allocateVar();
+			ClosureCmd closure = form.closure(cv);
+			closure.justScoping = true;
+			TreeSet<ScopedVar> avars = new TreeSet<ScopedVar>();
+			if (sv.defn instanceof MethodDefinition) {
+				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
+				gatherScopedVars(avars, (MethodDefinition)sv.defn);
+			} else if (sv.defn instanceof FunctionDefinition) {
+				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
+				gatherScopedVars(avars, rewriter.functions.get(sv.id));
+			} else if (sv.defn instanceof HandlerImplements) {
+				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
+				gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
+			} else if (sv.defn instanceof LocalVar) {
+				closure.push(sv.location, substs.get(sv.id));
+			} else
+				throw new UtilException("Cannot handle " + sv.id + " of type " + sv.defn.getClass());
+			CreationOfVar cov = new CreationOfVar(cv, sv.location, sv.id);
+			substs.put(sv.id, cov);
+			closureDepends.put(cov.var, new ArrayList<CreationOfVar>());
+			tis.add(new TrailItem(closureDepends.get(cov.var), closure, avars));
+		}
+		for (TrailItem ti : tis) {
+			for (ScopedVar av : ti.avars) {
+				CreationOfVar cov = substs.get(av.id);
+				if (cov == null)
+					throw new UtilException("Yet another unknown case");
+				if (closureDepends.containsKey(cov.var))
+					ti.depends.add(cov);
+				ti.closure.push(av.location, cov);
+			}
+		}
 		writeFinalExpr(substs, expr, writeTo);
 	}
 
@@ -155,24 +237,24 @@ public class MetaState {
 			locs.add(((IterVar)expr).location);
 			String var = ((IterVar)expr).var;
 			if (!substs.containsKey(var))
-				throw new UtilException("How can this be a iter var? " + var + " not in " + substs);
+				throw new UtilException("How can this be an iter var? " + var + " not in " + substs);
 			return substs.get(var);
-		} else if (expr instanceof AbsoluteVar) {
-			AbsoluteVar av = (AbsoluteVar)expr;
-			locs.add(av.location);
-			form.dependsOn(av);
-			// If we are calling a nested function or method, make sure to record the variables
-			// that it "assumes" are in its scope so that we can include them in later calls if needed
-			if ((av.defn instanceof MethodDefinition || av.defn instanceof FunctionDefinition) && av.id.startsWith(form.fnName + "_")) {
-				Var var = allocateVar();
-				HSIEBlock closure = form.closure(var);
-				PushCmd pc = closure.push(av.location, av);
-				for (int j=0;j<form.nformal;j++)
-					pc.inheritArgs.add(form.vars.get(j));
-				closureDepends.put(var, new ArrayList<CreationOfVar>());
-				return new CreationOfVar(var, av.location, "clos" + var.idx);
-			} else
-				return expr;
+		} else if (expr instanceof PackageVar) {
+			PackageVar pv = (PackageVar)expr;
+			locs.add(pv.location);
+			form.dependsOn(pv);
+			return expr;
+		} else if (expr instanceof ScopedVar) {
+			ScopedVar sv = (ScopedVar)expr;
+			locs.add(sv.location);
+			String var = sv.id;
+			if (!sv.definedLocally) {
+				form.dependsOn(sv);
+				return sv;
+			}
+			if (substs.containsKey(var))
+				return substs.get(var);
+			throw new UtilException("Scoped var " + var + " not in " + substs + " for " + form.fnName);
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
 			locs.add(((ExternalRef)expr).location());
 			form.dependsOn(expr);
@@ -222,7 +304,7 @@ public class MetaState {
 			CastExpr ce = (CastExpr) expr;
 			CreationOfVar cv = (CreationOfVar) convertValue(locs, substs, ce.expr);
 			HSIEBlock closure = form.getClosure(cv.var);
-			closure.downcastType = (Type) ((AbsoluteVar)ce.castTo).defn;
+			closure.downcastType = (Type) ((PackageVar)ce.castTo).defn;
 			return cv;
 		}
 		else {
@@ -237,5 +319,36 @@ public class MetaState {
 		else if (ret instanceof CreationOfVar)
 			return closureDepends.get(((CreationOfVar)ret).var);
 		return null;
+	}
+
+	private static void gatherScopedVars(TreeSet<ScopedVar> set, FunctionDefinition defn) {
+		for (FunctionCaseDefn fcd : defn.cases) {
+			gatherScopedVars(set, fcd.expr);
+		}
+	}
+
+	private static void gatherScopedVars(TreeSet<ScopedVar> set, HandlerImplements hi) {
+		for (MethodDefinition m : hi.methods) {
+			gatherScopedVars(set, m);
+		}
+	}
+	
+	private static void gatherScopedVars(TreeSet<ScopedVar> set, MethodDefinition defn) {
+		for (MethodCaseDefn mcd : defn.cases) {
+			for (MethodMessage mm : mcd.messages)
+				gatherScopedVars(set, mm.expr);
+		}
+	}
+	
+	private static void gatherScopedVars(TreeSet<ScopedVar> set, Object expr) {
+		if (expr instanceof ScopedVar) {
+			ScopedVar sv = (ScopedVar)expr;
+			set.add(sv);
+		} else if (expr instanceof ApplyExpr) {
+			ApplyExpr ae = (ApplyExpr) expr;
+			gatherScopedVars(set, ae.fn);
+			for (Object o : ae.args)
+				gatherScopedVars(set, o);
+		}
 	}
 }

@@ -11,7 +11,7 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
-import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
@@ -51,9 +51,9 @@ public class TemplateGenerator {
 		private int areaNo = 1;
 		private String introduceVarHere;
 		private final List<String> varsToCopy = new ArrayList<String>();
-		private final AbsoluteVar nil;
-		private final AbsoluteVar cons;
-		private final AbsoluteVar equals;
+		private final PackageVar nil;
+		private final PackageVar cons;
+		private final PackageVar equals;
 		private final String javaName;
 
 		public GeneratorContext(JSTarget target, Template cg) {
@@ -273,7 +273,7 @@ public class TemplateGenerator {
 					createRules(cx, called, null, cm.var);
 				} else if (valExpr instanceof ApplyExpr) {
 					ApplyExpr ae = (ApplyExpr) valExpr;
-					if (!(ae.fn instanceof AbsoluteVar) || !((AbsoluteVar)ae.fn).uniqueName().equals("FLEval.field"))
+					if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
 						throw new UtilException("Cannot edit: " + ae);
 					fn.add(JSForm.flex("this._editable(" + called + "._rules)"));
 					createRules(cx, called, ae.args.get(0), ((StringLiteral)ae.args.get(1)).text);
@@ -417,11 +417,11 @@ public class TemplateGenerator {
 			if (fd != null)
 				for (FunctionCaseDefn fcd : fd.cases)
 					callOnAssign(addToFunc, fcd.expr, cgrx, call, false, moreArgs);
-		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof AbsoluteVar) {
+		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof PackageVar) {
 			// nothing to do here, not variable
 		} else if (valExpr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) valExpr;
-			if (ae.fn instanceof AbsoluteVar && ((AbsoluteVar)ae.fn).id.equals("FLEval.field")) {
+			if (ae.fn instanceof PackageVar && ((PackageVar)ae.fn).id.equals("FLEval.field")) {
 				Object expr = ae.args.get(0);
 				if (expr instanceof TemplateListVar) {
 					callOnAssign(addToFunc, expr, cgrx, call, false, moreArgs);

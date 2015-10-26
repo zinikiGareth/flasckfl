@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
@@ -381,10 +381,10 @@ public class DroidGenerator {
 
 	private static Expr appendValue(NewMethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, PushReturn c, int pos) {
 		if (c.fn != null) {
-			if (c.fn instanceof AbsoluteVar || c.fn instanceof ObjectReference) {
+			if (c.fn instanceof PackageVar || c.fn instanceof ObjectReference) {
 				boolean wantEval = false;
-				if (pos != 0 && c.fn instanceof AbsoluteVar) {
-					Object defn = ((AbsoluteVar)c.fn).defn;
+				if (pos != 0 && c.fn instanceof PackageVar) {
+					Object defn = ((PackageVar)c.fn).defn;
 					if (defn instanceof StructDefn && ((StructDefn)defn).fields.isEmpty())
 						wantEval = true;
 				}

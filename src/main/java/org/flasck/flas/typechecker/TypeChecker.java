@@ -21,9 +21,11 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
+import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -146,7 +148,7 @@ public class TypeChecker {
 		s.localKnowledge.put(expr.fnName, factory.next());
 		for (int i=0;i<expr.nformal;i++) {
 //			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + (i+hsie.alreadyUsed));
-			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, args.get(i).asExpr(new GarneredFrom(locs.get(i)), factory)));
+			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, args.get(i).asExpr(new GarneredFrom(locs.get(i)), this, factory)));
 		}
 				
 		int inErrors = errors.count();
@@ -218,7 +220,7 @@ public class TypeChecker {
 //		System.out.println("Finished rewriting");
 		allocateVars(s, rewritten);
 		for (Entry<String, HSIEForm> x : rewritten.entrySet()) {
-			logger.info(x.getKey() + ":");
+			logger.debug(x.getKey() + ":");
 			x.getValue().dump(logger);
 		}
 		return rewritten;
@@ -278,7 +280,8 @@ public class TypeChecker {
 		mapBlock(ret, hsie, mapping);
 		for (HSIEBlock b : hsie.closures()) {
 			ClosureCmd cc = (ClosureCmd)b;
-			HSIEBlock closure = ret.closure(mapping.get(cc.var));
+			ClosureCmd closure = ret.closure(mapping.get(cc.var));
+			closure.justScoping = cc.justScoping;
 			closure.downcastType = cc.downcastType;
 			mapBlock(closure, b, mapping);
 		}
@@ -378,14 +381,14 @@ public class TypeChecker {
 
 	private Object checkBlock(SFTypes sft, TypeState s, HSIEForm form, HSIEBlock hsie) {
 		List<Object> returns = new ArrayList<Object>();
-		logger.info("Checking block " + hsie);
+		logger.debug("Checking block " + hsie);
 		for (HSIEBlock o : hsie.nestedCommands()) {
-			logger.info("Checking command " + o);
+			logger.debug("Checking command " + o);
 			if (o instanceof ReturnCmd) {
 //				System.out.println("Checking expr " + o);
 				Object ret = checkExpr(s, form, o);
 //				System.out.println("Checked expr " + o + " as " + ret);
-//				logger.info(o.toString() + " checked as " + ret);
+//				logger.debug(o.toString() + " checked as " + ret);
 				return ret;
 			}
 			else if (o instanceof Head)
@@ -397,7 +400,7 @@ public class TypeChecker {
 				if (scname.equals("Number") || scname.equals("Boolean") || scname.equals("String")) {
 					s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), this.knowledge.get(scname)));
 					returns.add(checkBlock(sft, s, form, sw));
-					logger.info(o.toString() + " links " + sw.var + " to " + sw.ctor);
+					logger.debug(o.toString() + " links " + sw.var + " to " + sw.ctor);
 				} else {
 					StructDefn sd = structs.get(sw.ctor);
 					Type pt = sd;
@@ -423,7 +426,7 @@ public class TypeChecker {
 					}
 	//				System.out.println(polys);
 					if (sd != null) {
-						logger.info(o + " asserts that " + sw.var + " is of type " + sw.ctor + " with type scheme " + valueOf);
+						logger.debug(o + " asserts that " + sw.var + " is of type " + sw.ctor + " with type scheme " + valueOf);
 						SFTypes inner = new SFTypes(sft);
 						for (StructField x : sd.fields) {
 	//						System.out.println("field " + x.name + " has " + x.type);
@@ -435,7 +438,7 @@ public class TypeChecker {
 						returns.add(checkBlock(inner, s, form, sw));
 					} else if (ud != null) {
 //						if (ud.name().equals("Any")) { // this is a special case
-//							logger.info(sw + " says " + sw.var + " is of Any type; of course it is ...");
+//							logger.debug(sw + " says " + sw.var + " is of Any type; of course it is ...");
 //							s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), ud, targs));
 //							returns.add(checkBlock(sft, s, form, sw));
 //						} else {
@@ -451,7 +454,7 @@ public class TypeChecker {
 			} else if (o instanceof IFCmd) {
 				IFCmd ic = (IFCmd) o;
 				if (ic.value == null) { // closure case
-					logger.info(o.toString() + " forces " + ic.var + " to be boolean");
+					logger.debug(o.toString() + " forces " + ic.var + " to be boolean");
 					checkClosure(s, form, form.getClosure(ic.var.var));
 				}
 				// Since we have to have done a SWITCH before we get here, this gives us no new information
@@ -460,7 +463,7 @@ public class TypeChecker {
 				BindCmd bc = (BindCmd) o;
 				TypeVar tv = factory.next();
 				Object bt = sft.get(bc.from, bc.field);
-				logger.info(o + " introduces var " + tv + " with type " + bt);
+				logger.debug(o + " introduces var " + tv + " with type " + bt);
 				s.phi.unify(tv, bt);
 //				System.out.println("binding " + bc.bind + " to " + tv);
 				s.gamma = s.gamma.bind(bc.bind, new TypeScheme(null, tv));
@@ -484,23 +487,23 @@ public class TypeChecker {
 	}
 
 	Object checkExpr(TypeState s, HSIEForm form, HSIEBlock cmd) {
-		logger.info("Checking command " + cmd);
+		logger.debug("Checking command " + cmd);
 		if (cmd instanceof PushReturn) {
 			PushReturn r = (PushReturn) cmd;
 			GarneredFrom myloc = new GarneredFrom(r.location);
 			if (r.ival != null) {
-				logger.info(r.toString() + " is a constant of type Number");
+				logger.debug(r.toString() + " is a constant of type Number");
 				return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "Number")); // TODO: it would be good to look this up; we should be able to do that
 			} else if (r.sval != null) {
-				logger.info(r.toString() + " is a constant of type String");
+				logger.debug(r.toString() + " is a constant of type String");
 				return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "String"));
 			} else if (r.tlv != null) {
 				// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
 				TypeVar ret = factory.next();
-				logger.info(r.tlv.name + " is a template variable, assigning " + ret);
+				logger.debug(r.tlv.name + " is a template variable, assigning " + ret);
 				return ret;
 			} else if (r.var != null) {
-				HSIEBlock c = form.getClosure(r.var.var);
+				ClosureCmd c = form.getClosure(r.var.var);
 				if (c == null) {
 					// phi is not updated
 					// assume it must be a bound var; we will fail to get the existing type scheme if not
@@ -511,10 +514,10 @@ public class TypeChecker {
 //						System.out.println("Allocating tv " + temp.meaning(tv) + " for " + tv + " when instantiating typescheme");
 					}
 					Object ret = temp.subst(old.typeExpr);
-					logger.info(r.var + " is a pre-defined var of type " + old.typeExpr + " becoming " + ret);
+					logger.debug(r.var + " is a pre-defined var of type " + old.typeExpr + " becoming " + ret);
 					return ret;
 				} else {
-					logger.info("Checking closure " + r.var);
+					logger.debug("Checking closure " + r.var);
 					// c is a closure, which must be a function application
 					return checkClosure(s, form, c);
 				}
@@ -524,11 +527,11 @@ public class TypeChecker {
 				// all lambdas should be variables by now
 				
 				if (r.fn.uniqueName().equals("FLEval.tuple")) {
-					logger.info(r.fn + " needs tuple handling");
+					logger.debug(r.fn + " needs tuple handling");
 					return new TypeExpr(myloc, Type.builtin(null, "()"));
 				}
 				if (r.fn instanceof CardMember) {
-					logger.info(r.fn + " is a card member");
+					logger.debug(r.fn + " is a card member");
 					CardMember cm = (CardMember) r.fn;
 					// try and find the name of the card class
 					if (r.fn.equals("_card"))
@@ -539,13 +542,13 @@ public class TypeChecker {
 						throw new UtilException("There was no card definition called " + cm.card);
 					for (StructField sf : cti.struct.fields) {
 						if (sf.name.equals(cm.var)) {
-							return sf.type.asExpr(new GarneredFrom(cm.location), factory);
+							return sf.type.asExpr(new GarneredFrom(cm.location), this, factory);
 						}
 					}
 					errors.message(cm.location, "there is no field " + cm.var + " in card " + cm.card);
 					return null;
 				} else if (r.fn instanceof HandlerLambda) {
-					logger.info(r.fn + " is a lambda");
+					logger.debug(r.fn + " is a lambda");
 					HandlerLambda hl = (HandlerLambda) r.fn;
 					// try and find the name of the handler class
 					// this is likewise a hack and I know it ...
@@ -553,59 +556,69 @@ public class TypeChecker {
 //					for (int i=0;i<2;i++)
 //						idx = form.fnName.lastIndexOf('.', idx-1);
 					String structName = hl.clzName; // form.fnName.substring(0, idx);
-					if (r.fn.equals("_handler"))
-						throw new UtilException("Died in housefire");
 //						return freshVarsIn(new TypeReference(hl.location, structName, null));
 					StructDefn sd = structs.get(structName);
 					for (StructField sf : sd.fields) {
 						if (sf.name.equals(hl.var)) {
-							return sf.type.asExpr(null, factory);
+							return sf.type.asExpr(null, this, factory);
 						}
 					}
 					throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
 				}
+				if (r.fn instanceof ScopedVar) {
+					ScopedVar sv = (ScopedVar)r.fn;
+					if (sv.defn instanceof LocalVar) {
+						LocalVar lv = (LocalVar) sv.defn;
+						Type t = lv.type;
+						if (t == null)
+							t = types.get("Any");
+						return new TypeExpr(new GarneredFrom(r.fn.location()), t);
+					}
+				}
 				
 				String name = r.fn.uniqueName();
 				if (name.equals("FLEval.field")) {
-					logger.info(r.fn + " implies field handling");
+					logger.debug(r.fn + " implies field handling");
 					return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "."));
 				}
 				Object te = s.localKnowledge.get(name);
 				if (te != null) {
-					logger.info(r.fn + " is locally inferred " + te);
+					logger.debug(r.fn + " is locally inferred " + te);
 					return te;
 				}
 				te = knowledge.get(name);
 				if (te == null) {
 					if (cards.containsKey(name)) {
-						logger.info(r.fn + " is card " + name);
+						logger.debug(r.fn + " is card " + name);
 						return new TypeExpr(myloc, cards.get(name).struct);
 					}
 					if (handlers.containsKey(name)) {
-						logger.info(r.fn + " is card " + name);
-						return typeForHandlerCtor(r.fn.location(), handlers.get(name)).asExpr(myloc, factory);
+						logger.debug(r.fn + " is card " + name);
+						return typeForHandlerCtor(r.fn.location(), handlers.get(name)).asExpr(myloc, this, factory);
 					}
 					if (structs.containsKey(name)) {
-						logger.info(r.fn + " is struct ctor " + name);
-						return ((TypeExpr)typeForStructCtor(r.fn.location(), structs.get(name)).asExpr(myloc, factory)).butFrom(myloc);
+						logger.debug(r.fn + " is struct ctor " + name);
+						return ((TypeExpr)typeForStructCtor(r.fn.location(), structs.get(name)).asExpr(myloc, this, factory)).butFrom(myloc);
 					}
 					if (objects.containsKey(name)) {
-						logger.info(r.fn + " is object ctor " + name);
-						return ((TypeExpr)typeForObjectCtor(r.fn.location(), objects.get(name)).asExpr(myloc, factory)).butFrom(myloc);
+						logger.debug(r.fn + " is object ctor " + name);
+						return ((TypeExpr)typeForObjectCtor(r.fn.location(), objects.get(name)).asExpr(myloc, this, factory)).butFrom(myloc);
 					}
 					// This is probably a failure on our part rather than user error
 					// We should not be able to get here if r.fn is not already an external which has been resolved
+					/*
 					for (Entry<String, Type> x : knowledge.entrySet())
 						System.out.println(x.getKey() + " => " + x.getValue());
+					*/
 					errors.message(r.location, "there is no type for identifier: " + r.fn + " when checking " + form.fnName);
 					return null;
 				} else {
-					logger.info(r.fn + " is globally implanted " + te);
+					logger.debug(r.fn + " is globally implanted " + te);
 //					System.out.print("Replacing vars in " + r.fn +": ");
-					return ((Type)te).asExpr(new GarneredFrom(r.fn, te), factory);
+					return ((Type)te).asExpr(new GarneredFrom(r.fn, te), this, factory);
 				}
 			} else if (r.func != null) {
-				logger.info(r.fn + " is a function literal");
+				logger.debug(r.fn + " is a function literal");
 				return new TypeExpr(null, Type.builtin(null, "FunctionLiteral")); // do we not want the type signature of r.func?
 			} else
 				throw new UtilException("What are you returning?");
@@ -613,9 +626,11 @@ public class TypeChecker {
 			throw new UtilException("Missing cases");
 	}
 
-	private Object checkClosure(TypeState s, HSIEForm form, HSIEBlock c) {
+	private Object checkClosure(TypeState s, HSIEForm form, ClosureCmd c) {
 		if (c == null)
 			throw new UtilException("Error on recovering block to check");
+		if (c.justScoping)
+			return checkExpr(s, form, c.nestedCommands().get(0));
 		c.dumpOne(logger, 0);
 		List<Object> args = new ArrayList<Object>();
 		List<InputPosition> locs = new ArrayList<InputPosition>();
@@ -643,7 +658,7 @@ public class TypeChecker {
 				newVars.add(factory.next());
 			TypeExpr TfE = (TypeExpr)Tf;
 			Tf = new TypeExpr(TfE.from, TfE.type, newVars);
-			logger.info("Closure " + c + " has type " + Tf);
+			logger.debug("Closure " + c + " has type " + Tf);
 		} else if (Tf instanceof TypeExpr && ".".equals(((TypeExpr)Tf).type.name())) { // so does "." notation
 			InputPosition posn = ((TypeExpr)Tf).from.posn;
 			Object T1 = s.phi.subst(args.get(1));
@@ -655,8 +670,8 @@ public class TypeChecker {
 				if (sd != null) {
 					for (StructField f : sd.fields) {
 						if (f.name.equals(fn)) {
-							Object r = f.type.asExpr(new GarneredFrom(f), factory);
-							logger.info("field " + f.name + " of " + sd.name() + " has type " + f.type + " with fresh vars as " + r);
+							Object r = f.type.asExpr(new GarneredFrom(f), this, factory);
+							logger.debug("field " + f.name + " of " + sd.name() + " has type " + f.type + " with fresh vars as " + r);
 							return r;
 						}
 					}
@@ -667,8 +682,8 @@ public class TypeChecker {
 				if (od != null) {
 					for (ObjectMethod m : od.methods) {
 						if (m.name.equals(fn)) {
-							Object r = m.type.asExpr(null, factory);
-							logger.info("field " + m.name + " of " + od.name() + " has type " + m.type + " with fresh vars as " + r);
+							Object r = m.type.asExpr(null, this, factory);
+							logger.debug("field " + m.name + " of " + od.name() + " has type " + m.type + " with fresh vars as " + r);
 							return r;
 						}
 					}
@@ -688,11 +703,11 @@ public class TypeChecker {
 			} else
 				throw new UtilException("What is " + T1);
 		} else {
-			logger.info(c + " requires " + flatten(new StringBuilder(), Tf, false) + " to apply to " + arrowify(args));
+			logger.debug(c + " requires " + flatten(new StringBuilder(), Tf, false) + " to apply to " + arrowify(args));
 			for (int i=1;i<args.size();i++)
 				Tf = checkSingleApplication(s, Tf, locs.get(i), args.get(i));
 		}
-		logger.info("Closure " + c + " has type " + Tf);
+		logger.debug("Closure " + c + " has type " + Tf);
 		if (c.downcastType != null)
 			return TypeExpr.from(c.downcastType, new HashMap<String, TypeVar>());
 		return Tf;

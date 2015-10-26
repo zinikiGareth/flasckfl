@@ -89,8 +89,10 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 	public Object resolve(InputPosition location, String name) {
 		if (name.contains("."))
 			return name;
-		if (defns.containsKey(name))
-			return new AbsoluteVar(defns.get(name));
+		if (defns.containsKey(name)) {
+			throw new UtilException("Package or Scoped?");
+//			return new PackageVar(defns.get(name));
+		}
 		try {
 			if (outer != null)
 				return outer.resolve(location, name);
@@ -139,7 +141,7 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 		return name;
 	}
 
-	public AbsoluteVar fromRoot(InputPosition location, String name) {
+	public PackageVar fromRoot(InputPosition location, String name) {
 		if (outerEntry != null)
 			return outerEntry.scope().fromRoot(location, name);
 		else if (outer != null)
@@ -158,6 +160,6 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 		ScopeEntry entry = scope.getEntry(name);
 		if (entry == null)
 			throw new UtilException("There is no entry " + name);
-		return new AbsoluteVar(location, entry);
+		return new PackageVar(location, entry);
 	}
 }

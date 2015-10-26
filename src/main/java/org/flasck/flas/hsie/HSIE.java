@@ -41,13 +41,13 @@ public class HSIE {
 		exprIdx = 0;
 	}
 	
-	public HSIEForm handle(FunctionDefinition defn) {
-		return handle(defn, 0, new HashMap<String, CreationOfVar>());
+	public HSIEForm handle(Map<String, HSIEForm> previous, FunctionDefinition defn) {
+		return handle(previous, defn, 0, new HashMap<String, CreationOfVar>());
 	}
 	
-	public HSIEForm handle(FunctionDefinition defn, int alreadyUsed, Map<String, CreationOfVar> map) {
+	public HSIEForm handle(Map<String, HSIEForm> previous, FunctionDefinition defn, int alreadyUsed, Map<String, CreationOfVar> map) {
 		HSIEForm ret = new HSIEForm(defn.mytype, defn.name, alreadyUsed, map, defn.nargs);
-		MetaState ms = new MetaState(ret);
+		MetaState ms = new MetaState(rewriter, previous, ret);
 		if (defn.nargs == 0)
 			return handleConstant(ms, defn);
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
@@ -64,7 +64,7 @@ public class HSIE {
 	}
 
 	public HSIEForm handleExpr(Object expr, CodeType type) {
-		MetaState ms = new MetaState(new HSIEForm(type, "", 0, new HashMap<String, CreationOfVar>(), 0));
+		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(type, "", 0, new HashMap<String, CreationOfVar>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
@@ -72,7 +72,7 @@ public class HSIE {
 
 	public HSIEForm handleExprWith(Object expr, CodeType type, List<String> vars) {
 		HSIEForm blk = new HSIEForm(type, "_expr_", 0, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
-		MetaState ms = new MetaState(blk);
+		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), blk);
 //		State s = new State(blk);
 //		ms.add(s);
 		Map<String, CreationOfVar> map = new TreeMap<String, CreationOfVar>(new StringComparator());

@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.hsie.SubstExpr;
 import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.ScopedVar;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
 
@@ -37,7 +38,8 @@ public class HSIEForm extends HSIEBlock {
 	public final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();
 	public final Set<Object> externals = new TreeSet<Object>();
-	private final Map<Var, HSIEBlock> closures = new HashMap<Var, HSIEBlock>();
+	public final Set<Object> scoped = new TreeSet<Object>();
+	private final Map<Var, ClosureCmd> closures = new HashMap<Var, ClosureCmd>();
 	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 
 	// This constructor is the one for real code
@@ -45,9 +47,11 @@ public class HSIEForm extends HSIEBlock {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
-		this.alreadyUsed = alreadyUsed;
-		for (int i=0;i<alreadyUsed;i++)
-			vars.add(null);
+		if (alreadyUsed != 0)
+			System.out.println("Hello");
+		this.alreadyUsed = 0;
+//		for (int i=0;i<alreadyUsed;i++)
+//			vars.add(null);
 		for (CreationOfVar v : map.values())
 			vars.set(v.var.idx, v.var);
 		this.nformal = nformal;
@@ -58,7 +62,7 @@ public class HSIEForm extends HSIEBlock {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
-		this.alreadyUsed = alreadyUsed;
+		this.alreadyUsed = 0;
 		this.nformal = nformal;
 		this.vars.addAll(vars);
 		this.externals.addAll(externals);
@@ -69,10 +73,10 @@ public class HSIEForm extends HSIEBlock {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		fnName = name;
-		this.alreadyUsed = alreadyUsed;
+		this.alreadyUsed = 0;
 		this.nformal = nformal;
-		for (int i=0;i<alreadyUsed;i++)
-			vars.add(new Var(i));
+//		for (int i=0;i<alreadyUsed;i++)
+//			vars.add(new Var(i));
 		for (int i=0;i<nformal;i++)
 			vars.add(new Var(alreadyUsed + i));
 		for (int i=0;i<nbound;i++)
@@ -92,21 +96,23 @@ public class HSIEForm extends HSIEBlock {
 		return ret;
 	}
 
-	public HSIEBlock closure(Var var) {
+	public ClosureCmd closure(Var var) {
 		ClosureCmd ret = new ClosureCmd(var);
 		closures.put(var, ret);
 		return ret;
 	}
 
-	public HSIEBlock getClosure(Var v) {
+	public ClosureCmd getClosure(Var v) {
 		return closures.get(v);
 	}
 
 	public void dump(Logger logTo) {
 		if (logTo == null)
 			logTo = logger;
-		logTo.info("#Args: " + nformal + " #bound: " + (vars.size()-nformal) + " externals: " + externals);
-		logTo.info("Vars = " + vars);
+		logTo.debug("Defining " + fnName);
+		logTo.debug("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
+		logTo.debug("    externals: " + externals + " scoped = " + scoped);
+		logTo.debug("    all vars = " + vars);
 		dump(logTo, 0);
 		for (HSIEBlock c : closures.values())
 			c.dumpOne(logTo, 0);
@@ -120,11 +126,15 @@ public class HSIEForm extends HSIEBlock {
 			name = ((ExternalRef)ref).uniqueName();
 		else
 			throw new UtilException("Cannot pass in: " + ref);
-		if (!name.equals(this.fnName))
-			externals.add(name);
+		if (!name.equals(this.fnName)) {
+			if (ref instanceof ScopedVar)
+				scoped.add(name);
+			else
+				externals.add(name);
+		}
 	}
 
-	public Collection<HSIEBlock> closures() {
+	public Collection<ClosureCmd> closures() {
 		return closures.values();
 	}
 

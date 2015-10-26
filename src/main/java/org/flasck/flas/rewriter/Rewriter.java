@@ -13,7 +13,6 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.AbsoluteVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardFunction;
@@ -55,9 +54,11 @@ import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -82,6 +83,7 @@ import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.typechecker.TypeOfSomethingElse;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -146,7 +148,7 @@ public class Rewriter {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (biscope.contains(name))
-				return new AbsoluteVar(location, biscope.getEntry(name));
+				return new PackageVar(location, biscope.getEntry(name));
 			if (name.contains(".")) {
 				// try and resolve through a sequence of packages
 				String tmp = name;
@@ -181,7 +183,7 @@ public class Rewriter {
 					Object defn = o.getValue();
 					if (defn instanceof ContractDecl)
 						contracts.put(name, (ContractDecl) defn);
-					return new AbsoluteVar(location, o);
+					return new PackageVar(location, o);
 				}
 			}
 			throw new ResolutionException(location, name);
@@ -201,7 +203,7 @@ public class Rewriter {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (pkg.innerScope().contains(name))
-				return new AbsoluteVar(location, pkg.innerScope().getEntry(name));
+				return new PackageVar(location, pkg.innerScope().getEntry(name));
 			return nested.resolve(location, name);
 		}
 	}
@@ -220,7 +222,7 @@ public class Rewriter {
 			this.innerScope = cd.innerScope();
 			if (cd.state != null) {
 				for (StructField sf : cd.state.fields)
-					members.put(sf.name, (Type)((AbsoluteVar)cx.resolve(sf.type.location(), sf.type.name())).defn);
+					members.put(sf.name, (Type)((PackageVar)cx.resolve(sf.type.location(), sf.type.name())).defn);
 			}
 			for (ContractImplements ci : cd.contracts) {
 				if (ci.referAsVar != null)
@@ -267,7 +269,15 @@ public class Rewriter {
 			for (Object o : hi.boundVars)
 				if (((HandlerLambda)o).var.equals(name))
 					return o;
-			return nested.resolve(location, name);
+			Object ret = nested.resolve(location, name);
+			if (ret instanceof ScopedVar) {
+				InputPosition loc = ((ScopedVar) ret).location();
+				Type type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
+				HandlerLambda hl = new HandlerLambda(loc, hi.hiName, type, name);
+				hi.boundVars.add(hl);
+				return hl;
+			}
+			return ret;
 		}
 	}
 
@@ -332,7 +342,7 @@ public class Rewriter {
 			if (bound.containsKey(name))
 				return bound.get(name); // a local var
 			if (inner.contains(name))
-				return new AbsoluteVar(inner.getEntry(name));
+				return new ScopedVar(inner.getEntry(name), true);
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
 				return new ObjectReference(location, (ObjectReference)res, fromMethod);
@@ -340,6 +350,26 @@ public class Rewriter {
 				return new CardFunction(location, (CardFunction)res, fromMethod);
 			return res;
 		}
+	}
+
+	public class NestedScopeContext extends NamingContext {
+
+		public NestedScopeContext(NamingContext inner) {
+			super(inner);
+		}
+
+		@Override
+		public Object resolve(InputPosition location, String name) {
+			Object ret = nested.resolve(location, name);
+			if (ret instanceof LocalVar) {
+				LocalVar lv = (LocalVar) ret;
+				return new ScopedVar(lv.location(), lv.var, lv, false);
+			} else if (ret instanceof ScopedVar) {
+				return ((ScopedVar)ret).notLocal();
+			} else
+				return ret;
+		}
+
 	}
 
 	public Rewriter(ErrorResult errors, PackageFinder finder) {
@@ -586,11 +616,11 @@ public class Rewriter {
 	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
 		try {
 			Object av = cx.nested.resolve(ci.location(), ci.name());
-			if (av == null || !(av instanceof AbsoluteVar)) {
+			if (av == null || !(av instanceof PackageVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + ci.name());
 				return ci;
 			}
-			return new ContractImplements(ci.location(), ((AbsoluteVar)av).id, ci.varLocation, ci.referAsVar);
+			return new ContractImplements(ci.location(), ((PackageVar)av).id, ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -600,11 +630,11 @@ public class Rewriter {
 	private ContractService rewriteCS(CardContext cx, ContractService cs) {
 		try {
 			Object av = cx.nested.resolve(cs.location(), cs.name());
-			if (av == null || !(av instanceof AbsoluteVar)) {
+			if (av == null || !(av instanceof PackageVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + cs.name());
 				return cs;
 			}
-			return new ContractService(cs.location(), ((AbsoluteVar)av).id, cs.vlocation, cs.referAsVar);
+			return new ContractService(cs.location(), ((PackageVar)av).id, cs.vlocation, cs.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -613,13 +643,13 @@ public class Rewriter {
 
 	private HandlerImplements rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
 		try {
-			Type any = (Type) ((AbsoluteVar)cx.nested.resolve(hi.location(), "Any")).defn;
+			Type any = (Type) ((PackageVar)cx.nested.resolve(hi.location(), "Any")).defn;
 			Object av = cx.nested.resolve(hi.location(), hi.name());
-			if (av == null || !(av instanceof AbsoluteVar)) {
+			if (av == null || !(av instanceof PackageVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
 				return hi;
 			}
-			AbsoluteVar ctr = (AbsoluteVar) av;
+			PackageVar ctr = (PackageVar) av;
 //			String rwname = cx.prefix + "." + hi.name;
 			String rwname = hi.hiName;
 			List<Object> bvs = new ArrayList<Object>();
@@ -635,17 +665,20 @@ public class Rewriter {
 					throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 				bvs.add(hl);
 			}
-			HandlerImplements ret = new HandlerImplements(hi.location(), rwname, ctr.id, bvs);
+			HandlerImplements ret = new HandlerImplements(hi.location(), rwname, ctr.id, hi.inCard, bvs);
 			callbackHandlers.put(ret.hiName, ret);
+			HandlerContext hc = new HandlerContext(cx, ret);
+			for (MethodDefinition m : hi.methods) {
+				MethodDefinition rm = rewrite(hc, m, true);
+				ret.methods.add(rm);
+				methods.add(new MethodInContext(this, cx, scope, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm));
+			}
 			StructDefn hsd = new StructDefn(hi.location(), ret.hiName, false);
 			for (Object s : ret.boundVars) {
 				HandlerLambda hl = (HandlerLambda) s;
 				hsd.fields.add(new StructField(hl.type, hl.var));
 			}
 			structs.put(ret.hiName, hsd);
-			HandlerContext hc = new HandlerContext(cx, ret);
-			for (MethodDefinition m : hi.methods)
-				methods.add(new MethodInContext(this, cx, scope, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rewrite(hc, m, true)));
 			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
@@ -660,7 +693,6 @@ public class Rewriter {
 		for (FunctionCaseDefn c : f.cases) {
 			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(errors, this, cx, f.name + "_" + cs), c.innerScope(), false);
 			list.add(rewrite(fccx, c));
-			rewriteScope(fccx, c.innerScope());
 			cs++;
 		}
 //		System.out.println("rewritten to " + list.get(0).expr);
@@ -726,7 +758,7 @@ public class Rewriter {
 		if (expr == null)
 			return null;
 		FunctionCaseDefn ret = new FunctionCaseDefn(intro.location, intro.name, intro.args, expr);
-		rewriteScope(cx, c.innerScope());
+		rewriteScope(new NestedScopeContext(cx), c.innerScope());
 		return ret;
 	}
 
@@ -762,9 +794,9 @@ public class Rewriter {
 			} else if (o instanceof ConstructorMatch) {
 				ConstructorMatch cm = (ConstructorMatch) o;
 				Object type = cx.resolve(cm.location, cm.ctor);
-				if (!(type instanceof AbsoluteVar))
+				if (!(type instanceof PackageVar))
 					errors.message(cm.location, "could not handle " + type);
-				ConstructorMatch ret = new ConstructorMatch(cm.location, (AbsoluteVar)type);
+				ConstructorMatch ret = new ConstructorMatch(cm.location, (PackageVar)type);
 				for (Field x : cm.args)
 					ret.args.add(ret.new Field(x.field, rewritePattern(cx, x.patt)));
 				return ret;
@@ -799,7 +831,7 @@ public class Rewriter {
 		if (expr == null)
 			return null;
 		try {
-			if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof AbsoluteVar)
+			if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof PackageVar)
 				return expr;
 			else if (expr instanceof UnresolvedOperator || expr instanceof UnresolvedVar) {
 				String s;
@@ -815,7 +847,7 @@ public class Rewriter {
 				} else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(location, s);
-				if (ret instanceof AbsoluteVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar)
+				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());
@@ -849,10 +881,10 @@ public class Rewriter {
 					if (aefn instanceof UnresolvedVar) {
 						UnresolvedVar uv0 = (UnresolvedVar)aefn;
 						Object pkgEntry = cx.resolve(uv0.location, uv0.var);
-						if (pkgEntry instanceof AbsoluteVar) {
-							Object o = ((AbsoluteVar)pkgEntry).defn;
+						if (pkgEntry instanceof PackageVar) {
+							Object o = ((PackageVar)pkgEntry).defn;
 							if (o instanceof PackageDefn)
-								return new AbsoluteVar(((PackageDefn)o).innerScope().getEntry(fname));
+								return new PackageVar(((PackageDefn)o).innerScope().getEntry(fname));
 						}
 					} 
 					
@@ -895,11 +927,11 @@ public class Rewriter {
 			else {
 				try {
 					Object r = cx.resolve(type.location(), type.name());
-					if (!(r instanceof AbsoluteVar)) {
+					if (!(r instanceof PackageVar)) {
 						errors.message(type.location(), type.name() + " is not a type definition");
 						return null;
 					}
-					ret = (Type) ((AbsoluteVar)r).defn;
+					ret = (Type) ((PackageVar)r).defn;
 					if (ret == null) {
 						errors.message(type.location(), "there is no definition in var for " + type.name());
 						return null;

@@ -124,7 +124,7 @@ public class HSIEBlock {
 	public void dumpOne(Logger logTo, int ind) {
 		if (logTo == null)
 			logTo = logger ;
-		logTo.info(Justification.LEFT.format("", ind) + this);
+		logTo.debug(Justification.LEFT.format("", ind) + this);
 		dump(logTo, ind+2);
 	}
 }

@@ -7,33 +7,32 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
-public class AbsoluteVar implements Serializable, ExternalRef {
+public class ScopedVar implements Serializable, ExternalRef {
 	public final InputPosition location;
 	public final String id;
 	public final Object defn;
+	public boolean definedLocally;
 
-	public AbsoluteVar(InputPosition location, String id, Object defn) {
+	public ScopedVar(InputPosition location, String id, Object defn, boolean definedLocally) {
 		if (defn != null && location == null)
 			System.out.println("null location");
 		this.location = location;
 		this.id = id;
 		this.defn = defn;
+		this.definedLocally = definedLocally;
 	}
 
-	public AbsoluteVar(InputPosition location, ScopeEntry entry) {
-		if (location == null)
-			System.out.println("null location");
-		this.location = location != null ? location : entry.location();
-		this.id = entry.getKey();
-		this.defn = entry.getValue();
-	}
-	
-	public AbsoluteVar(ScopeEntry entry) {
+	public ScopedVar(ScopeEntry entry, boolean definedLocally) {
 		if (entry.location() == null)
 			System.out.println("null location");
 		this.location = entry.location();
 		this.id = entry.getKey();
 		this.defn = entry.getValue();
+		this.definedLocally = definedLocally;
+	}
+
+	public ScopedVar notLocal() {
+		return new ScopedVar(location, id, defn, false);
 	}
 	
 	public InputPosition location() {
@@ -57,7 +56,7 @@ public class AbsoluteVar implements Serializable, ExternalRef {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof AbsoluteVar && this.toString().equals(obj.toString());
+		return obj instanceof ScopedVar && this.toString().equals(obj.toString());
 	}
 
 	public boolean fromHandler() {

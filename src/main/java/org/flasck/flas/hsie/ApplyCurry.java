@@ -3,7 +3,8 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.PackageVar;
+import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -45,6 +46,8 @@ public class ApplyCurry {
 					continue;
 				if (pc.fn instanceof CardMember)
 					continue;
+				if (pc.fn instanceof ScopedVar)
+					continue;
 				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;
 				if (pc.fn.uniqueName().equals("FLEval.field")) {
@@ -56,9 +59,9 @@ public class ApplyCurry {
 							ObjectDefn od = (ObjectDefn) cm.type;
 							if (od.hasMethod(fld.sval.text)) {
 								Type t = od.getMethod(fld.sval.text);
-								c.pushAt(pc.location, 0, new AbsoluteVar(pc.location, "FLEval.curry", null));
+								c.pushAt(pc.location, 0, new PackageVar(pc.location, "FLEval.curry", null));
 								c.removeAt(1);
-								c.pushAt(pc.location, 1, new AbsoluteVar(pc.location, "FLEval.method", null));
+								c.pushAt(pc.location, 1, new PackageVar(pc.location, "FLEval.method", null));
 								c.pushAt(pc.location, 2, t.arity()+2);
 							}
 						}
@@ -69,12 +72,14 @@ public class ApplyCurry {
 				if (t.iam != Type.WhatAmI.FUNCTION)
 					;
 				else if (t.arity() > c.nestedCommands().size()-1 + pc.inheritArgs.size()) {
-					c.pushAt(pc.location, 0, new AbsoluteVar(null, "FLEval.curry", null));
+					c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
 					c.pushAt(pc.location, 2, t.arity());
-				} else if (t.arity() < c.nestedCommands().size()-1)
-					throw new UtilException("Have too many arguments for the function " + pc.fn + " - error or need to replace f x y with (f x) y?");
+				} else if (t.arity() < c.nestedCommands().size()-1) {
+					System.out.println("Fix this, y'know");
+//					throw new UtilException("Have too many arguments for the function " + pc.fn + " - error or need to replace f x y with (f x) y?");
+				}
 			} else if (pc.var != null) { // the closure case, q.v.
-				 
+			} else if (pc.func != null) {
 			} else {
 				throw new UtilException("I don't think this can have passed typecheck");
 			}
@@ -91,11 +96,11 @@ public class ApplyCurry {
 		for (Rewrite r : rewrites) {
 			PushCmd pc = (PushCmd) r.inside.nestedCommands().get(r.pos);
 			Var v = h.allocateVar();
-			HSIEBlock oclos = h.closure(v);
+			ClosureCmd oclos = h.closure(v);
 			Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
 			if (t.iam == WhatAmI.FUNCTION && t.arity() > 0) {
 //				System.out.println("need to curry block for type = " + t);
-				oclos.push(pc.location, new AbsoluteVar(null, "FLEval.curry", null));
+				oclos.push(pc.location, new PackageVar(null, "FLEval.curry", null));
 				oclos.push(pc.location, pc.fn);
 				oclos.push(pc.location, t.arity());
 			} else

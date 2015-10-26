@@ -8,7 +8,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.parsedForm.AbsoluteVar;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardStateRef;
@@ -78,7 +78,7 @@ public class MethodConvertor {
 
 	public void addFunction(Map<String, HSIEForm> functions, FunctionDefinition fd) {
 		if (fd != null) {
-			HSIEForm hs = hsie.handle(fd);
+			HSIEForm hs = hsie.handle(null, fd);
 			if (hs != null)
 				functions.put(hs.fnName, hs);
 		}
@@ -147,7 +147,7 @@ public class MethodConvertor {
 
 	public FunctionDefinition convertStandalone(MethodInContext mic) {
 		MethodDefinition method = mic.method;
-		List<Object> margs = new ArrayList<Object>(mic.enclosingPatterns);
+		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
 		margs.addAll(method.intro.args);
 		List<Type> types = new ArrayList<Type>();
 		for (@SuppressWarnings("unused") Object o : margs) {
@@ -237,10 +237,12 @@ public class MethodConvertor {
 				root = (ApplyExpr)root.fn;
 			} else
 				args = new ArrayList<Object>();
-			if (root.fn instanceof AbsoluteVar && ((AbsoluteVar)root.fn).id.equals("FLEval.field")) {
+			if (root.fn instanceof PackageVar && ((PackageVar)root.fn).id.equals("FLEval.field")) {
 				Object sender = root.args.get(0);
 				StringLiteral method = (StringLiteral) root.args.get(1);
 				Type senderType = calculateExprType(margs, types, sender);
+				if (senderType == null)
+					return null;
 				while (senderType.iam == WhatAmI.INSTANCE)
 					senderType = senderType.innerType();
 				if (senderType instanceof TypeWithMethods)
