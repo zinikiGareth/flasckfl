@@ -190,6 +190,7 @@ public class MetaState {
 			tis.add(new TrailItem(closureDepends.get(cov.var), closure, avars));
 		}
 		for (TrailItem ti : tis) {
+//			System.out.println("Creating closure " + ti.closure.var + " for " + ti.avars);
 			for (ScopedVar av : ti.avars) {
 //				if (!av.definedLocally)
 //					continue;

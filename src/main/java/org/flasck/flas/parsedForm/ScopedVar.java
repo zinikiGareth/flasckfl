@@ -46,7 +46,7 @@ public class ScopedVar implements Serializable, ExternalRef {
 	
 	@Override
 	public int compareTo(Object o) {
-		return this.toString().compareTo(o.toString());
+		return this.id.compareTo(((ScopedVar)o).id);
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public class ScopedVar implements Serializable, ExternalRef {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof ScopedVar && this.toString().equals(obj.toString());
+		return obj instanceof ScopedVar && this.id.equals(((ScopedVar)obj).id);
 	}
 
 	public boolean fromHandler() {
