@@ -818,7 +818,7 @@ public class TypeChecker {
 		throw new UtilException("There is no type: " + name);
 	}
 
-	public void writeLearnedKnowledge(OutputStream wex, boolean copyToScreen) throws IOException {
+	public void writeLearnedKnowledge(OutputStream wex, String inPkg, boolean copyToScreen) throws IOException {
 		if (copyToScreen)
 			System.out.println("Inferred types:");
 		ObjectOutputStream oos = new ObjectOutputStream(wex);
@@ -880,8 +880,21 @@ public class TypeChecker {
 			}
 		}
 		oos.writeObject(ctis);
-		oos.flush();
 		
-		// TODO: functions?
+		Map<String, Type> types = new TreeMap<String, Type>();
+		for (Entry<String, Type> x : this.knowledge.entrySet()) {
+			// Only save things in our package
+			if (!x.getKey().startsWith(inPkg + "."))
+				continue;
+
+			// Don't save any nested definitions
+			if (x.getKey().substring(inPkg.length()+1).indexOf(".") != -1)
+				continue;
+
+			System.out.println("  function " + x.getKey() + " :: " + x.getValue());
+			types.put(x.getKey(), x.getValue());
+		}
+		oos.writeObject(types);
+		oos.flush();
 	}
 }

@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -13,6 +15,7 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.typechecker.CardTypeInfo;
+import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class PackageFinder {
@@ -42,7 +45,9 @@ public class PackageFinder {
 				// Load definitions into it
 				ObjectInputStream ois = null;
 				try {
-					ois = new ObjectInputStream(new FileInputStream(new File(pkg, pkgName + ".flim")));
+					File file = new File(pkg, pkgName + ".flim");
+					System.out.println("Loading definitions for " + pkgName + " from " + file);
+					ois = new ObjectInputStream(new FileInputStream(file));
 					@SuppressWarnings("unchecked")
 					List<StructDefn> structs = (List<StructDefn>) ois.readObject();
 					for (StructDefn sd : structs) {
@@ -66,6 +71,12 @@ public class PackageFinder {
 					for (CardTypeInfo c : cards) {
 						int idx = c.name.lastIndexOf(".");
 						scope.define(c.name.substring(idx+1), c.name, c);
+					}
+					@SuppressWarnings("unchecked")
+					Map<String, Type> knowledge = (Map<String, Type>) ois.readObject();
+					for (Entry<String, Type> t : knowledge.entrySet()) {
+						int idx = t.getKey().lastIndexOf(".");
+						scope.define(t.getKey().substring(idx+1), t.getKey(), t.getValue());
 					}
 				} catch (Exception ex) {
 					throw UtilException.wrap(ex);

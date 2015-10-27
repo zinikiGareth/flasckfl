@@ -49,8 +49,8 @@ public class Builtin {
 			ret.define("/", "FLEval.div",		Type.function(posn, number, number, number));
 			ret.define("^", "FLEval.exp",		Type.function(posn, number, number, number));
 		}
+		StructDefn nil = new StructDefn(posn, "Nil", false);
 		{ // lists
-			StructDefn nil = new StructDefn(posn, "Nil", false);
 			StructDefn cons = new StructDefn(posn, "Cons", false, varA);
 			cons.addField(new StructField(varA, "head"));
 			cons.addField(new StructField(list, "tail"));
@@ -60,6 +60,16 @@ public class Builtin {
 			ret.define("Nil", "Nil",			nil);
 			ret.define("Cons", "Cons",			cons);
 			ret.define("map", "map",			Type.function(posn, Type.function(posn, varA, varB), list.instance(posn, varA), list.instance(posn, varB)));
+		}
+		{ // stacks
+			UnionTypeDefn stack = new UnionTypeDefn(posn, false, "Stack", Type.polyvar(posn, "A"));
+			StructDefn push = new StructDefn(posn, "StackPush", false, varA);
+			push.addField(new StructField(varA, "head"));
+			push.addField(new StructField(stack, "tail"));
+			stack.addCase(nil);
+			stack.addCase(push);
+			ret.define("Stack", "Stack",			stack);
+			ret.define("StackPush", "StackPush",	push);
 		}
 		UnionTypeDefn map = new UnionTypeDefn(posn, false, "Map", varA);
 		{ // maps

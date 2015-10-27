@@ -147,8 +147,9 @@ public class Rewriter {
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			if (biscope.contains(name))
+			if (biscope.contains(name)) {
 				return new PackageVar(location, biscope.getEntry(name));
+			}
 			if (name.contains(".")) {
 				// try and resolve through a sequence of packages
 				String tmp = name;
@@ -221,8 +222,13 @@ public class Rewriter {
 			this.prefix = cd.name;
 			this.innerScope = cd.innerScope();
 			if (cd.state != null) {
-				for (StructField sf : cd.state.fields)
-					members.put(sf.name, (Type)((PackageVar)cx.resolve(sf.type.location(), sf.type.name())).defn);
+				for (StructField sf : cd.state.fields) {
+					try {
+						members.put(sf.name, (Type)((PackageVar)cx.resolve(sf.type.location(), sf.type.name())).defn);
+					} catch (ResolutionException ex) {
+						errors.message(ex.location, ex.getMessage());
+					}
+				}
 			}
 			for (ContractImplements ci : cd.contracts) {
 				if (ci.referAsVar != null)
@@ -870,6 +876,10 @@ public class Rewriter {
 					// The case where we have an absolute var by package name
 					// Does this need to be here as well as in RootScope?
 					Object aefn = ae.args.get(0);
+					if (aefn instanceof ApplyExpr)
+						aefn = rewriteExpr(cx, aefn);
+					if (aefn == null)
+						return null;
 					Object castTo = null;
 					InputPosition castLoc = null;
 					while (aefn instanceof CastExpr) {
@@ -879,6 +889,30 @@ public class Rewriter {
 							castTo = cx.resolve(ce.location, (String) ce.castTo);
 						}
 						aefn = ((CastExpr)aefn).expr;
+					}
+					if (aefn instanceof PackageVar) {
+						PackageVar pv = (PackageVar)aefn;
+						Object defn = pv.defn;
+						ScopeEntry entry = null;
+						if (defn == null)
+							;
+						else if (defn instanceof PackageDefn) {
+							Scope scope = ((PackageDefn)defn).innerScope();
+							entry = scope.getEntry(fname);
+						} else
+							throw new UtilException("Can't handle that " + defn.getClass());
+						Object pd;
+						String pvn = pv.id + "." + fname;
+						if (entry == null) {
+							// attempt to force loading of package
+							try {
+								pd = cx.resolve(pv.location, pvn);
+							} catch (ResolutionException ex) {
+								return new PackageVar(pv.location, pvn, null);
+							}
+						} else
+							pd = entry.getValue();
+						return new PackageVar(pv.location, pvn, pd);
 					}
 					if (aefn instanceof UnresolvedVar) {
 						UnresolvedVar uv0 = (UnresolvedVar)aefn;
@@ -907,7 +941,6 @@ public class Rewriter {
 			} else if (expr instanceof CastExpr) {
 				CastExpr ce = (CastExpr) expr;
 				Object resolve = cx.resolve(ce.location, (String) ce.castTo);
-				System.out.println(resolve.getClass());
 				return new CastExpr(ce.location, resolve, rewriteExpr(cx, ce.expr));
 			} else if (expr instanceof IfExpr) {
 				IfExpr ie = (IfExpr)expr;

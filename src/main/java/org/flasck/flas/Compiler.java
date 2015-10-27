@@ -69,6 +69,7 @@ import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
+import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
@@ -341,7 +342,7 @@ public class Compiler {
 				System.err.println("Cannot write to " + exportTo + ": " + ex.getMessage());
 				return;
 			}
-			tc.writeLearnedKnowledge(wex, dumpTypes);
+			tc.writeLearnedKnowledge(wex, inPkg, dumpTypes);
 
 			try {
 				dg.write();
@@ -382,10 +383,22 @@ public class Compiler {
 			kv.setValue(form);
 			Type t = tc.checkExpr(form, new ArrayList<Type>(), new ArrayList<InputPosition>());
 			if (t != null) {
+				while (t.iam == WhatAmI.INSTANCE)
+					t = t.innerType();
 				// it should be the same as the field type
 				for (StructField sf : c.struct.fields) {
 					if (sf.name.equals(kv.getKey())) {
-						if (!sf.type.equals(t))
+						Type st = sf.type;
+						while (st.iam == WhatAmI.INSTANCE)
+							st = st.innerType();
+						boolean ok = false;
+						if (st instanceof UnionTypeDefn) {
+							for (Type t1 : ((UnionTypeDefn)st).cases)
+								if (t1.equals(t))
+									ok = true;
+						} else
+							ok = st.equals(t);
+						if (!ok)
 							tc.errors.message(loc, "cannot initialize " + sf.name + " with value of type " + t);
 					}
 				}
