@@ -197,11 +197,9 @@ public class TypeChecker {
 				continue;
 			}
 			String pfx = f.fnName.substring(0, idx);
-			TypeHolder found = prefixes.get(pfx);
-			if (found == null)
-				System.out.println("Didn't find anything that could hold " + f.fnName + " (this is currently true of package-level functions, etc)");
-			else
-				found.add(f.fnName.substring(idx+1), mytype);
+			TypeHolder holder = prefixes.get(pfx);
+			if (holder != null)
+				holder.add(f.fnName.substring(idx+1), mytype);
 //			System.out.println(f.fnName + " :: " + mytype);
 		}
 //		System.out.println("---- Done with typecheck");

@@ -16,10 +16,13 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 public class PackageFinder {
 	private final List<File> dirs = new ArrayList<File>();
+	private final static Logger logger = LoggerFactory.getLogger("Compiler");
 	
 	public Scope loadFlim(Scope rootScope, String pkgName) {
 		for (File d : dirs) {
@@ -46,7 +49,7 @@ public class PackageFinder {
 				ObjectInputStream ois = null;
 				try {
 					File file = new File(pkg, pkgName + ".flim");
-					System.out.println("Loading definitions for " + pkgName + " from " + file);
+					logger.info("Loading definitions for " + pkgName + " from " + file);
 					ois = new ObjectInputStream(new FileInputStream(file));
 					@SuppressWarnings("unchecked")
 					List<StructDefn> structs = (List<StructDefn>) ois.readObject();
