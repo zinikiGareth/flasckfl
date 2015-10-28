@@ -23,7 +23,10 @@ public class KeywordToken {
 			line.advance();
 		}
 
-		return new KeywordToken(location, line.fromMark(mark));
+		String ret = line.fromMark(mark);
+		if (ret == null)
+			return null;
+		return new KeywordToken(location, ret);
 	}
 
 	@Override

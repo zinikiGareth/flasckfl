@@ -52,8 +52,8 @@ public class Builtin {
 		StructDefn nil = new StructDefn(posn, "Nil", false);
 		{ // lists
 			StructDefn cons = new StructDefn(posn, "Cons", false, varA);
-			cons.addField(new StructField(varA, "head"));
-			cons.addField(new StructField(list, "tail"));
+			cons.addField(new StructField(false, varA, "head"));
+			cons.addField(new StructField(false, list, "tail"));
 			list.addCase(nil);
 			list.addCase(cons);
 			ret.define("List", "List",			list);
@@ -64,8 +64,8 @@ public class Builtin {
 		{ // stacks
 			UnionTypeDefn stack = new UnionTypeDefn(posn, false, "Stack", Type.polyvar(posn, "A"));
 			StructDefn push = new StructDefn(posn, "StackPush", false, varA);
-			push.addField(new StructField(varA, "head"));
-			push.addField(new StructField(stack, "tail"));
+			push.addField(new StructField(false, varA, "head"));
+			push.addField(new StructField(false, stack, "tail"));
 			stack.addCase(nil);
 			stack.addCase(push);
 			ret.define("Stack", "Stack",			stack);
@@ -80,16 +80,16 @@ public class Builtin {
 			ret.define("Map", "Map", map);
 			ret.define("NilMap", "NilMap", nilMap);
 			ret.define("Assoc", "Assoc", assoc);
-			assoc.addField(new StructField(string, "key"));
-			assoc.addField(new StructField(varA, "value"));
-			assoc.addField(new StructField(map, "rest"));
+			assoc.addField(new StructField(false, string, "key"));
+			assoc.addField(new StructField(false, varA, "value"));
+			assoc.addField(new StructField(false, map, "rest"));
 			ret.define("assoc", "StdLib.assoc",		Type.function(posn, map.instance(posn, varA), string, varA));
 		}
 		{ // d3
 			StructDefn d3 = new StructDefn(posn, "D3Element", false, varA);
 			ret.define("D3Element", "D3Element", d3);
-			d3.addField(new StructField(varA, "data"));
-			d3.addField(new StructField(number, "idx"));
+			d3.addField(new StructField(false, varA, "data"));
+			d3.addField(new StructField(false, number, "idx"));
 		}
 		StructDefn send = new StructDefn(posn, "Send", false);
 		{ // messaging
@@ -102,21 +102,21 @@ public class Builtin {
 			message.addCase(send);
 			message.addCase(crCard);
 			message.addCase(debug);
-			assign.addField(new StructField(any, "into"));
-			assign.addField(new StructField(string, "slot"));
-			assign.addField(new StructField(any, "value"));
+			assign.addField(new StructField(false, any, "into"));
+			assign.addField(new StructField(false, string, "slot"));
+			assign.addField(new StructField(false, any, "value"));
 				
-			send.addField(new StructField(any, "dest"));
-			send.addField(new StructField(string, "method"));
-			send.addField(new StructField(list.instance(posn, any), "args"));
+			send.addField(new StructField(false, any, "dest"));
+			send.addField(new StructField(false, string, "method"));
+			send.addField(new StructField(false, list.instance(posn, any), "args"));
 
-			crCard.addField(new StructField(map.instance(posn, string, any), "opts"));
-			crCard.addField(new StructField(list.instance(posn, any), "contracts")); // maybe List[(String, CardHandle)] ?  what is CardHandle?  This is what I had "before"
+			crCard.addField(new StructField(false, map.instance(posn, string, any), "opts"));
+			crCard.addField(new StructField(false, list.instance(posn, any), "contracts")); // maybe List[(String, CardHandle)] ?  what is CardHandle?  This is what I had "before"
 			
-			d3.addField(new StructField(string, "action"));
-			d3.addField(new StructField(list.instance(posn, any), "args"));
+			d3.addField(new StructField(false, string, "action"));
+			d3.addField(new StructField(false, list.instance(posn, any), "args"));
 
-			debug.addField(new StructField(any, "value"));
+			debug.addField(new StructField(false, any, "value"));
 
 			ret.define("Assign", "Assign", assign);
 			ret.define("Send", "Send", send);
@@ -128,8 +128,8 @@ public class Builtin {
 			
 			Type polyT = Type.polyvar(posn, "T");
 			StructDefn mw = new StructDefn(posn, "MessageWrapper", false, polyT);
-			mw.addField(new StructField(polyT, "value"));
-			mw.addField(new StructField(list.instance(posn, message), "msgs"));
+			mw.addField(new StructField(false, polyT, "value"));
+			mw.addField(new StructField(false, list.instance(posn, message), "msgs"));
 			ret.define("MessageWrapper", "MessageWrapper", mw);
 
 		}
@@ -137,37 +137,41 @@ public class Builtin {
 			PackageDefn domPkg = new PackageDefn(posn, ret, "DOM");
 			StructDefn elt = new StructDefn(posn, "DOM.Element", false, varA, varB);
 			domPkg.innerScope().define("Element", "DOM.Element", elt);
-			elt.addField(new StructField(string, "tag"));
-			elt.addField(new StructField(list, "attrs"));
-			elt.addField(new StructField(list.instance(posn, elt), "content"));
-			elt.addField(new StructField(list.instance(posn, varB), "handlers"));
+			elt.addField(new StructField(false, string, "tag"));
+			elt.addField(new StructField(false, list, "attrs"));
+			elt.addField(new StructField(false, list.instance(posn, elt), "content"));
+			elt.addField(new StructField(false, list.instance(posn, varB), "handlers"));
 		}
 		{ // crosets
 			StructDefn crokey = new StructDefn(posn, "Crokey", false);
 			ret.define("Crokey", "Crokey", crokey);
-			crokey.addField(new StructField(string, "key"));
-			crokey.addField(new StructField(string, "id"));
+			crokey.addField(new StructField(false, string, "key"));
+			crokey.addField(new StructField(false, string, "id"));
 
 			// It is not abundantly clear to me that we want to project this level of detail into the API
 			// This comes from having two separate classes down in the JS layer
 			// At some level, we DO need to distinguish between them, but I'm not sure we should put it on the user
 			StructDefn ncrokey = new StructDefn(posn, "NaturalCrokey", false);
 			ret.define("NaturalCrokey", "NaturalCrokey", ncrokey);
-			ncrokey.addField(new StructField(string, "key"));
-			ncrokey.addField(new StructField(string, "id"));
+			ncrokey.addField(new StructField(false, string, "key"));
+			ncrokey.addField(new StructField(false, string, "id"));
 			
 			StructDefn crokeys = new StructDefn(posn, "Crokeys", false);
 			ret.define("Crokeys", "Crokeys", crokeys);
-			crokeys.addField(new StructField(string, "id"));
-			crokeys.addField(new StructField(string, "keytype"));
-			crokeys.addField(new StructField(list.instance(null,  crokey), "keys"));
+			crokeys.addField(new StructField(false, string, "id"));
+			crokeys.addField(new StructField(false, string, "keytype"));
+			crokeys.addField(new StructField(false, list.instance(null,  crokey), "keys"));
 
-			ObjectDefn croset = new ObjectDefn(posn, "Croset", false, varA);
+			ObjectDefn croset = new ObjectDefn(posn, ret, "Croset", false, varA);
 			croset.constructorArg(crokeys, "init");
-			ret.define("Croset", "Croset", croset);
-			croset.addMethod(new ObjectMethod(Type.function(posn, any, send), "put"));
+//			ret.define("Croset", "Croset", croset); // handled automatically by the constructor ...
+			
+			// These are actually accessors ...
 			croset.addMethod(new ObjectMethod(Type.function(posn, string, any), "item"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, any, any), "member")); // crokey, natural crokey or string as input
+
+			// These are real methods
+			croset.addMethod(new ObjectMethod(Type.function(posn, any, send), "put"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, string, send), "delete"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, string, any, send), "insert"));

@@ -2,6 +2,7 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
@@ -9,8 +10,25 @@ import org.flasck.flas.typechecker.Type;
 
 public class FieldParser implements TryParsing {
 
+	public static final int CARD = 1;
+	public static final int OBJECT = 2;
+	private final int mode;
+
+	public FieldParser(int mode) {
+		this.mode = mode;
+	}
+
 	@Override
 	public Object tryParsing(Tokenizable line) {
+		boolean accessor = false;
+		if (mode == OBJECT) {
+			int mark = line.at();
+			KeywordToken tok = KeywordToken.from(line);
+			if (tok != null && tok.text.equals("acor"))
+				accessor = true;
+			else
+				line.reset(mark);
+		}
 		Type type = (Type) new TypeExprParser().tryParsing(line);
 		if (type == null)
 			return null; // errors should have been reported already, propagate
@@ -18,7 +36,7 @@ public class FieldParser implements TryParsing {
 		if (kw == null)
 			return ErrorResult.oneMessage(line, "invalid variable name");
 		if (!line.hasMore())
-			return new StructField(type, kw.text);
+			return new StructField(accessor, type, kw.text);
 		line.skipWS();
 		String op = line.getTo(2);
 		if (!"<-".equals(op))
@@ -31,7 +49,7 @@ public class FieldParser implements TryParsing {
 		else if (line.hasMore())
 			return ErrorResult.oneMessage(line, "invalid tokens after expression");
 		else
-			return new StructField(type, kw.text, o);
+			return new StructField(accessor, type, kw.text, o);
 	}
 
 }

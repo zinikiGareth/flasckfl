@@ -54,10 +54,10 @@ public class FunctionParser implements TryParsing {
 			} else {
 				line.reset(mark);
 				ExprToken tok = ExprToken.from(line);
-				if (tok != null && tok.text.equals("=")) {
-					line.reset(mark);
+				line.reset(mark);
+				if (tok != null && tok.text.equals("="))
 					break;
-				}
+				return ErrorResult.oneMessage(line, "syntax error");
 			}
 		}
 		

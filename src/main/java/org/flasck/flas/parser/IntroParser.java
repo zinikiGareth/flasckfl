@@ -16,6 +16,7 @@ import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TemplateIntro;
@@ -62,6 +63,24 @@ public class IntroParser implements TryParsing {
 			if (er.hasErrors())
 				return er;
 			return new StructDefn(tn.location, state.withPkg(tn.text), true, args);
+		}
+		case "object": {
+			TypeNameToken tn = TypeNameToken.from(line);
+			if (tn == null)
+				return ErrorResult.oneMessage(line, "invalid type name");
+			ErrorResult er = new ErrorResult();
+			List<Type> args = new ArrayList<Type>();
+			while (line.hasMore()) {
+				TypeNameToken ta = TypeNameToken.from(line);
+				if (ta == null) {
+					er.message(line, "invalid type argument");
+					break;
+				} else
+					args.add(Type.polyvar(ta.location, ta.text));
+			}
+			if (er.hasErrors())
+				return er;
+			return new ObjectDefn(tn.location, state.scope, state.withPkg(tn.text), true, args);
 		}
 		case "contract": {
 			TypeNameToken tn = TypeNameToken.from(line);

@@ -30,7 +30,7 @@ public class ContractDeclarationParsingTests {
 		assertTrue(o instanceof ContractDecl);
 		ContractDecl cd = (ContractDecl) o;
 		assertEquals("OnTick", cd.name());
-		new FieldParser().tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().nested.get(0)));
+		new FieldParser(FieldParser.CARD).tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().nested.get(0)));
 	}
 
 	@Test

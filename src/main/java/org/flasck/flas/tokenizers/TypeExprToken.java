@@ -10,6 +10,7 @@ public class TypeExprToken {
 	public static final int OSB = 12;
 	public static final int CSB = 13;
 	public static final int COMMA = 14;
+	public static final int ARROW = 15;
 	
 	public final InputPosition location;
 	public final int type;
@@ -37,8 +38,9 @@ public class TypeExprToken {
 		} else if ((pos = "()[],".indexOf(c)) != -1) {
 			line.advance();
 			return new TypeExprToken(loc, 10+pos, null);
-		}
-		else
+		} else if ("->".equals(line.getTo(2))) {
+			return new TypeExprToken(loc, ARROW, "->");
+		} else
 			return null;
 	}
 

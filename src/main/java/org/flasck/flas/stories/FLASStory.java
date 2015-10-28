@@ -39,6 +39,8 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
+import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMember;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.PropertyDefn;
@@ -69,6 +71,7 @@ import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.parser.IntroParser;
 import org.flasck.flas.parser.MethodMessageParser;
 import org.flasck.flas.parser.MethodParser;
+import org.flasck.flas.parser.ObjectMemberParser;
 import org.flasck.flas.parser.PlatformAndroidSpecParser;
 import org.flasck.flas.parser.PropertyParser;
 import org.flasck.flas.parser.TemplateLineParser;
@@ -183,6 +186,9 @@ public class FLASStory implements StoryProcessor {
 				StructDefn sd = (StructDefn)o;
 				ret.define(State.simpleName(sd.name()), sd.name(), sd);
 				doStructFields(er, sd, b.nested);
+			} else if (o instanceof ObjectDefn) {
+				ObjectDefn od = (ObjectDefn)o;
+				doObjectMembers(er, s, od, b.nested);
 			} else if (o instanceof ContractDecl) {
 				ContractDecl cd = (ContractDecl) o;
 				if (ret.contains(cd.name()))
@@ -192,10 +198,6 @@ public class FLASStory implements StoryProcessor {
 				doContractMethods(er, cd, b.nested);
 			} else if (o instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) o;
-//				if (ret.contains(cd.name))
-//					er.message(b, "duplicate definition for name " + cd.name);
-//				else
-//					ret.define(State.simpleName(cd.name), cd.name, cd);
 				doCardDefinition(er, new State(cd.innerScope(), cd.name, HSIEForm.CodeType.CARD), cd, b.nested);
 			} else if (o instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements)o;
@@ -333,7 +335,7 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	private void doStructFields(ErrorResult er, StructDefn sd, List<Block> fields) {
-		FieldParser fp = new FieldParser();
+		FieldParser fp = new FieldParser(FieldParser.CARD);
 		for (Block b : fields) {
 			if (b.isComment())
 				continue;
@@ -347,6 +349,51 @@ public class FLASStory implements StoryProcessor {
 				sd.addField((StructField)sf);
 			assertNoNonCommentNestedLines(er, b);
 		}
+	}
+
+	private void doObjectMembers(ErrorResult er, State s, ObjectDefn sd, List<Block> nested) {
+		ObjectMemberParser omp = new ObjectMemberParser(s);
+		FunctionParser fp = new FunctionParser(s);
+		List<FCDWrapper> ctors = new ArrayList<FCDWrapper>();
+		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
+		for (Block b : nested) {
+			if (b.isComment())
+				continue;
+			Tokenizable tkz = new Tokenizable(b);
+			Object om = omp.tryParsing(tkz);
+			if (om instanceof ErrorResult)
+				er.merge((ErrorResult) om);
+			else if ("state".equals(om))
+				doObjectState(er, s, sd, b.nested);
+			else if (om instanceof ObjectMember) {
+				ObjectMember omm = (ObjectMember) om;
+				switch (omm.type) {
+				case ObjectMember.CTOR: {
+					if (omm.what instanceof FunctionIntro)
+						throw new UtilException("Should work, but not implemented: see other FunctionIntro cases in FLASStory and doCompoundFunction, but I think everything is broken");
+					else if (omm.what instanceof FunctionCaseDefn)
+						ctors.add(new FCDWrapper(b.nested, (FunctionCaseDefn) omm.what));
+					else
+						er.message(b, "syntax error");
+					break;
+				}
+//					else if (om instanceof MethodCaseDefn)
+//						methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
+				default: {
+					er.message(b, "syntax error");
+				}
+				}
+			}
+			else {
+				Object func = fp.tryParsing(tkz);
+				if (func instanceof FunctionCaseDefn || func instanceof FunctionIntro)
+					throw new UtilException("Nested internal functions; not handled yet");
+				else
+					er.message(b, "syntax error");
+			}
+		}
+		gatherFunctions(er, s, sd.innerScope(), ctors);
+		gatherStandaloneMethods(er, s, sd.innerScope(), methods);
 	}
 
 	private void doContractMethods(ErrorResult er, ContractDecl cd, List<Block> methods) {
@@ -517,8 +564,18 @@ public class FLASStory implements StoryProcessor {
 	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {
 		if (cd.state != null)
 			er.message((Block)null, "duplicate state definition in card");
-		cd.state = new StateDefinition();
-		FieldParser fp = new FieldParser();
+		StateDefinition os = cd.state = new StateDefinition();
+		doState(er, new FieldParser(FieldParser.CARD), os, nested);
+	}
+
+	private void doObjectState(ErrorResult er, State s, ObjectDefn od, List<Block> nested) {
+		if (od.state != null)
+			er.message((Block)null, "duplicate state definition in card");
+		StateDefinition os = od.state = new StateDefinition();
+		doState(er, new FieldParser(FieldParser.OBJECT), os, nested);
+	}
+
+	protected void doState(ErrorResult er, FieldParser fp, StateDefinition os, List<Block> nested) {
 		for (Block q : nested)
 			if (!q.isComment()) {
 				Object o = fp.tryParsing(new Tokenizable(q));
@@ -527,7 +584,7 @@ public class FLASStory implements StoryProcessor {
 				else if (o instanceof ErrorResult)
 					er.merge((ErrorResult) o);
 				else if (o instanceof StructField)
-					cd.state.addField((StructField)o);
+					os.addField((StructField)o);
 				else
 					er.message(q, "cannot handle " + o.getClass());
 			}

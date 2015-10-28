@@ -1,8 +1,11 @@
 package org.flasck.flas.tokenizers;
 
+import java.io.Serializable;
+
 import org.flasck.flas.blockForm.InputPosition;
 
-public class TemplateToken {
+@SuppressWarnings("serial")
+public class TemplateToken implements Serializable {
 	public static final int IDENTIFIER = 1;
 	public static final int STRING = 2;
 	public static final int COLON = 3;

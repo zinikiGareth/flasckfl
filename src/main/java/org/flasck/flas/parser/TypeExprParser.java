@@ -26,14 +26,34 @@ public class TypeExprParser implements TryParsing {
 						return null;
 					polys.add(tmp);
 					osb = TypeExprToken.from(line);
-					if (osb.type == TypeExprToken.CSB)
+					if (osb.type == TypeExprToken.CSB) {
 						break;
+					}
 					else if (osb.type != TypeExprToken.COMMA)
 						return null;
 				}
 			} else
 				line.reset(mark);
-			return Type.reference(tt.location, tt.text, polys);
+			List<Type> fnargs = new ArrayList<Type>();
+			fnargs.add(Type.reference(tt.location, tt.text, polys));
+			while (true) {
+				mark = line.at();
+				TypeExprToken arr = TypeExprToken.from(line);
+				if (arr != null && arr.type == TypeExprToken.ARROW) {
+					Object t = tryOneExpr(line);
+					if (t instanceof Type)
+						fnargs.add((Type) t);
+					else
+						return t;
+				} else {
+					line.reset(mark);
+					break;
+				}
+			}
+			if (fnargs.size() == 1)
+				return fnargs.get(0);
+			else
+				return Type.function(tt.location, fnargs);
 		}
 		else if (tt.type == TypeExprToken.ORB) {
 			// either a complex type, grouped OR a tuple type

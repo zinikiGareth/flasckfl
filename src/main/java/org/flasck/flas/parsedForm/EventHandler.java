@@ -1,6 +1,9 @@
 package org.flasck.flas.parsedForm;
 
-public class EventHandler {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class EventHandler implements Serializable {
 	public final String action;
 	public final Object expr;
 

@@ -77,6 +77,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.stories.D3Thing;
 import org.flasck.flas.stories.FLASStory.State;
@@ -436,7 +437,7 @@ public class Rewriter {
 		cards.put(cd.name, grp);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
-				sd.addField(new StructField(rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init)));
+				sd.addField(new StructField(false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init)));
 				grp.inits.put(sf.name, rewriteExpr(cx, sf.init));
 			}
 		}
@@ -450,7 +451,7 @@ public class Rewriter {
 			grp.contracts.add(new ContractGrouping(rw.name(), myname, rw.referAsVar));
 			cardImplements.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.addField(new StructField(rw, rw.referAsVar));
+				sd.addField(new StructField(false, rw, rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods) {
 				MethodDefinition rwm = rewrite(c2, m, true);
@@ -470,7 +471,7 @@ public class Rewriter {
 			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
 			cardServices.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new StructField(rw, rw.referAsVar));
+				sd.fields.add(new StructField(false, rw, rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
 				methods.add(new MethodInContext(this, cx, cd.innerScope(), MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m, true)));
@@ -684,7 +685,7 @@ public class Rewriter {
 			StructDefn hsd = new StructDefn(hi.location(), ret.hiName, false);
 			for (Object s : ret.boundVars) {
 				HandlerLambda hl = (HandlerLambda) s;
-				hsd.fields.add(new StructField(hl.type, hl.var));
+				hsd.fields.add(new StructField(false, hl.type, hl.var));
 			}
 			structs.put(ret.hiName, hsd);
 			return ret;
@@ -738,7 +739,7 @@ public class Rewriter {
 	private StructDefn rewrite(NamingContext cx, StructDefn sd) {
 		StructDefn ret = new StructDefn(sd.location(), sd.name(), sd.generate, (List<Type>)sd.polys());
 		for (StructField sf : sd.fields) {
-			StructField rsf = new StructField(rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init));
+			StructField rsf = new StructField(false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init));
 			ret.addField(rsf);
 		}
 		return ret;

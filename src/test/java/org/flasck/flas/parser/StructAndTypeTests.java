@@ -37,7 +37,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningConsHeadArg() {
-		FieldParser p = new FieldParser();
+		FieldParser p = new FieldParser(FieldParser.CARD);
 		Object o = p.tryParsing(new Tokenizable("A head"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructField);
@@ -48,7 +48,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningConsTailListA() {
-		FieldParser p = new FieldParser();
+		FieldParser p = new FieldParser(FieldParser.CARD);
 		Object o = p.tryParsing(new Tokenizable("(List A) tail"));
 		assertNotNull(o);
 		assertTrue(o instanceof StructField);
