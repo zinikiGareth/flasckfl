@@ -31,13 +31,11 @@ import org.zinutils.utils.StringComparator;
 public class HSIE {
 	private final ErrorResult errors;
 	private final Rewriter rewriter;
-	private final Scope biscope;
 	private int exprIdx;
 
 	public HSIE(ErrorResult errors, Rewriter rewriter, Scope biscope) {
 		this.errors = errors;
 		this.rewriter = rewriter;
-		this.biscope = biscope;
 		exprIdx = 0;
 	}
 	

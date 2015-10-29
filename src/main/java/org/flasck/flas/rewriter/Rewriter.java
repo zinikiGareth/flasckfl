@@ -77,15 +77,14 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parser.FieldParser;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.stories.D3Thing;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.Type;
-import org.flasck.flas.typechecker.TypeOfSomethingElse;
 import org.flasck.flas.typechecker.Type.WhatAmI;
+import org.flasck.flas.typechecker.TypeOfSomethingElse;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
@@ -281,8 +280,7 @@ public class Rewriter {
 				InputPosition loc = ((ScopedVar) ret).location();
 				Type type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
 				HandlerLambda hl = new HandlerLambda(loc, hi.hiName, type, name);
-				hl.scopedFrom = (ScopedVar) ret;
-				hi.boundVars.add(hl);
+				hi.addScoped(hl, (ScopedVar) ret);
 				return hl;
 			}
 			return ret;

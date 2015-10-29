@@ -89,6 +89,8 @@ public class Compiler {
 	
 	public static void main(String[] args) {
 		LogManager.getLogger("Compiler").setLevel(Level.WARN);
+		LogManager.getLogger("Generator").setLevel(Level.WARN);
+		LogManager.getLogger("HSIE").setLevel(Level.WARN);
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
 		try {

@@ -87,12 +87,12 @@ public class HSIEBlock {
 		return ret;
 	}
 
-	public HSIEBlock doReturn(InputPosition loc, Object o, List<CreationOfVar> deps) {
+	public HSIEBlock doReturn(InputPosition loc, Object o, List<CreationOfVar> list) {
 		ReturnCmd ret;
 		if (o == null)
 			throw new UtilException("Attempt to return null");
 		if (o instanceof CreationOfVar)
-			ret = new ReturnCmd(loc, (CreationOfVar)o, deps);
+			ret = new ReturnCmd(loc, (CreationOfVar)o, list);
 		else if (o instanceof Integer)
 			ret = new ReturnCmd(loc, (Integer)o);
 		else if (o instanceof StringLiteral)
@@ -124,7 +124,7 @@ public class HSIEBlock {
 	public void dumpOne(Logger logTo, int ind) {
 		if (logTo == null)
 			logTo = logger ;
-		logTo.debug(Justification.LEFT.format("", ind) + this);
+		logTo.info(Justification.LEFT.format("", ind) + this);
 		dump(logTo, ind+2);
 	}
 }

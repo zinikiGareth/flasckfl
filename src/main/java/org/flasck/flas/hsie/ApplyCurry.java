@@ -3,12 +3,12 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.PackageVar;
+import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -19,6 +19,8 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.PushCmd;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 public class ApplyCurry {
@@ -34,10 +36,10 @@ public class ApplyCurry {
 	
 	public void rewrite(TypeChecker tc, HSIEForm h) {
 		List<Rewrite> rewrites = new ArrayList<Rewrite>();
-//		Logger logger = LoggerFactory.getLogger("Hello");
+		Logger logger = LoggerFactory.getLogger("HSIE");
 		for (HSIEBlock c : h.closures()) {
-//			logger.info("-----");
-//			c.dumpOne(logger, 4);
+			logger.info("-----");
+			c.dumpOne(logger, 4);
 			PushCmd pc = (PushCmd) c.nestedCommands().get(0);
 			if (pc.sval != null)
 				continue;
@@ -68,13 +70,20 @@ public class ApplyCurry {
 					}
 					continue;
 				}
+				boolean scoping = (c instanceof ClosureCmd) && ((ClosureCmd)c).justScoping;
 				Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
+				if (t.iam == WhatAmI.FUNCTION)
+					logger.debug("Considering applying curry to: " + pc.fn + ": " + t.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
 				if (t.iam != Type.WhatAmI.FUNCTION)
 					;
-				else if (t.arity() > c.nestedCommands().size()-1 + pc.inheritArgs.size()) {
+				else if (t.arity() > c.nestedCommands().size()-1) {
 					c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
 					c.pushAt(pc.location, 2, t.arity());
-				} else if (t.arity() < c.nestedCommands().size()-1 && !((ClosureCmd)c).justScoping) {
+				} else if (t.arity() > 0 && scoping) {
+					int expected = t.arity() + c.nestedCommands().size()-1;
+					c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
+					c.pushAt(pc.location, 2, expected);
+				} else if (t.arity() < c.nestedCommands().size()-1 && !scoping) {
 					throw new UtilException("Have too many arguments for the function " + pc.fn + " - error or need to replace f x y with (f x) y?");
 				}
 			} else if (pc.var != null) { // the closure case, q.v.

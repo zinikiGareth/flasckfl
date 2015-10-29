@@ -16,4 +16,19 @@ public class HandlerImplements extends Implements {
 		this.inCard = inCard;
 		this.boundVars = lambdas;
 	}
+
+	public void addScoped(HandlerLambda hl, ScopedVar ret) {
+		hl.scopedFrom = ret;
+		int pos=0;
+		for (Object o : boundVars) {
+			HandlerLambda ohl = (HandlerLambda)o;
+			if (ohl.scopedFrom == null)
+				break;
+			else if (ohl.scopedFrom.id.compareTo(ret.id) > 0)
+				break;
+			else
+				pos++;
+		}
+		boundVars.add(pos, hl);
+	}
 }

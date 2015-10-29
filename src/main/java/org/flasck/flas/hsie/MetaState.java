@@ -38,9 +38,13 @@ import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 public class MetaState {
+	private final Logger logger = LoggerFactory.getLogger("HSIE");
+
 	public class TrailItem {
 		private ClosureCmd closure;
 		private TreeSet<ScopedVar> avars;
@@ -50,6 +54,11 @@ public class MetaState {
 			this.depends = depends;
 			this.closure = closure;
 			this.avars = avars;
+		}
+		
+		@Override
+		public String toString() {
+			return closure.var + " " + avars;
 		}
 	}
 
@@ -69,11 +78,9 @@ public class MetaState {
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<Object, LocatedObject> retValues = new HashMap<Object, LocatedObject>();
 	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
-	private Map<String, HSIEForm> previous;
 
 	public MetaState(Rewriter rewriter, Map<String, HSIEForm> previous, HSIEForm form) {
 		this.rewriter = rewriter;
-		this.previous = previous;
 		this.form = form;
 	}
 
@@ -108,6 +115,8 @@ public class MetaState {
 	}
 	
 	private void writeIfExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
+		logger.info("Handling " + form.fnName + "; expr = " + expr);
+		// First handle the explicit "if" and "let" cases
 		if (expr instanceof IfExpr) {
 			IfExpr ae = (IfExpr) expr;
 			List<InputPosition> elocs = new ArrayList<InputPosition>();
@@ -135,9 +144,14 @@ public class MetaState {
 			writeIfExpr(substs, let.expr, writeTo);
 			return;
 		}
+
+		// Now handle scoping by resolving the vars that are included in scope 
 		List<TrailItem> tis = new ArrayList<TrailItem>();
 		TreeSet<ScopedVar> set = new TreeSet<ScopedVar>();
 		gatherScopedVars(set, expr);
+		
+		logger.info(form.fnName + " claims to have " + set + " scoped vars");
+		
 		// Transitively close the set
 		TreeSet<ScopedVar> newOnes = new TreeSet<ScopedVar>(set);
 		while (!newOnes.isEmpty()) {
@@ -161,11 +175,20 @@ public class MetaState {
 			set.addAll(discovered);
 			newOnes = discovered;
 		}
+		logger.info("Once closed, has " + set + " scoped vars");
+		
+		// For each scoped var that we need, make sure that it a variable is allocated in the scope of the root function
+		// which represents the function partially applied to the scoped-in parameters, capturing all the inter-definitional
+		// dependencies in "TrailItems" (not a good name)
 		for (ScopedVar sv : set) {
-			if (sv.defn instanceof LocalVar)
+			if (sv.defn instanceof LocalVar) {
+				logger.info("Ignoring " + sv.id + " which presumably should be in " + substs.keySet());
 				continue;
-//			if (!sv.definedLocally)
-//				continue;
+			}
+			if (!definedLocally(sv)) {
+				logger.info("!!" + sv.id + " not defined locally to " + form.fnName);
+				continue;
+			}
 			Var cv = form.allocateVar();
 			ClosureCmd closure = form.closure(cv);
 			TreeSet<ScopedVar> avars = new TreeSet<ScopedVar>();
@@ -185,24 +208,39 @@ public class MetaState {
 			} else
 				throw new UtilException("Cannot handle " + sv.id + " of type " + sv.defn.getClass());
 			CreationOfVar cov = new CreationOfVar(cv, sv.location, sv.id);
+			logger.info("Allocating " + cov.var + " for " + sv.id);
 			substs.put(sv.id, cov);
 			closureDepends.put(cov.var, new ArrayList<CreationOfVar>());
 			tis.add(new TrailItem(closureDepends.get(cov.var), closure, avars));
 		}
+		
+		// Now go back through all the closures we just created, adding in their dependencies so that everything
+		// ends up getting generated
 		for (TrailItem ti : tis) {
-//			System.out.println("Creating closure " + ti.closure.var + " for " + ti.avars);
+			logger.debug("Adding dependencies to closure " + ti.closure.var + ": " + ti.avars);
 			for (ScopedVar av : ti.avars) {
-//				if (!av.definedLocally)
-//					continue;
+				if (!substs.containsKey(av.id)) {
+					logger.info("Ignoring " + av.id + " because there is no rewritten value for it; it presumably is going to be passed in");
+					continue;
+				}
 				CreationOfVar cov = substs.get(av.id);
-				if (cov == null)
-					throw new UtilException("Yet another unknown case");
-				if (closureDepends.containsKey(cov.var))
+				if (closureDepends.containsKey(cov.var)) {
+					logger.debug("Adding closure " + cov.var + " to " + ti.closure.var);
 					ti.depends.add(cov);
+				}
 				ti.closure.push(av.location, cov);
 			}
 		}
 		writeFinalExpr(substs, expr, writeTo);
+	}
+
+	private boolean definedLocally(ScopedVar sv) {
+		if (sv.id.length() < form.fnName.length()+1)
+			return false;
+		String s = sv.id.substring(form.fnName.length());
+		if (s.charAt(0) == '_')
+			s = s.substring(s.indexOf("."));
+		return s.indexOf(".", 1) == -1;
 	}
 
 	public void writeFinalExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
@@ -321,17 +359,34 @@ public class MetaState {
 			return cv;
 		}
 		else {
-			System.out.println(expr);
+			System.out.println("HSIE Cannot Handle: " + expr);
 			throw new UtilException("HSIE Cannot handle " + expr + " " + (expr != null? " of type " + expr.getClass() : ""));
 		}
 	}
 
-	public List<CreationOfVar> closureDependencies(Object ret) {
-		if (ret instanceof Var)
-			return closureDepends.get(ret);
-		else if (ret instanceof CreationOfVar)
-			return closureDepends.get(((CreationOfVar)ret).var);
-		return null;
+	public List<CreationOfVar> closureDependencies(Object var) {
+		List<CreationOfVar> ret = new ArrayList<CreationOfVar>();
+		closeDependencies(ret, var);
+		return ret;
+	}
+
+	private void closeDependencies(List<CreationOfVar> ret, Object var) {
+		List<CreationOfVar> more = null;
+		if (var instanceof Var)
+			more = closureDepends.get(var);
+		else if (var instanceof CreationOfVar)
+			more = closureDepends.get(((CreationOfVar)var).var);
+
+		if (more == null)
+			return;
+		
+		for (CreationOfVar cv : more)
+			if (!ret.contains(cv)) {
+				closeDependencies(ret, cv);
+				if (ret.contains(cv))
+					throw new UtilException("I suspect this is a cycle");
+				ret.add(cv);
+			}
 	}
 
 	private static void gatherScopedVars(TreeSet<ScopedVar> set, FunctionDefinition defn) {

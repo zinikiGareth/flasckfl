@@ -21,7 +21,6 @@ public abstract class PushReturn extends HSIEBlock {
 	public final TemplateListVar tlv;
 	public final FunctionLiteral func;
 	public final CardStateRef csr;
-	public List<Object> inheritArgs = new ArrayList<Object>();
 
 	public PushReturn(InputPosition loc, CreationOfVar var) {
 		this.location = loc;

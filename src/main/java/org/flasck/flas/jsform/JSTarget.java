@@ -23,7 +23,8 @@ public class JSTarget {
 		int idx = -1;
 		while ((idx = keydot.indexOf('.', idx+1))!= -1) {
 			String tmp = keydot.substring(0, idx);
-			forms.add(JSForm.packageForm(tmp));
+			if (!havePackages.contains(tmp))
+				forms.add(JSForm.packageForm(tmp));
 			havePackages.add(tmp);
 		}
 	}

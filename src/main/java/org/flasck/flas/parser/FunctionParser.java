@@ -70,7 +70,7 @@ public class FunctionParser implements TryParsing {
 		// Now parse the expression on the right hand side
 		Object expr = new Expression().tryParsing(line);
 		if (expr == null)
-			return ErrorResult.oneMessage(line, "syntax error");
+			return ErrorResult.oneMessage(line, "expression required if '=' provided");
 		if (line.hasMore())
 			return ErrorResult.oneMessage(line, "unexpected tokens at end of line");
 
