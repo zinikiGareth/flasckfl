@@ -38,11 +38,21 @@ public class Expression implements TryParsing {
 		}
 	}
 
-	private static class ParenExpr {
-		final Object nested;
+	private static class ParenExpr implements Locatable {
+		final Locatable nested;
 
 		public ParenExpr(Object nested) {
-			this.nested = nested;
+			this.nested = (Locatable) nested;
+		}
+
+		@Override
+		public InputPosition location() {
+			return nested.location();
+		}
+		
+		@Override
+		public String toString() {
+			return nested.toString();
 		}
 	}
 	

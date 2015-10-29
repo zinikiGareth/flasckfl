@@ -838,7 +838,9 @@ public class Rewriter {
 		if (expr == null)
 			return null;
 		try {
-			if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof PackageVar)
+			if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
+				return expr;
+			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof ScopedVar || expr instanceof CardMember)
 				return expr;
 			else if (expr instanceof UnresolvedOperator || expr instanceof UnresolvedVar) {
 				String s;
