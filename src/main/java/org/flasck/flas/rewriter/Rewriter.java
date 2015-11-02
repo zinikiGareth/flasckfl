@@ -501,6 +501,8 @@ public class Rewriter {
 	}
 
 	private TemplateLine rewrite(TemplateContext cx, TemplateLine tl) {
+		if (tl == null)
+			return null;
 		List<Object> attrs = new ArrayList<Object>();
 		List<Object> formats = new ArrayList<Object>();
 		List<TemplateToken> specials = new ArrayList<TemplateToken>();
@@ -597,7 +599,7 @@ public class Rewriter {
 				d3s.add(rw);
 				return rw;
 			} else 
-				throw new UtilException("Content type not handled: " + tl.getClass());
+				throw new UtilException("Content type not handled: " + (tl == null?"null":tl.getClass()));
 		} finally {
 			if (!specials.isEmpty()) {
 				for (TemplateToken tt : specials)

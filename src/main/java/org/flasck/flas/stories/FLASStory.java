@@ -819,6 +819,8 @@ public class FLASStory implements StoryProcessor {
 	}
 
 	private TemplateLine unroll(ErrorResult er, State st, Set<LocatedToken> frTemplates, List<TemplateThing> templates, List<D3Thing> d3s, Map<String, Object> subst) {
+		if (templates == null || templates.isEmpty())
+			return null;
 		Map<String, Object> map = new TreeMap<String, Object>();
 		TemplateThing ret = templates.get(0);
 		for (TemplateThing t : templates) {

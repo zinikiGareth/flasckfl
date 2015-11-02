@@ -116,9 +116,11 @@ public class TemplateGenerator {
 	private void generateTemplate(JSTarget target, Template cg) {
 		GeneratorContext cx = new GeneratorContext(target, cg);
 		JSForm ir = JSForm.flexFn(cx.protoName + "_render", CollectionUtils.listOf("doc", "wrapper", "parent"));
+		target.add(ir);
+		if (cg == null || cg.content == null)
+			return;
 		String topBlock = cx.nextArea();
 		ir.add(JSForm.flex("new " + topBlock + "(new CardArea(parent, wrapper, this))"));
-		target.add(ir);
 		
 		dg.generateRender(cx.javaName, javaName(topBlock));
 		
@@ -126,6 +128,8 @@ public class TemplateGenerator {
 	}
 
 	private JSForm recurse(GeneratorContext cx, String called, TemplateLine tl) {
+		if (tl == null)
+			return null;
 		JSForm fn = JSForm.flex(called +" = function(parent)").needBlock();
 		cx.target.add(fn);
 		String base;
@@ -161,7 +165,7 @@ public class TemplateGenerator {
 		} else if (tl instanceof D3Invoke) {
 			base = "D3Area";
 		} else {
-			throw new UtilException("Template of type " + tl.getClass() + " not supported");
+			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
 		}
 		CGRContext cgrx = dg.area(javaName(called), base);
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
