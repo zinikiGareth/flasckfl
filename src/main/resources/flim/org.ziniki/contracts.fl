@@ -10,6 +10,11 @@
   
 	contract TimerCallback
 		down onTick 
+
+	contract Window
+		up requestFullScreen
+		up leaveFullScreen
+		up closePopup
 	
 	contract Credentials
 		up logout
