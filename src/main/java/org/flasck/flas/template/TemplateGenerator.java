@@ -400,7 +400,7 @@ public class TemplateGenerator {
 		// 2. Persistent local state (save state object)
 		// 3. Main object field or 4. Loaded object field (save data object using the appropriate contract)
 		save.add(JSForm.flex("wrapper.saveObject(containingObject)"));
-		save.add(JSForm.flex("console.log('saved to:', containingObject)"));
+//		save.add(JSForm.flex("console.log('saved to:', containingObject)"));
 		rules.add(save);
 		// if we add another block, need "save.comma();"
 		cx.target.add(rules);
