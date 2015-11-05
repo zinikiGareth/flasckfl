@@ -59,6 +59,7 @@ import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.ScopedVar;
+import org.flasck.flas.parsedForm.SpecialFormat;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -309,6 +310,19 @@ public class Rewriter {
 
 	}
 
+	public class FormatContext extends NamingContext {
+		public FormatContext(TemplateContext cx) {
+			super(cx);
+		}
+
+		@Override
+		public Object resolve(InputPosition location, String name) {
+			if (name.equals("dragOrder") || name.equals("dropTarget"))
+				return new SpecialFormat(location, name);
+			return nested.resolve(location, name);
+		}
+	}
+	
 	public class D3Context extends NamingContext {
 		private final IterVar iterVar;
 
@@ -325,7 +339,6 @@ public class Rewriter {
 		}
 
 	}
-
 
 	// I think I still need ImplementsContext, MethodContext and EventHandlerContext
 	// BUT I think the latter two can just be FunctionContext & ImplementsContext is dull
@@ -505,107 +518,122 @@ public class Rewriter {
 			return null;
 		List<Object> attrs = new ArrayList<Object>();
 		List<Object> formats = new ArrayList<Object>();
-		List<TemplateToken> specials = new ArrayList<TemplateToken>();
+		List<SpecialFormat> specials = new ArrayList<SpecialFormat>();
 		if (tl instanceof TemplateFormat) {
 			TemplateFormat tf = (TemplateFormat) tl;
+			FormatContext fc = new FormatContext(cx);
 			for (Object o : tf.formats) {
 				if (o instanceof TemplateToken) {
 					TemplateToken tt = (TemplateToken) o;
 					if (tt.type == TemplateToken.STRING)
 						formats.add(tt);
 					else if (tt.type == TemplateToken.IDENTIFIER) {
-						// handle special cases
-						if (tt.text.equals("dragOrder")) {
-							specials.add(tt);
-						} else
-							formats.add(rewriteExpr(cx, ItemExpr.from(new ExprToken(tt.location, ExprToken.IDENTIFIER, tt.text))));
+						Object rw = rewriteExpr(fc, ItemExpr.from(new ExprToken(tt.location, ExprToken.IDENTIFIER, tt.text)));
+						if (rw instanceof SpecialFormat)
+							specials.add((SpecialFormat)rw);
+						else
+							formats.add(rw);
 					}
 					else
 						throw new UtilException("Format type not handled: " + tt);
 				} else if (o instanceof ApplyExpr) {
-					formats.add(rewriteExpr(cx, o));
+					Object rw = rewriteExpr(fc, o);
+					if (rw instanceof ApplyExpr && ((ApplyExpr)rw).fn instanceof SpecialFormat) {
+						ApplyExpr ae = (ApplyExpr)rw;
+						SpecialFormat sf = (SpecialFormat) ae.fn;
+						sf.args.addAll(ae.args);
+						specials.add(sf);
+					} else
+						formats.add(rw);
 				} else 
 					throw new UtilException("Format type not handled: " + o.getClass());
 			}
 		}
-		try {
-			if (tl instanceof ContentString) {
-				ContentString cs = (ContentString)tl;
-				return rewriteEventHandlers(cx, new ContentString(cs.text, formats), ((TemplateFormatEvents)tl).handlers);
-			} else if (tl instanceof ContentExpr) {
-				ContentExpr ce = (ContentExpr)tl;
-				return rewriteEventHandlers(cx, new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats), ((TemplateFormatEvents)tl).handlers);
-			} else if (tl instanceof CardReference) {
-				CardReference cr = (CardReference) tl;
-				Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
-				Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
-				return new CardReference(cr.location, cardName, yoyoName);
-			} else if (tl instanceof TemplateDiv) {
-				TemplateDiv td = (TemplateDiv) tl;
-				for (Object o : td.attrs) {
-					if (o instanceof TemplateExplicitAttr) {
-						TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
-						Object value = tea.value;
-						if (tea.type == TemplateToken.IDENTIFIER) // any type of expression
-							value = rewriteExpr(cx, value);
-						attrs.add(new TemplateExplicitAttr(tea.location, tea.attr, tea.type, value));
-					} else
-						throw new UtilException("Attr type not handled: " + o.getClass());
-				}
-				TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
-				for (TemplateLine i : td.nested)
-					ret.nested.add(rewrite(cx, i));
-				rewriteEventHandlers(cx, ret, td.handlers);
-				return ret;
-			} else if (tl instanceof TemplateList) {
-				TemplateList ul = (TemplateList)tl;
-				TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
-				boolean supportDragOrdering = false;
-				for (TemplateToken tt : specials) {
-					if (tt.text.equals("dragOrder")) {
-						supportDragOrdering = true;
-						specials.remove(tt);
-						break;
-					}
-				}
-				TemplateList rul = new TemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, tlv, ul.customTag, ul.customTagVar, formats, supportDragOrdering);
-				cx = new TemplateContext(cx, tlv);
-				rul.template = rewrite(cx, ul.template);
-				return rul;
-			} else if (tl instanceof TemplateCases) {
-				TemplateCases tc = (TemplateCases)tl;
-				TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
-				for (TemplateOr tor : tc.cases)
-					ret.addCase(rewrite(cx, tor));
-				return ret;
-			} else if (tl instanceof D3Invoke) {
-				D3Invoke prev = (D3Invoke) tl;
-				D3Context c2 = new D3Context(cx, prev.d3.dloc, prev.d3.iter);
-				List<D3PatternBlock> patterns = new ArrayList<D3PatternBlock>();
-				for (D3PatternBlock p : prev.d3.patterns) {
-					D3PatternBlock rp = new D3PatternBlock(p.pattern);
-					patterns.add(rp);
-					for (D3Section s : p.sections.values()) {
-						D3Section rs = new D3Section(s.location, s.name);
-						rp.sections.put(s.name, rs);
-						for (MethodMessage mm : s.actions)
-							rs.actions.add(rewrite(c2, mm));
-						for (PropertyDefn prop : s.properties.values())
-							rs.properties.put(prop.name, new PropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
-					}
-				}
-				D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, prev.d3.dloc, rewriteExpr(c2, prev.d3.data), prev.d3.iter, patterns);
-				D3Invoke rw = new D3Invoke(prev.scope, rwD3);
-				d3s.add(rw);
-				return rw;
-			} else 
-				throw new UtilException("Content type not handled: " + (tl == null?"null":tl.getClass()));
-		} finally {
-			if (!specials.isEmpty()) {
-				for (TemplateToken tt : specials)
-					errors.message(tt.location, "cannot use format '" + tt.text + "' on this item");
+		if (tl instanceof ContentString) {
+			ContentString cs = (ContentString)tl;
+			return rewriteEventHandlers(cx, new ContentString(cs.text, formats), ((TemplateFormatEvents)tl).handlers);
+		} else if (tl instanceof ContentExpr) {
+			ContentExpr ce = (ContentExpr)tl;
+			return rewriteEventHandlers(cx, new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats), ((TemplateFormatEvents)tl).handlers);
+		} else if (tl instanceof CardReference) {
+			CardReference cr = (CardReference) tl;
+			Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
+			Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
+			return new CardReference(cr.location, cardName, yoyoName);
+		} else if (tl instanceof TemplateDiv) {
+			TemplateDiv td = (TemplateDiv) tl;
+			for (Object o : td.attrs) {
+				if (o instanceof TemplateExplicitAttr) {
+					TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
+					Object value = tea.value;
+					if (tea.type == TemplateToken.IDENTIFIER) // any type of expression
+						value = rewriteExpr(cx, value);
+					attrs.add(new TemplateExplicitAttr(tea.location, tea.attr, tea.type, value));
+				} else
+					throw new UtilException("Attr type not handled: " + o.getClass());
 			}
-		}
+			List<String> droppables = null; 
+			for (SpecialFormat tt : specials) {
+				if (tt.name.equals("dropTarget")) {
+					if (droppables == null)
+						droppables = new ArrayList<String>();
+					for (Object o : tt.args) {
+						if (!(o instanceof StringLiteral))
+							errors.message(((Locatable)o).location(), "arguments to dropTarget must be string literals");
+						else
+							droppables.add(((StringLiteral)o).text);
+					}
+				} else
+					errors.message(tt.location(), "Cannot handle special format " + tt.name);
+			}
+			TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
+			for (TemplateLine i : td.nested)
+				ret.nested.add(rewrite(cx, i));
+			rewriteEventHandlers(cx, ret, td.handlers);
+			ret.droppables = droppables;
+			return ret;
+		} else if (tl instanceof TemplateList) {
+			TemplateList ul = (TemplateList)tl;
+			TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
+			boolean supportDragOrdering = false;
+			for (SpecialFormat tt : specials) {
+				if (tt.name.equals("dragOrder")) {
+					supportDragOrdering = true;
+				} else
+					errors.message(tt.location(), "Cannot handle special format " + tt.name);
+			}
+			TemplateList rul = new TemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, tlv, ul.customTag, ul.customTagVar, formats, supportDragOrdering);
+			cx = new TemplateContext(cx, tlv);
+			rul.template = rewrite(cx, ul.template);
+			return rul;
+		} else if (tl instanceof TemplateCases) {
+			TemplateCases tc = (TemplateCases)tl;
+			TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
+			for (TemplateOr tor : tc.cases)
+				ret.addCase(rewrite(cx, tor));
+			return ret;
+		} else if (tl instanceof D3Invoke) {
+			D3Invoke prev = (D3Invoke) tl;
+			D3Context c2 = new D3Context(cx, prev.d3.dloc, prev.d3.iter);
+			List<D3PatternBlock> patterns = new ArrayList<D3PatternBlock>();
+			for (D3PatternBlock p : prev.d3.patterns) {
+				D3PatternBlock rp = new D3PatternBlock(p.pattern);
+				patterns.add(rp);
+				for (D3Section s : p.sections.values()) {
+					D3Section rs = new D3Section(s.location, s.name);
+					rp.sections.put(s.name, rs);
+					for (MethodMessage mm : s.actions)
+						rs.actions.add(rewrite(c2, mm));
+					for (PropertyDefn prop : s.properties.values())
+						rs.properties.put(prop.name, new PropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
+				}
+			}
+			D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, prev.d3.dloc, rewriteExpr(c2, prev.d3.data), prev.d3.iter, patterns);
+			D3Invoke rw = new D3Invoke(prev.scope, rwD3);
+			d3s.add(rw);
+			return rw;
+		} else 
+			throw new UtilException("Content type not handled: " + (tl == null?"null":tl.getClass()));
 	}
 
 	private TemplateLine rewriteEventHandlers(TemplateContext cx, TemplateFormatEvents ret, List<EventHandler> handlers) {
@@ -858,7 +886,7 @@ public class Rewriter {
 				} else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(location, s);
-				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar)
+				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());
@@ -919,11 +947,15 @@ public class Rewriter {
 					}
 					if (aefn instanceof UnresolvedVar) {
 						UnresolvedVar uv0 = (UnresolvedVar)aefn;
-						Object pkgEntry = cx.resolve(uv0.location, uv0.var);
-						if (pkgEntry instanceof PackageVar) {
-							Object o = ((PackageVar)pkgEntry).defn;
-							if (o instanceof PackageDefn)
-								return new PackageVar(((PackageDefn)o).innerScope().getEntry(fname));
+						try {
+							Object pkgEntry = cx.resolve(uv0.location, uv0.var);
+							if (pkgEntry instanceof PackageVar) {
+								Object o = ((PackageVar)pkgEntry).defn;
+								if (o instanceof PackageDefn)
+									return new PackageVar(((PackageDefn)o).innerScope().getEntry(fname));
+							}
+						} catch (ResolutionException ex) {
+							return new PackageVar(uv0.location, uv0.var + "." + fname, null);
 						}
 					} 
 					

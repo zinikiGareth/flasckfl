@@ -155,7 +155,7 @@ public class TypeExpr {
 		} else { // standard, possibly polymorphic
 			if (!type.hasPolys())
 				return type;
-			return type.instance(null, convertArgs(tc, pool, args));
+			return type.instance(type.location(), convertArgs(tc, pool, args));
 		}
 	}
 

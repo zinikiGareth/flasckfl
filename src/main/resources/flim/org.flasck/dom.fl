@@ -2,3 +2,6 @@
 		Number index
 		String id
 		String value
+
+	struct DropEvent
+		String file

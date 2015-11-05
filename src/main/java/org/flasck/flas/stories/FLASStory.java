@@ -11,6 +11,8 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.FLASError;
+import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardReference;
@@ -169,42 +171,46 @@ public class FLASStory implements StoryProcessor {
 				er.merge((ErrorResult)o);
 				continue;
 			}
-			if (o instanceof FunctionCaseDefn) {
-				FunctionCaseDefn fcd = (FunctionCaseDefn)o;
-				fndefns.add(new FCDWrapper(b.nested, fcd));
-			} else if (o instanceof FunctionIntro) {
-				FunctionIntro fi = (FunctionIntro) o;
-				Object[] arr = doCompoundFunction(er, b, fi);
-				if (arr == null)
-					continue;
-				Block lastBlock = (Block) arr[1];
-				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, fi.name, fi.args, arr[0]);
-				fndefns.add(new FCDWrapper(lastBlock.nested, fcd));
-			} else if (o instanceof MethodCaseDefn) {
-				methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) o));
-			} else if (o instanceof StructDefn) {
-				StructDefn sd = (StructDefn)o;
-				ret.define(State.simpleName(sd.name()), sd.name(), sd);
-				doStructFields(er, sd, b.nested);
-			} else if (o instanceof ObjectDefn) {
-				ObjectDefn od = (ObjectDefn)o;
-				doObjectMembers(er, s, od, b.nested);
-			} else if (o instanceof ContractDecl) {
-				ContractDecl cd = (ContractDecl) o;
-				if (ret.contains(cd.name()))
-					er.message(b, "duplicate definition for name " + cd.name());
-				else
-					ret.define(State.simpleName(cd.name()), cd.name(), cd);
-				doContractMethods(er, cd, b.nested);
-			} else if (o instanceof CardDefinition) {
-				CardDefinition cd = (CardDefinition) o;
-				doCardDefinition(er, new State(cd.innerScope(), cd.name, HSIEForm.CodeType.CARD), cd, b.nested);
-			} else if (o instanceof HandlerImplements) {
-				HandlerImplements hi = (HandlerImplements)o;
-				ScopeEntry se = ret.define(State.simpleName(hi.hiName), hi.hiName, hi);
-				doImplementation(s, er, se, hi, b.nested, State.simpleName(hi.hiName));
-			} else
-				throw new UtilException("Need to handle " + o.getClass());
+			try {
+				if (o instanceof FunctionCaseDefn) {
+					FunctionCaseDefn fcd = (FunctionCaseDefn)o;
+					fndefns.add(new FCDWrapper(b.nested, fcd));
+				} else if (o instanceof FunctionIntro) {
+					FunctionIntro fi = (FunctionIntro) o;
+					Object[] arr = doCompoundFunction(er, b, fi);
+					if (arr == null)
+						continue;
+					Block lastBlock = (Block) arr[1];
+					FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, fi.name, fi.args, arr[0]);
+					fndefns.add(new FCDWrapper(lastBlock.nested, fcd));
+				} else if (o instanceof MethodCaseDefn) {
+					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) o));
+				} else if (o instanceof StructDefn) {
+					StructDefn sd = (StructDefn)o;
+					ret.define(State.simpleName(sd.name()), sd.name(), sd);
+					doStructFields(er, sd, b.nested);
+				} else if (o instanceof ObjectDefn) {
+					ObjectDefn od = (ObjectDefn)o;
+					doObjectMembers(er, s, od, b.nested);
+				} else if (o instanceof ContractDecl) {
+					ContractDecl cd = (ContractDecl) o;
+					if (ret.contains(cd.name()))
+						er.message(b, "duplicate definition for name " + cd.name());
+					else
+						ret.define(State.simpleName(cd.name()), cd.name(), cd);
+					doContractMethods(er, cd, b.nested);
+				} else if (o instanceof CardDefinition) {
+					CardDefinition cd = (CardDefinition) o;
+					doCardDefinition(er, new State(cd.innerScope(), cd.name, HSIEForm.CodeType.CARD), cd, b.nested);
+				} else if (o instanceof HandlerImplements) {
+					HandlerImplements hi = (HandlerImplements)o;
+					ScopeEntry se = ret.define(State.simpleName(hi.hiName), hi.hiName, hi);
+					doImplementation(s, er, se, hi, b.nested, State.simpleName(hi.hiName));
+				} else
+					throw new UtilException("Need to handle " + o.getClass());
+			} catch (ScopeDefineException ex) {
+				er.message(new FLASError(b.line.locationAtText(0), ex.getMessage()));
+			}
 		}
 		if (er.hasErrors())
 			return er;

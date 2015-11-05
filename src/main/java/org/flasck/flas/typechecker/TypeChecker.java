@@ -889,7 +889,7 @@ public class TypeChecker {
 			if (x.getKey().substring(inPkg.length()+1).indexOf(".") != -1)
 				continue;
 
-			System.out.println("  function " + x.getKey() + " :: " + x.getValue());
+			System.out.println("  function " + x.getKey() + " :: " + x.getValue() + " => " + x.getValue().location());
 			types.put(x.getKey(), x.getValue());
 		}
 		oos.writeObject(types);

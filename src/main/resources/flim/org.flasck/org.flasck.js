@@ -31,4 +31,21 @@ org.flasck.ChangeEvent = function(v0, v1, v2) {
   return new org.flasck._ChangeEvent({index: v0, id: v1, value: v2});
 }
 
+org.flasck._DropEvent = function(v0) {
+  "use strict";
+  this._ctor = 'org.flasck.DropEvent';
+  if (v0) {
+    if (v0.file) {
+      this.file = v0.file;
+    }
+  }
+  else {
+  }
+}
+
+org.flasck.DropEvent = function(v0) {
+  "use strict";
+  return new org.flasck._DropEvent({file: v0});
+}
+
 org.flasck;

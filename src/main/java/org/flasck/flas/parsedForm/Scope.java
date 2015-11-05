@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringComparator;
@@ -74,9 +75,9 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 
 	public ScopeEntry define(String key, String name, Object defn) {
 		if (key.contains(".") && !key.equals(".") && !(defn instanceof PackageDefn))
-			throw new UtilException("Cannot define an entry in a scope with a compound key: " + key);
+			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);
 		if (defns.containsKey(key))
-			throw new UtilException("Cannot provide multiple definitions of " + name);
+			throw new ScopeDefineException("Cannot provide multiple definitions of " + name);
 		ScopeEntry ret = new ScopeEntry(name, defn);
 		defns.put(key, ret);
 		return ret;

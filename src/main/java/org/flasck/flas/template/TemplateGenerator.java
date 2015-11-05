@@ -225,6 +225,12 @@ public class TemplateGenerator {
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
 			}
+			if (td.droppables != null) {
+				List<String> asRegexps = new ArrayList<String>();
+				for (String s : td.droppables)
+					asRegexps.add("/" + s + "/");
+				fn.add(JSForm.flex("this._dropSomethingHere(" + asRegexps + ")"));
+			}
 			for (TemplateLine c : td.nested) {
 				String v = cx.currentVar();
 				String cn = cx.nextArea();
@@ -373,9 +379,13 @@ public class TemplateGenerator {
 				for (EventHandler eh : tfe.handlers) {
 					HSIEForm exprn = hsie.handleExpr(eh.expr, HSIEForm.CodeType.AREA);
 					curry.rewrite(tc, exprn);
-					
+
+					// add a hack to allow us to NOT overwrite events that we want to intercept first
+					String distinguish = "";
+					if (eh.action.equals("drop"))
+						distinguish = "_";
 					JSForm.assign(ahf, "var eh" + eh.action, exprn);
-					JSForm cev = JSForm.flex("this._mydiv['on" + eh.action + "'] = function(event)").needBlock();
+					JSForm cev = JSForm.flex("this._mydiv['on" + distinguish + eh.action + "'] = function(event)").needBlock();
 					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(eh" + eh.action + ", event)"));
 					ahf.add(cev);
 	

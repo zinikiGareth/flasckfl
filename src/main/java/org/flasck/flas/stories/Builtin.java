@@ -160,7 +160,7 @@ public class Builtin {
 			ret.define("Crokeys", "Crokeys", crokeys);
 			crokeys.addField(new StructField(false, string, "id"));
 			crokeys.addField(new StructField(false, string, "keytype"));
-			crokeys.addField(new StructField(false, list.instance(null,  crokey), "keys"));
+			crokeys.addField(new StructField(false, list.instance(posn,  crokey), "keys"));
 
 			ObjectDefn croset = new ObjectDefn(posn, ret, "Croset", false, varA);
 			croset.constructorArg(crokeys, "init");

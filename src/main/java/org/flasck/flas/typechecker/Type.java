@@ -40,6 +40,8 @@ public class Type implements Serializable, Locatable {
 	}
 
 	protected Type(InputPosition location, WhatAmI iam, Type type, List<Type> args) {
+		if (location == null && iam != WhatAmI.POLYVAR)
+			System.out.println("Type without input location");
 		this.location = location;
 		this.iam = iam;
 		this.name = null;
@@ -49,6 +51,8 @@ public class Type implements Serializable, Locatable {
 	}
 
 	protected Type(InputPosition location, WhatAmI iam, List<Type> subtypes) {
+		if (location == null)
+			System.out.println("Type without input location");
 		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE)
 			throw new UtilException("Only applicable to FUNCTION and TUPLE");
 		this.location = location;
