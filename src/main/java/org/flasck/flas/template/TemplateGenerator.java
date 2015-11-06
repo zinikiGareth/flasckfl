@@ -159,7 +159,12 @@ public class TemplateGenerator {
 		} else if (tl instanceof CardReference) {
 			CardReference cr = (CardReference) tl;
 			base = "CardSlotArea";
-			moreArgs = ", { explicit: " + cr.explicitCard + "}";
+			if (cr.explicitCard != null)
+				moreArgs = ", { explicit: " + cr.explicitCard + "}";
+			else if (cr.yoyoVar != null) {
+				moreArgs = ", undefined"; // explicitly say the card is undefined until yoyoVar evaluates
+			} else
+				throw new UtilException("Can't handle this case");
 		} else if (tl instanceof TemplateCases) {
 			base = "CasesArea";
 		} else if (tl instanceof D3Invoke) {
@@ -291,7 +296,21 @@ public class TemplateGenerator {
 					throw new UtilException("Cannot edit: " + valExpr);
 			}
 		} else if (tl instanceof CardReference) {
-			// Not sure if we need to do something or not ...
+			CardReference cr = (CardReference) tl;
+			if (cr.explicitCard != null)
+				; // fully handled above
+			else if (cr.yoyoVar != null) {
+				Object valExpr = cr.yoyoVar;
+				callOnAssign(fn, valExpr, cgrx, called + ".prototype._yoyoExpr", true, null);
+	
+				JSForm cexpr = JSForm.flex(called +".prototype._yoyoExpr = function()").needBlock();
+				HSIEForm form = hsie.handleExpr(valExpr, CodeType.AREA);
+				form.dump(TypeChecker.logger);
+				JSForm.assign(cexpr, "var card", form);
+				cexpr.add(JSForm.flex("this._updateToCard(card)"));
+				cx.target.add(cexpr);
+			} else
+				throw new UtilException("handle this case");
 		} else if (tl instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases) tl;
 			String sn = called + ".prototype._chooseCase";

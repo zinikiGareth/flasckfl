@@ -91,6 +91,11 @@ public class Builtin {
 			d3.addField(new StructField(false, varA, "data"));
 			d3.addField(new StructField(false, number, "idx"));
 		}
+		{
+			ObjectDefn card = new ObjectDefn(posn, ret, "Card", false);
+			card.constructorArg(string, "explicit");
+			card.constructorArg(string, "loadId");
+		}
 		StructDefn send = new StructDefn(posn, "Send", false);
 		{ // messaging
 			UnionTypeDefn message = new UnionTypeDefn(posn, false, "Message");
@@ -164,7 +169,6 @@ public class Builtin {
 
 			ObjectDefn croset = new ObjectDefn(posn, ret, "Croset", false, varA);
 			croset.constructorArg(crokeys, "init");
-//			ret.define("Croset", "Croset", croset); // handled automatically by the constructor ...
 			
 			// These are actually accessors ...
 			croset.addMethod(new ObjectMethod(Type.function(posn, string, any), "item"));

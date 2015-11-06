@@ -54,3 +54,9 @@ to an object, with the object being defined in JS
 
 	contract Content
 		up	 upload (String toURL) (String contentURL)
+		
+	contract Yoyo
+		up	 get (String id) (YoyoHandler handler) 
+
+	contract YoyoHandler
+		down showCard (Card card) 
