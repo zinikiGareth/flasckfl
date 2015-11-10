@@ -48,6 +48,7 @@
 		
 	contract CrosetHandler
 		down update (Crokeys keys)
+		down remove (Crokeys keys)
 
 I think this (and anything else that is basically JSNI) would be better served as an "interface"
 to an object, with the object being defined in JS

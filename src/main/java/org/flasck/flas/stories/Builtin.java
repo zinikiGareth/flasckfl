@@ -178,6 +178,7 @@ public class Builtin {
 			croset.addMethod(new ObjectMethod(Type.function(posn, any, send), "put"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, string, send), "delete"));
+			croset.addMethod(new ObjectMethod(Type.function(posn, crokeys, send), "deleteSet"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, string, any, send), "insert"));
 			croset.addMethod(new ObjectMethod(Type.function(posn, send), "clear"));
 		}
