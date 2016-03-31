@@ -16,8 +16,8 @@ public class GarneredFrom {
 
 	public GarneredFrom(InputPosition posn) {
 		// This has to be commented out for unit tests to pass since they pass null around like crazy people
-//		if (posn == null)
-//			throw new UtilException("position cannot be null");
+		if (posn == null)
+			throw new UtilException("position cannot be null");
 		this.which = Which.INPUT;
 		this.posn = posn;
 		this.exref = null;
@@ -27,7 +27,9 @@ public class GarneredFrom {
 
 	public GarneredFrom(ExternalRef fn, Object te) {
 		this.which = Which.EXTREF;
-		this.posn = null;
+		this.posn = fn.location();
+		if (posn == null)
+			System.out.println("posn should not be null");
 		this.exref = fn;
 		this.type = te;
 		this.fnName = null;
@@ -35,7 +37,9 @@ public class GarneredFrom {
 
 	public GarneredFrom(StructField f) {
 		this.which = Which.STRUCT;
-		this.posn = null;
+		this.posn = f.location();
+		if (posn == null)
+			System.out.println("posn should not be null");
 		this.exref = null;
 		this.type = f.type;
 		this.fnName = null;
@@ -43,16 +47,20 @@ public class GarneredFrom {
 
 	public GarneredFrom(Type type, int i) {
 		this.which = Which.TYPEARG;
-		this.posn = null;
+		this.posn = type.location();
+		if (posn == null)
+			System.out.println("posn should not be null");
 		this.exref = null;
 		this.type = type;
 		this.arg = i;
 		this.fnName = null;
 	}
 
-	public GarneredFrom(String fnName, int i) {
+	public GarneredFrom(String fnName, int i, InputPosition loc) {
 		this.which = Which.FNARG;
-		this.posn = null;
+		this.posn = loc;
+		if (posn == null)
+			System.out.println("posn should not be null");
 		this.exref = null;
 		this.type = null;
 		this.fnName = fnName;

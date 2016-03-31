@@ -274,7 +274,7 @@ public class TypeChecker {
 			}
 			vars.add(mapping.get(v));
 		}
-		HSIEForm ret = new HSIEForm(hsie.mytype, hsie.fnName, hsie.alreadyUsed, hsie.nformal, vars, hsie.externals);
+		HSIEForm ret = new HSIEForm(hsie.mytype, hsie.fnName, hsie.fnLoc, hsie.alreadyUsed, hsie.nformal, vars, hsie.externals);
 		mapBlock(ret, hsie, mapping);
 		for (HSIEBlock b : hsie.closures()) {
 			ClosureCmd cc = (ClosureCmd)b;
@@ -372,7 +372,7 @@ public class TypeChecker {
 		for (int i=hsie.nformal-1;i>=0;i--) {
 			CreationOfVar myarg = new CreationOfVar(hsie.vars.get(hsie.alreadyUsed+i), null, "??");
 			Object tv = s.gamma.valueOf(myarg).typeExpr;
-			rhs = new TypeExpr(new GarneredFrom(hsie.fnName, i), Type.builtin(new InputPosition("->", 0,0,null), "->"), s.phi.subst(tv), rhs);
+			rhs = new TypeExpr(new GarneredFrom(hsie.fnName, i, hsie.fnLoc), Type.builtin(new InputPosition("->", 0,0,null), "->"), s.phi.subst(tv), rhs);
 		}
 		return rhs;
 	}
@@ -488,13 +488,15 @@ public class TypeChecker {
 		logger.debug("Checking command " + cmd);
 		if (cmd instanceof PushReturn) {
 			PushReturn r = (PushReturn) cmd;
+			if (r.location == null)
+				System.out.println("No input position for " + r);
 			GarneredFrom myloc = new GarneredFrom(r.location);
 			if (r.ival != null) {
 				logger.debug(r.toString() + " is a constant of type Number");
-				return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "Number")); // TODO: it would be good to look this up; we should be able to do that
+				return new TypeExpr(myloc, this.knowledge.get("Number"));
 			} else if (r.sval != null) {
 				logger.debug(r.toString() + " is a constant of type String");
-				return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "String"));
+				return new TypeExpr(myloc, this.knowledge.get("String"));
 			} else if (r.tlv != null) {
 				// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
 				TypeVar ret = factory.next();

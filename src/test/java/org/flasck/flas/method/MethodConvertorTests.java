@@ -100,7 +100,7 @@ public class MethodConvertorTests {
 		}
 		{
 			StructDefn struct = new StructDefn(null, "Thing", true);
-			struct.addField(new StructField(false, Type.reference(null, "String"), "x"));
+			struct.addField(new StructField(null, false, Type.reference(null, "String"), "x"));
 			orgFooScope.define("Thing", struct.name(), struct);
 		}
 		
@@ -108,7 +108,7 @@ public class MethodConvertorTests {
 			rewriter = new Rewriter(errors, null);
 			cd = new CardDefinition(null, orgFooScope, "org.foo.Card");
 			cd.state = new StateDefinition();
-			cd.state.addField(new StructField(false, Type.reference(null, "String"), "str"));
+			cd.state.addField(new StructField(null, false, Type.reference(null, "String"), "str"));
 			{
 				ce = new ContractImplements(null, "org.foo.Contract1", null, "ce");
 				cd.contracts.add(ce);

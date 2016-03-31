@@ -58,7 +58,7 @@ public class MethodConvertor {
 		this.hsie = hsie;
 		this.tc = tc;
 		this.contracts = contracts;
-		this.messageList = tc.getType(null, "List").instance(null, tc.getType(null, "Message"));
+		this.messageList = tc.getType(new InputPosition("builtin", 0, 0, ""), "List").instance(new InputPosition("builtin", 0, 0, ""), tc.getType(null, "Message"));
 	}
 
 	// 1. Main entry points to convert different kinds of things

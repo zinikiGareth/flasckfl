@@ -36,7 +36,7 @@ public class FieldParser implements TryParsing {
 		if (kw == null)
 			return ErrorResult.oneMessage(line, "invalid variable name");
 		if (!line.hasMore())
-			return new StructField(accessor, type, kw.text);
+			return new StructField(kw.location, accessor, type, kw.text);
 		line.skipWS();
 		String op = line.getTo(2);
 		if (!"<-".equals(op))
@@ -49,7 +49,7 @@ public class FieldParser implements TryParsing {
 		else if (line.hasMore())
 			return ErrorResult.oneMessage(line, "invalid tokens after expression");
 		else
-			return new StructField(accessor, type, kw.text, o);
+			return new StructField(kw.location, accessor, type, kw.text, o);
 	}
 
 }

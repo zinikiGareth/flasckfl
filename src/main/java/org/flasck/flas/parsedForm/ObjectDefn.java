@@ -34,8 +34,8 @@ public class ObjectDefn extends TypeWithMethods implements ContainsScope, AsStri
 		return innerScope;
 	}
 
-	public void constructorArg(Type type, String name) {
-		ctorArgs.add(new StructField(false, type, name));
+	public void constructorArg(InputPosition pos, Type type, String name) {
+		ctorArgs.add(new StructField(pos, false, type, name));
 	}
 	
 	@Override

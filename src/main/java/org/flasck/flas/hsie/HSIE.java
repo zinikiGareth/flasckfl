@@ -10,12 +10,14 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -44,7 +46,7 @@ public class HSIE {
 	}
 	
 	public HSIEForm handle(Map<String, HSIEForm> previous, FunctionDefinition defn, int alreadyUsed, Map<String, CreationOfVar> map) {
-		HSIEForm ret = new HSIEForm(defn.mytype, defn.name, alreadyUsed, map, defn.nargs);
+		HSIEForm ret = new HSIEForm(defn.mytype, defn.name, defn.location, alreadyUsed, map, defn.nargs);
 		MetaState ms = new MetaState(rewriter, previous, ret);
 		if (defn.nargs == 0)
 			return handleConstant(ms, defn);
@@ -62,14 +64,20 @@ public class HSIE {
 	}
 
 	public HSIEForm handleExpr(Object expr, CodeType type) {
-		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(type, "", 0, new HashMap<String, CreationOfVar>(), 0));
+		InputPosition loc = null;
+		if (expr instanceof Locatable)
+			loc = ((Locatable)expr).location();
+		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(type, "", loc, 0, new HashMap<String, CreationOfVar>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}
 
 	public HSIEForm handleExprWith(Object expr, CodeType type, List<String> vars) {
-		HSIEForm blk = new HSIEForm(type, "_expr_", 0, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
+		InputPosition loc = null;
+		if (expr instanceof Locatable)
+			loc = ((Locatable)expr).location();
+		HSIEForm blk = new HSIEForm(type, "_expr_", loc, 0, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
 		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), blk);
 //		State s = new State(blk);
 //		ms.add(s);

@@ -239,8 +239,8 @@ public class TestBasicTypeChecking {
 		StructDefn nil = new StructDefn(null, "Nil", false);
 		tc.addStructDefn(nil);
 		StructDefn cons = new StructDefn(null, "Cons", false, varA); 
-		cons.addField(new StructField(false, varA, "head"));
-		cons.addField(new StructField(false, cons, "tail"));
+		cons.addField(new StructField(null, false, varA, "head"));
+		cons.addField(new StructField(null, false, cons, "tail"));
 		tc.addStructDefn(cons);
 		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
 		list.addCase(nil);
@@ -272,8 +272,8 @@ public class TestBasicTypeChecking {
 		StructDefn nil = new StructDefn(null, "Nil", false);
 		tc.addStructDefn(nil);
 		StructDefn cons = new StructDefn(null, "Cons", false, varA); 
-		cons.addField(new StructField(false, varA, "head"));
-		cons.addField(new StructField(false, cons, "tail"));
+		cons.addField(new StructField(null, false, varA, "head"));
+		cons.addField(new StructField(null, false, cons, "tail"));
 		tc.addStructDefn(cons);
 		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
 		list.addCase(nil);
@@ -305,8 +305,8 @@ public class TestBasicTypeChecking {
 		StructDefn nil = new StructDefn(null, "Nil", false);
 		tc.addStructDefn(nil);
 		StructDefn cons = new StructDefn(null, "Cons", false, varA); 
-		cons.addField(new StructField(false, varA, "head"));
-		cons.addField(new StructField(false, cons, "tail"));
+		cons.addField(new StructField(null, false, varA, "head"));
+		cons.addField(new StructField(null, false, cons, "tail"));
 		tc.addStructDefn(cons);
 		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
 		list.addCase(nil);

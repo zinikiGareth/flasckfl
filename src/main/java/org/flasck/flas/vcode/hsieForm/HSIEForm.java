@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.hsie.SubstExpr;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.ScopedVar;
@@ -34,6 +35,7 @@ public class HSIEForm extends HSIEBlock {
 
 	public final CodeType mytype;
 	public final String fnName;
+	public final InputPosition fnLoc;
 	public final int alreadyUsed;
 	public final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();
@@ -43,10 +45,11 @@ public class HSIEForm extends HSIEBlock {
 	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 
 	// This constructor is the one for real code
-	public HSIEForm(CodeType mytype, String name, int alreadyUsed, Map<String, CreationOfVar> map, int nformal) {
+	public HSIEForm(CodeType mytype, String name, InputPosition nameLoc, int alreadyUsed, Map<String, CreationOfVar> map, int nformal) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
+		this.fnLoc = nameLoc;
 		if (alreadyUsed != 0)
 			System.out.println("Hello");
 		this.alreadyUsed = 0;
@@ -58,10 +61,11 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	// This is the copy/rewrite constructor
-	public HSIEForm(CodeType mytype, String name, int alreadyUsed, int nformal, List<Var> vars, Collection<Object> externals) {
+	public HSIEForm(CodeType mytype, String name, InputPosition fnLoc, int alreadyUsed, int nformal, List<Var> vars, Collection<Object> externals) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
+		this.fnLoc = fnLoc;
 		this.alreadyUsed = 0;
 		this.nformal = nformal;
 		this.vars.addAll(vars);
@@ -73,6 +77,7 @@ public class HSIEForm extends HSIEBlock {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		fnName = name;
+		this.fnLoc = null;
 		this.alreadyUsed = 0;
 		this.nformal = nformal;
 //		for (int i=0;i<alreadyUsed;i++)

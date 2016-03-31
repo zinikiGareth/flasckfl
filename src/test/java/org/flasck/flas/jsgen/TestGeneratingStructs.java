@@ -35,8 +35,8 @@ public class TestGeneratingStructs {
 	@Test
 	public void testACaseWithTwoFields() throws IOException {
 		StructDefn sd = new StructDefn(null, "ME.Hello", true);
-		sd.addField(new StructField(false, Type.reference(null, "String"), "name"));
-		sd.addField(new StructField(false, Type.reference(null, "Number"), "quant"));
+		sd.addField(new StructField(null, false, Type.reference(null, "String"), "name"));
+		sd.addField(new StructField(null, false, Type.reference(null, "Number"), "quant"));
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(null, target);
 		gen.generate(sd);
