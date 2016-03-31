@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardGrouping;
 import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
@@ -22,7 +21,9 @@ import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectReference;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.PlatformSpec;
+import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.android.AndroidLabel;
@@ -41,6 +42,8 @@ import org.flasck.flas.vcode.hsieForm.PushCmd;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.BlockExpr;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -76,7 +79,7 @@ import com.gmmapowell.quickbuild.config.ConfigFactory;
 public class DroidGenerator {
 	private final ByteCodeEnvironment bce;
 	private final File androidDir;
-//	private final static Logger logger = LoggerFactory.getLogger("DroidGen");
+	private final static Logger logger = LoggerFactory.getLogger("DroidGen");
 
 	public DroidGenerator(HSIE hsie, ByteCodeEnvironment bce, File androidDir) {
 		this.bce = bce;
@@ -253,30 +256,55 @@ public class DroidGenerator {
 		if (androidDir == null)
 			return;
 		for (HSIEForm f : forms) {
-//			f.dump(logger);
+			logger.info("Considering form " + f);
+			f.dump(logger);
 			int idx = f.fnName.lastIndexOf(".");
+			String inClz;
 			String fn = f.fnName.substring(idx+1);
-			int idx2 = f.fnName.lastIndexOf(".", idx-1);
-			String clz = f.fnName.substring(0, idx2);
-			String sub = f.fnName.substring(idx2+1, idx);
-			ByteCodeCreator bcc = bce.get(clz +"$"+sub);
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, fn);
+			boolean isStatic;
+			if (f.mytype == CodeType.HANDLER || f.mytype == CodeType.CONTRACT) {
+				int idx2 = f.fnName.lastIndexOf(".", idx-1);
+				String clz = f.fnName.substring(0, idx2);
+				String sub = f.fnName.substring(idx2+1, idx);
+				inClz = clz +"$"+sub;
+				isStatic = false;
+			} else if (f.mytype == CodeType.FUNCTION || f.mytype == CodeType.STANDALONE) {
+				String pkg = f.fnName.substring(0, idx);
+				inClz = pkg +".PackageFunctions";
+				if (!bce.hasClass(inClz)) {
+					ByteCodeCreator bcc = new ByteCodeCreator(bce, inClz);
+					bcc.superclass("java.lang.Object");
+				}
+				isStatic = true;
+			} else
+				throw new UtilException("Can't handle " + f.fnName + " of code type " + f.mytype);
+			ByteCodeCreator bcc = bce.get(inClz);
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, isStatic, fn);
 			gen.returns("java.lang.Object");
-			Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
 			List<PendingVar> tmp = new ArrayList<PendingVar>();
+			int j = 0;
+			for (@SuppressWarnings("unused") Object s : f.scoped)
+				tmp.add(gen.argument("java.lang.Object", "_s"+(j++)));
 			for (int i=0;i<f.nformal;i++)
 				tmp.add(gen.argument("java.lang.Object", "_"+i));
 			MethodDefiner meth = gen.done();
+			j = 0;
+			Map<String, Var> svars = new HashMap<String, Var>();
+			Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
+			for (String s : f.scoped) {
+				svars.put(s, tmp.get(j).getVar());
+				j++;
+			}
 			for (int i=0;i<f.nformal;i++)
-				vars.put(f.vars.get(i), tmp.get(i).getVar());
-			Expr blk = generateBlock(meth, vars, f, f);
+				vars.put(f.vars.get(i), tmp.get(i+j).getVar());
+			Expr blk = generateBlock(meth, svars, vars, f, f);
 			if (blk != null)
 				blk.flush();
 //			meth.returnObject(meth.myThis()).flush();
 		}
 	}
 
-	private Expr generateBlock(NewMethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, HSIEForm f, HSIEBlock blk) {
+	private Expr generateBlock(NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, HSIEForm f, HSIEBlock blk) {
 		List<Expr> stmts = new ArrayList<Expr>();
 		for (HSIEBlock h : blk.nestedCommands()) {
 			if (h instanceof Head) {
@@ -287,10 +315,10 @@ public class DroidGenerator {
 			} else if (h instanceof Switch) {
 				Switch s = (Switch)h;
 				Var hv = vars.get(s.var);
-				stmts.add(meth.ifBoolean(meth.instanceOf(hv, s.ctor), generateBlock(meth, vars, f, s), null));
+				stmts.add(meth.ifBoolean(meth.instanceOf(hv, s.ctor), generateBlock(meth, svars, vars, f, s), null));
 			} else if (h instanceof IFCmd) {
 				IFCmd c = (IFCmd)h;
-				generateBlock(meth, vars, f, c);
+				generateBlock(meth, svars, vars, f, c);
 			} else if (h instanceof BindCmd) {
 //				into.add(JSForm.bind((BindCmd) h));
 			} else if (h instanceof ReturnCmd) {
@@ -307,15 +335,15 @@ public class DroidGenerator {
 									v = meth.avar("java.lang.Object", cov.var.toString());
 									vars.put(cov.var, v);
 								}
-								Expr cl = closure(meth, vars, f.mytype, f.getClosure(cov.var));
+								Expr cl = closure(f, meth, svars, vars, f.mytype, f.getClosure(cov.var));
 								stmts.add(meth.assign(v, cl));
 							}
 						}
-						Expr cl = closure(meth, vars, f.mytype, f.getClosure(r.var.var));
+						Expr cl = closure(f, meth, svars, vars, f.mytype, f.getClosure(r.var.var));
 						stmts.add(meth.returnObject(cl));
 					}
 				} else {
-					Expr expr = appendValue(meth, vars, f.mytype, r, 0);
+					Expr expr = appendValue(f, meth, svars, vars, f.mytype, r, 0);
 					stmts.add(expr);
 				}
 			} else if (h instanceof ErrorCmd) {
@@ -333,7 +361,7 @@ public class DroidGenerator {
 			return new BlockExpr(meth, stmts);
 	}
 
-	private Expr closure(NewMethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
+	private Expr closure(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
 		// Loop over everything in the closure pushing it onto the stack (in al)
 		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
 		Expr needsObject = null;
@@ -363,7 +391,7 @@ public class DroidGenerator {
 			if (c.fn != null && isField && pos == 2)
 				System.out.println("c.fn = " + c.fn);
 			else
-				al.add(upcast(meth, appendValue(meth, vars, fntype, c, pos)));
+				al.add(upcast(meth, appendValue(form, meth, svars, vars, fntype, c, pos)));
 			pos++;
 		}
 		Expr clz = al.remove(0);
@@ -379,7 +407,7 @@ public class DroidGenerator {
 		return expr;
 	}
 
-	private static Expr appendValue(NewMethodDefiner meth, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, PushReturn c, int pos) {
+	private static Expr appendValue(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, PushReturn c, int pos) {
 		if (c.fn != null) {
 			if (c.fn instanceof PackageVar || c.fn instanceof ObjectReference) {
 				boolean wantEval = false;
@@ -411,6 +439,14 @@ public class DroidGenerator {
 				} else {
 					return meth.callStatic(clz, "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<Expr>()));
 				}
+			} else if (c.fn instanceof ScopedVar) {
+				ScopedVar sv = (ScopedVar) c.fn;
+				if (sv.definedLocally) {
+					return null;
+				}
+				if (!svars.containsKey(c.fn.uniqueName()))
+					throw new UtilException("ScopedVar not in scope: " + c.fn);
+				return svars.get(c.fn.uniqueName());
 //			} else if (c.fn instanceof CardFunction) {
 //				String jsname = c.fn.uniqueName();
 //				int idx = jsname.lastIndexOf(".");
@@ -434,7 +470,6 @@ public class DroidGenerator {
 					throw new UtilException("Can't handle " + fntype + " with handler lambda");
 			} else
 				throw new UtilException("Can't handle " + c.fn + " of type " + c.fn.getClass());
-//					sb.append(mapName(c.fn.uniqueName()));
 		} else if (c.ival != null)
 			return meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(c.ival));
 		else if (c.var != null)
@@ -503,7 +538,8 @@ public class DroidGenerator {
 		NewMethodDefiner meth = gen.done();
 		Var str = meth.avar("java.lang.String", "str");
 		Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
-		Expr blk = generateBlock(meth, vars, form, form);
+		Map<String, Var> svars = new HashMap<String, Var>();
+		Expr blk = generateBlock(meth, svars, vars, form, form);
 		if (blk.getType().equals("java.lang.String")) {
 			// nothing to do ...
 		} else if (blk.getType().equals("java.lang.Integer") || blk.getType().equals("int")) {

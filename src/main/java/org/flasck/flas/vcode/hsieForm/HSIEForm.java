@@ -40,7 +40,7 @@ public class HSIEForm extends HSIEBlock {
 	public final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();
 	public final Set<Object> externals = new TreeSet<Object>();
-	public final Set<Object> scoped = new TreeSet<Object>();
+	public final Set<String> scoped = new TreeSet<String>();
 	private final Map<Var, ClosureCmd> closures = new HashMap<Var, ClosureCmd>();
 	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 

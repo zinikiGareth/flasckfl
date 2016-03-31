@@ -157,7 +157,7 @@ public class JSForm {
 		return ret;
 	}
 
-	public static JSForm function(String fnName, List<Var> hsvs, Set<Object> scoped, int nformal) {
+	public static JSForm function(String fnName, List<Var> hsvs, Set<String> scoped, int nformal) {
 		List<String> vars = new ArrayList<String>();
 		int j=0;
 		for (Object s : scoped)

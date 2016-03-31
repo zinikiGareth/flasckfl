@@ -820,7 +820,7 @@ public class TypeChecker {
 
 	public void writeLearnedKnowledge(OutputStream wex, String inPkg, boolean copyToScreen) throws IOException {
 		if (copyToScreen)
-			System.out.println("Inferred types:");
+			System.out.println("Exporting inferred types at top scope:");
 		ObjectOutputStream oos = new ObjectOutputStream(wex);
 		List<StructDefn> str = new ArrayList<StructDefn>();
 		for (StructDefn sd : structs.values()) {

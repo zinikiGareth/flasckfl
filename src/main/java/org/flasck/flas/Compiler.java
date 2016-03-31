@@ -322,22 +322,7 @@ public class Compiler {
 			handleCurrying(curry, tc, forms.values());
 			abortIfErrors(errors);
 
-			// 10. generation of JSForms
-			generateForms(gen, forms.values());
-			dg.generate(forms.values());
-			abortIfErrors(errors);
-
-			// 11a. Issue JavaScript
-			try {
-				wjs = new FileWriter(writeTo);
-			} catch (IOException ex) {
-				System.err.println("Cannot write to " + writeTo + ": " + ex.getMessage());
-				return;
-			}
-			target.writeTo(wjs);
-
-			
-			// 11b. Save learned state for export
+			// 10. Save learned state for export
 			try {
 				wex = new FileOutputStream(exportTo);
 			} catch (IOException ex) {
@@ -346,7 +331,22 @@ public class Compiler {
 			}
 			tc.writeLearnedKnowledge(wex, inPkg, dumpTypes);
 			pkgFinder.searchIn(file.getParentFile());
-			
+
+			// 11. generation of JSForms
+			generateForms(gen, forms.values());
+			dg.generate(forms.values());
+			abortIfErrors(errors);
+
+			// 12a. Issue JavaScript
+			try {
+				wjs = new FileWriter(writeTo);
+			} catch (IOException ex) {
+				System.err.println("Cannot write to " + writeTo + ": " + ex.getMessage());
+				return;
+			}
+			target.writeTo(wjs);
+
+			// 12b. Issue Droid
 			try {
 				dg.write();
 			} catch (Exception ex) {
