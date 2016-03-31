@@ -345,7 +345,8 @@ public class Compiler {
 				return;
 			}
 			tc.writeLearnedKnowledge(wex, inPkg, dumpTypes);
-
+			pkgFinder.searchIn(file.getParentFile());
+			
 			try {
 				dg.write();
 			} catch (Exception ex) {
