@@ -114,7 +114,7 @@ public class MethodConvertor {
 				errors.message(loc, "incorrect number of formal parameters to contract method '" + mcd.intro.name +"': expected " + types.size() + " but was " + mcd.intro.args.size());
 				continue;
 			}
-			TypedObject typedObject = convertMessagesToActionList(loc, m.scope, mcd.intro.args, types, mcd.messages);
+			TypedObject typedObject = convertMessagesToActionList(loc, m.scope, mcd.intro.args, types, mcd.messages, m.type.isHandler());
 			cases.add(new FunctionCaseDefn(loc, mcd.intro.name, mcd.intro.args, typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
@@ -136,7 +136,7 @@ public class MethodConvertor {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		Type ofType = null;
 		for (EventCaseDefn c : eh.cases) {
-			TypedObject typedObject = convertMessagesToActionList(eh.intro.location, scope, eh.intro.args, types, c.messages);
+			TypedObject typedObject = convertMessagesToActionList(eh.intro.location, scope, eh.intro.args, types, c.messages, false);
 			if (ofType == null)
 				ofType = typedObject.type;
 			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
@@ -160,7 +160,7 @@ public class MethodConvertor {
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		Type ofType = null;
 		for (MethodCaseDefn c : method.cases) {
-			TypedObject typedObject = convertMessagesToActionList(method.intro.location, mic.scope, margs, types, c.messages);
+			TypedObject typedObject = convertMessagesToActionList(method.intro.location, mic.scope, margs, types, c.messages, mic.type.isHandler());
 			if (ofType == null)
 				ofType = typedObject.type;
 			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, margs, typedObject.expr));
@@ -212,11 +212,11 @@ public class MethodConvertor {
 		return types;
 	}
 
-	private TypedObject convertMessagesToActionList(InputPosition location, Scope scope, List<Object> args, List<Type> types, List<MethodMessage> messages) {
+	private TypedObject convertMessagesToActionList(InputPosition location, Scope scope, List<Object> args, List<Type> types, List<MethodMessage> messages, boolean fromHandler) {
 		Object ret = scope.fromRoot(location, "Nil");
 		for (int n = messages.size()-1;n>=0;n--) {
 			MethodMessage mm = messages.get(n);
-			Object me = convertMessageToAction(scope, args, types, mm);
+			Object me = convertMessageToAction(scope, args, types, mm, fromHandler);
 			if (me == null) continue;
 			InputPosition loc = ((Locatable)mm.expr).location();
 			ret = new ApplyExpr(loc, scope.fromRoot(loc, "Cons"), me, ret);
@@ -226,10 +226,10 @@ public class MethodConvertor {
 		return new TypedObject(Type.function(location, fnargs), ret);
 	}
 
-	private Object convertMessageToAction(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm) {
+	private Object convertMessageToAction(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm, boolean fromHandler) {
 //		System.out.println("Converting " + mm);
 		if (mm.slot != null) {
-			return convertAssignMessage(scope, margs, types, mm);
+			return convertAssignMessage(scope, margs, types, mm, fromHandler);
 		} else if (mm.expr instanceof ApplyExpr) {
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			List<Object> args;
@@ -260,7 +260,7 @@ public class MethodConvertor {
 		return null;
 	}
 
-	protected Object convertAssignMessage(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm) {
+	protected Object convertAssignMessage(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm, boolean fromHandler) {
 		Type exprType = calculateExprType(margs, types, mm.expr);
 		if (exprType == null)
 			return null;
@@ -270,7 +270,7 @@ public class MethodConvertor {
 		Type slotType;
 		if (slot instanceof CardMember) {
 			CardMember cm = (CardMember) slot;
-			intoObj = new CardStateRef(cm.location(), true); // TODO: only if from a handler ... how can we tell from here?
+			intoObj = new CardStateRef(cm.location(), fromHandler);
 			slotName = new StringLiteral(cm.location(), cm.var);
 			Type cti = tc.getType(cm.location(), cm.card);
 			if (!(cti instanceof StructDefn))

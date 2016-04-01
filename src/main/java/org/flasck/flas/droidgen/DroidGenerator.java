@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.PlatformSpec;
@@ -47,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.BlockExpr;
 import org.zinutils.bytecode.ByteCodeCreator;
-import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldInfo;
 import org.zinutils.bytecode.GenericAnnotator;
@@ -56,40 +56,24 @@ import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.ReturnX;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.parser.TokenizedLine;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
 
-import com.gmmapowell.quickbuild.app.BuildOutput;
-import com.gmmapowell.quickbuild.app.QuickBuild;
-import com.gmmapowell.quickbuild.build.BuildContext;
-import com.gmmapowell.quickbuild.build.BuildExecutor;
-import com.gmmapowell.quickbuild.build.android.AdbInstallCommand;
-import com.gmmapowell.quickbuild.build.android.AdbStartCommand;
-import com.gmmapowell.quickbuild.build.android.AndroidCommand;
-import com.gmmapowell.quickbuild.build.android.AndroidNature;
-import com.gmmapowell.quickbuild.build.android.AndroidUseLibraryCommand;
-import com.gmmapowell.quickbuild.build.java.ExcludeCommand;
-import com.gmmapowell.quickbuild.build.java.JavaNature;
-import com.gmmapowell.quickbuild.config.Config;
-import com.gmmapowell.quickbuild.config.ConfigFactory;
-
 public class DroidGenerator {
-	private final ByteCodeEnvironment bce;
-	private final File androidDir;
+	private final DroidBuilder builder;
 	private final static Logger logger = LoggerFactory.getLogger("DroidGen");
 
-	public DroidGenerator(HSIE hsie, ByteCodeEnvironment bce, File androidDir) {
-		this.bce = bce;
-		this.androidDir = androidDir;
+	public DroidGenerator(HSIE hsie, DroidBuilder bldr) {
+		this.builder = bldr;
 	}
 	
 	public void generate(StructDefn value) {
-		if (androidDir == null || !value.generate)
+		if (builder == null || !value.generate)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, value.name());
+		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, value.name());
 		Map<String, FieldInfo> fields = new TreeMap<String,FieldInfo>();
 		for (StructField sf : value.fields) {
 			FieldInfo fi = bcc.defineField(false, Access.PUBLIC, new JavaType("java.lang.Object"), sf.name);
@@ -102,19 +86,19 @@ public class DroidGenerator {
 			ctor.callSuper("void", "org/flasck/android/FLASObject", "<init>").flush();
 			ctor.returnVoid().flush();
 		}
+		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
+		gen.returns("void");
+		NewMethodDefiner dfe = gen.done();
 		for (StructField sf : value.fields) {
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
-			gen.returns("void");
-			NewMethodDefiner dfe = gen.done();
 			dfe.assign(fields.get(sf.name).asExpr(dfe), dfe.callVirtual("java.lang.Object", dfe.myThis(), "_fullOf", fields.get(sf.name).asExpr(dfe))).flush();
-			dfe.returnVoid().flush();
 		}
+		dfe.returnVoid().flush();
 	}
 
 	public void generate(String key, CardGrouping grp) {
-		if (androidDir == null)
+		if (builder == null)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, grp.struct.name());
+		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, grp.struct.name());
 		bcc.superclass("org.flasck.android.FlasckActivity");
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
 		for (StructField sf : grp.struct.fields) {
@@ -122,11 +106,16 @@ public class DroidGenerator {
 			if (sf.type.iam == WhatAmI.BUILTIN) {
 				if (((Type)sf.type).name().equals("Number"))
 					jt = JavaType.int_; // what about floats?
+				else if (((Type)sf.type).name().equals("String"))
+					jt = JavaType.string;
 				else
 					throw new UtilException("Not handled " + sf.type);
 			} else if (sf.type instanceof ContractImplements || sf.type instanceof ContractDecl) {
-				continue;
-//				jt = new JavaType(sf.type.name());
+				jt = new JavaType(sf.type.name());
+			} else if (sf.type instanceof ObjectDefn) {
+				jt = new JavaType(sf.type.name());
+			} else if (sf.type instanceof Type) {
+				jt = new JavaType(sf.type.name());
 			} else
 				throw new UtilException("Not handled " + sf.type + " " + sf.type.getClass());
 			bcc.defineField(false, Access.PROTECTED, jt, sf.name);
@@ -178,9 +167,9 @@ public class DroidGenerator {
 	}
 
 	public void generateContract(String name, ContractImplements ci) {
-		if (androidDir == null)
+		if (builder == null)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, javaNestedName(name));
+		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
 		bcc.superclass(ci.name());
 		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(javaBaseName(name)), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(name), javaNestedSimpleName(name));
@@ -195,15 +184,27 @@ public class DroidGenerator {
 		
 	}
 
-	public void generateService(String key, ContractService value) {
-		// TODO Auto-generated method stub
-		
+	public void generateService(String name, ContractService cs) {
+		if (builder == null)
+			return;
+		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
+		bcc.superclass(cs.name());
+		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(javaBaseName(name)), "_card");
+		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(name), javaNestedSimpleName(name));
+		{
+			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar cardArg = gen.argument(javaBaseName(name), "card");
+			NewMethodDefiner ctor = gen.done();
+			ctor.callSuper("void", cs.name(), "<init>").flush();
+			ctor.assign(fi.asExpr(ctor), cardArg.getVar()).flush();
+			ctor.returnVoid().flush();
+		}
 	}
 
 	public void generateHandler(String name, HandlerImplements hi) {
-		if (androidDir == null)
+		if (builder == null)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, javaNestedName(name));
+		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
 		bcc.superclass(hi.name());
 		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(javaBaseName(name)), "_card");
 		Map<String, FieldInfo> fs = new TreeMap<String, FieldInfo>();
@@ -253,7 +254,7 @@ public class DroidGenerator {
 	}
 
 	public void generate(Collection<HSIEForm> forms) {
-		if (androidDir == null)
+		if (builder == null)
 			return;
 		for (HSIEForm f : forms) {
 			logger.info("Considering form " + f);
@@ -262,23 +263,26 @@ public class DroidGenerator {
 			String inClz;
 			String fn = f.fnName.substring(idx+1);
 			boolean isStatic;
-			if (f.mytype == CodeType.HANDLER || f.mytype == CodeType.CONTRACT) {
+			if (f.mytype == CodeType.HANDLER || f.mytype == CodeType.CONTRACT || f.mytype == CodeType.SERVICE) {
 				int idx2 = f.fnName.lastIndexOf(".", idx-1);
 				String clz = f.fnName.substring(0, idx2);
 				String sub = f.fnName.substring(idx2+1, idx);
 				inClz = clz +"$"+sub;
 				isStatic = false;
+			} else if (f.mytype == CodeType.CARD || f.mytype == CodeType.EVENTHANDLER) {
+				inClz = f.fnName.substring(0, idx);
+				isStatic = false;
 			} else if (f.mytype == CodeType.FUNCTION || f.mytype == CodeType.STANDALONE) {
 				String pkg = f.fnName.substring(0, idx);
 				inClz = pkg +".PackageFunctions";
-				if (!bce.hasClass(inClz)) {
-					ByteCodeCreator bcc = new ByteCodeCreator(bce, inClz);
+				if (!builder.bce.hasClass(inClz)) {
+					ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, inClz);
 					bcc.superclass("java.lang.Object");
 				}
 				isStatic = true;
 			} else
 				throw new UtilException("Can't handle " + f.fnName + " of code type " + f.mytype);
-			ByteCodeCreator bcc = bce.get(inClz);
+			ByteCodeCreator bcc = builder.bce.get(inClz);
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, isStatic, fn);
 			gen.returns("java.lang.Object");
 			List<PendingVar> tmp = new ArrayList<PendingVar>();
@@ -288,6 +292,8 @@ public class DroidGenerator {
 			for (int i=0;i<f.nformal;i++)
 				tmp.add(gen.argument("java.lang.Object", "_"+i));
 			MethodDefiner meth = gen.done();
+			if (fn.equals("styleIf"))
+				meth.lenientMode(true);
 			j = 0;
 			Map<String, Var> svars = new HashMap<String, Var>();
 			Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
@@ -318,7 +324,9 @@ public class DroidGenerator {
 				stmts.add(meth.ifBoolean(meth.instanceOf(hv, s.ctor), generateBlock(meth, svars, vars, f, s), null));
 			} else if (h instanceof IFCmd) {
 				IFCmd c = (IFCmd)h;
-				generateBlock(meth, svars, vars, f, c);
+				Var hv = vars.get(c.var);
+				Expr testVal = exprValue(meth, c.value);
+				stmts.add(meth.ifEquals(hv, testVal, generateBlock(meth, svars, vars, f, c), null));
 			} else if (h instanceof BindCmd) {
 //				into.add(JSForm.bind((BindCmd) h));
 			} else if (h instanceof ReturnCmd) {
@@ -344,7 +352,7 @@ public class DroidGenerator {
 					}
 				} else {
 					Expr expr = appendValue(f, meth, svars, vars, f.mytype, r, 0);
-					stmts.add(expr);
+					stmts.add(meth.returnObject(expr));
 				}
 			} else if (h instanceof ErrorCmd) {
 				stmts.add(meth.returnObject(meth.makeNew("org.flasck.android.FLError", meth.stringConst(meth.getName() + ": case not handled"))));
@@ -447,22 +455,21 @@ public class DroidGenerator {
 				if (!svars.containsKey(c.fn.uniqueName()))
 					throw new UtilException("ScopedVar not in scope: " + c.fn);
 				return svars.get(c.fn.uniqueName());
-//			} else if (c.fn instanceof CardFunction) {
+			} else if (c.fn instanceof CardFunction) {
+				return meth.stringConst("Need a function pointer for method " + c.fn);
 //				String jsname = c.fn.uniqueName();
 //				int idx = jsname.lastIndexOf(".");
 //				jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
 //				sb.append(jsname);
 			} else if (c.fn instanceof CardMember) {
-//				if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
-//					sb.append("this." + ((CardMember)c.fn).var);
-//				else
-					if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT || fntype == CodeType.AREA) {
-						CardMember cm = (CardMember)c.fn;
-						Expr field = meth.getField(meth.getField("_card"), cm.var);
-						return field;
-					}
-//				else
-//					throw new UtilException("Can't handle " + fntype + " for card member");
+				if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
+					return meth.myThis();
+				else if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT || fntype == CodeType.AREA) {
+					CardMember cm = (CardMember)c.fn;
+					Expr field = meth.getField(meth.getField("_card"), cm.var);
+					return field;
+				} else
+					throw new UtilException("Can't handle " + fntype + " for card member");
 			} else if (c.fn instanceof HandlerLambda) {
 				if (fntype == CodeType.HANDLER)
 					return meth.getField(((HandlerLambda)c.fn).var);
@@ -476,7 +483,9 @@ public class DroidGenerator {
 			return vars.get(c.var.var);
 		else if (c.sval != null)
 			return meth.stringConst(c.sval.text);
-//		else if (c.tlv != null) {
+		else if (c.tlv != null) {
+			System.out.println("TLV: " + c.tlv.name);
+			return meth.stringConst("HackTLV:" + c.tlv.name);
 //			sb.append("this._src_" + c.tlv.name + "." + c.tlv.name);
 //		} else if (c.func != null) {
 //			int x = c.func.name.lastIndexOf('.');
@@ -484,7 +493,7 @@ public class DroidGenerator {
 //				throw new UtilException("Invalid function name: " + c.func.name);
 //			else
 //				sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
-//		}
+		}
 		else if (c.csr != null) {
 			if (c.csr.fromHandler)
 				return meth.getField("_card");
@@ -492,13 +501,21 @@ public class DroidGenerator {
 				return meth.myThis();
 		} else
 			throw new UtilException("What are you pushing? " + c);
-		return null;
+	}
+
+	private Expr exprValue(NewMethodDefiner meth, Object value) {
+		if (value instanceof Integer)
+			return meth.intConst((Integer)value);
+		else if (value instanceof Boolean)
+			return meth.intConst(((Boolean)value)?1:0);
+		else
+			throw new UtilException("Cannot handle " + value.getClass());
 	}
 
 	public NewMethodDefiner generateRender(String clz, String topBlock) {
-		if (androidDir == null)
+		if (builder == null)
 			return null;
-		ByteCodeCreator bcc = bce.get(clz);
+		ByteCodeCreator bcc = builder.bce.get(clz);
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
 		PendingVar into = gen.argument("java.lang.String", "into");
 		gen.returns("void");
@@ -510,11 +527,11 @@ public class DroidGenerator {
 	}
 
 	public CGRContext area(String clz, String base) {
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, javaNestedName(clz));
+		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(clz));
 		String baseClz = "org.flasck.android." + base;
 		bcc.superclass(baseClz);
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(clz), javaNestedSimpleName(clz));
-		FieldInfo card = bcc.defineField(true, Access.PRIVATE, new JavaType("test.ziniki.CounterCard"), "_card");
+		FieldInfo card = bcc.defineField(true, Access.PRIVATE, javaBaseName(clz), "_card");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cardArg = gen.argument(javaBaseName(clz), "cardArg");
@@ -531,7 +548,7 @@ public class DroidGenerator {
 	}
 
 	public void contentExpr(CGRContext cgrx, HSIEForm form) {
-		if (androidDir == null)
+		if (builder == null)
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_contentExpr");
 		gen.returns("void");
@@ -540,7 +557,12 @@ public class DroidGenerator {
 		Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
 		Map<String, Var> svars = new HashMap<String, Var>();
 		Expr blk = generateBlock(meth, svars, vars, form, form);
-		if (blk.getType().equals("java.lang.String")) {
+		if (blk instanceof ReturnX) {
+			// nothing we can do
+			System.out.println("Already Returned? Huh?");
+			blk.flush();
+			return;
+		} else if (blk.getType().equals("java.lang.String")) {
 			// nothing to do ...
 		} else if (blk.getType().equals("java.lang.Integer") || blk.getType().equals("int")) {
 			blk = meth.callStatic("java.lang.Integer", "java.lang.String", "toString", blk);
@@ -552,13 +574,13 @@ public class DroidGenerator {
 	}
 
 	public void onAssign(CGRContext cgrx, CardMember valExpr) {
-		if (androidDir == null)
+		if (builder == null)
 			return;
 		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.stringConst("counter"), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.Area"), cgrx.ctor.stringConst("_contentExpr")).flush();
 	}
 	
 	public void addAssign(CGRContext cgrx, String call) {
-		if (androidDir == null)
+		if (builder == null)
 			return;
 		int idx = call.lastIndexOf(".prototype");
 		call = call.substring(idx+11);
@@ -566,71 +588,18 @@ public class DroidGenerator {
 	}
 
 	public void done(CGRContext cgrx) {
-		if (androidDir == null)
+		if (builder == null)
 			return;
 		cgrx.ctor.returnVoid().flush();
 	}
 
 	public void write() {
-		if (androidDir == null || androidDir.getPath().equals("null"))
+		if (builder == null)
 			return;
-		File qbcdir = new File(androidDir, "qbout/classes");
-		if (!androidDir.exists()) {
-			// create a directory structure to put things in
-			FileUtils.assertDirectory(androidDir);
-			FileUtils.assertDirectory(new File(androidDir, "src"));
-			FileUtils.assertDirectory(new File(androidDir, "src/main"));
-			FileUtils.assertDirectory(new File(androidDir, "src/main/java"));
-			FileUtils.assertDirectory(new File(androidDir, "src/android"));
-			FileUtils.assertDirectory(new File(androidDir, "src/android/assets"));
-			FileUtils.assertDirectory(new File(androidDir, "src/android/gen"));
-			FileUtils.assertDirectory(new File(androidDir, "src/android/lib"));
-			FileUtils.assertDirectory(new File(androidDir, "src/android/res"));
-			FileUtils.assertDirectory(new File(androidDir, "src/android/rawapk"));
-			FileUtils.assertDirectory(new File(androidDir, "qbout"));
-		}
-		FileUtils.assertDirectory(qbcdir);
-		FileUtils.cleanDirectory(qbcdir);
-		// HACK ALERT! This is to pick up the "support library" for FlasckAndroid, which should probably be in a well-known JAR
-//		cmd.addToJRR(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/qbout/classes"));
-		FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/qbout/classes", "org"), new File(qbcdir, "org"));
-		FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid", "src/android/assets"), new File(androidDir, "src/android/assets"));
-		FileUtils.copyRecursive(new File("/Users/gareth/Ziniki/Code/Tools/QuickBuild/qbout/classes/", "com/gmmapowell/quickbuild/annotations/android/"), new File(qbcdir, "com/gmmapowell/quickbuild/annotations/android/"));
-		for (ByteCodeCreator bcc : bce.all()) {
-			File wto = new File(qbcdir, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
+		for (ByteCodeCreator bcc : builder.bce.all()) {
+			File wto = new File(builder.qbcdir, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
 			bcc.writeTo(wto);
 		}
-		
-		// there are a number of possibilities here:
-		// just build and deploy "in memory"
-		// build from a QB file (by name)
-		// defer the building
-		// for now, just do the "easy and obvious thing", i.e. build this app
-		ConfigFactory cf = new ConfigFactory();
-		BuildOutput outlog = new BuildOutput(false);
-		Config config = new Config(cf, outlog, androidDir, "xx", null);
-		JavaNature jn = cf.getNature(config, JavaNature.class);
-		jn.addLib(new File("/Users/gareth/user/Personal/Projects/Android/qb/libs"), new ArrayList<ExcludeCommand>());
-		cf.getNature(config, AndroidNature.class);
-		QuickBuild.readHomeConfig(config, null);
-//		LibsCommand lc = new LibsCommand(new TokenizedLine(0, "libs /Users/gareth/user/Personal/Projects/Android/qb/libs"));
-//		config.addChild(lc);
-		TokenizedLine toks = new TokenizedLine(1, "android " + androidDir.getName());
-		AndroidCommand cmd = new AndroidCommand(toks);
-		cmd.addChild(new AndroidUseLibraryCommand(new TokenizedLine(4, "use ZinUtils.jar")));
-		config.addChild(cmd);
-		AdbInstallCommand install = new AdbInstallCommand(new TokenizedLine(2, "adbinstall " + androidDir.getName() + " qbout/" + androidDir.getName() + ".apk"));
-		config.addChild(install);
-		AdbStartCommand start = new AdbStartCommand(new TokenizedLine(3, "adbstart AdbInstalled\\[qbout_" + androidDir.getName() + " test.ziniki/test.ziniki.CounterCard"));
-		config.addChild(start);
-		
-		config.done();
-		cf.done();
-
-		BuildContext cxt = new BuildContext(config, cf, outlog, true, true, false, new ArrayList<String>(), new ArrayList<String>(), false, null, null, false, true, false);
-		cxt.configure();
-
-		new BuildExecutor(cxt, false).doBuild();
 	}
 
 	private String javaBaseName(String clz) {

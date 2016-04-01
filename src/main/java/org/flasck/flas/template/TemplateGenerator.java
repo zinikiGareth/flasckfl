@@ -220,7 +220,7 @@ public class TemplateGenerator {
 						ifassign.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr +"', attr)"));
 						cx.target.add(sak);
 //						fn.add(JSForm.flex("this._setAttr_" + an +"()"));
-						callOnAssign(fn, tea.value, null, saf, true, null);
+						callOnAssign(fn, tea.value, cgrx, saf, true, null);
 						an++;
 						break;
 					}
@@ -318,7 +318,7 @@ public class TemplateGenerator {
 			sw.add(JSForm.flex("\"use strict\""));
 			sw.add(JSForm.flex("var cond"));
 			cx.target.add(sw);
-			callOnAssign(fn, tc.switchOn, null, sn, true, null);
+			callOnAssign(fn, tc.switchOn, cgrx, sn, true, null);
 
 			for (TemplateOr oc : tc.cases) {
 				String cn = cx.nextArea();
@@ -339,7 +339,7 @@ public class TemplateGenerator {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
 		if (tl instanceof TemplateFormat) {
-			handleFormatsAndEvents(cx, called, fn, isEditable, (TemplateFormat)tl);
+			handleFormatsAndEvents(cx, cgrx, called, fn, isEditable, (TemplateFormat)tl);
 		}
 		if (newVar != null) {
 			cx.removeLastCopyVar();
@@ -348,7 +348,7 @@ public class TemplateGenerator {
 		return fn;
 	}
 
-	protected void handleFormatsAndEvents(GeneratorContext cx, String called, JSForm fn, boolean isEditable, TemplateFormat tl) {
+	protected void handleFormatsAndEvents(GeneratorContext cx, CGRContext cgrx, String called, JSForm fn, boolean isEditable, TemplateFormat tl) {
 		StringBuilder simple = new StringBuilder();
 		if (isEditable)
 			simple.append(" flasck-editable");
@@ -384,7 +384,7 @@ public class TemplateGenerator {
 			scvs.add(JSForm.flex("attr = FLEval.full(attr)"));
 			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(attr), ' '))"));
 			cx.target.add(scvs);
-			callOnAssign(fn, expr, null, scf, true, null);
+			callOnAssign(fn, expr, cgrx, scf, true, null);
 		}
 		else if (expr == null && simple.length() > 0) {
 			fn.add(JSForm.flex("this._mydiv.className = '" + simple.substring(1) + "'"));
@@ -408,7 +408,7 @@ public class TemplateGenerator {
 					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(eh" + eh.action + ", event)"));
 					ahf.add(cev);
 	
-					callOnAssign(fn, eh.expr, null, called + ".prototype._add_handlers", isFirst, null);
+					callOnAssign(fn, eh.expr, cgrx, called + ".prototype._add_handlers", isFirst, null);
 					isFirst = false;
 				}
 			}

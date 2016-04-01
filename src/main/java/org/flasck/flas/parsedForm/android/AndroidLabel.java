@@ -1,8 +1,11 @@
 package org.flasck.flas.parsedForm.android;
 
+import java.io.Serializable;
+
 import org.flasck.flas.blockForm.InputPosition;
 
-public class AndroidLabel {
+@SuppressWarnings("serial")
+public class AndroidLabel implements Serializable {
 	public final String label;
 
 	public AndroidLabel(InputPosition location, String label) {

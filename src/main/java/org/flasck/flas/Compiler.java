@@ -23,6 +23,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
+import org.flasck.flas.droidgen.DroidBuilder;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
@@ -121,6 +122,8 @@ public class Compiler {
 				}
 				compiler.compile(new File(f));
 			}
+			if (compiler.builder != null && compiler.success)
+				compiler.builder.build();
 		} catch (ArgumentException ex) {
 			System.err.println(ex.getMessage());
 			System.exit(1);
@@ -138,7 +141,7 @@ public class Compiler {
 	private boolean dumpTypes = false;
 	private final PackageFinder pkgFinder = new PackageFinder();
 	private ByteCodeEnvironment bce = new ByteCodeEnvironment();
-	private File androidDir;
+	private DroidBuilder builder;
 
 	public void searchIn(File file) {
 		pkgFinder.searchIn(file);
@@ -146,7 +149,10 @@ public class Compiler {
 	
 	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put it
 	public void writeDroidTo(File file) {
-		androidDir = file;
+		if (file.getPath().equals("null"))
+			return;
+		builder = new DroidBuilder(file, bce);
+		builder.init();
 	}
 
 	public void compile(File file) {
@@ -206,7 +212,7 @@ public class Compiler {
 			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter, top);
-			final DroidGenerator dg = new DroidGenerator(hsie, bce, androidDir);
+			final DroidGenerator dg = new DroidGenerator(hsie, builder);
 
 			for (ScopeEntry se : entries)
 				rewriter.rewrite(se);
@@ -350,7 +356,7 @@ public class Compiler {
 			try {
 				dg.write();
 			} catch (Exception ex) {
-				System.err.println("Cannot write to " + androidDir + ": " + ex.getMessage());
+				System.err.println("Cannot write to " + builder.androidDir + ": " + ex.getMessage());
 				ex.printStackTrace();
 				return;
 			}
