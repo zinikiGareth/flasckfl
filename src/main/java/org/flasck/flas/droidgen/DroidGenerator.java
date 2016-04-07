@@ -572,6 +572,18 @@ public class DroidGenerator {
 		}
 	}
 
+	public void newVar(CGRContext cgrx, String newVar) {
+		System.out.println("Creating var " + newVar + " in " + cgrx.bcc.getCreatedName());
+		FieldInfo src = cgrx.bcc.defineField(true, Access.PROTECTED, "java.lang.Object", "_src_"+newVar);
+		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.myThis());
+	}
+
+	public void copyVar(CGRContext cgrx, String parentClass, String s) {
+		System.out.println("Copying var " + s + " from " + parentClass + " into " + cgrx.bcc.getCreatedName());
+		FieldInfo src = cgrx.bcc.defineField(true, Access.PROTECTED, "java.lang.Object", "_src_"+s);
+		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.getField(cgrx.ctor.as(cgrx.parent, javaNestedName(parentClass)), "_src_"+s)).flush();
+	}
+
 	public void setSimpleClass(CGRContext cgrx, String css) {
 		cgrx.ctor.callVirtual("void", cgrx.ctor.myThis(), "setCSS", cgrx.ctor.stringConst(css)).flush();
 	}
@@ -589,6 +601,12 @@ public class DroidGenerator {
 		cgrx.currentMethod = ahMeth;
 		ahMeth.callStatic("android.util.Log", "void", "e", ahMeth.stringConst("Need to add the handlers"));
 		ahMeth.returnObject(ahMeth.aNull()).flush();
+	}
+
+	public void setText(CGRContext cgrx, String text) {
+		if (builder == null)
+			return;
+		cgrx.ctor.callVirtual("void", cgrx.ctor.myThis(), "_setText", cgrx.ctor.stringConst(text)).flush();
 	}
 
 	public void contentExpr(CGRContext cgrx, HSIEForm form) {

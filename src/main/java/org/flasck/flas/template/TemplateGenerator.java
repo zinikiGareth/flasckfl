@@ -124,10 +124,10 @@ public class TemplateGenerator {
 		
 		dg.generateRender(cx.javaName, javaName(topBlock));
 		
-		recurse(cx, topBlock, cg.content);
+		recurse(cx, topBlock, cg.content, null);
 	}
 
-	private JSForm recurse(GeneratorContext cx, String called, TemplateLine tl) {
+	private JSForm recurse(GeneratorContext cx, String called, TemplateLine tl, String parentClass) {
 		if (tl == null)
 			return null;
 		JSForm fn = JSForm.flex(called +" = function(parent)").needBlock();
@@ -175,12 +175,15 @@ public class TemplateGenerator {
 		CGRContext cgrx = dg.area(javaName(called), base);
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
 		fn.add(JSForm.flex("if (!parent) return"));
-		for (String s : cx.varsToCopy)
+		for (String s : cx.varsToCopy) {
 			fn.add(JSForm.flex("this._src_" + s + " = parent._src_" + s));
+			dg.copyVar(cgrx, javaName(parentClass), s);
+		}
 		String newVar = cx.extractNewVar();
 		if (newVar != null) {
 			fn.add(JSForm.flex("this._src_"+newVar+ " = this"));
 			cx.varToCopy(newVar);
+			dg.newVar(cgrx, newVar);
 		}
 		cx.target.add(JSForm.flex(called +".prototype = new " + base + "()"));
 		cx.target.add(JSForm.flex(called +".prototype.constructor = " + called));
@@ -241,7 +244,7 @@ public class TemplateGenerator {
 				String cn = cx.nextArea();
 				fn.add(JSForm.flex("var " + v + " = new " + cn + "(this)"));
 				dg.createNested(cgrx, v, javaName(cn));
-				recurse(cx, cn, c);
+				recurse(cx, cn, c, called);
 			}
 		} else if (tl instanceof TemplateList) {
 			TemplateList l = (TemplateList) tl;
@@ -253,7 +256,7 @@ public class TemplateGenerator {
 			nc.add(JSForm.flex("return new " + item + "(this)"));
 			cx.target.add(nc);
 			cx.newVar(tlv);
-			JSForm cfn = recurse(cx, item, l.template);
+			JSForm cfn = recurse(cx, item, l.template, called);
 			if (l.supportDragOrdering)
 				cfn.add(JSForm.flex("this._makeDraggable()"));
 			JSForm atv = JSForm.flex(called + ".prototype._assignToVar = function()").needBlock();
@@ -267,6 +270,7 @@ public class TemplateGenerator {
 		} else if (tl instanceof ContentString) {
 			ContentString cs = (ContentString) tl;
 			fn.add(JSForm.flex("this._setText('" + cs.text + "')"));
+			dg.setText(cgrx, cs.text);
 		} else if (tl instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr)tl;
 			Object valExpr = ce.expr;
@@ -332,7 +336,7 @@ public class TemplateGenerator {
 //				doit.add(JSForm.flex("var v = new " + cn + "(this)"));
 				doit.add(JSForm.flex("return"));
 				sw.add(doit);
-				recurse(cx, cn, oc.template);
+				recurse(cx, cn, oc.template, called);
 				callOnAssign(fn, oc.cond, null, sn, false, null);
 			}
 		} else if (tl instanceof D3Invoke) {
