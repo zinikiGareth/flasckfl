@@ -572,6 +572,10 @@ public class DroidGenerator {
 		}
 	}
 
+	public void setSimpleClass(CGRContext cgrx, String css) {
+		cgrx.ctor.callVirtual("void", cgrx.ctor.myThis(), "setCSS", cgrx.ctor.stringConst(css)).flush();
+	}
+
 	public void createNested(CGRContext cgrx, String v, String cn) {
 		System.out.println("!! Creating nested area for " + cn + " assigning to " + v);
 		Var storeAs = cgrx.ctor.avar(cn, v);

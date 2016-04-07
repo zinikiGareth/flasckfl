@@ -391,6 +391,7 @@ public class TemplateGenerator {
 		}
 		else if (expr == null && simple.length() > 0) {
 			fn.add(JSForm.flex("this._mydiv.className = '" + simple.substring(1) + "'"));
+			dg.setSimpleClass(cgrx, simple.substring(1));
 		}
 		if (tl instanceof TemplateFormatEvents) {
 			TemplateFormatEvents tfe = (TemplateFormatEvents) tl;
