@@ -240,6 +240,7 @@ public class TemplateGenerator {
 				String v = cx.currentVar();
 				String cn = cx.nextArea();
 				fn.add(JSForm.flex("var " + v + " = new " + cn + "(this)"));
+				dg.createNested(cgrx, v, javaName(cn));
 				recurse(cx, cn, c);
 			}
 		} else if (tl instanceof TemplateList) {
@@ -309,6 +310,8 @@ public class TemplateGenerator {
 				JSForm.assign(cexpr, "var card", form);
 				cexpr.add(JSForm.flex("this._updateToCard(card)"));
 				cx.target.add(cexpr);
+
+				dg.yoyoExpr(cgrx, form);
 			} else
 				throw new UtilException("handle this case");
 		} else if (tl instanceof TemplateCases) {
@@ -393,6 +396,7 @@ public class TemplateGenerator {
 			TemplateFormatEvents tfe = (TemplateFormatEvents) tl;
 			if (!tfe.handlers.isEmpty()) {
 				JSForm ahf = JSForm.flex(called +".prototype._add_handlers = function()").needBlock();
+				dg.needAddHandlers(cgrx);
 				cx.target.add(ahf);
 				boolean isFirst = true;
 				for (EventHandler eh : tfe.handlers) {

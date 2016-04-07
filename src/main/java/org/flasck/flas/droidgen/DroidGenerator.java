@@ -553,32 +553,74 @@ public class DroidGenerator {
 
 	public CGRContext area(String clz, String base) {
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(clz));
-		String baseClz = "org.flasck.android." + base;
+		String baseClz = "org.flasck.android.areas." + base;
 		bcc.superclass(baseClz);
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(clz), javaNestedSimpleName(clz));
 		FieldInfo card = bcc.defineField(true, Access.PRIVATE, javaBaseName(clz), "_card");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cardArg = gen.argument(javaBaseName(clz), "cardArg");
-			PendingVar parent = gen.argument("org/flasck/android/Area", "parent");
+			PendingVar parent = gen.argument("org/flasck/android/areas/Area", "parent");
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", baseClz, "<init>", parent.getVar(), ctor.as(ctor.aNull(), "java.lang.String")).flush();
 			ctor.assign(card.asExpr(ctor), cardArg.getVar()).flush();
 //			ctor.callVirtual("void", ctor.getField(card.asExpr(ctor), "_wrapper"), "onAssign", ctor.stringConst("counter"), ctor.as(ctor.myThis(), "org.flasck.android.Area"), ctor.stringConst("_contentExpr")).flush();
 //			ctor.callVirtual("void", ctor.myThis(), "_contentExpr").flush();
-			return new CGRContext(bcc, ctor);
+			return new CGRContext(bcc, ctor, cardArg.getVar(), parent.getVar());
 //			ctor.returnVoid().flush();
 			
 		}
+	}
+
+	public void createNested(CGRContext cgrx, String v, String cn) {
+		System.out.println("!! Creating nested area for " + cn + " assigning to " + v);
+		Var storeAs = cgrx.ctor.avar(cn, v);
+		cgrx.ctor.assign(storeAs, cgrx.ctor.makeNew(javaNestedName(cn), cgrx.card, cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"))).flush();
+	}
+
+	public void needAddHandlers(CGRContext cgrx) {
+		GenericAnnotator ah = GenericAnnotator.newMethod(cgrx.bcc, false, "_add_handlers");
+		ah.returns("java.lang.Object");
+		MethodDefiner ahMeth = ah.done();
+		cgrx.currentMethod = ahMeth;
+		ahMeth.callStatic("android.util.Log", "void", "e", ahMeth.stringConst("Need to add the handlers"));
+		ahMeth.returnObject(ahMeth.aNull()).flush();
 	}
 
 	public void contentExpr(CGRContext cgrx, HSIEForm form) {
 		if (builder == null)
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_contentExpr");
-		gen.returns("void");
+		gen.returns("java.lang.Object");
 		NewMethodDefiner meth = gen.done();
 		Var str = meth.avar("java.lang.String", "str");
+		Expr blk = generateFunctionFromForm(meth, form);
+		if (blk == null) return;
+		meth.assign(str, blk).flush();
+		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
+		meth.returnObject(meth.aNull()).flush();
+	}
+
+	public void yoyoExpr(CGRContext cgrx, HSIEForm form) {
+		if (builder == null)
+			return;
+		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_yoyoExpr");
+		gen.returns("java.lang.Object");
+		NewMethodDefiner meth = gen.done();
+//		Var str = meth.avar("java.lang.String", "str");
+		Expr blk = generateFunctionFromForm(meth, form);
+		// TODO: if "blk" is null, that reflects the possibility of the method returning before we get here ... Huh?
+		if (blk == null) return;
+//		meth.assign(str, blk).flush();
+//		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
+//		JSForm.assign(cexpr, "var card", form);
+//		cexpr.add(JSForm.flex("this._updateToCard(card)"));
+
+		meth.callStatic("android.util.Log", "void", "e", meth.stringConst("Need to implement yoyo card"));
+		meth.returnObject(meth.aNull()).flush();
+	}
+
+	protected Expr generateFunctionFromForm(NewMethodDefiner meth, HSIEForm form) {
 		Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
 		Map<String, Var> svars = new HashMap<String, Var>();
 		Expr blk = generateBlock(meth, svars, vars, form, form);
