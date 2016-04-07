@@ -124,6 +124,12 @@ public class Compiler {
 									System.exit(1);
 								}
 								compiler.builder.setLaunchCard(args[++i]);
+							} else if (f.equals("--css")) {
+								if (hasMore == 0) {
+									System.out.println("--css <file|dir>");
+									System.exit(1);
+								}
+								compiler.builder.useCSS(args[++i]);
 							} else
 								matched = false;
 						}

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.exceptions.UtilException;
 import org.zinutils.parser.TokenizedLine;
 import org.zinutils.utils.FileUtils;
 
@@ -44,6 +45,7 @@ public class DroidBuilder {
 			FileUtils.assertDirectory(new File(androidDir, "src/main/java"));
 			FileUtils.assertDirectory(new File(androidDir, "src/android"));
 			FileUtils.assertDirectory(new File(androidDir, "src/android/assets"));
+			FileUtils.assertDirectory(new File(androidDir, "src/android/assets/css"));
 			FileUtils.assertDirectory(new File(androidDir, "src/android/gen"));
 			FileUtils.assertDirectory(new File(androidDir, "src/android/lib"));
 			FileUtils.assertDirectory(new File(androidDir, "src/android/res"));
@@ -66,6 +68,21 @@ public class DroidBuilder {
 			this.launchCard = launchCard.substring(0, launchCard.lastIndexOf(".")) + "/" + launchCard;
 	}
 	
+	public void useCSS(String dir) {
+		File f = new File(dir);
+		if (!f.canRead())
+			throw new UtilException("Cannot copy CSS " + dir + " as it does not exist");
+		File cssdir = new File(androidDir, "src/android/assets/css");
+		if (f.isDirectory()) {
+			for (File q : f.listFiles()) {
+				if (q.isDirectory())
+					FileUtils.copyRecursive(q, cssdir);
+				else
+					FileUtils.copy(q, new File(cssdir, q.getName()));
+			}
+		}
+	}
+
 	public void build() {
 		// there are a number of possibilities here:
 		// just build and deploy "in memory"

@@ -641,8 +641,7 @@ public class DroidGenerator {
 	public void onAssign(CGRContext cgrx, CardMember valExpr) {
 		if (builder == null)
 			return;
-		System.out.println("counter here looks like a hack");
-		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.stringConst("counter"), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst("_contentExpr")).flush();
+		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.stringConst(valExpr.var), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst("_contentExpr")).flush();
 	}
 	
 	public void addAssign(CGRContext cgrx, String call) {
