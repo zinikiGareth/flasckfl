@@ -25,6 +25,7 @@ public class DroidBuilder {
 	public final File androidDir;
 	final ByteCodeEnvironment bce;
 	final File qbcdir;
+	private String launchCard;
 
 	public DroidBuilder(File androidDir, ByteCodeEnvironment bce) {
 		this.androidDir = androidDir;
@@ -58,6 +59,13 @@ public class DroidBuilder {
 		FileUtils.copyRecursive(new File("/Users/gareth/Ziniki/Code/Tools/QuickBuild/qbout/classes/", "com/gmmapowell/quickbuild/annotations/android/"), new File(qbcdir, "com/gmmapowell/quickbuild/annotations/android/"));
 	}
 	
+	public void setLaunchCard(String launchCard) {
+		if (launchCard.contains("/"))
+			this.launchCard = launchCard;
+		else
+			this.launchCard = launchCard.substring(0, launchCard.lastIndexOf(".")) + "/" + launchCard;
+	}
+	
 	public void build() {
 		// there are a number of possibilities here:
 		// just build and deploy "in memory"
@@ -77,16 +85,19 @@ public class DroidBuilder {
 		AndroidCommand cmd = new AndroidCommand(toks);
 		cmd.addChild(new AndroidUseLibraryCommand(new TokenizedLine(4, "use ZinUtils.jar")));
 		config.addChild(cmd);
-		AdbInstallCommand install = new AdbInstallCommand(new TokenizedLine(2, "adbinstall " + androidDir.getName() + " qbout/" + androidDir.getName() + ".apk"));
+		String apkName = "qbout/" + androidDir.getName() + ".apk";
+		AdbInstallCommand install = new AdbInstallCommand(new TokenizedLine(2, "adbinstall " + androidDir.getName() + " " + apkName));
 		config.addChild(install);
-		AdbStartCommand start = new AdbStartCommand(new TokenizedLine(3, "adbstart AdbInstalled\\[qbout_" + androidDir.getName() + " test.ziniki/test.ziniki.CounterCard"));
-		config.addChild(start);
+		if (launchCard != null) {
+			AdbStartCommand start = new AdbStartCommand(new TokenizedLine(3, "adbstart " + apkName + " " + launchCard));
+			config.addChild(start);
+		}
 		
 		config.done();
 		cf.done();
 
 		ArrayList<String> sdf = new ArrayList<String>();
-		sdf.add("Manifest");
+//		sdf.add("Manifest");
 		BuildContext cxt = new BuildContext(config, cf, outlog, true, true, false, sdf, sdf, false, null, null, false, true, false);
 		cxt.configure();
 

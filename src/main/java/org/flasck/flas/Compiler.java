@@ -114,9 +114,23 @@ public class Compiler {
 						}
 						compiler.writeDroidTo(new File(args[++i]));
 					} else {
-						System.out.println("unknown option: " + f);
-						compiler.success = false;
-						break;
+						boolean matched = false;
+						if (compiler.builder != null) { // consider droid build options
+							matched = true;
+							if (f.equals("--launch")) {
+								if (hasMore == 0) {
+									System.out.println("--launch <card>");
+									System.exit(1);
+								}
+								compiler.builder.setLaunchCard(args[++i]);
+							} else
+								matched = false;
+						}
+						if (!matched) {
+							System.out.println("unknown option: " + f);
+							compiler.success = false;
+							break;
+						}
 					}
 					continue;
 				}
