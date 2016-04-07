@@ -93,6 +93,7 @@ public class Compiler {
 		LogManager.getLogger("Generator").setLevel(Level.WARN);
 		LogManager.getLogger("HSIE").setLevel(Level.WARN);
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
+		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
 		try {
 			for (int i=0;i<args.length;i++) {
@@ -284,9 +285,13 @@ public class Compiler {
 					}
 				}
 			}
+			for (Entry<String, ContractDecl> c : rewriter.contracts.entrySet()) {
+				System.out.println("Generating contract " + c.getKey());
+				dg.generateContractDecl(c.getKey(), c.getValue());
+			}
 			for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet()) {
 				gen.generateContract(ci.getKey(), ci.getValue());
-				dg.generateContract(ci.getKey(), ci.getValue());
+				dg.generateContractImpl(ci.getKey(), ci.getValue());
 			}
 			for (Entry<String, ContractService> cs : rewriter.cardServices.entrySet()) {
 				gen.generateService(cs.getKey(), cs.getValue());
