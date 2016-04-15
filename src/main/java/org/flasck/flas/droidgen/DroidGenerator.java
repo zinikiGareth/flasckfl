@@ -589,7 +589,6 @@ public class DroidGenerator {
 	}
 
 	public void createNested(CGRContext cgrx, String v, String cn) {
-		System.out.println("!! Creating nested area for " + cn + " assigning to " + v);
 		Var storeAs = cgrx.ctor.avar(cn, v);
 		cgrx.ctor.assign(storeAs, cgrx.ctor.makeNew(javaNestedName(cn), cgrx.card, cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"))).flush();
 	}

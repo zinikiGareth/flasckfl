@@ -124,6 +124,18 @@ public class Compiler {
 									System.exit(1);
 								}
 								compiler.builder.setLaunchCard(args[++i]);
+							} else if (f.equals("--lib")) {
+								if (hasMore == 0) {
+									System.out.println("--lib <file|dir>");
+									System.exit(1);
+								}
+								compiler.builder.useLib(args[++i]);
+							} else if (f.equals("--maven")) {
+								if (hasMore == 0) {
+									System.out.println("--maven <mvn_entry>");
+									System.exit(1);
+								}
+								compiler.builder.useMaven(args[++i]);
 							} else if (f.equals("--css")) {
 								if (hasMore == 0) {
 									System.out.println("--css <file|dir>");
