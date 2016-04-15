@@ -118,7 +118,11 @@ public class Compiler {
 						boolean matched = false;
 						if (compiler.builder != null) { // consider droid build options
 							matched = true;
-							if (f.equals("--launch")) {
+							if (f.equals("--clean")) {
+								compiler.builder.cleanFirst();
+							} else if (f.equals("--jack")) {
+								compiler.builder.useJack();
+							} else if (f.equals("--launch")) {
 								if (hasMore == 0) {
 									System.out.println("--launch <card>");
 									System.exit(1);

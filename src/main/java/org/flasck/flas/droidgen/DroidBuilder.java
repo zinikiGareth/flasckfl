@@ -1,5 +1,6 @@
 package org.flasck.flas.droidgen;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class DroidBuilder {
 	private String launchCard;
 	final List<File> libs = new ArrayList<File>();
 	final List<String> maven = new ArrayList<String>();
+	private String useJack = "";
 
 	public DroidBuilder(File androidDir, ByteCodeEnvironment bce) {
 		this.androidDir = androidDir;
@@ -56,14 +58,39 @@ public class DroidBuilder {
 			FileUtils.assertDirectory(new File(androidDir, "src/android/res"));
 			FileUtils.assertDirectory(new File(androidDir, "src/android/rawapk"));
 			FileUtils.assertDirectory(new File(androidDir, "qbout"));
+			FileUtils.assertDirectory(new File(androidDir, "qbout/jill"));
+			FileUtils.assertDirectory(new File(androidDir, "qbout/dex"));
 		}
+		// Right ... now make this work from the aar ...
+		FileUtils.assertDirectory(new File(androidDir, "src/android/rawapk/lib"));
+		FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/qb/libs/lib"), new File(androidDir, "src/android/rawapk/lib"));
+		
+		
 		FileUtils.assertDirectory(qbcdir);
 		FileUtils.cleanDirectory(qbcdir);
 		// HACK ALERT! This is to pick up the "support library" for FlasckAndroid, which should probably be in a well-known JAR
+//		{ // bigger hack - copy as source
+//			if (!androidDir.getPath().startsWith("/tmp"))
+//				throw new UtilException("You don't want this hack - it will delete your source code");
+//			FileUtils.cleanDirectory(new File(androidDir, "src/main/java"));
+//			FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/src/main/java"), new File(androidDir, "src/main/java"));
+//		}
 //		cmd.addToJRR(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/qbout/classes"));
 		FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid/qbout/classes", "org"), new File(qbcdir, "org"));
 		FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/HelloAndroid", "src/android/assets"), new File(androidDir, "src/android/assets"));
 		FileUtils.copyRecursive(new File("/Users/gareth/Ziniki/Code/Tools/QuickBuild/qbout/classes/", "com/gmmapowell/quickbuild/annotations/android/"), new File(qbcdir, "com/gmmapowell/quickbuild/annotations/android/"));
+	}
+	
+	public void cleanFirst() {
+		FileUtils.cleanDirectory(androidDir);
+		androidDir.delete();
+		init();
+	}
+
+	public void useJack() {
+		useJack = "--jack ";
+		// Hack I put in for useJack mode ...
+//		FileUtils.copyStreamToFile(new ByteArrayInputStream("class Foo {}".getBytes()), new File("/tmp/chaddyAndroid/src/main/java/Foo.java"));
 	}
 	
 	public void setLaunchCard(String launchCard) {
@@ -85,10 +112,10 @@ public class DroidBuilder {
 			})) {
 				libs.add(f);
 			}
-		} else if (name.endsWith("*.jar"))
+		} else if (name.endsWith(".jar") || name.endsWith(".aar"))
 			libs.add(ul);
 		else
-			throw new UtilException("Cannot interpret " + ul + " as a directory or jar");
+			throw new UtilException("Cannot interpret " + ul + " as a directory, jar or aar");
 	}
 
 	public void useMaven(String id) {
@@ -127,7 +154,7 @@ public class DroidBuilder {
 //		config.addChild(lc);
 		int setupLineNo = 100;
 		int lineNo = 200;
-		TokenizedLine toks = new TokenizedLine(lineNo++, "android " + androidDir.getName());
+		TokenizedLine toks = new TokenizedLine(lineNo++, "android " + useJack + androidDir.getName());
 		AndroidCommand cmd = new AndroidCommand(toks);
 		for (String mvn : maven) {
 			MavenLibraryCommand mlc = new MavenLibraryCommand(new TokenizedLine(setupLineNo++, "maven " + mvn));
@@ -154,6 +181,11 @@ public class DroidBuilder {
 
 		ArrayList<String> sdf = new ArrayList<String>();
 //		sdf.add("Manifest");
+//		sdf.add("Dex");
+//		sdf.add("Compil");
+//		sdf.add("Jack");
+//		sdf.add("apk");
+//		sdf.add("manbuild");
 		BuildContext cxt = new BuildContext(config, cf, outlog, true, true, false, sdf, sdf, false, null, null, false, true, false);
 		cxt.configure();
 
