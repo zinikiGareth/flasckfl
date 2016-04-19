@@ -1,6 +1,5 @@
 package org.flasck.flas.droidgen;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -19,9 +18,11 @@ import com.gmmapowell.quickbuild.build.android.AdbInstallCommand;
 import com.gmmapowell.quickbuild.build.android.AdbStartCommand;
 import com.gmmapowell.quickbuild.build.android.AndroidCommand;
 import com.gmmapowell.quickbuild.build.android.AndroidNature;
+import com.gmmapowell.quickbuild.build.android.AndroidRestrictJNICommand;
 import com.gmmapowell.quickbuild.build.android.AndroidUseLibraryCommand;
 import com.gmmapowell.quickbuild.build.java.JavaNature;
 import com.gmmapowell.quickbuild.build.maven.MavenLibraryCommand;
+import com.gmmapowell.quickbuild.build.maven.RepoCommand;
 import com.gmmapowell.quickbuild.config.Config;
 import com.gmmapowell.quickbuild.config.ConfigFactory;
 import com.gmmapowell.quickbuild.config.LibsCommand;
@@ -34,6 +35,8 @@ public class DroidBuilder {
 	final List<File> libs = new ArrayList<File>();
 	final List<String> maven = new ArrayList<String>();
 	private String useJack = "";
+	private List<String> jnis;
+	final List<PackageInfo> packages = new ArrayList<PackageInfo>();
 
 	public DroidBuilder(File androidDir, ByteCodeEnvironment bce) {
 		this.androidDir = androidDir;
@@ -57,13 +60,14 @@ public class DroidBuilder {
 			FileUtils.assertDirectory(new File(androidDir, "src/android/lib"));
 			FileUtils.assertDirectory(new File(androidDir, "src/android/res"));
 			FileUtils.assertDirectory(new File(androidDir, "src/android/rawapk"));
+			FileUtils.assertDirectory(new File(androidDir, "src/android/rawapk/lib"));
 			FileUtils.assertDirectory(new File(androidDir, "qbout"));
 			FileUtils.assertDirectory(new File(androidDir, "qbout/jill"));
 			FileUtils.assertDirectory(new File(androidDir, "qbout/dex"));
+			FileUtils.assertDirectory(new File(androidDir, "libs"));
 		}
 		// Right ... now make this work from the aar ...
-		FileUtils.assertDirectory(new File(androidDir, "src/android/rawapk/lib"));
-		FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/qb/libs/lib"), new File(androidDir, "src/android/rawapk/lib"));
+//		FileUtils.copyRecursive(new File("/Users/gareth/user/Personal/Projects/Android/qb/libs/lib"), new File(androidDir, "src/android/rawapk/lib"));
 		
 		
 		FileUtils.assertDirectory(qbcdir);
@@ -93,6 +97,12 @@ public class DroidBuilder {
 //		FileUtils.copyStreamToFile(new ByteArrayInputStream("class Foo {}".getBytes()), new File("/tmp/chaddyAndroid/src/main/java/Foo.java"));
 	}
 	
+	public void restrictJni(String string) {
+		if (jnis == null)
+			jnis = new ArrayList<String>();
+		jnis.add(string);
+	}
+
 	public void setLaunchCard(String launchCard) {
 		if (launchCard.contains("/"))
 			this.launchCard = launchCard;
@@ -137,6 +147,16 @@ public class DroidBuilder {
 		}
 	}
 
+	public void usePackage(String desc) {
+		int eq = desc.indexOf("=");
+		if (eq == -1)
+			throw new UtilException("Invalid package descriptor: " + desc + " must be local=ziniki:version");
+		int colon = desc.indexOf(":", eq);
+		if (colon == -1)
+			throw new UtilException("Invalid package descriptor: " + desc + " must be local=ziniki:version");
+		packages.add(new PackageInfo(desc.substring(0, eq), desc.substring(eq+1, colon), Integer.parseInt(desc.substring(colon+1))));
+	}
+
 	public void build() {
 		// there are a number of possibilities here:
 		// just build and deploy "in memory"
@@ -150,12 +170,21 @@ public class DroidBuilder {
 //		jn.addLib(new File("/Users/gareth/user/Personal/Projects/Android/qb/libs"), new ArrayList<ExcludeCommand>());
 		cf.getNature(config, AndroidNature.class);
 		QuickBuild.readHomeConfig(config, null);
+		RepoCommand rc = new RepoCommand(new TokenizedLine(0, "repo http://files.couchbase.com/maven2"));
+		config.addChild(rc);
 //		LibsCommand lc = new LibsCommand(new TokenizedLine(0, "libs /Users/gareth/user/Personal/Projects/Android/qb/libs"));
 //		config.addChild(lc);
 		int setupLineNo = 100;
 		int lineNo = 200;
 		TokenizedLine toks = new TokenizedLine(lineNo++, "android " + useJack + androidDir.getName());
 		AndroidCommand cmd = new AndroidCommand(toks);
+		if (jnis != null) {
+			StringBuilder jniCmd = new StringBuilder("jni");
+			for (String s : jnis)
+				jniCmd.append(" " + s);
+			cmd.addChild(new AndroidRestrictJNICommand(new TokenizedLine(lineNo++, jniCmd.toString())));
+		}
+			
 		for (String mvn : maven) {
 			MavenLibraryCommand mlc = new MavenLibraryCommand(new TokenizedLine(setupLineNo++, "maven " + mvn));
 			config.addChild(mlc);

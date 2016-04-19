@@ -71,6 +71,32 @@ public class DroidGenerator {
 		this.builder = bldr;
 	}
 	
+	public void generateAppObject() {
+		if (builder == null)
+			return;
+		System.out.println("packages = " + builder.packages);
+		// TODO: this package name needs to be configurable
+		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, "com.helpfulsidekick.chaddy.MainApplicationClass");
+		bcc.superclass("org.flasck.android.FlasckApplication");
+		{
+			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			NewMethodDefiner ctor = gen.done();
+			ctor.callSuper("void", "org/flasck/android/FLASObject", "<init>").flush();
+			ctor.returnVoid().flush();
+		}
+		{
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "onCreate");
+			gen.returns("void");
+			NewMethodDefiner oc = gen.done();
+			oc.setAccess(Access.PUBLIC);
+			oc.callSuper("void", "org.flasck.android.FlasckActivity", "onCreate").flush();
+			for (PackageInfo x : builder.packages) {
+				oc.callVirtual("void", oc.myThis(), "bindPackage", oc.stringConst(x.local), oc.stringConst(x.remote), oc.intConst(x.version)).flush();
+			}
+			oc.returnVoid().flush();
+		}
+	}
+	
 	public void generate(StructDefn value) {
 		if (builder == null || !value.generate)
 			return;
@@ -271,7 +297,7 @@ public class DroidGenerator {
 				naList.add(eval.arrayElt(argsArg.getVar(), eval.intConst(k)));
 			Expr[] newArgs = new Expr[naList.size()];
 			naList.toArray(newArgs);
-			eval.ifOp(0xa2, eval.arraylen(argsArg.getVar()), eval.intConst(1), 
+			eval.ifOp(0xa2, eval.arraylen(argsArg.getVar()), eval.intConst(hi.boundVars.size()), 
 					eval.returnObject(eval.makeNew("org.flasck.android.FLCurry", cardArg.getVar(), eval.classConst(javaNestedName(name)), argsArg.getVar())), 
 					eval.returnObject(eval.makeNew(javaNestedName(name), newArgs))).flush();
 		}

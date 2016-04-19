@@ -122,6 +122,12 @@ public class Compiler {
 								compiler.builder.cleanFirst();
 							} else if (f.equals("--jack")) {
 								compiler.builder.useJack();
+							} else if (f.equals("--jni")) {
+								if (hasMore == 0) {
+									System.out.println("--jni <arch>");
+									System.exit(1);
+								}
+								compiler.builder.restrictJni(args[++i]);
 							} else if (f.equals("--launch")) {
 								if (hasMore == 0) {
 									System.out.println("--launch <card>");
@@ -146,6 +152,12 @@ public class Compiler {
 									System.exit(1);
 								}
 								compiler.builder.useCSS(args[++i]);
+							} else if (f.equals("--package")) {
+								if (hasMore == 0) {
+									System.out.println("--package <local=ziniki:version>");
+									System.exit(1);
+								}
+								compiler.builder.usePackage(args[++i]);
 							} else
 								matched = false;
 						}
@@ -265,6 +277,8 @@ public class Compiler {
 			JSTarget target = new JSTarget(inPkg);
 			Generator gen = new Generator(hsie, target);
 
+			dg.generateAppObject();
+			
 			for (Entry<String, StructDefn> sd : rewriter.structs.entrySet()) {
 				gen.generate(sd.getValue());
 				dg.generate(sd.getValue());
