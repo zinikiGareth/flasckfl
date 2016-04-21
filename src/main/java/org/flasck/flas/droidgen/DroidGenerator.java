@@ -19,8 +19,10 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageVar;
@@ -33,6 +35,7 @@ import org.flasck.flas.parsedForm.android.AndroidLaunch;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
+import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -138,11 +141,11 @@ public class DroidGenerator {
 				else
 					throw new UtilException("Not handled " + sf.type);
 			} else if (sf.type instanceof ContractImplements || sf.type instanceof ContractDecl) {
-				jt = new JavaType(sf.type.name());
+				jt = javaType(sf.type.name());
 			} else if (sf.type instanceof ObjectDefn) {
-				jt = new JavaType(sf.type.name());
+				jt = javaType(sf.type.name());
 			} else if (sf.type instanceof Type) {
-				jt = new JavaType(sf.type.name());
+				jt = javaType(sf.type.name());
 			} else
 				throw new UtilException("Not handled " + sf.type + " " + sf.type.getClass());
 			bcc.defineField(false, Access.PROTECTED, jt, sf.name);
@@ -191,6 +194,12 @@ public class DroidGenerator {
 					throw new UtilException("Cannot handle android platform spec of type " + d.getClass());
 			}
 		}
+	}
+
+	private JavaType javaType(String name) {
+		if (name.indexOf(".") == -1)
+			name = "org.flasck.android.builtin." + name;
+		return new JavaType(name);
 	}
 
 	public void generateContractDecl(String name, ContractDecl cd) {
@@ -259,7 +268,9 @@ public class DroidGenerator {
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
 		bcc.superclass(hi.name());
-		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(javaBaseName(name)), "_card");
+		FieldInfo fi = null;
+		if (hi.inCard)
+			fi = bcc.defineField(false, Access.PRIVATE, new JavaType(javaBaseName(name)), "_card");
 		Map<String, FieldInfo> fs = new TreeMap<String, FieldInfo>();
 		for (Object o : hi.boundVars) {
 			String var = ((HandlerLambda)o).var;
@@ -269,7 +280,9 @@ public class DroidGenerator {
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(name), javaNestedSimpleName(name));
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cardArg = gen.argument("java.lang.Object", "card");
+			PendingVar cardArg = null;
+			if (hi.inCard)
+				cardArg = gen.argument("java.lang.Object", "card");
 			Map<String, PendingVar> vm = new TreeMap<String, PendingVar>();
 			for (Object o : hi.boundVars) {
 				String var = ((HandlerLambda)o).var;
@@ -278,7 +291,8 @@ public class DroidGenerator {
 			}
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", hi.name(), "<init>").flush();
-			ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic("org.flasck.android.FLEval", "java.lang.Object", "full", cardArg.getVar()), javaBaseName(name))).flush();
+			if (hi.inCard)
+				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic("org.flasck.android.FLEval", "java.lang.Object", "full", cardArg.getVar()), javaBaseName(name))).flush();
 			for (Object o : hi.boundVars) {
 				String var = ((HandlerLambda)o).var;
 				ctor.assign(fs.get(var).asExpr(ctor), ctor.callStatic("org.flasck.android.FLEval", "java.lang.Object", "head", vm.get(var).getVar())).flush();
@@ -287,18 +301,26 @@ public class DroidGenerator {
 		}
 		{
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
-			PendingVar cardArg = gen.argument("java.lang.Object", "card");
+			PendingVar cardArg = null;
+			if (hi.inCard)
+				cardArg = gen.argument("java.lang.Object", "card");
 			PendingVar argsArg = gen.argument("[java.lang.Object", "args");
 			gen.returns("java.lang.Object");
 			NewMethodDefiner eval = gen.done();
 			List<Expr> naList = new ArrayList<Expr>();
-			naList.add(cardArg.getVar());
+			if (hi.inCard)
+				naList.add(cardArg.getVar());
 			for (int k=0;k<hi.boundVars.size();k++)
 				naList.add(eval.arrayElt(argsArg.getVar(), eval.intConst(k)));
 			Expr[] newArgs = new Expr[naList.size()];
 			naList.toArray(newArgs);
+			Expr objArg;
+			if (hi.inCard)
+				objArg = cardArg.getVar();
+			else
+				objArg = eval.aNull();
 			eval.ifOp(0xa2, eval.arraylen(argsArg.getVar()), eval.intConst(hi.boundVars.size()), 
-					eval.returnObject(eval.makeNew("org.flasck.android.FLCurry", cardArg.getVar(), eval.classConst(javaNestedName(name)), argsArg.getVar())), 
+					eval.returnObject(eval.makeNew("org.flasck.android.FLCurry", objArg, eval.classConst(javaNestedName(name)), argsArg.getVar())), 
 					eval.returnObject(eval.makeNew(javaNestedName(name), newArgs))).flush();
 		}
 		{
@@ -327,7 +349,7 @@ public class DroidGenerator {
 				isStatic = false;
 			} else if (f.mytype == CodeType.FUNCTION || f.mytype == CodeType.STANDALONE) {
 				String pkg = f.fnName.substring(0, idx);
-				inClz = pkg +".PackageFunctions";
+				inClz = pkg +".PACKAGEFUNCTIONS";
 				if (!builder.bce.hasClass(inClz)) {
 					ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, inClz);
 					bcc.superclass("java.lang.Object");
@@ -339,6 +361,8 @@ public class DroidGenerator {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, isStatic, fn);
 			gen.returns("java.lang.Object");
 			List<PendingVar> tmp = new ArrayList<PendingVar>();
+			if (f.mytype == CodeType.HANDLER) // and others?
+				gen.argument("org.flasck.android.post.DeliveryAddress", "_fromDA");
 			int j = 0;
 			for (@SuppressWarnings("unused") Object s : f.scoped)
 				tmp.add(gen.argument("java.lang.Object", "_s"+(j++)));
@@ -358,6 +382,22 @@ public class DroidGenerator {
 			if (blk != null)
 				blk.flush();
 //			meth.returnObject(meth.myThis()).flush();
+			
+			// for package-level methods (i.e. regular floating functions in a functional language), generate a nested class
+			if (isStatic) {
+				ByteCodeCreator inner = new ByteCodeCreator(builder.bce, inClz + "$" + fn);
+				inner.superclass("java.lang.Object");
+				System.out.println("Creating class " + inner);
+				GenericAnnotator g2 = GenericAnnotator.newMethod(inner, true, "eval");
+				g2.returns("java.lang.Object");
+				PendingVar args = g2.argument("[java.lang.Object", "args");
+				MethodDefiner m2 = g2.done();
+				Expr[] fnArgs = new Expr[tmp.size()];
+				for (int i=0;i<tmp.size();i++) {
+					fnArgs[i] = m2.arrayElt(args.getVar(), m2.intConst(i));
+				}
+				m2.returnObject(m2.callStatic(inClz, "java.lang.Object", fn, fnArgs)).flush();
+			}
 		}
 	}
 
@@ -425,10 +465,18 @@ public class DroidGenerator {
 		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
 		Expr needsObject = null;
 		boolean fromHandler = fntype == CodeType.AREA;
+		Object defn = fn;
 		if (fn != null) {
-			if (fn instanceof ObjectReference || fn instanceof CardFunction) {
+			while (defn instanceof PackageVar)
+				defn = ((PackageVar)defn).defn;
+			if (defn instanceof ObjectReference || defn instanceof CardFunction) {
 				needsObject = meth.myThis();
 				fromHandler |= fn.fromHandler();
+			} else if (defn instanceof HandlerImplements) {
+				HandlerImplements hi = (HandlerImplements) defn;
+				if (hi.inCard)
+					needsObject = meth.myThis();
+				System.out.println("Creating handler " + fn + " in block " + closure);
 			} else if (fn.toString().equals("FLEval.curry")) {
 				ExternalRef f2 = ((PushCmd)closure.nestedCommands().get(1)).fn;
 				if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
@@ -454,6 +502,11 @@ public class DroidGenerator {
 			pos++;
 		}
 		Expr clz = al.remove(0);
+		String t = clz.getType();
+		if (!t.equals("java.lang.Class") && (needsObject != null || !t.equals("java.lang.Object"))) {
+			throw new UtilException("Type of " + clz + " is not a Class but " + t);
+//			clz = meth.castTo(clz, "java.lang.Class");
+		}
 		if (needsObject != null)
 			return meth.makeNew("org.flasck.android.FLClosure", meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
 		else
@@ -470,11 +523,17 @@ public class DroidGenerator {
 		if (c.fn != null) {
 			if (c.fn instanceof PackageVar || c.fn instanceof ObjectReference) {
 				boolean wantEval = false;
-				if (pos != 0 && c.fn instanceof PackageVar) {
-					Object defn = ((PackageVar)c.fn).defn;
-					if (defn instanceof StructDefn && ((StructDefn)defn).fields.isEmpty())
-						wantEval = true;
+				Object defn = null;
+				if (c.fn instanceof PackageVar) {
+					defn = c.fn;
+					while (defn instanceof PackageVar)
+						defn = ((PackageVar)defn).defn;
+					if (pos != 0)
+						if (defn instanceof StructDefn && ((StructDefn)defn).fields.isEmpty())
+							wantEval = true;
 				}
+//				if (c.fn.uniqueName().endsWith(".requestObj"))
+//					System.out.println("Handing c.fn = " + c.fn);
 				int idx = c.fn.uniqueName().lastIndexOf(".");
 				String clz;
 				if (idx == -1)
@@ -490,7 +549,13 @@ public class DroidGenerator {
 						inside = c.fn.uniqueName().substring(0, idx);
 						member = c.fn.uniqueName().substring(idx+1);
 					}
-					clz = inside + "$" + member;
+					if (defn instanceof FunctionDefinition || defn instanceof MethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
+						clz = inside + ".PACKAGEFUNCTIONS$" + member;
+						System.out.println("Handing c.fn = " + c.fn + " using " + clz);
+					} else {
+						clz = inside + "$" + member;
+						System.out.println("This case may be good: " + clz + ":" + c.fn.getClass() + ":" + (defn == null?"null":defn.getClass()));
+					}
 					meth.getBCC().addInnerClassReference(Access.PUBLICSTATIC, inside, member);
 				}
 				if (!wantEval) { // handle the simple class case ...
@@ -624,7 +689,7 @@ public class DroidGenerator {
 		ah.returns("java.lang.Object");
 		MethodDefiner ahMeth = ah.done();
 		cgrx.currentMethod = ahMeth;
-		ahMeth.callStatic("android.util.Log", "void", "e", ahMeth.stringConst("Need to add the handlers"));
+		ahMeth.voidExpr(ahMeth.callStatic("android.util.Log", "int", "e", ahMeth.stringConst("FlasckLib"), ahMeth.stringConst("Need to add the handlers"))).flush();
 		ahMeth.returnObject(ahMeth.aNull()).flush();
 	}
 
@@ -663,7 +728,7 @@ public class DroidGenerator {
 //		JSForm.assign(cexpr, "var card", form);
 //		cexpr.add(JSForm.flex("this._updateToCard(card)"));
 
-		meth.callStatic("android.util.Log", "void", "e", meth.stringConst("Need to implement yoyo card"));
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to implement yoyo card"))).flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
 

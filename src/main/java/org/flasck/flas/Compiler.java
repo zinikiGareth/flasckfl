@@ -170,6 +170,8 @@ public class Compiler {
 					continue;
 				}
 				compiler.compile(new File(f));
+				if (!compiler.success)
+					break;
 			}
 			if (compiler.builder != null && compiler.success)
 				compiler.builder.build();
