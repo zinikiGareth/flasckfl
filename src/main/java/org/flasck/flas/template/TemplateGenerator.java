@@ -447,7 +447,7 @@ public class TemplateGenerator {
 	protected void callOnAssign(JSForm addToFunc, Object valExpr, CGRContext cgrx, String call, boolean addAssign, String moreArgs) {
 		if (valExpr instanceof CardMember) {
 			addToFunc.add(JSForm.flex("this._onAssign(this._card, '" + ((CardMember)valExpr).var + "', " + call + ")"));
-			dg.onAssign(cgrx, (CardMember)valExpr);
+			dg.onAssign(cgrx, (CardMember)valExpr, call);
 		} else if (valExpr instanceof TemplateListVar) {
 			String var = ((TemplateListVar)valExpr).name;
 			addToFunc.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));

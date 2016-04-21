@@ -655,11 +655,7 @@ public class DroidGenerator {
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", baseClz, "<init>", parent.getVar(), ctor.as(ctor.aNull(), "java.lang.String")).flush();
 			ctor.assign(card.asExpr(ctor), cardArg.getVar()).flush();
-//			ctor.callVirtual("void", ctor.getField(card.asExpr(ctor), "_wrapper"), "onAssign", ctor.stringConst("counter"), ctor.as(ctor.myThis(), "org.flasck.android.Area"), ctor.stringConst("_contentExpr")).flush();
-//			ctor.callVirtual("void", ctor.myThis(), "_contentExpr").flush();
 			return new CGRContext(bcc, ctor, cardArg.getVar(), parent.getVar());
-//			ctor.returnVoid().flush();
-			
 		}
 	}
 
@@ -750,10 +746,13 @@ public class DroidGenerator {
 		return blk;
 	}
 
-	public void onAssign(CGRContext cgrx, CardMember valExpr) {
+	public void onAssign(CGRContext cgrx, CardMember valExpr, String call) {
 		if (builder == null)
 			return;
-		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.stringConst(valExpr.var), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst("_contentExpr")).flush();
+		int idx = call.lastIndexOf(".");
+		if (idx != -1)
+			call = call.substring(idx+1);
+		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.stringConst(valExpr.var), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst(call)).flush();
 	}
 	
 	public void addAssign(CGRContext cgrx, String call) {
