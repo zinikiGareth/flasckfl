@@ -35,7 +35,6 @@ import org.flasck.flas.parsedForm.android.AndroidLaunch;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
-import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -532,16 +531,16 @@ public class DroidGenerator {
 						if (defn instanceof StructDefn && ((StructDefn)defn).fields.isEmpty())
 							wantEval = true;
 				}
-//				if (c.fn.uniqueName().endsWith(".requestObj"))
-//					System.out.println("Handing c.fn = " + c.fn);
 				int idx = c.fn.uniqueName().lastIndexOf(".");
-				String clz;
-				if (idx == -1)
-					clz = "org.flasck.android.builtin." + c.fn.uniqueName();
-				else {
+				String inside;
+				String dot;
+				String member;
+				if (idx == -1) {
+					inside = "org.flasck.android.builtin";
+					dot = ".";
+					member = c.fn.uniqueName();
+				} else {
 					String first = c.fn.uniqueName().substring(0, idx);
-					String inside;
-					String member;
 					if ("FLEval".equals(first)) {
 						inside = "org.flasck.android.FLEval";
 						member = StringUtil.capitalize(c.fn.uniqueName().substring(idx+1));
@@ -549,15 +548,15 @@ public class DroidGenerator {
 						inside = c.fn.uniqueName().substring(0, idx);
 						member = c.fn.uniqueName().substring(idx+1);
 					}
-					if (defn instanceof FunctionDefinition || defn instanceof MethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
-						clz = inside + ".PACKAGEFUNCTIONS$" + member;
-						System.out.println("Handing c.fn = " + c.fn + " using " + clz);
-					} else {
-						clz = inside + "$" + member;
-						System.out.println("This case may be good: " + clz + ":" + c.fn.getClass() + ":" + (defn == null?"null":defn.getClass()));
-					}
-					meth.getBCC().addInnerClassReference(Access.PUBLICSTATIC, inside, member);
+					dot = "$";
 				}
+				String clz;
+				if (defn instanceof FunctionDefinition || defn instanceof MethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
+					clz = inside + ".PACKAGEFUNCTIONS$" + member;
+				} else {
+					clz = inside + dot + member;
+				}
+				meth.getBCC().addInnerClassReference(Access.PUBLICSTATIC, inside, member);
 				if (!wantEval) { // handle the simple class case ...
 					return meth.classConst(clz);
 				} else {
