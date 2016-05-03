@@ -411,7 +411,10 @@ public class DroidGenerator {
 			} else if (h instanceof Switch) {
 				Switch s = (Switch)h;
 				Var hv = vars.get(s.var);
-				stmts.add(meth.ifBoolean(meth.instanceOf(hv, s.ctor), generateBlock(meth, svars, vars, f, s), null));
+				String ctor = s.ctor;
+				if (ctor.indexOf(".") == -1)
+					ctor = "org.flasck.android.builtin." + ctor;
+				stmts.add(meth.ifBoolean(meth.instanceOf(hv, ctor), generateBlock(meth, svars, vars, f, s), null));
 			} else if (h instanceof IFCmd) {
 				IFCmd c = (IFCmd)h;
 				Var hv = vars.get(c.var);
@@ -660,14 +663,16 @@ public class DroidGenerator {
 
 	public void newVar(CGRContext cgrx, String newVar) {
 		System.out.println("Creating var " + newVar + " in " + cgrx.bcc.getCreatedName());
-		FieldInfo src = cgrx.bcc.defineField(true, Access.PROTECTED, "java.lang.Object", "_src_"+newVar);
+		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, "java.lang.Object", "_src_"+newVar);
 		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.myThis());
+		// new var appears to be the hint that we're in a list
+		cgrx.bcc.defineField(false, Access.PUBLIC, "org.flasck.android.builtin.Crokey", "_crokey");
 	}
 
 	public void copyVar(CGRContext cgrx, String parentClass, String s) {
 		System.out.println("Copying var " + s + " from " + parentClass + " into " + cgrx.bcc.getCreatedName());
-		FieldInfo src = cgrx.bcc.defineField(true, Access.PROTECTED, "java.lang.Object", "_src_"+s);
-		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.getField(cgrx.ctor.as(cgrx.parent, javaNestedName(parentClass)), "_src_"+s)).flush();
+		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, "java.lang.Object", "_src_"+s);
+		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.getField(cgrx.ctor.castTo(cgrx.parent, javaNestedName(parentClass)), "_src_"+s)).flush();
 	}
 
 	public void setSimpleClass(CGRContext cgrx, String css) {
@@ -688,6 +693,15 @@ public class DroidGenerator {
 		ahMeth.returnObject(ahMeth.aNull()).flush();
 	}
 
+	public void setVarFormats(CGRContext cgrx, HSIEForm form) {
+		GenericAnnotator svf = GenericAnnotator.newMethod(cgrx.bcc, false, "_setVariableFormats");
+		svf.returns("java.lang.Object");
+		MethodDefiner svgMeth = svf.done();
+		cgrx.currentMethod = svgMeth;
+		svgMeth.voidExpr(svgMeth.callStatic("android.util.Log", "int", "e", svgMeth.stringConst("FlasckLib"), svgMeth.stringConst("Need to set variable formats"))).flush();
+		svgMeth.returnObject(svgMeth.aNull()).flush();
+	}
+
 	public void setText(CGRContext cgrx, String text) {
 		if (builder == null)
 			return;
@@ -706,6 +720,15 @@ public class DroidGenerator {
 		meth.assign(str, blk).flush();
 		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
 		meth.returnObject(meth.aNull()).flush();
+	}
+
+	public void newListChild(CGRContext cgrx, String child) {
+		if (builder == null)
+			return;
+		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_newChild");
+		gen.returns("org.flasck.android.areas.Area");
+		NewMethodDefiner meth = gen.done();
+		meth.returnObject(meth.makeNew(javaNestedName(child), meth.getField("_card"), meth.as(meth.myThis(), "org.flasck.android.areas.Area"))).flush();
 	}
 
 	public void yoyoExpr(CGRContext cgrx, HSIEForm form) {
@@ -760,6 +783,22 @@ public class DroidGenerator {
 		int idx = call.lastIndexOf(".prototype");
 		call = call.substring(idx+11);
 		cgrx.ctor.voidExpr(cgrx.ctor.callVirtual("java.lang.Object", cgrx.ctor.myThis(), call)).flush();
+	}
+
+	public void assignToVar(CGRContext cgrx) {
+		if (builder == null)
+			return;
+		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_assignToVar");
+		PendingVar arg = gen.argument("java.lang.Object", "obj");
+		gen.returns("java.lang.Object");
+		NewMethodDefiner meth = gen.done();
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Assign to list var"))).flush();
+//		Var str = meth.avar("java.lang.String", "str");
+//		Expr blk = generateFunctionFromForm(meth, form);
+//		if (blk == null) return;
+//		meth.assign(str, blk).flush();
+//		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
+		meth.returnObject(meth.aNull()).flush();
 	}
 
 	public void done(CGRContext cgrx) {

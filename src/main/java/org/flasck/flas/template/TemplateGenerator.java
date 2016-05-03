@@ -199,6 +199,7 @@ public class TemplateGenerator {
 			nda.add(ifload);
 			nda.add(JSForm.flex("this._fireInterests()"));
 			cx.target.add(nda);
+			dg.assignToVar(cgrx);
 		}
 		if (tl instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) tl;
@@ -251,10 +252,13 @@ public class TemplateGenerator {
 			String tlv = ((TemplateListVar)l.iterVar).name;
 			if (l.supportDragOrdering)
 				fn.add(JSForm.flex("this._supportDragging()"));
-			JSForm nc = JSForm.flex(called +".prototype._newChild = function()").needBlock();
 			String item = cx.nextArea();
-			nc.add(JSForm.flex("return new " + item + "(this)"));
-			cx.target.add(nc);
+			{
+				JSForm nc = JSForm.flex(called +".prototype._newChild = function()").needBlock();
+				nc.add(JSForm.flex("return new " + item + "(this)"));
+				cx.target.add(nc);
+			}
+			dg.newListChild(cgrx, javaName(item));
 			cx.newVar(tlv);
 			JSForm cfn = recurse(cx, item, l.template, called);
 			if (l.supportDragOrdering)
@@ -391,6 +395,7 @@ public class TemplateGenerator {
 			scvs.add(JSForm.flex("attr = FLEval.full(attr)"));
 			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(attr), ' '))"));
 			cx.target.add(scvs);
+			dg.setVarFormats(cgrx, form);
 			callOnAssign(fn, expr, cgrx, scf, true, null);
 		}
 		else if (expr == null && simple.length() > 0) {
