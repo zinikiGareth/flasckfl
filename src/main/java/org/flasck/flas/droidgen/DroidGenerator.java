@@ -52,14 +52,15 @@ import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.BlockExpr;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.Expr;
+import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.FieldInfo;
+import org.zinutils.bytecode.FieldObject;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
-import org.zinutils.bytecode.ReturnX;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
@@ -377,7 +378,7 @@ public class DroidGenerator {
 			}
 			for (int i=0;i<f.nformal;i++)
 				vars.put(f.vars.get(i), tmp.get(i+j).getVar());
-			Expr blk = generateBlock(meth, svars, vars, f, f);
+			Expr blk = generateBlock(meth, svars, vars, f, f, null);
 			if (blk != null)
 				blk.flush();
 //			meth.returnObject(meth.myThis()).flush();
@@ -400,7 +401,7 @@ public class DroidGenerator {
 		}
 	}
 
-	private Expr generateBlock(NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, HSIEForm f, HSIEBlock blk) {
+	private Expr generateBlock(NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, HSIEForm f, HSIEBlock blk, Var assignReturnTo) {
 		List<Expr> stmts = new ArrayList<Expr>();
 		for (HSIEBlock h : blk.nestedCommands()) {
 			if (h instanceof Head) {
@@ -414,21 +415,25 @@ public class DroidGenerator {
 				String ctor = s.ctor;
 				if (ctor.indexOf(".") == -1)
 					ctor = "org.flasck.android.builtin." + ctor;
-				stmts.add(meth.ifBoolean(meth.instanceOf(hv, ctor), generateBlock(meth, svars, vars, f, s), null));
+				stmts.add(meth.ifBoolean(meth.instanceOf(hv, ctor), generateBlock(meth, svars, vars, f, s, assignReturnTo), null));
 			} else if (h instanceof IFCmd) {
 				IFCmd c = (IFCmd)h;
 				Var hv = vars.get(c.var);
 				Expr testVal = upcast(meth, exprValue(meth, c.value));
-				stmts.add(meth.ifEquals(hv, testVal, generateBlock(meth, svars, vars, f, c), null));
+				stmts.add(meth.ifEquals(hv, testVal, generateBlock(meth, svars, vars, f, c, assignReturnTo), null));
 			} else if (h instanceof BindCmd) {
 //				into.add(JSForm.bind((BindCmd) h));
 			} else if (h instanceof ReturnCmd) {
 				ReturnCmd r = (ReturnCmd) h;
 				if (r.var != null) {
 					Var hv = vars.get(r.var.var);
-					if (r.var.var.idx < f.nformal)
-						stmts.add(meth.returnObject(hv));
-					else {
+					if (r.var.var.idx < f.nformal) {
+						if (assignReturnTo != null) {
+							ensureString(stmts, meth, hv);
+							stmts.add(meth.assign(assignReturnTo, hv));
+						} else
+							stmts.add(meth.returnObject(hv));
+					} else {
 						if (r.deps != null) {
 							for (CreationOfVar cov : r.deps) {
 								Var v = vars.get(cov.var);
@@ -441,7 +446,11 @@ public class DroidGenerator {
 							}
 						}
 						Expr cl = closure(f, meth, svars, vars, f.mytype, f.getClosure(r.var.var));
-						stmts.add(meth.returnObject(cl));
+						if (assignReturnTo != null) {
+							ensureString(stmts, meth, hv);
+							stmts.add(meth.assign(assignReturnTo, cl));
+						} else
+							stmts.add(meth.returnObject(cl));
 					}
 				} else {
 					Expr expr = appendValue(f, meth, svars, vars, f.mytype, r, 0);
@@ -460,6 +469,17 @@ public class DroidGenerator {
 			return stmts.get(0);
 		else
 			return new BlockExpr(meth, stmts);
+	}
+
+	private void ensureString(List<Expr> stmts, NewMethodDefiner meth, Var blk) {
+		if (blk == null)
+			return;
+		else if (blk.getType().equals("java.lang.String")) {
+			// nothing to do ...
+		} else if (blk.getType().equals("java.lang.Integer") || blk.getType().equals("int")) {
+			stmts.add(meth.callStatic("java.lang.Integer", "java.lang.String", "toString", blk));
+		} else
+			throw new UtilException("Cannot handle " + blk.getType());
 	}
 
 	private Expr closure(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
@@ -602,8 +622,7 @@ public class DroidGenerator {
 		else if (c.sval != null)
 			return meth.stringConst(c.sval.text);
 		else if (c.tlv != null) {
-			System.out.println("TLV: " + c.tlv.name);
-			return meth.stringConst("HackTLV:" + c.tlv.name);
+			return meth.getField(meth.getField("_src_" + c.tlv.name), c.tlv.name);
 //			sb.append("this._src_" + c.tlv.name + "." + c.tlv.name);
 //		} else if (c.func != null) {
 //			int x = c.func.name.lastIndexOf('.');
@@ -644,10 +663,12 @@ public class DroidGenerator {
 		return render;
 	}
 
-	public CGRContext area(String clz, String base) {
+	public CGRContext area(String clz, String base, String customTag) {
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(clz));
 		String baseClz = "org.flasck.android.areas." + base;
 		bcc.superclass(baseClz);
+		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
+		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.areas.Area"), "_parent");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(clz), javaNestedSimpleName(clz));
 		FieldInfo card = bcc.defineField(true, Access.PRIVATE, javaBaseName(clz), "_card");
 		{
@@ -655,7 +676,7 @@ public class DroidGenerator {
 			PendingVar cardArg = gen.argument(javaBaseName(clz), "cardArg");
 			PendingVar parent = gen.argument("org/flasck/android/areas/Area", "parent");
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", baseClz, "<init>", parent.getVar(), ctor.as(ctor.aNull(), "java.lang.String")).flush();
+			ctor.callSuper("void", baseClz, "<init>", parent.getVar(), customTag == null ? ctor.as(ctor.aNull(), "java.lang.String") : ctor.stringConst(customTag)).flush();
 			ctor.assign(card.asExpr(ctor), cardArg.getVar()).flush();
 			return new CGRContext(bcc, ctor, cardArg.getVar(), parent.getVar());
 		}
@@ -663,15 +684,14 @@ public class DroidGenerator {
 
 	public void newVar(CGRContext cgrx, String newVar) {
 		System.out.println("Creating var " + newVar + " in " + cgrx.bcc.getCreatedName());
-		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, "java.lang.Object", "_src_"+newVar);
-		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.myThis());
-		// new var appears to be the hint that we're in a list
-		cgrx.bcc.defineField(false, Access.PUBLIC, "org.flasck.android.builtin.Crokey", "_crokey");
+		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, cgrx.bcc.getCreatedName(), "_src_"+newVar);
+		cgrx.bcc.defineField(false, Access.PUBLIC, "java.lang.Object", newVar);
+		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.myThis()).flush();
 	}
 
-	public void copyVar(CGRContext cgrx, String parentClass, String s) {
+	public void copyVar(CGRContext cgrx, String parentClass, String definedInType, String s) {
 		System.out.println("Copying var " + s + " from " + parentClass + " into " + cgrx.bcc.getCreatedName());
-		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, "java.lang.Object", "_src_"+s);
+		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, javaNestedName(definedInType), "_src_"+s);
 		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.getField(cgrx.ctor.castTo(cgrx.parent, javaNestedName(parentClass)), "_src_"+s)).flush();
 	}
 
@@ -714,10 +734,7 @@ public class DroidGenerator {
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_contentExpr");
 		gen.returns("java.lang.Object");
 		NewMethodDefiner meth = gen.done();
-		Var str = meth.avar("java.lang.String", "str");
-		Expr blk = generateFunctionFromForm(meth, form);
-		if (blk == null) return;
-		meth.assign(str, blk).flush();
+		Var str = generateFunctionFromForm(meth, form);
 		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
@@ -726,9 +743,14 @@ public class DroidGenerator {
 		if (builder == null)
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_newChild");
+		PendingVar ck = gen.argument("org.flasck.android.builtin.Crokey", "crokey");
 		gen.returns("org.flasck.android.areas.Area");
 		NewMethodDefiner meth = gen.done();
-		meth.returnObject(meth.makeNew(javaNestedName(child), meth.getField("_card"), meth.as(meth.myThis(), "org.flasck.android.areas.Area"))).flush();
+		Var ret = meth.avar("org.flasck.android.areas.Area", "ret");
+		meth.assign(ret, meth.makeNew(javaNestedName(child), meth.getField("_card"), meth.as(meth.myThis(), "org.flasck.android.areas.Area"))).flush();
+		FieldExpr crokeyid = new FieldObject(false, "org.flasck.android.builtin.Crokey", new JavaType("java.lang.Object"), "id").useOn(meth, ck.getVar());
+		meth.callVirtual("void", ret, "bindVar", meth.stringConst("_crokey"), crokeyid).flush();
+		meth.returnObject(ret).flush();
 	}
 
 	public void yoyoExpr(CGRContext cgrx, HSIEForm form) {
@@ -750,22 +772,12 @@ public class DroidGenerator {
 		meth.returnObject(meth.aNull()).flush();
 	}
 
-	protected Expr generateFunctionFromForm(NewMethodDefiner meth, HSIEForm form) {
+	protected Var generateFunctionFromForm(NewMethodDefiner meth, HSIEForm form) {
 		Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
 		Map<String, Var> svars = new HashMap<String, Var>();
-		Expr blk = generateBlock(meth, svars, vars, form, form);
-		if (blk instanceof ReturnX) {
-			// nothing we can do
-			System.out.println("Already Returned? Huh?");
-			blk.flush();
-			return null;
-		} else if (blk.getType().equals("java.lang.String")) {
-			// nothing to do ...
-		} else if (blk.getType().equals("java.lang.Integer") || blk.getType().equals("int")) {
-			blk = meth.callStatic("java.lang.Integer", "java.lang.String", "toString", blk);
-		} else
-			throw new UtilException("Cannot handle " + blk.getType());
-		return blk;
+		Var myvar = meth.avar("java.lang.Object", "tmp");
+		generateBlock(meth, svars, vars, form, form, myvar).flush();
+		return myvar;
 	}
 
 	public void onAssign(CGRContext cgrx, CardMember valExpr, String call) {
@@ -774,9 +786,23 @@ public class DroidGenerator {
 		int idx = call.lastIndexOf(".");
 		if (idx != -1)
 			call = call.substring(idx+1);
-		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.stringConst(valExpr.var), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst(call)).flush();
+		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.as(cgrx.ctor.getField("_card"), "java.lang.Object"), cgrx.ctor.stringConst(valExpr.var), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst(call)).flush();
 	}
-	
+
+	public void onAssign(CGRContext cgrx, Expr expr, String field, String call) {
+		if (builder == null)
+			return;
+		int idx = call.lastIndexOf(".");
+		if (idx != -1)
+			call = call.substring(idx+1);
+		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.as(expr, "java.lang.Object"), cgrx.ctor.stringConst(field), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst(call)).flush();
+	}
+
+	public void interested(CGRContext cgrx, String var, String call) {
+		NewMethodDefiner meth = cgrx.ctor;
+		meth.callVirtual("void", meth.getField("_src_"+var), "_interested", meth.as(meth.myThis(), "org.flasck.android.areas.Area"), meth.stringConst(call)).flush();
+	}
+
 	public void addAssign(CGRContext cgrx, String call) {
 		if (builder == null)
 			return;
@@ -785,19 +811,28 @@ public class DroidGenerator {
 		cgrx.ctor.voidExpr(cgrx.ctor.callVirtual("java.lang.Object", cgrx.ctor.myThis(), call)).flush();
 	}
 
-	public void assignToVar(CGRContext cgrx) {
+	public void assignToVar(CGRContext cgrx, String varName) {
 		if (builder == null)
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_assignToVar");
 		PendingVar arg = gen.argument("java.lang.Object", "obj");
 		gen.returns("java.lang.Object");
 		NewMethodDefiner meth = gen.done();
-		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Assign to list var"))).flush();
-//		Var str = meth.avar("java.lang.String", "str");
-//		Expr blk = generateFunctionFromForm(meth, form);
-//		if (blk == null) return;
-//		meth.assign(str, blk).flush();
-//		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
+		Var obj = arg.getVar();
+		FieldExpr curr = meth.getField(varName);
+		FieldExpr wrapper = meth.getField("_wrapper");
+		FieldExpr parent = meth.getField("_parent");
+		FieldExpr croset = new FieldObject(false, "org.flasck.android.areas.Area", new JavaType("org.flasck.android.builtin.Croset"), "_croset").useOn(meth, parent);
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("In _assignToVar"))).flush();
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", curr))).flush();
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", obj))).flush();
+		meth.ifOp(0xa6, curr, obj, meth.returnObject(meth.aNull()), null).flush();
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("survived first test"))).flush();
+		meth.ifNotNull(curr, meth.callVirtual("void", wrapper, "removeOnCrosetReplace", croset, meth.myThis()), null).flush();
+		meth.assign(curr, obj).flush();
+		meth.ifNotNull(curr, meth.callVirtual("void", wrapper, "onCrosetReplace", croset, meth.myThis()), null).flush();
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("calling _fireInterests"))).flush();
+		meth.callVirtual("void", meth.myThis(), "_fireInterests").flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
 
@@ -822,6 +857,8 @@ public class DroidGenerator {
 	}
 
 	private String javaNestedName(String clz) {
+		if (clz.indexOf("$") != -1)
+			throw new UtilException("Nested of nested?");
 		int idx = clz.lastIndexOf(".");
 		return clz.substring(0, idx) + "$" + clz.substring(idx+1);
 	}

@@ -39,10 +39,21 @@ import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.zinutils.bytecode.Expr;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class TemplateGenerator {
+	public class DefinedVar {
+		final String name;
+		final String definedIn;
+		
+		public DefinedVar(String name, String definedIn) {
+			this.name = name;
+			this.definedIn = definedIn;
+		}
+	}
+
 	public class GeneratorContext {
 
 		private final JSTarget target;
@@ -50,7 +61,7 @@ public class TemplateGenerator {
 		private final String protoName;
 		private int areaNo = 1;
 		private String introduceVarHere;
-		private final List<String> varsToCopy = new ArrayList<String>();
+		private final List<DefinedVar> varsToCopy = new ArrayList<DefinedVar>();
 		private final PackageVar nil;
 		private final PackageVar cons;
 		private final PackageVar equals;
@@ -75,8 +86,8 @@ public class TemplateGenerator {
 			return "b" + areaNo;
 		}
 		
-		public void varToCopy(String s) {
-			varsToCopy.add(s);
+		public void varToCopy(String s, String inClz) {
+			varsToCopy.add(new DefinedVar(s, inClz));
 		}
 		
 		public void removeLastCopyVar() {
@@ -135,10 +146,12 @@ public class TemplateGenerator {
 		String base;
 		String moreArgs = "";
 		boolean isEditable = false;
+		String customTag = null;
 		if (tl instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) tl;
 			base = "DivArea";
 			if (td.customTag != null) {
+				customTag = td.customTag;
 				moreArgs = ", '" + td.customTag + "'";
 				if (td.customTag.equals("svg"))
 					moreArgs = moreArgs + ", 'http://www.w3.org/2000/svg'";
@@ -172,17 +185,18 @@ public class TemplateGenerator {
 		} else {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
 		}
-		CGRContext cgrx = dg.area(javaName(called), base);
+		CGRContext cgrx = dg.area(javaName(called), base, customTag);
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
 		fn.add(JSForm.flex("if (!parent) return"));
-		for (String s : cx.varsToCopy) {
+		for (DefinedVar vc : cx.varsToCopy) {
+			String s = vc.name;
 			fn.add(JSForm.flex("this._src_" + s + " = parent._src_" + s));
-			dg.copyVar(cgrx, javaName(parentClass), s);
+			dg.copyVar(cgrx, javaName(parentClass), javaName(vc.definedIn), s);
 		}
 		String newVar = cx.extractNewVar();
 		if (newVar != null) {
 			fn.add(JSForm.flex("this._src_"+newVar+ " = this"));
-			cx.varToCopy(newVar);
+			cx.varToCopy(newVar, called);
 			dg.newVar(cgrx, newVar);
 		}
 		cx.target.add(JSForm.flex(called +".prototype = new " + base + "()"));
@@ -199,7 +213,7 @@ public class TemplateGenerator {
 			nda.add(ifload);
 			nda.add(JSForm.flex("this._fireInterests()"));
 			cx.target.add(nda);
-			dg.assignToVar(cgrx);
+			dg.assignToVar(cgrx, newVar);
 		}
 		if (tl instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) tl;
@@ -456,6 +470,7 @@ public class TemplateGenerator {
 		} else if (valExpr instanceof TemplateListVar) {
 			String var = ((TemplateListVar)valExpr).name;
 			addToFunc.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));
+			dg.interested(cgrx, var, call);
 		} else if (valExpr instanceof CardFunction) {
 			// we need to track down the function (if it's not in the object already) and callOnAssign it's definition
 			CardFunction cf = (CardFunction) valExpr;
@@ -470,14 +485,17 @@ public class TemplateGenerator {
 			ApplyExpr ae = (ApplyExpr) valExpr;
 			if (ae.fn instanceof PackageVar && ((PackageVar)ae.fn).id.equals("FLEval.field")) {
 				Object expr = ae.args.get(0);
+				Expr dge;
 				if (expr instanceof TemplateListVar) {
 					callOnAssign(addToFunc, expr, cgrx, call, false, moreArgs);
 					String name = ((TemplateListVar)expr).name;
 					expr = "this._src_" + name + "." + name;
+					dge = cgrx.ctor.getField(cgrx.ctor.getField(cgrx.ctor.myThis(), "_src_" + name), name);
 				} else if (expr instanceof CardMember) {
 					// need to handle if the whole member gets assigned
 					callOnAssign(addToFunc, expr, cgrx, call, false, moreArgs);
 					// also handle if this field gets assigned
+					dge = cgrx.ctor.getField(cgrx.ctor.getField(cgrx.ctor.myThis(), "_card"), ((CardMember)expr).var);
 					expr = "this._card." + ((CardMember)expr).var;
 				} else {
 					// This includes the case where we have delegated knowledge of our state to some other function.
@@ -496,6 +514,7 @@ public class TemplateGenerator {
 				}
 				String field = ((StringLiteral)ae.args.get(1)).text;
 				addToFunc.add(JSForm.flex("this._onAssign(" + expr +", '" + field + "', " + call + ")"));
+				dg.onAssign(cgrx, dge, field, call);
 			} else {
 				callOnAssign(addToFunc, ae.fn, cgrx, call, false, moreArgs);
 				for (Object o : ae.args)

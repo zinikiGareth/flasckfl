@@ -7,7 +7,7 @@ import org.zinutils.bytecode.Var;
 
 public class CGRContext {
 	final ByteCodeCreator bcc;
-	final NewMethodDefiner ctor;
+	public final NewMethodDefiner ctor;
 	final Var card;
 	final Var parent;
 	MethodDefiner currentMethod;
