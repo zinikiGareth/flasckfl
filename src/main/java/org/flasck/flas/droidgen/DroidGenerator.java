@@ -332,21 +332,26 @@ public class DroidGenerator {
 		if (builder == null)
 			return;
 		for (HSIEForm f : forms) {
-			logger.info("Considering form " + f);
+			logger.error("Considering form " + f + " with type " + f.mytype);
 			f.dump(logger);
 			int idx = f.fnName.lastIndexOf(".");
 			String inClz;
 			String fn = f.fnName.substring(idx+1);
-			boolean isStatic;
+			boolean needTrampolineClass;
+			boolean wantThis = false;
 			if (f.mytype == CodeType.HANDLER || f.mytype == CodeType.CONTRACT || f.mytype == CodeType.SERVICE) {
 				int idx2 = f.fnName.lastIndexOf(".", idx-1);
 				String clz = f.fnName.substring(0, idx2);
 				String sub = f.fnName.substring(idx2+1, idx);
 				inClz = clz +"$"+sub;
-				isStatic = false;
+				needTrampolineClass = false;
 			} else if (f.mytype == CodeType.CARD || f.mytype == CodeType.EVENTHANDLER) {
 				inClz = f.fnName.substring(0, idx);
-				isStatic = false;
+				if (f.mytype == CodeType.CARD) {
+					needTrampolineClass = true;
+					wantThis = true;
+				} else
+					needTrampolineClass = false;  // or maybe true; I don't think we've worked with EVENTHANDLERs enough to know; I just know CARD functions need a trampoline
 			} else if (f.mytype == CodeType.FUNCTION || f.mytype == CodeType.STANDALONE) {
 				String pkg = f.fnName.substring(0, idx);
 				inClz = pkg +".PACKAGEFUNCTIONS";
@@ -354,11 +359,11 @@ public class DroidGenerator {
 					ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, inClz);
 					bcc.superclass("java.lang.Object");
 				}
-				isStatic = true;
+				needTrampolineClass = true;
 			} else
 				throw new UtilException("Can't handle " + f.fnName + " of code type " + f.mytype);
 			ByteCodeCreator bcc = builder.bce.get(inClz);
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, isStatic, fn);
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, needTrampolineClass && !wantThis, fn);
 			gen.returns("java.lang.Object");
 			List<PendingVar> tmp = new ArrayList<PendingVar>();
 			if (f.mytype == CodeType.HANDLER) // and others?
@@ -384,11 +389,20 @@ public class DroidGenerator {
 //			meth.returnObject(meth.myThis()).flush();
 			
 			// for package-level methods (i.e. regular floating functions in a functional language), generate a nested class
-			if (isStatic) {
+			if (needTrampolineClass) {
 				ByteCodeCreator inner = new ByteCodeCreator(builder.bce, inClz + "$" + fn);
 				inner.superclass("java.lang.Object");
 				System.out.println("Creating class " + inner);
-				GenericAnnotator g2 = GenericAnnotator.newMethod(inner, true, "eval");
+				if (wantThis) {
+					FieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");
+					GenericAnnotator ctor = GenericAnnotator.newConstructor(inner, false);
+					PendingVar arg = ctor.argument(bcc.getCreatedName(), "card");
+					MethodDefiner c = ctor.done();
+					c.callSuper("void", "java.lang.Object", "<init>").flush();
+					c.assign(fi.asExpr(c), arg.getVar()).flush();
+					c.returnVoid().flush();
+				}
+				GenericAnnotator g2 = GenericAnnotator.newMethod(inner, !wantThis, "eval");
 				g2.returns("java.lang.Object");
 				PendingVar args = g2.argument("[java.lang.Object", "args");
 				MethodDefiner m2 = g2.done();
@@ -396,7 +410,13 @@ public class DroidGenerator {
 				for (int i=0;i<tmp.size();i++) {
 					fnArgs[i] = m2.arrayElt(args.getVar(), m2.intConst(i));
 				}
-				m2.returnObject(m2.callStatic(inClz, "java.lang.Object", fn, fnArgs)).flush();
+				Expr doCall;
+				if (wantThis)
+					doCall = m2.callVirtual("java.lang.Object", m2.getField("_card"), fn, fnArgs);
+				else
+					doCall = m2.callStatic(inClz, "java.lang.Object", fn, fnArgs);
+				
+				m2.returnObject(doCall).flush();
 			}
 		}
 	}
@@ -526,7 +546,8 @@ public class DroidGenerator {
 		Expr clz = al.remove(0);
 		String t = clz.getType();
 		if (!t.equals("java.lang.Class") && (needsObject != null || !t.equals("java.lang.Object"))) {
-			throw new UtilException("Type of " + clz + " is not a Class but " + t);
+			return meth.aNull();
+//			throw new UtilException("Type of " + clz + " is not a Class but " + t);
 //			clz = meth.castTo(clz, "java.lang.Class");
 		}
 		if (needsObject != null)
@@ -575,7 +596,10 @@ public class DroidGenerator {
 				}
 				String clz;
 				if (defn instanceof FunctionDefinition || defn instanceof MethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
-					clz = inside + ".PACKAGEFUNCTIONS$" + member;
+					if (inside.equals("org.flasck.android.FLEval"))
+						clz = inside + "$" + member;
+					else
+						clz = inside + ".PACKAGEFUNCTIONS$" + member;
 				} else {
 					clz = inside + dot + member;
 				}
@@ -594,11 +618,8 @@ public class DroidGenerator {
 					throw new UtilException("ScopedVar not in scope: " + c.fn);
 				return svars.get(c.fn.uniqueName());
 			} else if (c.fn instanceof CardFunction) {
-				return meth.stringConst("Need a function pointer for method " + c.fn);
-//				String jsname = c.fn.uniqueName();
-//				int idx = jsname.lastIndexOf(".");
-//				jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
-//				sb.append(jsname);
+				String jnn = javaNestedName(c.fn.uniqueName());
+				return meth.makeNew(jnn, meth.myThis());
 			} else if (c.fn instanceof CardMember) {
 				if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
 					return meth.myThis();
@@ -716,10 +737,12 @@ public class DroidGenerator {
 	public void setVarFormats(CGRContext cgrx, HSIEForm form) {
 		GenericAnnotator svf = GenericAnnotator.newMethod(cgrx.bcc, false, "_setVariableFormats");
 		svf.returns("java.lang.Object");
-		MethodDefiner svgMeth = svf.done();
-		cgrx.currentMethod = svgMeth;
-		svgMeth.voidExpr(svgMeth.callStatic("android.util.Log", "int", "e", svgMeth.stringConst("FlasckLib"), svgMeth.stringConst("Need to set variable formats"))).flush();
-		svgMeth.returnObject(svgMeth.aNull()).flush();
+		MethodDefiner meth = svf.done();
+		cgrx.currentMethod = meth;
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to set variable formats"))).flush();
+		Var fmts = generateFunctionFromForm(meth, form);
+		meth.callSuper("void", "org.flasck.android.Area", "_setCSSObj", fmts).flush();
+		meth.returnObject(meth.aNull()).flush();
 	}
 
 	public void setText(CGRContext cgrx, String text) {
@@ -863,7 +886,7 @@ public class DroidGenerator {
 		return clz.substring(0, idx);
 	}
 
-	private String javaNestedName(String clz) {
+	private static String javaNestedName(String clz) {
 		if (clz.indexOf("$") != -1)
 			throw new UtilException("Nested of nested?");
 		int idx = clz.lastIndexOf(".");

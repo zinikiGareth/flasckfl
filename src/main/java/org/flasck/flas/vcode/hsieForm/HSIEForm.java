@@ -30,7 +30,14 @@ import org.zinutils.exceptions.UtilException;
 // Each of the Expressions En is modified to be just a simple apply-tree
 public class HSIEForm extends HSIEBlock {
 	public enum CodeType {
-		FUNCTION, CARD, CONTRACT, SERVICE, HANDLER, EVENTHANDLER, STANDALONE, AREA;
+		FUNCTION,	// standalone, package-scoped function 
+		CARD, 		// card-scoped function (method)
+		CONTRACT,	// method on a contract impl
+		SERVICE,	// method on a service impl
+		HANDLER,	// method on a handler impl
+		EVENTHANDLER, // an event handler on a card
+		STANDALONE,	// how does this differ from FUNCTION?
+		AREA;		// a method on an area
 
 		public boolean isHandler() {
 			return this == CONTRACT || this == SERVICE || this == HANDLER || this == AREA;
