@@ -783,6 +783,8 @@ public class DroidGenerator {
 	public void onAssign(CGRContext cgrx, CardMember valExpr, String call) {
 		if (builder == null)
 			return;
+		// I think this is removing the "prototype" ... at some point, rationalize all this
+		// so that we pass around a struct with "package" "class", "area", "method" or whatever we need ...
 		int idx = call.lastIndexOf(".");
 		if (idx != -1)
 			call = call.substring(idx+1);
@@ -799,6 +801,11 @@ public class DroidGenerator {
 	}
 
 	public void interested(CGRContext cgrx, String var, String call) {
+		if (builder == null)
+			return;
+		int idx = call.lastIndexOf(".");
+		if (idx != -1)
+			call = call.substring(idx+1);
 		NewMethodDefiner meth = cgrx.ctor;
 		meth.callVirtual("void", meth.getField("_src_"+var), "_interested", meth.as(meth.myThis(), "org.flasck.android.areas.Area"), meth.stringConst(call)).flush();
 	}
@@ -821,16 +828,16 @@ public class DroidGenerator {
 		Var obj = arg.getVar();
 		FieldExpr curr = meth.getField(varName);
 		FieldExpr wrapper = meth.getField("_wrapper");
-		FieldExpr parent = meth.getField("_parent");
-		FieldExpr croset = new FieldObject(false, "org.flasck.android.areas.Area", new JavaType("org.flasck.android.builtin.Croset"), "_croset").useOn(meth, parent);
+		Expr parent = meth.castTo(meth.getField("_parent"), "org.flasck.android.areas.ListArea");
+		FieldExpr croset = new FieldObject(false, "org.flasck.android.areas.ListArea", new JavaType("org.flasck.android.builtin.Croset"), "_current").useOn(meth, parent);
 		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("In _assignToVar"))).flush();
 		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", curr))).flush();
 		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", obj))).flush();
 		meth.ifOp(0xa6, curr, obj, meth.returnObject(meth.aNull()), null).flush();
 		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("survived first test"))).flush();
-		meth.ifNotNull(curr, meth.callVirtual("void", wrapper, "removeOnCrosetReplace", croset, meth.myThis()), null).flush();
+		meth.callVirtual("void", wrapper, "removeOnCrosetReplace", croset, meth.as(meth.myThis(), "org.flasck.android.areas.Area"), curr).flush();
 		meth.assign(curr, obj).flush();
-		meth.ifNotNull(curr, meth.callVirtual("void", wrapper, "onCrosetReplace", croset, meth.myThis()), null).flush();
+		meth.callVirtual("void", wrapper, "onCrosetReplace", croset, meth.as(meth.myThis(), "org.flasck.android.areas.Area"), curr).flush();
 		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("calling _fireInterests"))).flush();
 		meth.callVirtual("void", meth.myThis(), "_fireInterests").flush();
 		meth.returnObject(meth.aNull()).flush();
