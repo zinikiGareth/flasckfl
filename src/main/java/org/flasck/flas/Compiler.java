@@ -169,9 +169,19 @@ public class Compiler {
 					}
 					continue;
 				}
-				compiler.compile(new File(f));
-				if (!compiler.success)
+				try {
+					compiler.compile(new File(f));
+					if (!compiler.success)
+						break;
+				} catch (ErrorResultException ex) {
+					try {
+						ex.errors.showTo(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true), 4);
+					} catch (IOException ex2) {
+						ex2.printStackTrace();
+					}
+					compiler.success = false;
 					break;
+				}
 			}
 			if (compiler.builder != null && compiler.success)
 				compiler.builder.build();
@@ -193,6 +203,8 @@ public class Compiler {
 	private final PackageFinder pkgFinder = new PackageFinder();
 	private ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	private DroidBuilder builder;
+	private File writeFlim;
+	private File writeJS;
 
 	public void searchIn(File file) {
 		pkgFinder.searchIn(file);
@@ -206,14 +218,30 @@ public class Compiler {
 		builder.init();
 	}
 
-	public void compile(File file) {
+	public void writeFlimTo(File file) {
+		if (!file.isDirectory()) {
+			System.out.println("there is no directory " + file);
+			return;
+		}
+		this.writeFlim = file;
+	}
+	
+	public void writeJSTo(File file) {
+		if (!file.isDirectory()) {
+			System.out.println("there is no directory " + file);
+			return;
+		}
+		this.writeJS = file;
+	}
+	
+	public void compile(File file) throws ErrorResultException {
 		String inPkg = file.getName();
 		if (!file.isDirectory()) {
 			System.out.println("there is no directory " + file);
 			return;
 		}
-		File writeTo = new File(file, inPkg + ".js");
-		File exportTo = new File(file, inPkg + ".flim");
+		File writeTo = new File((writeJS!=null?writeJS:file), inPkg + ".js");
+		File exportTo = new File((writeFlim!=null?writeFlim:file), inPkg + ".flim");
 		System.out.println("compiling package " + inPkg + " to " + writeTo);
 			
 		boolean failed = false;
@@ -235,13 +263,13 @@ public class Compiler {
 				
 				// 2. Use the parser factory and story to convert blocks to a package definition
 				doParsing(pd.myEntry(), blocks);
-			} catch (ErrorResultException ex) {
-				failed = true;
-				try {
-					((ErrorResult)ex.errors).showTo(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true), 4);
-				} catch (IOException ex2) {
-					ex2.printStackTrace();
-				}
+//			} catch (ErrorResultException ex) {
+//				failed = true;
+//				try {
+//					((ErrorResult)ex.errors).showTo(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true), 4);
+//				} catch (IOException ex2) {
+//					ex2.printStackTrace();
+//				}
 			} catch (IOException ex1) {
 				failed = true;
 				ex1.printStackTrace();
@@ -393,7 +421,11 @@ public class Compiler {
 				return;
 			}
 			tc.writeLearnedKnowledge(wex, inPkg, dumpTypes);
-			pkgFinder.searchIn(file.getParentFile());
+			File pf = file.getParentFile();
+			if (pf == null)
+				pkgFinder.searchIn(new File("."));
+			else
+				pkgFinder.searchIn(pf);
 
 			// 11. generation of JSForms
 			generateForms(gen, forms.values());
@@ -421,12 +453,13 @@ public class Compiler {
 
 			success = true;
 		} catch (ErrorResultException ex) {
-			try {
-				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 4);
-			} catch (IOException ex2) {
-				ex2.printStackTrace();
-				System.err.println(ex2);
-			}
+			throw ex;
+//			try {
+//				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 4);
+//			} catch (IOException ex2) {
+//				ex2.printStackTrace();
+//				System.err.println(ex2);
+//			}
 		} catch (Exception ex1) {
 			ex1.printStackTrace();
 			System.err.println(UtilException.unwrap(ex1));

@@ -93,7 +93,7 @@ public class PackageFinder {
 	}
 
 	public void searchIn(File file) {
-		if (!file.isDirectory())
+		if (file == null || !file.isDirectory())
 			throw new ArgumentException("Cannot search for FLIMs in " + file + " as it is not a valid directory");
 		dirs.add(file);
 	}

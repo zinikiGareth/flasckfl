@@ -685,6 +685,8 @@ public class DroidGenerator {
 	}
 
 	public CGRContext area(String clz, String base, String customTag) {
+		if (builder == null)
+			return null;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(clz));
 		String baseClz = "org.flasck.android.areas." + base;
 		bcc.superclass(baseClz);
