@@ -1,14 +1,30 @@
 package org.flasck.flas.droidgen;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
+import org.w3c.css.sac.Condition;
+import org.w3c.css.sac.ConditionalSelector;
+import org.w3c.css.sac.InputSource;
+import org.w3c.css.sac.Selector;
+import org.w3c.css.sac.SelectorList;
+import org.w3c.dom.css.CSSRule;
+import org.w3c.dom.css.CSSRuleList;
+import org.w3c.dom.css.CSSStyleDeclaration;
+import org.w3c.dom.css.CSSStyleRule;
+import org.w3c.dom.css.CSSStyleSheet;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.parser.TokenizedLine;
 import org.zinutils.utils.FileUtils;
+import org.zinutils.utils.StringComparator;
 
 import com.gmmapowell.quickbuild.app.BuildOutput;
 import com.gmmapowell.quickbuild.app.QuickBuild;
@@ -26,6 +42,10 @@ import com.gmmapowell.quickbuild.build.maven.RepoCommand;
 import com.gmmapowell.quickbuild.config.Config;
 import com.gmmapowell.quickbuild.config.ConfigFactory;
 import com.gmmapowell.quickbuild.config.LibsCommand;
+import com.steadystate.css.dom.CSSStyleRuleImpl;
+import com.steadystate.css.parser.CSSOMParser;
+import com.steadystate.css.parser.SACParserCSS3;
+import com.steadystate.css.parser.selectors.ClassConditionImpl;
 
 public class DroidBuilder {
 	public final File androidDir;
@@ -37,6 +57,7 @@ public class DroidBuilder {
 	private String useJack = "";
 	private List<String> jnis;
 	final List<PackageInfo> packages = new ArrayList<PackageInfo>();
+	private Map<String, DroidStyle> cssClasses = new TreeMap<>(new StringComparator());
 
 	public DroidBuilder(File androidDir, ByteCodeEnvironment bce) {
 		this.androidDir = androidDir;
@@ -138,13 +159,96 @@ public class DroidBuilder {
 			throw new UtilException("Cannot copy CSS " + dir + " as it does not exist");
 		File cssdir = new File(androidDir, "src/android/assets/css");
 		if (f.isDirectory()) {
+			for (File q : FileUtils.findFilesMatching(f, "*.css"))
+				importCSS(q);
 			for (File q : f.listFiles()) {
 				if (q.isDirectory())
 					FileUtils.copyRecursive(q, cssdir);
 				else
 					FileUtils.copy(q, new File(cssdir, q.getName()));
 			}
+		} else
+			throw new UtilException("Handle standalone css spec");
+	}
+
+	private void importCSS(File q) {
+		InputStreamReader isr = null;
+		System.out.println("Parsing file " + q);
+		try {
+			isr = new InputStreamReader(new FileInputStream(q), "UTF-8");
+			InputSource is = new InputSource(isr);
+			CSSOMParser parser = new CSSOMParser(new SACParserCSS3());
+			CSSStyleSheet sheet = parser.parseStyleSheet(is, null, null);
+			CSSRuleList rules = sheet.getCssRules();
+			for (int i = 0; i < rules.getLength(); i++) {
+				CSSRule rule = rules.item(i);
+				switch (rule.getType()) {
+				case CSSRule.STYLE_RULE: {
+					CSSStyleRule sr = (CSSStyleRule) rule;
+					SelectorList selectors = ((CSSStyleRuleImpl) sr).getSelectors();
+					DroidStyle ds = parseActualStyle(sr.getStyle());
+					if (ds == null)
+						continue;
+					for (int j=0;j<selectors.getLength();j++) {
+						Selector item = selectors.item(j);
+						switch (item.getSelectorType()) {
+						case Selector.SAC_CONDITIONAL_SELECTOR:
+							ConditionalSelector cs = (ConditionalSelector) item;
+							Condition condition = cs.getCondition();
+							switch (condition.getConditionType()) {
+							case Condition.SAC_CLASS_CONDITION:
+								ClassConditionImpl cci = (ClassConditionImpl) condition;
+								cssClasses.put(cci.getValue(), ds);
+//								System.out.println("Cond: " + cci.getLocalName() + " " + cci.getValue());
+//								if (cci.getLocalName() != null)
+//									System.out.println("LocalName = " + cci.getLocalName());
+								break;
+							default:
+								System.out.println("Can't handle condition type " + condition.getConditionType() + " for " + condition);
+								break;
+							}
+							break;
+						default:
+							System.out.println("Can't handle selector type: " + item.getSelectorType() + " for " + item);
+							break;
+						}
+					}
+					break;
+				}
+				case CSSRule.MEDIA_RULE:
+//					System.out.println("Media: " + rule);
+					break;
+				default:
+					System.out.println("Don't handle rule type " + rule.getType() + " for " + rule);
+					break;
+				}
+			}
+		} catch (Exception ex) {
+			throw UtilException.wrap(ex);
+		} finally {
+			if (isr != null)
+				try { isr.close(); } catch (Exception ex) {}
 		}
+	}
+
+	private DroidStyle parseActualStyle(CSSStyleDeclaration style) {
+//		System.out.println("actual style >>> " + style);
+		DroidStyle ret = new DroidStyle();
+		String val = style.getPropertyValue("x-flasck-type");
+		if (val.length() > 0)
+			ret.set("x-flasck-type", val);
+		
+		getMeasurement(ret, style, "height");
+		getMeasurement(ret, style, "width");
+		if (ret.isEmpty())
+			return null;
+		return ret;
+	}
+
+	protected void getMeasurement(DroidStyle ret, CSSStyleDeclaration style, String prop) {
+		String val = style.getPropertyValue(prop);
+		if (val.length() > 0)
+			ret.set(prop, val); // probably should parse it in some way ...
 	}
 
 	public void usePackage(String desc) {
@@ -158,6 +262,16 @@ public class DroidBuilder {
 	}
 
 	public void build() {
+		for (Entry<String, DroidStyle> s: cssClasses.entrySet()) {
+			System.out.println("Class " + s.getKey() + " of type " + s.getValue().getFlasck("type") + " has height " + s.getValue().get("height"));
+		}
+
+		// THIS IS A HACK WHICH IS HERE DELIBERATELY TO STOP BUILDS HAPPENING
+//		if (this.androidDir != null)
+//			return;
+		// REMOVE IT IF YOU WANT ANYTHING TO EVER WORK!!!
+		
+		
 		// there are a number of possibilities here:
 		// just build and deploy "in memory"
 		// build from a QB file (by name)
