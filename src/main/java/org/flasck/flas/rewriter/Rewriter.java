@@ -1037,6 +1037,9 @@ public class Rewriter {
 				k = ret.arity() + 1;
 			else if (ret.iam == WhatAmI.TUPLE)
 				k = ret.width();
+			else if (ret instanceof ContractDecl) {
+				return rewrite(cx, ((ContractDecl)ret));
+			}
 			else
 				return ret;
 			for (int i=0;i<k;i++)

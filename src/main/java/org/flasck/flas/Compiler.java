@@ -352,7 +352,6 @@ public class Compiler {
 				}
 			}
 			for (Entry<String, ContractDecl> c : rewriter.contracts.entrySet()) {
-				System.out.println("Generating contract " + c.getKey());
 				dg.generateContractDecl(c.getKey(), c.getValue());
 			}
 			for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet()) {
