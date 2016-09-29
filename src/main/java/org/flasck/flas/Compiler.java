@@ -181,6 +181,8 @@ public class Compiler {
 					}
 					compiler.success = false;
 					break;
+				} catch (Throwable ex) {
+					ex.printStackTrace();
 				}
 			}
 			if (compiler.builder != null && compiler.success)
@@ -234,7 +236,7 @@ public class Compiler {
 		this.writeJS = file;
 	}
 	
-	public void compile(File file) throws ErrorResultException {
+	public void compile(File file) throws ErrorResultException, IOException {
 		String inPkg = file.getName();
 		if (!file.isDirectory()) {
 			System.out.println("there is no directory " + file);
@@ -451,22 +453,9 @@ public class Compiler {
 			abortIfErrors(errors);
 
 			success = true;
-		} catch (ErrorResultException ex) {
-			throw ex;
-//			try {
-//				((ErrorResult)ex.errors).showTo(new PrintWriter(System.out), 4);
-//			} catch (IOException ex2) {
-//				ex2.printStackTrace();
-//				System.err.println(ex2);
-//			}
-		} catch (Exception ex1) {
-			ex1.printStackTrace();
-			System.err.println(UtilException.unwrap(ex1));
 		} finally {
 			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
 			try { if (wex != null) wex.close(); } catch (IOException ex) {}
-//			if (success)
-//				FileUtils.copyFileToStream(writeTo, System.out);
 		}
 
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.

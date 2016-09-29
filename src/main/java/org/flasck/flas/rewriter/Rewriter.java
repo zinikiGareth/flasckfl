@@ -298,6 +298,8 @@ public class Rewriter {
 		
 		public TemplateContext(TemplateContext cx, TemplateListVar tlv) {
 			super(cx);
+			if (tlv != null && tlv.name == null)
+				throw new UtilException("Shouldn't happen");
 			this.listVar = tlv;
 		}
 		
@@ -594,7 +596,7 @@ public class Rewriter {
 			return ret;
 		} else if (tl instanceof TemplateList) {
 			TemplateList ul = (TemplateList)tl;
-			TemplateListVar tlv = new TemplateListVar(ul.listLoc, (String) ul.iterVar);
+			TemplateListVar tlv = ul.iterVar != null ? new TemplateListVar(ul.listLoc, (String) ul.iterVar) : null;
 			boolean supportDragOrdering = false;
 			for (SpecialFormat tt : specials) {
 				if (tt.name.equals("dragOrder")) {
