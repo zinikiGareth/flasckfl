@@ -706,6 +706,8 @@ public class DroidGenerator {
 	}
 
 	public void newVar(CGRContext cgrx, String newVar) {
+		if (cgrx == null)
+			return;
 		System.out.println("Creating var " + newVar + " in " + cgrx.bcc.getCreatedName());
 		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, cgrx.bcc.getCreatedName(), "_src_"+newVar);
 		cgrx.bcc.defineField(false, Access.PUBLIC, "java.lang.Object", newVar);
@@ -713,21 +715,29 @@ public class DroidGenerator {
 	}
 
 	public void copyVar(CGRContext cgrx, String parentClass, String definedInType, String s) {
+		if (cgrx == null)
+			return;
 		System.out.println("Copying var " + s + " from " + parentClass + " into " + cgrx.bcc.getCreatedName());
 		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, javaNestedName(definedInType), "_src_"+s);
 		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.getField(cgrx.ctor.castTo(cgrx.parent, javaNestedName(parentClass)), "_src_"+s)).flush();
 	}
 
 	public void setSimpleClass(CGRContext cgrx, String css) {
+		if (cgrx == null)
+			return;
 		cgrx.ctor.callVirtual("void", cgrx.ctor.myThis(), "setCSS", cgrx.ctor.stringConst(css)).flush();
 	}
 
 	public void createNested(CGRContext cgrx, String v, String cn) {
+		if (cgrx == null)
+			return;
 		Var storeAs = cgrx.ctor.avar(cn, v);
 		cgrx.ctor.assign(storeAs, cgrx.ctor.makeNew(javaNestedName(cn), cgrx.card, cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"))).flush();
 	}
 
 	public void needAddHandlers(CGRContext cgrx) {
+		if (cgrx == null)
+			return;
 		GenericAnnotator ah = GenericAnnotator.newMethod(cgrx.bcc, false, "_add_handlers");
 		ah.returns("java.lang.Object");
 		MethodDefiner ahMeth = ah.done();
@@ -737,6 +747,8 @@ public class DroidGenerator {
 	}
 
 	public void setVarFormats(CGRContext cgrx, HSIEForm form) {
+		if (cgrx == null)
+			return;
 		GenericAnnotator svf = GenericAnnotator.newMethod(cgrx.bcc, false, "_setVariableFormats");
 		svf.returns("java.lang.Object");
 		MethodDefiner meth = svf.done();

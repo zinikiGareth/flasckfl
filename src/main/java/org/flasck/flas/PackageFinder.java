@@ -2,13 +2,16 @@ package org.flasck.flas;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
@@ -24,7 +27,7 @@ public class PackageFinder {
 	private final List<File> dirs = new ArrayList<File>();
 	private final static Logger logger = LoggerFactory.getLogger("Compiler");
 	
-	public Scope loadFlim(Scope rootScope, String pkgName) {
+	public Scope loadFlim(ErrorResult errors, Scope rootScope, String pkgName) {
 		for (File d : dirs) {
 			File pkg = new File(d, pkgName);
 			if (pkg.isDirectory()) {
@@ -47,8 +50,8 @@ public class PackageFinder {
 				
 				// Load definitions into it
 				ObjectInputStream ois = null;
+				File file = new File(pkg, pkgName + ".flim");
 				try {
-					File file = new File(pkg, pkgName + ".flim");
 					logger.info("Loading definitions for " + pkgName + " from " + file);
 					ois = new ObjectInputStream(new FileInputStream(file));
 					@SuppressWarnings("unchecked")
@@ -81,6 +84,9 @@ public class PackageFinder {
 						int idx = t.getKey().lastIndexOf(".");
 						scope.define(t.getKey().substring(idx+1), t.getKey(), t.getValue());
 					}
+				} catch (InvalidClassException ex) {
+					System.out.println(ex.classname + " has " + ex.getMessage());
+					errors.message((InputPosition)null, "Could not load flim " + file + " due to format errors; try regenerating");
 				} catch (Exception ex) {
 					throw UtilException.wrap(ex);
 				} finally {

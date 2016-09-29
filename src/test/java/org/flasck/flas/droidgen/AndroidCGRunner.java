@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.Compiler;
+import org.flasck.flas.errors.ErrorResultException;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -18,11 +19,11 @@ import org.zinutils.cgharness.CGHarnessRunner;
 import org.zinutils.utils.FileUtils;
 
 public class AndroidCGRunner extends CGHarnessRunner {
-	public AndroidCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, FileNotFoundException {
+	public AndroidCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, FileNotFoundException, ErrorResultException {
 		super(builder, figureClasses());
 	}
 	
-	private static Class<?>[] figureClasses() throws FileNotFoundException {
+	private static Class<?>[] figureClasses() throws FileNotFoundException, ErrorResultException {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
 		compiler.writeDroidTo(new File("null"));

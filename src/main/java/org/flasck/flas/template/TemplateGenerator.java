@@ -487,17 +487,19 @@ public class TemplateGenerator {
 			ApplyExpr ae = (ApplyExpr) valExpr;
 			if (ae.fn instanceof PackageVar && ((PackageVar)ae.fn).id.equals("FLEval.field")) {
 				Object expr = ae.args.get(0);
-				Expr dge;
+				Expr dge = null;
 				if (expr instanceof TemplateListVar) {
 					callOnAssign(addToFunc, expr, cgrx, call, false, moreArgs);
 					String name = ((TemplateListVar)expr).name;
 					expr = "this._src_" + name + "." + name;
-					dge = cgrx.ctor.getField(cgrx.ctor.getField(cgrx.ctor.myThis(), "_src_" + name), name);
+					if (cgrx != null)
+						dge = cgrx.ctor.getField(cgrx.ctor.getField(cgrx.ctor.myThis(), "_src_" + name), name);
 				} else if (expr instanceof CardMember) {
 					// need to handle if the whole member gets assigned
 					callOnAssign(addToFunc, expr, cgrx, call, false, moreArgs);
 					// also handle if this field gets assigned
-					dge = cgrx.ctor.getField(cgrx.ctor.getField(cgrx.ctor.myThis(), "_card"), ((CardMember)expr).var);
+					if (cgrx != null)
+						dge = cgrx.ctor.getField(cgrx.ctor.getField(cgrx.ctor.myThis(), "_card"), ((CardMember)expr).var);
 					expr = "this._card." + ((CardMember)expr).var;
 				} else {
 					// This includes the case where we have delegated knowledge of our state to some other function.

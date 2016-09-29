@@ -217,7 +217,7 @@ public class Type implements Serializable, Locatable {
 			return tc.getType(this.location, this.name).convertToExpr(tc, from, factory, mapping);
 		}
 		default:
-			throw new UtilException("error: "+ iam + " " + name());
+			throw new UtilException("cannot convert type "+ iam + " " + name() + " to type expr");
 		}
 	}
 

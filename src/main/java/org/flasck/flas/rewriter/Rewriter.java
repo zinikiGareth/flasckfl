@@ -172,7 +172,7 @@ public class Rewriter {
 					idx = name.lastIndexOf(".");
 					String pkgName = name.substring(0, idx);
 					if (pkgFinder != null) {
-						scope = pkgFinder.loadFlim(biscope, pkgName);
+						scope = pkgFinder.loadFlim(errors, biscope, pkgName);
 						if (scope == null)
 							throw new ResolutionException(location, 0, pkgName);
 					}
@@ -1027,7 +1027,8 @@ public class Rewriter {
 					List<Type> rwp = new ArrayList<Type>();
 					for (Type p : type.polys())
 						rwp.add(rewrite(cx, p, true));
-					ret = ret.instance(type.location(), rwp);
+					if (ret.iam != WhatAmI.INSTANCE)
+						ret = ret.instance(type.location(), rwp);
 				}
 			}
 			int k = -1;

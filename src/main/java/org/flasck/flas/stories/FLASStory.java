@@ -206,6 +206,8 @@ public class FLASStory implements StoryProcessor {
 					HandlerImplements hi = (HandlerImplements)o;
 					ScopeEntry se = ret.define(State.simpleName(hi.hiName), hi.hiName, hi);
 					doImplementation(s, er, se, hi, b.nested, State.simpleName(hi.hiName));
+				} else if (o instanceof ContractImplements) {
+					er.message(((ContractImplements) o).location(), "implements cannot appear at the top level");
 				} else
 					throw new UtilException("Need to handle " + o.getClass());
 			} catch (ScopeDefineException ex) {
