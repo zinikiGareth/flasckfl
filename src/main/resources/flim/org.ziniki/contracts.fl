@@ -43,7 +43,7 @@
 	contract PersonaHandler
 		down update (Any persona)
 		
-	contract Croset
+	contract CrosetContract
 		up	 get (String set) (String after) (Number size) (CrosetHandler handler)
 		
 	contract CrosetHandler

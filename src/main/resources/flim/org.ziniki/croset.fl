@@ -1,0 +1,50 @@
+	loadCroset (CrosetContract croset) (KeyValue kv) type first size crosetId = MessageWrapper set [request]
+		set = Croset Nil
+
+		method request
+			<- croset.get crosetId first size SetHandler
+
+		handler CrosetHandler SetHandler
+			update crokeys
+				<- set.mergeAppend crokeys
+				<- map requestObj crokeys.keys
+			remove crokeys
+				<- set.deleteSet crokeys
+
+		method requestObj (Crokey ck)
+			<- kv.typed type ck.id (ItemHandler ck)
+
+		handler KVUpdate ItemHandler ck
+			update obj
+				<- set.insert ck obj
+
+	scanNatural (Query query) (KeyValue kv) index type options = MessageWrapper set [request]
+		set = Croset Nil
+
+		method request
+			<- query.scan index type options QHandler
+
+		handler QueryHandler QHandler
+			keys crokeys
+				<- set.mergeAppend crokeys
+				<- map requestObj crokeys.keys
+
+		method requestObj (NaturalCrokey nk)
+			<- kv.typed type nk.id (ItemHandler nk)
+
+		handler KVUpdate ItemHandler nk
+			update obj
+				<- set.insert nk obj
+
+	object CroProj A B
+		state
+			Croset[A] underlying
+			A->B transform
+		
+		ctor project u t = CroProj u t
+		
+// ctor name args = ThisObjectType with standard constructor args (i.e. field settings)
+// method name args (+ messages) ... a method that can be called from other method contexts (returns [Message])
+// fnname args = ... a function which is called with object scope and thus can return state members from the BEFORE state
+// do we need the idea of "contracts" or "interfaces" to support certain behaviors?
+// ... or is it enough that we support the methods that make up those interfaces
