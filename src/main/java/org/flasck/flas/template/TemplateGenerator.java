@@ -300,10 +300,13 @@ public class TemplateGenerator {
 			HSIEForm form = hsie.handleExpr(valExpr, CodeType.AREA);
 			form.dump(TypeChecker.logger);
 			JSForm.assign(cexpr, "var str", form);
-			cexpr.add(JSForm.flex("this._assignToText(str)"));
+			if (ce.rawHTML)
+				cexpr.add(JSForm.flex("this._insertHTML(str)"));
+			else
+				cexpr.add(JSForm.flex("this._assignToText(str)"));
 			cx.target.add(cexpr);
 
-			dg.contentExpr(cgrx, form);
+			dg.contentExpr(cgrx, form, ce.rawHTML);
 			
 			if (isEditable) {
 				// for it to be editable, it must be a clear field of a clear object

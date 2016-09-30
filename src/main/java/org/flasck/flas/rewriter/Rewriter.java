@@ -319,7 +319,7 @@ public class Rewriter {
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			if (name.equals("dragOrder") || name.equals("dropTarget"))
+			if (name.equals("dragOrder") || name.equals("dropTarget") || name.equals("rawHTML"))
 				return new SpecialFormat(location, name);
 			return nested.resolve(location, name);
 		}
@@ -556,7 +556,14 @@ public class Rewriter {
 			return rewriteEventHandlers(cx, new ContentString(cs.text, formats), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr)tl;
-			return rewriteEventHandlers(cx, new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), formats), ((TemplateFormatEvents)tl).handlers);
+			boolean rawHTML = false;
+			for (SpecialFormat tt : specials) {
+				if (tt.name.equals("rawHTML")) {
+					rawHTML = true;
+				} else
+					errors.message(tt.location(), "Cannot handle special format " + tt.name);
+			}
+			return rewriteEventHandlers(cx, new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), rawHTML, formats), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof CardReference) {
 			CardReference cr = (CardReference) tl;
 			Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
@@ -598,9 +605,12 @@ public class Rewriter {
 			TemplateList ul = (TemplateList)tl;
 			TemplateListVar tlv = ul.iterVar != null ? new TemplateListVar(ul.listLoc, (String) ul.iterVar) : null;
 			boolean supportDragOrdering = false;
+			boolean rawHTML = false;
 			for (SpecialFormat tt : specials) {
 				if (tt.name.equals("dragOrder")) {
 					supportDragOrdering = true;
+				} else if (tt.name.equals("rawHTML")) {
+					rawHTML = true;
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}

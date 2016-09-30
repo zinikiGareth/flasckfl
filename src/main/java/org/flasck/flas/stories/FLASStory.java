@@ -895,7 +895,7 @@ public class FLASStory implements StoryProcessor {
 				else if (sub instanceof NumericLiteral)
 					ret = new ContentString(((NumericLiteral)sub).text, formats);
 				else
-					ret = new ContentExpr(sub, ce.editable(), formats);
+					ret = new ContentExpr(sub, ce.editable(), ce.rawHTML, formats);
 				for (EventHandler y : ce.handlers)
 					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
 				return ret;

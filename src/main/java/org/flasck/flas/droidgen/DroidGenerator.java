@@ -765,14 +765,17 @@ public class DroidGenerator {
 		cgrx.ctor.callVirtual("void", cgrx.ctor.myThis(), "_setText", cgrx.ctor.stringConst(text)).flush();
 	}
 
-	public void contentExpr(CGRContext cgrx, HSIEForm form) {
+	public void contentExpr(CGRContext cgrx, HSIEForm form, boolean rawHTML) {
 		if (builder == null)
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_contentExpr");
 		gen.returns("java.lang.Object");
 		NewMethodDefiner meth = gen.done();
 		Var str = generateFunctionFromForm(meth, form);
-		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
+		if (rawHTML)
+			meth.callSuper("void", "org.flasck.android.TextArea", "_insertHTML", str).flush();
+		else
+			meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
 

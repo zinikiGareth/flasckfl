@@ -15,15 +15,17 @@ import java.util.List;
 public class ContentExpr extends TemplateFormatEvents implements Serializable {
 	public final Object expr;
 	private boolean editable;
+	public final boolean rawHTML;
 
 	public ContentExpr(Object expr, List<Object> formats) {
-		this(expr, false, formats);
+		this(expr, false, false, formats);
 	}
 	
-	public ContentExpr(Object expr, boolean edit, List<Object> formats) {
+	public ContentExpr(Object expr, boolean edit, boolean rawHTML, List<Object> formats) {
 		super(formats);
 		this.expr = expr;
 		this.editable = edit;
+		this.rawHTML = rawHTML;
 	}
 
 	public void makeEditable() {
