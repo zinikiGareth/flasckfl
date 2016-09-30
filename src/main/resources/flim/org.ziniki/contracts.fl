@@ -53,8 +53,12 @@
 I think this (and anything else that is basically JSNI) would be better served as an "interface"
 to an object, with the object being defined in JS
 
-	contract Content
+	contract ContentContract
 		up	 upload (String toURL) (String contentURL)
+		up   readHTML (String contentId) (ContentHandler handler)
+		
+	contract ContentHandler
+		down load (String type) (String content)
 		
 	contract Yoyo
 		up	 get (String id) (YoyoHandler handler) 

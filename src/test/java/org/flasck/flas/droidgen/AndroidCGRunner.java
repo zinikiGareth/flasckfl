@@ -3,6 +3,7 @@ package org.flasck.flas.droidgen;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +20,11 @@ import org.zinutils.cgharness.CGHarnessRunner;
 import org.zinutils.utils.FileUtils;
 
 public class AndroidCGRunner extends CGHarnessRunner {
-	public AndroidCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, FileNotFoundException, ErrorResultException {
+	public AndroidCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException {
 		super(builder, figureClasses());
 	}
 	
-	private static Class<?>[] figureClasses() throws FileNotFoundException, ErrorResultException {
+	private static Class<?>[] figureClasses() throws IOException, ErrorResultException {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
 		compiler.writeDroidTo(new File("null"));
