@@ -14,6 +14,7 @@ import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
 public class Type implements Serializable, Locatable {
+	public final InputPosition kw;
 	private final InputPosition location;
 	public enum WhatAmI { REFERENCE, BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
 	public final WhatAmI iam;
@@ -22,7 +23,8 @@ public class Type implements Serializable, Locatable {
 	private final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
 	private final List<Type> fnargs; // arguments to function or tuple
 	
-	protected Type(InputPosition location, WhatAmI iam, String name, List<Type> polys) {
+	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, String name, List<Type> polys) {
+		this.kw = kw;
 		if (location == null && iam != WhatAmI.POLYVAR)
 			System.out.println("Type without input location 1");
 		this.location = location;
@@ -40,6 +42,7 @@ public class Type implements Serializable, Locatable {
 	}
 
 	protected Type(InputPosition location, WhatAmI iam, Type type, List<Type> args) {
+		this.kw = null;
 		if (location == null && iam != WhatAmI.POLYVAR)
 			System.out.println("Type without input location 2");
 		this.location = location;
@@ -51,6 +54,7 @@ public class Type implements Serializable, Locatable {
 	}
 
 	protected Type(InputPosition location, WhatAmI iam, List<Type> subtypes) {
+		this.kw = null;
 		if (location == null)
 			System.out.println("Type without input location 3");
 		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE)
@@ -122,11 +126,11 @@ public class Type implements Serializable, Locatable {
 	
 	// defining a "reference" says you know a thing's name and arguments but you don't actually know anything about it
 	public static Type reference(InputPosition loc, String name, List<Type> args) {
-		return new Type(loc, WhatAmI.REFERENCE, name, args);
+		return new Type(null, loc, WhatAmI.REFERENCE, name, args);
 	}
 
 	public static Type reference(InputPosition loc, String name, Type... args) {
-		return new Type(loc, WhatAmI.REFERENCE, name, CollectionUtils.listOf(args));
+		return new Type(null, loc, WhatAmI.REFERENCE, name, CollectionUtils.listOf(args));
 	}
 	
 	// This one is DELIBERATELY not static - you need a type that you would otherwise have to pass in as "base"
@@ -145,11 +149,11 @@ public class Type implements Serializable, Locatable {
 	// a "builtin" is something very simple - "number" and "string" are the only obvious examples that come to mind
 	// this should ONLY be called from Builtin
 	public static Type builtin(InputPosition loc, String name) {
-		return new Type(loc, WhatAmI.BUILTIN, name, null);
+		return new Type(null, loc, WhatAmI.BUILTIN, name, null);
 	}
 	
 	public static Type polyvar(InputPosition loc, String name) {
-		return new Type(loc, WhatAmI.POLYVAR, name, null);
+		return new Type(null, loc, WhatAmI.POLYVAR, name, null);
 	}
 	
 	public static Type function(InputPosition loc, List<Type> args) {

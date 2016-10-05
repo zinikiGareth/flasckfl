@@ -155,7 +155,7 @@ public class RewriterTests {
 	
 	@Test
 	public void testRewritingAStateVar() throws Exception {
-		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
+		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(null, false, Type.reference(null, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
@@ -174,9 +174,9 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAContractVar() throws Exception {
-		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
+		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
 		// TODO: I would have expected this to complain that it can't find the referenced contract
-		cd.contracts.add(new ContractImplements(null, "Timer", null, "timer"));
+		cd.contracts.add(new ContractImplements(null, null, "Timer", null, "timer"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "timer")));
@@ -193,11 +193,11 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAContractMethod() throws Exception {
-		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
+		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(null, false, Type.reference(null, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
-		ContractImplements ci = new ContractImplements(null, "Timer", null, "timer");
+		ContractImplements ci = new ContractImplements(null, null, "Timer", null, "timer");
 		cd.contracts.add(ci);
 		List<MethodCaseDefn> mcds = new ArrayList<MethodCaseDefn>();
 		MethodDefinition md = new MethodDefinition(new FunctionIntro(null, "ME.MyCard._C0.m", new ArrayList<Object>()), mcds);
@@ -219,13 +219,13 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAnEventHandler() throws Exception {
-		CardDefinition cd = new CardDefinition(null, scope, "MyCard");
+		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(null, false, Type.reference(null, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		List<EventCaseDefn> ecds = new ArrayList<EventCaseDefn>();
 		EventHandlerDefinition ehd = new EventHandlerDefinition(new FunctionIntro(null, "ME.MyCard.eh", new ArrayList<Object>()), ecds);
-		EventCaseDefn ecd1 = new EventCaseDefn(ehd.intro);
+		EventCaseDefn ecd1 = new EventCaseDefn(null, ehd.intro);
 		ecds.add(ecd1);
 		ecd1.messages.add(new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
 		cd.fnScope.define("eh", "ME.MyCard.eh", ehd);

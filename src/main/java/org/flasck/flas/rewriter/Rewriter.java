@@ -669,7 +669,7 @@ public class Rewriter {
 				errors.message((Block)null, "cannot find a valid definition of contract " + ci.name());
 				return ci;
 			}
-			return new ContractImplements(ci.location(), ((PackageVar)av).id, ci.varLocation, ci.referAsVar);
+			return new ContractImplements(ci.kw, ci.location(), ((PackageVar)av).id, ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -683,7 +683,7 @@ public class Rewriter {
 				errors.message((Block)null, "cannot find a valid definition of contract " + cs.name());
 				return cs;
 			}
-			return new ContractService(cs.location(), ((PackageVar)av).id, cs.vlocation, cs.referAsVar);
+			return new ContractService(cs.kw, cs.location(), ((PackageVar)av).id, cs.vlocation, cs.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -714,7 +714,7 @@ public class Rewriter {
 					throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 				bvs.add(hl);
 			}
-			HandlerImplements ret = new HandlerImplements(hi.location(), rwname, ctr.id, hi.inCard, bvs);
+			HandlerImplements ret = new HandlerImplements(hi.kw, hi.location(), rwname, ctr.id, hi.inCard, bvs);
 			callbackHandlers.put(ret.hiName, ret);
 			HandlerContext hc = new HandlerContext(cx, ret);
 			for (MethodDefinition m : hi.methods) {
@@ -786,7 +786,7 @@ public class Rewriter {
 	}
 
 	private ContractDecl rewrite(NamingContext cx, ContractDecl ctr) {
-		ContractDecl ret = new ContractDecl(ctr.location(), ctr.name());
+		ContractDecl ret = new ContractDecl(ctr.kw, ctr.location(), ctr.name());
 		for (ContractMethodDecl cmd : ctr.methods) {
 			ret.addMethod(rewrite(cx, cmd));
 		}
@@ -819,7 +819,7 @@ public class Rewriter {
 	}
 
 	private EventCaseDefn rewrite(FunctionCaseContext cx, EventCaseDefn c) {
-		EventCaseDefn ret = new EventCaseDefn(rewrite(cx, c.intro));
+		EventCaseDefn ret = new EventCaseDefn(c.kw, rewrite(cx, c.intro));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;

@@ -86,13 +86,13 @@ public class IntroParser implements TryParsing {
 			TypeNameToken tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract name");
-			return new ContractDecl(tn.location, state.withPkg(tn.text));
+			return new ContractDecl(kw.location, tn.location, state.withPkg(tn.text));
 		}
 		case "card": {
 			TypeNameToken tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid card name");
-			return new CardDefinition(tn.location, state.scope, state.withPkg(tn.text));
+			return new CardDefinition(kw.location, tn.location, state.scope, state.withPkg(tn.text));
 		}
 		case "platform": {
 			ValidIdentifierToken tok = VarNameToken.from(line);
@@ -141,26 +141,26 @@ public class IntroParser implements TryParsing {
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract reference");
 			if (!line.hasMore())
-				return new ContractImplements(tn.location, tn.text, null, null);
+				return new ContractImplements(kw.location, tn.location, tn.text, null, null);
 			ValidIdentifierToken var = VarNameToken.from(line);
 			if (var == null)
 				return ErrorResult.oneMessage(line, "invalid contract var name");
 			if (line.hasMore())
 				return ErrorResult.oneMessage(line, "extra tokens at end of line");
-			return new ContractImplements(tn.location, tn.text, var.location, var.text);
+			return new ContractImplements(kw.location, tn.location, tn.text, var.location, var.text);
 		}
 		case "service": {
 			TypeNameToken tn = QualifiedTypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract reference");
 			if (!line.hasMore())
-				return new ContractService(tn.location, tn.text, null, null);
+				return new ContractService(kw.location, tn.location, tn.text, null, null);
 			ValidIdentifierToken var = VarNameToken.from(line);
 			if (var == null)
 				return ErrorResult.oneMessage(line, "invalid service var name");
 			if (line.hasMore())
 				return ErrorResult.oneMessage(line, "extra tokens at end of line");
-			return new ContractService(tn.location, tn.text, var.location, var.text);
+			return new ContractService(kw.location, tn.location, tn.text, var.location, var.text);
 		}
 		case "handler": {
 			if (!line.hasMore())
@@ -175,7 +175,7 @@ public class IntroParser implements TryParsing {
 				return ErrorResult.oneMessage(line, "invalid handler name");
 			ArrayList<Object> lambdas = new ArrayList<Object>();
 			if (!line.hasMore())
-				return new HandlerImplements(tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
+				return new HandlerImplements(kw.location, tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
 			while (line.hasMore()) {
 				PatternParser pp = new PatternParser();
 				Object patt = pp.tryParsing(line);
@@ -183,7 +183,7 @@ public class IntroParser implements TryParsing {
 					return ErrorResult.oneMessage(line, "invalid contract argument pattern");
 				lambdas.add(patt);
 			}
-			return new HandlerImplements(tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
+			return new HandlerImplements(kw.location, tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
 		}
 		case "event": {
 			Object o = new FunctionParser(state).tryParsing(line);
@@ -192,7 +192,7 @@ public class IntroParser implements TryParsing {
 			else if (o instanceof ErrorResult)
 				return o;
 			else if (o instanceof FunctionIntro) {
-				return new EventCaseDefn((FunctionIntro)o);
+				return new EventCaseDefn(kw.location, (FunctionIntro)o);
 			} else
 				return ErrorResult.oneMessage(line, "cannot handle " + o.getClass());
 		}

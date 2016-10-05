@@ -18,7 +18,7 @@ public class StructDefn extends Type implements AsString, Serializable {
 	}
 	
 	public StructDefn(InputPosition location, String tn, boolean generate, List<Type> polys) {
-		super(location, WhatAmI.STRUCT, tn, polys);
+		super(null, location, WhatAmI.STRUCT, tn, polys);
 		this.generate = generate;
 	}
 

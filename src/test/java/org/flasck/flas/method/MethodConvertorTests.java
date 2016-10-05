@@ -73,7 +73,7 @@ public class MethodConvertorTests {
 		orgFooScope = pkg.innerScope();
 		orgFooScope.define("doSend", "org.foo.doSend", Type.function(null, any, send));
 		{
-			ContractDecl contract1 = new ContractDecl(null, "org.foo.Contract1");
+			ContractDecl contract1 = new ContractDecl(null, null, "org.foo.Contract1");
 			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "down", "bar", new ArrayList<>());
 			contract1.methods.add(m1);
 			ContractMethodDecl m2 = new ContractMethodDecl(null, true, "up", "start", new ArrayList<>());
@@ -83,7 +83,7 @@ public class MethodConvertorTests {
 			orgFooScope.define("Contract1", contract1.name(), contract1);
 		}
 		{
-			ContractDecl service1 = new ContractDecl(null, "org.foo.Service1");
+			ContractDecl service1 = new ContractDecl(null, null, "org.foo.Service1");
 			ContractMethodDecl m0 = new ContractMethodDecl(null, true, "up", "go", new ArrayList<>());
 			service1.methods.add(m0);
 			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, Type.reference(null, "String"), null, "s")));
@@ -93,7 +93,7 @@ public class MethodConvertorTests {
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
 		{
-			ContractDecl handler1 = new ContractDecl(null, "org.foo.Handler1");
+			ContractDecl handler1 = new ContractDecl(null, null, "org.foo.Handler1");
 			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "down", "handle", new ArrayList<>());
 			handler1.methods.add(m1);
 			orgFooScope.define("Handler1", handler1.name(), handler1);
@@ -106,19 +106,19 @@ public class MethodConvertorTests {
 		
 		{
 			rewriter = new Rewriter(errors, null);
-			cd = new CardDefinition(null, orgFooScope, "org.foo.Card");
+			cd = new CardDefinition(null, null, orgFooScope, "org.foo.Card");
 			cd.state = new StateDefinition();
 			cd.state.addField(new StructField(null, false, Type.reference(null, "String"), "str"));
 			{
-				ce = new ContractImplements(null, "org.foo.Contract1", null, "ce");
+				ce = new ContractImplements(null, null, "org.foo.Contract1", null, "ce");
 				cd.contracts.add(ce);
 			}
 			{
-				se = new ContractService(null, "org.foo.Service1", null, "se");
+				se = new ContractService(null, null, "org.foo.Service1", null, "se");
 				cd.services.add(se);
 			}
 			{
-				he = new HandlerImplements(null, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(null, Type.reference(null, "Thing"), null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
+				he = new HandlerImplements(null, null, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(null, Type.reference(null, "Thing"), null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
 				cd.handlers.add(he);
 			}
 		}
@@ -155,7 +155,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testTheImplementedContractMustExist() throws Exception {
-		cd.contracts.add(new ContractImplements(null, "NoContract", null, "cf"));
+		cd.contracts.add(new ContractImplements(null, null, "NoContract", null, "cf"));
 		stage2(false);
 		assertEquals(1, errors.count());
 		assertEquals("could not resolve name NoContract", errors.get(0).msg);
@@ -501,7 +501,7 @@ public class MethodConvertorTests {
 	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card." + name, CollectionUtils.listOf((Object)new TypedPattern(null, Type.reference(null, "Thing"), null, "t"), (Object)new VarPattern(null, "ev")));
 		List<EventCaseDefn> cases = new ArrayList<>();
-		EventCaseDefn cs = new EventCaseDefn(intro);
+		EventCaseDefn cs = new EventCaseDefn(null, intro);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);
 		cases.add(cs);

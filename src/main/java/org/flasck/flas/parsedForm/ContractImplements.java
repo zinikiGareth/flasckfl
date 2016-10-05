@@ -7,8 +7,8 @@ public class ContractImplements extends Implements {
 	public final String referAsVar;
 	public final InputPosition varLocation;
 
-	public ContractImplements(InputPosition location, String type, InputPosition vlocation, String referAsVar) {
-		super(location, WhatAmI.CONTRACTIMPL, type);
+	public ContractImplements(InputPosition kw, InputPosition location, String type, InputPosition vlocation, String referAsVar) {
+		super(kw, location, WhatAmI.CONTRACTIMPL, type);
 		this.varLocation = vlocation;
 		this.referAsVar = referAsVar;
 	}

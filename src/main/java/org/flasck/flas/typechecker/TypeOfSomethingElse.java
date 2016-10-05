@@ -18,6 +18,6 @@ import org.flasck.flas.blockForm.InputPosition;
 public class TypeOfSomethingElse extends Type {
 
 	public TypeOfSomethingElse(InputPosition loc, String name) {
-		super(loc, WhatAmI.SOMETHINGELSE, name, null);
+		super(null, loc, WhatAmI.SOMETHINGELSE, name, null);
 	}
 }

@@ -8,8 +8,8 @@ import org.flasck.flas.typechecker.Type;
 @SuppressWarnings("serial")
 public abstract class TypeWithMethods extends Type {
 
-	public TypeWithMethods(InputPosition location, WhatAmI iam, String type, List<Type> polys) {
-		super(location, iam, type, polys);
+	public TypeWithMethods(InputPosition kw, InputPosition location, WhatAmI iam, String type, List<Type> polys) {
+		super(kw, location, iam, type, polys);
 	}
 
 	public abstract boolean hasMethod(String named);

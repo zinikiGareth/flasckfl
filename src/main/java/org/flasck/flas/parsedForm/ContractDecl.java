@@ -13,8 +13,8 @@ public class ContractDecl extends TypeWithMethods implements Serializable {
 	public final List<ContractMethodDecl> methods = new ArrayList<ContractMethodDecl>();
 	public final transient boolean generate;
 
-	public ContractDecl(InputPosition location, String contractName) {
-		super(location, WhatAmI.CONTRACT, contractName, null);
+	public ContractDecl(InputPosition kw, InputPosition location, String contractName) {
+		super(kw, location, WhatAmI.CONTRACT, contractName, null);
 		this.generate = true;
 	}
 

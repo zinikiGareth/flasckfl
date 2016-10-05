@@ -18,7 +18,7 @@ public class UnionTypeDefn extends Type implements Serializable {
 	}
 	
 	public UnionTypeDefn(InputPosition location, boolean generate, String defining, List<Type> polyvars) {
-		super(location, WhatAmI.UNION, defining, polyvars);
+		super(null, location, WhatAmI.UNION, defining, polyvars);
 		this.generate = generate;
 	}
 	

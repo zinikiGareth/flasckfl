@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -265,13 +267,6 @@ public class Compiler {
 				
 				// 2. Use the parser factory and story to convert blocks to a package definition
 				doParsing(pd.myEntry(), blocks);
-//			} catch (ErrorResultException ex) {
-//				failed = true;
-//				try {
-//					((ErrorResult)ex.errors).showTo(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true), 4);
-//				} catch (IOException ex2) {
-//					ex2.printStackTrace();
-//				}
 			} catch (IOException ex1) {
 				failed = true;
 				ex1.printStackTrace();
@@ -460,6 +455,28 @@ public class Compiler {
 
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
 	}
+	
+	// Just obtain a parse tree 
+	public ScopeEntry parse(String inPkg, String input) throws ErrorResultException {
+		Scope top = Builtin.builtinScope();
+		PackageDefn pd = new PackageDefn(new InputPosition("-", 0, 0, inPkg), top, inPkg);
+		StringReader r = null;
+		try {
+			r = new StringReader(input);
+
+			// 1. Use indentation to break the input file up into blocks
+			List<Block> blocks = makeBlocks("-", r);
+			
+			// 2. Use the parser factory and story to convert blocks to a package definition
+			doParsing(pd.myEntry(), blocks);
+			return pd.myEntry();
+		} catch (IOException ex1) {
+			ex1.printStackTrace();
+			return null;
+		} finally {
+			r.close();
+		}
+	}
 
 	private void compileInits(HSIE hsie, TypeChecker tc, CardGrouping c) {
 		for (Entry<String, Object> kv : c.inits.entrySet()) {
@@ -575,7 +592,7 @@ public class Compiler {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Block> makeBlocks(String file, FileReader r) throws IOException, ErrorResultException {
+	private List<Block> makeBlocks(String file, Reader r) throws IOException, ErrorResultException {
 		Object res = Blocker.block(file, r);
 		if (res instanceof ErrorResult)
 			throw new ErrorResultException((ErrorResult) res);

@@ -23,7 +23,7 @@ public class ObjectDefn extends TypeWithMethods implements ContainsScope, AsStri
 	}
 	
 	public ObjectDefn(InputPosition location, Scope outer, String tn, boolean generate, List<Type> polys) {
-		super(location, WhatAmI.OBJECT, tn, polys);
+		super(null, location, WhatAmI.OBJECT, tn, polys);
 		this.generate = generate;
 		ScopeEntry se = outer.define(State.simpleName(tn), tn, this);
 		this.innerScope = new Scope(se, this);

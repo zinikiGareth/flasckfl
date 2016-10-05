@@ -9,8 +9,8 @@ import org.flasck.flas.blockForm.InputPosition;
 public class Implements extends TypeWithMethods {
 	public final List<MethodDefinition> methods = new ArrayList<MethodDefinition>();
 
-	public Implements(InputPosition location, WhatAmI iam, String type) {
-		super(location, iam, type, null);
+	public Implements(InputPosition kw, InputPosition location, WhatAmI iam, String type) {
+		super(kw, location, iam, type, null);
 	}
 
 	public void addMethod(MethodDefinition meth) {

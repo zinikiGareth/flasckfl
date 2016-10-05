@@ -12,6 +12,7 @@ import org.flasck.flas.stories.FLASStory.State;
 
 @SuppressWarnings("serial")
 public class CardDefinition implements ContainsScope, Locatable, Serializable {
+	public final InputPosition kw;
 	public final InputPosition location;
 	public final String name;
 	public StateDefinition state;
@@ -22,7 +23,8 @@ public class CardDefinition implements ContainsScope, Locatable, Serializable {
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final Scope fnScope;
 
-	public CardDefinition(InputPosition location, Scope outer, String name) {
+	public CardDefinition(InputPosition kw, InputPosition location, Scope outer, String name) {
+		this.kw = kw;
 		this.location = location;
 		ScopeEntry se = outer.define(State.simpleName(name), name, this);
 		this.name = name;
