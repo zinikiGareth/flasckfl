@@ -140,15 +140,20 @@ public class FLASStory implements StoryProcessor {
 
 	@Override
 	public Object process(ScopeEntry top, List<Block> blocks) {
+		StoryRet r = process(top, blocks, false);
+		if (r.er.hasErrors())
+			return r.er;
+		return top;
+	}
+
+	public StoryRet process(ScopeEntry top, List<Block> blocks, boolean optimism) {
 		PackageDefn pkg = (PackageDefn) top.getValue();
 		State s = new State(pkg.innerScope(), pkg.name, HSIEForm.CodeType.FUNCTION);
 		ErrorResult er = new ErrorResult();
 		doScope(er, s, blocks);
-		if (er.hasErrors())
-			return er;
-		return top;
+		return new StoryRet(er, top);
 	}
-	
+
 	private Object doScope(ErrorResult er, State s, List<Block> blocks) {
 		if (blocks.isEmpty())
 			return null;

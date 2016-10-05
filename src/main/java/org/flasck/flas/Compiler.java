@@ -68,6 +68,7 @@ import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
@@ -266,7 +267,9 @@ public class Compiler {
 				List<Block> blocks = makeBlocks(f.getName(), r);
 				
 				// 2. Use the parser factory and story to convert blocks to a package definition
-				doParsing(pd.myEntry(), blocks);
+				StoryRet obj = new FLASStory().process(pd.myEntry(), blocks, true);
+				if (obj.er.hasErrors())
+					throw new ErrorResultException(obj.er);
 			} catch (IOException ex1) {
 				failed = true;
 				ex1.printStackTrace();
@@ -457,7 +460,7 @@ public class Compiler {
 	}
 	
 	// Just obtain a parse tree 
-	public ScopeEntry parse(String inPkg, String input) throws ErrorResultException {
+	public StoryRet parse(String inPkg, String input) throws ErrorResultException {
 		Scope top = Builtin.builtinScope();
 		PackageDefn pd = new PackageDefn(new InputPosition("-", 0, 0, inPkg), top, inPkg);
 		StringReader r = null;
@@ -468,8 +471,7 @@ public class Compiler {
 			List<Block> blocks = makeBlocks("-", r);
 			
 			// 2. Use the parser factory and story to convert blocks to a package definition
-			doParsing(pd.myEntry(), blocks);
-			return pd.myEntry();
+			return new FLASStory().process(pd.myEntry(), blocks, true);
 		} catch (IOException ex1) {
 			ex1.printStackTrace();
 			return null;
@@ -579,16 +581,6 @@ public class Compiler {
 		functions.put(d3f.name, func);
 
 		return new FunctionLiteral(d3f.location, d3f.name);
-	}
-
-	private ScopeEntry doParsing(ScopeEntry se, List<Block> blocks) throws ErrorResultException {
-		Object obj = new FLASStory().process(se, blocks);
-		if (obj instanceof ErrorResult) {
-			throw new ErrorResultException((ErrorResult)obj);
-		} else if (obj instanceof ScopeEntry) {
-			return (ScopeEntry) obj;
-		} else
-			throw new UtilException("Parsing returned: " + obj);
 	}
 
 	@SuppressWarnings("unchecked")
