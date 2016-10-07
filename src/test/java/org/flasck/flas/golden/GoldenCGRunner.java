@@ -1,5 +1,9 @@
 package org.flasck.flas.golden;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,6 +19,7 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
 import org.zinutils.cgharness.CGHarnessRunner;
+import org.zinutils.utils.Crypto;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
 
@@ -49,6 +54,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	public static void runGolden(String s) throws Exception {
 		System.out.println("Run golden test for " + s);
 		try {
+			Compiler.setLogLevels();
 			Compiler compiler = new Compiler();
 			// read these kinds of things from "new File(s, ".settings")"
 	//		compiler.writeDroidTo(new File("null"));
@@ -61,8 +67,32 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			compiler.writeJSTo(jsto);
 			compiler.writeFlimTo(flim);
 			compiler.compile(new File(s, "test.golden"));
+			
+			// Now assert that we matched things ...
+			assertGolden(new File(s, "jsout"), jsto);
 		} catch (ErrorResultException ex) {
 			ex.errors.showTo(new PrintWriter(System.out), 0);
+			throw ex;
+		}
+	}
+
+	private static void assertGolden(File golden, File jsto) {
+		if (!golden.isDirectory())
+			fail("There is no golden directory " + golden);
+		if (!jsto.isDirectory())
+			fail("There is no generated directory " + jsto);
+		for (File f : jsto.listFiles())
+			assertTrue("There is no golden file for the generated " + f, new File(golden, f.getName()).exists());
+		for (File f : golden.listFiles()) {
+			File gen = new File(jsto, f.getName());
+			assertTrue("There is no generated file for the golden " + f, gen.exists());
+			String goldhash = Crypto.hash(f);
+			String genhash = Crypto.hash(gen);
+			if (!goldhash.equals(genhash)) {
+				// TODO: should do a visual line by line diff here ...
+				System.out.println("Need visual diff");
+			}
+			assertEquals("Files " + f + " and " + gen + " differed", goldhash, genhash);
 		}
 	}
 

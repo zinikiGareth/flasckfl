@@ -92,11 +92,7 @@ public class Compiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	
 	public static void main(String[] args) {
-		LogManager.getLogger("Compiler").setLevel(Level.WARN);
-		LogManager.getLogger("Generator").setLevel(Level.WARN);
-		LogManager.getLogger("HSIE").setLevel(Level.WARN);
-		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
-		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
+		setLogLevels();
 		Compiler compiler = new Compiler();
 		try {
 			for (int i=0;i<args.length;i++) {
@@ -199,6 +195,14 @@ public class Compiler {
 			System.exit(0);
 		} else
 			System.exit(1);
+	}
+
+	public static void setLogLevels() {
+		LogManager.getLogger("Compiler").setLevel(Level.WARN);
+		LogManager.getLogger("Generator").setLevel(Level.WARN);
+		LogManager.getLogger("HSIE").setLevel(Level.WARN);
+		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
+		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 	}
 
 	// TODO: move this into a separate class, like DOMFG used to be
