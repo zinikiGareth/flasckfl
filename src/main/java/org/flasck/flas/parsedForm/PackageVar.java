@@ -14,7 +14,7 @@ public class PackageVar implements Serializable, ExternalRef {
 
 	public PackageVar(InputPosition location, String id, Object defn) {
 		if (defn != null && location == null)
-			System.out.println("null location");
+			System.out.println("null location pv1");
 		this.location = location;
 		this.id = id;
 		this.defn = defn;
@@ -22,7 +22,7 @@ public class PackageVar implements Serializable, ExternalRef {
 
 	public PackageVar(InputPosition location, ScopeEntry entry) {
 		if (location == null)
-			System.out.println("null location");
+			System.out.println("null location pv2");
 		this.location = location != null ? location : entry.location();
 		this.id = entry.getKey();
 		this.defn = entry.getValue();
@@ -30,7 +30,7 @@ public class PackageVar implements Serializable, ExternalRef {
 	
 	public PackageVar(ScopeEntry entry) {
 		if (entry.location() == null)
-			System.out.println("null location");
+			System.out.println("null location pv3");
 		this.location = entry.location();
 		this.id = entry.getKey();
 		this.defn = entry.getValue();

@@ -15,7 +15,7 @@ public class ScopedVar implements Serializable, ExternalRef {
 
 	public ScopedVar(InputPosition location, String id, Object defn, boolean definedLocally) {
 		if (defn != null && location == null)
-			System.out.println("null location");
+			System.out.println("null location sv1");
 		this.location = location;
 		this.id = id;
 		this.defn = defn;
@@ -24,7 +24,7 @@ public class ScopedVar implements Serializable, ExternalRef {
 
 	public ScopedVar(ScopeEntry entry, boolean definedLocally) {
 		if (entry.location() == null)
-			System.out.println("null location");
+			System.out.println("null location sv2");
 		this.location = entry.location();
 		this.id = entry.getKey();
 		this.defn = entry.getValue();

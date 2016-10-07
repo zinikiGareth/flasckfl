@@ -3,3 +3,5 @@ qbout/
 src/test/resources/**/*.js
 src/test/resources/**/*.flim
 src/main/resources/**/*.flim
+flim-tmp/
+jsout-tmp/

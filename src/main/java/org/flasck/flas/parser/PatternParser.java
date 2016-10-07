@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -92,7 +93,7 @@ public class PatternParser implements TryParsing {
 					else if (tupleCase)
 						return new TuplePattern(retArr);
 					else if (listCase) {
-						return buildListFromPatterns(retArr, false);
+						return buildListFromPatterns(sep.location, retArr, false);
 					}
 				} else if (sep.type == PattToken.COLON) {
 					if (tupleCase)
@@ -158,7 +159,7 @@ public class PatternParser implements TryParsing {
 					ps.add(p);
 					PattToken sep = PattToken.from(line);
 					if (sep.type == PattToken.CSB) {
-						return buildListFromPatterns(ps, true);
+						return buildListFromPatterns(sep.location, ps, true);
 					} else if (sep.type != PattToken.COMMA)
 						return null; // this is an error
 				}				
@@ -167,14 +168,14 @@ public class PatternParser implements TryParsing {
 			return null;
 	}
 
-	private Object buildListFromPatterns(List<Object> ps, boolean addNil) {
-		Object ret = addNil?new ConstructorMatch(null, "Nil"):null;
+	private Object buildListFromPatterns(InputPosition location, List<Object> ps, boolean addNil) {
+		Object ret = addNil?new ConstructorMatch(location, "Nil"):null;
 		for (int i=ps.size()-1;i>=0;i--) {
 			if (!addNil && ret == null) {
 				ret = ps.get(i);
 				continue;
 			}
-			ConstructorMatch tmp = new ConstructorMatch(null, "Cons");
+			ConstructorMatch tmp = new ConstructorMatch(location, "Cons");
 			tmp.args.add(tmp.new Field("head", ps.get(i)));
 			tmp.args.add(tmp.new Field("tail", ret));
 			ret = tmp;

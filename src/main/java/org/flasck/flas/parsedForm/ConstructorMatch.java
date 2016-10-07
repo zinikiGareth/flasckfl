@@ -26,12 +26,16 @@ public class ConstructorMatch {
 	public final InputPosition location;
 
 	public ConstructorMatch(InputPosition loc, String ctor) {
+		if (loc == null)
+			System.out.println("null position cm1");
 		this.location = loc;
 		this.ctor = ctor;
 		this.ref = null;
 	}
 	
 	public ConstructorMatch(InputPosition loc, ExternalRef ref) {
+		if (loc == null)
+			System.out.println("null position cm2");
 		this.location = loc;
 		this.ctor = null;
 		this.ref = ref;
