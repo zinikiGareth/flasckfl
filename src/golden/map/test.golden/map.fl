@@ -1,0 +1,2 @@
+	map1 f [] = []
+	map1 f (a:l) = (f a):(map1 f l)
