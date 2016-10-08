@@ -176,10 +176,10 @@ public class TypeExpr {
 			for (UnionTypeDefn d : tc.types.values()) {
 				Set<Map.Entry<Type, TypeExpr>> match = tu.matchesExactly(d);
 				if (match != null) {
-					System.out.println("====");
+//					System.out.println("====");
 					Map<String, Object> checkBindings = new LinkedHashMap<String, Object>();
 					for (Entry<Type, TypeExpr> x : match) {
-						System.out.println("matching up type " + x);
+//						System.out.println("matching up type " + x);
 						Type want = x.getKey();
 						Iterator<Object> have = x.getValue().args.iterator();
 						for (Type vr : want.polys()) {
@@ -192,12 +192,12 @@ public class TypeExpr {
 									tc.errors.message(want.location(), "inconsistent parameters to " + want.name());
 									throw new TypeUnion.FailException();
 								}
-								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.name()));
+//								System.out.println("Compare " + hv + " and " + checkBindings.get(vr.name()));
 							} else
 								checkBindings.put(vr.name(), hv);
 						}
 					}
-					System.out.println("====");
+//					System.out.println("====");
 					return d.instance(null, convertArgs(tc, pool, checkBindings.values()));
 				}
 			}

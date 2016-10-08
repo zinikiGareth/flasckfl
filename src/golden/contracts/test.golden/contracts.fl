@@ -1,0 +1,9 @@
+	contract Foo
+		up hello (String x)
+		down goodbye (Number y)
+		
+	contract Handler
+		down feedback (String answer)
+		
+	contract Request
+		up ask (Handler answer)

@@ -86,4 +86,12 @@ public class ErrorResult {
 		return new ErrorResult().message(location, msg);
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return "ErrorResult[" + singleString() + "]";
+		} catch (IOException ex) {
+			return ex.toString();
+		}
+	}
 }

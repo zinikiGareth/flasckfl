@@ -1,0 +1,10 @@
+package test.golden
+  card test.golden.Simple
+    state
+      hello
+        String
+       <-
+        '' hello, world
+    template test.golden.Simple
+      .
+        hello

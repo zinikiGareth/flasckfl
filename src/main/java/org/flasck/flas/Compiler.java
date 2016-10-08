@@ -246,8 +246,9 @@ public class Compiler {
 	public void compile(File file) throws ErrorResultException, IOException {
 		String inPkg = file.getName();
 		if (!file.isDirectory()) {
-			System.out.println("there is no directory " + file);
-			return;
+			ErrorResult errors = new ErrorResult();
+			errors.message((InputPosition)null, "there is no input directory " + file);
+			throw new ErrorResultException(errors);
 		}
 		File writeTo = new File((writeJS!=null?writeJS:file), inPkg + ".js");
 		File exportTo = new File((writeFlim!=null?writeFlim:file), inPkg + ".flim");

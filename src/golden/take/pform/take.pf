@@ -1,0 +1,26 @@
+package test.golden
+  test.golden.take
+    n
+    Nil
+   =
+    Nil
+  test.golden.take
+    1: 0
+    Cons
+   =
+    Nil
+  test.golden.take
+    n
+    Cons
+      head
+        a
+      tail
+        b
+   =
+    Cons
+      a
+      take
+        -
+          n
+          # 1
+        b

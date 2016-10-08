@@ -1,0 +1,16 @@
+package test.golden
+  cdecl test.golden.Foo
+    up hello
+      x
+        String
+    down goodbye
+      y
+        Number
+  cdecl test.golden.Handler
+    down feedback
+      answer
+        String
+  cdecl test.golden.Request
+    up ask
+      answer
+        Handler
