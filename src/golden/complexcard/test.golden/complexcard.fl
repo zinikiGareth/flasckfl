@@ -1,0 +1,38 @@
+This is a complex card with "one of everything"
+
+	struct Thing
+		String x
+		
+	contract Init
+		down ready (Any obj)
+
+	contract Handler
+		down reply (String s)
+
+	contract DataStore
+		up get (String x) (Handler h)
+
+	contract Offer
+		up get (String x) (Handler h)
+		
+	card Simple
+		state
+			String hello <- "hello, world"
+			
+		template
+			.
+				hello
+				
+		implements Init
+			ready (Thing obj)
+				<- ds.get obj.x (FooHandler 'yo')
+		
+		implements DataStore ds
+		
+		handler Handler FooHandler k
+			reply x
+				hello <- k ++ x
+				
+		service Offer
+			get x h
+				<- h.reply x

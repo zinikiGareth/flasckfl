@@ -1,0 +1,33 @@
+package test.golden
+  cdecl test.golden.DataStore
+    up get
+      x
+        String
+      h
+        Handler
+  cdecl test.golden.Handler
+    down reply
+      s
+        String
+  cdecl test.golden.Init
+    down ready
+      obj
+        Any
+  cdecl test.golden.Offer
+    up get
+      x
+        String
+      h
+        Handler
+  card test.golden.Simple
+    state
+      hello
+        String
+       <-
+        '' hello, world
+    template test.golden.Simple
+      .
+        hello
+  struct test.golden.Thing
+    x
+      String

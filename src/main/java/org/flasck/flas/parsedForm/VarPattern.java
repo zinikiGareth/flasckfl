@@ -5,7 +5,7 @@ import java.io.Serializable;
 import org.flasck.flas.blockForm.InputPosition;
 
 @SuppressWarnings("serial")
-public class VarPattern implements Serializable {
+public class VarPattern implements Serializable, Locatable {
 	public final InputPosition varLoc;
 	public final String var;
 
@@ -17,5 +17,10 @@ public class VarPattern implements Serializable {
 	@Override
 	public String toString() {
 		return var;
+	}
+
+	@Override
+	public InputPosition location() {
+		return varLoc;
 	}
 }

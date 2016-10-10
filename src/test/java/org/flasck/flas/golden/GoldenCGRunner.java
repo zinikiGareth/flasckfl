@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateDiv;
@@ -101,7 +102,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			for (File input : dir.listFiles()) {
 				StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
 				Indenter pw = new Indenter(new File(pform, input.getName().replace(".fl", ".pf")));
-				dumpRecursive(pw, sr.top.getValue());
+				if (sr.top != null && sr.top.getValue() != null)
+					dumpRecursive(pw, sr.top.getValue());
 				pw.close();
 			}
 			assertGolden(new File(s, "pform"), pform);
@@ -136,7 +138,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	}
 
 	private static void dumpRecursive(Indenter pw, Object obj) {
-		if (obj instanceof PackageDefn) {
+		if (obj == null) {
+			pw.println("Error - null");
+		} else if (obj instanceof PackageDefn) {
 			PackageDefn se = (PackageDefn) obj;
 			pw.println("package " + se.name);
 			dumpScope(pw, se.innerScope());
@@ -200,6 +204,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		} else if (obj instanceof StateDefinition) {
 			StateDefinition sd = (StateDefinition) obj;
 			pw.println("state");
+			dumpList(pw, sd.fields);
+		} else if (obj instanceof StructDefn) {
+			StructDefn sd = (StructDefn) obj;
+			pw.println("struct " + sd.name());
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructField) {
 			StructField sf = (StructField) obj;
