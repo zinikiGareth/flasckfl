@@ -36,7 +36,6 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.Locatable;
@@ -46,7 +45,6 @@ import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageDefn;
-import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -78,6 +76,7 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
@@ -296,7 +295,7 @@ public class Rewriter {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			for (Object o : hi.boundVars)
-				if (((HandlerLambda)o).var.equals(name))
+				if (((RWHandlerLambda)o).var.equals(name))
 					return o;
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof ScopedVar) {
@@ -727,15 +726,15 @@ public class Rewriter {
 			PackageVar ctr = (PackageVar) av;
 //			String rwname = cx.prefix + "." + hi.name;
 			String rwname = hi.hiName;
-			List<Object> bvs = new ArrayList<Object>();
+			List<RWHandlerLambda> bvs = new ArrayList<RWHandlerLambda>();
 			for (Object o : hi.boundVars) {
-				HandlerLambda hl;
+				RWHandlerLambda hl;
 				if (o instanceof VarPattern) {
 					VarPattern vp = (VarPattern) o;
-					hl = new HandlerLambda(vp.varLoc, rwname, any, vp.var);
+					hl = new RWHandlerLambda(vp.varLoc, rwname, any, vp.var);
 				} else if (o instanceof TypedPattern) {
 					TypedPattern vp = (TypedPattern) o;
-					hl = new HandlerLambda(vp.varLocation, rwname, rewrite(cx, vp.type, false), vp.var);
+					hl = new RWHandlerLambda(vp.varLocation, rwname, rewrite(cx, vp.type, false), vp.var);
 				} else
 					throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 				bvs.add(hl);
@@ -750,7 +749,7 @@ public class Rewriter {
 			}
 			RWStructDefn hsd = new RWStructDefn(hi.location(), ret.hiName, false);
 			for (Object s : ret.boundVars) {
-				HandlerLambda hl = (HandlerLambda) s;
+				RWHandlerLambda hl = (RWHandlerLambda) s;
 				hsd.fields.add(new RWStructField(hl.location, false, hl.type, hl.var));
 			}
 			structs.put(ret.hiName, hsd);
@@ -914,8 +913,8 @@ public class Rewriter {
 		try {
 			if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
 				return expr;
-//			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof ScopedVar || expr instanceof CardMember)
-//				return expr;
+			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof ScopedVar || expr instanceof CardMember)
+				return expr;
 			else if (expr instanceof PackageVar) {
 				System.out.println("expr = " + expr);
 				return null;
@@ -933,12 +932,9 @@ public class Rewriter {
 				} else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(location, s);
-				if (/* ret instanceof PackageVar || */ ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
+				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof RWHandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
 					return ret;
-				else if (ret instanceof PackageVar) {
-					System.out.println("expr = " + ret);
-					return new ScopedVar(((PackageVar) ret).location(), ((PackageVar) ret).id, ((PackageVar) ret).defn, false);
-				} else
+				else
 					throw new UtilException("cannot handle " + ret.getClass());
 			} else if (expr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) expr;
@@ -1002,7 +998,7 @@ public class Rewriter {
 							if (pkgEntry instanceof PackageVar) {
 								Object o = ((PackageVar)pkgEntry).defn;
 								if (o instanceof PackageDefn)
-									return new PackageVar(((PackageDefn)o).innerScope().getEntry(fname));
+									return new PackageVar(uv0.location, ((PackageDefn)o).innerScope().getEntry(fname));
 							}
 						} catch (ResolutionException ex) {
 							return new PackageVar(uv0.location, uv0.var + "." + fname, null);

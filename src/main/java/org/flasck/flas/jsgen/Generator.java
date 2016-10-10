@@ -8,13 +8,13 @@ import java.util.TreeSet;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
-import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -184,8 +184,8 @@ public class Generator {
 			clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'handler'"));
 		clz.add(new JSForm("this._contract = '" + hi.name() + "'"));
-		for (Object s : hi.boundVars) 
-			clz.add(new JSForm("this." + ((HandlerLambda)s).var + " = v" + v++));
+		for (RWHandlerLambda s : hi.boundVars) 
+			clz.add(new JSForm("this." + s.var + " = v" + v++));
 		target.add(clz);
 
 		JSForm ctor = JSForm.function(ctorName, vars, new TreeSet<String>(), hi.boundVars.size());

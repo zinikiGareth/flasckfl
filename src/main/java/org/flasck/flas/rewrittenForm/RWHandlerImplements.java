@@ -7,10 +7,10 @@ import org.flasck.flas.blockForm.InputPosition;
 @SuppressWarnings("serial")
 public class RWHandlerImplements extends Implements {
 	public final String hiName;
-	public final List<Object> boundVars;
+	public final List<RWHandlerLambda> boundVars;
 	public final boolean inCard;
 
-	public RWHandlerImplements(InputPosition kw, InputPosition location, String named, String type, boolean inCard, List<Object> lambdas) {
+	public RWHandlerImplements(InputPosition kw, InputPosition location, String named, String type, boolean inCard, List<RWHandlerLambda> lambdas) {
 		super(kw, location, WhatAmI.HANDLERIMPLEMENTS, type);
 		this.hiName = named;
 		this.inCard = inCard;

@@ -11,7 +11,6 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.CastExpr;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -19,18 +18,23 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
-import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
-import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
+import org.flasck.flas.rewrittenForm.RWMethodDefinition;
+import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.typechecker.Type;
@@ -286,13 +290,12 @@ public class MetaState {
 			if (!substs.containsKey(var))
 				throw new UtilException("How can this be an iter var? " + var + " not in " + substs);
 			return substs.get(var);
-			// TODO: big-divide
-//		} else if (expr instanceof PackageVar) {
-//			logger.error("I think this should be deprecated and rewritten out of existence");
-//			PackageVar pv = (PackageVar)expr;
-//			locs.add(pv.location);
-//			form.dependsOn(pv);
-//			return expr;
+		} else if (expr instanceof PackageVar) {
+			// a package var is a reference to an absolute something that is referenced by its full scope
+			PackageVar pv = (PackageVar)expr;
+			locs.add(pv.location);
+			form.dependsOn(pv);
+			return expr;
 		} else if (expr instanceof RWStructDefn) {
 			RWStructDefn sd = (RWStructDefn) expr;
 			locs.add(sd.location());
@@ -320,7 +323,7 @@ public class MetaState {
 		} else if (expr instanceof CardStateRef) {
 			locs.add(((CardStateRef)expr).location());
 			return expr;
-		} else if (expr instanceof HandlerLambda) {
+		} else if (expr instanceof RWHandlerLambda) {
 			locs.add(((ExternalRef)expr).location());
 			form.dependsOn(expr);
 			return expr;
@@ -397,26 +400,26 @@ public class MetaState {
 			}
 	}
 
-	private static void gatherScopedVars(TreeSet<ScopedVar> set, FunctionDefinition defn) {
-		for (FunctionCaseDefn fcd : defn.cases) {
+	private static void gatherScopedVars(TreeSet<ScopedVar> set, RWFunctionDefinition defn) {
+		for (RWFunctionCaseDefn fcd : defn.cases) {
 			gatherScopedVars(set, fcd.expr);
 		}
 	}
 
-	private static void gatherScopedVars(TreeSet<ScopedVar> set, HandlerImplements hi) {
+	private static void gatherScopedVars(TreeSet<ScopedVar> set, RWHandlerImplements hi) {
 		for (Object o : hi.boundVars) {
 			HandlerLambda hl = (HandlerLambda)o;
 			if (hl.scopedFrom != null)
 				set.add(hl.scopedFrom);
 		}
-		for (MethodDefinition m : hi.methods) {
+		for (RWMethodDefinition m : hi.methods) {
 			gatherScopedVars(set, m);
 		}
 	}
 	
-	private static void gatherScopedVars(TreeSet<ScopedVar> set, MethodDefinition defn) {
-		for (MethodCaseDefn mcd : defn.cases) {
-			for (MethodMessage mm : mcd.messages)
+	private static void gatherScopedVars(TreeSet<ScopedVar> set, RWMethodDefinition defn) {
+		for (RWMethodCaseDefn mcd : defn.cases) {
+			for (RWMethodMessage mm : mcd.messages)
 				gatherScopedVars(set, mm.expr);
 		}
 	}

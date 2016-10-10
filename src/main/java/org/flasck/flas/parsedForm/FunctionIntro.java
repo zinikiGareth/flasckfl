@@ -12,6 +12,7 @@ import org.flasck.flas.rewriter.ResolutionException;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewriter.Rewriter.NamingContext;
 import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 

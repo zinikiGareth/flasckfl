@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.rewriter.ResolutionException;
+import org.flasck.flas.rewrittenForm.PackageVar;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringComparator;
 
