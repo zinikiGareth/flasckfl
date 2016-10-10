@@ -20,7 +20,6 @@ import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateCases;
-import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
@@ -32,10 +31,13 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContentExpr;
+import org.flasck.flas.rewrittenForm.RWContentString;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWTemplate;
+import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -147,8 +149,8 @@ public class TemplateGenerator {
 		String moreArgs = "";
 		boolean isEditable = false;
 		String customTag = null;
-		if (tl instanceof TemplateDiv) {
-			TemplateDiv td = (TemplateDiv) tl;
+		if (tl instanceof RWTemplateDiv) {
+			RWTemplateDiv td = (RWTemplateDiv) tl;
 			base = "DivArea";
 			if (td.customTag != null) {
 				customTag = td.customTag;
@@ -166,9 +168,9 @@ public class TemplateGenerator {
 					moreArgs = moreArgs + ", 'http://www.w3.org/2000/svg'";
 			}
 			// TODO: a variable custom tag is hard & needs "assign" logic
-		} else if (tl instanceof ContentString || tl instanceof ContentExpr) {
+		} else if (tl instanceof RWContentString || tl instanceof RWContentExpr) {
 			base = "TextArea";
-			isEditable = tl instanceof ContentExpr && ((ContentExpr)tl).editable();
+			isEditable = tl instanceof RWContentExpr && ((RWContentExpr)tl).editable();
 		} else if (tl instanceof CardReference) {
 			CardReference cr = (CardReference) tl;
 			base = "CardSlotArea";
@@ -217,8 +219,8 @@ public class TemplateGenerator {
 			cx.target.add(nda);
 			dg.assignToVar(cgrx, newVar);
 		}
-		if (tl instanceof TemplateDiv) {
-			TemplateDiv td = (TemplateDiv) tl;
+		if (tl instanceof RWTemplateDiv) {
+			RWTemplateDiv td = (RWTemplateDiv) tl;
 			int an = 1;
 			for (Object a : td.attrs) {
 				if (a instanceof TemplateExplicitAttr) {
@@ -287,12 +289,12 @@ public class TemplateGenerator {
 			fn.add(JSForm.flex(called + ".prototype._assignToVar.call(this)"));
 			atv.add(JSForm.flex("ListArea.prototype._assignToVar.call(this, lv)"));
 			cx.target.add(atv);
-		} else if (tl instanceof ContentString) {
-			ContentString cs = (ContentString) tl;
+		} else if (tl instanceof RWContentString) {
+			RWContentString cs = (RWContentString) tl;
 			fn.add(JSForm.flex("this._setText('" + cs.text + "')"));
 			dg.setText(cgrx, cs.text);
-		} else if (tl instanceof ContentExpr) {
-			ContentExpr ce = (ContentExpr)tl;
+		} else if (tl instanceof RWContentExpr) {
+			RWContentExpr ce = (RWContentExpr)tl;
 			Object valExpr = ce.expr;
 			callOnAssign(fn, valExpr, cgrx, called + ".prototype._contentExpr", true, null);
 

@@ -12,16 +12,16 @@ import java.util.List;
  * Messy and slow, I know, but at least fairly realistic
  */
 @SuppressWarnings("serial")
-public class ContentExpr extends TemplateFormatEvents implements Serializable {
+public class RWContentExpr extends RWTemplateFormatEvents implements Serializable {
 	public final Object expr;
 	private boolean editable;
 	public final boolean rawHTML;
 
-	public ContentExpr(Object expr, List<Object> formats) {
+	public RWContentExpr(Object expr, List<Object> formats) {
 		this(expr, false, false, formats);
 	}
 	
-	public ContentExpr(Object expr, boolean edit, boolean rawHTML, List<Object> formats) {
+	public RWContentExpr(Object expr, boolean edit, boolean rawHTML, List<Object> formats) {
 		super(formats);
 		this.expr = expr;
 		this.editable = edit;

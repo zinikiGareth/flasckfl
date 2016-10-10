@@ -78,6 +78,8 @@ import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
+import org.flasck.flas.rewrittenForm.RWContentExpr;
+import org.flasck.flas.rewrittenForm.RWContentString;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWD3Invoke;
@@ -85,6 +87,7 @@ import org.flasck.flas.rewrittenForm.RWD3PatternBlock;
 import org.flasck.flas.rewrittenForm.RWD3Section;
 import org.flasck.flas.rewrittenForm.RWD3Thing;
 import org.flasck.flas.rewrittenForm.RWEventCaseDefn;
+import org.flasck.flas.rewrittenForm.RWEventHandler;
 import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -98,6 +101,8 @@ import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTemplate;
+import org.flasck.flas.rewrittenForm.RWTemplateDiv;
+import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -581,7 +586,7 @@ public class Rewriter {
 		}
 		if (tl instanceof ContentString) {
 			ContentString cs = (ContentString)tl;
-			return rewriteEventHandlers(cx, new ContentString(cs.text, formats), ((TemplateFormatEvents)tl).handlers);
+			return rewriteEventHandlers(cx, new RWContentString(cs.text, formats), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr)tl;
 			boolean rawHTML = false;
@@ -591,7 +596,7 @@ public class Rewriter {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			return rewriteEventHandlers(cx, new ContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), rawHTML, formats), ((TemplateFormatEvents)tl).handlers);
+			return rewriteEventHandlers(cx, new RWContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), rawHTML, formats), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof CardReference) {
 			CardReference cr = (CardReference) tl;
 			Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
@@ -623,7 +628,7 @@ public class Rewriter {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
+			RWTemplateDiv ret = new RWTemplateDiv(td.customTag, td.customTagVar, attrs, formats);
 			for (TemplateLine i : td.nested)
 				ret.nested.add(rewrite(cx, i));
 			rewriteEventHandlers(cx, ret, td.handlers);
@@ -673,12 +678,12 @@ public class Rewriter {
 			throw new UtilException("Content type not handled: " + (tl == null?"null":tl.getClass()));
 	}
 
-	private TemplateLine rewriteEventHandlers(TemplateContext cx, TemplateFormatEvents ret, List<EventHandler> handlers) {
+	private TemplateLine rewriteEventHandlers(TemplateContext cx, RWTemplateFormatEvents ret, List<EventHandler> handlers) {
 		// It may or may not be the same array ... copy it to be sure ...
 		handlers = new ArrayList<EventHandler>(handlers);
 		ret.handlers.clear();
 		for (EventHandler h : handlers) {
-			ret.handlers.add(new EventHandler(h.action, rewriteExpr(cx, h.expr)));
+			ret.handlers.add(new RWEventHandler(h.action, rewriteExpr(cx, h.expr)));
 		}
 		return ret;
 	}

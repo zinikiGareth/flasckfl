@@ -202,7 +202,7 @@ public class Compiler {
 		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 		LogManager.getLogger("Generator").setLevel(Level.WARN);
 		LogManager.getLogger("HSIE").setLevel(Level.WARN);
-//		LogManager.getLogger("Rewriter").setLevel(Level.WARN);
+		LogManager.getLogger("Rewriter").setLevel(Level.WARN);
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 	}
 
