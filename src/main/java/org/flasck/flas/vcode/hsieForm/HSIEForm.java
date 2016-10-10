@@ -11,7 +11,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.hsie.SubstExpr;
-import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;

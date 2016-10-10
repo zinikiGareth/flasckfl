@@ -7,15 +7,20 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.typechecker.Type;
+import org.zinutils.collections.CollectionUtils;
 
 @SuppressWarnings("serial")
-public class ObjectDefn extends TypeWithMethods implements AsString, Serializable, Locatable {
+public class RWObjectDefn extends TypeWithMethods implements AsString, Serializable, Locatable {
 	public StateDefinition state;
 	public final List<RWStructField> ctorArgs = new ArrayList<RWStructField>();
-	public final List<ObjectMethod> methods = new ArrayList<ObjectMethod>();
+	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();
 	public final transient boolean generate;
 
-	public ObjectDefn(InputPosition location, String tn, boolean generate, List<Type> polys) {
+	public RWObjectDefn(InputPosition location, String tn, boolean generate, Type... polys) {
+		this(location, tn, generate, CollectionUtils.listOf(polys));
+	}
+	
+	public RWObjectDefn(InputPosition location, String tn, boolean generate, List<Type> polys) {
 		super(null, location, WhatAmI.OBJECT, tn, polys);
 		this.generate = generate;
 	}
@@ -26,19 +31,19 @@ public class ObjectDefn extends TypeWithMethods implements AsString, Serializabl
 	
 	@Override
 	public boolean hasMethod(String named) {
-		for (ObjectMethod m : methods)
+		for (RWObjectMethod m : methods)
 			if (m.name.equals(named))
 				return true;
 		return false;
 	}
 
-	public ObjectDefn addMethod(ObjectMethod m) {
+	public RWObjectDefn addMethod(RWObjectMethod m) {
 		methods.add(m);
 		return this;
 	}
 
 	public Type getMethod(String named) {
-		for (ObjectMethod m : methods)
+		for (RWObjectMethod m : methods)
 			if (m.name.equals(named))
 				return m.type;
 		return null;

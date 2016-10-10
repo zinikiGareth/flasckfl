@@ -13,10 +13,12 @@ public class StructDefn extends Type implements AsString, Serializable {
 	public final List<StructField> fields = new ArrayList<StructField>();
 	public final transient boolean generate;
 
+	// for tests
 	public StructDefn(InputPosition location, String tn, boolean generate, Type... polys) {
 		this(location, tn, generate, CollectionUtils.listOf(polys));
 	}
 	
+	// The real constructor
 	public StructDefn(InputPosition location, String tn, boolean generate, List<Type> polys) {
 		super(null, location, WhatAmI.STRUCT, tn, polys);
 		this.generate = generate;

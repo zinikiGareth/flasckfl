@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ConstPattern;
-import org.flasck.flas.parsedForm.ConstructorMatch.Field;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.ListMap;
 import org.zinutils.utils.StringComparator;

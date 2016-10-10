@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewriter.Rewriter.NamingContext;

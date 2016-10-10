@@ -1,13 +1,11 @@
 package org.flasck.flas.stories;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.typechecker.Type;
@@ -65,9 +63,9 @@ public class Builtin {
 		}
 		{ // stacks
 			UnionTypeDefn stack = new UnionTypeDefn(posn, false, "Stack", Type.polyvar(posn, "A"));
-			StructDefn push = new StructDefn(posn, "StackPush", false, varA);
-			push.addField(new StructField(posn, false, varA, "head"));
-			push.addField(new StructField(posn, false, stack, "tail"));
+			RWStructDefn push = new RWStructDefn(posn, "StackPush", false, varA);
+			push.addField(new RWStructField(posn, false, varA, "head"));
+			push.addField(new RWStructField(posn, false, stack, "tail"));
 			stack.addCase(nil);
 			stack.addCase(push);
 			ret.define("Stack", "Stack",			stack);
@@ -75,55 +73,55 @@ public class Builtin {
 		}
 		UnionTypeDefn map = new UnionTypeDefn(posn, false, "Map", varA);
 		{ // maps
-			StructDefn nilMap = new StructDefn(posn, "NilMap", false);
-			StructDefn assoc = new StructDefn(posn, "Assoc", false, varA);
+			RWStructDefn nilMap = new RWStructDefn(posn, "NilMap", false);
+			RWStructDefn assoc = new RWStructDefn(posn, "Assoc", false, varA);
 			map.addCase(nilMap);
 			map.addCase(assoc);
 			ret.define("Map", "Map", map);
 			ret.define("NilMap", "NilMap", nilMap);
 			ret.define("Assoc", "Assoc", assoc);
-			assoc.addField(new StructField(posn, false, string, "key"));
-			assoc.addField(new StructField(posn, false, varA, "value"));
-			assoc.addField(new StructField(posn, false, map, "rest"));
+			assoc.addField(new RWStructField(posn, false, string, "key"));
+			assoc.addField(new RWStructField(posn, false, varA, "value"));
+			assoc.addField(new RWStructField(posn, false, map, "rest"));
 			ret.define("assoc", "StdLib.assoc",		Type.function(posn, map.instance(posn, varA), string, varA));
 		}
 		{ // d3
-			StructDefn d3 = new StructDefn(posn, "D3Element", false, varA);
+			RWStructDefn d3 = new RWStructDefn(posn, "D3Element", false, varA);
 			ret.define("D3Element", "D3Element", d3);
-			d3.addField(new StructField(posn, false, varA, "data"));
-			d3.addField(new StructField(posn, false, number, "idx"));
+			d3.addField(new RWStructField(posn, false, varA, "data"));
+			d3.addField(new RWStructField(posn, false, number, "idx"));
 		}
 		{
-			ObjectDefn card = new ObjectDefn(posn, ret, "Card", false);
+			RWObjectDefn card = new RWObjectDefn(posn, "Card", false);
 			card.constructorArg(posn, string, "explicit");
 			card.constructorArg(posn, string, "loadId");
 		}
-		StructDefn send = new StructDefn(posn, "Send", false);
+		RWStructDefn send = new RWStructDefn(posn, "Send", false);
 		{ // messaging
 			UnionTypeDefn message = new UnionTypeDefn(posn, false, "Message");
-			StructDefn assign = new StructDefn(posn, "Assign", false);
-			StructDefn crCard = new StructDefn(posn, "CreateCard", false);
-			StructDefn d3 = new StructDefn(posn, "D3Action", false);
-			StructDefn debug = new StructDefn(posn, "Debug", false);
+			RWStructDefn assign = new RWStructDefn(posn, "Assign", false);
+			RWStructDefn crCard = new RWStructDefn(posn, "CreateCard", false);
+			RWStructDefn d3 = new RWStructDefn(posn, "D3Action", false);
+			RWStructDefn debug = new RWStructDefn(posn, "Debug", false);
 			message.addCase(assign);
 			message.addCase(send);
 			message.addCase(crCard);
 			message.addCase(debug);
-			assign.addField(new StructField(posn, false, any, "into"));
-			assign.addField(new StructField(posn, false, string, "slot"));
-			assign.addField(new StructField(posn, false, any, "value"));
+			assign.addField(new RWStructField(posn, false, any, "into"));
+			assign.addField(new RWStructField(posn, false, string, "slot"));
+			assign.addField(new RWStructField(posn, false, any, "value"));
 				
-			send.addField(new StructField(posn, false, any, "dest"));
-			send.addField(new StructField(posn, false, string, "method"));
-			send.addField(new StructField(posn, false, list.instance(posn, any), "args"));
+			send.addField(new RWStructField(posn, false, any, "dest"));
+			send.addField(new RWStructField(posn, false, string, "method"));
+			send.addField(new RWStructField(posn, false, list.instance(posn, any), "args"));
 
-			crCard.addField(new StructField(posn, false, map.instance(posn, string, any), "opts"));
-			crCard.addField(new StructField(posn, false, list.instance(posn, any), "contracts")); // maybe List[(String, CardHandle)] ?  what is CardHandle?  This is what I had "before"
+			crCard.addField(new RWStructField(posn, false, map.instance(posn, string, any), "opts"));
+			crCard.addField(new RWStructField(posn, false, list.instance(posn, any), "contracts")); // maybe List[(String, CardHandle)] ?  what is CardHandle?  This is what I had "before"
 			
-			d3.addField(new StructField(posn, false, string, "action"));
-			d3.addField(new StructField(posn, false, list.instance(posn, any), "args"));
+			d3.addField(new RWStructField(posn, false, string, "action"));
+			d3.addField(new RWStructField(posn, false, list.instance(posn, any), "args"));
 
-			debug.addField(new StructField(posn, false, any, "value"));
+			debug.addField(new RWStructField(posn, false, any, "value"));
 
 			ret.define("Assign", "Assign", assign);
 			ret.define("Send", "Send", send);
@@ -134,55 +132,55 @@ public class Builtin {
 //			ret.define("JSNI", "JSNI", null);
 			
 			Type polyT = Type.polyvar(posn, "T");
-			StructDefn mw = new StructDefn(posn, "MessageWrapper", false, polyT);
-			mw.addField(new StructField(posn, false, polyT, "value"));
-			mw.addField(new StructField(posn, false, list.instance(posn, message), "msgs"));
+			RWStructDefn mw = new RWStructDefn(posn, "MessageWrapper", false, polyT);
+			mw.addField(new RWStructField(posn, false, polyT, "value"));
+			mw.addField(new RWStructField(posn, false, list.instance(posn, message), "msgs"));
 			ret.define("MessageWrapper", "MessageWrapper", mw);
 
 		}
 		{ // DOM
 			PackageDefn domPkg = new PackageDefn(posn, ret, "DOM");
-			StructDefn elt = new StructDefn(posn, "DOM.Element", false, varA, varB);
+			RWStructDefn elt = new RWStructDefn(posn, "DOM.Element", false, varA, varB);
 			domPkg.innerScope().define("Element", "DOM.Element", elt);
-			elt.addField(new StructField(posn, false, string, "tag"));
-			elt.addField(new StructField(posn, false, list, "attrs"));
-			elt.addField(new StructField(posn, false, list.instance(posn, elt), "content"));
-			elt.addField(new StructField(posn, false, list.instance(posn, varB), "handlers"));
+			elt.addField(new RWStructField(posn, false, string, "tag"));
+			elt.addField(new RWStructField(posn, false, list, "attrs"));
+			elt.addField(new RWStructField(posn, false, list.instance(posn, elt), "content"));
+			elt.addField(new RWStructField(posn, false, list.instance(posn, varB), "handlers"));
 		}
 		{ // crosets
-			StructDefn crokey = new StructDefn(posn, "Crokey", false);
+			RWStructDefn crokey = new RWStructDefn(posn, "Crokey", false);
 			ret.define("Crokey", "Crokey", crokey);
-			crokey.addField(new StructField(posn, false, string, "key"));
-			crokey.addField(new StructField(posn, false, string, "id"));
+			crokey.addField(new RWStructField(posn, false, string, "key"));
+			crokey.addField(new RWStructField(posn, false, string, "id"));
 
 			// It is not abundantly clear to me that we want to project this level of detail into the API
 			// This comes from having two separate classes down in the JS layer
 			// At some level, we DO need to distinguish between them, but I'm not sure we should put it on the user
-			StructDefn ncrokey = new StructDefn(posn, "NaturalCrokey", false);
+			RWStructDefn ncrokey = new RWStructDefn(posn, "NaturalCrokey", false);
 			ret.define("NaturalCrokey", "NaturalCrokey", ncrokey);
-			ncrokey.addField(new StructField(posn, false, string, "key"));
-			ncrokey.addField(new StructField(posn, false, string, "id"));
+			ncrokey.addField(new RWStructField(posn, false, string, "key"));
+			ncrokey.addField(new RWStructField(posn, false, string, "id"));
 			
-			StructDefn crokeys = new StructDefn(posn, "Crokeys", false);
+			RWStructDefn crokeys = new RWStructDefn(posn, "Crokeys", false);
 			ret.define("Crokeys", "Crokeys", crokeys);
-			crokeys.addField(new StructField(posn, false, string, "id"));
-			crokeys.addField(new StructField(posn, false, string, "keytype"));
-			crokeys.addField(new StructField(posn, false, list.instance(posn,  crokey), "keys"));
+			crokeys.addField(new RWStructField(posn, false, string, "id"));
+			crokeys.addField(new RWStructField(posn, false, string, "keytype"));
+			crokeys.addField(new RWStructField(posn, false, list.instance(posn,  crokey), "keys"));
 
-			ObjectDefn croset = new ObjectDefn(posn, ret, "Croset", false, varA);
+			RWObjectDefn croset = new RWObjectDefn(posn, "Croset", false, varA);
 			croset.constructorArg(posn, crokeys, "init");
 			
 			// These are actually accessors ...
-			croset.addMethod(new ObjectMethod(Type.function(posn, string, any), "item"));
-			croset.addMethod(new ObjectMethod(Type.function(posn, any, any), "member")); // crokey, natural crokey or string as input
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, any), "item"));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, any, any), "member")); // crokey, natural crokey or string as input
 
 			// These are real methods
-			croset.addMethod(new ObjectMethod(Type.function(posn, any, send), "put"));
-			croset.addMethod(new ObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));
-			croset.addMethod(new ObjectMethod(Type.function(posn, string, send), "delete"));
-			croset.addMethod(new ObjectMethod(Type.function(posn, crokeys, send), "deleteSet"));
-			croset.addMethod(new ObjectMethod(Type.function(posn, string, any, send), "insert"));
-			croset.addMethod(new ObjectMethod(Type.function(posn, send), "clear"));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, any, send), "put"));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, send), "delete"));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, crokeys, send), "deleteSet"));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, any, send), "insert"));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, send), "clear"));
 		}
 		return ret;
 	}

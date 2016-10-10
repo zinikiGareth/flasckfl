@@ -307,6 +307,7 @@ public class Compiler {
 			final HSIE hsie = new HSIE(errors, rewriter, top);
 			final DroidGenerator dg = new DroidGenerator(hsie, builder);
 
+			rewriter.rewriteScope(rewriter.new RootContext(top), top);
 			for (ScopeEntry se : entries)
 				rewriter.rewrite(se);
 			abortIfErrors(errors);

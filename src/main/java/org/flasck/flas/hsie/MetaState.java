@@ -12,7 +12,6 @@ import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.CastExpr;
-import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionLiteral;
@@ -31,6 +30,8 @@ import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -286,9 +287,15 @@ public class MetaState {
 				throw new UtilException("How can this be an iter var? " + var + " not in " + substs);
 			return substs.get(var);
 		} else if (expr instanceof PackageVar) {
+			logger.error("I think this should be deprecated and rewritten out of existence");
 			PackageVar pv = (PackageVar)expr;
 			locs.add(pv.location);
 			form.dependsOn(pv);
+			return expr;
+		} else if (expr instanceof RWStructDefn) {
+			RWStructDefn sd = (RWStructDefn) expr;
+			locs.add(sd.location());
+			form.dependsOn(sd.name());
 			return expr;
 		} else if (expr instanceof ScopedVar) {
 			ScopedVar sv = (ScopedVar)expr;

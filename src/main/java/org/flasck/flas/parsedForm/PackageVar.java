@@ -7,7 +7,7 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
-public class PackageVar implements Serializable, ExternalRef {
+public class PackageVar implements Serializable, Locatable {
 	public final InputPosition location;
 	public final String id;
 	public final Object defn;
@@ -40,14 +40,8 @@ public class PackageVar implements Serializable, ExternalRef {
 		return location;
 	}
 
-	@Override
 	public String uniqueName() {
 		return id;
-	}
-	
-	@Override
-	public int compareTo(Object o) {
-		return this.toString().compareTo(o.toString());
 	}
 	
 	@Override

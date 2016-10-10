@@ -78,6 +78,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWD3Invoke;
@@ -105,6 +106,8 @@ import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeOfSomethingElse;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 /** The objective of this class is to resolve all of the names of all of the
@@ -118,11 +121,11 @@ import org.zinutils.exceptions.UtilException;
  */
 // and ultimately pull these two together
 public class Rewriter {
+	static final Logger logger = LoggerFactory.getLogger("Rewriter");
 	private final ErrorResult errors;
 	private final PackageFinder pkgFinder;
 	public final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	public final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
-	public final Map<String, Object> builtins = new TreeMap<String, Object>();
 	public final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>();
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
 	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
@@ -428,13 +431,16 @@ public class Rewriter {
 		return new PackageContext(figureBaseContext(s.outerEntry), pkg);
 	}
 
-	protected void rewriteScope(NamingContext cx, Scope from) {
+	public void rewriteScope(NamingContext cx, Scope from) {
 		for (Entry<String, ScopeEntry> x : from) {
 			String name = x.getValue().getKey();
+			if (name.equals("Nil"))
+			logger.info("Rewriting " + name);
 			Object val = x.getValue().getValue();
-			if (val instanceof PackageDefn)
-				rewriteScope(cx, ((PackageDefn)val).innerScope());
-			else if (val instanceof CardDefinition)
+			if (val instanceof PackageDefn) {
+				logger.info("Choosing not to follow " + name + " down into a nested package");
+//				rewriteScope(cx, ((PackageDefn)val).innerScope());
+			} else if (val instanceof CardDefinition)
 				rewriteCard(cx, (CardDefinition)val);
 			else if (val instanceof FunctionDefinition)
 				functions.put(name, rewrite(cx, (FunctionDefinition)val));
@@ -451,10 +457,14 @@ public class Rewriter {
 				contracts.put(name, rewrite(cx, (ContractDecl)val));
 			} else if (val instanceof HandlerImplements) {
 				callbackHandlers.put(name, rewriteHI(cx, (HandlerImplements)val, from));
+			} else if (val instanceof RWStructDefn) { // already rewritten struct - from builtin or FLIM
+				structs.put(name, (RWStructDefn) val);
 			} else if (val instanceof Type) {
-				; // don't do anything - is that OK? 
-			} else
-				throw new UtilException("Cannot handle " + val.getClass());
+				logger.info("Not doing anything with Type " + name + ": " + val.getClass()); // don't do anything - is that OK? 
+			} else if (val == null)
+				logger.info("Did you know " + name + " does not have a definition?");
+			else
+				throw new UtilException("Cannot handle " + name +": " + (val == null?"null":val.getClass()));
 		}
 	}
 
@@ -859,7 +869,7 @@ public class Rewriter {
 				Object type = cx.resolve(cm.location, cm.ctor);
 				if (!(type instanceof PackageVar))
 					errors.message(cm.location, "could not handle " + type);
-				ConstructorMatch ret = new ConstructorMatch(cm.location, (PackageVar)type);
+				RWConstructorMatch ret = new RWConstructorMatch(cm.location, (PackageVar)type);
 				for (Field x : cm.args)
 					ret.args.add(ret.new Field(x.field, rewritePattern(cx, x.patt)));
 				return ret;

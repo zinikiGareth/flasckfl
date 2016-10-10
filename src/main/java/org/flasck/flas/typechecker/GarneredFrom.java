@@ -1,7 +1,7 @@
 package org.flasck.flas.typechecker;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.zinutils.exceptions.UtilException;
 

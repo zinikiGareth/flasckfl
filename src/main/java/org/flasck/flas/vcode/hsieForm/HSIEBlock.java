@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.CardStateRef;
-import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.typechecker.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

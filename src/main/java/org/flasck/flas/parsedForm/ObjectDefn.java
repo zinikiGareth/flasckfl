@@ -8,7 +8,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.typechecker.Type;
-import org.zinutils.collections.CollectionUtils;
 
 @SuppressWarnings("serial")
 public class ObjectDefn extends TypeWithMethods implements ContainsScope, AsString, Serializable, Locatable {
@@ -18,10 +17,6 @@ public class ObjectDefn extends TypeWithMethods implements ContainsScope, AsStri
 	public final transient boolean generate;
 	private final Scope innerScope;
 
-	public ObjectDefn(InputPosition location, Scope outer, String tn, boolean generate, Type... polys) {
-		this(location, outer, tn, generate, CollectionUtils.listOf(polys));
-	}
-	
 	public ObjectDefn(InputPosition location, Scope outer, String tn, boolean generate, List<Type> polys) {
 		super(null, location, WhatAmI.OBJECT, tn, polys);
 		this.generate = generate;

@@ -4,20 +4,20 @@ import org.flasck.flas.blockForm.InputPosition;
 
 // This should possibly be called "ClassReference"
 // It is intended to be a holder for the "name" of a class (Card, Handler, etc) that can then be used in expressions later 
-public class ObjectReference implements ExternalRef {
+public class RWObjectReference implements ExternalRef {
 	public final InputPosition location;
 	public final String clzName;
 	public final String handle;
 	public final boolean fromHandler;
 
-	public ObjectReference(InputPosition location, String clzName, String handle) {
+	public RWObjectReference(InputPosition location, String clzName, String handle) {
 		this.location = location;
 		this.clzName = clzName;
 		this.handle = handle;
 		this.fromHandler = false;
 	}
 	
-	public ObjectReference(InputPosition location, ObjectReference inner, boolean fromHandler) {
+	public RWObjectReference(InputPosition location, RWObjectReference inner, boolean fromHandler) {
 		this.location = location;
 		this.clzName = inner.clzName;
 		this.handle = inner.handle;

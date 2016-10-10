@@ -2,7 +2,7 @@ package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class CardFunction implements ExternalRef {
+public class CardFunction implements Locatable {
 	public final InputPosition location;
 	public final String clzName;
 	public final String function;
@@ -29,11 +29,6 @@ public class CardFunction implements ExternalRef {
 
 	public String uniqueName() {
 		return this.clzName + "." + this.function;
-	}
-
-	@Override
-	public int compareTo(Object o) {
-		return this.toString().compareTo(o.toString());
 	}
 
 	public boolean fromHandler() {

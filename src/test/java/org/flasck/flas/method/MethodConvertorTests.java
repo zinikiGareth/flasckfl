@@ -31,7 +31,6 @@ import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -40,6 +39,7 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -101,8 +101,8 @@ public class MethodConvertorTests {
 			orgFooScope.define("Handler1", handler1.name(), handler1);
 		}
 		{
-			StructDefn struct = new StructDefn(null, "Thing", true);
-			struct.addField(new StructField(null, false, Type.reference(null, "String"), "x"));
+			RWStructDefn struct = new RWStructDefn(null, "Thing", true);
+			struct.addField(new RWStructField(null, false, Type.reference(null, "String"), "x"));
 			orgFooScope.define("Thing", struct.name(), struct);
 		}
 		

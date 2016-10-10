@@ -5,7 +5,7 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
-public class HandlerLambda implements ExternalRef {
+public class HandlerLambda implements Locatable {
 	public final InputPosition location;
 	public final String clzName;
 	public final String var;
@@ -26,11 +26,6 @@ public class HandlerLambda implements ExternalRef {
 
 	public String uniqueName() {
 		return clzName + "." + var;
-	}
-	
-	@Override
-	public int compareTo(Object o) {
-		return this.toString().compareTo(o.toString());
 	}
 	
 	public boolean fromHandler() {

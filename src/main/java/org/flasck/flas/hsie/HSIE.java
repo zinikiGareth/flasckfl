@@ -14,7 +14,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
-import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Locatable;
@@ -22,6 +21,8 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -128,8 +129,8 @@ public class HSIE {
 				VarPattern vp = (VarPattern) arg;
 				String called = vp.var;
 				expr.subst(called, new CreationOfVar(formals.get(i), vp.varLoc, called));
-			} else if (arg instanceof ConstructorMatch)
-				ctorSub((ConstructorMatch) arg, ms, formals.get(i), expr);
+			} else if (arg instanceof RWConstructorMatch)
+				ctorSub((RWConstructorMatch) arg, ms, formals.get(i), expr);
 			else if (arg instanceof ConstPattern)
 				;
 			else if (arg instanceof TypedPattern) {
@@ -141,7 +142,7 @@ public class HSIE {
 		}
 	}
 
-	private void ctorSub(ConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
+	private void ctorSub(RWConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
 		for (Field x : cm.args) {
 			Var v = ms.varFor(from, x.field);
 			if (x.patt instanceof VarPattern) {
@@ -149,7 +150,7 @@ public class HSIE {
 				String called = vp.var;
 				expr.subst(called, new CreationOfVar(v, vp.varLoc, called));
 			} else if (x.patt instanceof ConstructorMatch)
-				ctorSub((ConstructorMatch)x.patt, ms, v, expr);
+				ctorSub((RWConstructorMatch)x.patt, ms, v, expr);
 			else if (x.patt instanceof ConstPattern)
 				;
 			else
@@ -308,8 +309,8 @@ public class HSIE {
 				Object patt = pe.getKey();
 				if (patt instanceof VarPattern) {
 					o.anything(pe.getValue(), ((VarPattern)patt).var);
-				} else if (patt instanceof ConstructorMatch) {
-					ConstructorMatch cm = (ConstructorMatch) patt;
+				} else if (patt instanceof RWConstructorMatch) {
+					RWConstructorMatch cm = (RWConstructorMatch) patt;
 					o.ifCtor(cm.location, cm.ref.uniqueName(), cm.args, pe.getValue());
 				} else if (patt instanceof TypedPattern) {
 					TypedPattern tp = (TypedPattern) patt;

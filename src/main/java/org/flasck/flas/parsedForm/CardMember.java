@@ -7,7 +7,7 @@ import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
-public class CardMember implements ExternalRef, Serializable {
+public class CardMember implements Locatable, Serializable {
 	public final InputPosition location;
 	public final String card;
 	public final String var;
@@ -23,11 +23,6 @@ public class CardMember implements ExternalRef, Serializable {
 	@Override
 	public InputPosition location() {
 		return location;
-	}
-
-	@Override
-	public int compareTo(Object o) {
-		return this.toString().compareTo(o.toString());
 	}
 
 	public String uniqueName() {

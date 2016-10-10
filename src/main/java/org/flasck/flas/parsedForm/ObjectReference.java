@@ -4,7 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 
 // This should possibly be called "ClassReference"
 // It is intended to be a holder for the "name" of a class (Card, Handler, etc) that can then be used in expressions later 
-public class ObjectReference implements ExternalRef {
+public class ObjectReference implements Locatable {
 	public final InputPosition location;
 	public final String clzName;
 	public final String handle;
@@ -30,11 +30,6 @@ public class ObjectReference implements ExternalRef {
 
 	public String uniqueName() {
 		return this.handle;
-	}
-
-	@Override
-	public int compareTo(Object o) {
-		return this.toString().compareTo(o.toString());
 	}
 
 	public boolean fromHandler() {

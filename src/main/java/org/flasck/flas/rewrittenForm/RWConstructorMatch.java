@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.PackageVar;
 
 public class RWConstructorMatch {
 	public class Field {
@@ -25,25 +26,17 @@ public class RWConstructorMatch {
 	public final List<Field> args = new ArrayList<Field>();
 	public final InputPosition location;
 
-	public RWConstructorMatch(InputPosition loc, String ctor) {
-		if (loc == null)
-			System.out.println("null position cm1");
-		this.location = loc;
-		this.ctor = ctor;
-		this.ref = null;
-	}
-	
-	public RWConstructorMatch(InputPosition loc, ExternalRef ref) {
+	public RWConstructorMatch(InputPosition loc, PackageVar pv) {
 		if (loc == null)
 			System.out.println("null position cm2");
 		this.location = loc;
 		this.ctor = null;
-		this.ref = ref;
+		this.ref = (ExternalRef) pv.defn;
 	}
 	
 	@Override
 	public String toString() {
-		StringBuilder ret = new StringBuilder(ctor != null?ctor:ref.uniqueName());
+		StringBuilder ret = new StringBuilder(ref.uniqueName());
 		if (!args.isEmpty()) {
 			ret.append(" { ");
 			for (Field f : args) {
