@@ -480,7 +480,7 @@ public class DroidGenerator {
 				stmts.add(meth.returnObject(meth.makeNew("org.flasck.android.FLError", meth.stringConst(meth.getName() + ": case not handled"))));
 			} else {
 				System.out.println("Cannot generate block:");
-				h.dumpOne(null, 0);
+				h.dumpOne((Logger)null, 0);
 			}
 		}
 		if (stmts.isEmpty())

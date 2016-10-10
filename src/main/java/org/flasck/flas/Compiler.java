@@ -213,6 +213,7 @@ public class Compiler {
 	private ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	private DroidBuilder builder;
 	private File writeFlim;
+	private File writeHSIE;
 	private File writeJS;
 
 	public void searchIn(File file) {
@@ -234,7 +235,15 @@ public class Compiler {
 		}
 		this.writeFlim = file;
 	}
-	
+
+	public void writeHSIETo(File file) {
+		if (!file.isDirectory()) {
+			System.out.println("there is no directory " + file);
+			return;
+		}
+		this.writeHSIE = file;
+	}
+
 	public void writeJSTo(File file) {
 		if (!file.isDirectory()) {
 			System.out.println("there is no directory " + file);
@@ -379,12 +388,18 @@ public class Compiler {
 			// 5. Now process each orchard
 			//   a. convert functions to HSIE
 			//   b. typechecking
-		
+
+			PrintWriter hsiePW = null;
+			if (writeHSIE != null) {
+				hsiePW = new PrintWriter(new File(writeHSIE, inPkg));
+			}
+
 			Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 			for (Orchard<FunctionDefinition> d : defns) {
 				// 6a. Convert each orchard to HSIE
 				Orchard<HSIEForm> oh = hsieOrchard(errors, hsie, forms, d);
 				abortIfErrors(errors);
+				dumpOrchard(hsiePW, oh);
 				
 				// 6b. Typecheck an orchard together
 				tc.typecheck(oh);
@@ -394,6 +409,8 @@ public class Compiler {
 					for (HSIEForm h : t.allNodes())
 						forms.put(h.fnName, h);
 			}
+			if (hsiePW != null)
+				hsiePW.close();
 
 			// Now go back and handle all the "special cases" that sit at the top of the tree, such as methods and templates
 			
@@ -464,6 +481,22 @@ public class Compiler {
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
 	}
 	
+	private void dumpOrchard(PrintWriter hsiePW, Orchard<HSIEForm> oh) {
+		if (hsiePW == null)
+			return;
+		
+		boolean first = true;
+		for (Tree<HSIEForm> t : oh) {
+			if (first)
+				first = false;
+			else
+				hsiePW.println("-------");
+			for (HSIEForm h : t.allNodes())
+				h.dump(hsiePW);
+		}
+		hsiePW.println("=======");
+	}
+
 	// Just obtain a parse tree 
 	public StoryRet parse(String inPkg, String input) throws ErrorResultException {
 		Scope top = Builtin.builtinScope();

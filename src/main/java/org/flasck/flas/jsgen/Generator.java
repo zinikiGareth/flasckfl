@@ -27,6 +27,7 @@ import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.collections.CollectionUtils;
 
@@ -226,7 +227,7 @@ public class Generator {
 				into.add(JSForm.error(fn));
 			} else {
 				System.out.println("Cannot generate block:");
-				h.dumpOne(null, 0);
+				h.dumpOne((Logger)null, 0);
 			}
 		}
 	}

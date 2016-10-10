@@ -1,6 +1,7 @@
 package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.zinutils.utils.Justification;
 
 public class Switch extends HSIEBlock {
 	public final InputPosition location;
@@ -15,6 +16,6 @@ public class Switch extends HSIEBlock {
 
 	@Override
 	public String toString() {
-		return "SWITCH " + var + " " + ctor;
+		return Justification.LEFT.format("SWITCH " + var + " " + ctor, 60) + " " + location;
 	}
 }

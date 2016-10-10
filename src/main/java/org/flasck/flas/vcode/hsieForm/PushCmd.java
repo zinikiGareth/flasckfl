@@ -6,6 +6,7 @@ import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.zinutils.utils.Justification;
 
 public class PushCmd extends PushReturn {
 
@@ -39,6 +40,6 @@ public class PushCmd extends PushReturn {
 
 	@Override
 	public String toString() {
-		return "PUSH " + textValue();
+		return Justification.LEFT.format("PUSH " + textValue(), 60) + " " + location + " - also want location where the variable is actually used here";
 	}
 }

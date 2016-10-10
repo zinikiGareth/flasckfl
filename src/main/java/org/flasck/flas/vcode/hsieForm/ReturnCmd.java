@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.zinutils.utils.Justification;
 
 public class ReturnCmd extends PushReturn {
 	public final List<CreationOfVar> deps;
@@ -37,6 +38,6 @@ public class ReturnCmd extends PushReturn {
 
 	@Override
 	public String toString() {
-		return "RETURN " + textValue() + (deps == null? "" : " " + deps);
+		return Justification.LEFT.format("RETURN " + textValue() + (deps == null? "" : " " + deps), 60) + " " + location + " - this appears to be wrong for closures; wants to be the apply expr point";
 	}
 }

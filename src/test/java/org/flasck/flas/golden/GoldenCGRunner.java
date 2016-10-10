@@ -7,7 +7,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -88,10 +87,12 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File etmp = new File(s, "errors-tmp"); // may or may not be needed
 		File pform = new File(s, "parser-tmp");
 		File jsto = new File(s, "jsout-tmp");
+		File hsie = new File(s, "hsie-tmp");
 		File flim = new File(s, "flim-tmp");
 		FileUtils.deleteDirectoryTree(etmp);
 		clean(pform);
 		clean(jsto);
+		clean(hsie);
 		clean(flim);
 		try {
 			Compiler.setLogLevels();
@@ -110,6 +111,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	//		compiler.searchIn(new File("src/main/resources/flim"));
 			
 			compiler.writeJSTo(jsto);
+			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
 			compiler.compile(dir);
 			

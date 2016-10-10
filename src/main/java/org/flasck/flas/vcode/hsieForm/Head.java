@@ -1,5 +1,6 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import org.zinutils.utils.Justification;
 
 public class Head extends HSIEBlock {
 	public final Var v;
@@ -10,6 +11,6 @@ public class Head extends HSIEBlock {
 
 	@Override
 	public String toString() {
-		return "HEAD " + v;
+		return Justification.LEFT.format("HEAD " + v, 60) + " ?? - should be location of defn in first equation to have this as a free var";
 	}
 }

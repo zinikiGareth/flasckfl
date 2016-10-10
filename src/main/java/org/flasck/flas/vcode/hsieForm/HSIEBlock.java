@@ -1,5 +1,6 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,5 +127,15 @@ public class HSIEBlock {
 			logTo = logger ;
 		logTo.info(Justification.LEFT.format("", ind) + this);
 		dump(logTo, ind+2);
+	}
+
+	public void dump(PrintWriter pw, int ind) {
+		for (HSIEBlock c : commands)
+			c.dumpOne(pw, ind);
+	}
+
+	public void dumpOne(PrintWriter pw, int ind) {
+		pw.println(Justification.LEFT.format("", ind) + this);
+		dump(pw, ind+2);
 	}
 }

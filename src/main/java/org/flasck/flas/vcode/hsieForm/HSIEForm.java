@@ -1,5 +1,6 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -132,6 +133,16 @@ public class HSIEForm extends HSIEBlock {
 		dump(logTo, 0);
 		for (HSIEBlock c : closures.values())
 			c.dumpOne(logTo, 0);
+	}
+
+	public void dump(PrintWriter pw) {
+		pw.println("HSIE for " + fnName);
+		pw.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
+		pw.println("    externals: " + externals + " scoped = " + scoped);
+		pw.println("    all vars = " + vars);
+		dump(pw, 0);
+		for (HSIEBlock c : closures.values())
+			c.dumpOne(pw, 0);
 	}
 
 	public void dependsOn(Object ref) {
