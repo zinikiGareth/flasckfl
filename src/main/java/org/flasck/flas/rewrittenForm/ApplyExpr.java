@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.Locatable;
 
 @SuppressWarnings("serial")
 public class ApplyExpr implements Locatable, Serializable {

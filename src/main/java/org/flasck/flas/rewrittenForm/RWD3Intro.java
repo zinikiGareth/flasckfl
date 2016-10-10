@@ -2,13 +2,13 @@ package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class D3Intro {
+public class RWD3Intro {
 	public final InputPosition location;
 	public final String name;
 	public final Object expr;
 	public final String var;
 
-	public D3Intro(InputPosition location, String text, Object object, String var) {
+	public RWD3Intro(InputPosition location, String text, Object object, String var) {
 		this.location = location;
 		this.name = text;
 		this.expr = object;

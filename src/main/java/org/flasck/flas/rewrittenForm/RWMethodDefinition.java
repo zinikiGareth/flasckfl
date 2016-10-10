@@ -4,13 +4,14 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.Locatable;
 
 @SuppressWarnings("serial")
-public class MethodDefinition implements Serializable, Locatable {
-	public final FunctionIntro intro;
-	public final List<MethodCaseDefn> cases;
+public class RWMethodDefinition implements Serializable, Locatable {
+	public final RWFunctionIntro intro;
+	public final List<RWMethodCaseDefn> cases;
 	
-	public MethodDefinition(FunctionIntro intro, List<MethodCaseDefn> list) {
+	public RWMethodDefinition(RWFunctionIntro intro, List<RWMethodCaseDefn> list) {
 		this.intro = intro;
 		this.cases = list;
 	}

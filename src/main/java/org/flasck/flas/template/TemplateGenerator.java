@@ -24,7 +24,6 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
@@ -35,6 +34,8 @@ import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWTemplate;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -62,20 +63,19 @@ public class TemplateGenerator {
 		private int areaNo = 1;
 		private String introduceVarHere;
 		private final List<DefinedVar> varsToCopy = new ArrayList<DefinedVar>();
-		private final PackageVar nil;
-		private final PackageVar cons;
-		private final PackageVar equals;
+		private final RWStructDefn nil;
+		private final RWStructDefn cons;
+		private final FunctionDefinition equals;
 		private final String javaName;
 
-		public GeneratorContext(JSTarget target, Template cg) {
+		public GeneratorContext(JSTarget target, Rewriter rw, RWTemplate cg) {
 			this.target = target;
 			this.javaName = cg.prefix;
 			this.simpleName = Generator.lname(cg.prefix, false);
 			this.protoName = Generator.lname(cg.prefix, true);
-			InputPosition gen = new InputPosition("generator", 0, 0, null);
-			this.nil = cg.scope.fromRoot(gen, "Nil");
-			this.cons = cg.scope.fromRoot(gen, "Cons");
-			this.equals = cg.scope.fromRoot(gen, "==");
+			this.nil = rw.structs.get("Nil");
+			this.cons = rw.structs.get("Cons");
+			this.equals = rw.functions.get("==");
 		}
 		
 		String nextArea() {
@@ -119,13 +119,13 @@ public class TemplateGenerator {
 		this.dg = dg;
 	}
 
-	public void generate(JSTarget target) {
-		for (Template cg : rewriter.templates)
-			generateTemplate(target, cg);
+	public void generate(Rewriter rw, JSTarget target) {
+		for (RWTemplate cg : rewriter.templates)
+			generateTemplate(rw, target, cg);
 	}
 
-	private void generateTemplate(JSTarget target, Template cg) {
-		GeneratorContext cx = new GeneratorContext(target, cg);
+	private void generateTemplate(Rewriter rw, JSTarget target, RWTemplate cg) {
+		GeneratorContext cx = new GeneratorContext(target, rw, cg);
 		JSForm ir = JSForm.flexFn(cx.protoName + "_render", CollectionUtils.listOf("doc", "wrapper", "parent"));
 		target.add(ir);
 		if (cg == null || cg.content == null)

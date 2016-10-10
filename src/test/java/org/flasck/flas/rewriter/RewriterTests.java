@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -24,6 +23,7 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -32,6 +32,8 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
+import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.stories.Builtin;
@@ -211,10 +213,10 @@ public class RewriterTests {
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
-		md = rw.methods.get(0).method;
-		assertEquals("ME.MyCard._C0.m", md.intro.name);
-		assertTrue(md.cases.get(0).messages.get(0).expr instanceof CardMember);
-		assertEquals("counter", ((CardMember)md.cases.get(0).messages.get(0).expr).var);
+		RWMethodDefinition rmd = rw.methods.get(0).method;
+		assertEquals("ME.MyCard._C0.m", rmd.intro.name);
+		assertTrue(rmd.cases.get(0).messages.get(0).expr instanceof CardMember);
+		assertEquals("counter", ((CardMember)rmd.cases.get(0).messages.get(0).expr).var);
 	}
 
 	// Handler with lambda
@@ -235,9 +237,9 @@ public class RewriterTests {
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		ehd = (EventHandlerDefinition) rw.eventHandlers.get(0).handler;
-		assertEquals("ME.MyCard.eh", ehd.intro.name);
-		assertTrue(ehd.cases.get(0).messages.get(0).expr instanceof CardMember);
-		assertEquals("counter", ((CardMember)ehd.cases.get(0).messages.get(0).expr).var);
+		RWEventHandlerDefinition reh = (RWEventHandlerDefinition) rw.eventHandlers.get(0).handler;
+		assertEquals("ME.MyCard.eh", reh.intro.name);
+		assertTrue(reh.cases.get(0).messages.get(0).expr instanceof CardMember);
+		assertEquals("counter", ((CardMember)reh.cases.get(0).messages.get(0).expr).var);
 	}
 }

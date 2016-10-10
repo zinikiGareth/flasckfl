@@ -8,7 +8,7 @@ import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;

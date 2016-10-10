@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.TemplateLine;
+
 @SuppressWarnings("serial")
 public class TemplateDiv extends TemplateFormatEvents implements Serializable {
 	public final String customTag;

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.parsedForm.PlatformSpec;
+
 public class CardGrouping {
 	public static class ContractGrouping {
 		public final String type;
@@ -33,9 +35,9 @@ public class CardGrouping {
 	
 	public static class HandlerGrouping {
 		public final String type;
-		public final HandlerImplements impl;
+		public final RWHandlerImplements impl;
 
-		public HandlerGrouping(String type, HandlerImplements impl) {
+		public HandlerGrouping(String type, RWHandlerImplements impl) {
 			this.type = type;
 			this.impl = impl;
 		}

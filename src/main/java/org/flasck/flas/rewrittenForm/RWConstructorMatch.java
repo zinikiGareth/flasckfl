@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class ConstructorMatch {
+public class RWConstructorMatch {
 	public class Field {
 		public final String field;
 		public final Object patt;
@@ -25,7 +25,7 @@ public class ConstructorMatch {
 	public final List<Field> args = new ArrayList<Field>();
 	public final InputPosition location;
 
-	public ConstructorMatch(InputPosition loc, String ctor) {
+	public RWConstructorMatch(InputPosition loc, String ctor) {
 		if (loc == null)
 			System.out.println("null position cm1");
 		this.location = loc;
@@ -33,7 +33,7 @@ public class ConstructorMatch {
 		this.ref = null;
 	}
 	
-	public ConstructorMatch(InputPosition loc, ExternalRef ref) {
+	public RWConstructorMatch(InputPosition loc, ExternalRef ref) {
 		if (loc == null)
 			System.out.println("null position cm2");
 		this.location = loc;

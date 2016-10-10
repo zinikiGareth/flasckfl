@@ -36,34 +36,34 @@ import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.CardGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.D3Invoke;
-import org.flasck.flas.parsedForm.D3PatternBlock;
-import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.FunctionLiteral;
-import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Locatable;
-import org.flasck.flas.parsedForm.MethodCaseDefn;
-import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PackageDefn;
-import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWD3Invoke;
+import org.flasck.flas.rewrittenForm.RWD3PatternBlock;
+import org.flasck.flas.rewrittenForm.RWD3Section;
+import org.flasck.flas.rewrittenForm.RWFunctionIntro;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
+import org.flasck.flas.rewrittenForm.RWMethodDefinition;
+import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.stories.Builtin;
@@ -72,8 +72,8 @@ import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
-import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.typechecker.Type.WhatAmI;
+import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
@@ -334,7 +334,7 @@ public class Compiler {
 				gen.generate(kv.getKey(), grp);
 				dg.generate(kv.getKey(), grp);
 				for (ContractGrouping ctr : grp.contracts) {
-					ContractImplements ci = rewriter.cardImplements.get(ctr.implName);
+					RWContractImplements ci = rewriter.cardImplements.get(ctr.implName);
 					if (ci == null)
 						throw new UtilException("How did this happen?");
 					ContractDecl cd = rewriter.contracts.get(ci.name());
@@ -345,7 +345,7 @@ public class Compiler {
 						if (m.dir.equals("down") && m.required)
 							requireds.add(m);
 					}
-					for (MethodDefinition m : ci.methods) {
+					for (RWMethodDefinition m : ci.methods) {
 						boolean haveMethod = false;
 						for (ContractMethodDecl dc : cd.methods) {
 							if (dc.dir.equals("down") && (ctr.implName +"." + dc.name).equals(m.intro.name)) {
@@ -368,15 +368,15 @@ public class Compiler {
 			for (Entry<String, ContractDecl> c : rewriter.contracts.entrySet()) {
 				dg.generateContractDecl(c.getKey(), c.getValue());
 			}
-			for (Entry<String, ContractImplements> ci : rewriter.cardImplements.entrySet()) {
+			for (Entry<String, RWContractImplements> ci : rewriter.cardImplements.entrySet()) {
 				gen.generateContract(ci.getKey(), ci.getValue());
 				dg.generateContractImpl(ci.getKey(), ci.getValue());
 			}
-			for (Entry<String, ContractService> cs : rewriter.cardServices.entrySet()) {
+			for (Entry<String, RWContractService> cs : rewriter.cardServices.entrySet()) {
 				gen.generateService(cs.getKey(), cs.getValue());
 				dg.generateService(cs.getKey(), cs.getValue());
 			}
-			for (Entry<String, HandlerImplements> hi : rewriter.callbackHandlers.entrySet()) {
+			for (Entry<String, RWHandlerImplements> hi : rewriter.callbackHandlers.entrySet()) {
 				gen.generateHandler(hi.getKey(), hi.getValue());
 				dg.generateHandler(hi.getKey(), hi.getValue());
 			}
@@ -417,17 +417,17 @@ public class Compiler {
 			MethodConvertor mc = new MethodConvertor(errors, hsie, tc, rewriter.contracts);
 
 			// 6. Typecheck contract methods and event handlers, convert to functions and compile to HSIE
-			mc.convertContractMethods(forms, rewriter.methods);
-			mc.convertEventHandlers(forms, rewriter.eventHandlers);
-			mc.convertStandaloneMethods(forms, rewriter.standalone.values());
+			mc.convertContractMethods(rewriter, forms, rewriter.methods);
+			mc.convertEventHandlers(rewriter, forms, rewriter.eventHandlers);
+			mc.convertStandaloneMethods(rewriter, forms, rewriter.standalone.values());
 			abortIfErrors(errors);
 			
 			// 7. Generate code from templates
 			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tc, curry, dg);
-			tgen.generate(target);
+			tgen.generate(rewriter, target);
 
 			// 8. D3 definitions may generate card functions; promote these onto the cards
-			for (D3Invoke d3 : rewriter.d3s)
+			for (RWD3Invoke d3 : rewriter.d3s)
 				promoteD3Methods(errors, rewriter, mc, forms, d3);
 			
 			// 9. Check whether functions are curried and add in the appropriate indications if so
@@ -555,35 +555,36 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
-	private void promoteD3Methods(ErrorResult errors, Rewriter rewriter, MethodConvertor mc, Map<String, HSIEForm> forms, D3Invoke d3) {
+	private void promoteD3Methods(ErrorResult errors, Rewriter rewriter, MethodConvertor mc, Map<String, HSIEForm> forms, RWD3Invoke d3) {
 		Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>(new StringComparator()); 
-		Object init = d3.scope.fromRoot(d3.d3.dloc, "NilMap");
-		PackageVar assoc = d3.scope.fromRoot(d3.d3.dloc, "Assoc");
-		PackageVar cons = d3.scope.fromRoot(d3.d3.dloc, "Cons");
-		PackageVar nil = d3.scope.fromRoot(d3.d3.dloc, "Nil");
-		PackageVar tuple = d3.scope.fromRoot(d3.d3.dloc, "()");
-		Type d3Elt = (Type)d3.scope.fromRoot(d3.d3.dloc, "D3Element").defn;
+		Object init = rewriter.structs.get("NilMap");
+		RWStructDefn assoc = rewriter.structs.get("Assoc");
+		RWStructDefn cons = rewriter.structs.get("Cons");
+		RWStructDefn nil = rewriter.structs.get("Nil");
+		FunctionDefinition tuple = rewriter.functions.get("()");
+		RWStructDefn d3Elt = rewriter.structs.get("D3Element");
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
-		for (D3PatternBlock p : d3.d3.patterns) {
-			for (D3Section s : p.sections.values()) {
+		for (RWD3PatternBlock p : d3.d3.patterns) {
+			for (RWD3Section s : p.sections.values()) {
 				if (!s.properties.isEmpty()) {
 					Object pl = nil; // prepend to an empty list
-					for (PropertyDefn prop : s.properties.values()) {
+					for (RWPropertyDefn prop : s.properties.values()) {
 						// TODO: only create functions for things that depend on the class
 						// constants can just be used directly
-						FunctionLiteral efn = functionWithArgs(d3.d3.prefix, functions, d3.scope, CollectionUtils.listOf(new TypedPattern(null, d3Elt, null, d3.d3.iter)), prop.value);
+						FunctionLiteral efn = functionWithArgs(d3.d3.prefix, functions, CollectionUtils.listOf(new TypedPattern(null, d3Elt, null, d3.d3.iter)), prop.value);
 						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
 						pl = new ApplyExpr(prop.location, cons, pair, pl);
 					}
 					byKey.add(s.name, new ApplyExpr(s.location, tuple, p.pattern, pl));
 				}
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
-					FunctionIntro fi = new FunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
-					MethodCaseDefn mcd = new MethodCaseDefn(fi);
+					RWFunctionIntro fi = new RWFunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
+					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
+					// TODO: big-divide: presumably we should rewrite the actions?
 					mcd.messages.addAll(s.actions);
-					MethodDefinition method = new MethodDefinition(fi, CollectionUtils.listOf(mcd));
-					MethodInContext mic = new MethodInContext(rewriter, null, d3.scope, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method); // PROB NEEDS D3Action type
-					mc.convertContractMethods(forms, CollectionUtils.listOf(mic));
+					RWMethodDefinition method = new RWMethodDefinition(fi, CollectionUtils.listOf(mcd));
+					MethodInContext mic = new MethodInContext(rewriter, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method); // PROB NEEDS D3Action type
+					mc.convertContractMethods(rewriter, forms, CollectionUtils.listOf(mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 //					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);
 				} else { // something like layout, that is just a set of definitions
@@ -598,7 +599,7 @@ public class Compiler {
 				list = new ApplyExpr(null, cons, lo.get(i), list);
 			init = new ApplyExpr(null, assoc, new StringLiteral(null, k.getKey()), list, init);
 		}
-		FunctionLiteral data = functionWithArgs(d3.d3.prefix, functions, d3.scope, new ArrayList<Object>(), d3.d3.data);
+		FunctionLiteral data = functionWithArgs(d3.d3.prefix, functions, new ArrayList<Object>(), d3.d3.data);
 		init = new ApplyExpr(null, assoc, new StringLiteral(null, "data"), data, init);
 
 		FunctionIntro d3f = new FunctionIntro(d3.d3.dloc, d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>());
@@ -610,7 +611,7 @@ public class Compiler {
 			mc.addFunction(forms, fd);
 	}
 
-	private FunctionLiteral functionWithArgs(String prefix, Map<String, FunctionDefinition> functions, Scope scope, List<Object> args, Object expr) {
+	private FunctionLiteral functionWithArgs(String prefix, Map<String, FunctionDefinition> functions, List<Object> args, Object expr) {
 		String name = "_gen_" + (nextFn++);
 
 		FunctionIntro d3f = new FunctionIntro(null, prefix + "." + name, args);

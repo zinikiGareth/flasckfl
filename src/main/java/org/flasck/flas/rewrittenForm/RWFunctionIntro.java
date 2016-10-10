@@ -7,20 +7,20 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewriter.Rewriter.NamingContext;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
-public class FunctionIntro implements Serializable {
+public class RWFunctionIntro implements Serializable {
 	public final InputPosition location;
 	public final String name;
 	public final List<Object> args;
 
-	public FunctionIntro(InputPosition location, String name, List<Object> args) {
+	public RWFunctionIntro(InputPosition location, String name, List<Object> args) {
 		this.location = location;
 		this.name = name;
 		this.args = args;
@@ -38,8 +38,8 @@ public class FunctionIntro implements Serializable {
 			if (arg instanceof VarPattern) {
 				VarPattern vp = (VarPattern)arg;
 				into.put(vp.var, new LocalVar(definedBy, vp.varLoc, vp.var, null, null));
-			} else if (arg instanceof ConstructorMatch)
-				gatherCtor(errors, cx, definedBy, into, (ConstructorMatch) arg);
+			} else if (arg instanceof RWConstructorMatch)
+				gatherCtor(errors, cx, definedBy, into, (RWConstructorMatch) arg);
 			else if (arg instanceof ConstPattern)
 				;
 			else if (arg instanceof TypedPattern) {
@@ -58,7 +58,7 @@ public class FunctionIntro implements Serializable {
 		}
 	}
 
-	private void gatherCtor(ErrorResult errors, NamingContext cx, String definedBy, Map<String, LocalVar> into, ConstructorMatch cm) {
+	private void gatherCtor(ErrorResult errors, NamingContext cx, String definedBy, Map<String, LocalVar> into, RWConstructorMatch cm) {
 		// NOTE: I am deliberately NOT returning any errors here because I figure this should already have been checked for validity somewhere else
 		// But this (albeit, defensively) assumes that cm.ctor is a struct defn and that it has the defined fields 
 		for (Field x : cm.args) {
@@ -77,8 +77,8 @@ public class FunctionIntro implements Serializable {
 					}
 				}
 				into.put(vp.var, new LocalVar(definedBy, vp.varLoc, vp.var, vp.varLoc, t));
-			} else if (x.patt instanceof ConstructorMatch)
-				gatherCtor(errors, cx, definedBy, into, (ConstructorMatch)x.patt);
+			} else if (x.patt instanceof RWConstructorMatch)
+				gatherCtor(errors, cx, definedBy, into, (RWConstructorMatch)x.patt);
 			else if (x.patt instanceof ConstPattern)
 				;
 			else

@@ -3,6 +3,7 @@ package org.flasck.flas.rewrittenForm;
 import java.io.Serializable;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.Locatable;
 
 @SuppressWarnings("serial")
 public class VarPattern implements Serializable, Locatable {

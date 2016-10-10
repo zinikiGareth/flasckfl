@@ -3,11 +3,13 @@ package org.flasck.flas.rewrittenForm;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class D3PatternBlock {
-	public final StringLiteral pattern;
-	public final Map<String, D3Section> sections = new TreeMap<String, D3Section>();
+import org.flasck.flas.parsedForm.StringLiteral;
 
-	public D3PatternBlock(StringLiteral pattern) {
+public class RWD3PatternBlock {
+	public final StringLiteral pattern;
+	public final Map<String, RWD3Section> sections = new TreeMap<String, RWD3Section>();
+
+	public RWD3PatternBlock(StringLiteral pattern) {
 		this.pattern = pattern;
 	}
 

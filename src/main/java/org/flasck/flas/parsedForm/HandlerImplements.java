@@ -3,6 +3,7 @@ package org.flasck.flas.parsedForm;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 
 @SuppressWarnings("serial")
 public class HandlerImplements extends Implements {

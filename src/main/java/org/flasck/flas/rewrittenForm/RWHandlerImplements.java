@@ -5,23 +5,23 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 
 @SuppressWarnings("serial")
-public class HandlerImplements extends Implements {
+public class RWHandlerImplements extends Implements {
 	public final String hiName;
 	public final List<Object> boundVars;
 	public final boolean inCard;
 
-	public HandlerImplements(InputPosition kw, InputPosition location, String named, String type, boolean inCard, List<Object> lambdas) {
+	public RWHandlerImplements(InputPosition kw, InputPosition location, String named, String type, boolean inCard, List<Object> lambdas) {
 		super(kw, location, WhatAmI.HANDLERIMPLEMENTS, type);
 		this.hiName = named;
 		this.inCard = inCard;
 		this.boundVars = lambdas;
 	}
 
-	public void addScoped(HandlerLambda hl, ScopedVar ret) {
+	public void addScoped(RWHandlerLambda hl, ScopedVar ret) {
 		hl.scopedFrom = ret;
 		int pos=0;
 		for (Object o : boundVars) {
-			HandlerLambda ohl = (HandlerLambda)o;
+			RWHandlerLambda ohl = (RWHandlerLambda)o;
 			if (ohl.scopedFrom == null)
 				break;
 			else if (ohl.scopedFrom.id.compareTo(ret.id) > 0)

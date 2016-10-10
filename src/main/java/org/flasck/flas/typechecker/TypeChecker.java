@@ -13,26 +13,26 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AsString;
-import org.flasck.flas.parsedForm.CardGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.LocalVar;
-import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
+import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
@@ -64,7 +64,7 @@ public class TypeChecker {
 	final Map<String, ObjectDefn> objects = new TreeMap<String, ObjectDefn>();
 	final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
 	final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>(new StringComparator());
-	final Map<String, HandlerImplements> handlers = new TreeMap<String, HandlerImplements>();
+	final Map<String, RWHandlerImplements> handlers = new TreeMap<String, RWHandlerImplements>();
 	final Map<String, CardTypeInfo> cards = new TreeMap<String, CardTypeInfo>();
 	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>(new StringComparator());
 	
@@ -97,7 +97,7 @@ public class TypeChecker {
 				prefixes.put(x.type, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
 			}
 		}
-		for (Entry<String, HandlerImplements> x : rewriter.callbackHandlers.entrySet())
+		for (Entry<String, RWHandlerImplements> x : rewriter.callbackHandlers.entrySet())
 			handlers.put(x.getKey(), x.getValue());
 		for (MethodInContext m : rewriter.standalone.values()) {
 			List<Type> args = new ArrayList<Type>();
@@ -770,7 +770,7 @@ public class TypeChecker {
 		return Type.function(location, args);
 	}
 
-	private Type typeForHandlerCtor(InputPosition location, HandlerImplements impl) {
+	private Type typeForHandlerCtor(InputPosition location, RWHandlerImplements impl) {
 		List<Type> args = new ArrayList<Type>();
 		for (Object x : impl.boundVars) {
 			HandlerLambda hl = (HandlerLambda)x;

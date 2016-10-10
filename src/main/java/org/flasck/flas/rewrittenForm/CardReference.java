@@ -3,6 +3,7 @@ package org.flasck.flas.rewrittenForm;
 import java.io.Serializable;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.TemplateLine;
 
 @SuppressWarnings("serial")
 public class CardReference implements TemplateLine, Serializable {

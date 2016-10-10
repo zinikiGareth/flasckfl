@@ -3,12 +3,14 @@ package org.flasck.flas.rewrittenForm;
 import java.io.Serializable;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.Locatable;
+
 @SuppressWarnings("serial")
-public class MethodMessage implements Serializable {
+public class RWMethodMessage implements Serializable {
 	public final List<Locatable> slot;
 	public final Object expr;
 
-	public MethodMessage(List<Locatable> slot, Object expr) {
+	public RWMethodMessage(List<Locatable> slot, Object expr) {
 		this.slot = slot;
 		this.expr = expr;
 	}

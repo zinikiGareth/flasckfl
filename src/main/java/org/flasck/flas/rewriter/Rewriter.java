@@ -16,10 +16,6 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.CastExpr;
@@ -37,7 +33,6 @@ import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
-import org.flasck.flas.parsedForm.EventHandlerInContext;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -49,7 +44,6 @@ import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
@@ -58,7 +52,6 @@ import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.SpecialFormat;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -79,9 +72,31 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
+import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
+import org.flasck.flas.rewrittenForm.EventHandlerInContext;
+import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWD3Invoke;
+import org.flasck.flas.rewrittenForm.RWD3PatternBlock;
+import org.flasck.flas.rewrittenForm.RWD3Section;
+import org.flasck.flas.rewrittenForm.RWD3Thing;
+import org.flasck.flas.rewrittenForm.RWEventCaseDefn;
+import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
+import org.flasck.flas.rewrittenForm.RWFunctionIntro;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
+import org.flasck.flas.rewrittenForm.RWMethodDefinition;
+import org.flasck.flas.rewrittenForm.RWMethodMessage;
+import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.stories.D3Thing;
+import org.flasck.flas.rewrittenForm.RWTemplate;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -110,11 +125,11 @@ public class Rewriter {
 	public final Map<String, Object> builtins = new TreeMap<String, Object>();
 	public final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>();
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
-	public final List<Template> templates = new ArrayList<Template>();
-	public final List<D3Invoke> d3s = new ArrayList<D3Invoke>();
-	public final Map<String, ContractImplements> cardImplements = new TreeMap<String, ContractImplements>();
-	public final Map<String, ContractService> cardServices = new TreeMap<String, ContractService>();
-	public final Map<String, HandlerImplements> callbackHandlers = new TreeMap<String, HandlerImplements>();
+	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
+	public final List<RWD3Invoke> d3s = new ArrayList<RWD3Invoke>();
+	public final Map<String, RWContractImplements> cardImplements = new TreeMap<String, RWContractImplements>();
+	public final Map<String, RWContractService> cardServices = new TreeMap<String, RWContractService>();
+	public final Map<String, RWHandlerImplements> callbackHandlers = new TreeMap<String, RWHandlerImplements>();
 	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
 	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
 	public final Map<String, MethodInContext> standalone = new TreeMap<String, MethodInContext>();
@@ -266,9 +281,9 @@ public class Rewriter {
 	/** The Handler Context can only be in a Card Context
 	 */
 	class HandlerContext extends NamingContext {
-		private final HandlerImplements hi;
+		private final RWHandlerImplements hi;
 
-		HandlerContext(NamingContext cx, HandlerImplements hi) {
+		HandlerContext(NamingContext cx, RWHandlerImplements hi) {
 			super(cx);
 			this.hi = hi;
 		}
@@ -282,7 +297,7 @@ public class Rewriter {
 			if (ret instanceof ScopedVar) {
 				InputPosition loc = ((ScopedVar) ret).location();
 				Type type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
-				HandlerLambda hl = new HandlerLambda(loc, hi.hiName, type, name);
+				RWHandlerLambda hl = new RWHandlerLambda(loc, hi.hiName, type, name);
 				hi.addScoped(hl, (ScopedVar) ret);
 				return hl;
 			}
@@ -427,7 +442,7 @@ public class Rewriter {
 				MethodInContext mic = rewriteStandaloneMethod(cx, from, (MethodDefinition)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE);
 				standalone.put(mic.name, mic);
 			} else if (val instanceof EventHandlerDefinition)
-				eventHandlers.add(new EventHandlerInContext(from, name, rewrite(cx, (EventHandlerDefinition)val)));
+				eventHandlers.add(new EventHandlerInContext(name, rewrite(cx, (EventHandlerDefinition)val)));
 			else if (val instanceof StructDefn) {
 				structs.put(name, rewrite(cx, (StructDefn)val));
 			} else if (val instanceof UnionTypeDefn) {
@@ -459,7 +474,7 @@ public class Rewriter {
 		
 		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
-			ContractImplements rw = rewriteCI(c2, ci);
+			RWContractImplements rw = rewriteCI(c2, ci);
 			if (rw == null)
 				continue;
 			String myname = cd.name +"._C" + pos;
@@ -469,8 +484,8 @@ public class Rewriter {
 				sd.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods) {
-				MethodDefinition rwm = rewrite(c2, m, true);
-				methods.add(new MethodInContext(this, cx, cd.innerScope(), MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm));
+				RWMethodDefinition rwm = rewrite(c2, m, true);
+				methods.add(new MethodInContext(this, cx, MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm));
 				rw.methods.add(rwm);
 			}
 			
@@ -479,7 +494,7 @@ public class Rewriter {
 		
 		pos=0;
 		for (ContractService cs : cd.services) {
-			ContractService rw = rewriteCS(c2, cs);
+			RWContractService rw = rewriteCS(c2, cs);
 			if (rw == null)
 				continue;
 			String myname = cd.name +"._S" + pos;
@@ -489,7 +504,7 @@ public class Rewriter {
 				sd.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
-				methods.add(new MethodInContext(this, cx, cd.innerScope(), MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m, true)));
+				methods.add(new MethodInContext(this, cx, MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m, true)));
 
 			pos++;
 		}
@@ -498,7 +513,7 @@ public class Rewriter {
 			templates.add(rewrite(new TemplateContext(c2), cd.template));
 		
 		for (HandlerImplements hi : cd.handlers) {
-			HandlerImplements rw = rewriteHI(c2, hi, cd.innerScope());
+			RWHandlerImplements rw = rewriteHI(c2, hi, cd.innerScope());
 			if (rw != null)
 				grp.handlers.add(new HandlerGrouping(rw.hiName, rw));
 		}
@@ -507,10 +522,10 @@ public class Rewriter {
 		rewriteScope(c2, cd.fnScope);
 	}
 
-	private Template rewrite(TemplateContext cx, Template template) {
+	private RWTemplate rewrite(TemplateContext cx, Template template) {
 		try {
 			// Again, the need for a scope seems dodgy if we've rewritten ...
-			return new Template(template.prefix, rewrite(cx, template.content), template.scope);
+			return new RWTemplate(template.prefix, rewrite(cx, template.content));
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -626,21 +641,21 @@ public class Rewriter {
 		} else if (tl instanceof D3Invoke) {
 			D3Invoke prev = (D3Invoke) tl;
 			D3Context c2 = new D3Context(cx, prev.d3.dloc, prev.d3.iter);
-			List<D3PatternBlock> patterns = new ArrayList<D3PatternBlock>();
+			List<RWD3PatternBlock> patterns = new ArrayList<RWD3PatternBlock>();
 			for (D3PatternBlock p : prev.d3.patterns) {
-				D3PatternBlock rp = new D3PatternBlock(p.pattern);
+				RWD3PatternBlock rp = new RWD3PatternBlock(p.pattern);
 				patterns.add(rp);
 				for (D3Section s : p.sections.values()) {
-					D3Section rs = new D3Section(s.location, s.name);
+					RWD3Section rs = new RWD3Section(s.location, s.name);
 					rp.sections.put(s.name, rs);
 					for (MethodMessage mm : s.actions)
 						rs.actions.add(rewrite(c2, mm));
 					for (PropertyDefn prop : s.properties.values())
-						rs.properties.put(prop.name, new PropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
+						rs.properties.put(prop.name, new RWPropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
 				}
 			}
-			D3Thing rwD3 = new D3Thing(prev.d3.prefix, prev.d3.name, prev.d3.dloc, rewriteExpr(c2, prev.d3.data), prev.d3.iter, patterns);
-			D3Invoke rw = new D3Invoke(prev.scope, rwD3);
+			RWD3Thing rwD3 = new RWD3Thing(prev.d3.prefix, prev.d3.name, prev.d3.dloc, rewriteExpr(c2, prev.d3.data), prev.d3.iter, patterns);
+			RWD3Invoke rw = new RWD3Invoke(rwD3);
 			d3s.add(rw);
 			return rw;
 		} else 
@@ -661,41 +676,41 @@ public class Rewriter {
 		return new TemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
 	}
 
-	private ContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
+	private RWContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
 		try {
 			Object av = cx.nested.resolve(ci.location(), ci.name());
 			if (av == null || !(av instanceof PackageVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + ci.name());
-				return ci;
+				return null;
 			}
-			return new ContractImplements(ci.kw, ci.location(), ((PackageVar)av).id, ci.varLocation, ci.referAsVar);
+			return new RWContractImplements(ci.kw, ci.location(), ((PackageVar)av).id, ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
 		}
 	}
 
-	private ContractService rewriteCS(CardContext cx, ContractService cs) {
+	private RWContractService rewriteCS(CardContext cx, ContractService cs) {
 		try {
 			Object av = cx.nested.resolve(cs.location(), cs.name());
 			if (av == null || !(av instanceof PackageVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + cs.name());
-				return cs;
+				return null;
 			}
-			return new ContractService(cs.kw, cs.location(), ((PackageVar)av).id, cs.vlocation, cs.referAsVar);
+			return new RWContractService(cs.kw, cs.location(), ((PackageVar)av).id, cs.vlocation, cs.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
 		}
 	}
 
-	private HandlerImplements rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
+	private RWHandlerImplements rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
 		try {
 			Type any = (Type) ((PackageVar)cx.nested.resolve(hi.location(), "Any")).defn;
 			Object av = cx.nested.resolve(hi.location(), hi.name());
 			if (av == null || !(av instanceof PackageVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
-				return hi;
+				return null;
 			}
 			PackageVar ctr = (PackageVar) av;
 //			String rwname = cx.prefix + "." + hi.name;
@@ -713,13 +728,13 @@ public class Rewriter {
 					throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 				bvs.add(hl);
 			}
-			HandlerImplements ret = new HandlerImplements(hi.kw, hi.location(), rwname, ctr.id, hi.inCard, bvs);
+			RWHandlerImplements ret = new RWHandlerImplements(hi.kw, hi.location(), rwname, ctr.id, hi.inCard, bvs);
 			callbackHandlers.put(ret.hiName, ret);
 			HandlerContext hc = new HandlerContext(cx, ret);
 			for (MethodDefinition m : hi.methods) {
-				MethodDefinition rm = rewrite(hc, m, true);
+				RWMethodDefinition rm = rewrite(hc, m, true);
 				ret.methods.add(rm);
-				methods.add(new MethodInContext(this, cx, scope, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm));
+				methods.add(new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm));
 			}
 			RWStructDefn hsd = new RWStructDefn(hi.location(), ret.hiName, false);
 			for (Object s : ret.boundVars) {
@@ -749,22 +764,22 @@ public class Rewriter {
 	}
 
 	private MethodInContext rewriteStandaloneMethod(NamingContext cx, Scope from, MethodDefinition m, HSIEForm.CodeType codeType) {
-		MethodDefinition rw = rewrite(cx, m, false);
-		return new MethodInContext(this, cx, from, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, codeType, rw);
+		RWMethodDefinition rw = rewrite(cx, m, false);
+		return new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, codeType, rw);
 	}
 	
-	private MethodDefinition rewrite(NamingContext cx, MethodDefinition m, boolean fromHandler) {
-		List<MethodCaseDefn> list = new ArrayList<MethodCaseDefn>();
+	private RWMethodDefinition rewrite(NamingContext cx, MethodDefinition m, boolean fromHandler) {
+		List<RWMethodCaseDefn> list = new ArrayList<RWMethodCaseDefn>();
 		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
 			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(errors, this, cx, m.intro.name + "_" + cs), c.innerScope(), fromHandler), c));
 			cs++;
 		}
-		return new MethodDefinition(rewrite(cx, m.intro), list);
+		return new RWMethodDefinition(rewrite(cx, m.intro), list);
 	}
 
-	private EventHandlerDefinition rewrite(NamingContext cx, EventHandlerDefinition ehd) {
-		List<EventCaseDefn> list = new ArrayList<EventCaseDefn>();
+	private RWEventHandlerDefinition rewrite(NamingContext cx, EventHandlerDefinition ehd) {
+		List<RWEventCaseDefn> list = new ArrayList<RWEventCaseDefn>();
 		int cs = 0;
 		for (EventCaseDefn c : ehd.cases) {
 			Map<String, LocalVar> locals = new HashMap<String, LocalVar>();
@@ -772,7 +787,7 @@ public class Rewriter {
 			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, locals, c.innerScope(), false), c));
 			cs++;
 		}
-		return new EventHandlerDefinition(rewrite(cx, ehd.intro), list);
+		return new RWEventHandlerDefinition(rewrite(cx, ehd.intro), list);
 	}
 
 	private RWStructDefn rewrite(NamingContext cx, StructDefn sd) {
@@ -801,7 +816,7 @@ public class Rewriter {
 	}
 
 	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {
-		FunctionIntro intro = rewrite(cx, c.intro);
+		RWFunctionIntro intro = rewrite(cx, c.intro);
 		Object expr = rewriteExpr(cx, c.expr);
 		if (expr == null)
 			return null;
@@ -810,26 +825,26 @@ public class Rewriter {
 		return ret;
 	}
 
-	private MethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c) {
-		MethodCaseDefn ret = new MethodCaseDefn(rewrite(cx, c.intro));
+	private RWMethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c) {
+		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
 	}
 
-	private EventCaseDefn rewrite(FunctionCaseContext cx, EventCaseDefn c) {
-		EventCaseDefn ret = new EventCaseDefn(c.kw, rewrite(cx, c.intro));
+	private RWEventCaseDefn rewrite(FunctionCaseContext cx, EventCaseDefn c) {
+		RWEventCaseDefn ret = new RWEventCaseDefn(c.kw, rewrite(cx, c.intro));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
 	}
 
-	private FunctionIntro rewrite(NamingContext cx, FunctionIntro intro) {
+	private RWFunctionIntro rewrite(NamingContext cx, FunctionIntro intro) {
 		List<Object> args = new ArrayList<Object>();
 		for (Object o : intro.args) {
 			args.add(rewritePattern(cx, o));
 		}
-		return new FunctionIntro(intro.location, intro.name, args);
+		return new RWFunctionIntro(intro.location, intro.name, args);
 	}
 
 	public Object rewritePattern(NamingContext cx, Object o) {
@@ -857,7 +872,7 @@ public class Rewriter {
 		}
 	}
 
-	public MethodMessage rewrite(NamingContext cx, MethodMessage mm) {
+	public RWMethodMessage rewrite(NamingContext cx, MethodMessage mm) {
 		List<Locatable> newSlot = null;
 		if (mm.slot != null && !mm.slot.isEmpty()) {
 			newSlot = new ArrayList<Locatable>();
@@ -872,7 +887,7 @@ public class Rewriter {
 				return null;
 			}
 		}
-		return new MethodMessage(newSlot, rewriteExpr(cx, mm.expr));
+		return new RWMethodMessage(newSlot, rewriteExpr(cx, mm.expr));
 	}
 
 	private Object rewriteExpr(NamingContext cx, Object expr) {
@@ -1072,11 +1087,11 @@ public class Rewriter {
 				System.out.println("Struct " + x.getKey());
 			for (Entry<String, CardGrouping> x : cards.entrySet())
 				System.out.println("Card " + x.getKey());
-			for (Entry<String, ContractImplements> x : cardImplements.entrySet())
+			for (Entry<String, RWContractImplements> x : cardImplements.entrySet())
 				System.out.println("Impl " + x.getKey());
-			for (Entry<String, ContractService> x : cardServices.entrySet())
+			for (Entry<String, RWContractService> x : cardServices.entrySet())
 				System.out.println("Service " + x.getKey());
-			for (Entry<String, HandlerImplements> x : callbackHandlers.entrySet())
+			for (Entry<String, RWHandlerImplements> x : callbackHandlers.entrySet())
 				System.out.println("Handler " + x.getKey());
 			for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
 				x.getValue().dumpTo(pw);

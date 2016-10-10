@@ -7,13 +7,13 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class D3Section {
+public class RWD3Section {
 	public final InputPosition location;
 	public final String name;
-	public final List<MethodMessage> actions = new ArrayList<MethodMessage>();
-	public final Map<String, PropertyDefn> properties = new TreeMap<String, PropertyDefn>();
+	public final List<RWMethodMessage> actions = new ArrayList<RWMethodMessage>();
+	public final Map<String, RWPropertyDefn> properties = new TreeMap<String, RWPropertyDefn>();
 
-	public D3Section(InputPosition location, String name) {
+	public RWD3Section(InputPosition location, String name) {
 		this.location = location;
 		this.name = name;
 	}

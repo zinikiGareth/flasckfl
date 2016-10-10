@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
@@ -26,7 +27,7 @@ public class FunctionDefinition implements Locatable, Serializable {
 		this.cases = list;
 	}
 
-	public FunctionDefinition(InputPosition location, CodeType mytype, FunctionIntro intro, List<FunctionCaseDefn> list) {
+	public FunctionDefinition(InputPosition location, CodeType mytype, RWFunctionIntro intro, List<FunctionCaseDefn> list) {
 		this(location, mytype, intro.name, intro.args.size(), list);
 	}
 

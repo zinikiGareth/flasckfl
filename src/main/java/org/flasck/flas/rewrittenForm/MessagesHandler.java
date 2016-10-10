@@ -2,6 +2,6 @@ package org.flasck.flas.rewrittenForm;
 
 public interface MessagesHandler {
 
-	void addMessage(MethodMessage o);
+	void addMessage(RWMethodMessage o);
 
 }

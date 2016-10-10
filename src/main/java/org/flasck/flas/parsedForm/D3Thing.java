@@ -1,9 +1,8 @@
-package org.flasck.flas.stories;
+package org.flasck.flas.parsedForm;
 
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.D3PatternBlock;
 
 public class D3Thing {
 	public final String prefix;

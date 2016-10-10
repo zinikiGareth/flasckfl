@@ -10,14 +10,10 @@ import java.util.TreeMap;
 
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.ExternalRef;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -27,11 +23,17 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.PlatformSpec;
-import org.flasck.flas.parsedForm.ScopedVar;
 import org.flasck.flas.parsedForm.android.AndroidLabel;
 import org.flasck.flas.parsedForm.android.AndroidLaunch;
+import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -228,7 +230,7 @@ public class DroidGenerator {
 		}
 	}
 
-	public void generateContractImpl(String name, ContractImplements ci) {
+	public void generateContractImpl(String name, RWContractImplements ci) {
 		if (builder == null)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
@@ -246,7 +248,7 @@ public class DroidGenerator {
 		
 	}
 
-	public void generateService(String name, ContractService cs) {
+	public void generateService(String name, RWContractService cs) {
 		if (builder == null)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
@@ -263,7 +265,7 @@ public class DroidGenerator {
 		}
 	}
 
-	public void generateHandler(String name, HandlerImplements hi) {
+	public void generateHandler(String name, RWHandlerImplements hi) {
 		if (builder == null)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));

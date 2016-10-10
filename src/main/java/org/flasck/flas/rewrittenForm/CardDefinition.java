@@ -7,28 +7,25 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.stories.FLASStory.State;
+import org.flasck.flas.parsedForm.Locatable;
+import org.flasck.flas.parsedForm.PlatformSpec;
 
 @SuppressWarnings("serial")
-public class CardDefinition implements ContainsScope, Locatable, Serializable {
+public class CardDefinition implements Locatable, Serializable {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String name;
 	public StateDefinition state;
-	public Template template;
+	public RWTemplate template;
 	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
-	public final List<ContractImplements> contracts = new ArrayList<ContractImplements>();
-	public final List<ContractService> services = new ArrayList<ContractService>();
-	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
-	public final Scope fnScope;
+	public final List<RWContractImplements> contracts = new ArrayList<RWContractImplements>();
+	public final List<RWContractService> services = new ArrayList<RWContractService>();
+	public final List<RWHandlerImplements> handlers = new ArrayList<RWHandlerImplements>();
 
-	public CardDefinition(InputPosition kw, InputPosition location, Scope outer, String name) {
+	public CardDefinition(InputPosition kw, InputPosition location, String name) {
 		this.kw = kw;
 		this.location = location;
-		ScopeEntry se = outer.define(State.simpleName(name), name, this);
 		this.name = name;
-		this.fnScope = new Scope(se, this);
 	}
 
 	@Override
@@ -36,20 +33,15 @@ public class CardDefinition implements ContainsScope, Locatable, Serializable {
 		return location;
 	}
 
-	public void addContractImplementation(ContractImplements o) {
+	public void addContractImplementation(RWContractImplements o) {
 		contracts.add(o);
 	}
 
-	public void addContractService(ContractService o) {
+	public void addContractService(RWContractService o) {
 		services.add(o);
 	}
 
-	public void addHandlerImplementation(HandlerImplements o) {
+	public void addHandlerImplementation(RWHandlerImplements o) {
 		handlers.add(o);
-	}
-
-	@Override
-	public Scope innerScope() {
-		return fnScope;
 	}
 }
