@@ -11,14 +11,12 @@ import java.util.List;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
-import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
@@ -32,7 +30,10 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
@@ -67,10 +68,10 @@ public class RewriterTests {
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 0, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
-		fn = rw.functions.get("ME.f");
-		assertEquals("ME.f", fn.name);
-		assertTrue(fn.cases.get(0).expr instanceof PackageVar);
-		assertEquals("Nil", ((PackageVar)fn.cases.get(0).expr).id);
+		RWFunctionDefinition rfn = rw.functions.get("ME.f");
+		assertEquals("ME.f", rfn.name());
+		assertTrue(rfn.cases.get(0).expr instanceof PackageVar);
+		assertEquals("Nil", ((PackageVar)rfn.cases.get(0).expr).id);
 	}
 
 	@Test
@@ -82,10 +83,10 @@ public class RewriterTests {
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 1, cases);
 		scope.define("f", "ME.f", fn);
 		rw.rewrite(pkgEntry);
-		fn = rw.functions.get("ME.f");
-		assertEquals("ME.f", fn.name);
-		assertTrue(fn.cases.get(0).expr instanceof LocalVar);
-		assertEquals("x", ((LocalVar)fn.cases.get(0).expr).var);
+		RWFunctionDefinition rfn = rw.functions.get("ME.f");
+		assertEquals("ME.f", rfn.name());
+		assertTrue(rfn.cases.get(0).expr instanceof LocalVar);
+		assertEquals("x", ((LocalVar)rfn.cases.get(0).expr).var);
 	}
 	
 	@Test
@@ -150,9 +151,9 @@ public class RewriterTests {
 			innerScope.define("g", "ME.f_0.g", fn);
 		}
 		rw.rewrite(pkgEntry);
-		FunctionDefinition g = rw.functions.get("ME.f_0.g");
+		RWFunctionDefinition g = rw.functions.get("ME.f_0.g");
 		System.out.println(rw.functions);
-		assertEquals("ME.f_0.g", g.name);
+		assertEquals("ME.f_0.g", g.name());
 		assertTrue(g.cases.get(0).expr instanceof LocalVar);
 		assertEquals("x", ((LocalVar)g.cases.get(0).expr).var);
 	}
@@ -170,10 +171,10 @@ public class RewriterTests {
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		fn = rw.functions.get("ME.MyCard.f");
-		assertEquals("ME.MyCard.f", fn.name);
-		assertTrue(fn.cases.get(0).expr instanceof CardMember);
-		assertEquals("counter", ((CardMember)fn.cases.get(0).expr).var);
+		RWFunctionDefinition rfn = rw.functions.get("ME.MyCard.f");
+		assertEquals("ME.MyCard.f", rfn.name());
+		assertTrue(rfn.cases.get(0).expr instanceof CardMember);
+		assertEquals("counter", ((CardMember)rfn.cases.get(0).expr).var);
 	}
 
 	@Test
@@ -189,10 +190,10 @@ public class RewriterTests {
 		rw.rewrite(pkgEntry);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		fn = rw.functions.get("ME.MyCard.f");
-		assertEquals("ME.MyCard.f", fn.name);
-		assertTrue(fn.cases.get(0).expr instanceof CardMember);
-		assertEquals("timer", ((CardMember)fn.cases.get(0).expr).var);
+		RWFunctionDefinition rfn = rw.functions.get("ME.MyCard.f");
+		assertEquals("ME.MyCard.f", rfn.name());
+		assertTrue(rfn.cases.get(0).expr instanceof CardMember);
+		assertEquals("timer", ((CardMember)rfn.cases.get(0).expr).var);
 	}
 
 	@Test

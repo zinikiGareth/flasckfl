@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.Locatable;
@@ -271,7 +270,7 @@ public class Expression implements TryParsing {
 		} else if (pe instanceof CastExpr) {
 			CastExpr ce = (CastExpr) pe;
 			return new CastExpr(ce.location, ce.castTo, deparen(ce.expr));
-		} else if (pe instanceof NumericLiteral || pe instanceof PackageVar || pe instanceof UnresolvedVar || pe instanceof UnresolvedOperator || pe instanceof StringLiteral)
+		} else if (pe instanceof NumericLiteral || pe instanceof UnresolvedVar || pe instanceof UnresolvedOperator || pe instanceof StringLiteral)
 			return pe;
 		else
 			throw new UtilException("Expr not handled: " + pe.getClass());

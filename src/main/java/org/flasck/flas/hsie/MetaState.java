@@ -9,7 +9,6 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -20,7 +19,6 @@ import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
-import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
@@ -30,7 +28,9 @@ import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.typechecker.Type;
@@ -286,12 +286,13 @@ public class MetaState {
 			if (!substs.containsKey(var))
 				throw new UtilException("How can this be an iter var? " + var + " not in " + substs);
 			return substs.get(var);
-		} else if (expr instanceof PackageVar) {
-			logger.error("I think this should be deprecated and rewritten out of existence");
-			PackageVar pv = (PackageVar)expr;
-			locs.add(pv.location);
-			form.dependsOn(pv);
-			return expr;
+			// TODO: big-divide
+//		} else if (expr instanceof PackageVar) {
+//			logger.error("I think this should be deprecated and rewritten out of existence");
+//			PackageVar pv = (PackageVar)expr;
+//			locs.add(pv.location);
+//			form.dependsOn(pv);
+//			return expr;
 		} else if (expr instanceof RWStructDefn) {
 			RWStructDefn sd = (RWStructDefn) expr;
 			locs.add(sd.location());

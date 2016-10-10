@@ -11,18 +11,14 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
-import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.EventHandler;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.LocalVar;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
@@ -34,6 +30,10 @@ import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWTemplate;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -65,7 +65,7 @@ public class TemplateGenerator {
 		private final List<DefinedVar> varsToCopy = new ArrayList<DefinedVar>();
 		private final RWStructDefn nil;
 		private final RWStructDefn cons;
-		private final FunctionDefinition equals;
+		private final RWFunctionDefinition equals;
 		private final String javaName;
 
 		public GeneratorContext(JSTarget target, Rewriter rw, RWTemplate cg) {
@@ -480,9 +480,9 @@ public class TemplateGenerator {
 			// we need to track down the function (if it's not in the object already) and callOnAssign it's definition
 			CardFunction cf = (CardFunction) valExpr;
 			String fullName = cf.clzName + "." + cf.function;
-			FunctionDefinition fd = rewriter.functions.get(fullName);
+			RWFunctionDefinition fd = rewriter.functions.get(fullName);
 			if (fd != null)
-				for (FunctionCaseDefn fcd : fd.cases)
+				for (RWFunctionCaseDefn fcd : fd.cases)
 					callOnAssign(addToFunc, fcd.expr, cgrx, call, false, moreArgs);
 		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof PackageVar) {
 			// nothing to do here, not variable

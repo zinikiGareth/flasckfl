@@ -12,6 +12,7 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,9 +39,6 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -59,6 +57,8 @@ import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWD3Invoke;
 import org.flasck.flas.rewrittenForm.RWD3PatternBlock;
 import org.flasck.flas.rewrittenForm.RWD3Section;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
@@ -199,10 +199,11 @@ public class Compiler {
 
 	public static void setLogLevels() {
 		LogManager.getLogger("Compiler").setLevel(Level.WARN);
+		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 		LogManager.getLogger("Generator").setLevel(Level.WARN);
 		LogManager.getLogger("HSIE").setLevel(Level.WARN);
+//		LogManager.getLogger("Rewriter").setLevel(Level.WARN);
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
-		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 	}
 
 	// TODO: move this into a separate class, like DOMFG used to be
@@ -383,7 +384,7 @@ public class Compiler {
 			}
 			
 			// 4. Do dependency analysis on functions and group them together in orchards
-			List<Orchard<FunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(rewriter.functions);
+			List<Orchard<RWFunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(rewriter.functions);
 			abortIfErrors(errors);
 
 			// 5. Now process each orchard
@@ -396,7 +397,7 @@ public class Compiler {
 			}
 
 			Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
-			for (Orchard<FunctionDefinition> d : defns) {
+			for (Orchard<RWFunctionDefinition> d : defns) {
 				// 6a. Convert each orchard to HSIE
 				Orchard<HSIEForm> oh = hsieOrchard(errors, hsie, forms, d);
 				abortIfErrors(errors);
@@ -557,12 +558,12 @@ public class Compiler {
 	}
 
 	private void promoteD3Methods(ErrorResult errors, Rewriter rewriter, MethodConvertor mc, Map<String, HSIEForm> forms, RWD3Invoke d3) {
-		Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>(new StringComparator()); 
+		Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(new StringComparator()); 
 		Object init = rewriter.structs.get("NilMap");
 		RWStructDefn assoc = rewriter.structs.get("Assoc");
 		RWStructDefn cons = rewriter.structs.get("Cons");
 		RWStructDefn nil = rewriter.structs.get("Nil");
-		FunctionDefinition tuple = rewriter.functions.get("()");
+		RWFunctionDefinition tuple = rewriter.functions.get("()");
 		RWStructDefn d3Elt = rewriter.structs.get("D3Element");
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
 		for (RWD3PatternBlock p : d3.d3.patterns) {
@@ -579,7 +580,7 @@ public class Compiler {
 					byKey.add(s.name, new ApplyExpr(s.location, tuple, p.pattern, pl));
 				}
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
-					RWFunctionIntro fi = new RWFunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>());
+					RWFunctionIntro fi = new RWFunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>(), new HashMap<>());
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					// TODO: big-divide: presumably we should rewrite the actions?
 					mcd.messages.addAll(s.actions);
@@ -603,21 +604,21 @@ public class Compiler {
 		FunctionLiteral data = functionWithArgs(d3.d3.prefix, functions, new ArrayList<Object>(), d3.d3.data);
 		init = new ApplyExpr(null, assoc, new StringLiteral(null, "data"), data, init);
 
-		FunctionIntro d3f = new FunctionIntro(d3.d3.dloc, d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>());
-		FunctionCaseDefn fcd = new FunctionCaseDefn(d3.d3.dloc, d3f.name, d3f.args, init);
-		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
+		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.dloc, d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>(), null);
+		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(d3f, init);
+		RWFunctionDefinition func = new RWFunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 		
-		for (FunctionDefinition fd : functions.values())
+		for (RWFunctionDefinition fd : functions.values())
 			mc.addFunction(forms, fd);
 	}
 
-	private FunctionLiteral functionWithArgs(String prefix, Map<String, FunctionDefinition> functions, List<Object> args, Object expr) {
+	private FunctionLiteral functionWithArgs(String prefix, Map<String, RWFunctionDefinition> functions, List<Object> args, Object expr) {
 		String name = "_gen_" + (nextFn++);
 
-		FunctionIntro d3f = new FunctionIntro(null, prefix + "." + name, args);
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, d3f.name, d3f.args, expr);
-		FunctionDefinition func = new FunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
+		RWFunctionIntro d3f = new RWFunctionIntro(null, prefix + "." + name, args, null);
+		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(d3f, expr);
+		RWFunctionDefinition func = new RWFunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
 		functions.put(d3f.name, func);
 
 		return new FunctionLiteral(d3f.location, d3f.name);
@@ -658,16 +659,16 @@ public class Compiler {
 		}
 	}
 
-	private Orchard<HSIEForm> hsieOrchard(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<FunctionDefinition> d) {
+	private Orchard<HSIEForm> hsieOrchard(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<RWFunctionDefinition> d) {
 		logger.info("HSIE transforming orchard in parallel: " + d);
 		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();
-		for (Tree<FunctionDefinition> t : d)
+		for (Tree<RWFunctionDefinition> t : d)
 			hsieTree(errors, hsie, previous, ret, t, t.getRoot(), null, null);
 		return ret;
 	}
 
-	private void hsieTree(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<HSIEForm> ret, Tree<FunctionDefinition> t, Node<FunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
-		logger.info("HSIE transforming " + node.getEntry().name);
+	private void hsieTree(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<HSIEForm> ret, Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
+		logger.info("HSIE transforming " + node.getEntry().name());
 		HSIEForm form = hsie.handle(previous, node.getEntry());
 		if (parent == null) {
 			tree = ret.addTree(form);
@@ -675,7 +676,7 @@ public class Compiler {
 		} else
 			parent = tree.addChild(parent, form);
 
-		for (Node<FunctionDefinition> x : t.getChildren(node))
+		for (Node<RWFunctionDefinition> x : t.getChildren(node))
 			hsieTree(errors, hsie, previous, ret, t, x, tree, parent);
 	}
 

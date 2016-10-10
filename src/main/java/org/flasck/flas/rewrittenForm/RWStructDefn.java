@@ -7,9 +7,10 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.collections.CollectionUtils;
+import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
-public class RWStructDefn extends Type implements AsString, Serializable {
+public class RWStructDefn extends Type implements AsString, Serializable, ExternalRef {
 	public final List<RWStructField> fields = new ArrayList<RWStructField>();
 	public final transient boolean generate;
 
@@ -62,5 +63,20 @@ public class RWStructDefn extends Type implements AsString, Serializable {
 			sb.append(polys());
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		return this.name().compareTo(((ExternalRef)o).uniqueName());
+	}
+
+	@Override
+	public String uniqueName() {
+		return this.name();
+	}
+
+	@Override
+	public boolean fromHandler() {
+		throw new UtilException("How would I know?");
 	}
 }

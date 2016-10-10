@@ -10,35 +10,37 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
-public class FunctionDefinition implements Locatable, Serializable {
+public class RWFunctionDefinition implements Locatable, Serializable {
 	public final InputPosition location;
 	public final CodeType mytype;
-	public final String name;
-	public final int nargs;
-	public final List<FunctionCaseDefn> cases;
+	public final RWFunctionIntro intro;
+	public final List<RWFunctionCaseDefn> cases;
 
-	public FunctionDefinition(InputPosition location, CodeType mytype, String name, int nargs, List<FunctionCaseDefn> list) {
+	public RWFunctionDefinition(InputPosition location, CodeType mytype, RWFunctionIntro intro, List<RWFunctionCaseDefn> list) {
 		this.location = location;
+		this.mytype = mytype;
+		this.intro = intro;
 		if (mytype == null)
 			throw new UtilException("Null mytype");
-		this.mytype = mytype;
-		this.name = name;
-		this.nargs = nargs;
 		this.cases = list;
-	}
-
-	public FunctionDefinition(InputPosition location, CodeType mytype, RWFunctionIntro intro, List<FunctionCaseDefn> list) {
-		this(location, mytype, intro.name, intro.args.size(), list);
 	}
 
 	@Override
 	public InputPosition location() {
 		return location;
 	}
+	
+	public String name() {
+		return intro.name;
+	}
+	
+	public int nargs() {
+		return intro.args.size();
+	}
 
 	public void dumpTo(Writer pw) throws Exception {
-		pw.append(name + " {\n");
-		for (FunctionCaseDefn fcd : cases)
+		pw.append(intro.name + " {\n");
+		for (RWFunctionCaseDefn fcd : cases)
 			fcd.dumpTo(pw);
 		pw.append("}\n");
 		pw.flush();
@@ -46,6 +48,6 @@ public class FunctionDefinition implements Locatable, Serializable {
 	
 	@Override
 	public String toString() {
-		return name +"/" +nargs+"["+cases.size()+"]";
+		return intro.name +"/" +intro.args.size()+"["+cases.size()+"]";
 	}
 }

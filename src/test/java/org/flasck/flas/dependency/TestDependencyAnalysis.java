@@ -7,10 +7,10 @@ import java.util.List;
 
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
@@ -34,7 +34,7 @@ public class TestDependencyAnalysis {
 		rewriter.rewrite(se);
 		
 		// Now begins the real test on this data
-		List<Orchard<FunctionDefinition>> orchards = analyzer.analyze(rewriter.functions);
+		List<Orchard<RWFunctionDefinition>> orchards = analyzer.analyze(rewriter.functions);
 		assertNotNull(orchards);
 	}
 

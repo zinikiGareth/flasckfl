@@ -10,16 +10,12 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PackageVar;
@@ -29,11 +25,16 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWEventCaseDefn;
 import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
@@ -77,7 +78,7 @@ public class MethodConvertor {
 			addFunction(functions, convertStandalone(rw, x));
 	}
 
-	public void addFunction(Map<String, HSIEForm> functions, FunctionDefinition fd) {
+	public void addFunction(Map<String, HSIEForm> functions, RWFunctionDefinition fd) {
 		if (fd != null) {
 			HSIEForm hs = hsie.handle(null, fd);
 			if (hs != null)
@@ -86,8 +87,8 @@ public class MethodConvertor {
 	}
 
 	// 2. Convert An individual element
-	protected FunctionDefinition convertMIC(Rewriter rw, MethodInContext m) {
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+	protected RWFunctionDefinition convertMIC(Rewriter rw, MethodInContext m) {
+		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		
 		if (m.direction == MethodInContext.STANDALONE)
 			System.out.println("converting " + m.name);
@@ -115,17 +116,17 @@ public class MethodConvertor {
 				continue;
 			}
 			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, types, mcd.messages, m.type.isHandler());
-			cases.add(new FunctionCaseDefn(loc, mcd.intro.name, mcd.intro.args, typedObject.expr));
+			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.name, mcd.intro.args, null), typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
 		if (ofType != null)
 			tc.addExternal(m.method.intro.name, ofType);
 		
-		return new FunctionDefinition(m.method.intro.location, m.type, m.method.intro.name, m.method.intro.args.size(), cases);
+		return new RWFunctionDefinition(m.method.intro.location, m.type, new RWFunctionIntro(m.method.intro.location, m.method.intro.name, m.method.intro.args, null), cases);
 	}
 
-	public FunctionDefinition convertEventHandler(Rewriter rw, String card, RWEventHandlerDefinition eh) {
+	public RWFunctionDefinition convertEventHandler(Rewriter rw, String card, RWEventHandlerDefinition eh) {
 		List<Type> types = new ArrayList<Type>();
 		for (@SuppressWarnings("unused") Object o : eh.intro.args) {
 			types.add(tc.getType(null, "Any"));
@@ -133,20 +134,20 @@ public class MethodConvertor {
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		Type ofType = null;
 		for (RWEventCaseDefn c : eh.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.intro.location, eh.intro.args, types, c.messages, false);
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
+			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, null), typedObject.expr));
 		}
 		if (ofType != null)
 			tc.addExternal(eh.intro.name, ofType);
-		return new FunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
+		return new RWFunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, new RWFunctionIntro(eh.intro.location, eh.intro.name, eh.intro.args, null), cases);
 	}
 
-	public FunctionDefinition convertStandalone(Rewriter rw, MethodInContext mic) {
+	public RWFunctionDefinition convertStandalone(Rewriter rw, MethodInContext mic) {
 		RWMethodDefinition method = mic.method;
 		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
 		margs.addAll(method.intro.args);
@@ -157,17 +158,17 @@ public class MethodConvertor {
 		if (method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		Type ofType = null;
 		for (RWMethodCaseDefn c : method.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.intro.location, margs, types, c.messages, mic.type.isHandler());
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, margs, typedObject.expr));
+			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, null), typedObject.expr));
 		}
 		if (ofType != null)
 			tc.addExternal(method.intro.name, ofType);
-		return new FunctionDefinition(method.intro.location, mic.type, method.intro.name, margs.size(), cases);
+		return new RWFunctionDefinition(method.intro.location, mic.type, new RWFunctionIntro(method.intro.location, method.intro.name, null, null), cases);
 	}
 
 	protected List<Type> figureCMD(MethodInContext m) {

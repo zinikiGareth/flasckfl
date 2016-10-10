@@ -11,20 +11,20 @@ import java.util.TreeSet;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardMember;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
-import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
+import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -41,25 +41,25 @@ public class DependencyAnalyzer {
 		this.errors = errors;
 	}
 
-	public List<Orchard<FunctionDefinition>> analyze(Map<String, FunctionDefinition> map) {
+	public List<Orchard<RWFunctionDefinition>> analyze(Map<String, RWFunctionDefinition> map) {
 		DirectedCyclicGraph<String> dcg = new DirectedCyclicGraph<String>();
-		Map<String, FunctionDefinition> fdm = new TreeMap<String, FunctionDefinition>();
+		Map<String, RWFunctionDefinition> fdm = new TreeMap<String, RWFunctionDefinition>();
 		addFunctionsToDCG(dcg, new TreeMap<String, String>(), fdm, map);
 //		System.out.print(dcg);
 		return buildOrchards(dcg, fdm);
 	}
 
-	private void addFunctionsToDCG(DirectedCyclicGraph<String> dcg, Map<String, String> map, Map<String, FunctionDefinition> fdm, Map<String, FunctionDefinition> functions) {
+	private void addFunctionsToDCG(DirectedCyclicGraph<String> dcg, Map<String, String> map, Map<String, RWFunctionDefinition> fdm, Map<String, RWFunctionDefinition> functions) {
 		// First make sure all the nodes are in the DCG
-		for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
-			String name = x.getValue().name;
+		for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {
+			String name = x.getValue().name();
 			dcg.ensure(name);
 
-			FunctionDefinition fd = x.getValue();
+			RWFunctionDefinition fd = x.getValue();
 			fdm.put(name,  fd);
 			int cs = 0;
-			for (FunctionCaseDefn c : fd.cases) {
-				for (String v : c.intro.allVars(errors, null, null, null).keySet()) {
+			for (RWFunctionCaseDefn c : fd.cases) {
+				for (String v : c.intro.vars.keySet()) {
 					String realname = "_var_" + name+"_" + cs +"."+v;
 //					System.out.println("Ensuring local var in graph: " + realname);
 					dcg.ensure(realname);
@@ -70,10 +70,10 @@ public class DependencyAnalyzer {
 		}
 
 		// Then add the links
-		for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
-			FunctionDefinition fd = x.getValue();
-			for (FunctionCaseDefn c : fd.cases)
-				analyzeExpr(dcg, fd.name, c.intro.allVars(errors, null, null, null).keySet(), c.expr);
+		for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {
+			RWFunctionDefinition fd = x.getValue();
+			for (RWFunctionCaseDefn c : fd.cases)
+				analyzeExpr(dcg, fd.name(), c.intro.vars.keySet(), c.expr);
 		}
 	}
 
@@ -119,7 +119,7 @@ public class DependencyAnalyzer {
 			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass());
 	}
 
-	List<Orchard<FunctionDefinition>> buildOrchards(DirectedCyclicGraph<String> dcg, Map<String, FunctionDefinition> fdm) {
+	List<Orchard<RWFunctionDefinition>> buildOrchards(DirectedCyclicGraph<String> dcg, Map<String, RWFunctionDefinition> fdm) {
 		Set<Set<String>> spanners = new TreeSet<Set<String>>(new SortOnSize());
 		for (String name : dcg.nodes()) {
 			if (!name.startsWith("_var_"))
@@ -134,18 +134,18 @@ public class DependencyAnalyzer {
 				done.addAll(s);
 			}
 		}
-		List<Orchard<FunctionDefinition>> ret = new ArrayList<Orchard<FunctionDefinition>>();
+		List<Orchard<RWFunctionDefinition>> ret = new ArrayList<Orchard<RWFunctionDefinition>>();
 		for (Set<String> g : groups) {
-			Orchard<FunctionDefinition> orch = buildOrchard(dcg, fdm, g);
+			Orchard<RWFunctionDefinition> orch = buildOrchard(dcg, fdm, g);
 			if (!orch.isEmpty())
 				ret.add(orch);
 		}
 		return ret;
 	}
 
-	private Orchard<FunctionDefinition> buildOrchard(DirectedCyclicGraph<String> dcg, Map<String, FunctionDefinition> fdm, Set<String> g) {
+	private Orchard<RWFunctionDefinition> buildOrchard(DirectedCyclicGraph<String> dcg, Map<String, RWFunctionDefinition> fdm, Set<String> g) {
 //		System.out.println("Attempting to build orchard from " + g);
-		Orchard<FunctionDefinition> ret = new Orchard<FunctionDefinition>();
+		Orchard<RWFunctionDefinition> ret = new Orchard<RWFunctionDefinition>();
 		Set<String> topCandidates = new TreeSet<String>();
 
 		// Collect together all the people that "defined" variables that were later used
@@ -179,7 +179,7 @@ public class DependencyAnalyzer {
 				continue;
 			
 			// Create a new tree with the definer at the top
-			Tree<FunctionDefinition> t = ret.addTree(fdm.get(s));
+			Tree<RWFunctionDefinition> t = ret.addTree(fdm.get(s));
 			g.remove(s); // remove everything that we do something with
 			for (Link<String> lc : top.linksTo()) {
 				// find all the variables it defines and then make their sub-functions our children
@@ -188,8 +188,8 @@ public class DependencyAnalyzer {
 					for (Link<String> lu : lc.getFromNode().linksTo()) {
 						g.remove(lu.getFrom());
 						if (fdm.containsKey(lu.getFrom())) {
-							FunctionDefinition to = fdm.get(lu.getFrom());
-							if (!to.name.equals(lu.getFrom()))
+							RWFunctionDefinition to = fdm.get(lu.getFrom());
+							if (!to.name().equals(lu.getFrom()))
 								t.addChild(t.getRoot(), to);
 						}
 					}

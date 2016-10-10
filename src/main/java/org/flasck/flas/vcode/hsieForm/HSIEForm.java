@@ -152,7 +152,7 @@ public class HSIEForm extends HSIEBlock {
 		else if (ref instanceof ExternalRef)
 			name = ((ExternalRef)ref).uniqueName();
 		else
-			throw new UtilException("Cannot pass in: " + ref);
+			throw new UtilException("Cannot pass in: " + ref + " " + (ref!=null?ref.getClass():""));
 		if (!name.equals(this.fnName)) {
 			if (ref instanceof ScopedVar)
 				scoped.add(name);

@@ -16,7 +16,6 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -40,7 +39,6 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
-import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
@@ -76,7 +74,9 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
+import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
+import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
@@ -87,6 +87,8 @@ import org.flasck.flas.rewrittenForm.RWD3Section;
 import org.flasck.flas.rewrittenForm.RWD3Thing;
 import org.flasck.flas.rewrittenForm.RWEventCaseDefn;
 import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWHandlerLambda;
@@ -136,7 +138,7 @@ public class Rewriter {
 	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
 	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
 	public final Map<String, MethodInContext> standalone = new TreeMap<String, MethodInContext>();
-	public final Map<String, FunctionDefinition> functions = new TreeMap<String, FunctionDefinition>();
+	public final Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>();
 
 	public abstract class NamingContext {
 		protected final NamingContext nested;
@@ -759,17 +761,22 @@ public class Rewriter {
 		}
 	}
 
-	public FunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
+	public RWFunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 //		System.out.println("Rewriting " + f.name);
-		List<FunctionCaseDefn> list = new ArrayList<FunctionCaseDefn>();
+		List<RWFunctionCaseDefn> list = new ArrayList<RWFunctionCaseDefn>();
 		int cs = 0;
+		RWFunctionIntro fi = null;
 		for (FunctionCaseDefn c : f.cases) {
-			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, cs, c.intro.allVars(errors, this, cx, f.name + "_" + cs), c.innerScope(), false);
-			list.add(rewrite(fccx, c));
+			Map<String, LocalVar> vars = c.intro.allVars(errors, this, cx, f.name + "_" + cs);
+			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, cs, vars, c.innerScope(), false);
+			RWFunctionCaseDefn rwc = rewrite(fccx, c, vars);
+			if (fi == null)
+				fi = rwc.intro;
+			list.add(rwc);
 			cs++;
 		}
 //		System.out.println("rewritten to " + list.get(0).expr);
-		FunctionDefinition ret = new FunctionDefinition(f.location, f.mytype, f.name, f.nargs, list);
+		RWFunctionDefinition ret = new RWFunctionDefinition(f.location, f.mytype, fi, list);
 		return ret;
 	}
 
@@ -781,23 +788,24 @@ public class Rewriter {
 	private RWMethodDefinition rewrite(NamingContext cx, MethodDefinition m, boolean fromHandler) {
 		List<RWMethodCaseDefn> list = new ArrayList<RWMethodCaseDefn>();
 		int cs = 0;
+		Map<String, LocalVar> vars = m.intro.allVars(errors, this, cx, m.intro.name + "_" + cs);
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, m.intro.allVars(errors, this, cx, m.intro.name + "_" + cs), c.innerScope(), fromHandler), c));
+			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, vars, c.innerScope(), fromHandler), c, vars));
 			cs++;
 		}
-		return new RWMethodDefinition(rewrite(cx, m.intro), list);
+		return new RWMethodDefinition(rewrite(cx, m.intro, vars), list);
 	}
 
 	private RWEventHandlerDefinition rewrite(NamingContext cx, EventHandlerDefinition ehd) {
 		List<RWEventCaseDefn> list = new ArrayList<RWEventCaseDefn>();
 		int cs = 0;
+		Map<String, LocalVar> locals = new HashMap<String, LocalVar>();
+		ehd.intro.gatherVars(errors, this, cx, ehd.intro.name, locals);
 		for (EventCaseDefn c : ehd.cases) {
-			Map<String, LocalVar> locals = new HashMap<String, LocalVar>();
-			ehd.intro.gatherVars(errors, this, cx, ehd.intro.name, locals);
-			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, locals, c.innerScope(), false), c));
+			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, locals, c.innerScope(), false), c, locals));
 			cs++;
 		}
-		return new RWEventHandlerDefinition(rewrite(cx, ehd.intro), list);
+		return new RWEventHandlerDefinition(rewrite(cx, ehd.intro, locals), list);
 	}
 
 	private RWStructDefn rewrite(NamingContext cx, StructDefn sd) {
@@ -825,36 +833,36 @@ public class Rewriter {
 		return new ContractMethodDecl(cmd.required, cmd.dir, cmd.name, args, rewrite(cx, cmd.type, false));
 	}
 
-	private FunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c) {
-		RWFunctionIntro intro = rewrite(cx, c.intro);
+	private RWFunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c, Map<String, LocalVar> vars) {
+		RWFunctionIntro intro = rewrite(cx, c.intro, vars);
 		Object expr = rewriteExpr(cx, c.expr);
 		if (expr == null)
 			return null;
-		FunctionCaseDefn ret = new FunctionCaseDefn(intro.location, intro.name, intro.args, expr);
+		RWFunctionCaseDefn ret = new RWFunctionCaseDefn(intro, expr);
 		rewriteScope(new NestedScopeContext(cx), c.innerScope());
 		return ret;
 	}
 
-	private RWMethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c) {
-		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro));
+	private RWMethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c, Map<String, LocalVar> vars) {
+		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, vars));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
 	}
 
-	private RWEventCaseDefn rewrite(FunctionCaseContext cx, EventCaseDefn c) {
-		RWEventCaseDefn ret = new RWEventCaseDefn(c.kw, rewrite(cx, c.intro));
+	private RWEventCaseDefn rewrite(FunctionCaseContext cx, EventCaseDefn c, Map<String, LocalVar> vars) {
+		RWEventCaseDefn ret = new RWEventCaseDefn(c.kw, rewrite(cx, c.intro, vars));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
 	}
 
-	private RWFunctionIntro rewrite(NamingContext cx, FunctionIntro intro) {
+	private RWFunctionIntro rewrite(NamingContext cx, FunctionIntro intro, Map<String, LocalVar> vars) {
 		List<Object> args = new ArrayList<Object>();
 		for (Object o : intro.args) {
 			args.add(rewritePattern(cx, o));
 		}
-		return new RWFunctionIntro(intro.location, intro.name, args);
+		return new RWFunctionIntro(intro.location, intro.name, args, vars);
 	}
 
 	public Object rewritePattern(NamingContext cx, Object o) {
@@ -906,9 +914,12 @@ public class Rewriter {
 		try {
 			if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
 				return expr;
-			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof ScopedVar || expr instanceof CardMember)
-				return expr;
-			else if (expr instanceof UnresolvedOperator || expr instanceof UnresolvedVar) {
+//			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof ScopedVar || expr instanceof CardMember)
+//				return expr;
+			else if (expr instanceof PackageVar) {
+				System.out.println("expr = " + expr);
+				return null;
+			} else if (expr instanceof UnresolvedOperator || expr instanceof UnresolvedVar) {
 				String s;
 				InputPosition location;
 				if (expr instanceof UnresolvedOperator) {
@@ -922,9 +933,12 @@ public class Rewriter {
 				} else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(location, s);
-				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
+				if (/* ret instanceof PackageVar || */ ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
 					return ret;
-				else
+				else if (ret instanceof PackageVar) {
+					System.out.println("expr = " + ret);
+					return new ScopedVar(((PackageVar) ret).location(), ((PackageVar) ret).id, ((PackageVar) ret).defn, false);
+				} else
 					throw new UtilException("cannot handle " + ret.getClass());
 			} else if (expr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) expr;
@@ -1103,7 +1117,7 @@ public class Rewriter {
 				System.out.println("Service " + x.getKey());
 			for (Entry<String, RWHandlerImplements> x : callbackHandlers.entrySet())
 				System.out.println("Handler " + x.getKey());
-			for (Entry<String, FunctionDefinition> x : functions.entrySet()) {
+			for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {
 				x.getValue().dumpTo(pw);
 			}
 			pw.flush();

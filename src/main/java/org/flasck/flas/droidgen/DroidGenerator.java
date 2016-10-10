@@ -10,7 +10,6 @@ import java.util.TreeMap;
 
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardMember;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -27,6 +26,7 @@ import org.flasck.flas.parsedForm.android.AndroidLaunch;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
+import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;

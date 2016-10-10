@@ -3,16 +3,14 @@ package org.flasck.flas.rewrittenForm;
 import java.io.Serializable;
 import java.io.Writer;
 
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-
 @SuppressWarnings("serial")
-public class FunctionCaseDefn implements Serializable {
+public class RWFunctionCaseDefn implements Serializable {
 	public final RWFunctionIntro intro;
 	public final Object expr;
 
-	public FunctionCaseDefn(ScopeEntry me, FunctionCaseDefn starter) {
-		this.intro = starter.intro;
-		this.expr = starter.expr;
+	public RWFunctionCaseDefn(RWFunctionIntro intro, Object expr) {
+		this.intro = intro;
+		this.expr = expr;
 	}
 
 	public void dumpTo(Writer pw) throws Exception {

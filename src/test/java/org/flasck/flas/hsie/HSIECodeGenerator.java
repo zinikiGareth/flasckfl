@@ -5,19 +5,23 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.LetExpr;
-import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -162,8 +166,8 @@ public class HSIECodeGenerator {
 		LetExpr expr = new LetExpr("_x",
 					new ApplyExpr(null, new PackageVar(null, "FLEval.plus", null), new NumericLiteral(null, "2"), new NumericLiteral(null, "2")),
 					new ApplyExpr(null, new PackageVar(null, "FLEval.plus", null), new LocalVar("ME.f", null, "_x", null, null), new LocalVar("ME.f", null, "_x", null, null)));
-		FunctionCaseDefn fcd = new FunctionCaseDefn(null, "ME.f", new ArrayList<Object>(), expr);
-		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, fcd.intro, CollectionUtils.listOf(fcd));
+		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(new RWFunctionIntro(null, "ME.f", new ArrayList<>(), new HashMap<>()), expr);
+		RWFunctionDefinition f = new RWFunctionDefinition(null, CodeType.FUNCTION, fcd.intro, CollectionUtils.listOf(fcd));
 		HSIEForm form = new HSIE(errors, null, biscope).handle(null, f);
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.directLet(), form);

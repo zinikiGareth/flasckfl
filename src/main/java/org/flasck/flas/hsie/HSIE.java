@@ -14,8 +14,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -23,6 +21,8 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -42,17 +42,17 @@ public class HSIE {
 		exprIdx = 0;
 	}
 	
-	public HSIEForm handle(Map<String, HSIEForm> previous, FunctionDefinition defn) {
+	public HSIEForm handle(Map<String, HSIEForm> previous, RWFunctionDefinition defn) {
 		return handle(previous, defn, 0, new HashMap<String, CreationOfVar>());
 	}
 	
-	public HSIEForm handle(Map<String, HSIEForm> previous, FunctionDefinition defn, int alreadyUsed, Map<String, CreationOfVar> map) {
-		HSIEForm ret = new HSIEForm(defn.mytype, defn.name, defn.location, alreadyUsed, map, defn.nargs);
+	public HSIEForm handle(Map<String, HSIEForm> previous, RWFunctionDefinition defn, int alreadyUsed, Map<String, CreationOfVar> map) {
+		HSIEForm ret = new HSIEForm(defn.mytype, defn.name(), defn.location, alreadyUsed, map, defn.nargs());
 		MetaState ms = new MetaState(rewriter, previous, ret);
-		if (defn.nargs == 0)
+		if (defn.nargs() == 0)
 			return handleConstant(ms, defn);
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
-		ms.add(buildFundamentalState(ms, ret, map, defn.nargs, defn.cases));
+		ms.add(buildFundamentalState(ms, ret, map, defn.nargs(), defn.cases));
 		try {
 			while (!ms.allDone()) {
 				State f = ms.first();
@@ -93,7 +93,7 @@ public class HSIE {
 		return ms.form;
 	}
 
-	private HSIEForm handleConstant(MetaState ms, FunctionDefinition defn) {
+	private HSIEForm handleConstant(MetaState ms, RWFunctionDefinition defn) {
 		if (defn.cases.size() != 1)
 			throw new UtilException("Constants can only have one case");
 		ms.writeExpr(new SubstExpr(defn.cases.get(0).expr, exprIdx++), ms.form);
@@ -101,13 +101,13 @@ public class HSIE {
 		return ms.form;
 	}
 
-	private State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, CreationOfVar> map, int nargs, List<FunctionCaseDefn> cases) {
+	private State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, CreationOfVar> map, int nargs, List<RWFunctionCaseDefn> cases) {
 		State s = new State(form);
 		List<Var> formals = new ArrayList<Var>();
 		for (int i=0;i<nargs;i++)
 			formals.add(ms.allocateVar());
 		Map<Object, SubstExpr> exprs = new HashMap<Object, SubstExpr>();
-		for (FunctionCaseDefn c : cases) {
+		for (RWFunctionCaseDefn c : cases) {
 			SubstExpr ex = new SubstExpr(c.expr, exprIdx++);
 			ex.alsoSub(map);
 			form.exprs.add(ex);
@@ -115,7 +115,7 @@ public class HSIE {
 			exprs.put(c, ex);
 		}
 		for (int i=0;i<nargs;i++) {
-			for (FunctionCaseDefn c : cases) {
+			for (RWFunctionCaseDefn c : cases) {
 				s.associate(formals.get(i), c.intro.args.get(i), exprs.get(c));
 			}
 		}
