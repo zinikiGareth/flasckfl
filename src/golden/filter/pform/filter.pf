@@ -1,0 +1,17 @@
+package test.golden
+  test.golden.filter
+    f
+    Nil
+   =
+    Nil
+  test.golden.filter
+    f
+    Cons
+      head
+        a
+      tail
+        l
+   =
+    g
+      f
+        a

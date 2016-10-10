@@ -1,0 +1,3 @@
+
+	fold f acc [] = acc
+	fold f acc (a:l) = fold f (f acc a) l

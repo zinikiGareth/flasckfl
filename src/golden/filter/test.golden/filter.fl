@@ -1,0 +1,5 @@
+
+	filter f [] = []
+	filter f (a:l) = g (f a)
+		g true = a:(filter f l)
+		g false = (filter f l)
