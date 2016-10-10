@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+
 public class CardGrouping {
 	public static class ContractGrouping {
 		public final String type;
@@ -41,14 +43,14 @@ public class CardGrouping {
 		}
 	}
 	
-	public final StructDefn struct;
+	public final RWStructDefn struct;
 	public final Map<String, Object> inits = new HashMap<String, Object>();
 	public final List<ContractGrouping> contracts = new ArrayList<ContractGrouping>();
 	public final List<ServiceGrouping> services = new ArrayList<ServiceGrouping>();
 	public final List<HandlerGrouping> handlers = new ArrayList<HandlerGrouping>();
 	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
 	
-	public CardGrouping(StructDefn struct) {
+	public CardGrouping(RWStructDefn struct) {
 		this.struct = struct;
 	}
 }

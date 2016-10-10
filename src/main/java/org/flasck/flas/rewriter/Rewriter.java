@@ -79,6 +79,8 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.stories.D3Thing;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -103,7 +105,7 @@ import org.zinutils.exceptions.UtilException;
 public class Rewriter {
 	private final ErrorResult errors;
 	private final PackageFinder pkgFinder;
-	public final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
+	public final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	public final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
 	public final Map<String, Object> builtins = new TreeMap<String, Object>();
 	public final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>();
@@ -445,12 +447,12 @@ public class Rewriter {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope");
 		CardContext c2 = new CardContext((PackageContext) cx, cd);
-		StructDefn sd = new StructDefn(cd.location, cd.name, false);
+		RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
 		CardGrouping grp = new CardGrouping(sd);
 		cards.put(cd.name, grp);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
-				sd.addField(new StructField(sf.loc, false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init)));
+				sd.addField(new RWStructField(sf.loc, false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init)));
 				grp.inits.put(sf.name, rewriteExpr(cx, sf.init));
 			}
 		}
@@ -464,7 +466,7 @@ public class Rewriter {
 			grp.contracts.add(new ContractGrouping(rw.name(), myname, rw.referAsVar));
 			cardImplements.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.addField(new StructField(rw.location(), false, rw, rw.referAsVar));
+				sd.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods) {
 				MethodDefinition rwm = rewrite(c2, m, true);
@@ -484,7 +486,7 @@ public class Rewriter {
 			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
 			cardServices.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new StructField(rw.vlocation, false, rw, rw.referAsVar));
+				sd.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods)
 				methods.add(new MethodInContext(this, cx, cd.innerScope(), MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m, true)));
@@ -605,12 +607,9 @@ public class Rewriter {
 			TemplateList ul = (TemplateList)tl;
 			TemplateListVar tlv = ul.iterVar != null ? new TemplateListVar(ul.listLoc, (String) ul.iterVar) : null;
 			boolean supportDragOrdering = false;
-			boolean rawHTML = false;
 			for (SpecialFormat tt : specials) {
 				if (tt.name.equals("dragOrder")) {
 					supportDragOrdering = true;
-				} else if (tt.name.equals("rawHTML")) {
-					rawHTML = true;
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
@@ -722,10 +721,10 @@ public class Rewriter {
 				ret.methods.add(rm);
 				methods.add(new MethodInContext(this, cx, scope, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm));
 			}
-			StructDefn hsd = new StructDefn(hi.location(), ret.hiName, false);
+			RWStructDefn hsd = new RWStructDefn(hi.location(), ret.hiName, false);
 			for (Object s : ret.boundVars) {
 				HandlerLambda hl = (HandlerLambda) s;
-				hsd.fields.add(new StructField(hl.location, false, hl.type, hl.var));
+				hsd.fields.add(new RWStructField(hl.location, false, hl.type, hl.var));
 			}
 			structs.put(ret.hiName, hsd);
 			return ret;
@@ -776,10 +775,10 @@ public class Rewriter {
 		return new EventHandlerDefinition(rewrite(cx, ehd.intro), list);
 	}
 
-	private StructDefn rewrite(NamingContext cx, StructDefn sd) {
-		StructDefn ret = new StructDefn(sd.location(), sd.name(), sd.generate, (List<Type>)sd.polys());
+	private RWStructDefn rewrite(NamingContext cx, StructDefn sd) {
+		RWStructDefn ret = new RWStructDefn(sd.location(), sd.name(), sd.generate, (List<Type>)sd.polys());
 		for (StructField sf : sd.fields) {
-			StructField rsf = new StructField(sf.loc, false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init));
+			RWStructField rsf = new RWStructField(sf.loc, false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init));
 			ret.addField(rsf);
 		}
 		return ret;
@@ -1069,7 +1068,7 @@ public class Rewriter {
 	public void dump() {
 		try {
 			PrintWriter pw = new PrintWriter(System.out);
-			for (Entry<String, StructDefn> x : structs.entrySet())
+			for (Entry<String, RWStructDefn> x : structs.entrySet())
 				System.out.println("Struct " + x.getKey());
 			for (Entry<String, CardGrouping> x : cards.entrySet())
 				System.out.println("Card " + x.getKey());

@@ -14,8 +14,8 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
 import org.slf4j.Logger;
@@ -54,8 +54,8 @@ public class PackageFinder {
 					logger.info("Loading definitions for " + pkgName + " from " + file);
 					ois = new ObjectInputStream(new FileInputStream(file));
 					@SuppressWarnings("unchecked")
-					List<StructDefn> structs = (List<StructDefn>) ois.readObject();
-					for (StructDefn sd : structs) {
+					List<RWStructDefn> structs = (List<RWStructDefn>) ois.readObject();
+					for (RWStructDefn sd : structs) {
 						int idx = sd.name().lastIndexOf(".");
 						scope.define(sd.name().substring(idx+1), sd.name(), sd);
 					}

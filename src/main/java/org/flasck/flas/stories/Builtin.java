@@ -8,6 +8,8 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.typechecker.Type;
 
 public class Builtin {
@@ -49,12 +51,12 @@ public class Builtin {
 			ret.define("/", "FLEval.div",		Type.function(posn, number, number, number));
 			ret.define("^", "FLEval.exp",		Type.function(posn, number, number, number));
 		}
-		StructDefn nil = new StructDefn(posn, "Nil", false);
+		RWStructDefn nil = new RWStructDefn(posn, "Nil", false);
+		list.addCase(nil);
 		{ // lists
-			StructDefn cons = new StructDefn(posn, "Cons", false, varA);
-			cons.addField(new StructField(posn, false, varA, "head"));
-			cons.addField(new StructField(posn, false, list, "tail"));
-			list.addCase(nil);
+			RWStructDefn cons = new RWStructDefn(posn, "Cons", false, varA);
+			cons.addField(new RWStructField(posn, false, varA, "head"));
+			cons.addField(new RWStructField(posn, false, list, "tail"));
 			list.addCase(cons);
 			ret.define("List", "List",			list);
 			ret.define("Nil", "Nil",			nil);

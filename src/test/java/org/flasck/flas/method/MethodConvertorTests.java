@@ -39,6 +39,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -68,7 +69,7 @@ public class MethodConvertorTests {
 		errors = new ErrorResult();
 		Scope biscope = Builtin.builtinScope();
 		UnionTypeDefn any = (UnionTypeDefn) biscope.get("Any");
-		StructDefn send = (StructDefn) biscope.get("Send");
+		RWStructDefn send = (RWStructDefn) biscope.get("Send");
 		org = new PackageDefn(null, biscope, "org");
 		pkg = new PackageDefn(null, org.innerScope(), "foo");
 		orgFooScope = pkg.innerScope();
@@ -131,10 +132,10 @@ public class MethodConvertorTests {
 		tc.addExternal("map", (Type) biscope.get("map"));
 		tc.addExternal("org.foo.doSend", (Type) orgFooScope.get("doSend"));
 		tc.addTypeDefn(any);
-		tc.addStructDefn((StructDefn) biscope.get("Nil"));
+		tc.addStructDefn((RWStructDefn) biscope.get("Nil"));
 		tc.addTypeDefn((UnionTypeDefn) biscope.get("List"));
-		tc.addStructDefn((StructDefn) biscope.get("Cons"));
-		tc.addStructDefn((StructDefn) biscope.get("Assign"));
+		tc.addStructDefn((RWStructDefn) biscope.get("Cons"));
+		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
 		tc.addTypeDefn((UnionTypeDefn) biscope.get("Message"));
 		tc.addStructDefn(send);
 	}

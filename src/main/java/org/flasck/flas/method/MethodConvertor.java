@@ -33,12 +33,12 @@ import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeWithMethods;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -273,10 +273,10 @@ public class MethodConvertor {
 			intoObj = new CardStateRef(cm.location(), fromHandler);
 			slotName = new StringLiteral(cm.location(), cm.var);
 			Type cti = tc.getType(cm.location(), cm.card);
-			if (!(cti instanceof StructDefn))
+			if (!(cti instanceof RWStructDefn))
 				throw new UtilException("this should have been a struct");
-			StructDefn sd = (StructDefn) cti;
-			StructField sf = sd.findField(cm.var);
+			RWStructDefn sd = (RWStructDefn) cti;
+			RWStructField sf = sd.findField(cm.var);
 			if (sf == null) {
 				errors.message(cm.location, "there is no card state member " + cm.var);
 				return null;
@@ -317,13 +317,13 @@ public class MethodConvertor {
 		if (mm.slot.size() > 1) {
 			for (int i=1;i<mm.slot.size();i++) {
 				LocatedToken si = (LocatedToken) mm.slot.get(i);
-				if (!(slotType instanceof StructDefn)) {
+				if (!(slotType instanceof RWStructDefn)) {
 					// There may be some valid cases mixed up in here; if so, fix them later
 					errors.message(si.location(), "cannot extract member '" + si.text + "' of a non-struct: '" + slotType.name() + "'");
 					return null;
 				}
-				StructDefn sd = (StructDefn) slotType;
-				StructField sf = sd.findField(si.text);
+				RWStructDefn sd = (RWStructDefn) slotType;
+				RWStructField sf = sd.findField(si.text);
 				if (sf == null) {
 					errors.message(si.location, "there is no field '" + si.text + "' in type " + sd);
 					return null;

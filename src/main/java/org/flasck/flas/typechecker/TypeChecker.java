@@ -26,12 +26,13 @@ import org.flasck.flas.parsedForm.MethodInContext;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.ScopedVar;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
@@ -59,7 +60,7 @@ public class TypeChecker {
 	public final ErrorResult errors;
 	private final VariableFactory factory = new VariableFactory();
 	final Map<String, Type> knowledge = new TreeMap<String, Type>();
-	final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
+	final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	final Map<String, ObjectDefn> objects = new TreeMap<String, ObjectDefn>();
 	final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
 	final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>(new StringComparator());
@@ -72,7 +73,7 @@ public class TypeChecker {
 	}
 
 	public void populateTypes(Rewriter rewriter) {
-		for (Entry<String, StructDefn> d : rewriter.structs.entrySet())
+		for (Entry<String, RWStructDefn> d : rewriter.structs.entrySet())
 			structs.put(d.getKey(), d.getValue());
 //		System.out.println("structs: " + structs);
 		for (Entry<String, UnionTypeDefn> d : rewriter.types.entrySet())
@@ -115,7 +116,7 @@ public class TypeChecker {
 		}
 	}
 
-	public void addStructDefn(StructDefn structDefn) {
+	public void addStructDefn(RWStructDefn structDefn) {
 		structs.put(structDefn.name(), structDefn);
 	}
 
@@ -134,7 +135,7 @@ public class TypeChecker {
 	public void addExternal(String name, Type type) {
 		if (type == null)
 			throw new UtilException("Don't give me null types");
-		if (type instanceof StructDefn || type instanceof UnionTypeDefn || type instanceof ObjectDefn)
+		if (type instanceof RWStructDefn || type instanceof UnionTypeDefn || type instanceof ObjectDefn)
 			throw new UtilException("Not just a type ... call special thing");
 		knowledge.put(name, type);
 	}
@@ -400,7 +401,7 @@ public class TypeChecker {
 					returns.add(checkBlock(sft, s, form, sw));
 					logger.debug(o.toString() + " links " + sw.var + " to " + sw.ctor);
 				} else {
-					StructDefn sd = structs.get(sw.ctor);
+					RWStructDefn sd = structs.get(sw.ctor);
 					Type pt = sd;
 					UnionTypeDefn ud = types.get(sw.ctor);
 					if (pt == null) pt = ud;
@@ -426,7 +427,7 @@ public class TypeChecker {
 					if (sd != null) {
 						logger.debug(o + " asserts that " + sw.var + " is of type " + sw.ctor + " with type scheme " + valueOf);
 						SFTypes inner = new SFTypes(sft);
-						for (StructField x : sd.fields) {
+						for (RWStructField x : sd.fields) {
 	//						System.out.println("field " + x.name + " has " + x.type);
 							Object fr = TypeExpr.from(x.type, polys);
 							inner.put(sw.var, x.name, fr);
@@ -539,7 +540,7 @@ public class TypeChecker {
 					CardTypeInfo cti = cards.get(cm.card);
 					if (cti == null)
 						throw new UtilException("There was no card definition called " + cm.card);
-					for (StructField sf : cti.struct.fields) {
+					for (RWStructField sf : cti.struct.fields) {
 						if (sf.name.equals(cm.var)) {
 							return sf.type.asExpr(new GarneredFrom(cm.location), this, factory);
 						}
@@ -556,8 +557,8 @@ public class TypeChecker {
 //						idx = form.fnName.lastIndexOf('.', idx-1);
 					String structName = hl.clzName; // form.fnName.substring(0, idx);
 //						return freshVarsIn(new TypeReference(hl.location, structName, null));
-					StructDefn sd = structs.get(structName);
-					for (StructField sf : sd.fields) {
+					RWStructDefn sd = structs.get(structName);
+					for (RWStructField sf : sd.fields) {
 						if (sf.name.equals(hl.var)) {
 							return sf.type.asExpr(null, this, factory);
 						}
@@ -668,9 +669,9 @@ public class TypeChecker {
 				TypeExpr te = (TypeExpr) T1;
 				String tn = te.type.name();
 				String fn = ((PushCmd)c.nestedCommands().get(2)).sval.text;
-				StructDefn sd = this.structs.get(tn);
+				RWStructDefn sd = this.structs.get(tn);
 				if (sd != null) {
-					for (StructField f : sd.fields) {
+					for (RWStructField f : sd.fields) {
 						if (f.name.equals(fn)) {
 							Object r = f.type.asExpr(new GarneredFrom(f), this, factory);
 							logger.debug("field " + f.name + " of " + sd.name() + " has type " + f.type + " with fresh vars as " + r);
@@ -745,9 +746,9 @@ public class TypeChecker {
 		return sb.toString();
 	}
 
-	private Type typeForStructCtor(InputPosition location, StructDefn structDefn) {
+	private Type typeForStructCtor(InputPosition location, RWStructDefn structDefn) {
 		List<Type> args = new ArrayList<Type>();
-		for (StructField x : structDefn.fields)
+		for (RWStructField x : structDefn.fields)
 			args.add(x.type);
 		args.add(structDefn);
 		return Type.function(location, args);
@@ -761,7 +762,7 @@ public class TypeChecker {
 		return Type.function(location, args);
 	}
 
-	private Type typeForCardCtor(InputPosition location, StructDefn structDefn) {
+	private Type typeForCardCtor(InputPosition location, RWStructDefn structDefn) {
 		List<Type> args = new ArrayList<Type>();
 		// I think this is OK being builtin ...
 		args.add(Type.builtin(location, "_Wrapper"));
@@ -822,8 +823,8 @@ public class TypeChecker {
 		if (copyToScreen)
 			System.out.println("Exporting inferred types at top scope:");
 		ObjectOutputStream oos = new ObjectOutputStream(wex);
-		List<StructDefn> str = new ArrayList<StructDefn>();
-		for (StructDefn sd : structs.values()) {
+		List<RWStructDefn> str = new ArrayList<RWStructDefn>();
+		for (RWStructDefn sd : structs.values()) {
 			if (sd.generate) {
 				str.add(sd);
 				if (copyToScreen)

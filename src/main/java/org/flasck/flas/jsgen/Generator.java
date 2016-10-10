@@ -15,8 +15,8 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -59,7 +59,7 @@ public class Generator {
 		target.add(ret);
 	}
 
-	public void generate(StructDefn sd) {
+	public void generate(RWStructDefn sd) {
 		if (!sd.generate)
 			return;
 		int idx = sd.name().lastIndexOf(".");
@@ -71,7 +71,7 @@ public class Generator {
 			ret.add(ifBlock);
 			JSForm elseBlock = new JSForm("else").needBlock();
 			ret.add(elseBlock);
-			for (StructField x : sd.fields) {
+			for (RWStructField x : sd.fields) {
 				JSForm assign = new JSForm("if (v0."+x.name+")");
 				assign.add(new JSForm("this."+x.name+" = v0."+x.name));
 				ifBlock.add(assign);
@@ -90,7 +90,7 @@ public class Generator {
 		List<Var> vars = new ArrayList<Var>();
 		List<String> fields = new ArrayList<String>();
 		int vi = 0;
-		for (StructField sf : sd.fields) {
+		for (RWStructField sf : sd.fields) {
 			Var v = new Var(vi++);
 			vars.add(v);
 			fields.add(sf.name+": "+ v);

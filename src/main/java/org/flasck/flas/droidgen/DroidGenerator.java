@@ -28,10 +28,10 @@ import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.ScopedVar;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.android.AndroidLabel;
 import org.flasck.flas.parsedForm.android.AndroidLaunch;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -100,12 +100,12 @@ public class DroidGenerator {
 		}
 	}
 	
-	public void generate(StructDefn value) {
+	public void generate(RWStructDefn value) {
 		if (builder == null || !value.generate)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, value.name());
 		Map<String, FieldInfo> fields = new TreeMap<String,FieldInfo>();
-		for (StructField sf : value.fields) {
+		for (RWStructField sf : value.fields) {
 			FieldInfo fi = bcc.defineField(false, Access.PUBLIC, new JavaType("java.lang.Object"), sf.name);
 			fields.put(sf.name, fi);
 		}
@@ -119,7 +119,7 @@ public class DroidGenerator {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
 		gen.returns("void");
 		NewMethodDefiner dfe = gen.done();
-		for (StructField sf : value.fields) {
+		for (RWStructField sf : value.fields) {
 			dfe.assign(fields.get(sf.name).asExpr(dfe), dfe.callVirtual("java.lang.Object", dfe.myThis(), "_fullOf", fields.get(sf.name).asExpr(dfe))).flush();
 		}
 		dfe.returnVoid().flush();
@@ -131,7 +131,7 @@ public class DroidGenerator {
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, grp.struct.name());
 		bcc.superclass("org.flasck.android.FlasckActivity");
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
-		for (StructField sf : grp.struct.fields) {
+		for (RWStructField sf : grp.struct.fields) {
 			JavaType jt;
 			if (sf.type.iam == WhatAmI.BUILTIN) {
 				if (((Type)sf.type).name().equals("Number"))
@@ -572,7 +572,7 @@ public class DroidGenerator {
 					while (defn instanceof PackageVar)
 						defn = ((PackageVar)defn).defn;
 					if (pos != 0)
-						if (defn instanceof StructDefn && ((StructDefn)defn).fields.isEmpty())
+						if (defn instanceof RWStructDefn && ((RWStructDefn)defn).fields.isEmpty())
 							wantEval = true;
 				}
 				int idx = c.fn.uniqueName().lastIndexOf(".");

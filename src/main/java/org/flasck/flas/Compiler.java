@@ -61,11 +61,11 @@ import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
@@ -323,7 +323,7 @@ public class Compiler {
 
 			dg.generateAppObject();
 			
-			for (Entry<String, StructDefn> sd : rewriter.structs.entrySet()) {
+			for (Entry<String, RWStructDefn> sd : rewriter.structs.entrySet()) {
 				gen.generate(sd.getValue());
 				dg.generate(sd.getValue());
 			}
@@ -530,7 +530,7 @@ public class Compiler {
 				while (t.iam == WhatAmI.INSTANCE)
 					t = t.innerType();
 				// it should be the same as the field type
-				for (StructField sf : c.struct.fields) {
+				for (RWStructField sf : c.struct.fields) {
 					if (sf.name.equals(kv.getKey())) {
 						Type st = sf.type;
 						while (st.iam == WhatAmI.INSTANCE)
@@ -635,9 +635,9 @@ public class Compiler {
 			if (val instanceof PackageDefn) {
 				if (parsed == null || !parsed.contains(x.getKey()))
 					populateTypes(tc, ((PackageDefn)val).innerScope(), null);
-			} else if (val instanceof StructDefn) {
+			} else if (val instanceof RWStructDefn) {
 //				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
-				tc.addStructDefn((StructDefn) val);
+				tc.addStructDefn((RWStructDefn) val);
 			} else if (val instanceof ObjectDefn) {
 //				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
 				tc.addObjectDefn((ObjectDefn) val);

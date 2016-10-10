@@ -2,7 +2,7 @@ package org.flasck.flas.typechecker;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.ExternalRef;
-import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.zinutils.exceptions.UtilException;
 
 public class GarneredFrom {
@@ -35,7 +35,7 @@ public class GarneredFrom {
 		this.fnName = null;
 	}
 
-	public GarneredFrom(StructField f) {
+	public GarneredFrom(RWStructField f) {
 		this.which = Which.STRUCT;
 		this.posn = f.location();
 		if (posn == null)
