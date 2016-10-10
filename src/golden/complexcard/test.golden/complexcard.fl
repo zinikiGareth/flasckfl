@@ -18,10 +18,17 @@ This is a complex card with "one of everything"
 	card Simple
 		state
 			String hello <- "hello, world"
+			Croset[String] list
 			
 		template
 			.
 				hello
+				+ list lv
+					.
+						lv
+				+ list
+					.
+						"hello"
 				
 		implements Init
 			ready (Thing obj)

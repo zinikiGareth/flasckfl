@@ -25,9 +25,17 @@ package test.golden
         String
        <-
         '' hello, world
+      list
+        Croset
     template test.golden.Simple
       .
         hello
+        + list lv
+          .
+            lv
+        + list null
+          .
+            '' hello
   struct test.golden.Thing
     x
       String

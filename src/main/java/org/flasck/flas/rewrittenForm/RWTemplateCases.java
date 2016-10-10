@@ -8,17 +8,17 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.TemplateLine;
 
 @SuppressWarnings("serial")
-public class TemplateCases implements TemplateLine, Serializable {
-	public final List<TemplateOr> cases = new ArrayList<TemplateOr>();
+public class RWTemplateCases implements TemplateLine, Serializable {
+	public final List<RWTemplateOr> cases = new ArrayList<RWTemplateOr>();
 	public final InputPosition loc;
 	public final Object switchOn;
 
-	public TemplateCases(InputPosition loc, Object switchOn) {
+	public RWTemplateCases(InputPosition loc, Object switchOn) {
 		this.loc = loc;
 		this.switchOn = switchOn;
 	}
 
-	public void addCase(TemplateOr tor) {
+	public void addCase(RWTemplateOr tor) {
 		cases.add(tor);
 	}
 

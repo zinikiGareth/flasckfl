@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.TemplateLine;
 
 @SuppressWarnings("serial")
-public class TemplateList extends TemplateFormat implements Serializable {
+public class RWTemplateList extends TemplateFormat implements Serializable {
 	public final InputPosition listLoc;
 	public final Object listVar;
 	public final InputPosition iterLoc;
@@ -17,7 +17,7 @@ public class TemplateList extends TemplateFormat implements Serializable {
 	public final boolean supportDragOrdering;
 	public TemplateLine template;
 
-	public TemplateList(InputPosition listLoc, Object listVar, InputPosition iterLoc, Object iterVar, String customTag, String customTagVar, List<Object> formats, boolean supportDragOrdering) {
+	public RWTemplateList(InputPosition listLoc, Object listVar, InputPosition iterLoc, Object iterVar, String customTag, String customTagVar, List<Object> formats, boolean supportDragOrdering) {
 		super(formats);
 		this.listLoc = listLoc;
 		this.listVar = listVar;

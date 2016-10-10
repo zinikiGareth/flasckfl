@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -31,6 +32,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateDiv;
+import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -225,6 +227,15 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			TemplateDiv td = (TemplateDiv) obj;
 			pw.println("."); // many other fields go here ...
 			dumpList(pw, td.nested);
+			// dump formats and handlers
+		} else if (obj instanceof TemplateList) {
+			TemplateList td = (TemplateList) obj;
+			pw.println("+ " + td.listVar + " " + td.iterVar); // many other fields go here ...
+			dumpRecursive(pw.indent(), td.template);
+			// dump formats and handlers
+		} else if (obj instanceof ContentString) {
+			ContentString ce = (ContentString) obj;
+			pw.println("'' " + ce.text);
 			// dump formats and handlers
 		} else if (obj instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) obj;

@@ -101,8 +101,12 @@ import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTemplate;
+import org.flasck.flas.rewrittenForm.RWTemplateCases;
 import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
+import org.flasck.flas.rewrittenForm.RWTemplateList;
+import org.flasck.flas.rewrittenForm.RWTemplateListVar;
+import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -315,14 +319,14 @@ public class Rewriter {
 	}
 
 	public class TemplateContext extends NamingContext {
-		private final TemplateListVar listVar;
+		private final RWTemplateListVar listVar;
 
 		public TemplateContext(CardContext cx) {
 			super(cx);
 			listVar = null;
 		}
 		
-		public TemplateContext(TemplateContext cx, TemplateListVar tlv) {
+		public TemplateContext(TemplateContext cx, RWTemplateListVar tlv) {
 			super(cx);
 			if (tlv != null && tlv.name == null)
 				throw new UtilException("Shouldn't happen");
@@ -637,6 +641,7 @@ public class Rewriter {
 		} else if (tl instanceof TemplateList) {
 			TemplateList ul = (TemplateList)tl;
 			TemplateListVar tlv = ul.iterVar != null ? new TemplateListVar(ul.listLoc, (String) ul.iterVar) : null;
+			RWTemplateListVar rwv = tlv == null ? null : new RWTemplateListVar(tlv.location, tlv.name);
 			boolean supportDragOrdering = false;
 			for (SpecialFormat tt : specials) {
 				if (tt.name.equals("dragOrder")) {
@@ -644,13 +649,13 @@ public class Rewriter {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			TemplateList rul = new TemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, tlv, ul.customTag, ul.customTagVar, formats, supportDragOrdering);
-			cx = new TemplateContext(cx, tlv);
+			RWTemplateList rul = new RWTemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, rwv, ul.customTag, ul.customTagVar, formats, supportDragOrdering);
+			cx = new TemplateContext(cx, rwv);
 			rul.template = rewrite(cx, ul.template);
 			return rul;
 		} else if (tl instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases)tl;
-			TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
+			RWTemplateCases ret = new RWTemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
 			for (TemplateOr tor : tc.cases)
 				ret.addCase(rewrite(cx, tor));
 			return ret;
@@ -688,8 +693,8 @@ public class Rewriter {
 		return ret;
 	}
 
-	private TemplateOr rewrite(TemplateContext cx, TemplateOr tor) {
-		return new TemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
+	private RWTemplateOr rewrite(TemplateContext cx, TemplateOr tor) {
+		return new RWTemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
 	}
 
 	private RWContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
@@ -937,7 +942,7 @@ public class Rewriter {
 				} else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(location, s);
-				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof RWHandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
+				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof RWHandlerLambda || ret instanceof RWTemplateListVar || ret instanceof SpecialFormat)
 					return ret;
 				else
 					throw new UtilException("cannot handle " + ret.getClass());

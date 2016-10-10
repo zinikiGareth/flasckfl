@@ -168,6 +168,7 @@ public class Builtin {
 			crokeys.addField(new RWStructField(posn, false, list.instance(posn,  crokey), "keys"));
 
 			RWObjectDefn croset = new RWObjectDefn(posn, "Croset", false, varA);
+			ret.define("Croset", "Croset", croset);
 			croset.constructorArg(posn, crokeys, "init");
 			
 			// These are actually accessors ...

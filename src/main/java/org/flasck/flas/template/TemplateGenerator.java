@@ -14,19 +14,13 @@ import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardReference;
-import org.flasck.flas.parsedForm.ContentExpr;
-import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TemplateLine;
-import org.flasck.flas.parsedForm.TemplateList;
-import org.flasck.flas.parsedForm.TemplateListVar;
-import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -37,7 +31,11 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWTemplate;
+import org.flasck.flas.rewrittenForm.RWTemplateCases;
 import org.flasck.flas.rewrittenForm.RWTemplateDiv;
+import org.flasck.flas.rewrittenForm.RWTemplateList;
+import org.flasck.flas.rewrittenForm.RWTemplateListVar;
+import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -159,8 +157,8 @@ public class TemplateGenerator {
 					moreArgs = moreArgs + ", 'http://www.w3.org/2000/svg'";
 			}
 			// TODO: a variable custom tag is hard & needs "assign" logic
-		} else if (tl instanceof TemplateList) {
-			TemplateList ul = (TemplateList) tl;
+		} else if (tl instanceof RWTemplateList) {
+			RWTemplateList ul = (RWTemplateList) tl;
 			base = "ListArea";
 			if (ul.customTag != null) {
 				moreArgs = ", '" + ul.customTag + "'";
@@ -180,7 +178,7 @@ public class TemplateGenerator {
 				moreArgs = ", undefined"; // explicitly say the card is undefined until yoyoVar evaluates
 			} else
 				throw new UtilException("Can't handle this case");
-		} else if (tl instanceof TemplateCases) {
+		} else if (tl instanceof RWTemplateCases) {
 			base = "CasesArea";
 		} else if (tl instanceof D3Invoke) {
 			base = "D3Area";
@@ -265,9 +263,9 @@ public class TemplateGenerator {
 				dg.createNested(cgrx, v, javaName(cn));
 				recurse(cx, cn, c, called);
 			}
-		} else if (tl instanceof TemplateList) {
-			TemplateList l = (TemplateList) tl;
-			String tlv = ((TemplateListVar)l.iterVar).name;
+		} else if (tl instanceof RWTemplateList) {
+			RWTemplateList l = (RWTemplateList) tl;
+			String tlv = ((RWTemplateListVar)l.iterVar).name;
 			if (l.supportDragOrdering)
 				fn.add(JSForm.flex("this._supportDragging()"));
 			String item = cx.nextArea();
@@ -343,8 +341,8 @@ public class TemplateGenerator {
 				dg.yoyoExpr(cgrx, form);
 			} else
 				throw new UtilException("handle this case");
-		} else if (tl instanceof TemplateCases) {
-			TemplateCases tc = (TemplateCases) tl;
+		} else if (tl instanceof RWTemplateCases) {
+			RWTemplateCases tc = (RWTemplateCases) tl;
 			String sn = called + ".prototype._chooseCase";
 			JSForm sw = JSForm.flex(sn +" = function(parent)").needBlock();
 			sw.add(JSForm.flex("\"use strict\""));
@@ -352,7 +350,7 @@ public class TemplateGenerator {
 			cx.target.add(sw);
 			callOnAssign(fn, tc.switchOn, cgrx, sn, true, null);
 
-			for (TemplateOr oc : tc.cases) {
+			for (RWTemplateOr oc : tc.cases) {
 				String cn = cx.nextArea();
 
 				JSForm.assign(sw, "cond", hsie.handleExpr(new ApplyExpr(oc.location(), cx.equals, tc.switchOn, oc.cond), CodeType.AREA));
@@ -474,8 +472,8 @@ public class TemplateGenerator {
 		if (valExpr instanceof CardMember) {
 			addToFunc.add(JSForm.flex("this._onAssign(this._card, '" + ((CardMember)valExpr).var + "', " + call + ")"));
 			dg.onAssign(cgrx, (CardMember)valExpr, call);
-		} else if (valExpr instanceof TemplateListVar) {
-			String var = ((TemplateListVar)valExpr).name;
+		} else if (valExpr instanceof RWTemplateListVar) {
+			String var = ((RWTemplateListVar)valExpr).name;
 			addToFunc.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));
 			dg.interested(cgrx, var, call);
 		} else if (valExpr instanceof CardFunction) {
@@ -493,9 +491,9 @@ public class TemplateGenerator {
 			if (ae.fn instanceof PackageVar && ((PackageVar)ae.fn).id.equals("FLEval.field")) {
 				Object expr = ae.args.get(0);
 				Expr dge = null;
-				if (expr instanceof TemplateListVar) {
+				if (expr instanceof RWTemplateListVar) {
 					callOnAssign(addToFunc, expr, cgrx, call, false, moreArgs);
-					String name = ((TemplateListVar)expr).name;
+					String name = ((RWTemplateListVar)expr).name;
 					expr = "this._src_" + name + "." + name;
 					if (cgrx != null)
 						dge = cgrx.ctor.getField(cgrx.ctor.getField(cgrx.ctor.myThis(), "_src_" + name), name);
