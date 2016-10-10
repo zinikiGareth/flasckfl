@@ -17,6 +17,7 @@ import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIETestData {
@@ -517,9 +518,9 @@ public class HSIETestData {
 	
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {
 		System.out.println("---- Check expecting:");
-		expected.dump(null);
+		expected.dump((Logger)null);
 		System.out.println("---------- actual:");
-		actual.dump(null);
+		actual.dump((Logger)null);
 		System.out.println("----------");
 		assertEquals("incorrect name", expected.fnName, actual.fnName);
 		assertEquals("incorrect # of formals", expected.nformal, actual.nformal);

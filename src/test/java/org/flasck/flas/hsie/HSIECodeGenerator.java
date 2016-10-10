@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
@@ -15,6 +14,7 @@ import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.LocalVar;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
@@ -25,6 +25,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.zinutils.collections.CollectionUtils;
 
 // Although these are tests, they are really just to make sure that the data
@@ -88,7 +89,7 @@ public class HSIECodeGenerator {
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors, rw, biscope).handle(null, rw.functions.get("ME.push"));
 		assertNotNull(form);
-		form.dump(null);
+		form.dump((Logger)null);
 		HSIETestData.assertHSIE(HSIETestData.unionType(), form);
 	}
 
@@ -107,7 +108,7 @@ public class HSIECodeGenerator {
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors, rw, biscope).handle(null, rw.functions.get("ME.f"));
 		assertNotNull(form);
-		form.dump(null);
+		form.dump((Logger)null);
 		HSIETestData.assertHSIE(HSIETestData.unionType(), form);
 	}
 
@@ -129,7 +130,7 @@ public class HSIECodeGenerator {
 		System.out.println(rw.functions);
 		HSIEForm form = new HSIE(errors, rw, biscope).handle(null, rw.functions.get("ME.f"));
 		assertNotNull(form);
-		form.dump(null);
+		form.dump((Logger)null);
 		HSIETestData.assertHSIE(HSIETestData.rdf1(), form);
 	}
 

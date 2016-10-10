@@ -46,6 +46,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.junit.Test;
+import org.slf4j.Logger;
 import org.zinutils.collections.CollectionUtils;
 
 public class MethodConvertorTests {
@@ -197,7 +198,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
 		assertEquals("RETURN Nil", hsieForm.nestedCommands().get(0).toString());
-		hsieForm.dump(null);
+		hsieForm.dump((Logger)null);
 	}
 
 	@Test
@@ -208,7 +209,7 @@ public class MethodConvertorTests {
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump(null);
+		hsieForm.dump((Logger)null);
 		assertEquals("RETURN Nil", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
 	}
 
@@ -261,7 +262,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
 		assertEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0).toString());
-		hsieForm.dump(null);
+		hsieForm.dump((Logger)null);
 	}
 
 	@Test
@@ -272,7 +273,7 @@ public class MethodConvertorTests {
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump(null);
+		hsieForm.dump((Logger)null);
 		assertEquals("RETURN v3:clos3 [v2:clos2]", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
 	}
 
@@ -347,7 +348,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
 		assertEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0).toString());
-		hsieForm.dump(null);
+		hsieForm.dump((Logger)null);
 	}
 
 	@Test
@@ -358,7 +359,7 @@ public class MethodConvertorTests {
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump(null);
+		hsieForm.dump((Logger)null);
 		assertEquals("RETURN v3:clos3 [v2:clos2]", hsieForm.nestedCommands().get(1).nestedCommands().get(0).toString());
 	}
 
@@ -391,7 +392,7 @@ public class MethodConvertorTests {
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump(null);
+		hsieForm.dump((Logger)null);
 		assertEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0).toString());
 		assertEquals("PUSH Send", hsieForm.getClosure(new Var(0)).nestedCommands().get(0).toString());
 		assertEquals("PUSH CardMember[org.foo.Card.ce]", hsieForm.getClosure(new Var(0)).nestedCommands().get(1).toString());
@@ -407,7 +408,7 @@ public class MethodConvertorTests {
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump(null);
+		hsieForm.dump((Logger)null);
 		assertEquals("RETURN v2:clos2 [v0:clos0, v1:clos1]", hsieForm.nestedCommands().get(0).toString());
 		List<HSIEBlock> clos1 = hsieForm.getClosure(new Var(1)).nestedCommands();
 		assertEquals(4, clos1.size());
@@ -478,7 +479,7 @@ public class MethodConvertorTests {
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertEquals(1, functions.size());
 		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump(null);
+		hsieForm.dump((Logger)null);
 		assertEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0).toString());
 		List<HSIEBlock> clos0 = hsieForm.getClosure(new Var(0)).nestedCommands();
 		assertEquals("PUSH map", clos0.get(0).toString());
