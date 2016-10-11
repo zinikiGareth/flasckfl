@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
@@ -14,11 +15,11 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -159,7 +160,7 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("FLEval.plus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
-		tc.addTypeDefn(new UnionTypeDefn(null, false, "Any"));
+		tc.addTypeDefn(new RWUnionTypeDefn(null, false, "Any", new ArrayList<>()));
 		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -232,7 +233,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanHandleBindForCons() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addTypeDefn(new UnionTypeDefn(null, false, "Any"));
+		tc.addTypeDefn(new RWUnionTypeDefn(null, false, "Any", new ArrayList<>()));
 		Type number = Type.builtin(null, "Number");
 		tc.addExternal("Number", number);
 		Type varA = Type.polyvar(null, "A");
@@ -242,7 +243,7 @@ public class TestBasicTypeChecking {
 		cons.addField(new RWStructField(null, false, varA, "head"));
 		cons.addField(new RWStructField(null, false, cons, "tail"));
 		tc.addStructDefn(cons);
-		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
+		RWUnionTypeDefn list = new RWUnionTypeDefn(null, false, "List", CollectionUtils.listOf(varA));
 		list.addCase(nil);
 		list.addCase(cons);
 		tc.addTypeDefn(list);
@@ -275,7 +276,7 @@ public class TestBasicTypeChecking {
 		cons.addField(new RWStructField(null, false, varA, "head"));
 		cons.addField(new RWStructField(null, false, cons, "tail"));
 		tc.addStructDefn(cons);
-		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
+		RWUnionTypeDefn list = new RWUnionTypeDefn(null, false, "List", CollectionUtils.listOf(varA));
 		list.addCase(nil);
 		list.addCase(cons);
 		tc.addTypeDefn(list);
@@ -308,7 +309,7 @@ public class TestBasicTypeChecking {
 		cons.addField(new RWStructField(null, false, varA, "head"));
 		cons.addField(new RWStructField(null, false, cons, "tail"));
 		tc.addStructDefn(cons);
-		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
+		RWUnionTypeDefn list = new RWUnionTypeDefn(null, false, "List", CollectionUtils.listOf(varA));
 		list.addCase(nil);
 		list.addCase(cons);
 		tc.addTypeDefn(list);
@@ -444,9 +445,9 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("join", (Type) biscope.get("join"));
-		tc.addTypeDefn((UnionTypeDefn) biscope.get("Any"));
+		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("Any"));
 		tc.addStructDefn((RWStructDefn) biscope.get("Nil"));
-		tc.addTypeDefn((UnionTypeDefn) biscope.get("List"));
+		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("List"));
 		tc.addStructDefn((RWStructDefn) biscope.get("Cons"));
 		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
 		tc.addStructDefn((RWStructDefn) biscope.get("Send"));

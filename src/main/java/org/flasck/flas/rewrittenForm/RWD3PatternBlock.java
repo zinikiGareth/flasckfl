@@ -3,7 +3,7 @@ package org.flasck.flas.rewrittenForm;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 
 public class RWD3PatternBlock {
 	public final StringLiteral pattern;

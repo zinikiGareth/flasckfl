@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.TypeWithMethods;
 
 @SuppressWarnings("serial")
 public class Implements extends TypeWithMethods {

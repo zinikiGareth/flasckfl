@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Locatable;
+import org.flasck.flas.commonBase.Locatable;
 
 @SuppressWarnings("serial")
 public class RWEventHandlerDefinition implements Locatable, Serializable {

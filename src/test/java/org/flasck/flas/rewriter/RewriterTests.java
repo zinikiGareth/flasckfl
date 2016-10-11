@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -24,7 +25,6 @@ import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.UnresolvedVar;

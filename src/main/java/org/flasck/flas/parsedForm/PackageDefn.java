@@ -3,6 +3,7 @@ package org.flasck.flas.parsedForm;
 import java.io.Serializable;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 
 @SuppressWarnings("serial")

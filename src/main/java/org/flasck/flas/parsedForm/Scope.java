@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.flasck.flas.rewrittenForm.PackageVar;

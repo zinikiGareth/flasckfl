@@ -1,6 +1,7 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 
 public class CardFunction implements Locatable {
 	public final InputPosition location;

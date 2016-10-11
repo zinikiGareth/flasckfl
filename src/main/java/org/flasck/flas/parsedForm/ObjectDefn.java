@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.typechecker.Type;

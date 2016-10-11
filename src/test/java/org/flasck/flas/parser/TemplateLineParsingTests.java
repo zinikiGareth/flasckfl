@@ -9,14 +9,14 @@ import static org.junit.Assert.fail;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.EventHandler;
-import org.flasck.flas.parsedForm.NumericLiteral;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateAttributeVar;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;

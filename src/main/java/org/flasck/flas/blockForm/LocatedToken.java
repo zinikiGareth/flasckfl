@@ -2,7 +2,7 @@ package org.flasck.flas.blockForm;
 
 import java.io.Serializable;
 
-import org.flasck.flas.parsedForm.Locatable;
+import org.flasck.flas.commonBase.Locatable;
 
 @SuppressWarnings("serial")
 public class LocatedToken implements Comparable<LocatedToken>, Locatable, Serializable {

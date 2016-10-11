@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.droidgen.CGRContext;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.hsie.ApplyCurry;
@@ -16,7 +17,6 @@ import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.EventHandler;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
 import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;

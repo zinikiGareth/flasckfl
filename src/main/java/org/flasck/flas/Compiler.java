@@ -25,6 +25,8 @@ import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.droidgen.DroidBuilder;
 import org.flasck.flas.droidgen.DroidGenerator;
@@ -38,21 +40,19 @@ import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionLiteral;
-import org.flasck.flas.parsedForm.Locatable;
-import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWD3Invoke;
 import org.flasck.flas.rewrittenForm.RWD3PatternBlock;
@@ -63,9 +63,11 @@ import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
@@ -338,18 +340,18 @@ public class Compiler {
 				for (ContractGrouping ctr : grp.contracts) {
 					RWContractImplements ci = rewriter.cardImplements.get(ctr.implName);
 					if (ci == null)
-						throw new UtilException("How did this happen?");
-					ContractDecl cd = rewriter.contracts.get(ci.name());
+						throw new UtilException("Could not find contract implements for " + ctr.implName);
+					RWContractDecl cd = rewriter.contracts.get(ci.name());
 					if (cd == null)
-						throw new UtilException("How did this happen?");
-					Set<ContractMethodDecl> requireds = new TreeSet<ContractMethodDecl>(); 
-					for (ContractMethodDecl m : cd.methods) {
+						throw new UtilException("Could not find contract decl for " + ci.name());
+					Set<RWContractMethodDecl> requireds = new TreeSet<RWContractMethodDecl>(); 
+					for (RWContractMethodDecl m : cd.methods) {
 						if (m.dir.equals("down") && m.required)
 							requireds.add(m);
 					}
 					for (RWMethodDefinition m : ci.methods) {
 						boolean haveMethod = false;
-						for (ContractMethodDecl dc : cd.methods) {
+						for (RWContractMethodDecl dc : cd.methods) {
 							if (dc.dir.equals("down") && (ctr.implName +"." + dc.name).equals(m.intro.name)) {
 								if (dc.args.size() != m.intro.args.size())
 									errors.message(m.intro.location, "incorrect number of arguments in declaration, expected " + dc.args.size());
@@ -362,12 +364,12 @@ public class Compiler {
 							errors.message(m.intro.location, "cannot implement down method " + m.intro.name + " because it is not in the contract declaration");
 					}
 					if (!requireds.isEmpty()) {
-						for (ContractMethodDecl d : requireds)
+						for (RWContractMethodDecl d : requireds)
 							errors.message(ci.location(), ci.name() + " does not implement " + d);
 					}
 				}
 			}
-			for (Entry<String, ContractDecl> c : rewriter.contracts.entrySet()) {
+			for (Entry<String, RWContractDecl> c : rewriter.contracts.entrySet()) {
 				dg.generateContractDecl(c.getKey(), c.getValue());
 			}
 			for (Entry<String, RWContractImplements> ci : rewriter.cardImplements.entrySet()) {
@@ -641,11 +643,11 @@ public class Compiler {
 			} else if (val instanceof RWStructDefn) {
 //				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
 				tc.addStructDefn((RWStructDefn) val);
-			} else if (val instanceof ObjectDefn) {
+			} else if (val instanceof RWObjectDefn) {
 //				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
-				tc.addObjectDefn((ObjectDefn) val);
-			} else if (val instanceof UnionTypeDefn) {
-				tc.addTypeDefn((UnionTypeDefn) val);
+				tc.addObjectDefn((RWObjectDefn) val);
+			} else if (val instanceof RWUnionTypeDefn) {
+				tc.addTypeDefn((RWUnionTypeDefn) val);
 			} else if (val instanceof Type) {
 				tc.addExternal(x.getValue().getKey(), (Type)val);
 			} else if (val instanceof CardTypeInfo) {

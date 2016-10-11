@@ -2,13 +2,12 @@ package org.flasck.flas.typechecker;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Locatable;
+import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
@@ -92,7 +91,7 @@ public class Type implements Serializable, Locatable {
 		return polys != null && !polys.isEmpty();
 	}
 	
-	public Collection<Type> polys() {
+	public List<Type> polys() {
 		if (polys == null)
 			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
 		return polys;

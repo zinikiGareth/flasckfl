@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.Block;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -173,7 +173,7 @@ public class TypeExpr {
 			return ((TypeExpr)o).convertToType(tc, pool);
 		else if (o instanceof TypeUnion) {
 			TypeUnion tu = (TypeUnion)o;
-			for (UnionTypeDefn d : tc.types.values()) {
+			for (RWUnionTypeDefn d : tc.types.values()) {
 				Set<Map.Entry<Type, TypeExpr>> match = tu.matchesExactly(d);
 				if (match != null) {
 //					System.out.println("====");

@@ -13,12 +13,8 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AsString;
-import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -29,9 +25,14 @@ import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -61,9 +62,9 @@ public class TypeChecker {
 	private final VariableFactory factory = new VariableFactory();
 	final Map<String, Type> knowledge = new TreeMap<String, Type>();
 	final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
-	final Map<String, ObjectDefn> objects = new TreeMap<String, ObjectDefn>();
-	final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
-	final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>(new StringComparator());
+	final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
+	final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
+	final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>(new StringComparator());
 	final Map<String, RWHandlerImplements> handlers = new TreeMap<String, RWHandlerImplements>();
 	final Map<String, CardTypeInfo> cards = new TreeMap<String, CardTypeInfo>();
 	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>(new StringComparator());
@@ -76,10 +77,10 @@ public class TypeChecker {
 		for (Entry<String, RWStructDefn> d : rewriter.structs.entrySet())
 			structs.put(d.getKey(), d.getValue());
 //		System.out.println("structs: " + structs);
-		for (Entry<String, UnionTypeDefn> d : rewriter.types.entrySet())
+		for (Entry<String, RWUnionTypeDefn> d : rewriter.types.entrySet())
 			types.put(d.getKey(), d.getValue());
 //		System.out.println("types: " + types);
-		for (Entry<String, ContractDecl> d : rewriter.contracts.entrySet())
+		for (Entry<String, RWContractDecl> d : rewriter.contracts.entrySet())
 			contracts.put(d.getKey(), d.getValue());
 		for (Entry<String, CardGrouping> d : rewriter.cards.entrySet()) {
 			CardTypeInfo cti = new CardTypeInfo(d.getValue());
@@ -120,11 +121,11 @@ public class TypeChecker {
 		structs.put(structDefn.name(), structDefn);
 	}
 
-	public void addObjectDefn(ObjectDefn objDefn) {
+	public void addObjectDefn(RWObjectDefn objDefn) {
 		objects.put(objDefn.name(), objDefn);
 	}
 
-	public void addTypeDefn(UnionTypeDefn typeDefn) {
+	public void addTypeDefn(RWUnionTypeDefn typeDefn) {
 		types.put(typeDefn.name(), typeDefn);
 	}
 
@@ -135,7 +136,7 @@ public class TypeChecker {
 	public void addExternal(String name, Type type) {
 		if (type == null)
 			throw new UtilException("Don't give me null types");
-		if (type instanceof RWStructDefn || type instanceof UnionTypeDefn || type instanceof ObjectDefn)
+		if (type instanceof RWStructDefn || type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn)
 			throw new UtilException("Not just a type ... call special thing");
 		knowledge.put(name, type);
 	}
@@ -403,9 +404,9 @@ public class TypeChecker {
 				} else {
 					RWStructDefn sd = structs.get(sw.ctor);
 					Type pt = sd;
-					UnionTypeDefn ud = types.get(sw.ctor);
+					RWUnionTypeDefn ud = types.get(sw.ctor);
 					if (pt == null) pt = ud;
-					ContractDecl cd = contracts.get(sw.ctor);
+					RWContractDecl cd = contracts.get(sw.ctor);
 					if (pt == null) pt = cd;
 					if (pt == null) {
 						errors.message(sw.location, "there is no definition for type " + sw.ctor);
@@ -681,9 +682,9 @@ public class TypeChecker {
 					errors.message(posn, "there is no field '" + fn + "' in '" + tn +"'");
 					return null;
 				}
-				ObjectDefn od = this.objects.get(tn);
+				RWObjectDefn od = this.objects.get(tn);
 				if (od != null) {
-					for (ObjectMethod m : od.methods) {
+					for (RWObjectMethod m : od.methods) {
 						if (m.name.equals(fn)) {
 							Object r = m.type.asExpr(null, this, factory);
 							logger.debug("field " + m.name + " of " + od.name() + " has type " + m.type + " with fresh vars as " + r);
@@ -754,9 +755,9 @@ public class TypeChecker {
 		return Type.function(location, args);
 	}
 
-	private Type typeForObjectCtor(InputPosition location, ObjectDefn objectDefn) {
+	private Type typeForObjectCtor(InputPosition location, RWObjectDefn objectDefn) {
 		List<Type> args = new ArrayList<Type>();
-		for (StructField x : objectDefn.ctorArgs)
+		for (RWStructField x : objectDefn.ctorArgs)
 			args.add(x.type);
 		args.add(objectDefn);
 		return Type.function(location, args);
@@ -832,8 +833,8 @@ public class TypeChecker {
 			}
 		}
 		oos.writeObject(str);
-		List<UnionTypeDefn> ts = new ArrayList<UnionTypeDefn>();
-		for (UnionTypeDefn td : types.values()) {
+		List<RWUnionTypeDefn> ts = new ArrayList<RWUnionTypeDefn>();
+		for (RWUnionTypeDefn td : types.values()) {
 			if (td.generate) {
 				ts.add(td);
 				if (copyToScreen)
@@ -841,13 +842,13 @@ public class TypeChecker {
 			}
 		}
 		oos.writeObject(ts);
-		List<ContractDecl> cds = new ArrayList<ContractDecl>();
-		for (ContractDecl cd : contracts.values()) {
+		List<RWContractDecl> cds = new ArrayList<RWContractDecl>();
+		for (RWContractDecl cd : contracts.values()) {
 			if (cd.generate) {
 				cds.add(cd);
 				if (copyToScreen) {
 					System.out.println("  contract " + cd.name());
-					for (ContractMethodDecl m : cd.methods) {
+					for (RWContractMethodDecl m : cd.methods) {
 						System.out.print(Justification.LEFT.format("", 4));
 						System.out.print(Justification.PADRIGHT.format(m.dir, 5));
 						System.out.print(Justification.PADRIGHT.format(m.name, 12));

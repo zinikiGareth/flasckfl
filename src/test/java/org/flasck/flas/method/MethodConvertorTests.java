@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.ApplyExpr;
@@ -26,20 +28,18 @@ import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
-import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -68,7 +68,7 @@ public class MethodConvertorTests {
 	public MethodConvertorTests() {
 		errors = new ErrorResult();
 		Scope biscope = Builtin.builtinScope();
-		UnionTypeDefn any = (UnionTypeDefn) biscope.get("Any");
+		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
 		RWStructDefn send = (RWStructDefn) biscope.get("Send");
 		org = new PackageDefn(null, biscope, "org");
 		pkg = new PackageDefn(null, org.innerScope(), "foo");
@@ -133,10 +133,10 @@ public class MethodConvertorTests {
 		tc.addExternal("org.foo.doSend", (Type) orgFooScope.get("doSend"));
 		tc.addTypeDefn(any);
 		tc.addStructDefn((RWStructDefn) biscope.get("Nil"));
-		tc.addTypeDefn((UnionTypeDefn) biscope.get("List"));
+		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("List"));
 		tc.addStructDefn((RWStructDefn) biscope.get("Cons"));
 		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
-		tc.addTypeDefn((UnionTypeDefn) biscope.get("Message"));
+		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("Message"));
 		tc.addStructDefn(send);
 	}
 	

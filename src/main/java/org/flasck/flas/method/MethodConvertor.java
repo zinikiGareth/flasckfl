@@ -7,19 +7,16 @@ import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardStateRef;
-import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.Locatable;
-import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.TypeWithMethods;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
@@ -30,6 +27,10 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
+import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWEventCaseDefn;
 import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
@@ -38,6 +39,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.typechecker.Type;
@@ -51,10 +53,10 @@ public class MethodConvertor {
 	private final ErrorResult errors;
 	private final HSIE hsie;
 	private final TypeChecker tc;
-	private final Map<String, ContractDecl> contracts;
+	private final Map<String, RWContractDecl> contracts;
 	private final Type messageList;
 
-	public MethodConvertor(ErrorResult errors, HSIE hsie, TypeChecker tc, Map<String, ContractDecl> contracts) {
+	public MethodConvertor(ErrorResult errors, HSIE hsie, TypeChecker tc, Map<String, RWContractDecl> contracts) {
 		this.errors = errors;
 		this.hsie = hsie;
 		this.tc = tc;
@@ -172,15 +174,15 @@ public class MethodConvertor {
 	}
 
 	protected List<Type> figureCMD(MethodInContext m) {
-		ContractDecl cd = contracts.get(m.fromContract);
+		RWContractDecl cd = contracts.get(m.fromContract);
 		if (cd == null) {
 			errors.message(m.contractLocation, "cannot find contract " + m.fromContract);
 			return null;
 		}
-		ContractMethodDecl cmd = null;
+		RWContractMethodDecl cmd = null;
 		int idx = m.name.lastIndexOf(".");
 		String mn = m.name.substring(idx+1);
-		for (ContractMethodDecl md : cd.methods) {
+		for (RWContractMethodDecl md : cd.methods) {
 			if (mn.equals(md.name)) {
 				if (m.direction == MethodInContext.DOWN && md.dir.equals("up")) {
 					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is an up method");
@@ -366,19 +368,19 @@ public class MethodConvertor {
 	}
 
 	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<Type> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
-		ContractDecl cd = null;
+		RWContractDecl cd = null;
 		TypeWithMethods proto = senderType;
 		Type methodType = null;
-		if (senderType instanceof ContractDecl) {
-			proto = cd = (ContractDecl) senderType;
+		if (senderType instanceof RWContractDecl) {
+			proto = cd = (RWContractDecl) senderType;
 			if (proto.hasMethod(method.text))
 				methodType = cd.getMethodType(method.text);
-		} else if (senderType instanceof ContractService || senderType instanceof ContractImplements) {
-			proto = cd = (ContractDecl) tc.getType(senderType.location(), senderType.name());
+		} else if (senderType instanceof RWContractService || senderType instanceof RWContractImplements) {
+			proto = cd = (RWContractDecl) tc.getType(senderType.location(), senderType.name());
 			if (proto.hasMethod(method.text))
 				methodType = cd.getMethodType(method.text);
-		} else if (senderType instanceof ObjectDefn) {
-			ObjectDefn od = (ObjectDefn) senderType;
+		} else if (senderType instanceof RWObjectDefn) {
+			RWObjectDefn od = (RWObjectDefn) senderType;
 			if (senderType.hasMethod(method.text))
 				methodType = od.getMethod(method.text);
 		}

@@ -13,6 +13,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -244,7 +245,7 @@ public class TypeVariableMappings {
 		for (TypeUnion tu : needTypeResolution) {
 			if (tu.containsAny())
 				continue;
-			for (UnionTypeDefn d : tc.types.values()) {
+			for (RWUnionTypeDefn d : tc.types.values()) {
 				Set<Map.Entry<Type, TypeExpr>> match = tu.matchesEnough(d);
 				if (match != null) {
 //					System.out.println("====");

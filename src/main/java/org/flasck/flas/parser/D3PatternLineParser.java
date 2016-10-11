@@ -1,8 +1,8 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.D3PatternBlock;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;

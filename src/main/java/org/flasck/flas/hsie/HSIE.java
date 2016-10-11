@@ -11,10 +11,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
-import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;

@@ -1,9 +1,9 @@
 package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.zinutils.utils.Justification;

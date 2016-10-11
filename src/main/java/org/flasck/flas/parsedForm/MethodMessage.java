@@ -3,6 +3,8 @@ package org.flasck.flas.parsedForm;
 import java.io.Serializable;
 import java.util.List;
 
+import org.flasck.flas.commonBase.Locatable;
+
 @SuppressWarnings("serial")
 public class MethodMessage implements Serializable {
 	public final List<Locatable> slot;

@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardFunction;
@@ -15,9 +17,7 @@ import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
-import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;

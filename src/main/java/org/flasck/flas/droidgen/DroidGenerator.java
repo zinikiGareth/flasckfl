@@ -12,7 +12,6 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -28,7 +27,9 @@ import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -204,7 +205,7 @@ public class DroidGenerator {
 		return new JavaType(name);
 	}
 
-	public void generateContractDecl(String name, ContractDecl cd) {
+	public void generateContractDecl(String name, RWContractDecl cd) {
 		if (builder == null)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, name);
@@ -217,7 +218,7 @@ public class DroidGenerator {
 			ctor.returnVoid().flush();
 		}
 		
-		for (ContractMethodDecl m : cd.methods) {
+		for (RWContractMethodDecl m : cd.methods) {
 			if (m.dir.equals("down")) {
 				System.out.println(name + " " + m.dir + " " + m.name);
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);

@@ -9,14 +9,14 @@ import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
-public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Serializable {
+public class RWContractMethodDecl implements Comparable<RWContractMethodDecl>, Serializable {
 	public final boolean required;
 	public final String dir;
 	public final String name;
 	public final List<Object> args;
 	public final Type type;
 
-	public ContractMethodDecl(InputPosition pos, boolean required, String dir, String name, List<Object> args) {
+	public RWContractMethodDecl(InputPosition pos, boolean required, String dir, String name, List<Object> args) {
 		this.required = required;
 		this.dir = dir;
 		this.name = name;
@@ -35,7 +35,7 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 		this.type = Type.function(pos, types);
 	}
 
-	public ContractMethodDecl(boolean required, String dir, String name, List<Object> args, Type type) {
+	public RWContractMethodDecl(boolean required, String dir, String name, List<Object> args, Type type) {
 		this.required = required;
 		this.dir = dir;
 		this.name = name;
@@ -44,7 +44,7 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 	}
 
 	@Override
-	public int compareTo(ContractMethodDecl o) {
+	public int compareTo(RWContractMethodDecl o) {
 		int dc = dir.compareTo(o.dir);
 		if (dc != 0) return dc;
 		return name.compareTo(o.name);

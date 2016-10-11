@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Locatable;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 

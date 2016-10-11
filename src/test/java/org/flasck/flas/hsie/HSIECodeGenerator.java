@@ -7,12 +7,12 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.LetExpr;
-import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;

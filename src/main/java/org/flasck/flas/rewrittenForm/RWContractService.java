@@ -3,7 +3,7 @@ package org.flasck.flas.rewrittenForm;
 import org.flasck.flas.blockForm.InputPosition;
 
 @SuppressWarnings("serial")
-public class RWContractService extends Implements {
+public class RWContractService extends RWImplements {
 	public final String referAsVar;
 	public final InputPosition vlocation;
 

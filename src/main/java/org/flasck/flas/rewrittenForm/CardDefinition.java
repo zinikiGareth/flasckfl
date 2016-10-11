@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Locatable;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.parsedForm.PlatformSpec;
 
 @SuppressWarnings("serial")

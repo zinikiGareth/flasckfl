@@ -12,6 +12,10 @@ import org.flasck.flas.PackageFinder;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.SpecialFormat;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -38,18 +42,14 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
-import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
-import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.parsedForm.SpecialFormat;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
@@ -80,7 +80,9 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWContentString;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWD3Invoke;
 import org.flasck.flas.rewrittenForm.RWD3PatternBlock;
@@ -107,6 +109,7 @@ import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
 import org.flasck.flas.rewrittenForm.RWTemplateList;
 import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 import org.flasck.flas.rewrittenForm.RWTemplateOr;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -135,8 +138,8 @@ public class Rewriter {
 	private final ErrorResult errors;
 	private final PackageFinder pkgFinder;
 	public final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
-	public final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
-	public final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>();
+	public final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
+	public final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
 	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
 	public final List<RWD3Invoke> d3s = new ArrayList<RWD3Invoke>();
@@ -213,8 +216,11 @@ public class Rewriter {
 				ScopeEntry o = scope.getEntry(tmp);
 				if (o != null) {
 					Object defn = o.getValue();
-					if (defn instanceof ContractDecl)
-						contracts.put(name, (ContractDecl) defn);
+					if (defn instanceof ContractDecl) {
+						// TODO: big-divide: I really don't like this; why has it not been rewritten?
+//						contracts.put(name, rewrite(this, (ContractDecl) defn));
+						throw new UtilException("I would like to think that it has been rewritten at some point");
+					}
 					return new PackageVar(location, o);
 				}
 			}
@@ -462,7 +468,7 @@ public class Rewriter {
 			else if (val instanceof StructDefn) {
 				structs.put(name, rewrite(cx, (StructDefn)val));
 			} else if (val instanceof UnionTypeDefn) {
-				types.put(name, (UnionTypeDefn)val);
+				types.put(name, rewrite(cx, (UnionTypeDefn)val));
 			} else if (val instanceof ContractDecl) {
 				contracts.put(name, rewrite(cx, (ContractDecl)val));
 			} else if (val instanceof HandlerImplements) {
@@ -470,9 +476,9 @@ public class Rewriter {
 			} else if (val instanceof RWStructDefn) { // already rewritten struct - from builtin or FLIM
 				structs.put(name, (RWStructDefn) val);
 			} else if (val instanceof Type) {
-				logger.info("Not doing anything with Type " + name + ": " + val.getClass()); // don't do anything - is that OK? 
+				logger.warn("Not doing anything with Type " + name + ": " + val.getClass()); // don't do anything - is that OK? 
 			} else if (val == null)
-				logger.info("Did you know " + name + " does not have a definition?");
+				logger.warn("Did you know " + name + " does not have a definition?");
 			else
 				throw new UtilException("Cannot handle " + name +": " + (val == null?"null":val.getClass()));
 		}
@@ -697,6 +703,22 @@ public class Rewriter {
 		return new RWTemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
 	}
 
+	private RWContractDecl rewrite(NamingContext cx, ContractDecl ctr) {
+		RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.name());
+		for (ContractMethodDecl cmd : ctr.methods) {
+			ret.addMethod(rewrite(cx, cmd));
+		}
+		return ret;
+	}
+
+	private RWContractMethodDecl rewrite(NamingContext cx, ContractMethodDecl cmd) {
+		List<Object> args = new ArrayList<Object>();
+		for (Object o : cmd.args) {
+			args.add(rewritePattern(cx, o));
+		}
+		return new RWContractMethodDecl(cmd.required, cmd.dir, cmd.name, args, rewrite(cx, cmd.type, false));
+	}
+
 	private RWContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
 		try {
 			Object av = cx.nested.resolve(ci.location(), ci.name());
@@ -826,21 +848,14 @@ public class Rewriter {
 		return ret;
 	}
 
-	private ContractDecl rewrite(NamingContext cx, ContractDecl ctr) {
-		ContractDecl ret = new ContractDecl(ctr.kw, ctr.location(), ctr.name());
-		for (ContractMethodDecl cmd : ctr.methods) {
-			ret.addMethod(rewrite(cx, cmd));
+	private RWUnionTypeDefn rewrite(NamingContext cx, UnionTypeDefn u) {
+		RWUnionTypeDefn ret = new RWUnionTypeDefn(u.location(), u.generate, u.name(), u.polys());
+		for (Type c : u.cases) {
+			ret.addCase(rewrite(cx, c, true));
 		}
 		return ret;
 	}
 
-	private ContractMethodDecl rewrite(NamingContext cx, ContractMethodDecl cmd) {
-		List<Object> args = new ArrayList<Object>();
-		for (Object o : cmd.args) {
-			args.add(rewritePattern(cx, o));
-		}
-		return new ContractMethodDecl(cmd.required, cmd.dir, cmd.name, args, rewrite(cx, cmd.type, false));
-	}
 
 	private RWFunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c, Map<String, LocalVar> vars) {
 		RWFunctionIntro intro = rewrite(cx, c.intro, vars);
