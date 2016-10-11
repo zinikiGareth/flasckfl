@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;

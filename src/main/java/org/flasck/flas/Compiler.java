@@ -32,6 +32,7 @@ import org.flasck.flas.droidgen.DroidBuilder;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.flim.PackageFinder;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSTarget;
@@ -204,7 +205,7 @@ public class Compiler {
 		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 		LogManager.getLogger("Generator").setLevel(Level.WARN);
 		LogManager.getLogger("HSIE").setLevel(Level.WARN);
-		LogManager.getLogger("Rewriter").setLevel(Level.WARN);
+		LogManager.getLogger("Rewriter").setLevel(Level.ERROR);
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 	}
 
@@ -439,18 +440,7 @@ public class Compiler {
 			abortIfErrors(errors);
 
 			// 10. Save learned state for export
-			try {
-				wex = new FileOutputStream(exportTo);
-			} catch (IOException ex) {
-				System.err.println("Cannot write to " + exportTo + ": " + ex.getMessage());
-				return;
-			}
-			tc.writeLearnedKnowledge(wex, inPkg, dumpTypes);
-			File pf = file.getParentFile();
-			if (pf == null)
-				pkgFinder.searchIn(new File("."));
-			else
-				pkgFinder.searchIn(pf);
+			tc.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
 
 			// 11. generation of JSForms
 			generateForms(gen, forms.values());

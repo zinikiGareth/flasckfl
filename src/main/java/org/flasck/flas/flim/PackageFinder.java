@@ -1,58 +1,30 @@
-package org.flasck.flas;
+package org.flasck.flas.flim;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.ArgumentException;
+import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.PackageDefn;
-import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.rewrittenForm.RWStructDefn;
-import org.flasck.flas.typechecker.CardTypeInfo;
-import org.flasck.flas.typechecker.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zinutils.exceptions.UtilException;
+import org.zinutils.xml.XML;
 
 public class PackageFinder {
 	private final List<File> dirs = new ArrayList<File>();
 	private final static Logger logger = LoggerFactory.getLogger("Compiler");
 	
-	public Scope loadFlim(ErrorResult errors, Scope rootScope, String pkgName) {
+	public ImportPackage loadFlim(ErrorResult errors, String pkgName) {
 		for (File d : dirs) {
-			File pkg = new File(d, pkgName);
-			if (pkg.isDirectory()) {
-				// Create the scope
-				String tmp = pkgName;
-				Scope scope = rootScope;
-				while (tmp != null) {
-					int idx = tmp.indexOf('.');
-					String pp = (idx == -1)?tmp:tmp.substring(0, idx);
-					Object o = scope.get(pp);
-					if (o == null) {
-						o = new PackageDefn(new InputPosition(pkg.getName(), 0, 0, pkgName), scope, pp);
-					}
-					scope = ((PackageDefn)o).innerScope();
-					if (idx == -1)
-						tmp = null;
-					else
-						tmp = tmp.substring(idx+1);
-				}
-				
+			File flim = new File(d, pkgName + ".flim");
+			if (flim.canRead()) {
 				// Load definitions into it
-				ObjectInputStream ois = null;
-				File file = new File(pkg, pkgName + ".flim");
 				try {
-					logger.info("Loading definitions for " + pkgName + " from " + file);
-					ois = new ObjectInputStream(new FileInputStream(file));
+					logger.info("Loading definitions for " + pkgName + " from " + flim);
+					XML xml = XML.fromFile(flim);
+					ImportPackage ret = new ImportPackage(pkgName);
+					/*
 					@SuppressWarnings("unchecked")
 					List<RWStructDefn> structs = (List<RWStructDefn>) ois.readObject();
 					for (RWStructDefn sd : structs) {
@@ -83,15 +55,12 @@ public class PackageFinder {
 						int idx = t.getKey().lastIndexOf(".");
 						scope.define(t.getKey().substring(idx+1), t.getKey(), t.getValue());
 					}
-				} catch (InvalidClassException ex) {
-					System.out.println(ex.classname + " has " + ex.getMessage());
-					errors.message((InputPosition)null, "Could not load flim " + file + " due to format errors; try regenerating");
+					*/
+					return ret;
 				} catch (Exception ex) {
-					throw UtilException.wrap(ex);
+					errors.message((Block)null, ex.toString());
 				} finally {
-					try { if (ois != null) ois.close(); } catch (Exception ex) {}
 				}
-				return scope;
 			}
 		}
 		return null;

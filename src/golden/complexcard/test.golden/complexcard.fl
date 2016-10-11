@@ -3,6 +3,11 @@ This is a complex card with "one of everything"
 	struct Thing
 		String x
 		
+	struct Polyed T1 T2
+		String x
+		T1 y
+		List[T2] z
+		
 	contract Init
 		down ready (Any obj)
 

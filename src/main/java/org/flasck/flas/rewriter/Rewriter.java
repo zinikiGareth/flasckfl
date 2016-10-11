@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.flasck.flas.PackageFinder;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
@@ -17,6 +16,8 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.ImportPackage;
+import org.flasck.flas.flim.PackageFinder;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardFunction;
@@ -186,42 +187,17 @@ public class Rewriter {
 			}
 			if (name.contains(".")) {
 				// try and resolve through a sequence of packages
-				String tmp = name;
-				int idx;
-				Scope scope = biscope;
-				while ((idx = tmp.indexOf('.')) != -1) {
-					String pkg = tmp.substring(0, idx);
-					Object o = scope.get(pkg);
-					if (o == null)
-						break;
-					if  (!(o instanceof PackageDefn)) {
-						errors.message(location, "The name " + pkg + " is not a package and thus cannot contain " + name);
-						return null;
-					}
-					tmp = tmp.substring(idx+1);
-					scope = ((PackageDefn)o).innerScope();
-				}
-				if (tmp.contains(".")) { // we don't yet have the scope
-					idx = name.lastIndexOf(".");
-					String pkgName = name.substring(0, idx);
-					if (pkgFinder != null) {
-						scope = pkgFinder.loadFlim(errors, biscope, pkgName);
-						if (scope == null)
-							throw new ResolutionException(location, 0, pkgName);
-					}
-					if (scope == null)
-						throw new ResolutionException(location, name);
-					tmp = name.substring(idx+1);
-				}
-				ScopeEntry o = scope.getEntry(tmp);
-				if (o != null) {
-					Object defn = o.getValue();
-					if (defn instanceof ContractDecl) {
-						// TODO: big-divide: I really don't like this; why has it not been rewritten?
-//						contracts.put(name, rewrite(this, (ContractDecl) defn));
-						throw new UtilException("I would like to think that it has been rewritten at some point");
-					}
-					return new PackageVar(location, o);
+				// TODO: need to be sure to consider "the current package"
+				int idx = name.lastIndexOf(".");
+				String pkgName = name.substring(0, idx);
+				ImportPackage ip = pkgFinder.loadFlim(errors, pkgName);
+				if (ip == null)
+					throw new ResolutionException(location, 0, pkgName);
+				Map.Entry<String, Object> defn = ip.getEntry(name);
+				if (defn != null) {
+					// Now, do I really want to wrap this up or just return it?
+					// I think I do need to wrap it up in order to get the "location" here ...
+					return new PackageVar(location, defn.getKey(), defn.getValue());
 				}
 			}
 			throw new ResolutionException(location, name);
@@ -244,6 +220,25 @@ public class Rewriter {
 				return new PackageVar(location, pkg.innerScope().getEntry(name));
 			return nested.resolve(location, name);
 		}
+	}
+
+	public class StructDefnContext extends NamingContext {
+		private final List<Type> polys;
+
+		public StructDefnContext(NamingContext cx, List<Type> polys) {
+			super(cx);
+			this.polys = polys;
+		}
+
+		@Override
+		public Object resolve(InputPosition location, String name) {
+			for (Type t : polys) {
+				if (t.name().equals(name))
+					return t;
+			}
+			return nested.resolve(location, name);
+		}
+
 	}
 
 	/** The Card Context can only be found directly in a Package Context 
@@ -842,7 +837,9 @@ public class Rewriter {
 	private RWStructDefn rewrite(NamingContext cx, StructDefn sd) {
 		RWStructDefn ret = new RWStructDefn(sd.location(), sd.name(), sd.generate, (List<Type>)sd.polys());
 		for (StructField sf : sd.fields) {
-			RWStructField rsf = new RWStructField(sf.loc, false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init));
+			// TODO: it's not clear that the expression needs this rewritten context
+			StructDefnContext sx = new StructDefnContext(cx, sd.polys());
+			RWStructField rsf = new RWStructField(sf.loc, false, rewrite(sx, sf.type, false), sf.name, rewriteExpr(sx, sf.init));
 			ret.addField(rsf);
 		}
 		return ret;
@@ -1068,13 +1065,15 @@ public class Rewriter {
 			else {
 				try {
 					Object r = cx.resolve(type.location(), type.name());
-					if (!(r instanceof PackageVar)) {
-						errors.message(type.location(), type.name() + " is not a type definition");
-						return null;
-					}
-					ret = (Type) ((PackageVar)r).defn;
-					if (ret == null) {
+					if (r == null) {
 						errors.message(type.location(), "there is no definition in var for " + type.name());
+						return null;
+					} else if (r instanceof Type)
+						ret = (Type)r;
+					else if (r instanceof PackageVar)
+						ret = (Type) ((PackageVar)r).defn;
+					else {
+						errors.message(type.location(), type.name() + " is not a type definition");
 						return null;
 					}
 				} catch (ResolutionException ex) {

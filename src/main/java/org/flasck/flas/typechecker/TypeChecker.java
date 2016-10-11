@@ -1,8 +1,7 @@
 package org.flasck.flas.typechecker;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.AsString;
+import org.flasck.flas.flim.KnowledgeWriter;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
@@ -23,7 +22,6 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
-import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
@@ -51,7 +49,6 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
-import org.zinutils.utils.Justification;
 import org.zinutils.utils.StringComparator;
 
 public class TypeChecker {
@@ -818,70 +815,33 @@ public class TypeChecker {
 		throw new UtilException("There is no type: " + name);
 	}
 
-	public void writeLearnedKnowledge(OutputStream wex, String inPkg, boolean copyToScreen) throws IOException {
+	public void writeLearnedKnowledge(File exportTo, String inPkg, boolean copyToScreen) throws IOException {
 		if (copyToScreen)
 			System.out.println("Exporting inferred types at top scope:");
-		ObjectOutputStream oos = new ObjectOutputStream(wex);
-		List<RWStructDefn> str = new ArrayList<RWStructDefn>();
+		KnowledgeWriter kw = new KnowledgeWriter(exportTo, inPkg, copyToScreen);
+
 		for (RWStructDefn sd : structs.values()) {
 			if (sd.generate) {
-				str.add(sd);
-				if (copyToScreen)
-					System.out.println("  struct " + sd.asString());
+				kw.add(sd);
 			}
 		}
-		oos.writeObject(str);
-		List<RWUnionTypeDefn> ts = new ArrayList<RWUnionTypeDefn>();
+
 		for (RWUnionTypeDefn td : types.values()) {
 			if (td.generate) {
-				ts.add(td);
-				if (copyToScreen)
-					System.out.println("  type " + td.name());
+				kw.add(td);
 			}
 		}
-		oos.writeObject(ts);
-		List<RWContractDecl> cds = new ArrayList<RWContractDecl>();
+
 		for (RWContractDecl cd : contracts.values()) {
 			if (cd.generate) {
-				cds.add(cd);
-				if (copyToScreen) {
-					System.out.println("  contract " + cd.name());
-					for (RWContractMethodDecl m : cd.methods) {
-						System.out.print(Justification.LEFT.format("", 4));
-						System.out.print(Justification.PADRIGHT.format(m.dir, 5));
-						System.out.print(Justification.PADRIGHT.format(m.name, 12));
-						System.out.print(" ::");
-						String sep = " ";
-						for (Object o : m.args) {
-							System.out.print(sep + ((AsString)o).asString());
-							sep = " -> ";
-						}
-						System.out.println();
-					}
-				}
+				kw.add(cd);
 			}
 		}
-		oos.writeObject(cds);
 		
-		List<CardTypeInfo> ctis = new ArrayList<CardTypeInfo>();
 		for (CardTypeInfo cti : this.cards.values()) {
-			ctis.add(cti);
-			if (copyToScreen) {
-				System.out.println("  card " + cti.name);
-				for (TypeHolder x : cti.contracts) {
-					System.out.println("    contract " + x.name);
-					x.dump(6);
-				}
-				for (TypeHolder x : cti.handlers) {
-					System.out.println("    handler " + x.name);
-					x.dump(6);
-				}
-				cti.dump(4);
-			}
+			kw.add(cti);
 		}
-		oos.writeObject(ctis);
 		
-		Map<String, Type> types = new TreeMap<String, Type>();
 		for (Entry<String, Type> x : this.knowledge.entrySet()) {
 			// Only save things in our package
 			if (!x.getKey().startsWith(inPkg + "."))
@@ -891,10 +851,8 @@ public class TypeChecker {
 			if (x.getKey().substring(inPkg.length()+1).indexOf(".") != -1)
 				continue;
 
-			System.out.println("  function " + x.getKey() + " :: " + x.getValue() + " => " + x.getValue().location());
-			types.put(x.getKey(), x.getValue());
+			kw.add(x.getKey(), x.getValue());
 		}
-		oos.writeObject(types);
-		oos.flush();
+		kw.commit();
 	}
 }
