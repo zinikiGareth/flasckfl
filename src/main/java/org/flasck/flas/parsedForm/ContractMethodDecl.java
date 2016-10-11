@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
-public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Serializable {
+public class ContractMethodDecl implements Locatable, Comparable<ContractMethodDecl>, Serializable {
+	private final InputPosition pos;
 	public final boolean required;
 	public final String dir;
 	public final String name;
@@ -17,6 +19,7 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 	public final Type type;
 
 	public ContractMethodDecl(InputPosition pos, boolean required, String dir, String name, List<Object> args) {
+		this.pos = pos;
 		this.required = required;
 		this.dir = dir;
 		this.name = name;
@@ -33,14 +36,6 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 		}
 		types.add(Type.reference(pos, "Send"));
 		this.type = Type.function(pos, types);
-	}
-
-	public ContractMethodDecl(boolean required, String dir, String name, List<Object> args, Type type) {
-		this.required = required;
-		this.dir = dir;
-		this.name = name;
-		this.args = args;
-		this.type = type;
 	}
 
 	@Override
@@ -62,5 +57,10 @@ public class ContractMethodDecl implements Comparable<ContractMethodDecl>, Seria
 			sb.append(((AsString)o).asString());
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public InputPosition location() {
+		return pos;
 	}
 }

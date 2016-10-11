@@ -7,7 +7,9 @@ This is a complex card with "one of everything"
 		String x
 		T1 y
 		List[T2] z
-		
+	
+.	union PolyThing A B = Thing | Polyed A B
+	
 	contract Init
 		down ready (Any obj)
 

@@ -11,10 +11,11 @@ import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeHolder;
-import org.flasck.flas.typechecker.Type.WhatAmI;
+import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.Justification;
 import org.zinutils.xml.XML;
@@ -52,12 +53,40 @@ public class KnowledgeWriter {
 			System.out.println("  struct " + sd.asString());
 	}
 
+	// Note: this case is currently untested because we don't have the syntax to introduce these ...
 	public void add(RWUnionTypeDefn td) {
+		XMLElement xe = top.addElement("Union");
+		writeLocation(xe, td);
+		xe.setAttribute("name", td.name());
+		writePolys(xe, td.polys());
+		for (Type f : td.cases) {
+			writeTypeUsage(xe, f);
+		}
 		if (copyToScreen)
 			System.out.println("  type " + td.name());
 	}
 
 	public void add(RWContractDecl cd) {
+		XMLElement xe = top.addElement("Contract");
+		writeLocation(xe, cd);
+		xe.setAttribute("name", cd.name());
+		for (RWContractMethodDecl meth : cd.methods) {
+			XMLElement xm = xe.addElement("Method");
+			writeLocation(xm, meth);
+			xm.setAttribute("required", Boolean.toString(meth.required));
+			xm.setAttribute("dir", meth.dir);
+			xm.setAttribute("name", meth.name);
+			for (Object arg : meth.args) {
+				if (arg instanceof RWTypedPattern) {
+					RWTypedPattern tp = (RWTypedPattern) arg;
+					XMLElement ae = xm.addElement("Typed");
+					writeLocation(ae, tp);
+					ae.setAttribute("var", tp.var);
+					writeTypeUsage(ae, tp.type);
+				} else
+					throw new UtilException("Cannot handle " + arg.getClass());
+			}
+		}
 		if (copyToScreen) {
 			System.out.println("  contract " + cd.name());
 			for (RWContractMethodDecl m : cd.methods) {
@@ -100,7 +129,9 @@ public class KnowledgeWriter {
 	// It gives fully-qualified names, but only deals with "references" to types
 	private void writeTypeUsage(XMLElement xe, Type type) {
 		switch (type.iam) {
-		case BUILTIN: {
+		case BUILTIN:
+		case CONTRACT:
+		{
 			XMLElement ty = xe.addElement("Type");
 			ty.setAttribute("name", type.name());
 			break;

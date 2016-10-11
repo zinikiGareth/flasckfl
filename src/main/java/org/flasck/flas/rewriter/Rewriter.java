@@ -110,7 +110,9 @@ import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
 import org.flasck.flas.rewrittenForm.RWTemplateList;
 import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 import org.flasck.flas.rewrittenForm.RWTemplateOr;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -711,7 +713,7 @@ public class Rewriter {
 		for (Object o : cmd.args) {
 			args.add(rewritePattern(cx, o));
 		}
-		return new RWContractMethodDecl(cmd.required, cmd.dir, cmd.name, args, rewrite(cx, cmd.type, false));
+		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, args, rewrite(cx, cmd.type, false));
 	}
 
 	private RWContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
@@ -890,9 +892,10 @@ public class Rewriter {
 		try {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;
-				return new TypedPattern(tp.typeLocation, rewrite(cx, tp.type, false), tp.varLocation, tp.var);
+				return new RWTypedPattern(tp.typeLocation, rewrite(cx, tp.type, false), tp.varLocation, tp.var);
 			} else if (o instanceof VarPattern) {
-				return o;
+				VarPattern vp = (VarPattern) o;
+				return new RWVarPattern(vp.location(), vp.var);
 			} else if (o instanceof ConstructorMatch) {
 				ConstructorMatch cm = (ConstructorMatch) o;
 				Object type = cx.resolve(cm.location, cm.ctor);
