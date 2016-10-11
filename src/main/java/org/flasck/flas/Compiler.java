@@ -255,6 +255,10 @@ public class Compiler {
 		}
 		this.writeJS = file;
 	}
+
+	public void dumpTypes() {
+		this.dumpTypes = true;
+	}
 	
 	public void compile(File file) throws ErrorResultException, IOException {
 		String inPkg = file.getName();

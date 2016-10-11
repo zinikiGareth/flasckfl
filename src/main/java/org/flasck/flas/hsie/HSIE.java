@@ -14,15 +14,14 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
-import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -125,16 +124,16 @@ public class HSIE {
 	private void createSubsts(MetaState ms, List<Object> args, List<Var> formals, SubstExpr expr) {
 		for (int i=0;i<args.size();i++) {
 			Object arg = args.get(i);
-			if (arg instanceof VarPattern) {
-				VarPattern vp = (VarPattern) arg;
+			if (arg instanceof RWVarPattern) {
+				RWVarPattern vp = (RWVarPattern) arg;
 				String called = vp.var;
 				expr.subst(called, new CreationOfVar(formals.get(i), vp.varLoc, called));
 			} else if (arg instanceof RWConstructorMatch)
 				ctorSub((RWConstructorMatch) arg, ms, formals.get(i), expr);
 			else if (arg instanceof ConstPattern)
 				;
-			else if (arg instanceof TypedPattern) {
-				TypedPattern tp = (TypedPattern) arg;
+			else if (arg instanceof RWTypedPattern) {
+				RWTypedPattern tp = (RWTypedPattern) arg;
 				String called = tp.var;
 				expr.subst(called, new CreationOfVar(formals.get(i), tp.varLocation, called));
 			} else
@@ -145,11 +144,11 @@ public class HSIE {
 	private void ctorSub(RWConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
 		for (Field x : cm.args) {
 			Var v = ms.varFor(from, x.field);
-			if (x.patt instanceof VarPattern) {
-				VarPattern vp = (VarPattern)x.patt;
+			if (x.patt instanceof RWVarPattern) {
+				RWVarPattern vp = (RWVarPattern)x.patt;
 				String called = vp.var;
 				expr.subst(called, new CreationOfVar(v, vp.varLoc, called));
-			} else if (x.patt instanceof ConstructorMatch)
+			} else if (x.patt instanceof RWConstructorMatch)
 				ctorSub((RWConstructorMatch)x.patt, ms, v, expr);
 			else if (x.patt instanceof ConstPattern)
 				;
@@ -307,13 +306,13 @@ public class HSIE {
 			Option o = t.createOption(e.getKey());
 			for (Entry<Object, SubstExpr> pe : e.getValue()) {
 				Object patt = pe.getKey();
-				if (patt instanceof VarPattern) {
-					o.anything(pe.getValue(), ((VarPattern)patt).var);
+				if (patt instanceof RWVarPattern) {
+					o.anything(pe.getValue(), ((RWVarPattern)patt).var);
 				} else if (patt instanceof RWConstructorMatch) {
 					RWConstructorMatch cm = (RWConstructorMatch) patt;
 					o.ifCtor(cm.location, cm.ref.uniqueName(), cm.args, pe.getValue());
-				} else if (patt instanceof TypedPattern) {
-					TypedPattern tp = (TypedPattern) patt;
+				} else if (patt instanceof RWTypedPattern) {
+					RWTypedPattern tp = (RWTypedPattern) patt;
 					o.ifCtor(tp.typeLocation, tp.type.name(), new ArrayList<Field>(), pe.getValue());
 				} else if (patt instanceof ConstPattern) {
 					ConstPattern cp = (ConstPattern) patt;

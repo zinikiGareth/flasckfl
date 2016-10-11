@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;

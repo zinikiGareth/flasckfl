@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.parsedForm.AsString;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -15,6 +15,7 @@ import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeHolder;
+import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.Justification;
@@ -119,7 +120,15 @@ public class KnowledgeWriter {
 		}
 	}
 
+	// I believe this is *just* functions
 	public void add(String name, Type type) {
+		if (type.iam != WhatAmI.FUNCTION)
+			throw new UtilException("I thought this was just functions");
+		XMLElement xe = top.addElement("Function");
+		// TODO: I think we should get the location of the first case ...
+		writeLocation(xe, type);
+		xe.setAttribute("name", name);
+		writeTypeUsage(xe, type);
 		if (copyToScreen)
 			System.out.println("  function " + name + " :: " + type + " => " + type.location());
 	}
@@ -146,6 +155,15 @@ public class KnowledgeWriter {
 			ty.setAttribute("name", type.name());
 			for (Type t : type.polys())
 				writeTypeUsage(ty, t);
+			break;
+		}
+		case FUNCTION: {
+			for (int i=0;i<type.arity();i++) {
+				XMLElement ae = xe.addElement("Arg");
+				writeTypeUsage(ae, type.arg(i));
+			}
+			XMLElement re = xe.addElement("Return");
+			writeTypeUsage(re, type.arg(type.arity()));
 			break;
 		}
 		default:

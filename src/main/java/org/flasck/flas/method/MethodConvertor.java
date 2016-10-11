@@ -17,9 +17,7 @@ import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
@@ -42,6 +40,8 @@ import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -204,8 +204,8 @@ public class MethodConvertor {
 		List<Type> types = new ArrayList<Type>();
 		boolean fail = false;
 		for (Object o : cmd.args) {
-			if (o instanceof TypedPattern) {
-				types.add(((TypedPattern)o).type);
+			if (o instanceof RWTypedPattern) {
+				types.add(((RWTypedPattern)o).type);
 			} else
 				throw new UtilException("Cannot handle " + o.getClass().getName());
 		}
@@ -399,7 +399,7 @@ public class MethodConvertor {
 		if (methodType == null)
 			throw new UtilException("We should have figured out the type by now");
 		List<Object> m1 = new ArrayList<>(margs);
-		m1.add(new VarPattern(location, "__m"));
+		m1.add(new RWVarPattern(location, "__m"));
 		List<Type> t1 = new ArrayList<>(types);
 		t1.add(methodType);
 		Type ct = calculateExprType(m1, t1, new ApplyExpr(location, new LocalVar("__me", location, "__m", location, methodType), args));
@@ -450,12 +450,12 @@ public class MethodConvertor {
 		List<InputPosition> locs = new ArrayList<>();
 		for (int i=0;i<margs.size();i++) {
 			Object x = margs.get(i);
-			if (x instanceof VarPattern) {
+			if (x instanceof RWVarPattern) {
 				mytypes.add(types.get(i));
-				args.add(((VarPattern)x).var);
-				locs.add(((VarPattern)x).varLoc);
-			} else if (x instanceof TypedPattern) {
-				TypedPattern tx = (TypedPattern)x;
+				args.add(((RWVarPattern)x).var);
+				locs.add(((RWVarPattern)x).varLoc);
+			} else if (x instanceof RWTypedPattern) {
+				RWTypedPattern tx = (RWTypedPattern)x;
 				args.add(tx.var);
 				Type ty = tx.type;
 				// we have an obligation to check that ty is a sub-type of types.get(i);

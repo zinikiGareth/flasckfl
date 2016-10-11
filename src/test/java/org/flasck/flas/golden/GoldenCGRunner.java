@@ -114,6 +114,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	//		compiler.writeDroidTo(new File("null"));
 	//		compiler.searchIn(new File("src/main/resources/flim"));
 			
+			compiler.dumpTypes();
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
