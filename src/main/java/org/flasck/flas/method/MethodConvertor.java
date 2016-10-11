@@ -16,7 +16,6 @@ import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
@@ -33,6 +32,7 @@ import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionIntro;
+import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
@@ -294,8 +294,8 @@ public class MethodConvertor {
 				return null;
 			}
 			slotType = sf.type;
-		} else if (slot instanceof HandlerLambda) {
-			HandlerLambda hl = (HandlerLambda) slot;
+		} else if (slot instanceof RWHandlerLambda) {
+			RWHandlerLambda hl = (RWHandlerLambda) slot;
 			if (hl.type == null || hl.type.name().equals("Any")) {
 				errors.message(slot.location(), "cannot assign to untyped handler lambda: " + hl.var);
 				return null;

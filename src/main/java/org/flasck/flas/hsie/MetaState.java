@@ -16,7 +16,6 @@ import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
@@ -408,7 +407,7 @@ public class MetaState {
 
 	private static void gatherScopedVars(TreeSet<ScopedVar> set, RWHandlerImplements hi) {
 		for (Object o : hi.boundVars) {
-			HandlerLambda hl = (HandlerLambda)o;
+			RWHandlerLambda hl = (RWHandlerLambda)o;
 			if (hl.scopedFrom != null)
 				set.add(hl.scopedFrom);
 		}
