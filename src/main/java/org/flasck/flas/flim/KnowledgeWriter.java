@@ -140,6 +140,12 @@ public class KnowledgeWriter {
 		switch (type.iam) {
 		case BUILTIN:
 		case CONTRACT:
+		case CONTRACTIMPL:
+		case CONTRACTSERVICE:
+		case HANDLERIMPLEMENTS:
+		case STRUCT:
+		case UNION:
+		case OBJECT:
 		{
 			XMLElement ty = xe.addElement("Type");
 			ty.setAttribute("name", type.name());
@@ -166,10 +172,15 @@ public class KnowledgeWriter {
 			writeTypeUsage(re, type.arg(type.arity()));
 			break;
 		}
-		default:
+		case REFERENCE:
+			throw new UtilException("Reference should only be on the parser");
+		case TUPLE:
+		case SOMETHINGELSE:
+		{
 			XMLElement ty = xe.addElement("DEAL_WITH_THIS");
 			ty.setAttribute("whatAmI", type.iam.name());
 			ty.setAttribute("name", type.name());
+		}
 		}
 	}
 

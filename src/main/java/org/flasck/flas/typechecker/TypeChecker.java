@@ -566,8 +566,8 @@ public class TypeChecker {
 					if (sv.defn instanceof LocalVar) {
 						LocalVar lv = (LocalVar) sv.defn;
 						Type t = lv.type;
-						if (t == null)
-							t = types.get("Any");
+						if (t == null) // offer up a polymorphic var
+							return factory.next();
 						return new TypeExpr(new GarneredFrom(r.fn.location()), t);
 					}
 				}
