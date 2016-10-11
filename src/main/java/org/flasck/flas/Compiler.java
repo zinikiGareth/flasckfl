@@ -32,6 +32,8 @@ import org.flasck.flas.droidgen.DroidBuilder;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.flim.Builtin;
+import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.flim.PackageFinder;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
@@ -68,7 +70,6 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.template.TemplateGenerator;
@@ -311,9 +312,12 @@ public class Compiler {
 			final ErrorResult errors = new ErrorResult();
 			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
 			final ApplyCurry curry = new ApplyCurry();
-			final HSIE hsie = new HSIE(errors, rewriter, top);
+			final HSIE hsie = new HSIE(errors, rewriter);
 			final DroidGenerator dg = new DroidGenerator(hsie, builder);
 
+			for (ImportPackage p : Builtin.builtinScope())
+				rewriter.importPackage(p);
+			
 			rewriter.rewriteScope(rewriter.new RootContext(top), top);
 			for (ScopeEntry se : entries)
 				rewriter.rewrite(se);

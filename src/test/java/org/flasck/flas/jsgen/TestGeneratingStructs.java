@@ -6,12 +6,12 @@ import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
 import org.junit.Test;
 

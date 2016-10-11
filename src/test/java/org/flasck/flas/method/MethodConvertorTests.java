@@ -13,6 +13,7 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -41,7 +42,6 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -126,7 +126,7 @@ public class MethodConvertorTests {
 			}
 		}
 		
-		hsie = new HSIE(errors, rewriter, biscope);
+		hsie = new HSIE(errors, rewriter);
 		tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("join", (Type) biscope.get("join"));

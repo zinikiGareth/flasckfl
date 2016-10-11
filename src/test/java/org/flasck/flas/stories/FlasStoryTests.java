@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -51,10 +52,10 @@ public class FlasStoryTests {
 		assertEquals("ME.f", f.name());
 		RWFunctionCaseDefn c1 = f.cases.get(0);
 		assertEquals("ME.f", c1.intro.name);
-		HSIEForm form = new HSIE(errors, rewriter, se.scope()).handle(null, f);
+		HSIEForm form = new HSIE(errors, rewriter).handle(null, f);
 		HSIETestData.assertHSIE(HSIETestData.mutualF(), form);
 		RWFunctionDefinition g = rewriter.functions.get("ME.f_0.g");
-		HSIEForm gorm = new HSIE(errors, rewriter, se.scope()).handle(null, g, form.vars.size(), form.varsFor(0));
+		HSIEForm gorm = new HSIE(errors, rewriter).handle(null, g, form.vars.size(), form.varsFor(0));
 		assertEquals(1, gorm.externals.size());
 		assertTrue(gorm.externals.contains(new PackageVar(null, "FLEval.mul", null)));
 		HSIETestData.assertHSIE(HSIETestData.mutualG(), gorm);
@@ -72,13 +73,13 @@ public class FlasStoryTests {
 		assertEquals(2, f.cases.size());
 		RWFunctionCaseDefn c1 = f.cases.get(0);
 		RWFunctionCaseDefn c2 = f.cases.get(1);
-		HSIEForm form = new HSIE(errors, rewriter, se.scope()).handle(null, f);
+		HSIEForm form = new HSIE(errors, rewriter).handle(null, f);
 		HSIETestData.assertHSIE(HSIETestData.splitF(), form);
 		RWFunctionDefinition g1 = rewriter.functions.get("ME.f_0.g");
-		HSIEForm gorm1 = new HSIE(errors, rewriter, se.scope()).handle(null, g1, form.vars.size(), form.varsFor(0));
+		HSIEForm gorm1 = new HSIE(errors, rewriter).handle(null, g1, form.vars.size(), form.varsFor(0));
 		HSIETestData.assertHSIE(HSIETestData.splitF_G1(), gorm1);
 		RWFunctionDefinition g2 = rewriter.functions.get("ME.f_1.g");
-		HSIEForm gorm2 = new HSIE(errors, rewriter, se.scope()).handle(null, g2, form.vars.size(), form.varsFor(1));
+		HSIEForm gorm2 = new HSIE(errors, rewriter).handle(null, g2, form.vars.size(), form.varsFor(1));
 		HSIETestData.assertHSIE(HSIETestData.splitF_G2(), gorm2);
 	}
 	
@@ -128,7 +129,7 @@ public class FlasStoryTests {
 		assertEquals(1, rewriter.functions.size());
 		RWFunctionDefinition fact = rewriter.functions.get("ME.fact");
 		assertEquals(1, fact.cases.size());
-		HSIEForm form = new HSIE(errors, rewriter, se.scope()).handle(null, fact);
+		HSIEForm form = new HSIE(errors, rewriter).handle(null, fact);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertTrue(!errors.hasErrors());
 		HSIETestData.assertHSIE(HSIETestData.simpleIf(), form);
@@ -145,7 +146,7 @@ public class FlasStoryTests {
 		assertEquals(1, rewriter.functions.size());
 		RWFunctionDefinition fact = rewriter.functions.get("ME.fact");
 		assertEquals(1, fact.cases.size());
-		HSIEForm form = new HSIE(errors, rewriter, se.scope()).handle(null, fact);
+		HSIEForm form = new HSIE(errors, rewriter).handle(null, fact);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertTrue(!errors.hasErrors());
 		HSIETestData.assertHSIE(HSIETestData.simpleIfElse(), form);

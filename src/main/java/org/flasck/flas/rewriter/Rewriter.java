@@ -187,7 +187,7 @@ public class Rewriter {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (biscope.contains(name)) {
-				return new PackageVar(location, biscope.getEntry(name));
+				return getMe(location, name);
 			}
 			if (name.contains(".")) {
 				// try and resolve through a sequence of packages
@@ -221,18 +221,7 @@ public class Rewriter {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (pkg.innerScope().contains(name)) {
-				String id = pkg.name + "." + name;
-				System.out.println("Resolving " + name + " to " + id);
-				Object val;
-				if (structs.containsKey(id))
-					val = structs.get(id);
-				else if (contracts.containsKey(id))
-					val = contracts.get(id);
-				else if (callbackHandlers.containsKey(id))
-					val = callbackHandlers.get(id);
-				else
-					throw new UtilException("Can't identify " + id);
-				return new PackageVar(location, id, val);
+				return getMe(location, pkg.name + "." + name);
 			}
 			return nested.resolve(location, name);
 		}
@@ -1059,9 +1048,11 @@ public class Rewriter {
 						try {
 							Object pkgEntry = cx.resolve(uv0.location, uv0.var);
 							if (pkgEntry instanceof PackageVar) {
-								Object o = ((PackageVar)pkgEntry).defn;
+								PackageVar pv = (PackageVar)pkgEntry;
+								Object o = pv.defn;
+								// TODO: big-divide: I may be making it so that this is no longer possible; not sure
 								if (o instanceof PackageDefn)
-									return new PackageVar(uv0.location, ((PackageDefn)o).innerScope().getEntry(fname));
+									return getMe(uv0.location, pv.id + "." + fname);
 							}
 						} catch (ResolutionException ex) {
 							return new PackageVar(uv0.location, uv0.var + "." + fname, null);
@@ -1246,5 +1237,20 @@ public class Rewriter {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	protected Object getMe(InputPosition location, String id) {
+		Object val;
+		if (this.types.containsKey(id))
+			val = types.get(id);
+		else if (structs.containsKey(id))
+			val = structs.get(id);
+		else if (contracts.containsKey(id))
+			val = contracts.get(id);
+		else if (callbackHandlers.containsKey(id))
+			val = callbackHandlers.get(id);
+		else
+			throw new UtilException("Can't identify " + id);
+		return new PackageVar(location, id, val);
 	}
 }

@@ -7,12 +7,12 @@ import java.util.List;
 
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.sampleData.BlockTestData;
-import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.junit.Test;
 import org.zinutils.graphs.Orchard;

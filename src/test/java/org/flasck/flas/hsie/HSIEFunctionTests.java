@@ -4,13 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -32,7 +32,7 @@ public class HSIEFunctionTests {
 		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		System.out.println(rw.functions);
-		HSIEForm primesForm = new HSIE(errors, rw, biscope).handle(null, rw.functions.get("primes"));
+		HSIEForm primesForm = new HSIE(errors, rw).handle(null, rw.functions.get("primes"));
 		assertNotNull(primesForm);
 		HSIETestData.assertHSIE(HSIETestData.testPrimes(), primesForm);
 	}
@@ -50,7 +50,7 @@ public class HSIEFunctionTests {
 		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		System.out.println(rw.functions);
-		HSIEForm fibForm = new HSIE(errors, rw, biscope).handle(null, rw.functions.get("fib"));
+		HSIEForm fibForm = new HSIE(errors, rw).handle(null, rw.functions.get("fib"));
 		assertNotNull(fibForm);
 		HSIETestData.assertHSIE(HSIETestData.fib(), fibForm);
 	}
@@ -68,7 +68,7 @@ public class HSIEFunctionTests {
 		Rewriter rw = new Rewriter(errors, null);
 		rw.rewrite(pkg.myEntry());
 		System.out.println(rw.functions);
-		HSIEForm takeForm = new HSIE(errors, rw, biscope).handle(null, rw.functions.get("take"));
+		HSIEForm takeForm = new HSIE(errors, rw).handle(null, rw.functions.get("take"));
 		assertNotNull(takeForm);
 		assertEquals(0, errors.count());
 		HSIETestData.assertHSIE(HSIETestData.take(), takeForm);

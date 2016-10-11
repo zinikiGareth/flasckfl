@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -20,7 +21,6 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -455,7 +455,7 @@ public class TestBasicTypeChecking {
 		Rewriter rewriter = new Rewriter(errors, null);
 		rewriter.rewrite(pkg.myEntry());
 		assertEquals(errors.singleString(), 0, errors.count());
-		HSIE hsie = new HSIE(errors, rewriter, biscope);
+		HSIE hsie = new HSIE(errors, rewriter);
 		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.f"))));
 		assertEquals(errors.singleString(), 0, errors.count());
 		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.g"))));

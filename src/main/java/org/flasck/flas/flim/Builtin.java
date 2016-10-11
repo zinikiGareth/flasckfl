@@ -1,4 +1,7 @@
-package org.flasck.flas.stories;
+package org.flasck.flas.flim;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.PackageDefn;
@@ -13,9 +16,16 @@ import org.zinutils.collections.CollectionUtils;
 
 public class Builtin {
 
-	// TODO: big-divide: This should not be a scope but an "ImportPackage"
-	public static Scope builtinScope() {
-		Scope ret = new Scope(null, null);
+	public static List<ImportPackage> builtinScope() {
+		List<ImportPackage> ret = new ArrayList<ImportPackage>();
+		ImportPackage root = new ImportPackage(null);
+		ImportPackage fleval = new ImportPackage("FLEval");
+		ImportPackage stdlib = new ImportPackage("StdLib");
+		ImportPackage dom = new ImportPackage("DOM");
+		ret.add(root);
+		ret.add(fleval);
+		ret.add(stdlib);
+		ret.add(dom);
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
 		Type varA = Type.polyvar(posn, "A");
 		Type varB = Type.polyvar(posn, "B");

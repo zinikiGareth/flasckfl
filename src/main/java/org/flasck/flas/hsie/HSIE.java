@@ -14,7 +14,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstPattern;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
@@ -35,7 +34,7 @@ public class HSIE {
 	private final Rewriter rewriter;
 	private int exprIdx;
 
-	public HSIE(ErrorResult errors, Rewriter rewriter, Scope biscope) {
+	public HSIE(ErrorResult errors, Rewriter rewriter) {
 		this.errors = errors;
 		this.rewriter = rewriter;
 		exprIdx = 0;
