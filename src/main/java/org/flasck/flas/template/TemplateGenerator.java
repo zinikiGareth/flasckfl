@@ -265,7 +265,8 @@ public class TemplateGenerator {
 			}
 		} else if (tl instanceof RWTemplateList) {
 			RWTemplateList l = (RWTemplateList) tl;
-			String tlv = ((RWTemplateListVar)l.iterVar).name;
+			RWTemplateListVar lv = (RWTemplateListVar)l.iterVar;
+			String tlv = lv == null ? null : lv.name;
 			if (l.supportDragOrdering)
 				fn.add(JSForm.flex("this._supportDragging()"));
 			String item = cx.nextArea();
@@ -275,7 +276,8 @@ public class TemplateGenerator {
 				cx.target.add(nc);
 			}
 			dg.newListChild(cgrx, javaName(item));
-			cx.newVar(tlv);
+			if (tlv != null)
+				cx.newVar(tlv);
 			JSForm cfn = recurse(cx, item, l.template, called);
 			if (l.supportDragOrdering)
 				cfn.add(JSForm.flex("this._makeDraggable()"));

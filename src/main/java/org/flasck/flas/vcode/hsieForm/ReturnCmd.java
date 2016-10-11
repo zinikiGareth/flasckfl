@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 import org.zinutils.utils.Justification;
 
 public class ReturnCmd extends PushReturn {
@@ -31,7 +31,7 @@ public class ReturnCmd extends PushReturn {
 		this.deps = null;
 	}
 
-	public ReturnCmd(InputPosition loc, TemplateListVar tlv) {
+	public ReturnCmd(InputPosition loc, RWTemplateListVar tlv) {
 		super(loc, tlv);
 		this.deps = null;
 	}

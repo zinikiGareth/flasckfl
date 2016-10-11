@@ -7,13 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -303,6 +305,8 @@ public class JSForm {
 		if (c.fn != null) {
 			if (c.fn instanceof PackageVar) {
 				sb.append(c.fn.uniqueName());
+			} else if (c.fn instanceof Type) {
+				sb.append(((Type)c.fn).name());
 			} else if (c.fn instanceof ScopedVar) {
 				int j = 0;
 				ScopedVar sv = (ScopedVar) c.fn;
@@ -331,9 +335,9 @@ public class JSForm {
 				else
 					throw new UtilException("Can't handle " + form.mytype + " for card member");
 			}
-			else if (c.fn instanceof HandlerLambda) {
+			else if (c.fn instanceof RWHandlerLambda) {
 				if (form.mytype == CodeType.HANDLER)
-					sb.append("this." + ((HandlerLambda)c.fn).var);
+					sb.append("this." + ((RWHandlerLambda)c.fn).var);
 				else
 					throw new UtilException("Can't handle " + form.mytype + " with handler lambda");
 			} else

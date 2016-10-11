@@ -4,8 +4,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
-import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 import org.zinutils.utils.Justification;
 
 public class PushCmd extends PushReturn {
@@ -26,7 +26,7 @@ public class PushCmd extends PushReturn {
 		super(loc, s);
 	}
 
-	public PushCmd(InputPosition loc, TemplateListVar tlv) {
+	public PushCmd(InputPosition loc, RWTemplateListVar tlv) {
 		super(loc, tlv);
 	}
 

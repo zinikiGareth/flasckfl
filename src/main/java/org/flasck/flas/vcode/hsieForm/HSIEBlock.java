@@ -8,8 +8,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.FunctionLiteral;
-import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 import org.flasck.flas.typechecker.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +74,8 @@ public class HSIEBlock {
 			ret = new PushCmd(loc, (ExternalRef)o);
 		else if (o instanceof StringLiteral)
 			ret = new PushCmd(loc, (StringLiteral)o);
-		else if (o instanceof TemplateListVar)
-			ret = new PushCmd(loc, (TemplateListVar)o);
+		else if (o instanceof RWTemplateListVar)
+			ret = new PushCmd(loc, (RWTemplateListVar)o);
 		else if (o instanceof FunctionLiteral)
 			ret = new PushCmd(loc, (FunctionLiteral)o);
 		else if (o instanceof CardStateRef)
@@ -100,8 +100,8 @@ public class HSIEBlock {
 			ret = new ReturnCmd(loc, (StringLiteral)o);
 		else if (o instanceof ExternalRef)
 			ret = new ReturnCmd(loc, (ExternalRef)o);
-		else if (o instanceof TemplateListVar)
-			ret = new ReturnCmd(loc, (TemplateListVar)o);
+		else if (o instanceof RWTemplateListVar)
+			ret = new ReturnCmd(loc, (RWTemplateListVar)o);
 		else
 			throw new UtilException("Invalid object to return: " + o + " of type " + o.getClass());
 		commands.add(ret);

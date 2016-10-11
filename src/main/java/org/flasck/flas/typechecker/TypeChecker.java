@@ -13,10 +13,7 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.AsString;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -28,6 +25,7 @@ import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -548,9 +546,9 @@ public class TypeChecker {
 					}
 					errors.message(cm.location, "there is no field " + cm.var + " in card " + cm.card);
 					return null;
-				} else if (r.fn instanceof HandlerLambda) {
+				} else if (r.fn instanceof RWHandlerLambda) {
 					logger.debug(r.fn + " is a lambda");
-					HandlerLambda hl = (HandlerLambda) r.fn;
+					RWHandlerLambda hl = (RWHandlerLambda) r.fn;
 					// try and find the name of the handler class
 					// this is likewise a hack and I know it ...
 //					int idx = form.fnName.length();
@@ -774,7 +772,7 @@ public class TypeChecker {
 	private Type typeForHandlerCtor(InputPosition location, RWHandlerImplements impl) {
 		List<Type> args = new ArrayList<Type>();
 		for (Object x : impl.boundVars) {
-			HandlerLambda hl = (HandlerLambda)x;
+			RWHandlerLambda hl = (RWHandlerLambda)x;
 			if (hl.scopedFrom == null)
 				args.add(hl.type);
 		}

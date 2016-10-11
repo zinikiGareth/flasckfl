@@ -1,11 +1,11 @@
-package org.flasck.flas.parsedForm;
+package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
 // This should possibly be called "ClassReference"
 // It is intended to be a holder for the "name" of a class (Card, Handler, etc) that can then be used in expressions later 
-public class ObjectReference implements Locatable {
+public class ObjectReference implements Locatable, ExternalRef {
 	public final InputPosition location;
 	public final String clzName;
 	public final String handle;
@@ -31,6 +31,11 @@ public class ObjectReference implements Locatable {
 
 	public String uniqueName() {
 		return this.handle;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return this.handle.compareTo(((ExternalRef)o).uniqueName());
 	}
 
 	public boolean fromHandler() {

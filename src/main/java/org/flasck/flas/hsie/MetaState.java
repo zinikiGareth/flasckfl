@@ -21,12 +21,11 @@ import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.ObjectReference;
-import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -36,6 +35,7 @@ import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -275,8 +275,8 @@ public class MetaState {
 		} else if (expr instanceof FunctionLiteral) {
 			locs.add(((FunctionLiteral)expr).location);
 			return expr;
-		} else if (expr instanceof TemplateListVar) {
-			locs.add(((TemplateListVar)expr).location);
+		} else if (expr instanceof RWTemplateListVar) {
+			locs.add(((RWTemplateListVar)expr).location);
 			return expr;
 		} else if (expr instanceof LocalVar) {
 			locs.add(((LocalVar)expr).varLoc);
