@@ -172,8 +172,6 @@ public class KnowledgeWriter {
 			writeTypeUsage(re, type.arg(type.arity()));
 			break;
 		}
-		case REFERENCE:
-			throw new UtilException("Reference should only be on the parser");
 		case TUPLE:
 		case SOMETHINGELSE:
 		{

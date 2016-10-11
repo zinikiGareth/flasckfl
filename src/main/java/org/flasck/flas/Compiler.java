@@ -45,8 +45,6 @@ import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -68,6 +66,7 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.stories.FLASStory;
@@ -534,8 +533,8 @@ public class Compiler {
 						while (st.iam == WhatAmI.INSTANCE)
 							st = st.innerType();
 						boolean ok = false;
-						if (st instanceof UnionTypeDefn) {
-							for (Type t1 : ((UnionTypeDefn)st).cases)
+						if (st instanceof RWUnionTypeDefn) {
+							for (Type t1 : ((RWUnionTypeDefn)st).cases)
 								if (t1.equals(t))
 									ok = true;
 						} else
@@ -569,7 +568,7 @@ public class Compiler {
 					for (RWPropertyDefn prop : s.properties.values()) {
 						// TODO: only create functions for things that depend on the class
 						// constants can just be used directly
-						FunctionLiteral efn = functionWithArgs(d3.d3.prefix, functions, CollectionUtils.listOf(new TypedPattern(null, d3Elt, null, d3.d3.iter)), prop.value);
+						FunctionLiteral efn = functionWithArgs(d3.d3.prefix, functions, CollectionUtils.listOf(new RWTypedPattern(null, d3Elt, null, d3.d3.iter)), prop.value);
 						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
 						pl = new ApplyExpr(prop.location, cons, pair, pl);
 					}

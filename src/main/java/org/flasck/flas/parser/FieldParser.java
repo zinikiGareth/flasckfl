@@ -2,11 +2,11 @@ package org.flasck.flas.parser;
 
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
-import org.flasck.flas.typechecker.Type;
 
 public class FieldParser implements TryParsing {
 
@@ -29,14 +29,14 @@ public class FieldParser implements TryParsing {
 			else
 				line.reset(mark);
 		}
-		Type type = (Type) new TypeExprParser().tryParsing(line);
+		TypeReference type = (TypeReference) new TypeExprParser().tryParsing(line);
 		if (type == null)
 			return null; // errors should have been reported already, propagate
 		ValidIdentifierToken kw = VarNameToken.from(line);
 		if (kw == null)
 			return ErrorResult.oneMessage(line, "invalid variable name");
 		if (!line.hasMore())
-			return new StructField(kw.location, accessor, type, kw.text);
+			return new StructField(kw.location, accessor, type, kw.text, null);
 		line.skipWS();
 		String op = line.getTo(2);
 		if (!"<-".equals(op))

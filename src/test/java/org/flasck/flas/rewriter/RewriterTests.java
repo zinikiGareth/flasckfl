@@ -27,6 +27,7 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -92,7 +93,7 @@ public class RewriterTests {
 	@Test
 	public void testWeRewriteStructFields() {
 		StructDefn sd = new StructDefn(null, "Fred", true);
-		sd.addField(new StructField(null, false, Type.reference(null, "String"), "f"));
+		sd.addField(new StructField(null, false, new TypeReference(null, "String"), "f"));
 		scope.define("Container", "ME.Container", sd);
 		rw.rewrite(pkgEntry);
 		RWStructDefn rsd = rw.structs.get("ME.Container");
@@ -105,7 +106,7 @@ public class RewriterTests {
 	@Test
 	public void testAStructReferencingAListFieldGetsARewrittenParameterList() {
 		StructDefn sd = new StructDefn(null, "Container", true);
-		sd.addField(new StructField(null, false, Type.reference(null, "List", Type.reference(null, "String")), "list"));
+		sd.addField(new StructField(null, false, new TypeReference(null, "List", new TypeReference(null, "String")), "list"));
 		scope.define("Container", "ME.Container", sd);
 		rw.rewrite(pkgEntry);
 		RWStructDefn rsd = rw.structs.get("ME.Container");
@@ -122,7 +123,7 @@ public class RewriterTests {
 	@Test
 	public void testAStructReferencingAListFieldMustHaveATypeArgument() {
 		StructDefn sd = new StructDefn(null, "Container", true);
-		sd.addField(new StructField(null, false, Type.reference(null, "List"), "list"));
+		sd.addField(new StructField(null, false, new TypeReference(null, "List"), "list"));
 		scope.define("Container", "ME.Container", sd);
 		rw.rewrite(pkgEntry);
 		assertTrue(errors.hasErrors());
@@ -162,7 +163,7 @@ public class RewriterTests {
 	public void testRewritingAStateVar() throws Exception {
 		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
 		cd.state = new StateDefinition();
-		cd.state.fields.add(new StructField(null, false, Type.reference(null, "Number"), "counter"));
+		cd.state.fields.add(new StructField(null, false, new TypeReference(null, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		cases.add(new FunctionCaseDefn(null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
@@ -200,7 +201,7 @@ public class RewriterTests {
 	public void testRewritingAContractMethod() throws Exception {
 		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
 		cd.state = new StateDefinition();
-		cd.state.fields.add(new StructField(null, false, Type.reference(null, "Number"), "counter"));
+		cd.state.fields.add(new StructField(null, false, new TypeReference(null, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		ContractImplements ci = new ContractImplements(null, null, "Timer", null, "timer");
 		cd.contracts.add(ci);
@@ -226,7 +227,7 @@ public class RewriterTests {
 	public void testRewritingAnEventHandler() throws Exception {
 		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
 		cd.state = new StateDefinition();
-		cd.state.fields.add(new StructField(null, false, Type.reference(null, "Number"), "counter"));
+		cd.state.fields.add(new StructField(null, false, new TypeReference(null, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		List<EventCaseDefn> ecds = new ArrayList<EventCaseDefn>();
 		EventHandlerDefinition ehd = new EventHandlerDefinition(new FunctionIntro(null, "ME.MyCard.eh", new ArrayList<Object>()), ecds);

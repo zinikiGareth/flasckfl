@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TemplateIntro;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -28,7 +29,6 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
-import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class IntroParser implements TryParsing {
@@ -52,13 +52,13 @@ public class IntroParser implements TryParsing {
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
-			List<Type> args = new ArrayList<Type>();
+			List<TypeReference> args = new ArrayList<TypeReference>();
 			while (line.hasMore()) {
 				TypeNameToken ta = TypeNameToken.from(line);
 				if (ta == null)
 					er.message(line, "invalid type argument");
 				else
-					args.add(Type.polyvar(ta.location, ta.text));
+					args.add(new TypeReference(ta.location, ta.text));
 			}
 			if (er.hasErrors())
 				return er;
@@ -69,14 +69,14 @@ public class IntroParser implements TryParsing {
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
-			List<Type> args = new ArrayList<Type>();
+			List<TypeReference> args = new ArrayList<TypeReference>();
 			while (line.hasMore()) {
 				TypeNameToken ta = TypeNameToken.from(line);
 				if (ta == null) {
 					er.message(line, "invalid type argument");
 					break;
 				} else
-					args.add(Type.polyvar(ta.location, ta.text));
+					args.add(new TypeReference(ta.location, ta.text));
 			}
 			if (er.hasErrors())
 				return er;

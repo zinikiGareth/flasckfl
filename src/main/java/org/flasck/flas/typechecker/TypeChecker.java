@@ -12,8 +12,6 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.KnowledgeWriter;
-import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -28,7 +26,9 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -99,9 +99,9 @@ public class TypeChecker {
 			List<Type> args = new ArrayList<Type>();
 			// find the arg types, as claimed
 			for (Object x : m.method.intro.args) {
-				if (x instanceof TypedPattern)
-					args.add(((TypedPattern)x).type);
-				else if (x instanceof VarPattern)
+				if (x instanceof RWTypedPattern)
+					args.add(((RWTypedPattern)x).type);
+				else if (x instanceof RWVarPattern)
 					args.add(types.get("Any"));
 				else
 					throw new UtilException("Cannot handle " + x.getClass());

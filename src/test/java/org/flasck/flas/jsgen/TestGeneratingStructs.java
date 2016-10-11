@@ -8,8 +8,10 @@ import java.io.PrintWriter;
 
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
+import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.stories.Builtin;
 import org.flasck.flas.typechecker.Type;
 import org.junit.Test;
 
@@ -34,9 +36,12 @@ public class TestGeneratingStructs {
 
 	@Test
 	public void testACaseWithTwoFields() throws IOException {
+		Scope biScope = Builtin.builtinScope();
+		Type str = (Type) biScope.get("String");
+		Type nbr = (Type) biScope.get("Number");
 		RWStructDefn sd = new RWStructDefn(null, "ME.Hello", true);
-		sd.addField(new RWStructField(null, false, Type.reference(null, "String"), "name"));
-		sd.addField(new RWStructField(null, false, Type.reference(null, "Number"), "quant"));
+		sd.addField(new RWStructField(null, false, str, "name"));
+		sd.addField(new RWStructField(null, false, nbr, "quant"));
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(null, target);
 		gen.generate(sd);

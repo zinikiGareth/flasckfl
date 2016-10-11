@@ -16,7 +16,6 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.android.AndroidLabel;
 import org.flasck.flas.parsedForm.android.AndroidLaunch;
@@ -32,6 +31,7 @@ import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.ScopedVar;
@@ -145,7 +145,7 @@ public class DroidGenerator {
 					throw new UtilException("Not handled " + sf.type);
 			} else if (sf.type instanceof ContractImplements || sf.type instanceof ContractDecl) {
 				jt = javaType(sf.type.name());
-			} else if (sf.type instanceof ObjectDefn) {
+			} else if (sf.type instanceof RWObjectDefn) {
 				jt = javaType(sf.type.name());
 			} else if (sf.type instanceof Type) {
 				jt = javaType(sf.type.name());

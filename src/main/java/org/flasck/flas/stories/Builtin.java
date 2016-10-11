@@ -3,15 +3,17 @@ package org.flasck.flas.stories;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type;
+import org.zinutils.collections.CollectionUtils;
 
 public class Builtin {
 
+	// TODO: big-divide: This should not be a scope but an "ImportPackage"
 	public static Scope builtinScope() {
 		Scope ret = new Scope(null, null);
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
@@ -20,7 +22,7 @@ public class Builtin {
 		Type bool = Type.builtin(posn, "Boolean");
 		Type number = Type.builtin(posn, "Number");
 		Type string = Type.builtin(posn, "String");
-		UnionTypeDefn any = new UnionTypeDefn(posn, false, "Any");
+		RWUnionTypeDefn any = new RWUnionTypeDefn(posn, false, "Any", null);
 		{ // core
 			/* PackageDefn fleval = */new PackageDefn(posn, ret, "FLEval");
 			ret.define(".", "FLEval.field",		null); // special case handling
@@ -29,7 +31,7 @@ public class Builtin {
 			ret.define("let", "let", 			null);
 			ret.define("Any", "Any", 			any);
 		}
-		UnionTypeDefn list = new UnionTypeDefn(posn, false, "List", Type.polyvar(posn, "A"));
+		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, "List", CollectionUtils.listOf(Type.polyvar(posn, "A")));
 		{ // text
 			ret.define("String", "String",		string);
 			ret.define("concat", "StdLib.concat",		Type.function(posn, list.instance(posn, string), string));
@@ -62,7 +64,7 @@ public class Builtin {
 			ret.define("map", "map",			Type.function(posn, Type.function(posn, varA, varB), list.instance(posn, varA), list.instance(posn, varB)));
 		}
 		{ // stacks
-			UnionTypeDefn stack = new UnionTypeDefn(posn, false, "Stack", Type.polyvar(posn, "A"));
+			RWUnionTypeDefn stack = new RWUnionTypeDefn(posn, false, "Stack", CollectionUtils.listOf(Type.polyvar(posn, "A")));
 			RWStructDefn push = new RWStructDefn(posn, "StackPush", false, varA);
 			push.addField(new RWStructField(posn, false, varA, "head"));
 			push.addField(new RWStructField(posn, false, stack, "tail"));
@@ -71,7 +73,7 @@ public class Builtin {
 			ret.define("Stack", "Stack",			stack);
 			ret.define("StackPush", "StackPush",	push);
 		}
-		UnionTypeDefn map = new UnionTypeDefn(posn, false, "Map", varA);
+		RWUnionTypeDefn map = new RWUnionTypeDefn(posn, false, "Map", CollectionUtils.listOf(varA));
 		{ // maps
 			RWStructDefn nilMap = new RWStructDefn(posn, "NilMap", false);
 			RWStructDefn assoc = new RWStructDefn(posn, "Assoc", false, varA);
@@ -98,7 +100,7 @@ public class Builtin {
 		}
 		RWStructDefn send = new RWStructDefn(posn, "Send", false);
 		{ // messaging
-			UnionTypeDefn message = new UnionTypeDefn(posn, false, "Message");
+			RWUnionTypeDefn message = new RWUnionTypeDefn(posn, false, "Message", null);
 			RWStructDefn assign = new RWStructDefn(posn, "Assign", false);
 			RWStructDefn crCard = new RWStructDefn(posn, "CreateCard", false);
 			RWStructDefn d3 = new RWStructDefn(posn, "D3Action", false);

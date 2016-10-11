@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.CastExpr;
+import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContentExpr;
@@ -62,6 +63,7 @@ import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateListVar;
 import org.flasck.flas.parsedForm.TemplateOr;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -218,8 +220,20 @@ public class Rewriter {
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			if (pkg.innerScope().contains(name))
-				return new PackageVar(location, pkg.innerScope().getEntry(name));
+			if (pkg.innerScope().contains(name)) {
+				String id = pkg.name + "." + name;
+				System.out.println("Resolving " + name + " to " + id);
+				Object val;
+				if (structs.containsKey(id))
+					val = structs.get(id);
+				else if (contracts.containsKey(id))
+					val = contracts.get(id);
+				else if (callbackHandlers.containsKey(id))
+					val = callbackHandlers.get(id);
+				else
+					throw new UtilException("Can't identify " + id);
+				return new PackageVar(location, id, val);
+			}
 			return nested.resolve(location, name);
 		}
 	}
@@ -710,10 +724,26 @@ public class Rewriter {
 
 	private RWContractMethodDecl rewrite(NamingContext cx, ContractMethodDecl cmd) {
 		List<Object> args = new ArrayList<Object>();
+		List<Type> targs = new ArrayList<Type>(); 
 		for (Object o : cmd.args) {
 			args.add(rewritePattern(cx, o));
+			if (o instanceof TypedPattern) {
+				targs.add(rewrite(cx, ((TypedPattern)o).type, false));
+			}
 		}
-		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, args, rewrite(cx, cmd.type, false));
+		targs.add(typeFrom(cx.resolve(cmd.location(), "Message")));
+		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, args, Type.function(cmd.location(), targs));
+	}
+
+	private Type typeFrom(Object resolve) {
+		if (resolve == null)
+			return null;
+		else if (resolve instanceof Type)
+			return (Type) resolve;
+		else if (resolve instanceof PackageVar)
+			return (Type) ((PackageVar)resolve).defn;
+		else
+			throw new UtilException("Cannot extract a type from " + resolve);
 	}
 
 	private RWContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
@@ -795,7 +825,7 @@ public class Rewriter {
 		int cs = 0;
 		RWFunctionIntro fi = null;
 		for (FunctionCaseDefn c : f.cases) {
-			Map<String, LocalVar> vars = c.intro.allVars(errors, this, cx, f.name + "_" + cs);
+			Map<String, LocalVar> vars = allVars(errors, this, cx, f.name + "_" + cs, c.intro);
 			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, cs, vars, c.innerScope(), false);
 			RWFunctionCaseDefn rwc = rewrite(fccx, c, vars);
 			if (fi == null)
@@ -816,7 +846,7 @@ public class Rewriter {
 	private RWMethodDefinition rewrite(NamingContext cx, MethodDefinition m, boolean fromHandler) {
 		List<RWMethodCaseDefn> list = new ArrayList<RWMethodCaseDefn>();
 		int cs = 0;
-		Map<String, LocalVar> vars = m.intro.allVars(errors, this, cx, m.intro.name + "_" + cs);
+		Map<String, LocalVar> vars = allVars(errors, this, cx, m.intro.name + "_" + cs, m.intro);
 		for (MethodCaseDefn c : m.cases) {
 			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, vars, c.innerScope(), fromHandler), c, vars));
 			cs++;
@@ -828,7 +858,7 @@ public class Rewriter {
 		List<RWEventCaseDefn> list = new ArrayList<RWEventCaseDefn>();
 		int cs = 0;
 		Map<String, LocalVar> locals = new HashMap<String, LocalVar>();
-		ehd.intro.gatherVars(errors, this, cx, ehd.intro.name, locals);
+		gatherVars(errors, this, cx, ehd.intro.name, locals, ehd.intro);
 		for (EventCaseDefn c : ehd.cases) {
 			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, locals, c.innerScope(), false), c, locals));
 			cs++;
@@ -837,10 +867,10 @@ public class Rewriter {
 	}
 
 	private RWStructDefn rewrite(NamingContext cx, StructDefn sd) {
-		RWStructDefn ret = new RWStructDefn(sd.location(), sd.name(), sd.generate, (List<Type>)sd.polys());
+		RWStructDefn ret = new RWStructDefn(sd.location(), sd.name(), sd.generate, rewritePolys(sd.polys()));
 		for (StructField sf : sd.fields) {
 			// TODO: it's not clear that the expression needs this rewritten context
-			StructDefnContext sx = new StructDefnContext(cx, sd.polys());
+			StructDefnContext sx = new StructDefnContext(cx, ret.polys());
 			RWStructField rsf = new RWStructField(sf.loc, false, rewrite(sx, sf.type, false), sf.name, rewriteExpr(sx, sf.init));
 			ret.addField(rsf);
 		}
@@ -848,11 +878,19 @@ public class Rewriter {
 	}
 
 	private RWUnionTypeDefn rewrite(NamingContext cx, UnionTypeDefn u) {
-		RWUnionTypeDefn ret = new RWUnionTypeDefn(u.location(), u.generate, u.name(), u.polys());
-		for (Type c : u.cases) {
+		RWUnionTypeDefn ret = new RWUnionTypeDefn(u.location(), u.generate, u.name(), rewritePolys(u.polys()));
+		for (TypeReference c : u.cases) {
 			ret.addCase(rewrite(cx, c, true));
 		}
 		return ret;
+	}
+
+	protected List<Type> rewritePolys(List<TypeReference> polys) {
+		List<Type> pts = new ArrayList<Type>(); // poly vars
+		if (polys != null)
+			for (TypeReference r : polys)
+				pts.add(Type.polyvar(r.location(), r.name()));
+		return pts;
 	}
 
 
@@ -1059,31 +1097,27 @@ public class Rewriter {
 		}
 	}
 
-	public Type rewrite(NamingContext cx, Type type, boolean allowPolys) {
+	public Type rewrite(NamingContext cx, TypeReference type, boolean allowPolys) {
 		try {
 			Type ret;
 			ret = null;
-			if (type.iam != WhatAmI.REFERENCE)
-				ret = type;
-			else {
-				try {
-					Object r = cx.resolve(type.location(), type.name());
-					if (r == null) {
-						errors.message(type.location(), "there is no definition in var for " + type.name());
-						return null;
-					} else if (r instanceof Type)
-						ret = (Type)r;
-					else if (r instanceof PackageVar)
-						ret = (Type) ((PackageVar)r).defn;
-					else {
-						errors.message(type.location(), type.name() + " is not a type definition");
-						return null;
-					}
-				} catch (ResolutionException ex) {
-					if (allowPolys)
-						return Type.polyvar(type.location(), type.name());
-					throw ex;
+			try {
+				Object r = cx.resolve(type.location(), type.name());
+				if (r == null) {
+					errors.message(type.location(), "there is no definition in var for " + type.name());
+					return null;
+				} else if (r instanceof Type)
+					ret = (Type)r;
+				else if (r instanceof PackageVar)
+					ret = (Type) ((PackageVar)r).defn;
+				else {
+					errors.message(type.location(), type.name() + " is not a type definition");
+					return null;
 				}
+			} catch (ResolutionException ex) {
+				if (allowPolys)
+					return Type.polyvar(type.location(), type.name());
+				throw ex;
 			}
 			if (ret.hasPolys() && !type.hasPolys()) {
 				errors.message(type.location(), "cannot use " + ret.name() + " without specifying polymorphic arguments");
@@ -1098,7 +1132,7 @@ public class Rewriter {
 					return null;
 				} else {
 					List<Type> rwp = new ArrayList<Type>();
-					for (Type p : type.polys())
+					for (TypeReference p : type.polys())
 						rwp.add(rewrite(cx, p, true));
 					if (ret.iam != WhatAmI.INSTANCE)
 						ret = ret.instance(type.location(), rwp);
@@ -1115,8 +1149,12 @@ public class Rewriter {
 			}
 			else
 				return ret;
-			for (int i=0;i<k;i++)
-				fnargs.add(rewrite(cx, ret.arg(i), allowPolys));
+			for (int i=0;i<k;i++) {
+				// TODO: big-divide: obviously, ret should have its args already rewritten
+				// Is this supposed to be rewriting our args? or what
+//				fnargs.add(rewrite(cx, ret.arg(i), allowPolys));
+				throw new UtilException("big-divide not-understood case");
+			}
 			if (ret.iam == WhatAmI.FUNCTION)
 				return Type.function(ret.location(), fnargs);
 			else
@@ -1124,6 +1162,67 @@ public class Rewriter {
 		} catch (ResolutionException ex) {
 			errors.message(type.location(), ex.getMessage());
 			return null;
+		}
+	}
+
+	
+	public Map<String, LocalVar> allVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, String definedBy, FunctionIntro fi) {
+		Map<String, LocalVar> ret = new TreeMap<>();
+		gatherVars(errors, rewriter, cx, definedBy, ret, fi);
+		return ret;
+	}
+	
+	public void gatherVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, String definedBy, Map<String, LocalVar> into, FunctionIntro fi) {
+		for (int i=0;i<fi.args.size();i++) {
+			Object arg = fi.args.get(i);
+			if (arg instanceof VarPattern) {
+				VarPattern vp = (VarPattern)arg;
+				into.put(vp.var, new LocalVar(definedBy, vp.varLoc, vp.var, null, null));
+			} else if (arg instanceof ConstructorMatch)
+				gatherCtor(errors, cx, definedBy, into, (ConstructorMatch) arg);
+			else if (arg instanceof ConstPattern)
+				;
+			else if (arg instanceof TypedPattern) {
+				TypedPattern tp = (TypedPattern)arg;
+				Type t = null;
+				if (cx != null) { // the DependencyAnalyzer can pass in null for the NamingContext 'coz it only wants the var names
+					try {
+						t = rewriter.rewrite(cx, tp.type, false);
+					} catch (ResolutionException ex) {
+						throw new UtilException("Need to consider if " + tp.type + " might be a polymorphic var");
+					}
+				}
+				into.put(tp.var, new LocalVar(definedBy, tp.varLocation, tp.var, tp.typeLocation, t));
+			} else
+				throw new UtilException("Not gathering vars from " + arg.getClass());
+		}
+	}
+
+	private void gatherCtor(ErrorResult errors, NamingContext cx, String definedBy, Map<String, LocalVar> into, ConstructorMatch cm) {
+		// NOTE: I am deliberately NOT returning any errors here because I figure this should already have been checked for validity somewhere else
+		// But this (albeit, defensively) assumes that cm.ctor is a struct defn and that it has the defined fields 
+		for (Field x : cm.args) {
+			if (x.patt instanceof VarPattern) {
+				VarPattern vp = (VarPattern)x.patt;
+				// TODO: it should theoretically be possible to infer the type of this field by looking at the StructField associated with the StructDefn associated with cm.ctor, and we have a resolving context
+				Type t = null;
+				if (cx != null) {
+					Object sd = cx.resolve(cm.location, cm.ctor);
+					if (sd instanceof PackageVar && ((PackageVar)sd).defn instanceof RWStructDefn) {
+						RWStructDefn sdf = (RWStructDefn) ((PackageVar)sd).defn;
+						RWStructField sf = sdf.findField(x.field);
+						if (sf != null) {
+							t = sf.type;
+						}
+					}
+				}
+				into.put(vp.var, new LocalVar(definedBy, vp.varLoc, vp.var, vp.varLoc, t));
+			} else if (x.patt instanceof ConstructorMatch)
+				gatherCtor(errors, cx, definedBy, into, (ConstructorMatch)x.patt);
+			else if (x.patt instanceof ConstPattern)
+				;
+			else
+				throw new UtilException("Not gathering vars from " + x.patt.getClass());
 		}
 	}
 

@@ -12,6 +12,7 @@ import java.util.Map;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -31,8 +32,8 @@ public class HSIETestData {
 		ctorTypes.put("Cons", cons);
 		ctorTypes.put("Nil", nil);
 		ctorTypes.put("List", list);
-		((UnionTypeDefn)list.defn).addCase((Type)nil.defn);
-		((UnionTypeDefn)list.defn).addCase((Type)cons.defn);
+		((RWUnionTypeDefn)list.defn).addCase((Type)nil.defn);
+		((RWUnionTypeDefn)list.defn).addCase((Type)cons.defn);
 	}
 	
 	public static HSIEForm testPrimes() {

@@ -33,12 +33,11 @@ import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateList;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.StoryRet;
-import org.flasck.flas.typechecker.Type;
-import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -242,10 +241,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			ContentExpr ce = (ContentExpr) obj;
 			dumpRecursive(pw, ce.expr);
 			// dump formats and handlers
-		} else if (obj instanceof Type) { // NOTE: this has to go below all its subclasses!
-			Type t = (Type) obj;
-			if (t.iam != WhatAmI.REFERENCE)
-				throw new UtilException("I don't think this should happen: " + t.iam);
+		} else if (obj instanceof TypeReference) {
+			TypeReference t = (TypeReference) obj;
 			pw.println(t.name());
 		} else
 			throw new UtilException("Cannot handle dumping " + obj.getClass());

@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
@@ -57,8 +57,8 @@ public class ApplyCurry {
 					PushCmd fld = (PushCmd)c.nestedCommands().get(2);
 					if (ofObj.fn instanceof CardMember) {
 						CardMember cm = (CardMember) ofObj.fn;
-						if (cm.type instanceof ObjectDefn) {
-							ObjectDefn od = (ObjectDefn) cm.type;
+						if (cm.type instanceof RWObjectDefn) {
+							RWObjectDefn od = (RWObjectDefn) cm.type;
 							if (od.hasMethod(fld.sval.text)) {
 								Type t = od.getMethod(fld.sval.text);
 								c.pushAt(pc.location, 0, new PackageVar(pc.location, "FLEval.curry", null));

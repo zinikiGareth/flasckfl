@@ -17,7 +17,6 @@ import org.flasck.flas.parsedForm.CardStateRef;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
@@ -41,6 +40,7 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
@@ -348,8 +348,8 @@ public class MethodConvertor {
 			Type foo = slotType;
 			if (slotType.iam == WhatAmI.INSTANCE)
 				foo = slotType.innerType();
-			if (foo instanceof UnionTypeDefn) {
-				for (Type t : ((UnionTypeDefn)foo).cases) {
+			if (foo instanceof RWUnionTypeDefn) {
+				for (Type t : ((RWUnionTypeDefn)foo).cases) {
 					Type u = t;
 					if (slotType.iam == WhatAmI.INSTANCE)
 						u = t.applyInstanceVarsFrom(slotType);

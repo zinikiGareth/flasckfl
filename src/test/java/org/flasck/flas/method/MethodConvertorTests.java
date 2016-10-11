@@ -32,6 +32,7 @@ import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -80,7 +81,7 @@ public class MethodConvertorTests {
 			contract1.methods.add(m1);
 			ContractMethodDecl m2 = new ContractMethodDecl(null, true, "up", "start", new ArrayList<>());
 			contract1.methods.add(m2);
-			ContractMethodDecl m3 = new ContractMethodDecl(null, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, Type.reference(null, "String"), null, "s")));
+			ContractMethodDecl m3 = new ContractMethodDecl(null, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
 			contract1.methods.add(m3);
 			orgFooScope.define("Contract1", contract1.name(), contract1);
 		}
@@ -88,9 +89,9 @@ public class MethodConvertorTests {
 			ContractDecl service1 = new ContractDecl(null, null, "org.foo.Service1");
 			ContractMethodDecl m0 = new ContractMethodDecl(null, true, "up", "go", new ArrayList<>());
 			service1.methods.add(m0);
-			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, Type.reference(null, "String"), null, "s")));
+			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(null, true, "down", "respond", CollectionUtils.listOf(new TypedPattern(null, Type.reference(null, "String"), null, "s")));
+			ContractMethodDecl m2 = new ContractMethodDecl(null, true, "down", "respond", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
 			service1.methods.add(m2);
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
@@ -102,7 +103,7 @@ public class MethodConvertorTests {
 		}
 		{
 			RWStructDefn struct = new RWStructDefn(null, "Thing", true);
-			struct.addField(new RWStructField(null, false, Type.reference(null, "String"), "x"));
+			struct.addField(new RWStructField(null, false, (Type)biscope.get("String"), "x"));
 			orgFooScope.define("Thing", struct.name(), struct);
 		}
 		
@@ -110,7 +111,7 @@ public class MethodConvertorTests {
 			rewriter = new Rewriter(errors, null);
 			cd = new CardDefinition(null, null, orgFooScope, "org.foo.Card");
 			cd.state = new StateDefinition();
-			cd.state.addField(new StructField(null, false, Type.reference(null, "String"), "str"));
+			cd.state.addField(new StructField(null, false, new TypeReference(null, "String"), "str", null));
 			{
 				ce = new ContractImplements(null, null, "org.foo.Contract1", null, "ce");
 				cd.contracts.add(ce);
@@ -120,7 +121,7 @@ public class MethodConvertorTests {
 				cd.services.add(se);
 			}
 			{
-				he = new HandlerImplements(null, null, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(null, Type.reference(null, "Thing"), null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
+				he = new HandlerImplements(null, null, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(null, new TypeReference(null, "Thing"), null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
 				cd.handlers.add(he);
 			}
 		}
@@ -501,7 +502,7 @@ public class MethodConvertorTests {
 	}
 
 	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card." + name, CollectionUtils.listOf((Object)new TypedPattern(null, Type.reference(null, "Thing"), null, "t"), (Object)new VarPattern(null, "ev")));
+		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card." + name, CollectionUtils.listOf((Object)new TypedPattern(null, new TypeReference(null, "Thing"), null, "t"), (Object)new VarPattern(null, "ev")));
 		List<EventCaseDefn> cases = new ArrayList<>();
 		EventCaseDefn cs = new EventCaseDefn(null, intro);
 		for (MethodMessage m : msgs)

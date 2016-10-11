@@ -15,7 +15,7 @@ import org.zinutils.exceptions.UtilException;
 public class Type implements Serializable, Locatable {
 	public final InputPosition kw;
 	private final InputPosition location;
-	public enum WhatAmI { REFERENCE, BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
+	public enum WhatAmI { /* REFERENCE, */BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
 	public final WhatAmI iam;
 	private final String name;
 	private final Type type;
@@ -34,7 +34,7 @@ public class Type implements Serializable, Locatable {
 		this.fnargs = null;
 		
 		// for anything which is not an instance, all the args MUST be polymorphic vars
-		if (polys != null && iam != WhatAmI.REFERENCE && iam != WhatAmI.INSTANCE)
+		if (polys != null && iam != WhatAmI.INSTANCE)
 			for (Type t : polys)
 				if (t.iam != WhatAmI.POLYVAR)
 					throw new UtilException("All arguments to type defn must be poly vars");
@@ -74,7 +74,7 @@ public class Type implements Serializable, Locatable {
 	public String name() {
 		if (iam == WhatAmI.INSTANCE)
 			return type.name();
-		else if (iam == WhatAmI.REFERENCE || iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
+		else if (iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
 				 iam == WhatAmI.CONTRACT || iam == WhatAmI.CONTRACTIMPL || iam == WhatAmI.CONTRACTSERVICE || iam == WhatAmI.HANDLERIMPLEMENTS)
 			return name;
 		else if (iam == WhatAmI.SOMETHINGELSE)
@@ -124,13 +124,13 @@ public class Type implements Serializable, Locatable {
 	}
 	
 	// defining a "reference" says you know a thing's name and arguments but you don't actually know anything about it
-	public static Type reference(InputPosition loc, String name, List<Type> args) {
-		return new Type(null, loc, WhatAmI.REFERENCE, name, args);
-	}
-
-	public static Type reference(InputPosition loc, String name, Type... args) {
-		return new Type(null, loc, WhatAmI.REFERENCE, name, CollectionUtils.listOf(args));
-	}
+//	public static Type reference(InputPosition loc, String name, List<Type> args) {
+//		return new Type(null, loc, WhatAmI.REFERENCE, name, args);
+//	}
+//
+//	public static Type reference(InputPosition loc, String name, Type... args) {
+//		return new Type(null, loc, WhatAmI.REFERENCE, name, CollectionUtils.listOf(args));
+//	}
 	
 	// This one is DELIBERATELY not static - you need a type that you would otherwise have to pass in as "base"
 	public Type instance(InputPosition loc, Type... with) {
@@ -232,7 +232,6 @@ public class Type implements Serializable, Locatable {
 
 	protected void show(StringBuilder sb) {
 		switch (iam) {
-		case REFERENCE:
 		case STRUCT:
 		case UNION:
 		case OBJECT:

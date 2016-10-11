@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type.WhatAmI;
@@ -185,7 +184,7 @@ public class TypeVariableMappings {
 			ty = ty.arg(0);
 		while (ty.iam == WhatAmI.INSTANCE)
 			ty = ty.innerType();
-		if (ty instanceof RWStructDefn || ty instanceof UnionTypeDefn)
+		if (ty instanceof RWStructDefn || ty instanceof RWUnionTypeDefn)
 			return true;
 		return false;
 	}

@@ -3,9 +3,9 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeExprToken;
-import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeExprParser implements TryParsing {
@@ -16,12 +16,12 @@ public class TypeExprParser implements TryParsing {
 		if (tt == null)
 			return null; // not even a valid token (or line ended)
 		if (tt.type == TypeExprToken.NAME) {
-			List<Type> polys = new ArrayList<Type>();
+			List<TypeReference> polys = new ArrayList<TypeReference>();
 			int mark = line.at();
 			TypeExprToken osb = TypeExprToken.from(line);
 			if (osb != null && osb.type == TypeExprToken.OSB) {
 				while (line.hasMore()) {
-					Type tmp = (Type) tryParsing(line);
+					TypeReference tmp = (TypeReference) tryParsing(line);
 					if (tmp == null)
 						return null;
 					polys.add(tmp);
@@ -34,15 +34,15 @@ public class TypeExprParser implements TryParsing {
 				}
 			} else
 				line.reset(mark);
-			List<Type> fnargs = new ArrayList<Type>();
-			fnargs.add(Type.reference(tt.location, tt.text, polys));
+			List<TypeReference> fnargs = new ArrayList<TypeReference>();
+			fnargs.add(new TypeReference(tt.location, tt.text, polys));
 			while (true) {
 				mark = line.at();
 				TypeExprToken arr = TypeExprToken.from(line);
 				if (arr != null && arr.type == TypeExprToken.ARROW) {
 					Object t = tryOneExpr(line);
-					if (t instanceof Type)
-						fnargs.add((Type) t);
+					if (t instanceof TypeReference)
+						fnargs.add((TypeReference) t);
 					else
 						return t;
 				} else {
@@ -52,8 +52,11 @@ public class TypeExprParser implements TryParsing {
 			}
 			if (fnargs.size() == 1)
 				return fnargs.get(0);
-			else
-				return Type.function(tt.location, fnargs);
+			else {
+				// TODO: big-divide: is this a real case
+				throw new UtilException("Cannot figure out what to do here ...");
+//				return Type.function(tt.location, fnargs);
+			}
 		}
 		else if (tt.type == TypeExprToken.ORB) {
 			// either a complex type, grouped OR a tuple type
@@ -92,16 +95,16 @@ public class TypeExprParser implements TryParsing {
 			// it's a function application of types
 			TypeExprToken look;
 			mark = line.at();
-			List<Type> args = new ArrayList<Type>();
+			List<TypeReference> args = new ArrayList<TypeReference>();
 			while (line.hasMore() && (look = TypeExprToken.from(line)) != null && look.type != TypeExprToken.CRB && look.type != TypeExprToken.COMMA) {
 				line.reset(mark);
 				Object ta = tryParsing(line);
 				if (ta == null)
 					return null; // error happened inside, return it
-				args.add((Type) ta);
+				args.add((TypeReference) ta);
 				mark = line.at();
 			}
-			Type tr = Type.reference(next.location, next.text, args);
+			TypeReference tr = new TypeReference(next.location, next.text, args);
 			add = tr;
 			line.reset(mark); // want to see the CRB/COMMA again
 		}
