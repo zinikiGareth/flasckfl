@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.flasck.flas.parsedForm.CardFunction;
@@ -29,11 +31,23 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class JSForm {
+	private static Map<String, String> renamers = new HashMap<>();
 	private final String text;
 	private String endWith = ";";
 	private List<JSForm> block = null;
 	private int insertPoint = 0;
 	private boolean isArray = false;
+	
+	static {
+		renamers.put("concat", "StdLib.concat");
+		renamers.put("==", "FLEval.compeq");
+		renamers.put("++", "append");
+		renamers.put("+", "FLEval.plus");
+		renamers.put("-", "FLEval.minus");
+		renamers.put("*", "FLEval.mul");
+		renamers.put("/", "FLEval.div");
+		renamers.put("^", "FLEval.exp");
+	}
 
 	public JSForm(String text) {
 		this.text = text;
@@ -301,10 +315,8 @@ public class JSForm {
 	}
 	
 	public static String rename(String fn) {
-		if (fn.equals("++"))
-			return "append";
-		else if (fn.equals("-"))
-			return "FLEval.minus";
+		if (renamers .containsKey(fn))
+			return renamers.get(fn);
 		else
 			return fn;
 	}

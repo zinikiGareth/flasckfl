@@ -54,7 +54,7 @@ public class RewriterTests {
 	@Before
 	public void setup() {
 		builtinScope = Builtin.builtinScope();
-		builtinScope.define("Timer", "Timer", Type.builtin(null, "Timer"));
+		builtinScope.define("Timer", Type.builtin(null, "Timer"));
 	}
 
 	@Test
