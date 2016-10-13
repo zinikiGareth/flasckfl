@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.template.TemplateLine;
 
 @SuppressWarnings("serial")
 public class RWTemplateList extends TemplateFormat implements Serializable {

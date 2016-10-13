@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;

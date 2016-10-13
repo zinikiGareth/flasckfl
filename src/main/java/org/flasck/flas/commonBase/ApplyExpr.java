@@ -1,11 +1,10 @@
-package org.flasck.flas.parsedForm;
+package org.flasck.flas.commonBase;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
 
 @SuppressWarnings("serial")
 public class ApplyExpr implements Locatable, Serializable {

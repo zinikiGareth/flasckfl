@@ -10,13 +10,13 @@ import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;

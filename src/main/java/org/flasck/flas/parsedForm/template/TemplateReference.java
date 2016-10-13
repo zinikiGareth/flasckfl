@@ -1,4 +1,4 @@
-package org.flasck.flas.parsedForm;
+package org.flasck.flas.parsedForm.template;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@ package org.flasck.flas.parser;
 
 import static org.junit.Assert.*;
 
-import org.flasck.flas.parsedForm.ConstPattern;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;

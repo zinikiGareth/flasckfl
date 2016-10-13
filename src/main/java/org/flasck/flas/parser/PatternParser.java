@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;

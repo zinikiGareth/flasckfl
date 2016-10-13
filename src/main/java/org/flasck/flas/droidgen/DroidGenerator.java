@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.HandlerLambda;
@@ -19,6 +16,7 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.android.AndroidLabel;
 import org.flasck.flas.parsedForm.android.AndroidLaunch;
+import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
@@ -143,7 +141,7 @@ public class DroidGenerator {
 					jt = JavaType.string;
 				else
 					throw new UtilException("Not handled " + sf.type);
-			} else if (sf.type instanceof ContractImplements || sf.type instanceof ContractDecl) {
+			} else if (sf.type instanceof RWContractImplements || sf.type instanceof RWContractDecl) {
 				jt = javaType(sf.type.name());
 			} else if (sf.type instanceof RWObjectDefn) {
 				jt = javaType(sf.type.name());

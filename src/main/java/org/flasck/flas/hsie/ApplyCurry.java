@@ -3,8 +3,8 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.CardFunction;
 import org.flasck.flas.parsedForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;

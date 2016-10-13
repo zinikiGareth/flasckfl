@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.ConstPattern;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.ListMap;

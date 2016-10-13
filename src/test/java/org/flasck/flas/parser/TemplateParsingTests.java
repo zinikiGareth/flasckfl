@@ -3,7 +3,7 @@ package org.flasck.flas.parser;
 import static org.junit.Assert.*;
 
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.TemplateIntro;
+import org.flasck.flas.parsedForm.template.TemplateIntro;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.junit.Test;
 

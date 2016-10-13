@@ -1,6 +1,6 @@
 package org.flasck.flas.rewrittenForm;
 
-import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.template.TemplateLine;
 
 public class RWD3Invoke implements TemplateLine {
 	public final RWD3Thing d3;

@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 

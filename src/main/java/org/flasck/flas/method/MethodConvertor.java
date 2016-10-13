@@ -7,17 +7,15 @@ import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CardStateRef;
-import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -285,11 +283,11 @@ public class MethodConvertor {
 				errors.message(cm.location, "there is no card state member " + cm.var);
 				return null;
 			}
-			if (sf.type instanceof ContractImplements) {
+			if (sf.type instanceof RWContractImplements) {
 				errors.message(cm.location, "cannot assign to a contract var: " + cm.var);
 				return null;
 			}
-			if (sf.type instanceof ContractService) {
+			if (sf.type instanceof RWContractService) {
 				errors.message(cm.location, "cannot assign to a service var: " + cm.var);
 				return null;
 			}
@@ -388,11 +386,11 @@ public class MethodConvertor {
 			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());
 			return null;
 		}
-		if (senderType instanceof ContractImplements && !cd.checkMethodDir(method.text, "up")) {
+		if (senderType instanceof RWContractImplements && !cd.checkMethodDir(method.text, "up")) {
 			errors.message(method.location, "can only call up methods on contract implementations");
 			return null;
 		}
-		if (senderType instanceof ContractService && !cd.checkMethodDir(method.text, "down")) {
+		if (senderType instanceof RWContractService && !cd.checkMethodDir(method.text, "down")) {
 			errors.message(method.location, "can only call down methods on service implementations");
 			return null;
 		}

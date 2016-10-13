@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.template.TemplateLine;
 
 @SuppressWarnings("serial")
 public class RWTemplateCases implements TemplateLine, Serializable {

@@ -3,7 +3,7 @@ package org.flasck.flas.rewrittenForm;
 import java.io.Serializable;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.parsedForm.template.TemplateLine;
 
 @SuppressWarnings("serial")
 public abstract class TemplateFormat implements TemplateLine, Serializable {

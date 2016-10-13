@@ -11,6 +11,9 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.CastExpr;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
@@ -18,16 +21,9 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.flim.PackageFinder;
-import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardReference;
-import org.flasck.flas.parsedForm.CastExpr;
-import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
-import org.flasck.flas.parsedForm.ContentExpr;
-import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -51,18 +47,21 @@ import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.template.CardReference;
+import org.flasck.flas.parsedForm.template.ContentExpr;
+import org.flasck.flas.parsedForm.template.ContentString;
+import org.flasck.flas.parsedForm.template.Template;
+import org.flasck.flas.parsedForm.template.TemplateCases;
+import org.flasck.flas.parsedForm.template.TemplateDiv;
+import org.flasck.flas.parsedForm.template.TemplateExplicitAttr;
+import org.flasck.flas.parsedForm.template.TemplateFormat;
+import org.flasck.flas.parsedForm.template.TemplateFormatEvents;
+import org.flasck.flas.parsedForm.template.TemplateLine;
+import org.flasck.flas.parsedForm.template.TemplateList;
+import org.flasck.flas.parsedForm.template.TemplateListVar;
+import org.flasck.flas.parsedForm.template.TemplateOr;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.Template;
-import org.flasck.flas.parsedForm.TemplateCases;
-import org.flasck.flas.parsedForm.TemplateDiv;
-import org.flasck.flas.parsedForm.TemplateExplicitAttr;
-import org.flasck.flas.parsedForm.TemplateFormat;
-import org.flasck.flas.parsedForm.TemplateFormatEvents;
-import org.flasck.flas.parsedForm.TemplateLine;
-import org.flasck.flas.parsedForm.TemplateList;
-import org.flasck.flas.parsedForm.TemplateListVar;
-import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -70,6 +69,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
+import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
@@ -274,11 +274,11 @@ public class Rewriter {
 			}
 			for (ContractImplements ci : cd.contracts) {
 				if (ci.referAsVar != null)
-					members.put(ci.referAsVar, ci);
+					members.put(ci.referAsVar, (Type)getObject(cx.resolve(ci.location(), ci.name())));
 			}
 			for (ContractService cs : cd.services) {
 				if (cs.referAsVar != null)
-					members.put(cs.referAsVar, cs);
+					members.put(cs.referAsVar, (Type)getObject(cx.resolve(cs.location(), cs.name())));
 			}
 			for (HandlerImplements hi : cd.handlers) {
 				statics.put(State.simpleName(hi.hiName), new ObjectReference(hi.location(), prefix, hi.hiName));
@@ -1229,18 +1229,8 @@ public class Rewriter {
 				k = ret.arity() + 1;
 			else if (ret.iam == WhatAmI.TUPLE)
 				k = ret.width();
-			else if (ret instanceof ContractDecl) {
-				; // return rewrite(cx, ((ContractDecl)ret));
-				throw new UtilException("big-divide: what is this case?");
-			}
 			else
 				return ret;
-			for (int i=0;i<k;i++) {
-				// TODO: big-divide: obviously, ret should have its args already rewritten
-				// Is this supposed to be rewriting our args? or what
-//				fnargs.add(rewrite(cx, ret.arg(i), allowPolys));
-				throw new UtilException("big-divide not-understood case");
-			}
 			if (ret.iam == WhatAmI.FUNCTION)
 				return Type.function(ret.location(), fnargs);
 			else

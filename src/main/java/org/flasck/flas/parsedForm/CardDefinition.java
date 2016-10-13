@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.template.Template;
 import org.flasck.flas.stories.FLASStory.State;
 
 @SuppressWarnings("serial")

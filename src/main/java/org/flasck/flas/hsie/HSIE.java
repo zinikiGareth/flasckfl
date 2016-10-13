@@ -11,9 +11,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;

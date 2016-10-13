@@ -17,7 +17,6 @@ import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeHolder;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.Justification;
 import org.zinutils.xml.XML;
 import org.zinutils.xml.XMLElement;

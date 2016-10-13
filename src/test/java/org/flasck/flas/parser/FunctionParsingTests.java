@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blocker.BlockerTests;
-import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.sampleData.ParsedFormTestData;

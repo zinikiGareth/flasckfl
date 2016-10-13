@@ -1,10 +1,11 @@
-package org.flasck.flas.parsedForm;
+package org.flasck.flas.parsedForm.template;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.parsedForm.Scope;
 
 @SuppressWarnings("serial")
 public class Template implements Serializable{

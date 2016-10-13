@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.flasck.flas.parsedForm.CardFunction;
+import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.ObjectReference;
@@ -175,9 +175,8 @@ public class JSForm {
 
 	public static JSForm function(String fnName, List<Var> hsvs, Set<String> scoped, int nformal) {
 		List<String> vars = new ArrayList<String>();
-		int j=0;
-		for (Object s : scoped)
-			vars.add("s"+(j++));
+		for (int j=0;j<scoped.size();j++)
+			vars.add("s"+j);
 		for (int i=0;i<nformal;i++)
 			vars.add(hsvs.get(i).toString());
 		return new JSForm(fnName + " = function(" + String.join(", ", vars) + ")").strict();

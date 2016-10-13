@@ -3,7 +3,7 @@ package org.flasck.flas.hsie;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.ConstPattern;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 
 public class NestedBinds {
