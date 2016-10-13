@@ -140,7 +140,7 @@ public class FLASStory {
 
 	public Object process(Scope top, List<Block> blocks) {
 		ErrorResult er = new ErrorResult();
-		process("test.foo", top, er, blocks, false);
+		process("ME", top, er, blocks, false);
 		if (er.hasErrors())
 			return er;
 		return top;

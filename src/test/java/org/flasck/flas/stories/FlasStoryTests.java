@@ -14,7 +14,6 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
@@ -30,19 +29,14 @@ public class FlasStoryTests {
 
 	@Test
 	public void testProcessingFib() {
-		Object o = new FLASStory().process(s, BlockTestData.allFib());
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
+		new FLASStory().process(s, BlockTestData.allFib());
 		assertEquals(1, s.size());
 	}
 
 	@Test
 	public void testProcessingMutualRecursion() {
-		Object o = new FLASStory().process(s, BlockTestData.simpleMutualRecursionBlock());
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
+		new FLASStory().process(s, BlockTestData.simpleMutualRecursionBlock());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(2, rewriter.functions.size());
 		RWFunctionDefinition f = rewriter.functions.get("ME.f");
 		assertEquals("ME.f", f.name());
@@ -59,11 +53,8 @@ public class FlasStoryTests {
 
 	@Test
 	public void testProcessingAMultiPartFunctionWithSeparateNestedScopes() throws IOException {
-		Object o = new FLASStory().process(s, BlockTestData.splitNestedBlocks());
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
+		new FLASStory().process(s, BlockTestData.splitNestedBlocks());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(3, rewriter.functions.size());
 		RWFunctionDefinition f = rewriter.functions.get("ME.f");
 		assertEquals(2, f.cases.size());
@@ -81,11 +72,8 @@ public class FlasStoryTests {
 	
 	@Test
 	public void testLiftingOfCardMethods() throws Exception {
-		Object o = new FLASStory().process(s, BlockTestData.cardWithMethods());
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
+		new FLASStory().process(s, BlockTestData.cardWithMethods());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(2, s.size());
 		CardDefinition cd = (CardDefinition) s.get("Mycard");
 		assertNotNull(cd.state);
@@ -115,12 +103,8 @@ public class FlasStoryTests {
 	
 	@Test
 	public void testSimpleIfThatErrors() throws Exception {
-		Object o = new FLASStory().process(s, BlockTestData.simpleIf());
-		System.out.println(o);
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
+		new FLASStory().process(s, BlockTestData.simpleIf());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(1, rewriter.functions.size());
 		RWFunctionDefinition fact = rewriter.functions.get("ME.fact");
 		assertEquals(1, fact.cases.size());
@@ -132,12 +116,8 @@ public class FlasStoryTests {
 	
 	@Test
 	public void testSimpleIfElse() throws Exception {
-		Object o = new FLASStory().process(s, BlockTestData.simpleIfElse());
-		System.out.println(o);
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
+		new FLASStory().process(s, BlockTestData.simpleIfElse());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(1, rewriter.functions.size());
 		RWFunctionDefinition fact = rewriter.functions.get("ME.fact");
 		assertEquals(1, fact.cases.size());

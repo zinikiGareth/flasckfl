@@ -312,7 +312,7 @@ public class Compiler {
 
 			rewriter.importPackage(rootPkg);
 			
-			rewriter.rewriteScope(rewriter.new PackageContext(rewriter.new RootContext(), inPkg, scope), scope);
+			rewriter.rewritePackageScope(inPkg, scope);
 //			for (ScopeEntry se : entries)
 //				rewriter.rewrite(se);
 			abortIfErrors(errors);
@@ -475,7 +475,7 @@ public class Compiler {
 
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
 	}
-	
+
 	private void dumpOrchard(PrintWriter hsiePW, Orchard<HSIEForm> oh) {
 		if (hsiePW == null)
 			return;

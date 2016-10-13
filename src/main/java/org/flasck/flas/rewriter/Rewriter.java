@@ -69,6 +69,8 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
+import org.flasck.flas.rewriter.Rewriter.PackageContext;
+import org.flasck.flas.rewriter.Rewriter.RootContext;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -184,10 +186,13 @@ public class Rewriter {
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
+			// TODO: I think these should possibly just keep on having their "simple" names and let JSOUT handle the rename
 			if (name.equals("."))
 				return new PackageVar(location, "FLEval.field", null);
-			if (name.equals("()") || name.equals("let"))
-				throw new UtilException("Ha!" + name);
+			if (name.equals("()"))
+				return new PackageVar(location, "FLEval.tuple", null);
+			if (name.equals("let"))
+				return new PackageVar(location, "let", null);
 			Object val = getMe(location, name);
 			if (val != null)
 				return val;
@@ -470,6 +475,10 @@ public class Rewriter {
 		}
 	}
 	
+	public void rewritePackageScope(String inPkg, final Scope scope) {
+		rewriteScope(new PackageContext(new RootContext(), inPkg, scope), scope);
+	}
+
 	public void rewriteScope(NamingContext cx, Scope from) {
 		pass1(cx, from);
 		pass2(cx, from);
