@@ -299,11 +299,20 @@ public class JSForm {
 		sb.append(")");
 		return sb.toString();
 	}
+	
+	public static String rename(String fn) {
+		if (fn.equals("++"))
+			return "append";
+		else if (fn.equals("-"))
+			return "FLEval.minus";
+		else
+			return fn;
+	}
 
 	private static void appendValue(HSIEForm form, StringBuilder sb, PushReturn c, int pos) {
 		if (c.fn != null) {
 			if (c.fn instanceof PackageVar) {
-				sb.append(c.fn.uniqueName());
+				sb.append(rename(c.fn.uniqueName()));
 			} else if (c.fn instanceof Type) {
 				sb.append(((Type)c.fn).name());
 			} else if (c.fn instanceof ScopedVar) {

@@ -494,8 +494,6 @@ public class Compiler {
 
 	// Just obtain a parse tree 
 	public StoryRet parse(String inPkg, String input) throws ErrorResultException {
-		ImportPackage rootPkg = Builtin.builtinScope();
-		PackageFinder pkgFinder = new PackageFinder(pkgdirs, rootPkg);
 		ErrorResult er = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
 		final Scope scope = new Scope(null, null);

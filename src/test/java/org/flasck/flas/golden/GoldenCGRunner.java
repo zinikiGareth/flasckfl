@@ -25,7 +25,6 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -46,6 +45,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
 import org.zinutils.cgharness.CGHarnessRunner;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.system.RunProcess;
 import org.zinutils.utils.Crypto;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
@@ -103,24 +103,26 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			for (File input : dir.listFiles()) {
 				StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
 				Indenter pw = new Indenter(new File(pform, input.getName().replace(".fl", ".pf")));
-				if (sr.scope != null)
+				if (sr.scope != null) {
+					pw.println("package test.golden");
 					dumpScope(pw, sr.scope);
+				}
 				pw.close();
 			}
-//			assertGolden(new File(s, "pform"), pform);
+			assertGolden(new File(s, "pform"), pform);
 			
 			// read these kinds of things from "new File(s, ".settings")"
 	//		compiler.writeDroidTo(new File("null"));
 	//		compiler.searchIn(new File("src/main/resources/flim"));
 			
-			compiler.dumpTypes();
+//			compiler.dumpTypes();
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
 			compiler.compile(dir);
 			
 			// Now assert that we matched things ...
-//			assertGolden(new File(s, "jsout"), jsto);
+			assertGolden(new File(s, "jsout"), jsto);
 		} catch (ErrorResultException ex) {
 			// either way, write the errors to a suitable directory
 			FileUtils.assertDirectory(etmp);
@@ -142,10 +144,6 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	private static void dumpRecursive(Indenter pw, Object obj) {
 		if (obj == null) {
 			pw.println("Error - null");
-		} else if (obj instanceof PackageDefn) {
-			PackageDefn se = (PackageDefn) obj;
-			pw.println("package " + se.name);
-			dumpScope(pw, se.innerScope());
 		} else if (obj instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) obj;
 			pw.println("cdecl " + cd.name());
@@ -209,7 +207,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructDefn) {
 			StructDefn sd = (StructDefn) obj;
-			pw.println("struct " + sd.name());
+			pw.println("struct " + sd.name() + polys(sd));
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructField) {
 			StructField sf = (StructField) obj;
@@ -244,8 +242,24 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		} else if (obj instanceof TypeReference) {
 			TypeReference t = (TypeReference) obj;
 			pw.println(t.name());
+			if (t.hasPolys()) {
+				Indenter ind = pw.indent();
+				for (TypeReference p : t.polys())
+					dumpRecursive(ind, p);
+			}
 		} else
 			throw new UtilException("Cannot handle dumping " + obj.getClass());
+	}
+
+	private static String polys(StructDefn sd) {
+		if (sd.polys() == null || sd.polys().isEmpty())
+			return "";
+		StringBuilder sb = new StringBuilder();
+		for (TypeReference tr : sd.polys()) {
+			sb.append(" ");
+			sb.append(tr.name());
+		}
+		return sb.toString();
 	}
 
 	private static void dumpScope(Indenter pw, Scope s) {
@@ -275,8 +289,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			String goldhash = Crypto.hash(f);
 			String genhash = Crypto.hash(gen);
 			if (!goldhash.equals(genhash)) {
-				// TODO: should do a visual line by line diff here ...
-				System.out.println("Need visual diff");
+				RunProcess proc = new RunProcess("diff");
+				proc.arg("-C5");
+				proc.arg(f.getPath());
+				proc.arg(gen.getPath());
+				proc.redirectStdout(System.out);
+				proc.redirectStderr(System.err);
+				proc.execute();
+				proc.getExitCode();
 			}
 			assertEquals("Files " + f + " and " + gen + " differed", goldhash, genhash);
 		}

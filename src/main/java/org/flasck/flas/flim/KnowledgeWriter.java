@@ -198,6 +198,5 @@ public class KnowledgeWriter {
 
 	public void commit() {
 		xml.write(exportTo);
-		FileUtils.cat(exportTo);
 	}
 }

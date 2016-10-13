@@ -8,6 +8,29 @@ if (typeof test.golden === 'undefined') {
   }
 }
 
+test.golden._Polyed = function(v0) {
+  "use strict";
+  this._ctor = 'test.golden.Polyed';
+  if (v0) {
+    if (v0.x) {
+      this.x = v0.x;
+    }
+    if (v0.y) {
+      this.y = v0.y;
+    }
+    if (v0.z) {
+      this.z = v0.z;
+    }
+  }
+  else {
+  }
+}
+
+test.golden.Polyed = function(v0, v1, v2) {
+  "use strict";
+  return new test.golden._Polyed({x: v0, y: v1, z: v2});
+}
+
 test.golden._Thing = function(v0) {
   "use strict";
   this._ctor = 'test.golden.Thing';

@@ -14,3 +14,8 @@ package test.golden
     up ask
       answer
         Handler
+  cdecl test.golden.UsePolyInstance
+    down giveList
+      l
+        List
+          String

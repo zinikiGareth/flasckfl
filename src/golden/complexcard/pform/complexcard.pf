@@ -19,6 +19,14 @@ package test.golden
         String
       h
         Handler
+  struct test.golden.Polyed T1 T2
+    x
+      String
+    y
+      T1
+    z
+      List
+        T2
   card test.golden.Simple
     state
       hello
@@ -27,6 +35,7 @@ package test.golden
         '' hello, world
       list
         Croset
+          String
     template test.golden.Simple
       .
         hello
