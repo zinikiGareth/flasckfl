@@ -125,7 +125,7 @@ public class MethodConvertor {
 		if (ofType != null)
 			tc.addExternal(m.method.intro.name, ofType);
 		
-		return new RWFunctionDefinition(m.method.intro.location, m.type, new RWFunctionIntro(m.method.intro.location, m.method.intro.name, m.method.intro.args, null), cases);
+		return new RWFunctionDefinition(m.method.intro.location, m.type, new RWFunctionIntro(m.method.intro.location, m.method.intro.name, m.method.intro.args, null), cases, true);
 	}
 
 	public RWFunctionDefinition convertEventHandler(Rewriter rw, String card, RWEventHandlerDefinition eh) {
@@ -146,7 +146,7 @@ public class MethodConvertor {
 		}
 		if (ofType != null)
 			tc.addExternal(eh.intro.name, ofType);
-		return new RWFunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, new RWFunctionIntro(eh.intro.location, eh.intro.name, eh.intro.args, null), cases);
+		return new RWFunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, new RWFunctionIntro(eh.intro.location, eh.intro.name, eh.intro.args, null), cases, true);
 	}
 
 	public RWFunctionDefinition convertStandalone(Rewriter rw, MethodInContext mic) {
@@ -170,7 +170,7 @@ public class MethodConvertor {
 		}
 		if (ofType != null)
 			tc.addExternal(method.intro.name, ofType);
-		return new RWFunctionDefinition(method.intro.location, mic.type, new RWFunctionIntro(method.intro.location, method.intro.name, null, null), cases);
+		return new RWFunctionDefinition(method.intro.location, mic.type, new RWFunctionIntro(method.intro.location, method.intro.name, null, null), cases, true);
 	}
 
 	protected List<Type> figureCMD(MethodInContext m) {

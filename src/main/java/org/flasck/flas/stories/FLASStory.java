@@ -45,7 +45,6 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMember;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
@@ -85,7 +84,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
-public class FLASStory implements StoryProcessor {
+public class FLASStory {
 	public static class FCDWrapper {
 		List<Block> nested; 
 		FunctionCaseDefn starter;
@@ -139,20 +138,17 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
-	@Override
-	public Object process(ScopeEntry top, List<Block> blocks) {
-		StoryRet r = process(top, blocks, false);
-		if (r.er.hasErrors())
-			return r.er;
+	public Object process(Scope top, List<Block> blocks) {
+		ErrorResult er = new ErrorResult();
+		process("test.foo", top, er, blocks, false);
+		if (er.hasErrors())
+			return er;
 		return top;
 	}
 
-	public StoryRet process(ScopeEntry top, List<Block> blocks, boolean optimism) {
-		PackageDefn pkg = (PackageDefn) top.getValue();
-		State s = new State(pkg.innerScope(), pkg.name, HSIEForm.CodeType.FUNCTION);
-		ErrorResult er = new ErrorResult();
+	public void process(String pkg, Scope sc, ErrorResult er, List<Block> blocks, boolean optimism) {
+		State s = new State(sc, pkg, HSIEForm.CodeType.FUNCTION);
 		doScope(er, s, blocks);
-		return new StoryRet(er, top);
 	}
 
 	private Object doScope(ErrorResult er, State s, List<Block> blocks) {

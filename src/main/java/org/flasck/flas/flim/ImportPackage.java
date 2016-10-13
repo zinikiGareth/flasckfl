@@ -1,9 +1,11 @@
 package org.flasck.flas.flim;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
-public class ImportPackage {
+public class ImportPackage implements Iterable<Map.Entry<String, Object>> {
 	private final String pkgName;
 	private final HashMap<String, Object> map;
 
@@ -13,12 +15,24 @@ public class ImportPackage {
 	}
 
 	public Map.Entry<String, Object> getEntry(String name) {
-		// TODO Auto-generated method stub
+		for (Entry<String, Object> r : map.entrySet()) {
+			if (r.getKey().equals(name))
+				return r;
+		}
 		return null;
 	}
 
-	public void define(String key, Object value) {
+	public void define(String key, String ign, Object value) {
 		String pn = pkgName == null ? key : pkgName+"."+key;
 		map.put(pn, value);
+	}
+
+	public Object get(String name) {
+		return map.get(name);
+	}
+
+	@Override
+	public Iterator<Entry<String, Object>> iterator() {
+		return map.entrySet().iterator();
 	}
 }

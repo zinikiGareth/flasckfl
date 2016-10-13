@@ -12,6 +12,7 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
+import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
@@ -22,9 +23,7 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -50,16 +49,12 @@ public class RewriterTests {
 	private final ErrorResult errors = new ErrorResult();
 	private final Rewriter rw = new Rewriter(errors, null);
 	private Scope scope;
-	private Scope builtinScope;
-	private ScopeEntry pkgEntry;
+	private ImportPackage builtinScope;
 	
 	@Before
 	public void setup() {
 		builtinScope = Builtin.builtinScope();
 		builtinScope.define("Timer", "Timer", Type.builtin(null, "Timer"));
-		PackageDefn pd = new PackageDefn(null, builtinScope, "ME");
-		scope = pd.innerScope();
-		pkgEntry = pd.innerScope().outerEntry;
 	}
 
 	@Test
@@ -68,7 +63,7 @@ public class RewriterTests {
 		cases.add(new FunctionCaseDefn(null, "ME.f", new ArrayList<Object>(), new UnresolvedVar(null, "Nil")));
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 0, cases);
 		scope.define("f", "ME.f", fn);
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
 		assertEquals("ME.f", rfn.name());
 		assertTrue(rfn.cases.get(0).expr instanceof PackageVar);
@@ -83,7 +78,7 @@ public class RewriterTests {
 		cases.add(new FunctionCaseDefn(null, "ME.f", args, new UnresolvedVar(null, "x")));
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 1, cases);
 		scope.define("f", "ME.f", fn);
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
 		assertEquals("ME.f", rfn.name());
 		assertTrue(rfn.cases.get(0).expr instanceof LocalVar);
@@ -95,7 +90,7 @@ public class RewriterTests {
 		StructDefn sd = new StructDefn(null, "Fred", true);
 		sd.addField(new StructField(null, false, new TypeReference(null, "String"), "f"));
 		scope.define("Container", "ME.Container", sd);
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		RWStructDefn rsd = rw.structs.get("ME.Container");
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("f", sf.name);
@@ -108,7 +103,7 @@ public class RewriterTests {
 		StructDefn sd = new StructDefn(null, "Container", true);
 		sd.addField(new StructField(null, false, new TypeReference(null, "List", new TypeReference(null, "String")), "list"));
 		scope.define("Container", "ME.Container", sd);
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		RWStructDefn rsd = rw.structs.get("ME.Container");
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("list", sf.name);
@@ -125,7 +120,7 @@ public class RewriterTests {
 		StructDefn sd = new StructDefn(null, "Container", true);
 		sd.addField(new StructField(null, false, new TypeReference(null, "List"), "list"));
 		scope.define("Container", "ME.Container", sd);
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		assertTrue(errors.hasErrors());
 		assertEquals(1, errors.count());
 		assertEquals("cannot use List without specifying polymorphic arguments", errors.get(0).msg);
@@ -151,7 +146,7 @@ public class RewriterTests {
 			FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f_0.g", 1, cases);
 			innerScope.define("g", "ME.f_0.g", fn);
 		}
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		RWFunctionDefinition g = rw.functions.get("ME.f_0.g");
 		System.out.println(rw.functions);
 		assertEquals("ME.f_0.g", g.name());
@@ -169,7 +164,7 @@ public class RewriterTests {
 		cases.add(new FunctionCaseDefn(null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		RWFunctionDefinition rfn = rw.functions.get("ME.MyCard.f");
@@ -188,7 +183,7 @@ public class RewriterTests {
 		cases.add(new FunctionCaseDefn(null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "timer")));
 		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.MyCard.f", 0, cases);
 		cd.fnScope.define("f", "ME.MyCard.f", fn);
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		RWFunctionDefinition rfn = rw.functions.get("ME.MyCard.f");
@@ -212,7 +207,7 @@ public class RewriterTests {
 		mcd1.messages.add(new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(md);
 //		scope.define("MyCard", "ME.MyCard", cd);
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		RWMethodDefinition rmd = rw.methods.get(0).method;
@@ -236,7 +231,7 @@ public class RewriterTests {
 		ecd1.messages.add(new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
 		cd.fnScope.define("eh", "ME.MyCard.eh", ehd);
 //		scope.define("MyCard", "ME.MyCard", cd);
-		rw.rewrite(pkgEntry);
+		rw.rewriteScope(rw.new RootContext(), scope);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		RWEventHandlerDefinition reh = (RWEventHandlerDefinition) rw.eventHandlers.get(0).handler;

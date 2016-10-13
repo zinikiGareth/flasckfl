@@ -1,8 +1,9 @@
 package org.flasck.flas.flim;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.ArgumentException;
 import org.flasck.flas.blockForm.Block;
@@ -12,9 +13,15 @@ import org.slf4j.LoggerFactory;
 import org.zinutils.xml.XML;
 
 public class PackageFinder {
-	private final List<File> dirs = new ArrayList<File>();
 	private final static Logger logger = LoggerFactory.getLogger("Compiler");
+	private final List<File> dirs;
+	private final Map<String, ImportPackage> imported = new HashMap<String, ImportPackage>();
 	
+	public PackageFinder(List<File> pkgdirs, ImportPackage rootPkg) {
+		dirs = pkgdirs;
+		imported.put("", rootPkg);
+	}
+
 	public ImportPackage loadFlim(ErrorResult errors, String pkgName) {
 		for (File d : dirs) {
 			File flim = new File(d, pkgName + ".flim");

@@ -103,8 +103,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			for (File input : dir.listFiles()) {
 				StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
 				Indenter pw = new Indenter(new File(pform, input.getName().replace(".fl", ".pf")));
-				if (sr.top != null && sr.top.getValue() != null)
-					dumpRecursive(pw, sr.top.getValue());
+				if (sr.scope != null)
+					dumpScope(pw, sr.scope);
 				pw.close();
 			}
 //			assertGolden(new File(s, "pform"), pform);

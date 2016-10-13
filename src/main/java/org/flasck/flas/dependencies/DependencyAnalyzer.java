@@ -56,6 +56,8 @@ public class DependencyAnalyzer {
 			dcg.ensure(name);
 
 			RWFunctionDefinition fd = x.getValue();
+			if (!fd.generate)
+				return;
 			fdm.put(name,  fd);
 			int cs = 0;
 			for (RWFunctionCaseDefn c : fd.cases) {

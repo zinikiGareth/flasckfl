@@ -41,12 +41,8 @@ import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.FunctionLiteral;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -64,7 +60,6 @@ import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
-import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
@@ -73,7 +68,6 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.template.TemplateGenerator;
-import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -213,7 +207,7 @@ public class Compiler {
 	int nextFn = 1;
 	private boolean success;
 	private boolean dumpTypes = false;
-	private final PackageFinder pkgFinder = new PackageFinder();
+	private final List<File> pkgdirs = new ArrayList<File>();
 	private ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	private DroidBuilder builder;
 	private File writeFlim;
@@ -221,7 +215,7 @@ public class Compiler {
 	private File writeJS;
 
 	public void searchIn(File file) {
-		pkgFinder.searchIn(file);
+		pkgdirs.add(file);
 	}
 	
 	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put it
@@ -260,6 +254,8 @@ public class Compiler {
 		this.dumpTypes = true;
 	}
 	
+	// The objective of this method is to convert an entire package directory at one go
+	// Thus the entire context of this is a single package
 	public void compile(File file) throws ErrorResultException, IOException {
 		String inPkg = file.getName();
 		if (!file.isDirectory()) {
@@ -272,12 +268,13 @@ public class Compiler {
 		System.out.println("compiling package " + inPkg + " to " + writeTo);
 			
 		boolean failed = false;
-		Scope top = Builtin.builtinScope();
-		PackageDefn pd = new PackageDefn(new InputPosition(file.getName(), 0, 0, inPkg), top, inPkg);
-		final List<ScopeEntry> entries = new ArrayList<ScopeEntry>();
+		ImportPackage rootPkg = Builtin.builtinScope();
+		PackageFinder pkgFinder = new PackageFinder(pkgdirs, rootPkg);
+		ErrorResult errors = new ErrorResult();
+		final FLASStory storyProc = new FLASStory();
+		final Scope scope = new Scope(null, null);
 		final List<String> pkgs = new ArrayList<String>();
 		pkgs.add(inPkg);
-		entries.add(pd.myEntry());
 		
 		for (File f : FileUtils.findFilesMatching(file, "*.fl")) {
 			System.out.println(" > " + f.getName());
@@ -289,9 +286,7 @@ public class Compiler {
 				List<Block> blocks = makeBlocks(f.getName(), r);
 				
 				// 2. Use the parser factory and story to convert blocks to a package definition
-				StoryRet obj = new FLASStory().process(pd.myEntry(), blocks, true);
-				if (obj.er.hasErrors())
-					throw new ErrorResultException(obj.er);
+				storyProc.process(inPkg, scope, errors, blocks, true);
 			} catch (IOException ex1) {
 				failed = true;
 				ex1.printStackTrace();
@@ -300,6 +295,9 @@ public class Compiler {
 			}
 		}
 
+		if (errors.hasErrors())
+			throw new ErrorResultException(errors);
+
 		if (failed)
 			return;
 		
@@ -307,25 +305,21 @@ public class Compiler {
 		FileOutputStream wex = null;
 		success = false;
 		try {
-			// 1. Flatten the hierarchy, grouping into things of similar kinds
-			//    Resolve symbols and rewrite expressions to reference "scoped" variables
-			final ErrorResult errors = new ErrorResult();
 			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter);
 			final DroidGenerator dg = new DroidGenerator(hsie, builder);
 
-			for (ImportPackage p : Builtin.builtinScope())
-				rewriter.importPackage(p);
+			rewriter.importPackage(rootPkg);
 			
-			rewriter.rewriteScope(rewriter.new RootContext(top), top);
-			for (ScopeEntry se : entries)
-				rewriter.rewrite(se);
+			rewriter.rewriteScope(rewriter.new PackageContext(rewriter.new RootContext(), inPkg, scope), scope);
+//			for (ScopeEntry se : entries)
+//				rewriter.rewrite(se);
 			abortIfErrors(errors);
 
 			// 2. Prepare Typechecker & load types
 			TypeChecker tc = new TypeChecker(errors);
-			populateTypes(tc, top, pkgs); // this is intended to just load in builtin stuff.  We should have a better pre-flattened version of that
+			populateTypes(tc, rootPkg, pkgs);
 			tc.populateTypes(rewriter);
 			abortIfErrors(errors);
 		
@@ -500,8 +494,12 @@ public class Compiler {
 
 	// Just obtain a parse tree 
 	public StoryRet parse(String inPkg, String input) throws ErrorResultException {
-		Scope top = Builtin.builtinScope();
-		PackageDefn pd = new PackageDefn(new InputPosition("-", 0, 0, inPkg), top, inPkg);
+		ImportPackage rootPkg = Builtin.builtinScope();
+		PackageFinder pkgFinder = new PackageFinder(pkgdirs, rootPkg);
+		ErrorResult er = new ErrorResult();
+		final FLASStory storyProc = new FLASStory();
+		final Scope scope = new Scope(null, null);
+		StoryRet ret = new StoryRet(er, scope);
 		StringReader r = null;
 		try {
 			r = new StringReader(input);
@@ -510,7 +508,8 @@ public class Compiler {
 			List<Block> blocks = makeBlocks("-", r);
 			
 			// 2. Use the parser factory and story to convert blocks to a package definition
-			return new FLASStory().process(pd.myEntry(), blocks, true);
+			storyProc.process(inPkg, scope, er, blocks, true);
+			return ret;
 		} catch (IOException ex1) {
 			ex1.printStackTrace();
 			return null;
@@ -605,7 +604,7 @@ public class Compiler {
 
 		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.dloc, d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>(), null);
 		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(d3f, init);
-		RWFunctionDefinition func = new RWFunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
+		RWFunctionDefinition func = new RWFunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd), true);
 		functions.put(d3f.name, func);
 		
 		for (RWFunctionDefinition fd : functions.values())
@@ -617,7 +616,7 @@ public class Compiler {
 
 		RWFunctionIntro d3f = new RWFunctionIntro(null, prefix + "." + name, args, null);
 		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(d3f, expr);
-		RWFunctionDefinition func = new RWFunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd));
+		RWFunctionDefinition func = new RWFunctionDefinition(null, HSIEForm.CodeType.CARD, d3f, CollectionUtils.listOf(fcd), true);
 		functions.put(d3f.name, func);
 
 		return new FunctionLiteral(d3f.location, d3f.name);
@@ -631,13 +630,11 @@ public class Compiler {
 		return (List<Block>) res;
 	}
 
-	private void populateTypes(TypeChecker tc, Scope scope, List<String> parsed) {
+	private void populateTypes(TypeChecker tc, ImportPackage pkg, List<String> parsed) {
+		/* TODO: big-divide
 		for (Entry<String, ScopeEntry> x : scope) {
 			Object val = x.getValue().getValue();
-			if (val instanceof PackageDefn) {
-				if (parsed == null || !parsed.contains(x.getKey()))
-					populateTypes(tc, ((PackageDefn)val).innerScope(), null);
-			} else if (val instanceof RWStructDefn) {
+			if (val instanceof RWStructDefn) {
 //				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
 				tc.addStructDefn((RWStructDefn) val);
 			} else if (val instanceof RWObjectDefn) {
@@ -656,6 +653,7 @@ public class Compiler {
 			} else 
 				throw new UtilException("Cannot handle " + val);
 		}
+		*/
 	}
 
 	private Orchard<HSIEForm> hsieOrchard(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<RWFunctionDefinition> d) {

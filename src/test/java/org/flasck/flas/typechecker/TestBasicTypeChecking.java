@@ -10,11 +10,11 @@ import java.util.ArrayList;
 
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
+import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
@@ -429,19 +429,19 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
-		Scope biscope = Builtin.builtinScope();
-		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
+		ImportPackage biscope = Builtin.builtinScope();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);
+		Scope s = new Scope(null, null);
 		FunctionDefinition f = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, f1.intro, CollectionUtils.listOf(f1));
-		pkg.innerScope().define("f", "ME.f", f);
+		s.define("f", "ME.f", f);
 		FunctionCaseDefn g1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("g x = f [ 42, 'hello']"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(g1);
 		FunctionDefinition g = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, g1.intro, CollectionUtils.listOf(g1));
-		pkg.innerScope().define("g", "ME.g", g);
+		s.define("g", "ME.g", g);
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("join", (Type) biscope.get("join"));
@@ -453,7 +453,7 @@ public class TestBasicTypeChecking {
 		tc.addStructDefn((RWStructDefn) biscope.get("Send"));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		Rewriter rewriter = new Rewriter(errors, null);
-		rewriter.rewrite(pkg.myEntry());
+		rewriter.rewriteScope(rewriter.new RootContext(), s);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIE hsie = new HSIE(errors, rewriter);
 		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.f"))));

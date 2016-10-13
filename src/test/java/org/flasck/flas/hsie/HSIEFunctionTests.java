@@ -1,26 +1,11 @@
 package org.flasck.flas.hsie;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.flim.Builtin;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.PackageDefn;
-import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parser.FunctionParser;
-import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.stories.FLASStory;
-import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
-import org.junit.Test;
-import org.zinutils.collections.CollectionUtils;
 
 public class HSIEFunctionTests {
 	private ErrorResult errors = new ErrorResult();
 	
+	/* TODO: big-divide
 	@Test
 	public void testConvertingConstant() {
 		Scope biscope = Builtin.builtinScope();
@@ -73,4 +58,5 @@ public class HSIEFunctionTests {
 		assertEquals(0, errors.count());
 		HSIETestData.assertHSIE(HSIETestData.take(), takeForm);
 	}
+	*/
 }

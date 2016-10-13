@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.flasck.flas.flim.Builtin;
+import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.typechecker.Type;
@@ -36,7 +36,7 @@ public class TestGeneratingStructs {
 
 	@Test
 	public void testACaseWithTwoFields() throws IOException {
-		Scope biScope = Builtin.builtinScope();
+		ImportPackage biScope = Builtin.builtinScope();
 		Type str = (Type) biScope.get("String");
 		Type nbr = (Type) biScope.get("Number");
 		RWStructDefn sd = new RWStructDefn(null, "ME.Hello", true);

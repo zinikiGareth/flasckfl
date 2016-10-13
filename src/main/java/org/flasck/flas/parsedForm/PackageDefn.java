@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 
 @SuppressWarnings("serial")
+@Deprecated // TODO: big-divide: delete this
 public class PackageDefn implements ContainsScope, Locatable, Serializable {
 	public final InputPosition location;
 	public final String name;

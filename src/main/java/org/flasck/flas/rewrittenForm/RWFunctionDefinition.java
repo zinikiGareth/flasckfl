@@ -15,11 +15,13 @@ public class RWFunctionDefinition implements Locatable, Serializable {
 	public final CodeType mytype;
 	public final RWFunctionIntro intro;
 	public final List<RWFunctionCaseDefn> cases;
+	public final boolean generate;
 
-	public RWFunctionDefinition(InputPosition location, CodeType mytype, RWFunctionIntro intro, List<RWFunctionCaseDefn> list) {
+	public RWFunctionDefinition(InputPosition location, CodeType mytype, RWFunctionIntro intro, List<RWFunctionCaseDefn> list, boolean generate) {
 		this.location = location;
 		this.mytype = mytype;
 		this.intro = intro;
+		this.generate = generate;
 		if (mytype == null)
 			throw new UtilException("Null mytype");
 		this.cases = list;

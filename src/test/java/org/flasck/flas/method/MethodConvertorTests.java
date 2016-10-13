@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
+import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -29,7 +30,6 @@ import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructField;
@@ -52,8 +52,6 @@ import org.slf4j.Logger;
 import org.zinutils.collections.CollectionUtils;
 
 public class MethodConvertorTests {
-	private PackageDefn org;
-	private PackageDefn pkg;
 	private Scope orgFooScope;
 	private Rewriter rewriter;
 	private ErrorResult errors;
@@ -68,12 +66,10 @@ public class MethodConvertorTests {
 
 	public MethodConvertorTests() {
 		errors = new ErrorResult();
-		Scope biscope = Builtin.builtinScope();
+		ImportPackage biscope = Builtin.builtinScope();
 		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
 		RWStructDefn send = (RWStructDefn) biscope.get("Send");
-		org = new PackageDefn(null, biscope, "org");
-		pkg = new PackageDefn(null, org.innerScope(), "foo");
-		orgFooScope = pkg.innerScope();
+		orgFooScope = new Scope(null, null);
 		orgFooScope.define("doSend", "org.foo.doSend", Type.function(null, any, send));
 		{
 			ContractDecl contract1 = new ContractDecl(null, null, "org.foo.Contract1");
@@ -142,7 +138,7 @@ public class MethodConvertorTests {
 	}
 	
 	public void stage2(boolean checkErrors) throws Exception {
-		rewriter.rewrite(pkg.myEntry());
+		rewriter.rewriteScope(rewriter.new RootContext(), orgFooScope);
 		if (checkErrors)
 			assertFalse(errors.singleString(), errors.hasErrors());
 		tc.populateTypes(rewriter);

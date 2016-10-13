@@ -102,6 +102,7 @@ import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
@@ -142,7 +143,9 @@ public class Rewriter {
 	static final Logger logger = LoggerFactory.getLogger("Rewriter");
 	private final ErrorResult errors;
 	private final PackageFinder pkgFinder;
+	public final Map<String, Type> builtins = new TreeMap<String, Type>();
 	public final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
+	public final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
 	public final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
 	public final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
@@ -175,20 +178,20 @@ public class Rewriter {
 	/** The Root Context exists exactly one time to include the BuiltinScope and nothing else
 	 */
 	public class RootContext extends NamingContext {
-		private final Scope biscope;
-
-		public RootContext(Scope biscope) {
+		public RootContext() {
 			super(null);
-			if (biscope == null)
-				throw new UtilException("but no");
-			this.biscope = biscope;
 		}
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			if (biscope.contains(name)) {
-				return getMe(location, name);
-			}
+			if (name.equals("."))
+				return new PackageVar(location, "FLEval.field", null);
+			if (name.equals("()") || name.equals("let"))
+				throw new UtilException("Ha!" + name);
+			Object val = getMe(location, name);
+			if (val != null)
+				return val;
+			// TODO: big-divide: I think all this logic wants to go in the package finder
 			if (name.contains(".")) {
 				// try and resolve through a sequence of packages
 				// TODO: need to be sure to consider "the current package"
@@ -211,17 +214,19 @@ public class Rewriter {
 	/** The Package Context represents one package which must exist exactly in the builtin scope
 	 */
 	public class PackageContext extends NamingContext {
-		private PackageDefn pkg;
+		private final String pkgName;
+		private final Scope scope;
 
-		public PackageContext(NamingContext cx, PackageDefn pkg) {
+		public PackageContext(NamingContext cx, String pkgName, Scope scope) {
 			super(cx);
-			this.pkg = pkg;
+			this.pkgName = pkgName;
+			this.scope = scope;
 		}
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			if (pkg.innerScope().contains(name)) {
-				return getMe(location, pkg.name + "." + name);
+			if (scope.contains(name)) {
+				return getMe(location, pkgName + "." + name);
 			}
 			return nested.resolve(location, name);
 		}
@@ -261,7 +266,7 @@ public class Rewriter {
 			if (cd.state != null) {
 				for (StructField sf : cd.state.fields) {
 					try {
-						members.put(sf.name, (Type)((PackageVar)cx.resolve(sf.type.location(), sf.type.name())).defn);
+						members.put(sf.name, (Type)getObject(cx.resolve(sf.type.location(), sf.type.name())));
 					} catch (ResolutionException ex) {
 						errors.message(ex.location, ex.getMessage());
 					}
@@ -433,6 +438,37 @@ public class Rewriter {
 		this.errors = errors;
 		this.pkgFinder = finder;
 	}
+
+	public void importPackage(ImportPackage rootPkg) {
+		for (Entry<String, Object> x : rootPkg) {
+			String name = x.getKey();
+			Object val = x.getValue();
+			if (val instanceof RWStructDefn) {
+//					System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
+				structs.put(name, (RWStructDefn) val);
+			} else if (val instanceof RWObjectDefn) {
+//					System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
+				objects.put(name, (RWObjectDefn) val);
+			} else if (val instanceof RWUnionTypeDefn) {
+				types.put(name, (RWUnionTypeDefn) val);
+			} else if (val instanceof RWFunctionDefinition) {
+				functions.put(name, (RWFunctionDefinition)val);
+			} else if (val instanceof CardGrouping) {
+				cards.put(name, (CardGrouping)val);
+			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
+//					System.out.println("Not adding anything for " + x.getValue().getKey() + " " + val);
+			} else if (val == null) {
+//					System.out.println("Cannot add type for " + x.getValue().getKey() + " as it is null");
+			} else if (val instanceof Type) {
+				Type ty = (Type) val;
+				if (ty.iam == WhatAmI.BUILTIN)
+					builtins.put(name, ty);
+				else
+					throw new UtilException("Cannot handle type of kind " + ty.iam);
+			} else 
+				throw new UtilException("Cannot handle " + val + " of type " + (val != null ? val.getClass() : ""));
+		}
+	}
 	
 	public void rewrite(ScopeEntry pkgEntry) {
 		PackageDefn pkg = (PackageDefn) pkgEntry.getValue();
@@ -443,7 +479,7 @@ public class Rewriter {
 		PackageDefn pkg = (PackageDefn) pkgEntry.getValue();
 		Scope s = pkgEntry.scope();
 		if (s.outerEntry == null)
-			return new PackageContext(new RootContext(s), pkg);
+			return new PackageContext(new RootContext(), pkg);
 		return new PackageContext(figureBaseContext(s.outerEntry), pkg);
 	}
 
@@ -486,7 +522,7 @@ public class Rewriter {
 
 	private void rewriteCard(NamingContext cx, CardDefinition cd) {
 		if (!(cx instanceof PackageContext))
-			throw new UtilException("Cannot have card in nested scope");
+			throw new UtilException("Cannot have card in nested scope: " + cx.getClass());
 		CardContext c2 = new CardContext((PackageContext) cx, cd);
 		RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
 		CardGrouping grp = new CardGrouping(sd);
@@ -765,7 +801,7 @@ public class Rewriter {
 
 	private RWHandlerImplements rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
 		try {
-			Type any = (Type) ((PackageVar)cx.nested.resolve(hi.location(), "Any")).defn;
+			Type any = (Type) getObject(cx.nested.resolve(hi.location(), "Any"));
 			Object av = cx.nested.resolve(hi.location(), hi.name());
 			if (av == null || !(av instanceof PackageVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
@@ -808,6 +844,13 @@ public class Rewriter {
 		}
 	}
 
+	private Object getObject(Object o) {
+		if (o instanceof PackageVar) {
+			return ((PackageVar)o).defn; 
+		} else
+			return o;
+	}
+
 	public RWFunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
 //		System.out.println("Rewriting " + f.name);
 		List<RWFunctionCaseDefn> list = new ArrayList<RWFunctionCaseDefn>();
@@ -823,7 +866,7 @@ public class Rewriter {
 			cs++;
 		}
 //		System.out.println("rewritten to " + list.get(0).expr);
-		RWFunctionDefinition ret = new RWFunctionDefinition(f.location, f.mytype, fi, list);
+		RWFunctionDefinition ret = new RWFunctionDefinition(f.location, f.mytype, fi, list, true);
 		return ret;
 	}
 
@@ -984,10 +1027,12 @@ public class Rewriter {
 				} else
 					throw new UtilException("Huh?");
 				Object ret = cx.resolve(location, s);
+				if (ret == null)
+					ret = cx.resolve(location, s); // debug
 				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof RWHandlerLambda || ret instanceof RWTemplateListVar || ret instanceof SpecialFormat)
 					return ret;
 				else
-					throw new UtilException("cannot handle " + ret.getClass());
+					throw new UtilException("cannot handle id " + s + ": " + (ret == null ? "null": ret.getClass()));
 			} else if (expr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) expr;
 				if (ae.fn instanceof UnresolvedOperator && ((UnresolvedOperator)ae.fn).op.equals(".")) {
@@ -1239,18 +1284,31 @@ public class Rewriter {
 		}
 	}
 
-	protected Object getMe(InputPosition location, String id) {
-		Object val;
-		if (this.types.containsKey(id))
-			val = types.get(id);
+	protected Object doIhave(InputPosition location, String id) {
+		if (builtins.containsKey(id))
+			return builtins.get(id);
+		else if (types.containsKey(id))
+			return types.get(id);
 		else if (structs.containsKey(id))
-			val = structs.get(id);
+			return structs.get(id);
 		else if (contracts.containsKey(id))
-			val = contracts.get(id);
+			return contracts.get(id);
+		else if (objects.containsKey(id))
+			return objects.get(id);
 		else if (callbackHandlers.containsKey(id))
-			val = callbackHandlers.get(id);
+			return callbackHandlers.get(id);
+		else if (functions.containsKey(id))
+			return functions.get(id);
 		else
-			throw new UtilException("Can't identify " + id);
+			return null;
+	}
+	
+	protected Object getMe(InputPosition location, String id) {
+		Object val = doIhave(location, id);
+		if (val == null) {
+			errors.message(location, "Can't identify " + id);
+			return null;
+		}
 		return new PackageVar(location, id, val);
 	}
 }
