@@ -453,7 +453,7 @@ public class TestBasicTypeChecking {
 		tc.addStructDefn((RWStructDefn) biscope.get("Send"));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		Rewriter rewriter = new Rewriter(errors, null);
-		rewriter.rewriteScope(rewriter.new RootContext(), s);
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIE hsie = new HSIE(errors, rewriter);
 		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.f"))));

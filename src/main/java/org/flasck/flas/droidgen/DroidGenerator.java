@@ -9,12 +9,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.PlatformSpec;
+import org.flasck.flas.commonBase.android.AndroidLabel;
+import org.flasck.flas.commonBase.android.AndroidLaunch;
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.android.AndroidLabel;
-import org.flasck.flas.parsedForm.android.AndroidLaunch;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -27,8 +24,10 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
@@ -515,8 +514,8 @@ public class DroidGenerator {
 			if (defn instanceof ObjectReference || defn instanceof CardFunction) {
 				needsObject = meth.myThis();
 				fromHandler |= fn.fromHandler();
-			} else if (defn instanceof HandlerImplements) {
-				HandlerImplements hi = (HandlerImplements) defn;
+			} else if (defn instanceof RWHandlerImplements) {
+				RWHandlerImplements hi = (RWHandlerImplements) defn;
 				if (hi.inCard)
 					needsObject = meth.myThis();
 				System.out.println("Creating handler " + fn + " in block " + closure);
@@ -596,7 +595,7 @@ public class DroidGenerator {
 					dot = "$";
 				}
 				String clz;
-				if (defn instanceof FunctionDefinition || defn instanceof MethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
+				if (defn instanceof RWFunctionDefinition || defn instanceof RWMethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
 					if (inside.equals("org.flasck.android.FLEval"))
 						clz = inside + "$" + member;
 					else

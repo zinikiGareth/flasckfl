@@ -138,7 +138,7 @@ public class MethodConvertorTests {
 	}
 	
 	public void stage2(boolean checkErrors) throws Exception {
-		rewriter.rewriteScope(rewriter.new RootContext(), orgFooScope);
+		rewriter.rewritePackageScope("org.foo", orgFooScope);
 		if (checkErrors)
 			assertFalse(errors.singleString(), errors.hasErrors());
 		tc.populateTypes(rewriter);

@@ -1,4 +1,4 @@
-package org.flasck.flas.parsedForm.android;
+package org.flasck.flas.commonBase.android;
 
 import java.io.Serializable;
 

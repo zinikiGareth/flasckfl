@@ -1,33 +1,22 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class VarNestedFromOuterFunctionScope implements Serializable, ExternalRef {
+public class VarNestedFromOuterFunctionScope implements ExternalRef {
 	public final InputPosition location;
 	public final String id;
 	public final Object defn;
 	public boolean definedLocally;
 
 	public VarNestedFromOuterFunctionScope(InputPosition location, String id, Object defn, boolean definedLocally) {
-		if (defn != null && location == null)
+		if (defn == null)
+			throw new NullPointerException("NestedVar cannot be in a null function");
+		if (location == null)
 			System.out.println("null location sv1");
 		this.location = location;
 		this.id = id;
 		this.defn = defn;
-		this.definedLocally = definedLocally;
-	}
-
-	public VarNestedFromOuterFunctionScope(ScopeEntry entry, boolean definedLocally) {
-		if (entry.location() == null)
-			System.out.println("null location sv2");
-		this.location = entry.location();
-		this.id = entry.getKey();
-		this.defn = entry.getValue();
 		this.definedLocally = definedLocally;
 	}
 

@@ -19,12 +19,23 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.template.Template;
+import org.flasck.flas.commonBase.template.TemplateCardReference;
+import org.flasck.flas.commonBase.template.TemplateCases;
+import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
+import org.flasck.flas.commonBase.template.TemplateFormat;
+import org.flasck.flas.commonBase.template.TemplateLine;
+import org.flasck.flas.commonBase.template.TemplateList;
+import org.flasck.flas.commonBase.template.TemplateListVar;
+import org.flasck.flas.commonBase.template.TemplateOr;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.flim.PackageFinder;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
+import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -47,25 +58,14 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TemplateDiv;
+import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
-import org.flasck.flas.parsedForm.template.CardReference;
-import org.flasck.flas.parsedForm.template.ContentExpr;
-import org.flasck.flas.parsedForm.template.ContentString;
-import org.flasck.flas.parsedForm.template.Template;
-import org.flasck.flas.parsedForm.template.TemplateCases;
-import org.flasck.flas.parsedForm.template.TemplateDiv;
-import org.flasck.flas.parsedForm.template.TemplateExplicitAttr;
-import org.flasck.flas.parsedForm.template.TemplateFormat;
-import org.flasck.flas.parsedForm.template.TemplateFormatEvents;
-import org.flasck.flas.parsedForm.template.TemplateLine;
-import org.flasck.flas.parsedForm.template.TemplateList;
-import org.flasck.flas.parsedForm.template.TemplateListVar;
-import org.flasck.flas.parsedForm.template.TemplateOr;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -400,8 +400,10 @@ public class Rewriter {
 		public Object resolve(InputPosition location, String name) {
 			if (bound.containsKey(name))
 				return bound.get(name); // a local var
-			if (inner.contains(name))
-				return new VarNestedFromOuterFunctionScope(inner.getEntry(name), true);
+			if (inner.contains(name)) {
+				ScopeEntry tmp = inner.getEntry(name);
+				return new VarNestedFromOuterFunctionScope(tmp.location(), tmp.getKey(), functions.get(((FunctionDefinition) tmp.getValue()).name), true);
+			}
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
 				return new ObjectReference(location, (ObjectReference)res, fromMethod);
@@ -468,13 +470,10 @@ public class Rewriter {
 	}
 	
 	public void rewritePackageScope(String inPkg, final Scope scope) {
-		rewriteScope(new PackageContext(new RootContext(), inPkg, scope), scope);
-	}
-
-	public void rewriteScope(NamingContext cx, Scope from) {
-		pass1(cx, from);
-		pass2(cx, from);
-		pass3(cx, from);
+		PackageContext cx = new PackageContext(new RootContext(), inPkg, scope);
+		pass1(cx, scope);
+		pass2(cx, scope);
+		pass3(cx, scope);
 	}
 	
 	// Introduce new Definitions which we might reference with minimal amount of info
@@ -487,19 +486,26 @@ public class Rewriter {
 				RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
 				CardGrouping grp = new CardGrouping(sd);
 				cards.put(cd.name, grp);
+				pass1(cx, cd.fnScope);
 			} else if (val instanceof FunctionDefinition) {
 				FunctionDefinition f = (FunctionDefinition) val;
 				functions.put(name, new RWFunctionDefinition(f.location, f.mytype, f.name, f.nargs, true));
+				for (FunctionCaseDefn c : f.cases)
+					pass1(cx, c.innerScope());
 			} else if (val instanceof MethodDefinition) {
 				MethodDefinition m = (MethodDefinition) val;
 				RWMethodDefinition rw = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
 				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, rw);
 				standalone.put(mic.name, mic);
+				for (MethodCaseDefn c : m.cases)
+					pass1(cx, c.innerScope());
 			} else if (val instanceof EventHandlerDefinition) {
 				EventHandlerDefinition ehd = (EventHandlerDefinition) val;
 				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(rewrite(cx, ehd.intro, new HashMap<>()));
 				EventHandlerInContext ehic = new EventHandlerInContext(name, rw);
 				eventHandlers.put(ehic.name, ehic);
+				for (EventCaseDefn c : ehd.cases)
+					pass1(cx, c.innerScope());
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
 				structs.put(name, new RWStructDefn(sd.location(), sd.name(), sd.generate, rewritePolys(sd.polys())));
@@ -511,7 +517,11 @@ public class Rewriter {
 				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.name());
 				contracts.put(name, ret);
 			} else if (val instanceof HandlerImplements) {
-				pass1HI(cx, (HandlerImplements) val);
+				HandlerImplements hi = (HandlerImplements) val;
+				pass1HI(cx, hi);
+				for (MethodDefinition m : hi.methods)
+					for (MethodCaseDefn c : m.cases)
+						pass1(cx, c.innerScope());
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -634,7 +644,7 @@ public class Rewriter {
 		}
 		
 		grp.platforms.putAll(cd.platforms);
-		rewriteScope(c2, cd.fnScope);
+		pass3(c2, cd.fnScope);
 	}
 
 	private Template rewrite(TemplateContext cx, Template template) {
@@ -695,11 +705,11 @@ public class Rewriter {
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
 			return rewriteEventHandlers(cx, new RWContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), rawHTML, formats), ((TemplateFormatEvents)tl).handlers);
-		} else if (tl instanceof CardReference) {
-			CardReference cr = (CardReference) tl;
+		} else if (tl instanceof TemplateCardReference) {
+			TemplateCardReference cr = (TemplateCardReference) tl;
 			Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
 			Object yoyoName = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
-			return new CardReference(cr.location, cardName, yoyoName);
+			return new TemplateCardReference(cr.location, cardName, yoyoName);
 		} else if (tl instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) tl;
 			for (Object o : td.attrs) {
@@ -980,8 +990,9 @@ public class Rewriter {
 		Object expr = rewriteExpr(cx, c.expr);
 		if (expr == null)
 			return null;
+		// TODO: big-divide: I feel this should be in pass1
 		RWFunctionCaseDefn ret = new RWFunctionCaseDefn(intro, expr);
-		rewriteScope(new NestedScopeContext(cx), c.innerScope());
+		pass3(new NestedScopeContext(cx), c.innerScope());
 		return ret;
 	}
 

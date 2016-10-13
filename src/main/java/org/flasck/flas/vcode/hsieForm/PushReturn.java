@@ -2,7 +2,7 @@ package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.parsedForm.template.TemplateListVar;
+import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;

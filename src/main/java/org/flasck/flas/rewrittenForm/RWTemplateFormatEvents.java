@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.template.TemplateFormat;
+import org.flasck.flas.commonBase.template.TemplateFormat;
 
 @SuppressWarnings("serial")
 public abstract class RWTemplateFormatEvents extends TemplateFormat implements Serializable {

@@ -15,10 +15,22 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.template.Template;
+import org.flasck.flas.commonBase.template.TemplateCardReference;
+import org.flasck.flas.commonBase.template.TemplateCases;
+import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
+import org.flasck.flas.commonBase.template.TemplateFormat;
+import org.flasck.flas.commonBase.template.TemplateIntro;
+import org.flasck.flas.commonBase.template.TemplateLine;
+import org.flasck.flas.commonBase.template.TemplateList;
+import org.flasck.flas.commonBase.template.TemplateOr;
+import org.flasck.flas.commonBase.template.TemplateReference;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
@@ -46,23 +58,11 @@ import org.flasck.flas.parsedForm.ObjectMember;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.parsedForm.template.CardReference;
-import org.flasck.flas.parsedForm.template.ContentExpr;
-import org.flasck.flas.parsedForm.template.ContentString;
-import org.flasck.flas.parsedForm.template.Template;
-import org.flasck.flas.parsedForm.template.TemplateCases;
-import org.flasck.flas.parsedForm.template.TemplateDiv;
-import org.flasck.flas.parsedForm.template.TemplateExplicitAttr;
-import org.flasck.flas.parsedForm.template.TemplateFormat;
-import org.flasck.flas.parsedForm.template.TemplateFormatEvents;
-import org.flasck.flas.parsedForm.template.TemplateIntro;
-import org.flasck.flas.parsedForm.template.TemplateLine;
-import org.flasck.flas.parsedForm.template.TemplateList;
-import org.flasck.flas.parsedForm.template.TemplateOr;
-import org.flasck.flas.parsedForm.template.TemplateReference;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TemplateDiv;
+import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.D3PatternLineParser;
@@ -656,7 +656,7 @@ public class FLASStory {
 			TemplateReference tr = (TemplateReference) tl;
 			frTemplates.add(new LocatedToken(tr.location, tr.name));
 			return tl;
-		} else if (tl instanceof CardReference) {
+		} else if (tl instanceof TemplateCardReference) {
 			return tl;
 		} else if (tl instanceof TemplateList) {
 			ret = tl;
@@ -852,7 +852,7 @@ public class FLASStory {
 	private TemplateLine unroll(ErrorResult er, State s, Map<String, Object> map, TemplateLine content, Map<String, Object> subst) {
 		if (content == null)
 			throw new UtilException("Null template line");
-		if (content instanceof CardReference)
+		if (content instanceof TemplateCardReference)
 			return content;
 		if (content instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) content;
@@ -969,7 +969,7 @@ public class FLASStory {
 			for (Object o2 : ae.args)
 				args.add(substituteMacroParameters(er, s, map, o2, subst));
 			return new ApplyExpr(ae.location, substituteMacroParameters(er, s, map, ae.fn, subst), args);
-		} else if (o instanceof CardReference) {
+		} else if (o instanceof TemplateCardReference) {
 			// We don't have any parameters in this yet that could be macro parameters
 		} else if (o instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases)o;

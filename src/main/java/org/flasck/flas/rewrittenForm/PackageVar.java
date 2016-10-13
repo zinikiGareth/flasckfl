@@ -1,7 +1,6 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.zinutils.exceptions.UtilException;
 
 public class PackageVar implements ExternalRef {
@@ -10,8 +9,6 @@ public class PackageVar implements ExternalRef {
 	public final Object defn;
 
 	public PackageVar(InputPosition location, String id, Object defn) {
-		if (defn instanceof StructDefn)
-			throw new UtilException("Not allowed");
 		if (defn != null && location == null)
 			System.out.println("null location pv1");
 		this.location = location;

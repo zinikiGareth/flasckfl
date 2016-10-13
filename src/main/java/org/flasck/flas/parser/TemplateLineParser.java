@@ -5,22 +5,22 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.template.TemplateAttributeVar;
+import org.flasck.flas.commonBase.template.TemplateCardReference;
+import org.flasck.flas.commonBase.template.TemplateCases;
+import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
+import org.flasck.flas.commonBase.template.TemplateFormat;
+import org.flasck.flas.commonBase.template.TemplateLine;
+import org.flasck.flas.commonBase.template.TemplateList;
+import org.flasck.flas.commonBase.template.TemplateOr;
+import org.flasck.flas.commonBase.template.TemplateReference;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.EventHandler;
+import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.parsedForm.template.CardReference;
-import org.flasck.flas.parsedForm.template.ContentExpr;
-import org.flasck.flas.parsedForm.template.ContentString;
-import org.flasck.flas.parsedForm.template.TemplateAttributeVar;
-import org.flasck.flas.parsedForm.template.TemplateCases;
-import org.flasck.flas.parsedForm.template.TemplateDiv;
-import org.flasck.flas.parsedForm.template.TemplateExplicitAttr;
-import org.flasck.flas.parsedForm.template.TemplateFormat;
-import org.flasck.flas.parsedForm.template.TemplateLine;
-import org.flasck.flas.parsedForm.template.TemplateList;
-import org.flasck.flas.parsedForm.template.TemplateOr;
-import org.flasck.flas.parsedForm.template.TemplateReference;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -193,7 +193,7 @@ public class TemplateLineParser implements TryParsing{
 				// TODO: more card invocation syntax
 				//   * mode = local|sandbox|trusted|dialog
 				//   * -> handleVar
-				cmd = new CardReference(loc, cardName, yoyoVar);
+				cmd = new TemplateCardReference(loc, cardName, yoyoVar);
 			} else if (tt.type == TemplateToken.CASES) {
 				if (!contents.isEmpty()) {
 					return ErrorResult.oneMessage(line, "cases must be the only content item");

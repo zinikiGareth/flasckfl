@@ -1,4 +1,4 @@
-package org.flasck.flas.parsedForm.template;
+package org.flasck.flas.parsedForm;
 
 import java.io.Serializable;
 import java.util.List;

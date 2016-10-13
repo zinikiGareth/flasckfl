@@ -6,6 +6,15 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.template.Template;
+import org.flasck.flas.commonBase.template.TemplateCardReference;
+import org.flasck.flas.commonBase.template.TemplateCases;
+import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
+import org.flasck.flas.commonBase.template.TemplateFormat;
+import org.flasck.flas.commonBase.template.TemplateLine;
+import org.flasck.flas.commonBase.template.TemplateList;
+import org.flasck.flas.commonBase.template.TemplateListVar;
+import org.flasck.flas.commonBase.template.TemplateOr;
 import org.flasck.flas.droidgen.CGRContext;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.hsie.ApplyCurry;
@@ -13,16 +22,6 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
-import org.flasck.flas.parsedForm.D3Invoke;
-import org.flasck.flas.parsedForm.template.CardReference;
-import org.flasck.flas.parsedForm.template.Template;
-import org.flasck.flas.parsedForm.template.TemplateCases;
-import org.flasck.flas.parsedForm.template.TemplateExplicitAttr;
-import org.flasck.flas.parsedForm.template.TemplateFormat;
-import org.flasck.flas.parsedForm.template.TemplateLine;
-import org.flasck.flas.parsedForm.template.TemplateList;
-import org.flasck.flas.parsedForm.template.TemplateListVar;
-import org.flasck.flas.parsedForm.template.TemplateOr;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -170,8 +169,8 @@ public class TemplateGenerator {
 		} else if (tl instanceof RWContentString || tl instanceof RWContentExpr) {
 			base = "TextArea";
 			isEditable = tl instanceof RWContentExpr && ((RWContentExpr)tl).editable();
-		} else if (tl instanceof CardReference) {
-			CardReference cr = (CardReference) tl;
+		} else if (tl instanceof TemplateCardReference) {
+			TemplateCardReference cr = (TemplateCardReference) tl;
 			base = "CardSlotArea";
 			if (cr.explicitCard != null)
 				moreArgs = ", { explicit: " + cr.explicitCard + "}";
@@ -326,8 +325,8 @@ public class TemplateGenerator {
 				} else 
 					throw new UtilException("Cannot edit: " + valExpr);
 			}
-		} else if (tl instanceof CardReference) {
-			CardReference cr = (CardReference) tl;
+		} else if (tl instanceof TemplateCardReference) {
+			TemplateCardReference cr = (TemplateCardReference) tl;
 			if (cr.explicitCard != null)
 				; // fully handled above
 			else if (cr.yoyoVar != null) {
@@ -365,8 +364,8 @@ public class TemplateGenerator {
 				recurse(cx, cn, oc.template, called);
 				callOnAssign(fn, oc.cond, null, sn, false, null);
 			}
-		} else if (tl instanceof D3Invoke) {
-			D3Invoke d3 = (D3Invoke) tl;
+		} else if (tl instanceof RWD3Invoke) {
+			RWD3Invoke d3 = (RWD3Invoke) tl;
 			callOnAssign(fn, d3.d3.data, null, "D3Area.prototype._onUpdate", false, null);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");

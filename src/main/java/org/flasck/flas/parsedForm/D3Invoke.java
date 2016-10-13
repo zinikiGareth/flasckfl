@@ -1,6 +1,6 @@
 package org.flasck.flas.parsedForm;
 
-import org.flasck.flas.parsedForm.template.TemplateLine;
+import org.flasck.flas.commonBase.template.TemplateLine;
 
 public class D3Invoke implements TemplateLine {
 	public final Scope scope;

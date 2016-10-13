@@ -1,4 +1,4 @@
-package org.flasck.flas.parsedForm.template;
+package org.flasck.flas.commonBase.template;
 
 public class TemplateAttributeVar {
 	public final String var;

@@ -13,10 +13,7 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.LetExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.template.TemplateListVar;
+import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -164,11 +161,11 @@ public class MetaState {
 				TreeSet<VarNestedFromOuterFunctionScope> avars = new TreeSet<VarNestedFromOuterFunctionScope>();
 				if (sv.defn instanceof LocalVar)
 					continue;
-				else if (sv.defn instanceof FunctionDefinition) {
+				else if (sv.defn instanceof RWFunctionDefinition) {
 					gatherScopedVars(avars, rewriter.functions.get(sv.id));
-				} else if (sv.defn instanceof MethodDefinition) {
+				} else if (sv.defn instanceof RWMethodDefinition) {
 					gatherScopedVars(avars, rewriter.standalone.get(sv.id).method);
-				} else if (sv.defn instanceof HandlerImplements) {
+				} else if (sv.defn instanceof RWHandlerImplements) {
 					gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
 				} else
 					throw new UtilException("Not handling " + sv.id + " of class " + sv.defn.getClass());
@@ -196,15 +193,15 @@ public class MetaState {
 			Var cv = form.allocateVar();
 			ClosureCmd closure = form.closure(cv);
 			TreeSet<VarNestedFromOuterFunctionScope> avars = new TreeSet<VarNestedFromOuterFunctionScope>();
-			if (sv.defn instanceof MethodDefinition) {
+			if (sv.defn instanceof RWMethodDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
 				gatherScopedVars(avars, rewriter.standalone.get(sv.id).method);
 				closure.justScoping = true;
-			} else if (sv.defn instanceof FunctionDefinition) {
+			} else if (sv.defn instanceof RWFunctionDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
 				gatherScopedVars(avars, rewriter.functions.get(sv.id));
 				closure.justScoping = true;
-			} else if (sv.defn instanceof HandlerImplements) {
+			} else if (sv.defn instanceof RWHandlerImplements) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
 				gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
 			} else if (sv.defn instanceof LocalVar) {
