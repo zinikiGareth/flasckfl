@@ -111,7 +111,7 @@ public class Type implements Serializable, Locatable {
 	}
 	
 	public int width() {
-		if (iam != WhatAmI.TUPLE)
+		if (iam == WhatAmI.TUPLE)
 			return fnargs.size();
 		else
 			throw new UtilException("Can only ask for the width of a tuple");

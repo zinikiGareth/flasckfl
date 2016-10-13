@@ -171,7 +171,14 @@ public class KnowledgeWriter {
 			writeTypeUsage(re, type.arg(type.arity()));
 			break;
 		}
-		case TUPLE:
+		case TUPLE: {
+			XMLElement ty = xe.addElement("Tuple");
+			for (int i=0;i<type.width();i++) {
+				XMLElement ae = ty.addElement("Arg");
+				writeTypeUsage(ae, type.arg(i));
+			}
+			break;
+		}
 		case SOMETHINGELSE:
 		{
 			XMLElement ty = xe.addElement("DEAL_WITH_THIS");

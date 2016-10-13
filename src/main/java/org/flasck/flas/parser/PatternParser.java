@@ -78,8 +78,13 @@ public class PatternParser implements TryParsing {
 					}
 					// Likewise magic list syntax is "(P : var)"
 				} else {
-					PattToken var = PattToken.from(line);
-					Object p = simplePattern(var, line);
+//					PattToken var = PattToken.from(line);
+					Object p;
+//					if (var.type == PattToken.ORB) {
+						// in this case, we have nested open parens, e.g. ((a,b):l)
+						p = tryParsing(line);
+//					} else
+//						p = simplePattern(var, line);
 					if (p == null)
 						return null;
 					retArr.add(p);

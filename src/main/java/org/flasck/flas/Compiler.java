@@ -283,7 +283,7 @@ public class Compiler {
 				r = new FileReader(f);
 
 				// 1. Use indentation to break the input file up into blocks
-				List<Block> blocks = makeBlocks(f.getName(), r);
+				List<Block> blocks = makeBlocks(errors, f.getName(), r);
 				
 				// 2. Use the parser factory and story to convert blocks to a package definition
 				storyProc.process(inPkg, scope, errors, blocks, true);
@@ -493,7 +493,7 @@ public class Compiler {
 	}
 
 	// Just obtain a parse tree 
-	public StoryRet parse(String inPkg, String input) throws ErrorResultException {
+	public StoryRet parse(String inPkg, String input) {
 		ErrorResult er = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
 		final Scope scope = new Scope(null, null);
@@ -503,7 +503,9 @@ public class Compiler {
 			r = new StringReader(input);
 
 			// 1. Use indentation to break the input file up into blocks
-			List<Block> blocks = makeBlocks("-", r);
+			List<Block> blocks = makeBlocks(er, "-", r);
+			if (er.hasErrors())
+				return ret;
 			
 			// 2. Use the parser factory and story to convert blocks to a package definition
 			storyProc.process(inPkg, scope, er, blocks, true);
@@ -621,10 +623,12 @@ public class Compiler {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Block> makeBlocks(String file, Reader r) throws IOException, ErrorResultException {
+	private List<Block> makeBlocks(ErrorResult er, String file, Reader r) throws IOException {
 		Object res = Blocker.block(file, r);
-		if (res instanceof ErrorResult)
-			throw new ErrorResultException((ErrorResult) res);
+		if (res instanceof ErrorResult) {
+			er.merge((ErrorResult) res);
+			return null;
+		}
 		return (List<Block>) res;
 	}
 

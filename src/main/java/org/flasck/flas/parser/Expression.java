@@ -225,7 +225,7 @@ public class Expression implements TryParsing {
 							stack.remove(0);
 						Object o1 = deparen(args.remove(i-2));
 						Object o2 = deparen(args.remove(i-2));
-						args.add(i-2, new ApplyExpr(null, o1, o2));
+						args.add(i-2, new ApplyExpr(((Locatable)o1).location(), o1, o2));
 						i--;
 					}
 					else {
@@ -344,7 +344,7 @@ public class Expression implements TryParsing {
 							return new ParenExpr(objs.get(0));
 						else {
 							// The tuple case
-							return new ApplyExpr(null, ItemExpr.from(new ExprToken(startsAt, ExprToken.SYMBOL, "()")), objs);
+							return new ApplyExpr(startsAt, ItemExpr.from(new ExprToken(startsAt, ExprToken.SYMBOL, "()")), objs);
 						}
 					}
 					else if (endsWith.equals("]")) {

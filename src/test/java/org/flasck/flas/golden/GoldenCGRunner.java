@@ -19,6 +19,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.Template;
 import org.flasck.flas.commonBase.template.TemplateList;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -29,11 +30,15 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateDiv;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -100,38 +105,27 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		clean(jsto);
 		clean(hsie);
 		clean(flim);
-		try {
-			Compiler.setLogLevels();
-			Compiler compiler = new Compiler();
-			File dir = new File(s, "test.golden");
-			for (File input : dir.listFiles()) {
-				StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
-				Indenter pw = new Indenter(new File(pform, input.getName().replace(".fl", ".pf")));
-				if (sr.scope != null) {
-					pw.println("package test.golden");
-					dumpScope(pw, sr.scope);
-				}
-				pw.close();
+		Compiler.setLogLevels();
+		Compiler compiler = new Compiler();
+		File dir = new File(s, "test.golden");
+		ErrorResult er = new ErrorResult();
+		for (File input : dir.listFiles()) {
+			StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
+			Indenter pw = new Indenter(new File(pform, input.getName().replace(".fl", ".pf")));
+			if (sr.scope != null) {
+				pw.println("package test.golden");
+				dumpScope(pw, sr.scope);
 			}
-			assertGolden(new File(s, "pform"), pform);
-			
-			// read these kinds of things from "new File(s, ".settings")"
-	//		compiler.writeDroidTo(new File("null"));
-	//		compiler.searchIn(new File("src/main/resources/flim"));
-			
-//			compiler.dumpTypes();
-			compiler.writeJSTo(jsto);
-			compiler.writeHSIETo(hsie);
-			compiler.writeFlimTo(flim);
-			compiler.compile(dir);
-			
-			// Now assert that we matched things ...
-			assertGolden(new File(s, "jsout"), jsto);
-		} catch (ErrorResultException ex) {
+			if (sr.er != null) {
+				er.merge(sr.er);
+			}
+			pw.close();
+		}
+		if (er.hasErrors()) {
 			// either way, write the errors to a suitable directory
 			FileUtils.assertDirectory(etmp);
 			PrintWriter pw = new PrintWriter(new File(etmp, "errors"));
-			ex.errors.showTo(pw, 0);
+			er.showTo(pw, 0);
 
 			File errors = new File(s, "errors");
 			if (errors.isDirectory()) {
@@ -139,10 +133,24 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				assertGolden(errors, etmp);
 			} else {
 				// we didn't expect the error, so by definition is an error
-				ex.errors.showTo(new PrintWriter(System.out), 0);
+				er.showTo(new PrintWriter(System.out), 0);
 				fail("unexpected compilation errors");
 			}
 		}
+		assertGolden(new File(s, "pform"), pform);
+		
+		// read these kinds of things from "new File(s, ".settings")"
+//		compiler.writeDroidTo(new File("null"));
+//		compiler.searchIn(new File("src/main/resources/flim"));
+		
+//			compiler.dumpTypes();
+		compiler.writeJSTo(jsto);
+		compiler.writeHSIETo(hsie);
+		compiler.writeFlimTo(flim);
+		compiler.compile(dir);
+		
+		// Now assert that we matched things ...
+		assertGolden(new File(s, "jsout"), jsto);
 	}
 
 	private static void dumpRecursive(Indenter pw, Object obj) {
@@ -166,6 +174,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		} else if (obj instanceof VarPattern) {
 			VarPattern tp = (VarPattern) obj;
 			pw.println(tp.var);
+		} else if (obj instanceof TuplePattern) {
+			TuplePattern tp = (TuplePattern) obj;
+			dumpList(pw, tp.args);
 		} else if (obj instanceof ConstructorMatch) {
 			ConstructorMatch cm = (ConstructorMatch) obj;
 			pw.println(cm.ctor);
@@ -254,6 +265,15 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			Indenter ind = pw.indent();
 			for (TypeReference a : t.args)
 				dumpRecursive(ind, a);
+		} else if (obj instanceof TupleMember) {
+			TupleMember t = (TupleMember) obj;
+			LocatedName locatedName = t.ta.vars.get(t.which);
+			pw.println(locatedName.text);
+			dumpRecursive(pw.indent(), t.ta);
+		} else if (obj instanceof TupleAssignment) {
+			TupleAssignment t = (TupleAssignment) obj;
+			pw.println("(" + t.vars + ")");
+			dumpRecursive(pw.indent(), t.expr);
 		} else if (obj instanceof TypeReference) {
 			TypeReference t = (TypeReference) obj;
 			pw.println(t.name());

@@ -1,0 +1,6 @@
+	zip (a:l) (b:m) = (a,b):zip l m
+	zip x y = []
+	
+	unzip [] = ([], [])
+	unzip ((a,b):l) = (a:m, b:n)
+		(m,n) = unzip l

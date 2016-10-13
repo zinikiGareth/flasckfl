@@ -49,6 +49,7 @@ import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MessagesHandler;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
@@ -63,6 +64,8 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.D3PatternLineParser;
@@ -78,6 +81,7 @@ import org.flasck.flas.parser.PlatformAndroidSpecParser;
 import org.flasck.flas.parser.PropertyParser;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.parser.TryParsing;
+import org.flasck.flas.parser.TupleDeclarationParser;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -163,7 +167,7 @@ public class FLASStory {
 				continue;
 			
 			// TODO: if it's a "package", deal with that ... and all blocks must either be or not be packages
-			Object o = new MultiParser(s, IntroParser.class, FunctionParser.class).parse(b);
+			Object o = new MultiParser(s, IntroParser.class, FunctionParser.class, TupleDeclarationParser.class).parse(b);
 			if (o == null) {
 				System.out.println("Could not parse " + b.line.text());
 				er.message(new Tokenizable(b), "syntax error");
@@ -187,6 +191,13 @@ public class FLASStory {
 					fndefns.add(new FCDWrapper(lastBlock.nested, fcd));
 				} else if (o instanceof MethodCaseDefn) {
 					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) o));
+				} else if (o instanceof TupleAssignment) {
+					TupleAssignment ta = (TupleAssignment) o;
+					int k=0;
+					for (LocatedName x : ta.vars) {
+						ret.define(x.text, s.withPkg(x.text), new TupleMember(x.location, ta, k++));
+					}
+					// I don't think we need to do anything here, but if recursion is called for, we probably have a scope
 				} else if (o instanceof StructDefn) {
 					StructDefn sd = (StructDefn)o;
 					ret.define(State.simpleName(sd.name()), sd.name(), sd);
