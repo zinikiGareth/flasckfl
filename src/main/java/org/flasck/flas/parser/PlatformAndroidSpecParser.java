@@ -1,8 +1,8 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.android.AndroidLabel;
 import org.flasck.flas.parsedForm.android.AndroidLaunch;
 import org.flasck.flas.tokenizers.KeywordToken;

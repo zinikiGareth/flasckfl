@@ -3,12 +3,12 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
-import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -44,11 +44,11 @@ public class ApplyCurry {
 			if (pc.sval != null)
 				continue;
 			if (pc.fn != null) {
-				if (pc.fn instanceof HandlerLambda)
+				if (pc.fn instanceof RWHandlerLambda)
 					continue;
 				if (pc.fn instanceof CardMember)
 					continue;
-				if (pc.fn instanceof ScopedVar)
+				if (pc.fn instanceof VarNestedFromOuterFunctionScope)
 					continue;
 				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;

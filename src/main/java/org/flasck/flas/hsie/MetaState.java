@@ -9,20 +9,20 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.CastExpr;
+import org.flasck.flas.commonBase.IfExpr;
+import org.flasck.flas.commonBase.LetExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.IfExpr;
-import org.flasck.flas.parsedForm.IterVar;
-import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.FunctionLiteral;
+import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
@@ -35,7 +35,7 @@ import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWTemplateListVar;
-import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
@@ -51,10 +51,10 @@ public class MetaState {
 
 	public class TrailItem {
 		private ClosureCmd closure;
-		private TreeSet<ScopedVar> avars;
+		private TreeSet<VarNestedFromOuterFunctionScope> avars;
 		private List<CreationOfVar> depends;
 
-		public TrailItem(List<CreationOfVar> depends, ClosureCmd closure, TreeSet<ScopedVar> avars) {
+		public TrailItem(List<CreationOfVar> depends, ClosureCmd closure, TreeSet<VarNestedFromOuterFunctionScope> avars) {
 			this.depends = depends;
 			this.closure = closure;
 			this.avars = avars;
@@ -151,17 +151,17 @@ public class MetaState {
 
 		// Now handle scoping by resolving the vars that are included in scope 
 		List<TrailItem> tis = new ArrayList<TrailItem>();
-		TreeSet<ScopedVar> set = new TreeSet<ScopedVar>();
+		TreeSet<VarNestedFromOuterFunctionScope> set = new TreeSet<VarNestedFromOuterFunctionScope>();
 		gatherScopedVars(set, expr);
 		
 		logger.info(form.fnName + " claims to have " + set + " scoped vars");
 		
 		// Transitively close the set
-		TreeSet<ScopedVar> newOnes = new TreeSet<ScopedVar>(set);
+		TreeSet<VarNestedFromOuterFunctionScope> newOnes = new TreeSet<VarNestedFromOuterFunctionScope>(set);
 		while (!newOnes.isEmpty()) {
-			TreeSet<ScopedVar> discovered = new TreeSet<ScopedVar>();
-			for (ScopedVar sv : newOnes) {
-				TreeSet<ScopedVar> avars = new TreeSet<ScopedVar>();
+			TreeSet<VarNestedFromOuterFunctionScope> discovered = new TreeSet<VarNestedFromOuterFunctionScope>();
+			for (VarNestedFromOuterFunctionScope sv : newOnes) {
+				TreeSet<VarNestedFromOuterFunctionScope> avars = new TreeSet<VarNestedFromOuterFunctionScope>();
 				if (sv.defn instanceof LocalVar)
 					continue;
 				else if (sv.defn instanceof FunctionDefinition) {
@@ -172,7 +172,7 @@ public class MetaState {
 					gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
 				} else
 					throw new UtilException("Not handling " + sv.id + " of class " + sv.defn.getClass());
-				for (ScopedVar o : avars)
+				for (VarNestedFromOuterFunctionScope o : avars)
 					if (!set.contains(o))
 						discovered.add(o);
 			}
@@ -184,7 +184,7 @@ public class MetaState {
 		// For each scoped var that we need, make sure that it a variable is allocated in the scope of the root function
 		// which represents the function partially applied to the scoped-in parameters, capturing all the inter-definitional
 		// dependencies in "TrailItems" (not a good name)
-		for (ScopedVar sv : set) {
+		for (VarNestedFromOuterFunctionScope sv : set) {
 			if (sv.defn instanceof LocalVar) {
 				logger.info("Ignoring " + sv.id + " which presumably should be in " + substs.keySet());
 				continue;
@@ -195,7 +195,7 @@ public class MetaState {
 			}
 			Var cv = form.allocateVar();
 			ClosureCmd closure = form.closure(cv);
-			TreeSet<ScopedVar> avars = new TreeSet<ScopedVar>();
+			TreeSet<VarNestedFromOuterFunctionScope> avars = new TreeSet<VarNestedFromOuterFunctionScope>();
 			if (sv.defn instanceof MethodDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
 				gatherScopedVars(avars, rewriter.standalone.get(sv.id).method);
@@ -222,7 +222,7 @@ public class MetaState {
 		// ends up getting generated
 		for (TrailItem ti : tis) {
 			logger.debug("Adding dependencies to closure " + ti.closure.var + ": " + ti.avars);
-			for (ScopedVar av : ti.avars) {
+			for (VarNestedFromOuterFunctionScope av : ti.avars) {
 				if (!substs.containsKey(av.id)) {
 					logger.info("Ignoring " + av.id + " because there is no rewritten value for it; it presumably is going to be passed in");
 					continue;
@@ -238,7 +238,7 @@ public class MetaState {
 		writeFinalExpr(substs, expr, writeTo);
 	}
 
-	private boolean definedLocally(ScopedVar sv) {
+	private boolean definedLocally(VarNestedFromOuterFunctionScope sv) {
 		if (sv.id.length() < form.fnName.length()+1)
 			return false;
 		String s = sv.id.substring(form.fnName.length());
@@ -300,8 +300,8 @@ public class MetaState {
 			locs.add(sd.location());
 			form.dependsOn(sd.name());
 			return expr;
-		} else if (expr instanceof ScopedVar) {
-			ScopedVar sv = (ScopedVar)expr;
+		} else if (expr instanceof VarNestedFromOuterFunctionScope) {
+			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;
 			locs.add(sv.location);
 			String var = sv.id;
 			if (!sv.definedLocally) {
@@ -399,13 +399,13 @@ public class MetaState {
 			}
 	}
 
-	private static void gatherScopedVars(TreeSet<ScopedVar> set, RWFunctionDefinition defn) {
+	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, RWFunctionDefinition defn) {
 		for (RWFunctionCaseDefn fcd : defn.cases) {
 			gatherScopedVars(set, fcd.expr);
 		}
 	}
 
-	private static void gatherScopedVars(TreeSet<ScopedVar> set, RWHandlerImplements hi) {
+	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, RWHandlerImplements hi) {
 		for (Object o : hi.boundVars) {
 			RWHandlerLambda hl = (RWHandlerLambda)o;
 			if (hl.scopedFrom != null)
@@ -416,16 +416,16 @@ public class MetaState {
 		}
 	}
 	
-	private static void gatherScopedVars(TreeSet<ScopedVar> set, RWMethodDefinition defn) {
+	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, RWMethodDefinition defn) {
 		for (RWMethodCaseDefn mcd : defn.cases) {
 			for (RWMethodMessage mm : mcd.messages)
 				gatherScopedVars(set, mm.expr);
 		}
 	}
 	
-	private static void gatherScopedVars(TreeSet<ScopedVar> set, Object expr) {
-		if (expr instanceof ScopedVar) {
-			ScopedVar sv = (ScopedVar)expr;
+	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, Object expr) {
+		if (expr instanceof VarNestedFromOuterFunctionScope) {
+			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;
 			set.add(sv);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;

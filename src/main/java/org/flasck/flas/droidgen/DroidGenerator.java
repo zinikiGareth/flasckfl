@@ -8,12 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.HandlerLambda;
 import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.android.AndroidLabel;
 import org.flasck.flas.parsedForm.android.AndroidLaunch;
 import org.flasck.flas.rewrittenForm.CardFunction;
@@ -29,10 +28,11 @@ import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -274,7 +274,7 @@ public class DroidGenerator {
 			fi = bcc.defineField(false, Access.PRIVATE, new JavaType(javaBaseName(name)), "_card");
 		Map<String, FieldInfo> fs = new TreeMap<String, FieldInfo>();
 		for (Object o : hi.boundVars) {
-			String var = ((HandlerLambda)o).var;
+			String var = ((RWHandlerLambda)o).var;
 			FieldInfo hli = bcc.defineField(false, Access.PRIVATE, new JavaType("java.lang.Object"), var);
 			fs.put(var, hli);
 		}
@@ -286,7 +286,7 @@ public class DroidGenerator {
 				cardArg = gen.argument("java.lang.Object", "card");
 			Map<String, PendingVar> vm = new TreeMap<String, PendingVar>();
 			for (Object o : hi.boundVars) {
-				String var = ((HandlerLambda)o).var;
+				String var = ((RWHandlerLambda)o).var;
 				PendingVar pvi = gen.argument("java.lang.Object", var);
 				vm.put(var, pvi);
 			}
@@ -295,7 +295,7 @@ public class DroidGenerator {
 			if (hi.inCard)
 				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic("org.flasck.android.FLEval", "java.lang.Object", "full", cardArg.getVar()), javaBaseName(name))).flush();
 			for (Object o : hi.boundVars) {
-				String var = ((HandlerLambda)o).var;
+				String var = ((RWHandlerLambda)o).var;
 				ctor.assign(fs.get(var).asExpr(ctor), ctor.callStatic("org.flasck.android.FLEval", "java.lang.Object", "head", vm.get(var).getVar())).flush();
 			}
 			ctor.returnVoid().flush();
@@ -610,8 +610,8 @@ public class DroidGenerator {
 				} else {
 					return meth.callStatic(clz, "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<Expr>()));
 				}
-			} else if (c.fn instanceof ScopedVar) {
-				ScopedVar sv = (ScopedVar) c.fn;
+			} else if (c.fn instanceof VarNestedFromOuterFunctionScope) {
+				VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope) c.fn;
 				if (sv.definedLocally) {
 					return null;
 				}
@@ -630,9 +630,9 @@ public class DroidGenerator {
 					return field;
 				} else
 					throw new UtilException("Can't handle " + fntype + " for card member");
-			} else if (c.fn instanceof HandlerLambda) {
+			} else if (c.fn instanceof RWHandlerLambda) {
 				if (fntype == CodeType.HANDLER)
-					return meth.getField(((HandlerLambda)c.fn).var);
+					return meth.getField(((RWHandlerLambda)c.fn).var);
 				else
 					throw new UtilException("Can't handle " + fntype + " with handler lambda");
 			} else

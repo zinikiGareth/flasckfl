@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -17,7 +18,6 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.template.TemplateIntro;

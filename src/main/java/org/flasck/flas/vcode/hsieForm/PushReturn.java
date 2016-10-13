@@ -2,9 +2,9 @@ package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 
 // Push and Return are like REALLY, REALLY similar

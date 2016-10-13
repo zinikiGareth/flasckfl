@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("serial")
-public class StateDefinition implements Serializable {
+public class RWStateDefinition implements Serializable {
 	public final List<RWStructField> fields = new ArrayList<RWStructField>();
 
 	public void addField(RWStructField o) {

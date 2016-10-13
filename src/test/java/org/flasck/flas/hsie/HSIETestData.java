@@ -12,6 +12,7 @@ import java.util.Map;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
@@ -26,9 +27,9 @@ public class HSIETestData {
 	static Map<String, PackageVar> ctorTypes = new HashMap<>();
 	static {
 		ctorTypes.put("Number", new PackageVar(null, "Number", org.flasck.flas.typechecker.Type.builtin(null, "Number")));
-		PackageVar nil = new PackageVar(null, "Nil", new StructDefn(null, "Nil", false));
-		PackageVar cons = new PackageVar(null, "Cons", new StructDefn(null, "Cons", false));
-		PackageVar list = new PackageVar(null, "List", new UnionTypeDefn(null, false, "List"));
+		PackageVar nil = new PackageVar(null, "Nil", new RWStructDefn(null, "Nil", false));
+		PackageVar cons = new PackageVar(null, "Cons", new RWStructDefn(null, "Cons", false));
+		PackageVar list = new PackageVar(null, "List", new RWUnionTypeDefn(null, false, "List", null));
 		ctorTypes.put("Cons", cons);
 		ctorTypes.put("Nil", nil);
 		ctorTypes.put("List", list);

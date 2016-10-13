@@ -30,7 +30,7 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
-import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
@@ -570,8 +570,8 @@ public class TypeChecker {
 					}
 					throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
 				}
-				if (r.fn instanceof ScopedVar) {
-					ScopedVar sv = (ScopedVar)r.fn;
+				if (r.fn instanceof VarNestedFromOuterFunctionScope) {
+					VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)r.fn;
 					if (sv.defn instanceof LocalVar) {
 						LocalVar lv = (LocalVar) sv.defn;
 						Type t = lv.type;

@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.parsedForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 import org.flasck.flas.typechecker.Type;
 import org.slf4j.Logger;

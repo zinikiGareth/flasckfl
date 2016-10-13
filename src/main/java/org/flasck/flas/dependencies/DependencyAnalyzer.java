@@ -9,23 +9,23 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.LetExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.FunctionLiteral;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.IterVar;
-import org.flasck.flas.parsedForm.LetExpr;
 import org.flasck.flas.parsedForm.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.FunctionLiteral;
+import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.DirectedCyclicGraph;
@@ -88,8 +88,8 @@ public class DependencyAnalyzer {
 		else if (expr instanceof CardMember) {
 			dcg.ensure("_var_" + ((CardMember)expr).uniqueName());
 		}
-		else if (expr instanceof HandlerLambda) {
-			dcg.ensure("_var_" + ((HandlerLambda)expr).uniqueName());
+		else if (expr instanceof RWHandlerLambda) {
+			dcg.ensure("_var_" + ((RWHandlerLambda)expr).uniqueName());
 		}
 		else if (expr instanceof LocalVar)
 			dcg.ensureLink(name, "_var_" + ((LocalVar)expr).uniqueName());
@@ -99,9 +99,9 @@ public class DependencyAnalyzer {
 		else if (expr instanceof PackageVar) {
 			dcg.ensure(((PackageVar) expr).id);
 			dcg.ensureLink(name, ((PackageVar) expr).id);
-		} else if (expr instanceof ScopedVar) {
-			dcg.ensure(((ScopedVar) expr).id);
-			dcg.ensureLink(name, ((ScopedVar) expr).id);
+		} else if (expr instanceof VarNestedFromOuterFunctionScope) {
+			dcg.ensure(((VarNestedFromOuterFunctionScope) expr).id);
+			dcg.ensureLink(name, ((VarNestedFromOuterFunctionScope) expr).id);
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
 			String orname = ((ExternalRef)expr).uniqueName();
 			dcg.ensure(orname);

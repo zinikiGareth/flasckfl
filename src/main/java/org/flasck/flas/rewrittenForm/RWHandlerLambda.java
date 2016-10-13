@@ -9,7 +9,7 @@ public class RWHandlerLambda implements ExternalRef {
 	public final String clzName;
 	public final String var;
 	public final Type type;
-	public ScopedVar scopedFrom;
+	public VarNestedFromOuterFunctionScope scopedFrom;
 
 	public RWHandlerLambda(InputPosition location, String clzName, Type type, String var) {
 		this.location = location;

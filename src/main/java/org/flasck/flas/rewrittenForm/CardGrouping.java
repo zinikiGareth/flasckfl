@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.flasck.flas.parsedForm.PlatformSpec;
+import org.flasck.flas.commonBase.PlatformSpec;
 
 public class CardGrouping {
 	public static class ContractGrouping {

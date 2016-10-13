@@ -14,6 +14,7 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
@@ -38,8 +39,6 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.IfExpr;
-import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
@@ -75,6 +74,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
+import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.ObjectReference;
@@ -115,7 +115,7 @@ import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
-import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -320,11 +320,11 @@ public class Rewriter {
 				if (((RWHandlerLambda)o).var.equals(name))
 					return o;
 			Object ret = nested.resolve(location, name);
-			if (ret instanceof ScopedVar) {
-				InputPosition loc = ((ScopedVar) ret).location();
-				Type type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
+			if (ret instanceof VarNestedFromOuterFunctionScope) {
+				InputPosition loc = ((VarNestedFromOuterFunctionScope) ret).location();
+				Type type = new TypeOfSomethingElse(loc, ((VarNestedFromOuterFunctionScope)ret).id);
 				RWHandlerLambda hl = new RWHandlerLambda(loc, hi.hiName, type, name);
-				hi.addScoped(hl, (ScopedVar) ret);
+				hi.addScoped(hl, (VarNestedFromOuterFunctionScope) ret);
 				return hl;
 			}
 			return ret;
@@ -406,7 +406,7 @@ public class Rewriter {
 			if (bound.containsKey(name))
 				return bound.get(name); // a local var
 			if (inner.contains(name))
-				return new ScopedVar(inner.getEntry(name), true);
+				return new VarNestedFromOuterFunctionScope(inner.getEntry(name), true);
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
 				return new ObjectReference(location, (ObjectReference)res, fromMethod);
@@ -427,9 +427,9 @@ public class Rewriter {
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof LocalVar) {
 				LocalVar lv = (LocalVar) ret;
-				return new ScopedVar(lv.location(), lv.var, lv, false);
-			} else if (ret instanceof ScopedVar) {
-				return ((ScopedVar)ret).notLocal();
+				return new VarNestedFromOuterFunctionScope(lv.location(), lv.var, lv, false);
+			} else if (ret instanceof VarNestedFromOuterFunctionScope) {
+				return ((VarNestedFromOuterFunctionScope)ret).notLocal();
 			} else
 				return ret;
 		}
@@ -1063,7 +1063,7 @@ public class Rewriter {
 		try {
 			if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
 				return expr;
-			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof ScopedVar || expr instanceof CardMember)
+			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof VarNestedFromOuterFunctionScope || expr instanceof CardMember)
 				return expr;
 			else if (expr instanceof PackageVar) {
 				System.out.println("expr = " + expr);
@@ -1084,7 +1084,7 @@ public class Rewriter {
 				Object ret = cx.resolve(location, s);
 				if (ret == null)
 					ret = cx.resolve(location, s); // debug
-				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof RWHandlerLambda || ret instanceof RWTemplateListVar || ret instanceof SpecialFormat)
+				if (ret instanceof PackageVar || ret instanceof VarNestedFromOuterFunctionScope || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof RWHandlerLambda || ret instanceof RWTemplateListVar || ret instanceof SpecialFormat)
 					return ret;
 				else
 					throw new UtilException("cannot handle id " + s + ": " + (ret == null ? "null": ret.getClass()));

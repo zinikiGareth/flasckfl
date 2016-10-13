@@ -7,13 +7,13 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
-public class ScopedVar implements Serializable, ExternalRef {
+public class VarNestedFromOuterFunctionScope implements Serializable, ExternalRef {
 	public final InputPosition location;
 	public final String id;
 	public final Object defn;
 	public boolean definedLocally;
 
-	public ScopedVar(InputPosition location, String id, Object defn, boolean definedLocally) {
+	public VarNestedFromOuterFunctionScope(InputPosition location, String id, Object defn, boolean definedLocally) {
 		if (defn != null && location == null)
 			System.out.println("null location sv1");
 		this.location = location;
@@ -22,7 +22,7 @@ public class ScopedVar implements Serializable, ExternalRef {
 		this.definedLocally = definedLocally;
 	}
 
-	public ScopedVar(ScopeEntry entry, boolean definedLocally) {
+	public VarNestedFromOuterFunctionScope(ScopeEntry entry, boolean definedLocally) {
 		if (entry.location() == null)
 			System.out.println("null location sv2");
 		this.location = entry.location();
@@ -31,8 +31,8 @@ public class ScopedVar implements Serializable, ExternalRef {
 		this.definedLocally = definedLocally;
 	}
 
-	public ScopedVar notLocal() {
-		return new ScopedVar(location, id, defn, false);
+	public VarNestedFromOuterFunctionScope notLocal() {
+		return new VarNestedFromOuterFunctionScope(location, id, defn, false);
 	}
 	
 	public InputPosition location() {
@@ -46,7 +46,7 @@ public class ScopedVar implements Serializable, ExternalRef {
 	
 	@Override
 	public int compareTo(Object o) {
-		return this.id.compareTo(((ScopedVar)o).id);
+		return this.id.compareTo(((VarNestedFromOuterFunctionScope)o).id);
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public class ScopedVar implements Serializable, ExternalRef {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof ScopedVar && this.id.equals(((ScopedVar)obj).id);
+		return obj instanceof VarNestedFromOuterFunctionScope && this.id.equals(((VarNestedFromOuterFunctionScope)obj).id);
 	}
 
 	public boolean fromHandler() {

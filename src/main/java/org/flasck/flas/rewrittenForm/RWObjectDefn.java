@@ -13,7 +13,7 @@ import org.zinutils.collections.CollectionUtils;
 
 @SuppressWarnings("serial")
 public class RWObjectDefn extends TypeWithMethods implements AsString, Serializable, Locatable {
-	public StateDefinition state;
+	public RWStateDefinition state;
 	public final List<RWStructField> ctorArgs = new ArrayList<RWStructField>();
 	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();
 	public final transient boolean generate;

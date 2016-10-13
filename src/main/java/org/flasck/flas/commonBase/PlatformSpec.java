@@ -1,4 +1,4 @@
-package org.flasck.flas.parsedForm;
+package org.flasck.flas.commonBase;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -15,7 +15,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWHandlerLambda;
-import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
@@ -326,9 +326,9 @@ public class JSForm {
 				sb.append(rename(c.fn.uniqueName()));
 			} else if (c.fn instanceof Type) {
 				sb.append(((Type)c.fn).name());
-			} else if (c.fn instanceof ScopedVar) {
+			} else if (c.fn instanceof VarNestedFromOuterFunctionScope) {
 				int j = 0;
-				ScopedVar sv = (ScopedVar) c.fn;
+				VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope) c.fn;
 				if (sv.definedLocally) {
 					return;
 				}
