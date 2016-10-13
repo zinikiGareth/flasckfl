@@ -197,8 +197,10 @@ public class Type implements Serializable, Locatable {
 		case OBJECT:
 		{
 			List<Object> mypolys = new ArrayList<Object>();
-			for (Type t : polys)
-				mypolys.add(t.convertToExpr(tc, from, factory, mapping));
+			if (polys != null) {
+				for (Type t : polys)
+					mypolys.add(t.convertToExpr(tc, from, factory, mapping));
+			}
 			return new TypeExpr(from, this, mypolys);
 		}
 		case POLYVAR: {

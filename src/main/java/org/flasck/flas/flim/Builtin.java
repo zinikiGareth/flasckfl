@@ -186,9 +186,11 @@ public class Builtin {
 		return root;
 	}
 
-	protected static RWFunctionDefinition fnhelper(String name, Object... args) {
+	protected static RWFunctionDefinition fnhelper(String name, Type... args) {
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
-		return new RWFunctionDefinition(posn, CodeType.FUNCTION, name, args.length, false);
+		RWFunctionDefinition ret = new RWFunctionDefinition(posn, CodeType.FUNCTION, name, args.length-1, false);
+		ret.setType(Type.function(posn, args));
+		return ret;
 	}
 	
 	public ImportPackage domScope(ImportPackage root) {

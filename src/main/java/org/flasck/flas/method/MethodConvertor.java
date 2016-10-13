@@ -410,7 +410,7 @@ public class MethodConvertor {
 			return null;
 		}
 		if (ct.iam != WhatAmI.STRUCT || !ct.name().equals("Send")) {
-			errors.message(method.location, "type checking error"); // I don't actually see how this could happen ... maybe should throw exception?
+			errors.message(method.location, "type checking error during method conversion"); // I don't actually see how this could happen ... maybe should throw exception?
 			return null;
 		}
 		return new ApplyExpr(sender.location(),	rw.structs.get("Send"), sender, method, asList(sender.location(), rw, args));

@@ -807,7 +807,7 @@ public class Rewriter {
 				targs.add(rewrite(cx, ((TypedPattern)o).type, false));
 			}
 		}
-		targs.add(typeFrom(cx.resolve(cmd.location(), "Message")));
+		targs.add(typeFrom(cx.resolve(cmd.location(), "Send")));
 		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, args, Type.function(cmd.location(), targs));
 	}
 

@@ -20,6 +20,7 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
@@ -69,6 +70,12 @@ public class TypeChecker {
 	}
 
 	public void populateTypes(Rewriter rewriter) {
+		for (Entry<String, Type> t : rewriter.builtins.entrySet())
+			knowledge.put(t.getKey(), t.getValue());
+		for (Entry<String, RWFunctionDefinition> t : rewriter.functions.entrySet()) {
+			if (!t.getValue().generate) // only import pre-defined functions
+				knowledge.put(t.getKey(), t.getValue().getType());
+		}
 		for (Entry<String, RWStructDefn> d : rewriter.structs.entrySet())
 			structs.put(d.getKey(), d.getValue());
 //		System.out.println("structs: " + structs);
@@ -187,6 +194,8 @@ public class TypeChecker {
 			TypeExpr subst = (TypeExpr) tmp;
 //			System.out.println("Storing type knowledge about " + f.fnName);
 			Type mytype = subst.asType(this);
+			if (mytype == null)
+				throw new UtilException("Came up with null type");
 			knowledge.put(f.fnName, mytype);
 			int idx = f.fnName.lastIndexOf(".");
 			if (idx == -1) {

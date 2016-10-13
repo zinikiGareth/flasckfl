@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
@@ -21,6 +22,7 @@ public class RWFunctionDefinition implements Locatable, Serializable {
 	public final Map<String, LocalVar> vars = new HashMap<>();
 	public final List<RWFunctionCaseDefn> cases = new ArrayList<>();
 	public final boolean generate;
+	private Type type;
 
 	public RWFunctionDefinition(InputPosition location, CodeType mytype, String name, int nargs, boolean generate) {
 		this.location = location;
@@ -56,5 +58,13 @@ public class RWFunctionDefinition implements Locatable, Serializable {
 	@Override
 	public String toString() {
 		return name +"/" + nargs+"["+cases.size()+"]";
+	}
+
+	public void setType(Type ty) {
+		this.type = ty;
+	}
+
+	public Type getType() {
+		return type;
 	}
 }
