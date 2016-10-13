@@ -155,7 +155,7 @@ public class Rewriter {
 	public final Map<String, RWContractService> cardServices = new TreeMap<String, RWContractService>();
 	public final Map<String, RWHandlerImplements> callbackHandlers = new TreeMap<String, RWHandlerImplements>();
 	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
-	public final List<EventHandlerInContext> eventHandlers = new ArrayList<EventHandlerInContext>();
+	public final Map<String, EventHandlerInContext> eventHandlers = new TreeMap<String, EventHandlerInContext>();
 	public final Map<String, MethodInContext> standalone = new TreeMap<String, MethodInContext>();
 	public final Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>();
 
@@ -470,49 +470,91 @@ public class Rewriter {
 		}
 	}
 	
-	public void rewrite(ScopeEntry pkgEntry) {
-		PackageDefn pkg = (PackageDefn) pkgEntry.getValue();
-		rewriteScope(figureBaseContext(pkgEntry), pkg.innerScope());
+	public void rewriteScope(NamingContext cx, Scope from) {
+		pass1(cx, from);
+		pass2(cx, from);
+		pass3(cx, from);
 	}
 	
-	public NamingContext figureBaseContext(ScopeEntry pkgEntry) {
-		PackageDefn pkg = (PackageDefn) pkgEntry.getValue();
-		Scope s = pkgEntry.scope();
-		if (s.outerEntry == null)
-			return new PackageContext(new RootContext(), pkg);
-		return new PackageContext(figureBaseContext(s.outerEntry), pkg);
-	}
-
-	public void rewriteScope(NamingContext cx, Scope from) {
+	// Introduce new Definitions which we might reference with minimal amount of info
+	public void pass1(NamingContext cx, Scope from) {
 		for (Entry<String, ScopeEntry> x : from) {
 			String name = x.getValue().getKey();
-			if (name.equals("Nil"))
-			logger.info("Rewriting " + name);
 			Object val = x.getValue().getValue();
-			if (val instanceof PackageDefn) {
-				logger.info("Choosing not to follow " + name + " down into a nested package");
-//				rewriteScope(cx, ((PackageDefn)val).innerScope());
-			} else if (val instanceof CardDefinition)
+			if (val instanceof CardDefinition) {
+				CardDefinition cd = (CardDefinition) val;
+				RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
+				CardGrouping grp = new CardGrouping(sd);
+				cards.put(cd.name, grp);
+			} else if (val instanceof FunctionDefinition) {
+				FunctionDefinition f = (FunctionDefinition) val;
+				functions.put(name, new RWFunctionDefinition(f.location, f.mytype, f.name, f.nargs, true));
+			} else if (val instanceof MethodDefinition) {
+				MethodDefinition m = (MethodDefinition) val;
+				RWMethodDefinition rw = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, rw);
+				standalone.put(mic.name, mic);
+			} else if (val instanceof EventHandlerDefinition) {
+				EventHandlerDefinition ehd = (EventHandlerDefinition) val;
+				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(rewrite(cx, ehd.intro, new HashMap<>()));
+				EventHandlerInContext ehic = new EventHandlerInContext(name, rw);
+				eventHandlers.put(ehic.name, ehic);
+			} else if (val instanceof StructDefn) {
+				StructDefn sd = (StructDefn) val;
+				structs.put(name, new RWStructDefn(sd.location(), sd.name(), sd.generate, rewritePolys(sd.polys())));
+			} else if (val instanceof UnionTypeDefn) {
+				UnionTypeDefn ud = (UnionTypeDefn) val;
+				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.name(), rewritePolys(ud.polys())));
+			} else if (val instanceof ContractDecl) {
+				ContractDecl ctr = (ContractDecl)val;
+				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.name());
+				contracts.put(name, ret);
+			} else if (val instanceof HandlerImplements) {
+				pass1HI(cx, (HandlerImplements) val);
+			} else if (val == null)
+				logger.warn("Did you know " + name + " does not have a definition?");
+			else
+				throw new UtilException("Cannot handle " + name +": " + (val == null?"null":val.getClass()));
+		}
+	}
+
+	// Fill in definitions as much as we can from just here
+	public void pass2(NamingContext cx, Scope from) {
+		for (Entry<String, ScopeEntry> x : from) {
+			String name = x.getValue().getKey();
+			Object val = x.getValue().getValue();
+			if (val instanceof CardDefinition || val instanceof FunctionDefinition || val instanceof MethodDefinition || val instanceof EventHandlerDefinition || val instanceof HandlerImplements) {
+				// Nothing to do in pass2 ... was set up in pass1 and will be resolved in pass3
+			} else if (val instanceof StructDefn) {
+				rewrite(cx, (StructDefn)val);
+			} else if (val instanceof UnionTypeDefn) {
+				rewrite(cx, (UnionTypeDefn)val);
+			} else if (val instanceof ContractDecl) {
+				rewrite(cx, (ContractDecl)val);
+			} else if (val == null)
+				logger.warn("Did you know " + name + " does not have a definition?");
+			else
+				throw new UtilException("Cannot handle " + name +": " + (val == null?"null":val.getClass()));
+		}
+	}
+
+	// Resolve things that still need doing & handle nested contexts
+	public void pass3(NamingContext cx, Scope from) {
+		for (Entry<String, ScopeEntry> x : from) {
+			String name = x.getValue().getKey();
+			Object val = x.getValue().getValue();
+			if (val instanceof CardDefinition)
 				rewriteCard(cx, (CardDefinition)val);
 			else if (val instanceof FunctionDefinition)
-				functions.put(name, rewrite(cx, (FunctionDefinition)val));
+				rewrite(cx, (FunctionDefinition)val);
 			else if (val instanceof MethodDefinition) {
-				MethodInContext mic = rewriteStandaloneMethod(cx, from, (MethodDefinition)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE);
-				standalone.put(mic.name, mic);
+				rewriteStandaloneMethod(cx, from, (MethodDefinition)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE);
 			} else if (val instanceof EventHandlerDefinition)
-				eventHandlers.add(new EventHandlerInContext(name, rewrite(cx, (EventHandlerDefinition)val)));
-			else if (val instanceof StructDefn) {
-				structs.put(name, rewrite(cx, (StructDefn)val));
-			} else if (val instanceof UnionTypeDefn) {
-				types.put(name, rewrite(cx, (UnionTypeDefn)val));
-			} else if (val instanceof ContractDecl) {
-				contracts.put(name, rewrite(cx, (ContractDecl)val));
+				rewrite(cx, (EventHandlerDefinition)val);
+			else if (val instanceof StructDefn || val instanceof UnionTypeDefn || val instanceof ContractDecl) {
+				// these all got sorted out already in the first two passes
 			} else if (val instanceof HandlerImplements) {
-				callbackHandlers.put(name, rewriteHI(cx, (HandlerImplements)val, from));
-			} else if (val instanceof RWStructDefn) { // already rewritten struct - from builtin or FLIM
-				structs.put(name, (RWStructDefn) val);
-			} else if (val instanceof Type) {
-				logger.warn("Not doing anything with Type " + name + ": " + val.getClass()); // don't do anything - is that OK? 
+				rewriteHI(cx, (HandlerImplements)val, from);
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -524,9 +566,11 @@ public class Rewriter {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope: " + cx.getClass());
 		CardContext c2 = new CardContext((PackageContext) cx, cd);
-		RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
-		CardGrouping grp = new CardGrouping(sd);
-		cards.put(cd.name, grp);
+		CardGrouping grp = cards.get(cd.name);
+		RWStructDefn sd = grp.struct;
+//		RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
+//		CardGrouping grp = new CardGrouping(sd);
+//		cards.put(cd.name, grp);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
 				sd.addField(new RWStructField(sf.loc, false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init)));
@@ -546,8 +590,10 @@ public class Rewriter {
 				sd.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods) {
-				RWMethodDefinition rwm = rewrite(c2, m, true);
-				methods.add(new MethodInContext(this, cx, MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm));
+				RWMethodDefinition rwm = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm);
+				rewriteMethodCases(c2, m, true, mic);
+				methods.add(mic);
 				rw.methods.add(rwm);
 			}
 			
@@ -565,8 +611,12 @@ public class Rewriter {
 			if (rw.referAsVar != null)
 				sd.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
 
-			for (MethodDefinition m : cs.methods)
-				methods.add(new MethodInContext(this, cx, MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rewrite(c2, m, true)));
+			for (MethodDefinition m : cs.methods) {
+				RWMethodDefinition rwm = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rwm);
+				rewriteMethodCases(c2, m, true, mic);
+				methods.add(mic);
+			}
 
 			pos++;
 		}
@@ -575,9 +625,11 @@ public class Rewriter {
 			templates.add(rewrite(new TemplateContext(c2), cd.template));
 		
 		for (HandlerImplements hi : cd.handlers) {
-			RWHandlerImplements rw = rewriteHI(c2, hi, cd.innerScope());
-			if (rw != null)
+			RWHandlerImplements rw = pass1HI(c2, hi);
+			if (rw != null) {
+				rewriteHI(c2, hi, cd.innerScope());
 				grp.handlers.add(new HandlerGrouping(rw.hiName, rw));
+			}
 		}
 		
 		grp.platforms.putAll(cd.platforms);
@@ -739,12 +791,11 @@ public class Rewriter {
 		return new RWTemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
 	}
 
-	private RWContractDecl rewrite(NamingContext cx, ContractDecl ctr) {
-		RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.name());
+	private void rewrite(NamingContext cx, ContractDecl ctr) {
+		RWContractDecl ret = contracts.get(ctr.name());
 		for (ContractMethodDecl cmd : ctr.methods) {
 			ret.addMethod(rewrite(cx, cmd));
 		}
-		return ret;
 	}
 
 	private RWContractMethodDecl rewrite(NamingContext cx, ContractMethodDecl cmd) {
@@ -799,48 +850,56 @@ public class Rewriter {
 		}
 	}
 
-	private RWHandlerImplements rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
+	private RWHandlerImplements pass1HI(NamingContext cx, HandlerImplements hi) {
+		Type any = (Type) getObject(cx.nested.resolve(hi.location(), "Any"));
+		Object av = cx.nested.resolve(hi.location(), hi.name());
+		if (av == null || !(av instanceof PackageVar)) {
+			errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
+			return null;
+		}
+		PackageVar ctr = (PackageVar) av;
+		final String rwname = hi.hiName;
+		List<RWHandlerLambda> bvs = new ArrayList<RWHandlerLambda>();
+		for (Object o : hi.boundVars) {
+			RWHandlerLambda hl;
+			if (o instanceof VarPattern) {
+				VarPattern vp = (VarPattern) o;
+				hl = new RWHandlerLambda(vp.varLoc, rwname, any, vp.var);
+			} else if (o instanceof TypedPattern) {
+				TypedPattern vp = (TypedPattern) o;
+				hl = new RWHandlerLambda(vp.varLocation, rwname, rewrite(cx, vp.type, false), vp.var);
+			} else
+				throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
+			bvs.add(hl);
+		}
+		RWStructDefn hsd = new RWStructDefn(hi.location(), hi.hiName, false);
+		for (Object s : bvs) {
+			RWHandlerLambda hl = (RWHandlerLambda) s;
+			hsd.fields.add(new RWStructField(hl.location, false, hl.type, hl.var));
+		}
+		// It feels a little dodgy putting different things into two arrays with the same name ...
+		structs.put(hi.hiName, hsd);
+		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), hi.hiName, ctr.id, hi.inCard, bvs);
+		callbackHandlers.put(hi.hiName, rw);
+		return rw;
+	}
+
+	private void rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
 		try {
-			Type any = (Type) getObject(cx.nested.resolve(hi.location(), "Any"));
-			Object av = cx.nested.resolve(hi.location(), hi.name());
-			if (av == null || !(av instanceof PackageVar)) {
-				errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
-				return null;
-			}
-			PackageVar ctr = (PackageVar) av;
-//			String rwname = cx.prefix + "." + hi.name;
-			String rwname = hi.hiName;
-			List<RWHandlerLambda> bvs = new ArrayList<RWHandlerLambda>();
-			for (Object o : hi.boundVars) {
-				RWHandlerLambda hl;
-				if (o instanceof VarPattern) {
-					VarPattern vp = (VarPattern) o;
-					hl = new RWHandlerLambda(vp.varLoc, rwname, any, vp.var);
-				} else if (o instanceof TypedPattern) {
-					TypedPattern vp = (TypedPattern) o;
-					hl = new RWHandlerLambda(vp.varLocation, rwname, rewrite(cx, vp.type, false), vp.var);
-				} else
-					throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
-				bvs.add(hl);
-			}
-			RWHandlerImplements ret = new RWHandlerImplements(hi.kw, hi.location(), rwname, ctr.id, hi.inCard, bvs);
-			callbackHandlers.put(ret.hiName, ret);
+			RWHandlerImplements ret = callbackHandlers.get(hi.hiName);
+			if (ret == null)
+				return; // presumably it failed in pass1
 			HandlerContext hc = new HandlerContext(cx, ret);
 			for (MethodDefinition m : hi.methods) {
-				RWMethodDefinition rm = rewrite(hc, m, true);
+				RWMethodDefinition rm = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm);
+				rewriteMethodCases(hc, m, true, mic);
 				ret.methods.add(rm);
-				methods.add(new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm));
+				methods.add(mic);
 			}
-			RWStructDefn hsd = new RWStructDefn(hi.location(), ret.hiName, false);
-			for (Object s : ret.boundVars) {
-				RWHandlerLambda hl = (RWHandlerLambda) s;
-				hsd.fields.add(new RWStructField(hl.location, false, hl.type, hl.var));
-			}
-			structs.put(ret.hiName, hsd);
-			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
-			return null;
+			return;
 		}
 	}
 
@@ -851,70 +910,61 @@ public class Rewriter {
 			return o;
 	}
 
-	public RWFunctionDefinition rewrite(NamingContext cx, FunctionDefinition f) {
-//		System.out.println("Rewriting " + f.name);
-		List<RWFunctionCaseDefn> list = new ArrayList<RWFunctionCaseDefn>();
+	public void rewrite(NamingContext cx, FunctionDefinition f) {
+		RWFunctionDefinition ret = functions.get(f.name);
 		int cs = 0;
 		RWFunctionIntro fi = null;
 		for (FunctionCaseDefn c : f.cases) {
-			Map<String, LocalVar> vars = allVars(errors, this, cx, f.name + "_" + cs, c.intro);
-			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, cs, vars, c.innerScope(), false);
-			RWFunctionCaseDefn rwc = rewrite(fccx, c, vars);
+			gatherVars(errors, this, cx, f.name + "_" + cs, ret.vars, c.intro);
+			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, cs, ret.vars, c.innerScope(), false);
+			RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.vars);
 			if (fi == null)
 				fi = rwc.intro;
-			list.add(rwc);
+			ret.cases.add(rwc);
 			cs++;
 		}
-//		System.out.println("rewritten to " + list.get(0).expr);
-		RWFunctionDefinition ret = new RWFunctionDefinition(f.location, f.mytype, fi, list, true);
-		return ret;
 	}
 
-	private MethodInContext rewriteStandaloneMethod(NamingContext cx, Scope from, MethodDefinition m, HSIEForm.CodeType codeType) {
-		RWMethodDefinition rw = rewrite(cx, m, false);
-		return new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, codeType, rw);
+	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodDefinition m, HSIEForm.CodeType codeType) {
+		rewriteMethodCases(cx, m, false, standalone.get(m.intro.name));
 	}
 	
-	private RWMethodDefinition rewrite(NamingContext cx, MethodDefinition m, boolean fromHandler) {
-		List<RWMethodCaseDefn> list = new ArrayList<RWMethodCaseDefn>();
+	private void rewriteMethodCases(NamingContext cx, MethodDefinition m, boolean fromHandler, MethodInContext mic) {
 		int cs = 0;
-		Map<String, LocalVar> vars = allVars(errors, this, cx, m.intro.name + "_" + cs, m.intro);
+		Map<String, LocalVar> vars = mic.method.intro.vars;
+		gatherVars(errors, this, cx, m.intro.name + "_" + cs, vars, m.intro);
 		for (MethodCaseDefn c : m.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, vars, c.innerScope(), fromHandler), c, vars));
+			mic.method.cases.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, vars, c.innerScope(), fromHandler), c, vars));
 			cs++;
 		}
-		return new RWMethodDefinition(rewrite(cx, m.intro, vars), list);
 	}
 
-	private RWEventHandlerDefinition rewrite(NamingContext cx, EventHandlerDefinition ehd) {
-		List<RWEventCaseDefn> list = new ArrayList<RWEventCaseDefn>();
+	private void rewrite(NamingContext cx, EventHandlerDefinition ehd) {
+		EventHandlerInContext ehic = eventHandlers.get(ehd.intro.name);
+		RWEventHandlerDefinition rw = ehic.handler;
 		int cs = 0;
-		Map<String, LocalVar> locals = new HashMap<String, LocalVar>();
-		gatherVars(errors, this, cx, ehd.intro.name, locals, ehd.intro);
+		gatherVars(errors, this, cx, rw.intro.name, rw.intro.vars, ehd.intro);
 		for (EventCaseDefn c : ehd.cases) {
-			list.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, locals, c.innerScope(), false), c, locals));
+			rw.cases.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, rw.intro.vars, c.innerScope(), false), c, rw.intro.vars));
 			cs++;
 		}
-		return new RWEventHandlerDefinition(rewrite(cx, ehd.intro, locals), list);
 	}
 
-	private RWStructDefn rewrite(NamingContext cx, StructDefn sd) {
-		RWStructDefn ret = new RWStructDefn(sd.location(), sd.name(), sd.generate, rewritePolys(sd.polys()));
+	private void rewrite(NamingContext cx, StructDefn sd) {
+		RWStructDefn ret = structs.get(sd.name());
 		for (StructField sf : sd.fields) {
 			// TODO: it's not clear that the expression needs this rewritten context
 			StructDefnContext sx = new StructDefnContext(cx, ret.polys());
 			RWStructField rsf = new RWStructField(sf.loc, false, rewrite(sx, sf.type, false), sf.name, rewriteExpr(sx, sf.init));
 			ret.addField(rsf);
 		}
-		return ret;
 	}
 
-	private RWUnionTypeDefn rewrite(NamingContext cx, UnionTypeDefn u) {
-		RWUnionTypeDefn ret = new RWUnionTypeDefn(u.location(), u.generate, u.name(), rewritePolys(u.polys()));
+	private void rewrite(NamingContext cx, UnionTypeDefn u) {
+		RWUnionTypeDefn ret = types.get(u.name());
 		for (TypeReference c : u.cases) {
 			ret.addCase(rewrite(cx, c, true));
 		}
-		return ret;
 	}
 
 	protected List<Type> rewritePolys(List<TypeReference> polys) {
@@ -924,7 +974,6 @@ public class Rewriter {
 				pts.add(Type.polyvar(r.location(), r.name()));
 		return pts;
 	}
-
 
 	private RWFunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c, Map<String, LocalVar> vars) {
 		RWFunctionIntro intro = rewrite(cx, c.intro, vars);
@@ -1181,7 +1230,8 @@ public class Rewriter {
 			else if (ret.iam == WhatAmI.TUPLE)
 				k = ret.width();
 			else if (ret instanceof ContractDecl) {
-				return rewrite(cx, ((ContractDecl)ret));
+				; // return rewrite(cx, ((ContractDecl)ret));
+				throw new UtilException("big-divide: what is this case?");
 			}
 			else
 				return ret;
@@ -1201,13 +1251,6 @@ public class Rewriter {
 		}
 	}
 
-	
-	public Map<String, LocalVar> allVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, String definedBy, FunctionIntro fi) {
-		Map<String, LocalVar> ret = new TreeMap<>();
-		gatherVars(errors, rewriter, cx, definedBy, ret, fi);
-		return ret;
-	}
-	
 	public void gatherVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, String definedBy, Map<String, LocalVar> into, FunctionIntro fi) {
 		for (int i=0;i<fi.args.size();i++) {
 			Object arg = fi.args.get(i);

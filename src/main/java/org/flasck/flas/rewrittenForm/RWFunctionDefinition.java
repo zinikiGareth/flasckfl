@@ -2,7 +2,10 @@ package org.flasck.flas.rewrittenForm;
 
 import java.io.Serializable;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
@@ -13,18 +16,20 @@ import org.zinutils.exceptions.UtilException;
 public class RWFunctionDefinition implements Locatable, Serializable {
 	public final InputPosition location;
 	public final CodeType mytype;
-	public final RWFunctionIntro intro;
-	public final List<RWFunctionCaseDefn> cases;
+	public final String name;
+	public final int nargs;
+	public final Map<String, LocalVar> vars = new HashMap<>();
+	public final List<RWFunctionCaseDefn> cases = new ArrayList<>();
 	public final boolean generate;
 
-	public RWFunctionDefinition(InputPosition location, CodeType mytype, RWFunctionIntro intro, List<RWFunctionCaseDefn> list, boolean generate) {
+	public RWFunctionDefinition(InputPosition location, CodeType mytype, String name, int nargs, boolean generate) {
 		this.location = location;
 		this.mytype = mytype;
-		this.intro = intro;
+		this.name = name;
+		this.nargs = nargs;
 		this.generate = generate;
 		if (mytype == null)
 			throw new UtilException("Null mytype");
-		this.cases = list;
 	}
 
 	@Override
@@ -33,15 +38,15 @@ public class RWFunctionDefinition implements Locatable, Serializable {
 	}
 	
 	public String name() {
-		return intro.name;
+		return name;
 	}
 	
 	public int nargs() {
-		return intro.args.size();
+		return nargs;
 	}
 
 	public void dumpTo(Writer pw) throws Exception {
-		pw.append(intro.name + " {\n");
+		pw.append(mytype + " " + name + "/" + nargs + " {\n");
 		for (RWFunctionCaseDefn fcd : cases)
 			fcd.dumpTo(pw);
 		pw.append("}\n");
@@ -50,6 +55,6 @@ public class RWFunctionDefinition implements Locatable, Serializable {
 	
 	@Override
 	public String toString() {
-		return intro.name +"/" +intro.args.size()+"["+cases.size()+"]";
+		return name +"/" + nargs+"["+cases.size()+"]";
 	}
 }

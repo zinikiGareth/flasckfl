@@ -70,8 +70,8 @@ public class MethodConvertor {
 			addFunction(functions, convertMIC(rw, m));
 	}
 
-	public void convertEventHandlers(Rewriter rw, Map<String, HSIEForm> functions, List<EventHandlerInContext> eventHandlers) {
-		for (EventHandlerInContext x : eventHandlers)
+	public void convertEventHandlers(Rewriter rw, Map<String, HSIEForm> functions, Map<String, EventHandlerInContext> eventHandlers) {
+		for (EventHandlerInContext x : eventHandlers.values())
 			addFunction(functions, convertEventHandler(rw, x.name, x.handler));
 	}
 
@@ -90,8 +90,6 @@ public class MethodConvertor {
 
 	// 2. Convert An individual element
 	protected RWFunctionDefinition convertMIC(Rewriter rw, MethodInContext m) {
-		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
-		
 		if (m.direction == MethodInContext.STANDALONE)
 			System.out.println("converting " + m.name);
 		// Get the contract and from that find the method and thus the argument types
@@ -107,6 +105,8 @@ public class MethodConvertor {
 		if (m.method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
+		RWFunctionDefinition ret = new RWFunctionDefinition(m.method.intro.location, m.type, m.method.intro.name, m.method.intro.args.size(), true);
+
 		// Now process all of the method cases
 		Type ofType = null;
 		for (RWMethodCaseDefn mcd : m.method.cases) {
@@ -118,14 +118,14 @@ public class MethodConvertor {
 				continue;
 			}
 			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, types, mcd.messages, m.type.isHandler());
-			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.name, mcd.intro.args, null), typedObject.expr));
+			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.name, mcd.intro.args, null), typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
 		if (ofType != null)
 			tc.addExternal(m.method.intro.name, ofType);
 		
-		return new RWFunctionDefinition(m.method.intro.location, m.type, new RWFunctionIntro(m.method.intro.location, m.method.intro.name, m.method.intro.args, null), cases, true);
+		return ret;
 	}
 
 	public RWFunctionDefinition convertEventHandler(Rewriter rw, String card, RWEventHandlerDefinition eh) {
@@ -136,17 +136,17 @@ public class MethodConvertor {
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
+		RWFunctionDefinition ret = new RWFunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), true);
 		Type ofType = null;
 		for (RWEventCaseDefn c : eh.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.intro.location, eh.intro.args, types, c.messages, false);
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, null), typedObject.expr));
+			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, null), typedObject.expr));
 		}
 		if (ofType != null)
 			tc.addExternal(eh.intro.name, ofType);
-		return new RWFunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, new RWFunctionIntro(eh.intro.location, eh.intro.name, eh.intro.args, null), cases, true);
+		return ret;
 	}
 
 	public RWFunctionDefinition convertStandalone(Rewriter rw, MethodInContext mic) {
@@ -160,17 +160,17 @@ public class MethodConvertor {
 		if (method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
+		RWFunctionDefinition ret = new RWFunctionDefinition(method.intro.location, mic.type, method.intro.name, 0, true);
 		Type ofType = null;
 		for (RWMethodCaseDefn c : method.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.intro.location, margs, types, c.messages, mic.type.isHandler());
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, null), typedObject.expr));
+			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, null), typedObject.expr));
 		}
 		if (ofType != null)
 			tc.addExternal(method.intro.name, ofType);
-		return new RWFunctionDefinition(method.intro.location, mic.type, new RWFunctionIntro(method.intro.location, method.intro.name, null, null), cases, true);
+		return ret;
 	}
 
 	protected List<Type> figureCMD(MethodInContext m) {

@@ -2,7 +2,6 @@ package org.flasck.flas.flim;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -189,7 +188,7 @@ public class Builtin {
 
 	protected static RWFunctionDefinition fnhelper(String name, Object... args) {
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
-		return new RWFunctionDefinition(posn, CodeType.FUNCTION, new RWFunctionIntro(posn, name, CollectionUtils.listOf(args), null), null, false);
+		return new RWFunctionDefinition(posn, CodeType.FUNCTION, name, args.length, false);
 	}
 	
 	public ImportPackage domScope(ImportPackage root) {
