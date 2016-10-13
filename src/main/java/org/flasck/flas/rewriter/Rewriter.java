@@ -105,13 +105,8 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.rewrittenForm.RWTemplate;
-import org.flasck.flas.rewrittenForm.RWTemplateCases;
 import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
-import org.flasck.flas.rewrittenForm.RWTemplateList;
-import org.flasck.flas.rewrittenForm.RWTemplateListVar;
-import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
@@ -148,7 +143,7 @@ public class Rewriter {
 	public final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
 	public final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
-	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
+	public final List<Template> templates = new ArrayList<Template>();
 	public final List<RWD3Invoke> d3s = new ArrayList<RWD3Invoke>();
 	public final Map<String, RWContractImplements> cardImplements = new TreeMap<String, RWContractImplements>();
 	public final Map<String, RWContractService> cardServices = new TreeMap<String, RWContractService>();
@@ -332,14 +327,14 @@ public class Rewriter {
 	}
 
 	public class TemplateContext extends NamingContext {
-		private final RWTemplateListVar listVar;
+		private final TemplateListVar listVar;
 
 		public TemplateContext(CardContext cx) {
 			super(cx);
 			listVar = null;
 		}
 		
-		public TemplateContext(TemplateContext cx, RWTemplateListVar tlv) {
+		public TemplateContext(TemplateContext cx, TemplateListVar tlv) {
 			super(cx);
 			if (tlv != null && tlv.name == null)
 				throw new UtilException("Shouldn't happen");
@@ -642,10 +637,9 @@ public class Rewriter {
 		rewriteScope(c2, cd.fnScope);
 	}
 
-	private RWTemplate rewrite(TemplateContext cx, Template template) {
+	private Template rewrite(TemplateContext cx, Template template) {
 		try {
-			// Again, the need for a scope seems dodgy if we've rewritten ...
-			return new RWTemplate(template.prefix, rewrite(cx, template.content));
+			return new Template(template.prefix, rewrite(cx, template.content));
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -741,7 +735,7 @@ public class Rewriter {
 		} else if (tl instanceof TemplateList) {
 			TemplateList ul = (TemplateList)tl;
 			TemplateListVar tlv = ul.iterVar != null ? new TemplateListVar(ul.listLoc, (String) ul.iterVar) : null;
-			RWTemplateListVar rwv = tlv == null ? null : new RWTemplateListVar(tlv.location, tlv.name);
+			TemplateListVar rwv = tlv == null ? null : new TemplateListVar(tlv.location, tlv.name);
 			boolean supportDragOrdering = false;
 			for (SpecialFormat tt : specials) {
 				if (tt.name.equals("dragOrder")) {
@@ -749,13 +743,13 @@ public class Rewriter {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			RWTemplateList rul = new RWTemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, rwv, ul.customTag, ul.customTagVar, formats, supportDragOrdering);
+			TemplateList rul = new TemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, rwv, ul.customTag, ul.customTagVar, formats, supportDragOrdering);
 			cx = new TemplateContext(cx, rwv);
 			rul.template = rewrite(cx, ul.template);
 			return rul;
 		} else if (tl instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases)tl;
-			RWTemplateCases ret = new RWTemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
+			TemplateCases ret = new TemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
 			for (TemplateOr tor : tc.cases)
 				ret.addCase(rewrite(cx, tor));
 			return ret;
@@ -793,8 +787,8 @@ public class Rewriter {
 		return ret;
 	}
 
-	private RWTemplateOr rewrite(TemplateContext cx, TemplateOr tor) {
-		return new RWTemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
+	private TemplateOr rewrite(TemplateContext cx, TemplateOr tor) {
+		return new TemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template));
 	}
 
 	private void rewrite(NamingContext cx, ContractDecl ctr) {
@@ -1084,7 +1078,7 @@ public class Rewriter {
 				Object ret = cx.resolve(location, s);
 				if (ret == null)
 					ret = cx.resolve(location, s); // debug
-				if (ret instanceof PackageVar || ret instanceof VarNestedFromOuterFunctionScope || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof RWHandlerLambda || ret instanceof RWTemplateListVar || ret instanceof SpecialFormat)
+				if (ret instanceof PackageVar || ret instanceof VarNestedFromOuterFunctionScope || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof RWHandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
 					return ret;
 				else
 					throw new UtilException("cannot handle id " + s + ": " + (ret == null ? "null": ret.getClass()));
@@ -1229,6 +1223,7 @@ public class Rewriter {
 						ret = ret.instance(type.location(), rwp);
 				}
 			}
+			// There seems something very wrong here to me ... if we ever get here :-)
 			int k = -1;
 			List<Type> fnargs = new ArrayList<Type>();
 			if (ret.iam == WhatAmI.FUNCTION)

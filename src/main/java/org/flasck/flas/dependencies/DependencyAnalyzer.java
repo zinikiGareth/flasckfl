@@ -35,10 +35,10 @@ import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 
 public class DependencyAnalyzer {
-	private final ErrorResult errors;
+//	private final ErrorResult errors;
 
 	public DependencyAnalyzer(ErrorResult errors) {
-		this.errors = errors;
+//		this.errors = errors;
 	}
 
 	public List<Orchard<RWFunctionDefinition>> analyze(Map<String, RWFunctionDefinition> map) {

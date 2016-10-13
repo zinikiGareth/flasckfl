@@ -2,10 +2,10 @@ package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
-import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 import org.zinutils.utils.Justification;
 
 public class PushCmd extends PushReturn {
@@ -26,7 +26,7 @@ public class PushCmd extends PushReturn {
 		super(loc, s);
 	}
 
-	public PushCmd(InputPosition loc, RWTemplateListVar tlv) {
+	public PushCmd(InputPosition loc, TemplateListVar tlv) {
 		super(loc, tlv);
 	}
 

@@ -58,8 +58,8 @@ public class FlasStoryTests {
 		assertEquals(3, rewriter.functions.size());
 		RWFunctionDefinition f = rewriter.functions.get("ME.f");
 		assertEquals(2, f.cases.size());
-		RWFunctionCaseDefn c1 = f.cases.get(0);
-		RWFunctionCaseDefn c2 = f.cases.get(1);
+//		RWFunctionCaseDefn c1 = f.cases.get(0);
+//		RWFunctionCaseDefn c2 = f.cases.get(1);
 		HSIEForm form = new HSIE(errors, rewriter).handle(null, f);
 		HSIETestData.assertHSIE(HSIETestData.splitF(), form);
 		RWFunctionDefinition g1 = rewriter.functions.get("ME.f_0.g");

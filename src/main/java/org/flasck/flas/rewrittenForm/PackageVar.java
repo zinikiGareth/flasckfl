@@ -1,14 +1,10 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class PackageVar implements Serializable, ExternalRef {
+public class PackageVar implements ExternalRef {
 	public final InputPosition location;
 	public final String id;
 	public final Object defn;
@@ -23,17 +19,6 @@ public class PackageVar implements Serializable, ExternalRef {
 		this.defn = defn;
 	}
 
-	@Deprecated
-	public PackageVar(InputPosition location, ScopeEntry entry) {
-		if (entry.getValue() instanceof StructDefn)
-			throw new UtilException("Not allowed");
-		if (location == null)
-			System.out.println("null location pv2");
-		this.location = location != null ? location : entry.location();
-		this.id = entry.getKey();
-		this.defn = entry.getValue();
-	}
-	
 	public InputPosition location() {
 		return location;
 	}

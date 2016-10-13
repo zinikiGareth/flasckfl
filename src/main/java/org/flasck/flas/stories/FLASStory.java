@@ -548,7 +548,7 @@ public class FLASStory {
 //		if (!templates.isEmpty())
 		if (er.hasErrors())
 			return;
-		cd.template = new Template(cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()), cd.innerScope());
+		cd.template = new Template(cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()));
 	}
 
 	private void readPlatformSpec(ErrorResult er, List<Block> nested, PlatformSpec ps) {

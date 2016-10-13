@@ -1,11 +1,9 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("serial")
-public class RWMethodCaseDefn implements MessagesHandler, Serializable {
+public class RWMethodCaseDefn {
 	public final RWFunctionIntro intro;
 	public final List<RWMethodMessage> messages = new ArrayList<RWMethodMessage>();
 

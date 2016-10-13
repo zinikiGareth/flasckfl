@@ -2,10 +2,10 @@ package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.parsedForm.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
-import org.flasck.flas.rewrittenForm.RWTemplateListVar;
 
 // Push and Return are like REALLY, REALLY similar
 // It helps the typechecker at least to treat them as exactly the same
@@ -15,7 +15,7 @@ public abstract class PushReturn extends HSIEBlock {
 	public final Integer ival;
 	public final StringLiteral sval;
 	public final ExternalRef fn;
-	public final RWTemplateListVar tlv;
+	public final TemplateListVar tlv;
 	public final FunctionLiteral func;
 	public final CardStateRef csr;
 
@@ -63,7 +63,7 @@ public abstract class PushReturn extends HSIEBlock {
 		this.csr = null;
 	}
 
-	public PushReturn(InputPosition loc, RWTemplateListVar tlv) {
+	public PushReturn(InputPosition loc, TemplateListVar tlv) {
 		this.location = loc;
 		this.var = null;
 		this.ival = null;

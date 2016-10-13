@@ -76,7 +76,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 
 	private static Class<?> goldenTest(ByteCodeEnvironment bce, CGHClassLoaderImpl cl, final File f) {
 		ByteCodeCreator bcc = emptyTestClass(bce, "test" + StringUtil.capitalize(f.getName()));
-		addMethod(bcc, "testSomething", new TestMethodContentProvider() {
+		boolean ignoreTest = new File(f, "ignore").exists();
+			
+		addMethod(bcc, "testFlasckCompilation", ignoreTest, new TestMethodContentProvider() {
 			@Override
 			public void defineMethod(NewMethodDefiner done) {
 				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath())).flush();
