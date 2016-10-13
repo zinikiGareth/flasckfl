@@ -22,6 +22,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
@@ -165,6 +166,8 @@ public class MetaState {
 					gatherScopedVars(avars, rewriter.functions.get(sv.id));
 				} else if (sv.defn instanceof RWMethodDefinition) {
 					gatherScopedVars(avars, rewriter.standalone.get(sv.id).method);
+				} else if (sv.defn instanceof MethodInContext) {
+					gatherScopedVars(avars, ((MethodInContext)sv.defn).method);
 				} else if (sv.defn instanceof RWHandlerImplements) {
 					gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
 				} else
@@ -196,6 +199,11 @@ public class MetaState {
 			if (sv.defn instanceof RWMethodDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
 				gatherScopedVars(avars, rewriter.standalone.get(sv.id).method);
+				closure.justScoping = true;
+			} else if (sv.defn instanceof MethodInContext) {
+				RWMethodDefinition m = ((MethodInContext)sv.defn).method;
+				closure.push(sv.location, new PackageVar(sv.location, sv.id, m));
+				gatherScopedVars(avars, m);
 				closure.justScoping = true;
 			} else if (sv.defn instanceof RWFunctionDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
