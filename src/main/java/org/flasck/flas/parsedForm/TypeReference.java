@@ -7,7 +7,6 @@ import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.collections.CollectionUtils;
 
 public class TypeReference implements Locatable {
-
 	private InputPosition location;
 	private String name;
 	private List<TypeReference> polys;
@@ -38,4 +37,8 @@ public class TypeReference implements Locatable {
 		return polys;
 	}
 
+	@Override
+	public String toString() {
+		return name + (polys!= null?" " + polys:"");
+	}
 }

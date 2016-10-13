@@ -1,4 +1,26 @@
 package test.golden
+  card test.golden.Complex
+    state
+      hello
+        String
+       <-
+        '' hello, world
+      list
+        Croset
+          String
+      mapper
+        ->
+          String
+          String
+    template test.golden.Complex
+      .
+        hello
+        + list lv
+          .
+            lv
+        + list null
+          .
+            '' hello
   cdecl test.golden.DataStore
     up get
       x
@@ -27,24 +49,6 @@ package test.golden
     z
       List
         T2
-  card test.golden.Simple
-    state
-      hello
-        String
-       <-
-        '' hello, world
-      list
-        Croset
-          String
-    template test.golden.Simple
-      .
-        hello
-        + list lv
-          .
-            lv
-        + list null
-          .
-            '' hello
   struct test.golden.Thing
     x
       String

@@ -49,6 +49,7 @@ import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
@@ -121,6 +122,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
 /** The objective of this class is to resolve all of the names of all of the
@@ -263,7 +265,7 @@ public class Rewriter {
 			if (cd.state != null) {
 				for (StructField sf : cd.state.fields) {
 					try {
-						members.put(sf.name, (Type)getObject(cx.resolve(sf.type.location(), sf.type.name())));
+						members.put(sf.name, resolveType(cx, sf.type));
 					} catch (ResolutionException ex) {
 						errors.message(ex.location, ex.getMessage());
 					}
@@ -1195,10 +1197,9 @@ public class Rewriter {
 
 	public Type rewrite(NamingContext cx, TypeReference type, boolean allowPolys) {
 		try {
-			Type ret;
-			ret = null;
+			Type ret = null;
 			try {
-				Object r = cx.resolve(type.location(), type.name());
+				Object r = resolveType(cx, type);
 				if (r == null) {
 					errors.message(type.location(), "there is no definition in var for " + type.name());
 					return null;
@@ -1237,9 +1238,7 @@ public class Rewriter {
 			// There seems something very wrong here to me ... if we ever get here :-)
 			int k = -1;
 			List<Type> fnargs = new ArrayList<Type>();
-			if (ret.iam == WhatAmI.FUNCTION)
-				k = ret.arity() + 1;
-			else if (ret.iam == WhatAmI.TUPLE)
+			if (ret.iam == WhatAmI.TUPLE)
 				k = ret.width();
 			else
 				return ret;
@@ -1355,5 +1354,16 @@ public class Rewriter {
 			return null;
 		}
 		return new PackageVar(location, id, val);
+	}
+
+	private Type resolveType(NamingContext cx, TypeReference type) {
+		if (type instanceof FunctionTypeReference) {
+			FunctionTypeReference ftr = (FunctionTypeReference) type;
+			List<Type> list = new ArrayList<>();
+			for (TypeReference tr : ftr.args)
+				list.add(resolveType(cx, tr));
+			return Type.function(type.location(), list);
+		}
+		return (Type)getObject(cx.resolve(type.location(), type.name()));
 	}
 }

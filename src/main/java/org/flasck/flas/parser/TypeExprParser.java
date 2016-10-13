@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeExprToken;
@@ -50,12 +51,12 @@ public class TypeExprParser implements TryParsing {
 					break;
 				}
 			}
+			// The normal case, where we just have one type
 			if (fnargs.size() == 1)
 				return fnargs.get(0);
 			else {
-				// TODO: big-divide: is this a real case
-				throw new UtilException("Cannot figure out what to do here ...");
-//				return Type.function(tt.location, fnargs);
+				// This is a function type, such as "A->B mapper"
+				return new FunctionTypeReference(tt.location, fnargs);
 			}
 		}
 		else if (tt.type == TypeExprToken.ORB) {

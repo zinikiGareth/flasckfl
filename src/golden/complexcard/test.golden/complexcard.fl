@@ -22,10 +22,11 @@ This is a complex card with "one of everything"
 	contract Offer
 		up get (String x) (Handler h)
 		
-	card Simple
+	card Complex
 		state
 			String hello <- "hello, world"
 			Croset[String] list
+			String->String mapper
 			
 		template
 			.
