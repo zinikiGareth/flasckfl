@@ -91,6 +91,7 @@ public class Builtin {
 		}
 		{
 			RWObjectDefn card = new RWObjectDefn(posn, "Card", false);
+			root.define("Card", card);
 			card.constructorArg(posn, string, "explicit");
 			card.constructorArg(posn, string, "loadId");
 		}

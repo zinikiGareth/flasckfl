@@ -78,6 +78,8 @@ public class TypeChecker {
 		}
 		for (Entry<String, RWStructDefn> d : rewriter.structs.entrySet())
 			structs.put(d.getKey(), d.getValue());
+		for (Entry<String, RWObjectDefn> d : rewriter.objects.entrySet())
+			objects.put(d.getKey(), d.getValue());
 //		System.out.println("structs: " + structs);
 		for (Entry<String, RWUnionTypeDefn> d : rewriter.types.entrySet())
 			types.put(d.getKey(), d.getValue());
@@ -615,7 +617,7 @@ public class TypeChecker {
 					for (Entry<String, Type> x : knowledge.entrySet())
 						System.out.println(x.getKey() + " => " + x.getValue());
 					*/
-					errors.message(r.location, "there is no type for identifier: " + r.fn + " when checking " + form.fnName);
+					errors.message(r.location, "there is no type for identifier " + r.fn + " when checking " + form.fnName);
 					return null;
 				} else {
 					logger.debug(r.fn + " is globally implanted " + te);

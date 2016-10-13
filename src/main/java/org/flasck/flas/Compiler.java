@@ -584,7 +584,7 @@ public class Compiler {
 					mcd.messages.addAll(s.actions);
 					RWMethodDefinition method = new RWMethodDefinition(fi);
 					MethodInContext mic = new MethodInContext(rewriter, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method); // PROB NEEDS D3Action type
-					mc.convertContractMethods(rewriter, forms, CollectionUtils.listOf(mic));
+					mc.convertContractMethods(rewriter, forms, CollectionUtils.map(mic.name, mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 //					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);
 				} else { // something like layout, that is just a set of definitions

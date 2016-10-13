@@ -11,10 +11,10 @@ import org.flasck.flas.tokenizers.PattToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 
 public class TupleDeclarationParser implements TryParsing {
-	private final State state;
+//	private final State state;
 
 	public TupleDeclarationParser(State state) {
-		this.state = state;
+//		this.state = state;
 	}
 
 	@Override

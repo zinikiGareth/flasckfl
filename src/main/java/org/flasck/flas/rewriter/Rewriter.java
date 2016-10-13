@@ -54,6 +54,7 @@ import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -149,7 +150,7 @@ public class Rewriter {
 	public final Map<String, RWContractImplements> cardImplements = new TreeMap<String, RWContractImplements>();
 	public final Map<String, RWContractService> cardServices = new TreeMap<String, RWContractService>();
 	public final Map<String, RWHandlerImplements> callbackHandlers = new TreeMap<String, RWHandlerImplements>();
-	public final List<MethodInContext> methods = new ArrayList<MethodInContext>();
+	public final Map<String, MethodInContext> methods = new TreeMap<String, MethodInContext>();
 	public final Map<String, EventHandlerInContext> eventHandlers = new TreeMap<String, EventHandlerInContext>();
 	public final Map<String, MethodInContext> standalone = new TreeMap<String, MethodInContext>();
 	public final Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>();
@@ -403,7 +404,17 @@ public class Rewriter {
 				return bound.get(name); // a local var
 			if (inner.contains(name)) {
 				ScopeEntry tmp = inner.getEntry(name);
-				return new VarNestedFromOuterFunctionScope(tmp.location(), tmp.getKey(), functions.get(((FunctionDefinition) tmp.getValue()).name), true);
+				Object mf = tmp.getValue();
+				Object defn;
+				if (mf instanceof FunctionDefinition)
+					defn = functions.get(((FunctionDefinition) mf).name);
+				else if (mf instanceof MethodDefinition)
+					defn = standalone.get(((MethodDefinition) mf).intro.name);
+				else if (mf instanceof HandlerImplements)
+					defn = Rewriter.this.callbackHandlers.get(((HandlerImplements)mf).hiName);
+				else
+					throw new UtilException("Cannot handle " + mf.getClass());
+				return new VarNestedFromOuterFunctionScope(tmp.location(), tmp.getKey(), defn, true);
 			}
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
@@ -517,6 +528,10 @@ public class Rewriter {
 				ContractDecl ctr = (ContractDecl)val;
 				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.name());
 				contracts.put(name, ret);
+			} else if (val instanceof ObjectDefn) {
+				ObjectDefn od = (ObjectDefn)val;
+				RWObjectDefn ret = new RWObjectDefn(od.location(), od.name(), od.generate, rewritePolys(od.polys()));
+				objects.put(name, ret);
 			} else if (val instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements) val;
 				pass1HI(cx, hi);
@@ -543,6 +558,8 @@ public class Rewriter {
 				rewrite(cx, (UnionTypeDefn)val);
 			} else if (val instanceof ContractDecl) {
 				rewrite(cx, (ContractDecl)val);
+			} else if (val instanceof ObjectDefn) {
+				; // we should probably rewrite the fields portion
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -565,6 +582,8 @@ public class Rewriter {
 				rewrite(cx, (EventHandlerDefinition)val);
 			else if (val instanceof StructDefn || val instanceof UnionTypeDefn || val instanceof ContractDecl) {
 				// these all got sorted out already in the first two passes
+			} else if (val instanceof ObjectDefn) {
+				// we should probably rewrite the methods now
 			} else if (val instanceof HandlerImplements) {
 				rewriteHI(cx, (HandlerImplements)val, from);
 			} else if (val == null)
@@ -605,7 +624,7 @@ public class Rewriter {
 				RWMethodDefinition rwm = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
 				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm);
 				rewriteMethodCases(c2, m, true, mic);
-				methods.add(mic);
+				methods.put(m.intro.name, mic);
 				rw.methods.add(rwm);
 			}
 			
@@ -627,7 +646,7 @@ public class Rewriter {
 				RWMethodDefinition rwm = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
 				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rwm);
 				rewriteMethodCases(c2, m, true, mic);
-				methods.add(mic);
+				methods.put(m.intro.name, mic);
 			}
 
 			pos++;
@@ -863,7 +882,7 @@ public class Rewriter {
 
 	private RWHandlerImplements pass1HI(NamingContext cx, HandlerImplements hi) {
 		Type any = (Type) getObject(cx.nested.resolve(hi.location(), "Any"));
-		Object av = cx.nested.resolve(hi.location(), hi.name());
+		Object av = cx.resolve(hi.location(), hi.name());
 		if (av == null || !(av instanceof PackageVar)) {
 			errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
 			return null;
@@ -906,7 +925,7 @@ public class Rewriter {
 				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm);
 				rewriteMethodCases(hc, m, true, mic);
 				ret.methods.add(rm);
-				methods.add(mic);
+				methods.put(m.intro.name, mic);
 			}
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());

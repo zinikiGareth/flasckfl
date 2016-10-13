@@ -63,8 +63,8 @@ public class MethodConvertor {
 	}
 
 	// 1. Main entry points to convert different kinds of things
-	public void convertContractMethods(Rewriter rw, Map<String, HSIEForm> functions, List<MethodInContext> methods) {
-		for (MethodInContext m : methods)
+	public void convertContractMethods(Rewriter rw, Map<String, HSIEForm> functions, Map<String, MethodInContext> methods) {
+		for (MethodInContext m : methods.values())
 			addFunction(functions, convertMIC(rw, m));
 	}
 

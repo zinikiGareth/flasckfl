@@ -72,7 +72,7 @@ public class ObjectDefn implements ContainsScope, AsString, Serializable, Locata
 		return sb.toString();
 	}
 
-	private List<TypeReference> polys() {
+	public List<TypeReference> polys() {
 		return polys;
 	}
 
