@@ -21,18 +21,6 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 		this.dir = dir;
 		this.name = name;
 		this.args = args;
-		// TODO: big-divide: I claim this is dead
-//		List<TypeReference> types = new ArrayList<TypeReference>();
-//		for (Object o : args) {
-//			if (o instanceof TypedPattern) {
-//				TypedPattern tp = (TypedPattern)o;
-//				types.add(tp.type);
-//			} else if (o instanceof VarPattern) {
-//				types.add(new TypeReference(null, "Any"));
-//			} else
-//				throw new UtilException("Cannot handle type " + o.getClass());
-//		}
-//		types.add(new TypeReference(pos, "Send"));
 	}
 
 	@Override

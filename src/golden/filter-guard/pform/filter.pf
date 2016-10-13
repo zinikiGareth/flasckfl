@@ -12,20 +12,13 @@ package test.golden
       tail
         l
    =
-    g
-      f
-        a
-    test.golden.filter_1.g
-      2: true
-     =
+    if (f a)
       Cons
         a
         filter
           f
           l
-    test.golden.filter_1.g
-      2: false
-     =
+    else
       filter
         f
         l

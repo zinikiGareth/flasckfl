@@ -75,7 +75,7 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 	}
 
 	public ScopeEntry define(String key, String name, Object defn) {
-		if (key.contains(".") && !key.equals(".") && !(defn instanceof PackageDefn))
+		if (key.contains("."))
 			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);
 		if (defns.containsKey(key))
 			throw new ScopeDefineException("Cannot provide multiple definitions of " + name);

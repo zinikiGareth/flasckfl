@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -183,19 +184,24 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			ApplyExpr ae = (ApplyExpr) obj;
 			pw.println(ae.fn.toString());
 			dumpList(pw, ae.args);
-		} else if (obj instanceof FunctionDefinition) {
-			// NOTE: this should go away and just be the individual cases
-			FunctionDefinition fd = (FunctionDefinition) obj;
-//			pw.println(fd.name);
-			for (FunctionCaseDefn fcd : fd.cases) {
-				dumpRecursive(pw, fcd);
+		} else if (obj instanceof IfExpr) {
+			IfExpr ie = (IfExpr) obj;
+			pw.println("if " + ie.guard.toString());
+			dumpRecursive(pw.indent(), ie.ifExpr);
+			if (ie.elseExpr != null) {
+				pw.println("else");
+				dumpRecursive(pw.indent(), ie.elseExpr);
 			}
+		} else if (obj instanceof FunctionDefinition) {
+			for (FunctionCaseDefn fcd : ((FunctionDefinition) obj).cases)
+				dumpRecursive(pw, fcd);
 		} else if (obj instanceof FunctionCaseDefn) {
 			FunctionCaseDefn fcd = (FunctionCaseDefn) obj;
 			pw.println(fcd.intro.name);
 			dumpList(pw, fcd.intro.args);
 			pw.println(" =");
 			dumpRecursive(pw.indent(), fcd.expr);
+			dumpScope(pw, fcd.innerScope());
 		} else if (obj instanceof CardDefinition) {
 			CardDefinition cd = (CardDefinition) obj;
 			pw.println("card " + cd.name);

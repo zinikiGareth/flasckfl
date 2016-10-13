@@ -43,10 +43,17 @@ import org.flasck.flas.parsedForm.IterVar;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
+import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parsedForm.template.CardReference;
 import org.flasck.flas.parsedForm.template.ContentExpr;
 import org.flasck.flas.parsedForm.template.ContentString;
@@ -60,17 +67,7 @@ import org.flasck.flas.parsedForm.template.TemplateLine;
 import org.flasck.flas.parsedForm.template.TemplateList;
 import org.flasck.flas.parsedForm.template.TemplateListVar;
 import org.flasck.flas.parsedForm.template.TemplateOr;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypeReference;
-import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.parsedForm.UnresolvedOperator;
-import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
-import org.flasck.flas.rewriter.Rewriter.PackageContext;
-import org.flasck.flas.rewriter.Rewriter.RootContext;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -1123,15 +1120,14 @@ public class Rewriter {
 						aefn = ((CastExpr)aefn).expr;
 					}
 					if (aefn instanceof PackageVar) {
+						throw new UtilException("big-divide case to handle");
+						/*
 						PackageVar pv = (PackageVar)aefn;
 						Object defn = pv.defn;
 						ScopeEntry entry = null;
 						if (defn == null)
 							;
-						else if (defn instanceof PackageDefn) {
-							Scope scope = ((PackageDefn)defn).innerScope();
-							entry = scope.getEntry(fname);
-						} else
+						else
 							throw new UtilException("Can't handle that " + defn.getClass());
 						Object pd;
 						String pvn = pv.id + "." + fname;
@@ -1145,6 +1141,7 @@ public class Rewriter {
 						} else
 							pd = entry.getValue();
 						return new PackageVar(pv.location, pvn, pd);
+						*/
 					}
 					if (aefn instanceof UnresolvedVar) {
 						UnresolvedVar uv0 = (UnresolvedVar)aefn;
@@ -1154,8 +1151,8 @@ public class Rewriter {
 								PackageVar pv = (PackageVar)pkgEntry;
 								Object o = pv.defn;
 								// TODO: big-divide: I may be making it so that this is no longer possible; not sure
-								if (o instanceof PackageDefn)
-									return getMe(uv0.location, pv.id + "." + fname);
+//								if (o instanceof PackageDefn)
+//									return getMe(uv0.location, pv.id + "." + fname);
 							}
 						} catch (ResolutionException ex) {
 							return new PackageVar(uv0.location, uv0.var + "." + fname, null);
