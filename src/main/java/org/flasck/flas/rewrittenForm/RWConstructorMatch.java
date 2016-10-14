@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 
-public class RWConstructorMatch {
+public class RWConstructorMatch implements Locatable {
 	public class Field {
 		public final String field;
 		public final Object patt;
@@ -20,7 +21,6 @@ public class RWConstructorMatch {
 		}
 	}
 
-	public final String ctor;
 	public final ExternalRef ref;
 	public final List<Field> args = new ArrayList<Field>();
 	public final InputPosition location;
@@ -29,8 +29,12 @@ public class RWConstructorMatch {
 		if (loc == null)
 			System.out.println("null position cm2");
 		this.location = loc;
-		this.ctor = null;
-		this.ref = (ExternalRef) pv.defn;
+		this.ref = pv;
+	}
+	
+	@Override
+	public InputPosition location() {
+		return location;
 	}
 	
 	@Override

@@ -313,8 +313,6 @@ public class Compiler {
 			rewriter.importPackage(rootPkg);
 			
 			rewriter.rewritePackageScope(inPkg, scope);
-//			for (ScopeEntry se : entries)
-//				rewriter.rewrite(se);
 			abortIfErrors(errors);
 
 			// 2. Prepare Typechecker & load types

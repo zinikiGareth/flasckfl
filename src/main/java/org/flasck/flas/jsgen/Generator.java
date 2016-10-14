@@ -14,7 +14,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -184,7 +184,7 @@ public class Generator {
 			clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'handler'"));
 		clz.add(new JSForm("this._contract = '" + hi.name() + "'"));
-		for (RWHandlerLambda s : hi.boundVars) 
+		for (HandlerLambda s : hi.boundVars) 
 			clz.add(new JSForm("this." + s.var + " = v" + v++));
 		target.add(clz);
 

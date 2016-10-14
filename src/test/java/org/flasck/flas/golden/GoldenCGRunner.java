@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -30,7 +31,11 @@ import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
+import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.MethodDefinition;
+import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -95,12 +100,11 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	
 	public static void runGolden(String s) throws Exception {
 		System.out.println("Run golden test for " + s);
-		File etmp = new File(s, "errors-tmp"); // may or may not be needed
 		File pform = new File(s, "parser-tmp");
 		File jsto = new File(s, "jsout-tmp");
 		File hsie = new File(s, "hsie-tmp");
 		File flim = new File(s, "flim-tmp");
-		FileUtils.deleteDirectoryTree(etmp);
+		FileUtils.deleteDirectoryTree(new File(s, "errors"));
 		clean(pform);
 		clean(jsto);
 		clean(hsie);
@@ -122,20 +126,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.close();
 		}
 		if (er.hasErrors()) {
-			// either way, write the errors to a suitable directory
-			FileUtils.assertDirectory(etmp);
-			PrintWriter pw = new PrintWriter(new File(etmp, "errors"));
-			er.showTo(pw, 0);
-
-			File errors = new File(s, "errors");
-			if (errors.isDirectory()) {
-				// we expected this, so check the errors are correct ...
-				assertGolden(errors, etmp);
-			} else {
-				// we didn't expect the error, so by definition is an error
-				er.showTo(new PrintWriter(System.out), 0);
-				fail("unexpected compilation errors");
-			}
+			handleErrors(s, er);
 		}
 		assertGolden(new File(s, "pform"), pform);
 		
@@ -144,13 +135,37 @@ public class GoldenCGRunner extends CGHarnessRunner {
 //		compiler.searchIn(new File("src/main/resources/flim"));
 		
 //			compiler.dumpTypes();
-		compiler.writeJSTo(jsto);
-		compiler.writeHSIETo(hsie);
-		compiler.writeFlimTo(flim);
-		compiler.compile(dir);
+		try {
+			compiler.writeJSTo(jsto);
+			compiler.writeHSIETo(hsie);
+			compiler.writeFlimTo(flim);
+			compiler.compile(dir);
+		} catch (ErrorResultException ex) {
+			handleErrors(s, ex.errors);
+		}
 		
 		// Now assert that we matched things ...
+		assertGolden(new File(s, "flim"), flim);
+		assertGolden(new File(s, "hsie"), hsie);
 		assertGolden(new File(s, "jsout"), jsto);
+	}
+
+	protected static void handleErrors(String s, ErrorResult er) throws FileNotFoundException, IOException {
+		// either way, write the errors to a suitable directory
+		File etmp = new File(s, "errors-tmp"); // may or may not be needed
+		FileUtils.assertDirectory(etmp);
+		PrintWriter pw = new PrintWriter(new File(etmp, "errors"));
+		er.showTo(pw, 0);
+
+		File errors = new File(s, "errors");
+		if (errors.isDirectory()) {
+			// we expected this, so check the errors are correct ...
+			assertGolden(errors, etmp);
+		} else {
+			// we didn't expect the error, so by definition is an error
+			er.showTo(new PrintWriter(System.out), 0);
+			fail("unexpected compilation errors");
+		}
 	}
 
 	private static void dumpRecursive(Indenter pw, Object obj) {
@@ -169,17 +184,18 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println(cp.type + ": " + cp.value);
 		} else if (obj instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) obj;
-			pw.println(tp.var);
+			pw.println("[type] " + tp.var);
 			dumpRecursive(pw.indent(), tp.type);
 		} else if (obj instanceof VarPattern) {
 			VarPattern tp = (VarPattern) obj;
-			pw.println(tp.var);
+			pw.println("[var] " + tp.var);
 		} else if (obj instanceof TuplePattern) {
 			TuplePattern tp = (TuplePattern) obj;
+			pw.println("[tuple]");
 			dumpList(pw, tp.args);
 		} else if (obj instanceof ConstructorMatch) {
 			ConstructorMatch cm = (ConstructorMatch) obj;
-			pw.println(cm.ctor);
+			pw.println("[ctor] " + cm.ctor);
 			dumpList(pw, cm.args);
 		} else if (obj instanceof ConstructorMatch.Field) {
 			ConstructorMatch.Field cf = (ConstructorMatch.Field) obj;
@@ -196,7 +212,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println(uv.var);
 		} else if (obj instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) obj;
-			pw.println(ae.fn.toString());
+			if (ae.fn instanceof ApplyExpr) {
+				dumpRecursive(pw.indent(), ae.fn);
+			} else
+				pw.println(ae.fn.toString());
 			dumpList(pw, ae.args);
 		} else if (obj instanceof IfExpr) {
 			IfExpr ie = (IfExpr) obj;
@@ -237,6 +256,28 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				pw.println(" <-");
 				dumpRecursive(pw.indent(), sf.init);
 			}
+		} else if (obj instanceof HandlerImplements) {
+			HandlerImplements hi = (HandlerImplements) obj;
+			pw.println("handler " + hi.name() + " " + hi.hiName + " (" + (hi.inCard?"card":"free") + ")");
+			dumpList(pw, hi.boundVars);
+			dumpList(pw, hi.methods);
+		} else if (obj instanceof MethodDefinition) {
+			MethodDefinition md = (MethodDefinition) obj;
+			pw.println("method " + md.intro.name);
+			dumpList(pw, md.cases);
+		} else if (obj instanceof MethodCaseDefn) {
+			MethodCaseDefn mcd = (MethodCaseDefn) obj;
+			pw.println("case " + mcd.intro.name);
+			dumpList(pw.indent(), mcd.intro.args);
+			dumpList(pw.indent(), mcd.messages);
+			dumpScope(pw, mcd.innerScope());
+		} else if (obj instanceof MethodMessage) {
+			MethodMessage mm = (MethodMessage) obj;
+			if (mm.slot != null)
+				pw.println("assign " + mm.slot + " <-");
+			else
+				pw.println("invoke <-");
+			dumpRecursive(pw.indent(), mm.expr);
 		} else if (obj instanceof Template) {
 			Template t = (Template) obj;
 			pw.println("template" + (t.prefix != null ? " " + t.prefix : ""));

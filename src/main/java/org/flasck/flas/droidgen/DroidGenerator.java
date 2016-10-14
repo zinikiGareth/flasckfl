@@ -26,7 +26,7 @@ import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -273,7 +273,7 @@ public class DroidGenerator {
 			fi = bcc.defineField(false, Access.PRIVATE, new JavaType(javaBaseName(name)), "_card");
 		Map<String, FieldInfo> fs = new TreeMap<String, FieldInfo>();
 		for (Object o : hi.boundVars) {
-			String var = ((RWHandlerLambda)o).var;
+			String var = ((HandlerLambda)o).var;
 			FieldInfo hli = bcc.defineField(false, Access.PRIVATE, new JavaType("java.lang.Object"), var);
 			fs.put(var, hli);
 		}
@@ -285,7 +285,7 @@ public class DroidGenerator {
 				cardArg = gen.argument("java.lang.Object", "card");
 			Map<String, PendingVar> vm = new TreeMap<String, PendingVar>();
 			for (Object o : hi.boundVars) {
-				String var = ((RWHandlerLambda)o).var;
+				String var = ((HandlerLambda)o).var;
 				PendingVar pvi = gen.argument("java.lang.Object", var);
 				vm.put(var, pvi);
 			}
@@ -294,7 +294,7 @@ public class DroidGenerator {
 			if (hi.inCard)
 				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic("org.flasck.android.FLEval", "java.lang.Object", "full", cardArg.getVar()), javaBaseName(name))).flush();
 			for (Object o : hi.boundVars) {
-				String var = ((RWHandlerLambda)o).var;
+				String var = ((HandlerLambda)o).var;
 				ctor.assign(fs.get(var).asExpr(ctor), ctor.callStatic("org.flasck.android.FLEval", "java.lang.Object", "head", vm.get(var).getVar())).flush();
 			}
 			ctor.returnVoid().flush();
@@ -629,9 +629,9 @@ public class DroidGenerator {
 					return field;
 				} else
 					throw new UtilException("Can't handle " + fntype + " for card member");
-			} else if (c.fn instanceof RWHandlerLambda) {
+			} else if (c.fn instanceof HandlerLambda) {
 				if (fntype == CodeType.HANDLER)
-					return meth.getField(((RWHandlerLambda)c.fn).var);
+					return meth.getField(((HandlerLambda)c.fn).var);
 				else
 					throw new UtilException("Can't handle " + fntype + " with handler lambda");
 			} else

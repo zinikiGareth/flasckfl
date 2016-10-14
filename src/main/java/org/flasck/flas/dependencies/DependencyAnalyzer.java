@@ -24,7 +24,7 @@ import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -88,8 +88,8 @@ public class DependencyAnalyzer {
 		else if (expr instanceof CardMember) {
 			dcg.ensure("_var_" + ((CardMember)expr).uniqueName());
 		}
-		else if (expr instanceof RWHandlerLambda) {
-			dcg.ensure("_var_" + ((RWHandlerLambda)expr).uniqueName());
+		else if (expr instanceof HandlerLambda) {
+			dcg.ensure("_var_" + ((HandlerLambda)expr).uniqueName());
 		}
 		else if (expr instanceof LocalVar)
 			dcg.ensureLink(name, "_var_" + ((LocalVar)expr).uniqueName());

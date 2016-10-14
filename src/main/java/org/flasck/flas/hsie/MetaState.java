@@ -28,7 +28,7 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
@@ -327,7 +327,7 @@ public class MetaState {
 		} else if (expr instanceof CardStateRef) {
 			locs.add(((CardStateRef)expr).location());
 			return expr;
-		} else if (expr instanceof RWHandlerLambda) {
+		} else if (expr instanceof HandlerLambda) {
 			locs.add(((ExternalRef)expr).location());
 			form.dependsOn(expr);
 			return expr;
@@ -412,7 +412,7 @@ public class MetaState {
 
 	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, RWHandlerImplements hi) {
 		for (Object o : hi.boundVars) {
-			RWHandlerLambda hl = (RWHandlerLambda)o;
+			HandlerLambda hl = (HandlerLambda)o;
 			if (hl.scopedFrom != null)
 				set.add(hl.scopedFrom);
 		}

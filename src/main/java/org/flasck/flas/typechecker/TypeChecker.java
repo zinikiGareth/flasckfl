@@ -22,7 +22,7 @@ import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -554,16 +554,10 @@ public class TypeChecker {
 					}
 					errors.message(cm.location, "there is no field " + cm.var + " in card " + cm.card);
 					return null;
-				} else if (r.fn instanceof RWHandlerLambda) {
+				} else if (r.fn instanceof HandlerLambda) {
 					logger.debug(r.fn + " is a lambda");
-					RWHandlerLambda hl = (RWHandlerLambda) r.fn;
-					// try and find the name of the handler class
-					// this is likewise a hack and I know it ...
-//					int idx = form.fnName.length();
-//					for (int i=0;i<2;i++)
-//						idx = form.fnName.lastIndexOf('.', idx-1);
-					String structName = hl.clzName; // form.fnName.substring(0, idx);
-//						return freshVarsIn(new TypeReference(hl.location, structName, null));
+					HandlerLambda hl = (HandlerLambda) r.fn;
+					String structName = hl.clzName+"$struct";
 					RWStructDefn sd = structs.get(structName);
 					for (RWStructField sf : sd.fields) {
 						if (sf.name.equals(hl.var)) {
@@ -780,7 +774,7 @@ public class TypeChecker {
 	private Type typeForHandlerCtor(InputPosition location, RWHandlerImplements impl) {
 		List<Type> args = new ArrayList<Type>();
 		for (Object x : impl.boundVars) {
-			RWHandlerLambda hl = (RWHandlerLambda)x;
+			HandlerLambda hl = (HandlerLambda)x;
 			if (hl.scopedFrom == null)
 				args.add(hl.type);
 		}

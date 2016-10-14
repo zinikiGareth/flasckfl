@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Contract file="scoping.fl" line="3" name="test.golden.Reply" off="9">
+        <Method dir="down" file="scoping.fl" line="4" name="reply"
+            off="4" required="true">
+            <Typed file="scoping.fl" line="4" off="12" var="k">
+                <Type name="Number"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="scoping.fl" line="6" name="test.golden.Server" off="9">
+        <Method dir="up" file="scoping.fl" line="7" name="get" off="2" required="true">
+            <Ctor ctor="Number" file="scoping.fl" line="7" off="7"/>
+            <Ctor ctor="test.golden.Reply" file="scoping.fl" line="7" off="14"/>
+        </Method>
+        <Method dir="up" file="scoping.fl" line="8" name="put" off="2" required="true">
+            <Ctor ctor="Number" file="scoping.fl" line="8" off="7"/>
+        </Method>
+    </Contract>
+    <Function file="scoping.fl" line="10" name="test.golden.f" off="0">
+        <Arg>
+            <Type name="Any"/>
+        </Arg>
+        <Arg>
+            <Type name="Any"/>
+        </Arg>
+        <Return>
+            <Instance name="MessageWrapper">
+                <Type name="Number"/>
+            </Instance>
+        </Return>
+    </Function>
+</FLIM>

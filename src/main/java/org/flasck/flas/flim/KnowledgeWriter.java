@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -77,14 +78,7 @@ public class KnowledgeWriter {
 			xm.setAttribute("dir", meth.dir);
 			xm.setAttribute("name", meth.name);
 			for (Object arg : meth.args) {
-				if (arg instanceof RWTypedPattern) {
-					RWTypedPattern tp = (RWTypedPattern) arg;
-					XMLElement ae = xm.addElement("Typed");
-					writeLocation(ae, tp);
-					ae.setAttribute("var", tp.var);
-					writeTypeUsage(ae, tp.type);
-				} else
-					throw new UtilException("Cannot handle " + arg.getClass());
+				addPatternArg(xm, arg);
 			}
 		}
 		if (copyToScreen) {
@@ -102,6 +96,24 @@ public class KnowledgeWriter {
 				System.out.println();
 			}
 		}
+	}
+
+	protected void addPatternArg(XMLElement xm, Object arg) {
+		if (arg instanceof RWTypedPattern) {
+			RWTypedPattern tp = (RWTypedPattern) arg;
+			XMLElement ae = xm.addElement("Typed");
+			writeLocation(ae, tp);
+			ae.setAttribute("var", tp.var);
+			writeTypeUsage(ae, tp.type);
+		} else if (arg instanceof RWConstructorMatch) {
+			RWConstructorMatch cm = (RWConstructorMatch) arg;
+			XMLElement cme = xm.addElement("Ctor");
+			writeLocation(cme, cm);
+			cme.setAttribute("ctor", cm.ref.uniqueName());
+			for (Object obj : cm.args)
+				addPatternArg(cme, obj);
+		} else
+			throw new UtilException("Cannot handle " + arg.getClass());
 	}
 
 	public void add(CardTypeInfo cti) {

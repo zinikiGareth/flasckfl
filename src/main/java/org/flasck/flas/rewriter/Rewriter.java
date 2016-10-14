@@ -76,6 +76,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
@@ -99,7 +100,6 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWHandlerLambda;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
@@ -314,13 +314,13 @@ public class Rewriter {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			for (Object o : hi.boundVars)
-				if (((RWHandlerLambda)o).var.equals(name))
+				if (((HandlerLambda)o).var.equals(name))
 					return o;
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof VarNestedFromOuterFunctionScope) {
 				InputPosition loc = ((VarNestedFromOuterFunctionScope) ret).location();
 				Type type = new TypeOfSomethingElse(loc, ((VarNestedFromOuterFunctionScope)ret).id);
-				RWHandlerLambda hl = new RWHandlerLambda(loc, hi.hiName, type, name);
+				HandlerLambda hl = new HandlerLambda(loc, hi.hiName, type, name);
 				hi.addScoped(hl, (VarNestedFromOuterFunctionScope) ret);
 				return hl;
 			}
@@ -436,7 +436,7 @@ public class Rewriter {
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof LocalVar) {
 				LocalVar lv = (LocalVar) ret;
-				return new VarNestedFromOuterFunctionScope(lv.location(), lv.var, lv, false);
+				return new VarNestedFromOuterFunctionScope(lv.location(), lv.uniqueName(), lv, false);
 			} else if (ret instanceof VarNestedFromOuterFunctionScope) {
 				return ((VarNestedFromOuterFunctionScope)ret).notLocal();
 			} else
@@ -498,24 +498,35 @@ public class Rewriter {
 				RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
 				CardGrouping grp = new CardGrouping(sd);
 				cards.put(cd.name, grp);
-				pass1(cx, cd.fnScope);
+				pass1(new CardContext((PackageContext) cx, cd), cd.fnScope);
 			} else if (val instanceof FunctionDefinition) {
 				FunctionDefinition f = (FunctionDefinition) val;
-				functions.put(name, new RWFunctionDefinition(f.location, f.mytype, f.name, f.nargs, true));
-				for (FunctionCaseDefn c : f.cases)
+				RWFunctionDefinition ret = new RWFunctionDefinition(f.location, f.mytype, f.name, f.nargs, true);
+				functions.put(name, ret);
+				int cs = 0;
+				for (FunctionCaseDefn c : f.cases) {
+					gatherVars(errors, this, cx, f.name + "_" + cs, ret.vars, c.intro);
 					pass1(cx, c.innerScope());
+					cs++;
+				}
 			} else if (val instanceof MethodDefinition) {
 				MethodDefinition m = (MethodDefinition) val;
 				RWMethodDefinition rw = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
 				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, rw);
+				
+				// I am not convinced that this should be per-method, and not per-case, but that's the way it seems to be
+				// we should test this by having complicated scoping things and seeing if it works
+				gatherVars(errors, this, cx, m.intro.name, mic.method.intro.vars, m.intro);
 				standalone.put(mic.name, mic);
-				for (MethodCaseDefn c : m.cases)
+				for (MethodCaseDefn c : m.cases) {
 					pass1(cx, c.innerScope());
+				}
 			} else if (val instanceof EventHandlerDefinition) {
 				EventHandlerDefinition ehd = (EventHandlerDefinition) val;
 				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(rewrite(cx, ehd.intro, new HashMap<>()));
 				EventHandlerInContext ehic = new EventHandlerInContext(name, rw);
 				eventHandlers.put(ehic.name, ehic);
+				gatherVars(errors, this, cx, rw.intro.name, rw.intro.vars, ehd.intro);
 				for (EventCaseDefn c : ehd.cases)
 					pass1(cx, c.innerScope());
 			} else if (val instanceof StructDefn) {
@@ -550,7 +561,19 @@ public class Rewriter {
 		for (Entry<String, ScopeEntry> x : from) {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
-			if (val instanceof CardDefinition || val instanceof FunctionDefinition || val instanceof MethodDefinition || val instanceof EventHandlerDefinition || val instanceof HandlerImplements) {
+			if (val instanceof CardDefinition) {
+				CardDefinition cd = (CardDefinition) val;
+				pass2(new CardContext((PackageContext) cx, cd), cd.innerScope());
+			} else if (val instanceof FunctionDefinition) {
+				FunctionDefinition fd = (FunctionDefinition) val;
+				int cs = 0;
+				for (FunctionCaseDefn c : fd.cases) {
+					FunctionCaseContext fccx = new FunctionCaseContext(cx, fd.name, cs, null, c.innerScope(), false);
+					pass2(fccx, c.innerScope());
+					cs++;
+				}
+			} else if (val instanceof MethodDefinition) {
+			} else if (val instanceof EventHandlerDefinition) {
 				// Nothing to do in pass2 ... was set up in pass1 and will be resolved in pass3
 			} else if (val instanceof StructDefn) {
 				rewrite(cx, (StructDefn)val);
@@ -558,6 +581,8 @@ public class Rewriter {
 				rewrite(cx, (UnionTypeDefn)val);
 			} else if (val instanceof ContractDecl) {
 				rewrite(cx, (ContractDecl)val);
+			} else if (val instanceof HandlerImplements) {
+				pass2HI(cx, (HandlerImplements) val);
 			} else if (val instanceof ObjectDefn) {
 				; // we should probably rewrite the fields portion
 			} else if (val == null)
@@ -889,29 +914,28 @@ public class Rewriter {
 		}
 		PackageVar ctr = (PackageVar) av;
 		final String rwname = hi.hiName;
-		List<RWHandlerLambda> bvs = new ArrayList<RWHandlerLambda>();
+		List<HandlerLambda> bvs = new ArrayList<HandlerLambda>();
 		for (Object o : hi.boundVars) {
-			RWHandlerLambda hl;
+			HandlerLambda hl;
 			if (o instanceof VarPattern) {
 				VarPattern vp = (VarPattern) o;
-				hl = new RWHandlerLambda(vp.varLoc, rwname, any, vp.var);
+				hl = new HandlerLambda(vp.varLoc, rwname, any, vp.var);
 			} else if (o instanceof TypedPattern) {
 				TypedPattern vp = (TypedPattern) o;
-				hl = new RWHandlerLambda(vp.varLocation, rwname, rewrite(cx, vp.type, false), vp.var);
+				hl = new HandlerLambda(vp.varLocation, rwname, rewrite(cx, vp.type, false), vp.var);
 			} else
 				throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 			bvs.add(hl);
 		}
-		RWStructDefn hsd = new RWStructDefn(hi.location(), hi.hiName, false);
-		for (Object s : bvs) {
-			RWHandlerLambda hl = (RWHandlerLambda) s;
-			hsd.fields.add(new RWStructField(hl.location, false, hl.type, hl.var));
-		}
-		// It feels a little dodgy putting different things into two arrays with the same name ...
-		structs.put(hi.hiName, hsd);
 		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), hi.hiName, ctr.id, hi.inCard, bvs);
 		callbackHandlers.put(hi.hiName, rw);
 		return rw;
+	}
+
+	private void pass2HI(NamingContext cx, HandlerImplements hi) {
+		RWHandlerImplements ret = callbackHandlers.get(hi.hiName);
+		if (ret == null)
+			return; // presumably it failed in pass1
 	}
 
 	private void rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
@@ -927,6 +951,18 @@ public class Rewriter {
 				ret.methods.add(rm);
 				methods.put(m.intro.name, mic);
 			}
+
+			// Create a struct to store the state.  It feels weird creating a struct in pass3, but we don't creating the bound vars for scoped/lambdas
+			// until just above, so we have to wait ...
+			
+			// I don't want to have two arrays with the same named entry, so add a random thing to the end of the struct
+			String sdname = hi.hiName+"$struct";
+			RWStructDefn hsd = new RWStructDefn(hi.location(), sdname, false);
+			for (Object s : ret.boundVars) {
+				HandlerLambda hl = (HandlerLambda) s;
+				hsd.fields.add(new RWStructField(hl.location, false, hl.type, hl.var));
+			}
+			structs.put(sdname, hsd);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return;
@@ -945,7 +981,6 @@ public class Rewriter {
 		int cs = 0;
 		RWFunctionIntro fi = null;
 		for (FunctionCaseDefn c : f.cases) {
-			gatherVars(errors, this, cx, f.name + "_" + cs, ret.vars, c.intro);
 			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, cs, ret.vars, c.innerScope(), false);
 			RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.vars);
 			if (fi == null)
@@ -961,10 +996,8 @@ public class Rewriter {
 	
 	private void rewriteMethodCases(NamingContext cx, MethodDefinition m, boolean fromHandler, MethodInContext mic) {
 		int cs = 0;
-		Map<String, LocalVar> vars = mic.method.intro.vars;
-		gatherVars(errors, this, cx, m.intro.name + "_" + cs, vars, m.intro);
 		for (MethodCaseDefn c : m.cases) {
-			mic.method.cases.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, vars, c.innerScope(), fromHandler), c, vars));
+			mic.method.cases.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, mic.method.intro.vars, c.innerScope(), fromHandler), c, mic.method.intro.vars));
 			cs++;
 		}
 	}
@@ -973,7 +1006,6 @@ public class Rewriter {
 		EventHandlerInContext ehic = eventHandlers.get(ehd.intro.name);
 		RWEventHandlerDefinition rw = ehic.handler;
 		int cs = 0;
-		gatherVars(errors, this, cx, rw.intro.name, rw.intro.vars, ehd.intro);
 		for (EventCaseDefn c : ehd.cases) {
 			rw.cases.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, rw.intro.vars, c.innerScope(), false), c, rw.intro.vars));
 			cs++;
@@ -1109,7 +1141,7 @@ public class Rewriter {
 				Object ret = cx.resolve(location, s);
 				if (ret == null)
 					ret = cx.resolve(location, s); // debug
-				if (ret instanceof PackageVar || ret instanceof VarNestedFromOuterFunctionScope || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof RWHandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
+				if (ret instanceof PackageVar || ret instanceof VarNestedFromOuterFunctionScope || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
 					return ret;
 				else
 					throw new UtilException("cannot handle id " + s + ": " + (ret == null ? "null": ret.getClass()));

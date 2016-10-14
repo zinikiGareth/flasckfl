@@ -6,7 +6,7 @@ import java.util.List;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.PackageVar;
-import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
@@ -44,7 +44,7 @@ public class ApplyCurry {
 			if (pc.sval != null)
 				continue;
 			if (pc.fn != null) {
-				if (pc.fn instanceof RWHandlerLambda)
+				if (pc.fn instanceof HandlerLambda)
 					continue;
 				if (pc.fn instanceof CardMember)
 					continue;

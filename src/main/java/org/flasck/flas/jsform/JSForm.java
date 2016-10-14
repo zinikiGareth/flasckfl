@@ -14,7 +14,7 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
-import org.flasck.flas.rewrittenForm.RWHandlerLambda;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -354,9 +354,9 @@ public class JSForm {
 				else
 					throw new UtilException("Can't handle " + form.mytype + " for card member");
 			}
-			else if (c.fn instanceof RWHandlerLambda) {
+			else if (c.fn instanceof HandlerLambda) {
 				if (form.mytype == CodeType.HANDLER)
-					sb.append("this." + ((RWHandlerLambda)c.fn).var);
+					sb.append("this." + ((HandlerLambda)c.fn).var);
 				else
 					throw new UtilException("Can't handle " + form.mytype + " with handler lambda");
 			} else

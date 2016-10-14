@@ -7,21 +7,21 @@ import org.flasck.flas.blockForm.InputPosition;
 @SuppressWarnings("serial")
 public class RWHandlerImplements extends RWImplements {
 	public final String hiName;
-	public final List<RWHandlerLambda> boundVars;
+	public final List<HandlerLambda> boundVars;
 	public final boolean inCard;
 
-	public RWHandlerImplements(InputPosition kw, InputPosition location, String named, String type, boolean inCard, List<RWHandlerLambda> lambdas) {
+	public RWHandlerImplements(InputPosition kw, InputPosition location, String named, String type, boolean inCard, List<HandlerLambda> lambdas) {
 		super(kw, location, WhatAmI.HANDLERIMPLEMENTS, type);
 		this.hiName = named;
 		this.inCard = inCard;
 		this.boundVars = lambdas;
 	}
 
-	public void addScoped(RWHandlerLambda hl, VarNestedFromOuterFunctionScope ret) {
+	public void addScoped(HandlerLambda hl, VarNestedFromOuterFunctionScope ret) {
 		hl.scopedFrom = ret;
 		int pos=0;
 		for (Object o : boundVars) {
-			RWHandlerLambda ohl = (RWHandlerLambda)o;
+			HandlerLambda ohl = (HandlerLambda)o;
 			if (ohl.scopedFrom == null)
 				break;
 			else if (ohl.scopedFrom.id.compareTo(ret.id) > 0)
