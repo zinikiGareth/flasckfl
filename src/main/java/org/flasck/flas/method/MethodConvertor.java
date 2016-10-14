@@ -59,7 +59,8 @@ public class MethodConvertor {
 		this.hsie = hsie;
 		this.tc = tc;
 		this.contracts = contracts;
-		this.messageList = tc.getType(new InputPosition("builtin", 0, 0, ""), "List").instance(new InputPosition("builtin", 0, 0, ""), tc.getType(null, "Message"));
+		InputPosition posn = new InputPosition("builtin", 0, 0, "");
+		this.messageList = tc.getType(posn, "List").instance(posn, tc.getType(null, "Message"));
 	}
 
 	// 1. Main entry points to convert different kinds of things
@@ -158,13 +159,13 @@ public class MethodConvertor {
 		if (method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(method.intro.location, mic.type, method.intro.name, 0, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(method.intro.location, mic.type, method.intro.name, method.intro.args.size(), true);
 		Type ofType = null;
 		for (RWMethodCaseDefn c : method.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.intro.location, margs, types, c.messages, mic.type.isHandler());
 			if (ofType == null)
 				ofType = typedObject.type;
-			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, null), typedObject.expr));
+			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), typedObject.expr));
 		}
 		if (ofType != null)
 			tc.addExternal(method.intro.name, ofType);

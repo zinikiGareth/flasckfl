@@ -516,7 +516,6 @@ public class Rewriter {
 				
 				// I am not convinced that this should be per-method, and not per-case, but that's the way it seems to be
 				// we should test this by having complicated scoping things and seeing if it works
-				gatherVars(errors, this, cx, m.intro.name, mic.method.intro.vars, m.intro);
 				standalone.put(mic.name, mic);
 				for (MethodCaseDefn c : m.cases) {
 					pass1(cx, c.innerScope());
@@ -997,7 +996,9 @@ public class Rewriter {
 	private void rewriteMethodCases(NamingContext cx, MethodDefinition m, boolean fromHandler, MethodInContext mic) {
 		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
-			mic.method.cases.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, mic.method.intro.vars, c.innerScope(), fromHandler), c, mic.method.intro.vars));
+			Map<String, LocalVar> vars = new HashMap<>();
+			gatherVars(errors, this, cx, m.intro.name + "_" + cs, vars, m.intro);
+			mic.method.cases.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, vars, c.innerScope(), fromHandler), c, vars));
 			cs++;
 		}
 	}

@@ -59,15 +59,13 @@ public class DependencyAnalyzer {
 			if (!fd.generate)
 				continue;
 			fdm.put(name,  fd);
-			int cs = 0;
 			for (RWFunctionCaseDefn c : fd.cases) {
-				for (String v : c.intro.vars.keySet()) {
-					String realname = "_var_" + name+"_" + cs +"."+v;
+				for (LocalVar v : c.intro.vars.values()) {
+					String realname = "_var_" + v.uniqueName();
 //					System.out.println("Ensuring local var in graph: " + realname);
 					dcg.ensure(realname);
 					dcg.ensureLink(realname, name);
 				}
-				cs++;
 			}
 		}
 

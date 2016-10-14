@@ -797,6 +797,8 @@ public class TypeChecker {
 			return knowledge.get(fn);
 		if (structs.containsKey(fn))
 			return typeForStructCtor(loc, structs.get(fn));
+		else if (handlers.containsKey(fn))
+			return typeForStructCtor(loc, structs.get(fn+"$struct"));
 		if (objects.containsKey(fn))
 			return typeForObjectCtor(loc, objects.get(fn));
 		if (cards.containsKey(fn))
