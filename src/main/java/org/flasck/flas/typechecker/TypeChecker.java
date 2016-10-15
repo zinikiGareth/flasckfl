@@ -106,8 +106,15 @@ public class TypeChecker {
 			handlers.put(x.getKey(), x.getValue());
 		for (MethodInContext m : rewriter.standalone.values()) {
 			List<Type> args = new ArrayList<Type>();
+			// TODO: this seems basically implausible to me.
+			// Is this trying to only think about the ones that have been imported?
+			// Should we check ".generate" is "false"?
+			
+			// It used to look at "method.intro.args" but I took that away
+			// I think the problem is that it is thinking about ContractDecl methods, which are pre-defined, whereas these perhaps are not
+			
 			// find the arg types, as claimed
-			for (Object x : m.method.intro.args) {
+			for (Object x : m.method.cases.get(0).intro.args) {
 				if (x instanceof RWTypedPattern)
 					args.add(((RWTypedPattern)x).type);
 				else if (x instanceof RWVarPattern)

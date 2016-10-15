@@ -391,14 +391,20 @@ public class Rewriter {
 		protected final Map<String, LocalVar> bound;
 		private final Scope inner;
 		private final boolean fromMethod;
+		private final String name;
 
 		FunctionCaseContext(NamingContext cx, String myname, int cs, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
 			super(cx);
+			this.name = myname + "_" + cs;
 			this.bound = locals;
 			this.inner = inner;
 			this.fromMethod = fromMethod;
 		}
 
+		public String name() {
+			return name;
+		}
+		
 		public Object resolve(InputPosition location, String name) {
 			if (bound.containsKey(name))
 				return bound.get(name); // a local var
@@ -511,8 +517,10 @@ public class Rewriter {
 				}
 			} else if (val instanceof MethodDefinition) {
 				MethodDefinition m = (MethodDefinition) val;
-				RWMethodDefinition rw = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.intro.name, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, rw);
+				RWMethodDefinition rw = new RWMethodDefinition(m.location(), m.intro.name, m.intro.args.size());
+				List<Object> enc = new ArrayList<>();
+				gatherEnclosing(enc, cx, from);
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.name(), cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, rw, enc);
 				
 				// I am not convinced that this should be per-method, and not per-case, but that's the way it seems to be
 				// we should test this by having complicated scoping things and seeing if it works
@@ -522,7 +530,7 @@ public class Rewriter {
 				}
 			} else if (val instanceof EventHandlerDefinition) {
 				EventHandlerDefinition ehd = (EventHandlerDefinition) val;
-				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(rewrite(cx, ehd.intro, new HashMap<>()));
+				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(rewrite(cx, ehd.intro, ehd.intro.name, new HashMap<>()));
 				EventHandlerInContext ehic = new EventHandlerInContext(name, rw);
 				eventHandlers.put(ehic.name, ehic);
 				gatherVars(errors, this, cx, rw.intro.name, rw.intro.vars, ehd.intro);
@@ -645,9 +653,12 @@ public class Rewriter {
 				sd.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 
 			for (MethodDefinition m : ci.methods) {
-				RWMethodDefinition rwm = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm);
-				rewriteMethodCases(c2, m, true, mic);
+				RWMethodDefinition rwm = new RWMethodDefinition(m.location(), m.intro.name, m.intro.args.size());
+				List<Object> enc = new ArrayList<>();
+				// I don't think there can be
+//				gatherEnclosing(enc, cx, from);
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm, enc);
+				rewriteMethodCases(c2, m, true, mic, false);
 				methods.put(m.intro.name, mic);
 				rw.methods.add(rwm);
 			}
@@ -667,9 +678,12 @@ public class Rewriter {
 				sd.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
 
 			for (MethodDefinition m : cs.methods) {
-				RWMethodDefinition rwm = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rwm);
-				rewriteMethodCases(c2, m, true, mic);
+				RWMethodDefinition rwm = new RWMethodDefinition(m.intro.location, m.intro.name, m.intro.args.size());
+				List<Object> enc = new ArrayList<>();
+				// I don't think there can be
+//				gatherEnclosing(enc, cx, from);
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rwm, enc);
+				rewriteMethodCases(c2, m, true, mic, false);
 				methods.put(m.intro.name, mic);
 			}
 
@@ -848,15 +862,15 @@ public class Rewriter {
 	private void rewrite(NamingContext cx, ContractDecl ctr) {
 		RWContractDecl ret = contracts.get(ctr.name());
 		for (ContractMethodDecl cmd : ctr.methods) {
-			ret.addMethod(rewrite(cx, cmd));
+			ret.addMethod(rewrite(cx, ctr.name(), cmd));
 		}
 	}
 
-	private RWContractMethodDecl rewrite(NamingContext cx, ContractMethodDecl cmd) {
+	private RWContractMethodDecl rewrite(NamingContext cx, String name, ContractMethodDecl cmd) {
 		List<Object> args = new ArrayList<Object>();
 		List<Type> targs = new ArrayList<Type>(); 
 		for (Object o : cmd.args) {
-			args.add(rewritePattern(cx, o));
+			args.add(rewritePattern(cx, name + "." + cmd.name, o));
 			if (o instanceof TypedPattern) {
 				targs.add(rewrite(cx, ((TypedPattern)o).type, false));
 			}
@@ -944,9 +958,11 @@ public class Rewriter {
 				return; // presumably it failed in pass1
 			HandlerContext hc = new HandlerContext(cx, ret);
 			for (MethodDefinition m : hi.methods) {
-				RWMethodDefinition rm = new RWMethodDefinition(rewrite(cx, m.intro, new HashMap<>()));
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm);
-				rewriteMethodCases(hc, m, true, mic);
+				RWMethodDefinition rm = new RWMethodDefinition(m.intro.location, m.intro.name, m.intro.args.size());
+				List<Object> enc = new ArrayList<>();
+				gatherEnclosing(enc, cx, scope);
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm, enc);
+				rewriteMethodCases(hc, m, true, mic, false);
 				ret.methods.add(rm);
 				methods.put(m.intro.name, mic);
 			}
@@ -990,14 +1006,15 @@ public class Rewriter {
 	}
 
 	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodDefinition m, HSIEForm.CodeType codeType) {
-		rewriteMethodCases(cx, m, false, standalone.get(m.intro.name));
+		rewriteMethodCases(cx, m, false, standalone.get(m.intro.name), true);
 	}
 	
-	private void rewriteMethodCases(NamingContext cx, MethodDefinition m, boolean fromHandler, MethodInContext mic) {
+	private void rewriteMethodCases(NamingContext cx, MethodDefinition m, boolean fromHandler, MethodInContext mic, boolean useCases) {
 		int cs = 0;
 		for (MethodCaseDefn c : m.cases) {
 			Map<String, LocalVar> vars = new HashMap<>();
-			gatherVars(errors, this, cx, m.intro.name + "_" + cs, vars, m.intro);
+			String name = useCases ? m.intro.name + "_" + cs : m.intro.name;
+			gatherVars(errors, this, cx, name, vars, m.intro);
 			mic.method.cases.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, vars, c.innerScope(), fromHandler), c, vars));
 			cs++;
 		}
@@ -1039,7 +1056,7 @@ public class Rewriter {
 	}
 
 	private RWFunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c, Map<String, LocalVar> vars) {
-		RWFunctionIntro intro = rewrite(cx, c.intro, vars);
+		RWFunctionIntro intro = rewrite(cx, c.intro, cx.name(), vars);
 		Object expr = rewriteExpr(cx, c.expr);
 		if (expr == null)
 			return null;
@@ -1050,35 +1067,35 @@ public class Rewriter {
 	}
 
 	private RWMethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c, Map<String, LocalVar> vars) {
-		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, vars));
+		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, c.intro.name, vars));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
 	}
 
 	private RWEventCaseDefn rewrite(FunctionCaseContext cx, EventCaseDefn c, Map<String, LocalVar> vars) {
-		RWEventCaseDefn ret = new RWEventCaseDefn(c.kw, rewrite(cx, c.intro, vars));
+		RWEventCaseDefn ret = new RWEventCaseDefn(c.kw, rewrite(cx, c.intro, c.intro.name, vars));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
 	}
 
-	private RWFunctionIntro rewrite(NamingContext cx, FunctionIntro intro, Map<String, LocalVar> vars) {
+	private RWFunctionIntro rewrite(NamingContext cx, FunctionIntro intro, String csName, Map<String, LocalVar> vars) {
 		List<Object> args = new ArrayList<Object>();
 		for (Object o : intro.args) {
-			args.add(rewritePattern(cx, o));
+			args.add(rewritePattern(cx, csName, o));
 		}
 		return new RWFunctionIntro(intro.location, intro.name, args, vars);
 	}
 
-	public Object rewritePattern(NamingContext cx, Object o) {
+	public Object rewritePattern(NamingContext cx, String name, Object o) {
 		try {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;
-				return new RWTypedPattern(tp.typeLocation, rewrite(cx, tp.type, false), tp.varLocation, tp.var);
+				return new RWTypedPattern(tp.typeLocation, rewrite(cx, tp.type, false), tp.varLocation, name + "." + tp.var);
 			} else if (o instanceof VarPattern) {
 				VarPattern vp = (VarPattern) o;
-				return new RWVarPattern(vp.location(), vp.var);
+				return new RWVarPattern(vp.location(), name + "." + vp.var);
 			} else if (o instanceof ConstructorMatch) {
 				ConstructorMatch cm = (ConstructorMatch) o;
 				Object type = cx.resolve(cm.location, cm.ctor);
@@ -1086,7 +1103,7 @@ public class Rewriter {
 					errors.message(cm.location, "could not handle " + type);
 				RWConstructorMatch ret = new RWConstructorMatch(cm.location, (PackageVar)type);
 				for (Field x : cm.args)
-					ret.args.add(ret.new Field(x.field, rewritePattern(cx, x.patt)));
+					ret.args.add(ret.new Field(x.field, rewritePattern(cx, name, x.patt)));
 				return ret;
 			} else {
 				return o;
@@ -1416,5 +1433,21 @@ public class Rewriter {
 			return Type.function(type.location(), list);
 		}
 		return (Type)getObject(cx.resolve(type.location(), type.name()));
+	}
+	
+	private void gatherEnclosing(List<Object> enclosingPatterns, NamingContext cx, Scope s) {
+		if (s == null)
+			return;
+		if (s.container != null) {
+			gatherEnclosing(enclosingPatterns, cx, s.outer);
+			Object ctr = s.container;
+			if (ctr instanceof FunctionCaseDefn) {
+				FunctionCaseDefn fn = (FunctionCaseDefn)ctr;
+				for (Object o : fn.intro.args) {
+					// TODO: need the "case name" with _0 on the end.  Where from?
+					enclosingPatterns.add(rewritePattern(cx, fn.intro.name, o));
+				}
+			}
+		}
 	}
 }

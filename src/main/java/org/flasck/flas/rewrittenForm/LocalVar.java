@@ -5,6 +5,7 @@ import java.io.Serializable;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.typechecker.Type;
+import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
 public class LocalVar implements Locatable, Serializable {
@@ -15,6 +16,8 @@ public class LocalVar implements Locatable, Serializable {
 	public final Type type;
 
 	public LocalVar(String definedBy, InputPosition varLoc, String var, InputPosition typeLoc, Type type) {
+		if (definedBy.endsWith("loadCroset"))
+			throw new UtilException("yo");
 		this.varLoc = varLoc;
 		this.definedBy = definedBy;
 		this.var = var;

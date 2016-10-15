@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 public class MetaState {
-	private final Logger logger = LoggerFactory.getLogger("HSIE");
+	static final Logger logger = LoggerFactory.getLogger("HSIE");
 
 	public class TrailItem {
 		private ClosureCmd closure;
@@ -142,6 +142,7 @@ public class MetaState {
 				HSIEBlock closure = form.closure(v);
 				closure.push(lo.loc, lo.obj);
 			}
+			logger.info("Putting let expr " + let.var + " in substs as " + var);
 			substs.put(let.var, var);
 			writeIfExpr(substs, let.expr, writeTo);
 			return;
@@ -186,7 +187,10 @@ public class MetaState {
 		// dependencies in "TrailItems" (not a good name)
 		for (VarNestedFromOuterFunctionScope sv : set) {
 			if (sv.defn instanceof LocalVar) {
-				logger.info("Ignoring " + sv.id + " which presumably should be in " + substs.keySet());
+				if (!substs.containsKey(sv.id))
+					throw new UtilException("Cannot find local var " + sv.id + " in " + substs.keySet());
+						
+				logger.info("Ignoring local var " + sv.id + " which be in " + substs.keySet());
 				continue;
 			}
 			if (!definedLocally(sv)) {
@@ -204,6 +208,7 @@ public class MetaState {
 				RWMethodDefinition m = ((MethodInContext)sv.defn).method;
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, m));
 				gatherScopedVars(avars, m);
+				System.out.println("mic sv = " + m.name() + ": " + avars);
 				closure.justScoping = true;
 			} else if (sv.defn instanceof RWFunctionDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
@@ -284,7 +289,7 @@ public class MetaState {
 			return expr;
 		} else if (expr instanceof LocalVar) {
 			locs.add(((LocalVar)expr).varLoc);
-			String var = ((LocalVar)expr).var;
+			String var = ((LocalVar)expr).uniqueName();
 			if (!substs.containsKey(var))
 				throw new UtilException("How can this be a local var? " + var + " not in " + substs);
 			return substs.get(var);

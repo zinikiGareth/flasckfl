@@ -22,32 +22,13 @@ public class MethodInContext {
 	public final RWMethodDefinition method;
 	public final List<Object> enclosingPatterns = new ArrayList<Object>();
 
-	public MethodInContext(Rewriter rw, NamingContext cx, int dir, InputPosition cloc, String fromContract, String name, CodeType type, RWMethodDefinition method) {
+	public MethodInContext(Rewriter rw, NamingContext cx, int dir, InputPosition cloc, String fromContract, String name, CodeType type, RWMethodDefinition method, List<Object> enclosing) {
 		this.direction = dir;
 		this.contractLocation = cloc;
 		this.fromContract = fromContract;
 		this.name = name;
 		this.type = type;
 		this.method = method;
-		
-		// TODO: big-divide: should this be pushed out to whoever calls here?
-//		gatherEnclosing(rw, cx, scope);
+		this.enclosingPatterns.addAll(enclosing);
 	}
-
-	/* TODO: big-divide
-	private void gatherEnclosing(Rewriter rw, NamingContext cx, Scope s) {
-		if (s == null)
-			return;
-		if (s.container != null) {
-			gatherEnclosing(rw, cx, s.outer);
-			Object ctr = s.container;
-			if (ctr instanceof FunctionCaseDefn) { // Surely this should be a function case defn?
-				FunctionCaseDefn fn = (FunctionCaseDefn)ctr;
-				for (Object o : fn.intro.args) {
-					enclosingPatterns.add(rw.rewritePattern(cx, o));
-				}
-			}
-		}
-	}
-	*/
 }

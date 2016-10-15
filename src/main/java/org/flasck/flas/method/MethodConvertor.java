@@ -18,6 +18,7 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.PackageVar;
@@ -30,7 +31,6 @@ import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionIntro;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
@@ -104,7 +104,7 @@ public class MethodConvertor {
 		if (m.method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(m.method.intro.location, m.type, m.method.intro.name, m.method.intro.args.size(), true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(m.method.location(), m.type, m.method.name(), m.method.nargs(), true);
 
 		// Now process all of the method cases
 		Type ofType = null;
@@ -122,7 +122,7 @@ public class MethodConvertor {
 				ofType = typedObject.type;
 		}
 		if (ofType != null)
-			tc.addExternal(m.method.intro.name, ofType);
+			tc.addExternal(m.method.name(), ofType);
 		
 		return ret;
 	}
@@ -150,8 +150,9 @@ public class MethodConvertor {
 
 	public RWFunctionDefinition convertStandalone(Rewriter rw, MethodInContext mic) {
 		RWMethodDefinition method = mic.method;
-		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
-		margs.addAll(method.intro.args);
+		List<Object> margs = new ArrayList<Object>(mic.enclosingPatterns);
+		// This seems likely to fail quite often :-)
+		margs.addAll(method.cases.get(0).intro.args);
 		List<Type> types = new ArrayList<Type>();
 		for (@SuppressWarnings("unused") Object o : margs) {
 			types.add(tc.getType(null, "Any"));
@@ -159,16 +160,19 @@ public class MethodConvertor {
 		if (method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(method.intro.location, mic.type, method.intro.name, method.intro.args.size(), true);
+		System.out.println("Converting " + mic.name);
+		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		Type ofType = null;
 		for (RWMethodCaseDefn c : method.cases) {
-			TypedObject typedObject = convertMessagesToActionList(rw, method.intro.location, margs, types, c.messages, mic.type.isHandler());
+			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, mic.type.isHandler());
 			if (ofType == null)
 				ofType = typedObject.type;
-			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), typedObject.expr));
+			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), typedObject.expr));
 		}
+		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, method.name(), margs.size(), true);
+		ret.cases.addAll(cases);
 		if (ofType != null)
-			tc.addExternal(method.intro.name, ofType);
+			tc.addExternal(method.name(), ofType);
 		return ret;
 	}
 
@@ -305,7 +309,7 @@ public class MethodConvertor {
 		} else if (slot instanceof LocalVar) {
 			LocalVar lv = (LocalVar) slot;
 			if (lv.type == null) {
-				errors.message(lv.varLoc, "cannot use untyped argument as assign target: " + lv.var);
+				errors.message(lv.varLoc, "cannot use untyped argument as assign target: " + lv.uniqueName());
 				return null;
 			}
 			intoObj = lv;
@@ -398,7 +402,7 @@ public class MethodConvertor {
 		if (methodType == null)
 			throw new UtilException("We should have figured out the type by now");
 		List<Object> m1 = new ArrayList<>(margs);
-		m1.add(new RWVarPattern(location, "__m"));
+		m1.add(new RWVarPattern(location, "__me.__m"));
 		List<Type> t1 = new ArrayList<>(types);
 		t1.add(methodType);
 		Type ct = calculateExprType(m1, t1, new ApplyExpr(location, new LocalVar("__me", location, "__m", location, methodType), args));

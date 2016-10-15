@@ -9,20 +9,32 @@ import org.flasck.flas.commonBase.Locatable;
 
 @SuppressWarnings("serial")
 public class RWMethodDefinition implements Serializable, Locatable {
-	public final RWFunctionIntro intro;
 	public final List<RWMethodCaseDefn> cases = new ArrayList<>();
+	private final InputPosition location;
+	private final String name;
+	private final int nargs;
 	
-	public RWMethodDefinition(RWFunctionIntro intro) {
-		this.intro = intro;
+	public RWMethodDefinition(InputPosition location, String name, int nargs) {
+		this.location = location;
+		this.name = name;
+		this.nargs = nargs;
 	}
 	
 	@Override
 	public InputPosition location() {
-		return intro.location;
+		return location;
+	}
+	
+	public String name() {
+		return name;
+	}
+	
+	public int nargs() {
+		return nargs;
 	}
 	
 	@Override
 	public String toString() {
-		return intro.toString();
+		return name + "/" + nargs;
 	}
 }

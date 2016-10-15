@@ -198,7 +198,7 @@ public class Compiler {
 		LogManager.getLogger("Compiler").setLevel(Level.WARN);
 		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 		LogManager.getLogger("Generator").setLevel(Level.WARN);
-		LogManager.getLogger("HSIE").setLevel(Level.WARN);
+		LogManager.getLogger("HSIE").setLevel(Level.INFO);
 		LogManager.getLogger("Rewriter").setLevel(Level.ERROR);
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 	}
@@ -352,16 +352,16 @@ public class Compiler {
 					for (RWMethodDefinition m : ci.methods) {
 						boolean haveMethod = false;
 						for (RWContractMethodDecl dc : cd.methods) {
-							if (dc.dir.equals("down") && (ctr.implName +"." + dc.name).equals(m.intro.name)) {
-								if (dc.args.size() != m.intro.args.size())
-									errors.message(m.intro.location, "incorrect number of arguments in declaration, expected " + dc.args.size());
+							if (dc.dir.equals("down") && (ctr.implName +"." + dc.name).equals(m.name())) {
+								if (dc.args.size() != m.nargs())
+									errors.message(m.location(), "incorrect number of arguments in declaration, expected " + dc.args.size());
 								requireds.remove(dc);
 								haveMethod = true;
 								break;
 							}
 						}
 						if (!haveMethod)
-							errors.message(m.intro.location, "cannot implement down method " + m.intro.name + " because it is not in the contract declaration");
+							errors.message(m.location(), "cannot implement down method " + m.name() + " because it is not in the contract declaration");
 					}
 					if (!requireds.isEmpty()) {
 						for (RWContractMethodDecl d : requireds)
@@ -580,7 +580,7 @@ public class Compiler {
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					// TODO: big-divide: presumably we should rewrite the actions?
 					mcd.messages.addAll(s.actions);
-					RWMethodDefinition method = new RWMethodDefinition(fi);
+					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
 					MethodInContext mic = new MethodInContext(rewriter, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method); // PROB NEEDS D3Action type
 					mc.convertContractMethods(rewriter, forms, CollectionUtils.map(mic.name, mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));

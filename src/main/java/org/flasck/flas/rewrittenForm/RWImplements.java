@@ -20,8 +20,8 @@ public class RWImplements extends TypeWithMethods {
 	
 	public boolean hasMethod(String named) {
 		for (RWMethodDefinition m : methods) {
-			int idx = m.intro.name.lastIndexOf('.');
-			if (m.intro.name.substring(idx+1).equals(named))
+			int idx = m.name().lastIndexOf('.');
+			if (m.name().substring(idx+1).equals(named))
 				return true;
 		}
 		return false;
