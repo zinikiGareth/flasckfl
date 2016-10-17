@@ -151,7 +151,7 @@ public class MethodConvertor {
 
 	public RWFunctionDefinition convertStandalone(Rewriter rw, MethodInContext mic) {
 		RWMethodDefinition method = mic.method;
-		List<Object> margs = new ArrayList<Object>(mic.enclosingPatterns);
+		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
 		// This seems likely to fail quite often :-)
 		margs.addAll(method.cases.get(0).intro.args);
 		List<Type> types = new ArrayList<Type>();
