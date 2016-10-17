@@ -117,7 +117,7 @@ public class MetaState {
 	}
 	
 	private void writeIfExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
-		logger.info("Handling " + form.fnName + "; expr = " + expr);
+		logger.info("Handling " + form.fnName + "; expr = " + expr + "; substs = " + substs);
 		// First handle the explicit "if" and "let" cases
 		if (expr instanceof IfExpr) {
 			IfExpr ae = (IfExpr) expr;
@@ -187,10 +187,15 @@ public class MetaState {
 		// dependencies in "TrailItems" (not a good name)
 		for (VarNestedFromOuterFunctionScope sv : set) {
 			if (sv.defn instanceof LocalVar) {
-				if (!substs.containsKey(sv.id))
-					throw new UtilException("Cannot find local var " + sv.id + " in " + substs.keySet());
+				// This test can't be applied, because the scoped vars in method messages
+				// (which are HSIEd and typechecked "before" method conversion (i.e. during it)
+				// don't have the scoped vars in the list.
+				// Adding them "in all cases" makes for way too many args to the method.
+				// TODO: rationalize this at some point, possibly during typechecker rewrite
+//				if (!substs.containsKey(sv.id))
+//					throw new UtilException("Cannot find local var " + sv.id + " in " + substs.keySet());
 						
-				logger.info("Ignoring local var " + sv.id + " which be in " + substs.keySet());
+				logger.info("Ignoring scoped local var " + sv.id + " which will be added later in method message cases");
 				continue;
 			}
 			if (!definedLocally(sv)) {
