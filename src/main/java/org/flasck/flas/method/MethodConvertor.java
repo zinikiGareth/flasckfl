@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.errors.ErrorResult;
@@ -47,6 +48,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
 
 public class MethodConvertor {
+	public static final Logger logger = Logger.getLogger("Compiler");
 	private final ErrorResult errors;
 	private final HSIE hsie;
 	private final TypeChecker tc;
@@ -148,6 +150,7 @@ public class MethodConvertor {
 
 	public FunctionDefinition convertStandalone(MethodInContext mic) {
 		MethodDefinition method = mic.method;
+		logger.info("Converting standalone " + method.intro.name);
 		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
 		margs.addAll(method.intro.args);
 		List<Type> types = new ArrayList<Type>();
