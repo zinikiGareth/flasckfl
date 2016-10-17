@@ -195,7 +195,7 @@ public class Compiler {
 	}
 
 	public static void setLogLevels() {
-		LogManager.getLogger("Compiler").setLevel(Level.WARN);
+		LogManager.getLogger("Compiler").setLevel(Level.INFO);
 		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 		LogManager.getLogger("Generator").setLevel(Level.WARN);
 		LogManager.getLogger("HSIE").setLevel(Level.INFO);

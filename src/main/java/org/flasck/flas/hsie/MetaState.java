@@ -208,7 +208,6 @@ public class MetaState {
 				RWMethodDefinition m = ((MethodInContext)sv.defn).method;
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, m));
 				gatherScopedVars(avars, m);
-				System.out.println("mic sv = " + m.name() + ": " + avars);
 				closure.justScoping = true;
 			} else if (sv.defn instanceof RWFunctionDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));

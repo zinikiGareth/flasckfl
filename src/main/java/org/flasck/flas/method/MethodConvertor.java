@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -48,6 +49,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
 
 public class MethodConvertor {
+	public static final Logger logger = Logger.getLogger("Compiler");
 	private final ErrorResult errors;
 	private final HSIE hsie;
 	private final TypeChecker tc;
@@ -89,8 +91,7 @@ public class MethodConvertor {
 
 	// 2. Convert An individual element
 	protected RWFunctionDefinition convertMIC(Rewriter rw, MethodInContext m) {
-		if (m.direction == MethodInContext.STANDALONE)
-			System.out.println("converting " + m.name);
+		logger.info("converting " + m.direction + " " + m.name);
 		// Get the contract and from that find the method and thus the argument types
 		List<Type> types;
 		if (m.fromContract == null) {
@@ -160,7 +161,7 @@ public class MethodConvertor {
 		if (method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		System.out.println("Converting " + mic.name);
+		logger.info("Converting standalone " + mic.name);
 		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		Type ofType = null;
 		for (RWMethodCaseDefn c : method.cases) {
@@ -478,7 +479,6 @@ public class MethodConvertor {
 			} else
 				throw new UtilException("Cannot map " + x.getClass());
 		}
-		System.out.println("args = " + args);
 		HSIEForm hs = hsie.handleExprWith(expr, HSIEForm.CodeType.CONTRACT, args);
 		Type ret = tc.checkExpr(hs, mytypes, locs);
 		if (ret != null) {

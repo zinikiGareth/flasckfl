@@ -1065,7 +1065,6 @@ public class Rewriter {
 	}
 
 	private RWMethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c, Map<String, LocalVar> vars) {
-		System.out.println("vars = " + vars);
 		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, c.caseName(), vars));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
