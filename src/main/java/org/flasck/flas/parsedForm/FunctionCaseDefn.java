@@ -13,6 +13,7 @@ public class FunctionCaseDefn implements ContainsScope, Serializable {
 	public final FunctionIntro intro;
 	public final Object expr;
 	private final Scope scope;
+	private final int cs;
 
 	public FunctionCaseDefn(InputPosition location, String name, List<Object> args, Object expr) {
 		intro = new FunctionIntro(location, name, args);
@@ -20,12 +21,14 @@ public class FunctionCaseDefn implements ContainsScope, Serializable {
 			throw new UtilException("Cannot build function case with null expr");
 		this.expr = expr;
 		this.scope = null;
+		this.cs = -73;
 	}
 
-	public FunctionCaseDefn(ScopeEntry me, FunctionCaseDefn starter) {
+	public FunctionCaseDefn(ScopeEntry me, FunctionCaseDefn starter, int cs) {
 		this.intro = starter.intro;
 		this.expr = starter.expr;
 		this.scope = new Scope(me, this);
+		this.cs = cs;
 	}
 
 	@Override
@@ -33,6 +36,10 @@ public class FunctionCaseDefn implements ContainsScope, Serializable {
 		if (scope == null)
 			throw new UtilException("Can't do that with starter");
 		return scope;
+	}
+
+	public String caseName() {
+		return intro.name + "_" + cs;
 	}
 	
 	public void dumpTo(Writer pw) throws Exception {

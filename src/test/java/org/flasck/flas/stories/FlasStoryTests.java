@@ -41,7 +41,8 @@ public class FlasStoryTests {
 		RWFunctionDefinition f = rewriter.functions.get("ME.f");
 		assertEquals("ME.f", f.name());
 		RWFunctionCaseDefn c1 = f.cases.get(0);
-		assertEquals("ME.f", c1.intro.name);
+		assertEquals("ME.f", c1.methodName());
+		assertEquals("ME.f_0", c1.caseName());
 		HSIEForm form = new HSIE(errors, rewriter).handle(null, f);
 		HSIETestData.assertHSIE(HSIETestData.mutualF(), form);
 		RWFunctionDefinition g = rewriter.functions.get("ME.f_0.g");

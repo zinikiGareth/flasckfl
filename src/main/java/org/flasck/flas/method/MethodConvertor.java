@@ -117,7 +117,7 @@ public class MethodConvertor {
 				continue;
 			}
 			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, types, mcd.messages, m.type.isHandler());
-			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.name, mcd.intro.args, null), typedObject.expr));
+			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.name, mcd.intro.args, null), ret.cases.size(), typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
@@ -141,7 +141,7 @@ public class MethodConvertor {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.intro.location, eh.intro.args, types, c.messages, false);
 			if (ofType == null)
 				ofType = typedObject.type;
-			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, null), typedObject.expr));
+			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, null), ret.cases.size(), typedObject.expr));
 		}
 		if (ofType != null)
 			tc.addExternal(eh.intro.name, ofType);
@@ -167,7 +167,7 @@ public class MethodConvertor {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, mic.type.isHandler());
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), typedObject.expr));
+			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
 		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, method.name(), margs.size(), true);
 		ret.cases.addAll(cases);
@@ -478,6 +478,7 @@ public class MethodConvertor {
 			} else
 				throw new UtilException("Cannot map " + x.getClass());
 		}
+		System.out.println("args = " + args);
 		HSIEForm hs = hsie.handleExprWith(expr, HSIEForm.CodeType.CONTRACT, args);
 		Type ret = tc.checkExpr(hs, mytypes, locs);
 		if (ret != null) {

@@ -993,15 +993,13 @@ public class Rewriter {
 
 	public void rewrite(NamingContext cx, FunctionDefinition f) {
 		RWFunctionDefinition ret = functions.get(f.name);
-		int cs = 0;
-		RWFunctionIntro fi = null;
+//		RWFunctionIntro fi = null;
 		for (FunctionCaseDefn c : f.cases) {
-			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, cs, ret.vars, c.innerScope(), false);
-			RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.vars);
-			if (fi == null)
-				fi = rwc.intro;
+			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, ret.cases.size(), ret.vars, c.innerScope(), false);
+			RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), ret.vars);
+//			if (fi == null)
+//				fi = rwc.intro;
 			ret.cases.add(rwc);
-			cs++;
 		}
 	}
 
@@ -1055,19 +1053,20 @@ public class Rewriter {
 		return pts;
 	}
 
-	private RWFunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c, Map<String, LocalVar> vars) {
+	private RWFunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c, int csNo, Map<String, LocalVar> vars) {
 		RWFunctionIntro intro = rewrite(cx, c.intro, cx.name(), vars);
 		Object expr = rewriteExpr(cx, c.expr);
 		if (expr == null)
 			return null;
 		// TODO: big-divide: I feel this should be in pass1
-		RWFunctionCaseDefn ret = new RWFunctionCaseDefn(intro, expr);
+		RWFunctionCaseDefn ret = new RWFunctionCaseDefn(intro, csNo, expr);
 		pass3(new NestedScopeContext(cx), c.innerScope());
 		return ret;
 	}
 
 	private RWMethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c, Map<String, LocalVar> vars) {
-		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, c.intro.name, vars));
+		System.out.println("vars = " + vars);
+		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, c.caseName(), vars));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
@@ -1444,8 +1443,7 @@ public class Rewriter {
 			if (ctr instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fn = (FunctionCaseDefn)ctr;
 				for (Object o : fn.intro.args) {
-					// TODO: need the "case name" with _0 on the end.  Where from?
-					enclosingPatterns.add(rewritePattern(cx, fn.intro.name, o));
+					enclosingPatterns.add(rewritePattern(cx, fn.caseName(), o));
 				}
 			}
 		}

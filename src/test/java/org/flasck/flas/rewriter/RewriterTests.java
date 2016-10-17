@@ -202,7 +202,7 @@ public class RewriterTests {
 		cd.contracts.add(ci);
 		List<MethodCaseDefn> mcds = new ArrayList<MethodCaseDefn>();
 		MethodDefinition md = new MethodDefinition(new FunctionIntro(null, "ME.MyCard._C0.m", new ArrayList<Object>()), mcds);
-		MethodCaseDefn mcd1 = new MethodCaseDefn(md.intro);
+		MethodCaseDefn mcd1 = new MethodCaseDefn(md.intro, -1);
 		mcds.add(mcd1);
 		mcd1.messages.add(new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(md);

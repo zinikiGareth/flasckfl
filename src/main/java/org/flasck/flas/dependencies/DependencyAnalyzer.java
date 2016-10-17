@@ -60,7 +60,7 @@ public class DependencyAnalyzer {
 				continue;
 			fdm.put(name,  fd);
 			for (RWFunctionCaseDefn c : fd.cases) {
-				for (LocalVar v : c.intro.vars.values()) {
+				for (LocalVar v : c.vars()) {
 					String realname = "_var_" + v.uniqueName();
 //					System.out.println("Ensuring local var in graph: " + realname);
 					dcg.ensure(realname);
@@ -73,7 +73,7 @@ public class DependencyAnalyzer {
 		for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {
 			RWFunctionDefinition fd = x.getValue();
 			for (RWFunctionCaseDefn c : fd.cases)
-				analyzeExpr(dcg, fd.name(), c.intro.vars.keySet(), c.expr);
+				analyzeExpr(dcg, fd.name(), c.varNames(), c.expr);
 		}
 	}
 

@@ -267,7 +267,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpList(pw, md.cases);
 		} else if (obj instanceof MethodCaseDefn) {
 			MethodCaseDefn mcd = (MethodCaseDefn) obj;
-			pw.println("case " + mcd.intro.name);
+			pw.println("case " + mcd.caseName());
 			dumpList(pw.indent(), mcd.intro.args);
 			dumpList(pw.indent(), mcd.messages);
 			dumpScope(pw, mcd.innerScope());

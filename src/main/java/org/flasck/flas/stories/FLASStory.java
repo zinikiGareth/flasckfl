@@ -303,7 +303,7 @@ public class FLASStory {
 			ScopeEntry me = ret.define(State.simpleName(x.getKey()), x.getKey(), fd);
 			int cs = 0;
 			for (FCDWrapper q : x.getValue()) {
-				FunctionCaseDefn fcd = new FunctionCaseDefn(me, q.starter);
+				FunctionCaseDefn fcd = new FunctionCaseDefn(me, q.starter, cs);
 				fd.cases.add(fcd);
 				if (!q.nested.isEmpty())
 					doScope(er, new State(fcd.innerScope(), fcd.intro.name+"_"+cs, s.kind), q.nested);
@@ -320,15 +320,15 @@ public class FLASStory {
 		for (MCDWrapper w : methods) {
 			// group together all function defns for a given function
 			MethodCaseDefn mcd = w.starter;
-			String n = mcd.intro.name;
+			String n = mcd.methodName();
 			if (cfn == null || !cfn.equals(n)) {
 				cfn = n;
-				pnargs = mcd.intro.args.size();
+				pnargs = mcd.nargs();
 				if (groups.contains(cfn))
 					er.message((Tokenizable)null, "split definition of function " + cfn);
 				else if (ret.contains(cfn))
 					er.message((Tokenizable)null, "duplicate definition of " + cfn);
-			} else if (mcd.intro.args.size() != pnargs)
+			} else if (mcd.nargs() != pnargs)
 				er.message((Block)null, "inconsistent numbers of arguments in definitions of " + cfn);
 			groups.add(cfn, w);
 		}
@@ -337,7 +337,7 @@ public class FLASStory {
 			MethodDefinition md = new MethodDefinition(x.getValue().get(0).starter.intro, new ArrayList<MethodCaseDefn>());
 			ScopeEntry me = ret.define(State.simpleName(x.getKey()), x.getKey(), md);
 			for (MCDWrapper q : x.getValue()) {
-				MethodCaseDefn mcd = new MethodCaseDefn(me, q.starter);
+				MethodCaseDefn mcd = new MethodCaseDefn(me, q.starter, md.cases.size());
 				md.cases.add(mcd);
 				for (Block b : q.nested) {
 					assertNoNonCommentNestedLines(er, b);
@@ -1019,7 +1019,7 @@ public class FLASStory {
 				er.merge((ErrorResult) o);
 			else if (o instanceof FunctionIntro) {
 				FunctionIntro meth = (FunctionIntro)o;
-				MethodCaseDefn mcd = new MethodCaseDefn(meth);
+				MethodCaseDefn mcd = new MethodCaseDefn(meth, impl == null ? -1 : cases.size());
 				cases.add(new MCDWrapper(b.nested, mcd));
 			} else
 				er.message(b, "cannot handle " + o.getClass());
@@ -1030,13 +1030,13 @@ public class FLASStory {
 		int pnargs = 0;
 		for (MCDWrapper q : cases) {
 			MethodCaseDefn fcd = q.starter;
-			String n = fcd.intro.name;
+			String n = fcd.methodName();
 			if (cfn == null || !cfn.equals(n)) {
 				cfn = n;
-				pnargs = fcd.intro.args.size();
+				pnargs = fcd.nargs();
 				if (groups.contains(cfn))
 					er.message((Tokenizable)null, "split definition of function " + cfn);
-			} else if (fcd.intro.args.size() != pnargs)
+			} else if (fcd.nargs() != pnargs)
 				er.message((Tokenizable)null, "inconsistent numbers of arguments in definitions of " + cfn);
 			groups.add(cfn, q);
 		}
@@ -1044,7 +1044,7 @@ public class FLASStory {
 			MethodDefinition md = new MethodDefinition(x.getValue().get(0).starter.intro, new ArrayList<MethodCaseDefn>());
 			impl.addMethod(md);
 			for (MCDWrapper q : x.getValue()) {
-				MethodCaseDefn mcd = new MethodCaseDefn(se, q.starter);
+				MethodCaseDefn mcd = new MethodCaseDefn(se, q.starter, -1);
 				md.cases.add(mcd);
 				handleMessageMethods(er, mcd, q.nested);
 			}

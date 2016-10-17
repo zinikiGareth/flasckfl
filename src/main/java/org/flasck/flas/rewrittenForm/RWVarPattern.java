@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.zinutils.exceptions.UtilException;
 
 @SuppressWarnings("serial")
 public class RWVarPattern implements Serializable, Locatable {
@@ -13,8 +12,6 @@ public class RWVarPattern implements Serializable, Locatable {
 
 	public RWVarPattern(InputPosition varLoc, String text) {
 		this.varLoc = varLoc;
-		if (!text.contains("."))
-			throw new UtilException("yo");
 		this.var = text;
 	}
 	

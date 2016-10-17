@@ -210,7 +210,7 @@ public class IntroParser implements TryParsing {
 					return ErrorResult.oneMessage(line, "invalid contract argument pattern");
 				args.add(patt);
 			}
-			return new MethodCaseDefn(new FunctionIntro(tn.location, state.withPkg(tn.text), args));
+			return new MethodCaseDefn(new FunctionIntro(tn.location, state.withPkg(tn.text), args), -1);
 		}
 		default:
 			// we didn't find anything we could handle - "not us"

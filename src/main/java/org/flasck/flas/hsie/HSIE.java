@@ -110,13 +110,13 @@ public class HSIE {
 			SubstExpr ex = new SubstExpr(c.expr, exprIdx++);
 			ex.alsoSub(map);
 			form.exprs.add(ex);
-			createSubsts(ms, c.intro.name + "_" + cs, c.intro.args, formals, ex);
+			createSubsts(ms, c.caseName(), c.args(), formals, ex);
 			exprs.put(c, ex);
 			cs++;
 		}
 		for (int i=0;i<nargs;i++) {
 			for (RWFunctionCaseDefn c : cases) {
-				s.associate(formals.get(i), c.intro.args.get(i), exprs.get(c));
+				s.associate(formals.get(i), c.args().get(i), exprs.get(c));
 			}
 		}
 		return s;

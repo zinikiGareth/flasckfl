@@ -581,7 +581,8 @@ public class Compiler {
 					// TODO: big-divide: presumably we should rewrite the actions?
 					mcd.messages.addAll(s.actions);
 					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
-					MethodInContext mic = new MethodInContext(rewriter, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method); // PROB NEEDS D3Action type
+					List<Object> enc = new ArrayList<Object>();
+					MethodInContext mic = new MethodInContext(rewriter, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method, enc); // PROB NEEDS D3Action type
 					mc.convertContractMethods(rewriter, forms, CollectionUtils.map(mic.name, mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 //					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);
@@ -602,7 +603,7 @@ public class Compiler {
 
 		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.dloc, d3.d3.prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>(), null);
 		RWFunctionDefinition func = new RWFunctionDefinition(null, HSIEForm.CodeType.CARD, d3f.name, 0, true);
-		func.cases.add(new RWFunctionCaseDefn(d3f, init));
+		func.cases.add(new RWFunctionCaseDefn(d3f, 0, init));
 		functions.put(d3f.name, func);
 		
 		for (RWFunctionDefinition fd : functions.values())
@@ -614,7 +615,7 @@ public class Compiler {
 
 		RWFunctionIntro d3f = new RWFunctionIntro(null, prefix + "." + name, args, null);
 		RWFunctionDefinition func = new RWFunctionDefinition(null, HSIEForm.CodeType.CARD, d3f.name, args.size(), true);
-		func.cases.add(new RWFunctionCaseDefn(d3f, expr));
+		func.cases.add(new RWFunctionCaseDefn(d3f, 0, expr));
 		functions.put(d3f.name, func);
 
 		return new FunctionLiteral(d3f.location, d3f.name);

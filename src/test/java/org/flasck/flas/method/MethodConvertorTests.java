@@ -489,7 +489,7 @@ public class MethodConvertorTests {
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
 		List<MethodCaseDefn> cases = new ArrayList<>();
-		MethodCaseDefn cs = new MethodCaseDefn(intro);
+		MethodCaseDefn cs = new MethodCaseDefn(intro, -1);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);
 		cases.add(cs);
