@@ -1,6 +1,5 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +8,7 @@ import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class RWContractDecl extends TypeWithMethods implements Serializable {
+public class RWContractDecl extends TypeWithMethods {
 	public final List<RWContractMethodDecl> methods = new ArrayList<RWContractMethodDecl>();
 	public final transient boolean generate;
 

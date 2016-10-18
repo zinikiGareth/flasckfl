@@ -1,6 +1,5 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,9 +13,8 @@ import org.flasck.flas.rewriter.ResolutionException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringComparator;
 
-@SuppressWarnings("serial")
-public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Serializable {
-	public class ScopeEntry implements Entry<String, Object>, Serializable {
+public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
+	public class ScopeEntry implements Entry<String, Object> {
 		private final InputPosition location;
 		private final String name;
 		private Object defn;

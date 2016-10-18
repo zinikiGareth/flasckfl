@@ -1,12 +1,10 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-@SuppressWarnings("serial")
-public class FunctionIntro implements Serializable {
+public class FunctionIntro {
 	public final InputPosition location;
 	public final String name;
 	public final List<Object> args;

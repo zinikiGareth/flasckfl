@@ -1,13 +1,11 @@
 package org.flasck.flas.commonBase;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-@SuppressWarnings("serial")
-public class PlatformSpec implements Serializable {
+public class PlatformSpec {
 	public final InputPosition location;
 	public final String spec;
 	public final List<Object> defns = new ArrayList<Object>();

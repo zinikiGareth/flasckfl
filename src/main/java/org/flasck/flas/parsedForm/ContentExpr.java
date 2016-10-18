@@ -1,6 +1,5 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.List;
 
 /* How to test this?
@@ -11,8 +10,7 @@ import java.util.List;
  * 
  * Messy and slow, I know, but at least fairly realistic
  */
-@SuppressWarnings("serial")
-public class ContentExpr extends TemplateFormatEvents implements Serializable {
+public class ContentExpr extends TemplateFormatEvents {
 	public final Object expr;
 	private boolean editable;
 	public final boolean rawHTML;

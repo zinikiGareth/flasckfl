@@ -1,13 +1,11 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-@SuppressWarnings("serial")
-public class RWFunctionCaseDefn implements Serializable {
+public class RWFunctionCaseDefn {
 	private final RWFunctionIntro intro;
 	public final Object expr;
 	private final int csNo;

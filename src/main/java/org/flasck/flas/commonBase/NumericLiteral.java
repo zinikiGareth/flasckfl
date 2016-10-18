@@ -1,11 +1,8 @@
 package org.flasck.flas.commonBase;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 
-@SuppressWarnings("serial")
-public class NumericLiteral implements Locatable, Serializable {
+public class NumericLiteral implements Locatable {
 	public final InputPosition location;
 	public final String text;
 

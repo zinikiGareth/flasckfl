@@ -1,6 +1,5 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -8,8 +7,7 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.typechecker.Type;
 
-@SuppressWarnings("serial")
-public class RWContractMethodDecl implements Locatable, Comparable<RWContractMethodDecl>, Serializable {
+public class RWContractMethodDecl implements Locatable, Comparable<RWContractMethodDecl> {
 	private final InputPosition pos;
 	public final boolean required;
 	public final String dir;

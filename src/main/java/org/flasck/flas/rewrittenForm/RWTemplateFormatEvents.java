@@ -1,13 +1,11 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.template.TemplateFormat;
 
-@SuppressWarnings("serial")
-public abstract class RWTemplateFormatEvents extends TemplateFormat implements Serializable {
+public abstract class RWTemplateFormatEvents extends TemplateFormat {
 	public final List<RWEventHandler> handlers = new ArrayList<RWEventHandler>();
 	
 	public RWTemplateFormatEvents(List<Object> formats) {

@@ -1,12 +1,10 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.flasck.flas.commonBase.Locatable;
 
-@SuppressWarnings("serial")
-public class RWMethodMessage implements Serializable {
+public class RWMethodMessage {
 	public final List<Locatable> slot;
 	public final Object expr;
 

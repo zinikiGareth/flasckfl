@@ -1,11 +1,8 @@
 package org.flasck.flas.commonBase;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 
-@SuppressWarnings("serial")
-public class CastExpr implements Locatable, Serializable {
+public class CastExpr implements Locatable {
 	public final InputPosition location;
 	public final Object castTo;
 	public final Object expr;

@@ -1,13 +1,11 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.template.TemplateLine;
 
-@SuppressWarnings("serial")
-public class RWTemplateDiv extends RWTemplateFormatEvents implements Serializable {
+public class RWTemplateDiv extends RWTemplateFormatEvents {
 	public final String customTag;
 	public final String customTagVar;
 	public final List<Object> attrs;

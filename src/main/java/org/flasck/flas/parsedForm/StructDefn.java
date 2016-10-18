@@ -1,6 +1,5 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +8,7 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.collections.CollectionUtils;
 
-@SuppressWarnings("serial")
-public class StructDefn implements AsString, Serializable, Locatable {
+public class StructDefn implements AsString, Locatable {
 	public final List<StructField> fields = new ArrayList<StructField>();
 	public final transient boolean generate;
 	private final InputPosition location;

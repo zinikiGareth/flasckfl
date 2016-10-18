@@ -1,6 +1,5 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.List;
 
 /* How to test this?
@@ -11,8 +10,7 @@ import java.util.List;
  * 
  * Messy and slow, I know, but at least fairly realistic
  */
-@SuppressWarnings("serial")
-public class RWContentExpr extends RWTemplateFormatEvents implements Serializable {
+public class RWContentExpr extends RWTemplateFormatEvents {
 	public final Object expr;
 	private boolean editable;
 	public final boolean rawHTML;

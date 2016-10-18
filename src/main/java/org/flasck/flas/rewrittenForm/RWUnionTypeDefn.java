@@ -1,14 +1,12 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.typechecker.Type;
 
-@SuppressWarnings("serial")
-public class RWUnionTypeDefn extends Type implements Serializable {
+public class RWUnionTypeDefn extends Type {
 	public final transient boolean generate;
 	public final List<Type> cases = new ArrayList<Type>();
 

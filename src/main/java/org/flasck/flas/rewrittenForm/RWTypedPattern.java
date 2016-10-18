@@ -1,14 +1,11 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.typechecker.Type;
 
-@SuppressWarnings("serial")
-public class RWTypedPattern implements Locatable, AsString, Serializable {
+public class RWTypedPattern implements Locatable, AsString {
 	public final transient InputPosition typeLocation;
 	public final Type type;
 	public final transient InputPosition varLocation;

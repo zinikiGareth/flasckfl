@@ -1,14 +1,12 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 
-@SuppressWarnings("serial")
-public class ContractMethodDecl implements Locatable, Comparable<ContractMethodDecl>, Serializable {
+public class ContractMethodDecl implements Locatable, Comparable<ContractMethodDecl> {
 	private final InputPosition pos;
 	public final boolean required;
 	public final String dir;

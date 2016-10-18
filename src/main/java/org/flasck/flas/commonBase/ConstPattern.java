@@ -1,11 +1,8 @@
 package org.flasck.flas.commonBase;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 
-@SuppressWarnings("serial")
-public class ConstPattern implements Serializable {
+public class ConstPattern {
 	public static final int INTEGER = 1;
 	public static final int BOOLEAN = 2;
 

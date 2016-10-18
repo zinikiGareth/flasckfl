@@ -1,11 +1,8 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
-
 import org.flasck.flas.typechecker.Type;
 
-@SuppressWarnings("serial")
-public class RWObjectMethod implements Serializable {
+public class RWObjectMethod {
 	public final String name;
 	public final Type type;
 

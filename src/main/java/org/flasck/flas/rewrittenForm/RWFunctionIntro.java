@@ -1,6 +1,5 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +7,7 @@ import java.util.Map;
 import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class RWFunctionIntro implements Serializable {
+public class RWFunctionIntro {
 	public final InputPosition location;
 	public final String name;
 	public final List<Object> args;

@@ -1,13 +1,11 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.template.TemplateLine;
 
-@SuppressWarnings("serial")
-public class TemplateDiv extends TemplateFormatEvents implements Serializable {
+public class TemplateDiv extends TemplateFormatEvents {
 	public final String customTag;
 	public final String customTagVar;
 	public final List<Object> attrs;

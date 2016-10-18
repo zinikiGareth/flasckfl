@@ -1,6 +1,5 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,8 +12,7 @@ import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class RWFunctionDefinition implements Locatable, Serializable {
+public class RWFunctionDefinition implements Locatable {
 	public final InputPosition location;
 	public final CodeType mytype;
 	public final String name;

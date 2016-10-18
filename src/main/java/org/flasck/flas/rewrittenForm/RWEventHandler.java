@@ -1,9 +1,6 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
-
-@SuppressWarnings("serial")
-public class RWEventHandler implements Serializable {
+public class RWEventHandler {
 	public final String action;
 	public final Object expr;
 

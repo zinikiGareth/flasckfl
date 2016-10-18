@@ -1,12 +1,10 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
-@SuppressWarnings("serial")
-public class StructField implements Locatable, Serializable {
+public class StructField implements Locatable {
 	public final InputPosition loc;
 	public final boolean accessor;
 	public final TypeReference type;

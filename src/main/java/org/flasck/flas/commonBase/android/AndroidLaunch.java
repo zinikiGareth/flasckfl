@@ -1,11 +1,8 @@
 package org.flasck.flas.commonBase.android;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 
-@SuppressWarnings("serial")
-public class AndroidLaunch implements Serializable {
+public class AndroidLaunch {
 
 	public AndroidLaunch(InputPosition location) {
 	}

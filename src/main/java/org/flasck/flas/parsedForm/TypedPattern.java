@@ -1,13 +1,10 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 
-@SuppressWarnings("serial")
-public class TypedPattern implements Locatable, AsString, Serializable {
+public class TypedPattern implements Locatable, AsString {
 	public final transient InputPosition typeLocation;
 	public final TypeReference type;
 	public final transient InputPosition varLocation;

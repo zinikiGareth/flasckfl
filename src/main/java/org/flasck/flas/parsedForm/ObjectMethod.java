@@ -1,9 +1,6 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
-
-@SuppressWarnings("serial")
-public class ObjectMethod implements Serializable {
+public class ObjectMethod {
 	public final String name;
 	public final TypeReference type;
 

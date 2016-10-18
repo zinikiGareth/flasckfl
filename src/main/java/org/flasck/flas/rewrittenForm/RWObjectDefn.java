@@ -1,6 +1,5 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +10,7 @@ import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.collections.CollectionUtils;
 
-@SuppressWarnings("serial")
-public class RWObjectDefn extends TypeWithMethods implements AsString, Serializable, Locatable {
+public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable {
 	public RWStateDefinition state;
 	public final List<RWStructField> ctorArgs = new ArrayList<RWStructField>();
 	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();

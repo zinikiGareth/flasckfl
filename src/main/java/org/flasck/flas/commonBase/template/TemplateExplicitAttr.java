@@ -1,11 +1,8 @@
 package org.flasck.flas.commonBase.template;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 
-@SuppressWarnings("serial")
-public class TemplateExplicitAttr implements Serializable {
+public class TemplateExplicitAttr {
 	public final InputPosition location;
 	public final String attr;
 	public final int type;

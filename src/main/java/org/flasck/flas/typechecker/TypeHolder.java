@@ -1,6 +1,5 @@
 package org.flasck.flas.typechecker;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -8,8 +7,7 @@ import java.util.TreeMap;
 import org.zinutils.utils.Justification;
 import org.zinutils.utils.StringComparator;
 
-@SuppressWarnings("serial")
-public class TypeHolder implements Comparable<TypeHolder>, Serializable {
+public class TypeHolder implements Comparable<TypeHolder> {
 	private transient final StringComparator comp = new StringComparator();
 	public final String name;
 	public final Map<String, Type> fns = new TreeMap<String, Type>(comp);

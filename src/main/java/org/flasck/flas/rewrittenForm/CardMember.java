@@ -1,13 +1,10 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class CardMember implements ExternalRef, Serializable {
+public class CardMember implements ExternalRef {
 	public final InputPosition location;
 	public final String card;
 	public final String var;

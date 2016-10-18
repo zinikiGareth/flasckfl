@@ -1,12 +1,9 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
-@SuppressWarnings("serial")
-public class VarPattern implements Serializable, Locatable {
+public class VarPattern implements Locatable {
 	public final InputPosition varLoc;
 	public final String var;
 

@@ -1,6 +1,5 @@
 package org.flasck.flas.typechecker;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +10,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class Type implements Serializable, Locatable {
+public class Type implements Locatable {
 	public final InputPosition kw;
 	private final InputPosition location;
 	public enum WhatAmI { /* REFERENCE, */BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };

@@ -1,12 +1,9 @@
 package org.flasck.flas.commonBase.template;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
-@SuppressWarnings("serial")
-public class TemplateOr implements TemplateLine, Locatable, Serializable {
+public class TemplateOr implements TemplateLine, Locatable {
 	private final InputPosition location;
 	public final Object cond;
 	public final TemplateLine template;

@@ -1,6 +1,5 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +9,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.stories.FLASStory.State;
 
-@SuppressWarnings("serial")
-public class ObjectDefn implements ContainsScope, AsString, Serializable, Locatable {
+public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	public StateDefinition state;
 	public final List<StructField> ctorArgs = new ArrayList<StructField>();
 	public final List<ObjectMethod> methods = new ArrayList<ObjectMethod>();

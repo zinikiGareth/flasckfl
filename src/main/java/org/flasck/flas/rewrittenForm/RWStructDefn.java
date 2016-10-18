@@ -1,6 +1,5 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +9,7 @@ import org.flasck.flas.typechecker.Type;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class RWStructDefn extends Type implements AsString, Serializable, ExternalRef {
+public class RWStructDefn extends Type implements AsString, ExternalRef {
 	public final List<RWStructField> fields = new ArrayList<RWStructField>();
 	public final transient boolean generate;
 

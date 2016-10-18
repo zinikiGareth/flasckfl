@@ -1,6 +1,5 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,8 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.collections.CollectionUtils;
 
-@SuppressWarnings("serial")
-public class UnionTypeDefn implements Serializable, Locatable {
+public class UnionTypeDefn implements Locatable {
 	public final transient boolean generate;
 	private final InputPosition location;
 	private final String name;

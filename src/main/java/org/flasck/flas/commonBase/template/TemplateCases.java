@@ -1,13 +1,11 @@
 package org.flasck.flas.commonBase.template;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-@SuppressWarnings("serial")
-public class TemplateCases implements TemplateLine, Serializable {
+public class TemplateCases implements TemplateLine {
 	public final List<TemplateOr> cases = new ArrayList<TemplateOr>();
 	public final InputPosition loc;
 	public final Object switchOn;

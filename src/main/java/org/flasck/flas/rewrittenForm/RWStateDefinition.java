@@ -1,11 +1,9 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("serial")
-public class RWStateDefinition implements Serializable {
+public class RWStateDefinition {
 	public final List<RWStructField> fields = new ArrayList<RWStructField>();
 
 	public void addField(RWStructField o) {

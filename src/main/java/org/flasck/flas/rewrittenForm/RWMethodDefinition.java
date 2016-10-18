@@ -1,14 +1,12 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
-@SuppressWarnings("serial")
-public class RWMethodDefinition implements Serializable, Locatable {
+public class RWMethodDefinition implements Locatable {
 	public final List<RWMethodCaseDefn> cases = new ArrayList<>();
 	private final InputPosition location;
 	private final String name;

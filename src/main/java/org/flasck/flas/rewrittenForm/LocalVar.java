@@ -1,14 +1,11 @@
 package org.flasck.flas.rewrittenForm;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class LocalVar implements Locatable, Serializable {
+public class LocalVar implements Locatable {
 	public final InputPosition varLoc;
 	public final String definedBy;
 	public final String var;
