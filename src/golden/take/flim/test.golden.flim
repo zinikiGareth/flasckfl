@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Function file="take.fl" line="3" name="test.golden.take" off="25">
+        <Arg>
+            <Type name="Number"/>
+        </Arg>
+        <Arg>
+            <Instance name="List">
+                <Poly name="A"/>
+            </Instance>
+        </Arg>
+        <Return>
+            <Instance name="List">
+                <Poly name="A"/>
+            </Instance>
+        </Return>
+    </Function>
+</FLIM>

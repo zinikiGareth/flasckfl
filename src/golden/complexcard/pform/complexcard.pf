@@ -23,23 +23,23 @@ package test.golden
             '' hello
   cdecl test.golden.DataStore
     up get
-      x
+      [type] x
         String
-      h
+      [type] h
         Handler
   cdecl test.golden.Handler
     down reply
-      s
+      [type] s
         String
   cdecl test.golden.Init
     down ready
-      obj
+      [type] obj
         Any
   cdecl test.golden.Offer
     up get
-      x
+      [type] x
         String
-      h
+      [type] h
         Handler
   struct test.golden.Polyed T1 T2
     x

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Contract file="contracts.fl" line="1" name="test.golden.Foo" off="9">
+        <Method dir="up" file="contracts.fl" line="2" name="hello"
+            off="2" required="true">
+            <Typed file="contracts.fl" line="2" off="10" var="test.golden.Foo.hello.x">
+                <Type name="String"/>
+            </Typed>
+        </Method>
+        <Method dir="down" file="contracts.fl" line="3" name="goodbye"
+            off="8" required="false">
+            <Typed file="contracts.fl" line="3" off="23" var="test.golden.Foo.goodbye.y">
+                <Type name="Number"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="contracts.fl" line="5" name="test.golden.Handler" off="9">
+        <Method dir="down" file="contracts.fl" line="6" name="feedback"
+            off="4" required="true">
+            <Typed file="contracts.fl" line="6" off="15" var="test.golden.Handler.feedback.answer">
+                <Type name="String"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="contracts.fl" line="8" name="test.golden.Request" off="9">
+        <Method dir="up" file="contracts.fl" line="9" name="ask" off="2" required="true">
+            <Typed file="contracts.fl" line="9" off="8" var="test.golden.Request.ask.answer">
+                <Type name="test.golden.Handler"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="contracts.fl" line="11"
+        name="test.golden.UsePolyInstance" off="9">
+        <Method dir="down" file="contracts.fl" line="12" name="giveList"
+            off="4" required="true">
+            <Typed file="contracts.fl" line="12" off="15" var="test.golden.UsePolyInstance.giveList.l">
+                <Instance name="List">
+                    <Type name="String"/>
+                </Instance>
+            </Typed>
+        </Method>
+    </Contract>
+</FLIM>

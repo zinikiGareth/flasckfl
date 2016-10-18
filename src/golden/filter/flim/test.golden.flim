@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Function file="filter.fl" line="3" name="test.golden.filter" off="7">
+        <Arg>
+            <Arg>
+                <Poly name="A"/>
+            </Arg>
+            <Return>
+                <Type name="Boolean"/>
+            </Return>
+        </Arg>
+        <Arg>
+            <Instance name="List">
+                <Poly name="A"/>
+            </Instance>
+        </Arg>
+        <Return>
+            <Type name="Nil"/>
+        </Return>
+    </Function>
+</FLIM>

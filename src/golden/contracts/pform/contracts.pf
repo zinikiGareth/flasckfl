@@ -1,21 +1,21 @@
 package test.golden
   cdecl test.golden.Foo
     up hello
-      x
+      [type] x
         String
     down goodbye
-      y
+      [type] y
         Number
   cdecl test.golden.Handler
     down feedback
-      answer
+      [type] answer
         String
   cdecl test.golden.Request
     up ask
-      answer
+      [type] answer
         Handler
   cdecl test.golden.UsePolyInstance
     down giveList
-      l
+      [type] l
         List
           String

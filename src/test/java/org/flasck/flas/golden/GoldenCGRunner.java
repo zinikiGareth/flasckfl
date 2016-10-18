@@ -104,7 +104,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File jsto = new File(s, "jsout-tmp");
 		File hsie = new File(s, "hsie-tmp");
 		File flim = new File(s, "flim-tmp");
-		FileUtils.deleteDirectoryTree(new File(s, "errors"));
+		FileUtils.deleteDirectoryTree(new File(s, "errors-tmp"));
 		clean(pform);
 		clean(jsto);
 		clean(hsie);
@@ -127,6 +127,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		}
 		if (er.hasErrors()) {
 			handleErrors(s, er);
+			return;
 		}
 		assertGolden(new File(s, "pform"), pform);
 		

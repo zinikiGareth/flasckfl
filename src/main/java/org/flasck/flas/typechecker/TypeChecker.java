@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.KnowledgeWriter;
 import org.flasck.flas.rewriter.Rewriter;
@@ -19,6 +20,8 @@ import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -157,15 +160,25 @@ public class TypeChecker {
 	public void addArgTypes(RWFunctionDefinition fd) {
 		for (RWFunctionCaseDefn c : fd.cases) {
 			for (Object a : c.args()) {
-				if (a instanceof RWTypedPattern) {
-					RWTypedPattern tp = (RWTypedPattern) a;
-					fnArgs.put(((RWTypedPattern) a).var, tp.type);
-				} else if (a instanceof RWVarPattern) {
-					// can't actually import this, since it needs to be inferred - figure out and install _after_ typecheck
-				} else
-					throw new UtilException("Can't handle " + a.getClass());
+				processPattern(a);
 			}
 		}
+	}
+
+	protected void processPattern(Object a) {
+		if (a instanceof ConstPattern) {
+			// clearly this doesn't introduce any vars ...
+		} else if (a instanceof RWTypedPattern) {
+			RWTypedPattern tp = (RWTypedPattern) a;
+			fnArgs.put(((RWTypedPattern) a).var, tp.type);
+		} else if (a instanceof RWVarPattern) {
+			// can't actually import this, since it needs to be inferred - figure out and install _after_ typecheck
+		} else if (a instanceof RWConstructorMatch) {
+			RWConstructorMatch cm = (RWConstructorMatch) a;
+			for (Field cma : cm.args)
+				processPattern(cma.patt);
+		} else
+			throw new UtilException("Can't handle " + a.getClass());
 	}
 
 	public Type checkExpr(HSIEForm expr, List<Type> args, List<InputPosition> locs) {

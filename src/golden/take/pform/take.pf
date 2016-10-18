@@ -1,21 +1,21 @@
 package test.golden
   test.golden.take
-    n
-    Nil
+    [var] n
+    [ctor] Nil
    =
     Nil
   test.golden.take
     1: 0
-    Cons
+    [ctor] Cons
    =
     Nil
   test.golden.take
-    n
-    Cons
+    [var] n
+    [ctor] Cons
       head
-        a
+        [var] a
       tail
-        b
+        [var] b
    =
     Cons
       a

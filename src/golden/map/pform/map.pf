@@ -1,16 +1,16 @@
 package test.golden
   test.golden.map1
-    f
-    Nil
+    [var] f
+    [ctor] Nil
    =
     Nil
   test.golden.map1
-    f
-    Cons
+    [var] f
+    [ctor] Cons
       head
-        a
+        [var] a
       tail
-        l
+        [var] l
    =
     Cons
       f
