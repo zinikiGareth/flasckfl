@@ -54,7 +54,6 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
-import org.zinutils.utils.StringComparator;
 
 public class TypeChecker {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");

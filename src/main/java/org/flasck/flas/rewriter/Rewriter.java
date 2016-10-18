@@ -526,10 +526,9 @@ public class Rewriter {
 				}
 			} else if (val instanceof EventHandlerDefinition) {
 				EventHandlerDefinition ehd = (EventHandlerDefinition) val;
-				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(rewrite(cx, ehd.intro, ehd.intro.name, new HashMap<>()));
+				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(ehd.location(), ehd.intro.name, ehd.intro.args.size());
 				EventHandlerInContext ehic = new EventHandlerInContext(name, rw);
 				eventHandlers.put(ehic.name, ehic);
-				gatherVars(errors, this, cx, rw.intro.name, rw.intro.vars, ehd.intro);
 				for (EventCaseDefn c : ehd.cases)
 					pass1(cx, c.innerScope());
 			} else if (val instanceof StructDefn) {
@@ -1022,7 +1021,9 @@ public class Rewriter {
 		RWEventHandlerDefinition rw = ehic.handler;
 		int cs = 0;
 		for (EventCaseDefn c : ehd.cases) {
-			rw.cases.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, rw.intro.vars, c.innerScope(), false), c, rw.intro.vars));
+			Map<String, LocalVar> vars = new HashMap<>();
+			gatherVars(errors, this, cx, rw.name(), vars, ehd.intro);
+			rw.cases.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, vars, c.innerScope(), false), c, vars));
 			cs++;
 		}
 	}

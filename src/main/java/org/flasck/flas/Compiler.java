@@ -41,7 +41,6 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;

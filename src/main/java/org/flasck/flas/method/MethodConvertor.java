@@ -130,22 +130,22 @@ public class MethodConvertor {
 
 	public RWFunctionDefinition convertEventHandler(Rewriter rw, String card, RWEventHandlerDefinition eh) {
 		List<Type> types = new ArrayList<Type>();
-		for (@SuppressWarnings("unused") Object o : eh.intro.args) {
+		for (int i=0;i<eh.nargs();i++) {
 			types.add(tc.getType(null, "Any"));
 		}
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, eh.name(), eh.nargs(), true);
 		Type ofType = null;
 		for (RWEventCaseDefn c : eh.cases) {
-			TypedObject typedObject = convertMessagesToActionList(rw, eh.intro.location, eh.intro.args, types, c.messages, false);
+			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
 			if (ofType == null)
 				ofType = typedObject.type;
 			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, null), ret.cases.size(), typedObject.expr));
 		}
 		if (ofType != null)
-			tc.addExternal(eh.intro.name, ofType);
+			tc.addExternal(eh.name(), ofType);
 		return ret;
 	}
 
