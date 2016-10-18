@@ -1,14 +1,29 @@
 package test.golden
+  cdecl test.golden.NoArg
+    up get
+      [ctor] Number
   cdecl test.golden.Reply
     down reply
       [type] k
         Number
   cdecl test.golden.Server
     up get
-      [ctor] Number
-      [ctor] Reply
+      [type] k
+        Number
+      [type] r
+        Reply
     up put
-      [ctor] Number
+      [type] k
+        Number
+  method test.golden.cna
+    case test.golden.cna_0
+        [type] na
+          NoArg
+        invoke <-
+            .
+              na
+              get
+            # 42
   test.golden.f
     [type] server
       Server
@@ -33,13 +48,13 @@ package test.golden
                   var
                   v
     method test.golden.f_0.q
-      case test.golden.f_0.q
+      case test.golden.f_0.q_0
           invoke <-
               .
                 server
                 get
               var
-              Reply
+              HandleReply
                 var
     test.golden.f_0.var
      =

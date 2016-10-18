@@ -20,6 +20,7 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -60,10 +61,11 @@ public class TypeChecker {
 	final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
 	final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
-	final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>(new StringComparator());
+	final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
 	final Map<String, RWHandlerImplements> handlers = new TreeMap<String, RWHandlerImplements>();
 	final Map<String, CardTypeInfo> cards = new TreeMap<String, CardTypeInfo>();
-	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>(new StringComparator());
+	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>();
+	final Map<String, Type> fnArgs = new TreeMap<String, Type>();
 	
 	public TypeChecker(ErrorResult errors) {
 		this.errors = errors;
@@ -151,7 +153,21 @@ public class TypeChecker {
 			throw new UtilException("Not just a type ... call special thing");
 		knowledge.put(name, type);
 	}
-	
+
+	public void addArgTypes(RWFunctionDefinition fd) {
+		for (RWFunctionCaseDefn c : fd.cases) {
+			for (Object a : c.args()) {
+				if (a instanceof RWTypedPattern) {
+					RWTypedPattern tp = (RWTypedPattern) a;
+					fnArgs.put(((RWTypedPattern) a).var, tp.type);
+				} else if (a instanceof RWVarPattern) {
+					// can't actually import this, since it needs to be inferred - figure out and install _after_ typecheck
+				} else
+					throw new UtilException("Can't handle " + a.getClass());
+			}
+		}
+	}
+
 	public Type checkExpr(HSIEForm expr, List<Type> args, List<InputPosition> locs) {
 		TypeState s = new TypeState(errors, this);
 		expr.dump(logger);
@@ -160,7 +176,7 @@ public class TypeChecker {
 		
 		s.localKnowledge.put(expr.fnName, factory.next());
 		for (int i=0;i<expr.nformal;i++) {
-//			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + (i+hsie.alreadyUsed));
+//			System.out.println("Allocating " + "var" + " for " + expr.fnName + " arg " + i + " var " + (i+expr.alreadyUsed));
 			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, args.get(i).asExpr(new GarneredFrom(locs.get(i)), this, factory)));
 		}
 				
@@ -826,6 +842,8 @@ public class TypeChecker {
 			return cards.get(name).struct;
 		if (contracts.containsKey(name))
 			return contracts.get(name);
+		if (fnArgs.containsKey(name))
+			return fnArgs.get(name);
 		throw new UtilException("There is no type: " + name);
 	}
 

@@ -438,7 +438,9 @@ public class MetaState {
 	}
 	
 	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, Object expr) {
-		if (expr instanceof VarNestedFromOuterFunctionScope) {
+		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof LocalVar || expr instanceof PackageVar || expr instanceof RWStructDefn)
+			; // nothing to do; no recursion
+		else if (expr instanceof VarNestedFromOuterFunctionScope) {
 			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;
 			set.add(sv);
 		} else if (expr instanceof ApplyExpr) {
@@ -446,6 +448,11 @@ public class MetaState {
 			gatherScopedVars(set, ae.fn);
 			for (Object o : ae.args)
 				gatherScopedVars(set, o);
-		}
+		} else if (expr instanceof HandlerLambda) {
+			HandlerLambda hl = (HandlerLambda) expr;
+			if (hl.scopedFrom != null)
+				set.add(hl.scopedFrom);
+		} else
+			throw new UtilException("Cannot handle scopedVars in " + expr.getClass());
 	}
 }

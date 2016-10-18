@@ -41,6 +41,7 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
+import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -195,10 +196,10 @@ public class Compiler {
 	}
 
 	public static void setLogLevels() {
-		LogManager.getLogger("Compiler").setLevel(Level.INFO);
+		LogManager.getLogger("Compiler").setLevel(Level.WARN);
 		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
 		LogManager.getLogger("Generator").setLevel(Level.WARN);
-		LogManager.getLogger("HSIE").setLevel(Level.INFO);
+		LogManager.getLogger("HSIE").setLevel(Level.WARN);
 		LogManager.getLogger("Rewriter").setLevel(Level.ERROR);
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 	}
@@ -400,6 +401,11 @@ public class Compiler {
 
 			Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 			for (Orchard<RWFunctionDefinition> d : defns) {
+				
+				for (Tree<RWFunctionDefinition> tfd : d)
+					for (RWFunctionDefinition fd : tfd.allNodes())
+						tc.addArgTypes(fd);
+				
 				// 6a. Convert each orchard to HSIE
 				Orchard<HSIEForm> oh = hsieOrchard(errors, hsie, forms, d);
 				abortIfErrors(errors);

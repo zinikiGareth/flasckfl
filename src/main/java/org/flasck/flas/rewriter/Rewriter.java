@@ -873,7 +873,11 @@ public class Rewriter {
 			args.add(rewritePattern(cx, name + "." + cmd.name, o));
 			if (o instanceof TypedPattern) {
 				targs.add(rewrite(cx, ((TypedPattern)o).type, false));
-			}
+			} else if (o instanceof ConstructorMatch) { // we can get this instead of a typed patter
+				ConstructorMatch cm = (ConstructorMatch)o;
+				targs.add(rewrite(cx, new TypeReference(cm.location, cm.ctor), false));
+			} else
+				throw new UtilException("Unexpected pattern " + o.getClass());
 		}
 		targs.add(typeFrom(cx.resolve(cmd.location(), "Send")));
 		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, args, Type.function(cmd.location(), targs));

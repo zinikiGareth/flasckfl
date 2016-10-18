@@ -4,8 +4,8 @@ The idea here is to test that things in scopes work out right
 		down reply (Number k)
 
 	contract Server
-		up get Number Reply
-		up put Number
+		up get (Number k) (Reply r)
+		up put (Number k)
 
 Note: I had to specifically identify the type of "server" here in order
 to get type checking to pass
@@ -17,8 +17,14 @@ so we should consider that case
 		var = 32
 		
 		method q
-			<- server.get var (Reply var)
+			<- server.get var (HandleReply var)
 			
 		handler Reply HandleReply (Number v)
 			reply y
 				<- server.put (var + v)
+
+	contract NoArg
+		up get Number
+	
+	method cna (NoArg na)
+		<- na.get 42
