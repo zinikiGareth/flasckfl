@@ -1,0 +1,6 @@
+HSIE for test.golden.Simple.f
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN 3                                                     simplecard.f 11.4 - this appears to be wrong for closures; wants to be the apply expr point
+=======

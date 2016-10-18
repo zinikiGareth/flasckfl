@@ -3,7 +3,7 @@ HSIE for test.golden.take
     externals: [-, Cons, Nil, Number] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v1                                                      ?? - should be location of defn in first equation to have this as a free var
-SWITCH v1 Cons                                               take.fl:      2.7
+SWITCH v1 Cons                                               take.fl:      3.11
   BIND v2 v1.head                                              ?? - should be location in first equation where this var is introduced in a pattern
   BIND v3 v1.tail                                              ?? - should be location in first equation where this var is introduced in a pattern
   HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var

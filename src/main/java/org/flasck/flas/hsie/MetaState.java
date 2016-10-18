@@ -438,7 +438,10 @@ public class MetaState {
 	}
 	
 	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, Object expr) {
-		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof LocalVar || expr instanceof PackageVar || expr instanceof RWStructDefn)
+		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || 
+			expr instanceof LocalVar || expr instanceof CardMember || expr instanceof CardStateRef || expr instanceof ObjectReference ||
+			expr instanceof PackageVar ||
+			expr instanceof RWStructDefn || expr instanceof TemplateListVar)
 			; // nothing to do; no recursion
 		else if (expr instanceof VarNestedFromOuterFunctionScope) {
 			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;

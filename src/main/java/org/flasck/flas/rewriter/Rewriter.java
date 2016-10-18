@@ -504,17 +504,13 @@ public class Rewriter {
 				RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
 				CardGrouping grp = new CardGrouping(sd);
 				cards.put(cd.name, grp);
-				pass1(new CardContext((PackageContext) cx, cd), cd.fnScope);
+				pass1(null, cd.fnScope);
 			} else if (val instanceof FunctionDefinition) {
 				FunctionDefinition f = (FunctionDefinition) val;
 				RWFunctionDefinition ret = new RWFunctionDefinition(f.location, f.mytype, f.name, f.nargs, true);
 				functions.put(name, ret);
-				int cs = 0;
-				for (FunctionCaseDefn c : f.cases) {
-					gatherVars(errors, this, cx, f.name + "_" + cs, ret.vars, c.intro);
+				for (FunctionCaseDefn c : f.cases)
 					pass1(cx, c.innerScope());
-					cs++;
-				}
 			} else if (val instanceof MethodDefinition) {
 				MethodDefinition m = (MethodDefinition) val;
 				RWMethodDefinition rw = new RWMethodDefinition(m.location(), m.intro.name, m.intro.args.size());
@@ -997,12 +993,11 @@ public class Rewriter {
 
 	public void rewrite(NamingContext cx, FunctionDefinition f) {
 		RWFunctionDefinition ret = functions.get(f.name);
-//		RWFunctionIntro fi = null;
 		for (FunctionCaseDefn c : f.cases) {
-			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, ret.cases.size(), ret.vars, c.innerScope(), false);
-			RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), ret.vars);
-//			if (fi == null)
-//				fi = rwc.intro;
+			final Map<String, LocalVar> vars = new HashMap<>();
+			gatherVars(errors, this, cx, c.caseName(), vars, c.intro);
+			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, ret.cases.size(), vars, c.innerScope(), false);
+			RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
 			ret.cases.add(rwc);
 		}
 	}

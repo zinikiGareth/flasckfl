@@ -105,14 +105,12 @@ public class HSIE {
 		for (int i=0;i<nargs;i++)
 			formals.add(ms.allocateVar());
 		Map<Object, SubstExpr> exprs = new HashMap<Object, SubstExpr>();
-		int cs = 0;
 		for (RWFunctionCaseDefn c : cases) {
 			SubstExpr ex = new SubstExpr(c.expr, exprIdx++);
 			ex.alsoSub(map);
 			form.exprs.add(ex);
 			createSubsts(ms, c.caseName(), c.args(), formals, ex);
 			exprs.put(c, ex);
-			cs++;
 		}
 		for (int i=0;i<nargs;i++) {
 			for (RWFunctionCaseDefn c : cases) {

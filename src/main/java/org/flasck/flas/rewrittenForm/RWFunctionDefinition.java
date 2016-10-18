@@ -2,9 +2,7 @@ package org.flasck.flas.rewrittenForm;
 
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
@@ -17,7 +15,6 @@ public class RWFunctionDefinition implements Locatable {
 	public final CodeType mytype;
 	public final String name;
 	public final int nargs;
-	public final Map<String, LocalVar> vars = new HashMap<>();
 	public final List<RWFunctionCaseDefn> cases = new ArrayList<>();
 	public final boolean generate;
 	private Type type;
