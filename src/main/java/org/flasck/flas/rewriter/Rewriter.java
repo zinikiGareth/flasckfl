@@ -449,7 +449,7 @@ public class Rewriter {
 		this.pkgFinder = new PackageFinder(this, pkgdirs, rootPkg);
 	}
 
-	public void importPackage(ImportPackage pkg) {
+	public void importPackage1(ImportPackage pkg) {
 		for (Entry<String, Object> x : pkg) {
 			String name = x.getKey();
 			Object val = x.getValue();
@@ -463,8 +463,6 @@ public class Rewriter {
 				types.put(name, (RWUnionTypeDefn) val);
 			} else if (val instanceof RWContractDecl) {
 				contracts.put(name, (RWContractDecl) val);
-			} else if (val instanceof RWFunctionDefinition) {
-				functions.put(name, (RWFunctionDefinition)val);
 			} else if (val instanceof CardGrouping) {
 				cards.put(name, (CardGrouping)val);
 			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
@@ -477,11 +475,20 @@ public class Rewriter {
 					builtins.put(name, ty);
 				else
 					throw new UtilException("Cannot handle type of kind " + ty.iam);
-			} else 
-				throw new UtilException("Cannot handle " + val + " of type " + (val != null ? val.getClass() : ""));
+			}
 		}
 	}
 	
+	public void importPackage2(ImportPackage pkg) {
+		for (Entry<String, Object> x : pkg) {
+			String name = x.getKey();
+			Object val = x.getValue();
+			if (val instanceof RWFunctionDefinition) {
+				functions.put(name, (RWFunctionDefinition)val);
+			}
+		}
+	}
+
 	public void rewritePackageScope(String inPkg, final Scope scope) {
 		PackageContext cx = new PackageContext(new RootContext(), inPkg, scope);
 		pass1(cx, scope);
@@ -1188,9 +1195,11 @@ public class Rewriter {
 						aefn = ((CastExpr)aefn).expr;
 					}
 					if (aefn instanceof PackageVar) {
-						throw new UtilException("big-divide case to handle");
-						/*
 						PackageVar pv = (PackageVar)aefn;
+						if (pv.defn == null) {
+							return cx.resolve(ae.location, pv.id +"." + fname);
+						}
+						/*
 						Object defn = pv.defn;
 						ScopeEntry entry = null;
 						if (defn == null)
@@ -1408,7 +1417,6 @@ public class Rewriter {
 	protected Object getMe(InputPosition location, String id) {
 		Object val = doIhave(location, id);
 		if (val == null) {
-			errors.message(location, "Can't identify " + id);
 			return null;
 		}
 		return new PackageVar(location, id, val);

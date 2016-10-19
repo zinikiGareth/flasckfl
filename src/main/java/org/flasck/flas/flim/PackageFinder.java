@@ -55,9 +55,10 @@ public class PackageFinder {
 			if (flim.canRead()) {
 				// Load definitions into it
 				try {
-					logger.error("Loading definitions for " + pkgName + " from " + flim);
+					logger.info("Loading definitions for " + pkgName + " from " + flim);
 					XML xml = XML.fromFile(flim);
 					ImportPackage pkg = new ImportPackage(pkgName);
+					imported.put(pkgName, pkg);
 					XMLElement top = xml.top();
 					if (!top.hasTag("FLIM"))
 						throw new UtilException("Cannot load FLIM file " + flim + " because it does not have the right tag");
@@ -84,7 +85,7 @@ public class PackageFinder {
 					}
 					
 					// after pass1, make these things available, if incomplete ...
-					rw.importPackage(pkg);
+					rw.importPackage1(pkg);
 					
 					for (Pass2 p : todos) {
 						if (p.parent instanceof RWStructDefn) {
@@ -132,13 +133,14 @@ public class PackageFinder {
 								RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, xe.required("name"), args.size()-1, false);
 								ret.setType(Type.function(location(xe), args));
 								xe.attributesDone();
+								pkg.define(ret.name(), ret);
 							} else
 								throw new UtilException("Unrecognized XML tag " + xe.tag());
 						} else
 							throw new UtilException("Cannot handle " + p.parent.getClass());
 					}
-					imported.put(pkgName, pkg);
-					return;
+					
+					rw.importPackage2(pkg);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					errors.message((Block)null, ex.toString());

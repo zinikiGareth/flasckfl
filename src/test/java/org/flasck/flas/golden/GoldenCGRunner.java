@@ -100,6 +100,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	
 	public static void runGolden(String s) throws Exception {
 		System.out.println("Run golden test for " + s);
+		File importFrom = new File(s, "import");
 		File pform = new File(s, "parser-tmp");
 		File jsto = new File(s, "jsout-tmp");
 		File hsie = new File(s, "hsie-tmp");
@@ -131,9 +132,11 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		}
 		assertGolden(new File(s, "pform"), pform);
 		
-		// read these kinds of things from "new File(s, ".settings")"
+		if (importFrom.isDirectory())
+			compiler.searchIn(importFrom);
+
+		// infer these kinds of things from the existence of directories; or else from some kind of settings.xml file
 //		compiler.writeDroidTo(new File("null"));
-//		compiler.searchIn(new File("src/main/resources/flim"));
 		
 //			compiler.dumpTypes();
 		try {

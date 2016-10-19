@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Contract file="import.fl" line="1" name="test.import.Fred" off="9">
+        <Method dir="down" file="import.fl" line="2" name="go" off="2" required="true">
+            <Typed file="import.fl" line="3" off="12"
+                var="test.import.Fred.go.x" vfile="import.fl" vline="3" voff="19">
+                <Builtin name="Number"/>
+            </Typed>
+        </Method>
+    </Contract>
+</FLIM>

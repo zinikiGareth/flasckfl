@@ -314,7 +314,7 @@ public class Compiler {
 			final HSIE hsie = new HSIE(errors, rewriter);
 			final DroidGenerator dg = new DroidGenerator(hsie, builder);
 
-			rewriter.importPackage(rootPkg);
+			rewriter.importPackage1(rootPkg);
 			
 			rewriter.rewritePackageScope(inPkg, scope);
 			abortIfErrors(errors);
