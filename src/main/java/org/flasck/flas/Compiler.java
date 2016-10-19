@@ -98,7 +98,13 @@ public class Compiler {
 				if (f.startsWith("-")) {
 					if (f.equals("--dump"))
 						compiler.dumpTypes = true;
-					else if (f.equals("--flim")) {
+					else if (f.equals("--wflim")) {
+						if (hasMore == 0) {
+							System.out.println("--wflim <dir>");
+							System.exit(1);
+						}
+						compiler.writeFlimTo(new File(args[++i]));
+					} else if (f.equals("--flim")) {
 						if (hasMore == 0) {
 							System.out.println("--flim <file>");
 							System.exit(1);

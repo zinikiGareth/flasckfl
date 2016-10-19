@@ -23,7 +23,7 @@ public class ImportPackage implements Iterable<Map.Entry<String, Object>> {
 	}
 
 	public void define(String key, Object value) {
-		String pn = pkgName == null ? key : pkgName+"."+key;
+		String pn = (pkgName == null || key.startsWith(pkgName))? key : pkgName+"."+key;
 		map.put(pn, value);
 	}
 
