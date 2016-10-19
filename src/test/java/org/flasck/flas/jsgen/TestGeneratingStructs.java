@@ -36,7 +36,7 @@ public class TestGeneratingStructs {
 
 	@Test
 	public void testACaseWithTwoFields() throws IOException {
-		ImportPackage biScope = Builtin.builtinScope();
+		ImportPackage biScope = Builtin.builtins();
 		Type str = (Type) biScope.get("String");
 		Type nbr = (Type) biScope.get("Number");
 		RWStructDefn sd = new RWStructDefn(null, "ME.Hello", true);

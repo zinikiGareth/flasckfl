@@ -10,6 +10,7 @@ import org.flasck.flas.ArgumentException;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -24,10 +25,12 @@ import org.zinutils.xml.XMLElement;
 
 public class PackageFinder {
 	private final static Logger logger = LoggerFactory.getLogger("Compiler");
+	private final Rewriter rw;
 	private final List<File> dirs;
 	private final Map<String, ImportPackage> imported = new HashMap<String, ImportPackage>();
 	
-	public PackageFinder(List<File> pkgdirs, ImportPackage rootPkg) {
+	public PackageFinder(Rewriter rw, List<File> pkgdirs, ImportPackage rootPkg) {
+		this.rw = rw;
 		dirs = pkgdirs;
 		imported.put("", rootPkg);
 	}
@@ -80,41 +83,10 @@ public class PackageFinder {
 						} else
 							System.out.println("Have a " + xe.tag() + (xe.hasAttribute("name")?" called "  +xe.get("name") : ""));
 					}
-					/*
-					@SuppressWarnings("unchecked")
-					List<RWStructDefn> structs = (List<RWStructDefn>) ois.readObject();
-					for (RWStructDefn sd : structs) {
-						int idx = sd.name().lastIndexOf(".");
-						scope.define(sd.name().substring(idx+1), sd.name(), sd);
-					}
-					@SuppressWarnings("unchecked")
-					List<UnionTypeDefn> types = (List<UnionTypeDefn>) ois.readObject();
-					for (UnionTypeDefn td : types) {
-						int idx = td.name().lastIndexOf(".");
-						scope.define(td.name().substring(idx+1), td.name(), td);
-					}
-					@SuppressWarnings("unchecked")
-					List<ContractDecl> contracts = (List<ContractDecl>)ois.readObject();
-					for (ContractDecl c : contracts) {
-						int idx = c.name().lastIndexOf(".");
-						scope.define(c.name().substring(idx+1), c.name(), c);
-					}
-					@SuppressWarnings("unchecked")
-					List<CardTypeInfo> cards = (List<CardTypeInfo>) ois.readObject();
-					for (CardTypeInfo c : cards) {
-						int idx = c.name.lastIndexOf(".");
-						scope.define(c.name.substring(idx+1), c.name, c);
-					}
-					@SuppressWarnings("unchecked")
-					Map<String, Type> knowledge = (Map<String, Type>) ois.readObject();
-					for (Entry<String, Type> t : knowledge.entrySet()) {
-						int idx = t.getKey().lastIndexOf(".");
-						scope.define(t.getKey().substring(idx+1), t.getKey(), t.getValue());
-					}
-					*/
 					imported.put(pkgName, ret);
 					return ret;
 				} catch (Exception ex) {
+					ex.printStackTrace();
 					errors.message((Block)null, ex.toString());
 				} finally {
 				}
@@ -126,12 +98,22 @@ public class PackageFinder {
 	protected Type getUniqueNestedType(XMLElement fe) {
 		Type t = null;
 		for (XMLElement te : fe.elementChildren()) {
-			if (te.hasTag("Type")) {
-				if (t != null)
-					throw new UtilException("Multiple type declarations");
-				t = type(te);
+			if (t != null)
+				throw new UtilException("Multiple type declarations");
+			// Need to consider function first
+			String name = te.required("name");
+			if (te.hasTag("Builtin")) {
+				t = rw.builtins.get(name);
+				te.assertNoSubContents();
+			} else if (te.hasTag("Contract")) {
+				t = rw.contracts.get(name);
+				te.assertNoSubContents();
+			} else if (te.hasTag("Instance")) {
+				
 			} else
-				throw new UtilException("What is " + te.tag() + "?");
+				throw new UtilException("What is " + te.tag() + " " + name + "?");
+			if (t == null)
+				throw new UtilException("Failed to find " + te.tag() + " " + name);
 		}
 		return t;
 	}

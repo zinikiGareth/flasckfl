@@ -429,7 +429,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
-		ImportPackage biscope = Builtin.builtinScope();
+		ImportPackage biscope = Builtin.builtins();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -452,7 +452,7 @@ public class TestBasicTypeChecking {
 		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
 		tc.addStructDefn((RWStructDefn) biscope.get("Send"));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
-		Rewriter rewriter = new Rewriter(errors, null);
+		Rewriter rewriter = new Rewriter(errors, null, null);
 		rewriter.rewritePackageScope("ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIE hsie = new HSIE(errors, rewriter);

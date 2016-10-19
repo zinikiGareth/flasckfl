@@ -16,7 +16,7 @@ import org.zinutils.graphs.Orchard;
 public class TestDependencyAnalysis {
 	private final ErrorResult errors = new ErrorResult();
 	private final DependencyAnalyzer analyzer = new DependencyAnalyzer(errors);
-	private final Rewriter rewriter = new Rewriter(errors, null);
+	private final Rewriter rewriter = new Rewriter(errors, null, null);
 
 	@Test
 	public void testMutualFandG() {

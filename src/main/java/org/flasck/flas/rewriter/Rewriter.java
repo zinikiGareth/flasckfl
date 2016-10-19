@@ -1,5 +1,6 @@
 package org.flasck.flas.rewriter;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -451,9 +452,9 @@ public class Rewriter {
 
 	}
 
-	public Rewriter(ErrorResult errors, PackageFinder finder) {
+	public Rewriter(ErrorResult errors, List<File> pkgdirs, ImportPackage rootPkg) {
 		this.errors = errors;
-		this.pkgFinder = finder;
+		this.pkgFinder = new PackageFinder(this, pkgdirs, rootPkg);
 	}
 
 	public void importPackage(ImportPackage rootPkg) {

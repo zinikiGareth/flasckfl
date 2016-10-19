@@ -66,7 +66,7 @@ public class MethodConvertorTests {
 
 	public MethodConvertorTests() {
 		errors = new ErrorResult();
-		ImportPackage biscope = Builtin.builtinScope();
+		ImportPackage biscope = Builtin.builtins();
 		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
 		RWStructDefn send = (RWStructDefn) biscope.get("Send");
 		orgFooScope = new Scope(null, null);
@@ -104,7 +104,7 @@ public class MethodConvertorTests {
 		}
 		
 		{
-			rewriter = new Rewriter(errors, null);
+			rewriter = new Rewriter(errors, null, null);
 			cd = new CardDefinition(null, null, orgFooScope, "org.foo.Card");
 			cd.state = new StateDefinition();
 			cd.state.addField(new StructField(null, false, new TypeReference(null, "String"), "str", null));

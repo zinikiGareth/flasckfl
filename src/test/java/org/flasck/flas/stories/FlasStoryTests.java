@@ -24,7 +24,7 @@ import org.junit.Test;
 
 public class FlasStoryTests {
 	private final ErrorResult errors = new ErrorResult();
-	private final Rewriter rewriter = new Rewriter(errors, null);
+	private final Rewriter rewriter = new Rewriter(errors, null, null);
 	private final Scope s = new Scope(null, null);
 
 	@Test

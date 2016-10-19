@@ -47,13 +47,13 @@ import org.zinutils.collections.CollectionUtils;
 
 public class RewriterTests {
 	private final ErrorResult errors = new ErrorResult();
-	private final Rewriter rw = new Rewriter(errors, null);
+	private final Rewriter rw = new Rewriter(errors, null, null);
 	private Scope scope;
 	private ImportPackage builtinScope;
 	
 	@Before
 	public void setup() {
-		builtinScope = Builtin.builtinScope();
+		builtinScope = Builtin.builtins();
 		builtinScope.define("Timer", Type.builtin(null, "Timer"));
 	}
 

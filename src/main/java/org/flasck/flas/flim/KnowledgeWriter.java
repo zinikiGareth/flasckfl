@@ -150,15 +150,50 @@ public class KnowledgeWriter {
 	private void writeTypeUsage(XMLElement xe, Type type) {
 		switch (type.iam) {
 		case BUILTIN:
+		{
+			XMLElement ty = xe.addElement("Builtin");
+			ty.setAttribute("name", type.name());
+			break;
+		}
 		case CONTRACT:
+		{
+			XMLElement ty = xe.addElement("Contract");
+			ty.setAttribute("name", type.name());
+			break;
+		}
 		case CONTRACTIMPL:
+		{
+			XMLElement ty = xe.addElement("Implements");
+			ty.setAttribute("name", type.name());
+			break;
+		}
 		case CONTRACTSERVICE:
+		{
+			XMLElement ty = xe.addElement("Service");
+			ty.setAttribute("name", type.name());
+			break;
+		}
 		case HANDLERIMPLEMENTS:
+		{
+			XMLElement ty = xe.addElement("Handler");
+			ty.setAttribute("name", type.name());
+			break;
+		}
 		case STRUCT:
+		{
+			XMLElement ty = xe.addElement("Struct");
+			ty.setAttribute("name", type.name());
+			break;
+		}
 		case UNION:
+		{
+			XMLElement ty = xe.addElement("Union");
+			ty.setAttribute("name", type.name());
+			break;
+		}
 		case OBJECT:
 		{
-			XMLElement ty = xe.addElement("Type");
+			XMLElement ty = xe.addElement("Object");
 			ty.setAttribute("name", type.name());
 			break;
 		}
@@ -175,11 +210,12 @@ public class KnowledgeWriter {
 			break;
 		}
 		case FUNCTION: {
+			XMLElement ty = xe.addElement("Function");
 			for (int i=0;i<type.arity();i++) {
-				XMLElement ae = xe.addElement("Arg");
+				XMLElement ae = ty.addElement("Arg");
 				writeTypeUsage(ae, type.arg(i));
 			}
-			XMLElement re = xe.addElement("Return");
+			XMLElement re = ty.addElement("Return");
 			writeTypeUsage(re, type.arg(type.arity()));
 			break;
 		}

@@ -13,7 +13,7 @@ import org.zinutils.collections.CollectionUtils;
 
 public class Builtin {
 
-	public static ImportPackage builtinScope() {
+	public static ImportPackage builtins() {
 		ImportPackage root = new ImportPackage(null);
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
 		Type varA = Type.polyvar(posn, "A");

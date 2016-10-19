@@ -35,7 +35,6 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
-import org.flasck.flas.flim.PackageFinder;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSTarget;
@@ -44,8 +43,8 @@ import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
-import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
@@ -274,8 +273,6 @@ public class Compiler {
 		System.out.println("compiling package " + inPkg + " to " + writeTo);
 			
 		boolean failed = false;
-		ImportPackage rootPkg = Builtin.builtinScope();
-		PackageFinder pkgFinder = new PackageFinder(pkgdirs, rootPkg);
 		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
 		final Scope scope = new Scope(null, null);
@@ -311,7 +308,8 @@ public class Compiler {
 		FileOutputStream wex = null;
 		success = false;
 		try {
-			final Rewriter rewriter = new Rewriter(errors, pkgFinder);
+			ImportPackage rootPkg = Builtin.builtins();
+			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter);
 			final DroidGenerator dg = new DroidGenerator(hsie, builder);
