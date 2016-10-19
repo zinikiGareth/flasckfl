@@ -24,6 +24,16 @@ import org.zinutils.xml.XML;
 import org.zinutils.xml.XMLElement;
 
 public class PackageFinder {
+	private class Pass2 {
+		Object parent;
+		List<XMLElement> children;
+		
+		public Pass2(Object parent, XMLElement container) {
+			this.parent = parent;
+			this.children = container.elementChildren();
+		}
+	}
+	
 	private final static Logger logger = LoggerFactory.getLogger("Compiler");
 	private final Rewriter rw;
 	private final List<File> dirs;
@@ -35,9 +45,9 @@ public class PackageFinder {
 		imported.put("", rootPkg);
 	}
 
-	public ImportPackage loadFlim(ErrorResult errors, String pkgName) {
+	public void loadFlim(ErrorResult errors, String pkgName) {
 		if (imported.containsKey(pkgName))
-			return imported.get(pkgName);
+			return;
 		for (File d : dirs) {
 			File flim = new File(d, pkgName + ".flim");
 			if (flim.canRead()) {
@@ -45,46 +55,64 @@ public class PackageFinder {
 				try {
 					logger.error("Loading definitions for " + pkgName + " from " + flim);
 					XML xml = XML.fromFile(flim);
-					ImportPackage ret = new ImportPackage(pkgName);
+					ImportPackage pkg = new ImportPackage(pkgName);
 					XMLElement top = xml.top();
 					if (!top.hasTag("FLIM"))
 						throw new UtilException("Cannot load FLIM file " + flim + " because it does not have the right tag");
+					
+					// get ready for pass2
+					List<Pass2> todos = new ArrayList<Pass2>();
 					for (XMLElement xe : top.elementChildren()) {
 						if (xe.hasTag("Struct")) {
 							List<Type> polys = new ArrayList<>();
 							RWStructDefn sd = new RWStructDefn(location(xe), xe.required("name"), false, polys);
 							xe.attributesDone();
-							ret.define(sd.name(), sd);
-							for (XMLElement fe : xe.elementChildren()) {
+							pkg.define(sd.name(), sd);
+							todos.add(new Pass2(sd, xe));
+						} else if (xe.hasTag("Contract")) {
+							RWContractDecl cd = new RWContractDecl(null, location(xe), xe.required("name"));
+							xe.attributesDone();
+							pkg.define(cd.name(), cd);
+							todos.add(new Pass2(cd, xe));
+						} else
+							System.out.println("Have a " + xe.tag() + (xe.hasAttribute("name")?" called "  +xe.get("name") : ""));
+					}
+					
+					// after pass1, make these things available, if incomplete ...
+					rw.importPackage(pkg);
+					
+					for (Pass2 p : todos) {
+						if (p.parent instanceof RWStructDefn) {
+							RWStructDefn sd = (RWStructDefn) p.parent;
+							for (XMLElement fe : p.children) {
 								RWStructField sf = new RWStructField(location(fe), fe.requiredBoolean("accessor"), getUniqueNestedType(fe), fe.required("name"));
 								fe.attributesDone();
 								sd.fields.add(sf);
 							}
-						} else if (xe.hasTag("Contract")) {
-							RWContractDecl cd = new RWContractDecl(null, location(xe), xe.required("name"));
-							xe.attributesDone();
-							ret.define(cd.name(), cd);
-							for (XMLElement cme : xe.elementChildren()) {
+						} else if (p.parent instanceof RWContractDecl) {
+							RWContractDecl cd = (RWContractDecl) p.parent;
+							for (XMLElement cme : p.children) {
 								List<Object> args = new ArrayList<Object>();
+								List<Type> types = new ArrayList<Type>();
 								for (XMLElement pe : cme.elementChildren()) {
 									if (pe.hasTag("Typed")) {
-										InputPosition vlocation = null; // TODO: this was an oversight in generation; so back and do it ...
-										RWTypedPattern tp = new RWTypedPattern(location(pe), getUniqueNestedType(pe), vlocation, pe.required("var"));
+										RWTypedPattern tp = new RWTypedPattern(location(pe), getUniqueNestedType(pe), location(pe, "v"), pe.required("var"));
 										args.add(tp);
+										types.add(tp.type);
 									} else
 										System.out.println("Handle pattern " + pe);
 								}
-								System.out.println("Figure the type");
-								Type type = null; // do what now?
+								types.add(rw.types.get("Send"));
+								Type type = Type.function(location(cme), types);
 								RWContractMethodDecl cmd = new RWContractMethodDecl(location(cme), cme.requiredBoolean("required"), cme.required("dir"), cme.required("name"), args, type);
 								cme.attributesDone();
 								cd.methods.add(cmd);
 							}
 						} else
-							System.out.println("Have a " + xe.tag() + (xe.hasAttribute("name")?" called "  +xe.get("name") : ""));
+							throw new UtilException("Cannot handle " + p.parent.getClass());
 					}
-					imported.put(pkgName, ret);
-					return ret;
+					imported.put(pkgName, pkg);
+					return;
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					errors.message((Block)null, ex.toString());
@@ -92,7 +120,6 @@ public class PackageFinder {
 				}
 			}
 		}
-		return null;
 	}
 
 	protected Type getUniqueNestedType(XMLElement fe) {
@@ -100,21 +127,46 @@ public class PackageFinder {
 		for (XMLElement te : fe.elementChildren()) {
 			if (t != null)
 				throw new UtilException("Multiple type declarations");
-			// Need to consider function first
-			String name = te.required("name");
+			t = extractType(te);
+		}
+		if (t == null)
+			throw new UtilException("I believe this must imply that we didn't have any definitions");
+		return t;
+	}
+
+	protected Type extractType(XMLElement te) {
+		Type t = null;
+		// Need to consider function first
+		String name = "";
+		if (te.hasTag("Instance")) {
+			List<Type> types = new ArrayList<Type>();
+			for (XMLElement ct : te.elementChildren()) {
+				types.add(extractType(ct));
+			}
+			Type base = types.remove(0);
+			t = base.instance(location(te), types);
+		} else {
+			name = te.required("name");
 			if (te.hasTag("Builtin")) {
 				t = rw.builtins.get(name);
+				te.assertNoSubContents();
+			} else if (te.hasTag("Struct")) {
+				t = rw.structs.get(name);
+				te.assertNoSubContents();
+			} else if (te.hasTag("Union")) {
+				t = rw.types.get(name);
 				te.assertNoSubContents();
 			} else if (te.hasTag("Contract")) {
 				t = rw.contracts.get(name);
 				te.assertNoSubContents();
-			} else if (te.hasTag("Instance")) {
-				
-			} else
+			} else if (te.hasTag("Object")) {
+				t = rw.objects.get(name);
+				te.assertNoSubContents();
+			} else 
 				throw new UtilException("What is " + te.tag() + " " + name + "?");
-			if (t == null)
-				throw new UtilException("Failed to find " + te.tag() + " " + name);
 		}
+		if (t == null)
+			throw new UtilException("Failed to find " + te.tag() + " " + name);
 		return t;
 	}
 
@@ -122,10 +174,8 @@ public class PackageFinder {
 		return new InputPosition(xe.required("file"), xe.requiredInt("line"), xe.requiredInt("off"), null);
 	}
 
-	private Type type(XMLElement te) {
-		System.out.println("Parse type " + te);
-		// TODO Auto-generated method stub
-		return null;
+	private InputPosition location(XMLElement xe, String prefix) {
+		return new InputPosition(xe.required(prefix + "file"), xe.requiredInt(prefix + "line"), xe.requiredInt(prefix + "off"), null);
 	}
 
 	public void searchIn(File file) {

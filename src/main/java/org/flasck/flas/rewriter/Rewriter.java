@@ -191,21 +191,13 @@ public class Rewriter {
 			Object val = getMe(location, name);
 			if (val != null)
 				return val;
-			// TODO: big-divide: I think all this logic wants to go in the package finder
 			if (name.contains(".")) {
-				// try and resolve through a sequence of packages
-				// TODO: need to be sure to consider "the current package"
 				int idx = name.lastIndexOf(".");
 				String pkgName = name.substring(0, idx);
-				ImportPackage ip = pkgFinder.loadFlim(errors, pkgName);
-				if (ip == null)
-					throw new ResolutionException(location, 0, pkgName);
-				Map.Entry<String, Object> defn = ip.getEntry(name);
-				if (defn != null) {
-					// Now, do I really want to wrap this up or just return it?
-					// I think I do need to wrap it up in order to get the "location" here ...
-					return new PackageVar(location, defn.getKey(), defn.getValue());
-				}
+				pkgFinder.loadFlim(errors, pkgName);
+				val = getMe(location, name);
+				if (val != null)
+					return val;
 			}
 			throw new ResolutionException(location, name);
 		}
@@ -457,8 +449,8 @@ public class Rewriter {
 		this.pkgFinder = new PackageFinder(this, pkgdirs, rootPkg);
 	}
 
-	public void importPackage(ImportPackage rootPkg) {
-		for (Entry<String, Object> x : rootPkg) {
+	public void importPackage(ImportPackage pkg) {
+		for (Entry<String, Object> x : pkg) {
 			String name = x.getKey();
 			Object val = x.getValue();
 			if (val instanceof RWStructDefn) {
@@ -469,6 +461,8 @@ public class Rewriter {
 				objects.put(name, (RWObjectDefn) val);
 			} else if (val instanceof RWUnionTypeDefn) {
 				types.put(name, (RWUnionTypeDefn) val);
+			} else if (val instanceof RWContractDecl) {
+				contracts.put(name, (RWContractDecl) val);
 			} else if (val instanceof RWFunctionDefinition) {
 				functions.put(name, (RWFunctionDefinition)val);
 			} else if (val instanceof CardGrouping) {
@@ -1222,8 +1216,8 @@ public class Rewriter {
 						try {
 							Object pkgEntry = cx.resolve(uv0.location, uv0.var);
 							if (pkgEntry instanceof PackageVar) {
-								PackageVar pv = (PackageVar)pkgEntry;
-								Object o = pv.defn;
+//								PackageVar pv = (PackageVar)pkgEntry;
+//								Object o = pv.defn;
 								// TODO: big-divide: I may be making it so that this is no longer possible; not sure
 //								if (o instanceof PackageDefn)
 //									return getMe(uv0.location, pv.id + "." + fname);
@@ -1302,17 +1296,14 @@ public class Rewriter {
 						ret = ret.instance(type.location(), rwp);
 				}
 			}
-			// There seems something very wrong here to me ... if we ever get here :-)
-			int k = -1;
 			List<Type> fnargs = new ArrayList<Type>();
+			// There seems something very wrong here to me ... if we ever get here :-)  Shouldn't fnargs be filled with something?
 			if (ret.iam == WhatAmI.TUPLE)
-				k = ret.width();
-			else
-				return ret;
+				return Type.tuple(ret.location(), fnargs);
 			if (ret.iam == WhatAmI.FUNCTION)
 				return Type.function(ret.location(), fnargs);
 			else
-				return Type.tuple(ret.location(), fnargs);
+				return ret;
 		} catch (ResolutionException ex) {
 			errors.message(type.location(), ex.getMessage());
 			return null;

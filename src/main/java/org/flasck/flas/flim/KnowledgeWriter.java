@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
@@ -104,6 +105,7 @@ public class KnowledgeWriter {
 			XMLElement ae = xm.addElement("Typed");
 			writeLocation(ae, tp);
 			ae.setAttribute("var", tp.var);
+			writeLocation(ae, tp.varLocation, "v");
 			writeTypeUsage(ae, tp.type);
 		} else if (arg instanceof RWConstructorMatch) {
 			RWConstructorMatch cm = (RWConstructorMatch) arg;
@@ -165,6 +167,7 @@ public class KnowledgeWriter {
 		{
 			XMLElement ty = xe.addElement("Implements");
 			ty.setAttribute("name", type.name());
+			writeLocation(ty, ((RWContractImplements)type).varLocation, "v");
 			break;
 		}
 		case CONTRACTSERVICE:
@@ -204,7 +207,8 @@ public class KnowledgeWriter {
 		}
 		case INSTANCE: {
 			XMLElement ty = xe.addElement("Instance");
-			ty.setAttribute("name", type.name());
+			writeLocation(ty, type);
+			writeTypeUsage(ty, type.innerType());
 			for (Type t : type.polys())
 				writeTypeUsage(ty, t);
 			break;
@@ -244,10 +248,13 @@ public class KnowledgeWriter {
 	}
 
 	private void writeLocation(XMLElement xe, Locatable locItem) {
-		InputPosition loc = locItem.location();
-		xe.setAttribute("file", loc.file);
-		xe.setAttribute("line", Integer.toString(loc.lineNo));
-		xe.setAttribute("off", Integer.toString(loc.off));
+		writeLocation(xe, locItem.location(), "");
+	}
+
+	private void writeLocation(XMLElement xe, InputPosition loc, String prefix) {
+		xe.setAttribute(prefix+"file", loc.file);
+		xe.setAttribute(prefix+"line", Integer.toString(loc.lineNo));
+		xe.setAttribute(prefix+"off", Integer.toString(loc.off));
 	}
 
 	public void commit() {
