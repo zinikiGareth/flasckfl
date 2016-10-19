@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
     <Function file="filter.fl" line="3" name="test.golden.filter" off="7">
-        <Arg>
+        <Function>
             <Arg>
-                <Poly name="A"/>
+                <Function>
+                    <Arg>
+                        <Poly name="A"/>
+                    </Arg>
+                    <Return>
+                        <Builtin name="Boolean"/>
+                    </Return>
+                </Function>
+            </Arg>
+            <Arg>
+                <Instance>
+                    <Union name="List"/>
+                    <Poly name="A"/>
+                </Instance>
             </Arg>
             <Return>
-                <Type name="Boolean"/>
+                <Struct name="Nil"/>
             </Return>
-        </Arg>
-        <Arg>
-            <Instance name="List">
-                <Poly name="A"/>
-            </Instance>
-        </Arg>
-        <Return>
-            <Type name="Nil"/>
-        </Return>
+        </Function>
     </Function>
 </FLIM>

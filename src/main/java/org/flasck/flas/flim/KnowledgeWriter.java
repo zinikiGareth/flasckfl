@@ -252,6 +252,8 @@ public class KnowledgeWriter {
 	}
 
 	private void writeLocation(XMLElement xe, InputPosition loc, String prefix) {
+		if (loc == null)
+			return;
 		xe.setAttribute(prefix+"file", loc.file);
 		xe.setAttribute(prefix+"line", Integer.toString(loc.lineNo));
 		xe.setAttribute(prefix+"off", Integer.toString(loc.off));

@@ -447,6 +447,8 @@ public class Rewriter {
 	public Rewriter(ErrorResult errors, List<File> pkgdirs, ImportPackage rootPkg) {
 		this.errors = errors;
 		this.pkgFinder = new PackageFinder(this, pkgdirs, rootPkg);
+		importPackage1(rootPkg);
+		importPackage2(rootPkg);
 	}
 
 	public void importPackage1(ImportPackage pkg) {
@@ -1305,14 +1307,14 @@ public class Rewriter {
 						ret = ret.instance(type.location(), rwp);
 				}
 			}
-			List<Type> fnargs = new ArrayList<Type>();
-			// There seems something very wrong here to me ... if we ever get here :-)  Shouldn't fnargs be filled with something?
-			if (ret.iam == WhatAmI.TUPLE)
-				return Type.tuple(ret.location(), fnargs);
-			if (ret.iam == WhatAmI.FUNCTION)
-				return Type.function(ret.location(), fnargs);
-			else
-				return ret;
+//			List<Type> fnargs = new ArrayList<Type>();
+//			// There seems something very wrong here to me ... if we ever get here :-)  Shouldn't fnargs be filled with something?
+//			if (ret.iam == WhatAmI.TUPLE)
+//				return Type.tuple(ret.location(), fnargs);
+//			if (ret.iam == WhatAmI.FUNCTION)
+//				return Type.function(ret.location(), fnargs);
+//			else
+			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(type.location(), ex.getMessage());
 			return null;
