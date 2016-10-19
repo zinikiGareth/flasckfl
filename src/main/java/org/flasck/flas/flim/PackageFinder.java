@@ -13,10 +13,12 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
@@ -74,6 +76,9 @@ public class PackageFinder {
 							xe.attributesDone();
 							pkg.define(cd.name(), cd);
 							todos.add(new Pass2(cd, xe));
+						} else if (xe.hasTag("Function")) {
+							// we don't have anything to create right now ...
+							todos.add(new Pass2(xe, xe));
 						} else
 							System.out.println("Have a " + xe.tag() + (xe.hasAttribute("name")?" called "  +xe.get("name") : ""));
 					}
@@ -108,6 +113,27 @@ public class PackageFinder {
 								cme.attributesDone();
 								cd.methods.add(cmd);
 							}
+						} else if (p.parent instanceof XMLElement) {
+							// We decided not to create anything in pass1; do all the work here ...
+							XMLElement xe = (XMLElement) p.parent;
+							if (xe.hasTag("Function")) {
+								if (p.children.size() != 1)// which is also xe.elementChildren()
+									throw new UtilException("More than one child of function declaration");
+								XMLElement te = p.children.get(0);
+								if (!te.hasTag("Function"))
+									throw new UtilException("Type was not a function type");
+								List<Type> args = new ArrayList<Type>();
+								for (XMLElement fe : te.elementChildren()) { 
+									// Then that has n-1 "Arg" objects
+									// and one "Return" object
+									args.add(getUniqueNestedType(fe));
+								}
+								// TODO: should we be (writing and) reading the code type?
+								RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, xe.required("name"), args.size()-1, false);
+								ret.setType(Type.function(location(xe), args));
+								xe.attributesDone();
+							} else
+								throw new UtilException("Unrecognized XML tag " + xe.tag());
 						} else
 							throw new UtilException("Cannot handle " + p.parent.getClass());
 					}
