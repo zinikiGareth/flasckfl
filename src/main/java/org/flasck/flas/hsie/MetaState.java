@@ -20,6 +20,7 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
@@ -28,7 +29,6 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
@@ -439,9 +439,9 @@ public class MetaState {
 	
 	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, Object expr) {
 		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || 
-			expr instanceof LocalVar || expr instanceof CardMember || expr instanceof CardStateRef || expr instanceof ObjectReference ||
-			expr instanceof PackageVar ||
-			expr instanceof RWStructDefn || expr instanceof TemplateListVar)
+			expr instanceof LocalVar || expr instanceof CardMember || expr instanceof CardFunction || expr instanceof CardStateRef || expr instanceof ObjectReference ||
+			expr instanceof PackageVar || 
+			expr instanceof RWStructDefn || expr instanceof RWFunctionDefinition || expr instanceof TemplateListVar)
 			; // nothing to do; no recursion
 		else if (expr instanceof VarNestedFromOuterFunctionScope) {
 			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;
@@ -456,6 +456,6 @@ public class MetaState {
 			if (hl.scopedFrom != null)
 				set.add(hl.scopedFrom);
 		} else
-			throw new UtilException("Cannot handle scopedVars in " + expr.getClass());
+			throw new UtilException("Cannot handle scopedVars in " + (expr == null ? "_null expr_" : expr.getClass()));
 	}
 }

@@ -63,19 +63,20 @@ public class TemplateGenerator {
 		private int areaNo = 1;
 		private String introduceVarHere;
 		private final List<DefinedVar> varsToCopy = new ArrayList<DefinedVar>();
-		private final RWStructDefn nil;
-		private final RWStructDefn cons;
-		private final RWFunctionDefinition equals;
+		private final Object nil;
+		private final Object cons;
+		private final Object equals;
 		private final String javaName;
 
 		public GeneratorContext(JSTarget target, Rewriter rw, Template cg) {
 			this.target = target;
 			this.javaName = cg.prefix;
+			InputPosition posn = new InputPosition("template", 1, 1, "");
 			this.simpleName = Generator.lname(cg.prefix, false);
 			this.protoName = Generator.lname(cg.prefix, true);
-			this.nil = rw.structs.get("Nil");
-			this.cons = rw.structs.get("Cons");
-			this.equals = rw.functions.get("==");
+			this.nil = rw.getMe(posn, "Nil");
+			this.cons = rw.getMe(posn, "Cons");
+			this.equals = rw.getMe(posn, "==");
 		}
 		
 		String nextArea() {
@@ -486,7 +487,7 @@ public class TemplateGenerator {
 			if (fd != null)
 				for (RWFunctionCaseDefn fcd : fd.cases)
 					callOnAssign(addToFunc, fcd.expr, cgrx, call, false, moreArgs);
-		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof PackageVar) {
+		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof PackageVar || valExpr instanceof RWStructDefn) {
 			// nothing to do here, not variable
 		} else if (valExpr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) valExpr;

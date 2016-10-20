@@ -3,7 +3,7 @@ package org.flasck.flas.rewrittenForm;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
-public class CardFunction implements Locatable {
+public class CardFunction implements ExternalRef {
 	public final InputPosition location;
 	public final String clzName;
 	public final String function;
@@ -39,5 +39,10 @@ public class CardFunction implements Locatable {
 	@Override
 	public String toString() {
 		return this.clzName + "." + this.function;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		return this.uniqueName().compareTo(((ExternalRef)o).uniqueName());
 	}
 }

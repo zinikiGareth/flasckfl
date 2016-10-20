@@ -338,7 +338,7 @@ public class MethodConvertor {
 				}
 				slotType = sf.type;
 				if (slotName != null)
-					intoObj = new ApplyExpr(si.location, rw.functions.get("."), intoObj, slotName);
+					intoObj = new ApplyExpr(si.location, new PackageVar(si.location, "FLEval.field", null), intoObj, slotName);
 				slotName = new StringLiteral(si.location, si.text);
 			}
 		} else if (slotName == null) {

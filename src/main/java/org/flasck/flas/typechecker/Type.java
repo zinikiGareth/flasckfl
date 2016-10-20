@@ -61,6 +61,8 @@ public class Type implements Locatable {
 		this.name = null;
 		this.type = null;
 		this.polys = null;
+		if (subtypes != null && subtypes.size() == 3 && subtypes.get(2) == null)
+			System.out.println("yo");
 		this.fnargs = subtypes;
 	}
 
@@ -121,15 +123,6 @@ public class Type implements Locatable {
 		return fnargs.get(i);
 	}
 	
-	// defining a "reference" says you know a thing's name and arguments but you don't actually know anything about it
-//	public static Type reference(InputPosition loc, String name, List<Type> args) {
-//		return new Type(null, loc, WhatAmI.REFERENCE, name, args);
-//	}
-//
-//	public static Type reference(InputPosition loc, String name, Type... args) {
-//		return new Type(null, loc, WhatAmI.REFERENCE, name, CollectionUtils.listOf(args));
-//	}
-	
 	// This one is DELIBERATELY not static - you need a type that you would otherwise have to pass in as "base"
 	public Type instance(InputPosition loc, Type... with) {
 		if (this.iam == WhatAmI.INSTANCE)
@@ -174,13 +167,6 @@ public class Type implements Locatable {
 
 	protected Object convertToExpr(TypeChecker tc, GarneredFrom from, VariableFactory factory, Map<String, TypeVar> mapping) {
 		switch (iam) {
-		// I don't think references to types should make it this far
-//		case REFERENCE: {
-//			List<Object> myargs = new ArrayList<Object>();
-//			for (Type t : polys)
-//				myargs.add(t.convertToExpr(factory, mapping));
-//			return new TypeExpr(new GarneredFrom(location), name, myargs);
-//		}
 		case BUILTIN:
 		case CONTRACT:
 		case CONTRACTIMPL:

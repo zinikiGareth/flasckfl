@@ -46,6 +46,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
@@ -568,7 +569,7 @@ public class Compiler {
 		RWStructDefn assoc = rewriter.structs.get("Assoc");
 		RWStructDefn cons = rewriter.structs.get("Cons");
 		RWStructDefn nil = rewriter.structs.get("Nil");
-		RWFunctionDefinition tuple = rewriter.functions.get("()");
+		PackageVar tuple = new PackageVar(new InputPosition("d3", 1, 1, null), "FLEval.tuple", null);
 		RWStructDefn d3Elt = rewriter.structs.get("D3Element");
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
 		for (RWD3PatternBlock p : d3.d3.patterns) {

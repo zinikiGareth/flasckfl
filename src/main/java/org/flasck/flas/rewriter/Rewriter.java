@@ -1201,26 +1201,6 @@ public class Rewriter {
 						if (pv.defn == null) {
 							return cx.resolve(ae.location, pv.id +"." + fname);
 						}
-						/*
-						Object defn = pv.defn;
-						ScopeEntry entry = null;
-						if (defn == null)
-							;
-						else
-							throw new UtilException("Can't handle that " + defn.getClass());
-						Object pd;
-						String pvn = pv.id + "." + fname;
-						if (entry == null) {
-							// attempt to force loading of package
-							try {
-								pd = cx.resolve(pv.location, pvn);
-							} catch (ResolutionException ex) {
-								return new PackageVar(pv.location, pvn, null);
-							}
-						} else
-							pd = entry.getValue();
-						return new PackageVar(pv.location, pvn, pd);
-						*/
 					}
 					if (aefn instanceof UnresolvedVar) {
 						UnresolvedVar uv0 = (UnresolvedVar)aefn;
@@ -1418,7 +1398,7 @@ public class Rewriter {
 			return null;
 	}
 	
-	protected Object getMe(InputPosition location, String id) {
+	public Object getMe(InputPosition location, String id) {
 		Object val = doIhave(location, id);
 		if (val == null) {
 			return null;
