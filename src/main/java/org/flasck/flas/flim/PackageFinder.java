@@ -81,7 +81,7 @@ public class PackageFinder {
 							// we don't have anything to create right now ...
 							todos.add(new Pass2(xe, xe));
 						} else
-							System.out.println("Have a " + xe.tag() + (xe.hasAttribute("name")?" called "  +xe.get("name") : ""));
+							System.out.println("Need to import a " + xe.tag() + (xe.hasAttribute("name")?" called "  +xe.get("name") : ""));
 					}
 					
 					// after pass1, make these things available, if incomplete ...

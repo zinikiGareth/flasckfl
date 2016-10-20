@@ -494,7 +494,11 @@ public class Rewriter {
 	public void rewritePackageScope(String inPkg, final Scope scope) {
 		PackageContext cx = new PackageContext(new RootContext(), inPkg, scope);
 		pass1(cx, scope);
+		if (errors.hasErrors())
+			return;
 		pass2(cx, scope);
+		if (errors.hasErrors())
+			return;
 		pass3(cx, scope);
 	}
 	
@@ -568,8 +572,12 @@ public class Rewriter {
 			String name = x.getValue().getKey();
 			Object val = x.getValue().getValue();
 			if (val instanceof CardDefinition) {
-				CardDefinition cd = (CardDefinition) val;
-				pass2(new CardContext((PackageContext) cx, cd), cd.innerScope());
+				try {
+					CardDefinition cd = (CardDefinition) val;
+					pass2(new CardContext((PackageContext) cx, cd), cd.innerScope());
+				} catch (ResolutionException ex) {
+					errors.message(ex.location, ex.getMessage());
+				}
 			} else if (val instanceof FunctionDefinition) {
 				FunctionDefinition fd = (FunctionDefinition) val;
 				int cs = 0;
@@ -1127,7 +1135,7 @@ public class Rewriter {
 				for (int i=1;i<mm.slot.size();i++)
 					newSlot.add(mm.slot.get(i));
 			} catch (ResolutionException ex) {
-				errors.message(slot.location, ex.getMessage());
+				errors.message(ex.location, ex.getMessage());
 				return null;
 			}
 		}
