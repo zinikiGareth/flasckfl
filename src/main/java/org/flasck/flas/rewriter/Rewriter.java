@@ -1412,6 +1412,8 @@ public class Rewriter {
 			return callbackHandlers.get(id);
 		else if (functions.containsKey(id))
 			return functions.get(id);
+		else if (cards.containsKey(id))
+			return cards.get(id);
 		else
 			return null;
 	}

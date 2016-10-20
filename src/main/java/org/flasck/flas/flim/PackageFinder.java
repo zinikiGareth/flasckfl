@@ -131,7 +131,12 @@ public class PackageFinder {
 								}
 								// TODO: should we be (writing and) reading the code type?
 								RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, xe.required("name"), args.size()-1, false);
-								ret.setType(Type.function(location(xe), args));
+								Type fntype;
+								if (args.size() == 1)
+									fntype = args.get(0);
+								else
+									fntype = Type.function(location(xe), args);
+								ret.setType(fntype);
 								xe.attributesDone();
 								pkg.define(ret.name(), ret);
 							} else

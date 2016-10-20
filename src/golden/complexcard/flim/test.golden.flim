@@ -72,4 +72,5 @@
             </Typed>
         </Method>
     </Contract>
+    <Card file="complexcard.fl" line="25" name="test.golden.Complex" off="5"/>
 </FLIM>

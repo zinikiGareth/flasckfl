@@ -17,7 +17,6 @@ import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeHolder;
-import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Justification;
 import org.zinutils.xml.XML;
@@ -119,6 +118,10 @@ public class KnowledgeWriter {
 	}
 
 	public void add(CardTypeInfo cti) {
+		XMLElement xe = top.addElement("Card");
+		// TODO: I think we should get the location of the first case ...
+		writeLocation(xe, cti);
+		xe.setAttribute("name", cti.name);
 		if (copyToScreen) {
 			System.out.println("  card " + cti.name);
 			for (TypeHolder x : cti.contracts) {
@@ -133,10 +136,8 @@ public class KnowledgeWriter {
 		}
 	}
 
-	// I believe this is *just* functions
+	// I believe this is *just* functions, but that includes functions of 0 args, which don't *look* like functions to the naked eye ...
 	public void add(String name, Type type) {
-		if (type.iam != WhatAmI.FUNCTION)
-			throw new UtilException("I thought this was just functions");
 		XMLElement xe = top.addElement("Function");
 		// TODO: I think we should get the location of the first case ...
 		writeLocation(xe, type);
