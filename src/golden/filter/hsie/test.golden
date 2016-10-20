@@ -27,7 +27,7 @@ HSIE for test.golden.filter_1.g
     externals: [Boolean, Cons, test.golden.filter] scoped = [test.golden.filter_1.a, test.golden.filter_1.f, test.golden.filter_1.l]
     all vars = [v0, v1, v2, v3]
 HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var
-SWITCH v0 Boolean                                            filter.fl:    5.2
+SWITCH v0 Boolean                                            filter.fl:    4.2
   IF v0:ev0 false
     RETURN v1:clos1 []                                           filter.fl:    5.11 - this appears to be wrong for closures; wants to be the apply expr point
   IF v0:ev0 true

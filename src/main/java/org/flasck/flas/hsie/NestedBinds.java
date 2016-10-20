@@ -48,4 +48,14 @@ public class NestedBinds {
 				System.out.print(f.field + ": " + f.patt + " ");
 		System.out.println("-> " + substExpr);
 	}
+
+	public static InputPosition firstLocation(List<NestedBinds> list) {
+		InputPosition ret = null;
+		for (NestedBinds nb : list)
+			if (ret == null)
+				ret = nb.location;
+			else if (ret.compareTo(nb.location) > 0)
+				ret = nb.location;
+		return ret;
+	}
 }

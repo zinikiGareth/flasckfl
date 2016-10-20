@@ -186,7 +186,7 @@ public class HSIE {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
 			List<NestedBinds> list = elim.ctorCases.get(ctor);
 			ms.form.dependsOn(ctor);
-			HSIEBlock blk = s.writeTo.switchCmd(list.get(0).location, elim.var, ctor);
+			HSIEBlock blk = s.writeTo.switchCmd(NestedBinds.firstLocation(list), elim.var, ctor);
 			Set<String> binds = new TreeSet<String>();
 			Set<SubstExpr> possibles = new HashSet<SubstExpr>();
 			Set<SubstExpr> mycases = new HashSet<SubstExpr>();
