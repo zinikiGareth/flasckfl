@@ -72,5 +72,8 @@
             </Typed>
         </Method>
     </Contract>
-    <Card file="complexcard.fl" line="25" name="test.golden.Complex" off="5"/>
+    <Card file="complexcard.fl" line="25" name="test.golden.Complex" off="5">
+        <Implements contract="test.golden.DataStore"/>
+        <Implements contract="test.golden.Init"/>
+    </Card>
 </FLIM>

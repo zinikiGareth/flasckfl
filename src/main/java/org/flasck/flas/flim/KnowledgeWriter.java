@@ -41,7 +41,13 @@ public class KnowledgeWriter {
 		writeLocation(xe, sd);
 		xe.setAttribute("name", sd.uniqueName());
 		writePolys(xe, sd.polys());
-		for (RWStructField f : sd.fields) {
+		writeStructFields(xe, sd.fields);
+		if (copyToScreen)
+			System.out.println("  struct " + sd.asString());
+	}
+
+	protected void writeStructFields(XMLElement xe, List<RWStructField> fs) {
+		for (RWStructField f : fs) {
 			XMLElement sf = xe.addElement("Field");
 			writeLocation(sf, f);
 			sf.setAttribute("name", f.name);
@@ -50,8 +56,6 @@ public class KnowledgeWriter {
 			// if (f.init != null)
 			// writeValue(sf, f.init);
 		}
-		if (copyToScreen)
-			System.out.println("  struct " + sd.asString());
 	}
 
 	// Note: this case is currently untested because we don't have the syntax to introduce these ...
@@ -122,6 +126,20 @@ public class KnowledgeWriter {
 		// TODO: I think we should get the location of the first case ...
 		writeLocation(xe, cti);
 		xe.setAttribute("name", cti.name);
+		/* I don't think this is relevant to outsiders ...
+		XMLElement fs = xe.addElement("Fields");
+		writeStructFields(fs, cti.struct.fields);
+		*/
+		for (TypeHolder x : cti.contracts) {
+			XMLElement xh = xe.addElement("Implements");
+			xh.setAttribute("contract", x.name);
+		}
+		/* I don't think these are relevant to outsiders ...
+		for (TypeHolder x : cti.handlers) {
+			XMLElement xh = xe.addElement("Handler");
+			xh.setAttribute("name", x.name);
+		}
+		*/
 		if (copyToScreen) {
 			System.out.println("  card " + cti.name);
 			for (TypeHolder x : cti.contracts) {

@@ -8,5 +8,7 @@
             </Typed>
         </Method>
     </Contract>
-    <Card file="import1.fl" line="2" name="test.golden.Foo" off="5"/>
+    <Card file="import1.fl" line="2" name="test.golden.Foo" off="5">
+        <Implements contract="test.import.Fred"/>
+    </Card>
 </FLIM>

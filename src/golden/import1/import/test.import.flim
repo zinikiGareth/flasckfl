@@ -10,7 +10,7 @@
             </Typed>
         </Method>
     </Contract>
-    <Function file="import.fl" line="1" name="test.import.f" off="0">
+    <Function file="import.fl" line="2" name="test.import.f" off="0">
         <Function>
             <Arg>
                 <Builtin name="Number"/>
@@ -20,4 +20,7 @@
             </Return>
         </Function>
     </Function>
+    <Card file="import.fl" line="3" name="test.import.MyCard" off="5">
+        <Implements contract="test.import.Fred"/>
+    </Card>
 </FLIM>

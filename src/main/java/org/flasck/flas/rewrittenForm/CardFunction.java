@@ -1,7 +1,6 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
 
 public class CardFunction implements ExternalRef {
 	public final InputPosition location;

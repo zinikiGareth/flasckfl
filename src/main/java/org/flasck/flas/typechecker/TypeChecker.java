@@ -91,7 +91,7 @@ public class TypeChecker {
 		for (Entry<String, RWContractDecl> d : rewriter.contracts.entrySet())
 			contracts.put(d.getKey(), d.getValue());
 		for (Entry<String, CardGrouping> d : rewriter.cards.entrySet()) {
-			CardTypeInfo cti = new CardTypeInfo(d.getValue());
+			CardTypeInfo cti = new CardTypeInfo(d.getValue().struct);
 			cards.put(d.getKey(), cti);
 			prefixes.put(d.getKey(), cti);
 			for (ContractGrouping x : d.getValue().contracts) {

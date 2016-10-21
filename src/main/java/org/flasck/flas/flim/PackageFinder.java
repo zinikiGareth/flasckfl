@@ -17,7 +17,9 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.typechecker.TypeHolder;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +82,11 @@ public class PackageFinder {
 						} else if (xe.hasTag("Function")) {
 							// we don't have anything to create right now ...
 							todos.add(new Pass2(xe, xe));
+						} else if (xe.hasTag("Card")) {
+							CardTypeInfo cti = new CardTypeInfo(location(xe), xe.required("name"));
+							xe.attributesDone();
+							pkg.define(cti.name, cti);
+							todos.add(new Pass2(cti, xe));
 						} else
 							System.out.println("Need to import a " + xe.tag() + (xe.hasAttribute("name")?" called "  +xe.get("name") : ""));
 					}
@@ -113,6 +120,13 @@ public class PackageFinder {
 								RWContractMethodDecl cmd = new RWContractMethodDecl(location(cme), cme.requiredBoolean("required"), cme.required("dir"), cme.required("name"), args, type);
 								cme.attributesDone();
 								cd.methods.add(cmd);
+							}
+						} else if (p.parent instanceof CardTypeInfo) {
+							CardTypeInfo cti = (CardTypeInfo) p.parent;
+							for (XMLElement ie : p.children) {
+								cti.contracts.add(new TypeHolder(ie.required("contract")));
+								ie.attributesDone();
+								ie.assertNoSubContents();
 							}
 						} else if (p.parent instanceof XMLElement) {
 							// We decided not to create anything in pass1; do all the work here ...
