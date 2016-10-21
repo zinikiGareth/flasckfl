@@ -7,7 +7,9 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -24,7 +26,8 @@ import org.junit.Test;
 
 public class FlasStoryTests {
 	private final ErrorResult errors = new ErrorResult();
-	private final Rewriter rewriter = new Rewriter(errors, null, null);
+	private final Rewriter rewriter = new Rewriter(errors, null, Builtin.builtins());
+	private final int biCount = rewriter.functions.size();
 	private final Scope s = new Scope(null, null);
 
 	@Test
@@ -37,7 +40,7 @@ public class FlasStoryTests {
 	public void testProcessingMutualRecursion() {
 		new FLASStory().process(s, BlockTestData.simpleMutualRecursionBlock());
 		rewriter.rewritePackageScope("ME", s);
-		assertEquals(2, rewriter.functions.size());
+		assertEquals(2, rewriter.functions.size()-biCount);
 		RWFunctionDefinition f = rewriter.functions.get("ME.f");
 		assertEquals("ME.f", f.name());
 		RWFunctionCaseDefn c1 = f.cases.get(0);
@@ -48,7 +51,7 @@ public class FlasStoryTests {
 		RWFunctionDefinition g = rewriter.functions.get("ME.f_0.g");
 		HSIEForm gorm = new HSIE(errors, rewriter).handle(null, g, form.vars.size(), form.varsFor(0));
 		assertEquals(1, gorm.externals.size());
-		assertTrue(gorm.externals.contains(new PackageVar(null, "FLEval.mul", null)));
+		assertTrue(gorm.externals.contains(new PackageVar(new InputPosition("test", 1, 1, null), "FLEval.mul", null)));
 		HSIETestData.assertHSIE(HSIETestData.mutualG(), gorm);
 	}
 

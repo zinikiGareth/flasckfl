@@ -127,14 +127,6 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 		return defns.toString();
 	}
 
-	public Object getResolved(String resolvedName) {
-		if (outer != null)
-			return outer.getResolved(resolvedName);
-		if (resolvedName.contains("."))
-			throw new UtilException("Not yet");
-		return get(resolvedName);
-	}
-
 	public String fullName(String name) {
 		if (outerEntry != null)
 			return outerEntry.name + "." + name;

@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
@@ -21,13 +22,15 @@ import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIETestData {
+	
+	static InputPosition posn = new InputPosition("test", 1, 1, null);
 
 	static Map<String, PackageVar> ctorTypes = new HashMap<>();
 	static {
-		ctorTypes.put("Number", new PackageVar(null, "Number", org.flasck.flas.typechecker.Type.builtin(null, "Number")));
-		PackageVar nil = new PackageVar(null, "Nil", new RWStructDefn(null, "Nil", false));
-		PackageVar cons = new PackageVar(null, "Cons", new RWStructDefn(null, "Cons", false));
-		PackageVar list = new PackageVar(null, "List", new RWUnionTypeDefn(null, false, "List", null));
+		ctorTypes.put("Number", new PackageVar(posn, "Number", org.flasck.flas.typechecker.Type.builtin(posn, "Number")));
+		PackageVar nil = new PackageVar(posn, "Nil", new RWStructDefn(posn, "Nil", false));
+		PackageVar cons = new PackageVar(posn, "Cons", new RWStructDefn(posn, "Cons", false));
+		PackageVar list = new PackageVar(posn, "List", new RWUnionTypeDefn(posn, false, "List", null));
 		ctorTypes.put("Cons", cons);
 		ctorTypes.put("Nil", nil);
 		ctorTypes.put("List", list);
@@ -500,7 +503,7 @@ public class HSIETestData {
 			} else if (Character.isDigit(ps[0].charAt(0))) {
 				prev = b.push(null, Integer.parseInt(ps[0]));
 			} else {
-				prev = b.push(null, new PackageVar(null, ps[0], null));
+				prev = b.push(null, new PackageVar(posn, ps[0], null));
 			}
 			
 		}
@@ -513,7 +516,7 @@ public class HSIETestData {
 		else if (Character.isDigit(ps[from].charAt(0)))
 			return Integer.parseInt(ps[from]);
 		else
-			return new PackageVar(null, ps[from], null);
+			return new PackageVar(posn, ps[from], null);
 	}
 	
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {

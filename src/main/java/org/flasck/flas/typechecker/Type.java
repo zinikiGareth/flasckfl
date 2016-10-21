@@ -139,11 +139,11 @@ public class Type implements Locatable {
 	// a "builtin" is something very simple - "number" and "string" are the only obvious examples that come to mind
 	// this should ONLY be called from Builtin
 	public static Type builtin(InputPosition loc, String name) {
-		return new Type(null, loc, WhatAmI.BUILTIN, name, null);
+		return new Type(loc, loc, WhatAmI.BUILTIN, name, null);
 	}
 	
 	public static Type polyvar(InputPosition loc, String name) {
-		return new Type(null, loc, WhatAmI.POLYVAR, name, null);
+		return new Type(loc, loc, WhatAmI.POLYVAR, name, null);
 	}
 	
 	public static Type function(InputPosition loc, List<Type> args) {

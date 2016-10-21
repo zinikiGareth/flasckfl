@@ -166,7 +166,6 @@ public class FLASStory {
 			if (b.isComment())
 				continue;
 			
-			// TODO: if it's a "package", deal with that ... and all blocks must either be or not be packages
 			Object o = new MultiParser(s, IntroParser.class, FunctionParser.class, TupleDeclarationParser.class).parse(b);
 			if (o == null) {
 				System.out.println("Could not parse " + b.line.text());
