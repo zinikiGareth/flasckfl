@@ -435,12 +435,12 @@ public class TestBasicTypeChecking {
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);
 		Scope s = new Scope(null, null);
-		FunctionDefinition f = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, f1.intro, CollectionUtils.listOf(f1));
+		FunctionDefinition f = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, f1.intro);
 		s.define("f", "ME.f", f);
 		FunctionCaseDefn g1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("g x = f [ 42, 'hello']"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(g1);
-		FunctionDefinition g = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, g1.intro, CollectionUtils.listOf(g1));
+		FunctionDefinition g = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, g1.intro);
 		s.define("g", "ME.g", g);
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));
