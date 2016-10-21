@@ -8,15 +8,15 @@ import java.util.TreeSet;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
-import org.flasck.flas.parsedForm.CardGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.ServiceGrouping;
-import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -59,7 +59,7 @@ public class Generator {
 		target.add(ret);
 	}
 
-	public void generate(StructDefn sd) {
+	public void generate(RWStructDefn sd) {
 		if (!sd.generate)
 			return;
 		int idx = sd.name().lastIndexOf(".");
@@ -71,7 +71,7 @@ public class Generator {
 			ret.add(ifBlock);
 			JSForm elseBlock = new JSForm("else").needBlock();
 			ret.add(elseBlock);
-			for (StructField x : sd.fields) {
+			for (RWStructField x : sd.fields) {
 				JSForm assign = new JSForm("if (v0."+x.name+")");
 				assign.add(new JSForm("this."+x.name+" = v0."+x.name));
 				ifBlock.add(assign);
@@ -90,7 +90,7 @@ public class Generator {
 		List<Var> vars = new ArrayList<Var>();
 		List<String> fields = new ArrayList<String>();
 		int vi = 0;
-		for (StructField sf : sd.fields) {
+		for (RWStructField sf : sd.fields) {
 			Var v = new Var(vi++);
 			vars.add(v);
 			fields.add(sf.name+": "+ v);
@@ -142,7 +142,7 @@ public class Generator {
 		target.add(ci);
 	}
 
-	public void generateContract(String ctorName, ContractImplements ci) {
+	public void generateContract(String ctorName, RWContractImplements ci) {
 		String clzname = ctorName.replace("._C", ".__C");
 		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<String>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
@@ -156,7 +156,7 @@ public class Generator {
 		target.add(ctor);
 	}
 
-	public void generateService(String ctorName, ContractService cs) {
+	public void generateService(String ctorName, RWContractService cs) {
 		String clzname = ctorName.replace("._S", ".__S");
 		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<String>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
@@ -170,7 +170,7 @@ public class Generator {
 		target.add(ctor);
 	}
 
-	public void generateHandler(String ctorName, HandlerImplements hi) {
+	public void generateHandler(String ctorName, RWHandlerImplements hi) {
 		target.ensurePackagesFor(ctorName);
 		String clzname = lname(ctorName, false);
 		List<Var> vars = new ArrayList<Var>();
@@ -184,8 +184,8 @@ public class Generator {
 			clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'handler'"));
 		clz.add(new JSForm("this._contract = '" + hi.name() + "'"));
-		for (Object s : hi.boundVars) 
-			clz.add(new JSForm("this." + ((HandlerLambda)s).var + " = v" + v++));
+		for (HandlerLambda s : hi.boundVars) 
+			clz.add(new JSForm("this." + s.var + " = v" + v++));
 		target.add(clz);
 
 		JSForm ctor = JSForm.function(ctorName, vars, new TreeSet<String>(), hi.boundVars.size());

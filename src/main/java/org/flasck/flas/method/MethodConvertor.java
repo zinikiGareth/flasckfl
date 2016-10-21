@@ -5,81 +5,84 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CardMember;
-import org.flasck.flas.parsedForm.CardStateRef;
-import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.EventCaseDefn;
-import org.flasck.flas.parsedForm.EventHandlerDefinition;
-import org.flasck.flas.parsedForm.EventHandlerInContext;
-import org.flasck.flas.parsedForm.ExternalRef;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.LocalVar;
-import org.flasck.flas.parsedForm.Locatable;
-import org.flasck.flas.parsedForm.MethodCaseDefn;
-import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.MethodInContext;
-import org.flasck.flas.parsedForm.MethodMessage;
-import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypeWithMethods;
-import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.EventHandlerInContext;
+import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
+import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWEventCaseDefn;
+import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWFunctionIntro;
+import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
+import org.flasck.flas.rewrittenForm.RWMethodDefinition;
+import org.flasck.flas.rewrittenForm.RWMethodMessage;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.typechecker.TypedObject;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 public class MethodConvertor {
-	public static final Logger logger = Logger.getLogger("Compiler");
+	public static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private final ErrorResult errors;
 	private final HSIE hsie;
 	private final TypeChecker tc;
-	private final Map<String, ContractDecl> contracts;
+	private final Map<String, RWContractDecl> contracts;
 	private final Type messageList;
 
-	public MethodConvertor(ErrorResult errors, HSIE hsie, TypeChecker tc, Map<String, ContractDecl> contracts) {
+	public MethodConvertor(ErrorResult errors, HSIE hsie, TypeChecker tc, Map<String, RWContractDecl> contracts) {
 		this.errors = errors;
 		this.hsie = hsie;
 		this.tc = tc;
 		this.contracts = contracts;
-		this.messageList = tc.getType(new InputPosition("builtin", 0, 0, ""), "List").instance(new InputPosition("builtin", 0, 0, ""), tc.getType(null, "Message"));
+		InputPosition posn = new InputPosition("builtin", 0, 0, "");
+		this.messageList = tc.getType(posn, "List").instance(posn, tc.getType(null, "Message"));
 	}
 
 	// 1. Main entry points to convert different kinds of things
-	public void convertContractMethods(Map<String, HSIEForm> functions, List<MethodInContext> methods) {
-		for (MethodInContext m : methods)
-			addFunction(functions, convertMIC(m));
+	public void convertContractMethods(Rewriter rw, Map<String, HSIEForm> functions, Map<String, MethodInContext> methods) {
+		for (MethodInContext m : methods.values())
+			addFunction(functions, convertMIC(rw, m));
 	}
 
-	public void convertEventHandlers(Map<String, HSIEForm> functions, List<EventHandlerInContext> eventHandlers) {
-		for (EventHandlerInContext x : eventHandlers)
-			addFunction(functions, convertEventHandler(x.scope, x.name, x.handler));
+	public void convertEventHandlers(Rewriter rw, Map<String, HSIEForm> functions, Map<String, EventHandlerInContext> eventHandlers) {
+		for (EventHandlerInContext x : eventHandlers.values())
+			addFunction(functions, convertEventHandler(rw, x.name, x.handler));
 	}
 
-	public void convertStandaloneMethods(Map<String, HSIEForm> functions, Collection<MethodInContext> methods) {
+	public void convertStandaloneMethods(Rewriter rw, Map<String, HSIEForm> functions, Collection<MethodInContext> methods) {
 		for (MethodInContext x : methods)
-			addFunction(functions, convertStandalone(x));
+			addFunction(functions, convertStandalone(rw, x));
 	}
 
-	public void addFunction(Map<String, HSIEForm> functions, FunctionDefinition fd) {
+	public void addFunction(Map<String, HSIEForm> functions, RWFunctionDefinition fd) {
 		if (fd != null) {
 			HSIEForm hs = hsie.handle(null, fd);
 			if (hs != null)
@@ -88,11 +91,8 @@ public class MethodConvertor {
 	}
 
 	// 2. Convert An individual element
-	protected FunctionDefinition convertMIC(MethodInContext m) {
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		
-		if (m.direction == MethodInContext.STANDALONE)
-			System.out.println("converting " + m.name);
+	protected RWFunctionDefinition convertMIC(Rewriter rw, MethodInContext m) {
+		logger.info("converting " + m.direction + " " + m.name);
 		// Get the contract and from that find the method and thus the argument types
 		List<Type> types;
 		if (m.fromContract == null) {
@@ -106,9 +106,11 @@ public class MethodConvertor {
 		if (m.method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
+		RWFunctionDefinition ret = new RWFunctionDefinition(m.method.location(), m.type, m.method.name(), m.method.nargs(), true);
+
 		// Now process all of the method cases
 		Type ofType = null;
-		for (MethodCaseDefn mcd : m.method.cases) {
+		for (RWMethodCaseDefn mcd : m.method.cases) {
 			InputPosition loc = mcd.intro.location;
 			if (mcd.intro.args.size() != types.size()) {
 				if (!mcd.intro.args.isEmpty())
@@ -116,43 +118,44 @@ public class MethodConvertor {
 				errors.message(loc, "incorrect number of formal parameters to contract method '" + mcd.intro.name +"': expected " + types.size() + " but was " + mcd.intro.args.size());
 				continue;
 			}
-			TypedObject typedObject = convertMessagesToActionList(loc, m.scope, mcd.intro.args, types, mcd.messages, m.type.isHandler());
-			cases.add(new FunctionCaseDefn(loc, mcd.intro.name, mcd.intro.args, typedObject.expr));
+			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, types, mcd.messages, m.type.isHandler());
+			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.name, mcd.intro.args, null), ret.cases.size(), typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
 		if (ofType != null)
-			tc.addExternal(m.method.intro.name, ofType);
+			tc.addExternal(m.method.name(), ofType);
 		
-		return new FunctionDefinition(m.method.intro.location, m.type, m.method.intro.name, m.method.intro.args.size(), cases);
+		return ret;
 	}
 
-	public FunctionDefinition convertEventHandler(Scope scope, String card, EventHandlerDefinition eh) {
+	public RWFunctionDefinition convertEventHandler(Rewriter rw, String card, RWEventHandlerDefinition eh) {
 		List<Type> types = new ArrayList<Type>();
-		for (@SuppressWarnings("unused") Object o : eh.intro.args) {
+		for (int i=0;i<eh.nargs();i++) {
 			types.add(tc.getType(null, "Any"));
 		}
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, eh.name(), eh.nargs(), true);
 		Type ofType = null;
-		for (EventCaseDefn c : eh.cases) {
-			TypedObject typedObject = convertMessagesToActionList(eh.intro.location, scope, eh.intro.args, types, c.messages, false);
+		for (RWEventCaseDefn c : eh.cases) {
+			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, c.intro.args, typedObject.expr));
+			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, null), ret.cases.size(), typedObject.expr));
 		}
 		if (ofType != null)
-			tc.addExternal(eh.intro.name, ofType);
-		return new FunctionDefinition(eh.intro.location, HSIEForm.CodeType.EVENTHANDLER, eh.intro.name, eh.intro.args.size(), cases);
+			tc.addExternal(eh.name(), ofType);
+		return ret;
 	}
 
-	public FunctionDefinition convertStandalone(MethodInContext mic) {
-		MethodDefinition method = mic.method;
-		logger.info("Converting standalone " + method.intro.name);
+	public RWFunctionDefinition convertStandalone(Rewriter rw, MethodInContext mic) {
+		RWMethodDefinition method = mic.method;
+		logger.info("Converting standalone " + method.name());
 		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
-		margs.addAll(method.intro.args);
+		// This seems likely to fail quite often :-)
+		margs.addAll(method.cases.get(0).intro.args);
 		List<Type> types = new ArrayList<Type>();
 		for (@SuppressWarnings("unused") Object o : margs) {
 			types.add(tc.getType(null, "Any"));
@@ -160,29 +163,32 @@ public class MethodConvertor {
 		if (method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
+		logger.info("Converting standalone " + mic.name);
+		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		Type ofType = null;
-		for (MethodCaseDefn c : method.cases) {
-			TypedObject typedObject = convertMessagesToActionList(method.intro.location, mic.scope, margs, types, c.messages, mic.type.isHandler());
+		for (RWMethodCaseDefn c : method.cases) {
+			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, mic.type.isHandler());
 			if (ofType == null)
 				ofType = typedObject.type;
-			cases.add(new FunctionCaseDefn(c.intro.location, c.intro.name, margs, typedObject.expr));
+			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
+		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, method.name(), margs.size(), true);
+		ret.cases.addAll(cases);
 		if (ofType != null)
-			tc.addExternal(method.intro.name, ofType);
-		return new FunctionDefinition(method.intro.location, mic.type, method.intro.name, margs.size(), cases);
+			tc.addExternal(method.name(), ofType);
+		return ret;
 	}
 
 	protected List<Type> figureCMD(MethodInContext m) {
-		ContractDecl cd = contracts.get(m.fromContract);
+		RWContractDecl cd = contracts.get(m.fromContract);
 		if (cd == null) {
 			errors.message(m.contractLocation, "cannot find contract " + m.fromContract);
 			return null;
 		}
-		ContractMethodDecl cmd = null;
+		RWContractMethodDecl cmd = null;
 		int idx = m.name.lastIndexOf(".");
 		String mn = m.name.substring(idx+1);
-		for (ContractMethodDecl md : cd.methods) {
+		for (RWContractMethodDecl md : cd.methods) {
 			if (mn.equals(md.name)) {
 				if (m.direction == MethodInContext.DOWN && md.dir.equals("up")) {
 					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is an up method");
@@ -204,8 +210,8 @@ public class MethodConvertor {
 		List<Type> types = new ArrayList<Type>();
 		boolean fail = false;
 		for (Object o : cmd.args) {
-			if (o instanceof TypedPattern) {
-				types.add(((TypedPattern)o).type);
+			if (o instanceof RWTypedPattern) {
+				types.add(((RWTypedPattern)o).type);
 			} else
 				throw new UtilException("Cannot handle " + o.getClass().getName());
 		}
@@ -215,24 +221,25 @@ public class MethodConvertor {
 		return types;
 	}
 
-	private TypedObject convertMessagesToActionList(InputPosition location, Scope scope, List<Object> args, List<Type> types, List<MethodMessage> messages, boolean fromHandler) {
-		Object ret = scope.fromRoot(location, "Nil");
+	private TypedObject convertMessagesToActionList(Rewriter rw, InputPosition location, List<Object> args, List<Type> types, List<RWMethodMessage> messages, boolean fromHandler) {
+		Object ret = rw.structs.get("Nil");
+		RWStructDefn cons = rw.structs.get("Cons");
 		for (int n = messages.size()-1;n>=0;n--) {
-			MethodMessage mm = messages.get(n);
-			Object me = convertMessageToAction(scope, args, types, mm, fromHandler);
+			RWMethodMessage mm = messages.get(n);
+			Object me = convertMessageToAction(rw, args, types, mm, fromHandler);
 			if (me == null) continue;
 			InputPosition loc = ((Locatable)mm.expr).location();
-			ret = new ApplyExpr(loc, scope.fromRoot(loc, "Cons"), me, ret);
+			ret = new ApplyExpr(loc, cons, me, ret);
 		}
 		List<Type> fnargs = new ArrayList<Type>(types);
 		fnargs.add(messageList);
 		return new TypedObject(Type.function(location, fnargs), ret);
 	}
 
-	private Object convertMessageToAction(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm, boolean fromHandler) {
+	private Object convertMessageToAction(Rewriter rw, List<Object> margs, List<Type> types, RWMethodMessage mm, boolean fromHandler) {
 //		System.out.println("Converting " + mm);
 		if (mm.slot != null) {
-			return convertAssignMessage(scope, margs, types, mm, fromHandler);
+			return convertAssignMessage(rw, margs, types, mm, fromHandler);
 		} else if (mm.expr instanceof ApplyExpr) {
 			ApplyExpr root = (ApplyExpr) mm.expr;
 			List<Object> args;
@@ -250,11 +257,11 @@ public class MethodConvertor {
 				while (senderType.iam == WhatAmI.INSTANCE)
 					senderType = senderType.innerType();
 				if (senderType instanceof TypeWithMethods)
-					return handleMethodCase(scope, root.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, args);
+					return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) senderType, (Locatable) sender, method, args);
 				else
-					return handleExprCase(scope, margs, types, root);
+					return handleExprCase(rw, margs, types, root);
 			} else
-				return handleExprCase(scope, margs, types, root);
+				return handleExprCase(rw, margs, types, root);
 		}
 		InputPosition loc = null;
 		if (mm.expr instanceof Locatable)
@@ -263,7 +270,7 @@ public class MethodConvertor {
 		return null;
 	}
 
-	protected Object convertAssignMessage(Scope scope, List<Object> margs, List<Type> types, MethodMessage mm, boolean fromHandler) {
+	protected Object convertAssignMessage(Rewriter rw, List<Object> margs, List<Type> types, RWMethodMessage mm, boolean fromHandler) {
 		Type exprType = calculateExprType(margs, types, mm.expr);
 		if (exprType == null)
 			return null;
@@ -276,19 +283,19 @@ public class MethodConvertor {
 			intoObj = new CardStateRef(cm.location(), fromHandler);
 			slotName = new StringLiteral(cm.location(), cm.var);
 			Type cti = tc.getType(cm.location(), cm.card);
-			if (!(cti instanceof StructDefn))
+			if (!(cti instanceof RWStructDefn))
 				throw new UtilException("this should have been a struct");
-			StructDefn sd = (StructDefn) cti;
-			StructField sf = sd.findField(cm.var);
+			RWStructDefn sd = (RWStructDefn) cti;
+			RWStructField sf = sd.findField(cm.var);
 			if (sf == null) {
 				errors.message(cm.location, "there is no card state member " + cm.var);
 				return null;
 			}
-			if (sf.type instanceof ContractImplements) {
+			if (sf.type instanceof RWContractImplements) {
 				errors.message(cm.location, "cannot assign to a contract var: " + cm.var);
 				return null;
 			}
-			if (sf.type instanceof ContractService) {
+			if (sf.type instanceof RWContractService) {
 				errors.message(cm.location, "cannot assign to a service var: " + cm.var);
 				return null;
 			}
@@ -305,7 +312,7 @@ public class MethodConvertor {
 		} else if (slot instanceof LocalVar) {
 			LocalVar lv = (LocalVar) slot;
 			if (lv.type == null) {
-				errors.message(lv.varLoc, "cannot use untyped argument as assign target: " + lv.var);
+				errors.message(lv.varLoc, "cannot use untyped argument as assign target: " + lv.uniqueName());
 				return null;
 			}
 			intoObj = lv;
@@ -320,20 +327,20 @@ public class MethodConvertor {
 		if (mm.slot.size() > 1) {
 			for (int i=1;i<mm.slot.size();i++) {
 				LocatedToken si = (LocatedToken) mm.slot.get(i);
-				if (!(slotType instanceof StructDefn)) {
+				if (!(slotType instanceof RWStructDefn)) {
 					// There may be some valid cases mixed up in here; if so, fix them later
 					errors.message(si.location(), "cannot extract member '" + si.text + "' of a non-struct: '" + slotType.name() + "'");
 					return null;
 				}
-				StructDefn sd = (StructDefn) slotType;
-				StructField sf = sd.findField(si.text);
+				RWStructDefn sd = (RWStructDefn) slotType;
+				RWStructField sf = sd.findField(si.text);
 				if (sf == null) {
 					errors.message(si.location, "there is no field '" + si.text + "' in type " + sd);
 					return null;
 				}
 				slotType = sf.type;
 				if (slotName != null)
-					intoObj = new ApplyExpr(si.location, scope.fromRoot(slot.location(), "."), intoObj, slotName);
+					intoObj = new ApplyExpr(si.location, new PackageVar(si.location, "FLEval.field", null), intoObj, slotName);
 				slotName = new StringLiteral(si.location, si.text);
 			}
 		} else if (slotName == null) {
@@ -347,8 +354,8 @@ public class MethodConvertor {
 			Type foo = slotType;
 			if (slotType.iam == WhatAmI.INSTANCE)
 				foo = slotType.innerType();
-			if (foo instanceof UnionTypeDefn) {
-				for (Type t : ((UnionTypeDefn)foo).cases) {
+			if (foo instanceof RWUnionTypeDefn) {
+				for (Type t : ((RWUnionTypeDefn)foo).cases) {
 					Type u = t;
 					if (slotType.iam == WhatAmI.INSTANCE)
 						u = t.applyInstanceVarsFrom(slotType);
@@ -363,23 +370,23 @@ public class MethodConvertor {
 				return null;
 			}
 		}
-		return new ApplyExpr(slot.location(), scope.fromRoot(slot.location(), "Assign"), intoObj, slotName, mm.expr);
+		return new ApplyExpr(slot.location(), rw.structs.get("Assign"), intoObj, slotName, mm.expr);
 	}
 
-	private Object handleMethodCase(Scope scope, InputPosition location, List<Object> margs, List<Type> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
-		ContractDecl cd = null;
+	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<Type> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
+		RWContractDecl cd = null;
 		TypeWithMethods proto = senderType;
 		Type methodType = null;
-		if (senderType instanceof ContractDecl) {
-			proto = cd = (ContractDecl) senderType;
+		if (senderType instanceof RWContractDecl) {
+			proto = cd = (RWContractDecl) senderType;
 			if (proto.hasMethod(method.text))
 				methodType = cd.getMethodType(method.text);
-		} else if (senderType instanceof ContractService || senderType instanceof ContractImplements) {
-			proto = cd = (ContractDecl) tc.getType(senderType.location(), senderType.name());
+		} else if (senderType instanceof RWContractService || senderType instanceof RWContractImplements) {
+			proto = cd = (RWContractDecl) tc.getType(senderType.location(), senderType.name());
 			if (proto.hasMethod(method.text))
 				methodType = cd.getMethodType(method.text);
-		} else if (senderType instanceof ObjectDefn) {
-			ObjectDefn od = (ObjectDefn) senderType;
+		} else if (senderType instanceof RWObjectDefn) {
+			RWObjectDefn od = (RWObjectDefn) senderType;
 			if (senderType.hasMethod(method.text))
 				methodType = od.getMethod(method.text);
 		}
@@ -387,18 +394,18 @@ public class MethodConvertor {
 			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());
 			return null;
 		}
-		if (senderType instanceof ContractImplements && !cd.checkMethodDir(method.text, "up")) {
+		if (senderType instanceof RWContractImplements && !cd.checkMethodDir(method.text, "up")) {
 			errors.message(method.location, "can only call up methods on contract implementations");
 			return null;
 		}
-		if (senderType instanceof ContractService && !cd.checkMethodDir(method.text, "down")) {
+		if (senderType instanceof RWContractService && !cd.checkMethodDir(method.text, "down")) {
 			errors.message(method.location, "can only call down methods on service implementations");
 			return null;
 		}
 		if (methodType == null)
 			throw new UtilException("We should have figured out the type by now");
 		List<Object> m1 = new ArrayList<>(margs);
-		m1.add(new VarPattern(location, "__m"));
+		m1.add(new RWVarPattern(location, "__me.__m"));
 		List<Type> t1 = new ArrayList<>(types);
 		t1.add(methodType);
 		Type ct = calculateExprType(m1, t1, new ApplyExpr(location, new LocalVar("__me", location, "__m", location, methodType), args));
@@ -409,13 +416,13 @@ public class MethodConvertor {
 			return null;
 		}
 		if (ct.iam != WhatAmI.STRUCT || !ct.name().equals("Send")) {
-			errors.message(method.location, "type checking error"); // I don't actually see how this could happen ... maybe should throw exception?
+			errors.message(method.location, "type checking error during method conversion"); // I don't actually see how this could happen ... maybe should throw exception?
 			return null;
 		}
-		return new ApplyExpr(sender.location(),	scope.fromRoot(sender.location(), "Send"), sender, method, asList(sender.location(), scope, args));
+		return new ApplyExpr(sender.location(),	rw.structs.get("Send"), sender, method, asList(sender.location(), rw, args));
 	}
 
-	private Object handleExprCase(Scope scope, List<Object> margs, List<Type> types, ApplyExpr expr) {
+	private Object handleExprCase(Rewriter rw, List<Object> margs, List<Type> types, ApplyExpr expr) {
 		Type t = calculateExprType(margs, types, expr);
 		if (t == null)
 			return null;
@@ -449,12 +456,12 @@ public class MethodConvertor {
 		List<InputPosition> locs = new ArrayList<>();
 		for (int i=0;i<margs.size();i++) {
 			Object x = margs.get(i);
-			if (x instanceof VarPattern) {
+			if (x instanceof RWVarPattern) {
 				mytypes.add(types.get(i));
-				args.add(((VarPattern)x).var);
-				locs.add(((VarPattern)x).varLoc);
-			} else if (x instanceof TypedPattern) {
-				TypedPattern tx = (TypedPattern)x;
+				args.add(((RWVarPattern)x).var);
+				locs.add(((RWVarPattern)x).varLoc);
+			} else if (x instanceof RWTypedPattern) {
+				RWTypedPattern tx = (RWTypedPattern)x;
 				args.add(tx.var);
 				Type ty = tx.type;
 				// we have an obligation to check that ty is a sub-type of types.get(i);
@@ -496,10 +503,10 @@ public class MethodConvertor {
 		return ret;
 	}
 
-	private static Object asList(InputPosition loc, Scope scope, List<Object> args) {
-		Object ret = scope.fromRoot(loc, "Nil");
+	private static Object asList(InputPosition loc, Rewriter rw, List<Object> args) {
+		Object ret = rw.structs.get("Nil");
 		for (int n = args.size()-1;n>=0;n--) {
-			ret = new ApplyExpr(loc, scope.fromRoot(loc, "Cons"), args.get(n), ret);
+			ret = new ApplyExpr(loc, rw.structs.get("Cons"), args.get(n), ret);
 		}
 		return ret;
 	}

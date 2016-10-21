@@ -21,7 +21,6 @@ public class ConstructorMatch {
 	}
 
 	public final String ctor;
-	public final ExternalRef ref;
 	public final List<Field> args = new ArrayList<Field>();
 	public final InputPosition location;
 
@@ -30,20 +29,11 @@ public class ConstructorMatch {
 			System.out.println("null position cm1");
 		this.location = loc;
 		this.ctor = ctor;
-		this.ref = null;
-	}
-	
-	public ConstructorMatch(InputPosition loc, ExternalRef ref) {
-		if (loc == null)
-			System.out.println("null position cm2");
-		this.location = loc;
-		this.ctor = null;
-		this.ref = ref;
 	}
 	
 	@Override
 	public String toString() {
-		StringBuilder ret = new StringBuilder(ctor != null?ctor:ref.uniqueName());
+		StringBuilder ret = new StringBuilder(ctor);
 		if (!args.isEmpty()) {
 			ret.append(" { ");
 			for (Field f : args) {

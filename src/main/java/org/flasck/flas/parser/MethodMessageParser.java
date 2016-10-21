@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.Locatable;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.tokenizers.MessageToken;
 import org.flasck.flas.tokenizers.Tokenizable;

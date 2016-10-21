@@ -6,10 +6,12 @@ import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.flasck.flas.flim.Builtin;
+import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.typechecker.Type;
 import org.junit.Test;
 
@@ -17,7 +19,7 @@ public class TestGeneratingStructs {
 
 	@Test
 	public void testACaseWithNoFields() throws IOException {
-		StructDefn sd = new StructDefn(null, "ME.Hello", true);
+		RWStructDefn sd = new RWStructDefn(null, "ME.Hello", true);
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(null, target);
 		gen.generate(sd);
@@ -34,9 +36,12 @@ public class TestGeneratingStructs {
 
 	@Test
 	public void testACaseWithTwoFields() throws IOException {
-		StructDefn sd = new StructDefn(null, "ME.Hello", true);
-		sd.addField(new StructField(null, false, Type.reference(null, "String"), "name"));
-		sd.addField(new StructField(null, false, Type.reference(null, "Number"), "quant"));
+		ImportPackage biScope = Builtin.builtins();
+		Type str = (Type) biScope.get("String");
+		Type nbr = (Type) biScope.get("Number");
+		RWStructDefn sd = new RWStructDefn(null, "ME.Hello", true);
+		sd.addField(new RWStructField(null, false, str, "name"));
+		sd.addField(new RWStructField(null, false, nbr, "quant"));
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(null, target);
 		gen.generate(sd);

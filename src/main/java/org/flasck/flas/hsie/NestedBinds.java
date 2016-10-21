@@ -3,8 +3,8 @@ package org.flasck.flas.hsie;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.ConstPattern;
-import org.flasck.flas.parsedForm.ConstructorMatch.Field;
+import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 
 public class NestedBinds {
 	public final InputPosition location;
@@ -47,5 +47,15 @@ public class NestedBinds {
 			for (Field f : args)
 				System.out.print(f.field + ": " + f.patt + " ");
 		System.out.println("-> " + substExpr);
+	}
+
+	public static InputPosition firstLocation(List<NestedBinds> list) {
+		InputPosition ret = null;
+		for (NestedBinds nb : list)
+			if (ret == null)
+				ret = nb.location;
+			else if (ret.compareTo(nb.location) > 0)
+				ret = nb.location;
+		return ret;
 	}
 }

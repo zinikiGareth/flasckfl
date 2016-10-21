@@ -1,18 +1,16 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
-
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.commonBase.AsString;
+import org.flasck.flas.commonBase.Locatable;
 
-@SuppressWarnings("serial")
-public class TypedPattern implements Locatable, AsString, Serializable {
+public class TypedPattern implements Locatable, AsString {
 	public final transient InputPosition typeLocation;
-	public final Type type;
+	public final TypeReference type;
 	public final transient InputPosition varLocation;
 	public final String var;
 
-	public TypedPattern(InputPosition location, Type type, InputPosition vlocation, String var) {
+	public TypedPattern(InputPosition location, TypeReference type, InputPosition vlocation, String var) {
 		this.typeLocation = location;
 		this.type = type;
 		this.varLocation = vlocation;

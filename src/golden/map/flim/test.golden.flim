@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Function file="map.fl" line="2" name="test.golden.map1" off="5">
+        <Function>
+            <Arg>
+                <Function>
+                    <Arg>
+                        <Poly name="A"/>
+                    </Arg>
+                    <Return>
+                        <Poly name="B"/>
+                    </Return>
+                </Function>
+            </Arg>
+            <Arg>
+                <Instance>
+                    <Union name="List"/>
+                    <Poly name="A"/>
+                </Instance>
+            </Arg>
+            <Return>
+                <Instance>
+                    <Union name="List"/>
+                    <Poly name="B"/>
+                </Instance>
+            </Return>
+        </Function>
+    </Function>
+</FLIM>

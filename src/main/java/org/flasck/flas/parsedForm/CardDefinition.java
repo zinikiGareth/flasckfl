@@ -1,17 +1,18 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.PlatformSpec;
+import org.flasck.flas.commonBase.template.Template;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.stories.FLASStory.State;
 
-@SuppressWarnings("serial")
-public class CardDefinition implements ContainsScope, Locatable, Serializable {
+public class CardDefinition implements ContainsScope, Locatable {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String name;

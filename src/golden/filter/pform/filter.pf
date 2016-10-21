@@ -1,17 +1,31 @@
 package test.golden
   test.golden.filter
-    f
-    Nil
+    [var] f
+    [ctor] Nil
    =
     Nil
   test.golden.filter
-    f
-    Cons
+    [var] f
+    [ctor] Cons
       head
-        a
+        [var] a
       tail
-        l
+        [var] l
    =
     g
       f
         a
+    test.golden.filter_1.g
+      2: true
+     =
+      Cons
+        a
+        filter
+          f
+          l
+    test.golden.filter_1.g
+      2: false
+     =
+      filter
+        f
+        l

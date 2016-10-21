@@ -1,11 +1,8 @@
 package org.flasck.flas.blockForm;
 
-import java.io.Serializable;
+import org.flasck.flas.commonBase.Locatable;
 
-import org.flasck.flas.parsedForm.Locatable;
-
-@SuppressWarnings("serial")
-public class LocatedToken implements Comparable<LocatedToken>, Locatable, Serializable {
+public class LocatedToken implements Comparable<LocatedToken>, Locatable {
 	public final InputPosition location;
 	public final String text;
 	

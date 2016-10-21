@@ -1,6 +1,5 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,14 +7,14 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.rewriter.ResolutionException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringComparator;
 
-@SuppressWarnings("serial")
-public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Serializable {
-	public class ScopeEntry implements Entry<String, Object>, Serializable {
+public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
+	public class ScopeEntry implements Entry<String, Object> {
 		private final InputPosition location;
 		private final String name;
 		private Object defn;
@@ -74,7 +73,7 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 	}
 
 	public ScopeEntry define(String key, String name, Object defn) {
-		if (key.contains(".") && !key.equals(".") && !(defn instanceof PackageDefn))
+		if (key.contains("."))
 			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);
 		if (defns.containsKey(key))
 			throw new ScopeDefineException("Cannot provide multiple definitions of " + name);
@@ -140,27 +139,5 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>>, Seriali
 		if (outerEntry != null)
 			return outerEntry.name + "." + name;
 		return name;
-	}
-
-	public PackageVar fromRoot(InputPosition location, String name) {
-		if (outerEntry != null)
-			return outerEntry.scope().fromRoot(location, name);
-		else if (outer != null)
-			return outer.fromRoot(location, name);
-		int idx = name.indexOf('.');
-		Scope scope = this;
-		if (idx > 0) {
-			PackageDefn pd = (PackageDefn) this.get(name.substring(0, idx));
-			if (pd == null)
-				throw new UtilException("There is no package " + name.substring(0, idx));
-			scope = pd.innerScope();
-			name = name.substring(idx+1);
-			if (name.indexOf('.') != -1)
-				throw new UtilException("Can't do that");
-		}
-		ScopeEntry entry = scope.getEntry(name);
-		if (entry == null)
-			throw new UtilException("There is no entry " + name);
-		return new PackageVar(location, entry);
 	}
 }

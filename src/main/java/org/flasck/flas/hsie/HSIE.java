@@ -11,17 +11,16 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.ConstPattern;
-import org.flasck.flas.parsedForm.ConstructorMatch;
-import org.flasck.flas.parsedForm.ConstructorMatch.Field;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.Locatable;
-import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -35,23 +34,23 @@ public class HSIE {
 	private final Rewriter rewriter;
 	private int exprIdx;
 
-	public HSIE(ErrorResult errors, Rewriter rewriter, Scope biscope) {
+	public HSIE(ErrorResult errors, Rewriter rewriter) {
 		this.errors = errors;
 		this.rewriter = rewriter;
 		exprIdx = 0;
 	}
 	
-	public HSIEForm handle(Map<String, HSIEForm> previous, FunctionDefinition defn) {
+	public HSIEForm handle(Map<String, HSIEForm> previous, RWFunctionDefinition defn) {
 		return handle(previous, defn, 0, new HashMap<String, CreationOfVar>());
 	}
 	
-	public HSIEForm handle(Map<String, HSIEForm> previous, FunctionDefinition defn, int alreadyUsed, Map<String, CreationOfVar> map) {
-		HSIEForm ret = new HSIEForm(defn.mytype, defn.name, defn.location, alreadyUsed, map, defn.nargs);
+	public HSIEForm handle(Map<String, HSIEForm> previous, RWFunctionDefinition defn, int alreadyUsed, Map<String, CreationOfVar> map) {
+		HSIEForm ret = new HSIEForm(defn.mytype, defn.name(), defn.location, alreadyUsed, map, defn.nargs());
 		MetaState ms = new MetaState(rewriter, previous, ret);
-		if (defn.nargs == 0)
+		if (defn.nargs() == 0)
 			return handleConstant(ms, defn);
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
-		ms.add(buildFundamentalState(ms, ret, map, defn.nargs, defn.cases));
+		ms.add(buildFundamentalState(ms, ret, map, defn.nargs(), defn.cases));
 		try {
 			while (!ms.allDone()) {
 				State f = ms.first();
@@ -92,7 +91,7 @@ public class HSIE {
 		return ms.form;
 	}
 
-	private HSIEForm handleConstant(MetaState ms, FunctionDefinition defn) {
+	private HSIEForm handleConstant(MetaState ms, RWFunctionDefinition defn) {
 		if (defn.cases.size() != 1)
 			throw new UtilException("Constants can only have one case");
 		ms.writeExpr(new SubstExpr(defn.cases.get(0).expr, exprIdx++), ms.form);
@@ -100,40 +99,40 @@ public class HSIE {
 		return ms.form;
 	}
 
-	private State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, CreationOfVar> map, int nargs, List<FunctionCaseDefn> cases) {
+	private State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, CreationOfVar> map, int nargs, List<RWFunctionCaseDefn> cases) {
 		State s = new State(form);
 		List<Var> formals = new ArrayList<Var>();
 		for (int i=0;i<nargs;i++)
 			formals.add(ms.allocateVar());
 		Map<Object, SubstExpr> exprs = new HashMap<Object, SubstExpr>();
-		for (FunctionCaseDefn c : cases) {
+		for (RWFunctionCaseDefn c : cases) {
 			SubstExpr ex = new SubstExpr(c.expr, exprIdx++);
 			ex.alsoSub(map);
 			form.exprs.add(ex);
-			createSubsts(ms, c.intro.args, formals, ex);
+			createSubsts(ms, c.caseName(), c.args(), formals, ex);
 			exprs.put(c, ex);
 		}
 		for (int i=0;i<nargs;i++) {
-			for (FunctionCaseDefn c : cases) {
-				s.associate(formals.get(i), c.intro.args.get(i), exprs.get(c));
+			for (RWFunctionCaseDefn c : cases) {
+				s.associate(formals.get(i), c.args().get(i), exprs.get(c));
 			}
 		}
 		return s;
 	}
 
-	private void createSubsts(MetaState ms, List<Object> args, List<Var> formals, SubstExpr expr) {
+	private void createSubsts(MetaState ms, String methName, List<Object> args, List<Var> formals, SubstExpr expr) {
 		for (int i=0;i<args.size();i++) {
 			Object arg = args.get(i);
-			if (arg instanceof VarPattern) {
-				VarPattern vp = (VarPattern) arg;
+			if (arg instanceof RWVarPattern) {
+				RWVarPattern vp = (RWVarPattern) arg;
 				String called = vp.var;
 				expr.subst(called, new CreationOfVar(formals.get(i), vp.varLoc, called));
-			} else if (arg instanceof ConstructorMatch)
-				ctorSub((ConstructorMatch) arg, ms, formals.get(i), expr);
+			} else if (arg instanceof RWConstructorMatch)
+				ctorSub((RWConstructorMatch) arg, ms, formals.get(i), expr);
 			else if (arg instanceof ConstPattern)
 				;
-			else if (arg instanceof TypedPattern) {
-				TypedPattern tp = (TypedPattern) arg;
+			else if (arg instanceof RWTypedPattern) {
+				RWTypedPattern tp = (RWTypedPattern) arg;
 				String called = tp.var;
 				expr.subst(called, new CreationOfVar(formals.get(i), tp.varLocation, called));
 			} else
@@ -141,15 +140,15 @@ public class HSIE {
 		}
 	}
 
-	private void ctorSub(ConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
+	private void ctorSub(RWConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
 		for (Field x : cm.args) {
 			Var v = ms.varFor(from, x.field);
-			if (x.patt instanceof VarPattern) {
-				VarPattern vp = (VarPattern)x.patt;
+			if (x.patt instanceof RWVarPattern) {
+				RWVarPattern vp = (RWVarPattern)x.patt;
 				String called = vp.var;
 				expr.subst(called, new CreationOfVar(v, vp.varLoc, called));
-			} else if (x.patt instanceof ConstructorMatch)
-				ctorSub((ConstructorMatch)x.patt, ms, v, expr);
+			} else if (x.patt instanceof RWConstructorMatch)
+				ctorSub((RWConstructorMatch)x.patt, ms, v, expr);
 			else if (x.patt instanceof ConstPattern)
 				;
 			else
@@ -187,7 +186,7 @@ public class HSIE {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
 			List<NestedBinds> list = elim.ctorCases.get(ctor);
 			ms.form.dependsOn(ctor);
-			HSIEBlock blk = s.writeTo.switchCmd(list.get(0).location, elim.var, ctor);
+			HSIEBlock blk = s.writeTo.switchCmd(NestedBinds.firstLocation(list), elim.var, ctor);
 			Set<String> binds = new TreeSet<String>();
 			Set<SubstExpr> possibles = new HashSet<SubstExpr>();
 			Set<SubstExpr> mycases = new HashSet<SubstExpr>();
@@ -306,13 +305,13 @@ public class HSIE {
 			Option o = t.createOption(e.getKey());
 			for (Entry<Object, SubstExpr> pe : e.getValue()) {
 				Object patt = pe.getKey();
-				if (patt instanceof VarPattern) {
-					o.anything(pe.getValue(), ((VarPattern)patt).var);
-				} else if (patt instanceof ConstructorMatch) {
-					ConstructorMatch cm = (ConstructorMatch) patt;
+				if (patt instanceof RWVarPattern) {
+					o.anything(pe.getValue(), ((RWVarPattern)patt).var);
+				} else if (patt instanceof RWConstructorMatch) {
+					RWConstructorMatch cm = (RWConstructorMatch) patt;
 					o.ifCtor(cm.location, cm.ref.uniqueName(), cm.args, pe.getValue());
-				} else if (patt instanceof TypedPattern) {
-					TypedPattern tp = (TypedPattern) patt;
+				} else if (patt instanceof RWTypedPattern) {
+					RWTypedPattern tp = (RWTypedPattern) patt;
 					o.ifCtor(tp.typeLocation, tp.type.name(), new ArrayList<Field>(), pe.getValue());
 				} else if (patt instanceof ConstPattern) {
 					ConstPattern cp = (ConstPattern) patt;

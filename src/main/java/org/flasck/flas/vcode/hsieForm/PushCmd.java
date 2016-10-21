@@ -1,11 +1,11 @@
 package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.CardStateRef;
-import org.flasck.flas.parsedForm.ExternalRef;
-import org.flasck.flas.parsedForm.FunctionLiteral;
-import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.TemplateListVar;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.template.TemplateListVar;
+import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.zinutils.utils.Justification;
 
 public class PushCmd extends PushReturn {

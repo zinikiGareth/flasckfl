@@ -1,25 +1,35 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.commonBase.AsString;
+import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.collections.CollectionUtils;
 
-@SuppressWarnings("serial")
-public class StructDefn extends Type implements AsString, Serializable {
+public class StructDefn implements AsString, Locatable {
 	public final List<StructField> fields = new ArrayList<StructField>();
 	public final transient boolean generate;
+	private final InputPosition location;
+	private String name;
+	private List<TypeReference> polys;
 
-	public StructDefn(InputPosition location, String tn, boolean generate, Type... polys) {
+	// for tests
+	public StructDefn(InputPosition location, String tn, boolean generate, TypeReference... polys) {
 		this(location, tn, generate, CollectionUtils.listOf(polys));
 	}
 	
-	public StructDefn(InputPosition location, String tn, boolean generate, List<Type> polys) {
-		super(null, location, WhatAmI.STRUCT, tn, polys);
+	// The real constructor
+	public StructDefn(InputPosition location, String tn, boolean generate, List<TypeReference> polys) {
+		this.location = location;
+		this.name = tn;
 		this.generate = generate;
+		this.polys = polys;
+	}
+
+	public String name() {
+		return name;
 	}
 
 	public StructDefn addField(StructField sf) {
@@ -62,5 +72,14 @@ public class StructDefn extends Type implements AsString, Serializable {
 			sb.append(polys());
 		}
 		return sb.toString();
+	}
+
+	public List<TypeReference> polys() {
+		return polys;
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
 	}
 }

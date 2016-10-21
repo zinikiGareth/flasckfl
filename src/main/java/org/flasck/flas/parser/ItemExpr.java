@@ -1,7 +1,7 @@
 package org.flasck.flas.parser;
 
-import org.flasck.flas.parsedForm.NumericLiteral;
-import org.flasck.flas.parsedForm.StringLiteral;
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;

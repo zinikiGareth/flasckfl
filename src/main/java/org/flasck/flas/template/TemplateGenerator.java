@@ -4,6 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.template.Template;
+import org.flasck.flas.commonBase.template.TemplateCardReference;
+import org.flasck.flas.commonBase.template.TemplateCases;
+import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
+import org.flasck.flas.commonBase.template.TemplateFormat;
+import org.flasck.flas.commonBase.template.TemplateLine;
+import org.flasck.flas.commonBase.template.TemplateList;
+import org.flasck.flas.commonBase.template.TemplateListVar;
+import org.flasck.flas.commonBase.template.TemplateOr;
 import org.flasck.flas.droidgen.CGRContext;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.hsie.ApplyCurry;
@@ -11,30 +22,20 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
-import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardMember;
-import org.flasck.flas.parsedForm.CardReference;
-import org.flasck.flas.parsedForm.ContentExpr;
-import org.flasck.flas.parsedForm.ContentString;
-import org.flasck.flas.parsedForm.D3Invoke;
-import org.flasck.flas.parsedForm.EventHandler;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.LocalVar;
-import org.flasck.flas.parsedForm.StringLiteral;
-import org.flasck.flas.parsedForm.Template;
-import org.flasck.flas.parsedForm.TemplateCases;
-import org.flasck.flas.parsedForm.TemplateDiv;
-import org.flasck.flas.parsedForm.TemplateExplicitAttr;
-import org.flasck.flas.parsedForm.TemplateFormat;
-import org.flasck.flas.parsedForm.TemplateFormatEvents;
-import org.flasck.flas.parsedForm.TemplateLine;
-import org.flasck.flas.parsedForm.TemplateList;
-import org.flasck.flas.parsedForm.TemplateListVar;
-import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardFunction;
+import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContentExpr;
+import org.flasck.flas.rewrittenForm.RWContentString;
+import org.flasck.flas.rewrittenForm.RWD3Invoke;
+import org.flasck.flas.rewrittenForm.RWEventHandler;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWTemplateDiv;
+import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -62,20 +63,20 @@ public class TemplateGenerator {
 		private int areaNo = 1;
 		private String introduceVarHere;
 		private final List<DefinedVar> varsToCopy = new ArrayList<DefinedVar>();
-		private final PackageVar nil;
-		private final PackageVar cons;
-		private final PackageVar equals;
+		private final Object nil;
+		private final Object cons;
+		private final Object equals;
 		private final String javaName;
 
-		public GeneratorContext(JSTarget target, Template cg) {
+		public GeneratorContext(JSTarget target, Rewriter rw, Template cg) {
 			this.target = target;
 			this.javaName = cg.prefix;
+			InputPosition posn = new InputPosition("template", 1, 1, "");
 			this.simpleName = Generator.lname(cg.prefix, false);
 			this.protoName = Generator.lname(cg.prefix, true);
-			InputPosition gen = new InputPosition("generator", 0, 0, null);
-			this.nil = cg.scope.fromRoot(gen, "Nil");
-			this.cons = cg.scope.fromRoot(gen, "Cons");
-			this.equals = cg.scope.fromRoot(gen, "==");
+			this.nil = rw.getMe(posn, "Nil");
+			this.cons = rw.getMe(posn, "Cons");
+			this.equals = rw.getMe(posn, "==");
 		}
 		
 		String nextArea() {
@@ -119,13 +120,13 @@ public class TemplateGenerator {
 		this.dg = dg;
 	}
 
-	public void generate(JSTarget target) {
+	public void generate(Rewriter rw, JSTarget target) {
 		for (Template cg : rewriter.templates)
-			generateTemplate(target, cg);
+			generateTemplate(rw, target, cg);
 	}
 
-	private void generateTemplate(JSTarget target, Template cg) {
-		GeneratorContext cx = new GeneratorContext(target, cg);
+	private void generateTemplate(Rewriter rw, JSTarget target, Template cg) {
+		GeneratorContext cx = new GeneratorContext(target, rw, cg);
 		JSForm ir = JSForm.flexFn(cx.protoName + "_render", CollectionUtils.listOf("doc", "wrapper", "parent"));
 		target.add(ir);
 		if (cg == null || cg.content == null)
@@ -147,8 +148,8 @@ public class TemplateGenerator {
 		String moreArgs = "";
 		boolean isEditable = false;
 		String customTag = null;
-		if (tl instanceof TemplateDiv) {
-			TemplateDiv td = (TemplateDiv) tl;
+		if (tl instanceof RWTemplateDiv) {
+			RWTemplateDiv td = (RWTemplateDiv) tl;
 			base = "DivArea";
 			if (td.customTag != null) {
 				customTag = td.customTag;
@@ -166,11 +167,11 @@ public class TemplateGenerator {
 					moreArgs = moreArgs + ", 'http://www.w3.org/2000/svg'";
 			}
 			// TODO: a variable custom tag is hard & needs "assign" logic
-		} else if (tl instanceof ContentString || tl instanceof ContentExpr) {
+		} else if (tl instanceof RWContentString || tl instanceof RWContentExpr) {
 			base = "TextArea";
-			isEditable = tl instanceof ContentExpr && ((ContentExpr)tl).editable();
-		} else if (tl instanceof CardReference) {
-			CardReference cr = (CardReference) tl;
+			isEditable = tl instanceof RWContentExpr && ((RWContentExpr)tl).editable();
+		} else if (tl instanceof TemplateCardReference) {
+			TemplateCardReference cr = (TemplateCardReference) tl;
 			base = "CardSlotArea";
 			if (cr.explicitCard != null)
 				moreArgs = ", { explicit: " + cr.explicitCard + "}";
@@ -180,7 +181,7 @@ public class TemplateGenerator {
 				throw new UtilException("Can't handle this case");
 		} else if (tl instanceof TemplateCases) {
 			base = "CasesArea";
-		} else if (tl instanceof D3Invoke) {
+		} else if (tl instanceof RWD3Invoke) {
 			base = "D3Area";
 		} else {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
@@ -217,8 +218,8 @@ public class TemplateGenerator {
 			cx.target.add(nda);
 			dg.assignToVar(cgrx, newVar);
 		}
-		if (tl instanceof TemplateDiv) {
-			TemplateDiv td = (TemplateDiv) tl;
+		if (tl instanceof RWTemplateDiv) {
+			RWTemplateDiv td = (RWTemplateDiv) tl;
 			int an = 1;
 			for (Object a : td.attrs) {
 				if (a instanceof TemplateExplicitAttr) {
@@ -265,7 +266,8 @@ public class TemplateGenerator {
 			}
 		} else if (tl instanceof TemplateList) {
 			TemplateList l = (TemplateList) tl;
-			String tlv = ((TemplateListVar)l.iterVar).name;
+			TemplateListVar lv = (TemplateListVar)l.iterVar;
+			String tlv = lv == null ? null : lv.name;
 			if (l.supportDragOrdering)
 				fn.add(JSForm.flex("this._supportDragging()"));
 			String item = cx.nextArea();
@@ -275,7 +277,8 @@ public class TemplateGenerator {
 				cx.target.add(nc);
 			}
 			dg.newListChild(cgrx, javaName(item));
-			cx.newVar(tlv);
+			if (tlv != null)
+				cx.newVar(tlv);
 			JSForm cfn = recurse(cx, item, l.template, called);
 			if (l.supportDragOrdering)
 				cfn.add(JSForm.flex("this._makeDraggable()"));
@@ -287,12 +290,12 @@ public class TemplateGenerator {
 			fn.add(JSForm.flex(called + ".prototype._assignToVar.call(this)"));
 			atv.add(JSForm.flex("ListArea.prototype._assignToVar.call(this, lv)"));
 			cx.target.add(atv);
-		} else if (tl instanceof ContentString) {
-			ContentString cs = (ContentString) tl;
+		} else if (tl instanceof RWContentString) {
+			RWContentString cs = (RWContentString) tl;
 			fn.add(JSForm.flex("this._setText('" + cs.text + "')"));
 			dg.setText(cgrx, cs.text);
-		} else if (tl instanceof ContentExpr) {
-			ContentExpr ce = (ContentExpr)tl;
+		} else if (tl instanceof RWContentExpr) {
+			RWContentExpr ce = (RWContentExpr)tl;
 			Object valExpr = ce.expr;
 			callOnAssign(fn, valExpr, cgrx, called + ".prototype._contentExpr", true, null);
 
@@ -323,8 +326,8 @@ public class TemplateGenerator {
 				} else 
 					throw new UtilException("Cannot edit: " + valExpr);
 			}
-		} else if (tl instanceof CardReference) {
-			CardReference cr = (CardReference) tl;
+		} else if (tl instanceof TemplateCardReference) {
+			TemplateCardReference cr = (TemplateCardReference) tl;
 			if (cr.explicitCard != null)
 				; // fully handled above
 			else if (cr.yoyoVar != null) {
@@ -362,8 +365,8 @@ public class TemplateGenerator {
 				recurse(cx, cn, oc.template, called);
 				callOnAssign(fn, oc.cond, null, sn, false, null);
 			}
-		} else if (tl instanceof D3Invoke) {
-			D3Invoke d3 = (D3Invoke) tl;
+		} else if (tl instanceof RWD3Invoke) {
+			RWD3Invoke d3 = (RWD3Invoke) tl;
 			callOnAssign(fn, d3.d3.data, null, "D3Area.prototype._onUpdate", false, null);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
@@ -421,14 +424,14 @@ public class TemplateGenerator {
 			fn.add(JSForm.flex("this._mydiv.className = '" + simple.substring(1) + "'"));
 			dg.setSimpleClass(cgrx, simple.substring(1));
 		}
-		if (tl instanceof TemplateFormatEvents) {
-			TemplateFormatEvents tfe = (TemplateFormatEvents) tl;
+		if (tl instanceof RWTemplateFormatEvents) {
+			RWTemplateFormatEvents tfe = (RWTemplateFormatEvents) tl;
 			if (!tfe.handlers.isEmpty()) {
 				JSForm ahf = JSForm.flex(called +".prototype._add_handlers = function()").needBlock();
 				dg.needAddHandlers(cgrx);
 				cx.target.add(ahf);
 				boolean isFirst = true;
-				for (EventHandler eh : tfe.handlers) {
+				for (RWEventHandler eh : tfe.handlers) {
 					HSIEForm exprn = hsie.handleExpr(eh.expr, HSIEForm.CodeType.AREA);
 					curry.rewrite(tc, exprn);
 
@@ -480,11 +483,11 @@ public class TemplateGenerator {
 			// we need to track down the function (if it's not in the object already) and callOnAssign it's definition
 			CardFunction cf = (CardFunction) valExpr;
 			String fullName = cf.clzName + "." + cf.function;
-			FunctionDefinition fd = rewriter.functions.get(fullName);
+			RWFunctionDefinition fd = rewriter.functions.get(fullName);
 			if (fd != null)
-				for (FunctionCaseDefn fcd : fd.cases)
+				for (RWFunctionCaseDefn fcd : fd.cases)
 					callOnAssign(addToFunc, fcd.expr, cgrx, call, false, moreArgs);
-		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof PackageVar) {
+		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof PackageVar || valExpr instanceof RWStructDefn) {
 			// nothing to do here, not variable
 		} else if (valExpr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) valExpr;

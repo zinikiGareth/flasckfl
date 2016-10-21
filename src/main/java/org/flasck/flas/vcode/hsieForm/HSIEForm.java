@@ -11,8 +11,8 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.hsie.SubstExpr;
-import org.flasck.flas.parsedForm.ExternalRef;
-import org.flasck.flas.parsedForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
 
@@ -152,9 +152,9 @@ public class HSIEForm extends HSIEBlock {
 		else if (ref instanceof ExternalRef)
 			name = ((ExternalRef)ref).uniqueName();
 		else
-			throw new UtilException("Cannot pass in: " + ref);
+			throw new UtilException("Cannot pass in: " + ref + " " + (ref!=null?ref.getClass():""));
 		if (!name.equals(this.fnName)) {
-			if (ref instanceof ScopedVar)
+			if (ref instanceof VarNestedFromOuterFunctionScope)
 				scoped.add(name);
 			else
 				externals.add(name);

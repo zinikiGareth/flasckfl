@@ -3,7 +3,7 @@ package org.flasck.flas.stories;
 import java.util.List;
 
 import org.flasck.flas.blockForm.LocatedToken;
-import org.flasck.flas.parsedForm.TemplateLine;
+import org.flasck.flas.commonBase.template.TemplateLine;
 
 public class TemplateThing {
 	public final String name;

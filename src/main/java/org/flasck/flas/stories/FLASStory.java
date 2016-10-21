@@ -10,12 +10,25 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.IfExpr;
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.PlatformSpec;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.template.Template;
+import org.flasck.flas.commonBase.template.TemplateCardReference;
+import org.flasck.flas.commonBase.template.TemplateCases;
+import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
+import org.flasck.flas.commonBase.template.TemplateFormat;
+import org.flasck.flas.commonBase.template.TemplateIntro;
+import org.flasck.flas.commonBase.template.TemplateLine;
+import org.flasck.flas.commonBase.template.TemplateList;
+import org.flasck.flas.commonBase.template.TemplateOr;
+import org.flasck.flas.commonBase.template.TemplateReference;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.errors.ScopeDefineException;
-import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.CardReference;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -26,6 +39,7 @@ import org.flasck.flas.parsedForm.D3Intro;
 import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
+import org.flasck.flas.parsedForm.D3Thing;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
@@ -34,35 +48,24 @@ import org.flasck.flas.parsedForm.FunctionClause;
 import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.IfExpr;
 import org.flasck.flas.parsedForm.Implements;
+import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MessagesHandler;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
-import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMember;
-import org.flasck.flas.parsedForm.PackageDefn;
-import org.flasck.flas.parsedForm.PlatformSpec;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.Template;
-import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
-import org.flasck.flas.parsedForm.TemplateExplicitAttr;
-import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
-import org.flasck.flas.parsedForm.TemplateIntro;
-import org.flasck.flas.parsedForm.TemplateLine;
-import org.flasck.flas.parsedForm.TemplateList;
-import org.flasck.flas.parsedForm.TemplateOr;
-import org.flasck.flas.parsedForm.TemplateReference;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.D3PatternLineParser;
@@ -78,13 +81,14 @@ import org.flasck.flas.parser.PlatformAndroidSpecParser;
 import org.flasck.flas.parser.PropertyParser;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.parser.TryParsing;
+import org.flasck.flas.parser.TupleDeclarationParser;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
-public class FLASStory implements StoryProcessor {
+public class FLASStory {
 	public static class FCDWrapper {
 		List<Block> nested; 
 		FunctionCaseDefn starter;
@@ -138,20 +142,17 @@ public class FLASStory implements StoryProcessor {
 		}
 	}
 
-	@Override
-	public Object process(ScopeEntry top, List<Block> blocks) {
-		StoryRet r = process(top, blocks, false);
-		if (r.er.hasErrors())
-			return r.er;
+	public Object process(Scope top, List<Block> blocks) {
+		ErrorResult er = new ErrorResult();
+		process("ME", top, er, blocks, false);
+		if (er.hasErrors())
+			return er;
 		return top;
 	}
 
-	public StoryRet process(ScopeEntry top, List<Block> blocks, boolean optimism) {
-		PackageDefn pkg = (PackageDefn) top.getValue();
-		State s = new State(pkg.innerScope(), pkg.name, HSIEForm.CodeType.FUNCTION);
-		ErrorResult er = new ErrorResult();
+	public void process(String pkg, Scope sc, ErrorResult er, List<Block> blocks, boolean optimism) {
+		State s = new State(sc, pkg, HSIEForm.CodeType.FUNCTION);
 		doScope(er, s, blocks);
-		return new StoryRet(er, top);
 	}
 
 	private Object doScope(ErrorResult er, State s, List<Block> blocks) {
@@ -166,7 +167,7 @@ public class FLASStory implements StoryProcessor {
 				continue;
 			
 			// TODO: if it's a "package", deal with that ... and all blocks must either be or not be packages
-			Object o = new MultiParser(s, IntroParser.class, FunctionParser.class).parse(b);
+			Object o = new MultiParser(s, IntroParser.class, FunctionParser.class, TupleDeclarationParser.class).parse(b);
 			if (o == null) {
 				System.out.println("Could not parse " + b.line.text());
 				er.message(new Tokenizable(b), "syntax error");
@@ -190,6 +191,13 @@ public class FLASStory implements StoryProcessor {
 					fndefns.add(new FCDWrapper(lastBlock.nested, fcd));
 				} else if (o instanceof MethodCaseDefn) {
 					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) o));
+				} else if (o instanceof TupleAssignment) {
+					TupleAssignment ta = (TupleAssignment) o;
+					int k=0;
+					for (LocatedName x : ta.vars) {
+						ret.define(x.text, s.withPkg(x.text), new TupleMember(x.location, ta, k++));
+					}
+					// I don't think we need to do anything here, but if recursion is called for, we probably have a scope
 				} else if (o instanceof StructDefn) {
 					StructDefn sd = (StructDefn)o;
 					ret.define(State.simpleName(sd.name()), sd.name(), sd);
@@ -291,11 +299,11 @@ public class FLASStory implements StoryProcessor {
 			groups.add(cfn, w);
 		}
 		for (Entry<String, List<FCDWrapper>> x : groups.entrySet()) {
-			FunctionDefinition fd = new FunctionDefinition(x.getValue().get(0).starter.intro.location, s.kind, x.getValue().get(0).starter.intro, new ArrayList<FunctionCaseDefn>());
+			FunctionDefinition fd = new FunctionDefinition(x.getValue().get(0).starter.intro.location, s.kind, x.getValue().get(0).starter.intro);
 			ScopeEntry me = ret.define(State.simpleName(x.getKey()), x.getKey(), fd);
 			int cs = 0;
 			for (FCDWrapper q : x.getValue()) {
-				FunctionCaseDefn fcd = new FunctionCaseDefn(me, q.starter);
+				FunctionCaseDefn fcd = new FunctionCaseDefn(me, q.starter, cs);
 				fd.cases.add(fcd);
 				if (!q.nested.isEmpty())
 					doScope(er, new State(fcd.innerScope(), fcd.intro.name+"_"+cs, s.kind), q.nested);
@@ -312,15 +320,15 @@ public class FLASStory implements StoryProcessor {
 		for (MCDWrapper w : methods) {
 			// group together all function defns for a given function
 			MethodCaseDefn mcd = w.starter;
-			String n = mcd.intro.name;
+			String n = mcd.methodName();
 			if (cfn == null || !cfn.equals(n)) {
 				cfn = n;
-				pnargs = mcd.intro.args.size();
+				pnargs = mcd.nargs();
 				if (groups.contains(cfn))
 					er.message((Tokenizable)null, "split definition of function " + cfn);
 				else if (ret.contains(cfn))
 					er.message((Tokenizable)null, "duplicate definition of " + cfn);
-			} else if (mcd.intro.args.size() != pnargs)
+			} else if (mcd.nargs() != pnargs)
 				er.message((Block)null, "inconsistent numbers of arguments in definitions of " + cfn);
 			groups.add(cfn, w);
 		}
@@ -329,7 +337,7 @@ public class FLASStory implements StoryProcessor {
 			MethodDefinition md = new MethodDefinition(x.getValue().get(0).starter.intro, new ArrayList<MethodCaseDefn>());
 			ScopeEntry me = ret.define(State.simpleName(x.getKey()), x.getKey(), md);
 			for (MCDWrapper q : x.getValue()) {
-				MethodCaseDefn mcd = new MethodCaseDefn(me, q.starter);
+				MethodCaseDefn mcd = new MethodCaseDefn(me, q.starter, md.cases.size());
 				md.cases.add(mcd);
 				for (Block b : q.nested) {
 					assertNoNonCommentNestedLines(er, b);
@@ -551,7 +559,7 @@ public class FLASStory implements StoryProcessor {
 //		if (!templates.isEmpty())
 		if (er.hasErrors())
 			return;
-		cd.template = new Template(cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()), cd.innerScope());
+		cd.template = new Template(cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()));
 	}
 
 	private void readPlatformSpec(ErrorResult er, List<Block> nested, PlatformSpec ps) {
@@ -659,7 +667,7 @@ public class FLASStory implements StoryProcessor {
 			TemplateReference tr = (TemplateReference) tl;
 			frTemplates.add(new LocatedToken(tr.location, tr.name));
 			return tl;
-		} else if (tl instanceof CardReference) {
+		} else if (tl instanceof TemplateCardReference) {
 			return tl;
 		} else if (tl instanceof TemplateList) {
 			ret = tl;
@@ -855,7 +863,7 @@ public class FLASStory implements StoryProcessor {
 	private TemplateLine unroll(ErrorResult er, State s, Map<String, Object> map, TemplateLine content, Map<String, Object> subst) {
 		if (content == null)
 			throw new UtilException("Null template line");
-		if (content instanceof CardReference)
+		if (content instanceof TemplateCardReference)
 			return content;
 		if (content instanceof TemplateReference) {
 			TemplateReference tr = (TemplateReference) content;
@@ -972,7 +980,7 @@ public class FLASStory implements StoryProcessor {
 			for (Object o2 : ae.args)
 				args.add(substituteMacroParameters(er, s, map, o2, subst));
 			return new ApplyExpr(ae.location, substituteMacroParameters(er, s, map, ae.fn, subst), args);
-		} else if (o instanceof CardReference) {
+		} else if (o instanceof TemplateCardReference) {
 			// We don't have any parameters in this yet that could be macro parameters
 		} else if (o instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases)o;
@@ -1011,7 +1019,7 @@ public class FLASStory implements StoryProcessor {
 				er.merge((ErrorResult) o);
 			else if (o instanceof FunctionIntro) {
 				FunctionIntro meth = (FunctionIntro)o;
-				MethodCaseDefn mcd = new MethodCaseDefn(meth);
+				MethodCaseDefn mcd = new MethodCaseDefn(meth, impl == null ? -1 : cases.size());
 				cases.add(new MCDWrapper(b.nested, mcd));
 			} else
 				er.message(b, "cannot handle " + o.getClass());
@@ -1022,13 +1030,13 @@ public class FLASStory implements StoryProcessor {
 		int pnargs = 0;
 		for (MCDWrapper q : cases) {
 			MethodCaseDefn fcd = q.starter;
-			String n = fcd.intro.name;
+			String n = fcd.methodName();
 			if (cfn == null || !cfn.equals(n)) {
 				cfn = n;
-				pnargs = fcd.intro.args.size();
+				pnargs = fcd.nargs();
 				if (groups.contains(cfn))
 					er.message((Tokenizable)null, "split definition of function " + cfn);
-			} else if (fcd.intro.args.size() != pnargs)
+			} else if (fcd.nargs() != pnargs)
 				er.message((Tokenizable)null, "inconsistent numbers of arguments in definitions of " + cfn);
 			groups.add(cfn, q);
 		}
@@ -1036,7 +1044,7 @@ public class FLASStory implements StoryProcessor {
 			MethodDefinition md = new MethodDefinition(x.getValue().get(0).starter.intro, new ArrayList<MethodCaseDefn>());
 			impl.addMethod(md);
 			for (MCDWrapper q : x.getValue()) {
-				MethodCaseDefn mcd = new MethodCaseDefn(se, q.starter);
+				MethodCaseDefn mcd = new MethodCaseDefn(se, q.starter, -1);
 				md.cases.add(mcd);
 				handleMessageMethods(er, mcd, q.nested);
 			}

@@ -1,22 +1,19 @@
 package org.flasck.flas.typechecker;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Locatable;
+import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
-@SuppressWarnings("serial")
-public class Type implements Serializable, Locatable {
+public class Type implements Locatable {
 	public final InputPosition kw;
 	private final InputPosition location;
-	public enum WhatAmI { REFERENCE, BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
+	public enum WhatAmI { /* REFERENCE, */BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
 	public final WhatAmI iam;
 	private final String name;
 	private final Type type;
@@ -35,7 +32,7 @@ public class Type implements Serializable, Locatable {
 		this.fnargs = null;
 		
 		// for anything which is not an instance, all the args MUST be polymorphic vars
-		if (polys != null && iam != WhatAmI.REFERENCE && iam != WhatAmI.INSTANCE)
+		if (polys != null && iam != WhatAmI.INSTANCE)
 			for (Type t : polys)
 				if (t.iam != WhatAmI.POLYVAR)
 					throw new UtilException("All arguments to type defn must be poly vars");
@@ -64,6 +61,8 @@ public class Type implements Serializable, Locatable {
 		this.name = null;
 		this.type = null;
 		this.polys = null;
+		if (subtypes != null && subtypes.size() == 3 && subtypes.get(2) == null)
+			System.out.println("yo");
 		this.fnargs = subtypes;
 	}
 
@@ -75,7 +74,7 @@ public class Type implements Serializable, Locatable {
 	public String name() {
 		if (iam == WhatAmI.INSTANCE)
 			return type.name();
-		else if (iam == WhatAmI.REFERENCE || iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
+		else if (iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
 				 iam == WhatAmI.CONTRACT || iam == WhatAmI.CONTRACTIMPL || iam == WhatAmI.CONTRACTSERVICE || iam == WhatAmI.HANDLERIMPLEMENTS)
 			return name;
 		else if (iam == WhatAmI.SOMETHINGELSE)
@@ -92,7 +91,7 @@ public class Type implements Serializable, Locatable {
 		return polys != null && !polys.isEmpty();
 	}
 	
-	public Collection<Type> polys() {
+	public List<Type> polys() {
 		if (polys == null)
 			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
 		return polys;
@@ -112,7 +111,7 @@ public class Type implements Serializable, Locatable {
 	}
 	
 	public int width() {
-		if (iam != WhatAmI.TUPLE)
+		if (iam == WhatAmI.TUPLE)
 			return fnargs.size();
 		else
 			throw new UtilException("Can only ask for the width of a tuple");
@@ -122,15 +121,6 @@ public class Type implements Serializable, Locatable {
 		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE)
 			throw new UtilException("Can only ask for the argument of a function or tuple");
 		return fnargs.get(i);
-	}
-	
-	// defining a "reference" says you know a thing's name and arguments but you don't actually know anything about it
-	public static Type reference(InputPosition loc, String name, List<Type> args) {
-		return new Type(null, loc, WhatAmI.REFERENCE, name, args);
-	}
-
-	public static Type reference(InputPosition loc, String name, Type... args) {
-		return new Type(null, loc, WhatAmI.REFERENCE, name, CollectionUtils.listOf(args));
 	}
 	
 	// This one is DELIBERATELY not static - you need a type that you would otherwise have to pass in as "base"
@@ -177,13 +167,6 @@ public class Type implements Serializable, Locatable {
 
 	protected Object convertToExpr(TypeChecker tc, GarneredFrom from, VariableFactory factory, Map<String, TypeVar> mapping) {
 		switch (iam) {
-		// I don't think references to types should make it this far
-//		case REFERENCE: {
-//			List<Object> myargs = new ArrayList<Object>();
-//			for (Type t : polys)
-//				myargs.add(t.convertToExpr(factory, mapping));
-//			return new TypeExpr(new GarneredFrom(location), name, myargs);
-//		}
 		case BUILTIN:
 		case CONTRACT:
 		case CONTRACTIMPL:
@@ -198,8 +181,10 @@ public class Type implements Serializable, Locatable {
 		case OBJECT:
 		{
 			List<Object> mypolys = new ArrayList<Object>();
-			for (Type t : polys)
-				mypolys.add(t.convertToExpr(tc, from, factory, mapping));
+			if (polys != null) {
+				for (Type t : polys)
+					mypolys.add(t.convertToExpr(tc, from, factory, mapping));
+			}
 			return new TypeExpr(from, this, mypolys);
 		}
 		case POLYVAR: {
@@ -233,7 +218,6 @@ public class Type implements Serializable, Locatable {
 
 	protected void show(StringBuilder sb) {
 		switch (iam) {
-		case REFERENCE:
 		case STRUCT:
 		case UNION:
 		case OBJECT:

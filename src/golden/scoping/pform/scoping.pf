@@ -1,0 +1,61 @@
+package test.golden
+  cdecl test.golden.NoArg
+    up get
+      [ctor] Number
+  cdecl test.golden.Reply
+    down reply
+      [type] k
+        Number
+  cdecl test.golden.Server
+    up get
+      [type] k
+        Number
+      [type] r
+        Reply
+    up put
+      [type] k
+        Number
+  method test.golden.cna
+    case test.golden.cna_0
+        [type] na
+          NoArg
+        invoke <-
+            .
+              na
+              get
+            # 42
+  test.golden.f
+    [type] server
+      Server
+    [var] x
+   =
+    MessageWrapper
+      var
+      Cons
+        q
+        Nil
+    handler Reply test.golden.f_0.HandleReply (free)
+      [type] v
+        Number
+      method test.golden.f_0.HandleReply.reply
+        case test.golden.f_0.HandleReply.reply
+            [var] y
+            invoke <-
+                .
+                  server
+                  put
+                +
+                  var
+                  v
+    method test.golden.f_0.q
+      case test.golden.f_0.q_0
+          invoke <-
+              .
+                server
+                get
+              var
+              HandleReply
+                var
+    test.golden.f_0.var
+     =
+      # 32

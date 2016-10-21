@@ -1,33 +1,54 @@
 package test.golden
-  cdecl test.golden.DataStore
-    up get
-      x
-        String
-      h
-        Handler
-  cdecl test.golden.Handler
-    down reply
-      s
-        String
-  cdecl test.golden.Init
-    down ready
-      obj
-        Any
-  cdecl test.golden.Offer
-    up get
-      x
-        String
-      h
-        Handler
-  card test.golden.Simple
+  card test.golden.Complex
     state
       hello
         String
        <-
         '' hello, world
-    template test.golden.Simple
+      list
+        Croset
+          String
+      mapper
+        ->
+          String
+          String
+    template test.golden.Complex
       .
         hello
+        + list lv
+          .
+            lv
+        + list null
+          .
+            '' hello
+  cdecl test.golden.DataStore
+    up get
+      [type] x
+        String
+      [type] h
+        Handler
+  cdecl test.golden.Handler
+    down reply
+      [type] s
+        String
+  cdecl test.golden.Init
+    down ready
+      [type] obj
+        Any
+  cdecl test.golden.Offer
+    up get
+      [type] x
+        String
+      [type] h
+        Handler
+  struct test.golden.Polyed T1 T2
+    x
+      String
+    y
+      T1
+    z
+      List
+        T2
   struct test.golden.Thing
     x
       String

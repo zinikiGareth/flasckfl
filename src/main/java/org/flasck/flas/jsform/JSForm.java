@@ -4,15 +4,19 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.ScopedVar;
-import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardMember;
-import org.flasck.flas.parsedForm.ExternalRef;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.ObjectReference;
+
+import org.flasck.flas.rewrittenForm.CardFunction;
+import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.ObjectReference;
+import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -27,11 +31,23 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class JSForm {
+	private static Map<String, String> renamers = new HashMap<>();
 	private final String text;
 	private String endWith = ";";
 	private List<JSForm> block = null;
 	private int insertPoint = 0;
 	private boolean isArray = false;
+	
+	static {
+		renamers.put("concat", "StdLib.concat");
+		renamers.put("==", "FLEval.compeq");
+		renamers.put("++", "append");
+		renamers.put("+", "FLEval.plus");
+		renamers.put("-", "FLEval.minus");
+		renamers.put("*", "FLEval.mul");
+		renamers.put("/", "FLEval.div");
+		renamers.put("^", "FLEval.exp");
+	}
 
 	public JSForm(String text) {
 		this.text = text;
@@ -159,9 +175,8 @@ public class JSForm {
 
 	public static JSForm function(String fnName, List<Var> hsvs, Set<String> scoped, int nformal) {
 		List<String> vars = new ArrayList<String>();
-		int j=0;
-		for (Object s : scoped)
-			vars.add("s"+(j++));
+		for (int j=0;j<scoped.size();j++)
+			vars.add("s"+j);
 		for (int i=0;i<nformal;i++)
 			vars.add(hsvs.get(i).toString());
 		return new JSForm(fnName + " = function(" + String.join(", ", vars) + ")").strict();
@@ -297,14 +312,23 @@ public class JSForm {
 		sb.append(")");
 		return sb.toString();
 	}
+	
+	public static String rename(String fn) {
+		if (renamers .containsKey(fn))
+			return renamers.get(fn);
+		else
+			return fn;
+	}
 
 	private static void appendValue(HSIEForm form, StringBuilder sb, PushReturn c, int pos) {
 		if (c.fn != null) {
 			if (c.fn instanceof PackageVar) {
-				sb.append(c.fn.uniqueName());
-			} else if (c.fn instanceof ScopedVar) {
+				sb.append(rename(c.fn.uniqueName()));
+			} else if (c.fn instanceof Type) {
+				sb.append(((Type)c.fn).name());
+			} else if (c.fn instanceof VarNestedFromOuterFunctionScope) {
 				int j = 0;
-				ScopedVar sv = (ScopedVar) c.fn;
+				VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope) c.fn;
 				if (sv.definedLocally) {
 					return;
 				}

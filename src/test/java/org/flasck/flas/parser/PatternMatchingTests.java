@@ -2,13 +2,13 @@ package org.flasck.flas.parser;
 
 import static org.junit.Assert.*;
 
-import org.flasck.flas.parsedForm.ConstPattern;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.TuplePattern;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.typechecker.Type;
 import org.junit.Test;
 
 public class PatternMatchingTests {
@@ -38,11 +38,11 @@ public class PatternMatchingTests {
 		Object patt = pp.tryParsing(new Tokenizable("(List[String] l)"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof TypedPattern);
-		Type ty = ((TypedPattern)patt).type;
+		TypeReference ty = ((TypedPattern)patt).type;
 		assertEquals("List", ty.name());
 		assertTrue(ty.hasPolys());
 		assertEquals(1, ty.polys().size());
-		assertEquals("String", ty.poly(0).name());
+		assertEquals("String", ty.polys().get(0).name());
 		assertEquals("l", ((TypedPattern)patt).var);
 	}
 
@@ -52,12 +52,12 @@ public class PatternMatchingTests {
 		Object patt = pp.tryParsing(new Tokenizable("(Dict[String,Number] l)"));
 		assertNotNull(patt);
 		assertTrue(patt instanceof TypedPattern);
-		Type ty = ((TypedPattern)patt).type;
+		TypeReference ty = ((TypedPattern)patt).type;
 		assertEquals("Dict", ty.name());
 		assertTrue(ty.hasPolys());
 		assertEquals(2, ty.polys().size());
-		assertEquals("String", ty.poly(0).name());
-		assertEquals("Number", ty.poly(1).name());
+		assertEquals("String", ty.polys().get(0).name());
+		assertEquals("Number", ty.polys().get(1).name());
 		assertEquals("l", ((TypedPattern)patt).var);
 	}
 

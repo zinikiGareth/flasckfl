@@ -2,7 +2,7 @@ package org.flasck.flas.parser;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.flasck.flas.parsedForm.ApplyExpr;
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.junit.Test;
 

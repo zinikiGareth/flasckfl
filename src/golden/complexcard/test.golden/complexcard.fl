@@ -3,6 +3,13 @@ This is a complex card with "one of everything"
 	struct Thing
 		String x
 		
+	struct Polyed T1 T2
+		String x
+		T1 y
+		List[T2] z
+	
+.	union PolyThing A B = Thing | Polyed A B
+	
 	contract Init
 		down ready (Any obj)
 
@@ -15,13 +22,21 @@ This is a complex card with "one of everything"
 	contract Offer
 		up get (String x) (Handler h)
 		
-	card Simple
+	card Complex
 		state
 			String hello <- "hello, world"
+			Croset[String] list
+			String->String mapper
 			
 		template
 			.
 				hello
+				+ list lv
+					.
+						lv
+				+ list
+					.
+						"hello"
 				
 		implements Init
 			ready (Thing obj)

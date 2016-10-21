@@ -1,15 +1,15 @@
 package org.flasck.flas.stories;
 
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.Scope;
 
 public class StoryRet {
 	public final ErrorResult er;
-	public final ScopeEntry top;
+	public final Scope scope;
 
-	public StoryRet(ErrorResult er, ScopeEntry top) {
+	public StoryRet(ErrorResult er, Scope scope) {
 		this.er = er;
-		this.top = top;
+		this.scope = scope;
 	}
 
 }

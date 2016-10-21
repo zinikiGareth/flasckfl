@@ -10,50 +10,43 @@ import java.io.PrintWriter;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
-import org.flasck.flas.parsedForm.PackageVar;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Test;
 
 public class FlasStoryTests {
 	private final ErrorResult errors = new ErrorResult();
-	private final Rewriter rewriter = new Rewriter(errors, null);
-	private final ScopeEntry se = new PackageDefn(null, Builtin.builtinScope(), "ME").myEntry();
+	private final Rewriter rewriter = new Rewriter(errors, null, null);
+	private final Scope s = new Scope(null, null);
 
 	@Test
 	public void testProcessingFib() {
-		Object o = new FLASStory().process(se, BlockTestData.allFib());
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		Scope s = ((PackageDefn)se.getValue()).innerScope();
+		new FLASStory().process(s, BlockTestData.allFib());
 		assertEquals(1, s.size());
 	}
 
 	@Test
 	public void testProcessingMutualRecursion() {
-		Object o = new FLASStory().process(se, BlockTestData.simpleMutualRecursionBlock());
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
+		new FLASStory().process(s, BlockTestData.simpleMutualRecursionBlock());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(2, rewriter.functions.size());
-		FunctionDefinition f = rewriter.functions.get("ME.f");
-		assertEquals("ME.f", f.name);
-		FunctionCaseDefn c1 = f.cases.get(0);
-		assertEquals("ME.f", c1.intro.name);
-		HSIEForm form = new HSIE(errors, rewriter, se.scope()).handle(null, f);
+		RWFunctionDefinition f = rewriter.functions.get("ME.f");
+		assertEquals("ME.f", f.name());
+		RWFunctionCaseDefn c1 = f.cases.get(0);
+		assertEquals("ME.f", c1.methodName());
+		assertEquals("ME.f_0", c1.caseName());
+		HSIEForm form = new HSIE(errors, rewriter).handle(null, f);
 		HSIETestData.assertHSIE(HSIETestData.mutualF(), form);
-		FunctionDefinition g = rewriter.functions.get("ME.f_0.g");
-		HSIEForm gorm = new HSIE(errors, rewriter, se.scope()).handle(null, g, form.vars.size(), form.varsFor(0));
+		RWFunctionDefinition g = rewriter.functions.get("ME.f_0.g");
+		HSIEForm gorm = new HSIE(errors, rewriter).handle(null, g, form.vars.size(), form.varsFor(0));
 		assertEquals(1, gorm.externals.size());
 		assertTrue(gorm.externals.contains(new PackageVar(null, "FLEval.mul", null)));
 		HSIETestData.assertHSIE(HSIETestData.mutualG(), gorm);
@@ -61,34 +54,27 @@ public class FlasStoryTests {
 
 	@Test
 	public void testProcessingAMultiPartFunctionWithSeparateNestedScopes() throws IOException {
-		Object o = new FLASStory().process(se, BlockTestData.splitNestedBlocks());
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
+		new FLASStory().process(s, BlockTestData.splitNestedBlocks());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(3, rewriter.functions.size());
-		FunctionDefinition f = rewriter.functions.get("ME.f");
+		RWFunctionDefinition f = rewriter.functions.get("ME.f");
 		assertEquals(2, f.cases.size());
-		FunctionCaseDefn c1 = f.cases.get(0);
-		FunctionCaseDefn c2 = f.cases.get(1);
-		HSIEForm form = new HSIE(errors, rewriter, se.scope()).handle(null, f);
+//		RWFunctionCaseDefn c1 = f.cases.get(0);
+//		RWFunctionCaseDefn c2 = f.cases.get(1);
+		HSIEForm form = new HSIE(errors, rewriter).handle(null, f);
 		HSIETestData.assertHSIE(HSIETestData.splitF(), form);
-		FunctionDefinition g1 = rewriter.functions.get("ME.f_0.g");
-		HSIEForm gorm1 = new HSIE(errors, rewriter, se.scope()).handle(null, g1, form.vars.size(), form.varsFor(0));
+		RWFunctionDefinition g1 = rewriter.functions.get("ME.f_0.g");
+		HSIEForm gorm1 = new HSIE(errors, rewriter).handle(null, g1, form.vars.size(), form.varsFor(0));
 		HSIETestData.assertHSIE(HSIETestData.splitF_G1(), gorm1);
-		FunctionDefinition g2 = rewriter.functions.get("ME.f_1.g");
-		HSIEForm gorm2 = new HSIE(errors, rewriter, se.scope()).handle(null, g2, form.vars.size(), form.varsFor(1));
+		RWFunctionDefinition g2 = rewriter.functions.get("ME.f_1.g");
+		HSIEForm gorm2 = new HSIE(errors, rewriter).handle(null, g2, form.vars.size(), form.varsFor(1));
 		HSIETestData.assertHSIE(HSIETestData.splitF_G2(), gorm2);
 	}
 	
 	@Test
 	public void testLiftingOfCardMethods() throws Exception {
-		Object o = new FLASStory().process(se, BlockTestData.cardWithMethods());
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
-		Scope s = ((PackageDefn)se.getValue()).innerScope();
+		new FLASStory().process(s, BlockTestData.cardWithMethods());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(2, s.size());
 		CardDefinition cd = (CardDefinition) s.get("Mycard");
 		assertNotNull(cd.state);
@@ -118,16 +104,12 @@ public class FlasStoryTests {
 	
 	@Test
 	public void testSimpleIfThatErrors() throws Exception {
-		Object o = new FLASStory().process(se, BlockTestData.simpleIf());
-		System.out.println(o);
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
+		new FLASStory().process(s, BlockTestData.simpleIf());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(1, rewriter.functions.size());
-		FunctionDefinition fact = rewriter.functions.get("ME.fact");
+		RWFunctionDefinition fact = rewriter.functions.get("ME.fact");
 		assertEquals(1, fact.cases.size());
-		HSIEForm form = new HSIE(errors, rewriter, se.scope()).handle(null, fact);
+		HSIEForm form = new HSIE(errors, rewriter).handle(null, fact);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertTrue(!errors.hasErrors());
 		HSIETestData.assertHSIE(HSIETestData.simpleIf(), form);
@@ -135,16 +117,12 @@ public class FlasStoryTests {
 	
 	@Test
 	public void testSimpleIfElse() throws Exception {
-		Object o = new FLASStory().process(se, BlockTestData.simpleIfElse());
-		System.out.println(o);
-		assertNotNull(o);
-		assertTrue(o instanceof ScopeEntry);
-		ScopeEntry se = (ScopeEntry) o;
-		rewriter.rewrite(se);
+		new FLASStory().process(s, BlockTestData.simpleIfElse());
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(1, rewriter.functions.size());
-		FunctionDefinition fact = rewriter.functions.get("ME.fact");
+		RWFunctionDefinition fact = rewriter.functions.get("ME.fact");
 		assertEquals(1, fact.cases.size());
-		HSIEForm form = new HSIE(errors, rewriter, se.scope()).handle(null, fact);
+		HSIEForm form = new HSIE(errors, rewriter).handle(null, fact);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertTrue(!errors.hasErrors());
 		HSIETestData.assertHSIE(HSIETestData.simpleIfElse(), form);

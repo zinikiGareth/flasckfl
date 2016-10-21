@@ -8,10 +8,10 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.ConstPattern;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;

@@ -3,12 +3,12 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardMember;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.CardFunction;
+import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -48,7 +48,7 @@ public class ApplyCurry {
 					continue;
 				if (pc.fn instanceof CardMember)
 					continue;
-				if (pc.fn instanceof ScopedVar)
+				if (pc.fn instanceof VarNestedFromOuterFunctionScope)
 					continue;
 				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;
@@ -57,8 +57,8 @@ public class ApplyCurry {
 					PushCmd fld = (PushCmd)c.nestedCommands().get(2);
 					if (ofObj.fn instanceof CardMember) {
 						CardMember cm = (CardMember) ofObj.fn;
-						if (cm.type instanceof ObjectDefn) {
-							ObjectDefn od = (ObjectDefn) cm.type;
+						if (cm.type instanceof RWObjectDefn) {
+							RWObjectDefn od = (RWObjectDefn) cm.type;
 							if (od.hasMethod(fld.sval.text)) {
 								Type t = od.getMethod(fld.sval.text);
 								c.pushAt(pc.location, 0, new PackageVar(pc.location, "FLEval.curry", null));

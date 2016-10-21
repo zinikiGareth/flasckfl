@@ -1,8 +1,7 @@
 package org.flasck.flas.typechecker;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,27 +10,31 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.AsString;
-import org.flasck.flas.parsedForm.CardGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
-import org.flasck.flas.parsedForm.CardMember;
-import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.LocalVar;
-import org.flasck.flas.parsedForm.MethodInContext;
-import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectMethod;
-import org.flasck.flas.parsedForm.ScopedVar;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.TypedPattern;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
-import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.flim.KnowledgeWriter;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
+import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.MethodInContext;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch;
+import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWObjectMethod;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.rewrittenForm.RWVarPattern;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
@@ -51,37 +54,44 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
-import org.zinutils.utils.Justification;
-import org.zinutils.utils.StringComparator;
 
 public class TypeChecker {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	public final ErrorResult errors;
 	private final VariableFactory factory = new VariableFactory();
 	final Map<String, Type> knowledge = new TreeMap<String, Type>();
-	final Map<String, StructDefn> structs = new TreeMap<String, StructDefn>();
-	final Map<String, ObjectDefn> objects = new TreeMap<String, ObjectDefn>();
-	final Map<String, UnionTypeDefn> types = new TreeMap<String, UnionTypeDefn>();
-	final Map<String, ContractDecl> contracts = new TreeMap<String, ContractDecl>(new StringComparator());
-	final Map<String, HandlerImplements> handlers = new TreeMap<String, HandlerImplements>();
+	final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
+	final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
+	final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
+	final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
+	final Map<String, RWHandlerImplements> handlers = new TreeMap<String, RWHandlerImplements>();
 	final Map<String, CardTypeInfo> cards = new TreeMap<String, CardTypeInfo>();
-	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>(new StringComparator());
+	final Map<String, TypeHolder> prefixes = new TreeMap<String, TypeHolder>();
+	final Map<String, Type> fnArgs = new TreeMap<String, Type>();
 	
 	public TypeChecker(ErrorResult errors) {
 		this.errors = errors;
 	}
 
 	public void populateTypes(Rewriter rewriter) {
-		for (Entry<String, StructDefn> d : rewriter.structs.entrySet())
+		for (Entry<String, Type> t : rewriter.builtins.entrySet())
+			knowledge.put(t.getKey(), t.getValue());
+		for (Entry<String, RWFunctionDefinition> t : rewriter.functions.entrySet()) {
+			if (!t.getValue().generate) // only import pre-defined functions
+				knowledge.put(t.getKey(), t.getValue().getType());
+		}
+		for (Entry<String, RWStructDefn> d : rewriter.structs.entrySet())
 			structs.put(d.getKey(), d.getValue());
+		for (Entry<String, RWObjectDefn> d : rewriter.objects.entrySet())
+			objects.put(d.getKey(), d.getValue());
 //		System.out.println("structs: " + structs);
-		for (Entry<String, UnionTypeDefn> d : rewriter.types.entrySet())
+		for (Entry<String, RWUnionTypeDefn> d : rewriter.types.entrySet())
 			types.put(d.getKey(), d.getValue());
 //		System.out.println("types: " + types);
-		for (Entry<String, ContractDecl> d : rewriter.contracts.entrySet())
+		for (Entry<String, RWContractDecl> d : rewriter.contracts.entrySet())
 			contracts.put(d.getKey(), d.getValue());
 		for (Entry<String, CardGrouping> d : rewriter.cards.entrySet()) {
-			CardTypeInfo cti = new CardTypeInfo(d.getValue());
+			CardTypeInfo cti = new CardTypeInfo(d.getValue().struct);
 			cards.put(d.getKey(), cti);
 			prefixes.put(d.getKey(), cti);
 			for (ContractGrouping x : d.getValue().contracts) {
@@ -96,15 +106,22 @@ public class TypeChecker {
 				prefixes.put(x.type, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
 			}
 		}
-		for (Entry<String, HandlerImplements> x : rewriter.callbackHandlers.entrySet())
+		for (Entry<String, RWHandlerImplements> x : rewriter.callbackHandlers.entrySet())
 			handlers.put(x.getKey(), x.getValue());
 		for (MethodInContext m : rewriter.standalone.values()) {
 			List<Type> args = new ArrayList<Type>();
+			// TODO: this seems basically implausible to me.
+			// Is this trying to only think about the ones that have been imported?
+			// Should we check ".generate" is "false"?
+			
+			// It used to look at "method.intro.args" but I took that away
+			// I think the problem is that it is thinking about ContractDecl methods, which are pre-defined, whereas these perhaps are not
+			
 			// find the arg types, as claimed
-			for (Object x : m.method.intro.args) {
-				if (x instanceof TypedPattern)
-					args.add(((TypedPattern)x).type);
-				else if (x instanceof VarPattern)
+			for (Object x : m.method.cases.get(0).intro.args) {
+				if (x instanceof RWTypedPattern)
+					args.add(((RWTypedPattern)x).type);
+				else if (x instanceof RWVarPattern)
 					args.add(types.get("Any"));
 				else
 					throw new UtilException("Cannot handle " + x.getClass());
@@ -115,15 +132,15 @@ public class TypeChecker {
 		}
 	}
 
-	public void addStructDefn(StructDefn structDefn) {
+	public void addStructDefn(RWStructDefn structDefn) {
 		structs.put(structDefn.name(), structDefn);
 	}
 
-	public void addObjectDefn(ObjectDefn objDefn) {
+	public void addObjectDefn(RWObjectDefn objDefn) {
 		objects.put(objDefn.name(), objDefn);
 	}
 
-	public void addTypeDefn(UnionTypeDefn typeDefn) {
+	public void addTypeDefn(RWUnionTypeDefn typeDefn) {
 		types.put(typeDefn.name(), typeDefn);
 	}
 
@@ -134,11 +151,35 @@ public class TypeChecker {
 	public void addExternal(String name, Type type) {
 		if (type == null)
 			throw new UtilException("Don't give me null types");
-		if (type instanceof StructDefn || type instanceof UnionTypeDefn || type instanceof ObjectDefn)
+		if (type instanceof RWStructDefn || type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn)
 			throw new UtilException("Not just a type ... call special thing");
 		knowledge.put(name, type);
 	}
-	
+
+	public void addArgTypes(RWFunctionDefinition fd) {
+		for (RWFunctionCaseDefn c : fd.cases) {
+			for (Object a : c.args()) {
+				processPattern(a);
+			}
+		}
+	}
+
+	protected void processPattern(Object a) {
+		if (a instanceof ConstPattern) {
+			// clearly this doesn't introduce any vars ...
+		} else if (a instanceof RWTypedPattern) {
+			RWTypedPattern tp = (RWTypedPattern) a;
+			fnArgs.put(((RWTypedPattern) a).var, tp.type);
+		} else if (a instanceof RWVarPattern) {
+			// can't actually import this, since it needs to be inferred - figure out and install _after_ typecheck
+		} else if (a instanceof RWConstructorMatch) {
+			RWConstructorMatch cm = (RWConstructorMatch) a;
+			for (Field cma : cm.args)
+				processPattern(cma.patt);
+		} else
+			throw new UtilException("Can't handle " + a.getClass());
+	}
+
 	public Type checkExpr(HSIEForm expr, List<Type> args, List<InputPosition> locs) {
 		TypeState s = new TypeState(errors, this);
 		expr.dump(logger);
@@ -147,7 +188,7 @@ public class TypeChecker {
 		
 		s.localKnowledge.put(expr.fnName, factory.next());
 		for (int i=0;i<expr.nformal;i++) {
-//			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + (i+hsie.alreadyUsed));
+//			System.out.println("Allocating " + "var" + " for " + expr.fnName + " arg " + i + " var " + (i+expr.alreadyUsed));
 			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, args.get(i).asExpr(new GarneredFrom(locs.get(i)), this, factory)));
 		}
 				
@@ -190,6 +231,8 @@ public class TypeChecker {
 			TypeExpr subst = (TypeExpr) tmp;
 //			System.out.println("Storing type knowledge about " + f.fnName);
 			Type mytype = subst.asType(this);
+			if (mytype == null)
+				throw new UtilException("Came up with null type");
 			knowledge.put(f.fnName, mytype);
 			int idx = f.fnName.lastIndexOf(".");
 			if (idx == -1) {
@@ -400,11 +443,11 @@ public class TypeChecker {
 					returns.add(checkBlock(sft, s, form, sw));
 					logger.debug(o.toString() + " links " + sw.var + " to " + sw.ctor);
 				} else {
-					StructDefn sd = structs.get(sw.ctor);
+					RWStructDefn sd = structs.get(sw.ctor);
 					Type pt = sd;
-					UnionTypeDefn ud = types.get(sw.ctor);
+					RWUnionTypeDefn ud = types.get(sw.ctor);
 					if (pt == null) pt = ud;
-					ContractDecl cd = contracts.get(sw.ctor);
+					RWContractDecl cd = contracts.get(sw.ctor);
 					if (pt == null) pt = cd;
 					if (pt == null) {
 						errors.message(sw.location, "there is no definition for type " + sw.ctor);
@@ -426,7 +469,7 @@ public class TypeChecker {
 					if (sd != null) {
 						logger.debug(o + " asserts that " + sw.var + " is of type " + sw.ctor + " with type scheme " + valueOf);
 						SFTypes inner = new SFTypes(sft);
-						for (StructField x : sd.fields) {
+						for (RWStructField x : sd.fields) {
 	//						System.out.println("field " + x.name + " has " + x.type);
 							Object fr = TypeExpr.from(x.type, polys);
 							inner.put(sw.var, x.name, fr);
@@ -539,7 +582,7 @@ public class TypeChecker {
 					CardTypeInfo cti = cards.get(cm.card);
 					if (cti == null)
 						throw new UtilException("There was no card definition called " + cm.card);
-					for (StructField sf : cti.struct.fields) {
+					for (RWStructField sf : cti.struct.fields) {
 						if (sf.name.equals(cm.var)) {
 							return sf.type.asExpr(new GarneredFrom(cm.location), this, factory);
 						}
@@ -549,28 +592,22 @@ public class TypeChecker {
 				} else if (r.fn instanceof HandlerLambda) {
 					logger.debug(r.fn + " is a lambda");
 					HandlerLambda hl = (HandlerLambda) r.fn;
-					// try and find the name of the handler class
-					// this is likewise a hack and I know it ...
-//					int idx = form.fnName.length();
-//					for (int i=0;i<2;i++)
-//						idx = form.fnName.lastIndexOf('.', idx-1);
-					String structName = hl.clzName; // form.fnName.substring(0, idx);
-//						return freshVarsIn(new TypeReference(hl.location, structName, null));
-					StructDefn sd = structs.get(structName);
-					for (StructField sf : sd.fields) {
+					String structName = hl.clzName+"$struct";
+					RWStructDefn sd = structs.get(structName);
+					for (RWStructField sf : sd.fields) {
 						if (sf.name.equals(hl.var)) {
 							return sf.type.asExpr(null, this, factory);
 						}
 					}
 					throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
 				}
-				if (r.fn instanceof ScopedVar) {
-					ScopedVar sv = (ScopedVar)r.fn;
+				if (r.fn instanceof VarNestedFromOuterFunctionScope) {
+					VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)r.fn;
 					if (sv.defn instanceof LocalVar) {
 						LocalVar lv = (LocalVar) sv.defn;
 						Type t = lv.type;
-						if (t == null)
-							t = types.get("Any");
+						if (t == null) // offer up a polymorphic var
+							return factory.next();
 						return new TypeExpr(new GarneredFrom(r.fn.location()), t);
 					}
 				}
@@ -609,7 +646,7 @@ public class TypeChecker {
 					for (Entry<String, Type> x : knowledge.entrySet())
 						System.out.println(x.getKey() + " => " + x.getValue());
 					*/
-					errors.message(r.location, "there is no type for identifier: " + r.fn + " when checking " + form.fnName);
+					errors.message(r.location, "there is no type for identifier " + r.fn + " when checking " + form.fnName);
 					return null;
 				} else {
 					logger.debug(r.fn + " is globally implanted " + te);
@@ -668,9 +705,9 @@ public class TypeChecker {
 				TypeExpr te = (TypeExpr) T1;
 				String tn = te.type.name();
 				String fn = ((PushCmd)c.nestedCommands().get(2)).sval.text;
-				StructDefn sd = this.structs.get(tn);
+				RWStructDefn sd = this.structs.get(tn);
 				if (sd != null) {
-					for (StructField f : sd.fields) {
+					for (RWStructField f : sd.fields) {
 						if (f.name.equals(fn)) {
 							Object r = f.type.asExpr(new GarneredFrom(f), this, factory);
 							logger.debug("field " + f.name + " of " + sd.name() + " has type " + f.type + " with fresh vars as " + r);
@@ -680,9 +717,9 @@ public class TypeChecker {
 					errors.message(posn, "there is no field '" + fn + "' in '" + tn +"'");
 					return null;
 				}
-				ObjectDefn od = this.objects.get(tn);
+				RWObjectDefn od = this.objects.get(tn);
 				if (od != null) {
-					for (ObjectMethod m : od.methods) {
+					for (RWObjectMethod m : od.methods) {
 						if (m.name.equals(fn)) {
 							Object r = m.type.asExpr(null, this, factory);
 							logger.debug("field " + m.name + " of " + od.name() + " has type " + m.type + " with fresh vars as " + r);
@@ -745,23 +782,23 @@ public class TypeChecker {
 		return sb.toString();
 	}
 
-	private Type typeForStructCtor(InputPosition location, StructDefn structDefn) {
+	private Type typeForStructCtor(InputPosition location, RWStructDefn structDefn) {
 		List<Type> args = new ArrayList<Type>();
-		for (StructField x : structDefn.fields)
+		for (RWStructField x : structDefn.fields)
 			args.add(x.type);
 		args.add(structDefn);
 		return Type.function(location, args);
 	}
 
-	private Type typeForObjectCtor(InputPosition location, ObjectDefn objectDefn) {
+	private Type typeForObjectCtor(InputPosition location, RWObjectDefn objectDefn) {
 		List<Type> args = new ArrayList<Type>();
-		for (StructField x : objectDefn.ctorArgs)
+		for (RWStructField x : objectDefn.ctorArgs)
 			args.add(x.type);
 		args.add(objectDefn);
 		return Type.function(location, args);
 	}
 
-	private Type typeForCardCtor(InputPosition location, StructDefn structDefn) {
+	private Type typeForCardCtor(InputPosition location, RWStructDefn structDefn) {
 		List<Type> args = new ArrayList<Type>();
 		// I think this is OK being builtin ...
 		args.add(Type.builtin(location, "_Wrapper"));
@@ -769,7 +806,7 @@ public class TypeChecker {
 		return Type.function(location, args);
 	}
 
-	private Type typeForHandlerCtor(InputPosition location, HandlerImplements impl) {
+	private Type typeForHandlerCtor(InputPosition location, RWHandlerImplements impl) {
 		List<Type> args = new ArrayList<Type>();
 		for (Object x : impl.boundVars) {
 			HandlerLambda hl = (HandlerLambda)x;
@@ -795,6 +832,8 @@ public class TypeChecker {
 			return knowledge.get(fn);
 		if (structs.containsKey(fn))
 			return typeForStructCtor(loc, structs.get(fn));
+		else if (handlers.containsKey(fn))
+			return typeForStructCtor(loc, structs.get(fn+"$struct"));
 		if (objects.containsKey(fn))
 			return typeForObjectCtor(loc, objects.get(fn));
 		if (cards.containsKey(fn))
@@ -815,73 +854,39 @@ public class TypeChecker {
 			return cards.get(name).struct;
 		if (contracts.containsKey(name))
 			return contracts.get(name);
+		if (fnArgs.containsKey(name))
+			return fnArgs.get(name);
 		throw new UtilException("There is no type: " + name);
 	}
 
-	public void writeLearnedKnowledge(OutputStream wex, String inPkg, boolean copyToScreen) throws IOException {
+	public void writeLearnedKnowledge(File exportTo, String inPkg, boolean copyToScreen) throws IOException {
 		if (copyToScreen)
 			System.out.println("Exporting inferred types at top scope:");
-		ObjectOutputStream oos = new ObjectOutputStream(wex);
-		List<StructDefn> str = new ArrayList<StructDefn>();
-		for (StructDefn sd : structs.values()) {
+		KnowledgeWriter kw = new KnowledgeWriter(exportTo, inPkg, copyToScreen);
+
+		for (RWStructDefn sd : structs.values()) {
 			if (sd.generate) {
-				str.add(sd);
-				if (copyToScreen)
-					System.out.println("  struct " + sd.asString());
+				kw.add(sd);
 			}
 		}
-		oos.writeObject(str);
-		List<UnionTypeDefn> ts = new ArrayList<UnionTypeDefn>();
-		for (UnionTypeDefn td : types.values()) {
+
+		for (RWUnionTypeDefn td : types.values()) {
 			if (td.generate) {
-				ts.add(td);
-				if (copyToScreen)
-					System.out.println("  type " + td.name());
+				kw.add(td);
 			}
 		}
-		oos.writeObject(ts);
-		List<ContractDecl> cds = new ArrayList<ContractDecl>();
-		for (ContractDecl cd : contracts.values()) {
+
+		for (RWContractDecl cd : contracts.values()) {
 			if (cd.generate) {
-				cds.add(cd);
-				if (copyToScreen) {
-					System.out.println("  contract " + cd.name());
-					for (ContractMethodDecl m : cd.methods) {
-						System.out.print(Justification.LEFT.format("", 4));
-						System.out.print(Justification.PADRIGHT.format(m.dir, 5));
-						System.out.print(Justification.PADRIGHT.format(m.name, 12));
-						System.out.print(" ::");
-						String sep = " ";
-						for (Object o : m.args) {
-							System.out.print(sep + ((AsString)o).asString());
-							sep = " -> ";
-						}
-						System.out.println();
-					}
-				}
+				kw.add(cd);
 			}
 		}
-		oos.writeObject(cds);
 		
-		List<CardTypeInfo> ctis = new ArrayList<CardTypeInfo>();
 		for (CardTypeInfo cti : this.cards.values()) {
-			ctis.add(cti);
-			if (copyToScreen) {
-				System.out.println("  card " + cti.name);
-				for (TypeHolder x : cti.contracts) {
-					System.out.println("    contract " + x.name);
-					x.dump(6);
-				}
-				for (TypeHolder x : cti.handlers) {
-					System.out.println("    handler " + x.name);
-					x.dump(6);
-				}
-				cti.dump(4);
-			}
+			if (cti.struct != null)
+				kw.add(cti);
 		}
-		oos.writeObject(ctis);
 		
-		Map<String, Type> types = new TreeMap<String, Type>();
 		for (Entry<String, Type> x : this.knowledge.entrySet()) {
 			// Only save things in our package
 			if (!x.getKey().startsWith(inPkg + "."))
@@ -891,10 +896,8 @@ public class TypeChecker {
 			if (x.getKey().substring(inPkg.length()+1).indexOf(".") != -1)
 				continue;
 
-			System.out.println("  function " + x.getKey() + " :: " + x.getValue() + " => " + x.getValue().location());
-			types.put(x.getKey(), x.getValue());
+			kw.add(x.getKey(), x.getValue());
 		}
-		oos.writeObject(types);
-		oos.flush();
+		kw.commit();
 	}
 }

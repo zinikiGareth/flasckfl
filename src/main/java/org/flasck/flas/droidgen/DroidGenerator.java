@@ -8,30 +8,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.commonBase.PlatformSpec;
+import org.flasck.flas.commonBase.android.AndroidLabel;
+import org.flasck.flas.commonBase.android.AndroidLaunch;
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.parsedForm.CardFunction;
-import org.flasck.flas.parsedForm.CardGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.ContractGrouping;
-import org.flasck.flas.parsedForm.CardGrouping.HandlerGrouping;
-import org.flasck.flas.parsedForm.CardMember;
-import org.flasck.flas.parsedForm.ContractDecl;
-import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.ContractMethodDecl;
-import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.ExternalRef;
-import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.HandlerImplements;
-import org.flasck.flas.parsedForm.HandlerLambda;
-import org.flasck.flas.parsedForm.MethodDefinition;
-import org.flasck.flas.parsedForm.ObjectDefn;
-import org.flasck.flas.parsedForm.ObjectReference;
-import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.PlatformSpec;
-import org.flasck.flas.parsedForm.ScopedVar;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.android.AndroidLabel;
-import org.flasck.flas.parsedForm.android.AndroidLaunch;
+import org.flasck.flas.rewrittenForm.CardFunction;
+import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
+import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.ObjectReference;
+import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
+import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.RWMethodDefinition;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -100,12 +100,12 @@ public class DroidGenerator {
 		}
 	}
 	
-	public void generate(StructDefn value) {
+	public void generate(RWStructDefn value) {
 		if (builder == null || !value.generate)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, value.name());
 		Map<String, FieldInfo> fields = new TreeMap<String,FieldInfo>();
-		for (StructField sf : value.fields) {
+		for (RWStructField sf : value.fields) {
 			FieldInfo fi = bcc.defineField(false, Access.PUBLIC, new JavaType("java.lang.Object"), sf.name);
 			fields.put(sf.name, fi);
 		}
@@ -119,7 +119,7 @@ public class DroidGenerator {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
 		gen.returns("void");
 		NewMethodDefiner dfe = gen.done();
-		for (StructField sf : value.fields) {
+		for (RWStructField sf : value.fields) {
 			dfe.assign(fields.get(sf.name).asExpr(dfe), dfe.callVirtual("java.lang.Object", dfe.myThis(), "_fullOf", fields.get(sf.name).asExpr(dfe))).flush();
 		}
 		dfe.returnVoid().flush();
@@ -131,7 +131,7 @@ public class DroidGenerator {
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, grp.struct.name());
 		bcc.superclass("org.flasck.android.FlasckActivity");
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
-		for (StructField sf : grp.struct.fields) {
+		for (RWStructField sf : grp.struct.fields) {
 			JavaType jt;
 			if (sf.type.iam == WhatAmI.BUILTIN) {
 				if (((Type)sf.type).name().equals("Number"))
@@ -140,9 +140,9 @@ public class DroidGenerator {
 					jt = JavaType.string;
 				else
 					throw new UtilException("Not handled " + sf.type);
-			} else if (sf.type instanceof ContractImplements || sf.type instanceof ContractDecl) {
+			} else if (sf.type instanceof RWContractImplements || sf.type instanceof RWContractDecl) {
 				jt = javaType(sf.type.name());
-			} else if (sf.type instanceof ObjectDefn) {
+			} else if (sf.type instanceof RWObjectDefn) {
 				jt = javaType(sf.type.name());
 			} else if (sf.type instanceof Type) {
 				jt = javaType(sf.type.name());
@@ -202,7 +202,7 @@ public class DroidGenerator {
 		return new JavaType(name);
 	}
 
-	public void generateContractDecl(String name, ContractDecl cd) {
+	public void generateContractDecl(String name, RWContractDecl cd) {
 		if (builder == null)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, name);
@@ -215,7 +215,7 @@ public class DroidGenerator {
 			ctor.returnVoid().flush();
 		}
 		
-		for (ContractMethodDecl m : cd.methods) {
+		for (RWContractMethodDecl m : cd.methods) {
 			if (m.dir.equals("down")) {
 				System.out.println(name + " " + m.dir + " " + m.name);
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
@@ -228,7 +228,7 @@ public class DroidGenerator {
 		}
 	}
 
-	public void generateContractImpl(String name, ContractImplements ci) {
+	public void generateContractImpl(String name, RWContractImplements ci) {
 		if (builder == null)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
@@ -246,7 +246,7 @@ public class DroidGenerator {
 		
 	}
 
-	public void generateService(String name, ContractService cs) {
+	public void generateService(String name, RWContractService cs) {
 		if (builder == null)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
@@ -263,7 +263,7 @@ public class DroidGenerator {
 		}
 	}
 
-	public void generateHandler(String name, HandlerImplements hi) {
+	public void generateHandler(String name, RWHandlerImplements hi) {
 		if (builder == null)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
@@ -514,8 +514,8 @@ public class DroidGenerator {
 			if (defn instanceof ObjectReference || defn instanceof CardFunction) {
 				needsObject = meth.myThis();
 				fromHandler |= fn.fromHandler();
-			} else if (defn instanceof HandlerImplements) {
-				HandlerImplements hi = (HandlerImplements) defn;
+			} else if (defn instanceof RWHandlerImplements) {
+				RWHandlerImplements hi = (RWHandlerImplements) defn;
 				if (hi.inCard)
 					needsObject = meth.myThis();
 				System.out.println("Creating handler " + fn + " in block " + closure);
@@ -572,7 +572,7 @@ public class DroidGenerator {
 					while (defn instanceof PackageVar)
 						defn = ((PackageVar)defn).defn;
 					if (pos != 0)
-						if (defn instanceof StructDefn && ((StructDefn)defn).fields.isEmpty())
+						if (defn instanceof RWStructDefn && ((RWStructDefn)defn).fields.isEmpty())
 							wantEval = true;
 				}
 				int idx = c.fn.uniqueName().lastIndexOf(".");
@@ -595,7 +595,7 @@ public class DroidGenerator {
 					dot = "$";
 				}
 				String clz;
-				if (defn instanceof FunctionDefinition || defn instanceof MethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
+				if (defn instanceof RWFunctionDefinition || defn instanceof RWMethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
 					if (inside.equals("org.flasck.android.FLEval"))
 						clz = inside + "$" + member;
 					else
@@ -609,8 +609,8 @@ public class DroidGenerator {
 				} else {
 					return meth.callStatic(clz, "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<Expr>()));
 				}
-			} else if (c.fn instanceof ScopedVar) {
-				ScopedVar sv = (ScopedVar) c.fn;
+			} else if (c.fn instanceof VarNestedFromOuterFunctionScope) {
+				VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope) c.fn;
 				if (sv.definedLocally) {
 					return null;
 				}

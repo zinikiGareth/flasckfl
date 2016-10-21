@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Struct file="complexcard.fl" line="6" name="test.golden.Polyed" off="7">
+        <Poly called="T1"/>
+        <Poly called="T2"/>
+        <Field accessor="false" file="complexcard.fl" line="7" name="x" off="7">
+            <Builtin name="String"/>
+        </Field>
+        <Field accessor="false" file="complexcard.fl" line="8" name="y" off="3">
+            <Poly name="T1"/>
+        </Field>
+        <Field accessor="false" file="complexcard.fl" line="9" name="z" off="9">
+            <Instance file="complexcard.fl" line="9" off="0">
+                <Union name="List"/>
+                <Poly name="T2"/>
+            </Instance>
+        </Field>
+    </Struct>
+    <Struct file="complexcard.fl" line="3" name="test.golden.Thing" off="7">
+        <Field accessor="false" file="complexcard.fl" line="4" name="x" off="7">
+            <Builtin name="String"/>
+        </Field>
+    </Struct>
+    <Contract file="complexcard.fl" line="19"
+        name="test.golden.DataStore" off="9">
+        <Method dir="up" file="complexcard.fl" line="20" name="get"
+            off="2" required="true">
+            <Typed file="complexcard.fl" line="20" off="8"
+                var="test.golden.DataStore.get.x" vfile="complexcard.fl"
+                vline="20" voff="15">
+                <Builtin name="String"/>
+            </Typed>
+            <Typed file="complexcard.fl" line="20" off="19"
+                var="test.golden.DataStore.get.h" vfile="complexcard.fl"
+                vline="20" voff="27">
+                <Contract name="test.golden.Handler"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="complexcard.fl" line="16" name="test.golden.Handler" off="9">
+        <Method dir="down" file="complexcard.fl" line="17" name="reply"
+            off="4" required="true">
+            <Typed file="complexcard.fl" line="17" off="12"
+                var="test.golden.Handler.reply.s" vfile="complexcard.fl"
+                vline="17" voff="19">
+                <Builtin name="String"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="complexcard.fl" line="13" name="test.golden.Init" off="9">
+        <Method dir="down" file="complexcard.fl" line="14" name="ready"
+            off="4" required="true">
+            <Typed file="complexcard.fl" line="14" off="12"
+                var="test.golden.Init.ready.obj" vfile="complexcard.fl"
+                vline="14" voff="16">
+                <Union name="Any"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="complexcard.fl" line="22" name="test.golden.Offer" off="9">
+        <Method dir="up" file="complexcard.fl" line="23" name="get"
+            off="2" required="true">
+            <Typed file="complexcard.fl" line="23" off="8"
+                var="test.golden.Offer.get.x" vfile="complexcard.fl"
+                vline="23" voff="15">
+                <Builtin name="String"/>
+            </Typed>
+            <Typed file="complexcard.fl" line="23" off="19"
+                var="test.golden.Offer.get.h" vfile="complexcard.fl"
+                vline="23" voff="27">
+                <Contract name="test.golden.Handler"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Card file="complexcard.fl" line="25" name="test.golden.Complex" off="5">
+        <Implements contract="test.golden.DataStore"/>
+        <Implements contract="test.golden.Init"/>
+    </Card>
+</FLIM>

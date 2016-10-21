@@ -6,20 +6,21 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.Builtin;
+import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.stories.Builtin;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -159,7 +160,7 @@ public class TestBasicTypeChecking {
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("FLEval.plus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
-		tc.addTypeDefn(new UnionTypeDefn(null, false, "Any"));
+		tc.addTypeDefn(new RWUnionTypeDefn(null, false, "Any", new ArrayList<>()));
 		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -232,17 +233,17 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanHandleBindForCons() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addTypeDefn(new UnionTypeDefn(null, false, "Any"));
+		tc.addTypeDefn(new RWUnionTypeDefn(null, false, "Any", new ArrayList<>()));
 		Type number = Type.builtin(null, "Number");
 		tc.addExternal("Number", number);
 		Type varA = Type.polyvar(null, "A");
-		StructDefn nil = new StructDefn(null, "Nil", false);
+		RWStructDefn nil = new RWStructDefn(null, "Nil", false);
 		tc.addStructDefn(nil);
-		StructDefn cons = new StructDefn(null, "Cons", false, varA); 
-		cons.addField(new StructField(null, false, varA, "head"));
-		cons.addField(new StructField(null, false, cons, "tail"));
+		RWStructDefn cons = new RWStructDefn(null, "Cons", false, varA); 
+		cons.addField(new RWStructField(null, false, varA, "head"));
+		cons.addField(new RWStructField(null, false, cons, "tail"));
 		tc.addStructDefn(cons);
-		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
+		RWUnionTypeDefn list = new RWUnionTypeDefn(null, false, "List", CollectionUtils.listOf(varA));
 		list.addCase(nil);
 		list.addCase(cons);
 		tc.addTypeDefn(list);
@@ -269,13 +270,13 @@ public class TestBasicTypeChecking {
 		Type number = Type.builtin(null, "Number");
 		tc.addExternal("Number", number);
 		Type varA = Type.polyvar(null, "A");
-		StructDefn nil = new StructDefn(null, "Nil", false);
+		RWStructDefn nil = new RWStructDefn(null, "Nil", false);
 		tc.addStructDefn(nil);
-		StructDefn cons = new StructDefn(null, "Cons", false, varA); 
-		cons.addField(new StructField(null, false, varA, "head"));
-		cons.addField(new StructField(null, false, cons, "tail"));
+		RWStructDefn cons = new RWStructDefn(null, "Cons", false, varA); 
+		cons.addField(new RWStructField(null, false, varA, "head"));
+		cons.addField(new RWStructField(null, false, cons, "tail"));
 		tc.addStructDefn(cons);
-		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
+		RWUnionTypeDefn list = new RWUnionTypeDefn(null, false, "List", CollectionUtils.listOf(varA));
 		list.addCase(nil);
 		list.addCase(cons);
 		tc.addTypeDefn(list);
@@ -302,13 +303,13 @@ public class TestBasicTypeChecking {
 		Type number = Type.builtin(null, "Number");
 		tc.addExternal("Number", number);
 		Type varA = Type.polyvar(null, "A");
-		StructDefn nil = new StructDefn(null, "Nil", false);
+		RWStructDefn nil = new RWStructDefn(null, "Nil", false);
 		tc.addStructDefn(nil);
-		StructDefn cons = new StructDefn(null, "Cons", false, varA); 
-		cons.addField(new StructField(null, false, varA, "head"));
-		cons.addField(new StructField(null, false, cons, "tail"));
+		RWStructDefn cons = new RWStructDefn(null, "Cons", false, varA); 
+		cons.addField(new RWStructField(null, false, varA, "head"));
+		cons.addField(new RWStructField(null, false, cons, "tail"));
 		tc.addStructDefn(cons);
-		UnionTypeDefn list = new UnionTypeDefn(null, false, "List", varA);
+		RWUnionTypeDefn list = new RWUnionTypeDefn(null, false, "List", CollectionUtils.listOf(varA));
 		list.addCase(nil);
 		list.addCase(cons);
 		tc.addTypeDefn(list);
@@ -330,7 +331,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckASimpleNestedFunction() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn(null, "Number", false));
+		tc.addStructDefn(new RWStructDefn(null, "Number", false));
 		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.typecheck(orchardOf(HSIETestData.simpleG()));
 		tc.typecheck(orchardOf(HSIETestData.simpleF()));
@@ -356,7 +357,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn(null, "Number", false));
+		tc.addStructDefn(new RWStructDefn(null, "Number", false));
 		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		Tree<HSIEForm> tree = orchard.addTree(HSIETestData.mutualF());
@@ -385,7 +386,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckSimpleIf() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn(null, "Number", false));
+		tc.addStructDefn(new RWStructDefn(null, "Number", false));
 		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.addExternal("FLEval.compeq", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A"), Type.builtin(null, "Boolean")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
@@ -406,7 +407,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckSimpleIfElse() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new StructDefn(null, "Number", false));
+		tc.addStructDefn(new RWStructDefn(null, "Number", false));
 		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.addExternal("FLEval.compeq", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A"), Type.builtin(null, "Boolean")));
@@ -428,33 +429,33 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
-		Scope biscope = Builtin.builtinScope();
-		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
+		ImportPackage biscope = Builtin.builtins();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);
-		FunctionDefinition f = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, f1.intro, CollectionUtils.listOf(f1));
-		pkg.innerScope().define("f", "ME.f", f);
+		Scope s = new Scope(null, null);
+		FunctionDefinition f = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, f1.intro);
+		s.define("f", "ME.f", f);
 		FunctionCaseDefn g1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("g x = f [ 42, 'hello']"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(g1);
-		FunctionDefinition g = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, g1.intro, CollectionUtils.listOf(g1));
-		pkg.innerScope().define("g", "ME.g", g);
+		FunctionDefinition g = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, g1.intro);
+		s.define("g", "ME.g", g);
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("join", (Type) biscope.get("join"));
-		tc.addTypeDefn((UnionTypeDefn) biscope.get("Any"));
-		tc.addStructDefn((StructDefn) biscope.get("Nil"));
-		tc.addTypeDefn((UnionTypeDefn) biscope.get("List"));
-		tc.addStructDefn((StructDefn) biscope.get("Cons"));
-		tc.addStructDefn((StructDefn) biscope.get("Assign"));
-		tc.addStructDefn((StructDefn) biscope.get("Send"));
+		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("Any"));
+		tc.addStructDefn((RWStructDefn) biscope.get("Nil"));
+		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("List"));
+		tc.addStructDefn((RWStructDefn) biscope.get("Cons"));
+		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
+		tc.addStructDefn((RWStructDefn) biscope.get("Send"));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
-		Rewriter rewriter = new Rewriter(errors, null);
-		rewriter.rewrite(pkg.myEntry());
+		Rewriter rewriter = new Rewriter(errors, null, null);
+		rewriter.rewritePackageScope("ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
-		HSIE hsie = new HSIE(errors, rewriter, biscope);
+		HSIE hsie = new HSIE(errors, rewriter);
 		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.f"))));
 		assertEquals(errors.singleString(), 0, errors.count());
 		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.g"))));

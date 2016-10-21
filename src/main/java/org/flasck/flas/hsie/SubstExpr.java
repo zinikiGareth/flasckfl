@@ -28,6 +28,7 @@ public class SubstExpr {
 	public SubstExpr subst(String varToSubst, CreationOfVar var) {
 		if (substs.containsKey(varToSubst))
 			throw new UtilException("Duplicate var in patterns: " + varToSubst); // TODO: this should be proper error handling
+		MetaState.logger.info("Creating " + varToSubst +" as " + var);
 		substs.put(varToSubst, var);
 		return this;
 	}

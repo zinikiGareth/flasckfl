@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Contract file="scoping.fl" line="26" name="test.golden.NoArg" off="9">
+        <Method dir="up" file="scoping.fl" line="27" name="get" off="2" required="true">
+            <Ctor ctor="Number" file="scoping.fl" line="27" off="7"/>
+        </Method>
+    </Contract>
+    <Contract file="scoping.fl" line="3" name="test.golden.Reply" off="9">
+        <Method dir="down" file="scoping.fl" line="4" name="reply"
+            off="4" required="true">
+            <Typed file="scoping.fl" line="4" off="12"
+                var="test.golden.Reply.reply.k" vfile="scoping.fl"
+                vline="4" voff="19">
+                <Builtin name="Number"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="scoping.fl" line="6" name="test.golden.Server" off="9">
+        <Method dir="up" file="scoping.fl" line="7" name="get" off="2" required="true">
+            <Typed file="scoping.fl" line="7" off="8"
+                var="test.golden.Server.get.k" vfile="scoping.fl"
+                vline="7" voff="15">
+                <Builtin name="Number"/>
+            </Typed>
+            <Typed file="scoping.fl" line="7" off="19"
+                var="test.golden.Server.get.r" vfile="scoping.fl"
+                vline="7" voff="25">
+                <Contract name="test.golden.Reply"/>
+            </Typed>
+        </Method>
+        <Method dir="up" file="scoping.fl" line="8" name="put" off="2" required="true">
+            <Typed file="scoping.fl" line="8" off="8"
+                var="test.golden.Server.put.k" vfile="scoping.fl"
+                vline="8" voff="15">
+                <Builtin name="Number"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Function file="scoping.fl" line="29" name="test.golden.cna" off="7">
+        <Function>
+            <Arg>
+                <Union name="Any"/>
+            </Arg>
+            <Return>
+                <Instance file="builtin" line="0" off="0">
+                    <Union name="List"/>
+                    <Union name="Message"/>
+                </Instance>
+            </Return>
+        </Function>
+    </Function>
+    <Function file="scoping.fl" line="16" name="test.golden.f" off="0">
+        <Function>
+            <Arg>
+                <Contract name="test.golden.Server"/>
+            </Arg>
+            <Arg>
+                <Union name="Any"/>
+            </Arg>
+            <Return>
+                <Instance file="builtin" line="0" off="0">
+                    <Struct name="MessageWrapper"/>
+                    <Builtin name="Number"/>
+                </Instance>
+            </Return>
+        </Function>
+    </Function>
+</FLIM>

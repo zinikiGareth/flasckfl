@@ -1,0 +1,12 @@
+HSIE for test.golden.y
+#Args: 0 #bound: 0
+    externals: [test.golden.MyCard] scoped = []
+    all vars = []
+RETURN test.golden.MyCard                                    typeop.fl:    5.9 - this appears to be wrong for closures; wants to be the apply expr point
+=======
+HSIE for test.golden.x
+#Args: 0 #bound: 0
+    externals: [Number] scoped = []
+    all vars = []
+RETURN Number                                                typeop.fl:    4.9 - this appears to be wrong for closures; wants to be the apply expr point
+=======

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Import package="test.import"/>
+    <Card file="import2.fl" line="2" name="test.golden.Foo" off="5">
+        <Implements contract="test.import.Fred"/>
+    </Card>
+</FLIM>

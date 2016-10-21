@@ -1,18 +1,18 @@
 package test.golden
   test.golden.fold
-    f
-    acc
-    Nil
+    [var] f
+    [var] acc
+    [ctor] Nil
    =
     acc
   test.golden.fold
-    f
-    acc
-    Cons
+    [var] f
+    [var] acc
+    [ctor] Cons
       head
-        a
+        [var] a
       tail
-        l
+        [var] l
    =
     fold
       f

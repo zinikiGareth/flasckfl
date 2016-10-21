@@ -4,10 +4,10 @@ import static org.junit.Assert.*;
 
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.typechecker.Type;
 import org.junit.Test;
 
 public class StructAndTypeTests {
@@ -32,7 +32,7 @@ public class StructAndTypeTests {
 		StructDefn sd = (StructDefn)o;
 		assertEquals("Cons", sd.name());
 		assertEquals(1, sd.polys().size());
-		assertEquals("A", sd.poly(0).name());
+		assertEquals("A", sd.polys().get(0).name());
 	}
 
 	@Test
@@ -53,11 +53,10 @@ public class StructAndTypeTests {
 		assertNotNull(o);
 		assertTrue(o instanceof StructField);
 		StructField sf = (StructField)o;
-		assertTrue(sf.type instanceof Type);
-		Type tr = (Type) sf.type;
+		TypeReference tr = sf.type;
 		assertEquals("List", tr.name());
 		assertEquals(1, tr.polys().size());
-		assertEquals("A", tr.poly(0).name());
+		assertEquals("A", tr.polys().get(0).name());
 		assertEquals("tail", sf.name);
 	}
 
@@ -71,15 +70,15 @@ public class StructAndTypeTests {
 		UnionTypeDefn sf = (UnionTypeDefn)o;
 		assertEquals("List", sf.name());
 		assertEquals(1, sf.polys().size());
-		assertEquals("A", sf.poly(0).name());
+		assertEquals("A", sf.polys().get(0).name());
 		assertEquals(2, sf.cases.size());
-		Type t0 = sf.cases.get(0);
+		TypeReference t0 = sf.cases.get(0);
 		assertEquals("Nil", t0.name());
 		assertEquals(0, t0.polys().size());
-		Type t1 = sf.cases.get(1);
+		TypeReference t1 = sf.cases.get(1);
 		assertEquals("Cons", t1.name());
 		assertEquals(1, t1.polys().size());
-		assertEquals("A", t1.poly(0).name());
+		assertEquals("A", t1.polys().get(0).name());
 	}
 
 }

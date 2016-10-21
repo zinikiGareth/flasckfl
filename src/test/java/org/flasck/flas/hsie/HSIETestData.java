@@ -9,9 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -25,21 +25,21 @@ public class HSIETestData {
 	static Map<String, PackageVar> ctorTypes = new HashMap<>();
 	static {
 		ctorTypes.put("Number", new PackageVar(null, "Number", org.flasck.flas.typechecker.Type.builtin(null, "Number")));
-		PackageVar nil = new PackageVar(null, "Nil", new StructDefn(null, "Nil", false));
-		PackageVar cons = new PackageVar(null, "Cons", new StructDefn(null, "Cons", false));
-		PackageVar list = new PackageVar(null, "List", new UnionTypeDefn(null, false, "List"));
+		PackageVar nil = new PackageVar(null, "Nil", new RWStructDefn(null, "Nil", false));
+		PackageVar cons = new PackageVar(null, "Cons", new RWStructDefn(null, "Cons", false));
+		PackageVar list = new PackageVar(null, "List", new RWUnionTypeDefn(null, false, "List", null));
 		ctorTypes.put("Cons", cons);
 		ctorTypes.put("Nil", nil);
 		ctorTypes.put("List", list);
-		((UnionTypeDefn)list.defn).addCase((Type)nil.defn);
-		((UnionTypeDefn)list.defn).addCase((Type)cons.defn);
+		((RWUnionTypeDefn)list.defn).addCase((Type)nil.defn);
+		((RWUnionTypeDefn)list.defn).addCase((Type)cons.defn);
 	}
 	
 	public static HSIEForm testPrimes() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("Cons");
 		externals.add("Nil");
-		return thingy("primes", 0, 0, 3,
+		return thingy("ME.primes", 0, 0, 3,
 			externals,
 			null,
 			"RETURN var 2 clos2 0 clos0 1 clos1", "CLOSURE 0",
@@ -82,10 +82,10 @@ public class HSIETestData {
 
 	public static HSIEForm fib() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("FLEval.plus");
-		externals.add("FLEval.minus");
+		externals.add("-");
+		externals.add("+");
 		externals.add("Number");
-		return thingy("fib", 0, 1, 5,
+		return thingy("ME.fib", 0, 1, 5,
 			externals,
 			ctorTypes,
 			"HEAD 0", "SWITCH 0 Number",
@@ -98,19 +98,19 @@ public class HSIETestData {
 			"}",
 			"}", // Since we do this before type checking, there is no guarantee var 0 is an integer
 			"RETURN var 5 clos5 1 clos1 2 clos2 3 clos3 4 clos4", "CLOSURE 1",
-				"{", "FLEval.minus", "var 0 n",
+				"{", "-", "var 0 ME.fib_2.n",
 			"1",
 			"}", "CLOSURE 2",
-				"{", "fib",
+				"{", "ME.fib",
 			"var 1 clos1",
 			"}", "CLOSURE 3",
-				"{", "FLEval.minus", "var 0 n",
+				"{", "-", "var 0 ME.fib_2.n",
 			"2",
 			"}", "CLOSURE 4",
-				"{", "fib",
+				"{", "ME.fib",
 			"var 3 clos3",
 			"}", "CLOSURE 5",
-				"{", "FLEval.plus", "var 2 clos2",
+				"{", "+", "var 2 clos2",
 			"var 4 clos4", "}"
 		);
 	}
@@ -118,10 +118,10 @@ public class HSIETestData {
 	public static HSIEForm take() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("Cons");
-		externals.add("FLEval.minus");
+		externals.add("-");
 		externals.add("Nil");
 		externals.add("Number");
-		return thingy("take", 0, 2, 5,
+		return thingy("ME.take", 0, 2, 5,
 			externals,
 			ctorTypes,
 			"HEAD 1", "SWITCH 1 Cons",
@@ -141,13 +141,13 @@ public class HSIETestData {
 			"}",
 			// when we get here, we know that Arg#1 is NOT Nil or Cons - thus only E1 _could_ match
 			"ERROR", "CLOSURE 4",
-				"{", "FLEval.minus", "var 0 n",
+				"{", "-", "var 0 ME.take_2.n",
 			"1",
 			"}", "CLOSURE 5",
-				"{", "take", "var 4 clos4",
-			"var 3 b",
+				"{", "ME.take", "var 4 clos4",
+			"var 3 ME.take_2.b",
 			"}", "CLOSURE 6",
-				"{", "Cons", "var 2 a",
+				"{", "Cons", "var 2 ME.take_2.a",
 			"var 5 clos5", "}"
 		);
 	}
@@ -353,13 +353,13 @@ public class HSIETestData {
 
 	public static HSIEForm rdf1() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("FLEval.minus");
+		externals.add("-");
 		externals.add("ME.g");
 		return thingy("ME.f", 0, 1, 2,
 			externals,
 			null,
 			"RETURN var 2 clos2 1 clos1", "CLOSURE 1",
-				"{", "FLEval.minus", "var 0 x",
+				"{", "-", "var 0 ME.f_0.x",
 			"1",
 			"}", "CLOSURE 2",
 				"{",	"ME.g",
@@ -369,13 +369,13 @@ public class HSIETestData {
 
 	public static HSIEForm rdf2() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("FLEval.plus");
+		externals.add("+");
 		externals.add("ME.f");
 		return thingy("ME.g", 0, 1, 2,
 			externals,
 			null,
 			"RETURN var 2 clos2 1 clos1", "CLOSURE 1",
-				"{", "FLEval.plus", "var 0 x",
+				"{", "+", "var 0 ME.g_0.x",
 			"1",
 			"}", "CLOSURE 2",
 				"{", "ME.f",
@@ -430,9 +430,9 @@ public class HSIETestData {
 		return thingy("ME.f", 0, 0, 2,
 			externals,
 			null,
-			"RETURN var 1 clos1 0 _x", "CLOSURE 1",
-				"{", "FLEval.plus", "var 0 _x",
-			"var 0 _x",
+			"RETURN var 1 clos1 0 ME.f._x", "CLOSURE 1",
+				"{", "FLEval.plus", "var 0 ME.f._x",
+			"var 0 ME.f._x",
 			"}", "CLOSURE 0",
 				"{", "FLEval.plus", "2",
 			"2", "}"

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -12,31 +13,42 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.flasck.flas.Compiler;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.IfExpr;
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.template.Template;
+import org.flasck.flas.commonBase.template.TemplateList;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.parsedForm.ApplyExpr;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
-import org.flasck.flas.parsedForm.NumericLiteral;
-import org.flasck.flas.parsedForm.PackageDefn;
+import org.flasck.flas.parsedForm.FunctionTypeReference;
+import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.LocatedName;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
+import org.flasck.flas.parsedForm.MethodDefinition;
+import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
-import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateDiv;
+import org.flasck.flas.parsedForm.TupleAssignment;
+import org.flasck.flas.parsedForm.TupleMember;
+import org.flasck.flas.parsedForm.TuplePattern;
+import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.StoryRet;
-import org.flasck.flas.typechecker.Type;
-import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -45,6 +57,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
 import org.zinutils.cgharness.CGHarnessRunner;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.system.RunProcess;
 import org.zinutils.utils.Crypto;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
@@ -74,7 +87,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 
 	private static Class<?> goldenTest(ByteCodeEnvironment bce, CGHClassLoaderImpl cl, final File f) {
 		ByteCodeCreator bcc = emptyTestClass(bce, "test" + StringUtil.capitalize(f.getName()));
-		addMethod(bcc, "testSomething", new TestMethodContentProvider() {
+		boolean ignoreTest = new File(f, "ignore").exists();
+			
+		addMethod(bcc, "testFlasckCompilation", ignoreTest, new TestMethodContentProvider() {
 			@Override
 			public void defineMethod(NewMethodDefiner done) {
 				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath())).flush();
@@ -85,65 +100,81 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	
 	public static void runGolden(String s) throws Exception {
 		System.out.println("Run golden test for " + s);
-		File etmp = new File(s, "errors-tmp"); // may or may not be needed
+		File importFrom = new File(s, "import");
 		File pform = new File(s, "parser-tmp");
 		File jsto = new File(s, "jsout-tmp");
 		File hsie = new File(s, "hsie-tmp");
 		File flim = new File(s, "flim-tmp");
-		FileUtils.deleteDirectoryTree(etmp);
+		FileUtils.deleteDirectoryTree(new File(s, "errors-tmp"));
 		clean(pform);
 		clean(jsto);
 		clean(hsie);
 		clean(flim);
-		try {
-			Compiler.setLogLevels();
-			Compiler compiler = new Compiler();
-			File dir = new File(s, "test.golden");
-			for (File input : dir.listFiles()) {
-				StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
-				Indenter pw = new Indenter(new File(pform, input.getName().replace(".fl", ".pf")));
-				if (sr.top != null && sr.top.getValue() != null)
-					dumpRecursive(pw, sr.top.getValue());
-				pw.close();
+		Compiler.setLogLevels();
+		Compiler compiler = new Compiler();
+		File dir = new File(s, "test.golden");
+		ErrorResult er = new ErrorResult();
+		for (File input : dir.listFiles()) {
+			StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
+			Indenter pw = new Indenter(new File(pform, input.getName().replace(".fl", ".pf")));
+			if (sr.scope != null) {
+				pw.println("package test.golden");
+				dumpScope(pw, sr.scope);
 			}
-			assertGolden(new File(s, "pform"), pform);
-			
-			// read these kinds of things from "new File(s, ".settings")"
-	//		compiler.writeDroidTo(new File("null"));
-	//		compiler.searchIn(new File("src/main/resources/flim"));
-			
+			if (sr.er != null) {
+				er.merge(sr.er);
+			}
+			pw.close();
+		}
+		if (er.hasErrors()) {
+			handleErrors(s, er);
+			return;
+		}
+		assertGolden(new File(s, "pform"), pform);
+		
+		if (importFrom.isDirectory())
+			compiler.searchIn(importFrom);
+
+		// infer these kinds of things from the existence of directories; or else from some kind of settings.xml file
+//		compiler.writeDroidTo(new File("null"));
+		
+//			compiler.dumpTypes();
+		try {
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
 			compiler.compile(dir);
-			
-			// Now assert that we matched things ...
-			assertGolden(new File(s, "jsout"), jsto);
 		} catch (ErrorResultException ex) {
-			// either way, write the errors to a suitable directory
-			FileUtils.assertDirectory(etmp);
-			PrintWriter pw = new PrintWriter(new File(etmp, "errors"));
-			ex.errors.showTo(pw, 0);
+			handleErrors(s, ex.errors);
+		}
+		
+		// Now assert that we matched things ...
+		assertGolden(new File(s, "flim"), flim);
+		assertGolden(new File(s, "hsie"), hsie);
+		assertGolden(new File(s, "jsout"), jsto);
+	}
 
-			File errors = new File(s, "errors");
-			if (errors.isDirectory()) {
-				// we expected this, so check the errors are correct ...
-				assertGolden(errors, etmp);
-			} else {
-				// we didn't expect the error, so by definition is an error
-				ex.errors.showTo(new PrintWriter(System.out), 0);
-				fail("unexpected compilation errors");
-			}
+	protected static void handleErrors(String s, ErrorResult er) throws FileNotFoundException, IOException {
+		// either way, write the errors to a suitable directory
+		File etmp = new File(s, "errors-tmp"); // may or may not be needed
+		FileUtils.assertDirectory(etmp);
+		PrintWriter pw = new PrintWriter(new File(etmp, "errors"));
+		er.showTo(pw, 0);
+
+		File errors = new File(s, "errors");
+		if (errors.isDirectory()) {
+			// we expected this, so check the errors are correct ...
+			assertGolden(errors, etmp);
+		} else {
+			// we didn't expect the error, so by definition is an error
+			er.showTo(new PrintWriter(System.out), 0);
+			fail("unexpected compilation errors");
 		}
 	}
 
 	private static void dumpRecursive(Indenter pw, Object obj) {
 		if (obj == null) {
 			pw.println("Error - null");
-		} else if (obj instanceof PackageDefn) {
-			PackageDefn se = (PackageDefn) obj;
-			pw.println("package " + se.name);
-			dumpScope(pw, se.innerScope());
 		} else if (obj instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) obj;
 			pw.println("cdecl " + cd.name());
@@ -157,14 +188,18 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println(cp.type + ": " + cp.value);
 		} else if (obj instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) obj;
-			pw.println(tp.var);
+			pw.println("[type] " + tp.var);
 			dumpRecursive(pw.indent(), tp.type);
 		} else if (obj instanceof VarPattern) {
 			VarPattern tp = (VarPattern) obj;
-			pw.println(tp.var);
+			pw.println("[var] " + tp.var);
+		} else if (obj instanceof TuplePattern) {
+			TuplePattern tp = (TuplePattern) obj;
+			pw.println("[tuple]");
+			dumpList(pw, tp.args);
 		} else if (obj instanceof ConstructorMatch) {
 			ConstructorMatch cm = (ConstructorMatch) obj;
-			pw.println(cm.ctor);
+			pw.println("[ctor] " + cm.ctor);
 			dumpList(pw, cm.args);
 		} else if (obj instanceof ConstructorMatch.Field) {
 			ConstructorMatch.Field cf = (ConstructorMatch.Field) obj;
@@ -181,21 +216,29 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println(uv.var);
 		} else if (obj instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) obj;
-			pw.println(ae.fn.toString());
+			if (ae.fn instanceof ApplyExpr) {
+				dumpRecursive(pw.indent(), ae.fn);
+			} else
+				pw.println(ae.fn.toString());
 			dumpList(pw, ae.args);
-		} else if (obj instanceof FunctionDefinition) {
-			// NOTE: this should go away and just be the individual cases
-			FunctionDefinition fd = (FunctionDefinition) obj;
-//			pw.println(fd.name);
-			for (FunctionCaseDefn fcd : fd.cases) {
-				dumpRecursive(pw, fcd);
+		} else if (obj instanceof IfExpr) {
+			IfExpr ie = (IfExpr) obj;
+			pw.println("if " + ie.guard.toString());
+			dumpRecursive(pw.indent(), ie.ifExpr);
+			if (ie.elseExpr != null) {
+				pw.println("else");
+				dumpRecursive(pw.indent(), ie.elseExpr);
 			}
+		} else if (obj instanceof FunctionDefinition) {
+			for (FunctionCaseDefn fcd : ((FunctionDefinition) obj).cases)
+				dumpRecursive(pw, fcd);
 		} else if (obj instanceof FunctionCaseDefn) {
 			FunctionCaseDefn fcd = (FunctionCaseDefn) obj;
 			pw.println(fcd.intro.name);
 			dumpList(pw, fcd.intro.args);
 			pw.println(" =");
 			dumpRecursive(pw.indent(), fcd.expr);
+			dumpScope(pw, fcd.innerScope());
 		} else if (obj instanceof CardDefinition) {
 			CardDefinition cd = (CardDefinition) obj;
 			pw.println("card " + cd.name);
@@ -207,7 +250,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructDefn) {
 			StructDefn sd = (StructDefn) obj;
-			pw.println("struct " + sd.name());
+			pw.println("struct " + sd.name() + polys(sd));
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructField) {
 			StructField sf = (StructField) obj;
@@ -217,6 +260,28 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				pw.println(" <-");
 				dumpRecursive(pw.indent(), sf.init);
 			}
+		} else if (obj instanceof HandlerImplements) {
+			HandlerImplements hi = (HandlerImplements) obj;
+			pw.println("handler " + hi.name() + " " + hi.hiName + " (" + (hi.inCard?"card":"free") + ")");
+			dumpList(pw, hi.boundVars);
+			dumpList(pw, hi.methods);
+		} else if (obj instanceof MethodDefinition) {
+			MethodDefinition md = (MethodDefinition) obj;
+			pw.println("method " + md.intro.name);
+			dumpList(pw, md.cases);
+		} else if (obj instanceof MethodCaseDefn) {
+			MethodCaseDefn mcd = (MethodCaseDefn) obj;
+			pw.println("case " + mcd.caseName());
+			dumpList(pw.indent(), mcd.intro.args);
+			dumpList(pw.indent(), mcd.messages);
+			dumpScope(pw, mcd.innerScope());
+		} else if (obj instanceof MethodMessage) {
+			MethodMessage mm = (MethodMessage) obj;
+			if (mm.slot != null)
+				pw.println("assign " + mm.slot + " <-");
+			else
+				pw.println("invoke <-");
+			dumpRecursive(pw.indent(), mm.expr);
 		} else if (obj instanceof Template) {
 			Template t = (Template) obj;
 			pw.println("template" + (t.prefix != null ? " " + t.prefix : ""));
@@ -226,17 +291,55 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println("."); // many other fields go here ...
 			dumpList(pw, td.nested);
 			// dump formats and handlers
+		} else if (obj instanceof TemplateList) {
+			TemplateList td = (TemplateList) obj;
+			pw.println("+ " + td.listVar + " " + td.iterVar); // many other fields go here ...
+			dumpRecursive(pw.indent(), td.template);
+			// dump formats and handlers
+		} else if (obj instanceof ContentString) {
+			ContentString ce = (ContentString) obj;
+			pw.println("'' " + ce.text);
+			// dump formats and handlers
 		} else if (obj instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) obj;
 			dumpRecursive(pw, ce.expr);
 			// dump formats and handlers
-		} else if (obj instanceof Type) { // NOTE: this has to go below all its subclasses!
-			Type t = (Type) obj;
-			if (t.iam != WhatAmI.REFERENCE)
-				throw new UtilException("I don't think this should happen: " + t.iam);
+		} else if (obj instanceof FunctionTypeReference) {
+			FunctionTypeReference t = (FunctionTypeReference) obj;
 			pw.println(t.name());
+			Indenter ind = pw.indent();
+			for (TypeReference a : t.args)
+				dumpRecursive(ind, a);
+		} else if (obj instanceof TupleMember) {
+			TupleMember t = (TupleMember) obj;
+			LocatedName locatedName = t.ta.vars.get(t.which);
+			pw.println(locatedName.text);
+			dumpRecursive(pw.indent(), t.ta);
+		} else if (obj instanceof TupleAssignment) {
+			TupleAssignment t = (TupleAssignment) obj;
+			pw.println("(" + t.vars + ")");
+			dumpRecursive(pw.indent(), t.expr);
+		} else if (obj instanceof TypeReference) {
+			TypeReference t = (TypeReference) obj;
+			pw.println(t.name());
+			if (t.hasPolys()) {
+				Indenter ind = pw.indent();
+				for (TypeReference p : t.polys())
+					dumpRecursive(ind, p);
+			}
 		} else
 			throw new UtilException("Cannot handle dumping " + obj.getClass());
+	}
+
+	private static String polys(StructDefn sd) {
+		if (sd.polys() == null || sd.polys().isEmpty())
+			return "";
+		StringBuilder sb = new StringBuilder();
+		for (TypeReference tr : sd.polys()) {
+			sb.append(" ");
+			sb.append(tr.name());
+		}
+		return sb.toString();
 	}
 
 	private static void dumpScope(Indenter pw, Scope s) {
@@ -266,8 +369,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			String goldhash = Crypto.hash(f);
 			String genhash = Crypto.hash(gen);
 			if (!goldhash.equals(genhash)) {
-				// TODO: should do a visual line by line diff here ...
-				System.out.println("Need visual diff");
+				RunProcess proc = new RunProcess("diff");
+				proc.arg("-C5");
+				proc.arg(f.getPath());
+				proc.arg(gen.getPath());
+				proc.redirectStdout(System.out);
+				proc.redirectStderr(System.err);
+				proc.execute();
+				proc.getExitCode();
 			}
 			assertEquals("Files " + f + " and " + gen + " differed", goldhash, genhash);
 		}

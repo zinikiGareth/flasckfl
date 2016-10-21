@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Function file="fold.fl" line="3" name="test.golden.fold" off="5">
+        <Function>
+            <Arg>
+                <Function>
+                    <Arg>
+                        <Poly name="A"/>
+                    </Arg>
+                    <Arg>
+                        <Poly name="B"/>
+                    </Arg>
+                    <Return>
+                        <Poly name="A"/>
+                    </Return>
+                </Function>
+            </Arg>
+            <Arg>
+                <Poly name="A"/>
+            </Arg>
+            <Arg>
+                <Instance>
+                    <Union name="List"/>
+                    <Poly name="B"/>
+                </Instance>
+            </Arg>
+            <Return>
+                <Poly name="A"/>
+            </Return>
+        </Function>
+    </Function>
+</FLIM>

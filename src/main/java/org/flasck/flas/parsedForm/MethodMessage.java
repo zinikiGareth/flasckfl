@@ -1,10 +1,10 @@
 package org.flasck.flas.parsedForm;
 
-import java.io.Serializable;
 import java.util.List;
 
-@SuppressWarnings("serial")
-public class MethodMessage implements Serializable {
+import org.flasck.flas.commonBase.Locatable;
+
+public class MethodMessage {
 	public final List<Locatable> slot;
 	public final Object expr;
 

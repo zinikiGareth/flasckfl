@@ -1,0 +1,7 @@
+
+	card Foo
+		state
+			Number a
+		implements test.import.Fred
+			go x
+				a <- test.import.f x

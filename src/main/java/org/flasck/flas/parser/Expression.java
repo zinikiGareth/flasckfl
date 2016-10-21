@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.CastExpr;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.parsedForm.PackageVar;
-import org.flasck.flas.parsedForm.ApplyExpr;
-import org.flasck.flas.parsedForm.CastExpr;
-import org.flasck.flas.parsedForm.Locatable;
-import org.flasck.flas.parsedForm.NumericLiteral;
-import org.flasck.flas.parsedForm.StringLiteral;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -226,7 +225,7 @@ public class Expression implements TryParsing {
 							stack.remove(0);
 						Object o1 = deparen(args.remove(i-2));
 						Object o2 = deparen(args.remove(i-2));
-						args.add(i-2, new ApplyExpr(null, o1, o2));
+						args.add(i-2, new ApplyExpr(((Locatable)o1).location(), o1, o2));
 						i--;
 					}
 					else {
@@ -271,7 +270,7 @@ public class Expression implements TryParsing {
 		} else if (pe instanceof CastExpr) {
 			CastExpr ce = (CastExpr) pe;
 			return new CastExpr(ce.location, ce.castTo, deparen(ce.expr));
-		} else if (pe instanceof NumericLiteral || pe instanceof PackageVar || pe instanceof UnresolvedVar || pe instanceof UnresolvedOperator || pe instanceof StringLiteral)
+		} else if (pe instanceof NumericLiteral || pe instanceof UnresolvedVar || pe instanceof UnresolvedOperator || pe instanceof StringLiteral)
 			return pe;
 		else
 			throw new UtilException("Expr not handled: " + pe.getClass());
@@ -345,7 +344,7 @@ public class Expression implements TryParsing {
 							return new ParenExpr(objs.get(0));
 						else {
 							// The tuple case
-							return new ApplyExpr(null, ItemExpr.from(new ExprToken(startsAt, ExprToken.SYMBOL, "()")), objs);
+							return new ApplyExpr(startsAt, ItemExpr.from(new ExprToken(startsAt, ExprToken.SYMBOL, "()")), objs);
 						}
 					}
 					else if (endsWith.equals("]")) {
