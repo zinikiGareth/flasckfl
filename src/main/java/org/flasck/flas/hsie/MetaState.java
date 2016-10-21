@@ -455,6 +455,10 @@ public class MetaState {
 			HandlerLambda hl = (HandlerLambda) expr;
 			if (hl.scopedFrom != null)
 				set.add(hl.scopedFrom);
+		} else if (expr instanceof CastExpr) {
+			CastExpr ce = (CastExpr) expr;
+			gatherScopedVars(set, ce.castTo);
+			gatherScopedVars(set, ce.expr);
 		} else
 			throw new UtilException("Cannot handle scopedVars in " + (expr == null ? "_null expr_" : expr.getClass()));
 	}

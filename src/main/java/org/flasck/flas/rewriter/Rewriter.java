@@ -117,6 +117,7 @@ import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
+import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeOfSomethingElse;
@@ -145,7 +146,9 @@ public class Rewriter {
 	public final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
 	public final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
 	public final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
+	// I'm not 100% sure we need both of these, but it seems we need more info for "generating" cards than we do for "referencing" cards on import ...
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
+	public final Map<String, CardTypeInfo> ctis = new TreeMap<String, CardTypeInfo>();
 	public final List<Template> templates = new ArrayList<Template>();
 	public final List<RWD3Invoke> d3s = new ArrayList<RWD3Invoke>();
 	public final Map<String, RWContractImplements> cardImplements = new TreeMap<String, RWContractImplements>();
@@ -466,7 +469,9 @@ public class Rewriter {
 			} else if (val instanceof RWContractDecl) {
 				contracts.put(name, (RWContractDecl) val);
 			} else if (val instanceof CardGrouping) {
-				cards.put(name, (CardGrouping)val);
+				throw new UtilException("I claim we don't import CardGrouping objects");
+			} else if (val instanceof CardTypeInfo) {
+				ctis.put(name, (CardTypeInfo)val);
 			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
 //					System.out.println("Not adding anything for " + x.getValue().getKey() + " " + val);
 			} else if (val == null) {
@@ -1402,6 +1407,8 @@ public class Rewriter {
 			return functions.get(id);
 		else if (cards.containsKey(id))
 			return cards.get(id);
+		else if (ctis.containsKey(id))
+			return ctis.get(id);
 		else
 			return null;
 	}
