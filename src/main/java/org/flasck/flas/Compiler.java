@@ -322,7 +322,6 @@ public class Compiler {
 
 			// 2. Prepare Typechecker & load types
 			TypeChecker tc = new TypeChecker(errors);
-			populateTypes(tc, rootPkg, pkgs);
 			tc.populateTypes(rewriter);
 			abortIfErrors(errors);
 		
@@ -566,10 +565,11 @@ public class Compiler {
 	private void promoteD3Methods(ErrorResult errors, Rewriter rewriter, MethodConvertor mc, Map<String, HSIEForm> forms, RWD3Invoke d3) {
 		Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(new StringComparator()); 
 		Object init = rewriter.structs.get("NilMap");
-		RWStructDefn assoc = rewriter.structs.get("Assoc");
-		RWStructDefn cons = rewriter.structs.get("Cons");
-		RWStructDefn nil = rewriter.structs.get("Nil");
-		PackageVar tuple = new PackageVar(new InputPosition("d3", 1, 1, null), "FLEval.tuple", null);
+		InputPosition posn = new InputPosition("d3", 1, 1, null);
+		PackageVar assoc = new PackageVar(posn, "Assoc", null);
+		PackageVar cons = new PackageVar(posn, "Cons", null);
+		PackageVar nil = new PackageVar(posn, "Nil", null);
+		PackageVar tuple = new PackageVar(posn, "FLEval.tuple", null);
 		RWStructDefn d3Elt = rewriter.structs.get("D3Element");
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
 		for (RWD3PatternBlock p : d3.d3.patterns) {
@@ -588,14 +588,12 @@ public class Compiler {
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
 					RWFunctionIntro fi = new RWFunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>(), new HashMap<>());
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
-					// TODO: big-divide: presumably we should rewrite the actions?
 					mcd.messages.addAll(s.actions);
 					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
 					List<Object> enc = new ArrayList<Object>();
 					MethodInContext mic = new MethodInContext(rewriter, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method, enc); // PROB NEEDS D3Action type
 					mc.convertContractMethods(rewriter, forms, CollectionUtils.map(mic.name, mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
-//					ls = new ApplyExpr(cons, new FunctionLiteral(fi.name), ls);
 				} else { // something like layout, that is just a set of definitions
 					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
 				}
@@ -639,32 +637,6 @@ public class Compiler {
 			return null;
 		}
 		return (List<Block>) res;
-	}
-
-	private void populateTypes(TypeChecker tc, ImportPackage pkg, List<String> parsed) {
-		/* TODO: big-divide
-		for (Entry<String, ScopeEntry> x : scope) {
-			Object val = x.getValue().getValue();
-			if (val instanceof RWStructDefn) {
-//				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
-				tc.addStructDefn((RWStructDefn) val);
-			} else if (val instanceof RWObjectDefn) {
-//				System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
-				tc.addObjectDefn((RWObjectDefn) val);
-			} else if (val instanceof RWUnionTypeDefn) {
-				tc.addTypeDefn((RWUnionTypeDefn) val);
-			} else if (val instanceof Type) {
-				tc.addExternal(x.getValue().getKey(), (Type)val);
-			} else if (val instanceof CardTypeInfo) {
-				tc.addExternalCard((CardTypeInfo)val);
-			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
-//				System.out.println("Not adding anything for " + x.getValue().getKey() + " " + val);
-			} else if (val == null) {
-//				System.out.println("Cannot add type for " + x.getValue().getKey() + " as it is null");
-			} else 
-				throw new UtilException("Cannot handle " + val);
-		}
-		*/
 	}
 
 	private Orchard<HSIEForm> hsieOrchard(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<RWFunctionDefinition> d) {

@@ -1075,7 +1075,6 @@ public class Rewriter {
 		Object expr = rewriteExpr(cx, c.expr);
 		if (expr == null)
 			return null;
-		// TODO: big-divide: I feel this should be in pass1
 		RWFunctionCaseDefn ret = new RWFunctionCaseDefn(intro, csNo, expr);
 		pass3(new NestedScopeContext(cx), c.innerScope());
 		return ret;
@@ -1218,14 +1217,7 @@ public class Rewriter {
 					if (aefn instanceof UnresolvedVar) {
 						UnresolvedVar uv0 = (UnresolvedVar)aefn;
 						try {
-							Object pkgEntry = cx.resolve(uv0.location, uv0.var);
-							if (pkgEntry instanceof PackageVar) {
-//								PackageVar pv = (PackageVar)pkgEntry;
-//								Object o = pv.defn;
-								// TODO: big-divide: I may be making it so that this is no longer possible; not sure
-//								if (o instanceof PackageDefn)
-//									return getMe(uv0.location, pv.id + "." + fname);
-							}
+							cx.resolve(uv0.location, uv0.var);
 						} catch (ResolutionException ex) {
 							return new PackageVar(uv0.location, uv0.var + "." + fname, null);
 						}
