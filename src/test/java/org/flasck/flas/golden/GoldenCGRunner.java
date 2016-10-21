@@ -38,6 +38,7 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -345,9 +346,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 
 	private static void dumpScope(Indenter pw, Scope s) {
 		Indenter pi = pw.indent();
-		for (String k : s.keys()) {
-			Object o = s.get(k);
-			dumpRecursive(pi, o);
+		for (ScopeEntry k : s) {
+			dumpRecursive(pi, k.getValue());
 		}
 	}
 

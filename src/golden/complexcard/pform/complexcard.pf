@@ -1,4 +1,35 @@
 package test.golden
+  struct test.golden.Thing
+    x
+      String
+  struct test.golden.Polyed T1 T2
+    x
+      String
+    y
+      T1
+    z
+      List
+        T2
+  cdecl test.golden.Init
+    down ready
+      [type] obj
+        Any
+  cdecl test.golden.Handler
+    down reply
+      [type] s
+        String
+  cdecl test.golden.DataStore
+    up get
+      [type] x
+        String
+      [type] h
+        Handler
+  cdecl test.golden.Offer
+    up get
+      [type] x
+        String
+      [type] h
+        Handler
   card test.golden.Complex
     state
       hello
@@ -21,34 +52,3 @@ package test.golden
         + list null
           .
             '' hello
-  cdecl test.golden.DataStore
-    up get
-      [type] x
-        String
-      [type] h
-        Handler
-  cdecl test.golden.Handler
-    down reply
-      [type] s
-        String
-  cdecl test.golden.Init
-    down ready
-      [type] obj
-        Any
-  cdecl test.golden.Offer
-    up get
-      [type] x
-        String
-      [type] h
-        Handler
-  struct test.golden.Polyed T1 T2
-    x
-      String
-    y
-      T1
-    z
-      List
-        T2
-  struct test.golden.Thing
-    x
-      String

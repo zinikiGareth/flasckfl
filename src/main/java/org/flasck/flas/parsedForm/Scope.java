@@ -1,19 +1,15 @@
 package org.flasck.flas.parsedForm;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ScopeDefineException;
-import org.flasck.flas.rewriter.ResolutionException;
-import org.zinutils.exceptions.UtilException;
-import org.zinutils.utils.StringComparator;
 
-public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
+public class Scope implements Iterable<Scope.ScopeEntry> {
 	public class ScopeEntry implements Entry<String, Object> {
 		private final InputPosition location;
 		private final String name;
@@ -57,13 +53,11 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 		}
 	}
 
-	public final Scope outer;
-	private final Map<String, ScopeEntry> defns = new TreeMap<String, ScopeEntry>(new StringComparator());
+	private final Map<String, ScopeEntry> defns = new LinkedHashMap<String, ScopeEntry>();
 	public final ScopeEntry outerEntry;
 	public final Object container;
 
 	public Scope(ScopeEntry inside, Object container) {
-		this.outer = null;
 		this.outerEntry = inside;
 		this.container = container;
 	}
@@ -86,53 +80,20 @@ public class Scope implements Iterable<Entry<String, Scope.ScopeEntry>> {
 		return defns.size();
 	}
 
-	public Object resolve(InputPosition location, String name) {
-		if (name.contains("."))
-			return name;
-		if (defns.containsKey(name)) {
-			throw new UtilException("Package or Scoped?");
-//			return new PackageVar(defns.get(name));
-		}
-		try {
-			if (outer != null)
-				return outer.resolve(location, name);
-		} catch (UtilException ex) { /* and rethrow ourselves */ }
-		System.out.println("Could not resolve name " + name + " in " + defns.keySet());
-		throw new ResolutionException(location, name);
-	}
-	
-	public Set<String> keys() {
-		return defns.keySet();
-	}
-
 	@Override
-	public Iterator<Entry<String, ScopeEntry>> iterator() {
-		return defns.entrySet().iterator();
-	}
-
-	public Object get(String key) {
-		if (!defns.containsKey(key))
-			return null;
-		return defns.get(key).getValue();
+	public Iterator<ScopeEntry> iterator() {
+		return defns.values().iterator();
 	}
 
 	public ScopeEntry getEntry(String key) {
 		if (!defns.containsKey(key))
 			return null;
-		return (ScopeEntry) defns.get(key);
+		return defns.get(key);
 	}
 
 	@Override
 	public String toString() {
 		return defns.toString();
-	}
-
-	public Object getResolved(String resolvedName) {
-		if (outer != null)
-			return outer.getResolved(resolvedName);
-		if (resolvedName.contains("."))
-			throw new UtilException("Not yet");
-		return get(resolvedName);
 	}
 
 	public String fullName(String name) {

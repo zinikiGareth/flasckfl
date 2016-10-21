@@ -513,9 +513,9 @@ public class Rewriter {
 	
 	// Introduce new Definitions which we might reference with minimal amount of info
 	public void pass1(NamingContext cx, Scope from) {
-		for (Entry<String, ScopeEntry> x : from) {
-			String name = x.getValue().getKey();
-			Object val = x.getValue().getValue();
+		for (ScopeEntry x : from) {
+			String name = x.getKey();
+			Object val = x.getValue();
 			if (val instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) val;
 				RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
@@ -577,9 +577,9 @@ public class Rewriter {
 
 	// Fill in definitions as much as we can from just here
 	public void pass2(NamingContext cx, Scope from) {
-		for (Entry<String, ScopeEntry> x : from) {
-			String name = x.getValue().getKey();
-			Object val = x.getValue().getValue();
+		for (ScopeEntry x : from) {
+			String name = x.getKey();
+			Object val = x.getValue();
 			if (val instanceof CardDefinition) {
 				try {
 					CardDefinition cd = (CardDefinition) val;
@@ -617,9 +617,9 @@ public class Rewriter {
 
 	// Resolve things that still need doing & handle nested contexts
 	public void pass3(NamingContext cx, Scope from) {
-		for (Entry<String, ScopeEntry> x : from) {
-			String name = x.getValue().getKey();
-			Object val = x.getValue().getValue();
+		for (ScopeEntry x : from) {
+			String name = x.getKey();
+			Object val = x.getValue();
 			if (val instanceof CardDefinition)
 				rewriteCard(cx, (CardDefinition)val);
 			else if (val instanceof FunctionDefinition)
@@ -1432,7 +1432,7 @@ public class Rewriter {
 		if (s == null)
 			return;
 		if (s.container != null) {
-			gatherEnclosing(enclosingPatterns, cx, s.outer);
+			gatherEnclosing(enclosingPatterns, cx, null);
 			Object ctr = s.container;
 			if (ctr instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fn = (FunctionCaseDefn)ctr;
