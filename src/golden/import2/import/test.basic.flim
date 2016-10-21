@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.basic">
+    <Contract file="basic.fl" line="1" off="9" name="test.basic.Bert">
+        <Method file="basic.fl" line="2" off="2" required="true" dir="up" name="from">
+            <Typed file="basic.fl" line="3" off="12" var="test.basic.Bert.from.q" vfile="basic.fl" vline="3" voff="19">
+                <Contract name="test.basic.Bert"/>
+            </Typed>
+        </Method>
+    </Contract>
+</FLIM>

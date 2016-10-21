@@ -65,10 +65,28 @@ public class PackageFinder {
 					if (!top.hasTag("FLIM"))
 						throw new UtilException("Cannot load FLIM file " + flim + " because it does not have the right tag");
 					
-					// get ready for pass2
+					// Pass0 : read and install all imported packages
+					for (XMLElement xe : top.elementChildren("Import")) {
+						String ipn = xe.required("package");
+						xe.attributesDone();
+						xe.assertNoSubContents();
+						
+						ImportPackage exists = imported.get(ipn);
+						if (exists == null)
+							loadFlim(errors, ipn);
+						else if (!exists.isLoaded()) {
+							errors.message((Block)null, "cannot import package " + pkgName + " because it has a circular dependency on " + ipn);
+							return;
+						}
+						// else we have already loaded it, so no probs
+					}
+					
+					// Pass1 : read and install all the top-level definitions, and squirrel away the nested references
 					List<Pass2> todos = new ArrayList<Pass2>();
 					for (XMLElement xe : top.elementChildren()) {
-						if (xe.hasTag("Struct")) {
+						if (xe.hasTag("Import"))
+							; // handled in pass 0
+						else if (xe.hasTag("Struct")) {
 							List<Type> polys = new ArrayList<>();
 							RWStructDefn sd = new RWStructDefn(location(xe), xe.required("name"), false, polys);
 							xe.attributesDone();

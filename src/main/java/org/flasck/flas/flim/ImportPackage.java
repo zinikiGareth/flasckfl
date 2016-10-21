@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 public class ImportPackage implements Iterable<Map.Entry<String, Object>> {
 	private final String pkgName;
 	private final HashMap<String, Object> map;
+	private boolean fullyLoaded;
 
 	public ImportPackage(String pkgName) {
 		this.pkgName = pkgName;
@@ -34,5 +35,13 @@ public class ImportPackage implements Iterable<Map.Entry<String, Object>> {
 	@Override
 	public Iterator<Entry<String, Object>> iterator() {
 		return map.entrySet().iterator();
+	}
+	
+	public boolean isLoaded() {
+		return fullyLoaded;
+	}
+	
+	public void seal() {
+		this.fullyLoaded = true;
 	}
 }
