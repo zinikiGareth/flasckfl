@@ -13,15 +13,15 @@ public class StructDefn implements AsString, Locatable {
 	public final transient boolean generate;
 	private final InputPosition location;
 	private String name;
-	private List<TypeReference> polys;
+	private List<PolyType> polys;
 
 	// for tests
-	public StructDefn(InputPosition location, String tn, boolean generate, TypeReference... polys) {
+	public StructDefn(InputPosition location, String tn, boolean generate, PolyType... polys) {
 		this(location, tn, generate, CollectionUtils.listOf(polys));
 	}
 	
 	// The real constructor
-	public StructDefn(InputPosition location, String tn, boolean generate, List<TypeReference> polys) {
+	public StructDefn(InputPosition location, String tn, boolean generate, List<PolyType> polys) {
 		this.location = location;
 		this.name = tn;
 		this.generate = generate;
@@ -74,7 +74,7 @@ public class StructDefn implements AsString, Locatable {
 		return sb.toString();
 	}
 
-	public List<TypeReference> polys() {
+	public List<PolyType> polys() {
 		return polys;
 	}
 

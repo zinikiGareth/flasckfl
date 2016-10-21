@@ -2,21 +2,21 @@ package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class TypeNameToken {
+public class PolyTypeToken {
 	public final InputPosition location;
 	public final String text;
 
-	public TypeNameToken(ValidIdentifierToken tok) {
+	public PolyTypeToken(ValidIdentifierToken tok) {
 		location = tok.location;
 		text = tok.text;
 	}
 
-	public TypeNameToken(InputPosition loc, String proto) {
+	public PolyTypeToken(InputPosition loc, String proto) {
 		location = loc;
 		text = proto;
 	}
 
-	public static TypeNameToken from(Tokenizable line) {
+	public static PolyTypeToken from(Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
@@ -29,11 +29,11 @@ public class TypeNameToken {
 			return null;
 		}
 		ValidIdentifierToken tok = ValidIdentifierToken.from(line);
-		if (tok.text.length() == 1 || tok.text.length() == 2 && (Character.isUpperCase(tok.text.charAt(1)) || Character.isDigit(tok.text.charAt(1)))) {
-			// would be a poly var
+		if (tok.text.length() > 2 || (tok.text.length() == 2 && !Character.isUpperCase(tok.text.charAt(1)) && !Character.isDigit(tok.text.charAt(1)))) {
+			// would be a real type
 			line.reset(mark);
 			return null;
 		}
-		return new TypeNameToken(tok);
+		return new PolyTypeToken(tok);
 	}
 }

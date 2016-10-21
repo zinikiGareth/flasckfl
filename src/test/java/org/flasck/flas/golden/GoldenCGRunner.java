@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -335,7 +336,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		if (sd.polys() == null || sd.polys().isEmpty())
 			return "";
 		StringBuilder sb = new StringBuilder();
-		for (TypeReference tr : sd.polys()) {
+		for (PolyType tr : sd.polys()) {
 			sb.append(" ");
 			sb.append(tr.name());
 		}

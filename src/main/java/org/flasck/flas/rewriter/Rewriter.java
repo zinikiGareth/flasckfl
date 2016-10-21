@@ -56,6 +56,7 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -449,9 +450,12 @@ public class Rewriter {
 
 	public Rewriter(ErrorResult errors, List<File> pkgdirs, ImportPackage rootPkg) {
 		this.errors = errors;
-		this.pkgFinder = new PackageFinder(this, pkgdirs, rootPkg);
-		importPackage1(rootPkg);
-		importPackage2(rootPkg);
+		if (rootPkg != null) {
+			this.pkgFinder = new PackageFinder(this, pkgdirs, rootPkg);
+			importPackage1(rootPkg);
+			importPackage2(rootPkg);
+		} else
+			this.pkgFinder = null; // for test cases
 	}
 
 	public void importPackage1(ImportPackage pkg) {
@@ -1062,10 +1066,10 @@ public class Rewriter {
 		}
 	}
 
-	protected List<Type> rewritePolys(List<TypeReference> polys) {
+	protected List<Type> rewritePolys(List<PolyType> polys) {
 		List<Type> pts = new ArrayList<Type>(); // poly vars
 		if (polys != null)
-			for (TypeReference r : polys)
+			for (PolyType r : polys)
 				pts.add(Type.polyvar(r.location(), r.name()));
 		return pts;
 	}

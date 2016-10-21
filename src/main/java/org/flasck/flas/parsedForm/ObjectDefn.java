@@ -17,9 +17,9 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	private final Scope innerScope;
 	private final InputPosition location;
 	private final String name;
-	private final List<TypeReference> polys;
+	private final List<PolyType> polys;
 
-	public ObjectDefn(InputPosition location, Scope outer, String tn, boolean generate, List<TypeReference> polys) {
+	public ObjectDefn(InputPosition location, Scope outer, String tn, boolean generate, List<PolyType> polys) {
 		this.location = location;
 		this.name = tn;
 		this.generate = generate;
@@ -70,7 +70,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 		return sb.toString();
 	}
 
-	public List<TypeReference> polys() {
+	public List<PolyType> polys() {
 		return polys;
 	}
 

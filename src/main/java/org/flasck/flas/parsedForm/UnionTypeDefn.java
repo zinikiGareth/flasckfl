@@ -12,13 +12,13 @@ public class UnionTypeDefn implements Locatable {
 	private final InputPosition location;
 	private final String name;
 	public final List<TypeReference> cases = new ArrayList<TypeReference>();
-	private List<TypeReference> polyvars;
+	private List<PolyType> polyvars;
 
-	public UnionTypeDefn(InputPosition location, boolean generate, String defining, TypeReference... polyvars) {
+	public UnionTypeDefn(InputPosition location, boolean generate, String defining, PolyType... polyvars) {
 		this(location, generate, defining, CollectionUtils.listOf(polyvars));
 	}
 	
-	public UnionTypeDefn(InputPosition location, boolean generate, String defining, List<TypeReference> polyvars) {
+	public UnionTypeDefn(InputPosition location, boolean generate, String defining, List<PolyType> polyvars) {
 		this.generate = generate;
 		this.location = location;
 		this.name = defining;
@@ -44,7 +44,7 @@ public class UnionTypeDefn implements Locatable {
 		return location;
 	}
 
-	public List<TypeReference> polys() {
+	public List<PolyType> polys() {
 		return polyvars;
 	}
 }

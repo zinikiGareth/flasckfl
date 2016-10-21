@@ -19,11 +19,12 @@ import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.StructDefn;
-import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.PolyTypeToken;
 import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -52,13 +53,14 @@ public class IntroParser implements TryParsing {
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
-			List<TypeReference> args = new ArrayList<TypeReference>();
+			List<PolyType> args = new ArrayList<PolyType>();
 			while (line.hasMore()) {
-				TypeNameToken ta = TypeNameToken.from(line);
-				if (ta == null)
+				PolyTypeToken ta = PolyTypeToken.from(line);
+				if (ta == null) {
 					er.message(line, "invalid type argument");
-				else
-					args.add(new TypeReference(ta.location, ta.text));
+					break;
+				} else
+					args.add(new PolyType(ta.location, ta.text));
 			}
 			if (er.hasErrors())
 				return er;
@@ -69,14 +71,14 @@ public class IntroParser implements TryParsing {
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
-			List<TypeReference> args = new ArrayList<TypeReference>();
+			List<PolyType> args = new ArrayList<PolyType>();
 			while (line.hasMore()) {
-				TypeNameToken ta = TypeNameToken.from(line);
+				PolyTypeToken ta = PolyTypeToken.from(line);
 				if (ta == null) {
 					er.message(line, "invalid type argument");
 					break;
 				} else
-					args.add(new TypeReference(ta.location, ta.text));
+					args.add(new PolyType(ta.location, ta.text));
 			}
 			if (er.hasErrors())
 				return er;
