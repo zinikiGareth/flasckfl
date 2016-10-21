@@ -38,6 +38,6 @@ public class ReturnCmd extends PushReturn {
 
 	@Override
 	public String toString() {
-		return Justification.LEFT.format("RETURN " + textValue() + (deps == null? "" : " " + deps), 60) + " " + location + " - this appears to be wrong for closures; wants to be the apply expr point";
+		return Justification.LEFT.format("RETURN " + textValue() + (deps == null? "" : " " + deps), 60) + " #" + location + " - this appears to be wrong for closures; wants to be the apply expr point";
 	}
 }

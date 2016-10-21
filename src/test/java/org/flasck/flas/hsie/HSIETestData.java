@@ -187,25 +187,24 @@ public class HSIETestData {
 
 	public static HSIEForm mutualF() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("ME.f_0.g");
-		return thingy("ME.f", 0, 1, 1,
+//		externals.add("ME.f_0.g");
+		return thingy("ME.f", 0, 1, 2,
 			externals,
 			null,
-			"RETURN var 1 clos1", "CLOSURE 1",
-				"{", "ME.f_0.g",
-			"2", "}"
+			"RETURN var 2 clos2 1 ME.f_0.g",
+			"CLOSURE 1", "{", "ME.f_0.g", "var 0 x", "}",
+			"CLOSURE 2", "{", "var 1 ME.f_0.g", "2", "}"
 		);
 	}
 
 	public static HSIEForm mutualG() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("FLEval.mul");
-		return thingy("ME.f_0.g", 2, 1, 1,
+		return thingy("ME.f_0.g", 2, 1, 2,
 			externals,
 			null,
-			"RETURN var 3 clos3", "CLOSURE 3",
-				"{", "FLEval.mul", "var 0 x",
-			"var 2 y", "}"
+			"RETURN var 1 clos1",
+			"CLOSURE 1", "{", "*", "var 0 x", "var 2 y", "}"
 		);
 	}
 
@@ -540,7 +539,7 @@ public class HSIETestData {
 			assertNotNull("Did not find 'actual' closure " + i, ac);
 			assertEquals("incorrect number of commands in closure " + i, ec.nestedCommands().size(), ac.nestedCommands().size());
 			for (int j=0;j<ac.nestedCommands().size();j++) {
-				assertEquals(ec.nestedCommands().get(j).toString(), ac.nestedCommands().get(j).toString());
+				assertInstructionEquals(ec.nestedCommands().get(j), ac.nestedCommands().get(j));
 			}
 		}
 	}
@@ -550,8 +549,19 @@ public class HSIETestData {
 		List<HSIEBlock> acmds = actual.nestedCommands();
 		assertEquals("incorrect number of commands", ecmds.size(), acmds.size());
 		for (int i=0;i<ecmds.size();i++) {
-			assertEquals(ecmds.get(i).toString(), acmds.get(i).toString());
+			assertInstructionEquals(ecmds.get(i), acmds.get(i));
 			compareBlocks(ecmds.get(i), acmds.get(i));
 		}
+	}
+
+	private static void assertInstructionEquals(HSIEBlock ex, HSIEBlock ac) {
+		String exs = ex.toString();
+		String acs = ac.toString();
+		if (exs != null && exs.indexOf("#") != -1)
+			exs = exs.substring(0, exs.indexOf("#")).trim();
+		if (acs != null && acs.indexOf("#") != -1)
+			acs = acs.substring(0, acs.indexOf("#")).trim();
+		assertEquals(exs, acs);
+		
 	}
 }

@@ -1,0 +1,12 @@
+package test.golden
+  test.golden.f
+    [var] x
+   =
+    g
+      # 2
+    test.golden.f_0.g
+      [var] y
+     =
+      *
+        x
+        y
