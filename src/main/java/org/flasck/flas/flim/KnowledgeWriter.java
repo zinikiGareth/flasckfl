@@ -2,6 +2,8 @@ package org.flasck.flas.flim;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
@@ -12,8 +14,8 @@ import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeHolder;
@@ -24,12 +26,15 @@ import org.zinutils.xml.XMLElement;
 
 public class KnowledgeWriter {
 	private final File exportTo;
+	private final String pkg; 
 	private final XML xml;
 	private final XMLElement top;
 	private final boolean copyToScreen;
+	private final Set<String> imports = new TreeSet<String>();
 
 	public KnowledgeWriter(File exportTo, String pkg, boolean copyToScreen) {
 		this.exportTo = exportTo;
+		this.pkg = pkg;
 		xml = XML.create("1.0", "FLIM");
 		top = xml.top();
 		top.setAttribute("package", pkg);
@@ -133,6 +138,7 @@ public class KnowledgeWriter {
 		for (TypeHolder x : cti.contracts) {
 			XMLElement xh = xe.addElement("Implements");
 			xh.setAttribute("contract", x.name);
+			requirePackageFor(x.name);
 		}
 		/* I don't think these are relevant to outsiders ...
 		for (TypeHolder x : cti.handlers) {
@@ -180,6 +186,7 @@ public class KnowledgeWriter {
 		{
 			XMLElement ty = xe.addElement("Contract");
 			ty.setAttribute("name", type.name());
+			requirePackageFor(type.name());
 			break;
 		}
 		case CONTRACTIMPL:
@@ -187,36 +194,42 @@ public class KnowledgeWriter {
 			XMLElement ty = xe.addElement("Implements");
 			ty.setAttribute("name", type.name());
 			writeLocation(ty, ((RWContractImplements)type).varLocation, "v");
+			requirePackageFor(type.name());
 			break;
 		}
 		case CONTRACTSERVICE:
 		{
 			XMLElement ty = xe.addElement("Service");
 			ty.setAttribute("name", type.name());
+			requirePackageFor(type.name());
 			break;
 		}
 		case HANDLERIMPLEMENTS:
 		{
 			XMLElement ty = xe.addElement("Handler");
 			ty.setAttribute("name", type.name());
+			requirePackageFor(type.name());
 			break;
 		}
 		case STRUCT:
 		{
 			XMLElement ty = xe.addElement("Struct");
 			ty.setAttribute("name", type.name());
+			requirePackageFor(type.name());
 			break;
 		}
 		case UNION:
 		{
 			XMLElement ty = xe.addElement("Union");
 			ty.setAttribute("name", type.name());
+			requirePackageFor(type.name());
 			break;
 		}
 		case OBJECT:
 		{
 			XMLElement ty = xe.addElement("Object");
 			ty.setAttribute("name", type.name());
+			requirePackageFor(type.name());
 			break;
 		}
 		case POLYVAR: {
@@ -226,6 +239,7 @@ public class KnowledgeWriter {
 		}
 		case INSTANCE: {
 			XMLElement ty = xe.addElement("Instance");
+			requirePackageFor(type.name());
 			writeLocation(ty, type);
 			writeTypeUsage(ty, type.innerType());
 			for (Type t : type.polys())
@@ -259,6 +273,12 @@ public class KnowledgeWriter {
 		}
 	}
 
+	private void requirePackageFor(String name) {
+		int idx = name.lastIndexOf(".");
+		if (idx != -1)
+			imports.add(name.substring(0, idx));
+	}
+
 	private void writePolys(XMLElement xe, List<Type> list) {
 		for (Type t : list) {
 			XMLElement pe = xe.addElement("Poly");
@@ -279,6 +299,11 @@ public class KnowledgeWriter {
 	}
 
 	public void commit() {
+		imports.remove(pkg); // obviously we don't want to depend on ourselves ...
+		int k = 0;
+		for (String s : imports) {
+			xml.addElementAt(k++, "Import").setAttribute("package", s);
+		}
 		xml.write(exportTo);
 	}
 }

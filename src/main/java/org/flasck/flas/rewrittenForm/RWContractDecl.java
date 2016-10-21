@@ -12,9 +12,9 @@ public class RWContractDecl extends TypeWithMethods {
 	public final List<RWContractMethodDecl> methods = new ArrayList<RWContractMethodDecl>();
 	public final transient boolean generate;
 
-	public RWContractDecl(InputPosition kw, InputPosition location, String contractName) {
+	public RWContractDecl(InputPosition kw, InputPosition location, String contractName, boolean g) {
 		super(kw, location, WhatAmI.CONTRACT, contractName, null);
-		this.generate = true;
+		this.generate = g;
 	}
 
 	public void addMethod(RWContractMethodDecl md) {

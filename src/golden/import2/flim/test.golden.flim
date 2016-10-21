@@ -1,21 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Contract file="basic.fl" line="1" name="test.basic.Bert" off="9">
-        <Method dir="up" file="basic.fl" line="2" name="from" off="2" required="true">
-            <Typed file="basic.fl" line="3" off="12"
-                var="test.basic.Bert.from.q" vfile="basic.fl" vline="3" voff="19">
-                <Contract name="test.basic.Bert"/>
-            </Typed>
-        </Method>
-    </Contract>
-    <Contract file="import.fl" line="1" name="test.import.Fred" off="9">
-        <Method dir="down" file="import.fl" line="2" name="go" off="2" required="true">
-            <Typed file="import.fl" line="3" off="12"
-                var="test.import.Fred.go.x" vfile="import.fl" vline="3" voff="19">
-                <Contract name="test.basic.Bert"/>
-            </Typed>
-        </Method>
-    </Contract>
+    <Import package="test.import"/>
     <Card file="import2.fl" line="2" name="test.golden.Foo" off="5">
         <Implements contract="test.import.Fred"/>
     </Card>

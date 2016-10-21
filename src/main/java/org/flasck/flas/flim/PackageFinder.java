@@ -93,7 +93,7 @@ public class PackageFinder {
 							pkg.define(sd.name(), sd);
 							todos.add(new Pass2(sd, xe));
 						} else if (xe.hasTag("Contract")) {
-							RWContractDecl cd = new RWContractDecl(null, location(xe), xe.required("name"));
+							RWContractDecl cd = new RWContractDecl(null, location(xe), xe.required("name"), false);
 							xe.attributesDone();
 							pkg.define(cd.name(), cd);
 							todos.add(new Pass2(cd, xe));

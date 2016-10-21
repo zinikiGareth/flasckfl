@@ -883,7 +883,8 @@ public class TypeChecker {
 		}
 		
 		for (CardTypeInfo cti : this.cards.values()) {
-			kw.add(cti);
+			if (cti.struct != null)
+				kw.add(cti);
 		}
 		
 		for (Entry<String, Type> x : this.knowledge.entrySet()) {

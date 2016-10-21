@@ -547,7 +547,7 @@ public class Rewriter {
 				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.name(), rewritePolys(ud.polys())));
 			} else if (val instanceof ContractDecl) {
 				ContractDecl ctr = (ContractDecl)val;
-				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.name());
+				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.name(), true);
 				contracts.put(name, ret);
 			} else if (val instanceof ObjectDefn) {
 				ObjectDefn od = (ObjectDefn)val;
