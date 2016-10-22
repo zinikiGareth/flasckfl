@@ -45,7 +45,6 @@ import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionClause;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
@@ -160,8 +159,8 @@ public class FLASStory {
 			return null;
 
 		Scope ret = s.scope;
-		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
-		List<FCDWrapper> fndefns = new ArrayList<FCDWrapper>();
+//		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
+//		List<FCDWrapper> fndefns = new ArrayList<FCDWrapper>();
 		for (Block b : blocks) {
 			if (b.isComment())
 				continue;
@@ -180,17 +179,27 @@ public class FLASStory {
 			try {
 				if (o instanceof FunctionCaseDefn) {
 					FunctionCaseDefn fcd = (FunctionCaseDefn)o;
-					fndefns.add(new FCDWrapper(b.nested, fcd));
+					String caseName = ret.caseName(fcd.intro.name);
+					fcd.provideCaseName(caseName);
+					ret.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
+					if (!b.nested.isEmpty()) {
+						doScope(er, new State(fcd.innerScope(), caseName, s.kind), b.nested);
+					}
+
+//					fndefns.add(new FCDWrapper(b.nested, fcd));
 				} else if (o instanceof FunctionIntro) {
 					FunctionIntro fi = (FunctionIntro) o;
 					Object[] arr = doCompoundFunction(er, b, fi);
 					if (arr == null)
 						continue;
 					Block lastBlock = (Block) arr[1];
-					FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, fi.name, fi.args, arr[0]);
-					fndefns.add(new FCDWrapper(lastBlock.nested, fcd));
+					FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, s.kind, fi.name, fi.args, arr[0]);
+					ret.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
+//					fndefns.add(new FCDWrapper(lastBlock.nested, fcd));
 				} else if (o instanceof MethodCaseDefn) {
-					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) o));
+					MethodCaseDefn mcd = (MethodCaseDefn)o;
+					ret.define(State.simpleName(mcd.methodName()), mcd.methodName(), mcd);
+//					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) o));
 				} else if (o instanceof TupleAssignment) {
 					TupleAssignment ta = (TupleAssignment) o;
 					int k=0;
@@ -217,8 +226,8 @@ public class FLASStory {
 					doCardDefinition(er, new State(cd.innerScope(), cd.name, HSIEForm.CodeType.CARD), cd, b.nested);
 				} else if (o instanceof HandlerImplements) {
 					HandlerImplements hi = (HandlerImplements)o;
-					ScopeEntry se = ret.define(State.simpleName(hi.hiName), hi.hiName, hi);
-					doImplementation(s, er, se, hi, b.nested, State.simpleName(hi.hiName));
+					ret.define(State.simpleName(hi.hiName), hi.hiName, hi);
+					doImplementation(s, er, hi, b.nested, State.simpleName(hi.hiName));
 				} else if (o instanceof ContractImplements) {
 					er.message(((ContractImplements) o).location(), "implements cannot appear at the top level");
 				} else
@@ -230,8 +239,8 @@ public class FLASStory {
 		if (er.hasErrors())
 			return er;
 		
-		gatherFunctions(er, s, ret, fndefns);
-		gatherStandaloneMethods(er, s, ret, methods);
+//		gatherFunctions(er, s, ret, fndefns);
+//		gatherStandaloneMethods(er, s, ret, methods);
 		
 		if (er.hasErrors())
 			return er;
@@ -279,6 +288,7 @@ public class FLASStory {
 		return new Object[] { expr, lastBlock };
 	}
 
+	/*
 	protected void gatherFunctions(ErrorResult er, State s, Scope ret, List<FCDWrapper> fndefns) {
 		ListMap<String, FCDWrapper> groups = new ListMap<String, FCDWrapper>();
 		String cfn = null;
@@ -335,9 +345,9 @@ public class FLASStory {
 		MethodMessageParser mmp = new MethodMessageParser();
 		for (Entry<String, List<MCDWrapper>> x : groups.entrySet()) {
 			MethodDefinition md = new MethodDefinition(x.getValue().get(0).starter.intro, new ArrayList<MethodCaseDefn>());
-			ScopeEntry me = ret.define(State.simpleName(x.getKey()), x.getKey(), md);
+			ret.define(State.simpleName(x.getKey()), x.getKey(), md);
 			for (MCDWrapper q : x.getValue()) {
-				MethodCaseDefn mcd = new MethodCaseDefn(me, q.starter, md.cases.size());
+				MethodCaseDefn mcd = new MethodCaseDefn(q.starter, md.cases.size());
 				md.cases.add(mcd);
 				for (Block b : q.nested) {
 					assertNoNonCommentNestedLines(er, b);
@@ -354,6 +364,7 @@ public class FLASStory {
 			}
 		}
 	}
+	*/
 
 	private void doStructFields(ErrorResult er, StructDefn sd, List<Block> fields) {
 		FieldParser fp = new FieldParser(FieldParser.CARD);
@@ -375,8 +386,8 @@ public class FLASStory {
 	private void doObjectMembers(ErrorResult er, State s, ObjectDefn sd, List<Block> nested) {
 		ObjectMemberParser omp = new ObjectMemberParser(s);
 		FunctionParser fp = new FunctionParser(s);
-		List<FCDWrapper> ctors = new ArrayList<FCDWrapper>();
-		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
+//		List<FCDWrapper> ctors = new ArrayList<FCDWrapper>();
+//		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;
@@ -392,12 +403,14 @@ public class FLASStory {
 				case ObjectMember.CTOR: {
 					if (omm.what instanceof FunctionIntro)
 						throw new UtilException("Should work, but not implemented: see other FunctionIntro cases in FLASStory and doCompoundFunction, but I think everything is broken");
-					else if (omm.what instanceof FunctionCaseDefn)
-						ctors.add(new FCDWrapper(b.nested, (FunctionCaseDefn) omm.what));
+					// TODO: simplify-parsing
+//					else if (omm.what instanceof FunctionCaseDefn)
+//						ctors.add(new FCDWrapper(b.nested, (FunctionCaseDefn) omm.what));
 					else
 						er.message(b, "syntax error");
 					break;
 				}
+				// TODO: simplify-parsing
 //					else if (om instanceof MethodCaseDefn)
 //						methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
 				default: {
@@ -413,8 +426,8 @@ public class FLASStory {
 					er.message(b, "syntax error");
 			}
 		}
-		gatherFunctions(er, s, sd.innerScope(), ctors);
-		gatherStandaloneMethods(er, s, sd.innerScope(), methods);
+//		gatherFunctions(er, s, sd.innerScope(), ctors);
+//		gatherStandaloneMethods(er, s, sd.innerScope(), methods);
 	}
 
 	private void doContractMethods(ErrorResult er, ContractDecl cd, List<Block> methods) {
@@ -435,11 +448,11 @@ public class FLASStory {
 	}
 
 	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
-		ScopeEntry se = cd.fnScope.outerEntry;
 		IntroParser ip = new IntroParser(s);
-		List<FCDWrapper> functions = new ArrayList<FCDWrapper>();
-		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
-		List<ECDWrapper> events = new ArrayList<ECDWrapper>();
+//		List<FCDWrapper> functions = new ArrayList<FCDWrapper>();
+//		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
+//		List<ECDWrapper> events = new ArrayList<ECDWrapper>();
+		Scope inner = cd.innerScope();
 		int cs = 0;
 		int ss = 0;
 		List<TemplateThing> templates = new ArrayList<TemplateThing>();
@@ -519,16 +532,17 @@ public class FLASStory {
 					d3s.add(new D3Thing(cd.name, d3.name, d3.location, d3.expr, d3.var, lines));
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
-				doImplementation(s, er, se, (Implements)o, b.nested, "_C" + cs++);
+				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);
 			} else if (o instanceof ContractService) {
 				cd.addContractService((ContractService)o);
-				doImplementation(s, er, se, (Implements)o, b.nested, "_S" + ss++);
+				doImplementation(s, er, (Implements)o, b.nested, "_S" + ss++);
 			} else if (o instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements)o;
 				cd.addHandlerImplementation(hi);
-				doImplementation(s, er, se, hi, b.nested, State.simpleName(hi.hiName));
+				doImplementation(s, er, hi, b.nested, State.simpleName(hi.hiName));
 			} else if (o instanceof FunctionCaseDefn) {
-				functions.add(new FCDWrapper(b.nested, (FunctionCaseDefn) o));
+				FunctionCaseDefn fcd = (FunctionCaseDefn) o;
+				inner.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
 			} else if (o instanceof FunctionIntro) {
 				// TODO: this code has never been tested in anger
 				// It was cut-and-paste from the Scope version
@@ -539,23 +553,25 @@ public class FLASStory {
 				if (arr == null)
 					continue;
 				Block lastBlock = (Block) arr[1];
-				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, fi.name, fi.args, arr[0]);
-				functions.add(new FCDWrapper(lastBlock.nested, fcd));
+				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, s.kind, fi.name, fi.args, arr[0]);
+				inner.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
 //				if (!lastBlock.nested.isEmpty()) {
 //					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+37, s.kind), lastBlock.nested);
 //				}
 			} else if (o instanceof MethodCaseDefn) {
-				methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) o));
+				MethodCaseDefn mcd = (MethodCaseDefn) o;
+				inner.define(State.simpleName(mcd.methodName()), mcd.methodName(), mcd);
 			} else if (o instanceof EventCaseDefn) {
-				events.add(new ECDWrapper(b.nested, (EventCaseDefn) o));
+				EventCaseDefn ecd = (EventCaseDefn) o;
+				inner.define(State.simpleName(ecd.methodName()), ecd.methodName(), ecd);
 			} else if (o instanceof ContractDecl) {
 				er.message(((ContractDecl)o).location(), "cannot embed contract declarations in a card");
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
-		gatherFunctions(er, s, cd.innerScope(), functions);
-		gatherStandaloneMethods(er, s, cd.innerScope(), methods);
-		defineEventMethods(er, s, cd, events);
+//		gatherFunctions(er, s, cd.innerScope(), functions);
+//		gatherStandaloneMethods(er, s, cd.innerScope(), methods);
+//		defineEventMethods(er, s, cd, events);
 //		if (!templates.isEmpty())
 		if (er.hasErrors())
 			return;
@@ -1006,7 +1022,7 @@ public class FLASStory {
 		throw new UtilException("Cannot handle: " + sub + ": " + sub.getClass());
 	}
 
-	private void doImplementation(State s, ErrorResult er, ScopeEntry se, Implements impl, List<Block> nested, String clz) {
+	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested, String clz) {
 		FunctionParser fp = new FunctionParser(new State(s.scope, s.withPkg(clz), s.kind));
 		List<MCDWrapper> cases = new ArrayList<MCDWrapper>();
 		for (Block b : nested) {
@@ -1044,7 +1060,7 @@ public class FLASStory {
 			MethodDefinition md = new MethodDefinition(x.getValue().get(0).starter.intro, new ArrayList<MethodCaseDefn>());
 			impl.addMethod(md);
 			for (MCDWrapper q : x.getValue()) {
-				MethodCaseDefn mcd = new MethodCaseDefn(se, q.starter, -1);
+				MethodCaseDefn mcd = new MethodCaseDefn(q.starter, -1);
 				md.cases.add(mcd);
 				handleMessageMethods(er, mcd, q.nested);
 			}

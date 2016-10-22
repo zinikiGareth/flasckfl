@@ -1,9 +1,11 @@
 package org.flasck.flas.parsedForm;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
@@ -53,26 +55,28 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 		}
 	}
 
-	private final Map<String, ScopeEntry> defns = new LinkedHashMap<String, ScopeEntry>();
-	public final ScopeEntry outerEntry;
+	private final List<ScopeEntry> defns = new ArrayList<ScopeEntry>();
+	private final Map<String, String> fullNames = new TreeMap<String, String>();
 	public final Object container;
 
-	public Scope(ScopeEntry inside, Object container) {
-		this.outerEntry = inside;
+	public Scope(Object container) {
 		this.container = container;
 	}
 	
 	public boolean contains(String key) {
-		return defns.containsKey(key);
+		return fullNames.containsKey(key);
+	}
+
+	public String fullName(String key) {
+		return fullNames.get(key);
 	}
 
 	public ScopeEntry define(String key, String name, Object defn) {
 		if (key.contains("."))
 			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);
-		if (defns.containsKey(key))
-			throw new ScopeDefineException("Cannot provide multiple definitions of " + name);
 		ScopeEntry ret = new ScopeEntry(name, defn);
-		defns.put(key, ret);
+		defns.add(ret);
+		fullNames.put(key, name);
 		return ret;
 	}
 
@@ -82,23 +86,19 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 
 	@Override
 	public Iterator<ScopeEntry> iterator() {
-		return defns.values().iterator();
+		return defns.iterator();
 	}
 
-	public ScopeEntry getEntry(String key) {
-		if (!defns.containsKey(key))
-			return null;
-		return defns.get(key);
+	public String caseName(String name) {
+		int cs = 0;
+		for (ScopeEntry se : this)
+			if (se.name.equals(name))
+				cs++;
+		return name +"_"+ cs;
 	}
 
 	@Override
 	public String toString() {
 		return defns.toString();
-	}
-
-	public String fullName(String name) {
-		if (outerEntry != null)
-			return outerEntry.name + "." + name;
-		return name;
 	}
 }

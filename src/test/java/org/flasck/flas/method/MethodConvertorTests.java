@@ -69,7 +69,7 @@ public class MethodConvertorTests {
 		ImportPackage biscope = Builtin.builtins();
 		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
 		RWStructDefn send = (RWStructDefn) biscope.get("Send");
-		orgFooScope = new Scope(null, null);
+		orgFooScope = new Scope(null);
 		orgFooScope.define("doSend", "org.foo.doSend", Type.function(null, any, send));
 		{
 			ContractDecl contract1 = new ContractDecl(null, null, "org.foo.Contract1");

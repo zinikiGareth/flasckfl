@@ -3,10 +3,11 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.exceptions.UtilException;
 
-public class MethodCaseDefn implements MessagesHandler, ContainsScope {
+public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope {
 	public final FunctionIntro intro;
 	private final int cs;
 	public final List<MethodMessage> messages = new ArrayList<MethodMessage>();
@@ -18,10 +19,15 @@ public class MethodCaseDefn implements MessagesHandler, ContainsScope {
 		scope = null;
 	}
 	
-	public MethodCaseDefn(ScopeEntry entry, MethodCaseDefn mcd, int cs) {
-		this.scope = new Scope(entry, this);
+	public MethodCaseDefn(MethodCaseDefn mcd, int cs) {
+		this.scope = new Scope(this);
 		this.cs = cs;
 		this.intro = mcd.intro;
+	}
+
+	@Override
+	public InputPosition location() {
+		return intro.location;
 	}
 
 	public void addMessage(MethodMessage mm) {

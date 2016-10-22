@@ -276,7 +276,7 @@ public class Compiler {
 		boolean failed = false;
 		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
-		final Scope scope = new Scope(null, null);
+		final Scope scope = new Scope(null);
 		final List<String> pkgs = new ArrayList<String>();
 		pkgs.add(inPkg);
 		
@@ -503,7 +503,7 @@ public class Compiler {
 	public StoryRet parse(String inPkg, String input) {
 		ErrorResult er = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
-		final Scope scope = new Scope(null, null);
+		final Scope scope = new Scope(null);
 		StoryRet ret = new StoryRet(er, scope);
 		StringReader r = null;
 		try {

@@ -29,7 +29,6 @@ import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
@@ -231,9 +230,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				pw.println("else");
 				dumpRecursive(pw.indent(), ie.elseExpr);
 			}
-		} else if (obj instanceof FunctionDefinition) {
-			for (FunctionCaseDefn fcd : ((FunctionDefinition) obj).cases)
-				dumpRecursive(pw, fcd);
+//		} else if (obj instanceof FunctionDefinition) {
+//			for (FunctionCaseDefn fcd : ((FunctionDefinition) obj).cases)
+//				dumpRecursive(pw, fcd);
 		} else if (obj instanceof FunctionCaseDefn) {
 			FunctionCaseDefn fcd = (FunctionCaseDefn) obj;
 			pw.println(fcd.intro.name);

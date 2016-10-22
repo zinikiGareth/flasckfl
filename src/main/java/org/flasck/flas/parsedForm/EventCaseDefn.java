@@ -22,7 +22,11 @@ public class EventCaseDefn implements MessagesHandler, ContainsScope {
 	public EventCaseDefn(ScopeEntry se, EventCaseDefn starter) {
 		this.kw = starter.kw;
 		this.intro = starter.intro;
-		this.scope = new Scope(se, this);
+		this.scope = new Scope(this);
+	}
+	
+	public String methodName() {
+		return intro.name;
 	}
 
 	public void addMessage(MethodMessage mm) {
