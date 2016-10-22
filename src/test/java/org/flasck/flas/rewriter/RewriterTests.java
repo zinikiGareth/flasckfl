@@ -16,11 +16,9 @@ import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
-import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
-import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -224,12 +222,9 @@ public class RewriterTests {
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(null, false, new TypeReference(null, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
-		List<EventCaseDefn> ecds = new ArrayList<EventCaseDefn>();
-		EventHandlerDefinition ehd = new EventHandlerDefinition(new FunctionIntro(null, "ME.MyCard.eh", new ArrayList<Object>()), ecds);
-		EventCaseDefn ecd1 = new EventCaseDefn(null, ehd.intro);
-		ecds.add(ecd1);
+		EventCaseDefn ecd1 = new EventCaseDefn(null, new FunctionIntro(null, "ME.MyCard.eh", new ArrayList<Object>()));
 		ecd1.messages.add(new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
-		cd.fnScope.define("eh", "ME.MyCard.eh", ehd);
+		cd.fnScope.define("eh", "ME.MyCard.eh", ecd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope("ME", scope);
 		errors.showTo(new PrintWriter(System.out), 0);

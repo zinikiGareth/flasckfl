@@ -33,7 +33,6 @@ import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
-import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Scope;
@@ -266,10 +265,6 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println("handler " + hi.name() + " " + hi.hiName + " (" + (hi.inCard?"card":"free") + ")");
 			dumpList(pw, hi.boundVars);
 			dumpList(pw, hi.methods);
-		} else if (obj instanceof MethodDefinition) {
-			MethodDefinition md = (MethodDefinition) obj;
-			pw.println("method " + md.intro.name);
-			dumpList(pw, md.cases);
 		} else if (obj instanceof MethodCaseDefn) {
 			MethodCaseDefn mcd = (MethodCaseDefn) obj;
 			pw.println("case " + mcd.caseName());

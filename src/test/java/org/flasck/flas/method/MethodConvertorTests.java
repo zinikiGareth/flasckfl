@@ -23,12 +23,10 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
-import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
-import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -501,9 +499,7 @@ public class MethodConvertorTests {
 		EventCaseDefn cs = new EventCaseDefn(null, intro);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);
-		cases.add(cs);
-		EventHandlerDefinition ev = new EventHandlerDefinition(intro, cases);
-		s.define(name, intro.name, ev);
+		s.define(name, intro.name, cs);
 	}
 	
 	// the other cases are where it's just <- ...
