@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.zinutils.exceptions.UtilException;
 
 public class EventCaseDefn implements MessagesHandler, ContainsScope {
@@ -12,16 +11,11 @@ public class EventCaseDefn implements MessagesHandler, ContainsScope {
 	public final FunctionIntro intro;
 	public final List<MethodMessage> messages = new ArrayList<MethodMessage>();
 	private final Scope scope;
+	private String caseName;
 
 	public EventCaseDefn(InputPosition kw, FunctionIntro fi) {
 		this.kw = kw;
 		intro = fi;
-		this.scope = null;
-	}
-
-	public EventCaseDefn(ScopeEntry se, EventCaseDefn starter) {
-		this.kw = starter.kw;
-		this.intro = starter.intro;
 		this.scope = new Scope(this);
 	}
 	
@@ -29,6 +23,14 @@ public class EventCaseDefn implements MessagesHandler, ContainsScope {
 		return intro.name;
 	}
 
+	public void provideCaseName(String caseName) {
+		this.caseName = caseName;
+	}
+
+	public String caseName() {
+		return caseName;
+	}
+	
 	public void addMessage(MethodMessage mm) {
 		if (scope == null)
 			throw new UtilException("Cannot add messages to starter version");

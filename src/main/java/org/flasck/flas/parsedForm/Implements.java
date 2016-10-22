@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
 public class Implements implements Locatable {
-	public final List<MethodDefinition> methods = new ArrayList<MethodDefinition>();
+	public final List<MethodCaseDefn> methods = new ArrayList<MethodCaseDefn>();
 	public final InputPosition kw;
 	private InputPosition location;
 	private String name;
@@ -27,7 +27,7 @@ public class Implements implements Locatable {
 		return name;
 	}
 
-	public void addMethod(MethodDefinition meth) {
+	public void addMethod(MethodCaseDefn meth) {
 		methods.add(meth);
 	}
 	

@@ -9,22 +9,15 @@ import org.zinutils.exceptions.UtilException;
 
 public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope {
 	public final FunctionIntro intro;
-	private final int cs;
 	public final List<MethodMessage> messages = new ArrayList<MethodMessage>();
 	public final Scope scope;
+	private String caseName;
 
-	public MethodCaseDefn(FunctionIntro fi, int cs) {
+	public MethodCaseDefn(FunctionIntro fi) {
 		intro = fi;
-		this.cs = cs;
-		scope = null;
+		scope = new Scope(this);
 	}
 	
-	public MethodCaseDefn(MethodCaseDefn mcd, int cs) {
-		this.scope = new Scope(this);
-		this.cs = cs;
-		this.intro = mcd.intro;
-	}
-
 	@Override
 	public InputPosition location() {
 		return intro.location;
@@ -40,13 +33,14 @@ public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope
 		return intro.name;
 	}
 
-	public String caseName() {
-		if (cs == -1)
-			return intro.name;
-		else
-			return intro.name +"_" + cs;
+	public void provideCaseName(String caseName) {
+		this.caseName = caseName;
 	}
 
+	public String caseName() {
+		return caseName;
+	}
+	
 	public int nargs() {
 		return intro.args.size();
 	}

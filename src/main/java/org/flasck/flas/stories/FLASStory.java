@@ -3,7 +3,6 @@ package org.flasck.flas.stories;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -29,6 +28,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
@@ -42,7 +42,6 @@ import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.D3Thing;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
-import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionClause;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -51,13 +50,11 @@ import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MessagesHandler;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
-import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMember;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -84,7 +81,6 @@ import org.flasck.flas.parser.TupleDeclarationParser;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
 public class FLASStory {
@@ -159,8 +155,6 @@ public class FLASStory {
 			return null;
 
 		Scope ret = s.scope;
-//		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
-//		List<FCDWrapper> fndefns = new ArrayList<FCDWrapper>();
 		for (Block b : blocks) {
 			if (b.isComment())
 				continue;
@@ -184,21 +178,25 @@ public class FLASStory {
 					if (!b.nested.isEmpty()) {
 						doScope(er, new State(fcd.innerScope(), caseName, s.kind), b.nested);
 					}
-
-//					fndefns.add(new FCDWrapper(b.nested, fcd));
 				} else if (o instanceof FunctionIntro) {
 					FunctionIntro fi = (FunctionIntro) o;
+					String caseName = ret.caseName(fi.name);
 					Object[] arr = doCompoundFunction(er, b, fi);
 					if (arr == null)
 						continue;
 					Block lastBlock = (Block) arr[1];
 					FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, s.kind, fi.name, fi.args, arr[0]);
+					fcd.provideCaseName(caseName);
 					ret.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
-//					fndefns.add(new FCDWrapper(lastBlock.nested, fcd));
+					if (!lastBlock.nested.isEmpty()) {
+						doScope(er, new State(fcd.innerScope(), caseName, s.kind), lastBlock.nested);
+					}
 				} else if (o instanceof MethodCaseDefn) {
 					MethodCaseDefn mcd = (MethodCaseDefn)o;
+					String caseName = ret.caseName(mcd.methodName());
+					mcd.provideCaseName(caseName);
 					ret.define(State.simpleName(mcd.methodName()), mcd.methodName(), mcd);
-//					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) o));
+					addMethodMessages(er, mcd, b.nested);
 				} else if (o instanceof TupleAssignment) {
 					TupleAssignment ta = (TupleAssignment) o;
 					int k=0;
@@ -237,9 +235,6 @@ public class FLASStory {
 		}
 		if (er.hasErrors())
 			return er;
-		
-//		gatherFunctions(er, s, ret, fndefns);
-//		gatherStandaloneMethods(er, s, ret, methods);
 		
 		if (er.hasErrors())
 			return er;
@@ -287,83 +282,21 @@ public class FLASStory {
 		return new Object[] { expr, lastBlock };
 	}
 
-	/*
-	protected void gatherFunctions(ErrorResult er, State s, Scope ret, List<FCDWrapper> fndefns) {
-		ListMap<String, FCDWrapper> groups = new ListMap<String, FCDWrapper>();
-		String cfn = null;
-		int pnargs = 0;
-		for (FCDWrapper w : fndefns) {
-			FunctionCaseDefn fcd = w.starter;
-			// group together all function defns for a given function
-			String n = fcd.intro.name;
-			if (cfn == null || !cfn.equals(n)) {
-				cfn = n;
-				pnargs = fcd.intro.args.size();
-				if (groups.contains(cfn))
-					er.message((Tokenizable)null, "split definition of function " + cfn);
-				else if (ret.contains(cfn))
-					er.message((Tokenizable)null, "duplicate definition of " + cfn);
-			} else if (fcd.intro.args.size() != pnargs)
-				er.message((Block)null, "inconsistent numbers of arguments in definitions of " + cfn);
-			groups.add(cfn, w);
-		}
-		for (Entry<String, List<FCDWrapper>> x : groups.entrySet()) {
-			FunctionDefinition fd = new FunctionDefinition(x.getValue().get(0).starter.intro.location, s.kind, x.getValue().get(0).starter.intro);
-			ScopeEntry me = ret.define(State.simpleName(x.getKey()), x.getKey(), fd);
-			int cs = 0;
-			for (FCDWrapper q : x.getValue()) {
-				FunctionCaseDefn fcd = new FunctionCaseDefn(me, q.starter, cs);
-				fd.cases.add(fcd);
-				if (!q.nested.isEmpty())
-					doScope(er, new State(fcd.innerScope(), fcd.intro.name+"_"+cs, s.kind), q.nested);
-				cs++;
-			}
-		}
-	}
-
-	protected void gatherStandaloneMethods(ErrorResult er, State s, Scope ret, List<MCDWrapper> methods) {
-		ListMap<String, MCDWrapper> groups = new ListMap<String, MCDWrapper>();
-		String cfn = null;
-		int pnargs = 0;
-
-		for (MCDWrapper w : methods) {
-			// group together all function defns for a given function
-			MethodCaseDefn mcd = w.starter;
-			String n = mcd.methodName();
-			if (cfn == null || !cfn.equals(n)) {
-				cfn = n;
-				pnargs = mcd.nargs();
-				if (groups.contains(cfn))
-					er.message((Tokenizable)null, "split definition of function " + cfn);
-				else if (ret.contains(cfn))
-					er.message((Tokenizable)null, "duplicate definition of " + cfn);
-			} else if (mcd.nargs() != pnargs)
-				er.message((Block)null, "inconsistent numbers of arguments in definitions of " + cfn);
-			groups.add(cfn, w);
-		}
+	public void addMethodMessages(ErrorResult er, MethodCaseDefn mcd, List<Block> nested) {
 		MethodMessageParser mmp = new MethodMessageParser();
-		for (Entry<String, List<MCDWrapper>> x : groups.entrySet()) {
-			MethodDefinition md = new MethodDefinition(x.getValue().get(0).starter.intro, new ArrayList<MethodCaseDefn>());
-			ret.define(State.simpleName(x.getKey()), x.getKey(), md);
-			for (MCDWrapper q : x.getValue()) {
-				MethodCaseDefn mcd = new MethodCaseDefn(q.starter, md.cases.size());
-				md.cases.add(mcd);
-				for (Block b : q.nested) {
-					assertNoNonCommentNestedLines(er, b);
-					Object ibo = mmp.tryParsing(new Tokenizable(b.line));
-					if (ibo == null)
-						er.message(b, "expected method message");
-					else if (ibo instanceof ErrorResult)
-						er.merge((ErrorResult) ibo);
-					else if (!(ibo instanceof MethodMessage))
-						er.message(b, "expected method message");
-					else
-						mcd.messages.add((MethodMessage) ibo);
-				}
-			}
+		for (Block b : nested) {
+			assertNoNonCommentNestedLines(er, b);
+			Object ibo = mmp.tryParsing(new Tokenizable(b.line));
+			if (ibo == null)
+				er.message(b, "expected method message");
+			else if (ibo instanceof ErrorResult)
+				er.merge((ErrorResult) ibo);
+			else if (!(ibo instanceof MethodMessage))
+				er.message(b, "expected method message");
+			else
+				mcd.messages.add((MethodMessage) ibo);
 		}
 	}
-	*/
 
 	private void doStructFields(ErrorResult er, StructDefn sd, List<Block> fields) {
 		FieldParser fp = new FieldParser(FieldParser.CARD);
@@ -385,8 +318,6 @@ public class FLASStory {
 	private void doObjectMembers(ErrorResult er, State s, ObjectDefn sd, List<Block> nested) {
 		ObjectMemberParser omp = new ObjectMemberParser(s);
 		FunctionParser fp = new FunctionParser(s);
-//		List<FCDWrapper> ctors = new ArrayList<FCDWrapper>();
-//		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;
@@ -402,14 +333,19 @@ public class FLASStory {
 				case ObjectMember.CTOR: {
 					if (omm.what instanceof FunctionIntro)
 						throw new UtilException("Should work, but not implemented: see other FunctionIntro cases in FLASStory and doCompoundFunction, but I think everything is broken");
-					// TODO: simplify-parsing
-//					else if (omm.what instanceof FunctionCaseDefn)
-//						ctors.add(new FCDWrapper(b.nested, (FunctionCaseDefn) omm.what));
+					else if (omm.what instanceof FunctionCaseDefn) {
+						FunctionCaseDefn fcd = (FunctionCaseDefn) omm.what;
+						String caseName = sd.innerScope().caseName(fcd.intro.name);
+						fcd.provideCaseName(caseName);
+						sd.innerScope().define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
+						if (!b.nested.isEmpty()) {
+							doScope(er, new State(fcd.innerScope(), caseName, s.kind), b.nested);
+						}
+					}
 					else
 						er.message(b, "syntax error");
 					break;
 				}
-				// TODO: simplify-parsing
 //					else if (om instanceof MethodCaseDefn)
 //						methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
 				default: {
@@ -425,8 +361,6 @@ public class FLASStory {
 					er.message(b, "syntax error");
 			}
 		}
-//		gatherFunctions(er, s, sd.innerScope(), ctors);
-//		gatherStandaloneMethods(er, s, sd.innerScope(), methods);
 	}
 
 	private void doContractMethods(ErrorResult er, ContractDecl cd, List<Block> methods) {
@@ -448,9 +382,6 @@ public class FLASStory {
 
 	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
 		IntroParser ip = new IntroParser(s);
-//		List<FCDWrapper> functions = new ArrayList<FCDWrapper>();
-//		List<MCDWrapper> methods = new ArrayList<MCDWrapper>();
-//		List<ECDWrapper> events = new ArrayList<ECDWrapper>();
 		Scope inner = cd.innerScope();
 		int cs = 0;
 		int ss = 0;
@@ -546,17 +477,19 @@ public class FLASStory {
 				// TODO: this code has never been tested in anger
 				// It was cut-and-paste from the Scope version
 				// It may not quite "fit" here
-				// In particular, "37" is a magic number, but better than cs++ which interfered with the local contract number
 				FunctionIntro fi = (FunctionIntro) o;
 				Object[] arr = doCompoundFunction(er, b, fi);
 				if (arr == null)
 					continue;
 				Block lastBlock = (Block) arr[1];
 				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, s.kind, fi.name, fi.args, arr[0]);
+				Scope is = ((ContainsScope)o).innerScope();
+				String caseName = is.caseName(fcd.intro.name);
+				fcd.provideCaseName(caseName);
 				inner.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
-//				if (!lastBlock.nested.isEmpty()) {
-//					doScope(er, new State(((ContainsScope)o).innerScope(), fcd.intro.name+"_"+37, s.kind), lastBlock.nested);
-//				}
+				if (!lastBlock.nested.isEmpty()) {
+					doScope(er, new State(is, fcd.caseName(), s.kind), lastBlock.nested);
+				}
 			} else if (o instanceof MethodCaseDefn) {
 				MethodCaseDefn mcd = (MethodCaseDefn) o;
 				inner.define(State.simpleName(mcd.methodName()), mcd.methodName(), mcd);
@@ -568,10 +501,6 @@ public class FLASStory {
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
-//		gatherFunctions(er, s, cd.innerScope(), functions);
-//		gatherStandaloneMethods(er, s, cd.innerScope(), methods);
-//		defineEventMethods(er, s, cd, events);
-//		if (!templates.isEmpty())
 		if (er.hasErrors())
 			return;
 		cd.template = new Template(cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()));
@@ -1023,7 +952,6 @@ public class FLASStory {
 
 	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested, String clz) {
 		FunctionParser fp = new FunctionParser(new State(s.scope, s.withPkg(clz), s.kind));
-		List<MCDWrapper> cases = new ArrayList<MCDWrapper>();
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;
@@ -1033,63 +961,11 @@ public class FLASStory {
 			else if (o instanceof ErrorResult)
 				er.merge((ErrorResult) o);
 			else if (o instanceof FunctionIntro) {
-				FunctionIntro meth = (FunctionIntro)o;
-				MethodCaseDefn mcd = new MethodCaseDefn(meth, impl == null ? -1 : cases.size());
-				cases.add(new MCDWrapper(b.nested, mcd));
+				MethodCaseDefn mcd = new MethodCaseDefn((FunctionIntro)o);
+				impl.addMethod(mcd);
+				handleMessageMethods(er, mcd, b.nested);
 			} else
 				er.message(b, "cannot handle " + o.getClass());
-		}
-
-		ListMap<String, MCDWrapper> groups = new ListMap<String, MCDWrapper>();
-		String cfn = null;
-		int pnargs = 0;
-		for (MCDWrapper q : cases) {
-			MethodCaseDefn fcd = q.starter;
-			String n = fcd.methodName();
-			if (cfn == null || !cfn.equals(n)) {
-				cfn = n;
-				pnargs = fcd.nargs();
-				if (groups.contains(cfn))
-					er.message((Tokenizable)null, "split definition of function " + cfn);
-			} else if (fcd.nargs() != pnargs)
-				er.message((Tokenizable)null, "inconsistent numbers of arguments in definitions of " + cfn);
-			groups.add(cfn, q);
-		}
-		for (Entry<String, List<MCDWrapper>> x : groups.entrySet()) {
-			MethodDefinition md = new MethodDefinition(x.getValue().get(0).starter.intro, new ArrayList<MethodCaseDefn>());
-			impl.addMethod(md);
-			for (MCDWrapper q : x.getValue()) {
-				MethodCaseDefn mcd = new MethodCaseDefn(q.starter, -1);
-				md.cases.add(mcd);
-				handleMessageMethods(er, mcd, q.nested);
-			}
-		}
-	}
-
-	private void defineEventMethods(ErrorResult er, State s, CardDefinition cd, List<ECDWrapper> events) {
-		ListMap<String, ECDWrapper> groups = new ListMap<String, ECDWrapper>();
-		String cfn = null;
-		int pnargs = 0;
-		for (ECDWrapper q : events) {
-			EventCaseDefn ecd = q.starter;
-			String n = ecd.intro.name;
-			if (cfn == null || !cfn.equals(n)) {
-				cfn = n;
-				pnargs = ecd.intro.args.size();
-				if (groups.contains(cfn))
-					er.message((Tokenizable)null, "split definition of function " + cfn);
-			} else if (ecd.intro.args.size() != pnargs)
-				er.message((Tokenizable)null, "inconsistent numbers of arguments in definitions of " + cfn);
-			groups.add(cfn, q);
-		}
-		for (Entry<String, List<ECDWrapper>> x : groups.entrySet()) {
-			EventHandlerDefinition ehd = new EventHandlerDefinition(x.getValue().get(0).starter.intro, new ArrayList<EventCaseDefn>());
-			ScopeEntry se = cd.innerScope().define(State.simpleName(x.getKey()), x.getKey(), ehd);
-			for (ECDWrapper q : x.getValue()) {
-				EventCaseDefn ecd = new EventCaseDefn(se, q.starter);
-				ehd.cases.add(ecd);
-				handleMessageMethods(er, ecd, q.nested);
-			}
 		}
 	}
 

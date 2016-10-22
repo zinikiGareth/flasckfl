@@ -572,9 +572,8 @@ public class Rewriter {
 			} else if (val instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements) val;
 				pass1HI(cx, hi);
-				for (MethodDefinition m : hi.methods)
-					for (MethodCaseDefn c : m.cases)
-						pass1(cx, c.innerScope());
+				for (MethodCaseDefn c : hi.methods)
+					pass1(cx, c.innerScope());
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -628,10 +627,10 @@ public class Rewriter {
 				rewriteCard(cx, (CardDefinition)val);
 			else if (val instanceof FunctionCaseDefn)
 				rewrite(cx, (FunctionCaseDefn)val);
-			else if (val instanceof MethodDefinition) {
-				rewriteStandaloneMethod(cx, from, (MethodDefinition)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE);
-			} else if (val instanceof EventHandlerDefinition)
-				rewrite(cx, (EventHandlerDefinition)val);
+			else if (val instanceof MethodCaseDefn) {
+				rewriteStandaloneMethod(cx, from, (MethodCaseDefn)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE);
+			} else if (val instanceof EventCaseDefn)
+				rewrite(cx, (EventCaseDefn)val);
 			else if (val instanceof StructDefn || val instanceof UnionTypeDefn || val instanceof ContractDecl) {
 				// these all got sorted out already in the first two passes
 			} else if (val instanceof ObjectDefn) {
@@ -672,14 +671,16 @@ public class Rewriter {
 			if (rw.referAsVar != null)
 				sd.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 
-			for (MethodDefinition m : ci.methods) {
-				RWMethodDefinition rwm = new RWMethodDefinition(m.location(), m.intro.name, m.intro.args.size());
+			for (MethodCaseDefn c : ci.methods) {
+				if (methods.containsKey(c.intro.name))
+					throw new UtilException("Error or exception?  I think this is two methods with the same name");
+				RWMethodDefinition rwm = new RWMethodDefinition(c.location(), c.intro.name, c.intro.args.size());
 				List<Object> enc = new ArrayList<>();
 				// I don't think there can be
 //				gatherEnclosing(enc, cx, from);
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.CONTRACT, rwm, enc);
-				rewriteMethodCases(c2, m, true, mic, false);
-				methods.put(m.intro.name, mic);
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, rw.location(), rw.name(), c.intro.name, HSIEForm.CodeType.CONTRACT, rwm, enc);
+				rewriteCase(c2, mic, c, true, false);
+				methods.put(c.intro.name, mic);
 				rw.methods.add(rwm);
 			}
 			
@@ -697,14 +698,16 @@ public class Rewriter {
 			if (rw.referAsVar != null)
 				sd.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
 
-			for (MethodDefinition m : cs.methods) {
-				RWMethodDefinition rwm = new RWMethodDefinition(m.intro.location, m.intro.name, m.intro.args.size());
+			for (MethodCaseDefn c : cs.methods) {
+				if (methods.containsKey(c.intro.name))
+					throw new UtilException("Error or exception?  I think this is two methods with the same name");
+				RWMethodDefinition rwm = new RWMethodDefinition(c.intro.location, c.intro.name, c.intro.args.size());
 				List<Object> enc = new ArrayList<>();
 				// I don't think there can be
 //				gatherEnclosing(enc, cx, from);
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.UP, rw.location(), rw.name(), m.intro.name, HSIEForm.CodeType.SERVICE, rwm, enc);
-				rewriteMethodCases(c2, m, true, mic, false);
-				methods.put(m.intro.name, mic);
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.UP, rw.location(), rw.name(), c.intro.name, HSIEForm.CodeType.SERVICE, rwm, enc);
+				rewriteCase(c2, mic, c, true, false);
+				methods.put(c.intro.name, mic);
 			}
 
 			pos++;
@@ -981,14 +984,16 @@ public class Rewriter {
 			if (ret == null)
 				return; // presumably it failed in pass1
 			HandlerContext hc = new HandlerContext(cx, ret);
-			for (MethodDefinition m : hi.methods) {
-				RWMethodDefinition rm = new RWMethodDefinition(m.intro.location, m.intro.name, m.intro.args.size());
+			for (MethodCaseDefn c : hi.methods) {
+				if (methods.containsKey(c.intro.name))
+					throw new UtilException("Error or exception?  I think this is two methods with the same name");
+				RWMethodDefinition rm = new RWMethodDefinition(c.intro.location, c.intro.name, c.intro.args.size());
 				List<Object> enc = new ArrayList<>();
 				gatherEnclosing(enc, cx, scope);
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), m.intro.name, HSIEForm.CodeType.HANDLER, rm, enc);
-				rewriteMethodCases(hc, m, true, mic, false);
+				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), c.intro.name, HSIEForm.CodeType.HANDLER, rm, enc);
+				rewriteCase(hc, mic, c, true, false);
 				ret.methods.add(rm);
-				methods.put(m.intro.name, mic);
+				methods.put(c.intro.name, mic);
 			}
 
 			// Create a struct to store the state.  It feels weird creating a struct in pass3, but we don't creating the bound vars for scoped/lambdas
@@ -1024,33 +1029,23 @@ public class Rewriter {
 		ret.cases.add(rwc);
 	}
 
-	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodDefinition m, HSIEForm.CodeType codeType) {
-		rewriteMethodCases(cx, m, false, standalone.get(m.intro.name), true);
+	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodCaseDefn c, HSIEForm.CodeType codeType) {
+		rewriteCase(cx, standalone.get(c.intro.name), c, false, true);
 	}
 	
-	private void rewriteMethodCases(NamingContext cx, MethodDefinition m, boolean fromHandler, MethodInContext mic, boolean useCases) {
-		int cs = 0;
-		for (MethodCaseDefn c : m.cases) {
-			Map<String, LocalVar> vars = new HashMap<>();
-			String name = useCases ? m.intro.name + "_" + cs : m.intro.name;
-			gatherVars(errors, this, cx, name, vars, m.intro);
-			// TODO: simplify-parsing
-//			mic.method.cases.add(rewrite(new FunctionCaseContext(cx, m.intro.name, cs, vars, c.innerScope(), fromHandler), c, vars));
-			cs++;
-		}
+	protected void rewriteCase(NamingContext cx, MethodInContext mic, MethodCaseDefn c, boolean fromHandler, boolean useCases) {
+		Map<String, LocalVar> vars = new HashMap<>();
+		String name = useCases ? c.caseName() : c.methodName();
+		gatherVars(errors, this, cx, name, vars, c.intro);
+		mic.method.cases.add(rewrite(new FunctionCaseContext(cx, c.caseName(), vars, c.innerScope(), fromHandler), c, vars));
 	}
 
-	private void rewrite(NamingContext cx, EventHandlerDefinition ehd) {
-		EventHandlerInContext ehic = eventHandlers.get(ehd.intro.name);
+	private void rewrite(NamingContext cx, EventCaseDefn c) {
+		EventHandlerInContext ehic = eventHandlers.get(c.intro.name);
 		RWEventHandlerDefinition rw = ehic.handler;
-		int cs = 0;
-		for (EventCaseDefn c : ehd.cases) {
-			Map<String, LocalVar> vars = new HashMap<>();
-			gatherVars(errors, this, cx, rw.name(), vars, ehd.intro);
-			// TODO: simplify-parsing
-//			rw.cases.add(rewrite(new FunctionCaseContext(cx, ehd.intro.name +"_" + cs, cs, vars, c.innerScope(), false), c, vars));
-			cs++;
-		}
+		Map<String, LocalVar> vars = new HashMap<>();
+		gatherVars(errors, this, cx, rw.name(), vars, c.intro);
+		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.caseName(), vars, c.innerScope(), false), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, StructDefn sd) {

@@ -489,13 +489,10 @@ public class MethodConvertorTests {
 	/* ---- Helper Methods ---- */
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
-		List<MethodCaseDefn> cases = new ArrayList<>();
-		MethodCaseDefn cs = new MethodCaseDefn(intro, -1);
+		MethodCaseDefn cs = new MethodCaseDefn(intro);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);
-		cases.add(cs);
-		MethodDefinition method = new MethodDefinition(intro, cases);
-		on.methods.add(method);
+		on.methods.add(cs);
 	}
 
 	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
