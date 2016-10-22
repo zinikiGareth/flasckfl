@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewriter.Rewriter.NamingContext;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
-public class MethodInContext {
+public class MethodInContext implements Locatable {
 	public static final int DOWN = 1;
 	public static final int UP = 2;
 	public static final int EVENT = 3;
@@ -30,5 +31,10 @@ public class MethodInContext {
 		this.type = type;
 		this.method = method;
 		this.enclosingPatterns.addAll(enclosing);
+	}
+
+	@Override
+	public InputPosition location() {
+		return method.location();
 	}
 }
