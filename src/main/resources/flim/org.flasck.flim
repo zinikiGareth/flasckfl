@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="org.flasck">
+    <Struct file="dom.fl" line="1" name="org.flasck.ChangeEvent" off="7">
+        <Field accessor="false" file="dom.fl" line="2" name="index" off="7">
+            <Builtin name="Number"/>
+        </Field>
+        <Field accessor="false" file="dom.fl" line="3" name="id" off="7">
+            <Builtin name="String"/>
+        </Field>
+        <Field accessor="false" file="dom.fl" line="4" name="value" off="7">
+            <Builtin name="String"/>
+        </Field>
+    </Struct>
+    <Struct file="dom.fl" line="6" name="org.flasck.DropEvent" off="7">
+        <Field accessor="false" file="dom.fl" line="7" name="file" off="7">
+            <Builtin name="String"/>
+        </Field>
+    </Struct>
+</FLIM>
