@@ -71,13 +71,12 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 		return fullNames.get(key);
 	}
 
-	public ScopeEntry define(String key, String name, Object defn) {
+	public void define(String key, String name, Object defn) {
 		if (key.contains("."))
 			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);
 		ScopeEntry ret = new ScopeEntry(name, defn);
 		defns.add(ret);
 		fullNames.put(key, name);
-		return ret;
 	}
 
 	public int size() {

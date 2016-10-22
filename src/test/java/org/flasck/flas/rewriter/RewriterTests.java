@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -37,7 +36,6 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
-import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.junit.Before;
 import org.junit.Test;

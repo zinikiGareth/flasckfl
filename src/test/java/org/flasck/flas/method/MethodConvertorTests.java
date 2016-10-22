@@ -495,7 +495,6 @@ public class MethodConvertorTests {
 
 	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card." + name, CollectionUtils.listOf((Object)new TypedPattern(null, new TypeReference(null, "Thing"), null, "t"), (Object)new VarPattern(null, "ev")));
-		List<EventCaseDefn> cases = new ArrayList<>();
 		EventCaseDefn cs = new EventCaseDefn(null, intro);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);
