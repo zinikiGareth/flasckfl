@@ -40,6 +40,6 @@ public class PushCmd extends PushReturn {
 
 	@Override
 	public String toString() {
-		return Justification.LEFT.format("PUSH " + textValue(), 60) + " " + location + " - also want location where the variable is actually used here";
+		return Justification.LEFT.format("PUSH " + textValue(), 60) + " #" + location + " - also want location where the variable is actually used here";
 	}
 }

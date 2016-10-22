@@ -14,7 +14,6 @@ import org.flasck.flas.blockForm.InputPosition;
  * @author Gareth Powell
  *
  */
-@SuppressWarnings("serial")
 public class TypeOfSomethingElse extends Type {
 
 	public TypeOfSomethingElse(InputPosition loc, String name) {

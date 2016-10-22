@@ -9,7 +9,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.template.Template;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.stories.FLASStory.State;
 
 public class CardDefinition implements ContainsScope, Locatable {
@@ -27,9 +26,9 @@ public class CardDefinition implements ContainsScope, Locatable {
 	public CardDefinition(InputPosition kw, InputPosition location, Scope outer, String name) {
 		this.kw = kw;
 		this.location = location;
-		ScopeEntry se = outer.define(State.simpleName(name), name, this);
+		outer.define(State.simpleName(name), name, this);
 		this.name = name;
-		this.fnScope = new Scope(se, this);
+		this.fnScope = new Scope(this);
 	}
 
 	@Override

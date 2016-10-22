@@ -48,7 +48,6 @@ import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -406,18 +405,18 @@ public class Rewriter {
 			if (bound.containsKey(name))
 				return bound.get(name); // a local var
 			if (inner.contains(name)) {
-				ScopeEntry tmp = inner.getEntry(name);
-				Object mf = tmp.getValue();
-				Object defn;
-				if (mf instanceof FunctionDefinition)
-					defn = functions.get(((FunctionDefinition) mf).name);
-				else if (mf instanceof MethodDefinition)
-					defn = standalone.get(((MethodDefinition) mf).intro.name);
-				else if (mf instanceof HandlerImplements)
-					defn = Rewriter.this.callbackHandlers.get(((HandlerImplements)mf).hiName);
-				else
-					throw new UtilException("Cannot handle " + mf.getClass());
-				return new VarNestedFromOuterFunctionScope(tmp.location(), tmp.getKey(), defn, true);
+				throw new UtilException("This is probably a multi-definition or else function-case case");
+//				Object mf = null; // tmp.getValue();
+//				Object defn;
+//				if (mf instanceof FunctionDefinition)
+//					defn = functions.get(((FunctionDefinition) mf).name);
+//				else if (mf instanceof MethodDefinition)
+//					defn = standalone.get(((MethodDefinition) mf).intro.name);
+//				else if (mf instanceof HandlerImplements)
+//					defn = Rewriter.this.callbackHandlers.get(((HandlerImplements)mf).hiName);
+//				else
+//					throw new UtilException("Cannot handle " + mf.getClass());
+//				return new VarNestedFromOuterFunctionScope(mf.location(), mf.getKey(), defn, true);
 			}
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
@@ -513,21 +512,32 @@ public class Rewriter {
 	
 	// Introduce new Definitions which we might reference with minimal amount of info
 	public void pass1(NamingContext cx, Scope from) {
-		for (Entry<String, ScopeEntry> x : from) {
-			String name = x.getValue().getKey();
-			Object val = x.getValue().getValue();
+		String prev = null;
+		for (ScopeEntry x : from) {
+			String name = x.getKey();
+			Object val = x.getValue();
 			if (val instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) val;
 				RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
 				CardGrouping grp = new CardGrouping(sd);
 				cards.put(cd.name, grp);
 				pass1(null, cd.fnScope);
-			} else if (val instanceof FunctionDefinition) {
-				FunctionDefinition f = (FunctionDefinition) val;
-				RWFunctionDefinition ret = new RWFunctionDefinition(f.location, f.mytype, f.name, f.nargs, true);
-				functions.put(name, ret);
-				for (FunctionCaseDefn c : f.cases)
-					pass1(cx, c.innerScope());
+			} else if (val instanceof FunctionCaseDefn) {
+				FunctionCaseDefn c = (FunctionCaseDefn) val;
+				String fn = c.functionName();
+				if (functions.containsKey(fn)) {
+					RWFunctionDefinition ret = functions.get(fn);
+					if (prev != null && !prev.equals(name))
+						errors.message(c.location(), "split function definition: " + fn);
+					if (ret.mytype != c.mytype())
+						errors.message(c.location(), "mismatched kinds in function " + fn);
+					if (ret.nargs != c.nargs())
+						errors.message(c.location(), "inconsistent argument counts in function " + fn);
+				} else {
+					RWFunctionDefinition ret = new RWFunctionDefinition(c.location(), c.mytype(), fn, c.nargs(), true);
+					functions.put(name, ret);
+				}
+				pass1(cx, c.innerScope());
 			} else if (val instanceof MethodDefinition) {
 				MethodDefinition m = (MethodDefinition) val;
 				RWMethodDefinition rw = new RWMethodDefinition(m.location(), m.intro.name, m.intro.args.size());
@@ -572,14 +582,15 @@ public class Rewriter {
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
 				throw new UtilException("Cannot handle " + name +": " + (val == null?"null":val.getClass()));
+			prev = name;
 		}
 	}
 
 	// Fill in definitions as much as we can from just here
 	public void pass2(NamingContext cx, Scope from) {
-		for (Entry<String, ScopeEntry> x : from) {
-			String name = x.getValue().getKey();
-			Object val = x.getValue().getValue();
+		for (ScopeEntry x : from) {
+			String name = x.getKey();
+			Object val = x.getValue();
 			if (val instanceof CardDefinition) {
 				try {
 					CardDefinition cd = (CardDefinition) val;
@@ -587,14 +598,15 @@ public class Rewriter {
 				} catch (ResolutionException ex) {
 					errors.message(ex.location, ex.getMessage());
 				}
-			} else if (val instanceof FunctionDefinition) {
-				FunctionDefinition fd = (FunctionDefinition) val;
-				int cs = 0;
-				for (FunctionCaseDefn c : fd.cases) {
-					FunctionCaseContext fccx = new FunctionCaseContext(cx, fd.name, cs, null, c.innerScope(), false);
-					pass2(fccx, c.innerScope());
-					cs++;
-				}
+			} else if (val instanceof FunctionCaseDefn) {
+				// TODO: simplify-parsing
+//				FunctionCaseDefn fd = (FunctionCaseDefn) val;
+//				int cs = 0;
+//				for (FunctionCaseDefn c : fd.cases) {
+//					FunctionCaseContext fccx = new FunctionCaseContext(cx, fd.name, cs, null, c.innerScope(), false);
+//					pass2(fccx, c.innerScope());
+//					cs++;
+//				}
 			} else if (val instanceof MethodDefinition) {
 			} else if (val instanceof EventHandlerDefinition) {
 				// Nothing to do in pass2 ... was set up in pass1 and will be resolved in pass3
@@ -617,13 +629,13 @@ public class Rewriter {
 
 	// Resolve things that still need doing & handle nested contexts
 	public void pass3(NamingContext cx, Scope from) {
-		for (Entry<String, ScopeEntry> x : from) {
-			String name = x.getValue().getKey();
-			Object val = x.getValue().getValue();
+		for (ScopeEntry x : from) {
+			String name = x.getKey();
+			Object val = x.getValue();
 			if (val instanceof CardDefinition)
 				rewriteCard(cx, (CardDefinition)val);
-			else if (val instanceof FunctionDefinition)
-				rewrite(cx, (FunctionDefinition)val);
+			else if (val instanceof FunctionCaseDefn)
+				rewrite(cx, (FunctionCaseDefn)val);
 			else if (val instanceof MethodDefinition) {
 				rewriteStandaloneMethod(cx, from, (MethodDefinition)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE);
 			} else if (val instanceof EventHandlerDefinition)
@@ -1011,15 +1023,16 @@ public class Rewriter {
 			return o;
 	}
 
-	public void rewrite(NamingContext cx, FunctionDefinition f) {
-		RWFunctionDefinition ret = functions.get(f.name);
-		for (FunctionCaseDefn c : f.cases) {
-			final Map<String, LocalVar> vars = new HashMap<>();
-			gatherVars(errors, this, cx, c.caseName(), vars, c.intro);
-			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, ret.cases.size(), vars, c.innerScope(), false);
-			RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
-			ret.cases.add(rwc);
-		}
+	public void rewrite(NamingContext cx, FunctionCaseDefn f) {
+		// TODO: simplify-parsing
+//		RWFunctionDefinition ret = functions.get(f.name);
+//		for (FunctionCaseDefn c : f.cases) {
+//			final Map<String, LocalVar> vars = new HashMap<>();
+//			gatherVars(errors, this, cx, c.caseName(), vars, c.intro);
+//			FunctionCaseContext fccx = new FunctionCaseContext(cx, f.name, ret.cases.size(), vars, c.innerScope(), false);
+//			RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
+//			ret.cases.add(rwc);
+//		}
 	}
 
 	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodDefinition m, HSIEForm.CodeType codeType) {
@@ -1432,7 +1445,7 @@ public class Rewriter {
 		if (s == null)
 			return;
 		if (s.container != null) {
-			gatherEnclosing(enclosingPatterns, cx, s.outer);
+			gatherEnclosing(enclosingPatterns, cx, null);
 			Object ctr = s.container;
 			if (ctr instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fn = (FunctionCaseDefn)ctr;

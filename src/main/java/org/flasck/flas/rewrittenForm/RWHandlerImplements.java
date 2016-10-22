@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-@SuppressWarnings("serial")
 public class RWHandlerImplements extends RWImplements {
 	public final String hiName;
 	public final List<HandlerLambda> boundVars;

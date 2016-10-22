@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.TypeWithMethods;
 
-@SuppressWarnings("serial")
 public class RWImplements extends TypeWithMethods {
 	public final List<RWMethodDefinition> methods = new ArrayList<RWMethodDefinition>();
 

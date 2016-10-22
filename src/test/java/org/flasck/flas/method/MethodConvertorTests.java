@@ -69,7 +69,7 @@ public class MethodConvertorTests {
 		ImportPackage biscope = Builtin.builtins();
 		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
 		RWStructDefn send = (RWStructDefn) biscope.get("Send");
-		orgFooScope = new Scope(null, null);
+		orgFooScope = new Scope(null);
 		orgFooScope.define("doSend", "org.foo.doSend", Type.function(null, any, send));
 		{
 			ContractDecl contract1 = new ContractDecl(null, null, "org.foo.Contract1");
@@ -124,17 +124,18 @@ public class MethodConvertorTests {
 		
 		hsie = new HSIE(errors, rewriter);
 		tc = new TypeChecker(errors);
-		tc.addExternal("String", (Type) biscope.get("String"));
-		tc.addExternal("join", (Type) biscope.get("join"));
-		tc.addExternal("map", (Type) biscope.get("map"));
-		tc.addExternal("org.foo.doSend", (Type) orgFooScope.get("doSend"));
-		tc.addTypeDefn(any);
-		tc.addStructDefn((RWStructDefn) biscope.get("Nil"));
-		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("List"));
-		tc.addStructDefn((RWStructDefn) biscope.get("Cons"));
-		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
-		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("Message"));
-		tc.addStructDefn(send);
+		// I don't know how broken this is, but I don't believe in any of it anymore
+//		tc.addExternal("String", (Type) biscope.get("String"));
+//		tc.addExternal("join", (Type) biscope.get("join"));
+//		tc.addExternal("map", (Type) biscope.get("map"));
+//		tc.addExternal("org.foo.doSend", (Type) orgFooScope.get("doSend"));
+//		tc.addTypeDefn(any);
+//		tc.addStructDefn((RWStructDefn) biscope.get("Nil"));
+//		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("List"));
+//		tc.addStructDefn((RWStructDefn) biscope.get("Cons"));
+//		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
+//		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("Message"));
+//		tc.addStructDefn(send);
 	}
 	
 	public void stage2(boolean checkErrors) throws Exception {

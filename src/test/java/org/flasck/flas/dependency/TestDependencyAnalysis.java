@@ -22,7 +22,7 @@ public class TestDependencyAnalysis {
 	public void testMutualFandG() {
 		// In spite of my desire for "chain-of-custody" testing, defining functions as cases has eluded me
 		// Can we go back and refactor this at some point into the checked output of FlasStoryTests?
-		Scope s = new Scope(null, null);
+		Scope s = new Scope(null);
 		new FLASStory().process(s, BlockTestData.simpleMutualRecursionBlock());
 		rewriter.rewritePackageScope("ME", s);
 		

@@ -29,7 +29,6 @@ import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.FunctionDefinition;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.LocatedName;
@@ -38,6 +37,7 @@ import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
@@ -230,9 +230,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				pw.println("else");
 				dumpRecursive(pw.indent(), ie.elseExpr);
 			}
-		} else if (obj instanceof FunctionDefinition) {
-			for (FunctionCaseDefn fcd : ((FunctionDefinition) obj).cases)
-				dumpRecursive(pw, fcd);
+//		} else if (obj instanceof FunctionDefinition) {
+//			for (FunctionCaseDefn fcd : ((FunctionDefinition) obj).cases)
+//				dumpRecursive(pw, fcd);
 		} else if (obj instanceof FunctionCaseDefn) {
 			FunctionCaseDefn fcd = (FunctionCaseDefn) obj;
 			pw.println(fcd.intro.name);
@@ -345,9 +345,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 
 	private static void dumpScope(Indenter pw, Scope s) {
 		Indenter pi = pw.indent();
-		for (String k : s.keys()) {
-			Object o = s.get(k);
-			dumpRecursive(pi, o);
+		for (ScopeEntry k : s) {
+			dumpRecursive(pi, k.getValue());
 		}
 	}
 

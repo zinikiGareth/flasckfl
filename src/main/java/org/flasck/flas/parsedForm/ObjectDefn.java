@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.stories.FLASStory.State;
 
 public class ObjectDefn implements ContainsScope, AsString, Locatable {
@@ -24,8 +23,8 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 		this.name = tn;
 		this.generate = generate;
 		this.polys = polys;
-		ScopeEntry se = outer.define(State.simpleName(tn), tn, this);
-		this.innerScope = new Scope(se, this);
+		outer.define(State.simpleName(tn), tn, this);
+		this.innerScope = new Scope(this);
 	}
 
 	@Override

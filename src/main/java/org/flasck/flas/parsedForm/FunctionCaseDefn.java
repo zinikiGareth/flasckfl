@@ -4,40 +4,54 @@ import java.io.Writer;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
-public class FunctionCaseDefn implements ContainsScope {
+public class FunctionCaseDefn implements ContainsScope, Locatable {
+	private final CodeType kind;
 	public final FunctionIntro intro;
 	public final Object expr;
 	private final Scope scope;
-	private final int cs;
+	private String caseName;
 
-	public FunctionCaseDefn(InputPosition location, String name, List<Object> args, Object expr) {
+	public FunctionCaseDefn(InputPosition location, CodeType kind, String name, List<Object> args, Object expr) {
+		this.kind = kind;
 		intro = new FunctionIntro(location, name, args);
 		if (expr == null)
 			throw new UtilException("Cannot build function case with null expr");
 		this.expr = expr;
-		this.scope = null;
-		this.cs = -73;
-	}
-
-	public FunctionCaseDefn(ScopeEntry me, FunctionCaseDefn starter, int cs) {
-		this.intro = starter.intro;
-		this.expr = starter.expr;
-		this.scope = new Scope(me, this);
-		this.cs = cs;
+		this.scope = new Scope(this);
 	}
 
 	@Override
 	public Scope innerScope() {
-		if (scope == null)
-			throw new UtilException("Can't do that with starter");
 		return scope;
 	}
 
+	@Override
+	public InputPosition location() {
+		return intro.location;
+	}
+
+	public CodeType mytype() {
+		return kind;
+	}
+
+	public int nargs() {
+		return intro.args.size();
+	}
+
+	public String functionName() {
+		return intro.name;
+	}
+
+	public void provideCaseName(String caseName) {
+		this.caseName = caseName;
+	}
+
 	public String caseName() {
-		return intro.name + "_" + cs;
+		return caseName;
 	}
 	
 	public void dumpTo(Writer pw) throws Exception {
