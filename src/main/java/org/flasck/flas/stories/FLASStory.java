@@ -962,6 +962,7 @@ public class FLASStory {
 				er.merge((ErrorResult) o);
 			else if (o instanceof FunctionIntro) {
 				MethodCaseDefn mcd = new MethodCaseDefn((FunctionIntro)o);
+				mcd.provideCaseName(mcd.methodName());
 				impl.addMethod(mcd);
 				handleMessageMethods(er, mcd, b.nested);
 			} else

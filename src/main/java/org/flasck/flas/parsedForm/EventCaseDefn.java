@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.exceptions.UtilException;
 
-public class EventCaseDefn implements MessagesHandler, ContainsScope {
+public class EventCaseDefn implements Locatable, MessagesHandler, ContainsScope {
 	public final InputPosition kw;
 	public final FunctionIntro intro;
 	public final List<MethodMessage> messages = new ArrayList<MethodMessage>();
@@ -19,6 +20,11 @@ public class EventCaseDefn implements MessagesHandler, ContainsScope {
 		this.scope = new Scope(this);
 	}
 	
+	@Override
+	public InputPosition location() {
+		return intro.location;
+	}
+
 	public String methodName() {
 		return intro.name;
 	}

@@ -38,6 +38,8 @@ public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope
 	}
 
 	public String caseName() {
+		if (caseName == null)
+			throw new UtilException("caseName has not yet been assigned");
 		return caseName;
 	}
 	

@@ -46,13 +46,11 @@ import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
-import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
-import org.flasck.flas.parsedForm.MethodDefinition;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
@@ -410,7 +408,7 @@ public class Rewriter {
 				if (defn == null)
 					defn = standalone.get(full);
 				if (defn == null)
-					defn = callbackHandlers.get(name);
+					defn = callbackHandlers.get(full);
 				if (defn == null)
 					throw new UtilException("Scope has definition of " + name + " as " + full + " but it is not a function, method or handler");
 				return new VarNestedFromOuterFunctionScope(defn.location(), full, defn, true);
@@ -535,26 +533,41 @@ public class Rewriter {
 					functions.put(name, ret);
 				}
 				pass1(cx, c.innerScope());
-			} else if (val instanceof MethodDefinition) {
-				MethodDefinition m = (MethodDefinition) val;
-				RWMethodDefinition rw = new RWMethodDefinition(m.location(), m.intro.name, m.intro.args.size());
-				List<Object> enc = new ArrayList<>();
-				gatherEnclosing(enc, cx, from);
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.name(), cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, rw, enc);
-				
-				// I am not convinced that this should be per-method, and not per-case, but that's the way it seems to be
-				// we should test this by having complicated scoping things and seeing if it works
-				standalone.put(mic.name, mic);
-				for (MethodCaseDefn c : m.cases) {
-					pass1(cx, c.innerScope());
+			} else if (val instanceof MethodCaseDefn) {
+				MethodCaseDefn m = (MethodCaseDefn) val;
+				String mn = m.methodName();
+				if (methods.containsKey(mn)) {
+					MethodInContext ret = methods.get(mn);
+					if (prev != null && !prev.equals(name))
+						errors.message(m.location(), "split function definition: " + mn);
+//					if (ret.mytype != m.mytype())
+//						errors.message(m.location(), "mismatched kinds in function " + mn);
+					if (ret.method.nargs() != m.nargs())
+						errors.message(m.location(), "inconsistent argument counts in function " + mn);
+				} else {
+					RWMethodDefinition rw = new RWMethodDefinition(m.location(), m.intro.name, m.intro.args.size());
+					List<Object> enc = new ArrayList<>();
+					gatherEnclosing(enc, cx, from);
+					MethodInContext mic = new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.name(), cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, rw, enc);
+					standalone.put(mic.name, mic);
 				}
-			} else if (val instanceof EventHandlerDefinition) {
-				EventHandlerDefinition ehd = (EventHandlerDefinition) val;
+				pass1(cx, m.innerScope());
+			} else if (val instanceof EventCaseDefn) {
+				EventCaseDefn ehd = (EventCaseDefn) val;
+				String mn = ehd.methodName();
+				if (eventHandlers.containsKey(mn)) {
+					EventHandlerInContext rw = eventHandlers.get(mn);
+					if (prev != null && !prev.equals(name))
+						errors.message(ehd.location(), "split function definition: " + mn);
+//					if (ret.mytype != m.mytype())
+//						errors.message(m.location(), "mismatched kinds in function " + mn);
+					if (rw.handler.nargs() != ehd.intro.args.size())
+						errors.message(ehd.location(), "inconsistent argument counts in function " + mn);
+				}
 				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(ehd.location(), ehd.intro.name, ehd.intro.args.size());
 				EventHandlerInContext ehic = new EventHandlerInContext(name, rw);
 				eventHandlers.put(ehic.name, ehic);
-				for (EventCaseDefn c : ehd.cases)
-					pass1(cx, c.innerScope());
+				pass1(cx, ehd.innerScope());
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
 				structs.put(name, new RWStructDefn(sd.location(), sd.name(), sd.generate, rewritePolys(sd.polys())));
@@ -598,8 +611,8 @@ public class Rewriter {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
 				FunctionCaseContext fccx = new FunctionCaseContext(cx, c.caseName(), null, c.innerScope(), false);
 				pass2(fccx, c.innerScope());
-			} else if (val instanceof MethodDefinition) {
-			} else if (val instanceof EventHandlerDefinition) {
+			} else if (val instanceof MethodCaseDefn) {
+			} else if (val instanceof EventCaseDefn) {
 				// Nothing to do in pass2 ... was set up in pass1 and will be resolved in pass3
 			} else if (val instanceof StructDefn) {
 				rewrite(cx, (StructDefn)val);
@@ -1037,7 +1050,7 @@ public class Rewriter {
 		Map<String, LocalVar> vars = new HashMap<>();
 		String name = useCases ? c.caseName() : c.methodName();
 		gatherVars(errors, this, cx, name, vars, c.intro);
-		mic.method.cases.add(rewrite(new FunctionCaseContext(cx, c.caseName(), vars, c.innerScope(), fromHandler), c, vars));
+		mic.method.cases.add(rewrite(new FunctionCaseContext(cx, name, vars, c.innerScope(), fromHandler), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, EventCaseDefn c) {

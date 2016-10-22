@@ -12,9 +12,6 @@ package test.golden
     up put
       [type] k
         Number
-  cdecl test.golden.NoArg
-    up get
-      [ctor] Number
   test.golden.f
     [type] server
       Server
@@ -25,37 +22,37 @@ package test.golden
       Cons
         q
         Nil
-    handler Reply test.golden.f_0.HandleReply (free)
-      [type] v
-        Number
-      method test.golden.f_0.HandleReply.reply
-        case test.golden.f_0.HandleReply.reply
-            [var] y
-            invoke <-
-                .
-                  server
-                  put
-                +
-                  var
-                  v
     test.golden.f_0.var
      =
       # 32
-    method test.golden.f_0.q
-      case test.golden.f_0.q_0
+    case test.golden.f_0.q_0
+        invoke <-
+            .
+              server
+              get
+            var
+            HandleReply
+              var
+    handler Reply test.golden.f_0.HandleReply (free)
+      [type] v
+        Number
+      case test.golden.f_0.HandleReply.reply
+          [var] y
           invoke <-
               .
                 server
-                get
-              var
-              HandleReply
+                put
+              +
                 var
-  method test.golden.cna
-    case test.golden.cna_0
-        [type] na
-          NoArg
-        invoke <-
-            .
-              na
-              get
-            # 42
+                v
+  cdecl test.golden.NoArg
+    up get
+      [ctor] Number
+  case test.golden.cna_0
+      [type] na
+        NoArg
+      invoke <-
+          .
+            na
+            get
+          # 42
