@@ -34,18 +34,13 @@ import org.junit.Test;
 public class HSIECodeGenerator {
 	private ErrorResult errors = new ErrorResult();
 	
-	/* TODO: simplify-parsing
 	@Test
 	public void testConvertingIdOf1() throws Exception {
-//		Scope biscope = Builtin.builtinScope();
-//		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
 		Scope s = new Scope(null);
-//		s.define("plus1", "plus1", null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = plus1 1"));
-		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, "ME.f", 0);
-		ScopeEntry me = s.define("f", "ME.f", f);
-		f.cases.add(new FunctionCaseDefn(me, c1, 0));
+		c1.provideCaseName("ME.f_0");
+		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.functions.put("plus1", new RWFunctionDefinition(null, CodeType.FUNCTION, "plus1", 1, false));
 		rw.rewritePackageScope("ME", s);
@@ -60,16 +55,11 @@ public class HSIECodeGenerator {
 	// This is a pathological case of LET with vars
 	@Test
 	public void testConvertingIdDecode() throws Exception {
-//		Scope biscope = Builtin.builtinScope();
-//		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
-//		pkg.myEntry().scope().define("id", "id", null);
-//		pkg.myEntry().scope().define("decode", "decode", null);
 		Scope s = new Scope(null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = id (decode (id 32))"));
-		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, "ME.f", 0);
-		ScopeEntry me = s.define("f", "ME.f", f);
-		f.cases.add(new FunctionCaseDefn(me, c1, 0));
+		c1.provideCaseName("ME.f_0");
+		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.functions.put("id", new RWFunctionDefinition(null, CodeType.FUNCTION, "id", 1, false));
 		rw.functions.put("decode", new RWFunctionDefinition(null, CodeType.FUNCTION, "decode", 1, false));
@@ -85,14 +75,11 @@ public class HSIECodeGenerator {
 	@Test
 	@Ignore
 	public void testPatternMatchingAPolyVar() throws Exception {
-//		Scope biscope = Builtin.builtinScope();
-//		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
 		Scope s = new Scope(null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("push (Cons[A] x) (A y) = Cons y x"));
-		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, "ME.push", 1);
-		ScopeEntry me = s.define("push", "ME.push", f);
-		f.cases.add(new FunctionCaseDefn(me, c1, 0));
+		c1.provideCaseName("ME.f_0");
+		s.define("push", "ME.push", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope("ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -106,14 +93,11 @@ public class HSIECodeGenerator {
 
 	@Test
 	public void testPatternMatchingAUnionType() throws Exception {
-//		Scope biscope = Builtin.builtinScope();
-//		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
 		Scope s = new Scope(null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f (List[A] x) = 10"));
-		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, "ME.f", 1);
-		ScopeEntry me = s.define("f", "ME.f", f);
-		f.cases.add(new FunctionCaseDefn(me, c1, 0));
+		c1.provideCaseName("ME.f_0");
+		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope("ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -127,18 +111,14 @@ public class HSIECodeGenerator {
 
 	@Test
 	public void testASimpleRecursivelyDefinedFunction1() throws Exception {
-//		Scope biscope = Builtin.builtinScope();
-//		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
 		Scope s = new Scope(null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
-		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, "ME.f", 1);
+		c1.provideCaseName("ME.f_0");
 		FunctionCaseDefn g1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("g x = f (x+1)"));
-		FunctionDefinition g = new FunctionDefinition(null, CodeType.FUNCTION, "ME.g", 1);
-		ScopeEntry mf = s.define("f", "ME.f", f);
-		ScopeEntry mg = s.define("g", "ME.g", g);
-		f.cases.add(new FunctionCaseDefn(mf, c1, 0));
-		g.cases.add(new FunctionCaseDefn(mg, g1, 0));
+		g1.provideCaseName("ME.g_0");
+		s.define("f", "ME.f", c1);
+		s.define("g", "ME.g", g1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope("ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -152,18 +132,14 @@ public class HSIECodeGenerator {
 
 	@Test
 	public void testASimpleRecursivelyDefinedFunction2() throws Exception {
-//		Scope biscope = Builtin.builtinScope();
-//		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
 		Scope s = new Scope(null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
-		FunctionDefinition f = new FunctionDefinition(null, CodeType.FUNCTION, "ME.f", 1);
+		c1.provideCaseName("ME.f_0");
 		FunctionCaseDefn g1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("g x = f (x+1)"));
-		FunctionDefinition g = new FunctionDefinition(null, CodeType.FUNCTION, "ME.g", 1);
-		ScopeEntry mf = s.define("f", "ME.f", f);
-		ScopeEntry mg = s.define("g", "ME.g", g);
-		f.cases.add(new FunctionCaseDefn(mf, c1, 0));
-		g.cases.add(new FunctionCaseDefn(mg, g1, 0));
+		g1.provideCaseName("ME.g_0");
+		s.define("f", "ME.f", c1);
+		s.define("g", "ME.g", g1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope("ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -190,5 +166,4 @@ public class HSIECodeGenerator {
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.directLet(), form);
 	}
-	*/
 }

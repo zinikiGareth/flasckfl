@@ -426,8 +426,6 @@ public class TestBasicTypeChecking {
 		}
 	}
 	
-	/* TODO: simplify-parsing
-
 	@Test
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
 		ImportPackage biscope = Builtin.builtins();
@@ -436,13 +434,11 @@ public class TestBasicTypeChecking {
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);
 		Scope s = new Scope(null);
-		FunctionDefinition f = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, f1.intro);
-		s.define("f", "ME.f", f);
+		s.define("f", "ME.f", f1);
 		FunctionCaseDefn g1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("g x = f [ 42, 'hello']"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(g1);
-		FunctionDefinition g = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, g1.intro);
-		s.define("g", "ME.g", g);
+		s.define("g", "ME.g", g1);
 		TypeChecker tc = new TypeChecker(errors);
 		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("join", (Type) biscope.get("join"));
@@ -478,7 +474,6 @@ public class TestBasicTypeChecking {
 			assertEquals("Any->Number", mg.toString());
 		}
 	}
-	*/
 
 	private Orchard<HSIEForm> orchardOf(HSIEForm... hs) {
 		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();

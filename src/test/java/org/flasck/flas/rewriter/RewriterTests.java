@@ -38,6 +38,7 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.junit.Before;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
@@ -54,13 +55,9 @@ public class RewriterTests {
 		builtinScope.define("Timer", Type.builtin(null, "Timer"));
 	}
 
-	/* TODO: simplify-parsing
 	@Test
 	public void testRewritingSomethingGloballyDefined() {
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		cases.add(new FunctionCaseDefn(null, "ME.f", new ArrayList<Object>(), new UnresolvedVar(null, "Nil")));
-		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 0);
-		scope.define("f", "ME.f", fn);
+		scope.define("f", "ME.f", new FunctionCaseDefn(null, CodeType.FUNCTION, "ME.f", new ArrayList<Object>(), new UnresolvedVar(null, "Nil")));
 		rw.rewritePackageScope("ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
 		assertEquals("ME.f", rfn.name());
@@ -70,19 +67,15 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAParameter() {
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern(null, "x"));
-		cases.add(new FunctionCaseDefn(null, "ME.f", args, new UnresolvedVar(null, "x")));
-		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 1);
-		scope.define("f", "ME.f", fn);
+		scope.define("f", "ME.f", new FunctionCaseDefn(null, CodeType.FUNCTION, "ME.f", args, new UnresolvedVar(null, "x")));
 		rw.rewritePackageScope("ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
 		assertEquals("ME.f", rfn.name());
 		assertTrue(rfn.cases.get(0).expr instanceof LocalVar);
 		assertEquals("x", ((LocalVar)rfn.cases.get(0).expr).var);
 	}
-	*/
 
 	@Test
 	public void testWeRewriteStructFields() {
@@ -125,26 +118,20 @@ public class RewriterTests {
 		assertEquals("cannot use List without specifying polymorphic arguments", errors.get(0).msg);
 	}
 	
-	/* TODO: simplify-parsing
 	@Test
 	public void testRewritingANestedParameter() {
 		Scope innerScope;
 		{
-			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(null, "x"));
-			cases.add(new FunctionCaseDefn(null, "ME.f", args, new StringLiteral(null, "x")));
-			FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f", 1);
-			scope.define("f", "ME.f", fn);
-			innerScope = cases.get(0).innerScope();
+			FunctionCaseDefn fn_f = new FunctionCaseDefn(null, CodeType.FUNCTION, "ME.f", args, new StringLiteral(null, "x"));
+			scope.define("f", "ME.f", fn_f);
+			innerScope = fn_f.innerScope();
 		}
 		{
-			List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(null, "y"));
-			cases.add(new FunctionCaseDefn(null, "ME.f_0.g", args, new UnresolvedVar(null, "x")));
-			FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.f_0.g", 1);
-			innerScope.define("g", "ME.f_0.g", fn);
+			innerScope.define("g", "ME.f_0.g", new FunctionCaseDefn(null, CodeType.FUNCTION, "ME.f_0.g", args, new UnresolvedVar(null, "x")));
 		}
 		rw.rewritePackageScope("ME", scope);
 		RWFunctionDefinition g = rw.functions.get("ME.f_0.g");
@@ -160,10 +147,7 @@ public class RewriterTests {
 		cd.state = new StateDefinition();
 		cd.state.fields.add(new StructField(null, false, new TypeReference(null, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		cases.add(new FunctionCaseDefn(null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
-		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.MyCard.f", 0);
-		cd.fnScope.define("f", "ME.MyCard.f", fn);
+		cd.fnScope.define("f", "ME.MyCard.f", new FunctionCaseDefn(null, CodeType.FUNCTION, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
 		rw.rewritePackageScope("ME", scope);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -179,10 +163,7 @@ public class RewriterTests {
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		cd.contracts.add(new ContractImplements(null, null, "Timer", null, "timer"));
 //		scope.define("MyCard", "ME.MyCard", cd);
-		List<FunctionCaseDefn> cases = new ArrayList<FunctionCaseDefn>();
-		cases.add(new FunctionCaseDefn(null, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "timer")));
-		FunctionDefinition fn = new FunctionDefinition(null, HSIEForm.CodeType.FUNCTION, "ME.MyCard.f", 0);
-		cd.fnScope.define("f", "ME.MyCard.f", fn);
+		cd.fnScope.define("f", "ME.MyCard.f", new FunctionCaseDefn(null, CodeType.FUNCTION, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "timer")));
 		rw.rewritePackageScope("ME", scope);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -191,7 +172,6 @@ public class RewriterTests {
 		assertTrue(rfn.cases.get(0).expr instanceof CardMember);
 		assertEquals("timer", ((CardMember)rfn.cases.get(0).expr).var);
 	}
-	*/
 
 	@Test
 	public void testRewritingAContractMethod() throws Exception {

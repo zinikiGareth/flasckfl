@@ -5,6 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -14,24 +17,21 @@ import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.tokenizers.ExprToken;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class ParsedFormTestData {
-	public static FunctionCaseDefn fibDefn1() {return null;}
-	public static FunctionCaseDefn fibDefn2() {return null;}
-	public static FunctionCaseDefn fibDefnN() {return null;}
-	/* TODO: simplify-parsing
 	public static FunctionCaseDefn fibDefn1() {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(null, ConstPattern.INTEGER, "0"));
 		Object ie = ItemExpr.from(new ExprToken(null, ExprToken.NUMBER, "1"));
-		return new FunctionCaseDefn(null, "fib", args, ie);
+		return new FunctionCaseDefn(null, CodeType.FUNCTION, "fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefn2() {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(null, ConstPattern.INTEGER, "1"));
 		Object ie = ItemExpr.from(new ExprToken(null, ExprToken.NUMBER, "1"));
-		return new FunctionCaseDefn(null, "fib", args, ie);
+		return new FunctionCaseDefn(null, CodeType.FUNCTION, "fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefnN() {
@@ -44,9 +44,8 @@ public class ParsedFormTestData {
 		ApplyExpr rhs = new ApplyExpr(null, ie("fib"), minus2);
 		ApplyExpr top = new ApplyExpr(null, se("+"), lhs, rhs);
 		
-		return new FunctionCaseDefn(null, "fib", args, top);
+		return new FunctionCaseDefn(null, CodeType.FUNCTION, "fib", args, top);
 	}
-	*/
 
 	private static Object ie(String tok) {
 		return ItemExpr.from(new ExprToken(null, ExprToken.IDENTIFIER, tok));
