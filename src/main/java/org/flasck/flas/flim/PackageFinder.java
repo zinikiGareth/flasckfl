@@ -178,6 +178,7 @@ public class PackageFinder {
 					}
 					
 					rw.importPackage2(pkg);
+					pkg.seal();
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					errors.message((Block)null, ex.toString());
