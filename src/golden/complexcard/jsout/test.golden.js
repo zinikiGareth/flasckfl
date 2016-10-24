@@ -8,6 +8,16 @@ if (typeof test.golden === 'undefined') {
   }
 }
 
+test.golden._ClickIt = function(v0) {
+  "use strict";
+  this._ctor = 'test.golden.ClickIt';
+}
+
+test.golden.ClickIt = function() {
+  "use strict";
+  return new test.golden._ClickIt({});
+}
+
 test.golden._Polyed = function(v0) {
   "use strict";
   this._ctor = 'test.golden.Polyed';
@@ -259,11 +269,19 @@ test.golden._Complex.B8 = function(parent) {
   TextArea.call(this, parent);
   if (!parent) return;
   this._setText('hello');
+  test.golden._Complex.B8.prototype._add_handlers.call(this);
 }
 
 test.golden._Complex.B8.prototype = new TextArea();
 
 test.golden._Complex.B8.prototype.constructor = test.golden._Complex.B8;
+
+test.golden._Complex.B8.prototype._add_handlers = function() {
+  var ehclick = test.golden.Complex.prototype.sayHello;
+  this._mydiv['onclick'] = function(event) {
+    this._area._wrapper.dispatchEvent(ehclick, event);
+  }
+}
 
 test.golden._Complex.B6.prototype._assignToVar = function() {
   var lv = this._card.list;
@@ -300,6 +318,17 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
   var v2 = FLEval.closure(Cons, v0, Nil);
   var v3 = FLEval.closure(Send, v1, 'reply', v2);
   return FLEval.closure(Cons, v3, Nil);
+}
+
+test.golden.Complex.prototype.sayHello = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'test.golden.ClickIt')) {
+  }
+  return FLEval.error("test.golden.Complex.sayHello: case not handled");
 }
 
 test.golden;

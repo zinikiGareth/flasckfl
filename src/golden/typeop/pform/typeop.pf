@@ -1,8 +1,6 @@
 package test.golden
   card test.golden.MyCard
-    Error - null
     template test.golden.MyCard
-      Error - null
   test.golden.x
    =
     Number

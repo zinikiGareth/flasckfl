@@ -4,4 +4,13 @@ package test.golden
       a
         Number
     template test.golden.Foo
-      Error - null
+    implements test.import.Fred
+      method test.golden.Foo._C0.go
+        [var] x
+        assign a <-
+            .
+              .
+                test
+                import
+              f
+            # 16

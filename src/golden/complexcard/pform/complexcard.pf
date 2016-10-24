@@ -1,4 +1,5 @@
 package test.golden
+  struct test.golden.ClickIt
   struct test.golden.Thing
     x
       String
@@ -52,3 +53,37 @@ package test.golden
         + list null
           .
             '' hello
+    implements Init
+      method test.golden.Complex._C0.ready
+        [type] obj
+          Thing
+        invoke
+            .
+              ds
+              get
+            .
+              obj
+              x
+            FooHandler
+              '' yo
+    implements DataStore ds
+    handler Handler test.golden.Complex.FooHandler (card)
+      [var] k
+      method test.golden.Complex.FooHandler.reply
+        [var] x
+        assign hello <-
+          ++
+            k
+            x
+    service Offer
+      method test.golden.Complex._S0.get
+        [var] x
+        [var] h
+        invoke
+            .
+              h
+              reply
+            x
+    event null
+      [type] ev
+        ClickIt

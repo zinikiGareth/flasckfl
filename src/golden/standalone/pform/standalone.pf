@@ -5,6 +5,35 @@ package test.golden
     up typed
     up mine
   card test.golden.Foo
-    Error - null
     template test.golden.Foo
-      Error - null
+    implements KeyValue kv
+    implements Bar
+      method test.golden.Foo._C1.go
+        invoke
+          map
+            request
+            Nil
+        invoke
+          map
+            request2
+            Nil
+    test.golden.Foo.request
+      [type] ck
+        Crokey
+     =
+      Send
+        kv
+        '' typed
+        Cons
+          ck
+          Nil
+    test.golden.Foo.request2
+      [type] ck
+        Crokey
+     =
+      Send
+        kv
+        '' mine
+        Cons
+          ck
+          Nil

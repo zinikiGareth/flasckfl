@@ -25,34 +25,34 @@ package test.golden
     test.golden.f_0.var
      =
       # 32
-    case test.golden.f_0.q_0
-        invoke <-
-            .
-              server
-              get
+    method test.golden.f_0.q_0
+      invoke
+          .
+            server
+            get
+          var
+          HandleReply
             var
-            HandleReply
-              var
     handler Reply test.golden.f_0.HandleReply (free)
       [type] v
         Number
-      case test.golden.f_0.HandleReply.reply
-          [var] y
-          invoke <-
-              .
-                server
-                put
-              +
-                var
-                v
+      method test.golden.f_0.HandleReply.reply
+        [var] y
+        invoke
+            .
+              server
+              put
+            +
+              var
+              v
   cdecl test.golden.NoArg
     up get
       [ctor] Number
-  case test.golden.cna_0
-      [type] na
-        NoArg
-      invoke <-
-          .
-            na
-            get
-          # 42
+  method test.golden.cna_0
+    [type] na
+      NoArg
+    invoke
+        .
+          na
+          get
+        # 42

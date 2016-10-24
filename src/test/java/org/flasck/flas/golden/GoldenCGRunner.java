@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.flasck.flas.Compiler;
+import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.IfExpr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.Template;
@@ -27,7 +29,10 @@ import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
+import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -229,9 +234,6 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				pw.println("else");
 				dumpRecursive(pw.indent(), ie.elseExpr);
 			}
-//		} else if (obj instanceof FunctionDefinition) {
-//			for (FunctionCaseDefn fcd : ((FunctionDefinition) obj).cases)
-//				dumpRecursive(pw, fcd);
 		} else if (obj instanceof FunctionCaseDefn) {
 			FunctionCaseDefn fcd = (FunctionCaseDefn) obj;
 			pw.println(fcd.intro.name);
@@ -242,8 +244,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		} else if (obj instanceof CardDefinition) {
 			CardDefinition cd = (CardDefinition) obj;
 			pw.println("card " + cd.name);
-			dumpRecursive(pw.indent(), cd.state);
-			dumpRecursive(pw.indent(), cd.template);
+			if (cd.state != null)
+				dumpRecursive(pw.indent(), cd.state);
+			if (cd.template != null)
+				dumpRecursive(pw.indent(), cd.template);
+			dumpList(pw, cd.contracts);
+			dumpList(pw, cd.handlers);
+			dumpList(pw, cd.services);
+			dumpScope(pw, cd.innerScope());
 		} else if (obj instanceof StateDefinition) {
 			StateDefinition sd = (StateDefinition) obj;
 			pw.println("state");
@@ -260,6 +268,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				pw.println(" <-");
 				dumpRecursive(pw.indent(), sf.init);
 			}
+		} else if (obj instanceof ContractImplements) {
+			ContractImplements ctr = (ContractImplements) obj;
+			pw.println("implements " + ctr.name() + (ctr.referAsVar != null ? " " + ctr.referAsVar : ""));
+			dumpList(pw, ctr.methods);
+		} else if (obj instanceof ContractService) {
+			ContractService ctr = (ContractService) obj;
+			pw.println("service " + ctr.name() + (ctr.referAsVar != null ? " " + ctr.referAsVar : ""));
+			dumpList(pw, ctr.methods);
 		} else if (obj instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements) obj;
 			pw.println("handler " + hi.name() + " " + hi.hiName + " (" + (hi.inCard?"card":"free") + ")");
@@ -267,21 +283,28 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpList(pw, hi.methods);
 		} else if (obj instanceof MethodCaseDefn) {
 			MethodCaseDefn mcd = (MethodCaseDefn) obj;
-			pw.println("case " + mcd.caseName());
-			dumpList(pw.indent(), mcd.intro.args);
-			dumpList(pw.indent(), mcd.messages);
+			pw.println("method " + mcd.caseName());
+			dumpList(pw, mcd.intro.args);
+			dumpList(pw, mcd.messages);
 			dumpScope(pw, mcd.innerScope());
+		} else if (obj instanceof EventCaseDefn) {
+			EventCaseDefn ecd = (EventCaseDefn) obj;
+			pw.println("event " + ecd.caseName());
+			dumpList(pw, ecd.intro.args);
+			dumpList(pw, ecd.messages);
+			dumpScope(pw, ecd.innerScope());
 		} else if (obj instanceof MethodMessage) {
 			MethodMessage mm = (MethodMessage) obj;
 			if (mm.slot != null)
-				pw.println("assign " + mm.slot + " <-");
+				pw.println("assign " + slotName(mm.slot) + " <-");
 			else
-				pw.println("invoke <-");
+				pw.println("invoke");
 			dumpRecursive(pw.indent(), mm.expr);
 		} else if (obj instanceof Template) {
 			Template t = (Template) obj;
 			pw.println("template" + (t.prefix != null ? " " + t.prefix : ""));
-			dumpRecursive(pw.indent(), t.content);
+			if (t.content != null)
+				dumpRecursive(pw.indent(), t.content);
 		} else if (obj instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) obj;
 			pw.println("."); // many other fields go here ...
@@ -325,6 +348,17 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			}
 		} else
 			throw new UtilException("Cannot handle dumping " + obj.getClass());
+	}
+
+	private static String slotName(List<Locatable> slot) {
+		StringBuilder ret = new StringBuilder();
+		for (Locatable s : slot) {
+			LocatedToken t = (LocatedToken) s;
+			if (ret.length() > 0)
+				ret.append(".");
+			ret.append(t.text);
+		}
+		return ret.toString();
 	}
 
 	private static String polys(StructDefn sd) {

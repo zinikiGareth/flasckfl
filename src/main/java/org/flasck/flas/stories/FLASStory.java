@@ -84,36 +84,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
 
 public class FLASStory {
-	public static class FCDWrapper {
-		List<Block> nested; 
-		FunctionCaseDefn starter;
-
-		public FCDWrapper(List<Block> nested, FunctionCaseDefn starter) {
-			this.nested = nested;
-			this.starter = starter;
-		}
-	}
-	
-	public static class MCDWrapper {
-		List<Block> nested; 
-		MethodCaseDefn starter;
-
-		public MCDWrapper(List<Block> nested, MethodCaseDefn starter) {
-			this.nested = nested;
-			this.starter = starter;
-		}
-	}
-	
-	public static class ECDWrapper {
-		List<Block> nested; 
-		EventCaseDefn starter;
-
-		public ECDWrapper(List<Block> nested, EventCaseDefn starter) {
-			this.nested = nested;
-			this.starter = starter;
-		}
-	}
-	
 	public static class State {
 		private String pkg;
 		public final Scope scope;
@@ -495,9 +465,11 @@ public class FLASStory {
 			} else if (o instanceof MethodCaseDefn) {
 				MethodCaseDefn mcd = (MethodCaseDefn) o;
 				inner.define(State.simpleName(mcd.methodName()), mcd.methodName(), mcd);
+				// TODO: bug: process inner messages
 			} else if (o instanceof EventCaseDefn) {
 				EventCaseDefn ecd = (EventCaseDefn) o;
 				inner.define(State.simpleName(ecd.methodName()), ecd.methodName(), ecd);
+				// TODO: bug: process inner messages
 			} else if (o instanceof ContractDecl) {
 				er.message(((ContractDecl)o).location(), "cannot embed contract declarations in a card");
 			} else

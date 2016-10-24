@@ -8,3 +8,6 @@ package test.golden
     template test.golden.Simple
       .
         hello
+    test.golden.Simple.f
+     =
+      # 3

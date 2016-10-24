@@ -1,5 +1,7 @@
 This is a complex card with "one of everything"
 
+	struct ClickIt
+	
 	struct Thing
 		String x
 		
@@ -37,6 +39,7 @@ This is a complex card with "one of everything"
 				+ list
 					.
 						"hello"
+							click => sayHello
 				
 		implements Init
 			ready (Thing obj)
@@ -47,7 +50,10 @@ This is a complex card with "one of everything"
 		handler Handler FooHandler k
 			reply x
 				hello <- k ++ x
-				
+		
+		event sayHello (ClickIt ev)
+			hello <- 'goodbye'
+
 		service Offer
 			get x h
 				<- h.reply x
