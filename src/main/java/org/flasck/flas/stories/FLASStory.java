@@ -166,7 +166,7 @@ public class FLASStory {
 					String caseName = ret.caseName(mcd.methodName());
 					mcd.provideCaseName(caseName);
 					ret.define(State.simpleName(mcd.methodName()), mcd.methodName(), mcd);
-					addMethodMessages(er, mcd, b.nested);
+					addMethodMessages(er, mcd.messages, b.nested);
 				} else if (o instanceof TupleAssignment) {
 					TupleAssignment ta = (TupleAssignment) o;
 					int k=0;
@@ -252,7 +252,7 @@ public class FLASStory {
 		return new Object[] { expr, lastBlock };
 	}
 
-	public void addMethodMessages(ErrorResult er, MethodCaseDefn mcd, List<Block> nested) {
+	public void addMethodMessages(ErrorResult er, List<MethodMessage> messages, List<Block> nested) {
 		MethodMessageParser mmp = new MethodMessageParser();
 		for (Block b : nested) {
 			assertNoNonCommentNestedLines(er, b);
@@ -264,7 +264,7 @@ public class FLASStory {
 			else if (!(ibo instanceof MethodMessage))
 				er.message(b, "expected method message");
 			else
-				mcd.messages.add((MethodMessage) ibo);
+				messages.add((MethodMessage) ibo);
 		}
 	}
 
@@ -465,11 +465,11 @@ public class FLASStory {
 			} else if (o instanceof MethodCaseDefn) {
 				MethodCaseDefn mcd = (MethodCaseDefn) o;
 				inner.define(State.simpleName(mcd.methodName()), mcd.methodName(), mcd);
-				// TODO: bug: process inner messages
+				addMethodMessages(er, mcd.messages, b.nested);
 			} else if (o instanceof EventCaseDefn) {
 				EventCaseDefn ecd = (EventCaseDefn) o;
 				inner.define(State.simpleName(ecd.methodName()), ecd.methodName(), ecd);
-				// TODO: bug: process inner messages
+				addMethodMessages(er, ecd.messages, b.nested);
 			} else if (o instanceof ContractDecl) {
 				er.message(((ContractDecl)o).location(), "cannot embed contract declarations in a card");
 			} else

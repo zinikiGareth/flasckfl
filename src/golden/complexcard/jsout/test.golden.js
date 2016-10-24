@@ -327,6 +327,8 @@ test.golden.Complex.prototype.sayHello = function(v0) {
     return v0;
   }
   if (FLEval.isA(v0, 'test.golden.ClickIt')) {
+    var v1 = FLEval.closure(Assign, this, 'hello', 'goodbye');
+    return FLEval.closure(Cons, v1, Nil);
   }
   return FLEval.error("test.golden.Complex.sayHello: case not handled");
 }

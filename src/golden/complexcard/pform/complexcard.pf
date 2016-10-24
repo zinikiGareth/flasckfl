@@ -87,3 +87,5 @@ package test.golden
     event null
       [type] ev
         ClickIt
+      assign hello <-
+        '' goodbye
