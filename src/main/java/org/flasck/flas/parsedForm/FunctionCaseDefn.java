@@ -51,6 +51,8 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 	}
 
 	public String caseName() {
+		if (caseName == null)
+			throw new UtilException("Asked for caseName when none provided");
 		return caseName;
 	}
 	

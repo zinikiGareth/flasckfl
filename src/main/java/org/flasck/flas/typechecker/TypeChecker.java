@@ -892,7 +892,7 @@ public class TypeChecker {
 			if (!x.getKey().startsWith(inPkg + "."))
 				continue;
 
-			// Don't save any nested definitions
+			// Don't save any nested definitions, because they will not be accessible from outside the defining object
 			if (x.getKey().substring(inPkg.length()+1).indexOf(".") != -1)
 				continue;
 

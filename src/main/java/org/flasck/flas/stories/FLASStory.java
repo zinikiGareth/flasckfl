@@ -473,6 +473,8 @@ public class FLASStory {
 			} else if (o instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fcd = (FunctionCaseDefn) o;
 				inner.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
+				String caseName = inner.caseName(fcd.intro.name);
+				fcd.provideCaseName(caseName);
 			} else if (o instanceof FunctionIntro) {
 				// TODO: this code has never been tested in anger
 				// It was cut-and-paste from the Scope version
@@ -483,11 +485,11 @@ public class FLASStory {
 					continue;
 				Block lastBlock = (Block) arr[1];
 				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, s.kind, fi.name, fi.args, arr[0]);
-				Scope is = ((ContainsScope)o).innerScope();
-				String caseName = is.caseName(fcd.intro.name);
+				String caseName = inner.caseName(fcd.intro.name);
 				fcd.provideCaseName(caseName);
 				inner.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
 				if (!lastBlock.nested.isEmpty()) {
+					Scope is = ((ContainsScope)o).innerScope();
 					doScope(er, new State(is, fcd.caseName(), s.kind), lastBlock.nested);
 				}
 			} else if (o instanceof MethodCaseDefn) {

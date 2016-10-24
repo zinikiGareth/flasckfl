@@ -125,6 +125,7 @@ public class DependencyAnalyzer {
 			if (!name.startsWith("_var_"))
 				spanners.add(dcg.spanOf(name));
 		}
+//		System.out.println("spanners = " + spanners);
 		Set<String> done = new TreeSet<String>();
 		List<Set<String>> groups = new ArrayList<Set<String>>();
 		for (Set<String> s : spanners) {
@@ -134,12 +135,14 @@ public class DependencyAnalyzer {
 				done.addAll(s);
 			}
 		}
+//		System.out.println("groups = " + groups);
 		List<Orchard<RWFunctionDefinition>> ret = new ArrayList<Orchard<RWFunctionDefinition>>();
 		for (Set<String> g : groups) {
 			Orchard<RWFunctionDefinition> orch = buildOrchard(dcg, fdm, g);
 			if (!orch.isEmpty())
 				ret.add(orch);
 		}
+//		System.out.println("orch = " + ret);
 		return ret;
 	}
 
@@ -150,8 +153,12 @@ public class DependencyAnalyzer {
 
 		// Collect together all the people that "defined" variables that were later used
 		for (String s : g) {
-			if (s.startsWith("_var_"))
-				topCandidates.add(CollectionUtils.any(dcg.find(s).linksFrom()).getTo());
+			if (s.startsWith("_var_")) {
+				Set<Link<String>> definers = dcg.find(s).linksFrom();
+				if (definers.size() != 1)
+					throw new UtilException("Inconsistency in definition of " + s + "; defined by " + definers);
+				topCandidates.add(CollectionUtils.any(definers).getTo());
+			}
 		}
 
 //		System.out.println("top candidates = " + topCandidates);

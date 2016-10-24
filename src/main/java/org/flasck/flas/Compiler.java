@@ -388,10 +388,14 @@ public class Compiler {
 				gen.generateHandler(hi.getKey(), hi.getValue());
 				dg.generateHandler(hi.getKey(), hi.getValue());
 			}
+
+//			System.out.println("defns = " + rewriter.functions.keySet());
 			
 			// 4. Do dependency analysis on functions and group them together in orchards
 			List<Orchard<RWFunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(rewriter.functions);
 			abortIfErrors(errors);
+			
+//			System.out.println("tree = " + defns);
 
 			// 5. Now process each orchard
 			//   a. convert functions to HSIE
@@ -406,8 +410,10 @@ public class Compiler {
 			for (Orchard<RWFunctionDefinition> d : defns) {
 				
 				for (Tree<RWFunctionDefinition> tfd : d)
-					for (RWFunctionDefinition fd : tfd.allNodes())
+					for (RWFunctionDefinition fd : tfd.allNodes()) {
+//						System.out.println("hsie of " + fd.name);
 						tc.addArgTypes(fd);
+					}
 				
 				// 6a. Convert each orchard to HSIE
 				Orchard<HSIEForm> oh = hsieOrchard(errors, hsie, forms, d);

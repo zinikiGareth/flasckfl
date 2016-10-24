@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Contract file="standalone.fl" line="2" name="test.golden.Bar" off="9">
+        <Method dir="down" file="standalone.fl" line="3" name="go"
+            off="4" required="true"/>
+    </Contract>
+    <Contract file="standalone.fl" line="5" name="test.golden.KeyValue" off="9">
+        <Method dir="up" file="standalone.fl" line="6" name="typed"
+            off="2" required="true"/>
+        <Method dir="up" file="standalone.fl" line="7" name="mine"
+            off="2" required="true"/>
+    </Contract>
+    <Card file="standalone.fl" line="9" name="test.golden.Foo" off="5">
+        <Implements contract="test.golden.Bar"/>
+        <Implements contract="test.golden.KeyValue"/>
+    </Card>
+</FLIM>

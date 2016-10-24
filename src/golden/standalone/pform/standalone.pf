@@ -1,0 +1,10 @@
+package test.golden
+  cdecl test.golden.Bar
+    down go
+  cdecl test.golden.KeyValue
+    up typed
+    up mine
+  card test.golden.Foo
+    Error - null
+    template test.golden.Foo
+      Error - null
