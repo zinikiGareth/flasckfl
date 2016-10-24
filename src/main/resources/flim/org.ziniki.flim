@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="org.ziniki">
-    <Struct file="contracts.fl" line="1" name="org.ziniki.ID" off="7">
+    <Struct file="contracts.fl" line="1" name="org.ziniki.Id" off="7">
         <Field accessor="false" file="contracts.fl" line="2" name="id" off="7">
             <Builtin name="String"/>
         </Field>

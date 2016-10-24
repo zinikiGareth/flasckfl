@@ -8,9 +8,9 @@ if (typeof org.ziniki === 'undefined') {
   }
 }
 
-org.ziniki._ID = function(v0) {
+org.ziniki._Id = function(v0) {
   "use strict";
-  this._ctor = 'org.ziniki.ID';
+  this._ctor = 'org.ziniki.Id';
   if (v0) {
     if (v0.id) {
       this.id = v0.id;
@@ -20,9 +20,9 @@ org.ziniki._ID = function(v0) {
   }
 }
 
-org.ziniki.ID = function(v0) {
+org.ziniki.Id = function(v0) {
   "use strict";
-  return new org.ziniki._ID({id: v0});
+  return new org.ziniki._Id({id: v0});
 }
 
 if (typeof org.ziniki.loadCroset_0 === 'undefined') {
