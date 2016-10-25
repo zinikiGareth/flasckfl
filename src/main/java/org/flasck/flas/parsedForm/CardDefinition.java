@@ -8,7 +8,6 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
-import org.flasck.flas.commonBase.template.Template;
 import org.flasck.flas.stories.FLASStory.State;
 
 public class CardDefinition implements ContainsScope, Locatable {
@@ -16,7 +15,9 @@ public class CardDefinition implements ContainsScope, Locatable {
 	public final InputPosition location;
 	public final String name;
 	public StateDefinition state;
-	public Template template;
+	public final List<Template> templates = new ArrayList<Template>();
+	// Used during the collection process, but eliminated by detox
+	public final List<D3Thing> d3s = new ArrayList<D3Thing>();
 	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
 	public final List<ContractImplements> contracts = new ArrayList<ContractImplements>();
 	public final List<ContractService> services = new ArrayList<ContractService>();

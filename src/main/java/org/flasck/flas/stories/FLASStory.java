@@ -4,28 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
-import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.IfExpr;
-import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.PlatformSpec;
-import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.Template;
 import org.flasck.flas.commonBase.template.TemplateCardReference;
 import org.flasck.flas.commonBase.template.TemplateCases;
-import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
-import org.flasck.flas.commonBase.template.TemplateFormat;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.commonBase.template.TemplateLine;
 import org.flasck.flas.commonBase.template.TemplateList;
 import org.flasck.flas.commonBase.template.TemplateOr;
-import org.flasck.flas.commonBase.template.TemplateReference;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.errors.ScopeDefineException;
@@ -38,7 +29,6 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.D3Intro;
-import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.D3Thing;
@@ -60,12 +50,12 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
-import org.flasck.flas.parsedForm.UnresolvedOperator;
-import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parser.D3PatternLineParser;
 import org.flasck.flas.parser.D3SectionLineParser;
 import org.flasck.flas.parser.FieldParser;
@@ -80,7 +70,6 @@ import org.flasck.flas.parser.PropertyParser;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.parser.TryParsing;
 import org.flasck.flas.parser.TupleDeclarationParser;
-import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
@@ -358,11 +347,6 @@ public class FLASStory {
 		Scope inner = cd.innerScope();
 		int cs = 0;
 		int ss = 0;
-		InputPosition tloc = null;
-		InputPosition tkw = null;
-		// TODO: I think these "templates" and "unrolling" should be moved to the syntactic sugar phase
-		List<TemplateThing> templates = new ArrayList<TemplateThing>();
-		List<D3Thing> d3s = new ArrayList<D3Thing>();
 		Set<LocatedToken> frTemplates = new TreeSet<LocatedToken>();
 		for (Block b : components) {
 			if (b.isComment())
@@ -399,9 +383,7 @@ public class FLASStory {
 				readPlatformSpec(er, b.nested, ps);
 			} else if (o instanceof TemplateIntro) {
 				TemplateIntro intro = (TemplateIntro) o;
-				tkw = intro.kw;
-				tloc = intro.location;
-				if (templates.isEmpty()) {
+				if (cd.templates.isEmpty()) {
 					if (intro.name != null) {
 						er.message(b, "first template definition may not have a name");
 						break;
@@ -413,7 +395,7 @@ public class FLASStory {
 					}
 					
 					boolean err = false;
-					for (TemplateThing t : templates)
+					for (Template t : cd.templates)
 						if (intro.name.equals(t.name)) {
 							er.message(b, "duplicate template name " + intro.name);
 							err = true;
@@ -431,14 +413,14 @@ public class FLASStory {
 				}
 				TemplateLine t = doCardTemplate(er, frTemplates, b.nested);
 				if (!er.hasErrors())
-					templates.add(new TemplateThing(intro.name, intro.args, t));
+					cd.templates.add(new Template(intro.kw, intro.location, intro.name, intro.args, t));
 			} else if (o instanceof D3Intro) {
 				D3Intro d3 = (D3Intro) o;
 				List<D3PatternBlock> lines = new ArrayList<D3PatternBlock>();
 				assertSomeNonCommentNestedLines(er, b);
 				doD3Pattern(er, b.nested, lines);
 				if (!er.hasErrors())
-					d3s.add(new D3Thing(cd.name, d3.name, d3.location, d3.expr, d3.var, lines));
+					cd.d3s.add(new D3Thing(cd.name, d3.name, d3.location, d3.expr, d3.var, lines));
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);
@@ -486,9 +468,6 @@ public class FLASStory {
 			} else
 				throw new UtilException("Cannot handle " + o.getClass());
 		}
-		if (er.hasErrors())
-			return;
-		cd.template = new Template(tkw, tloc, cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()));
 	}
 
 	private void readPlatformSpec(ErrorResult er, List<Block> nested, PlatformSpec ps) {
@@ -766,172 +745,6 @@ public class FLASStory {
 				properties.put(prop.name, prop);
 			}
 		}
-	}
-
-	private TemplateLine unroll(ErrorResult er, State st, Set<LocatedToken> frTemplates, List<TemplateThing> templates, List<D3Thing> d3s, Map<String, Object> subst) {
-		if (templates == null || templates.isEmpty())
-			return null;
-		Map<String, Object> map = new TreeMap<String, Object>();
-		TemplateThing ret = templates.get(0);
-		for (TemplateThing t : templates) {
-			if (t.name == null)
-				continue;
-			map.put(t.name, t);
-		}
-		for (D3Thing t : d3s) {
-			map.put(t.name, t);
-		}
-		for (LocatedToken s : frTemplates)
-			if (!map.containsKey(s.text))
-				er.message(s.location, "reference to non-existent template " + s.text);
-		
-		TemplateThing main = ret;
-		return unroll(er, st, map, main.content, subst);
-	}
-
-	private TemplateLine unroll(ErrorResult er, State s, Map<String, Object> map, TemplateLine content, Map<String, Object> subst) {
-		if (content == null)
-			throw new UtilException("Null template line");
-		if (content instanceof TemplateCardReference)
-			return content;
-		if (content instanceof TemplateReference) {
-			TemplateReference tr = (TemplateReference) content;
-			Object reffed = map.get(tr.name);
-			if (reffed instanceof TemplateThing) {
-				TemplateThing tt = (TemplateThing) reffed;
-				if (tr.args.size() != tt.args.size()) {
-					er.message(tr.location, "incorrect number of actual parameters to " + tr.name + ": expected " + tt.args.size());
-					return null;
-				}
-				Map<String, Object> nsubst = new TreeMap<String, Object>(subst);
-				for (int i=0;i<tr.args.size();i++) {
-					String key = tt.args.get(i).text;
-					if (nsubst.containsKey(key)) {
-						er.message(tr.location, "duplicate binding to formal parameter " + key);
-						return null;
-					}
-					nsubst.put(key, tr.args.get(i));
-				}
-				return unroll(er, s, map, tt.content, nsubst);
-			} else {
-				D3Thing d3 = (D3Thing) reffed;
-				return new D3Invoke(s.scope, d3);
-			}
-		} else if (content instanceof TemplateFormat) {
-			TemplateFormat tf = (TemplateFormat) content;
-			List<Object> formats = new ArrayList<Object>();
-			for (Object o : tf.formats)
-				formats.add(substituteMacroParameters(er, s, map, o, subst));
-			if (tf instanceof ContentString) {
-				ContentString cs = (ContentString)tf;
-				ContentString ret = new ContentString(cs.kw, ((ContentString)tf).text, formats);
-				for (EventHandler y : cs.handlers)
-					ret.handlers.add(new EventHandler(y.kw, y.actionPos, y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
-				return ret;
-			} else if (tf instanceof ContentExpr) {
-				ContentExpr ce = (ContentExpr)tf;
-				Object sub = substituteMacroParameters(er, s, map, ce.expr, subst);
-				TemplateFormatEvents ret;
-				if (sub instanceof StringLiteral) {
-					StringLiteral sl = (StringLiteral)sub;
-					ret = new ContentString(sl.location, sl.text, formats);
-				} else if (sub instanceof NumericLiteral) {
-					NumericLiteral nl = (NumericLiteral)sub;
-					ret = new ContentString(nl.location, nl.text, formats);
-				} else if (sub instanceof Locatable) {
-					Locatable l = (Locatable) sub;
-					ret = new ContentExpr(l.location(), sub, ce.editable(), ce.rawHTML, formats);
-				} else
-					throw new UtilException("Cannot substitute " + sub);
-				for (EventHandler y : ce.handlers)
-					ret.handlers.add(new EventHandler(y.kw, y.actionPos, y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
-				return ret;
-			} else if (tf instanceof TemplateDiv) {
-				TemplateDiv td = (TemplateDiv) tf;
-				List<Object> attrs = new ArrayList<Object>();
-				for (Object o : td.attrs)
-					attrs.add(substituteMacroParameters(er, s, map, o, subst));
-				TemplateDiv ret = new TemplateDiv(td.kw, td.customTagLoc, td.customTag, td.customTagVarLoc, td.customTagVar, attrs, formats);
-				for (TemplateLine x : td.nested)
-					ret.nested.add(unroll(er, s, map, x, subst));
-				for (EventHandler y : td.handlers)
-					ret.handlers.add(new EventHandler(y.kw, y.actionPos, y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
-				return ret;
-			} else if (tf instanceof TemplateList) {
-				TemplateList tl = (TemplateList) tf;
-				TemplateList ret = new TemplateList(tl.kw, tl.listLoc, tl.listVar, tl.iterLoc, tl.iterVar, tl.customTagLoc, tl.customTag, tl.customTagVarLoc, tl.customTagVar, formats, false);
-				ret.template = unroll(er, s, map, tl.template, subst);
-				return ret;
-			}
-			else
-				throw new UtilException("Not supported: " + tf.getClass());
-		} else if (content instanceof TemplateCases) {
-			TemplateCases tc = (TemplateCases) content;
-			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(er, s, map, tc.switchOn, subst));
-			for (TemplateOr i : tc.cases)
-				ret.cases.add((TemplateOr) unroll(er, s, map, i, subst));
-			return ret;
-		} else if (content instanceof TemplateOr) {
-			TemplateOr tc = (TemplateOr) content;
-			return new TemplateOr(tc.location(), substituteMacroParameters(er, s, map, tc.cond, subst),  unroll(er, s, map, tc.template, subst));
-		} else
-			throw new UtilException("Not handled: " + content.getClass());
-	}
-
-	private Object substituteMacroParameters(ErrorResult er, State s, Map<String, Object> map, Object o, Map<String, Object> subst) {
-		if (o == null)
-			return null;
-		else if (o instanceof StringLiteral || o instanceof NumericLiteral)
-			return o;
-		else if (o instanceof TemplateToken) {
-			TemplateToken tt = (TemplateToken) o;
-			if (tt.type == TemplateToken.IDENTIFIER && subst.containsKey(tt.text))
-				return asTT(subst.get(tt.text));
-		} else if (o instanceof TemplateExplicitAttr) {
-			TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
-			if (tea.type == TemplateToken.IDENTIFIER) { // any kind of expression
-				return new TemplateExplicitAttr(tea.location, tea.attr, tea.type, substituteMacroParameters(er, s, map, tea.value, subst));
-			} else if (tea.type == TemplateToken.STRING) {
-				return tea;
-			} else
-				throw new UtilException("Cannot handle: " + tea);
-		} else if (o instanceof UnresolvedVar) {
-			String str = ((UnresolvedVar)o).var;
-			if (subst.containsKey(str))
-				return subst.get(str);
-			return o;
-		} else if (o instanceof UnresolvedOperator) {
-			return o;
-		} else if (o instanceof ApplyExpr) {
-			ApplyExpr ae = (ApplyExpr) o;
-			List<Object> args = new ArrayList<Object>();
-			for (Object o2 : ae.args)
-				args.add(substituteMacroParameters(er, s, map, o2, subst));
-			return new ApplyExpr(ae.location, substituteMacroParameters(er, s, map, ae.fn, subst), args);
-		} else if (o instanceof TemplateCardReference) {
-			// We don't have any parameters in this yet that could be macro parameters
-		} else if (o instanceof TemplateCases) {
-			TemplateCases tc = (TemplateCases)o;
-			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(er, s, map, tc.switchOn, subst));
-			for (TemplateOr x : tc.cases)
-				ret.addCase((TemplateOr) substituteMacroParameters(er, s, map, x, subst));
-			return ret;
-		} else if (o instanceof TemplateOr) {
-			TemplateOr tor = (TemplateOr) o;
-			TemplateOr ret = new TemplateOr(tor.location(), substituteMacroParameters(er, s, map, tor.cond, subst), unroll(er, s, map, tor.template, subst));
-			return ret;
-		} else
-			System.out.println("subMacroParms cannot handle: " + o + " "  + o.getClass());
-			
-		return o;
-	}
-
-	private TemplateToken asTT(Object sub) {
-		if (sub instanceof StringLiteral) {
-			StringLiteral s = (StringLiteral) sub;
-			return new TemplateToken(s.location, TemplateToken.STRING, s.text);
-		}
-		throw new UtilException("Cannot handle: " + sub + ": " + sub.getClass());
 	}
 
 	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested, String clz) {

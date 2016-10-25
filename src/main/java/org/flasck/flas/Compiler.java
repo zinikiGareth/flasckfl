@@ -67,6 +67,7 @@ import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
+import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
@@ -310,6 +311,10 @@ public class Compiler {
 
 		if (failed)
 			return;
+		
+		new SugarDetox(errors).detox(scope);
+		if (errors.hasErrors())
+			throw new ErrorResultException(errors);
 		
 		FileWriter wjs = null;
 		FileOutputStream wex = null;

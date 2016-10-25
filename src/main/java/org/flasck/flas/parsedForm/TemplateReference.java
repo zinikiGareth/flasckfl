@@ -1,10 +1,12 @@
-package org.flasck.flas.commonBase.template;
+package org.flasck.flas.parsedForm;
 
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.template.TemplateLine;
 
-public class TemplateReference implements TemplateLine {
+public class TemplateReference implements TemplateLine, Locatable {
 	public final InputPosition location;
 	public final String name;
 	public final List<Object> args;
@@ -13,5 +15,10 @@ public class TemplateReference implements TemplateLine {
 		this.location = location;
 		this.name = name;
 		this.args = args;
+	}
+
+	@Override
+	public InputPosition location() {
+		return location;
 	}
 }

@@ -20,7 +20,6 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.Template;
 import org.flasck.flas.commonBase.template.TemplateCardReference;
 import org.flasck.flas.commonBase.template.TemplateCases;
 import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
@@ -59,6 +58,7 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -106,6 +106,7 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWTemplate;
 import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -147,7 +148,7 @@ public class Rewriter {
 	// I'm not 100% sure we need both of these, but it seems we need more info for "generating" cards than we do for "referencing" cards on import ...
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
 	public final Map<String, CardTypeInfo> ctis = new TreeMap<String, CardTypeInfo>();
-	public final List<Template> templates = new ArrayList<Template>();
+	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
 	public final List<RWD3Invoke> d3s = new ArrayList<RWD3Invoke>();
 	public final Map<String, RWContractImplements> cardImplements = new TreeMap<String, RWContractImplements>();
 	public final Map<String, RWContractService> cardServices = new TreeMap<String, RWContractService>();
@@ -726,8 +727,8 @@ public class Rewriter {
 			pos++;
 		}
 
-		if (cd.template != null)
-			templates.add(rewrite(new TemplateContext(c2), cd.template));
+		if (!cd.templates.isEmpty())
+			templates.add(rewrite(new TemplateContext(c2), cd.templates.iterator().next()));
 		
 		for (HandlerImplements hi : cd.handlers) {
 			RWHandlerImplements rw = pass1HI(c2, hi);
@@ -741,9 +742,9 @@ public class Rewriter {
 		pass3(c2, cd.fnScope);
 	}
 
-	private Template rewrite(TemplateContext cx, Template template) {
+	private RWTemplate rewrite(TemplateContext cx, Template template) {
 		try {
-			return new Template(template.kw, template.location(), template.prefix, rewrite(cx, template.content));
+			return new RWTemplate(template.kw, template.location(), template.name, rewrite(cx, template.content));
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;

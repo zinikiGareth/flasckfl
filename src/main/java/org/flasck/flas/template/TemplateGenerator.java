@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.Template;
 import org.flasck.flas.commonBase.template.TemplateCardReference;
 import org.flasck.flas.commonBase.template.TemplateCases;
 import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
@@ -34,6 +33,7 @@ import org.flasck.flas.rewrittenForm.RWEventHandler;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWTemplate;
 import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -68,7 +68,7 @@ public class TemplateGenerator {
 		private final Object equals;
 		private final String javaName;
 
-		public GeneratorContext(JSTarget target, Rewriter rw, Template cg) {
+		public GeneratorContext(JSTarget target, Rewriter rw, RWTemplate cg) {
 			this.target = target;
 			this.javaName = cg.prefix;
 			InputPosition posn = new InputPosition("template", 1, 1, "");
@@ -121,11 +121,11 @@ public class TemplateGenerator {
 	}
 
 	public void generate(Rewriter rw, JSTarget target) {
-		for (Template cg : rewriter.templates)
+		for (RWTemplate cg : rewriter.templates)
 			generateTemplate(rw, target, cg);
 	}
 
-	private void generateTemplate(Rewriter rw, JSTarget target, Template cg) {
+	private void generateTemplate(Rewriter rw, JSTarget target, RWTemplate cg) {
 		GeneratorContext cx = new GeneratorContext(target, rw, cg);
 		JSForm ir = JSForm.flexFn(cx.protoName + "_render", CollectionUtils.listOf("doc", "wrapper", "parent"));
 		target.add(ir);

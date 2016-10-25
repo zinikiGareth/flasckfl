@@ -23,7 +23,6 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.Template;
 import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
 import org.flasck.flas.commonBase.template.TemplateFormat;
 import org.flasck.flas.commonBase.template.TemplateList;
@@ -51,8 +50,10 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
+import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TuplePattern;
@@ -303,8 +304,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpLocation(pw, cd);
 			if (cd.state != null)
 				dumpRecursive(pw.indent(), cd.state);
-			if (cd.template != null)
-				dumpRecursive(pw.indent(), cd.template);
+			for (Template t : cd.templates)
+				dumpRecursive(pw.indent(), t);
 			dumpList(pw, cd.contracts);
 			dumpList(pw, cd.handlers);
 			dumpList(pw, cd.services);
@@ -385,13 +386,18 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pw.indent(), mm.expr);
 		} else if (obj instanceof Template) {
 			Template t = (Template) obj;
-			if (t.kw != null) { // if t.kw IS null, we didn't in fact define anything, but this case needs cleaning up
-				pw.print("template" + (t.prefix != null ? " " + t.prefix : ""));
-				dumpPosition(pw, t.kw, false);
-				dumpLocation(pw, t);
-				if (t.content != null)
-					dumpRecursive(pw.indent(), t.content);
+			pw.print("template" + (t.name != null ? " " + t.name : ""));
+			dumpPosition(pw, t.kw, false);
+			dumpPosition(pw, t.location(), false);
+			for (LocatedToken a : t.args) {
+				pw.print(" " + a.text);
 			}
+			for (LocatedToken a : t.args) {
+				dumpPosition(pw, a.location, false);
+			}
+			pw.newline();
+			if (t.content != null)
+				dumpRecursive(pw.indent(), t.content);
 		} else if (obj instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) obj;
 			pw.print(".");
@@ -422,6 +428,11 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			if (td.iterVar != null)
 				dumpPosition(pw, td.iterLoc, true);
 			dumpRecursive(pw.indent(), td.template);
+		} else if (obj instanceof TemplateReference) {
+			TemplateReference tr = (TemplateReference) obj;
+			pw.print(tr.name);
+			dumpLocation(pw, tr);
+			dumpList(pw, tr.args);
 		} else if (obj instanceof ContentString) {
 			ContentString ce = (ContentString) obj;
 			pw.print("'' " + ce.text);
@@ -437,6 +448,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.print("format ");
 			if (tt.type == TemplateToken.STRING) {
 				pw.print("'' " + tt.text);
+				dumpPosition(pw, tt.location, true);
+			} else if (tt.type == TemplateToken.IDENTIFIER) {
+				pw.print(tt.text);
 				dumpPosition(pw, tt.location, true);
 			} else
 				throw new UtilException("Can't handle template token " + tt.type);

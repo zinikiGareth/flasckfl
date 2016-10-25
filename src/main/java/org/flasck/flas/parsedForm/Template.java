@@ -1,28 +1,34 @@
-package org.flasck.flas.commonBase.template;
+package org.flasck.flas.parsedForm;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.template.TemplateLine;
 
 public class Template implements Locatable {
 	public final InputPosition kw;
 	private final InputPosition loc;
-	public final String prefix;
+	public final String name;
+	public final List<LocatedToken> args;
 	public final TemplateLine content;
-	public final List<LocatedToken> args = new ArrayList<LocatedToken>();
-	
-	public Template(InputPosition kw, InputPosition loc, String prefix, TemplateLine content) {
+
+	public Template(InputPosition kw, InputPosition loc, String name, List<LocatedToken> args, TemplateLine content) {
 		this.kw = kw;
 		this.loc = loc;
-		this.prefix = prefix;
+		this.name = name;
+		this.args = args;
 		this.content = content;
 	}
 
 	@Override
 	public InputPosition location() {
 		return loc;
+	}
+
+	@Override
+	public String toString() {
+		return "TemplateThing[" + name + "]";
 	}
 }
