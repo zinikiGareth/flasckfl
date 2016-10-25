@@ -12,6 +12,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.IfExpr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -831,12 +832,17 @@ public class FLASStory {
 				ContentExpr ce = (ContentExpr)tf;
 				Object sub = substituteMacroParameters(er, s, map, ce.expr, subst);
 				TemplateFormatEvents ret;
-				if (sub instanceof StringLiteral)
-					ret = new ContentString(ce.kw, ((StringLiteral)sub).text, formats);
-				else if (sub instanceof NumericLiteral)
-					ret = new ContentString(ce.kw, ((NumericLiteral)sub).text, formats);
-				else
-					ret = new ContentExpr(ce.kw, sub, ce.editable(), ce.rawHTML, formats);
+				if (sub instanceof StringLiteral) {
+					StringLiteral sl = (StringLiteral)sub;
+					ret = new ContentString(sl.location, sl.text, formats);
+				} else if (sub instanceof NumericLiteral) {
+					NumericLiteral nl = (NumericLiteral)sub;
+					ret = new ContentString(nl.location, nl.text, formats);
+				} else if (sub instanceof Locatable) {
+					Locatable l = (Locatable) sub;
+					ret = new ContentExpr(l.location(), sub, ce.editable(), ce.rawHTML, formats);
+				} else
+					throw new UtilException("Cannot substitute " + sub);
 				for (EventHandler y : ce.handlers)
 					ret.handlers.add(new EventHandler(y.kw, y.actionPos, y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
 				return ret;
@@ -923,7 +929,7 @@ public class FLASStory {
 	private TemplateToken asTT(Object sub) {
 		if (sub instanceof StringLiteral) {
 			StringLiteral s = (StringLiteral) sub;
-			return new TemplateToken(null, TemplateToken.STRING, s.text);
+			return new TemplateToken(s.location, TemplateToken.STRING, s.text);
 		}
 		throw new UtilException("Cannot handle: " + sub + ": " + sub.getClass());
 	}

@@ -1,0 +1,16 @@
+package test.golden
+  card test.golden.Unroll @{2:0|card} @{2:5|Unroll}
+    template test.golden.Unroll @{8:0|template} @{8:9|rolled}
+      . @{4:0|.}
+        . p @{9:0|#p} @{9:1|p}
+          attr title @{9:10|title}
+            '' hello @{5:8|'hello'}
+          '' hello @{5:8|'hello'}
+          format '' styled @{9:18|'styled'}
+          format '' hello @{5:8|'hello'}
+        . p @{9:0|#p} @{9:1|p}
+          attr title @{9:10|title}
+            '' goodbye @{6:8|'goodbye'}
+          '' goodbye @{6:8|'goodbye'}
+          format '' styled @{9:18|'styled'}
+          format '' goodbye @{6:8|'goodbye'}

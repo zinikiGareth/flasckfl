@@ -54,7 +54,7 @@ package test.golden
               lv @{38:0|lv}
         + list @{39:0|+} @{39:2|list}
           . @{40:0|.}
-            '' hello
+            '' hello @{41:0|"hello"}
               => @{42:6|=>}
                 click @{42:0|click}
                 sayHello @{42:9|sayHello}

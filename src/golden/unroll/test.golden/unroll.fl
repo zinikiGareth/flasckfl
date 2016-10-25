@@ -1,0 +1,10 @@
+
+	card Unroll
+		template
+			.
+				$rolled 'hello'
+				$rolled 'goodbye'
+		
+		template rolled title
+			#p @title=title : 'styled' title
+				title

@@ -24,6 +24,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.Template;
+import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
 import org.flasck.flas.commonBase.template.TemplateFormat;
 import org.flasck.flas.commonBase.template.TemplateList;
 import org.flasck.flas.errors.ErrorResult;
@@ -61,6 +62,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.StoryRet;
+import org.flasck.flas.tokenizers.TemplateToken;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -399,11 +401,17 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				pw.print(" " + td.customTagVar);
 			dumpPosition(pw, td.kw, false);
 			if (td.customTagLoc != null)
-				pw.print(" " + td.customTagLoc);
+				dumpPosition(pw, td.customTagLoc, false);
 			else if (td.customTagVar != null)
-				pw.print(" " + td.customTagVarLoc);
+				dumpPosition(pw, td.customTagVarLoc, false);
 			pw.newline();
+			dumpList(pw, td.attrs);
 			dumpList(pw, td.nested);
+		} else if (obj instanceof TemplateExplicitAttr) {
+			TemplateExplicitAttr attr = (TemplateExplicitAttr) obj;
+			pw.print("attr " + attr.attr);
+			dumpPosition(pw, attr.location, true);
+			dumpRecursive(pw.indent(), attr.value);
 		} else if (obj instanceof TemplateList) {
 			TemplateList td = (TemplateList) obj;
 			pw.print("+ " + td.listVar);
@@ -416,12 +424,22 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pw.indent(), td.template);
 		} else if (obj instanceof ContentString) {
 			ContentString ce = (ContentString) obj;
-			pw.println("'' " + ce.text);
+			pw.print("'' " + ce.text);
+			dumpPosition(pw, ce.kw, true);
 		} else if (obj instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) obj;
 			pw.print("<cexpr>");
 			dumpPosition(pw, ce.kw, true);
 			dumpRecursive(pw.indent(), ce.expr);
+		} else if (obj instanceof TemplateToken) {
+			// used in formats at least
+			TemplateToken tt = (TemplateToken) obj;
+			pw.print("format ");
+			if (tt.type == TemplateToken.STRING) {
+				pw.print("'' " + tt.text);
+				dumpPosition(pw, tt.location, true);
+			} else
+				throw new UtilException("Can't handle template token " + tt.type);
 		} else if (obj instanceof EventHandler) {
 			EventHandler eh = (EventHandler) obj;
 			pw.print("=>");
