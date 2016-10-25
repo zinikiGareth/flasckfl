@@ -26,4 +26,9 @@ public class RWTemplate implements Locatable {
 	public InputPosition location() {
 		return loc;
 	}
+	
+	@Override
+	public String toString() {
+		return "RWTemplate[" + prefix + "]";
+	}
 }

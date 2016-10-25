@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.zinutils.collections.CollectionUtils;
@@ -198,7 +199,7 @@ public class TypeExpr {
 						}
 					}
 //					System.out.println("====");
-					return d.instance(null, convertArgs(tc, pool, checkBindings.values()));
+					return d.instance(new InputPosition("typecheck", 1, 1, null), convertArgs(tc, pool, checkBindings.values()));
 				}
 			}
 			tc.errors.message((Block)null, "The union of " + tu + " is not a valid type");

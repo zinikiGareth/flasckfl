@@ -29,6 +29,6 @@ public class Template implements Locatable {
 
 	@Override
 	public String toString() {
-		return "TemplateThing[" + name + "]";
+		return "Template[" + name + "]";
 	}
 }

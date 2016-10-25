@@ -13,7 +13,7 @@
                 </Function>
             </Arg>
             <Arg>
-                <Instance>
+                <Instance file="typecheck" line="1" off="1">
                     <Union name="List"/>
                     <Poly name="A"/>
                 </Instance>

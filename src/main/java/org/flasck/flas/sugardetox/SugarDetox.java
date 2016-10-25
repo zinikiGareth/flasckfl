@@ -49,8 +49,11 @@ public class SugarDetox {
 	}
 
 	private void detoxTemplates(CardDefinition cd) {
-		if (cd.templates.isEmpty())
-			return; // we have nothing to rewrite
+		if (cd.templates.isEmpty()) {
+			// we have nothing to rewrite, but we need a minimal template - create one
+			cd.templates.add(new Template(cd.kw, cd.location, cd.name, null, null));
+			return;
+		}
 		Template t = cd.templates.get(0);
 		Template tmp = new Template(t.kw, t.location(), cd.name, null, unroll(errors, cd.templates, cd.d3s, new TreeMap<String, Object>()));
 		cd.templates.clear();

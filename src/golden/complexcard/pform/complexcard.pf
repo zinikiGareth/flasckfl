@@ -44,7 +44,7 @@ package test.golden
         -> @{31:0|String->String}
           String @{31:0|String->String}
           String @{31:8|String}
-    template test.golden.Complex @{33:0|template} @{null}
+    template @{33:0|template} @{null}
       . @{34:0|.}
         <cexpr> @{35:0|hello}
           hello @{35:0|hello}
