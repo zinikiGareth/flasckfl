@@ -6,8 +6,9 @@ public class ValidIdentifierToken {
 	public final InputPosition location;
 	public final String text;
 
-	public ValidIdentifierToken(InputPosition pos, String text) {
+	public ValidIdentifierToken(InputPosition pos, String text, int end) {
 		this.location = pos;
+		this.location.endAt(end);
 		this.text = text;
 	}
 
@@ -20,7 +21,7 @@ public class ValidIdentifierToken {
 		line.advance();
 		while (line.hasMore() && Character.isJavaIdentifierPart(line.nextChar()))
 			line.advance();
-		return new ValidIdentifierToken(pos, line.fromMark(mark));
+		return new ValidIdentifierToken(pos, line.fromMark(mark), line.at());
 	}
 	
 	@Override

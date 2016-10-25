@@ -3,34 +3,34 @@ package test.golden
     [var] f @{2:7|f}
     [ctor] Nil @{2:9|[]}
    =
-    Nil @{2:15|]}
+    Nil @{2:15|null}
   test.golden.filter @{3:0|filter}
     [var] f @{3:7|f}
-    [ctor] Cons @{3:13|)}
-      head @{3:10|a:l)}
-        [var] a @{3:10|a:l)}
-      tail @{3:10|a:l)}
-        [var] l @{3:12|l)}
+    [ctor] Cons @{3:9|(a:l)}
+      head @{3:10|a}
+        [var] a @{3:10|a}
+      tail @{3:10|a}
+        [var] l @{3:12|l}
    =
-    <apply> @{3:17|g}
+    <apply> @{3:17|g (f a)}
       g @{3:17|g}
-      <apply> @{3:20|f}
+      <apply> @{3:19|(f a)}
         f @{3:20|f}
-        a @{3:22|a)}
+        a @{3:22|a}
     test.golden.filter_1.g @{4:0|g}
       2: true
      =
-      <apply> @{4:10|:(filter}
-        Cons @{4:10|:(filter}
-        a @{4:9|a:(filter}
-        <apply> @{4:12|filter}
+      <apply> @{4:9|a:(filter f l)}
+        Cons @{4:10|:}
+        a @{4:9|a}
+        <apply> @{4:11|(filter f l)}
           filter @{4:12|filter}
           f @{4:19|f}
-          l @{4:21|l)}
+          l @{4:21|l}
     test.golden.filter_1.g @{5:0|g}
       2: false
      =
-      <apply> @{5:11|filter}
+      <apply> @{5:10|(filter f l)}
         filter @{5:11|filter}
         f @{5:18|f}
-        l @{5:20|l)}
+        l @{5:20|l}

@@ -507,11 +507,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		if (pos == null) {
 			pw.print(" @{null}");
 		} else {
-			String kw = pos.text == null ? "" : pos.text.substring(pos.off);
-			int idx = kw.indexOf(' ');
-			if (idx != -1)
-				kw = kw.substring(0, idx);
-			pw.print(" @{" + pos.lineNo + ":" + pos.off + "|" + kw + "}");
+			pw.print(" @{" + pos.lineNo + ":" + pos.off + "|" + pos.asToken() + "}");
 		}
 		if (withNL)
 			pw.println("");

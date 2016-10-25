@@ -16,8 +16,9 @@ public class TypeExprToken {
 	public final int type;
 	public final String text;
 
-	public TypeExprToken(InputPosition location, int type, String text) {
+	public TypeExprToken(InputPosition location, int type, String text, int end) {
 		this.location = location;
+		this.location.endAt(end);
 		this.type = type;
 		this.text = text;
 	}
@@ -32,14 +33,14 @@ public class TypeExprToken {
 		if (Character.isLetter(c)) {
 			TypeNameToken tmp = QualifiedTypeNameToken.from(line);
 			if (tmp != null)
-				return new TypeExprToken(loc, NAME, tmp.text);
+				return new TypeExprToken(loc, NAME, tmp.text, line.at());
 			else
 				return null;
 		} else if ((pos = "()[],".indexOf(c)) != -1) {
 			line.advance();
-			return new TypeExprToken(loc, 10+pos, null);
+			return new TypeExprToken(loc, 10+pos, null, line.at());
 		} else if ("->".equals(line.getTo(2))) {
-			return new TypeExprToken(loc, ARROW, "->");
+			return new TypeExprToken(loc, ARROW, "->", line.at());
 		} else
 			return null;
 	}

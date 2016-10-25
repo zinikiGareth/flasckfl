@@ -219,7 +219,7 @@ public class SugarDetox {
 	private TemplateToken asTT(Object sub) {
 		if (sub instanceof StringLiteral) {
 			StringLiteral s = (StringLiteral) sub;
-			return new TemplateToken(s.location, TemplateToken.STRING, s.text);
+			return new TemplateToken(s.location, TemplateToken.STRING, s.text, -1);
 		}
 		throw new UtilException("Cannot handle: " + sub + ": " + sub.getClass());
 	}

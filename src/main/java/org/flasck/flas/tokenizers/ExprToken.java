@@ -44,20 +44,20 @@ public class ExprToken {
 			String tok = StringToken.from(line);
 			if (tok == null)
 				return null;
-			return new ExprToken(loc, STRING, tok);
+			return new ExprToken(loc.copySetEnd(line.at()), STRING, tok);
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1)))
 			return new ExprToken(NUMBER, NumberToken.from(line));
 		else if ("()[]{}.,".indexOf(c) != -1) {
 			line.advance();
-			return new ExprToken(loc, PUNC, line.fromMark(mark));
+			return new ExprToken(loc.copySetEnd(line.at()), PUNC, line.fromMark(mark));
 		} else {
 			while (line.hasMore() && "~!$%^&|*/+-=:<>".indexOf(line.nextChar()) != -1) {
 				line.advance();
 			}
 			if (line.at() == mark)
 				return null;
-			return new ExprToken(loc, SYMBOL, line.fromMark(mark));
+			return new ExprToken(loc.copySetEnd(line.at()), SYMBOL, line.fromMark(mark));
 		}
 	}
 

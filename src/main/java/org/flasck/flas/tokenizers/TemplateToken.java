@@ -26,8 +26,9 @@ public class TemplateToken {
 	public final int type;
 	public final String text;
 
-	public TemplateToken(InputPosition location, int type, String text) {
+	public TemplateToken(InputPosition location, int type, String text, int end) {
 		this.location = location;
+		this.location.endAt(end);
 		this.type = type;
 		this.text = text;
 	}
@@ -43,57 +44,57 @@ public class TemplateToken {
 			ValidIdentifierToken vit = ValidIdentifierToken.from(line);
 			if (vit == null)
 				return null;
-			return new TemplateToken(loc, IDENTIFIER, vit.text);
+			return new TemplateToken(vit.location, IDENTIFIER, vit.text, line.at());
 		} else if (c == '"' || c == '\'') {
-			return new TemplateToken(loc, STRING, StringToken.from(line));
+			return new TemplateToken(loc, STRING, StringToken.from(line), line.at());
 		} else if (c == '.') {
 			line.advance();
-			return new TemplateToken(loc, DIV, ".");
+			return new TemplateToken(loc, DIV, ".", line.at());
 		} else if (c == '+') {
 			line.advance();
-			return new TemplateToken(loc, LIST, "+");
+			return new TemplateToken(loc, LIST, "+", line.at());
 		} else if (c == '|') {
 			line.advance();
 			if (line.hasMore() && line.nextChar() == '|') {
 				line.advance();
-				return new TemplateToken(loc, CASES, "||");
+				return new TemplateToken(loc, CASES, "||", line.at());
 			}
-			return new TemplateToken(loc, OR, "|");
+			return new TemplateToken(loc, OR, "|", line.at());
 		} else if (c == ':') {
 			line.advance();
-			return new TemplateToken(loc, COLON, ":");
+			return new TemplateToken(loc, COLON, ":", line.at());
 		} else if (c == '#') {
 			line.advance();
-			return new TemplateToken(loc, HASH, "#");
+			return new TemplateToken(loc, HASH, "#", line.at());
 		} else if (c == '@') {
 			line.advance();
-			return new TemplateToken(loc, ATTR, "@");
+			return new TemplateToken(loc, ATTR, "@", line.at());
 		} else if (c == '$') {
 			line.advance();
 			line.skipWS();
 			ValidIdentifierToken tok = VarNameToken.from(line);
 			if (tok == null)
 				return null;
-			return new TemplateToken(loc, TEMPLATE, tok.text);
+			return new TemplateToken(loc, TEMPLATE, tok.text, line.at());
 		} else if (c == '>') {
 			line.advance();
-			return new TemplateToken(loc, CARD, ">");
+			return new TemplateToken(loc, CARD, ">", line.at());
 		} else if (c == '(') {
 			line.advance();
-			return new TemplateToken(loc, ORB, "(");
+			return new TemplateToken(loc, ORB, "(", line.at());
 		} else if (c == ')') {
 			line.advance();
-			return new TemplateToken(loc, CRB, ")");
+			return new TemplateToken(loc, CRB, ")", line.at());
 		} else if (c == '=') {
 			line.advance();
 			if (line.nextChar() == '>') {
 				line.advance();
-				return new TemplateToken(loc, ARROW, "=>");
+				return new TemplateToken(loc, ARROW, "=>", line.at());
 			} else
-				return new TemplateToken(loc, EQUALS, "=");
+				return new TemplateToken(loc, EQUALS, "=", line.at());
 		} else if (c == '?') {
 			line.advance();
-			return new TemplateToken(loc, EDITABLE, "?");
+			return new TemplateToken(loc, EDITABLE, "?", line.at());
 		} else
 			return null;
 	}

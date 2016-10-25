@@ -43,6 +43,7 @@ public class FieldParser implements TryParsing {
 		String op = line.getTo(2);
 		if (!"<-".equals(op))
 			return ErrorResult.oneMessage(line, "expected <-");
+		assOp.endAt(line.at());
 		Object o = new Expression().tryParsing(line);
 		if (o == null)
 			return ErrorResult.oneMessage(line, "not a valid expression");

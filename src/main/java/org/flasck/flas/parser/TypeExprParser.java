@@ -3,6 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -37,10 +38,12 @@ public class TypeExprParser implements TryParsing {
 				line.reset(mark);
 			List<TypeReference> fnargs = new ArrayList<TypeReference>();
 			fnargs.add(new TypeReference(tt.location, tt.text, polys));
+			InputPosition arrow = null;
 			while (true) {
 				mark = line.at();
 				TypeExprToken arr = TypeExprToken.from(line);
 				if (arr != null && arr.type == TypeExprToken.ARROW) {
+					arrow = arr.location;
 					Object t = tryOneExpr(line);
 					if (t instanceof TypeReference)
 						fnargs.add((TypeReference) t);
@@ -56,7 +59,7 @@ public class TypeExprParser implements TryParsing {
 				return fnargs.get(0);
 			else {
 				// This is a function type, such as "A->B mapper"
-				return new FunctionTypeReference(tt.location, fnargs);
+				return new FunctionTypeReference(arrow, fnargs);
 			}
 		}
 		else if (tt.type == TypeExprToken.ORB) {

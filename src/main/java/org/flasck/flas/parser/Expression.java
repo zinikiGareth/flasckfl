@@ -14,6 +14,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class Expression implements TryParsing {
@@ -38,15 +39,17 @@ public class Expression implements TryParsing {
 	}
 
 	private static class ParenExpr implements Locatable {
-		final Locatable nested;
+		private InputPosition location;
+		final Object nested;
 
-		public ParenExpr(Object nested) {
-			this.nested = (Locatable) nested;
+		public ParenExpr(InputPosition location, Object nested) {
+			this.location = location;
+			this.nested = nested;
 		}
 
 		@Override
 		public InputPosition location() {
-			return nested.location();
+			return location;
 		}
 		
 		@Override
@@ -78,11 +81,11 @@ public class Expression implements TryParsing {
 				args.add(ItemExpr.from(s));
 			else {
 				if (s.text.equals("(")) {
-					Object pp = parseParenthetical(line, ")");
+					Object pp = parseParenthetical(line, s.location, ")");
 					if (pp == null || pp instanceof ErrorResult) return pp;
 					args.add(pp);
 				} else if (s.text.equals("[")) {
-					Object pp = parseParenthetical(line, "]");
+					Object pp = parseParenthetical(line, s.location, "]");
 					if (pp == null || pp instanceof ErrorResult) return pp;
 					args.add(pp);
 				}
@@ -93,11 +96,11 @@ public class Expression implements TryParsing {
 				if (s == null)
 					return null;
 				if (s.type == ExprToken.PUNC && s.text.equals("(")) {
-					Object pp = parseParenthetical(line, ")");
+					Object pp = parseParenthetical(line, s.location, ")");
 					if (pp == null || pp instanceof ErrorResult) return pp;
 					args.add(pp);
 				} else if (s.type == ExprToken.PUNC && s.text.equals("[")) {
-					Object pp = parseParenthetical(line, "]");
+					Object pp = parseParenthetical(line, s.location, "]");
 					if (pp == null || pp instanceof ErrorResult) return pp;
 					args.add(pp);
 				} else if (s.type == ExprToken.PUNC && (s.text.equals(")") || s.text.equals(",") || s.text.equals("]"))) {
@@ -128,10 +131,13 @@ public class Expression implements TryParsing {
 					return ErrorResult.oneMessage(((Locatable)args.get(1)).location(), "cannot downcast to " + args.get(1));
 				UnresolvedVar type = (UnresolvedVar)ex;
 				return new CastExpr(type.location, type.var, args.get(2));
-			} else if (args.size() == 1)
-				return promoteConstructors(deparen(args.get(0)));
-			else
-				return deparen(opstack(args));
+			} else if (args.size() == 1) {
+				Locatable a0 = (Locatable) args.get(0);
+				return promoteConstructors(deparen(a0.location(), a0));
+			} else {
+				Locatable os = (Locatable) opstack(args);
+				return deparen(os.location(), os);
+			}
 		} else {
 			// error reporting - some sort of syntax error
 			System.out.println("What was this? " + s);
@@ -163,7 +169,7 @@ public class Expression implements TryParsing {
 				Object left = args.remove(i);
 				Locatable dot = (Locatable) args.remove(i);
 				Object right = args.remove(i);
-				ApplyExpr ae = new ApplyExpr(dot.location(), dot, left, right);
+				ApplyExpr ae = new ApplyExpr(range(dot, CollectionUtils.listOf(left, right)), dot, left, right);
 				args.add(i, ae);
 			}
 		}
@@ -174,10 +180,11 @@ public class Expression implements TryParsing {
 				if (i>j+1) { // collapse a fn defn to the left
 					List<Object> inargs = new ArrayList<Object>();
 					for (int k=j+1;k<i;k++) {
-						inargs.add(deparen(args.remove(j+1)));
+						Locatable aj = (Locatable) args.remove(j+1);
+						inargs.add(deparen(aj.location(), aj));
 					}
 					Locatable op = (Locatable) args.remove(j);
-					ApplyExpr ae = new ApplyExpr(op.location(), deparen(op), inargs);
+					ApplyExpr ae = new ApplyExpr(range(op, inargs), deparen(op.location(), op), inargs);
 					args.add(j, ae);
 				}
 				if (j == i)
@@ -223,25 +230,31 @@ public class Expression implements TryParsing {
 					else if (prev.prefix) {
 						if (stack.size() > 0)
 							stack.remove(0);
-						Object o1 = deparen(args.remove(i-2));
-						Object o2 = deparen(args.remove(i-2));
-						args.add(i-2, new ApplyExpr(((Locatable)o1).location(), o1, o2));
+						Object o1 = args.remove(i-2);
+						o1 = deparen(((Locatable) o1).location(), o1);
+						Object o2 = args.remove(i-2);
+						o2 = deparen(((Locatable) o2).location(), o2);
+						args.add(i-2, new ApplyExpr(range((Locatable)o1, CollectionUtils.listOf(o2)), o1, o2));
 						i--;
 					}
 					else {
 						if (stack.size() > 0)
 							stack.remove(0);
-						Object o1 = deparen(args.remove(i-3));
-						Locatable o2 = (Locatable) deparen(args.remove(i-3));
-						Object o3 = deparen(args.remove(i-3));
+						Object o1 = args.remove(i-3);
+						o1 = deparen(((Locatable) o1).location(), o1);
+						Locatable o2 = (Locatable) args.remove(i-3);
+						o2 = (Locatable) deparen(o2.location(), o2);
+						Object o3 = args.remove(i-3);
+						o3 = deparen(((Locatable) o3).location(), o3);
+						InputPosition loc = range(o2, CollectionUtils.listOf(o1, o3));
 						if (isCurryVar(o1) && isCurryVar(o3))
-							return new ParenExpr(o2);
+							return new ParenExpr(loc, o2);
 						else if (isCurryVar(o1))
-							args.add(i-3, new ApplyExpr(o2.location(), curry1st(o2), o3));
+							args.add(i-3, new ApplyExpr(loc, curry1st(o2), o3));
 						else if (isCurryVar(o3))
-							args.add(i-3, new ApplyExpr(o2.location(), o2, o1));
+							args.add(i-3, new ApplyExpr(loc, o2, o1));
 						else
-							args.add(i-3, new ApplyExpr(o2.location(), o2, o1, o3));
+							args.add(i-3, new ApplyExpr(loc, o2, o1, o3));
 						i-=2;
 					}
 				} while (action == REDUCE);
@@ -250,35 +263,58 @@ public class Expression implements TryParsing {
 		return args.remove(0);
 	}
 
+	private static InputPosition range(Locatable op, List<Object> inargs) {
+		InputPosition loc = op.location();
+		int min = loc.off;
+		int max = loc.pastEnd();
+		for (Object o : inargs) {
+			InputPosition ip = null;
+			if (o instanceof Locatable) {
+				ip = ((Locatable)o).location();
+			} else if (o instanceof InputPosition) {
+				ip = (InputPosition)o;
+			}
+			if (ip != null) {
+				min = Math.min(min, ip.off);
+				max = Math.max(max, ip.pastEnd());
+			}
+		}
+		InputPosition ret = new InputPosition(loc.file, loc.lineNo, min, loc.text);
+		ret.endAt(max);
+		return ret;
+	}
+
 	private boolean isDot(Object tok) {
 		return tok instanceof UnresolvedOperator && ((UnresolvedOperator)tok).op.equals(".");
 	}
 
-	private Object deparen(Object pe) {
+	private Object deparen(InputPosition loc, Object pe) {
 		if (pe instanceof ErrorResult)
 			return pe;
 		else if (pe instanceof UnresolvedOperator)
-			return rehash((UnresolvedOperator) pe);
-		else if (pe instanceof ParenExpr)
-			return deparen(((ParenExpr)pe).nested);
-		else if (pe instanceof ApplyExpr) {
+			return rehash(loc, (UnresolvedOperator) pe);
+		else if (pe instanceof ParenExpr) {
+			ParenExpr wpe = (ParenExpr)pe;
+			return deparen(wpe.location, wpe.nested);
+		} else if (pe instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) pe;
 			List<Object> args = new ArrayList<Object>();
-			for (Object o : ae.args)
-				args.add(deparen(o));
-			return new ApplyExpr(ae.location, deparen(ae.fn), args);
+			for (Object o : ae.args) {
+				args.add(deparen(((Locatable)o).location(), o));
+			}
+			return new ApplyExpr(loc, deparen(((Locatable)ae.fn).location(), ae.fn), args);
 		} else if (pe instanceof CastExpr) {
 			CastExpr ce = (CastExpr) pe;
-			return new CastExpr(ce.location, ce.castTo, deparen(ce.expr));
+			return new CastExpr(loc, ce.castTo, deparen(ce.location, ce.expr));
 		} else if (pe instanceof NumericLiteral || pe instanceof UnresolvedVar || pe instanceof UnresolvedOperator || pe instanceof StringLiteral)
 			return pe;
 		else
 			throw new UtilException("Expr not handled: " + pe.getClass());
 	}
 
-	private Object rehash(UnresolvedOperator ie) {
+	private Object rehash(InputPosition loc, UnresolvedOperator ie) {
 		if (ie.op.equals(":"))
-			return new UnresolvedVar(ie.location, "Cons");
+			return new UnresolvedVar(loc, "Cons");
 		return ie;
 	}
 
@@ -319,7 +355,7 @@ public class Expression implements TryParsing {
 		return new UnresolvedOperator(null, ((UnresolvedOperator)o).op+"_");
 	}
 
-	private Object parseParenthetical(Tokenizable line, String endsWith) {
+	private Object parseParenthetical(Tokenizable line, InputPosition orb, String endsWith) {
 		List<Object> objs = new ArrayList<Object>();
 		while (true) {
 			// TODO: I'm not sure about this way of doing it
@@ -341,7 +377,7 @@ public class Expression implements TryParsing {
 							return null;
 						}
 						else if (objs.size() == 1)
-							return new ParenExpr(objs.get(0));
+							return new ParenExpr(orb.copySetEnd(line.at()), objs.get(0));
 						else {
 							// The tuple case
 							return new ApplyExpr(startsAt, ItemExpr.from(new ExprToken(startsAt, ExprToken.SYMBOL, "()")), objs);

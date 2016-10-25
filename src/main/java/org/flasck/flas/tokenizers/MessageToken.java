@@ -11,8 +11,9 @@ public class MessageToken {
 	public final int type;
 	public final String text;
 
-	public MessageToken(InputPosition loc, int type, String text) {
+	public MessageToken(InputPosition loc, int type, String text, int end) {
 		location = loc;
+		location.endAt(end);
 		this.type = type;
 		this.text = text;
 	}
@@ -24,12 +25,12 @@ public class MessageToken {
 		InputPosition loc = line.realinfo();
 		char c = line.nextChar();
 		if (Character.isJavaIdentifierStart(c))
-			return new MessageToken(loc, IDENTIFIER, ValidIdentifierToken.from(line).text);
+			return new MessageToken(loc, IDENTIFIER, ValidIdentifierToken.from(line).text, line.at());
 		else if (c == '.') {
 			line.advance();
-			return new MessageToken(loc, DOT, ".");
+			return new MessageToken(loc, DOT, ".", line.at());
 		} else if ("<-".equals(line.getTo(2))) {
-			return new MessageToken(loc, ARROW, "<-");
+			return new MessageToken(loc, ARROW, "<-", line.at());
 		} else
 			return null;
 	}

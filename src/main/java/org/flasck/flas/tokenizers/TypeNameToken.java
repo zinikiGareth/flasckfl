@@ -11,8 +11,9 @@ public class TypeNameToken {
 		text = tok.text;
 	}
 
-	public TypeNameToken(InputPosition loc, String proto) {
+	public TypeNameToken(InputPosition loc, String proto, int end) {
 		location = loc;
+		location.endAt(end);
 		text = proto;
 	}
 

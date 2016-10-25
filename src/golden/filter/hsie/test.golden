@@ -3,7 +3,7 @@ HSIE for test.golden.filter
     externals: [Cons, Nil] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v1                                                      ?? - should be location of defn in first equation to have this as a free var
-SWITCH v1 Cons                                               filter.fl:    3.13
+SWITCH v1 Cons                                               filter.fl:    3.9
   BIND v2 v1.head                                              ?? - should be location in first equation where this var is introduced in a pattern
   BIND v3 v1.tail                                              ?? - should be location in first equation where this var is introduced in a pattern
   RETURN v6:clos6 [v4:test.golden.filter_1.g, v5:clos5]        #filter.fl:    3.17 - this appears to be wrong for closures; wants to be the apply expr point
@@ -20,7 +20,7 @@ CLOSURE v5                                                   ?? - should be begi
   PUSH v2:test.golden.filter_1.a                               #filter.fl:    3.10 - also want location where the variable is actually used here
 CLOSURE v6                                                   ?? - should be beginning (and ending?) of apply expr
   PUSH v4:test.golden.filter_1.g                               #filter.fl:    4.0 - also want location where the variable is actually used here
-  PUSH v5:clos5                                                #filter.fl:    3.20 - also want location where the variable is actually used here
+  PUSH v5:clos5                                                #filter.fl:    3.19 - also want location where the variable is actually used here
 -------
 HSIE for test.golden.filter_1.g
 #Args: 1 #bound: 3
@@ -29,9 +29,9 @@ HSIE for test.golden.filter_1.g
 HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var
 SWITCH v0 Boolean                                            filter.fl:    4.2
   IF v0:ev0 false
-    RETURN v1:clos1 []                                           #filter.fl:    5.11 - this appears to be wrong for closures; wants to be the apply expr point
+    RETURN v1:clos1 []                                           #filter.fl:    5.10 - this appears to be wrong for closures; wants to be the apply expr point
   IF v0:ev0 true
-    RETURN v3:clos3 [v2:clos2]                                   #filter.fl:    4.10 - this appears to be wrong for closures; wants to be the apply expr point
+    RETURN v3:clos3 [v2:clos2]                                   #filter.fl:    4.9 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
 CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
   PUSH test.golden.filter                                      #filter.fl:    5.11 - also want location where the variable is actually used here
@@ -44,5 +44,5 @@ CLOSURE v2                                                   ?? - should be begi
 CLOSURE v3                                                   ?? - should be beginning (and ending?) of apply expr
   PUSH Cons                                                    #filter.fl:    4.10 - also want location where the variable is actually used here
   PUSH Scoped[test.golden.filter_1.a]                          #filter.fl:    3.10 - also want location where the variable is actually used here
-  PUSH v2:clos2                                                #filter.fl:    4.12 - also want location where the variable is actually used here
+  PUSH v2:clos2                                                #filter.fl:    4.11 - also want location where the variable is actually used here
 =======

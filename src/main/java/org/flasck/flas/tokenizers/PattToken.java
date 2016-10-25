@@ -24,8 +24,9 @@ public class PattToken {
 	public final int type;
 	public final String text;
 
-	public PattToken(InputPosition loc, int type, String text) {
+	public PattToken(InputPosition loc, int type, String text, int end) {
 		this.location = loc;
+		this.location.endAt(end);
 		this.type = type;
 		this.text = text;
 	}
@@ -41,21 +42,21 @@ public class PattToken {
 			if (tok == null)
 				return null;
 			if (tok.text.equals("true"))
-				return new PattToken(tok.location, PattToken.TRUE, "true");
+				return new PattToken(tok.location, PattToken.TRUE, "true", line.at());
 			else if (tok.text.equals("false"))
-				return new PattToken(tok.location, PattToken.FALSE, "false");
+				return new PattToken(tok.location, PattToken.FALSE, "false", line.at());
 			else
-				return new PattToken(tok.location, Character.isUpperCase(c)?TYPE:VAR, tok.text);
+				return new PattToken(tok.location, Character.isUpperCase(c)?TYPE:VAR, tok.text, line.at());
 		} else if (c == '"' || c == '\'') {
 			throw new RuntimeException("Handle string parsing");
 		}
 		else if (Character.isDigit(c) || c == '.' && line.still(1) && Character.isDigit(line.charAt(1))) {
 			NumberToken num = NumberToken.from(line);
-			return new PattToken(num.location, NUMBER, num.text);
+			return new PattToken(num.location, NUMBER, num.text, line.at());
 		} else if ((pos = "()[]{}:,".indexOf(c)) != -1) {
 			InputPosition loc = line.realinfo();
 			line.advance();
-			return new PattToken(loc, pos+10, null);
+			return new PattToken(loc, pos+10, null, line.at());
 		} else
 			return null;
 	}

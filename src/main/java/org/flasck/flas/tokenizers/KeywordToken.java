@@ -7,8 +7,9 @@ public class KeywordToken {
 	public final InputPosition location;
 	public final String text;
 
-	public KeywordToken(InputPosition location, String text) {
+	public KeywordToken(InputPosition location, String text, int end) {
 		this.location = location;
+		location.endAt(end);
 		this.text = text;
 	}
 
@@ -26,7 +27,7 @@ public class KeywordToken {
 		String ret = line.fromMark(mark);
 		if (ret == null)
 			return null;
-		return new KeywordToken(location, ret);
+		return new KeywordToken(location, ret, line.at());
 	}
 
 	@Override

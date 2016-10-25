@@ -13,12 +13,7 @@ public class StructField implements Locatable {
 	public final Object init;
 
 	public StructField(InputPosition loc, boolean accessor, TypeReference type, String name) {
-		this.loc = loc;
-		this.assOp = null;
-		this.accessor = accessor;
-		this.type = type;
-		this.name = name;
-		this.init = null;
+		this(loc, null, accessor, type, name, null);
 	}
 
 	public StructField(InputPosition loc, InputPosition assOp, boolean accessor, TypeReference type, String name, Object init) {

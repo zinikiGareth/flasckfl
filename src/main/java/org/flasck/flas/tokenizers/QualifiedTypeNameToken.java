@@ -19,6 +19,6 @@ public class QualifiedTypeNameToken {
 			line.reset(mark);
 			return null; // doesn't qualify
 		}
-		return new TypeNameToken(loc, proto);
+		return new TypeNameToken(loc, proto, line.at());
 	}
 }

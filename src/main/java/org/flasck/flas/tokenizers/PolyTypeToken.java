@@ -11,11 +11,6 @@ public class PolyTypeToken {
 		text = tok.text;
 	}
 
-	public PolyTypeToken(InputPosition loc, String proto) {
-		location = loc;
-		text = proto;
-	}
-
 	public static PolyTypeToken from(Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())

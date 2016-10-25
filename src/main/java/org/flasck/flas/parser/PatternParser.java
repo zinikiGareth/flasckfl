@@ -99,7 +99,7 @@ public class PatternParser implements TryParsing {
 					else if (tupleCase)
 						return new TuplePattern(retArr);
 					else if (listCase) {
-						return buildListFromPatterns(sep.location, retArr, false);
+						return buildListFromPatterns(tok.location.copySetEnd(sep.location.pastEnd()), retArr, false);
 					}
 				} else if (sep.type == PattToken.COLON) {
 					if (tupleCase)
@@ -155,7 +155,7 @@ public class PatternParser implements TryParsing {
 			PattToken next = PattToken.from(line);
 			List<Object> ps = new ArrayList<Object>();
 			if (next.type == PattToken.CSB)
-				return new ConstructorMatch(tok.location, "Nil");
+				return new ConstructorMatch(tok.location.copySetEnd(next.location.pastEnd()), "Nil");
 			else {
 				line.reset(mark); // put the unknown token back on the front of the input
 				while (true) {
@@ -165,7 +165,7 @@ public class PatternParser implements TryParsing {
 					ps.add(p);
 					PattToken sep = PattToken.from(line);
 					if (sep.type == PattToken.CSB) {
-						return buildListFromPatterns(sep.location, ps, true);
+						return buildListFromPatterns(tok.location.copySetEnd(sep.location.pastEnd()), ps, true);
 					} else if (sep.type != PattToken.COMMA)
 						return null; // this is an error
 				}				

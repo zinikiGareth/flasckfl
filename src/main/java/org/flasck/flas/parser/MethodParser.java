@@ -14,6 +14,7 @@ public class MethodParser implements TryParsing {
 
 	@Override
 	public Object tryParsing(Tokenizable line) {
+		InputPosition pre = line.realinfo();
 		KeywordToken ud = KeywordToken.from(line);
 		if (ud == null)
 			return null;
@@ -21,7 +22,7 @@ public class MethodParser implements TryParsing {
 		boolean required = true;
 		if ("optional".equals(ud.text)) {
 			required = false;
-			rkw = line.realinfo();
+			rkw = pre.copySetEnd(line.at());
 			ud = KeywordToken.from(line);
 			if (ud == null)
 				return ErrorResult.oneMessage(line, "missing declaration");

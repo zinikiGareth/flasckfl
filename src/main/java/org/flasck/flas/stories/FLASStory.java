@@ -366,7 +366,7 @@ public class FLASStory {
 			else if (o instanceof String) {
 				switch ((String)o) {
 				case "state": {
-					doCardState(er, s, posn, cd, b.nested);
+					doCardState(er, s, posn.copySetEnd(tkz.at()), cd, b.nested);
 					break;
 				}
 				default: {

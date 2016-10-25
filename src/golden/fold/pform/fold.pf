@@ -8,17 +8,17 @@ package test.golden
   test.golden.fold @{3:0|fold}
     [var] f @{3:5|f}
     [var] acc @{3:7|acc}
-    [ctor] Cons @{3:15|)}
-      head @{3:12|a:l)}
-        [var] a @{3:12|a:l)}
-      tail @{3:12|a:l)}
-        [var] l @{3:14|l)}
+    [ctor] Cons @{3:11|(a:l)}
+      head @{3:12|a}
+        [var] a @{3:12|a}
+      tail @{3:12|a}
+        [var] l @{3:14|l}
    =
-    <apply> @{3:19|fold}
+    <apply> @{3:19|fold f (f acc a) l}
       fold @{3:19|fold}
       f @{3:24|f}
-      <apply> @{3:27|f}
+      <apply> @{3:26|(f acc a)}
         f @{3:27|f}
         acc @{3:29|acc}
-        a @{3:33|a)}
+        a @{3:33|a}
       l @{3:36|l}
