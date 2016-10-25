@@ -856,15 +856,9 @@ public class FLASStory {
 				TemplateList ret = new TemplateList(tl.kw, tl.listLoc, tl.listVar, tl.iterLoc, tl.iterVar, tl.customTagLoc, tl.customTag, tl.customTagVarLoc, tl.customTagVar, formats, false);
 				ret.template = unroll(er, s, map, tl.template, subst);
 				return ret;
-//				return new TemplateList(tl.listLoc, substituteMacroParameters(er, map, tl.listVar, subst), tl.iterVar, formats);
 			}
 			else
 				throw new UtilException("Not supported: " + tf.getClass());
-			/*
-			TemplateLine ret = new TemplateLine(contents, content.customTag, content.customTagVar, attrs, formats);
-			for (EventHandler y : content.handlers)
-				ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, map, y.expr, subst)));
-				*/
 		} else if (content instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases) content;
 			TemplateCases ret = new TemplateCases(tc.loc, substituteMacroParameters(er, s, map, tc.switchOn, subst));
