@@ -743,7 +743,7 @@ public class Rewriter {
 
 	private Template rewrite(TemplateContext cx, Template template) {
 		try {
-			return new Template(template.prefix, rewrite(cx, template.content));
+			return new Template(template.kw, template.location(), template.prefix, rewrite(cx, template.content));
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;

@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 public class Indenter {
 	private final PrintWriter pw;
 	private final int ind;
+	private boolean atStart = true;
 
 	public Indenter(PrintWriter pw) {
 		this.pw = pw;
@@ -26,11 +27,22 @@ public class Indenter {
 	public Indenter indent() {
 		return new Indenter(pw, ind+2);
 	}
+
+	public void print(String s) {
+		if (atStart) {
+			for (int i=0;i<ind;i++)
+				pw.print(" ");
+		}
+		pw.print(s);
+		pw.flush();
+		atStart = false;
+	}
 	
 	public void println(String s) {
-		for (int i=0;i<ind;i++)
-			pw.print(" ");
-		pw.println(s);
+		print(s);
+		pw.println();
+		pw.flush();
+		atStart = true;
 	}
 	
 	public void flush() {

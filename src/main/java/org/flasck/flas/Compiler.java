@@ -106,10 +106,16 @@ public class Compiler {
 						compiler.writeFlimTo(new File(args[++i]));
 					} else if (f.equals("--flim")) {
 						if (hasMore == 0) {
-							System.out.println("--flim <file>");
+							System.out.println("--flim <dir>");
 							System.exit(1);
 						}
 						compiler.searchIn(new File(args[++i]));
+					} else if (f.equals("--jsout")) {
+						if (hasMore == 0) {
+							System.out.println("--jsout <dir>");
+							System.exit(1);
+						}
+						compiler.writeJSTo(new File(args[++i]));
 					} else if (f.equals("--android")) {
 						if (hasMore == 0) {
 							System.out.println("--android <build-dir>");

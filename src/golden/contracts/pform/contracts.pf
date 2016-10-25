@@ -1,21 +1,21 @@
 package test.golden
-  cdecl test.golden.Foo
-    up hello
-      [type] x
-        String
-    down goodbye
-      [type] y
-        Number
-  cdecl test.golden.Handler
-    down feedback
-      [type] answer
-        String
-  cdecl test.golden.Request
-    up ask
-      [type] answer
-        Handler
-  cdecl test.golden.UsePolyInstance
-    down giveList
-      [type] l
-        List
-          String
+  cdecl test.golden.Foo @{1:0|contract} @{1:9|Foo}
+    required up hello @{2:0|up} @{2:3|hello}
+      [type] x @{2:17|x)}
+        String @{2:10|String}
+    optional down goodbye @{3:8|} @{3:9|down} @{3:14|goodbye}
+      [type] y @{3:30|y)}
+        Number @{3:23|Number}
+  cdecl test.golden.Handler @{5:0|contract} @{5:9|Handler}
+    required down feedback @{6:0|down} @{6:5|feedback}
+      [type] answer @{6:22|answer)}
+        String @{6:15|String}
+  cdecl test.golden.Request @{8:0|contract} @{8:9|Request}
+    required up ask @{9:0|up} @{9:3|ask}
+      [type] answer @{9:16|answer)}
+        Handler @{9:8|Handler}
+  cdecl test.golden.UsePolyInstance @{11:0|contract} @{11:9|UsePolyInstance}
+    required down giveList @{12:0|down} @{12:5|giveList}
+      [type] l @{12:28|l)}
+        List @{12:15|List[String]}
+          String @{12:20|String]}

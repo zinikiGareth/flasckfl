@@ -1,22 +1,24 @@
 package test.golden
-  test.golden.fold
-    [var] f
-    [var] acc
-    [ctor] Nil
+  test.golden.fold @{2:0|fold}
+    [var] f @{2:5|f}
+    [var] acc @{2:7|acc}
+    [ctor] Nil @{2:11|[]}
    =
-    acc
-  test.golden.fold
-    [var] f
-    [var] acc
-    [ctor] Cons
-      head
-        [var] a
-      tail
-        [var] l
+    acc @{2:16|acc}
+  test.golden.fold @{3:0|fold}
+    [var] f @{3:5|f}
+    [var] acc @{3:7|acc}
+    [ctor] Cons @{3:15|)}
+      head @{3:12|a:l)}
+        [var] a @{3:12|a:l)}
+      tail @{3:12|a:l)}
+        [var] l @{3:14|l)}
    =
-    fold
-      f
-      f
-        acc
-        a
-      l
+    <apply> @{3:19|fold}
+      fold @{3:19|fold}
+      f @{3:24|f}
+      <apply> @{3:27|f}
+        f @{3:27|f}
+        acc @{3:29|acc}
+        a @{3:33|a)}
+      l @{3:36|l}

@@ -1,16 +1,18 @@
 package test.golden
-  card test.golden.Foo
-    state
-      a
-        Number
-    template test.golden.Foo
-    implements test.import.Fred
-      method test.golden.Foo._C0.go
-        [var] x
-        assign a <-
-            .
-              .
-                test
-                import
-              f
-            x
+  card test.golden.Foo @{2:0|card} @{2:5|Foo}
+    state @{3:0|state}
+      a @{4:7|a}
+        Number @{4:0|Number}
+    implements test.import.Fred @{5:0|implements} @{5:11|test.import.Fred}
+      method test.golden.Foo._C0.go @{6:0|go}
+        [var] x @{6:3|x}
+        assign a <- @{7:0|a} @{7:2|<-}
+          <apply> @{7:16|.f}
+            <apply> @{7:16|.f}
+              . @{7:16|.f}
+              <apply> @{7:9|.import.f}
+                . @{7:9|.import.f}
+                test @{7:5|test.import.f}
+                import @{7:10|import.f}
+              f @{7:17|f}
+            x @{7:19|x}

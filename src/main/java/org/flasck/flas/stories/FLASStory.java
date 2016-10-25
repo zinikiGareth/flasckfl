@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.IfExpr;
@@ -292,11 +293,12 @@ public class FLASStory {
 			if (b.isComment())
 				continue;
 			Tokenizable tkz = new Tokenizable(b);
+			InputPosition posn = tkz.realinfo();
 			Object om = omp.tryParsing(tkz);
 			if (om instanceof ErrorResult)
 				er.merge((ErrorResult) om);
 			else if ("state".equals(om))
-				doObjectState(er, s, sd, b.nested);
+				doObjectState(er, s, posn, sd, b.nested);
 			else if (om instanceof ObjectMember) {
 				ObjectMember omm = (ObjectMember) om;
 				switch (omm.type) {
@@ -355,6 +357,9 @@ public class FLASStory {
 		Scope inner = cd.innerScope();
 		int cs = 0;
 		int ss = 0;
+		InputPosition tloc = null;
+		InputPosition tkw = null;
+		// TODO: I think these "templates" and "unrolling" should be moved to the syntactic sugar phase
 		List<TemplateThing> templates = new ArrayList<TemplateThing>();
 		List<D3Thing> d3s = new ArrayList<D3Thing>();
 		Set<LocatedToken> frTemplates = new TreeSet<LocatedToken>();
@@ -362,6 +367,7 @@ public class FLASStory {
 			if (b.isComment())
 				continue;
 			Tokenizable tkz = new Tokenizable(b);
+			InputPosition posn = tkz.realinfo();
 			Object o = ip.tryParsing(tkz);
 			if (o == null) {
 				o = new FunctionParser(s).tryParsing(new Tokenizable(b));
@@ -375,7 +381,7 @@ public class FLASStory {
 			else if (o instanceof String) {
 				switch ((String)o) {
 				case "state": {
-					doCardState(er, s, cd, b.nested);
+					doCardState(er, s, posn, cd, b.nested);
 					break;
 				}
 				default: {
@@ -392,6 +398,8 @@ public class FLASStory {
 				readPlatformSpec(er, b.nested, ps);
 			} else if (o instanceof TemplateIntro) {
 				TemplateIntro intro = (TemplateIntro) o;
+				tkw = intro.kw;
+				tloc = intro.location;
 				if (templates.isEmpty()) {
 					if (intro.name != null) {
 						er.message(b, "first template definition may not have a name");
@@ -469,6 +477,8 @@ public class FLASStory {
 			} else if (o instanceof EventCaseDefn) {
 				EventCaseDefn ecd = (EventCaseDefn) o;
 				inner.define(State.simpleName(ecd.methodName()), ecd.methodName(), ecd);
+				String caseName = inner.caseName(ecd.methodName());
+				ecd.provideCaseName(caseName);
 				addMethodMessages(er, ecd.messages, b.nested);
 			} else if (o instanceof ContractDecl) {
 				er.message(((ContractDecl)o).location(), "cannot embed contract declarations in a card");
@@ -477,7 +487,7 @@ public class FLASStory {
 		}
 		if (er.hasErrors())
 			return;
-		cd.template = new Template(cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()));
+		cd.template = new Template(tkw, tloc, cd.name, unroll(er, s, frTemplates, templates, d3s, new TreeMap<String, Object>()));
 	}
 
 	private void readPlatformSpec(ErrorResult er, List<Block> nested, PlatformSpec ps) {
@@ -500,17 +510,17 @@ public class FLASStory {
 		}
 	}
 
-	private void doCardState(ErrorResult er, State s, CardDefinition cd, List<Block> nested) {
+	private void doCardState(ErrorResult er, State s, InputPosition kwp, CardDefinition cd, List<Block> nested) {
 		if (cd.state != null)
 			er.message((Block)null, "duplicate state definition in card");
-		StateDefinition os = cd.state = new StateDefinition();
+		StateDefinition os = cd.state = new StateDefinition(kwp);
 		doState(er, new FieldParser(FieldParser.CARD), os, nested);
 	}
 
-	private void doObjectState(ErrorResult er, State s, ObjectDefn od, List<Block> nested) {
+	private void doObjectState(ErrorResult er, State s, InputPosition kwp, ObjectDefn od, List<Block> nested) {
 		if (od.state != null)
 			er.message((Block)null, "duplicate state definition in card");
-		StateDefinition os = od.state = new StateDefinition();
+		StateDefinition os = od.state = new StateDefinition(kwp);
 		doState(er, new FieldParser(FieldParser.OBJECT), os, nested);
 	}
 

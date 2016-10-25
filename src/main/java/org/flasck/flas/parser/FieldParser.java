@@ -1,5 +1,6 @@
 package org.flasck.flas.parser;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -36,8 +37,9 @@ public class FieldParser implements TryParsing {
 		if (kw == null)
 			return ErrorResult.oneMessage(line, "invalid variable name");
 		if (!line.hasMore())
-			return new StructField(kw.location, accessor, type, kw.text, null);
+			return new StructField(kw.location, accessor, type, kw.text);
 		line.skipWS();
+		InputPosition assOp = line.realinfo();
 		String op = line.getTo(2);
 		if (!"<-".equals(op))
 			return ErrorResult.oneMessage(line, "expected <-");
@@ -49,7 +51,7 @@ public class FieldParser implements TryParsing {
 		else if (line.hasMore())
 			return ErrorResult.oneMessage(line, "invalid tokens after expression");
 		else
-			return new StructField(kw.location, accessor, type, kw.text, o);
+			return new StructField(kw.location, assOp, accessor, type, kw.text, o);
 	}
 
 }

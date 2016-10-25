@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
@@ -42,6 +43,7 @@ import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
 public class RewriterTests {
+	private final InputPosition posn = new InputPosition("test", 1, 1, null);
 	private final ErrorResult errors = new ErrorResult();
 	private final Rewriter rw = new Rewriter(errors, null, null);
 	private Scope scope;
@@ -142,7 +144,7 @@ public class RewriterTests {
 	@Test
 	public void testRewritingAStateVar() throws Exception {
 		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
-		cd.state = new StateDefinition();
+		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(null, false, new TypeReference(null, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		cd.fnScope.define("f", "ME.MyCard.f", new FunctionCaseDefn(null, CodeType.FUNCTION, "ME.MyCard.f", new ArrayList<Object>(), new UnresolvedVar(null, "counter")));
@@ -174,13 +176,13 @@ public class RewriterTests {
 	@Test
 	public void testRewritingAContractMethod() throws Exception {
 		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
-		cd.state = new StateDefinition();
+		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(null, false, new TypeReference(null, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		ContractImplements ci = new ContractImplements(null, null, "Timer", null, "timer");
 		cd.contracts.add(ci);
 		MethodCaseDefn mcd1 = new MethodCaseDefn(new FunctionIntro(null, "ME.MyCard._C0.m", new ArrayList<Object>()));
-		mcd1.messages.add(new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
+		mcd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(mcd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope("ME", scope);
@@ -197,11 +199,11 @@ public class RewriterTests {
 	@Test
 	public void testRewritingAnEventHandler() throws Exception {
 		CardDefinition cd = new CardDefinition(null, null, scope, "MyCard");
-		cd.state = new StateDefinition();
+		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(null, false, new TypeReference(null, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		EventCaseDefn ecd1 = new EventCaseDefn(null, new FunctionIntro(null, "ME.MyCard.eh", new ArrayList<Object>()));
-		ecd1.messages.add(new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
+		ecd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
 		cd.fnScope.define("eh", "ME.MyCard.eh", ecd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope("ME", scope);

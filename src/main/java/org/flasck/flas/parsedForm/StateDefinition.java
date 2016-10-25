@@ -3,9 +3,22 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StateDefinition {
-	public final List<StructField> fields = new ArrayList<StructField>();
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 
+public class StateDefinition implements Locatable {
+	public final List<StructField> fields = new ArrayList<StructField>();
+	private InputPosition loc;
+
+	public StateDefinition(InputPosition loc) {
+		this.loc = loc;
+	}
+	
+	@Override
+	public InputPosition location() {
+		return loc;
+	}
+	
 	public void addField(StructField o) {
 		fields.add(o);
 	}

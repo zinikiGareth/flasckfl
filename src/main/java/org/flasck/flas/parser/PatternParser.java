@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.TuplePattern;
@@ -68,7 +69,7 @@ public class PatternParser implements TryParsing {
 							Object nestedPatt = tryParsing(line);
 							if (nestedPatt == null)
 								return null; // there has probably been an error already
-							ret.args.add(ret.new Field(field.text, nestedPatt));
+							ret.args.add(ret.new Field(field.location, field.text, nestedPatt));
 							PattToken punc = PattToken.from(line);
 							if (punc.type == PattToken.CCB)
 								break;
@@ -181,8 +182,9 @@ public class PatternParser implements TryParsing {
 				continue;
 			}
 			ConstructorMatch tmp = new ConstructorMatch(location, "Cons");
-			tmp.args.add(tmp.new Field("head", ps.get(i)));
-			tmp.args.add(tmp.new Field("tail", ret));
+			InputPosition piloc = ((Locatable) ps.get(i)).location();
+			tmp.args.add(tmp.new Field(piloc, "head", ps.get(i)));
+			tmp.args.add(tmp.new Field(piloc, "tail", ret));
 			ret = tmp;
 		}
 		return ret;

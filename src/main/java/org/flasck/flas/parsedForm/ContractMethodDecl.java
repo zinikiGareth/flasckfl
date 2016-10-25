@@ -7,13 +7,17 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 
 public class ContractMethodDecl implements Locatable, Comparable<ContractMethodDecl> {
+	public final InputPosition rkw;
+	public final InputPosition dkw;
 	private final InputPosition pos;
 	public final boolean required;
 	public final String dir;
 	public final String name;
 	public final List<Object> args;
 
-	public ContractMethodDecl(InputPosition pos, boolean required, String dir, String name, List<Object> args) {
+	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, String dir, String name, List<Object> args) {
+		this.rkw = rkw;
+		this.dkw = dkw;
 		this.pos = pos;
 		this.required = required;
 		this.dir = dir;

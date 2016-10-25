@@ -17,10 +17,11 @@ public class MethodParser implements TryParsing {
 		KeywordToken ud = KeywordToken.from(line);
 		if (ud == null)
 			return null;
-		InputPosition loc = line.realinfo();
+		InputPosition rkw = null;
 		boolean required = true;
 		if ("optional".equals(ud.text)) {
 			required = false;
+			rkw = line.realinfo();
 			ud = KeywordToken.from(line);
 			if (ud == null)
 				return ErrorResult.oneMessage(line, "missing declaration");
@@ -48,7 +49,7 @@ public class MethodParser implements TryParsing {
 				args.add(o);
 		}
 		
-		return new ContractMethodDecl(loc, required, ud.text, name.text, args);
+		return new ContractMethodDecl(rkw, ud.location, name.location, required, ud.text, name.text, args);
 	}
 
 }

@@ -11,17 +11,19 @@ import org.zinutils.collections.CollectionUtils;
 public class StructDefn implements AsString, Locatable {
 	public final List<StructField> fields = new ArrayList<StructField>();
 	public final transient boolean generate;
+	public final InputPosition kw;
 	private final InputPosition location;
 	private String name;
 	private List<PolyType> polys;
 
 	// for tests
 	public StructDefn(InputPosition location, String tn, boolean generate, PolyType... polys) {
-		this(location, tn, generate, CollectionUtils.listOf(polys));
+		this(null, location, tn, generate, CollectionUtils.listOf(polys));
 	}
 	
 	// The real constructor
-	public StructDefn(InputPosition location, String tn, boolean generate, List<PolyType> polys) {
+	public StructDefn(InputPosition kw, InputPosition location, String tn, boolean generate, List<PolyType> polys) {
+		this.kw = kw;
 		this.location = location;
 		this.name = tn;
 		this.generate = generate;

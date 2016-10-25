@@ -25,7 +25,7 @@
     <Contract file="complexcard.fl" line="21"
         name="test.golden.DataStore" off="9">
         <Method dir="up" file="complexcard.fl" line="22" name="get"
-            off="2" required="true">
+            off="3" required="true">
             <Typed file="complexcard.fl" line="22" off="8"
                 var="test.golden.DataStore.get.x" vfile="complexcard.fl"
                 vline="22" voff="15">
@@ -40,7 +40,7 @@
     </Contract>
     <Contract file="complexcard.fl" line="18" name="test.golden.Handler" off="9">
         <Method dir="down" file="complexcard.fl" line="19" name="reply"
-            off="4" required="true">
+            off="5" required="true">
             <Typed file="complexcard.fl" line="19" off="12"
                 var="test.golden.Handler.reply.s" vfile="complexcard.fl"
                 vline="19" voff="19">
@@ -50,7 +50,7 @@
     </Contract>
     <Contract file="complexcard.fl" line="15" name="test.golden.Init" off="9">
         <Method dir="down" file="complexcard.fl" line="16" name="ready"
-            off="4" required="true">
+            off="5" required="true">
             <Typed file="complexcard.fl" line="16" off="12"
                 var="test.golden.Init.ready.obj" vfile="complexcard.fl"
                 vline="16" voff="16">
@@ -60,7 +60,7 @@
     </Contract>
     <Contract file="complexcard.fl" line="24" name="test.golden.Offer" off="9">
         <Method dir="up" file="complexcard.fl" line="25" name="get"
-            off="2" required="true">
+            off="3" required="true">
             <Typed file="complexcard.fl" line="25" off="8"
                 var="test.golden.Offer.get.x" vfile="complexcard.fl"
                 vline="25" voff="15">

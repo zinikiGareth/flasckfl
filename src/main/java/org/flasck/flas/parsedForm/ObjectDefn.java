@@ -33,7 +33,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	}
 
 	public void constructorArg(InputPosition pos, TypeReference type, String name) {
-		ctorArgs.add(new StructField(pos, false, type, name, null));
+		ctorArgs.add(new StructField(pos, false, type, name));
 	}
 	
 	public String name() {

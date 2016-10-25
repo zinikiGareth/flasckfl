@@ -6,13 +6,16 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.flasck.flas.Compiler;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
@@ -51,6 +54,7 @@ import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TuplePattern;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.stories.StoryRet;
@@ -68,6 +72,9 @@ import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
 
 public class GoldenCGRunner extends CGHarnessRunner {
+	static String stripNumbersS = System.getProperty("org.flasck.golden.strip"); 
+	static boolean stripNumbers = stripNumbersS != null && stripNumbersS.equalsIgnoreCase("true");
+	
 	public GoldenCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException {
 		super(builder, figureClasses());
 	}
@@ -135,6 +142,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			handleErrors(s, er);
 			return;
 		}
+		if (stripNumbers)
+			stripPform(pform);
 		assertGolden(new File(s, "pform"), pform);
 		
 		if (importFrom.isDirectory())
@@ -157,6 +166,30 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		assertGolden(new File(s, "flim"), flim);
 		assertGolden(new File(s, "hsie"), hsie);
 		assertGolden(new File(s, "jsout"), jsto);
+	}
+
+	// I want to see the locations, but I don't (always) want to be bound to them.  Remove them if desired (i.e. call this method if desired)
+	private static void stripPform(File pform) throws IOException {
+		for (File pf : pform.listFiles()) {
+			File tmp = File.createTempFile("temp", ".pf");
+			tmp.deleteOnExit();
+			PrintWriter to = new PrintWriter(tmp);
+			LineNumberReader lnr = new LineNumberReader(new FileReader(pf));
+			try {
+				String s;
+				while ((s = lnr.readLine()) != null) {
+					int idx = s.indexOf(" @{");
+					if (idx != -1)
+						s = s.substring(0, idx);
+					to.println(s);
+				}
+			} finally {
+				to.close();
+				lnr.close();
+			}
+			FileUtils.copy(tmp, pf);
+			tmp.delete();
+		}
 	}
 
 	protected static void handleErrors(String s, ErrorResult er) throws FileNotFoundException, IOException {
@@ -182,49 +215,65 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println("Error - null");
 		} else if (obj instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) obj;
-			pw.println("cdecl " + cd.name());
+			pw.print("cdecl " + cd.name());
+			dumpPosition(pw, cd.kw, false);
+			dumpLocation(pw, cd);
 			dumpList(pw, cd.methods);
 		} else if (obj instanceof ContractMethodDecl) {
 			ContractMethodDecl cmd = (ContractMethodDecl) obj;
-			pw.println(cmd.dir + " " + cmd.name);
+			pw.print((cmd.required?"required":"optional") + " " + cmd.dir + " " + cmd.name);
+			if (!cmd.required)
+				dumpPosition(pw, cmd.rkw, false);
+			dumpPosition(pw, cmd.dkw, false);
+			dumpLocation(pw, cmd);
 			dumpList(pw, cmd.args);
 		} else if (obj instanceof ConstPattern) {
 			ConstPattern cp = (ConstPattern) obj;
 			pw.println(cp.type + ": " + cp.value);
 		} else if (obj instanceof TypedPattern) {
 			TypedPattern tp = (TypedPattern) obj;
-			pw.println("[type] " + tp.var);
+			pw.print("[type] " + tp.var);
+			dumpPosition(pw, tp.varLocation, true);
 			dumpRecursive(pw.indent(), tp.type);
 		} else if (obj instanceof VarPattern) {
 			VarPattern tp = (VarPattern) obj;
-			pw.println("[var] " + tp.var);
+			pw.print("[var] " + tp.var);
+			dumpLocation(pw, tp);
 		} else if (obj instanceof TuplePattern) {
 			TuplePattern tp = (TuplePattern) obj;
 			pw.println("[tuple]");
 			dumpList(pw, tp.args);
 		} else if (obj instanceof ConstructorMatch) {
 			ConstructorMatch cm = (ConstructorMatch) obj;
-			pw.println("[ctor] " + cm.ctor);
+			pw.print("[ctor] " + cm.ctor);
+			dumpLocation(pw, cm);
 			dumpList(pw, cm.args);
 		} else if (obj instanceof ConstructorMatch.Field) {
 			ConstructorMatch.Field cf = (ConstructorMatch.Field) obj;
-			pw.println(cf.field);
+			pw.print(cf.field);
+			dumpLocation(pw, cf);
 			dumpRecursive(pw.indent(), cf.patt);
 		} else if (obj instanceof NumericLiteral) {
 			NumericLiteral nl = (NumericLiteral) obj;
-			pw.println("# " + nl.text);
+			pw.print("# " + nl.text);
+			dumpLocation(pw, nl);
 		} else if (obj instanceof StringLiteral) {
-			StringLiteral nl = (StringLiteral) obj;
-			pw.println("'' " + nl.text);
+			StringLiteral sl = (StringLiteral) obj;
+			pw.print("'' " + sl.text);
+			dumpLocation(pw, sl);
 		} else if (obj instanceof UnresolvedVar) {
 			UnresolvedVar uv = (UnresolvedVar) obj;
-			pw.println(uv.var);
+			pw.print(uv.var);
+			dumpLocation(pw, uv);
+		} else if (obj instanceof UnresolvedOperator) {
+			UnresolvedOperator uv = (UnresolvedOperator) obj;
+			pw.print(uv.op);
+			dumpLocation(pw, uv);
 		} else if (obj instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) obj;
-			if (ae.fn instanceof ApplyExpr) {
-				dumpRecursive(pw.indent(), ae.fn);
-			} else
-				pw.println(ae.fn.toString());
+			pw.print("<apply>");
+			dumpLocation(pw, ae);
+			dumpRecursive(pw.indent(), ae.fn);
 			dumpList(pw, ae.args);
 		} else if (obj instanceof IfExpr) {
 			IfExpr ie = (IfExpr) obj;
@@ -236,14 +285,17 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			}
 		} else if (obj instanceof FunctionCaseDefn) {
 			FunctionCaseDefn fcd = (FunctionCaseDefn) obj;
-			pw.println(fcd.intro.name);
+			pw.print(fcd.intro.name);
+			dumpLocation(pw, fcd);
 			dumpList(pw, fcd.intro.args);
 			pw.println(" =");
 			dumpRecursive(pw.indent(), fcd.expr);
 			dumpScope(pw, fcd.innerScope());
 		} else if (obj instanceof CardDefinition) {
 			CardDefinition cd = (CardDefinition) obj;
-			pw.println("card " + cd.name);
+			pw.print("card " + cd.name);
+			dumpPosition(pw, cd.kw, false);
+			dumpLocation(pw, cd);
 			if (cd.state != null)
 				dumpRecursive(pw.indent(), cd.state);
 			if (cd.template != null)
@@ -254,57 +306,87 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpScope(pw, cd.innerScope());
 		} else if (obj instanceof StateDefinition) {
 			StateDefinition sd = (StateDefinition) obj;
-			pw.println("state");
+			pw.print("state");
+			dumpLocation(pw, sd);
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructDefn) {
 			StructDefn sd = (StructDefn) obj;
-			pw.println("struct " + sd.name() + polys(sd));
+			pw.print("struct " + sd.name() + polys(sd));
+			dumpPosition(pw, sd.kw, false);
+			dumpPosition(pw, sd.location(), false);
+			for (PolyType p : sd.polys())
+				dumpPosition(pw, p.location(), false);
+			pw.println("");
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructField) {
 			StructField sf = (StructField) obj;
-			pw.println(sf.name);
+			pw.print(sf.name);
+			dumpLocation(pw, sf);
 			dumpRecursive(pw.indent(), sf.type);
 			if (sf.init != null) {
-				pw.println(" <-");
+				pw.print(" <-");
+				dumpPosition(pw, sf.assOp, true);
 				dumpRecursive(pw.indent(), sf.init);
 			}
 		} else if (obj instanceof ContractImplements) {
 			ContractImplements ctr = (ContractImplements) obj;
-			pw.println("implements " + ctr.name() + (ctr.referAsVar != null ? " " + ctr.referAsVar : ""));
+			pw.print("implements " + ctr.name() + (ctr.referAsVar != null ? " " + ctr.referAsVar : ""));
+			dumpPosition(pw, ctr.kw, false);
+			dumpPosition(pw, ctr.location(), ctr.referAsVar == null);
+			if (ctr.referAsVar != null)
+				dumpPosition(pw, ctr.varLocation, true);
 			dumpList(pw, ctr.methods);
 		} else if (obj instanceof ContractService) {
 			ContractService ctr = (ContractService) obj;
-			pw.println("service " + ctr.name() + (ctr.referAsVar != null ? " " + ctr.referAsVar : ""));
+			pw.print("service " + ctr.name() + (ctr.referAsVar != null ? " " + ctr.referAsVar : ""));
+			dumpPosition(pw, ctr.kw, false);
+			dumpPosition(pw, ctr.location(), ctr.referAsVar == null);
+			if (ctr.referAsVar != null)
+				dumpPosition(pw, ctr.vlocation, true);
 			dumpList(pw, ctr.methods);
 		} else if (obj instanceof HandlerImplements) {
 			HandlerImplements hi = (HandlerImplements) obj;
-			pw.println("handler " + hi.name() + " " + hi.hiName + " (" + (hi.inCard?"card":"free") + ")");
+			pw.print("handler " + hi.name() + " " + hi.hiName + " (" + (hi.inCard?"card":"free") + ")");
+			dumpPosition(pw, hi.kw, false);
+			dumpLocation(pw, hi);
 			dumpList(pw, hi.boundVars);
 			dumpList(pw, hi.methods);
 		} else if (obj instanceof MethodCaseDefn) {
 			MethodCaseDefn mcd = (MethodCaseDefn) obj;
-			pw.println("method " + mcd.caseName());
+			pw.print("method " + mcd.caseName());
+			dumpLocation(pw, mcd);
 			dumpList(pw, mcd.intro.args);
 			dumpList(pw, mcd.messages);
 			dumpScope(pw, mcd.innerScope());
 		} else if (obj instanceof EventCaseDefn) {
 			EventCaseDefn ecd = (EventCaseDefn) obj;
-			pw.println("event " + ecd.caseName());
+			pw.print("event " + ecd.caseName());
+			dumpPosition(pw, ecd.kw, false);
+			dumpLocation(pw, ecd);
 			dumpList(pw, ecd.intro.args);
 			dumpList(pw, ecd.messages);
 			dumpScope(pw, ecd.innerScope());
 		} else if (obj instanceof MethodMessage) {
 			MethodMessage mm = (MethodMessage) obj;
-			if (mm.slot != null)
-				pw.println("assign " + slotName(mm.slot) + " <-");
-			else
-				pw.println("invoke");
+			if (mm.slot != null) {
+				pw.print("assign " + slotName(mm.slot) + " <-");
+				for (Locatable x : mm.slot) {
+					dumpPosition(pw, x.location(), false);
+				}
+			} else {
+				pw.print("invoke");
+			}
+			dumpPosition(pw, mm.kw, true);
 			dumpRecursive(pw.indent(), mm.expr);
 		} else if (obj instanceof Template) {
 			Template t = (Template) obj;
-			pw.println("template" + (t.prefix != null ? " " + t.prefix : ""));
-			if (t.content != null)
-				dumpRecursive(pw.indent(), t.content);
+			if (t.kw != null) { // if t.kw IS null, we didn't in fact define anything, but this case needs cleaning up
+				pw.print("template" + (t.prefix != null ? " " + t.prefix : ""));
+				dumpPosition(pw, t.kw, false);
+				dumpLocation(pw, t);
+				if (t.content != null)
+					dumpRecursive(pw.indent(), t.content);
+			}
 		} else if (obj instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) obj;
 			pw.println("."); // many other fields go here ...
@@ -325,7 +407,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			// dump formats and handlers
 		} else if (obj instanceof FunctionTypeReference) {
 			FunctionTypeReference t = (FunctionTypeReference) obj;
-			pw.println(t.name());
+			pw.print(t.name());
+			dumpLocation(pw, t);
 			Indenter ind = pw.indent();
 			for (TypeReference a : t.args)
 				dumpRecursive(ind, a);
@@ -340,7 +423,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pw.indent(), t.expr);
 		} else if (obj instanceof TypeReference) {
 			TypeReference t = (TypeReference) obj;
-			pw.println(t.name());
+			pw.print(t.name());
+			dumpLocation(pw, t);
 			if (t.hasPolys()) {
 				Indenter ind = pw.indent();
 				for (TypeReference p : t.polys())
@@ -348,6 +432,24 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			}
 		} else
 			throw new UtilException("Cannot handle dumping " + obj.getClass());
+	}
+
+	private static void dumpLocation(Indenter pw, Locatable obj) {
+		dumpPosition(pw, obj.location(), true);
+	}
+
+	private static void dumpPosition(Indenter pw, InputPosition pos, boolean withNL) {
+		if (pos == null) {
+			pw.print(" @{null}");
+		} else {
+			String kw = pos.text == null ? "" : pos.text.substring(pos.off);
+			int idx = kw.indexOf(' ');
+			if (idx != -1)
+				kw = kw.substring(0, idx);
+			pw.print(" @{" + pos.lineNo + ":" + pos.off + "|" + kw + "}");
+		}
+		if (withNL)
+			pw.println("");
 	}
 
 	private static String slotName(List<Locatable> slot) {
@@ -385,15 +487,15 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pi, x);
 	}
 
-	private static void assertGolden(File golden, File jsto) {
+	private static void assertGolden(File golden, File genned) {
 		if (!golden.isDirectory())
 			fail("There is no golden directory " + golden);
-		if (!jsto.isDirectory())
-			fail("There is no generated directory " + jsto);
-		for (File f : jsto.listFiles())
+		if (!genned.isDirectory())
+			fail("There is no generated directory " + genned);
+		for (File f : genned.listFiles())
 			assertTrue("There is no golden file for the generated " + f, new File(golden, f.getName()).exists());
 		for (File f : golden.listFiles()) {
-			File gen = new File(jsto, f.getName());
+			File gen = new File(genned, f.getName());
 			assertTrue("There is no generated file for the golden " + f, gen.exists());
 			String goldhash = Crypto.hash(f);
 			String genhash = Crypto.hash(gen);

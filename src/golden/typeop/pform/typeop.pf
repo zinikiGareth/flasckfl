@@ -1,9 +1,8 @@
 package test.golden
-  card test.golden.MyCard
-    template test.golden.MyCard
-  test.golden.x
+  card test.golden.MyCard @{2:0|card} @{2:5|MyCard}
+  test.golden.x @{4:0|x}
    =
-    Number
-  test.golden.y
+    Number @{4:9|Number}
+  test.golden.y @{5:0|y}
    =
-    MyCard
+    MyCard @{5:9|MyCard}

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
     <Contract file="scoping.fl" line="26" name="test.golden.NoArg" off="9">
-        <Method dir="up" file="scoping.fl" line="27" name="get" off="2" required="true">
+        <Method dir="up" file="scoping.fl" line="27" name="get" off="3" required="true">
             <Ctor ctor="Number" file="scoping.fl" line="27" off="7"/>
         </Method>
     </Contract>
     <Contract file="scoping.fl" line="3" name="test.golden.Reply" off="9">
         <Method dir="down" file="scoping.fl" line="4" name="reply"
-            off="4" required="true">
+            off="5" required="true">
             <Typed file="scoping.fl" line="4" off="12"
                 var="test.golden.Reply.reply.k" vfile="scoping.fl"
                 vline="4" voff="19">
@@ -16,7 +16,7 @@
         </Method>
     </Contract>
     <Contract file="scoping.fl" line="6" name="test.golden.Server" off="9">
-        <Method dir="up" file="scoping.fl" line="7" name="get" off="2" required="true">
+        <Method dir="up" file="scoping.fl" line="7" name="get" off="3" required="true">
             <Typed file="scoping.fl" line="7" off="8"
                 var="test.golden.Server.get.k" vfile="scoping.fl"
                 vline="7" voff="15">
@@ -28,7 +28,7 @@
                 <Contract name="test.golden.Reply"/>
             </Typed>
         </Method>
-        <Method dir="up" file="scoping.fl" line="8" name="put" off="2" required="true">
+        <Method dir="up" file="scoping.fl" line="8" name="put" off="3" required="true">
             <Typed file="scoping.fl" line="8" off="8"
                 var="test.golden.Server.put.k" vfile="scoping.fl"
                 vline="8" voff="15">

@@ -49,7 +49,7 @@ public class MethodMessageParser implements TryParsing {
 		if (line.hasMore())
 			return ErrorResult.oneMessage(line, "tokens at end of line");
 		else
-			return new MethodMessage(keys.isEmpty()?null:keys, expr);
+			return new MethodMessage(tok.location, keys.isEmpty()?null:keys, expr);
 	}
 
 }

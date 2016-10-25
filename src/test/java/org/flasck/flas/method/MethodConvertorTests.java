@@ -50,6 +50,7 @@ import org.slf4j.Logger;
 import org.zinutils.collections.CollectionUtils;
 
 public class MethodConvertorTests {
+	private final InputPosition posn = new InputPosition("test", 1, 1, null);
 	private Scope orgFooScope;
 	private Rewriter rewriter;
 	private ErrorResult errors;
@@ -70,52 +71,52 @@ public class MethodConvertorTests {
 		orgFooScope = new Scope(null);
 		orgFooScope.define("doSend", "org.foo.doSend", Type.function(null, any, send));
 		{
-			ContractDecl contract1 = new ContractDecl(null, null, "org.foo.Contract1");
-			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "down", "bar", new ArrayList<>());
+			ContractDecl contract1 = new ContractDecl(posn, posn, "org.foo.Contract1");
+			ContractMethodDecl m1 = new ContractMethodDecl(null, posn, posn, true, "down", "bar", new ArrayList<>());
 			contract1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(null, true, "up", "start", new ArrayList<>());
+			ContractMethodDecl m2 = new ContractMethodDecl(null, posn, posn, true, "up", "start", new ArrayList<>());
 			contract1.methods.add(m2);
-			ContractMethodDecl m3 = new ContractMethodDecl(null, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
+			ContractMethodDecl m3 = new ContractMethodDecl(null, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
 			contract1.methods.add(m3);
 			orgFooScope.define("Contract1", contract1.name(), contract1);
 		}
 		{
-			ContractDecl service1 = new ContractDecl(null, null, "org.foo.Service1");
-			ContractMethodDecl m0 = new ContractMethodDecl(null, true, "up", "go", new ArrayList<>());
+			ContractDecl service1 = new ContractDecl(posn, posn, "org.foo.Service1");
+			ContractMethodDecl m0 = new ContractMethodDecl(null, posn, posn, true, "up", "go", new ArrayList<>());
 			service1.methods.add(m0);
-			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
+			ContractMethodDecl m1 = new ContractMethodDecl(null, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(null, true, "down", "respond", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
+			ContractMethodDecl m2 = new ContractMethodDecl(null, posn, posn, true, "down", "respond", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
 			service1.methods.add(m2);
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
 		{
-			ContractDecl handler1 = new ContractDecl(null, null, "org.foo.Handler1");
-			ContractMethodDecl m1 = new ContractMethodDecl(null, true, "down", "handle", new ArrayList<>());
+			ContractDecl handler1 = new ContractDecl(posn, posn, "org.foo.Handler1");
+			ContractMethodDecl m1 = new ContractMethodDecl(null, posn, posn, true, "down", "handle", new ArrayList<>());
 			handler1.methods.add(m1);
 			orgFooScope.define("Handler1", handler1.name(), handler1);
 		}
 		{
 			RWStructDefn struct = new RWStructDefn(null, "Thing", true);
-			struct.addField(new RWStructField(null, false, (Type)biscope.get("String"), "x"));
+			struct.addField(new RWStructField(posn, false, (Type)biscope.get("String"), "x"));
 			orgFooScope.define("Thing", struct.name(), struct);
 		}
 		
 		{
 			rewriter = new Rewriter(errors, null, null);
 			cd = new CardDefinition(null, null, orgFooScope, "org.foo.Card");
-			cd.state = new StateDefinition();
-			cd.state.addField(new StructField(null, false, new TypeReference(null, "String"), "str", null));
+			cd.state = new StateDefinition(posn);
+			cd.state.addField(new StructField(posn, false, new TypeReference(null, "String"), "str"));
 			{
-				ce = new ContractImplements(null, null, "org.foo.Contract1", null, "ce");
+				ce = new ContractImplements(posn, posn, "org.foo.Contract1", null, "ce");
 				cd.contracts.add(ce);
 			}
 			{
-				se = new ContractService(null, null, "org.foo.Service1", null, "se");
+				se = new ContractService(posn, posn, "org.foo.Service1", null, "se");
 				cd.services.add(se);
 			}
 			{
-				he = new HandlerImplements(null, null, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(null, new TypeReference(null, "Thing"), null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
+				he = new HandlerImplements(posn, posn, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(null, new TypeReference(null, "Thing"), null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
 				cd.handlers.add(he);
 			}
 		}
@@ -212,7 +213,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotFathomANumericExpressionByItself() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new NumericLiteral(new InputPosition("test", 1, 3, "<- 36"), "36")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new NumericLiteral(new InputPosition("test", 1, 3, "<- 36"), "36")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(1, errors.count());
@@ -222,7 +223,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotFathomARandomFunctionNotAMethod() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new UnresolvedVar(null, "join"), new UnresolvedVar(null, "Nil")), new StringLiteral(null, ""))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new UnresolvedVar(null, "join"), new UnresolvedVar(null, "Nil")), new StringLiteral(null, ""))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 //		HSIEForm hsieForm = CollectionUtils.any(functions.values());
@@ -235,7 +236,7 @@ public class MethodConvertorTests {
 
 	/* ---- Tests of Assignment to a single slot ---- */
 	public void testTheTopLevelSlotInAnAssignmentMustBeResolvable() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36")));
 		stage2(true);
 		assertEquals(errors.singleString(), 1, errors.count());
 		assertEquals("cannot assign to non-state member: map", errors.get(0).msg);
@@ -243,7 +244,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanOnlyAssignASlotWithTheRightType() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new NumericLiteral(null, "36")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "str")), new NumericLiteral(null, "36")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(1, errors.count());
@@ -252,7 +253,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanAssignToACardMember() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -264,7 +265,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testAnEventHandlerCanAssignToACardMember() throws Exception {
-		defineEHMethod(cd.innerScope(), "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
+		defineEHMethod(cd.innerScope(), "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -276,7 +277,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAContractVar() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "ce")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "ce")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -285,7 +286,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAServiceVar() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "se")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "se")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -293,7 +294,7 @@ public class MethodConvertorTests {
 	}
 
 	public void testWeCannotAssignToAMethod() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "bar")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "bar")), new StringLiteral(null, "hello")));
 		stage2(true);
 		assertEquals(errors.singleString(), 1, errors.count());
 		assertEquals("cannot assign to non-state member: map", errors.get(0).msg);
@@ -301,7 +302,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAFunction() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "map")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "map")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -310,7 +311,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAFreeLambda() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "freeArg")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "freeArg")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -319,7 +320,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotDirectlyAssignToAStructLambda() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "stateArg")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -329,7 +330,7 @@ public class MethodConvertorTests {
 	/* ---- Tests of Assignment to a nested slot ---- */
 	@Test
 	public void testWeCannotAssignToAFieldOfAString() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "str"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "str"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -338,7 +339,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanAssignToAFieldInAStructLambda() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -350,7 +351,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testAnEventHandlerCanAssignToAFieldInALocalStatefulVar() throws Exception {
-		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "t"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "t"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -362,7 +363,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testAnEventHandlerCannotAssignToAnUntypedVar() throws Exception {
-		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "ev"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "ev"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -373,7 +374,7 @@ public class MethodConvertorTests {
 	
 	@Test
 	public void testWeCannotAssignToANonField() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "y")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "y")), new StringLiteral(null, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -383,7 +384,7 @@ public class MethodConvertorTests {
 	/* ---- Send tests ---- */
 	@Test
 	public void testWeCanSendAMessageToAServiceWithNoArgs() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(null, "start")))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(null, "start")))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -399,7 +400,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanSendAMessageToAServiceWithOneArgs() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request 'hello'"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request 'hello'"), new UnresolvedOperator(new InputPosition("test", 1, 6, "<- ce.request 'hello'"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.request 'hello'"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 7, "<- ce.request 'hello'"), "request")), new StringLiteral(new InputPosition("test", 1, 14, "<- ce.request 'hello'"), "hello"))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request 'hello'"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request 'hello'"), new UnresolvedOperator(new InputPosition("test", 1, 6, "<- ce.request 'hello'"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.request 'hello'"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 7, "<- ce.request 'hello'"), "request")), new StringLiteral(new InputPosition("test", 1, 14, "<- ce.request 'hello'"), "hello"))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -417,7 +418,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotSendAMessageToAServiceWhichDoesNotHaveThatMethod() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.unknown"), "unknown")))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.unknown"), "unknown")))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -427,7 +428,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotSendADownMessageFromADownServiceHandler() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.bar"), "bar")))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.bar"), "bar")))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -437,7 +438,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotSendAnUpMessageFromAnUpServiceHandler() throws Exception {
-		defineContractMethod(se, "go", new MethodMessage(null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "se"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- se.request"), "request")))));
+		defineContractMethod(se, "go", new MethodMessage(posn, null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "se"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- se.request"), "request")))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -447,7 +448,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotSendAMessageWithTooManyArgs() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start 'hello'"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new UnresolvedOperator(new InputPosition("test", 1, 6, "<- ce.start 'hello'"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.start 'hello'"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 7, "<- ce.start 'hello'"), "start")), new StringLiteral(new InputPosition("test", 1, 12, "<- ce.start 'hello'"), "hello"))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start 'hello'"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new UnresolvedOperator(new InputPosition("test", 1, 6, "<- ce.start 'hello'"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.start 'hello'"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 7, "<- ce.start 'hello'"), "start")), new StringLiteral(new InputPosition("test", 1, 12, "<- ce.start 'hello'"), "hello"))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		System.out.println(errors.singleString());
@@ -458,7 +459,7 @@ public class MethodConvertorTests {
 	
 	@Test
 	public void testSendRequiresTheMethodToHaveAllItsArgs() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request"), new UnresolvedOperator(new InputPosition("test", 1, 5, "<- ce.request"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.request"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.request"), "request"))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request"), new UnresolvedOperator(new InputPosition("test", 1, 5, "<- ce.request"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.request"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.request"), "request"))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		System.out.println(errors.singleString());
@@ -470,7 +471,7 @@ public class MethodConvertorTests {
 	/* ---- Function case tests ---- */
 	@Test
 	public void testWeCanSendACallMapAcrossSomethingThatReturnsSend() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(null, new ApplyExpr(new InputPosition("test", 1, 3, "<- map doSend []"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- map doSend []"), "map"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- map doSend []"), "doSend"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- map doSend []"), "Nil"))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- map doSend []"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- map doSend []"), "map"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- map doSend []"), "doSend"), new UnresolvedVar(new InputPosition("test", 1, 3, "<- map doSend []"), "Nil"))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());

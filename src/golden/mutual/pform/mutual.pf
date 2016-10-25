@@ -1,12 +1,14 @@
 package test.golden
-  test.golden.f
-    [var] x
+  test.golden.f @{2:0|f}
+    [var] x @{2:2|x}
    =
-    g
-      # 2
-    test.golden.f_0.g
-      [var] y
+    <apply> @{2:6|g}
+      g @{2:6|g}
+      # 2 @{2:8|2}
+    test.golden.f_0.g @{3:0|g}
+      [var] y @{3:2|y}
      =
-      *
-        x
-        y
+      <apply> @{3:8|*}
+        * @{3:8|*}
+        x @{3:6|x}
+        y @{3:10|y}

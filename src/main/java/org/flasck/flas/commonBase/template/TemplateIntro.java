@@ -7,11 +7,13 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 
 public class TemplateIntro {
-	public final String name;
+	public final InputPosition kw;
 	public final InputPosition location;
+	public final String name;
 	public final List<LocatedToken> args = new ArrayList<LocatedToken>();
 
-	public TemplateIntro(InputPosition location, String name) {
+	public TemplateIntro(InputPosition kw, InputPosition location, String name) {
+		this.kw = kw;
 		this.location = location;
 		this.name = name;
 	}

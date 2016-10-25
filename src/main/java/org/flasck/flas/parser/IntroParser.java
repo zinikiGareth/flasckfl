@@ -64,7 +64,7 @@ public class IntroParser implements TryParsing {
 			}
 			if (er.hasErrors())
 				return er;
-			return new StructDefn(tn.location, state.withPkg(tn.text), true, args);
+			return new StructDefn(kw.location, tn.location, state.withPkg(tn.text), true, args);
 		}
 		case "object": {
 			TypeNameToken tn = TypeNameToken.from(line);
@@ -106,11 +106,11 @@ public class IntroParser implements TryParsing {
 			return "state";
 		case "template": {
 			if (!line.hasMore())
-				return new TemplateIntro(null, null);
+				return new TemplateIntro(kw.location, null, null);
 			ValidIdentifierToken tok = VarNameToken.from(line);
 			if (tok == null)
 				return ErrorResult.oneMessage(line, "invalid template name");
-			TemplateIntro ret = new TemplateIntro(tok.location, tok.text);
+			TemplateIntro ret = new TemplateIntro(kw.location, tok.location, tok.text);
 			Set<String> vars = new TreeSet<String>();
 			while (line.hasMore()) {
 				tok = VarNameToken.from(line);

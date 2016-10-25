@@ -3,7 +3,6 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
@@ -21,8 +20,6 @@ public class FunctionParser implements TryParsing {
 	
 	@Override
 	public Object tryParsing(Tokenizable line) {
-		InputPosition init = line.realinfo();
-		
 		// Read the function name
 		ValidIdentifierToken vit = ValidIdentifierToken.from(line);
 		if (vit == null)
@@ -62,7 +59,7 @@ public class FunctionParser implements TryParsing {
 		}
 		
 		if (!line.hasMore())
-			return new FunctionIntro(init, state.withPkg(name), args);
+			return new FunctionIntro(vit.location, state.withPkg(name), args);
 		
 		ExprToken tok = ExprToken.from(line);
 		if (tok == null || !tok.text.equals("="))
@@ -75,7 +72,7 @@ public class FunctionParser implements TryParsing {
 			return ErrorResult.oneMessage(line, "unexpected tokens at end of line");
 
 		// Build a response object
-		return new FunctionCaseDefn(init, state.kind, state.withPkg(name), args, expr);
+		return new FunctionCaseDefn(vit.location, state.kind, state.withPkg(name), args, expr);
 	}
 
 }

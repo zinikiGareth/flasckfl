@@ -4,16 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 
-public class ConstructorMatch {
-	public class Field {
+public class ConstructorMatch implements Locatable {
+	public class Field implements Locatable {
 		public final String field;
 		public final Object patt;
+		private InputPosition loc;
 		
-		public Field(String field, Object patt) {
+		public Field(InputPosition loc, String field, Object patt) {
+			this.loc = loc;
 			this.field = field;
 			this.patt = patt;
 		}
+		
+		
+		@Override
+		public InputPosition location() {
+			return loc;
+		}
+
+
 		@Override
 		public String toString() {
 			return "CMF[" + field + "]";
@@ -31,6 +42,11 @@ public class ConstructorMatch {
 		this.ctor = ctor;
 	}
 	
+	@Override
+	public InputPosition location() {
+		return location;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder ret = new StringBuilder(ctor);
