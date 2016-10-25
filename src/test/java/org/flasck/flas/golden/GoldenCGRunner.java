@@ -24,6 +24,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.Template;
+import org.flasck.flas.commonBase.template.TemplateFormat;
 import org.flasck.flas.commonBase.template.TemplateList;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
@@ -36,6 +37,7 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
@@ -49,6 +51,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TemplateDiv;
+import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TupleAssignment;
 import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TuplePattern;
@@ -389,22 +392,44 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			}
 		} else if (obj instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) obj;
-			pw.println("."); // many other fields go here ...
+			pw.print(".");
+			if (td.customTagLoc != null) // cannot test the var because we hack in "li"
+				pw.print(" " + td.customTag);
+			else if (td.customTagVar != null)
+				pw.print(" " + td.customTagVar);
+			dumpPosition(pw, td.kw, false);
+			if (td.customTagLoc != null)
+				pw.print(" " + td.customTagLoc);
+			else if (td.customTagVar != null)
+				pw.print(" " + td.customTagVarLoc);
+			pw.newline();
 			dumpList(pw, td.nested);
-			// dump formats and handlers
 		} else if (obj instanceof TemplateList) {
 			TemplateList td = (TemplateList) obj;
-			pw.println("+ " + td.listVar + " " + td.iterVar); // many other fields go here ...
+			pw.print("+ " + td.listVar);
+			if (td.iterVar != null)
+				pw.print(" " + td.iterVar);
+			dumpPosition(pw, td.kw, false);
+			dumpPosition(pw, td.listLoc, td.iterVar == null);
+			if (td.iterVar != null)
+				dumpPosition(pw, td.iterLoc, true);
 			dumpRecursive(pw.indent(), td.template);
-			// dump formats and handlers
 		} else if (obj instanceof ContentString) {
 			ContentString ce = (ContentString) obj;
 			pw.println("'' " + ce.text);
-			// dump formats and handlers
 		} else if (obj instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) obj;
-			dumpRecursive(pw, ce.expr);
-			// dump formats and handlers
+			pw.print("<cexpr>");
+			dumpPosition(pw, ce.kw, true);
+			dumpRecursive(pw.indent(), ce.expr);
+		} else if (obj instanceof EventHandler) {
+			EventHandler eh = (EventHandler) obj;
+			pw.print("=>");
+			dumpPosition(pw, eh.kw, true);
+			Indenter p2 = pw.indent();
+			p2.print(eh.action);
+			dumpPosition(p2, eh.actionPos, true);
+			dumpRecursive(pw.indent(), eh.expr);
 		} else if (obj instanceof FunctionTypeReference) {
 			FunctionTypeReference t = (FunctionTypeReference) obj;
 			pw.print(t.name());
@@ -432,6 +457,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			}
 		} else
 			throw new UtilException("Cannot handle dumping " + obj.getClass());
+		if (obj instanceof TemplateFormat) {
+			TemplateFormat tf = (TemplateFormat) obj;
+			dumpList(pw, tf.formats);
+			if (obj instanceof TemplateFormatEvents) {
+				TemplateFormatEvents tfe = (TemplateFormatEvents) tf;
+				dumpList(pw, tfe.handlers);
+			}
+		}
 	}
 
 	private static void dumpLocation(Indenter pw, Locatable obj) {

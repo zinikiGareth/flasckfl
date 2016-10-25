@@ -3,6 +3,7 @@ package org.flasck.flas.rewrittenForm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.template.TemplateLine;
 
 public class RWTemplateDiv extends RWTemplateFormatEvents {
@@ -12,8 +13,8 @@ public class RWTemplateDiv extends RWTemplateFormatEvents {
 	public final List<TemplateLine> nested = new ArrayList<TemplateLine>();
 	public List<String> droppables;
 
-	public RWTemplateDiv(String customTag, String customTagVar, List<Object> attrs, List<Object> formats) {
-		super(formats);
+	public RWTemplateDiv(InputPosition kw, String customTag, String customTagVar, List<Object> attrs, List<Object> formats) {
+		super(kw, formats);
 		this.customTag = customTag;
 		this.customTagVar = customTagVar;
 		this.attrs = attrs;

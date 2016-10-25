@@ -2,6 +2,8 @@ package org.flasck.flas.parsedForm;
 
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 /* How to test this?
  * One option would be to compile the templates to javascript, then build one or more models,
  * then run the overall framework, calling into "renderFirstTime" (and/or "renderUpdate")
@@ -15,12 +17,12 @@ public class ContentExpr extends TemplateFormatEvents {
 	private boolean editable;
 	public final boolean rawHTML;
 
-	public ContentExpr(Object expr, List<Object> formats) {
-		this(expr, false, false, formats);
+	public ContentExpr(InputPosition pos, Object expr, List<Object> formats) {
+		this(pos, expr, false, false, formats);
 	}
 	
-	public ContentExpr(Object expr, boolean edit, boolean rawHTML, List<Object> formats) {
-		super(formats);
+	public ContentExpr(InputPosition pos, Object expr, boolean edit, boolean rawHTML, List<Object> formats) {
+		super(pos, formats);
 		this.expr = expr;
 		this.editable = edit;
 		this.rawHTML = rawHTML;

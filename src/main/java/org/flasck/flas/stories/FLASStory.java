@@ -611,7 +611,7 @@ public class FLASStory {
 			}
 			TemplateDiv td = (TemplateDiv) asList.template;
 			if (td.customTag == null && td.customTagVar == null && asList.customTag == null && asList.customTagVar == null) {
-				asList.template = new TemplateDiv("li", null, td.attrs, td.formats);
+				asList.template = new TemplateDiv(td.kw, td.customTagLoc, "li", td.customTagVarLoc, null, td.attrs, td.formats);
 				((TemplateDiv)asList.template).nested.addAll(td.nested);
 				((TemplateDiv)asList.template).handlers.addAll(td.handlers);
 			}
@@ -823,37 +823,37 @@ public class FLASStory {
 				formats.add(substituteMacroParameters(er, s, map, o, subst));
 			if (tf instanceof ContentString) {
 				ContentString cs = (ContentString)tf;
-				ContentString ret = new ContentString(((ContentString)tf).text, formats);
+				ContentString ret = new ContentString(cs.kw, ((ContentString)tf).text, formats);
 				for (EventHandler y : cs.handlers)
-					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
+					ret.handlers.add(new EventHandler(y.kw, y.actionPos, y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
 				return ret;
 			} else if (tf instanceof ContentExpr) {
 				ContentExpr ce = (ContentExpr)tf;
 				Object sub = substituteMacroParameters(er, s, map, ce.expr, subst);
 				TemplateFormatEvents ret;
 				if (sub instanceof StringLiteral)
-					ret = new ContentString(((StringLiteral)sub).text, formats);
+					ret = new ContentString(ce.kw, ((StringLiteral)sub).text, formats);
 				else if (sub instanceof NumericLiteral)
-					ret = new ContentString(((NumericLiteral)sub).text, formats);
+					ret = new ContentString(ce.kw, ((NumericLiteral)sub).text, formats);
 				else
-					ret = new ContentExpr(sub, ce.editable(), ce.rawHTML, formats);
+					ret = new ContentExpr(ce.kw, sub, ce.editable(), ce.rawHTML, formats);
 				for (EventHandler y : ce.handlers)
-					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
+					ret.handlers.add(new EventHandler(y.kw, y.actionPos, y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
 				return ret;
 			} else if (tf instanceof TemplateDiv) {
 				TemplateDiv td = (TemplateDiv) tf;
 				List<Object> attrs = new ArrayList<Object>();
 				for (Object o : td.attrs)
 					attrs.add(substituteMacroParameters(er, s, map, o, subst));
-				TemplateDiv ret = new TemplateDiv(td.customTag, td.customTagVar, attrs, formats);
+				TemplateDiv ret = new TemplateDiv(td.kw, td.customTagLoc, td.customTag, td.customTagVarLoc, td.customTagVar, attrs, formats);
 				for (TemplateLine x : td.nested)
 					ret.nested.add(unroll(er, s, map, x, subst));
 				for (EventHandler y : td.handlers)
-					ret.handlers.add(new EventHandler(y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
+					ret.handlers.add(new EventHandler(y.kw, y.actionPos, y.action, substituteMacroParameters(er, s, map, y.expr, subst)));
 				return ret;
 			} else if (tf instanceof TemplateList) {
 				TemplateList tl = (TemplateList) tf;
-				TemplateList ret = new TemplateList(tl.listLoc, tl.listVar, tl.iterLoc, tl.iterVar, tl.customTag, tl.customTagVar, formats, false);
+				TemplateList ret = new TemplateList(tl.kw, tl.listLoc, tl.listVar, tl.iterLoc, tl.iterVar, tl.customTagLoc, tl.customTag, tl.customTagVarLoc, tl.customTagVar, formats, false);
 				ret.template = unroll(er, s, map, tl.template, subst);
 				return ret;
 //				return new TemplateList(tl.listLoc, substituteMacroParameters(er, map, tl.listVar, subst), tl.iterVar, formats);

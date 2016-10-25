@@ -6,8 +6,9 @@ package test.golden
        <- @{5:13|<-}
         '' hello, world @{5:16|"hello,}
     template test.golden.Simple @{7:0|template} @{null}
-      .
-        hello @{9:0|hello}
+      . @{8:0|.}
+        <cexpr> @{9:0|hello}
+          hello @{9:0|hello}
     test.golden.Simple.f @{11:0|f}
      =
       # 3 @{11:4|3}

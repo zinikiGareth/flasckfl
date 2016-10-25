@@ -788,7 +788,7 @@ public class Rewriter {
 		}
 		if (tl instanceof ContentString) {
 			ContentString cs = (ContentString)tl;
-			return rewriteEventHandlers(cx, new RWContentString(cs.text, formats), ((TemplateFormatEvents)tl).handlers);
+			return rewriteEventHandlers(cx, new RWContentString(cs.kw, cs.text, formats), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr)tl;
 			boolean rawHTML = false;
@@ -798,7 +798,7 @@ public class Rewriter {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			return rewriteEventHandlers(cx, new RWContentExpr(rewriteExpr(cx, ce.expr), ce.editable(), rawHTML, formats), ((TemplateFormatEvents)tl).handlers);
+			return rewriteEventHandlers(cx, new RWContentExpr(ce.kw, rewriteExpr(cx, ce.expr), ce.editable(), rawHTML, formats), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof TemplateCardReference) {
 			TemplateCardReference cr = (TemplateCardReference) tl;
 			Object cardName = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
@@ -830,7 +830,7 @@ public class Rewriter {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			RWTemplateDiv ret = new RWTemplateDiv(td.customTag, td.customTagVar, attrs, formats);
+			RWTemplateDiv ret = new RWTemplateDiv(td.kw, td.customTag, td.customTagVar, attrs, formats);
 			for (TemplateLine i : td.nested)
 				ret.nested.add(rewrite(cx, i));
 			rewriteEventHandlers(cx, ret, td.handlers);
@@ -847,7 +847,7 @@ public class Rewriter {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			TemplateList rul = new TemplateList(ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, rwv, ul.customTag, ul.customTagVar, formats, supportDragOrdering);
+			TemplateList rul = new TemplateList(ul.kw, ul.listLoc, rewriteExpr(cx, ul.listVar), ul.iterLoc, rwv, ul.customTagLoc, ul.customTag, ul.customTagVarLoc, ul.customTagVar, formats, supportDragOrdering);
 			cx = new TemplateContext(cx, rwv);
 			rul.template = rewrite(cx, ul.template);
 			return rul;

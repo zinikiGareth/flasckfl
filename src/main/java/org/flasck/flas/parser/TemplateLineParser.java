@@ -38,7 +38,7 @@ public class TemplateLineParser implements TryParsing{
 		List<TemplateLine> contents = new ArrayList<TemplateLine>();
 		TemplateLine cmd = null;
 		TemplateList list = null;
-		boolean seenDiv = false;
+		InputPosition seenDiv = null;
 		boolean template = false;
 		boolean extractField = false;
 		while (line.hasMore()) {
@@ -50,11 +50,11 @@ public class TemplateLineParser implements TryParsing{
 			if (tt.type == TemplateToken.COLON || tt.type == TemplateToken.HASH || tt.type == TemplateToken.ATTR) {
 				line.reset(mark);
 				break;
-			} else if (seenDiv || list != null || cmd != null) {
+			} else if (seenDiv != null || list != null || cmd != null) {
 				return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
 			} else if (tt.type == TemplateToken.ORB) {
 				Object pe = new Expression().tryParsing(line);
-				contents.add(new ContentExpr(pe, new ArrayList<Object>()));
+				contents.add(new ContentExpr(tt.location, pe, new ArrayList<Object>()));
 				tt = TemplateToken.from(line);
 				if (tt.type != TemplateToken.CRB)
 					return ErrorResult.oneMessage(line.realinfo(), "missing )");
@@ -70,15 +70,14 @@ public class TemplateLineParser implements TryParsing{
 					}
 					return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
 				}
-				seenDiv = true;
+				seenDiv = tt.location;
 			} else if (tt.type == TemplateToken.LIST) {
 				if (!contents.isEmpty())
 					return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
-				InputPosition pos = line.realinfo();
 				TemplateToken t2 = TemplateToken.from(line);
 				Object lv;
 				if (t2.type == TemplateToken.IDENTIFIER) {
-					lv = new UnresolvedVar(pos, t2.text);
+					lv = new UnresolvedVar(t2.location, t2.text);
 				} else if (t2.type == TemplateToken.ORB) {
 					lv = new Expression().tryParsing(line);
 					TemplateToken crb = TemplateToken.from(line);
@@ -88,43 +87,36 @@ public class TemplateLineParser implements TryParsing{
 					return ErrorResult.oneMessage(line, "list requires a list variable or parenthesized expression");
 				int mark2 = line.at();
 				TemplateToken t3 = TemplateToken.from(line);
-				InputPosition ivp = line.realinfo();
+				InputPosition ivp = null;
 				String iv = null;
-				if (t3 != null && t3.type == TemplateToken.IDENTIFIER)
+				if (t3 != null && t3.type == TemplateToken.IDENTIFIER) {
+					ivp = t3.location;
 					iv = t3.text;
-				else
+				} else
 					line.reset(mark2);
-				list = new TemplateList(pos, lv, ivp, iv, null, null, new ArrayList<Object>(), false);
+				list = new TemplateList(tt.location, t2.location, lv, ivp, iv, null, null, null, null, new ArrayList<Object>(), false);
 			} else if (tt.type == TemplateToken.ARROW) {
-				if (seenDiv || list != null || contents.size() == 0 || contents.size() > 2)
+				if (seenDiv != null|| list != null || contents.size() == 0 || contents.size() > 2)
 					return ErrorResult.oneMessage(line, "syntax error");
 				TemplateLine action = (TemplateLine)contents.get(0);
 				if (!(action instanceof ContentExpr) || !(((ContentExpr)action).expr instanceof UnresolvedVar))
 					return ErrorResult.oneMessage(line, "syntax error");
-				/* Right now, in generating this, I'm unclear what this var was for
-				String var = null;
-				if (contents.size() == 2) {
-					TemplateToken varis = (TemplateToken)contents.get(1);
-					if (varis.type != TemplateToken.IDENTIFIER)
-						return ErrorResult.oneMessage(line, "syntax error");
-					var = varis.text;
-				}
-				*/
+				UnresolvedVar actionToken = (UnresolvedVar)((ContentExpr)action).expr;
 				Object expr = new Expression().tryParsing(line);
 				if (expr == null)
 					return ErrorResult.oneMessage(line, "syntax error");
 				else if (expr instanceof ErrorResult)
 					return expr;
 				else
-					return new EventHandler(((UnresolvedVar)((ContentExpr)action).expr).var, expr);
+					return new EventHandler(tt.location, actionToken.location, actionToken.var, expr);
 			} else if (tt.type == TemplateToken.IDENTIFIER) {
 				Object me = ItemExpr.from(new ExprToken(tt.location, ExprToken.IDENTIFIER, tt.text));
 				if (extractField) { // handle the "special" case of a.b
 					ContentExpr tl = (ContentExpr) contents.remove(contents.size()-1);
-					contents.add(new ContentExpr(new ApplyExpr(tt.location, ItemExpr.from(new ExprToken(tt.location, ExprToken.PUNC, ".")), CollectionUtils.listOf(tl.expr, me)), new ArrayList<Object>()));
+					contents.add(new ContentExpr(tt.location, new ApplyExpr(tt.location, ItemExpr.from(new ExprToken(tt.location, ExprToken.PUNC, ".")), CollectionUtils.listOf(tl.expr, me)), new ArrayList<Object>()));
 					extractField = false;
 				} else
-					contents.add(new ContentExpr(me, new ArrayList<Object>()));
+					contents.add(new ContentExpr(tt.location, me, new ArrayList<Object>()));
 			} else if (tt.type == TemplateToken.EDITABLE) {
 				if (contents.isEmpty())
 					return ErrorResult.oneMessage(line, "cannot have edit marker at start of line");
@@ -142,7 +134,7 @@ public class TemplateLineParser implements TryParsing{
 				}
 				ce.makeEditable();
 			} else if (tt.type == TemplateToken.STRING) { 
-				contents.add(new ContentString(tt.text, new ArrayList<Object>()));
+				contents.add(new ContentString(tt.location, tt.text, new ArrayList<Object>()));
 			} else if (tt.type == TemplateToken.TEMPLATE) {
 				template = true;
 				if (!contents.isEmpty()) {
@@ -232,8 +224,8 @@ public class TemplateLineParser implements TryParsing{
 		if (extractField)
 			return ErrorResult.oneMessage(line, "missing field");
 		List<Object> formats = new ArrayList<Object>();
-		String customTag = null;
-		String customTagVar = null;
+		TemplateToken customTag = null;
+		TemplateToken customTagVar = null;
 		List<Object> attrs = new ArrayList<Object>();
 		if (line.hasMore()) {
 			if (template)
@@ -241,10 +233,10 @@ public class TemplateLineParser implements TryParsing{
 			int mark = line.at();
 			TemplateToken tt = TemplateToken.from(line);
 			if (tt.type == TemplateToken.HASH || tt.type == TemplateToken.ATTR) {
-				if (!seenDiv && list == null && !contents.isEmpty())
+				if (seenDiv == null && list == null && !contents.isEmpty())
 					return ErrorResult.oneMessage(line, "can only use # by itself or with . or +");
-				if (!seenDiv && list == null)
-					seenDiv = true;
+				if (seenDiv == null && list == null)
+					seenDiv = tt.location;
 				if (!line.hasMore())
 					return ErrorResult.oneMessage(line, "missing #tag");
 					
@@ -255,11 +247,11 @@ public class TemplateLineParser implements TryParsing{
 							return ErrorResult.oneMessage(line, "missing #tag");
 						f = TemplateToken.from(line);
 						if (f.type == TemplateToken.IDENTIFIER)
-							customTagVar = f.text;
+							customTagVar = f;
 						else
 							return ErrorResult.oneMessage(line, "invalid #tag");
 					} else if (f.type == TemplateToken.IDENTIFIER)
-						customTag = f.text;
+						customTag = f;
 					else
 						return ErrorResult.oneMessage(line, "invalid #tag");
 				} else
@@ -347,11 +339,11 @@ public class TemplateLineParser implements TryParsing{
 		}
 //		if (line.hasMore())
 //			return ErrorResult.oneMessage(line, "unparsed tokens at end of line");
-		if (seenDiv)
-			return new TemplateDiv(customTag, customTagVar, attrs, formats);
+		if (seenDiv != null)
+			return new TemplateDiv(seenDiv, customTag != null ? customTag.location : null, customTag != null ? customTag.text : null, customTagVar != null ? customTagVar.location : null, customTagVar != null ? customTagVar.text : null, attrs, formats);
 		else if (list != null) {
 			if (!formats.isEmpty() || customTag != null || customTagVar != null)
-				return new TemplateList(list.listLoc, list.listVar, list.iterLoc, list.iterVar, customTag, customTagVar, formats, false);
+				return new TemplateList(list.kw, list.listLoc, list.listVar, list.iterLoc, list.iterVar, customTag != null ? customTag.location : null, customTag != null ? customTag.text : null, customTagVar != null ? customTagVar.location : null, customTagVar != null ? customTagVar.text : null, formats, false);
 			else
 				return list;
 		} else if (cmd != null)

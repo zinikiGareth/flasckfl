@@ -45,14 +45,19 @@ package test.golden
           String @{31:0|String->String}
           String @{31:8|String}
     template test.golden.Complex @{33:0|template} @{null}
-      .
-        hello @{35:0|hello}
-        + list lv
-          .
-            lv @{38:0|lv}
-        + list null
-          .
+      . @{34:0|.}
+        <cexpr> @{35:0|hello}
+          hello @{35:0|hello}
+        + list lv @{36:0|+} @{36:2|list} @{36:7|lv}
+          . @{37:0|.}
+            <cexpr> @{38:0|lv}
+              lv @{38:0|lv}
+        + list @{39:0|+} @{39:2|list}
+          . @{40:0|.}
             '' hello
+              => @{42:6|=>}
+                click @{42:0|click}
+                sayHello @{42:9|sayHello}
     implements Init @{44:0|implements} @{44:11|Init}
       method test.golden.Complex._C0.ready @{45:0|ready}
         [type] obj @{45:13|obj)}

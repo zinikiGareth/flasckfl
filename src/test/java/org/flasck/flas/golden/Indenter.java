@@ -38,11 +38,15 @@ public class Indenter {
 		atStart = false;
 	}
 	
-	public void println(String s) {
-		print(s);
+	public void newline() {
 		pw.println();
 		pw.flush();
 		atStart = true;
+	}
+	
+	public void println(String s) {
+		print(s);
+		newline();
 	}
 	
 	public void flush() {

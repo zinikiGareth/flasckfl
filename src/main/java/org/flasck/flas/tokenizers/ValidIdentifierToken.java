@@ -22,5 +22,10 @@ public class ValidIdentifierToken {
 			line.advance();
 		return new ValidIdentifierToken(pos, line.fromMark(mark));
 	}
+	
+	@Override
+	public String toString() {
+		return "VIT["+text+":" + location+"]";
+	}
 
 }
