@@ -3,21 +3,21 @@ package test.golden
     [var] f @{1:5|f}
     [ctor] Nil @{1:7|[]}
    =
-    Nil @{1:13|]}
+    Nil @{1:12|[]}
   test.golden.map1 @{2:0|map1}
     [var] f @{2:5|f}
-    [ctor] Cons @{2:11|)}
-      head @{2:8|a:l)}
-        [var] a @{2:8|a:l)}
-      tail @{2:8|a:l)}
-        [var] l @{2:10|l)}
+    [ctor] Cons @{2:7|(a:l)}
+      head @{2:8|a}
+        [var] a @{2:8|a}
+      tail @{2:10|l}
+        [var] l @{2:10|l}
    =
-    <apply> @{2:20|:(map1}
-      Cons @{2:20|:(map1}
-      <apply> @{2:16|f}
+    <apply> @{2:15|(f a):(map1 f l)}
+      Cons @{2:20|:}
+      <apply> @{2:15|(f a)}
         f @{2:16|f}
-        a @{2:18|a):(map1}
-      <apply> @{2:22|map1}
+        a @{2:18|a}
+      <apply> @{2:21|(map1 f l)}
         map1 @{2:22|map1}
         f @{2:27|f}
-        l @{2:29|l)}
+        l @{2:29|l}

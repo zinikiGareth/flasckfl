@@ -7,12 +7,12 @@ package test.golden
       method test.golden.Foo._C0.go @{6:0|go}
         [var] x @{6:3|x}
         assign a <- @{7:0|a} @{7:2|<-}
-          <apply> @{7:16|.f}
-            <apply> @{7:16|.f}
-              . @{7:16|.f}
-              <apply> @{7:9|.import.f}
-                . @{7:9|.import.f}
-                test @{7:5|test.import.f}
-                import @{7:10|import.f}
+          <apply> @{7:5|test.import.f x}
+            <apply> @{7:5|test.import.f}
+              . @{7:16|.}
+              <apply> @{7:5|test.import}
+                . @{7:9|.}
+                test @{7:5|test}
+                import @{7:10|import}
               f @{7:17|f}
             x @{7:19|x}

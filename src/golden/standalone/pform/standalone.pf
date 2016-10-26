@@ -9,36 +9,36 @@ package test.golden
     implements Bar @{11:0|implements} @{11:11|Bar}
       method test.golden.Foo._C1.go @{12:0|go}
         invoke @{13:0|<-}
-          <apply> @{13:3|map}
+          <apply> @{13:3|map request []}
             map @{13:3|map}
             request @{13:7|request}
-            Nil @{13:16|]}
+            Nil @{13:15|[]}
         invoke @{14:0|<-}
-          <apply> @{14:3|map}
+          <apply> @{14:3|map request2 []}
             map @{14:3|map}
             request2 @{14:7|request2}
-            Nil @{14:17|]}
+            Nil @{14:16|[]}
     test.golden.Foo.request @{16:0|request}
-      [type] ck @{16:16|ck)}
+      [type] ck @{16:16|ck}
         Crokey @{16:9|Crokey}
      =
-      <apply> @{16:22|Send}
+      <apply> @{16:22|Send kv 'typed' [ck}
         Send @{16:22|Send}
         kv @{16:27|kv}
         '' typed @{16:30|'typed'}
-        <apply> @{16:39|ck]}
-          Cons @{16:39|ck]}
-          ck @{16:39|ck]}
+        <apply> @{16:39|ck}
+          Cons @{16:39|ck}
+          ck @{16:39|ck}
           Nil @{16:39|ck]}
     test.golden.Foo.request2 @{17:0|request2}
-      [type] ck @{17:17|ck)}
+      [type] ck @{17:17|ck}
         Crokey @{17:10|Crokey}
      =
-      <apply> @{17:23|Send}
+      <apply> @{17:23|Send kv 'mine' [ck}
         Send @{17:23|Send}
         kv @{17:28|kv}
         '' mine @{17:31|'mine'}
-        <apply> @{17:39|ck]}
-          Cons @{17:39|ck]}
-          ck @{17:39|ck]}
+        <apply> @{17:39|ck}
+          Cons @{17:39|ck}
+          ck @{17:39|ck}
           Nil @{17:39|ck]}

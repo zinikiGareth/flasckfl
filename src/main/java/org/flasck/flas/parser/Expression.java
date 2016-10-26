@@ -384,7 +384,12 @@ public class Expression implements TryParsing {
 						}
 					}
 					else if (endsWith.equals("]")) {
-						Object base = ItemExpr.from(new ExprToken(startsAt, ExprToken.IDENTIFIER, "Nil"));
+						InputPosition tmp;
+						if (objs.isEmpty())
+							tmp = orb.copySetEnd(crb.location.pastEnd());
+						else
+							tmp = startsAt.copySetEnd(crb.location.pastEnd());
+						Object base = ItemExpr.from(new ExprToken(tmp, ExprToken.IDENTIFIER, "Nil"));
 						for (int i=objs.size()-1;i>=0;i--) {
 							Locatable o = (Locatable) objs.get(i);
 							base = new ApplyExpr(o.location(), ItemExpr.from(new ExprToken(o.location(), ExprToken.IDENTIFIER, "Cons")), o, base);

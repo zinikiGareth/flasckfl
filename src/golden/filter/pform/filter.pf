@@ -3,13 +3,13 @@ package test.golden
     [var] f @{2:7|f}
     [ctor] Nil @{2:9|[]}
    =
-    Nil @{2:15|null}
+    Nil @{2:14|[]}
   test.golden.filter @{3:0|filter}
     [var] f @{3:7|f}
     [ctor] Cons @{3:9|(a:l)}
       head @{3:10|a}
         [var] a @{3:10|a}
-      tail @{3:10|a}
+      tail @{3:12|l}
         [var] l @{3:12|l}
    =
     <apply> @{3:17|g (f a)}

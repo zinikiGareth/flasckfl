@@ -156,7 +156,7 @@ public class HSIECodeGenerator {
 //		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
 		// TODO: I changed this from _x to ME.f._x to get the test to pass; not sure if the code actually does that.
 		LetExpr expr = new LetExpr("ME.f._x",
-					new ApplyExpr(null, new PackageVar(null, "FLEval.plus", null), new NumericLiteral(null, "2"), new NumericLiteral(null, "2")),
+					new ApplyExpr(null, new PackageVar(null, "FLEval.plus", null), new NumericLiteral(null, "2", 1), new NumericLiteral(null, "2", 1)),
 					new ApplyExpr(null, new PackageVar(null, "FLEval.plus", null), new LocalVar("ME.f", null, "_x", null, null), new LocalVar("ME.f", null, "_x", null, null)));
 		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(new RWFunctionIntro(null, "ME.f", new ArrayList<>(), new HashMap<>()), 0, expr);
 		RWFunctionDefinition f = new RWFunctionDefinition(null, CodeType.FUNCTION, "ME.f", 0, true);

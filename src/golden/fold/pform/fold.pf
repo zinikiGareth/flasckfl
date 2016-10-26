@@ -11,7 +11,7 @@ package test.golden
     [ctor] Cons @{3:11|(a:l)}
       head @{3:12|a}
         [var] a @{3:12|a}
-      tail @{3:12|a}
+      tail @{3:14|l}
         [var] l @{3:14|l}
    =
     <apply> @{3:19|fold f (f acc a) l}

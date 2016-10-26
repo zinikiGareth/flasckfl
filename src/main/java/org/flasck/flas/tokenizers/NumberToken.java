@@ -6,8 +6,9 @@ public class NumberToken {
 	public final InputPosition location;
 	public final String text;
 
-	public NumberToken(InputPosition pos, String text) {
+	public NumberToken(InputPosition pos, String text, int end) {
 		this.location = pos;
+		this.location.endAt(end);
 		this.text = text;
 	}
 
@@ -26,7 +27,7 @@ public class NumberToken {
 		line.advance();
 		while (line.hasMore() && Character.isDigit(line.nextChar()))
 			line.advance();
-		return new NumberToken(pos, line.fromMark(mark));
+		return new NumberToken(pos, line.fromMark(mark), line.at());
 	}
 
 }

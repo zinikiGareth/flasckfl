@@ -10,7 +10,7 @@ import org.zinutils.exceptions.UtilException;
 public class ItemExpr {
 	public static Object from(ExprToken tok) {
 		if (tok.type == ExprToken.NUMBER)
-			return new NumericLiteral(tok.location, tok.text);
+			return new NumericLiteral(tok.location, tok.text, -1);
 		else if (tok.type == ExprToken.STRING)
 			return new StringLiteral(tok.location, tok.text);
 		else if (tok.type == ExprToken.IDENTIFIER)

@@ -4,7 +4,7 @@ package test.golden
       hello @{5:7|hello}
         String @{5:0|String}
        <- @{5:13|<-}
-        '' hello, world @{5:16|"hello,}
+        '' hello, world @{5:16|"hello, world"}
     template @{7:0|template} @{null}
       . @{8:0|.}
         <cexpr> @{9:0|hello}

@@ -7,7 +7,7 @@ package test.golden
         rolled @{6:0|$rolled}
           '' goodbye @{6:8|'goodbye'}
     template rolled @{8:0|template} @{8:9|rolled} title @{8:16|title}
-      . p @{9:0|#p} @{9:1|p}
+      . p @{9:0|#} @{9:1|p}
         attr title @{9:10|title}
           title @{9:10|title}
         <cexpr> @{10:0|title}

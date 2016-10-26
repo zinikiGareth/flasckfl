@@ -213,7 +213,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotFathomANumericExpressionByItself() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new NumericLiteral(new InputPosition("test", 1, 3, "<- 36"), "36")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new NumericLiteral(new InputPosition("test", 1, 3, "<- 36"), "36", 5)));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(1, errors.count());
@@ -236,7 +236,7 @@ public class MethodConvertorTests {
 
 	/* ---- Tests of Assignment to a single slot ---- */
 	public void testTheTopLevelSlotInAnAssignmentMustBeResolvable() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "fred")), new NumericLiteral(null, "36")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "fred")), new NumericLiteral(posn, "36", 2)));
 		stage2(true);
 		assertEquals(errors.singleString(), 1, errors.count());
 		assertEquals("cannot assign to non-state member: map", errors.get(0).msg);
@@ -244,7 +244,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanOnlyAssignASlotWithTheRightType() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "str")), new NumericLiteral(null, "36")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str")), new NumericLiteral(posn, "36", 2)));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(1, errors.count());

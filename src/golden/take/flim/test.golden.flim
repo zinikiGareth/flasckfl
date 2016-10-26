@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Function file="take.fl" line="3" name="test.golden.take" off="25">
+    <Function file="take.fl" line="3" name="test.golden.take" off="23">
         <Function>
             <Arg>
                 <Builtin name="Number"/>

@@ -184,7 +184,7 @@ public class PatternParser implements TryParsing {
 			ConstructorMatch tmp = new ConstructorMatch(location, "Cons");
 			InputPosition piloc = ((Locatable) ps.get(i)).location();
 			tmp.args.add(tmp.new Field(piloc, "head", ps.get(i)));
-			tmp.args.add(tmp.new Field(piloc, "tail", ret));
+			tmp.args.add(tmp.new Field(((Locatable) ret).location(), "tail", ret));
 			ret = tmp;
 		}
 		return ret;
