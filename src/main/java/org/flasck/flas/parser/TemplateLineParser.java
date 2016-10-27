@@ -6,7 +6,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.template.TemplateAttributeVar;
-import org.flasck.flas.commonBase.template.TemplateCardReference;
 import org.flasck.flas.commonBase.template.TemplateCases;
 import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
 import org.flasck.flas.commonBase.template.TemplateFormat;
@@ -17,6 +16,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.EventHandler;
+import org.flasck.flas.parsedForm.TemplateCardReference;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -185,7 +185,7 @@ public class TemplateLineParser implements TryParsing{
 				// TODO: more card invocation syntax
 				//   * mode = local|sandbox|trusted|dialog
 				//   * -> handleVar
-				cmd = new TemplateCardReference(loc, cardName, yoyoVar);
+				cmd = new TemplateCardReference(tt.location, loc, cardName, yoyoVar);
 			} else if (tt.type == TemplateToken.CASES) {
 				if (!contents.isEmpty()) {
 					return ErrorResult.oneMessage(line, "cases must be the only content item");

@@ -177,7 +177,7 @@ public class IntroParser implements TryParsing {
 				return ErrorResult.oneMessage(line, "invalid handler name");
 			ArrayList<Object> lambdas = new ArrayList<Object>();
 			if (!line.hasMore())
-				return new HandlerImplements(kw.location, tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
+				return new HandlerImplements(kw.location, named.location, tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
 			while (line.hasMore()) {
 				PatternParser pp = new PatternParser();
 				Object patt = pp.tryParsing(line);
@@ -185,7 +185,7 @@ public class IntroParser implements TryParsing {
 					return ErrorResult.oneMessage(line, "invalid contract argument pattern");
 				lambdas.add(patt);
 			}
-			return new HandlerImplements(kw.location, tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
+			return new HandlerImplements(kw.location, named.location, tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
 		}
 		case "event": {
 			Object o = new FunctionParser(state).tryParsing(line);

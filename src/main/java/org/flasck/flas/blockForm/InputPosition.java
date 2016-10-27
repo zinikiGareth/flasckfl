@@ -35,6 +35,10 @@ public class InputPosition implements Comparable<InputPosition> {
 		return text.substring(off, endPos);
 	}
 
+	public boolean hasEnd() {
+		return endPos >=0;
+	}
+	
 	public int pastEnd() {
 		if (endPos < 0)
 			throw new UtilException("pastEnd called, but not set");
