@@ -354,6 +354,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			HandlerImplements hi = (HandlerImplements) obj;
 			pw.print("handler " + hi.name() + " " + hi.hiName + " (" + (hi.inCard?"card":"free") + ")");
 			dumpPosition(pw, hi.kw, false);
+			dumpPosition(pw, hi.typeLocation, false);
 			dumpLocation(pw, hi);
 			dumpList(pw, hi.boundVars);
 			dumpList(pw, hi.methods);

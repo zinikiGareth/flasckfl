@@ -60,7 +60,7 @@ public class ErrorResult {
 			for (int i=0;i<ind;i++)
 				pw.append(' ');
 			if (e.loc != null) {
-				pw.write(Justification.PADRIGHT.format(e.loc + ": ", 22) + e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off));
+				pw.write(Justification.PADRIGHT.format(e.loc + ": ", 22) + (e.loc.text == null ? "" : e.loc.text.substring(0, e.loc.off) + " _ " + e.loc.text.substring(e.loc.off)));
 				pw.write('\n');
 			} else
 				pw.write("<unknown location>\n");

@@ -3,15 +3,15 @@ HSIE for test.golden.take
     externals: [-, Cons, Nil, Number] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v1                                                      ?? - should be location of defn in first equation to have this as a free var
-SWITCH v1 Cons                                               take.fl:      2.7
+SWITCH v1 Cons                                               #take.fl:      2.7
   BIND v2 v1.head                                              ?? - should be location in first equation where this var is introduced in a pattern
   BIND v3 v1.tail                                              ?? - should be location in first equation where this var is introduced in a pattern
   HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var
-  SWITCH v0 Number                                             take.fl:      2.5
+  SWITCH v0 Number                                             #take.fl:      2.5
     IF v0:ev0 0
       RETURN Nil                                                   #take.fl:      2.14 - this appears to be wrong for closures; wants to be the apply expr point
   RETURN v6:clos6 [v4:clos4, v5:clos5]                         #take.fl:      3.15 - this appears to be wrong for closures; wants to be the apply expr point
-SWITCH v1 Nil                                                take.fl:      1.7
+SWITCH v1 Nil                                                #take.fl:      1.7
   RETURN Nil                                                   #take.fl:      2.14 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
 CLOSURE v4                                                   ?? - should be beginning (and ending?) of apply expr

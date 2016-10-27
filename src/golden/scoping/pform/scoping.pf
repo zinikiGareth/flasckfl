@@ -38,7 +38,7 @@ package test.golden
           <apply> @{20:18|(HandleReply var)}
             HandleReply @{20:19|HandleReply}
             var @{20:31|var}
-    handler Reply test.golden.f_0.HandleReply (free) @{22:0|handler} @{22:8|Reply}
+    handler Reply test.golden.f_0.HandleReply (free) @{22:0|handler} @{22:8|Reply} @{22:14|HandleReply}
       [type] v @{22:34|v}
         Number @{22:27|Number}
       method test.golden.f_0.HandleReply.reply @{23:0|reply}

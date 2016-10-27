@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.LetExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -31,6 +32,7 @@ import org.junit.Test;
 // Although these are tests, they are really just to make sure that the data
 // we enter in HSIETestData is valid from programs.
 public class HSIECodeGenerator {
+	private final InputPosition posn = new InputPosition("test", 1, 0, null);
 	private ErrorResult errors = new ErrorResult();
 	
 	@Test
@@ -156,10 +158,10 @@ public class HSIECodeGenerator {
 //		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
 		// TODO: I changed this from _x to ME.f._x to get the test to pass; not sure if the code actually does that.
 		LetExpr expr = new LetExpr("ME.f._x",
-					new ApplyExpr(null, new PackageVar(null, "FLEval.plus", null), new NumericLiteral(null, "2", 1), new NumericLiteral(null, "2", 1)),
-					new ApplyExpr(null, new PackageVar(null, "FLEval.plus", null), new LocalVar("ME.f", null, "_x", null, null), new LocalVar("ME.f", null, "_x", null, null)));
-		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(new RWFunctionIntro(null, "ME.f", new ArrayList<>(), new HashMap<>()), 0, expr);
-		RWFunctionDefinition f = new RWFunctionDefinition(null, CodeType.FUNCTION, "ME.f", 0, true);
+					new ApplyExpr(posn, new PackageVar(posn, "FLEval.plus", null), new NumericLiteral(posn, "2", 1), new NumericLiteral(posn, "2", 1)),
+					new ApplyExpr(posn, new PackageVar(posn, "FLEval.plus", null), new LocalVar("ME.f", posn, "_x", posn, null), new LocalVar("ME.f", posn, "_x", posn, null)));
+		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(new RWFunctionIntro(posn, "ME.f", new ArrayList<>(), new HashMap<>()), 0, expr);
+		RWFunctionDefinition f = new RWFunctionDefinition(posn, CodeType.FUNCTION, "ME.f", 0, true);
 		f.cases.add(fcd);
 		HSIEForm form = new HSIE(errors, null).handle(null, f);
 		assertNotNull(form);

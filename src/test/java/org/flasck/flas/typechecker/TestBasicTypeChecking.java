@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
@@ -31,11 +32,14 @@ import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 
 public class TestBasicTypeChecking {
+	static InputPosition posn = new InputPosition("test", 1, 1, null);
 	ErrorResult errors = new ErrorResult();
+	Type number = Type.builtin(posn, "Number");
 	
 	@Test
 	public void testWeCanTypecheckANumber() {
 		TypeChecker tc = new TypeChecker(errors);
+		tc.addExternal("Number", number);
 		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.simpleFn();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
@@ -50,6 +54,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanTypecheckAVerySimpleLambda() {
 		TypeChecker tc = new TypeChecker(errors);
+		tc.addExternal("Number", Type.builtin(posn, "Number"));
 		TypeState s = new TypeState(errors, tc);
 		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
 		Object te = tc.checkHSIE(s, HSIETestData.simpleFn());
@@ -123,6 +128,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanTypecheckAFunctionApplicationWithTwoArguments() {
 		TypeChecker tc = new TypeChecker(errors);
+		tc.addExternal("Number", number);
 		tc.addExternal("plus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.plus2And2();
@@ -214,14 +220,13 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanHandleConstantSwitching() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		Type number = Type.builtin(null, "Number");
 		tc.addExternal("Number", number);
-		tc.addExternal("FLEval.plus", Type.function(null, number, number, number));
-		tc.addExternal("FLEval.minus", Type.function(null, number, number, number));
+		tc.addExternal("+", Type.function(posn, number, number, number));
+		tc.addExternal("-", Type.function(posn, number, number, number));
 		tc.typecheck(orchardOf(HSIETestData.fib()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		Object te = tc.knowledge.get("fib");
+		Object te = tc.knowledge.get("ME.fib");
 		System.out.println(te);
 		assertNotNull(te);
 		// The type should be Number -> Number
@@ -280,10 +285,10 @@ public class TestBasicTypeChecking {
 		list.addCase(cons);
 		tc.addTypeDefn(list);
 				
-		tc.addExternal("Nil", Type.function(null, nil));
-		tc.addExternal("Cons", Type.function(null, varA, list, list));
+		tc.addExternal("Nil", Type.function(posn, nil));
+		tc.addExternal("Cons", Type.function(posn, varA, list, list));
 
-		tc.addExternal("FLEval.minus", Type.function(null, number, number, number));
+		tc.addExternal("-", Type.function(posn, number, number, number));
 		tc.typecheck(orchardOf(HSIETestData.take()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -299,7 +304,6 @@ public class TestBasicTypeChecking {
 	public void testWeCanCheckUnionTypes() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
 
-		Type number = Type.builtin(null, "Number");
 		tc.addExternal("Number", number);
 		Type varA = Type.polyvar(null, "A");
 		RWStructDefn nil = new RWStructDefn(null, "Nil", false);
@@ -330,7 +334,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckASimpleNestedFunction() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new RWStructDefn(null, "Number", false));
+		tc.addExternal("Number", number);
 		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.typecheck(orchardOf(HSIETestData.simpleG()));
 		tc.typecheck(orchardOf(HSIETestData.simpleF()));
@@ -356,8 +360,8 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new RWStructDefn(null, "Number", false));
-		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
+		tc.addExternal("Number", number);
+		tc.addExternal("*", Type.function(posn, Type.builtin(posn, "Number"), Type.builtin(posn, "Number"), Type.builtin(posn, "Number")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		Tree<HSIEForm> tree = orchard.addTree(HSIETestData.mutualF());
 		tree.addChild(tree.getRoot(), HSIETestData.mutualG());
@@ -385,15 +389,15 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckSimpleIf() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new RWStructDefn(null, "Number", false));
-		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
-		tc.addExternal("FLEval.compeq", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A"), Type.builtin(null, "Boolean")));
+		tc.addExternal("Number", number);
+		tc.addExternal("FLEval.mul", Type.function(posn, Type.builtin(posn, "Number"), Type.builtin(posn, "Number"), Type.builtin(posn, "Number")));
+		tc.addExternal("FLEval.compeq", Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.builtin(posn, "Boolean")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		orchard.addTree(HSIETestData.simpleIf());
 		tc.typecheck(orchard);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertEquals(3, tc.knowledge.size());
+		assertEquals(4, tc.knowledge.size());
 		System.out.println(tc.knowledge);
 		{
 			Object mf = tc.knowledge.get("ME.fact");
@@ -406,7 +410,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckSimpleIfElse() throws Exception {
 		TypeChecker tc = new TypeChecker(errors);
-		tc.addStructDefn(new RWStructDefn(null, "Number", false));
+		tc.addExternal("Number", number);
 		tc.addExternal("FLEval.mul", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.addExternal("FLEval.minus", Type.function(null, Type.builtin(null, "Number"), Type.builtin(null, "Number"), Type.builtin(null, "Number")));
 		tc.addExternal("FLEval.compeq", Type.function(null, Type.polyvar(null, "A"), Type.polyvar(null, "A"), Type.builtin(null, "Boolean")));

@@ -3,11 +3,11 @@ HSIE for test.golden.fold
     externals: [Cons, Nil] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v2                                                      ?? - should be location of defn in first equation to have this as a free var
-SWITCH v2 Cons                                               fold.fl:      3.11
+SWITCH v2 Cons                                               #fold.fl:      3.11
   BIND v3 v2.head                                              ?? - should be location in first equation where this var is introduced in a pattern
   BIND v4 v2.tail                                              ?? - should be location in first equation where this var is introduced in a pattern
   RETURN v6:clos6 [v5:clos5]                                   #fold.fl:      3.19 - this appears to be wrong for closures; wants to be the apply expr point
-SWITCH v2 Nil                                                fold.fl:      2.11
+SWITCH v2 Nil                                                #fold.fl:      2.11
   RETURN v1:test.golden.fold_0.acc []                          #fold.fl:      2.7 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
 CLOSURE v5                                                   ?? - should be beginning (and ending?) of apply expr

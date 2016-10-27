@@ -76,7 +76,7 @@ package test.golden
               FooHandler @{46:17|FooHandler}
               '' yo @{46:28|'yo'}
     implements DataStore ds @{48:0|implements} @{48:11|DataStore} @{48:21|ds}
-    handler Handler test.golden.Complex.FooHandler (card) @{50:0|handler} @{50:8|Handler}
+    handler Handler test.golden.Complex.FooHandler (card) @{50:0|handler} @{50:8|Handler} @{50:16|FooHandler}
       [var] k @{50:27|k}
       method test.golden.Complex.FooHandler.reply @{51:0|reply}
         [var] x @{51:6|x}

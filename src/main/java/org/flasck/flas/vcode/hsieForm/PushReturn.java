@@ -6,6 +6,7 @@ import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
+import org.zinutils.exceptions.UtilException;
 
 // Push and Return are like REALLY, REALLY similar
 // It helps the typechecker at least to treat them as exactly the same
@@ -20,6 +21,7 @@ public abstract class PushReturn extends HSIEBlock {
 	public final CardStateRef csr;
 
 	public PushReturn(InputPosition loc, CreationOfVar var) {
+		if (loc == null) throw new UtilException("Cannot be null");
 		this.location = loc;
 		this.var = var;
 		this.ival = null;
@@ -31,6 +33,7 @@ public abstract class PushReturn extends HSIEBlock {
 	}
 
 	public PushReturn(InputPosition loc, int i) {
+		if (loc == null) throw new UtilException("Cannot be null");
 		this.location = loc;
 		this.var = null;
 		this.ival = i;
@@ -42,6 +45,7 @@ public abstract class PushReturn extends HSIEBlock {
 	}
 
 	public PushReturn(InputPosition loc, ExternalRef fn) {
+		if (loc == null) throw new UtilException("Cannot be null");
 		this.location = loc;
 		this.var = null;
 		this.ival = null;
@@ -53,6 +57,7 @@ public abstract class PushReturn extends HSIEBlock {
 	}
 
 	public PushReturn(InputPosition loc, StringLiteral s) {
+		if (loc == null) throw new UtilException("Cannot be null");
 		this.location = loc;
 		this.var = null;
 		this.ival = null;
@@ -64,6 +69,7 @@ public abstract class PushReturn extends HSIEBlock {
 	}
 
 	public PushReturn(InputPosition loc, TemplateListVar tlv) {
+		if (loc == null) throw new UtilException("Cannot be null");
 		this.location = loc;
 		this.var = null;
 		this.ival = null;
@@ -75,6 +81,7 @@ public abstract class PushReturn extends HSIEBlock {
 	}
 
 	public PushReturn(InputPosition loc, FunctionLiteral func) {
+		if (loc == null) throw new UtilException("Cannot be null");
 		this.location = loc;
 		this.var = null;
 		this.ival = null;
@@ -86,6 +93,7 @@ public abstract class PushReturn extends HSIEBlock {
 	}
 
 	public PushReturn(InputPosition loc, CardStateRef csr) {
+		if (loc == null) throw new UtilException("Cannot be null");
 		this.location = loc;
 		this.var = null;
 		this.ival = null;

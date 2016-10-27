@@ -2,7 +2,9 @@ package org.flasck.flas.tokenizers;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.ContinuedLine;
+import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.blockForm.SingleLine;
 
 public class Tokenizable {
 	private final ContinuedLine line;
@@ -27,7 +29,8 @@ public class Tokenizable {
 	public Tokenizable(String input) {
 		this.input = new StringBuilder(input);
 		this.pos = 0;
-		this.line = null;
+		this.line = new ContinuedLine();
+		this.line.lines.add(new SingleLine("test", 1, new Indent(1, 0), input));
 	}
 
 	public int at() {

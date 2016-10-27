@@ -16,6 +16,6 @@ public class Switch extends HSIEBlock {
 
 	@Override
 	public String toString() {
-		return Justification.LEFT.format("SWITCH " + var + " " + ctor, 60) + " " + location;
+		return Justification.LEFT.format("SWITCH " + var + " " + ctor, 60) + " #" + location;
 	}
 }

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.jsform.JSForm;
@@ -16,10 +17,11 @@ import org.flasck.flas.typechecker.Type;
 import org.junit.Test;
 
 public class TestGeneratingStructs {
+	static InputPosition posn = new InputPosition("test", 1, 1, null);
 
 	@Test
 	public void testACaseWithNoFields() throws IOException {
-		RWStructDefn sd = new RWStructDefn(null, "ME.Hello", true);
+		RWStructDefn sd = new RWStructDefn(posn, "ME.Hello", true);
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(null, target);
 		gen.generate(sd);

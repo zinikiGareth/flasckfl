@@ -66,6 +66,8 @@ public class HSIE {
 		InputPosition loc = null;
 		if (expr instanceof Locatable)
 			loc = ((Locatable)expr).location();
+		else
+			throw new UtilException(expr + " " + expr.getClass() + " is not locatable");
 		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(type, "", loc, 0, new HashMap<String, CreationOfVar>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));

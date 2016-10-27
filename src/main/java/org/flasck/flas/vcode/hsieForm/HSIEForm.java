@@ -61,6 +61,7 @@ public class HSIEForm extends HSIEBlock {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
+		if (nameLoc == null) throw new UtilException("Null fnLoc");
 		this.fnLoc = nameLoc;
 		if (alreadyUsed != 0)
 			System.out.println("Hello");
@@ -77,6 +78,7 @@ public class HSIEForm extends HSIEBlock {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
+		if (fnLoc == null) throw new UtilException("Null fnLoc");
 		this.fnLoc = fnLoc;
 		this.alreadyUsed = 0;
 		this.nformal = nformal;
@@ -89,7 +91,7 @@ public class HSIEForm extends HSIEBlock {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		fnName = name;
-		this.fnLoc = null;
+		this.fnLoc = new InputPosition("hsie", 1, 1, null);
 		this.alreadyUsed = 0;
 		this.nformal = nformal;
 //		for (int i=0;i<alreadyUsed;i++)

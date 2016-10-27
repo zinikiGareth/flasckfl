@@ -3,7 +3,7 @@ HSIE for test.golden.Foo.request2
     externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
     all vars = [v0, v1, v2]
 HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var
-SWITCH v0 Crokey                                             standalone.f 17.10
+SWITCH v0 Crokey                                             #standalone.f 17.10
   RETURN v2:clos2 [v1:clos1]                                   #standalone.f 17.23 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
 CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
@@ -21,7 +21,7 @@ HSIE for test.golden.Foo.request
     externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
     all vars = [v0, v1, v2]
 HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var
-SWITCH v0 Crokey                                             standalone.f 16.9
+SWITCH v0 Crokey                                             #standalone.f 16.9
   RETURN v2:clos2 [v1:clos1]                                   #standalone.f 16.22 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
 CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr

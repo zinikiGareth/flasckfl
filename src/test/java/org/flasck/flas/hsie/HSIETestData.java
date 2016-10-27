@@ -467,10 +467,10 @@ public class HSIETestData {
 //				AbsoluteVar av = ctorTypes.get(ps[2]);
 //				if (av == null)
 //					throw new UtilException("You need to define the AV for test type " + ps[2]);
-				prev = b.switchCmd(null, ret.var(Integer.parseInt(ps[1])), ps[2]);
+				prev = b.switchCmd(posn, ret.var(Integer.parseInt(ps[1])), ps[2]);
 			} else if (ps[0].equals("IF")) {
 				int vidx = Integer.parseInt(ps[1]);
-				CreationOfVar var = new CreationOfVar(ret.var(vidx), null, ps[2]);
+				CreationOfVar var = new CreationOfVar(ret.var(vidx), posn, ps[2]);
 				if (ps.length == 3) {
 					// the closure case
 					prev = b.ifCmd(var);
@@ -491,18 +491,18 @@ public class HSIETestData {
 				if (tmp instanceof CreationOfVar) {
 					deps = new ArrayList<CreationOfVar>();
 					for (int j=4;j+1<ps.length;j+=2)
-						deps.add(new CreationOfVar(ret.var(Integer.parseInt(ps[j])), null, ps[j+1]));
+						deps.add(new CreationOfVar(ret.var(Integer.parseInt(ps[j])), posn, ps[j+1]));
 				}
-				prev = b.doReturn(null, tmp, deps);
+				prev = b.doReturn(posn, tmp, deps);
 			} else if (ps[0].equals("ERROR")) {
 				b.caseError();
 				prev = null;
 			} else if (ps[0].equals("var") && ps.length == 3) {
-				prev = b.push(null, analyze(ret, ps, 0));
+				prev = b.push(posn, analyze(ret, ps, 0));
 			} else if (Character.isDigit(ps[0].charAt(0))) {
-				prev = b.push(null, Integer.parseInt(ps[0]));
+				prev = b.push(posn, Integer.parseInt(ps[0]));
 			} else {
-				prev = b.push(null, new PackageVar(posn, ps[0], null));
+				prev = b.push(posn, new PackageVar(posn, ps[0], null));
 			}
 			
 		}
@@ -511,7 +511,7 @@ public class HSIETestData {
 
 	private static Object analyze(HSIEForm ret, String[] ps, int from) {
 		if (ps[from].equals("var"))
-			return new CreationOfVar(ret.var(Integer.parseInt(ps[from+1])), null, ps[from+2]);
+			return new CreationOfVar(ret.var(Integer.parseInt(ps[from+1])), posn, ps[from+2]);
 		else if (Character.isDigit(ps[from].charAt(0)))
 			return Integer.parseInt(ps[from]);
 		else

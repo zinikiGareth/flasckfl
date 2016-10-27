@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -20,43 +21,45 @@ import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class ParsedFormTestData {
+	static InputPosition posn = new InputPosition("test", 1, 1, null);
+
 	public static FunctionCaseDefn fibDefn1() {
 		List<Object> args = new ArrayList<Object>();
-		args.add(new ConstPattern(null, ConstPattern.INTEGER, "0"));
-		Object ie = ItemExpr.from(new ExprToken(null, ExprToken.NUMBER, "1"));
-		return new FunctionCaseDefn(null, CodeType.FUNCTION, "fib", args, ie);
+		args.add(new ConstPattern(posn, ConstPattern.INTEGER, "0"));
+		Object ie = ItemExpr.from(new ExprToken(posn, ExprToken.NUMBER, "1"));
+		return new FunctionCaseDefn(posn, CodeType.FUNCTION, "fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefn2() {
 		List<Object> args = new ArrayList<Object>();
-		args.add(new ConstPattern(null, ConstPattern.INTEGER, "1"));
-		Object ie = ItemExpr.from(new ExprToken(null, ExprToken.NUMBER, "1"));
-		return new FunctionCaseDefn(null, CodeType.FUNCTION, "fib", args, ie);
+		args.add(new ConstPattern(posn, ConstPattern.INTEGER, "1"));
+		Object ie = ItemExpr.from(new ExprToken(posn, ExprToken.NUMBER, "1"));
+		return new FunctionCaseDefn(posn, CodeType.FUNCTION, "fib", args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefnN() {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern(null, "n"));
 		
-		ApplyExpr minus1 = new ApplyExpr(null, se("-"), ie("n"), ne("1"));
-		ApplyExpr lhs = new ApplyExpr(null, ie("fib"), minus1);
-		ApplyExpr minus2 = new ApplyExpr(null, se("-"), ie("n"), ne("2"));
-		ApplyExpr rhs = new ApplyExpr(null, ie("fib"), minus2);
-		ApplyExpr top = new ApplyExpr(null, se("+"), lhs, rhs);
+		ApplyExpr minus1 = new ApplyExpr(posn, se("-"), ie("n"), ne("1"));
+		ApplyExpr lhs = new ApplyExpr(posn, ie("fib"), minus1);
+		ApplyExpr minus2 = new ApplyExpr(posn, se("-"), ie("n"), ne("2"));
+		ApplyExpr rhs = new ApplyExpr(posn, ie("fib"), minus2);
+		ApplyExpr top = new ApplyExpr(posn, se("+"), lhs, rhs);
 		
-		return new FunctionCaseDefn(null, CodeType.FUNCTION, "fib", args, top);
+		return new FunctionCaseDefn(posn, CodeType.FUNCTION, "fib", args, top);
 	}
 
 	private static Object ie(String tok) {
-		return ItemExpr.from(new ExprToken(null, ExprToken.IDENTIFIER, tok));
+		return ItemExpr.from(new ExprToken(posn, ExprToken.IDENTIFIER, tok));
 	}
 
 	private static Object ne(String tok) {
-		return ItemExpr.from(new ExprToken(null, ExprToken.NUMBER, tok));
+		return ItemExpr.from(new ExprToken(posn, ExprToken.NUMBER, tok));
 	}
 
 	private static Object se(String tok) {
-		return ItemExpr.from(new ExprToken(null, ExprToken.SYMBOL, tok));
+		return ItemExpr.from(new ExprToken(posn, ExprToken.SYMBOL, tok));
 	}
 
 	public static void assertFormsEqual(Object expected, Object actual) {

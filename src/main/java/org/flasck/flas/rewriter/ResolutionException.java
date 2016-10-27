@@ -12,10 +12,4 @@ public class ResolutionException extends RuntimeException {
 		this.location = location;
 		this.name = name;
 	}
-
-	public ResolutionException(InputPosition location, int k, String name) {
-		super("could not find package " + name);
-		this.location = location;
-		this.name = name;
-	}
 }
