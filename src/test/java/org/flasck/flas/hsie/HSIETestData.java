@@ -229,12 +229,12 @@ public class HSIETestData {
 
 	public static HSIEForm simpleG() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("FLEval.mul");
+		externals.add("*");
 		return thingy("ME.f_0.g", 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
 			"CLOSURE 1",
-			"{", "FLEval.mul",
+			"{", "*",
 				"2", "var 0 clos0", "}"
 		);
 	}
@@ -311,12 +311,12 @@ public class HSIETestData {
 
 	public static HSIEForm plus2And2() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("plus");
+		externals.add("+");
 		return thingy("f", 0, 1, externals,
 			null,
 			"RETURN var 0 clos0",
 			"CLOSURE 0", "{",
-				"plus", "2", "2",
+				"+", "2", "2",
 			"}"
 		);
 	}
@@ -387,7 +387,7 @@ public class HSIETestData {
 
 	public static HSIEForm simpleIf() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("FLEval.compeq");
+		externals.add("==");
 		return thingy("ME.fact", 1, 1, externals,
 			null,
 			"IF 1 clos1", "{",
@@ -395,16 +395,16 @@ public class HSIETestData {
 			"}",
 			"ERROR",
 			"CLOSURE 1", "{",
-				"FLEval.compeq", "var 0 n", "1",
+				"==", "var 0 n", "1",
 			"}"
 		);
 	}
 
 	public static HSIEForm simpleIfElse() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("FLEval.compeq");
-		externals.add("FLEval.mul");
-		externals.add("FLEval.minus");
+		externals.add("==");
+		externals.add("*");
+		externals.add("-");
 		return thingy("ME.fact", 1, 4, externals,
 			null,
 			"IF 1 clos1", "{",
@@ -412,16 +412,16 @@ public class HSIETestData {
 			"}",
 			"RETURN var 4 clos4 2 clos2 3 clos3",
 			"CLOSURE 1", "{",
-				"FLEval.compeq", "var 0 n", "1",
+				"==", "var 0 n", "1",
 			"}",
 			"CLOSURE 2", "{",
-				"FLEval.minus", "var 0 n", "1",
+				"-", "var 0 n", "1",
 			"}",
 			"CLOSURE 3", "{",
 				"ME.fact", "var 2 clos2",
 			"}",
 			"CLOSURE 4", "{",
-				"FLEval.mul", "var 0 n", "var 3 clos3",
+				"*", "var 0 n", "var 3 clos3",
 			"}"
 		);
 	}

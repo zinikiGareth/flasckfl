@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
@@ -43,14 +44,34 @@ public class TestBasicTypeChecking {
 	@Before
 	public void setup() {
 		tc.addExternal("Number", number);
+		tc.addExternal("*", Type.function(posn, number, number, number));
+		tc.addExternal("+", Type.function(posn, number, number, number));
+		tc.addExternal("-", Type.function(posn, number, number, number));
+		tc.addExternal("==", Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.builtin(posn, "Boolean")));
+		tc.addTypeDefn(new RWUnionTypeDefn(posn, false, "Any", new ArrayList<>()));
+		Type varA = Type.polyvar(posn, "A");
+		RWStructDefn nil = new RWStructDefn(posn, "Nil", false);
+		tc.addStructDefn(nil);
+		RWStructDefn cons = new RWStructDefn(posn, "Cons", false, varA); 
+		cons.addField(new RWStructField(posn, false, varA, "head"));
+		cons.addField(new RWStructField(posn, false, cons, "tail"));
+		tc.addStructDefn(cons);
+		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, "List", CollectionUtils.listOf(varA));
+		list.addCase(nil);
+		list.addCase(cons);
+		tc.addTypeDefn(list);
+				
+		tc.addExternal("Nil", Type.function(posn, nil));
+		tc.addExternal("Cons", Type.function(posn, varA, list, list));
 		LogManager.getLogger("TypeChecker").setLevel(Level.DEBUG);
 	}
 
 	@Test
-	public void testWeCanTypecheckANumber() {
+	public void testWeCanTypecheckANumber() throws IOException {
 		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.simpleFn();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertNotNull(te);
 		assertTrue(te instanceof TypeExpr);
@@ -60,10 +81,11 @@ public class TestBasicTypeChecking {
 	}
 
 	@Test
-	public void testWeCanTypecheckAVerySimpleLambda() {
+	public void testWeCanTypecheckAVerySimpleLambda() throws IOException {
 		TypeState s = new TypeState(errors, tc);
 		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
 		Object te = tc.checkHSIE(s, HSIETestData.simpleFn());
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertNotNull(te);
 		// The type should be A -> Number
@@ -76,10 +98,11 @@ public class TestBasicTypeChecking {
 	}
 
 	@Test
-	public void testWeCanTypecheckID() {
+	public void testWeCanTypecheckID() throws IOException {
 		TypeState s = new TypeState(errors, tc);
 		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
 		Object te = tc.checkHSIE(s, HSIETestData.idFn());
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertNotNull(te);
 		// The type should be A -> A
@@ -94,11 +117,12 @@ public class TestBasicTypeChecking {
 
 	
 	@Test
-	public void testExternalPlus1HasExpectedType() {
+	public void testExternalPlus1HasExpectedType() throws IOException {
 		tc.addExternal("plus1", Type.function(posn, number, number));
 		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.returnPlus1();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertNotNull(te);
 		// The type should be Number -> Number
@@ -114,11 +138,12 @@ public class TestBasicTypeChecking {
 	}
 
 	@Test
-	public void testWeCanTypecheckSimpleFunctionApplication() {
+	public void testWeCanTypecheckSimpleFunctionApplication() throws IOException {
 		tc.addExternal("plus1", Type.function(posn, number, number));
 		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.plus1Of1();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertNotNull(te);
 		// The type should be Number
@@ -129,11 +154,11 @@ public class TestBasicTypeChecking {
 	}
 
 	@Test
-	public void testWeCanTypecheckAFunctionApplicationWithTwoArguments() {
-		tc.addExternal("plus", Type.function(posn, number, number, number));
+	public void testWeCanTypecheckAFunctionApplicationWithTwoArguments() throws IOException {
 		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.plus2And2();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertNotNull(te);
 		// The type should be Number
@@ -144,12 +169,13 @@ public class TestBasicTypeChecking {
 	}
 
 	@Test
-	public void testWeCanUseIDTwiceWithDifferentInstationsOfItsSchematicVar() {
+	public void testWeCanUseIDTwiceWithDifferentInstationsOfItsSchematicVar() throws IOException {
 		tc.addExternal("id", Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A")));
 		tc.addExternal("decode", Type.function(posn, number, Type.builtin(posn, "Char")));
 		TypeState s = new TypeState(errors, tc);
 		HSIEForm fn = HSIETestData.idDecode();
 		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertNotNull(te);
 		System.out.println(te);
@@ -162,13 +188,11 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanCheckTwoFunctionsAtOnceBecauseTheyAreMutuallyRecursive() throws Exception {
-		tc.addExternal("+", Type.function(posn, number, number, number));
-		tc.addExternal("-", Type.function(posn, number, number, number));
 		tc.addTypeDefn(new RWUnionTypeDefn(posn, false, "Any", new ArrayList<>()));
 		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertEquals(5, tc.knowledge.size());
+		assertEquals(9, tc.knowledge.size());
 		{
 			Object rdf1 = tc.knowledge.get("ME.f");
 			assertNotNull(rdf1);
@@ -214,8 +238,6 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanHandleConstantSwitching() throws Exception {
-		tc.addExternal("+", Type.function(posn, number, number, number));
-		tc.addExternal("-", Type.function(posn, number, number, number));
 		tc.typecheck(orchardOf(HSIETestData.fib()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -229,22 +251,6 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanHandleBindForCons() throws Exception {
-		tc.addTypeDefn(new RWUnionTypeDefn(posn, false, "Any", new ArrayList<>()));
-		Type varA = Type.polyvar(posn, "A");
-		RWStructDefn nil = new RWStructDefn(posn, "Nil", false);
-		tc.addStructDefn(nil);
-		RWStructDefn cons = new RWStructDefn(posn, "Cons", false, varA); 
-		cons.addField(new RWStructField(posn, false, varA, "head"));
-		cons.addField(new RWStructField(posn, false, cons, "tail"));
-		tc.addStructDefn(cons);
-		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, "List", CollectionUtils.listOf(varA));
-		list.addCase(nil);
-		list.addCase(cons);
-		tc.addTypeDefn(list);
-				
-		tc.addExternal("Nil", Type.function(posn, nil));
-		tc.addExternal("Cons", Type.function(posn, varA, list, list));
-		tc.addExternal("-", Type.function(posn, number, number, number));
 		tc.typecheck(orchardOf(HSIETestData.takeConsCase()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -259,22 +265,6 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
-		Type varA = Type.polyvar(posn, "A");
-		RWStructDefn nil = new RWStructDefn(posn, "Nil", false);
-		tc.addStructDefn(nil);
-		RWStructDefn cons = new RWStructDefn(posn, "Cons", false, varA); 
-		cons.addField(new RWStructField(posn, false, varA, "head"));
-		cons.addField(new RWStructField(posn, false, cons, "tail"));
-		tc.addStructDefn(cons);
-		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, "List", CollectionUtils.listOf(varA));
-		list.addCase(nil);
-		list.addCase(cons);
-		tc.addTypeDefn(list);
-				
-		tc.addExternal("Nil", Type.function(posn, nil));
-		tc.addExternal("Cons", Type.function(posn, varA, list, list));
-
-		tc.addExternal("-", Type.function(posn, number, number, number));
 		tc.typecheck(orchardOf(HSIETestData.take()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -288,23 +278,6 @@ public class TestBasicTypeChecking {
 	@Test
 	@Ignore
 	public void testWeCanCheckUnionTypes() throws Exception {
-		tc.addExternal("Number", number);
-		Type varA = Type.polyvar(posn, "A");
-		RWStructDefn nil = new RWStructDefn(posn, "Nil", false);
-		tc.addStructDefn(nil);
-		RWStructDefn cons = new RWStructDefn(posn, "Cons", false, varA); 
-		cons.addField(new RWStructField(posn, false, varA, "head"));
-		cons.addField(new RWStructField(posn, false, cons, "tail"));
-		tc.addStructDefn(cons);
-		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, "List", CollectionUtils.listOf(varA));
-		list.addCase(nil);
-		list.addCase(cons);
-		tc.addTypeDefn(list);
-				
-		tc.addExternal("Nil", Type.function(posn, nil));
-		tc.addExternal("Cons", Type.function(posn, varA, list, list));
-
-		tc.addExternal("FLEval.minus", Type.function(posn, number, number, number));
 		tc.typecheck(orchardOf(HSIETestData.unionType()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -317,12 +290,11 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckASimpleNestedFunction() throws Exception {
-		tc.addExternal("FLEval.mul", Type.function(posn, number, number, number));
 		tc.typecheck(orchardOf(HSIETestData.simpleG()));
 		tc.typecheck(orchardOf(HSIETestData.simpleF()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertEquals(4, tc.knowledge.size());
+		assertEquals(9, tc.knowledge.size());
 		System.out.println(tc.knowledge);
 		{
 			Object mf = tc.knowledge.get("ME.f");
@@ -340,7 +312,6 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
-		tc.addExternal("*", Type.function(posn, number, number, number));
 		{
 			Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 			orchard.addTree(HSIETestData.mutualG());
@@ -355,7 +326,7 @@ public class TestBasicTypeChecking {
 			errors.showTo(new PrintWriter(System.out), 0);
 			assertFalse(errors.hasErrors());
 		}
-		assertEquals(4, tc.knowledge.size());
+		assertEquals(9, tc.knowledge.size());
 		System.out.println(tc.knowledge);
 		{
 			Object mf = tc.knowledge.get("ME.f");
@@ -373,14 +344,12 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckSimpleIf() throws Exception {
-		tc.addExternal("FLEval.mul", Type.function(posn, number, number, number));
-		tc.addExternal("FLEval.compeq", Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.builtin(posn, "Boolean")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		orchard.addTree(HSIETestData.simpleIf());
 		tc.typecheck(orchard);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertEquals(4, tc.knowledge.size());
+		assertEquals(8, tc.knowledge.size());
 		System.out.println(tc.knowledge);
 		{
 			Object mf = tc.knowledge.get("ME.fact");
@@ -392,16 +361,12 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckSimpleIfElse() throws Exception {
-		tc.addExternal("FLEval.mul", Type.function(posn, number, number, number));
-		tc.addExternal("FLEval.minus", Type.function(posn, number, number, number));
-		tc.addExternal("FLEval.compeq", Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.builtin(posn, "Boolean")));
 		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		orchard.addTree(HSIETestData.simpleIfElse());
 		tc.typecheck(orchard);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		// Four things should now be defined: Number, -, +, f, g
-		assertEquals(5, tc.knowledge.size());
+		assertEquals(8, tc.knowledge.size());
 		System.out.println(tc.knowledge);
 		{
 			Object mf = tc.knowledge.get("ME.fact");
@@ -413,6 +378,7 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
+		tc = new TypeChecker(errors);
 		ImportPackage biscope = Builtin.builtins();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
@@ -426,6 +392,7 @@ public class TestBasicTypeChecking {
 		assertNotNull(g1);
 		g1.provideCaseName("ME.g_0");
 		s.define("g", "ME.g", g1);
+		tc.addExternal("Number", (Type) biscope.get("Number"));
 		tc.addExternal("String", (Type) biscope.get("String"));
 		tc.addExternal("join", ((RWFunctionDefinition) biscope.get("join")).getType());
 		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("Any"));
@@ -445,7 +412,6 @@ public class TestBasicTypeChecking {
 //		assertEquals(errors.singleString(), 0, errors.count());
 		tc.typecheck(orchard);
 		assertEquals(errors.singleString(), 0, errors.count());
-//		// Four things should now be defined: -, +, f, g
 		assertEquals(5, tc.knowledge.size());
 		{
 			Object mf = tc.knowledge.get("ME.f");
