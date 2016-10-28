@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
@@ -31,7 +33,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.graphs.Orchard;
-import org.zinutils.graphs.Tree;
 
 public class TestBasicTypeChecking {
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
@@ -42,7 +43,9 @@ public class TestBasicTypeChecking {
 	@Before
 	public void setup() {
 		tc.addExternal("Number", number);
+		LogManager.getLogger("TypeChecker").setLevel(Level.DEBUG);
 	}
+
 	@Test
 	public void testWeCanTypecheckANumber() {
 		TypeState s = new TypeState(errors, tc);
@@ -338,16 +341,21 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
 		tc.addExternal("*", Type.function(posn, number, number, number));
-		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
-		HSIETestData.mutualG().dump(new PrintWriter(System.out));
-		HSIETestData.mutualF().dump(new PrintWriter(System.out));
-		Tree<HSIEForm> tree = orchard.addTree(HSIETestData.mutualF());
-		tree.addChild(tree.getRoot(), HSIETestData.mutualG());
-		tc.typecheck(orchard);
-		errors.showTo(new PrintWriter(System.out), 0);
-		assertFalse(errors.hasErrors());
-		// Four things should now be defined: -, +, f, g
-		assertEquals(3, tc.knowledge.size());
+		{
+			Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
+			orchard.addTree(HSIETestData.mutualG());
+			tc.typecheck(orchard);
+			errors.showTo(new PrintWriter(System.out), 0);
+			assertFalse(errors.hasErrors());
+		}
+		{
+			Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
+			orchard.addTree(HSIETestData.mutualF());
+			tc.typecheck(orchard);
+			errors.showTo(new PrintWriter(System.out), 0);
+			assertFalse(errors.hasErrors());
+		}
+		assertEquals(4, tc.knowledge.size());
 		System.out.println(tc.knowledge);
 		{
 			Object mf = tc.knowledge.get("ME.f");

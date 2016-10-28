@@ -18,6 +18,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
@@ -26,7 +27,6 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -209,7 +209,7 @@ public class TypeChecker {
 
 	public void typecheck(Orchard<HSIEForm> functionsToCheck) {
 		int mark = errors.count();
-//		System.out.println("---- Starting to typecheck");
+//		System.out.println("---- Starting to typecheck: orchard size = " + functionsToCheck.nodeCount());
 		TypeState s = new TypeState(errors, this);
 		Map<String, HSIEForm> rewritten = rewriteForms(s, functionsToCheck);
 //		System.out.println("Allocated new type vars; checking forms");

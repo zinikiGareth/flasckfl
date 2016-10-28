@@ -10,11 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -195,7 +197,8 @@ public class HSIETestData {
 			null,
 			"RETURN var 2 clos2 1 ME.f_0.g",
 			"CLOSURE 1",
-			"{", "ME.f_0.g", "var 0 x", "}", "CLOSURE 2",
+			"{", "ME.f_0.g", "var 0 x", "}",
+			"CLOSURE 2 !",
 			"{", "var 1 ME.f_0.g", "2", "}"
 		);
 	}
@@ -203,7 +206,7 @@ public class HSIETestData {
 	public static HSIEForm mutualG() {
 		ArrayList<Object> externals = new ArrayList<Object>();
 		externals.add("*");
-		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.x", new PackageVar(posn, "ME.f_0", null), false));
+		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.x", new LocalVar("ME.f_0", posn, "x", null, null), false));
 		return thingy("ME.f_0.g", 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
@@ -481,7 +484,10 @@ public class HSIETestData {
 			} else if (ps[0].equals("BIND")) {
 				prev = b.bindCmd(ret.var(Integer.parseInt(ps[1])), ret.var(Integer.parseInt(ps[2])), ps[3]);
 			} else if (ps[0].equals("CLOSURE")) {
-				prev = ret.closure(ret.var(Integer.parseInt(ps[1])));
+				ClosureCmd tmp = ret.closure(ret.var(Integer.parseInt(ps[1])));
+				if (ps.length == 3 && ps[2].equals("!"))
+					tmp.justScoping = true;
+				prev = tmp;
 			} else if (ps[0].equals("RETURN")) {
 				Object tmp = analyze(ret, ps, 1);
 				List<CreationOfVar> deps = null;
