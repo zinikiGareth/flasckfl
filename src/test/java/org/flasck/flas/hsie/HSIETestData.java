@@ -249,43 +249,40 @@ public class HSIETestData {
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 Cons",
-			"{","BIND 2 0 head",
+			"{",
+				"BIND 2 0 head",
 				"BIND 3 0 tail",
 				"RETURN var 5 clos5",
-				"}",
+			"}",
 			"SWITCH 0 Nil",
-			"{",	"RETURN var 4 clos4",
-				"}",
+			"{",
+				"RETURN var 4 clos4",
+			"}",
 			"ERROR",
-			"CLOSURE 4",
-			"{", "ME.f_0.g",
-				"2",	"}",
-			"CLOSURE 5",
-			"{", "ME.f_1.g",
-				"var 1 k", "var 2 a", "}"
+			"CLOSURE 4 !", "{", "ME.f_0.g", "2", "}",
+			"CLOSURE 5 !", "{", "ME.f_1.g", "var 1 k", "var 2 a", "}"
 		);
 	}
 
 	public static HSIEForm splitF_G1() {
-		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("FLEval.mul");
+		ArrayList<Object> externals = new ArrayList<Object>();
+		externals.add("*");
+		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.q", new LocalVar("ME.f_0", posn, "q", null, null), false));
 		return thingy("ME.f_0.g", 1, 1, externals,
 			null,
-			"RETURN var 7 clos7",
-			"CLOSURE 7", "{",
-				"FLEval.mul", "var 1 x", "var 6 y",
-			"}"
+			"RETURN var 1 clos1",
+			"CLOSURE 1", "{", "*", "var 0 x", "ME.f_0.q", "}"
 		);
 	}
 
 	public static HSIEForm splitF_G2() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("FLEval.plus");
+		externals.add("+");
 		return thingy("ME.f_1.g", 2, 1, externals,
 			null,
-			"RETURN var 8 clos8",
-			"CLOSURE 8", "{",
-				"FLEval.plus", "var 6 p", "var 7 q",
+			"RETURN var 2 clos2",
+			"CLOSURE 2", "{",
+				"+", "var 0 p", "var 1 q",
 			"}"
 		);
 	}

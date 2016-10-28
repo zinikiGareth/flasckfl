@@ -45,14 +45,14 @@ import org.zinutils.collections.CollectionUtils;
 public class RewriterTests {
 	private final InputPosition posn = new InputPosition("test", 1, 1, null);
 	private final ErrorResult errors = new ErrorResult();
-	private final Rewriter rw = new Rewriter(errors, null, null);
-	private Scope scope;
-	private ImportPackage builtinScope;
+	private Rewriter rw;
+	private final Scope scope = new Scope(null);
 	
 	@Before
 	public void setup() {
-		builtinScope = Builtin.builtins();
-		builtinScope.define("Timer", Type.builtin(null, "Timer"));
+		ImportPackage builtins = Builtin.builtins();
+		builtins.define("Timer", Type.builtin(posn, "Timer"));
+		rw = new Rewriter(errors, null, builtins);
 	}
 
 	@Test
@@ -92,8 +92,8 @@ public class RewriterTests {
 	
 	@Test
 	public void testAStructReferencingAListFieldGetsARewrittenParameterList() {
-		StructDefn sd = new StructDefn(null, "Container", true);
-		sd.addField(new StructField(null, false, new TypeReference(null, "List", new TypeReference(null, "String")), "list"));
+		StructDefn sd = new StructDefn(posn, "Container", true);
+		sd.addField(new StructField(posn, false, new TypeReference(posn, "List", new TypeReference(posn, "String")), "list"));
 		scope.define("Container", "ME.Container", sd);
 		rw.rewritePackageScope("ME", scope);
 		RWStructDefn rsd = rw.structs.get("ME.Container");

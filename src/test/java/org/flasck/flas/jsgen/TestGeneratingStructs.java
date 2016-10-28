@@ -41,9 +41,9 @@ public class TestGeneratingStructs {
 		ImportPackage biScope = Builtin.builtins();
 		Type str = (Type) biScope.get("String");
 		Type nbr = (Type) biScope.get("Number");
-		RWStructDefn sd = new RWStructDefn(null, "ME.Hello", true);
-		sd.addField(new RWStructField(null, false, str, "name"));
-		sd.addField(new RWStructField(null, false, nbr, "quant"));
+		RWStructDefn sd = new RWStructDefn(posn, "ME.Hello", true);
+		sd.addField(new RWStructField(posn, false, str, "name"));
+		sd.addField(new RWStructField(posn, false, nbr, "quant"));
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(null, target);
 		gen.generate(sd);

@@ -426,6 +426,10 @@ public class MethodConvertor {
 		Type t = calculateExprType(margs, types, expr);
 		if (t == null)
 			return null;
+		if (t.iam == WhatAmI.FUNCTION) {
+			errors.message(expr.location, "method expression must be of type Message or List[Message]");
+			return null;
+		}
 		if (t.name().equals("Nil"))
 			return expr;
 		if (t.iam == WhatAmI.INSTANCE) {

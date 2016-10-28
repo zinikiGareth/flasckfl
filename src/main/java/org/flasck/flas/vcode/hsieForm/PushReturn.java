@@ -45,7 +45,8 @@ public abstract class PushReturn extends HSIEBlock {
 	}
 
 	public PushReturn(InputPosition loc, ExternalRef fn) {
-		if (loc == null) throw new UtilException("Cannot be null");
+		if (loc == null)
+			throw new UtilException("Cannot be null");
 		this.location = loc;
 		this.var = null;
 		this.ival = null;
@@ -57,7 +58,8 @@ public abstract class PushReturn extends HSIEBlock {
 	}
 
 	public PushReturn(InputPosition loc, StringLiteral s) {
-		if (loc == null) throw new UtilException("Cannot be null");
+		if (loc == null)
+			throw new UtilException("Cannot be null");
 		this.location = loc;
 		this.var = null;
 		this.ival = null;

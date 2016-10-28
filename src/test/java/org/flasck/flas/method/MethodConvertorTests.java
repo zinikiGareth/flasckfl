@@ -23,6 +23,7 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
 import org.flasck.flas.parsedForm.Implements;
@@ -30,6 +31,7 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
+import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
@@ -37,6 +39,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
@@ -45,6 +48,7 @@ import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.zinutils.collections.CollectionUtils;
@@ -68,55 +72,60 @@ public class MethodConvertorTests {
 		ImportPackage biscope = Builtin.builtins();
 		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
 		RWStructDefn send = (RWStructDefn) biscope.get("Send");
+		{
+			RWFunctionDefinition doSend = new RWFunctionDefinition(posn, CodeType.FUNCTION, "doSend", 1, false);
+			doSend.setType(Type.function(posn, any, send));
+			biscope.define("doSend", doSend);
+		}
 		orgFooScope = new Scope(null);
-		orgFooScope.define("doSend", "org.foo.doSend", Type.function(null, any, send));
+//		orgFooScope.define("doSend", "org.foo.doSend", new FunctionCaseDefn(posn, CodeType.FUNCTION, "org.foo.doSend", args, expr));
 		{
 			ContractDecl contract1 = new ContractDecl(posn, posn, "org.foo.Contract1");
-			ContractMethodDecl m1 = new ContractMethodDecl(null, posn, posn, true, "down", "bar", new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", "bar", new ArrayList<>());
 			contract1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(null, posn, posn, true, "up", "start", new ArrayList<>());
+			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "up", "start", new ArrayList<>());
 			contract1.methods.add(m2);
-			ContractMethodDecl m3 = new ContractMethodDecl(null, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
+			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			contract1.methods.add(m3);
 			orgFooScope.define("Contract1", contract1.name(), contract1);
 		}
 		{
 			ContractDecl service1 = new ContractDecl(posn, posn, "org.foo.Service1");
-			ContractMethodDecl m0 = new ContractMethodDecl(null, posn, posn, true, "up", "go", new ArrayList<>());
+			ContractMethodDecl m0 = new ContractMethodDecl(posn, posn, posn, true, "up", "go", new ArrayList<>());
 			service1.methods.add(m0);
-			ContractMethodDecl m1 = new ContractMethodDecl(null, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(null, posn, posn, true, "down", "respond", CollectionUtils.listOf(new TypedPattern(null, new TypeReference(null, "String"), null, "s")));
+			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "down", "respond", CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m2);
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
 		{
 			ContractDecl handler1 = new ContractDecl(posn, posn, "org.foo.Handler1");
-			ContractMethodDecl m1 = new ContractMethodDecl(null, posn, posn, true, "down", "handle", new ArrayList<>());
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", "handle", new ArrayList<>());
 			handler1.methods.add(m1);
 			orgFooScope.define("Handler1", handler1.name(), handler1);
 		}
 		{
-			RWStructDefn struct = new RWStructDefn(null, "Thing", true);
-			struct.addField(new RWStructField(posn, false, (Type)biscope.get("String"), "x"));
+			StructDefn struct = new StructDefn(posn, "org.foo.Thing", true);
+			struct.addField(new StructField(posn, false, new TypeReference(posn, "String"), "x"));
 			orgFooScope.define("Thing", struct.name(), struct);
 		}
 		
 		{
-			rewriter = new Rewriter(errors, null, null);
-			cd = new CardDefinition(null, null, orgFooScope, "org.foo.Card");
+			rewriter = new Rewriter(errors, null, biscope);
+			cd = new CardDefinition(posn, posn, orgFooScope, "org.foo.Card");
 			cd.state = new StateDefinition(posn);
-			cd.state.addField(new StructField(posn, false, new TypeReference(null, "String"), "str"));
+			cd.state.addField(new StructField(posn, false, new TypeReference(posn, "String"), "str"));
 			{
-				ce = new ContractImplements(posn, posn, "org.foo.Contract1", null, "ce");
+				ce = new ContractImplements(posn, posn, "org.foo.Contract1", posn, "ce");
 				cd.contracts.add(ce);
 			}
 			{
-				se = new ContractService(posn, posn, "org.foo.Service1", null, "se");
+				se = new ContractService(posn, posn, "org.foo.Service1", posn, "se");
 				cd.services.add(se);
 			}
 			{
-				he = new HandlerImplements(posn, posn, posn, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(null, new TypeReference(null, "Thing"), null, "stateArg"), (Object)new VarPattern(null, "freeArg")));
+				he = new HandlerImplements(posn, posn, posn, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "stateArg"), (Object)new VarPattern(posn, "freeArg")));
 				cd.handlers.add(he);
 			}
 		}
@@ -154,7 +163,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testTheImplementedContractMustExist() throws Exception {
-		cd.contracts.add(new ContractImplements(null, null, "NoContract", null, "cf"));
+		cd.contracts.add(new ContractImplements(posn, posn, "NoContract", posn, "cf"));
 		stage2(false);
 		assertEquals(1, errors.count());
 		assertEquals("could not resolve name NoContract", errors.get(0).msg);
@@ -223,7 +232,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotFathomARandomFunctionNotAMethod() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new UnresolvedVar(null, "join"), new UnresolvedVar(null, "Nil")), new StringLiteral(null, ""))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new UnresolvedVar(posn, "join"), new UnresolvedVar(posn, "Nil")), new StringLiteral(posn, ""))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 //		HSIEForm hsieForm = CollectionUtils.any(functions.values());
@@ -253,7 +262,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanAssignToACardMember() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -265,7 +274,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testAnEventHandlerCanAssignToACardMember() throws Exception {
-		defineEHMethod(cd.innerScope(), "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "str")), new StringLiteral(null, "hello")));
+		defineEHMethod(cd.innerScope(), "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -277,7 +286,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAContractVar() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "ce")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "ce")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -286,7 +295,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAServiceVar() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "se")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "se")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -294,7 +303,7 @@ public class MethodConvertorTests {
 	}
 
 	public void testWeCannotAssignToAMethod() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "bar")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "bar")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		assertEquals(errors.singleString(), 1, errors.count());
 		assertEquals("cannot assign to non-state member: map", errors.get(0).msg);
@@ -302,7 +311,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAFunction() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "map")), new StringLiteral(null, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "map")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -311,7 +320,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAFreeLambda() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "freeArg")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "freeArg")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -320,7 +329,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotDirectlyAssignToAStructLambda() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "stateArg")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "stateArg")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -330,7 +339,7 @@ public class MethodConvertorTests {
 	/* ---- Tests of Assignment to a nested slot ---- */
 	@Test
 	public void testWeCannotAssignToAFieldOfAString() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "str"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -339,7 +348,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanAssignToAFieldInAStructLambda() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "stateArg"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -351,7 +360,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testAnEventHandlerCanAssignToAFieldInALocalStatefulVar() throws Exception {
-		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "t"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "t"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -363,7 +372,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testAnEventHandlerCannotAssignToAnUntypedVar() throws Exception {
-		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "ev"), new LocatedToken(null, "x")), new StringLiteral(null, "hello")));
+		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "ev"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -374,7 +383,7 @@ public class MethodConvertorTests {
 	
 	@Test
 	public void testWeCannotAssignToANonField() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "stateArg"), new LocatedToken(null, "y")), new StringLiteral(null, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "stateArg"), new LocatedToken(posn, "y")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -384,7 +393,7 @@ public class MethodConvertorTests {
 	/* ---- Send tests ---- */
 	@Test
 	public void testWeCanSendAMessageToAServiceWithNoArgs() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(null, "start")))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new ApplyExpr(posn, new UnresolvedOperator(posn, "."), new UnresolvedVar(posn, "ce"), new UnresolvedVar(posn, "start")))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
@@ -418,7 +427,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotSendAMessageToAServiceWhichDoesNotHaveThatMethod() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.unknown"), "unknown")))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(posn, new ApplyExpr(posn, new UnresolvedOperator(posn, "."), new UnresolvedVar(posn, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.unknown"), "unknown")))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -428,7 +437,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotSendADownMessageFromADownServiceHandler() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.bar"), "bar")))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(posn, new ApplyExpr(posn, new UnresolvedOperator(posn, "."), new UnresolvedVar(posn, "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.bar"), "bar")))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -438,7 +447,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotSendAnUpMessageFromAnUpServiceHandler() throws Exception {
-		defineContractMethod(se, "go", new MethodMessage(posn, null, new ApplyExpr(null, new ApplyExpr(null, new UnresolvedOperator(null, "."), new UnresolvedVar(null, "se"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- se.request"), "request")))));
+		defineContractMethod(se, "go", new MethodMessage(posn, null, new ApplyExpr(posn, new ApplyExpr(posn, new UnresolvedOperator(posn, "."), new UnresolvedVar(posn, "se"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- se.request"), "request")))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -487,16 +496,17 @@ public class MethodConvertorTests {
 
 	/* ---- Helper Methods ---- */
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card._C0." + name, new ArrayList<>());
+		FunctionIntro intro = new FunctionIntro(posn, "org.foo.Card._C0." + name, new ArrayList<>());
 		MethodCaseDefn cs = new MethodCaseDefn(intro);
+		cs.provideCaseName(intro.name);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);
 		on.methods.add(cs);
 	}
 
 	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(null, "org.foo.Card." + name, CollectionUtils.listOf((Object)new TypedPattern(null, new TypeReference(null, "Thing"), null, "t"), (Object)new VarPattern(null, "ev")));
-		EventCaseDefn cs = new EventCaseDefn(null, intro);
+		FunctionIntro intro = new FunctionIntro(posn, "org.foo.Card." + name, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, "ev")));
+		EventCaseDefn cs = new EventCaseDefn(posn, intro);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);
 		s.define(name, intro.name, cs);
