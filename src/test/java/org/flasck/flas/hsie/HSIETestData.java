@@ -20,6 +20,7 @@ import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
@@ -366,18 +367,21 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm rdf2() {
+	public static HSIEForm rdf2(int offset) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("+");
 		externals.add("ME.f");
-		return thingy("ME.g", 1, 2, externals,
+		String v0 = "" + (offset + 0);
+		String v1 = "" + (offset + 1);
+		String v2 = "" + (offset + 2);
+		return thingy(offset, "ME.g", 1, 2, externals,
 			null,
-			"RETURN var 2 clos2 1 clos1",
-			"CLOSURE 1", "{",
-				"+", "var 0 ME.g_0.x", "1",
+			"RETURN var " + v2 +" clos"+v2 + " " + v1 + " clos"+v1,
+			"CLOSURE " + v1, "{",
+				"+", "var " + v0 + " ME.g_0.x", "1",
 			"}",
-			"CLOSURE 2", "{",
-				"ME.f", "var 1 clos1",
+			"CLOSURE " + v2, "{",
+				"ME.f", "var " + v1 + " clos"+v1,
 			"}"
 		);
 	}
@@ -439,7 +443,18 @@ public class HSIETestData {
 	}
 
 	private static HSIEForm thingy(String name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
-		HSIEForm ret = new HSIEForm(CodeType.FUNCTION, name, nformal, nbound, dependsOn);
+		return thingy(0, name, nformal, nbound, dependsOn, ctorTypes, commands);
+	}
+	
+	private static HSIEForm thingy(int offset, String name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
+		Map<String, CreationOfVar> map = new HashMap<>();
+		HSIEForm ret = new HSIEForm(new VarFactory(), CodeType.FUNCTION, name, new InputPosition("thingy", 1, 1, null), map, nformal);
+		for (int i=0;i<nformal;i++)
+			ret.vars.add(new Var(offset + i));
+		for (int i=0;i<nbound;i++)
+			ret.vars.add(new Var(offset + nformal + i));
+		for (Object dep : dependsOn)
+			ret.dependsOn(dep);
 		HSIEBlock b = ret;
 		List<HSIEBlock> stack = new ArrayList<HSIEBlock>();
 		stack.add(0, ret);

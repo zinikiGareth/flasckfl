@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -47,13 +49,10 @@ import org.flasck.flas.vcode.hsieForm.PushCmd;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
-import org.flasck.flas.vcode.hsieForm.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
-import org.zinutils.graphs.Tree;
 
 public class TypeChecker {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
@@ -183,8 +182,8 @@ public class TypeChecker {
 	public Type checkExpr(HSIEForm expr, List<Type> args, List<InputPosition> locs) {
 		TypeState s = new TypeState(errors, this);
 		expr.dump(logger);
-		Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>();
-		forms.put(expr.fnName, expr);
+		Set<HSIEForm> forms = new HashSet<HSIEForm>();
+		forms.add(expr);
 		
 		s.localKnowledge.put(expr.fnName, factory.next());
 		for (int i=0;i<expr.nformal;i++) {
@@ -211,13 +210,14 @@ public class TypeChecker {
 		int mark = errors.count();
 //		System.out.println("---- Starting to typecheck: orchard size = " + functionsToCheck.nodeCount());
 		TypeState s = new TypeState(errors, this);
-		Map<String, HSIEForm> rewritten = rewriteForms(s, functionsToCheck);
+		Set<HSIEForm> rewritten = functionsToCheck.allNodes();
+		allocateVars(s, rewritten);
 //		System.out.println("Allocated new type vars; checking forms");
 		Map<String, Object> actualTypes = checkAndUnify(s, rewritten);
 //		System.out.println("Done final unification; building types");
 		if (errors.moreErrors(mark))
 			return;
-		for (HSIEForm f : rewritten.values()) {
+		for (HSIEForm f : rewritten) {
 			Object tmp = s.phi.subst(actualTypes.get(f.fnName));
 			if (tmp == null) {
 				System.out.println("Encountered a null during typechecking; this is probably bad");
@@ -247,28 +247,9 @@ public class TypeChecker {
 //		System.out.println("---- Done with typecheck");
 	}
 
-	protected Map<String, HSIEForm> rewriteForms(TypeState s, Orchard<HSIEForm> functionsToCheck) {
-		// First, rewrite all the equations to have the "correct" set of variables
-		// Equations at the same level of the tree should have "fresh" variables; while
-		// nested equations should share their parent's variables
-		Map<String, HSIEForm> rewritten = new HashMap<String, HSIEForm>();
-		int from = 201; // the actual number doesn't matter but something big makes it different from the pre-rewritten numbers
-		Map<Var, Var> rwvars = new HashMap<Var, Var>();
-//		System.out.println("Rewriting function tree");
-		for (Tree<HSIEForm> tree : functionsToCheck)
-			from = rewriteFunctionTree(tree, s.localKnowledge, rwvars, rewritten, from, tree.getRoot());
-//		System.out.println("Finished rewriting");
-		allocateVars(s, rewritten);
-		for (Entry<String, HSIEForm> x : rewritten.entrySet()) {
-			logger.debug(x.getKey() + ":");
-			x.getValue().dump(logger);
-		}
-		return rewritten;
-	}
-
-	protected void allocateVars(TypeState s, Map<String, HSIEForm> forms) {
+	protected void allocateVars(TypeState s, Set<HSIEForm> set) {
 		List<TypeVar> vars = new ArrayList<TypeVar>();
-		for (HSIEForm hsie : forms.values()) {
+		for (HSIEForm hsie : set) {
 //			System.out.println("Allocating type vars for " + hsie.fnName);
 			s.localKnowledge.put(hsie.fnName, factory.next());
 //			System.out.println("Allocated tv " + localKnowledge.get(hsie.fnName) + " for result of " + hsie.fnName);
@@ -276,10 +257,10 @@ public class TypeChecker {
 		}
 	}
 
-	protected Map<String, Object> checkAndUnify(TypeState s, Map<String, HSIEForm> forms) {
+	protected Map<String, Object> checkAndUnify(TypeState s, Set<HSIEForm> forms) {
 		int mark = errors.count();
 		Map<String, Object> actualTypes = new HashMap<String, Object>();
-		for (HSIEForm hsie : forms.values()) {
+		for (HSIEForm hsie : forms) {
 			Object te = checkHSIE(s, hsie);
 			if (te == null)
 				continue;
@@ -289,106 +270,12 @@ public class TypeChecker {
 //		System.out.println("Attempting to unify types");
 		if (errors.moreErrors(mark))
 			return actualTypes;
-		for (HSIEForm f : forms.values()) {
+		for (HSIEForm f : forms) {
 			Object rwt = s.phi.unify(s.localKnowledge.get(f.fnName), actualTypes.get(f.fnName));
 			actualTypes.put(f.fnName, s.phi.subst(rwt)); 
 		}
 		s.phi.validateUnionTypes(this);
 		return actualTypes;
-	}
-
-	private int rewriteFunctionTree(Tree<HSIEForm> functionsToCheck, Map<String, Object> localKnowledge, Map<Var, Var> rwvars, Map<String, HSIEForm> rewritten, int from, Node<HSIEForm> nh) {
-		HSIEForm hsie = nh.getEntry();
-		Map<Var, Var> rwvars2 = new HashMap<Var, Var>(rwvars);
-		rewritten.put(hsie.fnName, rewriteWithFreshVars(rwvars2, hsie, from));
-		from += hsie.vars.size();
-		for (Node<HSIEForm> c : functionsToCheck.getChildren(nh))
-			from = rewriteFunctionTree(functionsToCheck, localKnowledge, rwvars2, rewritten, from, c);
-		return from;
-	}
-
-	private HSIEForm rewriteWithFreshVars(Map<Var, Var> mapping, HSIEForm hsie, int from) {
-		List<Var> vars = new ArrayList<Var>();
-		for (Var v : hsie.vars) {
-			if (!mapping.containsKey(v)) {
-				Var newVar = new Var(from++);
-				mapping.put(v, newVar);
-			}
-			vars.add(mapping.get(v));
-		}
-		HSIEForm ret = new HSIEForm(hsie.mytype, hsie.fnName, hsie.fnLoc, hsie.nformal, vars, hsie.externals);
-		mapBlock(ret, hsie, mapping);
-		for (HSIEBlock b : hsie.closures()) {
-			ClosureCmd cc = (ClosureCmd)b;
-			ClosureCmd closure = ret.closure(mapping.get(cc.var));
-			closure.justScoping = cc.justScoping;
-			closure.downcastType = cc.downcastType;
-			mapBlock(closure, b, mapping);
-		}
-//		ret.dump();
-		return ret;
-	}
-
-	private void mapBlock(HSIEBlock ret, HSIEBlock hsie, Map<Var, Var> mapping) {
-		for (HSIEBlock b : hsie.nestedCommands()) {
-			if (b instanceof Head) {
-				ret.head(mapping.get(((Head)b).v));
-			} else if (b instanceof Switch) {
-				Switch sc = (Switch)b;
-				HSIEBlock ib = ret.switchCmd(sc.location, mapping.get(sc.var), sc.ctor);
-				mapBlock(ib, sc, mapping);
-			} else if (b instanceof IFCmd) {
-				IFCmd ic = (IFCmd) b;
-				HSIEBlock ib = ret.ifCmd(new CreationOfVar(mapping.get(ic.var), ic.var.loc, ic.var.called), ic.value);
-				mapBlock(ib, ic, mapping);
-			} else if (b instanceof BindCmd) {
-				BindCmd bc = (BindCmd) b;
-				ret.bindCmd(mapping.get(bc.bind), mapping.get(bc.from), bc.field);
-			} else if (b instanceof ReturnCmd) {
-				ReturnCmd rc = (ReturnCmd)b;
-				List<CreationOfVar> deps = rewriteList(mapping, rc.deps);
-				if (rc.var != null)
-					ret.doReturn(rc.location, new CreationOfVar(mapping.get(rc.var), rc.var.loc, rc.var.called), deps);
-				else if (rc.ival != null)
-					ret.doReturn(rc.location, rc.ival, deps);
-				else if (rc.sval != null)
-					ret.doReturn(rc.location, rc.sval, deps);
-				else if (rc.fn != null)
-					ret.doReturn(rc.location, rc.fn, deps);
-				else if (rc.tlv != null)
-					ret.doReturn(rc.location, rc.tlv, deps);
-				else
-					throw new UtilException("Unhandled");
-			} else if (b instanceof PushCmd) {
-				PushCmd pc = (PushCmd) b;
-				if (pc.var != null)
-					ret.push(pc.location, new CreationOfVar(mapping.get(pc.var), pc.var.loc, pc.var.called));
-				else if (pc.ival != null)
-					ret.push(pc.location, pc.ival);
-				else if (pc.fn != null)
-					ret.push(pc.location, pc.fn);
-				else if (pc.sval != null)
-					ret.push(pc.location, pc.sval);
-				else if (pc.tlv != null)
-					ret.push(pc.location, pc.tlv);
-				else if (pc.func != null)
-					ret.push(pc.location, pc.func);
-				else
-					throw new UtilException("Unhandled");
-			} else if (b instanceof ErrorCmd)
-				ret.caseError();
-			else
-				throw new UtilException("Unhandled " + b.getClass());
-		}
-	}
-
-	private List<CreationOfVar> rewriteList(Map<Var, Var> mapping, List<CreationOfVar> deps) {
-		if (deps == null)
-			return null;
-		List<CreationOfVar> ret = new ArrayList<CreationOfVar>();
-		for (CreationOfVar var : deps)
-			ret.add(new CreationOfVar(mapping.get(var), var.loc, var.called));
-		return ret;
 	}
 
 	void allocateTVs(List<TypeVar> vars, TypeState s, HSIEForm hsie) {

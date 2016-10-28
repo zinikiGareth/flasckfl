@@ -48,7 +48,7 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors, rw).handle(null, rw.functions.get("ME.f"));
+		HSIEForm form = new HSIE(errors, rw).handle(null, new VarFactory(), rw.functions.get("ME.f"));
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.plus1Of1(), form);
 	}
@@ -68,7 +68,7 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors, rw).handle(null, rw.functions.get("ME.f"));
+		HSIEForm form = new HSIE(errors, rw).handle(null, new VarFactory(), rw.functions.get("ME.f"));
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.idDecode(), form);
 	}
@@ -86,7 +86,7 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors, rw).handle(null, rw.functions.get("ME.push"));
+		HSIEForm form = new HSIE(errors, rw).handle(null, new VarFactory(), rw.functions.get("ME.push"));
 		assertNotNull(form);
 		form.dump(new PrintWriter(System.out));
 		HSIETestData.assertHSIE(HSIETestData.unionType(), form);
@@ -104,7 +104,7 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors, rw).handle(null, rw.functions.get("ME.f"));
+		HSIEForm form = new HSIE(errors, rw).handle(null, new VarFactory(), rw.functions.get("ME.f"));
 		assertNotNull(form);
 		form.dump(new PrintWriter(System.out));
 		HSIETestData.assertHSIE(HSIETestData.unionType(), form);
@@ -125,7 +125,7 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors, rw).handle(null, rw.functions.get("ME.f"));
+		HSIEForm form = new HSIE(errors, rw).handle(null, new VarFactory(), rw.functions.get("ME.f"));
 		assertNotNull(form);
 		form.dump(new PrintWriter(System.out));
 		HSIETestData.assertHSIE(HSIETestData.rdf1(), form);
@@ -146,10 +146,10 @@ public class HSIECodeGenerator {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
 		System.out.println(rw.functions);
-		HSIEForm form = new HSIE(errors, rw).handle(null, rw.functions.get("ME.g"));
+		HSIEForm form = new HSIE(errors, rw).handle(null, new VarFactory(), rw.functions.get("ME.g"));
 		assertNotNull(form);
 		form.dump(new PrintWriter(System.out));
-		HSIETestData.assertHSIE(HSIETestData.rdf2(), form);
+		HSIETestData.assertHSIE(HSIETestData.rdf2(0), form);
 	}
 
 	@Test
@@ -163,7 +163,7 @@ public class HSIECodeGenerator {
 		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(new RWFunctionIntro(posn, "ME.f", new ArrayList<>(), new HashMap<>()), 0, expr);
 		RWFunctionDefinition f = new RWFunctionDefinition(posn, CodeType.FUNCTION, "ME.f", 0, true);
 		f.cases.add(fcd);
-		HSIEForm form = new HSIE(errors, null).handle(null, f);
+		HSIEForm form = new HSIE(errors, null).handle(null, new VarFactory(), f);
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.directLet(), form);
 	}

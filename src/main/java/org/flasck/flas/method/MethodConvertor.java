@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
+import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
@@ -82,9 +83,10 @@ public class MethodConvertor {
 			addFunction(functions, convertStandalone(rw, x));
 	}
 
+	// TODO: HSIE: this shouldn't be necessary, as we should just add it earlier ...
 	public void addFunction(Map<String, HSIEForm> functions, RWFunctionDefinition fd) {
 		if (fd != null) {
-			HSIEForm hs = hsie.handle(null, fd);
+			HSIEForm hs = hsie.handle(null, new VarFactory(), fd);
 			if (hs != null)
 				functions.put(hs.fnName, hs);
 		}

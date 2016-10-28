@@ -25,24 +25,24 @@ CLOSURE v6                                                   ?? - should be begi
 HSIE for test.golden.filter_1.g
 #Args: 1 #bound: 3
     externals: [Boolean, Cons, test.golden.filter] scoped = [test.golden.filter_1.a, test.golden.filter_1.f, test.golden.filter_1.l]
-    all vars = [v0, v1, v2, v3]
-HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var
-SWITCH v0 Boolean                                            #filter.fl:    4.2
-  IF v0:ev0 false
-    RETURN v1:clos1 []                                           #filter.fl:    5.10 - this appears to be wrong for closures; wants to be the apply expr point
-  IF v0:ev0 true
-    RETURN v3:clos3 [v2:clos2]                                   #filter.fl:    4.9 - this appears to be wrong for closures; wants to be the apply expr point
+    all vars = [v7, v8, v9, v10]
+HEAD v7                                                      ?? - should be location of defn in first equation to have this as a free var
+SWITCH v7 Boolean                                            #filter.fl:    4.2
+  IF v7:ev7 false
+    RETURN v8:clos8 []                                           #filter.fl:    5.10 - this appears to be wrong for closures; wants to be the apply expr point
+  IF v7:ev7 true
+    RETURN v10:clos10 [v9:clos9]                                 #filter.fl:    4.9 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
-CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
+CLOSURE v8                                                   ?? - should be beginning (and ending?) of apply expr
   PUSH PackageVar.test.golden.filter                           #filter.fl:    5.11 - also want location where the variable is actually used here
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.7 - also want location where the variable is actually used here
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.12 - also want location where the variable is actually used here
-CLOSURE v2                                                   ?? - should be beginning (and ending?) of apply expr
+CLOSURE v9                                                   ?? - should be beginning (and ending?) of apply expr
   PUSH PackageVar.test.golden.filter                           #filter.fl:    4.12 - also want location where the variable is actually used here
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.7 - also want location where the variable is actually used here
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.12 - also want location where the variable is actually used here
-CLOSURE v3                                                   ?? - should be beginning (and ending?) of apply expr
+CLOSURE v10                                                  ?? - should be beginning (and ending?) of apply expr
   PUSH PackageVar.Cons                                         #filter.fl:    4.10 - also want location where the variable is actually used here
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.10 - also want location where the variable is actually used here
-  PUSH v2:clos2                                                #filter.fl:    4.11 - also want location where the variable is actually used here
+  PUSH v9:clos9                                                #filter.fl:    4.11 - also want location where the variable is actually used here
 =======

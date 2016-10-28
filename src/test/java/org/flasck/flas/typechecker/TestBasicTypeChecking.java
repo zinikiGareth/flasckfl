@@ -17,6 +17,7 @@ import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
+import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
@@ -189,7 +190,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckTwoFunctionsAtOnceBecauseTheyAreMutuallyRecursive() throws Exception {
 		tc.addTypeDefn(new RWUnionTypeDefn(posn, false, "Any", new ArrayList<>()));
-		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2()));
+		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2(3)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertEquals(9, tc.knowledge.size());
@@ -406,9 +407,9 @@ public class TestBasicTypeChecking {
 		rewriter.rewritePackageScope("ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIE hsie = new HSIE(errors, rewriter);
-		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.f"))));
+		tc.typecheck(orchardOf(hsie.handle(null, new VarFactory(), rewriter.functions.get("ME.f"))));
 		assertEquals(errors.singleString(), 0, errors.count());
-		tc.typecheck(orchardOf(hsie.handle(null, rewriter.functions.get("ME.g"))));
+		tc.typecheck(orchardOf(hsie.handle(null, new VarFactory(), rewriter.functions.get("ME.g"))));
 //		assertEquals(errors.singleString(), 0, errors.count());
 		tc.typecheck(orchard);
 		assertEquals(errors.singleString(), 0, errors.count());

@@ -80,7 +80,6 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 import org.zinutils.utils.FileUtils;
@@ -427,7 +426,7 @@ public class Compiler {
 					}
 				
 				// 6a. Convert each orchard to HSIE
-				Orchard<HSIEForm> oh = hsieOrchard(errors, hsie, forms, d);
+				Orchard<HSIEForm> oh = hsie.orchard(errors, forms, d);
 				abortIfErrors(errors);
 				dumpOrchard(hsiePW, oh);
 				
@@ -654,27 +653,6 @@ public class Compiler {
 			return null;
 		}
 		return (List<Block>) res;
-	}
-
-	private Orchard<HSIEForm> hsieOrchard(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<RWFunctionDefinition> d) {
-		logger.info("HSIE transforming orchard in parallel: " + d);
-		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();
-		for (Tree<RWFunctionDefinition> t : d)
-			hsieTree(errors, hsie, previous, ret, t, t.getRoot(), null, null);
-		return ret;
-	}
-
-	private void hsieTree(ErrorResult errors, HSIE hsie, Map<String, HSIEForm> previous, Orchard<HSIEForm> ret, Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
-		logger.info("HSIE transforming " + node.getEntry().name());
-		HSIEForm form = hsie.handle(previous, node.getEntry());
-		if (parent == null) {
-			tree = ret.addTree(form);
-			parent = tree.getRoot();
-		} else
-			parent = tree.addChild(parent, form);
-
-		for (Node<RWFunctionDefinition> x : t.getChildren(node))
-			hsieTree(errors, hsie, previous, ret, t, x, tree, parent);
 	}
 
 	private void handleCurrying(ApplyCurry curry, TypeChecker tc, Collection<HSIEForm> collection) {

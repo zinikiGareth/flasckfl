@@ -25,11 +25,17 @@ import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.graphs.Node;
+import org.zinutils.graphs.Orchard;
+import org.zinutils.graphs.Tree;
 import org.zinutils.utils.StringComparator;
 
 public class HSIE {
+	static Logger logger = LoggerFactory.getLogger("HSIE");
 	private final ErrorResult errors;
 	private final Rewriter rewriter;
 	private int exprIdx;
@@ -40,12 +46,33 @@ public class HSIE {
 		exprIdx = 0;
 	}
 	
-	public HSIEForm handle(Map<String, HSIEForm> previous, RWFunctionDefinition defn) {
-		return handle(previous, defn, new HashMap<String, CreationOfVar>());
+	public Orchard<HSIEForm> orchard(ErrorResult errors, Map<String, HSIEForm> previous, Orchard<RWFunctionDefinition> d) {
+		VarFactory vf = new VarFactory();
+		logger.info("HSIE transforming orchard in parallel: " + d);
+		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();
+		for (Tree<RWFunctionDefinition> t : d)
+			hsieTree(errors, previous, ret, vf, t, t.getRoot(), null, null);
+		return ret;
 	}
-	
-	public HSIEForm handle(Map<String, HSIEForm> previous, RWFunctionDefinition defn, Map<String, CreationOfVar> map) {
-		HSIEForm ret = new HSIEForm(defn.mytype, defn.name(), defn.location, map, defn.nargs());
+
+	private void hsieTree(ErrorResult errors, Map<String, HSIEForm> previous, Orchard<HSIEForm> ret, VarFactory vf, Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
+		logger.info("HSIE transforming " + node.getEntry().name());
+		HSIEForm form = handle(previous, vf, node.getEntry());
+		if (parent == null) {
+			tree = ret.addTree(form);
+			parent = tree.getRoot();
+		} else
+			parent = tree.addChild(parent, form);
+
+		for (Node<RWFunctionDefinition> x : t.getChildren(node))
+			hsieTree(errors, previous, ret, vf, t, x, tree, parent);
+	}
+
+
+	@Deprecated // TODO: HSIE: not really, but I just wanted to get your attention.  It should be private though
+	public HSIEForm handle(Map<String, HSIEForm> previous, VarFactory vf, RWFunctionDefinition defn) {
+		HashMap<String, CreationOfVar> map = new HashMap<String, CreationOfVar>();
+		HSIEForm ret = new HSIEForm(vf, defn.mytype, defn.name(), defn.location, map, defn.nargs());
 		MetaState ms = new MetaState(rewriter, previous, ret);
 		if (defn.nargs() == 0)
 			return handleConstant(ms, defn);
@@ -68,17 +95,18 @@ public class HSIE {
 			loc = ((Locatable)expr).location();
 		else
 			throw new UtilException(expr + " " + expr.getClass() + " is not locatable");
-		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(type, "", loc, new HashMap<String, CreationOfVar>(), 0));
+		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(new VarFactory(), type, "", loc, new HashMap<String, CreationOfVar>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}
 
+	@Deprecated // use type constraints on closures instead ...
 	public HSIEForm handleExprWith(Object expr, CodeType type, List<String> vars) {
 		InputPosition loc = null;
 		if (expr instanceof Locatable)
 			loc = ((Locatable)expr).location();
-		HSIEForm blk = new HSIEForm(type, "_expr_", loc, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
+		HSIEForm blk = new HSIEForm(new VarFactory(), type, "_expr_", loc, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
 		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), blk);
 //		State s = new State(blk);
 //		ms.add(s);

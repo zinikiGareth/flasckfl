@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.hsie.SubstExpr;
+import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.slf4j.Logger;
@@ -54,9 +55,11 @@ public class HSIEForm extends HSIEBlock {
 	public final Set<String> scoped = new TreeSet<String>();
 	private final Map<Var, ClosureCmd> closures = new HashMap<Var, ClosureCmd>();
 	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
+	private /* final */ VarFactory vf;
 
 	// This constructor is the one for real code
-	public HSIEForm(CodeType mytype, String name, InputPosition nameLoc, Map<String, CreationOfVar> map, int nformal) {
+	public HSIEForm(VarFactory vf, CodeType mytype, String name, InputPosition nameLoc, Map<String, CreationOfVar> map, int nformal) {
+		this.vf = vf;
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
@@ -67,39 +70,15 @@ public class HSIEForm extends HSIEBlock {
 		this.nformal = nformal;
 	}
 
-	// This is the copy/rewrite constructor
-	public HSIEForm(CodeType mytype, String name, InputPosition fnLoc, int nformal, List<Var> vars, Collection<Object> externals) {
-		if (mytype == null) throw new UtilException("Null mytype");
-		this.mytype = mytype;
-		this.fnName = name;
-		if (fnLoc == null) throw new UtilException("Null fnLoc");
-		this.fnLoc = fnLoc;
-		this.nformal = nformal;
-		this.vars.addAll(vars);
-		this.externals.addAll(externals);
-	}
-
-	// This constructor is for testing
-	public HSIEForm(CodeType mytype, String name, int nformal, int nbound, Collection<? extends Object> dependsOn) {
-		if (mytype == null) throw new UtilException("Null mytype");
-		this.mytype = mytype;
-		fnName = name;
-		this.fnLoc = new InputPosition("hsie", 1, 1, null);
-		this.nformal = nformal;
-		for (int i=0;i<nformal;i++)
-			vars.add(new Var(i));
-		for (int i=0;i<nbound;i++)
-			vars.add(new Var(nformal + i));
-		for (Object dep : dependsOn)
-			this.dependsOn(dep);
-	}
-
 	public Var var(int v) {
-		return vars.get(v);
+		for (Var vi : vars)
+			if (vi.idx == v)
+				return vi;
+		throw new UtilException("There is no var with idx " + v);
 	}
 
 	public Var allocateVar() {
-		Var ret = new Var(vars.size());
+		Var ret = vf.nextVar();
 //		System.out.println("Allocating var " + ret);
 		vars.add(ret);
 		return ret;

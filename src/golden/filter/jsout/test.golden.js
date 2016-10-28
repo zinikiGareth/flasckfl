@@ -27,19 +27,19 @@ test.golden.filter = function(v0, v1) {
   return FLEval.error("test.golden.filter: case not handled");
 }
 
-test.golden.filter_1.g = function(s0, s1, s2, v0) {
+test.golden.filter_1.g = function(s0, s1, s2, v7) {
   "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
+  v7 = FLEval.head(v7);
+  if (v7 instanceof FLError) {
+    return v7;
   }
-  if (typeof v0 === 'boolean') {
-    if (v0 === false) {
+  if (typeof v7 === 'boolean') {
+    if (v7 === false) {
       return FLEval.closure(test.golden.filter, s1, s2);
     }
-    if (v0 === true) {
-      var v2 = FLEval.closure(test.golden.filter, s1, s2);
-      return FLEval.closure(Cons, s0, v2);
+    if (v7 === true) {
+      var v9 = FLEval.closure(test.golden.filter, s1, s2);
+      return FLEval.closure(Cons, s0, v9);
     }
   }
   return FLEval.error("test.golden.filter_1.g: case not handled");
