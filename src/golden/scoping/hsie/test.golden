@@ -13,22 +13,22 @@ SWITCH v0 test.golden.Server                                 #scoping.fl:  16.3
   RETURN v6:clos6 [v4:test.golden.f_0.var, v2:test.golden.f_0. #scoping.fl:  16.22 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
 CLOSURE v2                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH test.golden.f_0.HandleReply                             #scoping.fl:  22.14 - also want location where the variable is actually used here
+  PUSH PackageVar.test.golden.f_0.HandleReply                  #scoping.fl:  22.14 - also want location where the variable is actually used here
   PUSH v0:test.golden.f_0.server                               #scoping.fl:  16.10 - also want location where the variable is actually used here
   PUSH v4:test.golden.f_0.var                                  #scoping.fl:  17.0 - also want location where the variable is actually used here
 CLOSURE v3                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH test.golden.f_0.q                                       #scoping.fl:  19.7 - also want location where the variable is actually used here
+  PUSH PackageVar.test.golden.f_0.q                            #scoping.fl:  19.7 - also want location where the variable is actually used here
   PUSH v2:test.golden.f_0.HandleReply                          #scoping.fl:  22.14 - also want location where the variable is actually used here
   PUSH v0:test.golden.f_0.server                               #scoping.fl:  16.10 - also want location where the variable is actually used here
   PUSH v4:test.golden.f_0.var                                  #scoping.fl:  17.0 - also want location where the variable is actually used here
 CLOSURE v4                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH test.golden.f_0.var                                     #scoping.fl:  17.0 - also want location where the variable is actually used here
+  PUSH PackageVar.test.golden.f_0.var                          #scoping.fl:  17.0 - also want location where the variable is actually used here
 CLOSURE v5                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH Cons                                                    #scoping.fl:  16.42 - also want location where the variable is actually used here
+  PUSH PackageVar.Cons                                         #scoping.fl:  16.42 - also want location where the variable is actually used here
   PUSH v3:test.golden.f_0.q                                    #scoping.fl:  19.7 - also want location where the variable is actually used here
-  PUSH Nil                                                     #scoping.fl:  16.42 - also want location where the variable is actually used here
+  PUSH PackageVar.Nil                                          #scoping.fl:  16.42 - also want location where the variable is actually used here
 CLOSURE v6                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH MessageWrapper                                          #scoping.fl:  16.22 - also want location where the variable is actually used here
+  PUSH PackageVar.MessageWrapper                               #scoping.fl:  16.22 - also want location where the variable is actually used here
   PUSH v4:test.golden.f_0.var                                  #scoping.fl:  17.0 - also want location where the variable is actually used here
   PUSH v5:clos5                                                #scoping.fl:  16.42 - also want location where the variable is actually used here
 =======

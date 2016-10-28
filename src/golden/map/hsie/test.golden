@@ -8,17 +8,17 @@ SWITCH v1 Cons                                               #map.fl:       2.7
   BIND v3 v1.tail                                              ?? - should be location in first equation where this var is introduced in a pattern
   RETURN v6:clos6 [v4:clos4, v5:clos5]                         #map.fl:       2.15 - this appears to be wrong for closures; wants to be the apply expr point
 SWITCH v1 Nil                                                #map.fl:       1.7
-  RETURN Nil                                                   #map.fl:       1.12 - this appears to be wrong for closures; wants to be the apply expr point
+  RETURN PackageVar.Nil                                        #map.fl:       1.12 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
 CLOSURE v4                                                   ?? - should be beginning (and ending?) of apply expr
   PUSH v0:test.golden.map1_1.f                                 #map.fl:       2.5 - also want location where the variable is actually used here
   PUSH v2:test.golden.map1_1.a                                 #map.fl:       2.8 - also want location where the variable is actually used here
 CLOSURE v5                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH test.golden.map1                                        #map.fl:       2.22 - also want location where the variable is actually used here
+  PUSH PackageVar.test.golden.map1                             #map.fl:       2.22 - also want location where the variable is actually used here
   PUSH v0:test.golden.map1_1.f                                 #map.fl:       2.5 - also want location where the variable is actually used here
   PUSH v3:test.golden.map1_1.l                                 #map.fl:       2.10 - also want location where the variable is actually used here
 CLOSURE v6                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH Cons                                                    #map.fl:       2.20 - also want location where the variable is actually used here
+  PUSH PackageVar.Cons                                         #map.fl:       2.20 - also want location where the variable is actually used here
   PUSH v4:clos4                                                #map.fl:       2.15 - also want location where the variable is actually used here
   PUSH v5:clos5                                                #map.fl:       2.21 - also want location where the variable is actually used here
 =======

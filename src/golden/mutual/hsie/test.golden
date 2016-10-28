@@ -4,8 +4,8 @@ HSIE for test.golden.f_0.g
     all vars = [v0, v1]
 RETURN v1:clos1 []                                           #mutual.fl:    3.6 - this appears to be wrong for closures; wants to be the apply expr point
 CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH *                                                       #mutual.fl:    3.8 - also want location where the variable is actually used here
-  PUSH Scoped[test.golden.f_0.x]                               #mutual.fl:    2.2 - also want location where the variable is actually used here
+  PUSH PackageVar.*                                            #mutual.fl:    3.8 - also want location where the variable is actually used here
+  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0. #mutual.fl:    2.2 - also want location where the variable is actually used here
   PUSH v0:test.golden.f_0.g_0.y                                #mutual.fl:    3.2 - also want location where the variable is actually used here
 =======
 HSIE for test.golden.f
@@ -14,7 +14,7 @@ HSIE for test.golden.f
     all vars = [v0, v1, v2]
 RETURN v2:clos2 [v1:test.golden.f_0.g]                       #mutual.fl:    2.6 - this appears to be wrong for closures; wants to be the apply expr point
 CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH test.golden.f_0.g                                       #mutual.fl:    3.0 - also want location where the variable is actually used here
+  PUSH PackageVar.test.golden.f_0.g                            #mutual.fl:    3.0 - also want location where the variable is actually used here
   PUSH v0:test.golden.f_0.x                                    #mutual.fl:    2.2 - also want location where the variable is actually used here
 CLOSURE v2                                                   ?? - should be beginning (and ending?) of apply expr
   PUSH v1:test.golden.f_0.g                                    #mutual.fl:    3.0 - also want location where the variable is actually used here

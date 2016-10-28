@@ -105,6 +105,6 @@ public abstract class PushReturn extends HSIEBlock {
 	}
 
 	protected Object textValue() {
-		return (var != null)?var:(ival!=null)?ival.toString():(fn != null)?fn:(sval!=null)?sval:(tlv!=null)?tlv:(func != null)?func:(csr!=null)?csr:"--have you added a new push type--";
+		return (var != null)?var:(ival!=null)?ival.toString():(fn != null)?fn.getClass().getSimpleName()+"."+fn:(sval!=null)?sval:(tlv!=null)?tlv:(func != null)?func:(csr!=null)?csr:"--have you added a new push type--";
 	}
 }

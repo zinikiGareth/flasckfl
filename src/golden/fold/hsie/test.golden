@@ -15,7 +15,7 @@ CLOSURE v5                                                   ?? - should be begi
   PUSH v1:test.golden.fold_1.acc                               #fold.fl:      3.7 - also want location where the variable is actually used here
   PUSH v3:test.golden.fold_1.a                                 #fold.fl:      3.12 - also want location where the variable is actually used here
 CLOSURE v6                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH test.golden.fold                                        #fold.fl:      3.19 - also want location where the variable is actually used here
+  PUSH PackageVar.test.golden.fold                             #fold.fl:      3.19 - also want location where the variable is actually used here
   PUSH v0:test.golden.fold_1.f                                 #fold.fl:      3.5 - also want location where the variable is actually used here
   PUSH v5:clos5                                                #fold.fl:      3.26 - also want location where the variable is actually used here
   PUSH v4:test.golden.fold_1.l                                 #fold.fl:      3.14 - also want location where the variable is actually used here

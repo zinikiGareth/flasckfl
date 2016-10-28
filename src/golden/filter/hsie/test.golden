@@ -8,10 +8,10 @@ SWITCH v1 Cons                                               #filter.fl:    3.9
   BIND v3 v1.tail                                              ?? - should be location in first equation where this var is introduced in a pattern
   RETURN v6:clos6 [v4:test.golden.filter_1.g, v5:clos5]        #filter.fl:    3.17 - this appears to be wrong for closures; wants to be the apply expr point
 SWITCH v1 Nil                                                #filter.fl:    2.9
-  RETURN Nil                                                   #filter.fl:    2.14 - this appears to be wrong for closures; wants to be the apply expr point
+  RETURN PackageVar.Nil                                        #filter.fl:    2.14 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
 CLOSURE v4                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH test.golden.filter_1.g                                  #filter.fl:    4.0 - also want location where the variable is actually used here
+  PUSH PackageVar.test.golden.filter_1.g                       #filter.fl:    4.0 - also want location where the variable is actually used here
   PUSH v2:test.golden.filter_1.a                               #filter.fl:    3.10 - also want location where the variable is actually used here
   PUSH v0:test.golden.filter_1.f                               #filter.fl:    3.7 - also want location where the variable is actually used here
   PUSH v3:test.golden.filter_1.l                               #filter.fl:    3.12 - also want location where the variable is actually used here
@@ -34,15 +34,15 @@ SWITCH v0 Boolean                                            #filter.fl:    4.2
     RETURN v3:clos3 [v2:clos2]                                   #filter.fl:    4.9 - this appears to be wrong for closures; wants to be the apply expr point
 ERROR
 CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH test.golden.filter                                      #filter.fl:    5.11 - also want location where the variable is actually used here
-  PUSH Scoped[test.golden.filter_1.f]                          #filter.fl:    3.7 - also want location where the variable is actually used here
-  PUSH Scoped[test.golden.filter_1.l]                          #filter.fl:    3.12 - also want location where the variable is actually used here
+  PUSH PackageVar.test.golden.filter                           #filter.fl:    5.11 - also want location where the variable is actually used here
+  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.7 - also want location where the variable is actually used here
+  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.12 - also want location where the variable is actually used here
 CLOSURE v2                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH test.golden.filter                                      #filter.fl:    4.12 - also want location where the variable is actually used here
-  PUSH Scoped[test.golden.filter_1.f]                          #filter.fl:    3.7 - also want location where the variable is actually used here
-  PUSH Scoped[test.golden.filter_1.l]                          #filter.fl:    3.12 - also want location where the variable is actually used here
+  PUSH PackageVar.test.golden.filter                           #filter.fl:    4.12 - also want location where the variable is actually used here
+  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.7 - also want location where the variable is actually used here
+  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.12 - also want location where the variable is actually used here
 CLOSURE v3                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH Cons                                                    #filter.fl:    4.10 - also want location where the variable is actually used here
-  PUSH Scoped[test.golden.filter_1.a]                          #filter.fl:    3.10 - also want location where the variable is actually used here
+  PUSH PackageVar.Cons                                         #filter.fl:    4.10 - also want location where the variable is actually used here
+  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.filt #filter.fl:    3.10 - also want location where the variable is actually used here
   PUSH v2:clos2                                                #filter.fl:    4.11 - also want location where the variable is actually used here
 =======
