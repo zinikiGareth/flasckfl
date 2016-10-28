@@ -48,7 +48,6 @@ public class HSIEForm extends HSIEBlock {
 	public final CodeType mytype;
 	public final String fnName;
 	public final InputPosition fnLoc;
-	public final int alreadyUsed;
 	public final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();
 	public final Set<Object> externals = new TreeSet<Object>();
@@ -57,45 +56,36 @@ public class HSIEForm extends HSIEBlock {
 	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 
 	// This constructor is the one for real code
-	public HSIEForm(CodeType mytype, String name, InputPosition nameLoc, int alreadyUsed, Map<String, CreationOfVar> map, int nformal) {
+	public HSIEForm(CodeType mytype, String name, InputPosition nameLoc, Map<String, CreationOfVar> map, int nformal) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
 		if (nameLoc == null) throw new UtilException("Null fnLoc");
 		this.fnLoc = nameLoc;
-		if (alreadyUsed != 0)
-			System.out.println("Hello");
-		this.alreadyUsed = 0;
-//		for (int i=0;i<alreadyUsed;i++)
-//			vars.add(null);
 		for (CreationOfVar v : map.values())
 			vars.set(v.var.idx, v.var);
 		this.nformal = nformal;
 	}
 
 	// This is the copy/rewrite constructor
-	public HSIEForm(CodeType mytype, String name, InputPosition fnLoc, int alreadyUsed, int nformal, List<Var> vars, Collection<Object> externals) {
+	public HSIEForm(CodeType mytype, String name, InputPosition fnLoc, int nformal, List<Var> vars, Collection<Object> externals) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
 		if (fnLoc == null) throw new UtilException("Null fnLoc");
 		this.fnLoc = fnLoc;
-		this.alreadyUsed = 0;
 		this.nformal = nformal;
 		this.vars.addAll(vars);
 		this.externals.addAll(externals);
 	}
 
 	// This constructor is for testing
-	public HSIEForm(CodeType mytype, String name, int alreadyUsed, int nformal, int nbound, Collection<? extends Object> dependsOn) {
+	public HSIEForm(CodeType mytype, String name, int nformal, int nbound, Collection<? extends Object> dependsOn) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		fnName = name;
 		this.fnLoc = new InputPosition("hsie", 1, 1, null);
-		this.alreadyUsed = 0;
 		this.nformal = nformal;
-//		for (int i=0;i<alreadyUsed;i++)
-//			vars.add(new Var(i));
 		for (int i=0;i<nformal;i++)
 			vars.add(new Var(i));
 		for (int i=0;i<nbound;i++)

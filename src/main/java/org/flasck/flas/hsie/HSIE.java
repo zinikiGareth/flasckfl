@@ -41,11 +41,11 @@ public class HSIE {
 	}
 	
 	public HSIEForm handle(Map<String, HSIEForm> previous, RWFunctionDefinition defn) {
-		return handle(previous, defn, 0, new HashMap<String, CreationOfVar>());
+		return handle(previous, defn, new HashMap<String, CreationOfVar>());
 	}
 	
-	public HSIEForm handle(Map<String, HSIEForm> previous, RWFunctionDefinition defn, int alreadyUsed, Map<String, CreationOfVar> map) {
-		HSIEForm ret = new HSIEForm(defn.mytype, defn.name(), defn.location, alreadyUsed, map, defn.nargs());
+	public HSIEForm handle(Map<String, HSIEForm> previous, RWFunctionDefinition defn, Map<String, CreationOfVar> map) {
+		HSIEForm ret = new HSIEForm(defn.mytype, defn.name(), defn.location, map, defn.nargs());
 		MetaState ms = new MetaState(rewriter, previous, ret);
 		if (defn.nargs() == 0)
 			return handleConstant(ms, defn);
@@ -68,7 +68,7 @@ public class HSIE {
 			loc = ((Locatable)expr).location();
 		else
 			throw new UtilException(expr + " " + expr.getClass() + " is not locatable");
-		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(type, "", loc, 0, new HashMap<String, CreationOfVar>(), 0));
+		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(type, "", loc, new HashMap<String, CreationOfVar>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
@@ -78,7 +78,7 @@ public class HSIE {
 		InputPosition loc = null;
 		if (expr instanceof Locatable)
 			loc = ((Locatable)expr).location();
-		HSIEForm blk = new HSIEForm(type, "_expr_", loc, 0, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
+		HSIEForm blk = new HSIEForm(type, "_expr_", loc, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
 		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), blk);
 //		State s = new State(blk);
 //		ms.add(s);

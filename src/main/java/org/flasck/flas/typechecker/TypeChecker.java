@@ -188,8 +188,7 @@ public class TypeChecker {
 		
 		s.localKnowledge.put(expr.fnName, factory.next());
 		for (int i=0;i<expr.nformal;i++) {
-//			System.out.println("Allocating " + "var" + " for " + expr.fnName + " arg " + i + " var " + (i+expr.alreadyUsed));
-			s.gamma = s.gamma.bind(expr.vars.get(i+expr.alreadyUsed), new TypeScheme(null, args.get(i).asExpr(new GarneredFrom(locs.get(i)), this, factory)));
+			s.gamma = s.gamma.bind(expr.vars.get(i), new TypeScheme(null, args.get(i).asExpr(new GarneredFrom(locs.get(i)), this, factory)));
 		}
 				
 		int inErrors = errors.count();
@@ -317,7 +316,7 @@ public class TypeChecker {
 			}
 			vars.add(mapping.get(v));
 		}
-		HSIEForm ret = new HSIEForm(hsie.mytype, hsie.fnName, hsie.fnLoc, hsie.alreadyUsed, hsie.nformal, vars, hsie.externals);
+		HSIEForm ret = new HSIEForm(hsie.mytype, hsie.fnName, hsie.fnLoc, hsie.nformal, vars, hsie.externals);
 		mapBlock(ret, hsie, mapping);
 		for (HSIEBlock b : hsie.closures()) {
 			ClosureCmd cc = (ClosureCmd)b;
@@ -393,15 +392,11 @@ public class TypeChecker {
 	}
 
 	void allocateTVs(List<TypeVar> vars, TypeState s, HSIEForm hsie) {
-//		for (int i=0;i<hsie.alreadyUsed;i++)
-//			throw new UtilException("Need to make sure these are reused from existing parent, even after renaming");
 		for (int i=0;i<hsie.nformal;i++) {
 			TypeVar tv = factory.next();
-//			System.out.println("Allocating " + tv + " for " + hsie.fnName + " arg " + i + " var " + hsie.vars.get(i+hsie.alreadyUsed));
-			s.gamma = s.gamma.bind(hsie.vars.get(i+hsie.alreadyUsed), new TypeScheme(null, tv));
+			s.gamma = s.gamma.bind(hsie.vars.get(i), new TypeScheme(null, tv));
 			vars.add(tv);
 		}
-//		System.out.println(s.gamma);
 	}
 
 	Object checkHSIE(TypeState s, HSIEForm hsie) {
@@ -413,7 +408,7 @@ public class TypeChecker {
 			return null;
 		// then we need to build an expr tv0 -> tv1 -> tv2 -> E with all the vars substituted
 		for (int i=hsie.nformal-1;i>=0;i--) {
-			CreationOfVar myarg = new CreationOfVar(hsie.vars.get(hsie.alreadyUsed+i), null, "??");
+			CreationOfVar myarg = new CreationOfVar(hsie.vars.get(i), null, "??");
 			Object tv = s.gamma.valueOf(myarg).typeExpr;
 			rhs = new TypeExpr(new GarneredFrom(hsie.fnName, i, hsie.fnLoc), Type.builtin(new InputPosition("->", 0,0,null), "->"), s.phi.subst(tv), rhs);
 		}
