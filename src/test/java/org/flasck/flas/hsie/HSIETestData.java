@@ -571,14 +571,16 @@ public class HSIETestData {
 		}
 	}
 
-	private static void assertInstructionEquals(HSIEBlock ex, HSIEBlock ac) {
-		String exs = ex.toString();
-		String acs = ac.toString();
+	public static void assertInstructionEquals(HSIEBlock ex, HSIEBlock ac) {
+		assertInstructionEquals(ex.toString(), ac);
+	}
+
+	public static void assertInstructionEquals(String exs, HSIEBlock ac) {
 		if (exs != null && exs.indexOf("#") != -1)
 			exs = exs.substring(0, exs.indexOf("#")).trim();
+		String acs = ac.toString();
 		if (acs != null && acs.indexOf("#") != -1)
 			acs = acs.substring(0, acs.indexOf("#")).trim();
 		assertEquals(exs, acs);
-		
 	}
 }
