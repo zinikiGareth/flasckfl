@@ -87,7 +87,7 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	// This constructor is for testing
-	public HSIEForm(CodeType mytype, String name, int alreadyUsed, int nformal, int nbound, Collection<String> dependsOn) {
+	public HSIEForm(CodeType mytype, String name, int alreadyUsed, int nformal, int nbound, Collection<? extends Object> dependsOn) {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		fnName = name;
@@ -97,11 +97,11 @@ public class HSIEForm extends HSIEBlock {
 //		for (int i=0;i<alreadyUsed;i++)
 //			vars.add(new Var(i));
 		for (int i=0;i<nformal;i++)
-			vars.add(new Var(alreadyUsed + i));
+			vars.add(new Var(i));
 		for (int i=0;i<nbound;i++)
-			vars.add(new Var(alreadyUsed + nformal + i));
-		for (String s : dependsOn)
-			this.externals.add(s);
+			vars.add(new Var(nformal + i));
+		for (Object dep : dependsOn)
+			this.dependsOn(dep);
 	}
 
 	public Var var(int v) {
@@ -145,6 +145,7 @@ public class HSIEForm extends HSIEBlock {
 		dump(pw, 0);
 		for (HSIEBlock c : closures.values())
 			c.dumpOne(pw, 0);
+		pw.flush();
 	}
 
 	public void dependsOn(Object ref) {

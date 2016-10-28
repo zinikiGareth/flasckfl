@@ -13,6 +13,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -201,13 +202,14 @@ public class HSIETestData {
 	}
 
 	public static HSIEForm mutualG() {
-		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("FLEval.mul");
-		return thingy("ME.f_0.g", 2, 1, 2,
+		ArrayList<Object> externals = new ArrayList<Object>();
+		externals.add("*");
+		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.x", new PackageVar(posn, "ME.f_0", null), false));
+		return thingy("ME.f_0.g", 2, 1, 1,
 			externals,
 			null,
 			"RETURN var 1 clos1",
-			"CLOSURE 1", "{", "*", "var 0 x", "var 2 y", "}"
+			"CLOSURE 1", "{", "*", "ME.f_0.x", "var 0 y", "}"
 		);
 	}
 
@@ -230,9 +232,9 @@ public class HSIETestData {
 		return thingy("ME.f_0.g", 2, 1, 1,
 			externals,
 			null,
-			"RETURN var 3 clos3",
-			"CLOSURE 3", "{",
-				"FLEval.mul", "2", "var 2 clos2",
+			"RETURN var 1 clos1",
+			"CLOSURE 1", "{",
+				"FLEval.mul", "2", "var 0 clos0",
 			"}"
 		);
 	}
@@ -441,7 +443,7 @@ public class HSIETestData {
 		);
 	}
 
-	private static HSIEForm thingy(String name, int alreadyUsed, int nformal, int nbound, List<String> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
+	private static HSIEForm thingy(String name, int alreadyUsed, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
 		HSIEForm ret = new HSIEForm(CodeType.FUNCTION, name, alreadyUsed, nformal, nbound, dependsOn);
 		HSIEBlock b = ret;
 		List<HSIEBlock> stack = new ArrayList<HSIEBlock>();
@@ -502,7 +504,21 @@ public class HSIETestData {
 			} else if (Character.isDigit(ps[0].charAt(0))) {
 				prev = b.push(posn, Integer.parseInt(ps[0]));
 			} else {
-				prev = b.push(posn, new PackageVar(posn, ps[0], null));
+				String s = ps[0];
+				Object toPush = null;
+				for (Object o : dependsOn) {
+					if (o instanceof String && s.equals(o))
+						toPush = new PackageVar(posn, s, null);
+					else if (o instanceof VarNestedFromOuterFunctionScope && ((VarNestedFromOuterFunctionScope)o).id.equals(s))
+						toPush = o;
+				}
+				if (toPush == null) {
+					// This appears to be a valid case, but I'm dubious ...
+					System.out.println("No external/scoped defn for " + s);
+//					throw new UtilException("No external/scoped defn for " + s);
+					toPush = new PackageVar(posn, s, null);
+				}
+				prev = b.push(posn, toPush);
 			}
 			
 		}
