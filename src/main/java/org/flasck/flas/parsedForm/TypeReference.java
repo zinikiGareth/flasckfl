@@ -5,6 +5,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.zinutils.collections.CollectionUtils;
+import org.zinutils.exceptions.UtilException;
 
 public class TypeReference implements Locatable {
 	private InputPosition location;
@@ -16,6 +17,8 @@ public class TypeReference implements Locatable {
 	}
 
 	public TypeReference(InputPosition location, String name, List<TypeReference> polys) {
+		if (location == null)
+			throw new UtilException("Null location in typereference");
 		this.location = location;
 		this.name = name;
 		this.polys = polys;

@@ -591,7 +591,7 @@ public class TypeChecker {
 					RWStructDefn sd = structs.get(structName);
 					for (RWStructField sf : sd.fields) {
 						if (sf.name.equals(hl.var)) {
-							return sf.type.asExpr(null, this, factory);
+							return sf.type.asExpr(new GarneredFrom(sf.loc), this, factory);
 						}
 					}
 					throw new UtilException("Could not find field " + hl.var + " in handler " + structName);

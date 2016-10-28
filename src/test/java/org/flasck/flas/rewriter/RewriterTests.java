@@ -128,16 +128,16 @@ public class RewriterTests {
 		Scope innerScope;
 		{
 			ArrayList<Object> args = new ArrayList<Object>();
-			args.add(new VarPattern(null, "x"));
-			FunctionCaseDefn fn_f = new FunctionCaseDefn(posn, CodeType.FUNCTION, "ME.f", args, new StringLiteral(null, "x"));
+			args.add(new VarPattern(posn, "x"));
+			FunctionCaseDefn fn_f = new FunctionCaseDefn(posn, CodeType.FUNCTION, "ME.f", args, new StringLiteral(posn, "x"));
 			fn_f.provideCaseName("ME.f_0");
 			scope.define("f", "ME.f", fn_f);
 			innerScope = fn_f.innerScope();
 		}
 		{
 			ArrayList<Object> args = new ArrayList<Object>();
-			args.add(new VarPattern(null, "y"));
-			FunctionCaseDefn fn_g = new FunctionCaseDefn(posn, CodeType.FUNCTION, "ME.f_0.g", args, new UnresolvedVar(null, "x"));
+			args.add(new VarPattern(posn, "y"));
+			FunctionCaseDefn fn_g = new FunctionCaseDefn(posn, CodeType.FUNCTION, "ME.f_0.g", args, new UnresolvedVar(posn, "x"));
 			innerScope.define("g", "ME.f_0.g", fn_g);
 			fn_g.provideCaseName("ME.f_0.g_0");
 		}

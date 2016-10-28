@@ -13,7 +13,7 @@ public class VarNestedFromOuterFunctionScope implements ExternalRef {
 		if (defn == null)
 			throw new NullPointerException("NestedVar cannot be in a null function");
 		if (location == null)
-			System.out.println("null location sv1");
+			throw new UtilException("null location sv1");
 		this.location = location;
 		this.id = id;
 		this.defn = defn;

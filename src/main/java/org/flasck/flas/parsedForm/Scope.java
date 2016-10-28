@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ScopeDefineException;
+import org.zinutils.exceptions.UtilException;
 
 public class Scope implements Iterable<Scope.ScopeEntry> {
 	public class ScopeEntry implements Entry<String, Object> {
@@ -20,7 +21,7 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 		public ScopeEntry(String name, Object defn) {
 			location = (defn == null)?null:((Locatable)defn).location();
 			if (defn != null && this.location == null)
-				System.out.println("null location se1");
+				throw new UtilException("null location se1");
 			this.name = name;
 			this.defn = defn;
 		}

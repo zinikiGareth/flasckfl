@@ -23,7 +23,7 @@ public class Type implements Locatable {
 	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, String name, List<Type> polys) {
 		this.kw = kw;
 		if (location == null && iam != WhatAmI.POLYVAR)
-			System.out.println("Type without input location 1");
+			throw new UtilException("Type without input location 1");
 		this.location = location;
 		this.iam = iam;
 		this.name = name;
@@ -41,7 +41,7 @@ public class Type implements Locatable {
 	protected Type(InputPosition location, WhatAmI iam, Type type, List<Type> args) {
 		this.kw = null;
 		if (location == null && iam != WhatAmI.POLYVAR)
-			System.out.println("Type without input location 2");
+			throw new UtilException("Type without input location 2");
 		this.location = location;
 		this.iam = iam;
 		this.name = null;
@@ -53,7 +53,7 @@ public class Type implements Locatable {
 	protected Type(InputPosition location, WhatAmI iam, List<Type> subtypes) {
 		this.kw = null;
 		if (location == null)
-			System.out.println("Type without input location 3");
+			throw new UtilException("Type without input location 3");
 		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE)
 			throw new UtilException("Only applicable to FUNCTION and TUPLE");
 		this.location = location;

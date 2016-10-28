@@ -15,7 +15,6 @@ public class GarneredFrom {
 	int arg = -1;
 
 	public GarneredFrom(InputPosition posn) {
-		// This has to be commented out for unit tests to pass since they pass null around like crazy people
 		if (posn == null)
 			throw new UtilException("position cannot be null");
 		this.which = Which.INPUT;

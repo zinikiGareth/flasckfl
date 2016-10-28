@@ -10,7 +10,7 @@ public class PackageVar implements ExternalRef {
 
 	public PackageVar(InputPosition location, String id, Object defn) {
 		if (defn != null && location == null)
-			System.out.println("null location pv1");
+			throw new UtilException("null location pv1");
 		this.location = location;
 		this.id = id;
 		this.defn = defn;

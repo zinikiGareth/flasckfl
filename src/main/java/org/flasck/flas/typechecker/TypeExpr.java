@@ -26,9 +26,8 @@ public class TypeExpr {
 	public TypeExpr(GarneredFrom from, Type type, List<Object> args) {
 		this.myId = debugId++;
 		this.from = from;
-		// This has to be commented out for unit tests to pass since they pass null around like crazy people
-//		if (this.from == null)
-//			throw new UtilException("Cannot have null from");
+		if (this.from == null)
+			throw new UtilException("Cannot have null from");
 		if (type == null)
 			throw new UtilException("Cannot have null type");
 		if (type.iam == WhatAmI.INSTANCE)
