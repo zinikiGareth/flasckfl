@@ -12,9 +12,9 @@ import java.util.Set;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -23,7 +23,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
-import org.flasck.flas.vcode.hsieForm.PushCmd;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -275,7 +275,7 @@ public class JSForm {
 
 	private static String closure(HSIEForm form, HSIEBlock closure) {
 		StringBuilder sb;
-		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
+		ExternalRef fn = ((PushReturn)closure.nestedCommands().get(0)).fn;
 		boolean needsObject = false;
 		boolean fromHandler = form.mytype == CodeType.AREA;
 		if (fn != null) {
@@ -283,7 +283,7 @@ public class JSForm {
 				needsObject = true;
 				fromHandler |= fn.fromHandler();
 			} else if (fn.toString().equals("FLEval.curry")) {
-				ExternalRef f2 = ((PushCmd)closure.nestedCommands().get(1)).fn;
+				ExternalRef f2 = ((PushReturn)closure.nestedCommands().get(1)).fn;
 				if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
 					needsObject = true;
 					fromHandler |= f2.fromHandler();
@@ -297,7 +297,7 @@ public class JSForm {
 		int pos = 0;
 		boolean isField = false;
 		for (HSIEBlock b : closure.nestedCommands()) {
-			PushCmd c = (PushCmd) b;
+			PushReturn c = (PushReturn) b;
 			if (pos > 0)
 				sb.append(", ");
 			if (c.fn != null && pos == 0) {

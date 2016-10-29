@@ -18,6 +18,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
@@ -26,7 +27,6 @@ import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -42,7 +42,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
-import org.flasck.flas.vcode.hsieForm.PushCmd;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
@@ -504,7 +504,7 @@ public class DroidGenerator {
 
 	private Expr closure(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
 		// Loop over everything in the closure pushing it onto the stack (in al)
-		ExternalRef fn = ((PushCmd)closure.nestedCommands().get(0)).fn;
+		ExternalRef fn = ((PushReturn)closure.nestedCommands().get(0)).fn;
 		Expr needsObject = null;
 		boolean fromHandler = fntype == CodeType.AREA;
 		Object defn = fn;
@@ -520,7 +520,7 @@ public class DroidGenerator {
 					needsObject = meth.myThis();
 				System.out.println("Creating handler " + fn + " in block " + closure);
 			} else if (fn.toString().equals("FLEval.curry")) {
-				ExternalRef f2 = ((PushCmd)closure.nestedCommands().get(1)).fn;
+				ExternalRef f2 = ((PushReturn)closure.nestedCommands().get(1)).fn;
 				if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
 					needsObject = meth.myThis();
 					fromHandler |= f2.fromHandler();
@@ -533,7 +533,7 @@ public class DroidGenerator {
 		boolean isField = false;
 		List<Expr> al = new ArrayList<Expr>();
 		for (HSIEBlock b : closure.nestedCommands()) {
-			PushCmd c = (PushCmd) b;
+			PushReturn c = (PushReturn) b;
 			if (c.fn != null && pos == 0) {
 				isField = "FLEval.field".equals(c.fn);
 			}

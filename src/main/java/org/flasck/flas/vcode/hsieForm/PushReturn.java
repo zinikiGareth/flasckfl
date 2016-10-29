@@ -7,10 +7,12 @@ import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.utils.Justification;
 
 // Push and Return are like REALLY, REALLY similar
 // It helps the typechecker at least to treat them as exactly the same
-public abstract class PushReturn extends HSIEBlock {
+public class PushReturn extends HSIEBlock {
+	private String cmd = "PUSH";
 	public final InputPosition location;
 	public final CreationOfVar var;
 	public final Integer ival;
@@ -108,5 +110,10 @@ public abstract class PushReturn extends HSIEBlock {
 
 	protected Object textValue() {
 		return (var != null)?var:(ival!=null)?ival.toString():(fn != null)?fn.getClass().getSimpleName()+"."+fn:(sval!=null)?sval:(tlv!=null)?tlv:(func != null)?func:(csr!=null)?csr:"--have you added a new push type--";
+	}
+
+	@Override
+	public String toString() {
+		return Justification.LEFT.format(cmd + " " + textValue(), 60) + " #" + location + " - also want location where the variable is actually used here";
 	}
 }

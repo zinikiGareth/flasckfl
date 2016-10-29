@@ -60,26 +60,26 @@ public class HSIEBlock {
 		commands.remove(pos);
 	}
 
-	public PushCmd push(InputPosition loc, Object o) {
+	public PushReturn push(InputPosition loc, Object o) {
 		return pushAt(loc, commands.size(), o);
 	}
 
-	public PushCmd pushAt(InputPosition loc, int pos, Object o) {
-		PushCmd ret;
+	public PushReturn pushAt(InputPosition loc, int pos, Object o) {
+		PushReturn ret;
 		if (o instanceof CreationOfVar)
-			ret = new PushCmd(loc, (CreationOfVar)o);
+			ret = new PushReturn(loc, (CreationOfVar)o);
 		else if (o instanceof Integer)
-			ret = new PushCmd(loc, (Integer)o);
+			ret = new PushReturn(loc, (Integer)o);
 		else if (o instanceof ExternalRef)
-			ret = new PushCmd(loc, (ExternalRef)o);
+			ret = new PushReturn(loc, (ExternalRef)o);
 		else if (o instanceof StringLiteral)
-			ret = new PushCmd(loc, (StringLiteral)o);
+			ret = new PushReturn(loc, (StringLiteral)o);
 		else if (o instanceof TemplateListVar)
-			ret = new PushCmd(loc, (TemplateListVar)o);
+			ret = new PushReturn(loc, (TemplateListVar)o);
 		else if (o instanceof FunctionLiteral)
-			ret = new PushCmd(loc, (FunctionLiteral)o);
+			ret = new PushReturn(loc, (FunctionLiteral)o);
 		else if (o instanceof CardStateRef)
-			ret = new PushCmd(loc, (CardStateRef)o);
+			ret = new PushReturn(loc, (CardStateRef)o);
 		else if (o == null)
 			throw new UtilException("Cannot push null");
 		else

@@ -45,7 +45,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
-import org.flasck.flas.vcode.hsieForm.PushCmd;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
@@ -586,7 +586,7 @@ public class TypeChecker {
 			if (T1 instanceof TypeExpr) {
 				TypeExpr te = (TypeExpr) T1;
 				String tn = te.type.name();
-				String fn = ((PushCmd)c.nestedCommands().get(2)).sval.text;
+				String fn = ((PushReturn)c.nestedCommands().get(2)).sval.text;
 				RWStructDefn sd = this.structs.get(tn);
 				if (sd != null) {
 					for (RWStructField f : sd.fields) {

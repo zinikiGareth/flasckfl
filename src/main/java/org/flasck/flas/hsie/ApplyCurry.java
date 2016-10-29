@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
-import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
@@ -16,7 +16,7 @@ import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.PushCmd;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class ApplyCurry {
 		for (HSIEBlock c : h.closures()) {
 			logger.info("-----");
 			c.dumpOne(logger, 4);
-			PushCmd pc = (PushCmd) c.nestedCommands().get(0);
+			PushReturn pc = (PushReturn) c.nestedCommands().get(0);
 			if (pc.sval != null)
 				continue;
 			if (pc.fn != null) {
@@ -53,8 +53,8 @@ public class ApplyCurry {
 				if (pc.fn.uniqueName().equals("FLEval.tuple"))
 					continue;
 				if (pc.fn.uniqueName().equals("FLEval.field")) {
-					PushCmd ofObj = (PushCmd) c.nestedCommands().get(1);
-					PushCmd fld = (PushCmd)c.nestedCommands().get(2);
+					PushReturn ofObj = (PushReturn) c.nestedCommands().get(1);
+					PushReturn fld = (PushReturn)c.nestedCommands().get(2);
 					if (ofObj.fn instanceof CardMember) {
 						CardMember cm = (CardMember) ofObj.fn;
 						if (cm.type instanceof RWObjectDefn) {
@@ -92,7 +92,7 @@ public class ApplyCurry {
 				throw new UtilException("I don't think this can have passed typecheck");
 			}
 			for (int pos=0;pos<c.nestedCommands().size();pos++) {
-				PushCmd pc2 = (PushCmd) c.nestedCommands().get(pos);
+				PushReturn pc2 = (PushReturn) c.nestedCommands().get(pos);
 				if (pc2.fn != null) {
 					if (pc2.fn instanceof CardFunction) {
 						rewrites.add(new Rewrite(c, pos));
@@ -102,7 +102,7 @@ public class ApplyCurry {
 			}
 		}
 		for (Rewrite r : rewrites) {
-			PushCmd pc = (PushCmd) r.inside.nestedCommands().get(r.pos);
+			PushReturn pc = (PushReturn) r.inside.nestedCommands().get(r.pos);
 			Var v = h.allocateVar();
 			ClosureCmd oclos = h.closure(v);
 			Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
@@ -113,7 +113,7 @@ public class ApplyCurry {
 				oclos.push(pc.location, t.arity());
 			} else
 				oclos.push(pc.location, pc.fn);
-			r.inside.nestedCommands().set(r.pos, new PushCmd(pc.location, new CreationOfVar(v, null, null)));
+			r.inside.nestedCommands().set(r.pos, new PushReturn(pc.location, new CreationOfVar(v, null, null)));
 			Var myVar = ((ClosureCmd)r.inside).var;
 			updateAllReturnCommands(h, myVar, v);
 		}
