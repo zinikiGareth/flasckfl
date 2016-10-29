@@ -1,7 +1,6 @@
 package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.zinutils.utils.Justification;
 
 public class BindCmd extends HSIEBlock {
 	public final Var bind;
@@ -17,6 +16,6 @@ public class BindCmd extends HSIEBlock {
 
 	@Override
 	public String toString() {
-		return Justification.LEFT.format("BIND " + bind + " " + from + "." + field, 60) + " ?? - should be location in first equation where this var is introduced in a pattern";
+		return "BIND " + bind + " " + from + "." + field;
 	}
 }
