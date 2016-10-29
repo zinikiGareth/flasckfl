@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.IfExpr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.template.TemplateCases;
 import org.flasck.flas.commonBase.template.TemplateIntro;
@@ -239,7 +240,7 @@ public class FLASStory {
 			expr = last.expr;
 		}
 		for (FunctionClause c : clauses)
-			expr = new IfExpr(c.guard, c.expr, expr);
+			expr = new IfExpr((Locatable) c.guard, c.expr, expr);
 		return new Object[] { expr, lastBlock };
 	}
 

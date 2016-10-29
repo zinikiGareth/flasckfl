@@ -38,20 +38,20 @@ public class HSIEBlock {
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(CreationOfVar var) {
-		IFCmd ret = new IFCmd(null, var);
+	public HSIEBlock ifCmd(InputPosition loc, CreationOfVar var) {
+		IFCmd ret = new IFCmd(loc, var);
 		commands.add(ret);
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(CreationOfVar v, Object value) {
-		IFCmd ret = new IFCmd(null, v, value);
+	public HSIEBlock ifCmd(InputPosition loc, CreationOfVar v, Object value) {
+		IFCmd ret = new IFCmd(loc, v, value);
 		commands.add(ret);
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(CreationOfVar v, boolean value) {
-		IFCmd ret = new IFCmd(null, v, value);
+	public HSIEBlock ifCmd(InputPosition loc, CreationOfVar v, boolean value) {
+		IFCmd ret = new IFCmd(loc, v, value);
 		commands.add(ret);
 		return ret;
 	}

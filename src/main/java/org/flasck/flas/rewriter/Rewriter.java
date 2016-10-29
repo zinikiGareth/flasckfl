@@ -1263,7 +1263,7 @@ public class Rewriter {
 				return new CastExpr(ce.location, resolve, rewriteExpr(cx, ce.expr));
 			} else if (expr instanceof IfExpr) {
 				IfExpr ie = (IfExpr)expr;
-				return new IfExpr(rewriteExpr(cx, ie.guard), rewriteExpr(cx, ie.ifExpr), rewriteExpr(cx, ie.elseExpr));
+				return new IfExpr((Locatable) rewriteExpr(cx, ie.guard), rewriteExpr(cx, ie.ifExpr), rewriteExpr(cx, ie.elseExpr));
 			} else
 				throw new UtilException("Can't rewrite expr " + expr + " of type " + expr.getClass());
 		} catch (ResolutionException ex) {

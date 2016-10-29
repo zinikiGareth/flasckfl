@@ -122,7 +122,7 @@ public class MetaState {
 		if (expr instanceof IfExpr) {
 			IfExpr ae = (IfExpr) expr;
 			List<InputPosition> elocs = new ArrayList<InputPosition>();
-			HSIEBlock ifCmd = writeTo.ifCmd((CreationOfVar) convertValue(elocs, substs, ae.guard));
+			HSIEBlock ifCmd = writeTo.ifCmd(ae.location(), (CreationOfVar) convertValue(elocs, substs, ae.guard));
 			writeIfExpr(substs, ae.ifExpr, ifCmd);
 			if (ae.elseExpr != null)
 				writeIfExpr(substs, ae.elseExpr, writeTo);

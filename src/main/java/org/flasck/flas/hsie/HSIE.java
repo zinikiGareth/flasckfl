@@ -242,9 +242,9 @@ public class HSIE {
 //					System.out.println("Handling constant " + nb.ifConst.value);
 					HSIEBlock inner;
 					if (nb.ifConst.type == ConstPattern.INTEGER)
-						inner = blk.ifCmd(cv, Integer.parseInt(nb.ifConst.value));
+						inner = blk.ifCmd(nb.location, cv, Integer.parseInt(nb.ifConst.value));
 					else if (nb.ifConst.type == ConstPattern.BOOLEAN)
-						inner = blk.ifCmd(cv, Boolean.parseBoolean(nb.ifConst.value));
+						inner = blk.ifCmd(nb.location, cv, Boolean.parseBoolean(nb.ifConst.value));
 					else
 						throw new UtilException("Cannot handle " + nb.ifConst);
 					State s3 = s1.duplicate(inner);

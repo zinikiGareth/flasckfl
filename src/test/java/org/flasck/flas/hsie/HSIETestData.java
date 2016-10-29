@@ -485,12 +485,12 @@ public class HSIETestData {
 				CreationOfVar var = new CreationOfVar(ret.var(vidx), posn, ps[2]);
 				if (ps.length == 3) {
 					// the closure case
-					prev = b.ifCmd(var);
+					prev = b.ifCmd(posn, var);
 				} else {
 					try {
-						prev = b.ifCmd(var, Integer.parseInt(ps[3]));
+						prev = b.ifCmd(posn, var, Integer.parseInt(ps[3]));
 					} catch (NumberFormatException ex) {
-						prev = b.ifCmd(var, Boolean.parseBoolean(ps[3]));
+						prev = b.ifCmd(posn, var, Boolean.parseBoolean(ps[3]));
 					}
 				}
 			} else if (ps[0].equals("BIND")) {

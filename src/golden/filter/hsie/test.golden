@@ -28,9 +28,9 @@ HSIE for test.golden.filter_1.g/1                            #filter.fl:    4.0
     all vars = [v7, v8, v9, v10]
 HEAD v7                                                      #filter.fl:    4.2
 SWITCH v7 Boolean                                            #filter.fl:    4.2
-  IF v7:ev7 false                                            #null
+  IF v7:ev7 false                                            #filter.fl:    5.2
     RETURN v8:clos8 []                                       #filter.fl:    5.10
-  IF v7:ev7 true                                             #null
+  IF v7:ev7 true                                             #filter.fl:    4.2
     RETURN v10:clos10 [v9:clos9]                             #filter.fl:    4.9
 ERROR                                                        #null
 CLOSURE v8                                                   #null
