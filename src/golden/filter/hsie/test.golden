@@ -9,16 +9,16 @@ SWITCH v1 Cons                                               #filter.fl:    3.9
   RETURN v6:clos6 [v4:test.golden.filter_1.g, v5:clos5]      #filter.fl:    3.17
 SWITCH v1 Nil                                                #filter.fl:    2.9
   RETURN PackageVar.Nil                                      #filter.fl:    2.14
-ERROR                                                        #null
-CLOSURE v4                                                   #null
+ERROR                                                        #filter.fl:    2.0
+CLOSURE v4                                                   #filter.fl:    4.0
   PUSH PackageVar.test.golden.filter_1.g                     #filter.fl:    4.0
   PUSH v2:test.golden.filter_1.a                             #filter.fl:    3.10
   PUSH v0:test.golden.filter_1.f                             #filter.fl:    3.7
   PUSH v3:test.golden.filter_1.l                             #filter.fl:    3.12
-CLOSURE v5                                                   #null
+CLOSURE v5                                                   #filter.fl:    3.19
   PUSH v0:test.golden.filter_1.f                             #filter.fl:    3.7
   PUSH v2:test.golden.filter_1.a                             #filter.fl:    3.10
-CLOSURE v6                                                   #null
+CLOSURE v6                                                   #filter.fl:    3.17
   PUSH v4:test.golden.filter_1.g                             #filter.fl:    4.0
   PUSH v5:clos5                                              #filter.fl:    3.19
 -------
@@ -32,16 +32,16 @@ SWITCH v7 Boolean                                            #filter.fl:    4.2
     RETURN v8:clos8 []                                       #filter.fl:    5.10
   IF v7:ev7 true                                             #filter.fl:    4.2
     RETURN v10:clos10 [v9:clos9]                             #filter.fl:    4.9
-ERROR                                                        #null
-CLOSURE v8                                                   #null
+ERROR                                                        #filter.fl:    4.0
+CLOSURE v8                                                   #filter.fl:    5.10
   PUSH PackageVar.test.golden.filter                         #filter.fl:    5.11
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.7
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.12
-CLOSURE v9                                                   #null
+CLOSURE v9                                                   #filter.fl:    4.11
   PUSH PackageVar.test.golden.filter                         #filter.fl:    4.12
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.7
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.12
-CLOSURE v10                                                  #null
+CLOSURE v10                                                  #filter.fl:    4.9
   PUSH PackageVar.Cons                                       #filter.fl:    4.10
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.10
   PUSH v9:clos9                                              #filter.fl:    4.11

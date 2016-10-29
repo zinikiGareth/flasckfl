@@ -24,7 +24,7 @@ public class HSIEBlock {
 	protected static final Logger logger = LoggerFactory.getLogger("HSIE");
 
 	public HSIEBlock(InputPosition loc) {
-//		if (loc == null) throw new UtilException("Cannot be null"); // aspirational for now
+		if (loc == null) throw new UtilException("Cannot be null");
 		this.location = loc;
 	}
 	
@@ -116,7 +116,7 @@ public class HSIEBlock {
 	}
 
 	public void caseError() {
-		ErrorCmd ret = new ErrorCmd(null);
+		ErrorCmd ret = new ErrorCmd(location);
 		commands.add(ret);
 	}
 

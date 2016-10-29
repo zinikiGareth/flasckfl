@@ -9,15 +9,15 @@ SWITCH v1 Cons                                               #map.fl:       2.7
   RETURN v6:clos6 [v4:clos4, v5:clos5]                       #map.fl:       2.15
 SWITCH v1 Nil                                                #map.fl:       1.7
   RETURN PackageVar.Nil                                      #map.fl:       1.12
-ERROR                                                        #null
-CLOSURE v4                                                   #null
+ERROR                                                        #map.fl:       1.0
+CLOSURE v4                                                   #map.fl:       2.15
   PUSH v0:test.golden.map1_1.f                               #map.fl:       2.5
   PUSH v2:test.golden.map1_1.a                               #map.fl:       2.8
-CLOSURE v5                                                   #null
+CLOSURE v5                                                   #map.fl:       2.21
   PUSH PackageVar.test.golden.map1                           #map.fl:       2.22
   PUSH v0:test.golden.map1_1.f                               #map.fl:       2.5
   PUSH v3:test.golden.map1_1.l                               #map.fl:       2.10
-CLOSURE v6                                                   #null
+CLOSURE v6                                                   #map.fl:       2.15
   PUSH PackageVar.Cons                                       #map.fl:       2.20
   PUSH v4:clos4                                              #map.fl:       2.15
   PUSH v5:clos5                                              #map.fl:       2.21

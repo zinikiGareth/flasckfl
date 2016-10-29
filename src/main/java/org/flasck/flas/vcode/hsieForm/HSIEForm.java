@@ -82,8 +82,8 @@ public class HSIEForm extends HSIEBlock {
 		return ret;
 	}
 
-	public ClosureCmd closure(Var var) {
-		ClosureCmd ret = new ClosureCmd(null, var);
+	public ClosureCmd closure(InputPosition loc, Var var) {
+		ClosureCmd ret = new ClosureCmd(loc, var);
 		closures.put(var, ret);
 		return ret;
 	}

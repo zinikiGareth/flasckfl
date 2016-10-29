@@ -139,7 +139,7 @@ public class MetaState {
 			} else {
 				Var v = allocateVar();
 				var = new CreationOfVar(v, null, let.var);
-				HSIEBlock closure = form.closure(v);
+				HSIEBlock closure = form.closure(null, v);
 				closure.push(lo.loc, lo.obj);
 			}
 			logger.info("Putting let expr " + let.var + " in substs as " + var);
@@ -203,7 +203,7 @@ public class MetaState {
 				continue;
 			}
 			Var cv = form.allocateVar();
-			ClosureCmd closure = form.closure(cv);
+			ClosureCmd closure = form.closure(sv.location, cv);
 			TreeSet<VarNestedFromOuterFunctionScope> avars = new TreeSet<VarNestedFromOuterFunctionScope>();
 			if (sv.defn instanceof RWMethodDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
@@ -354,7 +354,7 @@ public class MetaState {
 				ops.add(convertValue(elocs, substs, o));
 			// TODO: check this doesn't already exist
 			Var var = allocateVar();
-			HSIEBlock closure = form.closure(var);
+			HSIEBlock closure = form.closure(e2.location, var);
 			List<CreationOfVar> mydeps = new ArrayList<CreationOfVar>();
 			if (ops.size() != elocs.size())
 				throw new UtilException("Misplaced location or operation: " +  elocs.size() + " != " + ops.size());

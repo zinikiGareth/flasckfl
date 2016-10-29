@@ -9,12 +9,12 @@ SWITCH v2 Cons                                               #fold.fl:      3.11
   RETURN v6:clos6 [v5:clos5]                                 #fold.fl:      3.19
 SWITCH v2 Nil                                                #fold.fl:      2.11
   RETURN v1:test.golden.fold_0.acc []                        #fold.fl:      2.7
-ERROR                                                        #null
-CLOSURE v5                                                   #null
+ERROR                                                        #fold.fl:      2.0
+CLOSURE v5                                                   #fold.fl:      3.26
   PUSH v0:test.golden.fold_1.f                               #fold.fl:      3.5
   PUSH v1:test.golden.fold_1.acc                             #fold.fl:      3.7
   PUSH v3:test.golden.fold_1.a                               #fold.fl:      3.12
-CLOSURE v6                                                   #null
+CLOSURE v6                                                   #fold.fl:      3.19
   PUSH PackageVar.test.golden.fold                           #fold.fl:      3.19
   PUSH v0:test.golden.fold_1.f                               #fold.fl:      3.5
   PUSH v5:clos5                                              #fold.fl:      3.26

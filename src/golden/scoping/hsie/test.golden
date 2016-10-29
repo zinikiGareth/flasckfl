@@ -11,23 +11,23 @@ HSIE for test.golden.f/2                                     #scoping.fl:  16.0
 HEAD v0                                                      #scoping.fl:  16.3
 SWITCH v0 test.golden.Server                                 #scoping.fl:  16.3
   RETURN v6:clos6 [v4:test.golden.f_0.var, v2:test.golden.f_ #scoping.fl:  16.22
-ERROR                                                        #null
-CLOSURE v2                                                   #null
+ERROR                                                        #scoping.fl:  16.0
+CLOSURE v2                                                   #scoping.fl:  22.14
   PUSH PackageVar.test.golden.f_0.HandleReply                #scoping.fl:  22.14
   PUSH v0:test.golden.f_0.server                             #scoping.fl:  16.10
   PUSH v4:test.golden.f_0.var                                #scoping.fl:  17.0
-CLOSURE v3                                                   #null
+CLOSURE v3                                                   #scoping.fl:  19.7
   PUSH PackageVar.test.golden.f_0.q                          #scoping.fl:  19.7
   PUSH v2:test.golden.f_0.HandleReply                        #scoping.fl:  22.14
   PUSH v0:test.golden.f_0.server                             #scoping.fl:  16.10
   PUSH v4:test.golden.f_0.var                                #scoping.fl:  17.0
-CLOSURE v4                                                   #null
+CLOSURE v4                                                   #scoping.fl:  17.0
   PUSH PackageVar.test.golden.f_0.var                        #scoping.fl:  17.0
-CLOSURE v5                                                   #null
+CLOSURE v5                                                   #scoping.fl:  16.42
   PUSH PackageVar.Cons                                       #scoping.fl:  16.42
   PUSH v3:test.golden.f_0.q                                  #scoping.fl:  19.7
   PUSH PackageVar.Nil                                        #scoping.fl:  16.42
-CLOSURE v6                                                   #null
+CLOSURE v6                                                   #scoping.fl:  16.22
   PUSH PackageVar.MessageWrapper                             #scoping.fl:  16.22
   PUSH v4:test.golden.f_0.var                                #scoping.fl:  17.0
   PUSH v5:clos5                                              #scoping.fl:  16.42

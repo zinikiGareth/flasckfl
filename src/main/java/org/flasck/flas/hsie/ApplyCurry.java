@@ -112,7 +112,7 @@ public class ApplyCurry {
 		for (Rewrite r : rewrites) {
 			PushExternal pc = (PushExternal) r.inside.nestedCommands().get(r.pos);
 			Var v = h.allocateVar();
-			ClosureCmd oclos = h.closure(v);
+			ClosureCmd oclos = h.closure(pc.location, v);
 			Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
 			if (t.iam == WhatAmI.FUNCTION && t.arity() > 0) {
 //				System.out.println("need to curry block for type = " + t);
