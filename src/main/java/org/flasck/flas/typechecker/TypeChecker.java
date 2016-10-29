@@ -304,7 +304,7 @@ public class TypeChecker {
 		for (int i=hsie.nformal-1;i>=0;i--) {
 			CreationOfVar myarg = new CreationOfVar(hsie.vars.get(i), null, "??");
 			Object tv = s.gamma.valueOf(myarg).typeExpr;
-			rhs = new TypeExpr(new GarneredFrom(hsie.fnName, i, hsie.fnLoc), Type.builtin(new InputPosition("->", 0,0,null), "->"), s.phi.subst(tv), rhs);
+			rhs = new TypeExpr(new GarneredFrom(hsie.fnName, i, hsie.location), Type.builtin(new InputPosition("->", 0,0,null), "->"), s.phi.subst(tv), rhs);
 		}
 		return rhs;
 	}

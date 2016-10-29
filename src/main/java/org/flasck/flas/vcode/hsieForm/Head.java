@@ -1,11 +1,13 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.utils.Justification;
 
 public class Head extends HSIEBlock {
 	public final Var v;
 
-	public Head(Var v) {
+	public Head(InputPosition loc, Var v) {
+		super(loc);
 		this.v = v;
 	}
 

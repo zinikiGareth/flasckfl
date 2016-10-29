@@ -17,13 +17,19 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Justification;
 
 public class HSIEBlock {
+	public final InputPosition location;
 	// The downcast operator has the ability to set the output type of this block "by fiat"
 	public Type downcastType;
 	private final List<HSIEBlock> commands = new ArrayList<HSIEBlock>();
 	protected static final Logger logger = LoggerFactory.getLogger("HSIE");
 
+	public HSIEBlock(InputPosition loc) {
+//		if (loc == null) throw new UtilException("Cannot be null"); // aspirational for now
+		this.location = loc;
+	}
+	
 	public void head(Var v) {
-		commands.add(new Head(v));
+		commands.add(new Head(null, v));
 	}
 
 	public HSIEBlock switchCmd(InputPosition loc, Var v, String ctor) {
@@ -33,25 +39,25 @@ public class HSIEBlock {
 	}
 
 	public HSIEBlock ifCmd(CreationOfVar var) {
-		IFCmd ret = new IFCmd(var);
+		IFCmd ret = new IFCmd(null, var);
 		commands.add(ret);
 		return ret;
 	}
 
 	public HSIEBlock ifCmd(CreationOfVar v, Object value) {
-		IFCmd ret = new IFCmd(v, value);
+		IFCmd ret = new IFCmd(null, v, value);
 		commands.add(ret);
 		return ret;
 	}
 
 	public HSIEBlock ifCmd(CreationOfVar v, boolean value) {
-		IFCmd ret = new IFCmd(v, value);
+		IFCmd ret = new IFCmd(null, v, value);
 		commands.add(ret);
 		return ret;
 	}
 
 	public HSIEBlock bindCmd(Var bind, Var from, String field) {
-		BindCmd ret = new BindCmd(bind, from, field);
+		BindCmd ret = new BindCmd(null, bind, from, field);
 		commands.add(ret);
 		return ret;
 	}
@@ -110,7 +116,7 @@ public class HSIEBlock {
 	}
 
 	public void caseError() {
-		ErrorCmd ret = new ErrorCmd();
+		ErrorCmd ret = new ErrorCmd(null);
 		commands.add(ret);
 	}
 

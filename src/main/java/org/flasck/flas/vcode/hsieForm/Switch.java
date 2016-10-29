@@ -4,12 +4,11 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.utils.Justification;
 
 public class Switch extends HSIEBlock {
-	public final InputPosition location;
 	public final String ctor;
 	public final Var var;
 
 	public Switch(InputPosition loc, Var var, String ctor) {
-		location = loc;
+		super(loc);
 		this.var = var;
 		this.ctor = ctor;
 	}

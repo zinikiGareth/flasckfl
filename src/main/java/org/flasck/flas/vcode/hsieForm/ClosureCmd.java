@@ -1,12 +1,14 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.utils.Justification;
 
 public class ClosureCmd extends HSIEBlock {
 	public final Var var;
 	public boolean justScoping = false;
 
-	public ClosureCmd(Var var) {
+	public ClosureCmd(InputPosition loc, Var var) {
+		super(loc);
 		this.var = var;
 	}
 

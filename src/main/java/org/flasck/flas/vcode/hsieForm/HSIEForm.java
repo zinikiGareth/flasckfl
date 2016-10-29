@@ -48,7 +48,6 @@ public class HSIEForm extends HSIEBlock {
 
 	public final CodeType mytype;
 	public final String fnName;
-	public final InputPosition fnLoc;
 	public final int nformal;
 	public final List<Var> vars = new ArrayList<Var>();
 	public final Set<Object> externals = new TreeSet<Object>();
@@ -59,12 +58,11 @@ public class HSIEForm extends HSIEBlock {
 
 	// This constructor is the one for real code
 	public HSIEForm(VarFactory vf, CodeType mytype, String name, InputPosition nameLoc, Map<String, CreationOfVar> map, int nformal) {
+		super(nameLoc);
 		this.vf = vf;
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
-		if (nameLoc == null) throw new UtilException("Null fnLoc");
-		this.fnLoc = nameLoc;
 		for (CreationOfVar v : map.values())
 			vars.set(v.var.idx, v.var);
 		this.nformal = nformal;
@@ -85,7 +83,7 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	public ClosureCmd closure(Var var) {
-		ClosureCmd ret = new ClosureCmd(var);
+		ClosureCmd ret = new ClosureCmd(null, var);
 		closures.put(var, ret);
 		return ret;
 	}
