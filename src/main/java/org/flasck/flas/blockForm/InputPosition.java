@@ -59,4 +59,10 @@ public class InputPosition implements Comparable<InputPosition> {
 			ret = Integer.compare(off, o.off);
 		return ret;
 	}
+
+	public InputPosition lesserOf(InputPosition p) {
+		if (p == null || this.compareTo(p) <= 0)
+			return this;
+		return p;
+	}
 }

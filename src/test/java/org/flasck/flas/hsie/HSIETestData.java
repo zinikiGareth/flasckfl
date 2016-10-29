@@ -471,7 +471,7 @@ public class HSIETestData {
 				b = stack.remove(0);
 //				System.out.println(stack.size());
 			} else if (ps[0].equals("HEAD")) {
-				b.head(ret.var(Integer.parseInt(ps[1])));
+				b.head(posn, ret.var(Integer.parseInt(ps[1])));
 				prev = null;
 			} else if (ps[0].equals("SWITCH")) {
 				if (ctorTypes == null)

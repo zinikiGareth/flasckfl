@@ -6,8 +6,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
+
 public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 	private final Map<Object, SubstExpr> mapping = new HashMap<Object, SubstExpr>();
+
+	public InputPosition firstLocation() {
+		InputPosition ret = null;
+		for (Object o : mapping.keySet()) {
+			InputPosition p = ((Locatable)o).location();
+			if (ret == null)
+				ret = p;
+			else
+				ret = ret.lesserOf(p);
+		}
+		return ret;
+	}
 
 	public void associate(Object patt, SubstExpr expr) {
 		mapping.put(patt, expr);

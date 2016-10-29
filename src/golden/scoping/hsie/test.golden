@@ -8,7 +8,7 @@ HSIE for test.golden.f/2                                     #scoping.fl:  16.0
 #Args: 2 #bound: 5
     externals: [Cons, MessageWrapper, Nil, test.golden.Server] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
-HEAD v0                                                      #null
+HEAD v0                                                      #scoping.fl:  16.3
 SWITCH v0 test.golden.Server                                 #scoping.fl:  16.3
   RETURN v6:clos6 [v4:test.golden.f_0.var, v2:test.golden.f_ #scoping.fl:  16.22
 ERROR                                                        #null

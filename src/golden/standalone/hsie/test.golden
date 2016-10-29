@@ -2,7 +2,7 @@ HSIE for test.golden.Foo.request2/1                          #standalone.f 17.0
 #Args: 1 #bound: 2
     externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
     all vars = [v0, v1, v2]
-HEAD v0                                                      #null
+HEAD v0                                                      #standalone.f 17.10
 SWITCH v0 Crokey                                             #standalone.f 17.10
   RETURN v2:clos2 [v1:clos1]                                 #standalone.f 17.23
 ERROR                                                        #null
@@ -20,7 +20,7 @@ HSIE for test.golden.Foo.request/1                           #standalone.f 16.0
 #Args: 1 #bound: 2
     externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
     all vars = [v0, v1, v2]
-HEAD v0                                                      #null
+HEAD v0                                                      #standalone.f 16.9
 SWITCH v0 Crokey                                             #standalone.f 16.9
   RETURN v2:clos2 [v1:clos1]                                 #standalone.f 16.22
 ERROR                                                        #null

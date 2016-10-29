@@ -210,7 +210,7 @@ public class HSIE {
 //		t.dump();
 		Option elim = chooseBest(t);
 //		System.out.println("Choosing cases based on " + elim.var);
-		s.writeTo.head(elim.var);
+		s.writeTo.head(elim.location, elim.var);
 		CreationOfVar cv = new CreationOfVar(elim.var, null, "ev"+elim.var.idx);
 		for (String ctor : elim.ctorCases) {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
@@ -332,7 +332,7 @@ public class HSIE {
 	private Table buildDecisionTable(State s) {
 		Table t = new Table();
 		for (Entry<Var, PattExpr> e : s) {
-			Option o = t.createOption(e.getKey());
+			Option o = t.createOption(e.getValue().firstLocation(), e.getKey());
 			for (Entry<Object, SubstExpr> pe : e.getValue()) {
 				Object patt = pe.getKey();
 				if (patt instanceof RWVarPattern) {

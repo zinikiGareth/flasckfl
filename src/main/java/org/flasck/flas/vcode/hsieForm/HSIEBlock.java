@@ -28,8 +28,8 @@ public class HSIEBlock {
 		this.location = loc;
 	}
 	
-	public void head(Var v) {
-		commands.add(new Head(null, v));
+	public void head(InputPosition loc, Var v) {
+		commands.add(new Head(loc, v));
 	}
 
 	public HSIEBlock switchCmd(InputPosition loc, Var v, String ctor) {

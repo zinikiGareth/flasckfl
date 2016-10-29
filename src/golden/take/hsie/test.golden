@@ -2,11 +2,11 @@ HSIE for test.golden.take/2                                  #take.fl:      1.0
 #Args: 2 #bound: 5
     externals: [-, Cons, Nil, Number] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
-HEAD v1                                                      #null
+HEAD v1                                                      #take.fl:      1.7
 SWITCH v1 Cons                                               #take.fl:      2.7
   BIND v2 v1.head                                            #null
   BIND v3 v1.tail                                            #null
-  HEAD v0                                                    #null
+  HEAD v0                                                    #take.fl:      2.5
   SWITCH v0 Number                                           #take.fl:      2.5
     IF v0:ev0 0                                              #null
       RETURN PackageVar.Nil                                  #take.fl:      2.14

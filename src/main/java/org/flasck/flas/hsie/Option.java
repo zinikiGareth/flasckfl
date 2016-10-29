@@ -16,8 +16,10 @@ public class Option {
 	public final Var var;
 	public final ListMap<String, NestedBinds> ctorCases = new ListMap<String, NestedBinds>(new StringComparator());
 	public final Set<SubstExpr> undecidedCases = new HashSet<SubstExpr>();
+	public InputPosition location;
 
-	public Option(Var var) {
+	public Option(InputPosition loc, Var var) {
+		location = loc;
 		this.var = var;
 	}
 

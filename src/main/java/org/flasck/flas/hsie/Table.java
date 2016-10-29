@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class Table implements Iterable<Option> {
 	private final List<Option> options = new ArrayList<Option>();
 
-	public Option createOption(Var var) {
-		Option ret = new Option(var);
+	public Option createOption(InputPosition loc, Var var) {
+		Option ret = new Option(loc, var);
 		options.add(ret);
 		return ret;
 	}

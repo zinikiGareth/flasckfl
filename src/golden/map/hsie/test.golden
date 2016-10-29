@@ -2,7 +2,7 @@ HSIE for test.golden.map1/2                                  #map.fl:       1.0
 #Args: 2 #bound: 5
     externals: [Cons, Nil] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
-HEAD v1                                                      #null
+HEAD v1                                                      #map.fl:       1.7
 SWITCH v1 Cons                                               #map.fl:       2.7
   BIND v2 v1.head                                            #null
   BIND v3 v1.tail                                            #null
