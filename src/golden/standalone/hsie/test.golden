@@ -2,35 +2,35 @@ HSIE for test.golden.Foo.request2
 #Args: 1 #bound: 2
     externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
     all vars = [v0, v1, v2]
-HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var
+HEAD v0                                                      #null
 SWITCH v0 Crokey                                             #standalone.f 17.10
-  RETURN v2:clos2 [v1:clos1]                                   #standalone.f 17.23 - this appears to be wrong for closures; wants to be the apply expr point
-ERROR
-CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.Cons                                         #standalone.f 17.39 - also want location where the variable is actually used here
-  PUSH v0:test.golden.Foo.request2_1.ck                        #standalone.f 17.17 - also want location where the variable is actually used here
-  PUSH PackageVar.Nil                                          #standalone.f 17.39 - also want location where the variable is actually used here
-CLOSURE v2                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.Send                                         #standalone.f 17.23 - also want location where the variable is actually used here
-  PUSH CardMember.CardMember[test.golden.Foo.kv]               #standalone.f 17.28 - also want location where the variable is actually used here
-  PUSH "mine"                                                  #standalone.f 17.31 - also want location where the variable is actually used here
-  PUSH v1:clos1                                                #standalone.f 17.39 - also want location where the variable is actually used here
+  RETURN v2:clos2 [v1:clos1]                                 #standalone.f 17.23
+ERROR                                                        #null
+CLOSURE v1                                                   #null
+  PUSH PackageVar.Cons                                       #standalone.f 17.39
+  PUSH v0:test.golden.Foo.request2_1.ck                      #standalone.f 17.17
+  PUSH PackageVar.Nil                                        #standalone.f 17.39
+CLOSURE v2                                                   #null
+  PUSH PackageVar.Send                                       #standalone.f 17.23
+  PUSH CardMember.CardMember[test.golden.Foo.kv]             #standalone.f 17.28
+  PUSH "mine"                                                #standalone.f 17.31
+  PUSH v1:clos1                                              #standalone.f 17.39
 =======
 HSIE for test.golden.Foo.request
 #Args: 1 #bound: 2
     externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
     all vars = [v0, v1, v2]
-HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var
+HEAD v0                                                      #null
 SWITCH v0 Crokey                                             #standalone.f 16.9
-  RETURN v2:clos2 [v1:clos1]                                   #standalone.f 16.22 - this appears to be wrong for closures; wants to be the apply expr point
-ERROR
-CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.Cons                                         #standalone.f 16.39 - also want location where the variable is actually used here
-  PUSH v0:test.golden.Foo.request_1.ck                         #standalone.f 16.16 - also want location where the variable is actually used here
-  PUSH PackageVar.Nil                                          #standalone.f 16.39 - also want location where the variable is actually used here
-CLOSURE v2                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.Send                                         #standalone.f 16.22 - also want location where the variable is actually used here
-  PUSH CardMember.CardMember[test.golden.Foo.kv]               #standalone.f 16.27 - also want location where the variable is actually used here
-  PUSH "typed"                                                 #standalone.f 16.30 - also want location where the variable is actually used here
-  PUSH v1:clos1                                                #standalone.f 16.39 - also want location where the variable is actually used here
+  RETURN v2:clos2 [v1:clos1]                                 #standalone.f 16.22
+ERROR                                                        #null
+CLOSURE v1                                                   #null
+  PUSH PackageVar.Cons                                       #standalone.f 16.39
+  PUSH v0:test.golden.Foo.request_1.ck                       #standalone.f 16.16
+  PUSH PackageVar.Nil                                        #standalone.f 16.39
+CLOSURE v2                                                   #null
+  PUSH PackageVar.Send                                       #standalone.f 16.22
+  PUSH CardMember.CardMember[test.golden.Foo.kv]             #standalone.f 16.27
+  PUSH "typed"                                               #standalone.f 16.30
+  PUSH v1:clos1                                              #standalone.f 16.39
 =======

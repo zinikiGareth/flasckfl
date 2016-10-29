@@ -2,28 +2,28 @@ HSIE for test.golden.take
 #Args: 2 #bound: 5
     externals: [-, Cons, Nil, Number] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
-HEAD v1                                                      ?? - should be location of defn in first equation to have this as a free var
+HEAD v1                                                      #null
 SWITCH v1 Cons                                               #take.fl:      2.7
-  BIND v2 v1.head                                              ?? - should be location in first equation where this var is introduced in a pattern
-  BIND v3 v1.tail                                              ?? - should be location in first equation where this var is introduced in a pattern
-  HEAD v0                                                      ?? - should be location of defn in first equation to have this as a free var
-  SWITCH v0 Number                                             #take.fl:      2.5
-    IF v0:ev0 0
-      RETURN PackageVar.Nil                                        #take.fl:      2.14 - this appears to be wrong for closures; wants to be the apply expr point
-  RETURN v6:clos6 [v4:clos4, v5:clos5]                         #take.fl:      3.15 - this appears to be wrong for closures; wants to be the apply expr point
+  BIND v2 v1.head                                            #null
+  BIND v3 v1.tail                                            #null
+  HEAD v0                                                    #null
+  SWITCH v0 Number                                           #take.fl:      2.5
+    IF v0:ev0 0                                              #null
+      RETURN PackageVar.Nil                                  #take.fl:      2.14
+  RETURN v6:clos6 [v4:clos4, v5:clos5]                       #take.fl:      3.15
 SWITCH v1 Nil                                                #take.fl:      1.7
-  RETURN PackageVar.Nil                                        #take.fl:      2.14 - this appears to be wrong for closures; wants to be the apply expr point
-ERROR
-CLOSURE v4                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.-                                            #take.fl:      3.25 - also want location where the variable is actually used here
-  PUSH v0:test.golden.take_2.n                                 #take.fl:      3.5 - also want location where the variable is actually used here
-  PUSH 1                                                       #take.fl:      3.26 - also want location where the variable is actually used here
-CLOSURE v5                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.test.golden.take                             #take.fl:      3.18 - also want location where the variable is actually used here
-  PUSH v4:clos4                                                #take.fl:      3.23 - also want location where the variable is actually used here
-  PUSH v3:test.golden.take_2.b                                 #take.fl:      3.10 - also want location where the variable is actually used here
-CLOSURE v6                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.Cons                                         #take.fl:      3.16 - also want location where the variable is actually used here
-  PUSH v2:test.golden.take_2.a                                 #take.fl:      3.8 - also want location where the variable is actually used here
-  PUSH v5:clos5                                                #take.fl:      3.17 - also want location where the variable is actually used here
+  RETURN PackageVar.Nil                                      #take.fl:      2.14
+ERROR                                                        #null
+CLOSURE v4                                                   #null
+  PUSH PackageVar.-                                          #take.fl:      3.25
+  PUSH v0:test.golden.take_2.n                               #take.fl:      3.5
+  PUSH 1                                                     #take.fl:      3.26
+CLOSURE v5                                                   #null
+  PUSH PackageVar.test.golden.take                           #take.fl:      3.18
+  PUSH v4:clos4                                              #take.fl:      3.23
+  PUSH v3:test.golden.take_2.b                               #take.fl:      3.10
+CLOSURE v6                                                   #null
+  PUSH PackageVar.Cons                                       #take.fl:      3.16
+  PUSH v2:test.golden.take_2.a                               #take.fl:      3.8
+  PUSH v5:clos5                                              #take.fl:      3.17
 =======

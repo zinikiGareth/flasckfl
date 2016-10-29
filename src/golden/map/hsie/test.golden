@@ -2,23 +2,23 @@ HSIE for test.golden.map1
 #Args: 2 #bound: 5
     externals: [Cons, Nil] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
-HEAD v1                                                      ?? - should be location of defn in first equation to have this as a free var
+HEAD v1                                                      #null
 SWITCH v1 Cons                                               #map.fl:       2.7
-  BIND v2 v1.head                                              ?? - should be location in first equation where this var is introduced in a pattern
-  BIND v3 v1.tail                                              ?? - should be location in first equation where this var is introduced in a pattern
-  RETURN v6:clos6 [v4:clos4, v5:clos5]                         #map.fl:       2.15 - this appears to be wrong for closures; wants to be the apply expr point
+  BIND v2 v1.head                                            #null
+  BIND v3 v1.tail                                            #null
+  RETURN v6:clos6 [v4:clos4, v5:clos5]                       #map.fl:       2.15
 SWITCH v1 Nil                                                #map.fl:       1.7
-  RETURN PackageVar.Nil                                        #map.fl:       1.12 - this appears to be wrong for closures; wants to be the apply expr point
-ERROR
-CLOSURE v4                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH v0:test.golden.map1_1.f                                 #map.fl:       2.5 - also want location where the variable is actually used here
-  PUSH v2:test.golden.map1_1.a                                 #map.fl:       2.8 - also want location where the variable is actually used here
-CLOSURE v5                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.test.golden.map1                             #map.fl:       2.22 - also want location where the variable is actually used here
-  PUSH v0:test.golden.map1_1.f                                 #map.fl:       2.5 - also want location where the variable is actually used here
-  PUSH v3:test.golden.map1_1.l                                 #map.fl:       2.10 - also want location where the variable is actually used here
-CLOSURE v6                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.Cons                                         #map.fl:       2.20 - also want location where the variable is actually used here
-  PUSH v4:clos4                                                #map.fl:       2.15 - also want location where the variable is actually used here
-  PUSH v5:clos5                                                #map.fl:       2.21 - also want location where the variable is actually used here
+  RETURN PackageVar.Nil                                      #map.fl:       1.12
+ERROR                                                        #null
+CLOSURE v4                                                   #null
+  PUSH v0:test.golden.map1_1.f                               #map.fl:       2.5
+  PUSH v2:test.golden.map1_1.a                               #map.fl:       2.8
+CLOSURE v5                                                   #null
+  PUSH PackageVar.test.golden.map1                           #map.fl:       2.22
+  PUSH v0:test.golden.map1_1.f                               #map.fl:       2.5
+  PUSH v3:test.golden.map1_1.l                               #map.fl:       2.10
+CLOSURE v6                                                   #null
+  PUSH PackageVar.Cons                                       #map.fl:       2.20
+  PUSH v4:clos4                                              #map.fl:       2.15
+  PUSH v5:clos5                                              #map.fl:       2.21
 =======

@@ -2,21 +2,21 @@ HSIE for test.golden.f_0.g
 #Args: 1 #bound: 1
     externals: [*] scoped = [test.golden.f_0.x]
     all vars = [v0, v1]
-RETURN v1:clos1 []                                           #mutual.fl:    3.6 - this appears to be wrong for closures; wants to be the apply expr point
-CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.*                                            #mutual.fl:    3.8 - also want location where the variable is actually used here
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0. #mutual.fl:    2.2 - also want location where the variable is actually used here
-  PUSH v0:test.golden.f_0.g_0.y                                #mutual.fl:    3.2 - also want location where the variable is actually used here
+RETURN v1:clos1 []                                           #mutual.fl:    3.6
+CLOSURE v1                                                   #null
+  PUSH PackageVar.*                                          #mutual.fl:    3.8
+  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.f_ #mutual.fl:    2.2
+  PUSH v0:test.golden.f_0.g_0.y                              #mutual.fl:    3.2
 =======
 HSIE for test.golden.f
 #Args: 1 #bound: 2
     externals: [] scoped = []
     all vars = [v0, v1, v2]
-RETURN v2:clos2 [v1:test.golden.f_0.g]                       #mutual.fl:    2.6 - this appears to be wrong for closures; wants to be the apply expr point
-CLOSURE v1                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH PackageVar.test.golden.f_0.g                            #mutual.fl:    3.0 - also want location where the variable is actually used here
-  PUSH v0:test.golden.f_0.x                                    #mutual.fl:    2.2 - also want location where the variable is actually used here
-CLOSURE v2                                                   ?? - should be beginning (and ending?) of apply expr
-  PUSH v1:test.golden.f_0.g                                    #mutual.fl:    3.0 - also want location where the variable is actually used here
-  PUSH 2                                                       #mutual.fl:    2.8 - also want location where the variable is actually used here
+RETURN v2:clos2 [v1:test.golden.f_0.g]                       #mutual.fl:    2.6
+CLOSURE v1                                                   #null
+  PUSH PackageVar.test.golden.f_0.g                          #mutual.fl:    3.0
+  PUSH v0:test.golden.f_0.x                                  #mutual.fl:    2.2
+CLOSURE v2                                                   #null
+  PUSH v1:test.golden.f_0.g                                  #mutual.fl:    3.0
+  PUSH 2                                                     #mutual.fl:    2.8
 =======

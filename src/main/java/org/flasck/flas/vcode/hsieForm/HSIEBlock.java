@@ -147,31 +147,6 @@ public class HSIEBlock {
 	}
 	
 	private String asString(int ind) {
-		String loc = null;
-		// This is just a hack to get the current Golden tests to pass; obviously I should fix all this
-		if (this instanceof PushReturn) {
-			if (((PushReturn)this).isPush())
-				loc =  " #" + location + " - also want location where the variable is actually used here";
-			else
-				loc = " #" + location + " - this appears to be wrong for closures; wants to be the apply expr point";
-		} else if (this instanceof Switch)
-			loc = " #" + location;
-		else if (this instanceof BindCmd)
-			loc = " ?? - should be location in first equation where this var is introduced in a pattern";
-		else if (this instanceof ClosureCmd)
-			loc = " ?? - should be beginning (and ending?) of apply expr";
-		else if (this instanceof ErrorCmd)
-			loc = null;
-		else if (this instanceof Head)
-			loc = " ?? - should be location of defn in first equation to have this as a free var";
-		else if (this instanceof IFCmd)
-			loc = null;
-		else
-			throw new UtilException("What? " + this.getClass());
-		
-		if (loc == null)
-			return Justification.LEFT.format("", ind) + this;
-		else
-			return Justification.LEFT.format("", ind) + Justification.LEFT.format(this.toString(), 60) + loc;
+		return Justification.LEFT.format(Justification.LEFT.format("", ind) + this, 60) + " #" + location;
 	}
 }
