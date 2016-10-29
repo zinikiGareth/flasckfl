@@ -30,7 +30,7 @@ import org.zinutils.exceptions.UtilException;
 // There is no notion of "Else", you just drop down to the next statement at a not-indented level and pick up from there.
 
 // Each of the Expressions En is modified to be just a simple apply-tree
-public class HSIEForm extends HSIEBlock {
+public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public enum CodeType {
 		FUNCTION,	// standalone, package-scoped function 
 		CARD, 		// card-scoped function (method)
@@ -147,5 +147,10 @@ public class HSIEForm extends HSIEBlock {
 
 	public boolean isMethod() {
 		return mytype == CodeType.CARD || mytype == CodeType.CONTRACT || mytype == CodeType.SERVICE || mytype == CodeType.HANDLER || mytype == CodeType.EVENTHANDLER;
+	}
+
+	@Override
+	public int compareTo(HSIEForm o) {
+		return this.fnName.compareTo(o.fnName);
 	}
 }

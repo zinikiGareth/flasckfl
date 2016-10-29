@@ -426,7 +426,7 @@ public class Compiler {
 					}
 				
 				// 6a. Convert each orchard to HSIE
-				Orchard<HSIEForm> oh = hsie.orchard(errors, forms, d);
+				Set<HSIEForm> oh = hsie.orchard(errors, forms, d);
 				abortIfErrors(errors);
 				dumpOrchard(hsiePW, oh);
 				
@@ -434,9 +434,8 @@ public class Compiler {
 				tc.typecheck(oh);
 				abortIfErrors(errors);
 
-				for (Tree<HSIEForm> t : oh)
-					for (HSIEForm h : t.allNodes())
-						forms.put(h.fnName, h);
+				for (HSIEForm h : oh)
+					forms.put(h.fnName, h);
 			}
 			if (hsiePW != null)
 				hsiePW.close();
@@ -499,18 +498,17 @@ public class Compiler {
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
 	}
 
-	private void dumpOrchard(PrintWriter hsiePW, Orchard<HSIEForm> oh) {
+	private void dumpOrchard(PrintWriter hsiePW, Set<HSIEForm> hs) {
 		if (hsiePW == null)
 			return;
 		
 		boolean first = true;
-		for (Tree<HSIEForm> t : oh) {
+		for (HSIEForm h : hs) {
 			if (first)
 				first = false;
 			else
 				hsiePW.println("-------");
-			for (HSIEForm h : t.allNodes())
-				h.dump(hsiePW);
+			h.dump(hsiePW);
 		}
 		hsiePW.println("=======");
 	}

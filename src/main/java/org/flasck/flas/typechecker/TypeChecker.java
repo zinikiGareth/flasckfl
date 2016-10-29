@@ -59,7 +59,6 @@ import org.flasck.flas.vcode.hsieForm.Switch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.graphs.Orchard;
 
 public class TypeChecker {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
@@ -213,18 +212,17 @@ public class TypeChecker {
 		return ((TypeExpr)tmp).asType(this);
 	}
 
-	public void typecheck(Orchard<HSIEForm> functionsToCheck) {
+	public void typecheck(Set<HSIEForm> functionsToCheck) {
 		int mark = errors.count();
 //		System.out.println("---- Starting to typecheck: orchard size = " + functionsToCheck.nodeCount());
 		TypeState s = new TypeState(errors, this);
-		Set<HSIEForm> rewritten = functionsToCheck.allNodes();
-		allocateVars(s, rewritten);
+		allocateVars(s, functionsToCheck);
 //		System.out.println("Allocated new type vars; checking forms");
-		Map<String, Object> actualTypes = checkAndUnify(s, rewritten);
+		Map<String, Object> actualTypes = checkAndUnify(s, functionsToCheck);
 //		System.out.println("Done final unification; building types");
 		if (errors.moreErrors(mark))
 			return;
-		for (HSIEForm f : rewritten) {
+		for (HSIEForm f : functionsToCheck) {
 			Object tmp = s.phi.subst(actualTypes.get(f.fnName));
 			if (tmp == null) {
 				System.out.println("Encountered a null during typechecking; this is probably bad");

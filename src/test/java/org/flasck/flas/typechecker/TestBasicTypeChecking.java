@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -34,7 +36,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
-import org.zinutils.graphs.Orchard;
 
 public class TestBasicTypeChecking {
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
@@ -190,7 +191,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckTwoFunctionsAtOnceBecauseTheyAreMutuallyRecursive() throws Exception {
 		tc.addTypeDefn(new RWUnionTypeDefn(posn, false, "Any", new ArrayList<>()));
-		tc.typecheck(orchardOf(HSIETestData.rdf1(), HSIETestData.rdf2(3)));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.rdf1(), HSIETestData.rdf2(3)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertEquals(9, tc.knowledge.size());
@@ -239,7 +240,7 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanHandleConstantSwitching() throws Exception {
-		tc.typecheck(orchardOf(HSIETestData.fib()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.fib()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		Object te = tc.knowledge.get("ME.fib");
@@ -252,7 +253,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanHandleBindForCons() throws Exception {
-		tc.typecheck(orchardOf(HSIETestData.takeConsCase()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.takeConsCase()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		Object te = tc.knowledge.get("take");
@@ -266,7 +267,7 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
-		tc.typecheck(orchardOf(HSIETestData.take()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.take()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		Object te = tc.knowledge.get("ME.take");
@@ -279,7 +280,7 @@ public class TestBasicTypeChecking {
 	@Test
 	@Ignore
 	public void testWeCanCheckUnionTypes() throws Exception {
-		tc.typecheck(orchardOf(HSIETestData.unionType()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.unionType()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		Object te = tc.knowledge.get("ME.f");
@@ -291,8 +292,8 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckASimpleNestedFunction() throws Exception {
-		tc.typecheck(orchardOf(HSIETestData.simpleG()));
-		tc.typecheck(orchardOf(HSIETestData.simpleF()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleG()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleF()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertEquals(9, tc.knowledge.size());
@@ -314,16 +315,12 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
 		{
-			Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
-			orchard.addTree(HSIETestData.mutualG());
-			tc.typecheck(orchard);
+			tc.typecheck(CollectionUtils.setOf(HSIETestData.mutualG()));
 			errors.showTo(new PrintWriter(System.out), 0);
 			assertFalse(errors.hasErrors());
 		}
 		{
-			Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
-			orchard.addTree(HSIETestData.mutualF());
-			tc.typecheck(orchard);
+			tc.typecheck(CollectionUtils.setOf(HSIETestData.mutualF()));
 			errors.showTo(new PrintWriter(System.out), 0);
 			assertFalse(errors.hasErrors());
 		}
@@ -345,9 +342,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckSimpleIf() throws Exception {
-		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
-		orchard.addTree(HSIETestData.simpleIf());
-		tc.typecheck(orchard);
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleIf()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertEquals(8, tc.knowledge.size());
@@ -362,9 +357,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckSimpleIfElse() throws Exception {
-		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
-		orchard.addTree(HSIETestData.simpleIfElse());
-		tc.typecheck(orchard);
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleIfElse()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertEquals(8, tc.knowledge.size());
@@ -402,16 +395,13 @@ public class TestBasicTypeChecking {
 		tc.addStructDefn((RWStructDefn) biscope.get("Cons"));
 		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
 		tc.addStructDefn((RWStructDefn) biscope.get("Send"));
-		Orchard<HSIEForm> orchard = new Orchard<HSIEForm>();
 		Rewriter rewriter = new Rewriter(errors, null, biscope);
 		rewriter.rewritePackageScope("ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIE hsie = new HSIE(errors, rewriter);
-		tc.typecheck(orchardOf(hsie.handle(null, new VarFactory(), rewriter.functions.get("ME.f"))));
+		tc.typecheck(CollectionUtils.setOf(hsie.handle(null, new VarFactory(), rewriter.functions.get("ME.f"))));
 		assertEquals(errors.singleString(), 0, errors.count());
-		tc.typecheck(orchardOf(hsie.handle(null, new VarFactory(), rewriter.functions.get("ME.g"))));
-//		assertEquals(errors.singleString(), 0, errors.count());
-		tc.typecheck(orchard);
+		tc.typecheck(CollectionUtils.setOf(hsie.handle(null, new VarFactory(), rewriter.functions.get("ME.g"))));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertEquals(5, tc.knowledge.size());
 		{
@@ -426,12 +416,5 @@ public class TestBasicTypeChecking {
 			assertTrue(mg instanceof Type);
 			assertEquals("Any->Number", mg.toString());
 		}
-	}
-
-	private Orchard<HSIEForm> orchardOf(HSIEForm... hs) {
-		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();
-		for (HSIEForm h : hs)
-			ret.addTree(h);
-		return ret;
 	}
 }

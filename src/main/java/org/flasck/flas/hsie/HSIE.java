@@ -46,26 +46,21 @@ public class HSIE {
 		exprIdx = 0;
 	}
 	
-	public Orchard<HSIEForm> orchard(ErrorResult errors, Map<String, HSIEForm> previous, Orchard<RWFunctionDefinition> d) {
+	public Set<HSIEForm> orchard(ErrorResult errors, Map<String, HSIEForm> previous, Orchard<RWFunctionDefinition> d) {
 		VarFactory vf = new VarFactory();
 		logger.info("HSIE transforming orchard in parallel: " + d);
-		Orchard<HSIEForm> ret = new Orchard<HSIEForm>();
+		Set<HSIEForm> ret = new TreeSet<HSIEForm>();
 		for (Tree<RWFunctionDefinition> t : d)
-			hsieTree(errors, previous, ret, vf, t, t.getRoot(), null, null);
+			hsieTree(errors, previous, ret, vf, t, t.getRoot());
 		return ret;
 	}
 
-	private void hsieTree(ErrorResult errors, Map<String, HSIEForm> previous, Orchard<HSIEForm> ret, VarFactory vf, Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node, Tree<HSIEForm> tree, Node<HSIEForm> parent) {
+	private void hsieTree(ErrorResult errors, Map<String, HSIEForm> previous, Set<HSIEForm> ret, VarFactory vf, Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node) {
 		logger.info("HSIE transforming " + node.getEntry().name());
 		HSIEForm form = handle(previous, vf, node.getEntry());
-		if (parent == null) {
-			tree = ret.addTree(form);
-			parent = tree.getRoot();
-		} else
-			parent = tree.addChild(parent, form);
-
+		ret.add(form);
 		for (Node<RWFunctionDefinition> x : t.getChildren(node))
-			hsieTree(errors, previous, ret, vf, t, x, tree, parent);
+			hsieTree(errors, previous, ret, vf, t, x);
 	}
 
 
