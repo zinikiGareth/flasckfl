@@ -158,6 +158,7 @@ public class Rewriter {
 	public final Map<String, EventHandlerInContext> eventHandlers = new TreeMap<String, EventHandlerInContext>();
 	public final Map<String, MethodInContext> standalone = new TreeMap<String, MethodInContext>();
 	public final Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>();
+	public final Map<String, Type> fnArgs = new TreeMap<String, Type>();
 
 	public abstract class NamingContext {
 		protected final NamingContext nested;
@@ -1126,7 +1127,10 @@ public class Rewriter {
 		try {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;
-				return new RWTypedPattern(tp.typeLocation, rewrite(cx, tp.type, false), tp.varLocation, name + "." + tp.var);
+				String vn = name + "." + tp.var;
+				Type rt = rewrite(cx, tp.type, false);
+				fnArgs.put(vn, rt);
+				return new RWTypedPattern(tp.typeLocation, rt, tp.varLocation, vn);
 			} else if (o instanceof VarPattern) {
 				VarPattern vp = (VarPattern) o;
 				return new RWVarPattern(vp.location(), name + "." + vp.var);
@@ -1421,11 +1425,13 @@ public class Rewriter {
 			return cards.get(id);
 		else if (ctis.containsKey(id))
 			return ctis.get(id);
+		else if (fnArgs.containsKey(id))
+			return fnArgs.get(id);
 		else
 			return null;
 	}
 	
-	public Object getMe(InputPosition location, String id) {
+	public PackageVar getMe(InputPosition location, String id) {
 		Object val = doIhave(location, id);
 		if (val == null) {
 			return null;

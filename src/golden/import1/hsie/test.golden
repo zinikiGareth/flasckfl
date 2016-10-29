@@ -1,0 +1,21 @@
+HSIE for test.golden.Foo._C0.go/1                            #import1.fl:   6.0
+#Args: 1 #bound: 3
+    externals: [Assign, Cons, Nil, Number, test.import.f] scoped = []
+    all vars = [v0, v1, v2, v3]
+HEAD v0                                                      #import1.fl:   6.3
+SWITCH v0 Number                                             #import1.fl:   6.3
+  RETURN v3:clos3 [v1:clos1, v2:clos2]                       #import1.fl:   7.5
+ERROR                                                        #import1.fl:   6.0
+CLOSURE v1                                                   #import1.fl:   7.5
+  PUSH PackageVar.test.import.f                              #import1.fl:   7.5
+  PUSH v0:test.golden.Foo._C0.go.x                           #import1.fl:   6.3
+CLOSURE v2                                                   #import1.fl:   7.0
+  PUSH PackageVar.Assign                                     #import1.fl:   7.0
+  PUSH this._card                                            #import1.fl:   7.0
+  PUSH "a"                                                   #import1.fl:   7.0
+  PUSH v1:clos1                                              #import1.fl:   7.5
+CLOSURE v3                                                   #import1.fl:   7.5
+  PUSH PackageVar.Cons                                       #import1.fl:   6.0
+  PUSH v2:clos2                                              #import1.fl:   7.0
+  PUSH PackageVar.Nil                                        #import1.fl:   6.0
+=======

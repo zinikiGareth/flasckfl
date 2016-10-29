@@ -15,7 +15,7 @@ public class Type implements Locatable {
 	private final InputPosition location;
 	public enum WhatAmI { /* REFERENCE, */BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
 	public final WhatAmI iam;
-	private final String name;
+	protected final String name;
 	private final Type type;
 	private final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
 	private final List<Type> fnargs; // arguments to function or tuple

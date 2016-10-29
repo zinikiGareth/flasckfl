@@ -16,6 +16,7 @@ import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.IterVar;
@@ -73,7 +74,13 @@ public class DependencyAnalyzer {
 		for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {
 			RWFunctionDefinition fd = x.getValue();
 			for (RWFunctionCaseDefn c : fd.cases)
-				analyzeExpr(dcg, fd.name(), c.varNames(), c.expr);
+				try {
+					analyzeExpr(dcg, fd.name(), c.varNames(), c.expr);
+				} catch (UtilException ex) {
+					ex.printStackTrace();
+					System.out.println(dcg);
+					throw ex;
+				}
 		}
 	}
 
@@ -83,6 +90,8 @@ public class DependencyAnalyzer {
 //		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
 		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof TemplateListVar || expr instanceof FunctionLiteral)
 			;
+		else if (expr instanceof CardStateRef)
+			; // I don't think this introduces dependencies between functions, just on the card
 		else if (expr instanceof CardMember) {
 			dcg.ensure("_var_" + ((CardMember)expr).uniqueName());
 		}

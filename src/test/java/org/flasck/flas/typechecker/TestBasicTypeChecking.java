@@ -8,8 +8,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;

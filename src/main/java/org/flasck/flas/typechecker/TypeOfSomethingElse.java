@@ -19,4 +19,9 @@ public class TypeOfSomethingElse extends Type {
 	public TypeOfSomethingElse(InputPosition loc, String name) {
 		super(null, loc, WhatAmI.SOMETHINGELSE, name, null);
 	}
+	
+	public String other() {
+		return name;
+	}
+
 }

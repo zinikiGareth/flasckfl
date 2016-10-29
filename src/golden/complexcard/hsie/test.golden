@@ -1,0 +1,97 @@
+HSIE for test.golden.Complex.sayHello/1                      #complexcard. 54.6
+#Args: 1 #bound: 2
+    externals: [Assign, Cons, Nil, test.golden.ClickIt] scoped = []
+    all vars = [v0, v1, v2]
+HEAD v0                                                      #complexcard. 54.16
+SWITCH v0 test.golden.ClickIt                                #complexcard. 54.16
+  RETURN v2:clos2 [v1:clos1]                                 #complexcard. 55.9
+ERROR                                                        #complexcard. 54.6
+CLOSURE v1                                                   #complexcard. 55.0
+  PUSH PackageVar.Assign                                     #complexcard. 55.0
+  PUSH this                                                  #complexcard. 55.0
+  PUSH "hello"                                               #complexcard. 55.0
+  PUSH "goodbye"                                             #complexcard. 55.9
+CLOSURE v2                                                   #complexcard. 55.9
+  PUSH PackageVar.Cons                                       #complexcard. 54.6
+  PUSH v1:clos1                                              #complexcard. 55.0
+  PUSH PackageVar.Nil                                        #complexcard. 54.6
+=======
+HSIE for test.golden.Complex._S0.get/2                       #complexcard. 58.0
+#Args: 2 #bound: 3
+    externals: [Cons, Nil, Send, String, test.golden.Handler] scoped = []
+    all vars = [v0, v1, v2, v3, v4]
+HEAD v1                                                      #complexcard. 58.6
+SWITCH v1 test.golden.Handler                                #complexcard. 58.6
+  HEAD v0                                                    #complexcard. 58.4
+  SWITCH v0 String                                           #complexcard. 58.4
+    RETURN v4:clos4 [v2:clos2, v3:clos3]                     #complexcard. 59.3
+ERROR                                                        #complexcard. 58.0
+CLOSURE v2                                                   #complexcard. 58.6
+  PUSH PackageVar.Cons                                       #complexcard. 58.6
+  PUSH v0:test.golden.Complex._S0.get.x                      #complexcard. 58.4
+  PUSH PackageVar.Nil                                        #complexcard. 58.6
+CLOSURE v3                                                   #complexcard. 58.6
+  PUSH PackageVar.Send                                       #complexcard. 59.3
+  PUSH v1:test.golden.Complex._S0.get.h                      #complexcard. 58.6
+  PUSH "reply"                                               #complexcard. 59.5
+  PUSH v2:clos2                                              #complexcard. 58.6
+CLOSURE v4                                                   #complexcard. 59.3
+  PUSH PackageVar.Cons                                       #complexcard. 58.0
+  PUSH v3:clos3                                              #complexcard. 58.6
+  PUSH PackageVar.Nil                                        #complexcard. 58.0
+=======
+HSIE for test.golden.Complex.FooHandler.reply/1              #complexcard. 51.0
+#Args: 1 #bound: 3
+    externals: [++, Assign, Cons, Nil, String, test.golden.Complex.FooHandler.k] scoped = []
+    all vars = [v0, v1, v2, v3]
+HEAD v0                                                      #complexcard. 51.6
+SWITCH v0 String                                             #complexcard. 51.6
+  RETURN v3:clos3 [v1:clos1, v2:clos2]                       #complexcard. 52.9
+ERROR                                                        #complexcard. 51.0
+CLOSURE v1                                                   #complexcard. 52.9
+  PUSH PackageVar.++                                         #complexcard. 52.11
+  PUSH HandlerLambda.HL[test.golden.Complex.FooHandler.k]    #complexcard. 50.27
+  PUSH v0:test.golden.Complex.FooHandler.reply.x             #complexcard. 51.6
+CLOSURE v2                                                   #complexcard. 52.0
+  PUSH PackageVar.Assign                                     #complexcard. 52.0
+  PUSH this._card                                            #complexcard. 52.0
+  PUSH "hello"                                               #complexcard. 52.0
+  PUSH v1:clos1                                              #complexcard. 52.9
+CLOSURE v3                                                   #complexcard. 52.9
+  PUSH PackageVar.Cons                                       #complexcard. 51.0
+  PUSH v2:clos2                                              #complexcard. 52.0
+  PUSH PackageVar.Nil                                        #complexcard. 51.0
+=======
+HSIE for test.golden.Complex._C0.ready/1                     #complexcard. 45.0
+#Args: 1 #bound: 6
+    externals: [Cons, FLEval.field, Nil, Send, test.golden.Complex.FooHandler, test.golden.Complex.ds, test.golden.Thing] scoped = []
+    all vars = [v0, v1, v2, v3, v4, v5, v6]
+HEAD v0                                                      #complexcard. 45.7
+SWITCH v0 test.golden.Thing                                  #complexcard. 45.7
+  RETURN v6:clos6 [v1:clos1, v2:clos2, v3:clos3, v4:clos4, v #complexcard. 46.3
+ERROR                                                        #complexcard. 45.0
+CLOSURE v1                                                   #complexcard. 46.10
+  PUSH PackageVar.FLEval.field                               #complexcard. 46.10
+  PUSH v0:test.golden.Complex._C0.ready.obj                  #complexcard. 45.13
+  PUSH "x"                                                   #complexcard. 46.14
+CLOSURE v2                                                   #complexcard. 46.16
+  PUSH ObjectReference.test.golden.Complex.test.golden.Compl #complexcard. 46.17
+  PUSH "yo"                                                  #complexcard. 46.28
+CLOSURE v3                                                   #complexcard. 46.3
+  PUSH PackageVar.Cons                                       #complexcard. 46.3
+  PUSH v2:clos2                                              #complexcard. 46.16
+  PUSH PackageVar.Nil                                        #complexcard. 46.3
+CLOSURE v4                                                   #complexcard. 46.3
+  PUSH PackageVar.Cons                                       #complexcard. 46.3
+  PUSH v1:clos1                                              #complexcard. 46.10
+  PUSH v3:clos3                                              #complexcard. 46.3
+CLOSURE v5                                                   #complexcard. 46.3
+  PUSH PackageVar.Send                                       #complexcard. 46.3
+  PUSH CardMember.CardMember[test.golden.Complex.ds]         #complexcard. 46.3
+  PUSH "get"                                                 #complexcard. 46.6
+  PUSH v4:clos4                                              #complexcard. 46.3
+CLOSURE v6                                                   #complexcard. 46.3
+  PUSH PackageVar.Cons                                       #complexcard. 45.0
+  PUSH v5:clos5                                              #complexcard. 46.3
+  PUSH PackageVar.Nil                                        #complexcard. 45.0
+=======

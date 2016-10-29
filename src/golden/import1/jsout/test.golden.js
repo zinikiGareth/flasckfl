@@ -45,9 +45,16 @@ test.golden._Foo.prototype._render = function(doc, wrapper, parent) {
 
 test.golden.Foo.__C0.prototype.go = function(v0) {
   "use strict";
-  var v1 = FLEval.closure(test.import.f, v0);
-  var v2 = FLEval.closure(Assign, this._card, 'a', v1);
-  return FLEval.closure(Cons, v2, Nil);
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isInteger(v0)) {
+    var v1 = FLEval.closure(test.import.f, v0);
+    var v2 = FLEval.closure(Assign, this._card, 'a', v1);
+    return FLEval.closure(Cons, v2, Nil);
+  }
+  return FLEval.error("test.golden.Foo._C0.go: case not handled");
 }
 
 test.golden;

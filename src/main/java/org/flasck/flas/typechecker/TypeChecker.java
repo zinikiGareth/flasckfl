@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.KnowledgeWriter;
 import org.flasck.flas.rewriter.Rewriter;
@@ -24,10 +23,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
-import org.flasck.flas.rewrittenForm.RWConstructorMatch;
-import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
-import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
@@ -135,6 +131,7 @@ public class TypeChecker {
 			args.add(types.get("Message"));
 			knowledge.put(m.name, Type.function(m.contractLocation, args));
 		}
+		fnArgs.putAll(rewriter.fnArgs);
 	}
 
 	public void addStructDefn(RWStructDefn structDefn) {
@@ -159,30 +156,6 @@ public class TypeChecker {
 		if (type instanceof RWStructDefn || type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn)
 			throw new UtilException("Not just a type ... call special thing");
 		knowledge.put(name, type);
-	}
-
-	public void addArgTypes(RWFunctionDefinition fd) {
-		for (RWFunctionCaseDefn c : fd.cases) {
-			for (Object a : c.args()) {
-				processPattern(a);
-			}
-		}
-	}
-
-	protected void processPattern(Object a) {
-		if (a instanceof ConstPattern) {
-			// clearly this doesn't introduce any vars ...
-		} else if (a instanceof RWTypedPattern) {
-			RWTypedPattern tp = (RWTypedPattern) a;
-			fnArgs.put(((RWTypedPattern) a).var, tp.type);
-		} else if (a instanceof RWVarPattern) {
-			// can't actually import this, since it needs to be inferred - figure out and install _after_ typecheck
-		} else if (a instanceof RWConstructorMatch) {
-			RWConstructorMatch cm = (RWConstructorMatch) a;
-			for (Field cma : cm.args)
-				processPattern(cma.patt);
-		} else
-			throw new UtilException("Can't handle " + a.getClass());
 	}
 
 	public Type checkExpr(HSIEForm expr, List<Type> args, List<InputPosition> locs) {
@@ -560,13 +533,14 @@ public class TypeChecker {
 				
 				@Override
 				public Object visit(PushCSR pc) {
-					throw new UtilException("What are you returning?");
+					logger.debug(pc.csr + " is a card reference");
+					return new TypeExpr(new GarneredFrom(pc.location), Type.builtin(pc.location, "Card")); // do we not want the type signature of r.func?
 				}
 				
 				@Override
 				public Object visit(PushFunc pf) {
 					logger.debug(pf.func + " is a function literal");
-					return new TypeExpr(null, Type.builtin(null, "FunctionLiteral")); // do we not want the type signature of r.func?
+					return new TypeExpr(null, Type.builtin(pf.location, "FunctionLiteral")); // do we not want the type signature of r.func?
 				}
 			});
 		} else
@@ -632,7 +606,7 @@ public class TypeChecker {
 				if (od != null) {
 					for (RWObjectMethod m : od.methods) {
 						if (m.name.equals(fn)) {
-							Object r = m.type.asExpr(null, this, factory);
+							Object r = m.type.asExpr(te.from, this, factory);
 							logger.debug("field " + m.name + " of " + od.name() + " has type " + m.type + " with fresh vars as " + r);
 							return r;
 						}
@@ -642,8 +616,7 @@ public class TypeChecker {
 					return null;
 				}
 				if (this.contracts.containsKey(tn)) {
-					errors.message(posn, "contract methods must be called at the top level (check parens)");
-					return null;
+					return this.structs.get("Send").asExpr(te.from, this, factory);
 				}
 				errors.message(posn, "cannot use '.' with " + tn + " as it is not a struct or object definition");
 				return null;

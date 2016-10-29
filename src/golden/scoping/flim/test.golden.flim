@@ -39,12 +39,12 @@
     <Function file="scoping.fl" line="29" name="test.golden.cna" off="7">
         <Function>
             <Arg>
-                <Union name="Any"/>
+                <Contract name="test.golden.NoArg"/>
             </Arg>
             <Return>
                 <Instance file="builtin" line="0" off="0">
-                    <Union name="List"/>
-                    <Union name="Message"/>
+                    <Struct name="Cons"/>
+                    <Struct name="Send"/>
                 </Instance>
             </Return>
         </Function>

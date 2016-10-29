@@ -34,3 +34,25 @@ CLOSURE v2                                                   #standalone.f 16.22
   PUSH "typed"                                               #standalone.f 16.30
   PUSH v1:clos1                                              #standalone.f 16.39
 =======
+HSIE for test.golden.Foo._C1.go/0                            #standalone.f 12.0
+#Args: 0 #bound: 4
+    externals: [Cons, Nil, map, test.golden.Foo.request, test.golden.Foo.request2] scoped = []
+    all vars = [v0, v1, v2, v3]
+RETURN v3:clos3 [v0:clos0, v1:clos1, v2:clos2]               #standalone.f 13.3
+CLOSURE v1                                                   #standalone.f 14.3
+  PUSH PackageVar.map                                        #standalone.f 14.3
+  PUSH CardFunction.test.golden.Foo.request2                 #standalone.f 14.7
+  PUSH PackageVar.Nil                                        #standalone.f 14.16
+CLOSURE v2                                                   #standalone.f 14.3
+  PUSH PackageVar.Cons                                       #standalone.f 12.0
+  PUSH v1:clos1                                              #standalone.f 14.3
+  PUSH PackageVar.Nil                                        #standalone.f 12.0
+CLOSURE v3                                                   #standalone.f 13.3
+  PUSH PackageVar.Cons                                       #standalone.f 12.0
+  PUSH v0:clos0                                              #standalone.f 13.3
+  PUSH v2:clos2                                              #standalone.f 14.3
+CLOSURE v0                                                   #standalone.f 13.3
+  PUSH PackageVar.map                                        #standalone.f 13.3
+  PUSH CardFunction.test.golden.Foo.request                  #standalone.f 13.7
+  PUSH PackageVar.Nil                                        #standalone.f 13.15
+=======

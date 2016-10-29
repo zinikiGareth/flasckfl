@@ -65,10 +65,17 @@ test.golden.f = function(v0, v1) {
 
 test.golden.f_0._HandleReply.prototype.reply = function(v0) {
   "use strict";
-  var v1 = FLEval.closure(FLEval.plus, this.var, this.v);
-  var v2 = FLEval.closure(Cons, v1, Nil);
-  var v3 = FLEval.closure(Send, this.server, 'put', v2);
-  return FLEval.closure(Cons, v3, Nil);
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isInteger(v0)) {
+    var v1 = FLEval.closure(FLEval.plus, this.var, this.v);
+    var v2 = FLEval.closure(Cons, v1, Nil);
+    var v3 = FLEval.closure(Send, this.server, 'put', v2);
+    return FLEval.closure(Cons, v3, Nil);
+  }
+  return FLEval.error("test.golden.f_0.HandleReply.reply: case not handled");
 }
 
 test.golden.f_0.q = function(s0, s1, s2) {

@@ -160,7 +160,7 @@ public class HSIECodeGenerator {
 		LetExpr expr = new LetExpr("ME.f._x",
 					new ApplyExpr(posn, new PackageVar(posn, "FLEval.plus", null), new NumericLiteral(posn, "2", 1), new NumericLiteral(posn, "2", 1)),
 					new ApplyExpr(posn, new PackageVar(posn, "FLEval.plus", null), new LocalVar("ME.f", posn, "_x", posn, null), new LocalVar("ME.f", posn, "_x", posn, null)));
-		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(new RWFunctionIntro(posn, "ME.f", new ArrayList<>(), new HashMap<>()), 0, expr);
+		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(new RWFunctionIntro(posn, "ME.f", new ArrayList<>(), null), 0, expr);
 		RWFunctionDefinition f = new RWFunctionDefinition(posn, CodeType.FUNCTION, "ME.f", 0, true);
 		f.cases.add(fcd);
 		HSIEForm form = new HSIE(errors, null).handle(null, new VarFactory(), f);

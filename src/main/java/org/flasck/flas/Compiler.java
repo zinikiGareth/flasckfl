@@ -401,13 +401,25 @@ public class Compiler {
 
 //			System.out.println("defns = " + rewriter.functions.keySet());
 			
-			// 4. Do dependency analysis on functions and group them together in orchards
-			List<Orchard<RWFunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(rewriter.functions);
+			// 4. Convert methods to functions
+			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
+			MethodConvertor mc = new MethodConvertor(errors, hsie, tc, rewriter.contracts);
+			mc.convertContractMethods(rewriter, functions, rewriter.methods);
+			mc.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
+			mc.convertStandaloneMethods(rewriter, functions, rewriter.standalone.values());
+			abortIfErrors(errors);
+
+			// 5. D3 definitions may generate card functions; promote these onto the cards
+			for (RWD3Invoke d3 : rewriter.d3s)
+				promoteD3Methods(errors, rewriter, mc, functions, d3);
+
+			// 6. Do dependency analysis on functions and group them together in orchards
+			List<Orchard<RWFunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(functions);
 			abortIfErrors(errors);
 			
 //			System.out.println("tree = " + defns);
 
-			// 5. Now process each orchard
+			// 7. Now process each orchard
 			//   a. convert functions to HSIE
 			//   b. typechecking
 
@@ -419,18 +431,12 @@ public class Compiler {
 			Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 			for (Orchard<RWFunctionDefinition> d : defns) {
 				
-				for (Tree<RWFunctionDefinition> tfd : d)
-					for (RWFunctionDefinition fd : tfd.allNodes()) {
-//						System.out.println("hsie of " + fd.name);
-						tc.addArgTypes(fd);
-					}
-				
 				// 6a. Convert each orchard to HSIE
 				Set<HSIEForm> oh = hsie.orchard(errors, forms, d);
 				abortIfErrors(errors);
 				dumpOrchard(hsiePW, oh);
 				
-				// 6b. Typecheck an orchard together
+				// 6b. Typecheck all the methods together
 				tc.typecheck(oh);
 				abortIfErrors(errors);
 
@@ -441,22 +447,11 @@ public class Compiler {
 				hsiePW.close();
 
 			// Now go back and handle all the "special cases" that sit at the top of the tree, such as methods and templates
-			
-			MethodConvertor mc = new MethodConvertor(errors, hsie, tc, rewriter.contracts);
 
-			// 6. Typecheck contract methods and event handlers, convert to functions and compile to HSIE
-			mc.convertContractMethods(rewriter, forms, rewriter.methods);
-			mc.convertEventHandlers(rewriter, forms, rewriter.eventHandlers);
-			mc.convertStandaloneMethods(rewriter, forms, rewriter.standalone.values());
-			abortIfErrors(errors);
-			
-			// 7. Generate code from templates
+			// TODO: HSIE: I think this should move up as well
+			// 8. Generate code from templates
 			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tc, curry, dg);
 			tgen.generate(rewriter, target);
-
-			// 8. D3 definitions may generate card functions; promote these onto the cards
-			for (RWD3Invoke d3 : rewriter.d3s)
-				promoteD3Methods(errors, rewriter, mc, forms, d3);
 			
 			// 9. Check whether functions are curried and add in the appropriate indications if so
 			handleCurrying(curry, tc, forms.values());
@@ -576,8 +571,7 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 	}
 
-	private void promoteD3Methods(ErrorResult errors, Rewriter rewriter, MethodConvertor mc, Map<String, HSIEForm> forms, RWD3Invoke d3) {
-		Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(new StringComparator()); 
+	private void promoteD3Methods(ErrorResult errors, Rewriter rewriter, MethodConvertor mc, Map<String, RWFunctionDefinition> functions, RWD3Invoke d3) {
 		Object init = rewriter.structs.get("NilMap");
 		InputPosition posn = new InputPosition("d3", 1, 1, null);
 		PackageVar assoc = new PackageVar(posn, "Assoc", null);
@@ -600,13 +594,13 @@ public class Compiler {
 					byKey.add(s.name, new ApplyExpr(s.location, tuple, p.pattern, pl));
 				}
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
-					RWFunctionIntro fi = new RWFunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>(), new HashMap<>());
+					RWFunctionIntro fi = new RWFunctionIntro(s.location, d3.d3.prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>(), null);
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					mcd.messages.addAll(s.actions);
 					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
 					List<Object> enc = new ArrayList<Object>();
 					MethodInContext mic = new MethodInContext(rewriter, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method, enc); // PROB NEEDS D3Action type
-					mc.convertContractMethods(rewriter, forms, CollectionUtils.map(mic.name, mic));
+					mc.convertContractMethods(rewriter, functions, CollectionUtils.map(mic.name, mic));
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 				} else { // something like layout, that is just a set of definitions
 					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
@@ -627,9 +621,6 @@ public class Compiler {
 		RWFunctionDefinition func = new RWFunctionDefinition(null, HSIEForm.CodeType.CARD, d3f.name, 0, true);
 		func.cases.add(new RWFunctionCaseDefn(d3f, 0, init));
 		functions.put(d3f.name, func);
-		
-		for (RWFunctionDefinition fd : functions.values())
-			mc.addFunction(forms, fd);
 	}
 
 	private FunctionLiteral functionWithArgs(String prefix, Map<String, RWFunctionDefinition> functions, List<Object> args, Object expr) {
