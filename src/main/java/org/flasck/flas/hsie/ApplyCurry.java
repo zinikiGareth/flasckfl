@@ -17,7 +17,6 @@ import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,13 +120,13 @@ public class ApplyCurry {
 
 	private void updateAllReturnCommands(HSIEBlock h, Var before, Var newClos) {
 		for (HSIEBlock x : h.nestedCommands()) {
-			if (x instanceof ReturnCmd)
-				addClosureBefore((ReturnCmd)x, before, newClos);
+			if (x instanceof PushReturn)
+				addClosureBefore((PushReturn)x, before, newClos);
 			updateAllReturnCommands(x, before, newClos);
 		}
 	}
 
-	protected void addClosureBefore(ReturnCmd rc, Var before, Var newClos) {
+	protected void addClosureBefore(PushReturn rc, Var before, Var newClos) {
 //		System.out.println("Adding " + newClos + " to " + rc + " before " + before);
 		int at = -1;
 		if (rc.var.var == before) {

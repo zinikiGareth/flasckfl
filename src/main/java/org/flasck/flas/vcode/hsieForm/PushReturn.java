@@ -1,5 +1,7 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
@@ -21,6 +23,7 @@ public class PushReturn extends HSIEBlock {
 	public final TemplateListVar tlv;
 	public final FunctionLiteral func;
 	public final CardStateRef csr;
+	public final List<CreationOfVar> deps;
 
 	public PushReturn(InputPosition loc, CreationOfVar var) {
 		if (loc == null) throw new UtilException("Cannot be null");
@@ -32,6 +35,21 @@ public class PushReturn extends HSIEBlock {
 		this.tlv = null;
 		this.func = null;
 		this.csr = null;
+		this.deps = null;
+	}
+
+	public PushReturn(InputPosition loc, CreationOfVar var, List<CreationOfVar> deps) {
+		if (loc == null) throw new UtilException("Cannot be null");
+		this.location = loc;
+		this.var = var;
+		this.ival = null;
+		this.sval = null;
+		this.fn = null;
+		this.tlv = null;
+		this.func = null;
+		this.csr = null;
+		this.deps = deps;
+		asReturn();
 	}
 
 	public PushReturn(InputPosition loc, int i) {
@@ -44,6 +62,7 @@ public class PushReturn extends HSIEBlock {
 		this.tlv = null;
 		this.func = null;
 		this.csr = null;
+		this.deps = null;
 	}
 
 	public PushReturn(InputPosition loc, ExternalRef fn) {
@@ -57,6 +76,7 @@ public class PushReturn extends HSIEBlock {
 		this.tlv = null;
 		this.func = null;
 		this.csr = null;
+		this.deps = null;
 	}
 
 	public PushReturn(InputPosition loc, StringLiteral s) {
@@ -70,6 +90,7 @@ public class PushReturn extends HSIEBlock {
 		this.tlv = null;
 		this.func = null;
 		this.csr = null;
+		this.deps = null;
 	}
 
 	public PushReturn(InputPosition loc, TemplateListVar tlv) {
@@ -82,6 +103,7 @@ public class PushReturn extends HSIEBlock {
 		this.tlv = tlv;
 		this.func = null;
 		this.csr = null;
+		this.deps = null;
 	}
 
 	public PushReturn(InputPosition loc, FunctionLiteral func) {
@@ -94,6 +116,7 @@ public class PushReturn extends HSIEBlock {
 		this.tlv = null;
 		this.func = func;
 		this.csr = null;
+		this.deps = null;
 	}
 
 	public PushReturn(InputPosition loc, CardStateRef csr) {
@@ -106,6 +129,11 @@ public class PushReturn extends HSIEBlock {
 		this.tlv = null;
 		this.func = null;
 		this.csr = csr;
+		this.deps = null;
+	}
+
+	public void asReturn() {
+		this.cmd = "RETURN";
 	}
 
 	protected Object textValue() {
@@ -114,6 +142,12 @@ public class PushReturn extends HSIEBlock {
 
 	@Override
 	public String toString() {
-		return Justification.LEFT.format(cmd + " " + textValue(), 60) + " #" + location + " - also want location where the variable is actually used here";
+		String loc;
+		// This is just a hack to get the current Golden tests to pass; obviously I should fix all this
+		if (cmd.equals("PUSH"))
+			loc =  " #" + location + " - also want location where the variable is actually used here";
+		else
+			loc = " #" + location + " - this appears to be wrong for closures; wants to be the apply expr point";
+		return Justification.LEFT.format(cmd + " " + textValue() + (deps == null? "" : " " + deps), 60) + loc;
 	}
 }

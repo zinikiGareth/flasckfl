@@ -24,7 +24,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
-import org.flasck.flas.vcode.hsieForm.ReturnCmd;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.slf4j.Logger;
@@ -220,8 +220,8 @@ public class Generator {
 				into.add(b);
 			} else if (h instanceof BindCmd) {
 				into.add(JSForm.bind((BindCmd) h));
-			} else if (h instanceof ReturnCmd) {
-				ReturnCmd r = (ReturnCmd) h;
+			} else if (h instanceof PushReturn) {
+				PushReturn r = (PushReturn) h;
 				into.addAll(JSForm.ret(r, form));
 			} else if (h instanceof ErrorCmd) {
 				into.add(JSForm.error(fn));

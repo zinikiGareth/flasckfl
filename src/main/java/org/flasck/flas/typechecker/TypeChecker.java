@@ -46,8 +46,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -307,7 +305,7 @@ public class TypeChecker {
 		logger.debug("Checking block " + hsie);
 		for (HSIEBlock o : hsie.nestedCommands()) {
 			logger.debug("Checking command " + o);
-			if (o instanceof ReturnCmd) {
+			if (o instanceof PushReturn) {
 //				System.out.println("Checking expr " + o);
 				Object ret = checkExpr(s, form, o);
 //				System.out.println("Checked expr " + o + " as " + ret);

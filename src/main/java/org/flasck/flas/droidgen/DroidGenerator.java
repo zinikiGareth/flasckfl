@@ -43,8 +43,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -443,8 +441,8 @@ public class DroidGenerator {
 				stmts.add(meth.ifEquals(hv, testVal, generateBlock(meth, svars, vars, f, c, assignReturnTo), null));
 			} else if (h instanceof BindCmd) {
 //				into.add(JSForm.bind((BindCmd) h));
-			} else if (h instanceof ReturnCmd) {
-				ReturnCmd r = (ReturnCmd) h;
+			} else if (h instanceof PushReturn) {
+				PushReturn r = (PushReturn) h;
 				if (r.var != null) {
 					Var hv = vars.get(r.var.var);
 					if (r.var.var.idx < f.nformal) {

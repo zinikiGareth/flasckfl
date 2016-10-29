@@ -89,21 +89,22 @@ public class HSIEBlock {
 	}
 
 	public HSIEBlock doReturn(InputPosition loc, Object o, List<CreationOfVar> list) {
-		ReturnCmd ret;
+		PushReturn ret;
 		if (o == null)
 			throw new UtilException("Attempt to return null");
 		if (o instanceof CreationOfVar)
-			ret = new ReturnCmd(loc, (CreationOfVar)o, list);
+			ret = new PushReturn(loc, (CreationOfVar)o, list);
 		else if (o instanceof Integer)
-			ret = new ReturnCmd(loc, (Integer)o);
+			ret = new PushReturn(loc, (Integer)o);
 		else if (o instanceof StringLiteral)
-			ret = new ReturnCmd(loc, (StringLiteral)o);
+			ret = new PushReturn(loc, (StringLiteral)o);
 		else if (o instanceof ExternalRef)
-			ret = new ReturnCmd(loc, (ExternalRef)o);
+			ret = new PushReturn(loc, (ExternalRef)o);
 		else if (o instanceof TemplateListVar)
-			ret = new ReturnCmd(loc, (TemplateListVar)o);
+			ret = new PushReturn(loc, (TemplateListVar)o);
 		else
 			throw new UtilException("Invalid object to return: " + o + " of type " + o.getClass());
+		ret.asReturn();
 		commands.add(ret);
 		return ret;
 	}

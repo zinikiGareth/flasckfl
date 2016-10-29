@@ -24,8 +24,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.ReturnCmd;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -228,7 +226,7 @@ public class JSForm {
 	}
 
 	public static void assign(JSForm into, String assgn, HSIEForm form) {
-		ReturnCmd r = (ReturnCmd) form.nestedCommands().get(0);
+		PushReturn r = (PushReturn) form.nestedCommands().get(0);
 		if (r.fn != null) {
 			StringBuilder sb = new StringBuilder(assgn + " = ");
 			appendValue(form, sb, r, 0);
@@ -253,7 +251,7 @@ public class JSForm {
 			throw new UtilException("What are you returning " + r);
 	}
 
-	public static List<JSForm> ret(ReturnCmd r, HSIEForm form) {
+	public static List<JSForm> ret(PushReturn r, HSIEForm form) {
 		List<JSForm> ret = new ArrayList<JSForm>();
 		StringBuilder sb = new StringBuilder();
 		sb.append("return ");
