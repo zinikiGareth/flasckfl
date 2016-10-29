@@ -4,8 +4,8 @@ HSIE for test.golden.fold/3                                  #fold.fl:      2.0
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v2                                                      #fold.fl:      2.11
 SWITCH v2 Cons                                               #fold.fl:      3.11
-  BIND v3 v2.head                                            #null
-  BIND v4 v2.tail                                            #null
+  BIND v3 v2.head                                            #fold.fl:      3.12
+  BIND v4 v2.tail                                            #fold.fl:      3.14
   RETURN v6:clos6 [v5:clos5]                                 #fold.fl:      3.19
 SWITCH v2 Nil                                                #fold.fl:      2.11
   RETURN v1:test.golden.fold_0.acc []                        #fold.fl:      2.7

@@ -4,8 +4,8 @@ HSIE for test.golden.filter/2                                #filter.fl:    2.0
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v1                                                      #filter.fl:    2.9
 SWITCH v1 Cons                                               #filter.fl:    3.9
-  BIND v2 v1.head                                            #null
-  BIND v3 v1.tail                                            #null
+  BIND v2 v1.head                                            #filter.fl:    3.10
+  BIND v3 v1.tail                                            #filter.fl:    3.12
   RETURN v6:clos6 [v4:test.golden.filter_1.g, v5:clos5]      #filter.fl:    3.17
 SWITCH v1 Nil                                                #filter.fl:    2.9
   RETURN PackageVar.Nil                                      #filter.fl:    2.14

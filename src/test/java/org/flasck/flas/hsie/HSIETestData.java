@@ -494,7 +494,7 @@ public class HSIETestData {
 					}
 				}
 			} else if (ps[0].equals("BIND")) {
-				prev = b.bindCmd(ret.var(Integer.parseInt(ps[1])), ret.var(Integer.parseInt(ps[2])), ps[3]);
+				prev = b.bindCmd(posn, ret.var(Integer.parseInt(ps[1])), ret.var(Integer.parseInt(ps[2])), ps[3]);
 			} else if (ps[0].equals("CLOSURE")) {
 				ClosureCmd tmp = ret.closure(ret.var(Integer.parseInt(ps[1])));
 				if (ps.length == 3 && ps[2].equals("!"))

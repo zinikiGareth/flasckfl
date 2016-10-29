@@ -4,8 +4,8 @@ HSIE for test.golden.map1/2                                  #map.fl:       1.0
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v1                                                      #map.fl:       1.7
 SWITCH v1 Cons                                               #map.fl:       2.7
-  BIND v2 v1.head                                            #null
-  BIND v3 v1.tail                                            #null
+  BIND v2 v1.head                                            #map.fl:       2.8
+  BIND v3 v1.tail                                            #map.fl:       2.10
   RETURN v6:clos6 [v4:clos4, v5:clos5]                       #map.fl:       2.15
 SWITCH v1 Nil                                                #map.fl:       1.7
   RETURN PackageVar.Nil                                      #map.fl:       1.12

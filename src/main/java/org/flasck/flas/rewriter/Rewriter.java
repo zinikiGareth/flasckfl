@@ -1137,7 +1137,7 @@ public class Rewriter {
 					errors.message(cm.location, "could not handle " + type);
 				RWConstructorMatch ret = new RWConstructorMatch(cm.location, (PackageVar)type);
 				for (Field x : cm.args)
-					ret.args.add(ret.new Field(x.field, rewritePattern(cx, name, x.patt)));
+					ret.args.add(ret.new Field(x.location(), x.field, rewritePattern(cx, name, x.patt)));
 				return ret;
 			} else {
 				return o;

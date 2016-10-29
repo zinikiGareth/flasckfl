@@ -4,8 +4,8 @@ HSIE for test.golden.take/2                                  #take.fl:      1.0
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v1                                                      #take.fl:      1.7
 SWITCH v1 Cons                                               #take.fl:      2.7
-  BIND v2 v1.head                                            #null
-  BIND v3 v1.tail                                            #null
+  BIND v2 v1.head                                            #take.fl:      3.8
+  BIND v3 v1.tail                                            #take.fl:      3.10
   HEAD v0                                                    #take.fl:      2.5
   SWITCH v0 Number                                           #take.fl:      2.5
     IF v0:ev0 0                                              #null

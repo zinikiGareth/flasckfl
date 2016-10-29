@@ -56,8 +56,8 @@ public class HSIEBlock {
 		return ret;
 	}
 
-	public HSIEBlock bindCmd(Var bind, Var from, String field) {
-		BindCmd ret = new BindCmd(null, bind, from, field);
+	public HSIEBlock bindCmd(InputPosition loc, Var bind, Var from, String field) {
+		BindCmd ret = new BindCmd(loc, bind, from, field);
 		commands.add(ret);
 		return ret;
 	}

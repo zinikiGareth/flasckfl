@@ -217,13 +217,13 @@ public class HSIE {
 			List<NestedBinds> list = elim.ctorCases.get(ctor);
 			ms.form.dependsOn(ctor);
 			HSIEBlock blk = s.writeTo.switchCmd(NestedBinds.firstLocation(list), elim.var, ctor);
-			Set<String> binds = new TreeSet<String>();
+			Set<Field> binds = new TreeSet<Field>();
 			Set<SubstExpr> possibles = new HashSet<SubstExpr>();
 			Set<SubstExpr> mycases = new HashSet<SubstExpr>();
 			for (NestedBinds nb : list) {
 				if (nb.args != null) {
 					for (Field f : nb.args)
-						binds.add(f.field);
+						binds.add(f);
 				}
 				possibles.add(nb.substExpr);
 				mycases.add(nb.substExpr);
@@ -231,10 +231,10 @@ public class HSIE {
 			possibles.addAll(elim.undecidedCases);
 			State s1 = s.cloneEliminate(elim.var, blk, possibles);
 			Map<String, Var> mapFieldNamesToVars = new TreeMap<String, Var>();
-			for (String b : binds) {
-				Var v = ms.varFor(elim.var, b);
-				blk.bindCmd(v, elim.var, b);
-				mapFieldNamesToVars.put(b, v);
+			for (Field b : binds) {
+				Var v = ms.varFor(elim.var, b.field);
+				blk.bindCmd(b.location, v, elim.var, b.field);
+				mapFieldNamesToVars.put(b.field, v);
 			}
 			boolean wantS1 = false;
 			for (NestedBinds nb : orderIfs(list)) {
@@ -254,10 +254,10 @@ public class HSIE {
 					
 					addState(ms, s3, casesForConst(list, nb.ifConst.value));
 				} else {
-					for (String b : binds) {
-						Object patt = nb.matchField(b);
+					for (Field b : binds) {
+						Object patt = nb.matchField(b.field);
 						if (patt != null) {
-							s1.associate(ms.varFor(elim.var, b), patt, nb.substExpr);
+							s1.associate(ms.varFor(elim.var, b.field), patt, nb.substExpr);
 						}
 					}
 					wantS1 = true;

@@ -7,17 +7,25 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 
 public class RWConstructorMatch implements Locatable {
-	public class Field {
+	public class Field implements Comparable<Field> {
+		public final InputPosition location;
 		public final String field;
 		public final Object patt;
 		
-		public Field(String field, Object patt) {
+		public Field(InputPosition loc, String field, Object patt) {
+			this.location = loc;
 			this.field = field;
 			this.patt = patt;
 		}
+		
 		@Override
 		public String toString() {
 			return "CMF[" + field + "]";
+		}
+
+		@Override
+		public int compareTo(Field o) {
+			return field.compareTo(o.field);
 		}
 	}
 
