@@ -1,4 +1,4 @@
-HSIE for test.golden.Simple.f
+HSIE for test.golden.Simple.f/0                              #simplecard.f 11.0
 #Args: 0 #bound: 0
     externals: [] scoped = []
     all vars = []

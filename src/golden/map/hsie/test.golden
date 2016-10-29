@@ -1,4 +1,4 @@
-HSIE for test.golden.map1
+HSIE for test.golden.map1/2                                  #map.fl:       1.0
 #Args: 2 #bound: 5
     externals: [Cons, Nil] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]

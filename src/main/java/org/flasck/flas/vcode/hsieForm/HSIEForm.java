@@ -95,7 +95,7 @@ public class HSIEForm extends HSIEBlock {
 	public void dump(Logger logTo) {
 		if (logTo == null)
 			logTo = logger;
-		logTo.debug("HSIE for " + fnName);
+		logTo.debug(asString(0));
 		logTo.debug("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
 		logTo.debug("    externals: " + externals + " scoped = " + scoped);
 		logTo.debug("    all vars = " + vars);
@@ -105,7 +105,7 @@ public class HSIEForm extends HSIEBlock {
 	}
 
 	public void dump(PrintWriter pw) {
-		pw.println("HSIE for " + fnName);
+		pw.println(asString(0));
 		pw.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
 		pw.println("    externals: " + externals + " scoped = " + scoped);
 		pw.println("    all vars = " + vars);
@@ -142,7 +142,7 @@ public class HSIEForm extends HSIEBlock {
 
 	@Override
 	public String toString() {
-		return fnName + "/" + nformal;
+		return "HSIE for " + fnName + "/" + nformal;
 	}
 
 	public boolean isMethod() {

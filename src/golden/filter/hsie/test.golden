@@ -1,4 +1,4 @@
-HSIE for test.golden.filter
+HSIE for test.golden.filter/2                                #filter.fl:    2.0
 #Args: 2 #bound: 5
     externals: [Cons, Nil] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
@@ -22,7 +22,7 @@ CLOSURE v6                                                   #null
   PUSH v4:test.golden.filter_1.g                             #filter.fl:    4.0
   PUSH v5:clos5                                              #filter.fl:    3.19
 -------
-HSIE for test.golden.filter_1.g
+HSIE for test.golden.filter_1.g/1                            #filter.fl:    4.0
 #Args: 1 #bound: 3
     externals: [Boolean, Cons, test.golden.filter] scoped = [test.golden.filter_1.a, test.golden.filter_1.f, test.golden.filter_1.l]
     all vars = [v7, v8, v9, v10]

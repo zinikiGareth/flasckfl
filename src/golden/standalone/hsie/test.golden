@@ -1,4 +1,4 @@
-HSIE for test.golden.Foo.request2
+HSIE for test.golden.Foo.request2/1                          #standalone.f 17.0
 #Args: 1 #bound: 2
     externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
     all vars = [v0, v1, v2]
@@ -16,7 +16,7 @@ CLOSURE v2                                                   #null
   PUSH "mine"                                                #standalone.f 17.31
   PUSH v1:clos1                                              #standalone.f 17.39
 =======
-HSIE for test.golden.Foo.request
+HSIE for test.golden.Foo.request/1                           #standalone.f 16.0
 #Args: 1 #bound: 2
     externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
     all vars = [v0, v1, v2]

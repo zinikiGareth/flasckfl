@@ -146,7 +146,7 @@ public class HSIEBlock {
 		dump(pw, ind+2);
 	}
 	
-	private String asString(int ind) {
+	protected String asString(int ind) {
 		return Justification.LEFT.format(Justification.LEFT.format("", ind) + this, 60) + " #" + location;
 	}
 }

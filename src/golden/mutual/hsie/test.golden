@@ -1,4 +1,4 @@
-HSIE for test.golden.f_0.g
+HSIE for test.golden.f_0.g/1                                 #mutual.fl:    3.0
 #Args: 1 #bound: 1
     externals: [*] scoped = [test.golden.f_0.x]
     all vars = [v0, v1]
@@ -8,7 +8,7 @@ CLOSURE v1                                                   #null
   PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.f_ #mutual.fl:    2.2
   PUSH v0:test.golden.f_0.g_0.y                              #mutual.fl:    3.2
 =======
-HSIE for test.golden.f
+HSIE for test.golden.f/1                                     #mutual.fl:    2.0
 #Args: 1 #bound: 2
     externals: [] scoped = []
     all vars = [v0, v1, v2]
