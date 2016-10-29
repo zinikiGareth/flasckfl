@@ -42,7 +42,15 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
+import org.flasck.flas.vcode.hsieForm.PushCSR;
+import org.flasck.flas.vcode.hsieForm.PushExternal;
+import org.flasck.flas.vcode.hsieForm.PushFunc;
+import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.PushString;
+import org.flasck.flas.vcode.hsieForm.PushTLV;
+import org.flasck.flas.vcode.hsieForm.PushVar;
+import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -443,17 +451,18 @@ public class DroidGenerator {
 //				into.add(JSForm.bind((BindCmd) h));
 			} else if (h instanceof PushReturn) {
 				PushReturn r = (PushReturn) h;
-				if (r.var != null) {
-					Var hv = vars.get(r.var.var);
-					if (r.var.var.idx < f.nformal) {
+				if (r instanceof PushVar) {
+					PushVar pv = (PushVar) r;
+					Var hv = vars.get(pv.var.var);
+					if (pv.var.var.idx < f.nformal) {
 						if (assignReturnTo != null) {
 							ensureString(stmts, meth, hv);
 							stmts.add(meth.assign(assignReturnTo, hv));
 						} else
 							stmts.add(meth.returnObject(hv));
 					} else {
-						if (r.deps != null) {
-							for (CreationOfVar cov : r.deps) {
+						if (pv.deps != null) {
+							for (CreationOfVar cov : pv.deps) {
 								Var v = vars.get(cov.var);
 								if (v == null) {
 									v = meth.avar("java.lang.Object", cov.var.toString());
@@ -463,7 +472,7 @@ public class DroidGenerator {
 								stmts.add(meth.assign(v, cl));
 							}
 						}
-						Expr cl = closure(f, meth, svars, vars, f.mytype, f.getClosure(r.var.var));
+						Expr cl = closure(f, meth, svars, vars, f.mytype, f.getClosure(pv.var.var));
 						if (assignReturnTo != null) {
 							ensureString(stmts, meth, hv);
 							stmts.add(meth.assign(assignReturnTo, cl));
@@ -502,7 +511,7 @@ public class DroidGenerator {
 
 	private Expr closure(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
 		// Loop over everything in the closure pushing it onto the stack (in al)
-		ExternalRef fn = ((PushReturn)closure.nestedCommands().get(0)).fn;
+		ExternalRef fn = ((PushExternal)closure.nestedCommands().get(0)).fn;
 		Expr needsObject = null;
 		boolean fromHandler = fntype == CodeType.AREA;
 		Object defn = fn;
@@ -518,7 +527,7 @@ public class DroidGenerator {
 					needsObject = meth.myThis();
 				System.out.println("Creating handler " + fn + " in block " + closure);
 			} else if (fn.toString().equals("FLEval.curry")) {
-				ExternalRef f2 = ((PushReturn)closure.nestedCommands().get(1)).fn;
+				ExternalRef f2 = ((PushExternal)closure.nestedCommands().get(1)).fn;
 				if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
 					needsObject = meth.myThis();
 					fromHandler |= f2.fromHandler();
@@ -532,11 +541,11 @@ public class DroidGenerator {
 		List<Expr> al = new ArrayList<Expr>();
 		for (HSIEBlock b : closure.nestedCommands()) {
 			PushReturn c = (PushReturn) b;
-			if (c.fn != null && pos == 0) {
-				isField = "FLEval.field".equals(c.fn);
+			if (c instanceof PushExternal && pos == 0) {
+				isField = "FLEval.field".equals(((PushExternal)c).fn);
 			}
-			if (c.fn != null && isField && pos == 2)
-				System.out.println("c.fn = " + c.fn);
+			if (c instanceof PushExternal && isField && pos == 2)
+				System.out.println("c.fn = " + ((PushExternal)c).fn);
 			else
 				al.add(upcast(meth, appendValue(form, meth, svars, vars, fntype, c, pos)));
 			pos++;
@@ -561,102 +570,121 @@ public class DroidGenerator {
 	}
 
 	private static Expr appendValue(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, PushReturn c, int pos) {
-		if (c.fn != null) {
-			if (c.fn instanceof PackageVar || c.fn instanceof ObjectReference) {
-				boolean wantEval = false;
-				Object defn = null;
-				if (c.fn instanceof PackageVar) {
-					defn = c.fn;
-					while (defn instanceof PackageVar)
-						defn = ((PackageVar)defn).defn;
-					if (pos != 0)
-						if (defn instanceof RWStructDefn && ((RWStructDefn)defn).fields.isEmpty())
-							wantEval = true;
-				}
-				int idx = c.fn.uniqueName().lastIndexOf(".");
-				String inside;
-				String dot;
-				String member;
-				if (idx == -1) {
-					inside = "org.flasck.android.builtin";
-					dot = ".";
-					member = c.fn.uniqueName();
-				} else {
-					String first = c.fn.uniqueName().substring(0, idx);
-					if ("FLEval".equals(first)) {
-						inside = "org.flasck.android.FLEval";
-						member = StringUtil.capitalize(c.fn.uniqueName().substring(idx+1));
-					} else {
-						inside = c.fn.uniqueName().substring(0, idx);
-						member = c.fn.uniqueName().substring(idx+1);
+		return (Expr) c.visit(new PushVisitor() {
+			@Override
+			public Object visit(PushExternal pe) {
+				if (pe.fn instanceof PackageVar || pe.fn instanceof ObjectReference) {
+					boolean wantEval = false;
+					Object defn = null;
+					if (pe.fn instanceof PackageVar) {
+						defn = pe.fn;
+						while (defn instanceof PackageVar)
+							defn = ((PackageVar)defn).defn;
+						if (pos != 0)
+							if (defn instanceof RWStructDefn && ((RWStructDefn)defn).fields.isEmpty())
+								wantEval = true;
 					}
-					dot = "$";
-				}
-				String clz;
-				if (defn instanceof RWFunctionDefinition || defn instanceof RWMethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
-					if (inside.equals("org.flasck.android.FLEval"))
-						clz = inside + "$" + member;
+					int idx = pe.fn.uniqueName().lastIndexOf(".");
+					String inside;
+					String dot;
+					String member;
+					if (idx == -1) {
+						inside = "org.flasck.android.builtin";
+						dot = ".";
+						member = pe.fn.uniqueName();
+					} else {
+						String first = pe.fn.uniqueName().substring(0, idx);
+						if ("FLEval".equals(first)) {
+							inside = "org.flasck.android.FLEval";
+							member = StringUtil.capitalize(pe.fn.uniqueName().substring(idx+1));
+						} else {
+							inside = pe.fn.uniqueName().substring(0, idx);
+							member = pe.fn.uniqueName().substring(idx+1);
+						}
+						dot = "$";
+					}
+					String clz;
+					if (defn instanceof RWFunctionDefinition || defn instanceof RWMethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
+						if (inside.equals("org.flasck.android.FLEval"))
+							clz = inside + "$" + member;
+						else
+							clz = inside + ".PACKAGEFUNCTIONS$" + member;
+					} else {
+						clz = inside + dot + member;
+					}
+					meth.getBCC().addInnerClassReference(Access.PUBLICSTATIC, inside, member);
+					if (!wantEval) { // handle the simple class case ...
+						return meth.classConst(clz);
+					} else {
+						return meth.callStatic(clz, "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<Expr>()));
+					}
+				} else if (pe.fn instanceof VarNestedFromOuterFunctionScope) {
+					VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope) pe.fn;
+					if (sv.definedLocally) {
+						return null;
+					}
+					if (!svars.containsKey(pe.fn.uniqueName()))
+						throw new UtilException("ScopedVar not in scope: " + pe.fn);
+					return svars.get(pe.fn.uniqueName());
+				} else if (pe.fn instanceof CardFunction) {
+					String jnn = javaNestedName(pe.fn.uniqueName());
+					return meth.makeNew(jnn, meth.myThis());
+				} else if (pe.fn instanceof CardMember) {
+					if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
+						return meth.myThis();
+					else if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT || fntype == CodeType.AREA) {
+						CardMember cm = (CardMember)pe.fn;
+						Expr field = meth.getField(meth.getField("_card"), cm.var);
+						return field;
+					} else
+						throw new UtilException("Can't handle " + fntype + " for card member");
+				} else if (pe.fn instanceof HandlerLambda) {
+					if (fntype == CodeType.HANDLER)
+						return meth.getField(((HandlerLambda)pe.fn).var);
 					else
-						clz = inside + ".PACKAGEFUNCTIONS$" + member;
-				} else {
-					clz = inside + dot + member;
-				}
-				meth.getBCC().addInnerClassReference(Access.PUBLICSTATIC, inside, member);
-				if (!wantEval) { // handle the simple class case ...
-					return meth.classConst(clz);
-				} else {
-					return meth.callStatic(clz, "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<Expr>()));
-				}
-			} else if (c.fn instanceof VarNestedFromOuterFunctionScope) {
-				VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope) c.fn;
-				if (sv.definedLocally) {
-					return null;
-				}
-				if (!svars.containsKey(c.fn.uniqueName()))
-					throw new UtilException("ScopedVar not in scope: " + c.fn);
-				return svars.get(c.fn.uniqueName());
-			} else if (c.fn instanceof CardFunction) {
-				String jnn = javaNestedName(c.fn.uniqueName());
-				return meth.makeNew(jnn, meth.myThis());
-			} else if (c.fn instanceof CardMember) {
-				if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
-					return meth.myThis();
-				else if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT || fntype == CodeType.AREA) {
-					CardMember cm = (CardMember)c.fn;
-					Expr field = meth.getField(meth.getField("_card"), cm.var);
-					return field;
+						throw new UtilException("Can't handle " + fntype + " with handler lambda");
 				} else
-					throw new UtilException("Can't handle " + fntype + " for card member");
-			} else if (c.fn instanceof HandlerLambda) {
-				if (fntype == CodeType.HANDLER)
-					return meth.getField(((HandlerLambda)c.fn).var);
+					throw new UtilException("Can't handle " + pe.fn + " of type " + pe.fn.getClass());
+			}
+
+			@Override
+			public Object visit(PushVar pv) {
+				return vars.get(pv.var.var);
+			}
+
+			@Override
+			public Object visit(PushInt pi) {
+				return meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(pi.ival));
+			}
+
+			@Override
+			public Object visit(PushString ps) {
+				return meth.stringConst(ps.sval.text);
+			}
+
+			@Override
+			public Object visit(PushTLV pt) {
+				return meth.getField(meth.getField("_src_" + pt.tlv.name), pt.tlv.name);
+			}
+
+			@Override
+			public Object visit(PushCSR pc) {
+				if (pc.csr.fromHandler)
+					return meth.getField("_card");
 				else
-					throw new UtilException("Can't handle " + fntype + " with handler lambda");
-			} else
-				throw new UtilException("Can't handle " + c.fn + " of type " + c.fn.getClass());
-		} else if (c.ival != null)
-			return meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(c.ival));
-		else if (c.var != null)
-			return vars.get(c.var.var);
-		else if (c.sval != null)
-			return meth.stringConst(c.sval.text);
-		else if (c.tlv != null) {
-			return meth.getField(meth.getField("_src_" + c.tlv.name), c.tlv.name);
-//			sb.append("this._src_" + c.tlv.name + "." + c.tlv.name);
-//		} else if (c.func != null) {
-//			int x = c.func.name.lastIndexOf('.');
-//			if (x == -1)
-//				throw new UtilException("Invalid function name: " + c.func.name);
-//			else
-//				sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
-		}
-		else if (c.csr != null) {
-			if (c.csr.fromHandler)
-				return meth.getField("_card");
-			else
-				return meth.myThis();
-		} else
-			throw new UtilException("What are you pushing? " + c);
+					return meth.myThis();
+			}
+
+			@Override
+			public Object visit(PushFunc pf) {
+//				int x = c.func.name.lastIndexOf('.');
+//				if (x == -1)
+//					throw new UtilException("Invalid function name: " + c.func.name);
+//				else
+//					sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
+				throw new UtilException("What are you pushing? " + c);
+			}
+		});
 	}
 
 	private Expr exprValue(NewMethodDefiner meth, Object value) {

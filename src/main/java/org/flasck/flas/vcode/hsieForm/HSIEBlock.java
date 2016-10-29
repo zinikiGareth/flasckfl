@@ -67,19 +67,19 @@ public class HSIEBlock {
 	public PushReturn pushAt(InputPosition loc, int pos, Object o) {
 		PushReturn ret;
 		if (o instanceof CreationOfVar)
-			ret = new PushReturn(loc, (CreationOfVar)o);
+			ret = new PushVar(loc, (CreationOfVar)o);
 		else if (o instanceof Integer)
-			ret = new PushReturn(loc, (Integer)o);
+			ret = new PushInt(loc, (Integer)o);
 		else if (o instanceof ExternalRef)
-			ret = new PushReturn(loc, (ExternalRef)o);
+			ret = new PushExternal(loc, (ExternalRef)o);
 		else if (o instanceof StringLiteral)
-			ret = new PushReturn(loc, (StringLiteral)o);
+			ret = new PushString(loc, (StringLiteral)o);
 		else if (o instanceof TemplateListVar)
-			ret = new PushReturn(loc, (TemplateListVar)o);
+			ret = new PushTLV(loc, (TemplateListVar)o);
 		else if (o instanceof FunctionLiteral)
-			ret = new PushReturn(loc, (FunctionLiteral)o);
+			ret = new PushFunc(loc, (FunctionLiteral)o);
 		else if (o instanceof CardStateRef)
-			ret = new PushReturn(loc, (CardStateRef)o);
+			ret = new PushCSR(loc, (CardStateRef)o);
 		else if (o == null)
 			throw new UtilException("Cannot push null");
 		else
@@ -93,15 +93,15 @@ public class HSIEBlock {
 		if (o == null)
 			throw new UtilException("Attempt to return null");
 		if (o instanceof CreationOfVar)
-			ret = new PushReturn(loc, (CreationOfVar)o, list);
+			ret = new PushVar(loc, (CreationOfVar)o, list);
 		else if (o instanceof Integer)
-			ret = new PushReturn(loc, (Integer)o);
+			ret = new PushInt(loc, (Integer)o);
 		else if (o instanceof StringLiteral)
-			ret = new PushReturn(loc, (StringLiteral)o);
+			ret = new PushString(loc, (StringLiteral)o);
 		else if (o instanceof ExternalRef)
-			ret = new PushReturn(loc, (ExternalRef)o);
+			ret = new PushExternal(loc, (ExternalRef)o);
 		else if (o instanceof TemplateListVar)
-			ret = new PushReturn(loc, (TemplateListVar)o);
+			ret = new PushTLV(loc, (TemplateListVar)o);
 		else
 			throw new UtilException("Invalid object to return: " + o + " of type " + o.getClass());
 		ret.asReturn();

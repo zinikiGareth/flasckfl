@@ -20,6 +20,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
@@ -45,7 +46,15 @@ import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
+import org.flasck.flas.vcode.hsieForm.PushCSR;
+import org.flasck.flas.vcode.hsieForm.PushExternal;
+import org.flasck.flas.vcode.hsieForm.PushFunc;
+import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.PushString;
+import org.flasck.flas.vcode.hsieForm.PushTLV;
+import org.flasck.flas.vcode.hsieForm.PushVar;
+import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -414,130 +423,154 @@ public class TypeChecker {
 			if (r.location == null)
 				System.out.println("No input position for " + r);
 			GarneredFrom myloc = new GarneredFrom(r.location);
-			if (r.ival != null) {
-				logger.debug(r.toString() + " is a constant of type Number");
-				return new TypeExpr(myloc, this.knowledge.get("Number"));
-			} else if (r.sval != null) {
-				logger.debug(r.toString() + " is a constant of type String");
-				return new TypeExpr(myloc, this.knowledge.get("String"));
-			} else if (r.tlv != null) {
-				// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
-				TypeVar ret = factory.next();
-				logger.debug(r.tlv.name + " is a template variable, assigning " + ret);
-				return ret;
-			} else if (r.var != null) {
-				ClosureCmd c = form.getClosure(r.var.var);
-				if (c == null) {
+			return r.visit(new PushVisitor() {
+				@Override
+				public Object visit(PushVar pv) {
+					ClosureCmd c = form.getClosure(pv.var.var);
+					if (c == null) {
+						// phi is not updated
+						// assume it must be a bound var; we will fail to get the existing type scheme if not
+						TypeScheme old = s.gamma.valueOf(pv.var);
+						TypeVariableMappings temp = new TypeVariableMappings(errors, TypeChecker.this);
+						for (TypeVar tv : old.schematicVars) {
+							temp.bind(tv, factory.next());
+//							System.out.println("Allocating tv " + temp.meaning(tv) + " for " + tv + " when instantiating typescheme");
+						}
+						Object ret = temp.subst(old.typeExpr);
+						logger.debug(pv.var + " is a pre-defined var of type " + old.typeExpr + " becoming " + ret);
+						return ret;
+					} else {
+						// c is a closure, which must be a function application
+						return checkClosure(s, form, c);
+					}
+				}
+				
+				@Override
+				public Object visit(PushInt pi) {
+					logger.debug(pi + " is a constant of type Number");
+					return new TypeExpr(myloc, knowledge.get("Number"));
+				}
+				
+				@Override
+				public Object visit(PushString ps) {
+					logger.debug(ps + " is a constant of type String");
+					return new TypeExpr(myloc, knowledge.get("String"));
+				}
+				
+				@Override
+				public Object visit(PushExternal pe) {
 					// phi is not updated
-					// assume it must be a bound var; we will fail to get the existing type scheme if not
-					TypeScheme old = s.gamma.valueOf(r.var);
-					TypeVariableMappings temp = new TypeVariableMappings(errors, this);
-					for (TypeVar tv : old.schematicVars) {
-						temp.bind(tv, factory.next());
-//						System.out.println("Allocating tv " + temp.meaning(tv) + " for " + tv + " when instantiating typescheme");
+					// I am going to say that by getting here, we know that it must be an external
+					// all lambdas should be variables by now
+					
+					ExternalRef fn = pe.fn;
+					String un = fn.uniqueName();
+					if (un.equals("FLEval.tuple")) {
+						logger.debug(fn + " needs tuple handling");
+						return new TypeExpr(myloc, Type.builtin(null, "()"));
 					}
-					Object ret = temp.subst(old.typeExpr);
-					logger.debug(r.var + " is a pre-defined var of type " + old.typeExpr + " becoming " + ret);
+					if (fn instanceof CardMember) {
+						logger.debug(fn + " is a card member");
+						CardMember cm = (CardMember) fn;
+						// try and find the name of the card class
+						if (fn.equals("_card"))
+							throw new UtilException("Died in housefire");
+							// return freshVarsIn(new TypeReference(cm.location, cm.card, null));
+						CardTypeInfo cti = cards.get(cm.card);
+						if (cti == null)
+							throw new UtilException("There was no card definition called " + cm.card);
+						for (RWStructField sf : cti.struct.fields) {
+							if (sf.name.equals(cm.var)) {
+								return sf.type.asExpr(new GarneredFrom(cm.location), TypeChecker.this, factory);
+							}
+						}
+						errors.message(cm.location, "there is no field " + cm.var + " in card " + cm.card);
+						return null;
+					} else if (fn instanceof HandlerLambda) {
+						logger.debug(fn + " is a lambda");
+						HandlerLambda hl = (HandlerLambda) fn;
+						String structName = hl.clzName+"$struct";
+						RWStructDefn sd = structs.get(structName);
+						for (RWStructField sf : sd.fields) {
+							if (sf.name.equals(hl.var)) {
+								return sf.type.asExpr(new GarneredFrom(sf.loc), TypeChecker.this, factory);
+							}
+						}
+						throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
+					}
+					if (fn instanceof VarNestedFromOuterFunctionScope) {
+						VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)fn;
+						if (sv.defn instanceof LocalVar) {
+							LocalVar lv = (LocalVar) sv.defn;
+							Type t = lv.type;
+							if (t == null) // offer up a polymorphic var
+								return factory.next();
+							return new TypeExpr(new GarneredFrom(fn.location()), t);
+						}
+					}
+					
+					String name = un;
+					if (name.equals("FLEval.field")) {
+						logger.debug(fn + " implies field handling");
+						return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "."));
+					}
+					Object te = s.localKnowledge.get(name);
+					if (te != null) {
+						logger.debug(fn + " is locally inferred " + te);
+						return te;
+					}
+					te = knowledge.get(name);
+					if (te == null) {
+						if (cards.containsKey(name)) {
+							logger.debug(fn + " is card " + name);
+							return new TypeExpr(myloc, cards.get(name).struct);
+						}
+						if (handlers.containsKey(name)) {
+							logger.debug(fn + " is handler " + name);
+							return typeForHandlerCtor(fn.location(), handlers.get(name)).asExpr(myloc, TypeChecker.this, factory);
+						}
+						if (structs.containsKey(name)) {
+							logger.debug(fn + " is struct ctor " + name);
+							return ((TypeExpr)typeForStructCtor(fn.location(), structs.get(name)).asExpr(myloc, TypeChecker.this, factory)).butFrom(myloc);
+						}
+						if (objects.containsKey(name)) {
+							logger.debug(fn + " is object ctor " + name);
+							return ((TypeExpr)typeForObjectCtor(fn.location(), objects.get(name)).asExpr(myloc, TypeChecker.this, factory)).butFrom(myloc);
+						}
+						// This is probably a failure on our part rather than user error
+						// We should not be able to get here if r.fn is not already an external which has been resolved
+						/*
+						for (Entry<String, Type> x : knowledge.entrySet())
+							System.out.println(x.getKey() + " => " + x.getValue());
+						*/
+						errors.message(pe.location, "there is no type for identifier " + fn + " when checking " + form.fnName);
+						return null;
+					} else {
+						logger.debug(fn + " is globally implanted " + te);
+//						System.out.print("Replacing vars in " + r.fn +": ");
+						return ((Type)te).asExpr(new GarneredFrom(fn, te), TypeChecker.this, factory);
+					}
+				}
+				
+				@Override
+				public Object visit(PushTLV pt) {
+					// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
+					TypeVar ret = factory.next();
+					logger.debug(pt.tlv.name + " is a template variable, assigning " + ret);
 					return ret;
-				} else {
-					// c is a closure, which must be a function application
-					return checkClosure(s, form, c);
-				}
-			} else if (r.fn != null) {
-				// phi is not updated
-				// I am going to say that by getting here, we know that it must be an external
-				// all lambdas should be variables by now
-				
-				if (r.fn.uniqueName().equals("FLEval.tuple")) {
-					logger.debug(r.fn + " needs tuple handling");
-					return new TypeExpr(myloc, Type.builtin(null, "()"));
-				}
-				if (r.fn instanceof CardMember) {
-					logger.debug(r.fn + " is a card member");
-					CardMember cm = (CardMember) r.fn;
-					// try and find the name of the card class
-					if (r.fn.equals("_card"))
-						throw new UtilException("Died in housefire");
-						// return freshVarsIn(new TypeReference(cm.location, cm.card, null));
-					CardTypeInfo cti = cards.get(cm.card);
-					if (cti == null)
-						throw new UtilException("There was no card definition called " + cm.card);
-					for (RWStructField sf : cti.struct.fields) {
-						if (sf.name.equals(cm.var)) {
-							return sf.type.asExpr(new GarneredFrom(cm.location), this, factory);
-						}
-					}
-					errors.message(cm.location, "there is no field " + cm.var + " in card " + cm.card);
-					return null;
-				} else if (r.fn instanceof HandlerLambda) {
-					logger.debug(r.fn + " is a lambda");
-					HandlerLambda hl = (HandlerLambda) r.fn;
-					String structName = hl.clzName+"$struct";
-					RWStructDefn sd = structs.get(structName);
-					for (RWStructField sf : sd.fields) {
-						if (sf.name.equals(hl.var)) {
-							return sf.type.asExpr(new GarneredFrom(sf.loc), this, factory);
-						}
-					}
-					throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
-				}
-				if (r.fn instanceof VarNestedFromOuterFunctionScope) {
-					VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)r.fn;
-					if (sv.defn instanceof LocalVar) {
-						LocalVar lv = (LocalVar) sv.defn;
-						Type t = lv.type;
-						if (t == null) // offer up a polymorphic var
-							return factory.next();
-						return new TypeExpr(new GarneredFrom(r.fn.location()), t);
-					}
 				}
 				
-				String name = r.fn.uniqueName();
-				if (name.equals("FLEval.field")) {
-					logger.debug(r.fn + " implies field handling");
-					return new TypeExpr(myloc, Type.builtin(new InputPosition("builtin", 0, 0, null), "."));
+				@Override
+				public Object visit(PushCSR pc) {
+					throw new UtilException("What are you returning?");
 				}
-				Object te = s.localKnowledge.get(name);
-				if (te != null) {
-					logger.debug(r.fn + " is locally inferred " + te);
-					return te;
+				
+				@Override
+				public Object visit(PushFunc pf) {
+					logger.debug(pf.func + " is a function literal");
+					return new TypeExpr(null, Type.builtin(null, "FunctionLiteral")); // do we not want the type signature of r.func?
 				}
-				te = knowledge.get(name);
-				if (te == null) {
-					if (cards.containsKey(name)) {
-						logger.debug(r.fn + " is card " + name);
-						return new TypeExpr(myloc, cards.get(name).struct);
-					}
-					if (handlers.containsKey(name)) {
-						logger.debug(r.fn + " is handler " + name);
-						return typeForHandlerCtor(r.fn.location(), handlers.get(name)).asExpr(myloc, this, factory);
-					}
-					if (structs.containsKey(name)) {
-						logger.debug(r.fn + " is struct ctor " + name);
-						return ((TypeExpr)typeForStructCtor(r.fn.location(), structs.get(name)).asExpr(myloc, this, factory)).butFrom(myloc);
-					}
-					if (objects.containsKey(name)) {
-						logger.debug(r.fn + " is object ctor " + name);
-						return ((TypeExpr)typeForObjectCtor(r.fn.location(), objects.get(name)).asExpr(myloc, this, factory)).butFrom(myloc);
-					}
-					// This is probably a failure on our part rather than user error
-					// We should not be able to get here if r.fn is not already an external which has been resolved
-					/*
-					for (Entry<String, Type> x : knowledge.entrySet())
-						System.out.println(x.getKey() + " => " + x.getValue());
-					*/
-					errors.message(r.location, "there is no type for identifier " + r.fn + " when checking " + form.fnName);
-					return null;
-				} else {
-					logger.debug(r.fn + " is globally implanted " + te);
-//					System.out.print("Replacing vars in " + r.fn +": ");
-					return ((Type)te).asExpr(new GarneredFrom(r.fn, te), this, factory);
-				}
-			} else if (r.func != null) {
-				logger.debug(r.fn + " is a function literal");
-				return new TypeExpr(null, Type.builtin(null, "FunctionLiteral")); // do we not want the type signature of r.func?
-			} else
-				throw new UtilException("What are you returning?");
+			});
 		} else
 			throw new UtilException("Missing cases");
 	}
@@ -584,7 +617,7 @@ public class TypeChecker {
 			if (T1 instanceof TypeExpr) {
 				TypeExpr te = (TypeExpr) T1;
 				String tn = te.type.name();
-				String fn = ((PushReturn)c.nestedCommands().get(2)).sval.text;
+				String fn = ((PushString)c.nestedCommands().get(2)).sval.text;
 				RWStructDefn sd = this.structs.get(tn);
 				if (sd != null) {
 					for (RWStructField f : sd.fields) {

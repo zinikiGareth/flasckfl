@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
@@ -16,7 +17,11 @@ import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.PushExternal;
+import org.flasck.flas.vcode.hsieForm.PushFunc;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.PushString;
+import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,39 +45,43 @@ public class ApplyCurry {
 			logger.info("-----");
 			c.dumpOne(logger, 4);
 			PushReturn pc = (PushReturn) c.nestedCommands().get(0);
-			if (pc.sval != null)
+			if (pc instanceof PushString)
 				continue;
-			if (pc.fn != null) {
-				if (pc.fn instanceof HandlerLambda)
+			if (pc instanceof PushExternal) {
+				ExternalRef ex = ((PushExternal)pc).fn;
+				if (ex instanceof HandlerLambda)
 					continue;
-				if (pc.fn instanceof CardMember)
+				if (ex instanceof CardMember)
 					continue;
-				if (pc.fn instanceof VarNestedFromOuterFunctionScope)
+				if (ex instanceof VarNestedFromOuterFunctionScope)
 					continue;
-				if (pc.fn.uniqueName().equals("FLEval.tuple"))
+				if (ex.uniqueName().equals("FLEval.tuple"))
 					continue;
-				if (pc.fn.uniqueName().equals("FLEval.field")) {
-					PushReturn ofObj = (PushReturn) c.nestedCommands().get(1);
-					PushReturn fld = (PushReturn)c.nestedCommands().get(2);
-					if (ofObj.fn instanceof CardMember) {
-						CardMember cm = (CardMember) ofObj.fn;
-						if (cm.type instanceof RWObjectDefn) {
-							RWObjectDefn od = (RWObjectDefn) cm.type;
-							if (od.hasMethod(fld.sval.text)) {
-								Type t = od.getMethod(fld.sval.text);
-								c.pushAt(pc.location, 0, new PackageVar(pc.location, "FLEval.curry", null));
-								c.removeAt(1);
-								c.pushAt(pc.location, 1, new PackageVar(pc.location, "FLEval.method", null));
-								c.pushAt(pc.location, 2, t.arity()+2);
+				if (ex.uniqueName().equals("FLEval.field")) {
+					HSIEBlock c1 = c.nestedCommands().get(1);
+					if (c1 instanceof PushExternal) {
+						PushExternal ofObj = (PushExternal) c1;
+						PushString fld = (PushString)c.nestedCommands().get(2);
+						if (ofObj.fn instanceof CardMember) {
+							CardMember cm = (CardMember) ofObj.fn;
+							if (cm.type instanceof RWObjectDefn) {
+								RWObjectDefn od = (RWObjectDefn) cm.type;
+								if (od.hasMethod(fld.sval.text)) {
+									Type t = od.getMethod(fld.sval.text);
+									c.pushAt(pc.location, 0, new PackageVar(pc.location, "FLEval.curry", null));
+									c.removeAt(1);
+									c.pushAt(pc.location, 1, new PackageVar(pc.location, "FLEval.method", null));
+									c.pushAt(pc.location, 2, t.arity()+2);
+								}
 							}
 						}
 					}
 					continue;
 				}
 				boolean scoping = (c instanceof ClosureCmd) && ((ClosureCmd)c).justScoping;
-				Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
+				Type t = tc.getTypeAsCtor(pc.location, ex.uniqueName());
 				if (t.iam == WhatAmI.FUNCTION)
-					logger.debug("Considering applying curry to: " + pc.fn + ": " + t.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
+					logger.debug("Considering applying curry to: " + ex + ": " + t.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
 				if (t.iam != Type.WhatAmI.FUNCTION)
 					;
 				else if (t.arity() > c.nestedCommands().size()-1) {
@@ -83,17 +92,17 @@ public class ApplyCurry {
 					c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
 					c.pushAt(pc.location, 2, expected);
 				} else if (t.arity() < c.nestedCommands().size()-1 && !scoping) {
-					throw new UtilException("Have too many arguments for the function " + pc.fn + " - error or need to replace f x y with (f x) y?");
+					throw new UtilException("Have too many arguments for the function " + ex + " - error or need to replace f x y with (f x) y?");
 				}
-			} else if (pc.var != null) { // the closure case, q.v.
-			} else if (pc.func != null) {
+			} else if (pc instanceof PushVar) { // the closure case, q.v.
+			} else if (pc instanceof PushFunc) {
 			} else {
 				throw new UtilException("I don't think this can have passed typecheck");
 			}
 			for (int pos=0;pos<c.nestedCommands().size();pos++) {
 				PushReturn pc2 = (PushReturn) c.nestedCommands().get(pos);
-				if (pc2.fn != null) {
-					if (pc2.fn instanceof CardFunction) {
+				if (pc2 instanceof PushExternal) {
+					if (((PushExternal)pc2).fn instanceof CardFunction) {
 						rewrites.add(new Rewrite(c, pos));
 						continue;
 					}
@@ -101,7 +110,7 @@ public class ApplyCurry {
 			}
 		}
 		for (Rewrite r : rewrites) {
-			PushReturn pc = (PushReturn) r.inside.nestedCommands().get(r.pos);
+			PushExternal pc = (PushExternal) r.inside.nestedCommands().get(r.pos);
 			Var v = h.allocateVar();
 			ClosureCmd oclos = h.closure(v);
 			Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
@@ -112,7 +121,7 @@ public class ApplyCurry {
 				oclos.push(pc.location, t.arity());
 			} else
 				oclos.push(pc.location, pc.fn);
-			r.inside.nestedCommands().set(r.pos, new PushReturn(pc.location, new CreationOfVar(v, null, null)));
+			r.inside.nestedCommands().set(r.pos, new PushVar(pc.location, new CreationOfVar(v, null, null)));
 			Var myVar = ((ClosureCmd)r.inside).var;
 			updateAllReturnCommands(h, myVar, v);
 		}
@@ -120,13 +129,13 @@ public class ApplyCurry {
 
 	private void updateAllReturnCommands(HSIEBlock h, Var before, Var newClos) {
 		for (HSIEBlock x : h.nestedCommands()) {
-			if (x instanceof PushReturn)
-				addClosureBefore((PushReturn)x, before, newClos);
+			if (x instanceof PushVar)
+				addClosureBefore((PushVar)x, before, newClos);
 			updateAllReturnCommands(x, before, newClos);
 		}
 	}
 
-	protected void addClosureBefore(PushReturn rc, Var before, Var newClos) {
+	protected void addClosureBefore(PushVar rc, Var before, Var newClos) {
 //		System.out.println("Adding " + newClos + " to " + rc + " before " + before);
 		int at = -1;
 		if (rc.var.var == before) {
