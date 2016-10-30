@@ -631,6 +631,25 @@ public class TypeChecker {
 				Tf = checkSingleApplication(s, Tf, locs.get(i), args.get(i));
 		}
 		logger.debug("Closure " + c + " has type " + Tf);
+		if (c.typecheckMessages) {
+			// There are a bunch of missing cases in here that I will add as time permits :-)
+			logger.debug("Need to assert that the return type is consistent with Message or List[Message]: is " + Tf + " " + Tf.getClass());
+			if (!(Tf instanceof TypeExpr))
+				throw new UtilException("Error or unhandled case in TCM: " + Tf + " " +Tf.getClass());
+			TypeExpr tr = (TypeExpr)Tf;
+			Type ty = tr.type;
+			if (ty instanceof RWUnionTypeDefn && ty.name().equals("List")) {
+				Object poly = tr.args.get(0);
+				if (!(poly instanceof TypeExpr))
+					throw new UtilException("Error or unhandled case in TCM: " + poly + " " +poly.getClass());
+				Type pt = ((TypeExpr)poly).type;
+				if (pt.name().equals("Send"))
+					; // that's OK ...
+				else
+					throw new UtilException("Error or unhandled case in TCM: " + pt + " " +pt.getClass());
+			} else
+				throw new UtilException("Error or unhandled case in TCM: " + ty + " class: " +ty.getClass());
+		}
 		if (c.downcastType != null)
 			return TypeExpr.from(c.downcastType, new HashMap<String, TypeVar>());
 		return Tf;
