@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
@@ -35,6 +36,8 @@ import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
@@ -43,7 +46,6 @@ import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.typechecker.TypeOfSomethingElse;
 import org.flasck.flas.typechecker.TypedObject;
-import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -323,22 +325,15 @@ public class MethodConvertor {
 	}
 
 	protected Object convertAssignMessage(Rewriter rw, List<Object> margs, List<Type> types, RWMethodMessage mm, boolean fromHandler) {
-//		Type exprType = calculateExprType(margs, types, mm.expr);
-//		if (exprType == null)
-//			return null;
 		Locatable slot = (Locatable) mm.slot.get(0);
 		Object intoObj;
 		StringLiteral slotName;
-//		Type slotType;
+		Type slotType;
 		if (slot instanceof CardMember) {
 			CardMember cm = (CardMember) slot;
 			intoObj = new CardStateRef(cm.location(), fromHandler);
-			slotName = new StringLiteral(cm.location(), cm.var);
-			/*
-			Type cti = tc.getType(cm.location(), cm.card);
-			if (!(cti instanceof RWStructDefn))
-				throw new UtilException("this should have been a struct");
-			RWStructDefn sd = (RWStructDefn) cti;
+			CardGrouping grp = rw.cards.get(cm.card);
+			RWStructDefn sd = grp.struct;
 			RWStructField sf = sd.findField(cm.var);
 			if (sf == null) {
 				errors.message(cm.location, "there is no card state member " + cm.var);
@@ -352,8 +347,8 @@ public class MethodConvertor {
 				errors.message(cm.location, "cannot assign to a service var: " + cm.var);
 				return null;
 			}
+			slotName = new StringLiteral(cm.location(), cm.var);
 			slotType = sf.type;
-			*/
 		} else if (slot instanceof HandlerLambda) {
 			HandlerLambda hl = (HandlerLambda) slot;
 			if (hl.type == null || hl.type.name().equals("Any")) {
@@ -362,7 +357,7 @@ public class MethodConvertor {
 			}
 			intoObj = hl;
 			slotName = null;
-//			slotType = hl.type;
+			slotType = hl.type;
 		} else if (slot instanceof LocalVar) {
 			LocalVar lv = (LocalVar) slot;
 			if (lv.type == null) {
@@ -371,7 +366,7 @@ public class MethodConvertor {
 			}
 			intoObj = lv;
 			slotName = null;
-//			slotType = lv.type;
+			slotType = lv.type;
 		} else if (slot instanceof ExternalRef) {
 			errors.message(slot.location(), "cannot assign to non-state member: " + ((ExternalRef)slot).uniqueName());
 			return null;
@@ -381,7 +376,6 @@ public class MethodConvertor {
 		if (mm.slot.size() > 1) {
 			for (int i=1;i<mm.slot.size();i++) {
 				LocatedToken si = (LocatedToken) mm.slot.get(i);
-				/*
 				if (!(slotType instanceof RWStructDefn)) {
 					// There may be some valid cases mixed up in here; if so, fix them later
 					errors.message(si.location(), "cannot extract member '" + si.text + "' of a non-struct: '" + slotType.name() + "'");
@@ -394,6 +388,7 @@ public class MethodConvertor {
 					return null;
 				}
 				slotType = sf.type;
+				/*
 				if (slotName != null)
 					intoObj = new ApplyExpr(si.location, new PackageVar(si.location, "FLEval.field", null), intoObj, slotName);
 				slotName = new StringLiteral(si.location, si.text);
