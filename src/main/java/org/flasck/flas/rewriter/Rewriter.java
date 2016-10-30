@@ -269,12 +269,26 @@ public class Rewriter {
 				}
 			}
 			for (ContractImplements ci : cd.contracts) {
-				if (ci.referAsVar != null)
-					members.put(ci.referAsVar, (Type)getObject(cx.resolve(ci.location(), ci.name())));
+				if (ci.referAsVar != null) {
+					RWContractImplements t = null;
+					for (RWContractImplements x : cardImplements.values())
+						if (ci.referAsVar.equals(x.referAsVar))
+							t = x;
+					if (t == null)
+						throw new UtilException("No ci for " + ci.referAsVar);
+					members.put(ci.referAsVar, t);
+				}
 			}
 			for (ContractService cs : cd.services) {
-				if (cs.referAsVar != null)
-					members.put(cs.referAsVar, (Type)getObject(cx.resolve(cs.location(), cs.name())));
+				if (cs.referAsVar != null) {
+					RWContractService t = null;
+					for (RWContractService x : cardServices.values())
+						if (cs.referAsVar.equals(x.referAsVar))
+							t = x;
+					if (t == null)
+						throw new UtilException("No cs for " + cs.referAsVar);
+					members.put(cs.referAsVar, t);
+				}
 			}
 			for (HandlerImplements hi : cd.handlers) {
 				statics.put(State.simpleName(hi.hiName), new ObjectReference(hi.location(), prefix, hi.hiName));
@@ -516,9 +530,7 @@ public class Rewriter {
 			Object val = x.getValue();
 			if (val instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) val;
-				RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
-				CardGrouping grp = new CardGrouping(sd);
-				cards.put(cd.name, grp);
+				createCard(cx, cd);
 				pass1(null, cd.fnScope);
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
@@ -660,6 +672,39 @@ public class Rewriter {
 		}
 	}
 
+	private void createCard(NamingContext cx, CardDefinition cd) {
+		RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
+		CardGrouping grp = new CardGrouping(sd);
+		cards.put(cd.name, grp);
+		
+		int pos = 0;
+		for (ContractImplements ci : cd.contracts) {
+			RWContractImplements rw = rewriteCI(cx, ci);
+			if (rw == null)
+				continue;
+			String myname = cd.name +"._C" + pos;
+			grp.contracts.add(new ContractGrouping(rw.name(), myname, rw.referAsVar));
+			cardImplements.put(myname, rw);
+			if (rw.referAsVar != null)
+				sd.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
+			pos++;
+		}
+		
+		pos=0;
+		for (ContractService cs : cd.services) {
+			RWContractService rw = rewriteCS(cx, cs);
+			if (rw == null)
+				continue;
+			String myname = cd.name +"._S" + pos;
+			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
+			cardServices.put(myname, rw);
+			if (rw.referAsVar != null)
+				sd.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
+			pos++;
+		}
+
+	}
+
 	private void rewriteCard(NamingContext cx, CardDefinition cd) {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope: " + cx.getClass());
@@ -678,14 +723,8 @@ public class Rewriter {
 		
 		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
-			RWContractImplements rw = rewriteCI(c2, ci);
-			if (rw == null)
-				continue;
 			String myname = cd.name +"._C" + pos;
-			grp.contracts.add(new ContractGrouping(rw.name(), myname, rw.referAsVar));
-			cardImplements.put(myname, rw);
-			if (rw.referAsVar != null)
-				sd.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
+			RWContractImplements rw = cardImplements.get(myname);
 
 			for (MethodCaseDefn c : ci.methods) {
 				if (methods.containsKey(c.intro.name))
@@ -705,14 +744,8 @@ public class Rewriter {
 		
 		pos=0;
 		for (ContractService cs : cd.services) {
-			RWContractService rw = rewriteCS(c2, cs);
-			if (rw == null)
-				continue;
 			String myname = cd.name +"._S" + pos;
-			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
-			cardServices.put(myname, rw);
-			if (rw.referAsVar != null)
-				sd.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
+			RWContractService rw = cardServices.get(myname);
 
 			for (MethodCaseDefn c : cs.methods) {
 				if (methods.containsKey(c.intro.name))
@@ -933,9 +966,9 @@ public class Rewriter {
 			throw new UtilException("Cannot extract a type from " + resolve);
 	}
 
-	private RWContractImplements rewriteCI(CardContext cx, ContractImplements ci) {
+	private RWContractImplements rewriteCI(NamingContext cx, ContractImplements ci) {
 		try {
-			Object av = cx.nested.resolve(ci.location(), ci.name());
+			Object av = cx.resolve(ci.location(), ci.name());
 			if (av == null || !(av instanceof PackageVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + ci.name());
 				return null;
@@ -947,9 +980,9 @@ public class Rewriter {
 		}
 	}
 
-	private RWContractService rewriteCS(CardContext cx, ContractService cs) {
+	private RWContractService rewriteCS(NamingContext cx, ContractService cs) {
 		try {
-			Object av = cx.nested.resolve(cs.location(), cs.name());
+			Object av = cx.resolve(cs.location(), cs.name());
 			if (av == null || !(av instanceof PackageVar)) {
 				errors.message((Block)null, "cannot find a valid definition of contract " + cs.name());
 				return null;

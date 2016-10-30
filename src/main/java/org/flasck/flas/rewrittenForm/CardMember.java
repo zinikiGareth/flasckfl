@@ -14,6 +14,8 @@ public class CardMember implements ExternalRef {
 		this.location = location;
 		this.card = card;
 		this.var = var;
+		if (type == null)
+			throw new UtilException("Type is not allowed to be null");
 		this.type = type;
 	}
 	

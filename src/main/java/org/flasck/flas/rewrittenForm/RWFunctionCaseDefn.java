@@ -16,10 +16,6 @@ public class RWFunctionCaseDefn {
 		this.expr = expr;
 	}
 	
-	public String methodName() {
-		return intro.name;
-	}
-	
 	public String caseName() {
 		return intro.name + "_" + csNo;
 	}
