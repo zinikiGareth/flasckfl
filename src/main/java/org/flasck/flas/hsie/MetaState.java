@@ -10,7 +10,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.IfExpr;
-import org.flasck.flas.commonBase.LetExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
@@ -129,25 +128,8 @@ public class MetaState {
 			else
 				writeTo.caseError();
 			return;
-		} else if (expr instanceof LetExpr) {
-			LetExpr let = (LetExpr) expr;
-			LocatedObject lo = getValueFor(substs, let.val);
-			CreationOfVar var;
-			if (lo.obj instanceof CreationOfVar) {
-				var = (CreationOfVar) lo.obj;
-				var = new CreationOfVar(var.var, lo.loc, let.var);
-			} else {
-				Var v = allocateVar();
-				var = new CreationOfVar(v, null, let.var);
-				HSIEBlock closure = form.closure(null, v);
-				closure.push(lo.loc, lo.obj);
-			}
-			logger.info("Putting let expr " + let.var + " in substs as " + var);
-			substs.put(let.var, var);
-			writeIfExpr(substs, let.expr, writeTo);
-			return;
 		}
-
+		
 		// Now handle scoping by resolving the vars that are included in scope 
 		List<TrailItem> tis = new ArrayList<TrailItem>();
 		TreeSet<VarNestedFromOuterFunctionScope> set = new TreeSet<VarNestedFromOuterFunctionScope>();

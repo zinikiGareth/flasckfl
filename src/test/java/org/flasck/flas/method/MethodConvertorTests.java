@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -17,7 +16,6 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -45,13 +43,8 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
-import org.flasck.flas.vcode.hsieForm.HSIEBlock;
-import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
-import org.flasck.flas.vcode.hsieForm.Var;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
 import org.zinutils.collections.CollectionUtils;
 
 public class MethodConvertorTests {

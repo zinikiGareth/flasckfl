@@ -12,7 +12,6 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -81,7 +80,6 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Orchard;
-import org.zinutils.graphs.Tree;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringComparator;
 

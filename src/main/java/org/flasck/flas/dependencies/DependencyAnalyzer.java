@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.LetExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
@@ -19,13 +18,13 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -118,12 +117,6 @@ public class DependencyAnalyzer {
 			analyzeExpr(dcg, name, locals, ae.fn);
 			for (Object x : ae.args)
 				analyzeExpr(dcg, name, locals, x);
-		} else if (expr instanceof LetExpr) {
-			LetExpr let = (LetExpr) expr;
-			analyzeExpr(dcg, name, locals, let.val);
-			Set<String> locals2 = new TreeSet<String>(locals);
-			locals2.add(let.var);
-			analyzeExpr(dcg, name, locals2, let.expr);
 		} else
 			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass());
 	}

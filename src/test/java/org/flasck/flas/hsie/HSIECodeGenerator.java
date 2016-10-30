@@ -4,24 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.LetExpr;
-import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewrittenForm.LocalVar;
-import org.flasck.flas.rewrittenForm.PackageVar;
-import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -150,21 +140,5 @@ public class HSIECodeGenerator {
 		assertNotNull(form);
 		form.dump(new PrintWriter(System.out));
 		HSIETestData.assertHSIE(HSIETestData.rdf2(0), form);
-	}
-
-	@Test
-	public void testADirectLet() throws Exception {
-//		Scope biscope = Builtin.builtinScope();
-//		PackageDefn pkg = new PackageDefn(null, biscope, "ME");
-		// TODO: I changed this from _x to ME.f._x to get the test to pass; not sure if the code actually does that.
-		LetExpr expr = new LetExpr("ME.f._x",
-					new ApplyExpr(posn, new PackageVar(posn, "FLEval.plus", null), new NumericLiteral(posn, "2", 1), new NumericLiteral(posn, "2", 1)),
-					new ApplyExpr(posn, new PackageVar(posn, "FLEval.plus", null), new LocalVar("ME.f", posn, "_x", posn, null), new LocalVar("ME.f", posn, "_x", posn, null)));
-		RWFunctionCaseDefn fcd = new RWFunctionCaseDefn(new RWFunctionIntro(posn, "ME.f", new ArrayList<>(), null), 0, expr);
-		RWFunctionDefinition f = new RWFunctionDefinition(posn, CodeType.FUNCTION, "ME.f", 0, true);
-		f.cases.add(fcd);
-		HSIEForm form = new HSIE(errors, null).handle(null, new VarFactory(), f);
-		assertNotNull(form);
-		HSIETestData.assertHSIE(HSIETestData.directLet(), form);
 	}
 }
