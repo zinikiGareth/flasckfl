@@ -64,6 +64,8 @@ test.golden._Complex = function(v0) {
   this._ctor = 'test.golden.Complex';
   this._wrapper = v0.wrapper;
   this._special = 'card';
+  this.yoyo = undefined;
+  this.yoyo = FLEval.full(this.yoyo);
   this.mapper = undefined;
   this.mapper = FLEval.full(this.mapper);
   this.hello = "hello, world";
@@ -310,13 +312,52 @@ test.golden._Complex.B6.prototype._assignToVar = function() {
 }
 
 test.golden._Complex.B9 = function(parent) {
+  CasesArea.call(this, parent);
+  if (!parent) return;
+  this._onAssign(this._card, 'hello', test.golden._Complex.B9.prototype._chooseCase);
+  test.golden._Complex.B9.prototype._chooseCase.call(this);
+}
+
+test.golden._Complex.B9.prototype = new CasesArea();
+
+test.golden._Complex.B9.prototype.constructor = test.golden._Complex.B9;
+
+test.golden._Complex.B9.prototype._chooseCase = function(parent) {
+  "use strict";
+  var cond;
+  cond = FLEval.closure(FLEval.compeq, this._card.hello, 'hello');
+  if (FLEval.full(cond)) {
+    this._setTo(test.golden._Complex.B10);
+    return;
+  }
+  this._setTo(test.golden._Complex.B11);
+  return;
+}
+
+test.golden._Complex.B10 = function(parent) {
   CardSlotArea.call(this, parent, { explicit: test.golden.SubCard});
   if (!parent) return;
 }
 
-test.golden._Complex.B9.prototype = new CardSlotArea();
+test.golden._Complex.B10.prototype = new CardSlotArea();
 
-test.golden._Complex.B9.prototype.constructor = test.golden._Complex.B9;
+test.golden._Complex.B10.prototype.constructor = test.golden._Complex.B10;
+
+test.golden._Complex.B11 = function(parent) {
+  CardSlotArea.call(this, parent, undefined);
+  if (!parent) return;
+  this._onAssign(this._card, 'yoyo', test.golden._Complex.B11.prototype._yoyoExpr);
+  test.golden._Complex.B11.prototype._yoyoExpr.call(this);
+}
+
+test.golden._Complex.B11.prototype = new CardSlotArea();
+
+test.golden._Complex.B11.prototype.constructor = test.golden._Complex.B11;
+
+test.golden._Complex.B11.prototype._yoyoExpr = function() {
+  var card = this._card.yoyo;
+  this._updateToCard(card);
+}
 
 test.golden.Complex._FooHandler.prototype.reply = function(v0) {
   "use strict";

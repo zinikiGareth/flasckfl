@@ -357,14 +357,20 @@ public class TemplateGenerator {
 			for (TemplateOr oc : tc.cases) {
 				String cn = cx.nextArea();
 
-				JSForm.assign(sw, "cond", hsie.handleExpr(new ApplyExpr(oc.location(), cx.equals, tc.switchOn, oc.cond), CodeType.AREA));
-				JSForm doit = JSForm.flex("if (FLEval.full(cond))").needBlock();
+				JSForm doit;
+				if (oc.cond == null)
+					doit = sw;
+				else {
+					JSForm.assign(sw, "cond", hsie.handleExpr(new ApplyExpr(oc.location(), cx.equals, tc.switchOn, oc.cond), CodeType.AREA));
+					doit = JSForm.flex("if (FLEval.full(cond))").needBlock();
+					sw.add(doit);
+				}
 				doit.add(JSForm.flex("this._setTo(" + cn +")"));
 //				doit.add(JSForm.flex("var v = new " + cn + "(this)"));
 				doit.add(JSForm.flex("return"));
-				sw.add(doit);
 				recurse(cx, cn, oc.template, called);
-				callOnAssign(fn, oc.cond, null, sn, false, null);
+				if (oc.cond != null)
+					callOnAssign(fn, oc.cond, null, sn, false, null);
 			}
 		} else if (tl instanceof RWD3Invoke) {
 			RWD3Invoke d3 = (RWD3Invoke) tl;

@@ -201,7 +201,7 @@ public class TemplateLineParser implements TryParsing{
 				}
 				if (line.hasMore())
 					return ErrorResult.oneMessage(line, "extraneous symbols at end of cases line");
-				cmd = new TemplateCases(line.realinfo(), expr);
+				cmd = new TemplateCases(tt.location, expr);
 			} else if (tt.type == TemplateToken.OR) {
 				if (!contents.isEmpty()) {
 					return ErrorResult.oneMessage(line, "or must be the only content item");
@@ -217,7 +217,7 @@ public class TemplateLineParser implements TryParsing{
 				}
 				if (line.hasMore())
 					return ErrorResult.oneMessage(line, "extraneous symbols at end of cases line");
-				cmd = new TemplateOr(loc, expr, null);
+				cmd = new TemplateOr(tt.location, expr, null);
 			} else
 				throw new UtilException("Cannot handle " + tt);
 		}

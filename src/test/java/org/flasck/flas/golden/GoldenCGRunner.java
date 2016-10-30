@@ -23,9 +23,11 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.template.TemplateCases;
 import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
 import org.flasck.flas.commonBase.template.TemplateFormat;
 import org.flasck.flas.commonBase.template.TemplateList;
+import org.flasck.flas.commonBase.template.TemplateOr;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -438,10 +440,26 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		} else if (obj instanceof TemplateCardReference) {
 			TemplateCardReference tr = (TemplateCardReference) obj;
 			if (tr.explicitCard != null)
-				pw.print(tr.explicitCard);
+				pw.print("Explicit " + tr.explicitCard);
 			else
-				pw.print(tr.yoyoVar);
+				pw.print("Yoyo "+ tr.yoyoVar);
 			dumpLocation(pw, tr);
+		} else if (obj instanceof TemplateCases) {
+			TemplateCases tc = (TemplateCases) obj;
+			pw.print("Cases");
+			dumpLocation(pw, tc);
+			dumpRecursive(pw.indent(), tc.switchOn);
+			dumpList(pw, tc.cases);
+		} else if (obj instanceof TemplateOr) {
+			TemplateOr tor = (TemplateOr) obj;
+			if (tor.cond != null)
+				pw.print("Or");
+			else
+				pw.print("Else");
+			dumpLocation(pw, tor);
+			if (tor.cond != null)
+				dumpRecursive(pw.indent(), tor.cond);
+			dumpRecursive(pw.indent(), tor.template);
 		} else if (obj instanceof ContentString) {
 			ContentString ce = (ContentString) obj;
 			pw.print("'' " + ce.text);

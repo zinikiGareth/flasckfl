@@ -445,6 +445,9 @@ public class MetaState {
 	}
 	
 	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, Object expr) {
+		if (expr == null) // this is often quite acceptable, e.g. with TemplateCases/Else
+			return;
+		
 		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || 
 			expr instanceof LocalVar || expr instanceof CardMember || expr instanceof CardFunction || expr instanceof CardStateRef || expr instanceof ObjectReference ||
 			expr instanceof PackageVar || 

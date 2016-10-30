@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.Locatable;
 
-public class TemplateCases implements TemplateLine {
+public class TemplateCases implements TemplateLine, Locatable {
 	public final List<TemplateOr> cases = new ArrayList<TemplateOr>();
 	public final InputPosition loc;
 	public final Object switchOn;
@@ -17,6 +18,11 @@ public class TemplateCases implements TemplateLine {
 
 	public void addCase(TemplateOr tor) {
 		cases.add(tor);
+	}
+
+	@Override
+	public InputPosition location() {
+		return loc;
 	}
 
 }
