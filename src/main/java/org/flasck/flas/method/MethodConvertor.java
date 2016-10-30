@@ -37,6 +37,7 @@ import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
+import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
@@ -433,21 +434,21 @@ public class MethodConvertor {
 	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<Type> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
 		RWContractDecl cd = null;
 		TypeWithMethods proto = senderType;
-//		Type methodType = null;
+		Type methodType = null;
 		if (senderType instanceof RWContractDecl) {
 			proto = cd = (RWContractDecl) senderType;
-//			if (proto.hasMethod(method.text))
-//				methodType = cd.getMethodType(method.text);
+			if (proto.hasMethod(method.text))
+				methodType = cd.getMethodType(method.text);
 		} else if (senderType instanceof RWContractService || senderType instanceof RWContractImplements) {
 			proto = cd = (RWContractDecl) rw.getMe(senderType.location(), senderType.name()).defn;
-//			if (proto.hasMethod(method.text))
-//				methodType = cd.getMethodType(method.text);
+			if (proto.hasMethod(method.text))
+				methodType = cd.getMethodType(method.text);
 		} else if (senderType instanceof RWObjectDefn) {
 			RWObjectDefn od = (RWObjectDefn) senderType;
-//			if (senderType.hasMethod(method.text))
-//				methodType = od.getMethod(method.text);
+			if (senderType.hasMethod(method.text))
+				methodType = od.getMethod(method.text);
 		}
-		if (!proto.hasMethod(method.text)) {
+		if (methodType == null) {
 			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());
 			return null;
 		}
@@ -459,25 +460,15 @@ public class MethodConvertor {
 			errors.message(method.location, "can only call down methods on service implementations");
 			return null;
 		}
-		/* TODO: HSIE
-		if (methodType == null)
-			throw new UtilException("We should have figured out the type by now");
-		List<Object> m1 = new ArrayList<>(margs);
-		m1.add(new RWVarPattern(location, "__me.__m"));
-		List<Type> t1 = new ArrayList<>(types);
-		t1.add(methodType);
-		Type ct = calculateExprType(m1, t1, new ApplyExpr(location, new LocalVar("__me", location, "__m", location, methodType), args));
-		if (ct == null)
-			return null; // should have reported the error already
-		if (ct.iam == WhatAmI.FUNCTION) {
+		// is it safe to assume methodType is a FUNCTION?  I will anyway, until proved otherwise
+		if (methodType.arity() < args.size()) {
+			errors.message(method.location, "too many arguments to " + method.text);
+			return null;
+		}
+		if (methodType.arity() > args.size()) {
 			errors.message(method.location, "missing arguments in call of " + method.text);
 			return null;
 		}
-		if (ct.iam != WhatAmI.STRUCT || !ct.name().equals("Send")) {
-			errors.message(method.location, "type checking error during method conversion"); // I don't actually see how this could happen ... maybe should throw exception?
-			return null;
-		}
-		*/
 		return new ApplyExpr(sender.location(),	rw.getMe(location, "Send"), sender, method, asList(sender.location(), rw, args));
 	}
 
@@ -513,7 +504,7 @@ public class MethodConvertor {
 		*/
 		
 		// TODO: HSIE: this is where we need to add the type constraint: typecheck(expr, "Message")
-		return expr;
+		return new TypeCheckMessages(expr.location, expr);
 	}
 
 	/* TODO: HSIE

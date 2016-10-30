@@ -39,6 +39,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
@@ -48,6 +49,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.zinutils.collections.CollectionUtils;
@@ -60,7 +62,7 @@ public class MethodConvertorTests {
 	private HSIE hsie;
 	private TypeChecker tc;
 	private MethodConvertor convertor;
-	private Map<String, HSIEForm> functions = new HashMap<>(); 
+	private Map<String, RWFunctionDefinition> functions = new HashMap<>(); 
 	private CardDefinition cd;
 	private ContractImplements ce;
 	private ContractService se;
@@ -202,9 +204,12 @@ public class MethodConvertorTests {
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
-		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		HSIETestData.assertInstructionEquals("RETURN RWStructDefn.Nil", hsieForm.nestedCommands().get(0));
-		hsieForm.dump((Logger)null);
+		RWFunctionDefinition func = CollectionUtils.any(functions.values());
+		System.out.println(func);
+		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals(1, func.cases.size());
+		RWFunctionCaseDefn c1 = func.cases.get(0);
+		assertEquals("Nil", c1.expr.toString());
 	}
 
 	@Test
@@ -214,9 +219,12 @@ public class MethodConvertorTests {
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
-		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump((Logger)null);
-		HSIETestData.assertInstructionEquals("RETURN RWStructDefn.Nil", hsieForm.nestedCommands().get(1).nestedCommands().get(0));
+		RWFunctionDefinition func = CollectionUtils.any(functions.values());
+		System.out.println(func);
+		assertEquals("org.foo.Card.bar", func.name);
+		assertEquals(1, func.cases.size());
+		RWFunctionCaseDefn c1 = func.cases.get(0);
+		assertEquals("Nil", c1.expr.toString());
 	}
 
 	@Test
@@ -234,15 +242,18 @@ public class MethodConvertorTests {
 		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new ApplyExpr(new InputPosition("test", 1, 3, "<- (join []) ''"), new UnresolvedVar(posn, "join"), new UnresolvedVar(posn, "Nil")), new StringLiteral(posn, ""))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
-//		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-//		hsieForm.dump(null);
-//		assertEquals(0, functions.size());
-		assertEquals(errors.singleString(), 1, errors.count());
-		assertEquals("method expression must be of type Message or List[Message]", errors.get(0).msg);
-		assertEquals("test:         1.3", errors.get(0).loc.toString());
+		assertFalse(errors.singleString(), errors.hasErrors());
+		assertEquals(1, functions.size());
+		RWFunctionDefinition func = CollectionUtils.any(functions.values());
+		System.out.println(func);
+		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals(1, func.cases.size());
+		RWFunctionCaseDefn c1 = func.cases.get(0);
+		assertEquals("(Cons (#tcMessages (join Nil)) Nil)", c1.expr.toString());
 	}
 
 	/* ---- Tests of Assignment to a single slot ---- */
+	@Ignore // TODO: HSIE: slots
 	public void testTheTopLevelSlotInAnAssignmentMustBeResolvable() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "fred")), new NumericLiteral(posn, "36", 2)));
 		stage2(true);
@@ -251,6 +262,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCanOnlyAssignASlotWithTheRightType() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str")), new NumericLiteral(posn, "36", 2)));
 		stage2(true);
@@ -260,6 +272,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCanAssignToACardMember() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -272,6 +285,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testAnEventHandlerCanAssignToACardMember() throws Exception {
 		defineEHMethod(cd.innerScope(), "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -284,6 +298,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCannotAssignToAContractVar() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "ce")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -293,6 +308,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCannotAssignToAServiceVar() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "se")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -301,6 +317,8 @@ public class MethodConvertorTests {
 		assertEquals("cannot assign to a service var: se", errors.get(0).msg);
 	}
 
+	@Test // TODO: HSIE: this was previously not tagged
+	@Ignore // TODO: HSIE: slots
 	public void testWeCannotAssignToAMethod() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "bar")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -309,6 +327,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCannotAssignToAFunction() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "map")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -318,6 +337,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCannotAssignToAFreeLambda() throws Exception {
 		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "freeArg")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -327,6 +347,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCannotDirectlyAssignToAStructLambda() throws Exception {
 		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "stateArg")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -337,6 +358,7 @@ public class MethodConvertorTests {
 
 	/* ---- Tests of Assignment to a nested slot ---- */
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCannotAssignToAFieldOfAString() throws Exception {
 		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -346,6 +368,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCanAssignToAFieldInAStructLambda() throws Exception {
 		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "stateArg"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -358,6 +381,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testAnEventHandlerCanAssignToAFieldInALocalStatefulVar() throws Exception {
 		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "t"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -370,6 +394,7 @@ public class MethodConvertorTests {
 	}
 
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testAnEventHandlerCannotAssignToAnUntypedVar() throws Exception {
 		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "ev"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -381,6 +406,7 @@ public class MethodConvertorTests {
 	// TODO: I think there's another case here where we can't assign to ev just because it's the event argument and therefore transient and you can't make it not transient
 	
 	@Test
+	@Ignore // TODO: HSIE: slots
 	public void testWeCannotAssignToANonField() throws Exception {
 		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "stateArg"), new LocatedToken(posn, "y")), new StringLiteral(posn, "hello")));
 		stage2(true);
@@ -397,13 +423,12 @@ public class MethodConvertorTests {
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertEquals(1, functions.size());
-		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump((Logger)null);
-		HSIETestData.assertInstructionEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0));
-		HSIETestData.assertInstructionEquals("PUSH RWStructDefn.Send", hsieForm.getClosure(new Var(0)).nestedCommands().get(0));
-		HSIETestData.assertInstructionEquals("PUSH CardMember.CardMember[org.foo.Card.ce]", hsieForm.getClosure(new Var(0)).nestedCommands().get(1));
-		HSIETestData.assertInstructionEquals("PUSH \"start\"", hsieForm.getClosure(new Var(0)).nestedCommands().get(2));
-		HSIETestData.assertInstructionEquals("PUSH RWStructDefn.Nil", hsieForm.getClosure(new Var(0)).nestedCommands().get(3));
+		RWFunctionDefinition func = CollectionUtils.any(functions.values());
+		System.out.println(func);
+		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals(1, func.cases.size());
+		RWFunctionCaseDefn c1 = func.cases.get(0);
+		assertEquals("(Cons (Send CardMember[org.foo.Card.ce] \"start\" Nil) Nil)", c1.expr.toString());
 	}
 
 	@Test
@@ -413,15 +438,12 @@ public class MethodConvertorTests {
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertEquals(1, functions.size());
-		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump((Logger)null);
-		HSIETestData.assertInstructionEquals("RETURN v2:clos2 [v0:clos0, v1:clos1]", hsieForm.nestedCommands().get(0));
-		List<HSIEBlock> clos1 = hsieForm.getClosure(new Var(1)).nestedCommands();
-		assertEquals(4, clos1.size());
-		HSIETestData.assertInstructionEquals("PUSH RWStructDefn.Send", clos1.get(0));
-		HSIETestData.assertInstructionEquals("PUSH CardMember.CardMember[org.foo.Card.ce]", clos1.get(1));
-		HSIETestData.assertInstructionEquals("PUSH \"request\"", clos1.get(2));
-		HSIETestData.assertInstructionEquals("PUSH v0:clos0", clos1.get(3));
+		RWFunctionDefinition func = CollectionUtils.any(functions.values());
+		System.out.println(func);
+		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals(1, func.cases.size());
+		RWFunctionCaseDefn c1 = func.cases.get(0);
+		assertEquals("(Cons (Send CardMember[org.foo.Card.ce] \"request\" (Cons \"hello\" Nil)) Nil)", c1.expr.toString());
 	}
 
 	@Test
@@ -456,13 +478,13 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotSendAMessageWithTooManyArgs() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start 'hello'"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new UnresolvedOperator(new InputPosition("test", 1, 6, "<- ce.start 'hello'"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.start 'hello'"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 7, "<- ce.start 'hello'"), "start")), new StringLiteral(new InputPosition("test", 1, 12, "<- ce.start 'hello'"), "hello"))));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start 'hello'"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.start"), new UnresolvedOperator(new InputPosition("test", 1, 6, "<- ce.start 'hello'"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.start 'hello'"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 6, "<- ce.start 'hello'"), "start")), new StringLiteral(new InputPosition("test", 1, 12, "<- ce.start 'hello'"), "hello"))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		System.out.println(errors.singleString());
 		assertEquals(errors.singleString(), 1, errors.count());
-		assertEquals(errors.singleString(), "inconsistent types: Send and String->Any", errors.get(0).msg);
-		assertEquals("test:         1.1", errors.get(0).loc.toString());
+		assertEquals(errors.singleString(), "too many arguments to start", errors.get(0).msg);
+		assertEquals("test:         1.6", errors.get(0).loc.toString());
 	}
 	
 	@Test
@@ -484,13 +506,12 @@ public class MethodConvertorTests {
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertEquals(1, functions.size());
-		HSIEForm hsieForm = CollectionUtils.any(functions.values());
-		hsieForm.dump((Logger)null);
-		HSIETestData.assertInstructionEquals("RETURN v1:clos1 [v0:clos0]", hsieForm.nestedCommands().get(0));
-		List<HSIEBlock> clos0 = hsieForm.getClosure(new Var(0)).nestedCommands();
-		HSIETestData.assertInstructionEquals("PUSH PackageVar.map", clos0.get(0));
-		HSIETestData.assertInstructionEquals("PUSH PackageVar.doSend", clos0.get(1));
-		HSIETestData.assertInstructionEquals("PUSH PackageVar.Nil", clos0.get(2));
+		RWFunctionDefinition func = CollectionUtils.any(functions.values());
+		System.out.println(func);
+		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals(1, func.cases.size());
+		RWFunctionCaseDefn c1 = func.cases.get(0);
+		assertEquals("(Cons (#tcMessages (map doSend Nil)) Nil)", c1.expr.toString());
 	}
 
 	/* ---- Helper Methods ---- */
