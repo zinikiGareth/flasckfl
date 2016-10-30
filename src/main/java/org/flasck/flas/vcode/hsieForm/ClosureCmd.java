@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 
 public class ClosureCmd extends HSIEBlock {
 	public final Var var;
+	public boolean typecheckMessages;
 	public boolean justScoping = false;
 
 	public ClosureCmd(InputPosition loc, Var var) {

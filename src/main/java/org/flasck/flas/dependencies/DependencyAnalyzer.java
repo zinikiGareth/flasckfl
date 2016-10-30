@@ -25,6 +25,7 @@ import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -117,6 +118,9 @@ public class DependencyAnalyzer {
 			analyzeExpr(dcg, name, locals, ae.fn);
 			for (Object x : ae.args)
 				analyzeExpr(dcg, name, locals, x);
+		} else if (expr instanceof TypeCheckMessages) {
+			TypeCheckMessages tcm = (TypeCheckMessages) expr;
+			analyzeExpr(dcg, name, locals, tcm.expr);
 		} else
 			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass());
 	}

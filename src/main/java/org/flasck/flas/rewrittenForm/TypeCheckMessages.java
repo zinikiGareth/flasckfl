@@ -6,7 +6,7 @@ import org.flasck.flas.commonBase.Locatable;
 
 public class TypeCheckMessages implements Locatable {
 	private final InputPosition location;
-	private final ApplyExpr expr;
+	public final ApplyExpr expr;
 
 	public TypeCheckMessages(InputPosition location, ApplyExpr expr) {
 		this.location = location;

@@ -32,6 +32,7 @@ import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -363,8 +364,13 @@ public class MetaState {
 			HSIEBlock closure = form.getClosure(cv.var);
 			closure.downcastType = (Type) ((PackageVar)ce.castTo).defn;
 			return cv;
-		}
-		else {
+		} else if (expr instanceof TypeCheckMessages) {
+			TypeCheckMessages tcm = (TypeCheckMessages) expr;
+			CreationOfVar cv = (CreationOfVar) convertValue(locs, substs, tcm.expr);
+			ClosureCmd closure = form.getClosure(cv.var);
+			closure.typecheckMessages = true;
+			return cv;
+		} else {
 			System.out.println("HSIE Cannot Handle: " + expr);
 			throw new UtilException("HSIE Cannot handle " + expr + " " + (expr != null? " of type " + expr.getClass() : ""));
 		}
@@ -441,6 +447,9 @@ public class MetaState {
 			CastExpr ce = (CastExpr) expr;
 			gatherScopedVars(set, ce.castTo);
 			gatherScopedVars(set, ce.expr);
+		} else if (expr instanceof TypeCheckMessages) {
+			TypeCheckMessages tcm = (TypeCheckMessages) expr;
+			gatherScopedVars(set, tcm.expr);
 		} else
 			throw new UtilException("Cannot handle scopedVars in " + (expr == null ? "_null expr_" : expr.getClass()));
 	}
