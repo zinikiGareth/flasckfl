@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
@@ -326,6 +327,7 @@ public class MethodConvertor {
 
 	protected Object convertAssignMessage(Rewriter rw, List<Object> margs, List<Type> types, RWMethodMessage mm, boolean fromHandler) {
 		Locatable slot = (Locatable) mm.slot.get(0);
+		InputPosition location = slot.location();
 		Object intoObj;
 		StringLiteral slotName;
 		Type slotType;
@@ -376,6 +378,7 @@ public class MethodConvertor {
 		if (mm.slot.size() > 1) {
 			for (int i=1;i<mm.slot.size();i++) {
 				LocatedToken si = (LocatedToken) mm.slot.get(i);
+				location = si.location();
 				if (!(slotType instanceof RWStructDefn)) {
 					// There may be some valid cases mixed up in here; if so, fix them later
 					errors.message(si.location(), "cannot extract member '" + si.text + "' of a non-struct: '" + slotType.name() + "'");
@@ -388,11 +391,9 @@ public class MethodConvertor {
 					return null;
 				}
 				slotType = sf.type;
-				/*
 				if (slotName != null)
 					intoObj = new ApplyExpr(si.location, new PackageVar(si.location, "FLEval.field", null), intoObj, slotName);
 				slotName = new StringLiteral(si.location, si.text);
-				*/
 			}
 		} else if (slotName == null) {
 			errors.message(slot.location(), "cannot assign directly to an object");
@@ -423,7 +424,7 @@ public class MethodConvertor {
 			}
 		}
 		*/
-		return new ApplyExpr(slot.location(), rw.getMe(slot.location(), "Assign"), intoObj, slotName, mm.expr);
+		return new ApplyExpr(slot.location(), rw.getMe(slot.location(), "Assign"), intoObj, slotName, new AssertTypeExpr(location, slotType, mm.expr));
 	}
 
 	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<Type> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {

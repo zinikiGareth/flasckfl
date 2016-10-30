@@ -13,7 +13,9 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
+import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
@@ -74,6 +76,7 @@ public class MetaState {
 		}
 	}
 
+	private final ErrorResult errors;
 	private final Rewriter rewriter;
 	public final HSIEForm form;
 	final List<State> allStates = new ArrayList<State>();
@@ -81,7 +84,8 @@ public class MetaState {
 	private final Map<Object, LocatedObject> retValues = new HashMap<Object, LocatedObject>();
 	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
 
-	public MetaState(Rewriter rewriter, Map<String, HSIEForm> previous, HSIEForm form) {
+	public MetaState(ErrorResult errors, Rewriter rewriter, Map<String, HSIEForm> previous, HSIEForm form) {
+		this.errors = errors;
 		this.rewriter = rewriter;
 		this.form = form;
 	}
@@ -370,6 +374,21 @@ public class MetaState {
 			ClosureCmd closure = form.getClosure(cv.var);
 			closure.typecheckMessages = true;
 			return cv;
+		} else if (expr instanceof AssertTypeExpr) {
+			AssertTypeExpr ate = (AssertTypeExpr) expr;
+			Object conv = convertValue(locs, substs, ate.expr);
+			if (conv instanceof CreationOfVar) { // it's a closure, delegate to typechecker ..
+				CreationOfVar cv = (CreationOfVar) conv;
+				ClosureCmd closure = form.getClosure(cv.var);
+				closure.assertType = ate.type;
+				return cv;
+			} else if (conv instanceof StringLiteral) {
+				if (!ate.type.name().equals("String")) {
+					errors.message(ate.location(), "cannot assign a string to " + ate.type.name());
+				}
+				return conv;
+			} else
+				throw new UtilException("We should check " + conv + " against " + ate.type);
 		} else {
 			System.out.println("HSIE Cannot Handle: " + expr);
 			throw new UtilException("HSIE Cannot handle " + expr + " " + (expr != null? " of type " + expr.getClass() : ""));
@@ -449,6 +468,9 @@ public class MetaState {
 			gatherScopedVars(set, ce.expr);
 		} else if (expr instanceof TypeCheckMessages) {
 			TypeCheckMessages tcm = (TypeCheckMessages) expr;
+			gatherScopedVars(set, tcm.expr);
+		} else if (expr instanceof AssertTypeExpr) {
+			AssertTypeExpr tcm = (AssertTypeExpr) expr;
 			gatherScopedVars(set, tcm.expr);
 		} else
 			throw new UtilException("Cannot handle scopedVars in " + (expr == null ? "_null expr_" : expr.getClass()));

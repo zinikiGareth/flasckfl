@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
@@ -120,6 +121,9 @@ public class DependencyAnalyzer {
 				analyzeExpr(dcg, name, locals, x);
 		} else if (expr instanceof TypeCheckMessages) {
 			TypeCheckMessages tcm = (TypeCheckMessages) expr;
+			analyzeExpr(dcg, name, locals, tcm.expr);
+		} else if (expr instanceof AssertTypeExpr) {
+			AssertTypeExpr tcm = (AssertTypeExpr) expr;
 			analyzeExpr(dcg, name, locals, tcm.expr);
 		} else
 			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass());

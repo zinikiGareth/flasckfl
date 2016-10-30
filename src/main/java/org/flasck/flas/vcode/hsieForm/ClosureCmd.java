@@ -1,10 +1,12 @@
 package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.typechecker.Type;
 
 public class ClosureCmd extends HSIEBlock {
 	public final Var var;
 	public boolean typecheckMessages;
+	public Type assertType;
 	public boolean justScoping = false;
 
 	public ClosureCmd(InputPosition loc, Var var) {

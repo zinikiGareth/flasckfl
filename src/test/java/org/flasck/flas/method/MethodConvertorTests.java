@@ -264,7 +264,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card._C0.bar", func.name);
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (Assign this._card \"str\" 36) Nil)", c1.expr.toString());
+		assertEquals("(Cons (Assign this._card \"str\" (#assertType String 36)) Nil)", c1.expr.toString());
 	}
 
 	@Test
@@ -278,7 +278,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card._C0.bar", func.name);
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (Assign this._card \"str\" \"hello\") Nil)", c1.expr.toString());
+		assertEquals("(Cons (Assign this._card \"str\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
 	}
 
 	@Test
@@ -292,7 +292,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card.bar", func.name);
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (Assign this \"str\" \"hello\") Nil)", c1.expr.toString());
+		assertEquals("(Cons (Assign this \"str\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
 	}
 
 	@Test
@@ -369,7 +369,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card._C0.handle", func.name);
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (Assign HL[org.foo.MyHandler.stateArg] null \"hello\") Nil)", c1.expr.toString());
+		assertEquals("(Cons (Assign HL[org.foo.MyHandler.stateArg] \"x\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
 	}
 
 	@Test
@@ -383,7 +383,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card.futz", func.name);
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (Assign org.foo.Card.futz.t null \"hello\") Nil)", c1.expr.toString());
+		assertEquals("(Cons (Assign org.foo.Card.futz.t \"x\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
 	}
 
 	@Test

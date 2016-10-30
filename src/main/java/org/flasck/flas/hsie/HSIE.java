@@ -68,7 +68,7 @@ public class HSIE {
 	public HSIEForm handle(Map<String, HSIEForm> previous, VarFactory vf, RWFunctionDefinition defn) {
 		HashMap<String, CreationOfVar> map = new HashMap<String, CreationOfVar>();
 		HSIEForm ret = new HSIEForm(vf, defn.mytype, defn.name(), defn.location, map, defn.nargs());
-		MetaState ms = new MetaState(rewriter, previous, ret);
+		MetaState ms = new MetaState(errors, rewriter, previous, ret);
 		if (defn.nargs() == 0)
 			return handleConstant(ms, defn);
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
@@ -90,7 +90,7 @@ public class HSIE {
 			loc = ((Locatable)expr).location();
 		else
 			throw new UtilException(expr + " " + expr.getClass() + " is not locatable");
-		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(new VarFactory(), type, "", loc, new HashMap<String, CreationOfVar>(), 0));
+		MetaState ms = new MetaState(errors, rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(new VarFactory(), type, "", loc, new HashMap<String, CreationOfVar>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
@@ -102,7 +102,7 @@ public class HSIE {
 		if (expr instanceof Locatable)
 			loc = ((Locatable)expr).location();
 		HSIEForm blk = new HSIEForm(new VarFactory(), type, "_expr_", loc, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
-		MetaState ms = new MetaState(rewriter, new HashMap<String, HSIEForm>(), blk);
+		MetaState ms = new MetaState(errors, rewriter, new HashMap<String, HSIEForm>(), blk);
 //		State s = new State(blk);
 //		ms.add(s);
 		Map<String, CreationOfVar> map = new TreeMap<String, CreationOfVar>(new StringComparator());
