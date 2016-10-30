@@ -34,6 +34,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWTemplate;
+import org.flasck.flas.rewrittenForm.RWTemplateCardReference;
 import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -170,8 +171,8 @@ public class TemplateGenerator {
 		} else if (tl instanceof RWContentString || tl instanceof RWContentExpr) {
 			base = "TextArea";
 			isEditable = tl instanceof RWContentExpr && ((RWContentExpr)tl).editable();
-		} else if (tl instanceof TemplateCardReference) {
-			TemplateCardReference cr = (TemplateCardReference) tl;
+		} else if (tl instanceof RWTemplateCardReference) {
+			RWTemplateCardReference cr = (RWTemplateCardReference) tl;
 			base = "CardSlotArea";
 			if (cr.explicitCard != null)
 				moreArgs = ", { explicit: " + cr.explicitCard + "}";
@@ -326,8 +327,8 @@ public class TemplateGenerator {
 				} else 
 					throw new UtilException("Cannot edit: " + valExpr);
 			}
-		} else if (tl instanceof TemplateCardReference) {
-			TemplateCardReference cr = (TemplateCardReference) tl;
+		} else if (tl instanceof RWTemplateCardReference) {
+			RWTemplateCardReference cr = (RWTemplateCardReference) tl;
 			if (cr.explicitCard != null)
 				; // fully handled above
 			else if (cr.yoyoVar != null) {

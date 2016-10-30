@@ -23,7 +23,9 @@ This is a complex card with "one of everything"
 
 	contract Offer
 		up get (String x) (Handler h)
-		
+
+	card SubCard
+			
 	card Complex
 		state
 			String hello <- "hello, world"
@@ -40,6 +42,7 @@ This is a complex card with "one of everything"
 					.
 						"hello"
 							click => sayHello
+				> SubCard
 				
 		implements Init
 			ready (Thing obj)

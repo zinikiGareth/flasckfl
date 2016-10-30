@@ -83,6 +83,21 @@ test.golden.Complex = function(v0) {
   return new test.golden._Complex(v0);
 }
 
+test.golden._SubCard = function(v0) {
+  "use strict";
+  var _self = this;
+  this._ctor = 'test.golden.SubCard';
+  this._wrapper = v0.wrapper;
+  this._special = 'card';
+  this._services = {};
+  this._contracts = {};
+}
+
+test.golden.SubCard = function(v0) {
+  "use strict";
+  return new test.golden._SubCard(v0);
+}
+
 test.golden.Complex.__C0 = function(v0) {
   "use strict";
   this._ctor = 'test.golden.Complex._C0';
@@ -146,6 +161,10 @@ test.golden.Complex.FooHandler = function(v0) {
   return new test.golden.Complex._FooHandler(this, v0);
 }
 
+test.golden._SubCard.prototype._render = function(doc, wrapper, parent) {
+  "use strict";
+}
+
 test.golden._Complex.prototype._render = function(doc, wrapper, parent) {
   "use strict";
   new test.golden._Complex.B1(new CardArea(parent, wrapper, this));
@@ -157,6 +176,7 @@ test.golden._Complex.B1 = function(parent) {
   var b2 = new test.golden._Complex.B2(this);
   var b3 = new test.golden._Complex.B3(this);
   var b6 = new test.golden._Complex.B6(this);
+  var b9 = new test.golden._Complex.B9(this);
 }
 
 test.golden._Complex.B1.prototype = new DivArea();
@@ -288,6 +308,15 @@ test.golden._Complex.B6.prototype._assignToVar = function() {
   lv = FLEval.full(lv);
   ListArea.prototype._assignToVar.call(this, lv);
 }
+
+test.golden._Complex.B9 = function(parent) {
+  CardSlotArea.call(this, parent, { explicit: test.golden.SubCard});
+  if (!parent) return;
+}
+
+test.golden._Complex.B9.prototype = new CardSlotArea();
+
+test.golden._Complex.B9.prototype.constructor = test.golden._Complex.B9;
 
 test.golden.Complex._FooHandler.prototype.reply = function(v0) {
   "use strict";

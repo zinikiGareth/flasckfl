@@ -51,6 +51,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateCardReference;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TemplateReference;
@@ -434,6 +435,13 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.print(tr.name);
 			dumpLocation(pw, tr);
 			dumpList(pw, tr.args);
+		} else if (obj instanceof TemplateCardReference) {
+			TemplateCardReference tr = (TemplateCardReference) obj;
+			if (tr.explicitCard != null)
+				pw.print(tr.explicitCard);
+			else
+				pw.print(tr.yoyoVar);
+			dumpLocation(pw, tr);
 		} else if (obj instanceof ContentString) {
 			ContentString ce = (ContentString) obj;
 			pw.print("'' " + ce.text);

@@ -31,73 +31,75 @@ package test.golden
         String @{25:8|String}
       [type] h @{25:27|h}
         Handler @{25:19|Handler}
-  card test.golden.Complex @{27:0|card} @{27:5|Complex}
-    state @{28:0|state}
-      hello @{29:7|hello}
-        String @{29:0|String}
-       <- @{29:13|<-}
-        '' hello, world @{29:16|"hello, world"}
-      list @{30:15|list}
-        Croset @{30:0|Croset}
-          String @{30:7|String}
-      mapper @{31:15|mapper}
-        -> @{31:6|->}
-          String @{31:0|String}
-          String @{31:8|String}
-    template @{33:0|template} @{null}
-      . @{34:0|.}
-        <cexpr> @{35:0|hello}
-          hello @{35:0|hello}
-        + list lv @{36:0|+} @{36:2|list} @{36:7|lv}
-          . @{37:0|.}
-            <cexpr> @{38:0|lv}
-              lv @{38:0|lv}
-        + list @{39:0|+} @{39:2|list}
-          . @{40:0|.}
-            '' hello @{41:0|"hello"}
-              => @{42:6|=>}
-                click @{42:0|click}
-                sayHello @{42:9|sayHello}
-    implements Init @{44:0|implements} @{44:11|Init}
-      method test.golden.Complex._C0.ready @{45:0|ready}
-        [type] obj @{45:13|obj}
-          Thing @{45:7|Thing}
-        invoke @{46:0|<-}
-          <apply> @{46:3|ds.get obj.x (FooHandler 'yo')}
-            <apply> @{46:3|ds.get}
-              . @{46:5|.}
-              ds @{46:3|ds}
-              get @{46:6|get}
-            <apply> @{46:10|obj.x}
-              . @{46:13|.}
-              obj @{46:10|obj}
-              x @{46:14|x}
-            <apply> @{46:16|(FooHandler 'yo')}
-              FooHandler @{46:17|FooHandler}
-              '' yo @{46:28|'yo'}
-    implements DataStore ds @{48:0|implements} @{48:11|DataStore} @{48:21|ds}
-    handler Handler test.golden.Complex.FooHandler (card) @{50:0|handler} @{50:8|Handler} @{50:16|FooHandler}
-      [var] k @{50:27|k}
-      method test.golden.Complex.FooHandler.reply @{51:0|reply}
-        [var] x @{51:6|x}
-        assign hello <- @{52:0|hello} @{52:6|<-}
-          <apply> @{52:9|k ++ x}
-            ++ @{52:11|++}
-            k @{52:9|k}
-            x @{52:14|x}
-    service Offer @{57:0|service} @{57:8|Offer}
-      method test.golden.Complex._S0.get @{58:0|get}
-        [var] x @{58:4|x}
-        [var] h @{58:6|h}
-        invoke @{59:0|<-}
-          <apply> @{59:3|h.reply x}
-            <apply> @{59:3|h.reply}
-              . @{59:4|.}
-              h @{59:3|h}
-              reply @{59:5|reply}
-            x @{59:11|x}
-    event test.golden.Complex.sayHello_1 @{54:0|event} @{54:6|sayHello}
-      [type] ev @{54:24|ev}
-        ClickIt @{54:16|ClickIt}
-      assign hello <- @{55:0|hello} @{55:6|<-}
-        '' goodbye @{55:9|'goodbye'}
+  card test.golden.SubCard @{27:0|card} @{27:5|SubCard}
+  card test.golden.Complex @{29:0|card} @{29:5|Complex}
+    state @{30:0|state}
+      hello @{31:7|hello}
+        String @{31:0|String}
+       <- @{31:13|<-}
+        '' hello, world @{31:16|"hello, world"}
+      list @{32:15|list}
+        Croset @{32:0|Croset}
+          String @{32:7|String}
+      mapper @{33:15|mapper}
+        -> @{33:6|->}
+          String @{33:0|String}
+          String @{33:8|String}
+    template @{35:0|template} @{null}
+      . @{36:0|.}
+        <cexpr> @{37:0|hello}
+          hello @{37:0|hello}
+        + list lv @{38:0|+} @{38:2|list} @{38:7|lv}
+          . @{39:0|.}
+            <cexpr> @{40:0|lv}
+              lv @{40:0|lv}
+        + list @{41:0|+} @{41:2|list}
+          . @{42:0|.}
+            '' hello @{43:0|"hello"}
+              => @{44:6|=>}
+                click @{44:0|click}
+                sayHello @{44:9|sayHello}
+        SubCard @{45:2|SubCard}
+    implements Init @{47:0|implements} @{47:11|Init}
+      method test.golden.Complex._C0.ready @{48:0|ready}
+        [type] obj @{48:13|obj}
+          Thing @{48:7|Thing}
+        invoke @{49:0|<-}
+          <apply> @{49:3|ds.get obj.x (FooHandler 'yo')}
+            <apply> @{49:3|ds.get}
+              . @{49:5|.}
+              ds @{49:3|ds}
+              get @{49:6|get}
+            <apply> @{49:10|obj.x}
+              . @{49:13|.}
+              obj @{49:10|obj}
+              x @{49:14|x}
+            <apply> @{49:16|(FooHandler 'yo')}
+              FooHandler @{49:17|FooHandler}
+              '' yo @{49:28|'yo'}
+    implements DataStore ds @{51:0|implements} @{51:11|DataStore} @{51:21|ds}
+    handler Handler test.golden.Complex.FooHandler (card) @{53:0|handler} @{53:8|Handler} @{53:16|FooHandler}
+      [var] k @{53:27|k}
+      method test.golden.Complex.FooHandler.reply @{54:0|reply}
+        [var] x @{54:6|x}
+        assign hello <- @{55:0|hello} @{55:6|<-}
+          <apply> @{55:9|k ++ x}
+            ++ @{55:11|++}
+            k @{55:9|k}
+            x @{55:14|x}
+    service Offer @{60:0|service} @{60:8|Offer}
+      method test.golden.Complex._S0.get @{61:0|get}
+        [var] x @{61:4|x}
+        [var] h @{61:6|h}
+        invoke @{62:0|<-}
+          <apply> @{62:3|h.reply x}
+            <apply> @{62:3|h.reply}
+              . @{62:4|.}
+              h @{62:3|h}
+              reply @{62:5|reply}
+            x @{62:11|x}
+    event test.golden.Complex.sayHello_1 @{57:0|event} @{57:6|sayHello}
+      [type] ev @{57:24|ev}
+        ClickIt @{57:16|ClickIt}
+      assign hello <- @{58:0|hello} @{58:6|<-}
+        '' goodbye @{58:9|'goodbye'}
