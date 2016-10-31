@@ -85,12 +85,11 @@ public class TemplateFunctionGenerator {
 		}
 		if (content instanceof RWTemplateDiv) {
 			RWTemplateDiv td = (RWTemplateDiv) content;
-			/*
 			for (Object a : td.attrs) {
 				if (a instanceof TemplateExplicitAttr) {
 					TemplateExplicitAttr tea = (TemplateExplicitAttr) a;
 					if (tea.type == TemplateToken.IDENTIFIER) {
-						String fnName = state.nextFunction("formats");
+						String fnName = state.nextFunction("teas");
 						RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.AREA, fnName, 0, true);
 						RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tea.location, fnName, new ArrayList<>(), null), 0, tea.value);
 						fn.cases.add(fcd0);
@@ -99,7 +98,6 @@ public class TemplateFunctionGenerator {
 					}
 				}
 			}
-			*/
 			for (TemplateLine x : td.nested)
 				recurse(state, x);
 		} else if (content instanceof TemplateList) {

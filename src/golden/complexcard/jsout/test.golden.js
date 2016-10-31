@@ -430,12 +430,12 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
   return FLEval.error("test.golden.Complex._S0.get: case not handled");
 }
 
-test.golden.Complex.formats_0 = function() {
+test.golden.Complex.formats_1 = function() {
   "use strict";
   return FLEval.closure(Cons, this._card.format, Nil);
 }
 
-test.golden.Complex.handlers_1 = function() {
+test.golden.Complex.handlers_2 = function() {
   "use strict";
   return test.golden.Complex.prototype.sayHello;
 }
@@ -451,6 +451,11 @@ test.golden.Complex.prototype.sayHello = function(v0) {
     return FLEval.closure(Cons, v1, Nil);
   }
   return FLEval.error("test.golden.Complex.sayHello: case not handled");
+}
+
+test.golden.Complex.teas_0 = function() {
+  "use strict";
+  return this._card.hello;
 }
 
 test.golden;
