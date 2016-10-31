@@ -15,7 +15,6 @@ test.golden._Foo = function(v0) {
   this._wrapper = v0.wrapper;
   this._special = 'card';
   this.a = undefined;
-  this.a = FLEval.full(this.a);
   this._services = {};
   this._contracts = {};
   this._contracts['test.import.Fred'] = test.golden.Foo._C0.apply(this);

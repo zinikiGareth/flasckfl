@@ -233,61 +233,6 @@ public class JSForm {
 		return new JSForm("return FLEval.error(\""+fnName +": case not handled\")");
 	}
 
-	public static void assign(final JSForm into, String assgn, HSIEForm form) {
-		PushReturn pr = (PushReturn) form.nestedCommands().get(0);
-		pr.visit(new PushVisitor() {
-			@Override
-			public Object visit(PushVar pv) {
-				if (pv.deps != null) {
-					for (CreationOfVar v : pv.deps) {
-						into.add(new JSForm("var v" + v.var.idx + " = " + closure(form, form.getClosure(v.var))));
-					}
-				}
-				into.add(new JSForm(assgn + " = " + closure(form, form.getClosure(pv.var.var))));
-				return null;
-			}
-
-			@Override
-			public Object visit(PushInt pi) {
-				into.add(new JSForm(assgn + " = " + pi.ival));
-				return null;
-			}
-
-			@Override
-			public Object visit(PushString ps) {
-				into.add(new JSForm(assgn + " = " + ps.sval));
-				return null;
-			}
-
-			@Override
-			public Object visit(PushExternal pe) {
-				StringBuilder sb = new StringBuilder(assgn + " = ");
-				appendValue(form, sb, pe, 0);
-				into.add(new JSForm(sb.toString()));
-				return null;
-			}
-
-			@Override
-			public Object visit(PushTLV pt) {
-				// This is specific to accessing the TLV from the template, which seems the most likely case :-)
-				// If not, we should probably add more cases to CodeType and distinguish them here
-				into.add(new JSForm(assgn + " = this._src_" + pt.tlv.name + "." + pt.tlv.name));
-				return null;
-			}
-
-			@Override
-			public Object visit(PushCSR pc) {
-				throw new UtilException("What are you returning " + pr);
-			}
-
-			@Override
-			public Object visit(PushFunc pf) {
-				throw new UtilException("What are you returning " + pr);
-			}
-			
-		});
-	}
-
 	public static List<JSForm> ret(PushReturn r, HSIEForm form) {
 		List<JSForm> ret = new ArrayList<JSForm>();
 		StringBuilder sb = new StringBuilder();

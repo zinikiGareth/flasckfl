@@ -10,6 +10,18 @@ HSIE for test.golden.Complex.lvs_5/0                         #complexcard. 43.2
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.list]       #complexcard. 43.2
 =======
+HSIE for test.golden.Complex.inits_hello/0                   #complexcard. 31.16
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN "hello, world"                                        #complexcard. 31.16
+=======
+HSIE for test.golden.Complex.inits_format/0                  #complexcard. 32.17
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN "basic"                                               #complexcard. 32.17
+=======
 HSIE for test.golden.Complex.contents_1/0                    #complexcard. 39.0
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.hello] scoped = []

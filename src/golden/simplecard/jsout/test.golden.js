@@ -14,8 +14,7 @@ test.golden._Simple = function(v0) {
   this._ctor = 'test.golden.Simple';
   this._wrapper = v0.wrapper;
   this._special = 'card';
-  this.hello = "hello, world";
-  this.hello = FLEval.full(this.hello);
+  this.hello = FLEval.full(test.golden.Simple.inits_hello());
   this._services = {};
   this._contracts = {};
 }
@@ -63,6 +62,11 @@ test.golden.Simple.prototype.contents_0 = function() {
 test.golden.Simple.prototype.f = function() {
   "use strict";
   return 3;
+}
+
+test.golden.Simple.inits_hello = function() {
+  "use strict";
+  return 'hello, world';
 }
 
 test.golden;

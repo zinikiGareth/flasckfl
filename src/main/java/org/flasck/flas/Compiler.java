@@ -41,6 +41,7 @@ import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
@@ -63,14 +64,12 @@ import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
-import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateFunctionGenerator;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.Type;
-import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -329,6 +328,8 @@ public class Compiler {
 			rewriter.rewritePackageScope(inPkg, scope);
 			abortIfErrors(errors);
 
+			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
+
 			// 2. Prepare Typechecker & load types
 			TypeChecker tc = new TypeChecker(errors);
 			tc.populateTypes(rewriter);
@@ -346,7 +347,7 @@ public class Compiler {
 			}
 			for (Entry<String, CardGrouping> kv : rewriter.cards.entrySet()) {
 				CardGrouping grp = kv.getValue();
-				compileInits(hsie, tc, kv.getValue());
+				compileInits(functions, tc, kv.getValue());
 
 				gen.generate(kv.getKey(), grp);
 				dg.generate(kv.getKey(), grp);
@@ -401,7 +402,6 @@ public class Compiler {
 //			System.out.println("defns = " + rewriter.functions.keySet());
 			
 			// 4. Convert methods to functions
-			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
 			MethodConvertor mc = new MethodConvertor(errors, hsie, tc, rewriter.contracts);
 			mc.convertContractMethods(rewriter, functions, rewriter.methods);
 			mc.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
@@ -539,35 +539,20 @@ public class Compiler {
 		}
 	}
 
-	private void compileInits(HSIE hsie, TypeChecker tc, CardGrouping c) {
+	private void compileInits(Map<String, RWFunctionDefinition> functions, TypeChecker tc, CardGrouping c) {
 		for (Entry<String, Object> kv : c.inits.entrySet()) {
 			if (kv.getValue() == null)
 				continue;
+			RWStructField sf = c.struct.findField(kv.getKey());
+			Type st = sf.type;
 			InputPosition loc = ((Locatable)kv.getValue()).location();
-			HSIEForm form = hsie.handleExpr(kv.getValue(), CodeType.FUNCTION);
-			kv.setValue(form);
-			Type t = tc.checkExpr(form, new ArrayList<Type>(), new ArrayList<InputPosition>());
-			if (t != null) {
-				while (t.iam == WhatAmI.INSTANCE)
-					t = t.innerType();
-				// it should be the same as the field type
-				for (RWStructField sf : c.struct.fields) {
-					if (sf.name.equals(kv.getKey())) {
-						Type st = sf.type;
-						while (st.iam == WhatAmI.INSTANCE)
-							st = st.innerType();
-						boolean ok = false;
-						if (st instanceof RWUnionTypeDefn) {
-							for (Type t1 : ((RWUnionTypeDefn)st).cases)
-								if (t1.equals(t))
-									ok = true;
-						} else
-							ok = st.equals(t);
-						if (!ok)
-							tc.errors.message(loc, "cannot initialize " + sf.name + " with value of type " + t);
-					}
-				}
-			}
+			Object expr = new AssertTypeExpr(loc, st, kv.getValue());
+			String fnName = c.struct.name() + ".inits_" + sf.name;
+			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, true);
+			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
+			fn.cases.add(fcd0);
+			functions.put(fnName, fn);
+			kv.setValue(fnName);
 		}
 	}
 

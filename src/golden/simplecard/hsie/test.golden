@@ -10,3 +10,9 @@ HSIE for test.golden.Simple.f/0                              #simplecard.f 11.0
     all vars = []
 RETURN 3                                                     #simplecard.f 11.4
 =======
+HSIE for test.golden.Simple.inits_hello/0                    #simplecard.f  5.16
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN "hello, world"                                        #simplecard.f  5.16
+=======

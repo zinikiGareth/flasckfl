@@ -65,15 +65,10 @@ test.golden._Complex = function(v0) {
   this._wrapper = v0.wrapper;
   this._special = 'card';
   this.yoyo = undefined;
-  this.yoyo = FLEval.full(this.yoyo);
-  this.format = "basic";
-  this.format = FLEval.full(this.format);
+  this.format = FLEval.full(test.golden.Complex.inits_format());
   this.mapper = undefined;
-  this.mapper = FLEval.full(this.mapper);
-  this.hello = "hello, world";
-  this.hello = FLEval.full(this.hello);
+  this.hello = FLEval.full(test.golden.Complex.inits_hello());
   this.list = undefined;
-  this.list = FLEval.full(this.list);
   this._services = {};
   this._services['test.golden.Offer'] = test.golden.Complex._S0.apply(this);
   this._contracts = {};
@@ -437,6 +432,16 @@ test.golden.Complex.prototype.formats_2 = function() {
 test.golden.Complex.prototype.handlers_6 = function() {
   "use strict";
   return test.golden.Complex.prototype.sayHello;
+}
+
+test.golden.Complex.inits_format = function() {
+  "use strict";
+  return 'basic';
+}
+
+test.golden.Complex.inits_hello = function() {
+  "use strict";
+  return 'hello, world';
 }
 
 test.golden.Complex.prototype.lvs_3 = function() {

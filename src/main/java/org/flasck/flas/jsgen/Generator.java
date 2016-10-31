@@ -100,11 +100,11 @@ public class Generator {
 		target.add(ctor);
 	}
 
-	private void generateField(JSForm defass, String field, HSIEForm form) {
-		if (form == null)
+	private void generateField(JSForm defass, String field, String tfn) {
+		if (tfn == null)
 			defass.add(new JSForm("this."+ field + " = undefined"));
 		else
-			JSForm.assign(defass, "this." + field, form);
+			defass.add(JSForm.flex("this." + field + " = FLEval.full(" + tfn + "())"));
 	}
 
 	public void generate(String name, CardGrouping card) {
@@ -115,14 +115,9 @@ public class Generator {
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
 		cf.add(new JSForm("this._special = 'card'"));
 		for (Entry<String, Object> x : card.inits.entrySet()) {
-			HSIEForm form = null;
-			if (x.getValue() != null) {
-				form = (HSIEForm)x.getValue();
-//					form.dump();
-			}
+			String tfn = (String) x.getValue();
 
-			generateField(cf, x.getKey(), form);
-			cf.add(new JSForm("this." + x.getKey() + " = FLEval.full(this." + x.getKey() + ")"));
+			generateField(cf, x.getKey(), tfn);
 		}
 		cf.add(new JSForm("this._services = {}"));
 		for (ServiceGrouping cs : card.services) {
