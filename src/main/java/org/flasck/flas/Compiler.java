@@ -67,6 +67,7 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
+import org.flasck.flas.template.TemplateFunctionGenerator;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
@@ -407,6 +408,10 @@ public class Compiler {
 			mc.convertStandaloneMethods(rewriter, functions, rewriter.standalone.values());
 			abortIfErrors(errors);
 
+			// 5. Templates may depend on expressions in various contexts; generate the appropriate functions
+			final TemplateFunctionGenerator tfg = new TemplateFunctionGenerator(errors, rewriter, functions);
+			tfg.generate();
+			
 			// 5. D3 definitions may generate card functions; promote these onto the cards
 			for (RWD3Invoke d3 : rewriter.d3s)
 				promoteD3Methods(errors, rewriter, mc, functions, d3);
@@ -429,12 +434,12 @@ public class Compiler {
 			Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 			for (Orchard<RWFunctionDefinition> d : defns) {
 				
-				// 6a. Convert each orchard to HSIE
+				// 7a. Convert each orchard to HSIE
 				Set<HSIEForm> oh = hsie.orchard(errors, forms, d);
 				abortIfErrors(errors);
 				dumpOrchard(hsiePW, oh);
 				
-				// 6b. Typecheck all the methods together
+				// 7b. Typecheck all the methods together
 				tc.typecheck(oh);
 				abortIfErrors(errors);
 
@@ -447,6 +452,8 @@ public class Compiler {
 			// Now go back and handle all the "special cases" that sit at the top of the tree, such as methods and templates
 
 			// TODO: HSIE: I think this should move up as well
+			// This definitely does NOT want to move up, since it generates JS
+			// It does want the methods generated though ...
 			// 8. Generate code from templates
 			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tc, curry, dg);
 			tgen.generate(rewriter, target);

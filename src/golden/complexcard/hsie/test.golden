@@ -1,3 +1,13 @@
+HSIE for test.golden.Complex.formats_0/0                     #complexcard. 39.0
+#Args: 0 #bound: 1
+    externals: [Cons, Nil, test.golden.Complex.format] scoped = []
+    all vars = [v0]
+RETURN v0:clos0 []                                           #complexcard. 39.8
+CLOSURE v0                                                   #complexcard. 39.8
+  PUSH PackageVar.Cons                                       #tfg:          1.1
+  PUSH CardMember.CardMember[test.golden.Complex.format]     #complexcard. 39.8
+  PUSH PackageVar.Nil                                        #tfg:          1.1
+=======
 HSIE for test.golden.Complex.sayHello/1                      #complexcard. 63.6
 #Args: 1 #bound: 2
     externals: [Assign, Cons, Nil, test.golden.ClickIt] scoped = []

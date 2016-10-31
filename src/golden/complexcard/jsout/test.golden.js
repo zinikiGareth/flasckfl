@@ -420,6 +420,11 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
   return FLEval.error("test.golden.Complex._S0.get: case not handled");
 }
 
+test.golden.Complex.formats_0 = function() {
+  "use strict";
+  return FLEval.closure(Cons, this._card.format, Nil);
+}
+
 test.golden.Complex.prototype.sayHello = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
