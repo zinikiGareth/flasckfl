@@ -196,9 +196,9 @@ public class RewriterTests {
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		ContractImplements ci = new ContractImplements(posn, posn, "Timer", posn, "timer");
 		cd.contracts.add(ci);
-		MethodCaseDefn mcd1 = new MethodCaseDefn(new FunctionIntro(null, "ME.MyCard._C0.m", new ArrayList<Object>()));
+		MethodCaseDefn mcd1 = new MethodCaseDefn(new FunctionIntro(posn, "ME.MyCard._C0.m", new ArrayList<Object>()));
 		mcd1.provideCaseName("ME.MyCard._C0.m");
-		mcd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(null, "counter")), new UnresolvedVar(null, "counter")));
+		mcd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(mcd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope("ME", scope);
