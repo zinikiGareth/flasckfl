@@ -38,6 +38,7 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.D3Intro;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.D3Thing;
@@ -477,9 +478,15 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pw.indent(), ce.expr);
 		} else if (obj instanceof D3Thing) {
 			D3Thing d3 = (D3Thing) obj;
-			pw.println("D3 " + d3.prefix + " " + d3.name + " " + d3.iter);
-			dumpRecursive(pw.indent(), d3.data);
+			dumpRecursive(pw, d3.d3);
 			dumpList(pw, d3.patterns);
+		} else if (obj instanceof D3Intro) {
+			D3Intro d3 = (D3Intro) obj;
+			pw.print("d3 " + d3.name + " " + d3.iterVar);
+			dumpPosition(pw, d3.kw, false);
+			dumpPosition(pw, d3.nameLoc, false);
+			dumpPosition(pw, d3.varLoc, true);
+			dumpRecursive(pw.indent(), d3.expr);
 		} else if (obj instanceof D3PatternBlock) {
 			D3PatternBlock blk = (D3PatternBlock) obj;
 			pw.println("Pattern " + blk.pattern);

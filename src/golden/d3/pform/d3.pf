@@ -33,7 +33,7 @@ package test.golden
             attr height @{13:26|'250'}
               String: 250
             chart @{14:0|$chart}
-    D3 test.golden._TestCard chart elt
+    d3 chart elt @{16:0|d3} @{16:3|chart} @{16:14|elt}
       data @{16:9|data}
       Pattern "rect"
         enter

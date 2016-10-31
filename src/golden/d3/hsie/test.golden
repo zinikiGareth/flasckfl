@@ -77,7 +77,7 @@ SWITCH v0 D3Element                                          #d3:           1.1
 ERROR                                                        #d3.fl:       30.7
 CLOSURE v1                                                   #d3.fl:       30.7
   PUSH PackageVar.FLEval.field                               #d3.fl:       30.7
-  PUSH v0:elt                                                #d3.fl:       16.3
+  PUSH v0:elt                                                #d3.fl:       16.14
   PUSH "data"                                                #d3.fl:       30.11
 =======
 HSIE for test.golden._TestCard._gen_2/1                      #d3.fl:       23.9
@@ -90,7 +90,7 @@ SWITCH v0 D3Element                                          #d3:           1.1
 ERROR                                                        #d3.fl:       23.9
 CLOSURE v1                                                   #d3.fl:       23.12
   PUSH PackageVar.FLEval.field                               #d3.fl:       23.12
-  PUSH v0:elt                                                #d3.fl:       16.3
+  PUSH v0:elt                                                #d3.fl:       16.14
   PUSH "data"                                                #d3.fl:       23.16
 CLOSURE v2                                                   #d3.fl:       23.9
   PUSH PackageVar.*                                          #d3.fl:       23.11
@@ -107,7 +107,7 @@ SWITCH v0 D3Element                                          #d3:           1.1
 ERROR                                                        #d3.fl:       19.4
 CLOSURE v1                                                   #d3.fl:       19.9
   PUSH PackageVar.FLEval.field                               #d3.fl:       19.9
-  PUSH v0:elt                                                #d3.fl:       16.3
+  PUSH v0:elt                                                #d3.fl:       16.14
   PUSH "idx"                                                 #d3.fl:       19.13
 CLOSURE v2                                                   #d3.fl:       19.4
   PUSH PackageVar.*                                          #d3.fl:       19.7
@@ -124,7 +124,7 @@ SWITCH v0 D3Element                                          #d3:           1.1
 ERROR                                                        #d3.fl:       35.9
 CLOSURE v1                                                   #d3.fl:       35.12
   PUSH PackageVar.FLEval.field                               #d3.fl:       35.12
-  PUSH v0:elt                                                #d3.fl:       16.3
+  PUSH v0:elt                                                #d3.fl:       16.14
   PUSH "data"                                                #d3.fl:       35.16
 CLOSURE v2                                                   #d3.fl:       35.9
   PUSH PackageVar.*                                          #d3.fl:       35.11
@@ -163,7 +163,7 @@ SWITCH v0 D3Element                                          #d3:           1.1
 ERROR                                                        #d3.fl:       20.4
 CLOSURE v1                                                   #d3.fl:       20.15
   PUSH PackageVar.FLEval.field                               #d3.fl:       20.15
-  PUSH v0:elt                                                #d3.fl:       16.3
+  PUSH v0:elt                                                #d3.fl:       16.14
   PUSH "data"                                                #d3.fl:       20.19
 CLOSURE v2                                                   #d3.fl:       20.10
   PUSH PackageVar.*                                          #d3.fl:       20.13
@@ -215,7 +215,7 @@ SWITCH v0 D3Element                                          #d3:           1.1
 ERROR                                                        #d3.fl:       32.4
 CLOSURE v1                                                   #d3.fl:       32.9
   PUSH PackageVar.FLEval.field                               #d3.fl:       32.9
-  PUSH v0:elt                                                #d3.fl:       16.3
+  PUSH v0:elt                                                #d3.fl:       16.14
   PUSH "idx"                                                 #d3.fl:       32.13
 CLOSURE v2                                                   #d3.fl:       32.4
   PUSH PackageVar.*                                          #d3.fl:       32.7
@@ -272,7 +272,7 @@ SWITCH v0 D3Element                                          #d3:           1.1
 ERROR                                                        #d3.fl:       33.4
 CLOSURE v1                                                   #d3.fl:       33.15
   PUSH PackageVar.FLEval.field                               #d3.fl:       33.15
-  PUSH v0:elt                                                #d3.fl:       16.3
+  PUSH v0:elt                                                #d3.fl:       16.14
   PUSH "data"                                                #d3.fl:       33.19
 CLOSURE v2                                                   #d3.fl:       33.10
   PUSH PackageVar.*                                          #d3.fl:       33.13
@@ -293,7 +293,7 @@ HSIE for test.golden.TestCard.handlers_0/0                   #d3.fl:       11.9
     all vars = []
 RETURN CardFunction.test.golden.TestCard.rejig               #d3.fl:       11.9
 =======
-HSIE for test.golden._TestCard._d3init_chart/0               #d3.fl:       16.3
+HSIE for test.golden._TestCard._d3init_chart/0               #d3.fl:       16.14
 #Args: 0 #bound: 37
     externals: [Assoc, Cons, FLEval.tuple, Nil, NilMap] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35, v36]

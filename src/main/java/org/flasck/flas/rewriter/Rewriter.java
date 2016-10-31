@@ -352,6 +352,15 @@ public class Rewriter {
 				throw new UtilException("Shouldn't happen");
 			this.listVar = tlv;
 		}
+
+		public String cardName() {
+			if (nested instanceof CardContext) {
+				return ((CardContext)nested).prefix;
+			} else if (nested instanceof TemplateContext)
+				return ((TemplateContext)nested).cardName();
+			else
+				throw new UtilException("Cannot handle " + nested.getClass());
+		}
 		
 		@Override
 		public Object resolve(InputPosition location, String name) {
@@ -893,11 +902,11 @@ public class Rewriter {
 			return ret;
 		} else if (tl instanceof D3Thing) {
 			D3Thing prev = (D3Thing) tl;
-			D3Context c2 = new D3Context(cx, prev.dloc, prev.iter);
-			List<RWD3PatternBlock> patterns = new ArrayList<RWD3PatternBlock>();
+			D3Context c2 = new D3Context(cx, prev.d3.varLoc, prev.d3.iterVar);
+			List<RWD3PatternBlock> rwpatterns = new ArrayList<RWD3PatternBlock>();
 			for (D3PatternBlock p : prev.patterns) {
 				RWD3PatternBlock rp = new RWD3PatternBlock(p.pattern);
-				patterns.add(rp);
+				rwpatterns.add(rp);
 				for (D3Section s : p.sections.values()) {
 					RWD3Section rs = new RWD3Section(s.location, s.name);
 					rp.sections.put(s.name, rs);
@@ -907,7 +916,7 @@ public class Rewriter {
 						rs.properties.put(prop.name, new RWPropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
 				}
 			}
-			RWD3Thing rwD3 = new RWD3Thing(prev.prefix, prev.name, prev.dloc, rewriteExpr(c2, prev.data), prev.iter, patterns);
+			RWD3Thing rwD3 = new RWD3Thing(cx.cardName(), prev.d3, rewriteExpr(c2, prev.d3.expr), rwpatterns);
 			d3s.add(rwD3);
 			return rwD3;
 		} else 

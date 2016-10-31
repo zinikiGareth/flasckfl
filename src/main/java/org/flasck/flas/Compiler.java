@@ -582,7 +582,7 @@ public class Compiler {
 						// TODO: only create functions for things that depend on the class
 						// constants can just be used directly
 						InputPosition hack = posn; // we should have a location for the field
-						FunctionLiteral efn = functionWithArgs(d3.prefix, functions, CollectionUtils.listOf(new RWTypedPattern(hack, d3Elt, hack, d3.iter)), prop.value);
+						FunctionLiteral efn = functionWithArgs(d3.prefix, functions, CollectionUtils.listOf(new RWTypedPattern(hack, d3Elt, hack, d3.iterVar)), prop.value);
 						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
 						pl = new ApplyExpr(prop.location, cons, pair, pl);
 					}
@@ -617,8 +617,8 @@ public class Compiler {
 		InputPosition hack = posn; // we should have a location for this, right?
 		init = new ApplyExpr(hack, assoc, new StringLiteral(hack, "data"), data, init);
 
-		RWFunctionIntro d3f = new RWFunctionIntro(d3.dloc, d3.prefix + "._d3init_" + d3.name, new ArrayList<Object>(), null);
-		RWFunctionDefinition func = new RWFunctionDefinition(d3.dloc, HSIEForm.CodeType.CARD, d3f.name, 0, true);
+		RWFunctionIntro d3f = new RWFunctionIntro(d3.varLoc, d3.prefix + "._d3init_" + d3.name, new ArrayList<Object>(), null);
+		RWFunctionDefinition func = new RWFunctionDefinition(d3.varLoc, HSIEForm.CodeType.CARD, d3f.name, 0, true);
 		func.cases.add(new RWFunctionCaseDefn(d3f, 0, init));
 		functions.put(d3f.name, func);
 	}

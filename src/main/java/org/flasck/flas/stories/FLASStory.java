@@ -421,7 +421,7 @@ public class FLASStory {
 				assertSomeNonCommentNestedLines(er, b);
 				doD3Pattern(er, b.nested, lines);
 				if (!er.hasErrors())
-					cd.d3s.add(new D3Thing(cd.name, d3.name, d3.location, d3.expr, d3.var, lines));
+					cd.d3s.add(new D3Thing(d3, lines));
 			} else if (o instanceof ContractImplements) {
 				cd.addContractImplementation((ContractImplements)o);
 				doImplementation(s, er, (Implements)o, b.nested, "_C" + cs++);

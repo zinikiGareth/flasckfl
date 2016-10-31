@@ -128,15 +128,16 @@ public class IntroParser implements TryParsing {
 				return ErrorResult.oneMessage(line, "invalid D3 template name");
 
 			// TODO: this should allow for expressions if parenthesized
-			ValidIdentifierToken expr = VarNameToken.from(line);
-			if (expr == null)
+			ValidIdentifierToken exprTok = VarNameToken.from(line);
+			if (exprTok == null)
 				return ErrorResult.oneMessage(line, "invalid D3 expression");
+			Object expr = ItemExpr.from(new ExprToken(exprTok.location, ExprToken.IDENTIFIER, exprTok.text));
 
 			ValidIdentifierToken var = VarNameToken.from(line);
 			if (var == null)
 				return ErrorResult.oneMessage(line, "invalid D3 expression");
 			
-			return new D3Intro(tok.location, tok.text, ItemExpr.from(new ExprToken(expr.location, ExprToken.IDENTIFIER, expr.text)), var.text);
+			return new D3Intro(kw.location, tok.location, tok.text, expr, var.location, var.text);
 		}
 		case "implements": {
 			TypeNameToken tn = QualifiedTypeNameToken.from(line);
