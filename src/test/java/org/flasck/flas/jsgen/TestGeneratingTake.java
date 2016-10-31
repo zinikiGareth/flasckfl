@@ -69,6 +69,6 @@ StdLib.take = function(v0, v1) {
 	@Test
 	public void test() {
 		HSIEForm input = HSIETestData.take();
-		new Generator(null, new JSTarget("ME")).generate(input);
+		new Generator(new JSTarget("ME")).generate(input);
 	}
 }

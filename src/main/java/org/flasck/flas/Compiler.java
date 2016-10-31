@@ -337,19 +337,20 @@ public class Compiler {
 		
 			// 3. Generate Class Definitions
 			JSTarget target = new JSTarget(inPkg);
-			Generator gen = new Generator(hsie, target);
+			Generator gen = new Generator(target);
 
 			dg.generateAppObject();
 			
 			for (Entry<String, RWStructDefn> sd : rewriter.structs.entrySet()) {
-				gen.generate(sd.getValue());
+				Map<String, String> initMap = compileInits(functions, sd.getValue());
+				gen.generate(sd.getValue(), initMap);
 				dg.generate(sd.getValue());
 			}
 			for (Entry<String, CardGrouping> kv : rewriter.cards.entrySet()) {
 				CardGrouping grp = kv.getValue();
-				compileInits(functions, tc, kv.getValue());
+				Map<String, String> initMap = compileInits(functions, kv.getValue().struct);
 
-				gen.generate(kv.getKey(), grp);
+				gen.generate(kv.getKey(), grp, initMap);
 				dg.generate(kv.getKey(), grp);
 				for (ContractGrouping ctr : grp.contracts) {
 					RWContractImplements ci = rewriter.cardImplements.get(ctr.implName);
@@ -539,21 +540,22 @@ public class Compiler {
 		}
 	}
 
-	private void compileInits(Map<String, RWFunctionDefinition> functions, TypeChecker tc, CardGrouping c) {
-		for (Entry<String, Object> kv : c.inits.entrySet()) {
-			if (kv.getValue() == null)
+	protected Map<String, String> compileInits(Map<String, RWFunctionDefinition> functions, RWStructDefn sd) {
+		Map<String, String> ret = new TreeMap<String, String>();
+		for (RWStructField sf : sd.fields) {
+			if (sf.init == null)
 				continue;
-			RWStructField sf = c.struct.findField(kv.getKey());
 			Type st = sf.type;
-			InputPosition loc = ((Locatable)kv.getValue()).location();
-			Object expr = new AssertTypeExpr(loc, st, kv.getValue());
-			String fnName = c.struct.name() + ".inits_" + sf.name;
+			InputPosition loc = ((Locatable)sf.init).location();
+			Object expr = new AssertTypeExpr(loc, st, sf.init);
+			String fnName = sd.name() + ".inits_" + sf.name;
 			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
-			kv.setValue(fnName);
+			ret.put(sf.name, fnName);
 		}
+		return ret;
 	}
 
 	private void abortIfErrors(ErrorResult errors) throws ErrorResultException {

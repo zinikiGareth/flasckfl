@@ -717,7 +717,6 @@ public class Rewriter {
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
 				sd.addField(new RWStructField(sf.loc, false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init)));
-				grp.inits.put(sf.name, rewriteExpr(cx, sf.init));
 			}
 		}
 		

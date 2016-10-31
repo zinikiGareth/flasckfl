@@ -58,17 +58,35 @@ test.golden.Thing = function(v0) {
   return new test.golden._Thing({x: v0});
 }
 
+test.golden._WithInit = function(v0) {
+  "use strict";
+  this._ctor = 'test.golden.WithInit';
+  if (v0) {
+    if (v0.x) {
+      this.x = v0.x;
+    }
+    else {
+      this.x = FLEval.full(test.golden.WithInit.inits_x());
+    }
+  }
+  else {
+    this.x = FLEval.full(test.golden.WithInit.inits_x());
+  }
+}
+
+test.golden.WithInit = function(v0) {
+  "use strict";
+  return new test.golden._WithInit({x: v0});
+}
+
 test.golden._Complex = function(v0) {
   "use strict";
   var _self = this;
   this._ctor = 'test.golden.Complex';
   this._wrapper = v0.wrapper;
   this._special = 'card';
-  this.yoyo = undefined;
-  this.format = FLEval.full(test.golden.Complex.inits_format());
-  this.mapper = undefined;
   this.hello = FLEval.full(test.golden.Complex.inits_hello());
-  this.list = undefined;
+  this.format = FLEval.full(test.golden.Complex.inits_format());
   this._services = {};
   this._services['test.golden.Offer'] = test.golden.Complex._S0.apply(this);
   this._contracts = {};
@@ -480,6 +498,11 @@ test.golden.Complex.prototype.teas_0 = function() {
 test.golden.Complex.prototype.yoyos_9 = function() {
   "use strict";
   return this.yoyo;
+}
+
+test.golden.WithInit.inits_x = function() {
+  "use strict";
+  return 'hello';
 }
 
 test.golden;

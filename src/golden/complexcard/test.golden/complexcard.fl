@@ -10,6 +10,9 @@ This is a complex card with "one of everything"
 		T1 y
 		List[T2] z
 	
+	struct WithInit
+		String x <- 'hello'
+
 .	union PolyThing A B = Thing | Polyed A B
 	
 	contract Init

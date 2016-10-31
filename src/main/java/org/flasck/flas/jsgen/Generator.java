@@ -2,19 +2,18 @@ package org.flasck.flas.jsgen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.TreeSet;
 
-import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -33,10 +32,8 @@ import org.zinutils.collections.CollectionUtils;
 
 public class Generator {
 	private final JSTarget target;
-	private final HSIE hsie;
 
-	public Generator(HSIE hsie, JSTarget target) {
-		this.hsie = hsie;
+	public Generator(JSTarget target) {
 		this.target = target;
 	}
 	
@@ -59,7 +56,7 @@ public class Generator {
 		target.add(ret);
 	}
 
-	public void generate(RWStructDefn sd) {
+	public void generate(RWStructDefn sd, Map<String, String> initMap) {
 		if (!sd.generate)
 			return;
 		int idx = sd.name().lastIndexOf(".");
@@ -78,10 +75,8 @@ public class Generator {
 				if (x.init != null) {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
-					HSIEForm form = hsie.handleExpr(x.init, CodeType.FUNCTION);
-//					form.dump();
-					generateField(defass, x.name, form);
-					generateField(elseBlock, x.name, form);
+					defass.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + initMap.get(x.name) + "())"));
+					elseBlock.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + initMap.get(x.name) + "())"));
 				}
 			}
 		}
@@ -107,17 +102,16 @@ public class Generator {
 			defass.add(JSForm.flex("this." + field + " = FLEval.full(" + tfn + "())"));
 	}
 
-	public void generate(String name, CardGrouping card) {
+	public void generate(String name, CardGrouping card, Map<String, String> fieldInits) {
 		String lname = lname(name, false);
 		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), new TreeSet<String>(), 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
 		cf.add(new JSForm("this._special = 'card'"));
-		for (Entry<String, Object> x : card.inits.entrySet()) {
-			String tfn = (String) x.getValue();
-
-			generateField(cf, x.getKey(), tfn);
+		for (RWStructField x : card.struct.fields) {
+			if (x.init != null)
+				generateField(cf, x.name, fieldInits.get(x.name));
 		}
 		cf.add(new JSForm("this._services = {}"));
 		for (ServiceGrouping cs : card.services) {

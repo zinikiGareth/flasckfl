@@ -44,7 +44,6 @@ public class CardGrouping {
 	}
 	
 	public final RWStructDefn struct;
-	public final Map<String, Object> inits = new HashMap<String, Object>();
 	public final List<ContractGrouping> contracts = new ArrayList<ContractGrouping>();
 	public final List<ServiceGrouping> services = new ArrayList<ServiceGrouping>();
 	public final List<HandlerGrouping> handlers = new ArrayList<HandlerGrouping>();
