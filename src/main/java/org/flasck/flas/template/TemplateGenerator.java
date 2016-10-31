@@ -340,6 +340,7 @@ public class TemplateGenerator {
 				callOnAssign(fn, valExpr, cgrx, called + ".prototype._yoyoExpr", true, null);
 	
 				JSForm cexpr = JSForm.flex(called +".prototype._yoyoExpr = function()").needBlock();
+				// pull from yoyos
 				HSIEForm form = hsie.handleExpr(valExpr, CodeType.AREA);
 				form.dump(TypeChecker.logger);
 				JSForm.assign(cexpr, "var card", form);

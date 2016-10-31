@@ -478,4 +478,9 @@ test.golden.Complex.teas_0 = function() {
   return this._card.hello;
 }
 
+test.golden.Complex.yoyos_7 = function() {
+  "use strict";
+  return this._card.yoyo;
+}
+
 test.golden;

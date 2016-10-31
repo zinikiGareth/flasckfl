@@ -56,6 +56,7 @@ public class TemplateFunctionGenerator {
 	private final Map<TemplateExplicitAttr, String> teas = new HashMap<>();
 	private final Map<TemplateList, String> lvs = new HashMap<>();
 	private final Map<RWContentExpr, String> contents = new HashMap<>();
+	private final Map<RWTemplateCardReference, String> yoyos = new HashMap<>();
 
 	public TemplateFunctionGenerator(ErrorResult errors, Rewriter rewriter, Map<String, RWFunctionDefinition> functions) {
 		this.rw = rewriter;
@@ -121,7 +122,14 @@ public class TemplateFunctionGenerator {
 			recurse(state, cs.template);
 		} else if (content instanceof RWTemplateCardReference) {
 			RWTemplateCardReference ref = (RWTemplateCardReference) content;
-			// more to do (yoyoVar)
+			if (ref.yoyoVar != null) {
+				String fnName = state.nextFunction("yoyos");
+				RWFunctionDefinition fn = new RWFunctionDefinition(ref.location, CodeType.AREA, fnName, 0, true);
+				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ref.location, fnName, new ArrayList<>(), null), 0, ref.yoyoVar);
+				fn.cases.add(fcd0);
+				functions.put(fnName, fn);
+				yoyos.put(ref, fnName);
+			}
 		} else if (content instanceof RWContentExpr) {
 			RWContentExpr ce = (RWContentExpr)content;
 			isEditable = ce.editable();
