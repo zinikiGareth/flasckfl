@@ -190,8 +190,7 @@ test.golden._Complex.B1.prototype = new DivArea();
 test.golden._Complex.B1.prototype.constructor = test.golden._Complex.B1;
 
 test.golden._Complex.B1.prototype._setAttr_1 = function() {
-  var attr = this._card.hello;
-  attr = FLEval.full(attr);
+  var attr = FLEval.full(this._card.teas_0());
   if (attr && !(attr instanceof FLError)) {
     this._mydiv.setAttribute('title', attr);
   }
@@ -211,14 +210,11 @@ test.golden._Complex.B2.prototype = new TextArea();
 test.golden._Complex.B2.prototype.constructor = test.golden._Complex.B2;
 
 test.golden._Complex.B2.prototype._contentExpr = function() {
-  var str = this._card.hello;
-  this._assignToText(str);
+  this._assignToText(this._card.contents_1());
 }
 
 test.golden._Complex.B2.prototype._setVariableFormats = function() {
-  var attr = FLEval.closure(Cons, this._card.format, Nil);
-  attr = FLEval.full(attr);
-  this._mydiv.setAttribute('class', join(FLEval.full(attr), ' '));
+  this._mydiv.setAttribute('class', join(FLEval.full(this._card.formats_2()), ' '));
 }
 
 test.golden._Complex.B3 = function(parent) {
@@ -272,13 +268,11 @@ test.golden._Complex.B5.prototype = new TextArea();
 test.golden._Complex.B5.prototype.constructor = test.golden._Complex.B5;
 
 test.golden._Complex.B5.prototype._contentExpr = function() {
-  var str = this._src_lv.lv;
-  this._assignToText(str);
+  this._assignToText(this._card.contents_4());
 }
 
 test.golden._Complex.B3.prototype._assignToVar = function() {
-  var lv = this._card.list;
-  lv = FLEval.full(lv);
+  var lv = FLEval.full(this._card.lvs_3());
   ListArea.prototype._assignToVar.call(this, lv);
 }
 
@@ -319,15 +313,13 @@ test.golden._Complex.B8.prototype = new TextArea();
 test.golden._Complex.B8.prototype.constructor = test.golden._Complex.B8;
 
 test.golden._Complex.B8.prototype._add_handlers = function() {
-  var ehclick = test.golden.Complex.prototype.sayHello;
   this._mydiv['onclick'] = function(event) {
-    this._area._wrapper.dispatchEvent(ehclick, event);
+    this._area._wrapper.dispatchEvent(this._card.handlers_6(), event);
   }
 }
 
 test.golden._Complex.B6.prototype._assignToVar = function() {
-  var lv = this._card.list;
-  lv = FLEval.full(lv);
+  var lv = FLEval.full(this._card.lvs_5());
   ListArea.prototype._assignToVar.call(this, lv);
 }
 
@@ -344,9 +336,7 @@ test.golden._Complex.B9.prototype.constructor = test.golden._Complex.B9;
 
 test.golden._Complex.B9.prototype._chooseCase = function(parent) {
   "use strict";
-  var cond;
-  cond = FLEval.closure(FLEval.compeq, this._card.hello, 'hello');
-  if (FLEval.full(cond)) {
+  if (FLEval.full(this._card.ors_7())) {
     this._setTo(test.golden._Complex.B10);
     return;
   }
@@ -375,8 +365,7 @@ test.golden._Complex.B11.prototype = new CardSlotArea();
 test.golden._Complex.B11.prototype.constructor = test.golden._Complex.B11;
 
 test.golden._Complex.B11.prototype._yoyoExpr = function() {
-  var card = this._card.yoyo;
-  this._updateToCard(card);
+  this._updateToCard(this._card.yoyos_9());
 }
 
 test.golden.Complex._FooHandler.prototype.reply = function(v0) {
@@ -430,39 +419,39 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
   return FLEval.error("test.golden.Complex._S0.get: case not handled");
 }
 
-test.golden.Complex.contents_1 = function() {
+test.golden.Complex.prototype.contents_1 = function() {
   "use strict";
-  return this._card.hello;
+  return this.hello;
 }
 
-test.golden.Complex.contents_4 = function() {
+test.golden.Complex.prototype.contents_4 = function() {
   "use strict";
   return this._src_lv.lv;
 }
 
-test.golden.Complex.formats_2 = function() {
+test.golden.Complex.prototype.formats_2 = function() {
   "use strict";
-  return FLEval.closure(Cons, this._card.format, Nil);
+  return FLEval.closure(Cons, this.format, Nil);
 }
 
-test.golden.Complex.handlers_6 = function() {
+test.golden.Complex.prototype.handlers_6 = function() {
   "use strict";
   return test.golden.Complex.prototype.sayHello;
 }
 
-test.golden.Complex.lvs_3 = function() {
+test.golden.Complex.prototype.lvs_3 = function() {
   "use strict";
-  return this._card.list;
+  return this.list;
 }
 
-test.golden.Complex.lvs_5 = function() {
+test.golden.Complex.prototype.lvs_5 = function() {
   "use strict";
-  return this._card.list;
+  return this.list;
 }
 
-test.golden.Complex.ors_7 = function() {
+test.golden.Complex.prototype.ors_7 = function() {
   "use strict";
-  return FLEval.closure(FLEval.compeq, this._card.hello, 'hello');
+  return FLEval.closure(FLEval.compeq, this.hello, 'hello');
 }
 
 test.golden.Complex.prototype.sayHello = function(v0) {
@@ -478,14 +467,14 @@ test.golden.Complex.prototype.sayHello = function(v0) {
   return FLEval.error("test.golden.Complex.sayHello: case not handled");
 }
 
-test.golden.Complex.teas_0 = function() {
+test.golden.Complex.prototype.teas_0 = function() {
   "use strict";
-  return this._card.hello;
+  return this.hello;
 }
 
-test.golden.Complex.yoyos_9 = function() {
+test.golden.Complex.prototype.yoyos_9 = function() {
   "use strict";
-  return this._card.yoyo;
+  return this.yoyo;
 }
 
 test.golden;

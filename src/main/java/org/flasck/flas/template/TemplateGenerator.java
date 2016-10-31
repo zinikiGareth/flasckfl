@@ -109,14 +109,16 @@ public class TemplateGenerator {
 	}
 
 	private final Rewriter rewriter;
+	private final TemplateFunctionGenerator tfg;
 	private final HSIE hsie;
 	private final TypeChecker tc;
 	private final ApplyCurry curry;
 	private final DroidGenerator dg;
 
-	public TemplateGenerator(Rewriter rewriter, HSIE hsie, TypeChecker tc, ApplyCurry curry, DroidGenerator dg) {
+	public TemplateGenerator(Rewriter rewriter, HSIE hsie, TemplateFunctionGenerator tfg, TypeChecker tc, ApplyCurry curry, DroidGenerator dg) {
 		this.rewriter = rewriter;
 		this.hsie = hsie;
+		this.tfg = tfg;
 		this.tc = tc;
 		this.curry = curry;
 		this.dg = dg;
@@ -234,10 +236,8 @@ public class TemplateGenerator {
 					case TemplateToken.IDENTIFIER: {
 						String saf = called + ".prototype._setAttr_" + an;
 						JSForm sak = JSForm.flex(saf + " = function()").needBlock();
-						// pull from teas
-						HSIEForm form = hsie.handleExpr(tea.value, CodeType.AREA);
-						JSForm.assign(sak, "var attr", form);
-						sak.add(JSForm.flex("attr = FLEval.full(attr)"));
+						String tfn = tfg.simpleName(tfg.teas.get(tea));
+						sak.add(JSForm.flex("var attr = FLEval.full(this._card." + tfn + "())"));
 						JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
 						sak.add(ifassign);
 //						ifassign.add(JSForm.flex("console.log('setting attribute " + tea.attr +" on', this._mydiv.id, 'to', attr)"));
@@ -286,10 +286,8 @@ public class TemplateGenerator {
 			if (l.supportDragOrdering)
 				cfn.add(JSForm.flex("this._makeDraggable()"));
 			JSForm atv = JSForm.flex(called + ".prototype._assignToVar = function()").needBlock();
-			// pull from lvs
-			HSIEForm form = hsie.handleExpr(l.listVar, CodeType.AREA);
-			JSForm.assign(atv, "var lv", form);
-			atv.add(JSForm.flex("lv = FLEval.full(lv)"));
+			String tfn = tfg.simpleName(tfg.lvs.get(l));
+			atv.add(JSForm.flex("var lv = FLEval.full(this._card." + tfn + "())"));
 			callOnAssign(fn, l.listVar, cgrx, called + ".prototype._assignToVar", false, "lv");
 			fn.add(JSForm.flex(called + ".prototype._assignToVar.call(this)"));
 			atv.add(JSForm.flex("ListArea.prototype._assignToVar.call(this, lv)"));
@@ -304,17 +302,14 @@ public class TemplateGenerator {
 			callOnAssign(fn, valExpr, cgrx, called + ".prototype._contentExpr", true, null);
 
 			JSForm cexpr = JSForm.flex(called +".prototype._contentExpr = function()").needBlock();
-			// pull from contents
-			HSIEForm form = hsie.handleExpr(valExpr, CodeType.AREA);
-			form.dump(TypeChecker.logger);
-			JSForm.assign(cexpr, "var str", form);
+			String tfn = tfg.simpleName(tfg.contents.get(ce));
 			if (ce.rawHTML)
-				cexpr.add(JSForm.flex("this._insertHTML(str)"));
+				cexpr.add(JSForm.flex("this._insertHTML(this._card." + tfn +"())"));
 			else
-				cexpr.add(JSForm.flex("this._assignToText(str)"));
+				cexpr.add(JSForm.flex("this._assignToText(this._card." + tfn +"())"));
 			cx.target.add(cexpr);
 
-			dg.contentExpr(cgrx, form, ce.rawHTML);
+			dg.contentExpr(cgrx, tfn, ce.rawHTML);
 			
 			if (isEditable) {
 				// for it to be editable, it must be a clear field of a clear object
@@ -340,14 +335,11 @@ public class TemplateGenerator {
 				callOnAssign(fn, valExpr, cgrx, called + ".prototype._yoyoExpr", true, null);
 	
 				JSForm cexpr = JSForm.flex(called +".prototype._yoyoExpr = function()").needBlock();
-				// pull from yoyos
-				HSIEForm form = hsie.handleExpr(valExpr, CodeType.AREA);
-				form.dump(TypeChecker.logger);
-				JSForm.assign(cexpr, "var card", form);
-				cexpr.add(JSForm.flex("this._updateToCard(card)"));
+				String tfn = tfg.simpleName(tfg.yoyos.get(cr));
+				cexpr.add(JSForm.flex("this._updateToCard(this._card." + tfn + "())"));
 				cx.target.add(cexpr);
 
-				dg.yoyoExpr(cgrx, form);
+				dg.yoyoExpr(cgrx, tfn);
 			} else
 				throw new UtilException("handle this case");
 		} else if (tl instanceof TemplateCases) {
@@ -355,7 +347,6 @@ public class TemplateGenerator {
 			String sn = called + ".prototype._chooseCase";
 			JSForm sw = JSForm.flex(sn +" = function(parent)").needBlock();
 			sw.add(JSForm.flex("\"use strict\""));
-			sw.add(JSForm.flex("var cond"));
 			cx.target.add(sw);
 			callOnAssign(fn, tc.switchOn, cgrx, sn, true, null);
 
@@ -366,10 +357,8 @@ public class TemplateGenerator {
 				if (oc.cond == null)
 					doit = sw;
 				else {
-					
-					// pull from ors
-					JSForm.assign(sw, "cond", hsie.handleExpr(new ApplyExpr(oc.location(), cx.equals, tc.switchOn, oc.cond), CodeType.AREA));
-					doit = JSForm.flex("if (FLEval.full(cond))").needBlock();
+					String tfn = tfg.simpleName(tfg.ors.get(oc));
+					doit = JSForm.flex("if (FLEval.full(this._card." + tfn + "()))").needBlock();
 					sw.add(doit);
 				}
 				doit.add(JSForm.flex("this._setTo(" + cn +")"));
@@ -425,13 +414,10 @@ public class TemplateGenerator {
 				expr = new ApplyExpr(first, cx.cons, new StringLiteral(first, simple.substring(1)), expr);
 			String scf = called + ".prototype._setVariableFormats";
 			JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
-			// pull from formats
-			HSIEForm form = hsie.handleExpr(expr, CodeType.AREA);
-			JSForm.assign(scvs, "var attr", form);
-			scvs.add(JSForm.flex("attr = FLEval.full(attr)"));
-			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(attr), ' '))"));
+			String tfn = tfg.simpleName(tfg.formats.get(tl));
+			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this._card."+tfn+"()), ' '))"));
 			cx.target.add(scvs);
-			dg.setVarFormats(cgrx, form);
+			dg.setVarFormats(cgrx, tfn);
 			callOnAssign(fn, expr, cgrx, scf, true, null);
 		}
 		else if (expr == null && simple.length() > 0) {
@@ -446,17 +432,14 @@ public class TemplateGenerator {
 				cx.target.add(ahf);
 				boolean isFirst = true;
 				for (RWEventHandler eh : tfe.handlers) {
-					// pull from handlers
-					HSIEForm exprn = hsie.handleExpr(eh.expr, HSIEForm.CodeType.AREA);
-					curry.rewrite(tc, exprn);
+					String tfn = tfg.simpleName(tfg.handlers.get(tfe));
 
 					// add a hack to allow us to NOT overwrite events that we want to intercept first
 					String distinguish = "";
 					if (eh.action.equals("drop"))
 						distinguish = "_";
-					JSForm.assign(ahf, "var eh" + eh.action, exprn);
 					JSForm cev = JSForm.flex("this._mydiv['on" + distinguish + eh.action + "'] = function(event)").needBlock();
-					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(eh" + eh.action + ", event)"));
+					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(this._card." + tfn + "(), event)"));
 					ahf.add(cev);
 	
 					callOnAssign(fn, eh.expr, cgrx, called + ".prototype._add_handlers", isFirst, null);

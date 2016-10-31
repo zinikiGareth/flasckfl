@@ -51,13 +51,13 @@ public class TemplateFunctionGenerator {
 	private final Object nil;
 	private final Object cons;
 	private final Object equals;
-	private final Map<TemplateLine, String> formats = new HashMap<>();
-	private final Map<TemplateLine, String> handlers = new HashMap<>();
-	private final Map<TemplateExplicitAttr, String> teas = new HashMap<>();
-	private final Map<TemplateList, String> lvs = new HashMap<>();
-	private final Map<RWContentExpr, String> contents = new HashMap<>();
-	private final Map<RWTemplateCardReference, String> yoyos = new HashMap<>();
-	private final Map<TemplateOr, String> ors = new HashMap<>();
+	final Map<TemplateLine, String> formats = new HashMap<>();
+	final Map<TemplateLine, String> handlers = new HashMap<>();
+	final Map<TemplateExplicitAttr, String> teas = new HashMap<>();
+	final Map<TemplateList, String> lvs = new HashMap<>();
+	final Map<RWContentExpr, String> contents = new HashMap<>();
+	final Map<RWTemplateCardReference, String> yoyos = new HashMap<>();
+	final Map<TemplateOr, String> ors = new HashMap<>();
 
 	public TemplateFunctionGenerator(ErrorResult errors, Rewriter rewriter, Map<String, RWFunctionDefinition> functions) {
 		this.rw = rewriter;
@@ -93,7 +93,7 @@ public class TemplateFunctionGenerator {
 					TemplateExplicitAttr tea = (TemplateExplicitAttr) a;
 					if (tea.type == TemplateToken.IDENTIFIER) {
 						String fnName = state.nextFunction("teas");
-						RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.AREA, fnName, 0, true);
+						RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.CARD, fnName, 0, true);
 						RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tea.location, fnName, new ArrayList<>(), null), 0, tea.value);
 						fn.cases.add(fcd0);
 						functions.put(fnName, fn);
@@ -106,7 +106,7 @@ public class TemplateFunctionGenerator {
 		} else if (content instanceof TemplateList) {
 			TemplateList l = (TemplateList) content;
 			String fnName = state.nextFunction("lvs");
-			RWFunctionDefinition fn = new RWFunctionDefinition(l.listLoc, CodeType.AREA, fnName, 0, true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(l.listLoc, CodeType.CARD, fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(l.listLoc, fnName, new ArrayList<>(), null), 0, l.listVar);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
@@ -117,7 +117,7 @@ public class TemplateFunctionGenerator {
 			for (TemplateOr x : cs.cases) {
 				String fnName = state.nextFunction("ors");
 				if (x.cond != null) {
-					RWFunctionDefinition fn = new RWFunctionDefinition(x.location(), CodeType.AREA, fnName, 0, true);
+					RWFunctionDefinition fn = new RWFunctionDefinition(x.location(), CodeType.CARD, fnName, 0, true);
 					ApplyExpr expr = new ApplyExpr(x.location(), equals, cs.switchOn, x.cond);
 					RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(x.location(), fnName, new ArrayList<>(), null), 0, expr);
 					fn.cases.add(fcd0);
@@ -130,7 +130,7 @@ public class TemplateFunctionGenerator {
 			RWTemplateCardReference ref = (RWTemplateCardReference) content;
 			if (ref.yoyoVar != null) {
 				String fnName = state.nextFunction("yoyos");
-				RWFunctionDefinition fn = new RWFunctionDefinition(ref.location, CodeType.AREA, fnName, 0, true);
+				RWFunctionDefinition fn = new RWFunctionDefinition(ref.location, CodeType.CARD, fnName, 0, true);
 				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ref.location, fnName, new ArrayList<>(), null), 0, ref.yoyoVar);
 				fn.cases.add(fcd0);
 				functions.put(fnName, fn);
@@ -140,7 +140,7 @@ public class TemplateFunctionGenerator {
 			RWContentExpr ce = (RWContentExpr)content;
 			isEditable = ce.editable();
 			String fnName = state.nextFunction("contents");
-			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.AREA, fnName, 0, true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.CARD, fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, fnName, new ArrayList<>(), null), 0, ce.expr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
@@ -179,7 +179,7 @@ public class TemplateFunctionGenerator {
 				if (simple.length() > 0)
 					expr = new ApplyExpr(first, cons, new StringLiteral(first, simple.substring(1)), expr);
 				String fnName = state.nextFunction("formats");
-				RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.AREA, fnName, 0, true);
+				RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.CARD, fnName, 0, true);
 				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tf.kw, fnName, new ArrayList<>(), null), 0, expr);
 				fn.cases.add(fcd0);
 				functions.put(fnName, fn);
@@ -191,12 +191,19 @@ public class TemplateFunctionGenerator {
 			for (RWEventHandler eh : tfe.handlers) {
 				String fnName = state.nextFunction("handlers");
 				InputPosition loc = ((Locatable)eh.expr).location();
-				RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.AREA, fnName, 0, true);
+				RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.CARD, fnName, 0, true);
 				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, eh.expr);
 				fn.cases.add(fcd0);
 				functions.put(fnName, fn);
 				handlers.put(tfe, fnName);
 			}
 		}
+	}
+
+	public String simpleName(String name) {
+		int idx = name.lastIndexOf(".");
+		if (idx == -1)
+			throw new UtilException("No . in " + name);
+		return name.substring(idx+1);
 	}
 }

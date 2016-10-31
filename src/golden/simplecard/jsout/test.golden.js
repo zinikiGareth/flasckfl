@@ -52,13 +52,12 @@ test.golden._Simple.B2.prototype = new TextArea();
 test.golden._Simple.B2.prototype.constructor = test.golden._Simple.B2;
 
 test.golden._Simple.B2.prototype._contentExpr = function() {
-  var str = this._card.hello;
-  this._assignToText(str);
+  this._assignToText(this._card.contents_0());
 }
 
-test.golden.Simple.contents_0 = function() {
+test.golden.Simple.prototype.contents_0 = function() {
   "use strict";
-  return this._card.hello;
+  return this.hello;
 }
 
 test.golden.Simple.prototype.f = function() {

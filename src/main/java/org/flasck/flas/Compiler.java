@@ -455,7 +455,7 @@ public class Compiler {
 			// This definitely does NOT want to move up, since it generates JS
 			// It does want the methods generated though ...
 			// 8. Generate code from templates
-			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tc, curry, dg);
+			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tfg, tc, curry, dg);
 			tgen.generate(rewriter, target);
 			
 			// 9. Check whether functions are curried and add in the appropriate indications if so
