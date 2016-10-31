@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateCases;
 import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
@@ -405,12 +406,11 @@ public class TemplateGenerator {
 					System.out.println(tt);
 					throw new UtilException("Cannot handle format of type " + tt.type);
 				}
-			} else if (o instanceof ApplyExpr) {
+			} else if (o instanceof ApplyExpr || o instanceof CardMember) {
 				// TODO: need to collect object/field pairs that we depend on
-				ApplyExpr ae = (ApplyExpr) o;
 				if (expr == null)
 					expr = cx.nil;
-				expr = new ApplyExpr(ae.location, cx.cons, o, expr);
+				expr = new ApplyExpr(((Locatable)o).location(), cx.cons, o, expr);
 			} else
 				throw new UtilException("Cannot handle format of type " + o.getClass());
 		}

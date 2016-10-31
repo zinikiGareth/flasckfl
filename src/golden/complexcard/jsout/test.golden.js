@@ -66,6 +66,8 @@ test.golden._Complex = function(v0) {
   this._special = 'card';
   this.yoyo = undefined;
   this.yoyo = FLEval.full(this.yoyo);
+  this.format = "basic";
+  this.format = FLEval.full(this.format);
   this.mapper = undefined;
   this.mapper = FLEval.full(this.mapper);
   this.hello = "hello, world";
@@ -190,6 +192,8 @@ test.golden._Complex.B2 = function(parent) {
   if (!parent) return;
   this._onAssign(this._card, 'hello', test.golden._Complex.B2.prototype._contentExpr);
   test.golden._Complex.B2.prototype._contentExpr.call(this);
+  this._onAssign(this._card, 'format', test.golden._Complex.B2.prototype._setVariableFormats);
+  test.golden._Complex.B2.prototype._setVariableFormats.call(this);
 }
 
 test.golden._Complex.B2.prototype = new TextArea();
@@ -199,6 +203,12 @@ test.golden._Complex.B2.prototype.constructor = test.golden._Complex.B2;
 test.golden._Complex.B2.prototype._contentExpr = function() {
   var str = this._card.hello;
   this._assignToText(str);
+}
+
+test.golden._Complex.B2.prototype._setVariableFormats = function() {
+  var attr = FLEval.closure(Cons, this._card.format, Nil);
+  attr = FLEval.full(attr);
+  this._mydiv.setAttribute('class', join(FLEval.full(attr), ' '));
 }
 
 test.golden._Complex.B3 = function(parent) {

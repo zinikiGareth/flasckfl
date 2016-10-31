@@ -29,13 +29,14 @@ This is a complex card with "one of everything"
 	card Complex
 		state
 			String hello <- "hello, world"
+			String format <- "basic"
 			Croset[String] list
 			String->String mapper
 			Card yoyo
 			
 		template
 			.
-				hello
+				hello : format
 				+ list lv
 					.
 						lv
