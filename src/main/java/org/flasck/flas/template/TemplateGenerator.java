@@ -366,6 +366,8 @@ public class TemplateGenerator {
 				if (oc.cond == null)
 					doit = sw;
 				else {
+					
+					// pull from ors
 					JSForm.assign(sw, "cond", hsie.handleExpr(new ApplyExpr(oc.location(), cx.equals, tc.switchOn, oc.cond), CodeType.AREA));
 					doit = JSForm.flex("if (FLEval.full(cond))").needBlock();
 					sw.add(doit);
@@ -468,7 +470,10 @@ public class TemplateGenerator {
 		JSForm rules = JSForm.flex(area + "._rules =").needBlock();
 		JSForm save = JSForm.flex("save: function(wrapper, text)").needBlock();
 		if (container != null) {
-			JSForm.assign(save, "var containingObject", hsie.handleExpr(container, CodeType.AREA));
+			// TODO: HSIE: we don't have a test of this case
+//			JSForm.assign(save, "var containingObject", hsie.handleExpr(container, CodeType.AREA));
+			// I ***think*** what we need to do is generate a function for "container" in TemplateFunctionGenerator and then call it here
+			throw new UtilException("We don't have a test of this case");
 		} else
 			save.add(JSForm.flex("var containingObject = this._card"));
 		// TODO: we may need to convert the text field to a more complex object type (e.g. integer) as specified in the rules we are given

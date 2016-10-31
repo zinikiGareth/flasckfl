@@ -460,6 +460,11 @@ test.golden.Complex.lvs_5 = function() {
   return this._card.list;
 }
 
+test.golden.Complex.ors_7 = function() {
+  "use strict";
+  return FLEval.closure(FLEval.compeq, this._card.hello, 'hello');
+}
+
 test.golden.Complex.prototype.sayHello = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
@@ -478,7 +483,7 @@ test.golden.Complex.teas_0 = function() {
   return this._card.hello;
 }
 
-test.golden.Complex.yoyos_7 = function() {
+test.golden.Complex.yoyos_9 = function() {
   "use strict";
   return this._card.yoyo;
 }

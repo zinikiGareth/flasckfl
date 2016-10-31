@@ -28,11 +28,21 @@ HSIE for test.golden.Complex.teas_0/0                        #complexcard. 38.9
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.hello]      #complexcard. 38.9
 =======
-HSIE for test.golden.Complex.yoyos_7/0                       #complexcard. 51.2
+HSIE for test.golden.Complex.yoyos_9/0                       #complexcard. 51.2
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.yoyo] scoped = []
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.yoyo]       #complexcard. 51.2
+=======
+HSIE for test.golden.Complex.ors_7/0                         #complexcard. 48.0
+#Args: 0 #bound: 1
+    externals: [==, test.golden.Complex.hello] scoped = []
+    all vars = [v0]
+RETURN v0:clos0 []                                           #complexcard. 48.0
+CLOSURE v0                                                   #complexcard. 48.0
+  PUSH PackageVar.==                                         #tfg:          1.1
+  PUSH CardMember.CardMember[test.golden.Complex.hello]      #complexcard. 47.3
+  PUSH "hello"                                               #complexcard. 48.2
 =======
 HSIE for test.golden.Complex.formats_2/0                     #complexcard. 39.0
 #Args: 0 #bound: 1

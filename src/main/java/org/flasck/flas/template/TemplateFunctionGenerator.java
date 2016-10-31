@@ -57,6 +57,7 @@ public class TemplateFunctionGenerator {
 	private final Map<TemplateList, String> lvs = new HashMap<>();
 	private final Map<RWContentExpr, String> contents = new HashMap<>();
 	private final Map<RWTemplateCardReference, String> yoyos = new HashMap<>();
+	private final Map<TemplateOr, String> ors = new HashMap<>();
 
 	public TemplateFunctionGenerator(ErrorResult errors, Rewriter rewriter, Map<String, RWFunctionDefinition> functions) {
 		this.rw = rewriter;
@@ -113,13 +114,18 @@ public class TemplateFunctionGenerator {
 			recurse(state, l.template);
 		} else if (content instanceof TemplateCases) {
 			TemplateCases cs = (TemplateCases) content;
-			// more to do (switchOn) 
-			for (TemplateOr x : cs.cases)
-				recurse(state, x);
-		} else if (content instanceof TemplateOr) {
-			TemplateOr cs = (TemplateOr) content;
-			// more to do (cond)
-			recurse(state, cs.template);
+			for (TemplateOr x : cs.cases) {
+				String fnName = state.nextFunction("ors");
+				if (x.cond != null) {
+					RWFunctionDefinition fn = new RWFunctionDefinition(x.location(), CodeType.AREA, fnName, 0, true);
+					ApplyExpr expr = new ApplyExpr(x.location(), equals, cs.switchOn, x.cond);
+					RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(x.location(), fnName, new ArrayList<>(), null), 0, expr);
+					fn.cases.add(fcd0);
+					functions.put(fnName, fn);
+					ors.put(x, fnName);
+				}
+				recurse(state, x.template);
+			}
 		} else if (content instanceof RWTemplateCardReference) {
 			RWTemplateCardReference ref = (RWTemplateCardReference) content;
 			if (ref.yoyoVar != null) {
