@@ -84,6 +84,7 @@ public class HSIE {
 		return ret;
 	}
 
+	@Deprecated // but I mean this ...
 	public HSIEForm handleExpr(Object expr, CodeType type) {
 		InputPosition loc = null;
 		if (expr instanceof Locatable)
@@ -92,26 +93,6 @@ public class HSIE {
 			throw new UtilException(expr + " " + expr.getClass() + " is not locatable");
 		MetaState ms = new MetaState(errors, rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(new VarFactory(), type, "", loc, new HashMap<String, CreationOfVar>(), 0));
 		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
-//		ms.form.doReturn(ret, ms.closureDependencies(ret));
-		return ms.form;
-	}
-
-	@Deprecated // use type constraints on closures instead ...
-	public HSIEForm handleExprWith(Object expr, CodeType type, List<String> vars) {
-		InputPosition loc = null;
-		if (expr instanceof Locatable)
-			loc = ((Locatable)expr).location();
-		HSIEForm blk = new HSIEForm(new VarFactory(), type, "_expr_", loc, new TreeMap<String, CreationOfVar>(new StringComparator()), vars.size());
-		MetaState ms = new MetaState(errors, rewriter, new HashMap<String, HSIEForm>(), blk);
-//		State s = new State(blk);
-//		ms.add(s);
-		Map<String, CreationOfVar> map = new TreeMap<String, CreationOfVar>(new StringComparator());
-		for (String v : vars) {
-			map.put(v, new CreationOfVar(ms.allocateVar(), null, v));
-		}
-		SubstExpr se = new SubstExpr(expr, exprIdx++);
-		se.alsoSub(map);
-		ms.writeExpr(se, ms.form);
 //		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}

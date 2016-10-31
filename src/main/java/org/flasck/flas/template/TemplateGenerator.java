@@ -16,12 +16,9 @@ import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.commonBase.template.TemplateOr;
 import org.flasck.flas.droidgen.CGRContext;
 import org.flasck.flas.droidgen.DroidGenerator;
-import org.flasck.flas.hsie.ApplyCurry;
-import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
-import org.flasck.flas.parsedForm.TemplateCardReference;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -39,9 +36,6 @@ import org.flasck.flas.rewrittenForm.RWTemplateCardReference;
 import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
 import org.flasck.flas.tokenizers.TemplateToken;
-import org.flasck.flas.typechecker.TypeChecker;
-import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -67,7 +61,6 @@ public class TemplateGenerator {
 		private final List<DefinedVar> varsToCopy = new ArrayList<DefinedVar>();
 		private final Object nil;
 		private final Object cons;
-		private final Object equals;
 		private final String javaName;
 
 		public GeneratorContext(JSTarget target, Rewriter rw, RWTemplate cg) {
@@ -78,7 +71,6 @@ public class TemplateGenerator {
 			this.protoName = Generator.lname(cg.prefix, true);
 			this.nil = rw.getMe(posn, "Nil");
 			this.cons = rw.getMe(posn, "Cons");
-			this.equals = rw.getMe(posn, "==");
 		}
 		
 		String nextArea() {
@@ -110,17 +102,11 @@ public class TemplateGenerator {
 
 	private final Rewriter rewriter;
 	private final TemplateFunctionGenerator tfg;
-	private final HSIE hsie;
-	private final TypeChecker tc;
-	private final ApplyCurry curry;
 	private final DroidGenerator dg;
 
-	public TemplateGenerator(Rewriter rewriter, HSIE hsie, TemplateFunctionGenerator tfg, TypeChecker tc, ApplyCurry curry, DroidGenerator dg) {
+	public TemplateGenerator(Rewriter rewriter, TemplateFunctionGenerator tfg, DroidGenerator dg) {
 		this.rewriter = rewriter;
-		this.hsie = hsie;
 		this.tfg = tfg;
-		this.tc = tc;
-		this.curry = curry;
 		this.dg = dg;
 	}
 

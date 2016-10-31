@@ -14,7 +14,6 @@ import org.flasck.flas.commonBase.template.TemplateFormat;
 import org.flasck.flas.commonBase.template.TemplateLine;
 import org.flasck.flas.commonBase.template.TemplateList;
 import org.flasck.flas.commonBase.template.TemplateOr;
-import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -59,7 +58,7 @@ public class TemplateFunctionGenerator {
 	final Map<RWTemplateCardReference, String> yoyos = new HashMap<>();
 	final Map<TemplateOr, String> ors = new HashMap<>();
 
-	public TemplateFunctionGenerator(ErrorResult errors, Rewriter rewriter, Map<String, RWFunctionDefinition> functions) {
+	public TemplateFunctionGenerator(Rewriter rewriter, Map<String, RWFunctionDefinition> functions) {
 		this.rw = rewriter;
 		this.functions = functions;
 		InputPosition posn = new InputPosition("tfg", 1, 1, "");

@@ -409,7 +409,7 @@ public class Compiler {
 			abortIfErrors(errors);
 
 			// 5. Templates may depend on expressions in various contexts; generate the appropriate functions
-			final TemplateFunctionGenerator tfg = new TemplateFunctionGenerator(errors, rewriter, functions);
+			final TemplateFunctionGenerator tfg = new TemplateFunctionGenerator(rewriter, functions);
 			tfg.generate();
 			
 			// 5. D3 definitions may generate card functions; promote these onto the cards
@@ -455,7 +455,7 @@ public class Compiler {
 			// This definitely does NOT want to move up, since it generates JS
 			// It does want the methods generated though ...
 			// 8. Generate code from templates
-			final TemplateGenerator tgen = new TemplateGenerator(rewriter, hsie, tfg, tc, curry, dg);
+			final TemplateGenerator tgen = new TemplateGenerator(rewriter, tfg, dg);
 			tgen.generate(rewriter, target);
 			
 			// 9. Check whether functions are curried and add in the appropriate indications if so
