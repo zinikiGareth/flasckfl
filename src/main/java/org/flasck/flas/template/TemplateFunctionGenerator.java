@@ -19,6 +19,7 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWContentString;
+import org.flasck.flas.rewrittenForm.RWD3Thing;
 import org.flasck.flas.rewrittenForm.RWEventHandler;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -146,6 +147,8 @@ public class TemplateFunctionGenerator {
 			contents.put(ce, fnName);
 		} else if (content instanceof RWContentString) {
 			; // I don't think anything needs to be done specifically for this (it could have formats or handlers)
+		} else if (content instanceof RWD3Thing) {
+			// Not sure if anything needs doing here or not ...
 		} else
 			throw new UtilException("Cannot handle " + content.getClass());
 		if (content instanceof TemplateFormat) {

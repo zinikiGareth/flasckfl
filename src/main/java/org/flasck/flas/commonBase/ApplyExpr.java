@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.zinutils.exceptions.UtilException;
 
 public class ApplyExpr implements Locatable {
 	public final InputPosition location;
@@ -12,7 +13,7 @@ public class ApplyExpr implements Locatable {
 
 	public ApplyExpr(InputPosition location, Object op, List<Object> args) {
 		if (location == null)
-			System.out.println("ApplyExpr without location");
+			throw new UtilException("ApplyExpr without location");
 		this.location = location;
 		this.fn = op;
 		this.args.addAll(args);
@@ -20,7 +21,7 @@ public class ApplyExpr implements Locatable {
 
 	public ApplyExpr(InputPosition location, Object op, Object... args) {
 		if (location == null)
-			System.out.println("ApplyExpr without location");
+			throw new UtilException("ApplyExpr without location");
 		this.location = location;
 		this.fn = op;
 		for (Object o : args)

@@ -19,7 +19,6 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
-import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3Thing;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.Scope;
@@ -104,8 +103,7 @@ public class SugarDetox {
 				}
 				return unroll(er, map, tt.content, nsubst);
 			} else {
-				D3Thing d3 = (D3Thing) reffed;
-				return new D3Invoke(d3);
+				return (D3Thing) reffed;
 			}
 		} else if (content instanceof TemplateFormat) {
 			TemplateFormat tf = (TemplateFormat) content;

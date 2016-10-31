@@ -20,6 +20,8 @@ public class RWFunctionDefinition implements Locatable {
 	private Type type;
 
 	public RWFunctionDefinition(InputPosition location, CodeType mytype, String name, int nargs, boolean generate) {
+		if (location == null)
+			throw new UtilException("Null location");
 		this.location = location;
 		this.mytype = mytype;
 		this.name = name;

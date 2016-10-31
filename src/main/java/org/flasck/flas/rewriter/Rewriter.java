@@ -39,9 +39,9 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
+import org.flasck.flas.parsedForm.D3Thing;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -88,7 +88,6 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
-import org.flasck.flas.rewrittenForm.RWD3Invoke;
 import org.flasck.flas.rewrittenForm.RWD3PatternBlock;
 import org.flasck.flas.rewrittenForm.RWD3Section;
 import org.flasck.flas.rewrittenForm.RWD3Thing;
@@ -150,7 +149,7 @@ public class Rewriter {
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
 	public final Map<String, CardTypeInfo> ctis = new TreeMap<String, CardTypeInfo>();
 	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
-	public final List<RWD3Invoke> d3s = new ArrayList<RWD3Invoke>();
+	public final List<RWD3Thing> d3s = new ArrayList<RWD3Thing>();
 	public final Map<String, RWContractImplements> cardImplements = new TreeMap<String, RWContractImplements>();
 	public final Map<String, RWContractService> cardServices = new TreeMap<String, RWContractService>();
 	public final Map<String, RWHandlerImplements> callbackHandlers = new TreeMap<String, RWHandlerImplements>();
@@ -892,11 +891,11 @@ public class Rewriter {
 			for (TemplateOr tor : tc.cases)
 				ret.addCase(rewrite(cx, tor));
 			return ret;
-		} else if (tl instanceof D3Invoke) {
-			D3Invoke prev = (D3Invoke) tl;
-			D3Context c2 = new D3Context(cx, prev.d3.dloc, prev.d3.iter);
+		} else if (tl instanceof D3Thing) {
+			D3Thing prev = (D3Thing) tl;
+			D3Context c2 = new D3Context(cx, prev.dloc, prev.iter);
 			List<RWD3PatternBlock> patterns = new ArrayList<RWD3PatternBlock>();
-			for (D3PatternBlock p : prev.d3.patterns) {
+			for (D3PatternBlock p : prev.patterns) {
 				RWD3PatternBlock rp = new RWD3PatternBlock(p.pattern);
 				patterns.add(rp);
 				for (D3Section s : p.sections.values()) {
@@ -908,10 +907,9 @@ public class Rewriter {
 						rs.properties.put(prop.name, new RWPropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
 				}
 			}
-			RWD3Thing rwD3 = new RWD3Thing(prev.d3.prefix, prev.d3.name, prev.d3.dloc, rewriteExpr(c2, prev.d3.data), prev.d3.iter, patterns);
-			RWD3Invoke rw = new RWD3Invoke(rwD3);
-			d3s.add(rw);
-			return rw;
+			RWD3Thing rwD3 = new RWD3Thing(prev.prefix, prev.name, prev.dloc, rewriteExpr(c2, prev.data), prev.iter, patterns);
+			d3s.add(rwD3);
+			return rwD3;
 		} else 
 			throw new UtilException("Content type not handled: " + (tl == null?"null":tl.getClass()));
 	}

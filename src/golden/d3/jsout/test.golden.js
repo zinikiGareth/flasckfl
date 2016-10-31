@@ -14,11 +14,7 @@ test.golden._TestCard = function(v0) {
   this._ctor = 'test.golden.TestCard';
   this._wrapper = v0.wrapper;
   this._special = 'card';
-  var v0 = FLEval.closure(Cons, 16, Nil);
-  var v1 = FLEval.closure(Cons, 2, v0);
-  var v2 = FLEval.closure(Cons, 8, v1);
-  this.data = FLEval.closure(Cons, 5, v2);
-  this.data = FLEval.full(this.data);
+  this.data = FLEval.full(test.golden.TestCard.inits_data());
   this._services = {};
   this._contracts = {};
 }
@@ -76,9 +72,8 @@ test.golden._TestCard.B4.prototype = new TextArea();
 test.golden._TestCard.B4.prototype.constructor = test.golden._TestCard.B4;
 
 test.golden._TestCard.B3.prototype._add_handlers = function() {
-  var ehclick = test.golden.TestCard.prototype.rejig;
   this._mydiv['onclick'] = function(event) {
-    this._area._wrapper.dispatchEvent(ehclick, event);
+    this._area._wrapper.dispatchEvent(this._card.handlers_0(), event);
   }
 }
 
@@ -113,6 +108,19 @@ test.golden._TestCard.B7 = function(parent) {
 test.golden._TestCard.B7.prototype = new D3Area();
 
 test.golden._TestCard.B7.prototype.constructor = test.golden._TestCard.B7;
+
+test.golden.TestCard.prototype.handlers_0 = function() {
+  "use strict";
+  return test.golden.TestCard.prototype.rejig;
+}
+
+test.golden.TestCard.inits_data = function() {
+  "use strict";
+  var v0 = FLEval.closure(Cons, 16, Nil);
+  var v1 = FLEval.closure(Cons, 2, v0);
+  var v2 = FLEval.closure(Cons, 8, v1);
+  return FLEval.closure(Cons, 5, v2);
+}
 
 test.golden.TestCard.prototype.rejig = function(v0) {
   "use strict";

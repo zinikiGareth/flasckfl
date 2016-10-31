@@ -38,7 +38,6 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
-import org.flasck.flas.parsedForm.D3Invoke;
 import org.flasck.flas.parsedForm.D3PatternBlock;
 import org.flasck.flas.parsedForm.D3Section;
 import org.flasck.flas.parsedForm.D3Thing;

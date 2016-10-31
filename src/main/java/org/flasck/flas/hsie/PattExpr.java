@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.zinutils.exceptions.UtilException;
 
 public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 	private final Map<Object, SubstExpr> mapping = new HashMap<Object, SubstExpr>();
@@ -21,6 +22,8 @@ public class PattExpr implements Iterable<Entry<Object, SubstExpr>> {
 			else
 				ret = ret.lesserOf(p);
 		}
+		if (ret == null)
+			throw new UtilException("Cannot return null");
 		return ret;
 	}
 

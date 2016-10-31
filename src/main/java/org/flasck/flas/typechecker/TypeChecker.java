@@ -438,7 +438,7 @@ public class TypeChecker {
 					String un = fn.uniqueName();
 					if (un.equals("FLEval.tuple")) {
 						logger.debug(fn + " needs tuple handling");
-						return new TypeExpr(myloc, Type.builtin(null, "()"));
+						return new TypeExpr(myloc, Type.builtin(myloc.posn, "()"));
 					}
 					if (fn instanceof CardMember) {
 						logger.debug(fn + " is a card member");
@@ -540,7 +540,7 @@ public class TypeChecker {
 				@Override
 				public Object visit(PushFunc pf) {
 					logger.debug(pf.func + " is a function literal");
-					return new TypeExpr(null, Type.builtin(pf.location, "FunctionLiteral")); // do we not want the type signature of r.func?
+					return new TypeExpr(new GarneredFrom(pf.location), Type.builtin(pf.location, "FunctionLiteral")); // do we not want the type signature of r.func?
 				}
 			});
 		} else
@@ -647,6 +647,11 @@ public class TypeChecker {
 					; // that's OK ...
 				else
 					throw new UtilException("Error or unhandled case in TCM: " + pt + " " +pt.getClass());
+			} else if (ty instanceof RWStructDefn) {
+				if (ty.name.equals("D3Action"))
+					; // OK ...
+				else
+					throw new UtilException("Error or unhandled case in TCM: " + ty + " class: " +ty.getClass());
 			} else
 				throw new UtilException("Error or unhandled case in TCM: " + ty + " class: " +ty.getClass());
 		}

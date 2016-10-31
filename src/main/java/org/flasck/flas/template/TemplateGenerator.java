@@ -26,7 +26,7 @@ import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWContentString;
-import org.flasck.flas.rewrittenForm.RWD3Invoke;
+import org.flasck.flas.rewrittenForm.RWD3Thing;
 import org.flasck.flas.rewrittenForm.RWEventHandler;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -171,7 +171,7 @@ public class TemplateGenerator {
 				throw new UtilException("Can't handle this case");
 		} else if (tl instanceof TemplateCases) {
 			base = "CasesArea";
-		} else if (tl instanceof RWD3Invoke) {
+		} else if (tl instanceof RWD3Thing) {
 			base = "D3Area";
 		} else {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
@@ -354,9 +354,9 @@ public class TemplateGenerator {
 				if (oc.cond != null)
 					callOnAssign(fn, oc.cond, null, sn, false, null);
 			}
-		} else if (tl instanceof RWD3Invoke) {
-			RWD3Invoke d3 = (RWD3Invoke) tl;
-			callOnAssign(fn, d3.d3.data, null, "D3Area.prototype._onUpdate", false, null);
+		} else if (tl instanceof RWD3Thing) {
+			RWD3Thing d3 = (RWD3Thing) tl;
+			callOnAssign(fn, d3.data, null, "D3Area.prototype._onUpdate", false, null);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}

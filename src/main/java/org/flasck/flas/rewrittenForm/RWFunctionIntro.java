@@ -15,6 +15,8 @@ public class RWFunctionIntro {
 
 	public RWFunctionIntro(InputPosition location, String name, List<Object> args, Map<String, LocalVar> vars) {
 		this.location = location;
+		if (location == null)
+			throw new UtilException("Null location");
 		this.name = name;
 		if (args == null)
 			throw new UtilException("Cannot pass in null args");

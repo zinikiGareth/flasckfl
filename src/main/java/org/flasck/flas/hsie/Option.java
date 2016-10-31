@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.ListMap;
+import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringComparator;
 
 public class Option {
@@ -19,6 +20,8 @@ public class Option {
 	public InputPosition location;
 
 	public Option(InputPosition loc, Var var) {
+		if (loc == null)
+			throw new UtilException("location cannot be null");
 		location = loc;
 		this.var = var;
 	}

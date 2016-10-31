@@ -24,7 +24,8 @@ public class HSIEBlock {
 	protected static final Logger logger = LoggerFactory.getLogger("HSIE");
 
 	public HSIEBlock(InputPosition loc) {
-		if (loc == null) throw new UtilException("Cannot be null");
+		if (loc == null)
+			throw new UtilException("Location cannot be null");
 		this.location = loc;
 	}
 	

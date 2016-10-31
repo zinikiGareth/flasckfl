@@ -4,6 +4,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.typechecker.Type;
+import org.zinutils.exceptions.UtilException;
 
 public class RWTypedPattern implements Locatable, AsString {
 	public final transient InputPosition typeLocation;
@@ -12,6 +13,8 @@ public class RWTypedPattern implements Locatable, AsString {
 	public final String var;
 
 	public RWTypedPattern(InputPosition location, Type type, InputPosition vlocation, String var) {
+		if (location == null || vlocation == null)
+			throw new UtilException("Cannot have null locations");
 		this.typeLocation = location;
 		this.type = type;
 		this.varLocation = vlocation;
