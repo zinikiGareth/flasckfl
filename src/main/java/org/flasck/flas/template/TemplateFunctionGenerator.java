@@ -3,7 +3,6 @@ package org.flasck.flas.template;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -55,6 +54,7 @@ public class TemplateFunctionGenerator {
 	private final Map<TemplateLine, String> formats = new HashMap<>();
 	private final Map<TemplateLine, String> handlers = new HashMap<>();
 	private final Map<TemplateExplicitAttr, String> teas = new HashMap<>();
+	private final Map<TemplateLine, String> lvs = new HashMap<>();
 
 	public TemplateFunctionGenerator(ErrorResult errors, Rewriter rewriter, Map<String, RWFunctionDefinition> functions) {
 		this.rw = rewriter;
@@ -102,6 +102,12 @@ public class TemplateFunctionGenerator {
 				recurse(state, x);
 		} else if (content instanceof TemplateList) {
 			TemplateList l = (TemplateList) content;
+			String fnName = state.nextFunction("lvs");
+			RWFunctionDefinition fn = new RWFunctionDefinition(l.listLoc, CodeType.AREA, fnName, 0, true);
+			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(l.listLoc, fnName, new ArrayList<>(), null), 0, l.listVar);
+			fn.cases.add(fcd0);
+			functions.put(fnName, fn);
+			lvs.put(l, fnName);
 			recurse(state, l.template);
 		} else if (content instanceof TemplateCases) {
 			TemplateCases cs = (TemplateCases) content;

@@ -435,9 +435,19 @@ test.golden.Complex.formats_1 = function() {
   return FLEval.closure(Cons, this._card.format, Nil);
 }
 
-test.golden.Complex.handlers_2 = function() {
+test.golden.Complex.handlers_4 = function() {
   "use strict";
   return test.golden.Complex.prototype.sayHello;
+}
+
+test.golden.Complex.lvs_2 = function() {
+  "use strict";
+  return this._card.list;
+}
+
+test.golden.Complex.lvs_3 = function() {
+  "use strict";
+  return this._card.list;
 }
 
 test.golden.Complex.prototype.sayHello = function(v0) {

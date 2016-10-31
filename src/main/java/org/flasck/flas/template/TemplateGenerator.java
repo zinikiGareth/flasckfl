@@ -234,6 +234,7 @@ public class TemplateGenerator {
 					case TemplateToken.IDENTIFIER: {
 						String saf = called + ".prototype._setAttr_" + an;
 						JSForm sak = JSForm.flex(saf + " = function()").needBlock();
+						// pull from teas
 						HSIEForm form = hsie.handleExpr(tea.value, CodeType.AREA);
 						JSForm.assign(sak, "var attr", form);
 						sak.add(JSForm.flex("attr = FLEval.full(attr)"));
@@ -285,6 +286,7 @@ public class TemplateGenerator {
 			if (l.supportDragOrdering)
 				cfn.add(JSForm.flex("this._makeDraggable()"));
 			JSForm atv = JSForm.flex(called + ".prototype._assignToVar = function()").needBlock();
+			// pull from lvs
 			HSIEForm form = hsie.handleExpr(l.listVar, CodeType.AREA);
 			JSForm.assign(atv, "var lv", form);
 			atv.add(JSForm.flex("lv = FLEval.full(lv)"));
@@ -419,6 +421,7 @@ public class TemplateGenerator {
 				expr = new ApplyExpr(first, cx.cons, new StringLiteral(first, simple.substring(1)), expr);
 			String scf = called + ".prototype._setVariableFormats";
 			JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
+			// pull from formats
 			HSIEForm form = hsie.handleExpr(expr, CodeType.AREA);
 			JSForm.assign(scvs, "var attr", form);
 			scvs.add(JSForm.flex("attr = FLEval.full(attr)"));
@@ -439,6 +442,7 @@ public class TemplateGenerator {
 				cx.target.add(ahf);
 				boolean isFirst = true;
 				for (RWEventHandler eh : tfe.handlers) {
+					// pull from handlers
 					HSIEForm exprn = hsie.handleExpr(eh.expr, HSIEForm.CodeType.AREA);
 					curry.rewrite(tc, exprn);
 

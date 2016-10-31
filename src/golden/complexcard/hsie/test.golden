@@ -1,3 +1,15 @@
+HSIE for test.golden.Complex.lvs_2/0                         #complexcard. 40.2
+#Args: 0 #bound: 0
+    externals: [test.golden.Complex.list] scoped = []
+    all vars = []
+RETURN CardMember.CardMember[test.golden.Complex.list]       #complexcard. 40.2
+=======
+HSIE for test.golden.Complex.lvs_3/0                         #complexcard. 43.2
+#Args: 0 #bound: 0
+    externals: [test.golden.Complex.list] scoped = []
+    all vars = []
+RETURN CardMember.CardMember[test.golden.Complex.list]       #complexcard. 43.2
+=======
 HSIE for test.golden.Complex.teas_0/0                        #complexcard. 38.9
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.hello] scoped = []
@@ -32,7 +44,7 @@ CLOSURE v2                                                   #complexcard. 64.9
   PUSH v1:clos1                                              #complexcard. 64.0
   PUSH PackageVar.Nil                                        #complexcard. 63.6
 =======
-HSIE for test.golden.Complex.handlers_2/0                    #complexcard. 46.9
+HSIE for test.golden.Complex.handlers_4/0                    #complexcard. 46.9
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.sayHello] scoped = []
     all vars = []
