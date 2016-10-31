@@ -1,0 +1,75 @@
+package test.golden
+  card test.golden.TestCard @{1:0|card} @{1:5|TestCard}
+    state @{2:0|state}
+      data @{4:13|data}
+        Cons @{4:0|Cons}
+          Number @{4:5|Number}
+       <- @{4:18|<-}
+        <apply> @{4:23|5}
+          Cons @{4:23|5}
+          # 5 @{4:23|5}
+          <apply> @{4:26|8}
+            Cons @{4:26|8}
+            # 8 @{4:26|8}
+            <apply> @{4:29|2}
+              Cons @{4:29|2}
+              # 2 @{4:29|2}
+              <apply> @{4:32|16}
+                Cons @{4:32|16}
+                # 16 @{4:32|16}
+                Nil @{4:31| 16 ]}
+    template @{6:0|template} @{null}
+      . @{7:0|.}
+        . @{8:0|.}
+          . a @{9:0|#} @{9:1|a}
+            '' click here @{10:0|'click here'}
+            => @{11:6|=>}
+              click @{11:0|click}
+              rejig @{11:9|rejig}
+        . @{12:0|.}
+          . svg @{13:0|#} @{13:1|svg}
+            attr width @{13:12|'400'}
+              String: 400
+            attr height @{13:26|'250'}
+              String: 250
+            chart @{14:0|$chart}
+    D3 test.golden._TestCard chart elt
+      data @{16:9|data}
+      Pattern "rect"
+        enter
+          invoke @{26:0|<-}
+            <apply> @{26:3|D3Action "append" ["rect"}
+              D3Action @{26:3|D3Action}
+              '' append @{26:12|"append"}
+              <apply> @{26:22|"rect"}
+                Cons @{26:22|"rect"}
+                '' rect @{26:22|"rect"}
+                Nil @{26:22|"rect"]}
+        layout
+      Pattern "text"
+        enter
+          invoke @{41:0|<-}
+            <apply> @{41:3|D3Action "append" ["text"}
+              D3Action @{41:3|D3Action}
+              '' append @{41:12|"append"}
+              <apply> @{41:22|"text"}
+                Cons @{41:22|"text"}
+                '' text @{41:22|"text"}
+                Nil @{41:22|"text"]}
+        layout
+    event test.golden.TestCard.rejig_1 @{43:0|event} @{43:6|rejig}
+      [var] ev @{43:12|ev}
+      assign data <- @{44:0|data} @{44:5|<-}
+        <apply> @{44:9|4}
+          Cons @{44:9|4}
+          # 4 @{44:9|4}
+          <apply> @{44:12|7}
+            Cons @{44:12|7}
+            # 7 @{44:12|7}
+            <apply> @{44:15|11}
+              Cons @{44:15|11}
+              # 11 @{44:15|11}
+              <apply> @{44:19|9}
+                Cons @{44:19|9}
+                # 9 @{44:19|9}
+                Nil @{44:18| 9]}

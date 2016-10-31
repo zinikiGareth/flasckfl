@@ -38,6 +38,10 @@ import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
 import org.flasck.flas.parsedForm.ContractService;
+import org.flasck.flas.parsedForm.D3Invoke;
+import org.flasck.flas.parsedForm.D3PatternBlock;
+import org.flasck.flas.parsedForm.D3Section;
+import org.flasck.flas.parsedForm.D3Thing;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -222,6 +226,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	private static void dumpRecursive(Indenter pw, Object obj) {
 		if (obj == null) {
 			pw.println("Error - null");
+		} else if (obj instanceof String) { // I'm not sure I really believe in this case, but it came up
+			pw.println("String: " + (String) obj);
 		} else if (obj instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) obj;
 			pw.print("cdecl " + cd.name());
@@ -309,6 +315,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				dumpRecursive(pw.indent(), cd.state);
 			for (Template t : cd.templates)
 				dumpRecursive(pw.indent(), t);
+			dumpList(pw, cd.d3s);
 			dumpList(pw, cd.contracts);
 			dumpList(pw, cd.handlers);
 			dumpList(pw, cd.services);
@@ -469,6 +476,20 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.print("<cexpr>");
 			dumpPosition(pw, ce.kw, true);
 			dumpRecursive(pw.indent(), ce.expr);
+		} else if (obj instanceof D3Thing) {
+			D3Thing d3 = (D3Thing) obj;
+			pw.println("D3 " + d3.prefix + " " + d3.name + " " + d3.iter);
+			dumpRecursive(pw.indent(), d3.data);
+			dumpList(pw, d3.patterns);
+		} else if (obj instanceof D3PatternBlock) {
+			D3PatternBlock blk = (D3PatternBlock) obj;
+			pw.println("Pattern " + blk.pattern);
+			for (D3Section x : blk.sections.values())
+				dumpRecursive(pw.indent(), x);
+		} else if (obj instanceof D3Section) {
+			D3Section s = (D3Section) obj;
+			pw.println(s.name);
+			dumpList(pw, s.actions);
 		} else if (obj instanceof TemplateToken) {
 			// used in formats at least
 			TemplateToken tt = (TemplateToken) obj;
