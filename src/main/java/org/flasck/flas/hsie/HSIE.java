@@ -10,9 +10,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ConstPattern;
-import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
@@ -24,15 +22,13 @@ import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.flas.vcode.hsieForm.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
-import org.zinutils.utils.StringComparator;
 
 public class HSIE {
 	static Logger logger = LoggerFactory.getLogger("HSIE");
@@ -63,9 +59,8 @@ public class HSIE {
 			hsieTree(errors, previous, ret, vf, t, x);
 	}
 
-
-	@Deprecated // TODO: HSIE: not really, but I just wanted to get your attention.  It should be private though
-	public HSIEForm handle(Map<String, HSIEForm> previous, VarFactory vf, RWFunctionDefinition defn) {
+	// package protection because it's used in our tests
+	HSIEForm handle(Map<String, HSIEForm> previous, VarFactory vf, RWFunctionDefinition defn) {
 		HashMap<String, CreationOfVar> map = new HashMap<String, CreationOfVar>();
 		HSIEForm ret = new HSIEForm(vf, defn.mytype, defn.name(), defn.location, map, defn.nargs());
 		MetaState ms = new MetaState(errors, rewriter, previous, ret);
@@ -82,19 +77,6 @@ public class HSIE {
 			errors.message(ex.block, ex.msg);
 		}
 		return ret;
-	}
-
-	@Deprecated // but I mean this ...
-	public HSIEForm handleExpr(Object expr, CodeType type) {
-		InputPosition loc = null;
-		if (expr instanceof Locatable)
-			loc = ((Locatable)expr).location();
-		else
-			throw new UtilException(expr + " " + expr.getClass() + " is not locatable");
-		MetaState ms = new MetaState(errors, rewriter, new HashMap<String, HSIEForm>(), new HSIEForm(new VarFactory(), type, "", loc, new HashMap<String, CreationOfVar>(), 0));
-		ms.writeExpr(new SubstExpr(expr, exprIdx++), ms.form);
-//		ms.form.doReturn(ret, ms.closureDependencies(ret));
-		return ms.form;
 	}
 
 	private HSIEForm handleConstant(MetaState ms, RWFunctionDefinition defn) {

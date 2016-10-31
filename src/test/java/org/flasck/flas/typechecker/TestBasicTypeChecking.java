@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -17,7 +18,6 @@ import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.hsie.HSIETestData;
-import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
+import org.zinutils.graphs.Orchard;
 
 public class TestBasicTypeChecking {
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
@@ -397,10 +398,19 @@ public class TestBasicTypeChecking {
 		rewriter.rewritePackageScope("ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIE hsie = new HSIE(errors, rewriter);
-		tc.typecheck(CollectionUtils.setOf(hsie.handle(null, new VarFactory(), rewriter.functions.get("ME.f"))));
-		assertEquals(errors.singleString(), 0, errors.count());
-		tc.typecheck(CollectionUtils.setOf(hsie.handle(null, new VarFactory(), rewriter.functions.get("ME.g"))));
-		assertEquals(errors.singleString(), 0, errors.count());
+		
+		{
+			Orchard<RWFunctionDefinition> o1 = new Orchard<>();
+			o1.addTree(rewriter.functions.get("ME.f"));
+			tc.typecheck(hsie.orchard(errors, new TreeMap<>(), o1));
+			assertEquals(errors.singleString(), 0, errors.count());
+		}
+		{
+			Orchard<RWFunctionDefinition> o2 = new Orchard<>();
+			o2.addTree(rewriter.functions.get("ME.g"));
+			tc.typecheck(hsie.orchard(errors, new TreeMap<>(), o2));
+			assertEquals(errors.singleString(), 0, errors.count());
+		}
 		assertEquals(5, tc.knowledge.size());
 		{
 			Object mf = tc.knowledge.get("ME.f");
