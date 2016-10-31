@@ -53,6 +53,8 @@ package test.golden
         Card @{35:0|Card}
     template @{37:0|template} @{null}
       . @{38:0|.}
+        attr title @{38:9|hello}
+          hello @{38:9|hello}
         <cexpr> @{39:0|hello}
           hello @{39:0|hello}
           format format @{39:8|format}

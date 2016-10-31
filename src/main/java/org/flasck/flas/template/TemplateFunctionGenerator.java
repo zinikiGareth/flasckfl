@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateCases;
+import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
 import org.flasck.flas.commonBase.template.TemplateFormat;
 import org.flasck.flas.commonBase.template.TemplateLine;
 import org.flasck.flas.commonBase.template.TemplateList;
@@ -53,6 +54,7 @@ public class TemplateFunctionGenerator {
 	private final Object equals;
 	private final Map<TemplateLine, String> formats = new HashMap<>();
 	private final Map<TemplateLine, String> handlers = new HashMap<>();
+	private final Map<TemplateExplicitAttr, String> teas = new HashMap<>();
 
 	public TemplateFunctionGenerator(ErrorResult errors, Rewriter rewriter, Map<String, RWFunctionDefinition> functions) {
 		this.rw = rewriter;
@@ -83,6 +85,21 @@ public class TemplateFunctionGenerator {
 		}
 		if (content instanceof RWTemplateDiv) {
 			RWTemplateDiv td = (RWTemplateDiv) content;
+			/*
+			for (Object a : td.attrs) {
+				if (a instanceof TemplateExplicitAttr) {
+					TemplateExplicitAttr tea = (TemplateExplicitAttr) a;
+					if (tea.type == TemplateToken.IDENTIFIER) {
+						String fnName = state.nextFunction("formats");
+						RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.AREA, fnName, 0, true);
+						RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tea.location, fnName, new ArrayList<>(), null), 0, tea.value);
+						fn.cases.add(fcd0);
+						functions.put(fnName, fn);
+						teas.put(tea, fnName);
+					}
+				}
+			}
+			*/
 			for (TemplateLine x : td.nested)
 				recurse(state, x);
 		} else if (content instanceof TemplateList) {

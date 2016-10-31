@@ -177,6 +177,8 @@ test.golden._Complex.prototype._render = function(doc, wrapper, parent) {
 test.golden._Complex.B1 = function(parent) {
   DivArea.call(this, parent);
   if (!parent) return;
+  this._onAssign(this._card, 'hello', test.golden._Complex.B1.prototype._setAttr_1);
+  test.golden._Complex.B1.prototype._setAttr_1.call(this);
   var b2 = new test.golden._Complex.B2(this);
   var b3 = new test.golden._Complex.B3(this);
   var b6 = new test.golden._Complex.B6(this);
@@ -186,6 +188,14 @@ test.golden._Complex.B1 = function(parent) {
 test.golden._Complex.B1.prototype = new DivArea();
 
 test.golden._Complex.B1.prototype.constructor = test.golden._Complex.B1;
+
+test.golden._Complex.B1.prototype._setAttr_1 = function() {
+  var attr = this._card.hello;
+  attr = FLEval.full(attr);
+  if (attr && !(attr instanceof FLError)) {
+    this._mydiv.setAttribute('title', attr);
+  }
+}
 
 test.golden._Complex.B2 = function(parent) {
   TextArea.call(this, parent);

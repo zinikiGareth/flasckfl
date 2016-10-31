@@ -35,7 +35,7 @@ This is a complex card with "one of everything"
 			Card yoyo
 			
 		template
-			.
+			. @title=hello
 				hello : format
 				+ list lv
 					.
