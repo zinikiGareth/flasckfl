@@ -44,7 +44,6 @@ public class SugarDetox {
 		for (ScopeEntry x : scope)
 			if (x.getValue() instanceof CardDefinition) {
 				detoxTemplates(((CardDefinition)x.getValue()));
-				// TODO: D3: detox/create methods
 			}
 	}
 

@@ -51,6 +51,7 @@ import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PolyType;
+import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -489,13 +490,22 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pw.indent(), d3.expr);
 		} else if (obj instanceof D3PatternBlock) {
 			D3PatternBlock blk = (D3PatternBlock) obj;
-			pw.println("Pattern " + blk.pattern);
+			pw.print("Pattern " + blk.pattern.text);
+			dumpPosition(pw, blk.kw, false);
+			dumpPosition(pw, blk.pattern.location, true);
 			for (D3Section x : blk.sections.values())
 				dumpRecursive(pw.indent(), x);
 		} else if (obj instanceof D3Section) {
 			D3Section s = (D3Section) obj;
-			pw.println(s.name);
+			pw.print(s.name);
+			dumpLocation(pw, s);
+			dumpList(pw, s.properties);
 			dumpList(pw, s.actions);
+		} else if (obj instanceof PropertyDefn) {
+			PropertyDefn d = (PropertyDefn) obj;
+			pw.print(d.name);
+			dumpLocation(pw, d);
+			dumpRecursive(pw, d.value);
 		} else if (obj instanceof TemplateToken) {
 			// used in formats at least
 			TemplateToken tt = (TemplateToken) obj;

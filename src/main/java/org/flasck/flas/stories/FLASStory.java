@@ -727,7 +727,7 @@ public class FLASStory {
 		}
 	}
 
-	private void doD3Layout(ErrorResult er, List<Block> nested, Map<String, PropertyDefn> properties) {
+	private void doD3Layout(ErrorResult er, List<Block> nested, List<PropertyDefn> properties) {
 		PropertyParser mmp = new PropertyParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -741,9 +741,12 @@ public class FLASStory {
 				er.message(b, "constituents of D3 template must be valid d3 line");
 			else {
 				PropertyDefn prop = (PropertyDefn)o;
-				if (properties.containsKey(prop.name))
-					er.message(b, "cannot specify property " + prop.name +" more than once");
-				properties.put(prop.name, prop);
+				for (PropertyDefn other : properties)
+					if (other.name.equals(prop.name)) {
+						er.message(b, "cannot specify property " + prop.name +" more than once");
+						break;
+					}
+				properties.add(prop);
 			}
 		}
 	}

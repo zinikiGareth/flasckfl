@@ -912,7 +912,7 @@ public class Rewriter {
 					rp.sections.put(s.name, rs);
 					for (MethodMessage mm : s.actions)
 						rs.actions.add(rewrite(c2, mm));
-					for (PropertyDefn prop : s.properties.values())
+					for (PropertyDefn prop : s.properties)
 						rs.properties.put(prop.name, new RWPropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
 				}
 			}

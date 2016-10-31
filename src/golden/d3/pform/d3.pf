@@ -35,8 +35,8 @@ package test.golden
             chart @{14:0|$chart}
     d3 chart elt @{16:0|d3} @{16:3|chart} @{16:14|elt}
       data @{16:9|data}
-      Pattern "rect"
-        enter
+      Pattern rect @{17:0|pattern} @{17:8|"rect"}
+        enter @{25:0|enter}
           invoke @{26:0|<-}
             <apply> @{26:3|D3Action "append" ["rect"}
               D3Action @{26:3|D3Action}
@@ -45,9 +45,40 @@ package test.golden
                 Cons @{26:22|"rect"}
                 '' rect @{26:22|"rect"}
                 Nil @{26:22|"rect"]}
-        layout
-      Pattern "text"
-        enter
+        layout @{18:0|layout}
+          x @{19:0|x}
+          <apply> @{19:4|22 * elt.idx}
+            * @{19:7|*}
+            # 22 @{19:4|22}
+            <apply> @{19:9|elt.idx}
+              . @{19:12|.}
+              elt @{19:9|elt}
+              idx @{19:13|idx}
+          y @{20:0|y}
+          <apply> @{20:4|200 - 10 * elt.data}
+            - @{20:8|-}
+            # 200 @{20:4|200}
+            <apply> @{20:10|10 * elt.data}
+              * @{20:13|*}
+              # 10 @{20:10|10}
+              <apply> @{20:15|elt.data}
+                . @{20:18|.}
+                elt @{20:15|elt}
+                data @{20:19|data}
+          fill @{21:0|fill}
+          '' red @{21:7|'red'}
+          width @{22:0|width}
+          # 20 @{22:8|20}
+          height @{23:0|height}
+          <apply> @{23:9|10*elt.data}
+            * @{23:11|*}
+            # 10 @{23:9|10}
+            <apply> @{23:12|elt.data}
+              . @{23:15|.}
+              elt @{23:12|elt}
+              data @{23:16|data}
+      Pattern text @{28:0|pattern} @{28:8|"text"}
+        enter @{40:0|enter}
           invoke @{41:0|<-}
             <apply> @{41:3|D3Action "append" ["text"}
               D3Action @{41:3|D3Action}
@@ -56,7 +87,55 @@ package test.golden
                 Cons @{41:22|"text"}
                 '' text @{41:22|"text"}
                 Nil @{41:22|"text"]}
-        layout
+        layout @{29:0|layout}
+          text @{30:0|text}
+          <apply> @{30:7|elt.data}
+            . @{30:10|.}
+            elt @{30:7|elt}
+            data @{30:11|data}
+          textAnchor @{31:0|textAnchor}
+          '' middle @{31:13|'middle'}
+          x @{32:0|x}
+          <apply> @{32:4|22 * elt.idx + 10}
+            + @{32:17|+}
+            <apply> @{32:4|22 * elt.idx}
+              * @{32:7|*}
+              # 22 @{32:4|22}
+              <apply> @{32:9|elt.idx}
+                . @{32:12|.}
+                elt @{32:9|elt}
+                idx @{32:13|idx}
+            # 10 @{32:19|10}
+          y @{33:0|y}
+          <apply> @{33:4|200 - 10 * elt.data + 14}
+            + @{33:24|+}
+            <apply> @{33:4|200 - 10 * elt.data}
+              - @{33:8|-}
+              # 200 @{33:4|200}
+              <apply> @{33:10|10 * elt.data}
+                * @{33:13|*}
+                # 10 @{33:10|10}
+                <apply> @{33:15|elt.data}
+                  . @{33:18|.}
+                  elt @{33:15|elt}
+                  data @{33:19|data}
+            # 14 @{33:26|14}
+          width @{34:0|width}
+          # 20 @{34:8|20}
+          height @{35:0|height}
+          <apply> @{35:9|10*elt.data}
+            * @{35:11|*}
+            # 10 @{35:9|10}
+            <apply> @{35:12|elt.data}
+              . @{35:15|.}
+              elt @{35:12|elt}
+              data @{35:16|data}
+          fill @{36:0|fill}
+          '' black @{36:7|'black'}
+          fontFamily @{37:0|fontFamily}
+          '' sans-serif @{37:13|'sans-serif'}
+          fontSize @{38:0|fontSize}
+          '' 11px @{38:11|'11px'}
     event test.golden.TestCard.rejig_1 @{43:0|event} @{43:6|rejig}
       [var] ev @{43:12|ev}
       assign data <- @{44:0|data} @{44:5|<-}
