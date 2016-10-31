@@ -1,0 +1,12 @@
+HSIE for test.golden.Unroll.teas_0/0                         #unroll.fl:    9.10
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN "hello"                                               #unroll.fl:    5.8
+=======
+HSIE for test.golden.Unroll.teas_1/0                         #unroll.fl:    9.10
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN "goodbye"                                             #unroll.fl:    6.8
+=======

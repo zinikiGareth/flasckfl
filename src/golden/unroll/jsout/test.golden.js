@@ -99,4 +99,14 @@ test.golden._Unroll.B5.prototype = new TextArea();
 
 test.golden._Unroll.B5.prototype.constructor = test.golden._Unroll.B5;
 
+test.golden.Unroll.teas_0 = function() {
+  "use strict";
+  return 'hello';
+}
+
+test.golden.Unroll.teas_1 = function() {
+  "use strict";
+  return 'goodbye';
+}
+
 test.golden;

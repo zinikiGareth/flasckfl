@@ -56,6 +56,11 @@ test.golden._Simple.B2.prototype._contentExpr = function() {
   this._assignToText(str);
 }
 
+test.golden.Simple.contents_0 = function() {
+  "use strict";
+  return this._card.hello;
+}
+
 test.golden.Simple.prototype.f = function() {
   "use strict";
   return 3;
