@@ -1,0 +1,33 @@
+package test.golden
+  card test.golden.TestCard
+    state
+      data
+        Cons
+       <-
+        Cons
+          # 5
+          Cons
+            # 8
+            Cons
+              # 2
+              Cons
+                # 16
+                Nil
+    template test.golden.TestCard
+      .
+        .
+          .
+            '' click here
+        .
+          .
+            D3 test.golden._TestCard chart elt
+              data
+              Pattern "rect"
+                enter
+                  MM
+                layout
+              Pattern "text"
+                enter
+                  MM
+                layout
+              EHD

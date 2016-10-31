@@ -18,10 +18,16 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstPattern;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContentExpr;
+import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractMethodDecl;
+import org.flasck.flas.parsedForm.D3Invoke;
+import org.flasck.flas.parsedForm.D3PatternBlock;
+import org.flasck.flas.parsedForm.D3Section;
+import org.flasck.flas.parsedForm.EventHandlerDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionDefinition;
+import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.NumericLiteral;
 import org.flasck.flas.parsedForm.PackageDefn;
 import org.flasck.flas.parsedForm.Scope;
@@ -74,7 +80,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 
 	private static Class<?> goldenTest(ByteCodeEnvironment bce, CGHClassLoaderImpl cl, final File f) {
 		ByteCodeCreator bcc = emptyTestClass(bce, "test" + StringUtil.capitalize(f.getName()));
-		addMethod(bcc, "testSomething", new TestMethodContentProvider() {
+		addMethod(bcc, "testSomething", false, new TestMethodContentProvider() {
 			@Override
 			public void defineMethod(NewMethodDefiner done) {
 				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath())).flush();
@@ -217,6 +223,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				pw.println(" <-");
 				dumpRecursive(pw.indent(), sf.init);
 			}
+		} else if (obj instanceof MethodMessage) { // do not merge
+			pw.println("MM");
 		} else if (obj instanceof Template) {
 			Template t = (Template) obj;
 			pw.println("template" + (t.prefix != null ? " " + t.prefix : ""));
@@ -226,10 +234,31 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println("."); // many other fields go here ...
 			dumpList(pw, td.nested);
 			// dump formats and handlers
+        } else if (obj instanceof ContentString) {
+            ContentString ce = (ContentString) obj;
+            pw.println("'' " + ce.text);
+//            dumpPosition(pw, ce.kw, true);
 		} else if (obj instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr) obj;
 			dumpRecursive(pw, ce.expr);
 			// dump formats and handlers
+		} else if (obj instanceof D3Invoke) {
+			D3Invoke d3 = (D3Invoke) obj;
+			pw.println("D3 " + d3.d3.prefix + " " + d3.d3.name + " " + d3.d3.iter);
+			dumpRecursive(pw.indent(), d3.d3.data);
+			dumpList(pw, d3.d3.patterns);
+			dumpScope(pw, d3.scope);
+		} else if (obj instanceof D3PatternBlock) {
+			D3PatternBlock blk = (D3PatternBlock) obj;
+			pw.println("Pattern " + blk.pattern);
+			for (D3Section x : blk.sections.values())
+				dumpRecursive(pw.indent(), x);
+		} else if (obj instanceof D3Section) {
+			D3Section s = (D3Section) obj;
+			pw.println(s.name);
+			dumpList(pw, s.actions);
+		} else if (obj instanceof EventHandlerDefinition) { // TODO: do not merge
+			pw.println("EHD");
 		} else if (obj instanceof Type) { // NOTE: this has to go below all its subclasses!
 			Type t = (Type) obj;
 			if (t.iam != WhatAmI.REFERENCE)
