@@ -26,6 +26,12 @@ CLOSURE v2                                                   #complexcard. 64.9
   PUSH v1:clos1                                              #complexcard. 64.0
   PUSH PackageVar.Nil                                        #complexcard. 63.6
 =======
+HSIE for test.golden.Complex.handlers_1/0                    #complexcard. 46.9
+#Args: 0 #bound: 0
+    externals: [test.golden.Complex.sayHello] scoped = []
+    all vars = []
+RETURN CardFunction.test.golden.Complex.sayHello             #complexcard. 46.9
+=======
 HSIE for test.golden.Complex._S0.get/2                       #complexcard. 67.0
 #Args: 2 #bound: 3
     externals: [Cons, Nil, Send, String, test.golden.Handler] scoped = []

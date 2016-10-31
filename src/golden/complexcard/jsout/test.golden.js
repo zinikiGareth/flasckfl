@@ -425,6 +425,11 @@ test.golden.Complex.formats_0 = function() {
   return FLEval.closure(Cons, this._card.format, Nil);
 }
 
+test.golden.Complex.handlers_1 = function() {
+  "use strict";
+  return test.golden.Complex.prototype.sayHello;
+}
+
 test.golden.Complex.prototype.sayHello = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
