@@ -54,7 +54,8 @@ public class TemplateFunctionGenerator {
 	private final Map<TemplateLine, String> formats = new HashMap<>();
 	private final Map<TemplateLine, String> handlers = new HashMap<>();
 	private final Map<TemplateExplicitAttr, String> teas = new HashMap<>();
-	private final Map<TemplateLine, String> lvs = new HashMap<>();
+	private final Map<TemplateList, String> lvs = new HashMap<>();
+	private final Map<RWContentExpr, String> contents = new HashMap<>();
 
 	public TemplateFunctionGenerator(ErrorResult errors, Rewriter rewriter, Map<String, RWFunctionDefinition> functions) {
 		this.rw = rewriter;
@@ -122,7 +123,14 @@ public class TemplateFunctionGenerator {
 			RWTemplateCardReference ref = (RWTemplateCardReference) content;
 			// more to do (yoyoVar)
 		} else if (content instanceof RWContentExpr) {
-			isEditable = ((RWContentExpr)content).editable();
+			RWContentExpr ce = (RWContentExpr)content;
+			isEditable = ce.editable();
+			String fnName = state.nextFunction("contents");
+			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.AREA, fnName, 0, true);
+			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, fnName, new ArrayList<>(), null), 0, ce.expr);
+			fn.cases.add(fcd0);
+			functions.put(fnName, fn);
+			contents.put(ce, fnName);
 		} else if (content instanceof RWContentString) {
 			; // I don't think anything needs to be done specifically for this (it could have formats or handlers)
 		} else

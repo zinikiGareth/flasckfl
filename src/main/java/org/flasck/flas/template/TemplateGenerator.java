@@ -304,6 +304,7 @@ public class TemplateGenerator {
 			callOnAssign(fn, valExpr, cgrx, called + ".prototype._contentExpr", true, null);
 
 			JSForm cexpr = JSForm.flex(called +".prototype._contentExpr = function()").needBlock();
+			// pull from contents
 			HSIEForm form = hsie.handleExpr(valExpr, CodeType.AREA);
 			form.dump(TypeChecker.logger);
 			JSForm.assign(cexpr, "var str", form);

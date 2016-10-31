@@ -430,22 +430,32 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
   return FLEval.error("test.golden.Complex._S0.get: case not handled");
 }
 
-test.golden.Complex.formats_1 = function() {
+test.golden.Complex.contents_1 = function() {
+  "use strict";
+  return this._card.hello;
+}
+
+test.golden.Complex.contents_4 = function() {
+  "use strict";
+  return this._src_lv.lv;
+}
+
+test.golden.Complex.formats_2 = function() {
   "use strict";
   return FLEval.closure(Cons, this._card.format, Nil);
 }
 
-test.golden.Complex.handlers_4 = function() {
+test.golden.Complex.handlers_6 = function() {
   "use strict";
   return test.golden.Complex.prototype.sayHello;
 }
 
-test.golden.Complex.lvs_2 = function() {
+test.golden.Complex.lvs_3 = function() {
   "use strict";
   return this._card.list;
 }
 
-test.golden.Complex.lvs_3 = function() {
+test.golden.Complex.lvs_5 = function() {
   "use strict";
   return this._card.list;
 }
