@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.IfExpr;
+import org.flasck.flas.commonBase.LocatedObject;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
@@ -63,16 +64,6 @@ public class MetaState {
 		@Override
 		public String toString() {
 			return closure.var + " " + avars;
-		}
-	}
-
-	public class LocatedObject {
-		InputPosition loc;
-		Object obj;
-
-		public LocatedObject(InputPosition loc, Object obj) {
-			this.loc = loc;
-			this.obj = obj;
 		}
 	}
 

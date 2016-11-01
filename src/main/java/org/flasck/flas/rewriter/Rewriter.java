@@ -3,6 +3,7 @@ package org.flasck.flas.rewriter;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
+import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -88,8 +90,6 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
-import org.flasck.flas.rewrittenForm.RWD3PatternBlock;
-import org.flasck.flas.rewrittenForm.RWD3Section;
 import org.flasck.flas.rewrittenForm.RWD3Thing;
 import org.flasck.flas.rewrittenForm.RWEventCaseDefn;
 import org.flasck.flas.rewrittenForm.RWEventHandler;
@@ -102,7 +102,6 @@ import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
-import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTemplate;
@@ -124,6 +123,8 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.collections.CollectionUtils;
+import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
 /** The objective of this class is to resolve all of the names of all of the
@@ -901,22 +902,17 @@ public class Rewriter {
 				ret.addCase(rewrite(cx, tor));
 			return ret;
 		} else if (tl instanceof D3Thing) {
-			D3Thing prev = (D3Thing) tl;
-			D3Context c2 = new D3Context(cx, prev.d3.varLoc, prev.d3.iterVar);
-			List<RWD3PatternBlock> rwpatterns = new ArrayList<RWD3PatternBlock>();
-			for (D3PatternBlock p : prev.patterns) {
-				RWD3PatternBlock rp = new RWD3PatternBlock(p.pattern);
-				rwpatterns.add(rp);
-				for (D3Section s : p.sections) {
-					RWD3Section rs = new RWD3Section(s.location, s.name);
-					rp.sections.put(s.name, rs);
-					for (MethodMessage mm : s.actions)
-						rs.actions.add(rewrite(c2, mm));
-					for (PropertyDefn prop : s.properties)
-						rs.properties.put(prop.name, new RWPropertyDefn(prop.location, prop.name, rewriteExpr(c2, prop.value)));
-				}
-			}
-			RWD3Thing rwD3 = new RWD3Thing(cx.cardName(), prev.d3, rewriteExpr(c2, prev.d3.expr), rwpatterns);
+			D3Thing d3 = (D3Thing) tl;
+			D3Context c2 = new D3Context(cx, d3.d3.varLoc, d3.d3.iterVar);
+			
+			// Figure the correct prefix for the methods
+			String prefix = cx.cardName();
+			int idx = prefix.lastIndexOf(".");
+			if (prefix.charAt(idx+1) != '_')
+				prefix = prefix.substring(0, idx+1) + "_" + prefix.substring(idx+1);
+
+			RWD3Thing rwD3 = new RWD3Thing(rewriteExpr(c2, d3.d3.expr));
+			createD3Methods(c2, prefix, d3);
 			d3s.add(rwD3);
 			return rwD3;
 		} else 
@@ -1152,6 +1148,90 @@ public class Rewriter {
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
+	}
+
+	private void createD3Methods(D3Context c2, String prefix, D3Thing d3) {
+		int nextFn = 1;
+		// TODO: we should figure out the right positions for everything labelled "hack" here :-)
+		InputPosition posn = new InputPosition("d3", 1, 1, null);
+		Object init = (PackageVar) c2.resolve(posn, "NilMap");
+		PackageVar assoc = (PackageVar) c2.resolve(posn, "Assoc");
+		PackageVar cons = (PackageVar) c2.resolve(posn, "Cons");
+		PackageVar nil = (PackageVar) c2.resolve(posn, "Nil");
+		PackageVar tuple = (PackageVar) c2.resolve(posn, "()");
+		RWStructDefn d3Elt = structs.get("D3Element");
+//		PackageVar d3Elt = new PackageVar(posn, "D3Element", null);
+		ListMap<String, Object> byKey = new ListMap<String, Object>();
+		Map<String, InputPosition> sectionLocations = new HashMap<String, InputPosition>();
+		for (D3PatternBlock p : sortAlphabetically(d3.patterns)) {
+			for (D3Section s : sortAlphabetically(p.sections)) {
+				sectionLocations.put(s.name, s.location);
+				if (!s.properties.isEmpty()) {
+					Object pl = nil; // prepend to an empty list
+					for (PropertyDefn prop : sortAlphabetically(s.properties)) {
+						Object expr = rewriteExpr(c2, prop.value);
+						// TODO: only create functions for things that depend on the class
+						// constants can just be used directly
+						FunctionLiteral efn = functionWithArgs(prefix, nextFn++, CollectionUtils.listOf(new RWTypedPattern(d3.d3.varLoc, d3Elt, d3.d3.varLoc, d3.d3.iterVar)), expr);
+						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
+						pl = new ApplyExpr(prop.location, cons, pair, pl);
+					}
+					byKey.add(s.name, new ApplyExpr(s.location, tuple, p.pattern, pl));
+				}
+				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
+					RWFunctionIntro fi = new RWFunctionIntro(s.location, prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>(), null);
+					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
+					for (MethodMessage mm : s.actions)
+						mcd.messages.add(rewrite(c2, mm));
+					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
+					method.cases.add(mcd);
+					List<Object> enc = new ArrayList<Object>();
+					MethodInContext mic = new MethodInContext(this, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method, enc); // PROB NEEDS D3Action type
+					this.methods.put(method.name(), mic);
+					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
+				} else { // something like layout, that is just a set of definitions
+					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
+				}
+			}
+		}
+		for (Entry<String, List<Object>> k : byKey.entrySet()) {
+			String sectionName = k.getKey();
+			Object list = nil;
+			List<Object> lo = k.getValue();
+			for (int i=lo.size()-1;i>=0;i--) {
+				Locatable li = (Locatable) lo.get(i);
+				list = new ApplyExpr(li.location(), cons, li, list);
+			}
+			init = new ApplyExpr(((Locatable)list).location(), assoc, new StringLiteral(sectionLocations.get(sectionName), sectionName), list, init);
+		}
+
+		Locatable dataExpr = (Locatable) rewriteExpr(c2, d3.d3.expr);
+		FunctionLiteral dataFn = functionWithArgs(prefix, nextFn++, new ArrayList<Object>(), dataExpr);
+		init = new ApplyExpr(dataExpr.location(), assoc, new StringLiteral(dataExpr.location(), "data"), dataFn, init);
+
+		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.varLoc, prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>(), null);
+		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, d3f.name, 0, true);
+		func.cases.add(new RWFunctionCaseDefn(d3f, 0, init));
+		functions.put(d3f.name, func);
+	}
+
+	private <T extends Comparable<T>> List<T> sortAlphabetically(List<T> items) {
+		List<T> ret = new ArrayList<T>();
+		ret.addAll(items);
+		Collections.sort(ret);
+		return ret;
+	}
+
+	private FunctionLiteral functionWithArgs(final String prefix, final int nextFn, List<Object> args, Object expr) {
+		String name = "_gen_" + nextFn;
+
+		InputPosition loc = ((Locatable)expr).location(); // may or may not be correct location
+		RWFunctionIntro d3f = new RWFunctionIntro(loc, prefix + "." + name, args, null);
+		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, d3f.name, args.size(), true);
+		func.cases.add(new RWFunctionCaseDefn(d3f, 0, expr));
+		functions.put(d3f.name, func);
+
+		return new FunctionLiteral(d3f.location, d3f.name);
 	}
 
 	private RWFunctionIntro rewrite(NamingContext cx, FunctionIntro intro, String csName, Map<String, LocalVar> vars) {

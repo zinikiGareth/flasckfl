@@ -24,9 +24,7 @@ import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
-import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.droidgen.DroidBuilder;
 import org.flasck.flas.droidgen.DroidGenerator;
@@ -44,26 +42,17 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
-import org.flasck.flas.rewrittenForm.FunctionLiteral;
-import org.flasck.flas.rewrittenForm.MethodInContext;
-import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
-import org.flasck.flas.rewrittenForm.RWD3PatternBlock;
-import org.flasck.flas.rewrittenForm.RWD3Section;
-import org.flasck.flas.rewrittenForm.RWD3Thing;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
-import org.flasck.flas.rewrittenForm.RWPropertyDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
@@ -76,8 +65,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.ByteCodeEnvironment;
-import org.zinutils.collections.CollectionUtils;
-import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.utils.FileUtils;
@@ -213,8 +200,6 @@ public class Compiler {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 	}
 
-	// TODO: move this into a separate class, like DOMFG used to be
-	int nextFn = 1;
 	private boolean success;
 	private boolean dumpTypes = false;
 	private final List<File> pkgdirs = new ArrayList<File>();
@@ -413,10 +398,6 @@ public class Compiler {
 			final TemplateFunctionGenerator tfg = new TemplateFunctionGenerator(rewriter, functions);
 			tfg.generate();
 			
-			// 5. D3 definitions may generate card functions; promote these onto the cards
-			for (RWD3Thing d3 : rewriter.d3s)
-				promoteD3Methods(errors, rewriter, mc, functions, d3);
-
 			// 6. Do dependency analysis on functions and group them together in orchards
 			List<Orchard<RWFunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(functions);
 			abortIfErrors(errors);
@@ -561,78 +542,6 @@ public class Compiler {
 	private void abortIfErrors(ErrorResult errors) throws ErrorResultException {
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);
-	}
-
-	private void promoteD3Methods(ErrorResult errors, Rewriter rewriter, MethodConvertor mc, Map<String, RWFunctionDefinition> functions, RWD3Thing d3) {
-		// TODO: we should figure out the right positions for everything labelled "hack" here :-)
-		InputPosition posn = new InputPosition("d3", 1, 1, null);
-		Object init = new PackageVar(posn, "NilMap", null);
-		PackageVar assoc = new PackageVar(posn, "Assoc", null);
-		PackageVar cons = new PackageVar(posn, "Cons", null);
-		PackageVar nil = new PackageVar(posn, "Nil", null);
-		PackageVar tuple = new PackageVar(posn, "FLEval.tuple", null);
-		RWStructDefn d3Elt = rewriter.structs.get("D3Element");
-//		PackageVar d3Elt = new PackageVar(posn, "D3Element", null);
-		ListMap<String, Object> byKey = new ListMap<String, Object>();
-		for (RWD3PatternBlock p : d3.patterns) {
-			for (RWD3Section s : p.sections.values()) {
-				if (!s.properties.isEmpty()) {
-					Object pl = nil; // prepend to an empty list
-					for (RWPropertyDefn prop : s.properties.values()) {
-						// TODO: only create functions for things that depend on the class
-						// constants can just be used directly
-						InputPosition hack = posn; // we should have a location for the field
-						FunctionLiteral efn = functionWithArgs(d3.prefix, functions, CollectionUtils.listOf(new RWTypedPattern(hack, d3Elt, hack, d3.iterVar)), prop.value);
-						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
-						pl = new ApplyExpr(prop.location, cons, pair, pl);
-					}
-					byKey.add(s.name, new ApplyExpr(s.location, tuple, p.pattern, pl));
-				}
-				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
-					RWFunctionIntro fi = new RWFunctionIntro(s.location, d3.prefix + "._d3_" + d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>(), null);
-					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
-					mcd.messages.addAll(s.actions);
-					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
-					method.cases.add(mcd);
-					List<Object> enc = new ArrayList<Object>();
-					MethodInContext mic = new MethodInContext(rewriter, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method, enc); // PROB NEEDS D3Action type
-					mc.convertContractMethods(rewriter, functions, CollectionUtils.map(mic.name, mic));
-					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
-				} else { // something like layout, that is just a set of definitions
-					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
-				}
-			}
-		}
-		for (Entry<String, List<Object>> k : byKey.entrySet()) {
-			Object list = nil;
-			List<Object> lo = k.getValue();
-			for (int i=lo.size()-1;i>=0;i--) {
-				Locatable li = (Locatable) lo.get(i);
-				list = new ApplyExpr(li.location(), cons, li, list);
-			}
-			InputPosition hack = posn; // we should have a location for the field
-			init = new ApplyExpr(((Locatable)list).location(), assoc, new StringLiteral(hack, k.getKey()), list, init);
-		}
-		FunctionLiteral data = functionWithArgs(d3.prefix, functions, new ArrayList<Object>(), d3.data);
-		InputPosition hack = posn; // we should have a location for this, right?
-		init = new ApplyExpr(hack, assoc, new StringLiteral(hack, "data"), data, init);
-
-		RWFunctionIntro d3f = new RWFunctionIntro(d3.varLoc, d3.prefix + "._d3init_" + d3.name, new ArrayList<Object>(), null);
-		RWFunctionDefinition func = new RWFunctionDefinition(d3.varLoc, HSIEForm.CodeType.CARD, d3f.name, 0, true);
-		func.cases.add(new RWFunctionCaseDefn(d3f, 0, init));
-		functions.put(d3f.name, func);
-	}
-
-	private FunctionLiteral functionWithArgs(String prefix, Map<String, RWFunctionDefinition> functions, List<Object> args, Object expr) {
-		String name = "_gen_" + (nextFn++);
-
-		InputPosition loc = ((Locatable)expr).location(); // may or may not be correct location
-		RWFunctionIntro d3f = new RWFunctionIntro(loc, prefix + "." + name, args, null);
-		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, d3f.name, args.size(), true);
-		func.cases.add(new RWFunctionCaseDefn(d3f, 0, expr));
-		functions.put(d3f.name, func);
-
-		return new FunctionLiteral(d3f.location, d3f.name);
 	}
 
 	@SuppressWarnings("unchecked")

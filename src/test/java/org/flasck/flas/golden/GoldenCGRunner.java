@@ -156,9 +156,12 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			handleErrors(s, er);
 			return;
 		}
-		if (stripNumbers)
+		File golden = new File(s, "pform");
+		if (stripNumbers) {
 			stripPform(pform);
-		assertGolden(new File(s, "pform"), pform);
+			stripPform(golden);
+		}
+		assertGolden(golden, pform);
 		
 		if (importFrom.isDirectory())
 			compiler.searchIn(importFrom);
@@ -178,7 +181,12 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		
 		// Now assert that we matched things ...
 		assertGolden(new File(s, "flim"), flim);
-		assertGolden(new File(s, "hsie"), hsie);
+		File goldhs = new File(s, "hsie");
+		if (stripNumbers) {
+			stripHSIE(goldhs);
+			stripHSIE(hsie);
+		}
+		assertGolden(goldhs, hsie);
 		assertGolden(new File(s, "jsout"), jsto);
 	}
 
@@ -195,6 +203,29 @@ public class GoldenCGRunner extends CGHarnessRunner {
 					int idx = s.indexOf(" @{");
 					if (idx != -1)
 						s = s.substring(0, idx);
+					to.println(s);
+				}
+			} finally {
+				to.close();
+				lnr.close();
+			}
+			FileUtils.copy(tmp, pf);
+			tmp.delete();
+		}
+	}
+
+	private static void stripHSIE(File pform) throws IOException {
+		for (File pf : pform.listFiles()) {
+			File tmp = File.createTempFile("temp", ".hs");
+			tmp.deleteOnExit();
+			PrintWriter to = new PrintWriter(tmp);
+			LineNumberReader lnr = new LineNumberReader(new FileReader(pf));
+			try {
+				String s;
+				while ((s = lnr.readLine()) != null) {
+					int idx = s.indexOf(" #");
+					if (idx != -1)
+						s = StringUtil.trimRight(s.substring(0, idx));
 					to.println(s);
 				}
 			} finally {
