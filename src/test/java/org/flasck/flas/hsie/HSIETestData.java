@@ -447,8 +447,7 @@ public class HSIETestData {
 	}
 	
 	private static HSIEForm thingy(int offset, String name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
-		Map<String, CreationOfVar> map = new HashMap<>();
-		HSIEForm ret = new HSIEForm(new VarFactory(), CodeType.FUNCTION, name, new InputPosition("thingy", 1, 1, null), map, nformal);
+		HSIEForm ret = new HSIEForm(new InputPosition("thingy", 1, 1, null), name, nformal, CodeType.FUNCTION, new VarFactory());
 		for (int i=0;i<nformal;i++)
 			ret.vars.add(new Var(offset + i));
 		for (int i=0;i<nbound;i++)

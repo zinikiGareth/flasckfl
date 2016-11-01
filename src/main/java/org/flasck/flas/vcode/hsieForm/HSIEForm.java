@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.hsie.SubstExpr;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
@@ -46,25 +45,21 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		}
 	}
 
-	public final CodeType mytype;
 	public final String fnName;
 	public final int nformal;
+	public final CodeType mytype;
+	private final VarFactory vf;
 	public final List<Var> vars = new ArrayList<Var>();
 	public final Set<Object> externals = new TreeSet<Object>();
 	public final Set<String> scoped = new TreeSet<String>();
 	private final Map<Var, ClosureCmd> closures = new HashMap<Var, ClosureCmd>();
-	public final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
-	private /* final */ VarFactory vf;
 
-	// This constructor is the one for real code
-	public HSIEForm(VarFactory vf, CodeType mytype, String name, InputPosition nameLoc, Map<String, CreationOfVar> map, int nformal) {
+	public HSIEForm(InputPosition nameLoc, String name, int nformal, CodeType mytype, VarFactory vf) {
 		super(nameLoc);
 		this.vf = vf;
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.fnName = name;
-		for (CreationOfVar v : map.values())
-			vars.set(v.var.idx, v.var);
 		this.nformal = nformal;
 	}
 
@@ -77,11 +72,19 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	public Var allocateVar() {
 		Var ret = vf.nextVar();
-//		System.out.println("Allocating var " + ret);
 		vars.add(ret);
 		return ret;
 	}
 
+	public ClosureCmd createClosure(InputPosition loc) {
+		Var var = allocateVar();
+		ClosureCmd ret = new ClosureCmd(loc, var);
+		closures.put(var, ret);
+		return ret;
+	}
+
+	// This is still annoyingly used by tests, in "thingy()"
+	@Deprecated
 	public ClosureCmd closure(InputPosition loc, Var var) {
 		ClosureCmd ret = new ClosureCmd(loc, var);
 		closures.put(var, ret);
@@ -133,11 +136,6 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	public Collection<ClosureCmd> closures() {
 		return closures.values();
-	}
-
-	// Get the vars which are bound in for ExprN
-	public Map<String, CreationOfVar> varsFor(int eN) {
-		return exprs.get(eN).substs;
 	}
 
 	@Override

@@ -180,8 +180,7 @@ public class MetaState {
 				logger.info("!!" + sv.id + " not defined locally to " + form.fnName);
 				continue;
 			}
-			Var cv = form.allocateVar();
-			ClosureCmd closure = form.closure(sv.location, cv);
+			ClosureCmd closure = form.createClosure(sv.location);
 			TreeSet<VarNestedFromOuterFunctionScope> avars = new TreeSet<VarNestedFromOuterFunctionScope>();
 			if (sv.defn instanceof RWMethodDefinition) {
 				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
@@ -203,7 +202,7 @@ public class MetaState {
 				closure.push(sv.location, substs.get(sv.id));
 			} else
 				throw new UtilException("Cannot handle " + sv.id + " of type " + sv.defn.getClass());
-			CreationOfVar cov = new CreationOfVar(cv, sv.location, sv.id);
+			CreationOfVar cov = new CreationOfVar(closure.var, sv.location, sv.id);
 			logger.info("Allocating " + cov.var + " for " + sv.id);
 			substs.put(sv.id, cov);
 			closureDepends.put(cov.var, new ArrayList<CreationOfVar>());
@@ -331,8 +330,7 @@ public class MetaState {
 			for (Object o : e2.args)
 				ops.add(convertValue(elocs, substs, o));
 			// TODO: check this doesn't already exist
-			Var var = allocateVar();
-			HSIEBlock closure = form.closure(e2.location, var);
+			ClosureCmd closure = form.createClosure(e2.location);
 			List<CreationOfVar> mydeps = new ArrayList<CreationOfVar>();
 			if (ops.size() != elocs.size())
 				throw new UtilException("Misplaced location or operation: " +  elocs.size() + " != " + ops.size());
@@ -351,8 +349,8 @@ public class MetaState {
 				}
 			}
 			locs.add(e2.location);
-			closureDepends.put(var, mydeps);
-			return new CreationOfVar(var, e2.location, "clos" + var.idx);
+			closureDepends.put(closure.var, mydeps);
+			return new CreationOfVar(closure.var, e2.location, "clos" + closure.var.idx);
 		} else if (expr instanceof CastExpr) {
 			CastExpr ce = (CastExpr) expr;
 			CreationOfVar cv = (CreationOfVar) convertValue(locs, substs, ce.expr);

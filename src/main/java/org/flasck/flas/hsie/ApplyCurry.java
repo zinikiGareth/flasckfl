@@ -111,8 +111,7 @@ public class ApplyCurry {
 		}
 		for (Rewrite r : rewrites) {
 			PushExternal pc = (PushExternal) r.inside.nestedCommands().get(r.pos);
-			Var v = h.allocateVar();
-			ClosureCmd oclos = h.closure(pc.location, v);
+			ClosureCmd oclos = h.createClosure(pc.location);
 			Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
 			if (t.iam == WhatAmI.FUNCTION && t.arity() > 0) {
 //				System.out.println("need to curry block for type = " + t);
@@ -121,9 +120,9 @@ public class ApplyCurry {
 				oclos.push(pc.location, t.arity());
 			} else
 				oclos.push(pc.location, pc.fn);
-			r.inside.nestedCommands().set(r.pos, new PushVar(pc.location, new CreationOfVar(v, null, null)));
+			r.inside.nestedCommands().set(r.pos, new PushVar(pc.location, new CreationOfVar(oclos.var, null, null)));
 			Var myVar = ((ClosureCmd)r.inside).var;
-			updateAllReturnCommands(h, myVar, v);
+			updateAllReturnCommands(h, myVar, oclos.var);
 		}
 	}
 

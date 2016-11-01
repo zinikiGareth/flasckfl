@@ -61,13 +61,12 @@ public class HSIE {
 
 	// package protection because it's used in our tests
 	HSIEForm handle(Map<String, HSIEForm> previous, VarFactory vf, RWFunctionDefinition defn) {
-		HashMap<String, CreationOfVar> map = new HashMap<String, CreationOfVar>();
-		HSIEForm ret = new HSIEForm(vf, defn.mytype, defn.name(), defn.location, map, defn.nargs());
+		HSIEForm ret = new HSIEForm(defn.location, defn.name(), defn.nargs(), defn.mytype, vf);
 		MetaState ms = new MetaState(errors, rewriter, previous, ret);
 		if (defn.nargs() == 0)
 			return handleConstant(ms, defn);
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
-		ms.add(buildFundamentalState(ms, ret, map, defn.nargs(), defn.cases));
+		ms.add(buildFundamentalState(ms, ret, defn.nargs(), defn.cases));
 		try {
 			while (!ms.allDone()) {
 				State f = ms.first();
@@ -87,7 +86,7 @@ public class HSIE {
 		return ms.form;
 	}
 
-	private State buildFundamentalState(MetaState ms, HSIEForm form, Map<String, CreationOfVar> map, int nargs, List<RWFunctionCaseDefn> cases) {
+	private State buildFundamentalState(MetaState ms, HSIEForm form, int nargs, List<RWFunctionCaseDefn> cases) {
 		State s = new State(form);
 		List<Var> formals = new ArrayList<Var>();
 		for (int i=0;i<nargs;i++)
@@ -95,8 +94,6 @@ public class HSIE {
 		Map<Object, SubstExpr> exprs = new HashMap<Object, SubstExpr>();
 		for (RWFunctionCaseDefn c : cases) {
 			SubstExpr ex = new SubstExpr(c.expr, exprIdx++);
-			ex.alsoSub(map);
-			form.exprs.add(ex);
 			createSubsts(ms, c.caseName(), c.args(), formals, ex);
 			exprs.put(c, ex);
 		}
