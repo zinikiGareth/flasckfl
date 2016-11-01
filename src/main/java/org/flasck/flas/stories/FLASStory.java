@@ -2,7 +2,6 @@ package org.flasck.flas.stories;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -679,7 +678,7 @@ public class FLASStory {
 		}
 	}
 	
-	private void doD3Section(ErrorResult er, List<Block> nested, Map<String, D3Section> sections) {
+	private void doD3Section(ErrorResult er, List<Block> nested, List<D3Section> sections) {
 		D3SectionLineParser d3lp = new D3SectionLineParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -693,17 +692,19 @@ public class FLASStory {
 				er.message(b, "constituents of D3 template must be valid d3 line");
 			else {
 				D3Section s = (D3Section)o;
-				if (sections.containsKey(s.name))
-					er.message(b, "cannot have duplicate sections of name " + s.name);
-				else {
-					sections.put(s.name, s);
-					if (s.name.equals("enter"))
-						doD3Methods(er, b.nested, s.actions);
-					else if (s.name.equals("layout"))
-						doD3Layout(er, b.nested, s.properties);
-					else
-						throw new UtilException("Have not handled processing of section " + s.name);
+				for (D3Section os : sections) {
+					if (os.name.equals(s.name)) {
+						er.message(b, "cannot have duplicate sections of name " + s.name);
+						break;
+					}
 				}
+				sections.add(s);
+				if (s.name.equals("enter"))
+					doD3Methods(er, b.nested, s.actions);
+				else if (s.name.equals("layout"))
+					doD3Layout(er, b.nested, s.properties);
+				else
+					er.message(b, s.name + " is not a valid d3 section name");
 			}
 		}
 	}

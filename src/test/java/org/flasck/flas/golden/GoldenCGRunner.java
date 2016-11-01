@@ -493,7 +493,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.print("Pattern " + blk.pattern.text);
 			dumpPosition(pw, blk.kw, false);
 			dumpPosition(pw, blk.pattern.location, true);
-			for (D3Section x : blk.sections.values())
+			for (D3Section x : blk.sections)
 				dumpRecursive(pw.indent(), x);
 		} else if (obj instanceof D3Section) {
 			D3Section s = (D3Section) obj;

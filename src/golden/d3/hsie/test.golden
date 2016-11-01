@@ -226,7 +226,7 @@ CLOSURE v3                                                   #d3.fl:       32.4
   PUSH v2:clos2                                              #d3.fl:       32.4
   PUSH 10                                                    #d3.fl:       32.19
 =======
-HSIE for test.golden._TestCard._d3_chart_enter_rect/0        #d3.fl:       25.5
+HSIE for test.golden._TestCard._d3_chart_enter_rect/0        #d3.fl:       25.0
 #Args: 0 #bound: 3
     externals: [Cons, D3Action, Nil] scoped = []
     all vars = [v0, v1, v2]
@@ -236,15 +236,15 @@ CLOSURE v1                                                   #d3.fl:       26.3
   PUSH "append"                                              #d3.fl:       26.12
   PUSH v0:clos0                                              #d3.fl:       26.22
 CLOSURE v2                                                   #d3.fl:       26.3
-  PUSH PackageVar.Cons                                       #d3.fl:       25.5
+  PUSH PackageVar.Cons                                       #d3.fl:       25.0
   PUSH v1:clos1                                              #d3.fl:       26.3
-  PUSH PackageVar.Nil                                        #d3.fl:       25.5
+  PUSH PackageVar.Nil                                        #d3.fl:       25.0
 CLOSURE v0                                                   #d3.fl:       26.22
   PUSH PackageVar.Cons                                       #d3.fl:       26.22
   PUSH "rect"                                                #d3.fl:       26.22
   PUSH PackageVar.Nil                                        #d3.fl:       26.22
 =======
-HSIE for test.golden._TestCard._d3_chart_enter_text/0        #d3.fl:       40.5
+HSIE for test.golden._TestCard._d3_chart_enter_text/0        #d3.fl:       40.0
 #Args: 0 #bound: 3
     externals: [Cons, D3Action, Nil] scoped = []
     all vars = [v0, v1, v2]
@@ -254,9 +254,9 @@ CLOSURE v1                                                   #d3.fl:       41.3
   PUSH "append"                                              #d3.fl:       41.12
   PUSH v0:clos0                                              #d3.fl:       41.22
 CLOSURE v2                                                   #d3.fl:       41.3
-  PUSH PackageVar.Cons                                       #d3.fl:       40.5
+  PUSH PackageVar.Cons                                       #d3.fl:       40.0
   PUSH v1:clos1                                              #d3.fl:       41.3
-  PUSH PackageVar.Nil                                        #d3.fl:       40.5
+  PUSH PackageVar.Nil                                        #d3.fl:       40.0
 CLOSURE v0                                                   #d3.fl:       41.22
   PUSH PackageVar.Cons                                       #d3.fl:       41.22
   PUSH "text"                                                #d3.fl:       41.22
@@ -298,25 +298,25 @@ HSIE for test.golden._TestCard._d3init_chart/0               #d3.fl:       16.14
     externals: [Assoc, Cons, FLEval.tuple, Nil, NilMap] scoped = []
     all vars = [v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35, v36]
 RETURN v36:clos36 [v0:clos0, v1:clos1, v2:clos2, v3:clos3, v #d3:           1.1
-CLOSURE v33                                                  #d3.fl:       25.5
+CLOSURE v33                                                  #d3.fl:       25.0
   PUSH PackageVar.Cons                                       #d3:           1.1
-  PUSH test.golden._TestCard._d3_chart_enter_rect()          #d3.fl:       25.5
-  PUSH v32:clos32                                            #d3.fl:       40.5
-CLOSURE v34                                                  #d3.fl:       25.5
+  PUSH test.golden._TestCard._d3_chart_enter_rect()          #d3.fl:       25.0
+  PUSH v32:clos32                                            #d3.fl:       40.0
+CLOSURE v34                                                  #d3.fl:       25.0
   PUSH PackageVar.Assoc                                      #d3:           1.1
   PUSH "enter"                                               #d3:           1.1
-  PUSH v33:clos33                                            #d3.fl:       25.5
+  PUSH v33:clos33                                            #d3.fl:       25.0
   PUSH PackageVar.NilMap                                     #d3:           1.1
-CLOSURE v35                                                  #d3.fl:       18.6
+CLOSURE v35                                                  #d3.fl:       18.0
   PUSH PackageVar.Assoc                                      #d3:           1.1
   PUSH "layout"                                              #d3:           1.1
-  PUSH v31:clos31                                            #d3.fl:       18.6
-  PUSH v34:clos34                                            #d3.fl:       25.5
+  PUSH v31:clos31                                            #d3.fl:       18.0
+  PUSH v34:clos34                                            #d3.fl:       25.0
 CLOSURE v36                                                  #d3:           1.1
   PUSH PackageVar.Assoc                                      #d3:           1.1
   PUSH "data"                                                #d3:           1.1
   PUSH test.golden._TestCard._gen_15()                       #d3.fl:       16.9
-  PUSH v35:clos35                                            #d3.fl:       18.6
+  PUSH v35:clos35                                            #d3.fl:       18.0
 CLOSURE v0                                                   #d3.fl:       20.0
   PUSH PackageVar.FLEval.tuple                               #d3:           1.1
   PUSH "y"                                                   #d3.fl:       20.0
@@ -357,7 +357,7 @@ CLOSURE v9                                                   #d3.fl:       20.0
   PUSH PackageVar.Cons                                       #d3:           1.1
   PUSH v0:clos0                                              #d3.fl:       20.0
   PUSH v8:clos8                                              #d3.fl:       19.0
-CLOSURE v10                                                  #d3.fl:       18.6
+CLOSURE v10                                                  #d3.fl:       18.0
   PUSH PackageVar.FLEval.tuple                               #d3:           1.1
   PUSH "rect"                                                #d3.fl:       17.8
   PUSH v9:clos9                                              #d3.fl:       20.0
@@ -433,20 +433,20 @@ CLOSURE v28                                                  #d3.fl:       33.0
   PUSH PackageVar.Cons                                       #d3:           1.1
   PUSH v11:clos11                                            #d3.fl:       33.0
   PUSH v27:clos27                                            #d3.fl:       32.0
-CLOSURE v29                                                  #d3.fl:       29.6
+CLOSURE v29                                                  #d3.fl:       29.0
   PUSH PackageVar.FLEval.tuple                               #d3:           1.1
   PUSH "text"                                                #d3.fl:       28.8
   PUSH v28:clos28                                            #d3.fl:       33.0
-CLOSURE v30                                                  #d3.fl:       29.6
+CLOSURE v30                                                  #d3.fl:       29.0
   PUSH PackageVar.Cons                                       #d3:           1.1
-  PUSH v29:clos29                                            #d3.fl:       29.6
+  PUSH v29:clos29                                            #d3.fl:       29.0
   PUSH PackageVar.Nil                                        #d3:           1.1
-CLOSURE v31                                                  #d3.fl:       18.6
+CLOSURE v31                                                  #d3.fl:       18.0
   PUSH PackageVar.Cons                                       #d3:           1.1
-  PUSH v10:clos10                                            #d3.fl:       18.6
-  PUSH v30:clos30                                            #d3.fl:       29.6
-CLOSURE v32                                                  #d3.fl:       40.5
+  PUSH v10:clos10                                            #d3.fl:       18.0
+  PUSH v30:clos30                                            #d3.fl:       29.0
+CLOSURE v32                                                  #d3.fl:       40.0
   PUSH PackageVar.Cons                                       #d3:           1.1
-  PUSH test.golden._TestCard._d3_chart_enter_text()          #d3.fl:       40.5
+  PUSH test.golden._TestCard._d3_chart_enter_text()          #d3.fl:       40.0
   PUSH PackageVar.Nil                                        #d3:           1.1
 =======

@@ -36,15 +36,6 @@ package test.golden
     d3 chart elt @{16:0|d3} @{16:3|chart} @{16:14|elt}
       data @{16:9|data}
       Pattern rect @{17:0|pattern} @{17:8|"rect"}
-        enter @{25:0|enter}
-          invoke @{26:0|<-}
-            <apply> @{26:3|D3Action "append" ["rect"}
-              D3Action @{26:3|D3Action}
-              '' append @{26:12|"append"}
-              <apply> @{26:22|"rect"}
-                Cons @{26:22|"rect"}
-                '' rect @{26:22|"rect"}
-                Nil @{26:22|"rect"]}
         layout @{18:0|layout}
           x @{19:0|x}
           <apply> @{19:4|22 * elt.idx}
@@ -77,16 +68,16 @@ package test.golden
               . @{23:15|.}
               elt @{23:12|elt}
               data @{23:16|data}
+        enter @{25:0|enter}
+          invoke @{26:0|<-}
+            <apply> @{26:3|D3Action "append" ["rect"}
+              D3Action @{26:3|D3Action}
+              '' append @{26:12|"append"}
+              <apply> @{26:22|"rect"}
+                Cons @{26:22|"rect"}
+                '' rect @{26:22|"rect"}
+                Nil @{26:22|"rect"]}
       Pattern text @{28:0|pattern} @{28:8|"text"}
-        enter @{40:0|enter}
-          invoke @{41:0|<-}
-            <apply> @{41:3|D3Action "append" ["text"}
-              D3Action @{41:3|D3Action}
-              '' append @{41:12|"append"}
-              <apply> @{41:22|"text"}
-                Cons @{41:22|"text"}
-                '' text @{41:22|"text"}
-                Nil @{41:22|"text"]}
         layout @{29:0|layout}
           text @{30:0|text}
           <apply> @{30:7|elt.data}
@@ -136,6 +127,15 @@ package test.golden
           '' sans-serif @{37:13|'sans-serif'}
           fontSize @{38:0|fontSize}
           '' 11px @{38:11|'11px'}
+        enter @{40:0|enter}
+          invoke @{41:0|<-}
+            <apply> @{41:3|D3Action "append" ["text"}
+              D3Action @{41:3|D3Action}
+              '' append @{41:12|"append"}
+              <apply> @{41:22|"text"}
+                Cons @{41:22|"text"}
+                '' text @{41:22|"text"}
+                Nil @{41:22|"text"]}
     event test.golden.TestCard.rejig_1 @{43:0|event} @{43:6|rejig}
       [var] ev @{43:12|ev}
       assign data <- @{44:0|data} @{44:5|<-}

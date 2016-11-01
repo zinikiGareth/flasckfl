@@ -907,7 +907,7 @@ public class Rewriter {
 			for (D3PatternBlock p : prev.patterns) {
 				RWD3PatternBlock rp = new RWD3PatternBlock(p.pattern);
 				rwpatterns.add(rp);
-				for (D3Section s : p.sections.values()) {
+				for (D3Section s : p.sections) {
 					RWD3Section rs = new RWD3Section(s.location, s.name);
 					rp.sections.put(s.name, rs);
 					for (MethodMessage mm : s.actions)
