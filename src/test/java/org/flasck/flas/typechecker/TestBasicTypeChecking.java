@@ -400,12 +400,14 @@ public class TestBasicTypeChecking {
 		{
 			Orchard<RWFunctionDefinition> o1 = new Orchard<>();
 			o1.addTree(rewriter.functions.get("ME.f"));
+			hsie.createForms(o1);
 			tc.typecheck(hsie.orchard(o1));
 			assertEquals(errors.singleString(), 0, errors.count());
 		}
 		{
 			Orchard<RWFunctionDefinition> o2 = new Orchard<>();
 			o2.addTree(rewriter.functions.get("ME.g"));
+			hsie.createForms(o2);
 			tc.typecheck(hsie.orchard(o2));
 			assertEquals(errors.singleString(), 0, errors.count());
 		}

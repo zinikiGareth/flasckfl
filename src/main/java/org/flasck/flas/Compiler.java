@@ -413,6 +413,10 @@ public class Compiler {
 			}
 
 			for (Orchard<RWFunctionDefinition> d : defns) {
+				hsie.createForms(d);
+			}
+			
+			for (Orchard<RWFunctionDefinition> d : defns) {
 				
 				// 7a. Convert each orchard to HSIE
 				Set<HSIEForm> oh = hsie.orchard(d);

@@ -1,5 +1,6 @@
 package org.flasck.flas.hsie;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -32,33 +33,41 @@ import org.zinutils.reflection.Reflection;
 @SuppressWarnings("unused") // many of the methods here appear to be unused, but they're really used by reflection
 public class GatherExternals {
 	private HSIEForm curr;
-	private Map<String, HSIEForm> forms;
 
-	public GatherExternals(Map<String, HSIEForm> ret) {
-		this.forms = ret;
+	public GatherExternals() {
 	}
 
-	public void process(RWFunctionDefinition defn) {
-		curr = forms.get(defn.name);
+	public void process(HSIEForm form, RWFunctionDefinition defn) {
+		curr = form;
 		for (RWFunctionCaseDefn cs : defn.cases)
 			process(cs);
 		curr = null;
 	}
 
-	public void transitiveClosure(TreeMap<String, HSIEForm> ret) {
+	public void transitiveClosure(Map<String, HSIEForm> forms, Collection<HSIEForm> curr) {
 		boolean again = true;
 		while (again) {
 			again = false;
-			for (HSIEForm x : ret.values()) {
-				for (String s : x.externals) {
-					HSIEForm d = forms.get(s);
-					if (d == null)
-						continue; // very common case, if the form is not defined in the current translation block
-					for (VarNestedFromOuterFunctionScope nv : d.scoped)
-						again |= x.dependsOn(nv);
-				}
+			for (HSIEForm x : curr) {
+				for (String s : x.externals)
+					again |= include(forms, x, s);
+				for (VarNestedFromOuterFunctionScope vn : x.scoped)
+					again |= include(forms, x, vn.id);
+				for (VarNestedFromOuterFunctionScope vn : x.scopedDefinitions)
+					again |= include(forms, x, vn.id);
 			}
 		}
+	}
+
+	protected boolean include(Map<String, HSIEForm> forms, HSIEForm x, String s) {
+		boolean again = false;
+		HSIEForm d = forms.get(s);
+		if (d == null) {
+			return again;
+		}
+		for (VarNestedFromOuterFunctionScope nv : d.scoped)
+			again |= x.dependsOn(nv);
+		return again;
 	}
 
 	private void process(RWFunctionCaseDefn cs) {
@@ -72,6 +81,7 @@ public class GatherExternals {
 			Reflection.call(this, "process", a);
 		} catch (UtilException ex) {
 			System.out.println("Process: " + a.getClass());
+			throw ex;
 		}
 	}
 
@@ -113,12 +123,14 @@ public class GatherExternals {
 		dispatch(expr.expr);
 	}
 	
-	private void process(VarNestedFromOuterFunctionScope vn) {
-		if (!vn.definedLocally)
-			curr.dependsOn(vn);
-	}
-	
 	private void process(ExternalRef er) {
+		if (er instanceof VarNestedFromOuterFunctionScope) {
+			VarNestedFromOuterFunctionScope vn = (VarNestedFromOuterFunctionScope) er;
+			if (!vn.definedLocally)
+				curr.dependsOn(vn);
+			else
+				curr.definesScoped(vn);
+		}
 		curr.dependsOn(er);
 	}
 	

@@ -555,6 +555,7 @@ public class HSIETestData {
 		HSIE hsie = new HSIE(errors, rw);
 		Orchard<RWFunctionDefinition> o1 = new Orchard<>();
 		o1.addTree(fn);
+		hsie.createForms(o1);
 		hsie.orchard(o1);
 		return hsie.getForm(fn.name);
 	}

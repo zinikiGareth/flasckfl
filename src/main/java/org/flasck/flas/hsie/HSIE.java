@@ -45,18 +45,22 @@ public class HSIE {
 		exprIdx = 0;
 	}
 	
-	public Set<HSIEForm> orchard(Orchard<RWFunctionDefinition> orch) {
+	public void createForms(Orchard<RWFunctionDefinition> orch) {
 		VarFactory vf = new VarFactory();
-		TreeMap<String, HSIEForm> ret = new TreeMap<String, HSIEForm>();
+		GatherExternals ge = new GatherExternals();
 		for (RWFunctionDefinition fn : orch.allNodes()) {
 			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, vf);
+			ge.process(hf, fn);
 			forms.put(fn.name, hf);
-			ret.put(fn.name, hf);
 		}
-		GatherExternals ge = new GatherExternals(ret);
-		for (RWFunctionDefinition fn : orch.allNodes())
-			ge.process(fn);
-		ge.transitiveClosure(ret);
+	}
+	
+	public Set<HSIEForm> orchard(Orchard<RWFunctionDefinition> orch) {
+		TreeMap<String, HSIEForm> ret = new TreeMap<String, HSIEForm>();
+		for (RWFunctionDefinition fn : orch.allNodes()) {
+			ret.put(fn.name, forms.get(fn.name));
+		}
+		new GatherExternals().transitiveClosure(forms, ret.values());
 		logger.info("HSIE transforming orchard in parallel: " + orch);
 		for (Tree<RWFunctionDefinition> t : orch) {
 			hsieTree(t, t.getRoot());
