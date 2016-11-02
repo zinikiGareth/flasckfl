@@ -179,7 +179,7 @@ public class JSForm {
 		return ret;
 	}
 
-	public static JSForm function(String fnName, List<Var> hsvs, Set<String> scoped, int nformal) {
+	public static JSForm function(String fnName, List<Var> hsvs, Set<VarNestedFromOuterFunctionScope> scoped, int nformal) {
 		List<String> vars = new ArrayList<String>();
 		for (int j=0;j<scoped.size();j++)
 			vars.add("s"+j);
@@ -335,8 +335,8 @@ public class JSForm {
 					if (sv.definedLocally) {
 						return null;
 					}
-					for (Object s : form.scoped)
-						if (s.equals(pe.fn.uniqueName())) {
+					for (VarNestedFromOuterFunctionScope s : form.scoped)
+						if (s.uniqueName().equals(pe.fn.uniqueName())) {
 							sb.append("s" + j);
 							return null;
 						} else

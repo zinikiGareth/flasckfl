@@ -50,9 +50,16 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public final CodeType mytype;
 	private final VarFactory vf;
 	public final List<Var> vars = new ArrayList<Var>();
-	public final Set<String> externals = new TreeSet<String>();
-	public final Set<String> scoped = new TreeSet<String>();
 	private final Map<Var, ClosureCmd> closures = new HashMap<Var, ClosureCmd>();
+	
+	// This is a set of vars which are defined in our nested scope that we actually use
+	public final Set<VarNestedFromOuterFunctionScope> scopedDefinitions = new TreeSet<VarNestedFromOuterFunctionScope>();
+	
+	// The names of things outside of us that we reference
+	public final Set<String> externals = new TreeSet<String>();
+	
+	// Variables defined in an enclosing scope which we reference
+	public final Set<VarNestedFromOuterFunctionScope> scoped = new TreeSet<VarNestedFromOuterFunctionScope>();
 
 	public HSIEForm(InputPosition nameLoc, String name, int nformal, CodeType mytype, VarFactory vf) {
 		super(nameLoc);
@@ -100,7 +107,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			logTo = logger;
 		logTo.debug(asString(0));
 		logTo.debug("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
-		logTo.debug("    externals: " + externals + " scoped = " + scoped);
+		logTo.debug("    externals: " + externals + " scoped = " + justNames(scoped));
 		logTo.debug("    all vars = " + vars);
 		dump(logTo, 0);
 		for (HSIEBlock c : closures.values())
@@ -110,12 +117,23 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public void dump(PrintWriter pw) {
 		pw.println(asString(0));
 		pw.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
-		pw.println("    externals: " + externals + " scoped = " + scoped);
+		pw.println("    externals: " + externals + " scoped = " + justNames(scoped));
 		pw.println("    all vars = " + vars);
 		dump(pw, 0);
 		for (HSIEBlock c : closures.values())
 			c.dumpOne(pw, 0);
 		pw.flush();
+	}
+
+	private <T extends ExternalRef> Set<String> justNames(Set<T> list) {
+		Set<String> ret = new TreeSet<>();
+		for (T er : list)
+			ret.add(er.uniqueName());
+		return ret;
+	}
+
+	public void definesScoped(VarNestedFromOuterFunctionScope vn) {
+		scopedDefinitions.add(vn);
 	}
 
 	public boolean dependsOn(Object ref) {
@@ -130,7 +148,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			return false; // we don't reference ourselves and this is not new
 
 		if (ref instanceof VarNestedFromOuterFunctionScope)
-			return scoped.add(name);
+			return scoped.add((VarNestedFromOuterFunctionScope)ref);
 		else
 			return externals.add(name);
 	}

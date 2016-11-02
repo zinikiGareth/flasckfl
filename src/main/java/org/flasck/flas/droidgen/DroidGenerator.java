@@ -375,7 +375,7 @@ public class DroidGenerator {
 			if (f.mytype == CodeType.HANDLER) // and others?
 				gen.argument("org.flasck.android.post.DeliveryAddress", "_fromDA");
 			int j = 0;
-			for (@SuppressWarnings("unused") Object s : f.scoped)
+			for (@SuppressWarnings("unused") VarNestedFromOuterFunctionScope s : f.scoped)
 				tmp.add(gen.argument("java.lang.Object", "_s"+(j++)));
 			for (int i=0;i<f.nformal;i++)
 				tmp.add(gen.argument("java.lang.Object", "_"+i));
@@ -383,8 +383,8 @@ public class DroidGenerator {
 			j = 0;
 			Map<String, Var> svars = new HashMap<String, Var>();
 			Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
-			for (String s : f.scoped) {
-				svars.put(s, tmp.get(j).getVar());
+			for (VarNestedFromOuterFunctionScope s : f.scoped) {
+				svars.put(s.uniqueName(), tmp.get(j).getVar());
 				j++;
 			}
 			for (int i=0;i<f.nformal;i++)

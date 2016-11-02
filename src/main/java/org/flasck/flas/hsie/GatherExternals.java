@@ -54,7 +54,7 @@ public class GatherExternals {
 					HSIEForm d = forms.get(s);
 					if (d == null)
 						continue; // very common case, if the form is not defined in the current translation block
-					for (String nv : d.scoped)
+					for (VarNestedFromOuterFunctionScope nv : d.scoped)
 						again |= x.dependsOn(nv);
 				}
 			}
