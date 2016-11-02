@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -16,7 +14,6 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -26,15 +23,8 @@ import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
-import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
-import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
-import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
-import org.flasck.flas.rewrittenForm.RWMethodDefinition;
-import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
@@ -50,37 +40,16 @@ import org.zinutils.exceptions.UtilException;
 public class MetaState {
 	static final Logger logger = LoggerFactory.getLogger("HSIE");
 
-	public class TrailItem {
-		private ClosureCmd closure;
-		private TreeSet<VarNestedFromOuterFunctionScope> avars;
-		private List<CreationOfVar> depends;
-
-		public TrailItem(List<CreationOfVar> depends, ClosureCmd closure, TreeSet<VarNestedFromOuterFunctionScope> avars) {
-			this.depends = depends;
-			this.closure = closure;
-			this.avars = avars;
-		}
-		
-		@Override
-		public String toString() {
-			return closure.var + " " + avars;
-		}
-	}
-
 	private final ErrorResult errors;
-	private final Rewriter rewriter;
 	public final HSIEForm form;
 	private final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
-	private final Map<String, HSIEForm> allForms;
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<Object, LocatedObject> retValues = new HashMap<Object, LocatedObject>();
 	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
 
-	public MetaState(ErrorResult errors, Rewriter rewriter, Map<String, HSIEForm> allForms, HSIEForm form) {
+	public MetaState(ErrorResult errors, HSIEForm form) {
 		this.errors = errors;
-		this.rewriter = rewriter;
-		this.allForms = allForms;
 		this.form = form;
 	}
 
@@ -142,120 +111,8 @@ public class MetaState {
 			return;
 		}
 		
-		/*
-		List<TrailItem> tis = new ArrayList<TrailItem>();
-		TreeSet<VarNestedFromOuterFunctionScope> set = new TreeSet<VarNestedFromOuterFunctionScope>();
-		gatherScopedVars(set, expr);
-		
-		logger.info(form.fnName + " claims to have " + set + " scoped vars");
-		
-		// Transitively close the set
-		TreeSet<VarNestedFromOuterFunctionScope> newOnes = new TreeSet<VarNestedFromOuterFunctionScope>(set);
-		while (!newOnes.isEmpty()) {
-			TreeSet<VarNestedFromOuterFunctionScope> discovered = new TreeSet<VarNestedFromOuterFunctionScope>();
-			for (VarNestedFromOuterFunctionScope sv : newOnes) {
-				TreeSet<VarNestedFromOuterFunctionScope> avars = new TreeSet<VarNestedFromOuterFunctionScope>();
-				if (sv.defn instanceof LocalVar)
-					continue;
-				else if (sv.defn instanceof RWFunctionDefinition) {
-					gatherScopedVars(avars, rewriter.functions.get(sv.id));
-				} else if (sv.defn instanceof RWMethodDefinition) {
-					gatherScopedVars(avars, rewriter.standalone.get(sv.id).method);
-				} else if (sv.defn instanceof MethodInContext) {
-					gatherScopedVars(avars, ((MethodInContext)sv.defn).method);
-				} else if (sv.defn instanceof RWHandlerImplements) {
-					gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
-				} else
-					throw new UtilException("Not handling " + sv.id + " of class " + sv.defn.getClass());
-				for (VarNestedFromOuterFunctionScope o : avars)
-					if (!set.contains(o))
-						discovered.add(o);
-			}
-			set.addAll(discovered);
-			newOnes = discovered;
-		}
-		logger.info("Once closed, has " + set + " scoped vars");
-		
-		// For each scoped var that we need, make sure that it a variable is allocated in the scope of the root function
-		// which represents the function partially applied to the scoped-in parameters, capturing all the inter-definitional
-		// dependencies in "TrailItems" (not a good name)
-		for (VarNestedFromOuterFunctionScope sv : set) {
-			if (sv.defn instanceof LocalVar) {
-				// This test can't be applied, because the scoped vars in method messages
-				// (which are HSIEd and typechecked "before" method conversion (i.e. during it)
-				// don't have the scoped vars in the list.
-				// Adding them "in all cases" makes for way too many args to the method.
-				// TODO: rationalize this at some point, possibly during typechecker rewrite
-//				if (!substs.containsKey(sv.id))
-//					throw new UtilException("Cannot find local var " + sv.id + " in " + substs.keySet());
-						
-				logger.info("Ignoring scoped local var " + sv.id + " which will be added later in method message cases");
-				continue;
-			}
-			if (!definedLocally(sv)) {
-				logger.info("!!" + sv.id + " not defined locally to " + form.fnName);
-				continue;
-			}
-			ClosureCmd closure = form.createClosure(sv.location);
-			TreeSet<VarNestedFromOuterFunctionScope> avars = new TreeSet<VarNestedFromOuterFunctionScope>();
-			if (sv.defn instanceof RWMethodDefinition) {
-				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
-				gatherScopedVars(avars, rewriter.standalone.get(sv.id).method);
-				closure.justScoping = true;
-			} else if (sv.defn instanceof MethodInContext) {
-				RWMethodDefinition m = ((MethodInContext)sv.defn).method;
-				closure.push(sv.location, new PackageVar(sv.location, sv.id, m));
-				gatherScopedVars(avars, m);
-				closure.justScoping = true;
-			} else if (sv.defn instanceof RWFunctionDefinition) {
-				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
-				gatherScopedVars(avars, rewriter.functions.get(sv.id));
-				closure.justScoping = true;
-			} else if (sv.defn instanceof RWHandlerImplements) {
-				closure.push(sv.location, new PackageVar(sv.location, sv.id, sv.defn));
-				gatherScopedVars(avars, rewriter.callbackHandlers.get(sv.id));
-			} else if (sv.defn instanceof LocalVar) {
-				closure.push(sv.location, substs.get(sv.id));
-			} else
-				throw new UtilException("Cannot handle " + sv.id + " of type " + sv.defn.getClass());
-			CreationOfVar cov = new CreationOfVar(closure.var, sv.location, sv.id);
-			logger.info("Allocating " + cov.var + " for " + sv.id);
-			substs.put(sv.id, cov);
-			closureDepends.put(cov.var, new ArrayList<CreationOfVar>());
-			tis.add(new TrailItem(closureDepends.get(cov.var), closure, avars));
-		}
-		
-		// Now go back through all the closures we just created, adding in their dependencies so that everything
-		// ends up getting generated
-		for (TrailItem ti : tis) {
-			logger.debug("Adding dependencies to closure " + ti.closure.var + ": " + ti.avars);
-			for (VarNestedFromOuterFunctionScope av : ti.avars) {
-				if (!substs.containsKey(av.id)) {
-					logger.info("Ignoring " + av.id + " because there is no rewritten value for it; it presumably is going to be passed in");
-					continue;
-				}
-				CreationOfVar cov = substs.get(av.id);
-				if (closureDepends.containsKey(cov.var)) {
-					logger.debug("Adding closure " + cov.var + " to " + ti.closure.var);
-					ti.depends.add(cov);
-				}
-				ti.closure.push(av.location, cov);
-			}
-		}
-		*/
 		writeFinalExpr(substs, expr, writeTo);
 	}
-
-	/*
-	private boolean definedLocally(VarNestedFromOuterFunctionScope sv) {
-		if (sv.id.length() < form.fnName.length()+1)
-			return false;
-		String s = sv.id.substring(form.fnName.length());
-		if (s.charAt(0) == '_')
-			s = s.substring(s.indexOf("."));
-		return s.indexOf(".", 1) == -1;
-	}
-	*/
 
 	public void writeFinalExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
 		LocatedObject lo = getValueFor(substs, expr);
@@ -303,19 +160,12 @@ public class MetaState {
 			// a package var is a reference to an absolute something that is referenced by its full scope
 			PackageVar pv = (PackageVar)expr;
 			locs.add(pv.location);
-//			form.dependsOn(pv);
 			return expr;
-//		} else if (expr instanceof RWStructDefn) {
-//			RWStructDefn sd = (RWStructDefn) expr;
-//			locs.add(sd.location());
-//			form.dependsOn(sd.name());
-//			return expr;
 		} else if (expr instanceof VarNestedFromOuterFunctionScope) {
 			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;
 			locs.add(sv.location);
 			String var = sv.id;
 			if (!sv.definedLocally) {
-//				form.dependsOn(sv);
 				return sv;
 			}
 			if (substs.containsKey(var))
@@ -323,18 +173,15 @@ public class MetaState {
 			throw new UtilException("Scoped var " + var + " not in " + substs + " for " + form.fnName);
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
 			locs.add(((ExternalRef)expr).location());
-//			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof CardMember) {
 			locs.add(((ExternalRef)expr).location());
-//			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof CardStateRef) {
 			locs.add(((CardStateRef)expr).location());
 			return expr;
 		} else if (expr instanceof HandlerLambda) {
 			locs.add(((ExternalRef)expr).location());
-//			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr e2 = (ApplyExpr) expr;
@@ -439,65 +286,4 @@ public class MetaState {
 	public void dependency(ClosureCmd clos, CreationOfVar cov) {
 		closureDepends.get(clos.var).add(cov);
 	}
-
-	/*
-	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, RWFunctionDefinition defn) {
-		for (RWFunctionCaseDefn fcd : defn.cases) {
-			gatherScopedVars(set, fcd.expr);
-		}
-	}
-
-	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, RWHandlerImplements hi) {
-		for (Object o : hi.boundVars) {
-			HandlerLambda hl = (HandlerLambda)o;
-			if (hl.scopedFrom != null)
-				set.add(hl.scopedFrom);
-		}
-		for (RWMethodDefinition m : hi.methods) {
-			gatherScopedVars(set, m);
-		}
-	}
-	
-	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, RWMethodDefinition defn) {
-		for (RWMethodCaseDefn mcd : defn.cases) {
-			for (RWMethodMessage mm : mcd.messages)
-				gatherScopedVars(set, mm.expr);
-		}
-	}
-	
-	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, Object expr) {
-		if (expr == null) // this is often quite acceptable, e.g. with TemplateCases/Else
-			return;
-		
-		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof FunctionLiteral ||
-			expr instanceof LocalVar || expr instanceof CardMember || expr instanceof CardFunction || expr instanceof CardStateRef || expr instanceof ObjectReference ||
-			expr instanceof PackageVar || 
-			expr instanceof TemplateListVar || expr instanceof IterVar)
-			; // nothing to do; no recursion
-		else if (expr instanceof VarNestedFromOuterFunctionScope) {
-			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;
-			set.add(sv);
-		} else if (expr instanceof ApplyExpr) {
-			ApplyExpr ae = (ApplyExpr) expr;
-			gatherScopedVars(set, ae.fn);
-			for (Object o : ae.args)
-				gatherScopedVars(set, o);
-		} else if (expr instanceof HandlerLambda) {
-			HandlerLambda hl = (HandlerLambda) expr;
-			if (hl.scopedFrom != null)
-				set.add(hl.scopedFrom);
-		} else if (expr instanceof CastExpr) {
-			CastExpr ce = (CastExpr) expr;
-			gatherScopedVars(set, ce.castTo);
-			gatherScopedVars(set, ce.expr);
-		} else if (expr instanceof TypeCheckMessages) {
-			TypeCheckMessages tcm = (TypeCheckMessages) expr;
-			gatherScopedVars(set, tcm.expr);
-		} else if (expr instanceof AssertTypeExpr) {
-			AssertTypeExpr tcm = (AssertTypeExpr) expr;
-			gatherScopedVars(set, tcm.expr);
-		} else
-			throw new UtilException("Cannot handle scopedVars in " + (expr == null ? "_null expr_" : expr.getClass()));
-	}
-	 */
 }

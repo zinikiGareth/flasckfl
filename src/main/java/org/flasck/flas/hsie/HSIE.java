@@ -13,7 +13,6 @@ import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
@@ -41,13 +40,11 @@ import org.zinutils.utils.StringComparator;
 public class HSIE {
 	static Logger logger = LoggerFactory.getLogger("HSIE");
 	private final ErrorResult errors;
-	private final Rewriter rewriter;
 	private final Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 	private int exprIdx;
 
-	public HSIE(ErrorResult errors, Rewriter rewriter) {
+	public HSIE(ErrorResult errors) {
 		this.errors = errors;
-		this.rewriter = rewriter;
 		exprIdx = 0;
 	}
 	
@@ -85,7 +82,7 @@ public class HSIE {
 		HSIEForm ret = forms.get(defn.name);
 		if (ret == null)
 			throw new UtilException("There is no form for " + defn.name);
-		MetaState ms = new MetaState(errors, rewriter, forms, ret);
+		MetaState ms = new MetaState(errors, ret);
 		if (defn.nargs() == 0) {
 			handleConstant(ms, defn);
 			return;

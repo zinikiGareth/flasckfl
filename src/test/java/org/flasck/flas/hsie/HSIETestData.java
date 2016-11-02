@@ -552,7 +552,7 @@ public class HSIETestData {
 	}
 
 	protected static HSIEForm doHSIE(ErrorResult errors, Rewriter rw, RWFunctionDefinition fn) {
-		HSIE hsie = new HSIE(errors, rw);
+		HSIE hsie = new HSIE(errors);
 		Orchard<RWFunctionDefinition> o1 = new Orchard<>();
 		o1.addTree(fn);
 		hsie.createForms(o1);

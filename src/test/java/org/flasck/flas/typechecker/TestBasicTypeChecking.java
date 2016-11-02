@@ -395,7 +395,7 @@ public class TestBasicTypeChecking {
 		Rewriter rewriter = new Rewriter(errors, null, biscope);
 		rewriter.rewritePackageScope("ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
-		HSIE hsie = new HSIE(errors, rewriter);
+		HSIE hsie = new HSIE(errors);
 		
 		{
 			Orchard<RWFunctionDefinition> o1 = new Orchard<>();

@@ -304,7 +304,7 @@ public class Compiler {
 			ImportPackage rootPkg = Builtin.builtins();
 			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg);
 			final ApplyCurry curry = new ApplyCurry();
-			final HSIE hsie = new HSIE(errors, rewriter);
+			final HSIE hsie = new HSIE(errors);
 			final DroidGenerator dg = new DroidGenerator(hsie, builder);
 
 			rewriter.importPackage1(rootPkg);

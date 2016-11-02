@@ -124,7 +124,7 @@ public class MethodConvertorTests {
 			}
 		}
 		
-		hsie = new HSIE(errors, rewriter);
+		hsie = new HSIE(errors);
 		tc = new TypeChecker(errors);
 		// I don't know how broken this is, but I don't believe in any of it anymore
 //		tc.addExternal("String", (Type) biscope.get("String"));
