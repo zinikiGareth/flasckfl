@@ -284,19 +284,19 @@ public class MetaState {
 			// a package var is a reference to an absolute something that is referenced by its full scope
 			PackageVar pv = (PackageVar)expr;
 			locs.add(pv.location);
-			form.dependsOn(pv);
+//			form.dependsOn(pv);
 			return expr;
-		} else if (expr instanceof RWStructDefn) {
-			RWStructDefn sd = (RWStructDefn) expr;
-			locs.add(sd.location());
-			form.dependsOn(sd.name());
-			return expr;
+//		} else if (expr instanceof RWStructDefn) {
+//			RWStructDefn sd = (RWStructDefn) expr;
+//			locs.add(sd.location());
+//			form.dependsOn(sd.name());
+//			return expr;
 		} else if (expr instanceof VarNestedFromOuterFunctionScope) {
 			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;
 			locs.add(sv.location);
 			String var = sv.id;
 			if (!sv.definedLocally) {
-				form.dependsOn(sv);
+//				form.dependsOn(sv);
 				return sv;
 			}
 			if (substs.containsKey(var))
@@ -304,18 +304,18 @@ public class MetaState {
 			throw new UtilException("Scoped var " + var + " not in " + substs + " for " + form.fnName);
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
 			locs.add(((ExternalRef)expr).location());
-			form.dependsOn(expr);
+//			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof CardMember) {
 			locs.add(((ExternalRef)expr).location());
-			form.dependsOn(expr);
+//			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof CardStateRef) {
 			locs.add(((CardStateRef)expr).location());
 			return expr;
 		} else if (expr instanceof HandlerLambda) {
 			locs.add(((ExternalRef)expr).location());
-			form.dependsOn(expr);
+//			form.dependsOn(expr);
 			return expr;
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr e2 = (ApplyExpr) expr;

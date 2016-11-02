@@ -345,8 +345,9 @@ public class HSIETestData {
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 List",
-			"{", "RETURN 10",
-				"}",
+			"{",
+				"RETURN 10",
+			"}",
 			"ERROR"
 		);
 	}

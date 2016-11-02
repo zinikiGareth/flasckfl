@@ -62,6 +62,7 @@ public class HSIE {
 	// package protection because it's used in our tests
 	HSIEForm handle(Map<String, HSIEForm> previous, VarFactory vf, RWFunctionDefinition defn) {
 		HSIEForm ret = new HSIEForm(defn.location, defn.name(), defn.nargs(), defn.mytype, vf);
+		new GatherExternals(ret).process(defn);
 		MetaState ms = new MetaState(errors, rewriter, previous, ret);
 		if (defn.nargs() == 0)
 			return handleConstant(ms, defn);
@@ -170,7 +171,7 @@ public class HSIE {
 		for (String ctor : elim.ctorCases) {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
 			List<NestedBinds> list = elim.ctorCases.get(ctor);
-			ms.form.dependsOn(ctor);
+//			ms.form.dependsOn(ctor);
 			HSIEBlock blk = s.writeTo.switchCmd(NestedBinds.firstLocation(list), elim.var, ctor);
 			Set<Field> binds = new TreeSet<Field>();
 			Set<SubstExpr> possibles = new HashSet<SubstExpr>();

@@ -121,7 +121,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public void dependsOn(Object ref) {
 		String name;
 		if (ref instanceof String)
-			name = (String) ref;
+			name = (String) ref; // this case is used by "thingy()"
 		else if (ref instanceof ExternalRef)
 			name = ((ExternalRef)ref).uniqueName();
 		else
