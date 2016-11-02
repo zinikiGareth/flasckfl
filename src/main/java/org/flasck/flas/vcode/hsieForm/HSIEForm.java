@@ -50,7 +50,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public final CodeType mytype;
 	private final VarFactory vf;
 	public final List<Var> vars = new ArrayList<Var>();
-	public final Set<Object> externals = new TreeSet<Object>();
+	public final Set<String> externals = new TreeSet<String>();
 	public final Set<String> scoped = new TreeSet<String>();
 	private final Map<Var, ClosureCmd> closures = new HashMap<Var, ClosureCmd>();
 
@@ -118,20 +118,21 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		pw.flush();
 	}
 
-	public void dependsOn(Object ref) {
+	public boolean dependsOn(Object ref) {
 		String name;
 		if (ref instanceof String)
-			name = (String) ref; // this case is used by "thingy()"
+			name = (String) ref;
 		else if (ref instanceof ExternalRef)
 			name = ((ExternalRef)ref).uniqueName();
 		else
 			throw new UtilException("Cannot pass in: " + ref + " " + (ref!=null?ref.getClass():""));
-		if (!name.equals(this.fnName)) {
-			if (ref instanceof VarNestedFromOuterFunctionScope)
-				scoped.add(name);
-			else
-				externals.add(name);
-		}
+		if (name.equals(this.fnName))
+			return false; // we don't reference ourselves and this is not new
+
+		if (ref instanceof VarNestedFromOuterFunctionScope)
+			return scoped.add(name);
+		else
+			return externals.add(name);
 	}
 
 	public Collection<ClosureCmd> closures() {

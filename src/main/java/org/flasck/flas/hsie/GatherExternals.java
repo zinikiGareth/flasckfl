@@ -1,7 +1,9 @@
 package org.flasck.flas.hsie;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
@@ -41,6 +43,22 @@ public class GatherExternals {
 		for (RWFunctionCaseDefn cs : defn.cases)
 			process(cs);
 		curr = null;
+	}
+
+	public void transitiveClosure(TreeMap<String, HSIEForm> ret) {
+		boolean again = true;
+		while (again) {
+			again = false;
+			for (HSIEForm x : ret.values()) {
+				for (String s : x.externals) {
+					HSIEForm d = forms.get(s);
+					if (d == null)
+						continue; // very common case, if the form is not defined in the current translation block
+					for (String nv : d.scoped)
+						again |= x.dependsOn(nv);
+				}
+			}
+		}
 	}
 
 	private void process(RWFunctionCaseDefn cs) {

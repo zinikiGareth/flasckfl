@@ -23,8 +23,8 @@ import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.flas.vcode.hsieForm.Var;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Orchard;
@@ -569,8 +569,8 @@ public class HSIETestData {
 		assertEquals("incorrect # of formals", expected.nformal, actual.nformal);
 		assertEquals("incorrect # of total vars", expected.vars.size(), actual.vars.size());
 		assertEquals("incorrect # of externals", expected.externals.size(), actual.externals.size());
-		Iterator<Object> ee = expected.externals.iterator();
-		Iterator<Object> ae = actual.externals.iterator();
+		Iterator<String> ee = expected.externals.iterator();
+		Iterator<String> ae = actual.externals.iterator();
 		while (ee.hasNext())
 			assertEquals("incorrect external", ee.next(), ae.next());
 		compareBlocks(expected, actual);

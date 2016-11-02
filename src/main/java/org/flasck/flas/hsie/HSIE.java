@@ -56,6 +56,7 @@ public class HSIE {
 		GatherExternals ge = new GatherExternals(ret);
 		for (RWFunctionDefinition fn : orch.allNodes())
 			ge.process(fn);
+		ge.transitiveClosure(ret);
 		logger.info("HSIE transforming orchard in parallel: " + orch);
 		for (Tree<RWFunctionDefinition> t : orch) {
 			hsieTree(t, t.getRoot());
