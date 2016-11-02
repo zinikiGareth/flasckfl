@@ -69,6 +69,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
+import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -720,12 +721,9 @@ public class Rewriter {
 		CardContext c2 = new CardContext((PackageContext) cx, cd);
 		CardGrouping grp = cards.get(cd.name);
 		RWStructDefn sd = grp.struct;
-//		RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
-//		CardGrouping grp = new CardGrouping(sd);
-//		cards.put(cd.name, grp);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
-				sd.addField(new RWStructField(sf.loc, false, rewrite(cx, sf.type, false), sf.name, rewriteExpr(cx, sf.init)));
+				rewriteField(cx, sd, sf);
 			}
 		}
 		
@@ -1106,9 +1104,25 @@ public class Rewriter {
 		for (StructField sf : sd.fields) {
 			// TODO: it's not clear that the expression needs this rewritten context
 			StructDefnContext sx = new StructDefnContext(cx, ret.polys());
-			RWStructField rsf = new RWStructField(sf.loc, false, rewrite(sx, sf.type, false), sf.name, rewriteExpr(sx, sf.init));
-			ret.addField(rsf);
+			rewriteField(sx, ret, sf);
 		}
+	}
+
+	protected void rewriteField(NamingContext sx, RWStructDefn sd, StructField sf) {
+		String fnName = null;
+		Type st = rewrite(sx, sf.type, false);
+		if (sf.init != null) {
+			Object rw = rewriteExpr(sx, sf.init);
+			InputPosition loc = ((Locatable)rw).location();
+			Object expr = new AssertTypeExpr(loc, st, rw);
+			fnName = sd.name() + ".inits_" + sf.name;
+			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, true);
+			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
+			fn.cases.add(fcd0);
+			functions.put(fnName, fn);
+		}
+		RWStructField rsf = new RWStructField(sf.loc, false, st, sf.name, fnName);
+		sd.addField(rsf);
 	}
 
 	private void rewrite(NamingContext cx, UnionTypeDefn u) {

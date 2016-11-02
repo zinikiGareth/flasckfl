@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.flim.Builtin;
@@ -25,7 +24,7 @@ public class TestGeneratingStructs {
 		RWStructDefn sd = new RWStructDefn(posn, "ME.Hello", true);
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(target);
-		gen.generate(sd, new TreeMap<>());
+		gen.generate(sd);
 		target.writeTo(new PrintWriter(System.out, true));
 		assertEquals(3, target.forms.size());
 		JSForm f = target.forms.get(1);
@@ -47,7 +46,7 @@ public class TestGeneratingStructs {
 		sd.addField(new RWStructField(posn, false, nbr, "quant"));
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(target);
-		gen.generate(sd, new TreeMap<>());
+		gen.generate(sd);
 		target.writeTo(new PrintWriter(System.out, true));
 		assertEquals(3, target.forms.size());
 		JSForm f = target.forms.get(1);

@@ -2,7 +2,6 @@ package org.flasck.flas.jsgen;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 
 import org.flasck.flas.jsform.JSForm;
@@ -57,7 +56,7 @@ public class Generator {
 		target.add(ret);
 	}
 
-	public void generate(RWStructDefn sd, Map<String, String> initMap) {
+	public void generate(RWStructDefn sd) {
 		if (!sd.generate)
 			return;
 		int idx = sd.name().lastIndexOf(".");
@@ -76,8 +75,8 @@ public class Generator {
 				if (x.init != null) {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
-					defass.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + initMap.get(x.name) + "())"));
-					elseBlock.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + initMap.get(x.name) + "())"));
+					defass.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + x.init + "())"));
+					elseBlock.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + x.init + "())"));
 				}
 			}
 		}
@@ -103,7 +102,7 @@ public class Generator {
 			defass.add(JSForm.flex("this." + field + " = FLEval.full(" + tfn + "())"));
 	}
 
-	public void generate(String name, CardGrouping card, Map<String, String> fieldInits) {
+	public void generate(String name, CardGrouping card) {
 		String lname = lname(name, false);
 		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), new TreeSet<VarNestedFromOuterFunctionScope>(), 1);
 		cf.add(new JSForm("var _self = this"));
@@ -111,8 +110,7 @@ public class Generator {
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
 		cf.add(new JSForm("this._special = 'card'"));
 		for (RWStructField x : card.struct.fields) {
-			if (x.init != null)
-				generateField(cf, x.name, fieldInits.get(x.name));
+			generateField(cf, x.name, x.init);
 		}
 		cf.add(new JSForm("this._services = {}"));
 		for (ServiceGrouping cs : card.services) {

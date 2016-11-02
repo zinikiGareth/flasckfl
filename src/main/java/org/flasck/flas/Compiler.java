@@ -24,7 +24,6 @@ import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
-import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.droidgen.DroidBuilder;
 import org.flasck.flas.droidgen.DroidGenerator;
@@ -39,29 +38,23 @@ import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
-import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.RWFunctionIntro;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
-import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateFunctionGenerator;
 import org.flasck.flas.template.TemplateGenerator;
-import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -326,15 +319,12 @@ public class Compiler {
 			dg.generateAppObject();
 			
 			for (Entry<String, RWStructDefn> sd : rewriter.structs.entrySet()) {
-				Map<String, String> initMap = compileInits(functions, sd.getValue());
-				gen.generate(sd.getValue(), initMap);
+				gen.generate(sd.getValue());
 				dg.generate(sd.getValue());
 			}
 			for (Entry<String, CardGrouping> kv : rewriter.cards.entrySet()) {
 				CardGrouping grp = kv.getValue();
-				Map<String, String> initMap = compileInits(functions, kv.getValue().struct);
-
-				gen.generate(kv.getKey(), grp, initMap);
+				gen.generate(kv.getKey(), grp);
 				dg.generate(kv.getKey(), grp);
 				for (ContractGrouping ctr : grp.contracts) {
 					RWContractImplements ci = rewriter.cardImplements.get(ctr.implName);
@@ -518,24 +508,6 @@ public class Compiler {
 		} finally {
 			r.close();
 		}
-	}
-
-	protected Map<String, String> compileInits(Map<String, RWFunctionDefinition> functions, RWStructDefn sd) {
-		Map<String, String> ret = new TreeMap<String, String>();
-		for (RWStructField sf : sd.fields) {
-			if (sf.init == null)
-				continue;
-			Type st = sf.type;
-			InputPosition loc = ((Locatable)sf.init).location();
-			Object expr = new AssertTypeExpr(loc, st, sf.init);
-			String fnName = sd.name() + ".inits_" + sf.name;
-			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, true);
-			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
-			fn.cases.add(fcd0);
-			functions.put(fnName, fn);
-			ret.put(sf.name, fnName);
-		}
-		return ret;
 	}
 
 	private void abortIfErrors(ErrorResult errors) throws ErrorResultException {
