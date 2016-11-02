@@ -14,12 +14,17 @@ import java.util.TreeSet;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -60,7 +65,7 @@ public class HSIE {
 		for (RWFunctionDefinition fn : orch.allNodes()) {
 			ret.put(fn.name, forms.get(fn.name));
 		}
-		new GatherExternals().transitiveClosure(forms, ret.values());
+		GatherExternals.transitiveClosure(forms, ret.values());
 		logger.info("HSIE transforming orchard in parallel: " + orch);
 		for (Tree<RWFunctionDefinition> t : orch) {
 			hsieTree(t, t.getRoot());
@@ -86,6 +91,7 @@ public class HSIE {
 		}
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
 		ms.add(buildFundamentalState(ms, ret, defn.nargs(), defn.cases));
+		generateScopingClosures(ms, ret, defn);
 		try {
 			while (!ms.allDone()) {
 				State f = ms.first();
@@ -96,11 +102,37 @@ public class HSIE {
 		}
 	}
 
+	private void generateScopingClosures(MetaState ms, HSIEForm form, RWFunctionDefinition defn) {
+		Set<VarNestedFromOuterFunctionScope> allScoped = GatherExternals.allScopedFrom(forms, form);
+		allScoped.addAll(form.scopedDefinitions);
+		for (VarNestedFromOuterFunctionScope sv : form.scopedDefinitions) {
+			HSIEForm fn = forms.get(sv.id);
+			if (fn == null /* || fn.scoped.isEmpty() */) // The case where there are no scoped vars is degenerate, but easier to deal with like this
+				continue;
+			ClosureCmd clos = form.createClosure(sv.location);
+			clos.justScoping = true;
+			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
+			for (VarNestedFromOuterFunctionScope i : fn.scoped)
+				if (form.isDefinedByMe(i)) {
+					if (i.defn instanceof LocalVar)
+						clos.push(i.location, ms.getSubst(((LocalVar)i.defn).uniqueName()));
+					else if (i.defn instanceof RWHandlerImplements)
+						clos.push(i.location, new PackageVar(i.location, i.id, null));
+					else if (i.defn instanceof RWFunctionDefinition)
+						clos.push(i.location, new PackageVar(i.location, i.id, null));
+					else
+						throw new UtilException("Cannot handle " + i.defn + " of class " + i.defn.getClass());
+				} else
+					clos.push(i.location, i);
+			ms.requireClosure(clos.var);
+			ms.mapVar(sv.id, new CreationOfVar(clos.var, sv.location, sv.id));
+		}
+	}
+
 	private HSIEForm handleConstant(MetaState ms, RWFunctionDefinition defn) {
 		if (defn.cases.size() != 1)
 			throw new UtilException("Constants can only have one case");
 		ms.writeExpr(new SubstExpr(defn.cases.get(0).expr, exprIdx++), ms.form);
-//		ms.form.doReturn(ret, ms.closureDependencies(ret));
 		return ms.form;
 	}
 
@@ -114,6 +146,7 @@ public class HSIE {
 			SubstExpr ex = new SubstExpr(c.expr, exprIdx++);
 			createSubsts(ms, c.caseName(), c.args(), formals, ex);
 			exprs.put(c, ex);
+			ms.addExpr(ex);
 		}
 		for (int i=0;i<nargs;i++) {
 			for (RWFunctionCaseDefn c : cases) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -69,14 +70,17 @@ public class MetaState {
 	private final ErrorResult errors;
 	private final Rewriter rewriter;
 	public final HSIEForm form;
+	private final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
+	private final Map<String, HSIEForm> allForms;
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<Object, LocatedObject> retValues = new HashMap<Object, LocatedObject>();
 	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
 
-	public MetaState(ErrorResult errors, Rewriter rewriter, Map<String, HSIEForm> previous, HSIEForm form) {
+	public MetaState(ErrorResult errors, Rewriter rewriter, Map<String, HSIEForm> allForms, HSIEForm form) {
 		this.errors = errors;
 		this.rewriter = rewriter;
+		this.allForms = allForms;
 		this.form = form;
 	}
 
@@ -106,6 +110,19 @@ public class MetaState {
 		return ret;
 	}
 
+	public void addExpr(SubstExpr ex) {
+		exprs.add(ex);
+	}
+
+	public void requireClosure(Var var) {
+		closureDepends.put(var, new ArrayList<CreationOfVar>());
+	}
+
+	public void mapVar(String id, CreationOfVar cov) {
+		for (SubstExpr se : exprs)
+			se.substs.put(id, cov);
+	}
+
 	public void writeExpr(SubstExpr se, HSIEBlock writeTo) {
 		writeIfExpr(se.substs, se.expr, writeTo);
 	}
@@ -125,7 +142,7 @@ public class MetaState {
 			return;
 		}
 		
-		// Now handle scoping by resolving the vars that are included in scope 
+		/*
 		List<TrailItem> tis = new ArrayList<TrailItem>();
 		TreeSet<VarNestedFromOuterFunctionScope> set = new TreeSet<VarNestedFromOuterFunctionScope>();
 		gatherScopedVars(set, expr);
@@ -225,9 +242,11 @@ public class MetaState {
 				ti.closure.push(av.location, cov);
 			}
 		}
+		*/
 		writeFinalExpr(substs, expr, writeTo);
 	}
 
+	/*
 	private boolean definedLocally(VarNestedFromOuterFunctionScope sv) {
 		if (sv.id.length() < form.fnName.length()+1)
 			return false;
@@ -236,6 +255,7 @@ public class MetaState {
 			s = s.substring(s.indexOf("."));
 		return s.indexOf(".", 1) == -1;
 	}
+	*/
 
 	public void writeFinalExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
 		LocatedObject lo = getValueFor(substs, expr);
@@ -408,6 +428,15 @@ public class MetaState {
 			}
 	}
 
+	public Object getSubst(String uniqueName) {
+		for (SubstExpr se : exprs) {
+			if (se.substs.containsKey(uniqueName))
+				return se.substs.get(uniqueName);
+		}
+		throw new UtilException("There is no var for " + uniqueName);
+	}
+
+	/*
 	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, RWFunctionDefinition defn) {
 		for (RWFunctionCaseDefn fcd : defn.cases) {
 			gatherScopedVars(set, fcd.expr);
@@ -466,4 +495,5 @@ public class MetaState {
 		} else
 			throw new UtilException("Cannot handle scopedVars in " + (expr == null ? "_null expr_" : expr.getClass()));
 	}
+	 */
 }

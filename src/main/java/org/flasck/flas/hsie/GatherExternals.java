@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
@@ -44,7 +45,7 @@ public class GatherExternals {
 		curr = null;
 	}
 
-	public void transitiveClosure(Map<String, HSIEForm> forms, Collection<HSIEForm> curr) {
+	public static void transitiveClosure(Map<String, HSIEForm> forms, Collection<HSIEForm> curr) {
 		boolean again = true;
 		while (again) {
 			again = false;
@@ -59,7 +60,7 @@ public class GatherExternals {
 		}
 	}
 
-	protected boolean include(Map<String, HSIEForm> forms, HSIEForm x, String s) {
+	private static boolean include(Map<String, HSIEForm> forms, HSIEForm x, String s) {
 		boolean again = false;
 		HSIEForm d = forms.get(s);
 		if (d == null) {
@@ -68,6 +69,17 @@ public class GatherExternals {
 		for (VarNestedFromOuterFunctionScope nv : d.scoped)
 			again |= x.dependsOn(nv);
 		return again;
+	}
+
+	public static Set<VarNestedFromOuterFunctionScope> allScopedFrom(Map<String, HSIEForm> forms, HSIEForm form) {
+		TreeSet<VarNestedFromOuterFunctionScope> ret = new TreeSet<>(new ExternalRef.Comparator());
+		ret.addAll(form.scoped);
+		for (VarNestedFromOuterFunctionScope vn : form.scopedDefinitions) {
+			HSIEForm of = forms.get(vn.id);
+			if (of != null)
+				ret.addAll(of.scoped);
+		}
+		return ret;
 	}
 
 	private void process(RWFunctionCaseDefn cs) {

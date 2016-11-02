@@ -12,7 +12,6 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.ExternalRef;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -155,26 +154,33 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		if (ref instanceof VarNestedFromOuterFunctionScope) {
 			VarNestedFromOuterFunctionScope vn = (VarNestedFromOuterFunctionScope) ref;
 			// Try and eliminate the case where we have our own local vars, masquerading as scoped vars by other people ...
-			if (vn.defn instanceof LocalVar) {
-				LocalVar lv = (LocalVar) vn.defn;
-				int idx = lv.definedBy.lastIndexOf("_");
-				if (fnName.indexOf(".", idx) == -1)
-					return false;
-			} else if (vn.defn instanceof RWFunctionDefinition) {
-			} else if (vn.defn instanceof RWHandlerImplements) {
-				RWHandlerImplements hi = (RWHandlerImplements) vn.defn;
-				int idx = hi.hiName.lastIndexOf("_");
-				if (fnName.indexOf(".", idx) == -1)
-					return false;
-			} else if (vn.defn instanceof MethodInContext) {
-			} else { // if (vn.defn instanceof HandlerLambda) {
-				throw new UtilException("Unexpected class for vn defn: " + vn.defn.getClass());
-			}
-			if (scopedDefinitions.contains(ref))
+			if (isDefinedByMe(vn))
 				return false;
 			return scoped.add((VarNestedFromOuterFunctionScope)ref);
 		} else
 			return externals.add(name);
+	}
+
+	public boolean isDefinedByMe(VarNestedFromOuterFunctionScope vn) {
+		if (vn.defn instanceof LocalVar) {
+			LocalVar lv = (LocalVar) vn.defn;
+			int idx = lv.definedBy.lastIndexOf("_");
+			if (fnName.indexOf(".", idx) == -1)
+				return true;
+		} else if (vn.defn instanceof RWFunctionDefinition) {
+		} else if (vn.defn instanceof RWHandlerImplements) {
+			RWHandlerImplements hi = (RWHandlerImplements) vn.defn;
+			int idx = hi.hiName.lastIndexOf("_");
+			if (fnName.indexOf(".", idx) == -1)
+				return true;
+		} else if (vn.defn instanceof MethodInContext) {
+		} else { // if (vn.defn instanceof HandlerLambda) {
+			throw new UtilException("Unexpected class for vn defn: " + vn.defn.getClass());
+		}
+		if (scopedDefinitions.contains(vn))
+			return true;
+
+		return false;
 	}
 
 	public Collection<ClosureCmd> closures() {

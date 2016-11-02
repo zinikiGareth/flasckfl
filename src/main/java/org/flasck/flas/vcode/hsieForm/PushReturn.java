@@ -24,9 +24,4 @@ public abstract class PushReturn extends HSIEBlock {
 	public String toString() {
 		return cmd + " " + textValue();
 	}
-
-	//TODO: HSIE: remove this, which should be dead
-	public boolean isPush() {
-		return cmd.equals("PUSH");
-	}
 }

@@ -2,6 +2,7 @@ package org.flasck.flas.vcode.hsieForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 
 public class PushExternal extends PushReturn {
 	public final ExternalRef fn;
@@ -12,6 +13,9 @@ public class PushExternal extends PushReturn {
 	}
 
 	protected Object textValue() {
-		return fn.getClass().getSimpleName()+"."+fn;
+		if (fn instanceof VarNestedFromOuterFunctionScope)
+			return fn.toString();
+		else
+			return fn.getClass().getSimpleName()+"."+fn;
 	}
 }
