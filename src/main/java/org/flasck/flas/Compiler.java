@@ -68,7 +68,6 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.utils.FileUtils;
-import org.zinutils.utils.StringComparator;
 
 public class Compiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
@@ -413,20 +412,16 @@ public class Compiler {
 				hsiePW = new PrintWriter(new File(writeHSIE, inPkg));
 			}
 
-			Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 			for (Orchard<RWFunctionDefinition> d : defns) {
 				
 				// 7a. Convert each orchard to HSIE
-				Set<HSIEForm> oh = hsie.orchard(errors, forms, d);
+				Set<HSIEForm> oh = hsie.orchard(d);
 				abortIfErrors(errors);
 				dumpOrchard(hsiePW, oh);
 				
 				// 7b. Typecheck all the methods together
 				tc.typecheck(oh);
 				abortIfErrors(errors);
-
-				for (HSIEForm h : oh)
-					forms.put(h.fnName, h);
 			}
 			if (hsiePW != null)
 				hsiePW.close();
@@ -441,15 +436,15 @@ public class Compiler {
 			tgen.generate(rewriter, target);
 			
 			// 9. Check whether functions are curried and add in the appropriate indications if so
-			handleCurrying(curry, tc, forms.values());
+			handleCurrying(curry, tc, hsie.allForms());
 			abortIfErrors(errors);
 
 			// 10. Save learned state for export
 			tc.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
 
 			// 11. generation of JSForms
-			generateForms(gen, forms.values());
-			dg.generate(forms.values());
+			generateForms(gen, hsie.allForms());
+			dg.generate(hsie.allForms());
 			abortIfErrors(errors);
 
 			// 12a. Issue JavaScript

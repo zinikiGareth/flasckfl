@@ -1,5 +1,8 @@
 package org.flasck.flas.hsie;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -26,15 +29,18 @@ import org.zinutils.reflection.Reflection;
 
 @SuppressWarnings("unused") // many of the methods here appear to be unused, but they're really used by reflection
 public class GatherExternals {
-	private final HSIEForm ret;
+	private HSIEForm curr;
+	private Map<String, HSIEForm> forms;
 
-	public GatherExternals(HSIEForm ret) {
-		this.ret = ret;
+	public GatherExternals(Map<String, HSIEForm> ret) {
+		this.forms = ret;
 	}
 
 	public void process(RWFunctionDefinition defn) {
+		curr = forms.get(defn.name);
 		for (RWFunctionCaseDefn cs : defn.cases)
 			process(cs);
+		curr = null;
 	}
 
 	private void process(RWFunctionCaseDefn cs) {
@@ -57,19 +63,19 @@ public class GatherExternals {
 	
 	private void process(ConstPattern v) {
 		if (v.type == ConstPattern.INTEGER) {
-			ret.dependsOn("Number");
+			curr.dependsOn("Number");
 		} else if (v.type == ConstPattern.BOOLEAN) {
-			ret.dependsOn("Boolean");
+			curr.dependsOn("Boolean");
 		} else
 			throw new UtilException("HSIE Cannot handle constant pattern for " + v.type);
 	}
 	
 	private void process(RWTypedPattern tp) {
-		ret.dependsOn(tp.type.name());
+		curr.dependsOn(tp.type.name());
 	}
 	
 	private void process(RWConstructorMatch cm) {
-		ret.dependsOn(cm.ref);
+		curr.dependsOn(cm.ref);
 		for (Field a : cm.args)
 			dispatch(a.patt);
 	}
@@ -91,11 +97,11 @@ public class GatherExternals {
 	
 	private void process(VarNestedFromOuterFunctionScope vn) {
 		if (!vn.definedLocally)
-			ret.dependsOn(vn);
+			curr.dependsOn(vn);
 	}
 	
 	private void process(ExternalRef er) {
-		ret.dependsOn(er);
+		curr.dependsOn(er);
 	}
 	
 	private void process(LocalVar lv) {

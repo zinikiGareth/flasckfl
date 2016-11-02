@@ -10,8 +10,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
@@ -24,6 +27,7 @@ import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.graphs.Orchard;
 
 public class HSIETestData {
 	
@@ -546,7 +550,15 @@ public class HSIETestData {
 		else
 			return new PackageVar(posn, ps[from], null);
 	}
-	
+
+	protected static HSIEForm doHSIE(ErrorResult errors, Rewriter rw, RWFunctionDefinition fn) {
+		HSIE hsie = new HSIE(errors, rw);
+		Orchard<RWFunctionDefinition> o1 = new Orchard<>();
+		o1.addTree(fn);
+		hsie.orchard(o1);
+		return hsie.getForm(fn.name);
+	}
+
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {
 		System.out.println("---- Check expecting:");
 		expected.dump((Logger)null);

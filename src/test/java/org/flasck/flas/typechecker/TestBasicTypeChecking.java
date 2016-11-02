@@ -8,8 +8,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.TreeMap;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.InputPosition;
@@ -402,13 +400,13 @@ public class TestBasicTypeChecking {
 		{
 			Orchard<RWFunctionDefinition> o1 = new Orchard<>();
 			o1.addTree(rewriter.functions.get("ME.f"));
-			tc.typecheck(hsie.orchard(errors, new TreeMap<>(), o1));
+			tc.typecheck(hsie.orchard(o1));
 			assertEquals(errors.singleString(), 0, errors.count());
 		}
 		{
 			Orchard<RWFunctionDefinition> o2 = new Orchard<>();
 			o2.addTree(rewriter.functions.get("ME.g"));
-			tc.typecheck(hsie.orchard(errors, new TreeMap<>(), o2));
+			tc.typecheck(hsie.orchard(o2));
 			assertEquals(errors.singleString(), 0, errors.count());
 		}
 		assertEquals(5, tc.knowledge.size());

@@ -1,6 +1,7 @@
 package org.flasck.flas.hsie;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,11 +30,13 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
+import org.zinutils.utils.StringComparator;
 
 public class HSIE {
 	static Logger logger = LoggerFactory.getLogger("HSIE");
 	private final ErrorResult errors;
 	private final Rewriter rewriter;
+	private final Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 	private int exprIdx;
 
 	public HSIE(ErrorResult errors, Rewriter rewriter) {
@@ -42,30 +45,40 @@ public class HSIE {
 		exprIdx = 0;
 	}
 	
-	public Set<HSIEForm> orchard(ErrorResult errors, Map<String, HSIEForm> previous, Orchard<RWFunctionDefinition> d) {
+	public Set<HSIEForm> orchard(Orchard<RWFunctionDefinition> orch) {
 		VarFactory vf = new VarFactory();
-		logger.info("HSIE transforming orchard in parallel: " + d);
-		Set<HSIEForm> ret = new TreeSet<HSIEForm>();
-		for (Tree<RWFunctionDefinition> t : d)
-			hsieTree(errors, previous, ret, vf, t, t.getRoot());
-		return ret;
+		TreeMap<String, HSIEForm> ret = new TreeMap<String, HSIEForm>();
+		for (RWFunctionDefinition fn : orch.allNodes()) {
+			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, vf);
+			forms.put(fn.name, hf);
+			ret.put(fn.name, hf);
+		}
+		GatherExternals ge = new GatherExternals(ret);
+		for (RWFunctionDefinition fn : orch.allNodes())
+			ge.process(fn);
+		logger.info("HSIE transforming orchard in parallel: " + orch);
+		for (Tree<RWFunctionDefinition> t : orch) {
+			hsieTree(t, t.getRoot());
+		}
+		return new TreeSet<HSIEForm>(ret.values());
 	}
 
-	private void hsieTree(ErrorResult errors, Map<String, HSIEForm> previous, Set<HSIEForm> ret, VarFactory vf, Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node) {
+	private void hsieTree(Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node) {
 		logger.info("HSIE transforming " + node.getEntry().name());
-		HSIEForm form = handle(previous, vf, node.getEntry());
-		ret.add(form);
+		handle(node.getEntry());
 		for (Node<RWFunctionDefinition> x : t.getChildren(node))
-			hsieTree(errors, previous, ret, vf, t, x);
+			hsieTree(t, x);
 	}
 
-	// package protection because it's used in our tests
-	HSIEForm handle(Map<String, HSIEForm> previous, VarFactory vf, RWFunctionDefinition defn) {
-		HSIEForm ret = new HSIEForm(defn.location, defn.name(), defn.nargs(), defn.mytype, vf);
-		new GatherExternals(ret).process(defn);
-		MetaState ms = new MetaState(errors, rewriter, previous, ret);
-		if (defn.nargs() == 0)
-			return handleConstant(ms, defn);
+	private void handle(RWFunctionDefinition defn) {
+		HSIEForm ret = forms.get(defn.name);
+		if (ret == null)
+			throw new UtilException("There is no form for " + defn.name);
+		MetaState ms = new MetaState(errors, rewriter, forms, ret);
+		if (defn.nargs() == 0) {
+			handleConstant(ms, defn);
+			return;
+		}
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
 		ms.add(buildFundamentalState(ms, ret, defn.nargs(), defn.cases));
 		try {
@@ -76,7 +89,6 @@ public class HSIE {
 		} catch (HSIEException ex) {
 			errors.message(ex.block, ex.msg);
 		}
-		return ret;
 	}
 
 	private HSIEForm handleConstant(MetaState ms, RWFunctionDefinition defn) {
@@ -323,5 +335,13 @@ public class HSIE {
 				best = o;
 		}
 		return best;
+	}
+
+	public Collection<HSIEForm> allForms() {
+		return forms.values();
+	}
+
+	public HSIEForm getForm(String name) {
+		return forms.get(name);
 	}
 }
