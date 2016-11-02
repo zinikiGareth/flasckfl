@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
@@ -105,28 +106,67 @@ public class HSIE {
 	private void generateScopingClosures(MetaState ms, HSIEForm form, RWFunctionDefinition defn) {
 		Set<VarNestedFromOuterFunctionScope> allScoped = GatherExternals.allScopedFrom(forms, form);
 		allScoped.addAll(form.scopedDefinitions);
-		for (VarNestedFromOuterFunctionScope sv : form.scopedDefinitions) {
-			HSIEForm fn = forms.get(sv.id);
-			if (fn == null /* || fn.scoped.isEmpty() */) // The case where there are no scoped vars is degenerate, but easier to deal with like this
+		Map<String, ClosureCmd> map = new HashMap<>();
+		for (VarNestedFromOuterFunctionScope sv : allScoped) {
+			if (sv.defn instanceof LocalVar)
 				continue;
+			if (sv.defn instanceof RWHandlerImplements) {
+				boolean needClos = false;
+				RWHandlerImplements hi = (RWHandlerImplements) sv.defn;
+				for (HandlerLambda bv : hi.boundVars) {
+					needClos |= bv.scopedFrom != null;
+				}
+				if (!needClos)
+					continue;
+			}
 			ClosureCmd clos = form.createClosure(sv.location);
 			clos.justScoping = true;
 			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
-			for (VarNestedFromOuterFunctionScope i : fn.scoped)
-				if (form.isDefinedByMe(i)) {
-					if (i.defn instanceof LocalVar)
-						clos.push(i.location, ms.getSubst(((LocalVar)i.defn).uniqueName()));
-					else if (i.defn instanceof RWHandlerImplements)
-						clos.push(i.location, new PackageVar(i.location, i.id, null));
-					else if (i.defn instanceof RWFunctionDefinition)
-						clos.push(i.location, new PackageVar(i.location, i.id, null));
-					else
-						throw new UtilException("Cannot handle " + i.defn + " of class " + i.defn.getClass());
-				} else
-					clos.push(i.location, i);
 			ms.requireClosure(clos.var);
 			ms.mapVar(sv.id, new CreationOfVar(clos.var, sv.location, sv.id));
+			map.put(sv.id, clos);
 		}
+		for (VarNestedFromOuterFunctionScope sv : allScoped) {
+			if (sv.defn instanceof LocalVar)
+				continue;
+			ClosureCmd clos = map.get(sv.id);
+			HSIEForm fn = forms.get(sv.id);
+			if (fn != null /* && fn.scoped.isEmpty() */)  {// The case where there are no scoped vars is degenerate, but easier to deal with like this
+				for (VarNestedFromOuterFunctionScope i : fn.scoped) {
+					pushThing(ms, form, map, clos, i);
+				}
+			} else if (sv.defn instanceof RWHandlerImplements) {
+				RWHandlerImplements hi = (RWHandlerImplements) sv.defn;
+				for (HandlerLambda bv : hi.boundVars) {
+					if (bv.scopedFrom == null)
+						continue;
+					pushThing(ms, form, map, clos, bv.scopedFrom);
+				}
+			} else 
+				throw new UtilException("What is this?" + sv.defn.getClass());
+		}
+	}
+
+	protected void pushThing(MetaState ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
+		if (map.containsKey(i.id)) {
+			CreationOfVar cov = new CreationOfVar(map.get(i.id).var, i.location, i.id);
+			clos.push(i.location, cov);
+			ms.dependency(clos, cov);
+			return;
+		}
+		if (form.isDefinedByMe(i)) {
+			if (i.defn instanceof LocalVar) {
+				clos.push(i.location, ms.getSubst(((LocalVar)i.defn).uniqueName()));
+			} else if (i.defn instanceof RWHandlerImplements) {
+				// if it needs args, it will have been added to "map"
+				clos.push(i.location, new PackageVar(i.location, i.id, null));
+			}
+			else if (i.defn instanceof RWFunctionDefinition)
+				clos.push(i.location, new PackageVar(i.location, i.id, null));
+			else
+				throw new UtilException("Cannot handle " + i.defn + " of class " + i.defn.getClass());
+		} else
+			clos.push(i.location, i);
 	}
 
 	private HSIEForm handleConstant(MetaState ms, RWFunctionDefinition defn) {

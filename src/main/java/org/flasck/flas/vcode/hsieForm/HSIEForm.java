@@ -162,6 +162,8 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	}
 
 	public boolean isDefinedByMe(VarNestedFromOuterFunctionScope vn) {
+		if (scopedDefinitions.contains(vn))
+			return true;
 		if (vn.defn instanceof LocalVar) {
 			LocalVar lv = (LocalVar) vn.defn;
 			int idx = lv.definedBy.lastIndexOf("_");
@@ -177,8 +179,6 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		} else { // if (vn.defn instanceof HandlerLambda) {
 			throw new UtilException("Unexpected class for vn defn: " + vn.defn.getClass());
 		}
-		if (scopedDefinitions.contains(vn))
-			return true;
 
 		return false;
 	}

@@ -35,14 +35,14 @@ SWITCH v7 Boolean                                            #filter.fl:    4.2
 ERROR                                                        #filter.fl:    4.0
 CLOSURE v8                                                   #filter.fl:    5.10
   PUSH PackageVar.test.golden.filter                         #filter.fl:    5.11
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.7
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.12
+  PUSH Scoped[test.golden.filter_1.f]                        #filter.fl:    3.7
+  PUSH Scoped[test.golden.filter_1.l]                        #filter.fl:    3.12
 CLOSURE v9                                                   #filter.fl:    4.11
   PUSH PackageVar.test.golden.filter                         #filter.fl:    4.12
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.7
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.12
+  PUSH Scoped[test.golden.filter_1.f]                        #filter.fl:    3.7
+  PUSH Scoped[test.golden.filter_1.l]                        #filter.fl:    3.12
 CLOSURE v10                                                  #filter.fl:    4.9
   PUSH PackageVar.Cons                                       #filter.fl:    4.10
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.fi #filter.fl:    3.10
+  PUSH Scoped[test.golden.filter_1.a]                        #filter.fl:    3.10
   PUSH v9:clos9                                              #filter.fl:    4.11
 =======

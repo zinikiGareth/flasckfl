@@ -53,35 +53,30 @@ CLOSURE v4                                                   #scoping.fl:  24.3
   PUSH PackageVar.Nil                                        #scoping.fl:  23.0
 =======
 HSIE for test.golden.f_0.q/0                                 #scoping.fl:  19.7
-#Args: 0 #bound: 7
+#Args: 0 #bound: 5
     externals: [Cons, Nil, Send] scoped = [test.golden.f_0.HandleReply, test.golden.f_0.server, test.golden.f_0.var]
-    all vars = [v0, v1, v2, v3, v4, v5, v6]
-RETURN v6:clos6 [v2:clos2, v3:clos3, v4:clos4, v5:clos5]     #scoping.fl:  20.3
-CLOSURE v1                                                   #scoping.fl:  17.0
-  PUSH PackageVar.test.golden.f_0.var                        #scoping.fl:  17.0
-CLOSURE v2                                                   #scoping.fl:  20.18
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.f_ #scoping.fl:  22.14
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.f_ #scoping.fl:  17.0
-CLOSURE v3                                                   #scoping.fl:  16.10
+    all vars = [v0, v1, v2, v3, v4]
+RETURN v4:clos4 [v0:clos0, v1:clos1, v2:clos2, v3:clos3]     #scoping.fl:  20.3
+CLOSURE v1                                                   #scoping.fl:  16.10
   PUSH PackageVar.Cons                                       #scoping.fl:  16.10
-  PUSH v2:clos2                                              #scoping.fl:  20.18
+  PUSH v0:clos0                                              #scoping.fl:  20.18
   PUSH PackageVar.Nil                                        #scoping.fl:  16.10
-CLOSURE v4                                                   #scoping.fl:  16.10
+CLOSURE v2                                                   #scoping.fl:  16.10
   PUSH PackageVar.Cons                                       #scoping.fl:  16.10
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.f_ #scoping.fl:  17.0
-  PUSH v3:clos3                                              #scoping.fl:  16.10
-CLOSURE v5                                                   #scoping.fl:  16.10
+  PUSH Scoped[test.golden.f_0.var]                           #scoping.fl:  17.0
+  PUSH v1:clos1                                              #scoping.fl:  16.10
+CLOSURE v3                                                   #scoping.fl:  16.10
   PUSH PackageVar.Send                                       #scoping.fl:  20.3
-  PUSH VarNestedFromOuterFunctionScope.Scoped[test.golden.f_ #scoping.fl:  16.10
+  PUSH Scoped[test.golden.f_0.server]                        #scoping.fl:  16.10
   PUSH "get"                                                 #scoping.fl:  20.10
-  PUSH v4:clos4                                              #scoping.fl:  16.10
-CLOSURE v6                                                   #scoping.fl:  20.3
+  PUSH v2:clos2                                              #scoping.fl:  16.10
+CLOSURE v4                                                   #scoping.fl:  20.3
   PUSH PackageVar.Cons                                       #scoping.fl:  19.7
-  PUSH v5:clos5                                              #scoping.fl:  16.10
+  PUSH v3:clos3                                              #scoping.fl:  16.10
   PUSH PackageVar.Nil                                        #scoping.fl:  19.7
-CLOSURE v0                                                   #scoping.fl:  22.14
-  PUSH PackageVar.test.golden.f_0.HandleReply                #scoping.fl:  22.14
-  PUSH v1:test.golden.f_0.var                                #scoping.fl:  17.0
+CLOSURE v0                                                   #scoping.fl:  20.18
+  PUSH Scoped[test.golden.f_0.HandleReply]                   #scoping.fl:  22.14
+  PUSH Scoped[test.golden.f_0.var]                           #scoping.fl:  17.0
 =======
 HSIE for test.golden.f/2                                     #scoping.fl:  16.0
 #Args: 2 #bound: 5

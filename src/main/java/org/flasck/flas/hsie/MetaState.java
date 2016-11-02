@@ -436,6 +436,10 @@ public class MetaState {
 		throw new UtilException("There is no var for " + uniqueName);
 	}
 
+	public void dependency(ClosureCmd clos, CreationOfVar cov) {
+		closureDepends.get(clos.var).add(cov);
+	}
+
 	/*
 	private static void gatherScopedVars(TreeSet<VarNestedFromOuterFunctionScope> set, RWFunctionDefinition defn) {
 		for (RWFunctionCaseDefn fcd : defn.cases) {
