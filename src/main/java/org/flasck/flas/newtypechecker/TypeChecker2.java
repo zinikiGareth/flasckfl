@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
@@ -18,6 +20,7 @@ import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
+import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker2 {
@@ -32,6 +35,9 @@ public class TypeChecker2 {
 	}
 
 	public void populateTypes(Rewriter rw) {
+		for (Type bi : rw.builtins.values()) {
+			globalKnowledge.put(bi.name(), new NamedType(bi.name()));
+		}
 		for (RWStructDefn sd : rw.structs.values()) {
 			globalKnowledge.put(sd.uniqueName(), new TypeFunc(sd.fields, sd.uniqueName()));
 		}
@@ -67,25 +73,28 @@ public class TypeChecker2 {
 		
 		// and now look at the switching blocks
 		for (HSIEForm f : forms) {
-			processHSI(f, f);
+			processHSI(f, f, new HashMap<>());
 		}		
 	}
 
-	private void processHSI(HSIEForm f, HSIEBlock blk) {
+	private void processHSI(HSIEForm f, HSIEBlock blk, Map<Var, TypeInfo> contextMappings) {
 		for (HSIEBlock c : blk.nestedCommands()) {
 			if (c instanceof Head || c instanceof ErrorCmd)
 				continue;
 			if (c instanceof Switch) {
 				Switch sw = (Switch) c;
 				// TODO: state with certainty that sw.ctor is an option for sw.var
-				processHSI(f, sw);
+				// needs updating
+				HashMap<Var, TypeInfo> nm = new HashMap<Var, TypeInfo>(contextMappings);
+				nm.put(sw.var, getTypeOf(sw.location, sw.ctor));
+				processHSI(f, sw, contextMappings);
 			} else if (c instanceof BindCmd) {
 				BindCmd b = (BindCmd)c;
 				// TODO: set up the definition of b.var based on the type of the field that we've got
 			} else if (c instanceof IFCmd) {
 				IFCmd sw = (IFCmd) c;
 				// TODO: state with certainty that Boolean is an option for sw.var (in this context, is a requirement - but what is the nature of a context?)
-				processHSI(f, sw);
+				processHSI(f, sw, contextMappings);
 			} else if (c instanceof PushReturn) {
 				PushReturn pr = (PushReturn) c;
 				if (pr instanceof PushVar)
@@ -100,18 +109,21 @@ public class TypeChecker2 {
 	private TypeInfo getTypeOf(HSIEBlock cmd) {
 		if (cmd instanceof PushExternal) {
 			String name = ((PushExternal)cmd).fn.uniqueName();
-			TypeInfo ret = localKnowledge.get(name);
-			if (ret != null)
-				return ret;
-			ret = globalKnowledge.get(name);
-			if (ret == null) {
-				errors.message(cmd.location, "the name '" + name + "' cannot be resolved for typechecking");
-			}
-			return ret;
+			return getTypeOf(cmd.location, name);
 		} else
 			throw new UtilException("Need to determine type of " + cmd.getClass());
 	}
 
+	private TypeInfo getTypeOf(InputPosition pos, String name) {
+		TypeInfo ret = localKnowledge.get(name);
+		if (ret != null)
+			return ret;
+		ret = globalKnowledge.get(name);
+		if (ret == null) {
+			errors.message(pos, "the name '" + name + "' cannot be resolved for typechecking");
+		}
+		return ret;
+	}
 	private TypeVar nextVar() {
 		return new TypeVar(nextTv++);
 	}
