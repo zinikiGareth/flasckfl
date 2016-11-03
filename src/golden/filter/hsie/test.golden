@@ -29,20 +29,20 @@ HSIE for test.golden.filter_1.g/1                            #filter.fl:    4.0
 HEAD v7                                                      #filter.fl:    4.2
 SWITCH v7 Boolean                                            #filter.fl:    4.2
   IF v7:ev7 false                                            #filter.fl:    5.2
-    RETURN v8:clos8 []                                       #filter.fl:    5.10
+    RETURN v10:clos10 []                                     #filter.fl:    5.10
   IF v7:ev7 true                                             #filter.fl:    4.2
-    RETURN v10:clos10 [v9:clos9]                             #filter.fl:    4.9
+    RETURN v9:clos9 [v8:clos8]                               #filter.fl:    4.9
 ERROR                                                        #filter.fl:    4.0
-CLOSURE v8                                                   #filter.fl:    5.10
-  PUSH PackageVar.test.golden.filter                         #filter.fl:    5.11
-  PUSH Scoped[test.golden.filter_1.f]                        #filter.fl:    3.7
-  PUSH Scoped[test.golden.filter_1.l]                        #filter.fl:    3.12
-CLOSURE v9                                                   #filter.fl:    4.11
+CLOSURE v8                                                   #filter.fl:    4.11
   PUSH PackageVar.test.golden.filter                         #filter.fl:    4.12
   PUSH Scoped[test.golden.filter_1.f]                        #filter.fl:    3.7
   PUSH Scoped[test.golden.filter_1.l]                        #filter.fl:    3.12
-CLOSURE v10                                                  #filter.fl:    4.9
+CLOSURE v9                                                   #filter.fl:    4.9
   PUSH PackageVar.Cons                                       #filter.fl:    4.10
   PUSH Scoped[test.golden.filter_1.a]                        #filter.fl:    3.10
-  PUSH v9:clos9                                              #filter.fl:    4.11
+  PUSH v8:clos8                                              #filter.fl:    4.11
+CLOSURE v10                                                  #filter.fl:    5.10
+  PUSH PackageVar.test.golden.filter                         #filter.fl:    5.11
+  PUSH Scoped[test.golden.filter_1.f]                        #filter.fl:    3.7
+  PUSH Scoped[test.golden.filter_1.l]                        #filter.fl:    3.12
 =======

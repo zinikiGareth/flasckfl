@@ -38,8 +38,8 @@ test.golden.filter_1.g = function(s0, s1, s2, v7) {
       return FLEval.closure(test.golden.filter, s1, s2);
     }
     if (v7 === true) {
-      var v9 = FLEval.closure(test.golden.filter, s1, s2);
-      return FLEval.closure(Cons, s0, v9);
+      var v8 = FLEval.closure(test.golden.filter, s1, s2);
+      return FLEval.closure(Cons, s0, v8);
     }
   }
   return FLEval.error("test.golden.filter_1.g: case not handled");

@@ -84,12 +84,15 @@ public class HSIE {
 			throw new UtilException("There is no form for " + defn.name);
 		MetaState ms = new MetaState(errors, ret);
 		if (defn.nargs() == 0) {
+			ms.addExpr(new SubstExpr(defn.cases.get(0).expr, exprIdx++));
+			generateExprClosures(ms, ret, defn);
 			handleConstant(ms, defn);
 			return;
 		}
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
 		ms.add(buildFundamentalState(ms, ret, defn.nargs(), defn.cases));
 		generateScopingClosures(ms, ret, defn);
+		generateExprClosures(ms, ret, defn);
 		try {
 			while (!ms.allDone()) {
 				State f = ms.first();
@@ -144,6 +147,11 @@ public class HSIE {
 		}
 	}
 
+	private void generateExprClosures(MetaState ms, HSIEForm ret, RWFunctionDefinition defn) {
+		for (SubstExpr se : ms.substExprs())
+			ms.generateClosure(se.substs, se.expr);
+	}
+
 	protected void pushThing(MetaState ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
 		if (map.containsKey(i.id)) {
 			CreationOfVar cov = new CreationOfVar(map.get(i.id).var, i.location, i.id);
@@ -169,7 +177,7 @@ public class HSIE {
 	private HSIEForm handleConstant(MetaState ms, RWFunctionDefinition defn) {
 		if (defn.cases.size() != 1)
 			throw new UtilException("Constants can only have one case");
-		ms.writeExpr(new SubstExpr(defn.cases.get(0).expr, exprIdx++), ms.form);
+		ms.writeExpr(ms.substExprs().get(0), ms.form);
 		return ms.form;
 	}
 

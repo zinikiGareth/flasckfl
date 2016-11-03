@@ -9,10 +9,10 @@ SWITCH v1 Cons                                               #take.fl:      2.7
   HEAD v0                                                    #take.fl:      2.5
   SWITCH v0 Number                                           #take.fl:      2.5
     IF v0:ev0 0                                              #take.fl:      2.5
-      RETURN PackageVar.Nil                                  #take.fl:      2.14
+      RETURN PackageVar.Nil                                  #take.fl:      1.12
   RETURN v6:clos6 [v4:clos4, v5:clos5]                       #take.fl:      3.15
 SWITCH v1 Nil                                                #take.fl:      1.7
-  RETURN PackageVar.Nil                                      #take.fl:      2.14
+  RETURN PackageVar.Nil                                      #take.fl:      1.12
 ERROR                                                        #take.fl:      1.0
 CLOSURE v4                                                   #take.fl:      3.23
   PUSH PackageVar.-                                          #take.fl:      3.25

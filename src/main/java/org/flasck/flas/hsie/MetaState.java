@@ -113,16 +113,19 @@ public class MetaState {
 	}
 
 	public void writeFinalExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
-		LocatedObject lo = getValueFor(substs, expr);
+		System.out.println("expr = " + expr.getClass());
+		if (!retValues.containsKey(expr))
+			throw new UtilException("There is no return value for " + expr);
+		LocatedObject lo = retValues.get(expr);
 		writeTo.doReturn(lo.loc, lo.obj, closureDependencies(lo.obj));
 	}
 
-	public LocatedObject getValueFor(Map<String, CreationOfVar> substs, Object e) {
+	public void generateClosure(Map<String, CreationOfVar> substs, Object e) {
+		System.out.println("e = " + e.getClass());
 		if (!retValues.containsKey(e)) {
 			LocatedObject lo = convertValue(substs, e);
 			retValues.put(e, new LocatedObject(lo.loc, lo.obj));
 		}
-		return retValues.get(e);
 	}
 
 	private LocatedObject convertValue(Map<String, CreationOfVar> substs, Object expr) {
@@ -261,5 +264,9 @@ public class MetaState {
 
 	public void dependency(ClosureCmd clos, CreationOfVar cov) {
 		closureDepends.get(clos.var).add(cov);
+	}
+
+	public List<SubstExpr> substExprs() {
+		return exprs;
 	}
 }
