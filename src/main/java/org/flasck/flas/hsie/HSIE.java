@@ -235,7 +235,6 @@ public class HSIE {
 				addState(cf, s1, mycases);
 		}
 		{
-			System.out.println(elim.var + " is none of the above");
 			State elimState = s.cloneEliminate(elim.var, s.writeTo, elim.undecidedCases);
 			logger.info("After eliminating " + elim.var + ", state is " + elimState);
 			addState(cf, elimState, elim.undecidedCases);

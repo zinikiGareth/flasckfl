@@ -36,6 +36,7 @@ import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
+import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -307,11 +308,6 @@ public class Compiler {
 
 			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
 
-			// 4. Prepare Typechecker & load types
-			TypeChecker tc = new TypeChecker(errors);
-			tc.populateTypes(rewriter);
-			abortIfErrors(errors);
-		
 			// 5. Generate Class Definitions
 			JSTarget target = new JSTarget(inPkg);
 			Generator gen = new Generator(target);
@@ -393,6 +389,15 @@ public class Compiler {
 			//   a. convert functions to HSIE
 			//   b. typechecking
 
+			// 4. Prepare Typechecker & load types
+			TypeChecker tc = new TypeChecker(errors);
+			tc.populateTypes(rewriter);
+			abortIfErrors(errors);
+
+			TypeChecker2 tc2 = new TypeChecker2(errors);
+			tc2.populateTypes(rewriter);
+			abortIfErrors(errors);
+
 			PrintWriter hsiePW = null;
 			if (writeHSIE != null) {
 				hsiePW = new PrintWriter(new File(writeHSIE, inPkg));
@@ -405,12 +410,14 @@ public class Compiler {
 			for (Orchard<RWFunctionDefinition> d : defns) {
 				
 				// 8a. Convert each orchard to HSIE
-				Set<HSIEForm> oh = hsie.orchard(d);
+				Set<HSIEForm> forms = hsie.orchard(d);
 				abortIfErrors(errors);
-				dumpOrchard(hsiePW, oh);
+				dumpOrchard(hsiePW, forms);
 				
 				// 8b. Typecheck all the methods together
-				tc.typecheck(oh);
+				tc.typecheck(forms);
+				abortIfErrors(errors);
+				tc2.typecheck(forms);
 				abortIfErrors(errors);
 			}
 			if (hsiePW != null)

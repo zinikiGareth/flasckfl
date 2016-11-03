@@ -104,7 +104,6 @@ public class Expressions {
 
 	public void translate(Object e, LocatedObject hsieValue) {
 		if (!convertedValues.containsKey(e)) {
-			System.out.println("Will convert " + e + " to " + hsieValue);
 			convertedValues.put(e, hsieValue);
 		}
 	}
