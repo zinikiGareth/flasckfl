@@ -110,7 +110,8 @@ public class Generator {
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
 		cf.add(new JSForm("this._special = 'card'"));
 		for (RWStructField x : card.struct.fields) {
-			generateField(cf, x.name, x.init);
+			if (x.init != null)
+				generateField(cf, x.name, x.init);
 		}
 		cf.add(new JSForm("this._services = {}"));
 		for (ServiceGrouping cs : card.services) {

@@ -1,3 +1,15 @@
+HSIE for test.golden.TestCard.teas_1/0                       #d3.fl:       13.12
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN "400"                                                 #d3.fl:       13.12
+=======
+HSIE for test.golden.TestCard.teas_2/0                       #d3.fl:       13.26
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN "250"                                                 #d3.fl:       13.26
+=======
 HSIE for test.golden._TestCard._gen_1/1                      #d3.fl:       21.7
 #Args: 1 #bound: 0
     externals: [D3Element] scoped = []

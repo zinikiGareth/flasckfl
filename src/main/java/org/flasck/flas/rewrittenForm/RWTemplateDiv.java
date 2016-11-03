@@ -13,8 +13,8 @@ public class RWTemplateDiv extends RWTemplateFormatEvents {
 	public final List<TemplateLine> nested = new ArrayList<TemplateLine>();
 	public List<String> droppables;
 
-	public RWTemplateDiv(InputPosition kw, String customTag, String customTagVar, List<Object> attrs, List<Object> formats) {
-		super(kw, formats);
+	public RWTemplateDiv(InputPosition kw, String customTag, String customTagVar, List<Object> attrs, List<Object> formats, String dynamicFn) {
+		super(kw, formats, dynamicFn);
 		this.customTag = customTag;
 		this.customTagVar = customTagVar;
 		this.attrs = attrs;

@@ -1,4 +1,4 @@
-package org.flasck.flas.commonBase.template;
+package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 

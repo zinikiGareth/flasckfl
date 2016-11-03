@@ -7,13 +7,8 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.TemplateCases;
-import org.flasck.flas.commonBase.template.TemplateExplicitAttr;
-import org.flasck.flas.commonBase.template.TemplateFormat;
 import org.flasck.flas.commonBase.template.TemplateLine;
-import org.flasck.flas.commonBase.template.TemplateList;
 import org.flasck.flas.commonBase.template.TemplateListVar;
-import org.flasck.flas.commonBase.template.TemplateOr;
 import org.flasck.flas.droidgen.CGRContext;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.jsform.JSForm;
@@ -33,8 +28,13 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWTemplate;
 import org.flasck.flas.rewrittenForm.RWTemplateCardReference;
+import org.flasck.flas.rewrittenForm.RWTemplateCases;
 import org.flasck.flas.rewrittenForm.RWTemplateDiv;
+import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
+import org.flasck.flas.rewrittenForm.RWTemplateFormat;
 import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
+import org.flasck.flas.rewrittenForm.RWTemplateList;
+import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.collections.CollectionUtils;
@@ -101,12 +101,10 @@ public class TemplateGenerator {
 	}
 
 	private final Rewriter rewriter;
-	private final TemplateFunctionGenerator tfg;
 	private final DroidGenerator dg;
 
-	public TemplateGenerator(Rewriter rewriter, TemplateFunctionGenerator tfg, DroidGenerator dg) {
+	public TemplateGenerator(Rewriter rewriter, DroidGenerator dg) {
 		this.rewriter = rewriter;
-		this.tfg = tfg;
 		this.dg = dg;
 	}
 
@@ -148,8 +146,8 @@ public class TemplateGenerator {
 					moreArgs = moreArgs + ", 'http://www.w3.org/2000/svg'";
 			}
 			// TODO: a variable custom tag is hard & needs "assign" logic
-		} else if (tl instanceof TemplateList) {
-			TemplateList ul = (TemplateList) tl;
+		} else if (tl instanceof RWTemplateList) {
+			RWTemplateList ul = (RWTemplateList) tl;
 			base = "ListArea";
 			if (ul.customTag != null) {
 				moreArgs = ", '" + ul.customTag + "'";
@@ -169,7 +167,7 @@ public class TemplateGenerator {
 				moreArgs = ", undefined"; // explicitly say the card is undefined until yoyoVar evaluates
 			} else
 				throw new UtilException("Can't handle this case");
-		} else if (tl instanceof TemplateCases) {
+		} else if (tl instanceof RWTemplateCases) {
 			base = "CasesArea";
 		} else if (tl instanceof RWD3Thing) {
 			base = "D3Area";
@@ -212,17 +210,17 @@ public class TemplateGenerator {
 			RWTemplateDiv td = (RWTemplateDiv) tl;
 			int an = 1;
 			for (Object a : td.attrs) {
-				if (a instanceof TemplateExplicitAttr) {
-					TemplateExplicitAttr tea = (TemplateExplicitAttr) a;
-					switch (tea.type) {
-					case TemplateToken.STRING: {
-						fn.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr + "', '" + tea.value +"')"));
-						break;
-					}
-					case TemplateToken.IDENTIFIER: {
+				if (a instanceof RWTemplateExplicitAttr) {
+					RWTemplateExplicitAttr tea = (RWTemplateExplicitAttr) a;
+//					switch (tea.type) {
+//					case TemplateToken.STRING: {
+//						fn.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr + "', " + tea.value +")"));
+//						break;
+//					}
+//					case TemplateToken.IDENTIFIER: {
 						String saf = called + ".prototype._setAttr_" + an;
 						JSForm sak = JSForm.flex(saf + " = function()").needBlock();
-						String tfn = tfg.simpleName(tfg.teas.get(tea));
+						String tfn = simpleName(tea.fnName);
 						sak.add(JSForm.flex("var attr = FLEval.full(this._card." + tfn + "())"));
 						JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
 						sak.add(ifassign);
@@ -232,11 +230,11 @@ public class TemplateGenerator {
 //						fn.add(JSForm.flex("this._setAttr_" + an +"()"));
 						callOnAssign(fn, tea.value, cgrx, saf, true, null);
 						an++;
-						break;
-					}
-					default:
-						throw new UtilException("Cannot handle TEA type " + tea.type);
-					}
+//						break;
+//					}
+//					default:
+//						throw new UtilException("Cannot handle TEA type " + tea.type);
+//					}
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
 			}
@@ -253,8 +251,8 @@ public class TemplateGenerator {
 				dg.createNested(cgrx, v, javaName(cn));
 				recurse(cx, cn, c, called);
 			}
-		} else if (tl instanceof TemplateList) {
-			TemplateList l = (TemplateList) tl;
+		} else if (tl instanceof RWTemplateList) {
+			RWTemplateList l = (RWTemplateList) tl;
 			TemplateListVar lv = (TemplateListVar)l.iterVar;
 			String tlv = lv == null ? null : lv.name;
 			if (l.supportDragOrdering)
@@ -272,7 +270,7 @@ public class TemplateGenerator {
 			if (l.supportDragOrdering)
 				cfn.add(JSForm.flex("this._makeDraggable()"));
 			JSForm atv = JSForm.flex(called + ".prototype._assignToVar = function()").needBlock();
-			String tfn = tfg.simpleName(tfg.lvs.get(l));
+			String tfn = simpleName(l.listFn);
 			atv.add(JSForm.flex("var lv = FLEval.full(this._card." + tfn + "())"));
 			callOnAssign(fn, l.listVar, cgrx, called + ".prototype._assignToVar", false, "lv");
 			fn.add(JSForm.flex(called + ".prototype._assignToVar.call(this)"));
@@ -288,7 +286,7 @@ public class TemplateGenerator {
 			callOnAssign(fn, valExpr, cgrx, called + ".prototype._contentExpr", true, null);
 
 			JSForm cexpr = JSForm.flex(called +".prototype._contentExpr = function()").needBlock();
-			String tfn = tfg.simpleName(tfg.contents.get(ce));
+			String tfn = simpleName(ce.fnName);
 			if (ce.rawHTML)
 				cexpr.add(JSForm.flex("this._insertHTML(this._card." + tfn +"())"));
 			else
@@ -321,29 +319,29 @@ public class TemplateGenerator {
 				callOnAssign(fn, valExpr, cgrx, called + ".prototype._yoyoExpr", true, null);
 	
 				JSForm cexpr = JSForm.flex(called +".prototype._yoyoExpr = function()").needBlock();
-				String tfn = tfg.simpleName(tfg.yoyos.get(cr));
+				String tfn = simpleName(cr.fnName);
 				cexpr.add(JSForm.flex("this._updateToCard(this._card." + tfn + "())"));
 				cx.target.add(cexpr);
 
 				dg.yoyoExpr(cgrx, tfn);
 			} else
 				throw new UtilException("handle this case");
-		} else if (tl instanceof TemplateCases) {
-			TemplateCases tc = (TemplateCases) tl;
+		} else if (tl instanceof RWTemplateCases) {
+			RWTemplateCases tc = (RWTemplateCases) tl;
 			String sn = called + ".prototype._chooseCase";
 			JSForm sw = JSForm.flex(sn +" = function(parent)").needBlock();
 			sw.add(JSForm.flex("\"use strict\""));
 			cx.target.add(sw);
 			callOnAssign(fn, tc.switchOn, cgrx, sn, true, null);
 
-			for (TemplateOr oc : tc.cases) {
+			for (RWTemplateOr oc : tc.cases) {
 				String cn = cx.nextArea();
 
 				JSForm doit;
 				if (oc.cond == null)
 					doit = sw;
 				else {
-					String tfn = tfg.simpleName(tfg.ors.get(oc));
+					String tfn = simpleName(oc.fnName);
 					doit = JSForm.flex("if (FLEval.full(this._card." + tfn + "()))").needBlock();
 					sw.add(doit);
 				}
@@ -360,8 +358,8 @@ public class TemplateGenerator {
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
-		if (tl instanceof TemplateFormat) {
-			handleFormatsAndEvents(cx, cgrx, called, fn, isEditable, (TemplateFormat)tl);
+		if (tl instanceof RWTemplateFormat) {
+			handleFormatsAndEvents(cx, cgrx, called, fn, isEditable, (RWTemplateFormat)tl);
 		}
 		if (newVar != null) {
 			cx.removeLastCopyVar();
@@ -370,7 +368,7 @@ public class TemplateGenerator {
 		return fn;
 	}
 
-	protected void handleFormatsAndEvents(GeneratorContext cx, CGRContext cgrx, String called, JSForm fn, boolean isEditable, TemplateFormat tl) {
+	protected void handleFormatsAndEvents(GeneratorContext cx, CGRContext cgrx, String called, JSForm fn, boolean isEditable, RWTemplateFormat tl) {
 		StringBuilder simple = new StringBuilder();
 		if (isEditable)
 			simple.append(" flasck-editable");
@@ -400,7 +398,7 @@ public class TemplateGenerator {
 				expr = new ApplyExpr(first, cx.cons, new StringLiteral(first, simple.substring(1)), expr);
 			String scf = called + ".prototype._setVariableFormats";
 			JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
-			String tfn = tfg.simpleName(tfg.formats.get(tl));
+			String tfn = simpleName(tl.dynamicFunction);
 			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this._card."+tfn+"()), ' '))"));
 			cx.target.add(scvs);
 			dg.setVarFormats(cgrx, tfn);
@@ -418,7 +416,7 @@ public class TemplateGenerator {
 				cx.target.add(ahf);
 				boolean isFirst = true;
 				for (RWEventHandler eh : tfe.handlers) {
-					String tfn = tfg.simpleName(tfg.handlers.get(tfe));
+					String tfn = simpleName(eh.handlerFn);
 
 					// add a hack to allow us to NOT overwrite events that we want to intercept first
 					String distinguish = "";
@@ -528,5 +526,12 @@ public class TemplateGenerator {
 	private String javaName(String topBlock) {
 		int idx = topBlock.lastIndexOf("._");
 		return topBlock.substring(0, idx+1) + topBlock.substring(idx+2);
+	}
+
+	public String simpleName(String name) {
+		int idx = name.lastIndexOf(".");
+		if (idx == -1)
+			throw new UtilException("No . in " + name);
+		return name.substring(idx+1);
 	}
 }

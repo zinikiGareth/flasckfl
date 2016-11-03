@@ -28,7 +28,7 @@ HSIE for test.golden.Complex.inits_format/0                  #complexcard. 35.17
     all vars = []
 RETURN "basic"                                               #complexcard. 35.17
 =======
-HSIE for test.golden.Complex.contents_1/0                    #complexcard. 42.0
+HSIE for test.golden.Complex.contents_2/0                    #complexcard. 42.0
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.hello] scoped = []
     all vars = []
@@ -46,7 +46,7 @@ HSIE for test.golden.Complex.teas_0/0                        #complexcard. 41.9
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.hello]      #complexcard. 41.9
 =======
-HSIE for test.golden.Complex.yoyos_9/0                       #complexcard. 54.2
+HSIE for test.golden.Complex.yoyos_8/0                       #complexcard. 54.2
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.yoyo] scoped = []
     all vars = []
@@ -58,19 +58,19 @@ HSIE for test.golden.Complex.ors_7/0                         #complexcard. 51.0
     all vars = [v0]
 RETURN v0:clos0 []                                           #complexcard. 51.0
 CLOSURE v0                                                   #complexcard. 51.0
-  PUSH PackageVar.==                                         #tfg:          1.1
+  PUSH PackageVar.==                                         #complexcard. 51.0
   PUSH CardMember.CardMember[test.golden.Complex.hello]      #complexcard. 50.3
   PUSH "hello"                                               #complexcard. 51.2
 =======
-HSIE for test.golden.Complex.formats_2/0                     #complexcard. 42.0
+HSIE for test.golden.Complex.formats_1/0                     #complexcard. 42.0
 #Args: 0 #bound: 1
     externals: [Cons, Nil, test.golden.Complex.format] scoped = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #complexcard. 42.8
 CLOSURE v0                                                   #complexcard. 42.8
-  PUSH PackageVar.Cons                                       #tfg:          1.1
+  PUSH PackageVar.Cons                                       #complexcard. 42.0
   PUSH CardMember.CardMember[test.golden.Complex.format]     #complexcard. 42.8
-  PUSH PackageVar.Nil                                        #tfg:          1.1
+  PUSH PackageVar.Nil                                        #complexcard. 42.0
 =======
 HSIE for test.golden.Complex.sayHello/1                      #complexcard. 66.6
 #Args: 1 #bound: 2

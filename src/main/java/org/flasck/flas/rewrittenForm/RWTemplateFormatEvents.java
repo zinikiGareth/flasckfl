@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.template.TemplateFormat;
 
-public abstract class RWTemplateFormatEvents extends TemplateFormat {
+public abstract class RWTemplateFormatEvents extends RWTemplateFormat {
 	public final List<RWEventHandler> handlers = new ArrayList<RWEventHandler>();
 	
-	public RWTemplateFormatEvents(InputPosition pos, List<Object> formats) {
-		super(pos, formats);
+	public RWTemplateFormatEvents(InputPosition pos, List<Object> formats, String dynamicFn) {
+		super(pos, formats, dynamicFn);
 	}
 }

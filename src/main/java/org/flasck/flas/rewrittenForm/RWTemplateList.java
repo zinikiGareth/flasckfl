@@ -1,10 +1,11 @@
-package org.flasck.flas.commonBase.template;
+package org.flasck.flas.rewrittenForm;
 
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.template.TemplateLine;
 
-public class TemplateList extends TemplateFormat {
+public class RWTemplateList extends RWTemplateFormat {
 	public final InputPosition listLoc;
 	public final Object listVar;
 	public final InputPosition iterLoc;
@@ -15,9 +16,10 @@ public class TemplateList extends TemplateFormat {
 	public final String customTagVar;
 	public final boolean supportDragOrdering;
 	public TemplateLine template;
+	public final String listFn;
 
-	public TemplateList(InputPosition kw, InputPosition listLoc, Object listVar, InputPosition iterLoc, Object iterVar, InputPosition ctLoc, String customTag, InputPosition ctvLoc, String customTagVar, List<Object> formats, boolean supportDragOrdering) {
-		super(kw, formats);
+	public RWTemplateList(InputPosition kw, InputPosition listLoc, Object listVar, InputPosition iterLoc, Object iterVar, InputPosition ctLoc, String customTag, InputPosition ctvLoc, String customTagVar, List<Object> formats, boolean supportDragOrdering, String listFn, String dynamicFn) {
+		super(kw, formats, dynamicFn);
 		this.listLoc = listLoc;
 		this.listVar = listVar;
 		this.iterLoc = iterLoc;
@@ -27,6 +29,6 @@ public class TemplateList extends TemplateFormat {
 		this.customTagVarLoc = ctvLoc;
 		this.customTagVar = customTagVar;
 		this.supportDragOrdering = supportDragOrdering;
+		this.listFn = listFn;
 	}
-
 }

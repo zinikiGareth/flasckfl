@@ -51,7 +51,6 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
-import org.flasck.flas.template.TemplateFunctionGenerator;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -383,10 +382,6 @@ public class Compiler {
 			mc.convertStandaloneMethods(rewriter, functions, rewriter.standalone.values());
 			abortIfErrors(errors);
 
-			// 5. Templates may depend on expressions in various contexts; generate the appropriate functions
-			final TemplateFunctionGenerator tfg = new TemplateFunctionGenerator(rewriter, functions);
-			tfg.generate();
-			
 			// 6. Do dependency analysis on functions and group them together in orchards
 			List<Orchard<RWFunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(functions);
 			abortIfErrors(errors);
@@ -426,7 +421,7 @@ public class Compiler {
 			// This definitely does NOT want to move up, since it generates JS
 			// It does want the methods generated though ...
 			// 8. Generate code from templates
-			final TemplateGenerator tgen = new TemplateGenerator(rewriter, tfg, dg);
+			final TemplateGenerator tgen = new TemplateGenerator(rewriter, dg);
 			tgen.generate(rewriter, target);
 			
 			// 9. Check whether functions are curried and add in the appropriate indications if so

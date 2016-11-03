@@ -223,11 +223,11 @@ test.golden._Complex.B2.prototype = new TextArea();
 test.golden._Complex.B2.prototype.constructor = test.golden._Complex.B2;
 
 test.golden._Complex.B2.prototype._contentExpr = function() {
-  this._assignToText(this._card.contents_1());
+  this._assignToText(this._card.contents_2());
 }
 
 test.golden._Complex.B2.prototype._setVariableFormats = function() {
-  this._mydiv.setAttribute('class', join(FLEval.full(this._card.formats_2()), ' '));
+  this._mydiv.setAttribute('class', join(FLEval.full(this._card.formats_1()), ' '));
 }
 
 test.golden._Complex.B3 = function(parent) {
@@ -378,7 +378,7 @@ test.golden._Complex.B11.prototype = new CardSlotArea();
 test.golden._Complex.B11.prototype.constructor = test.golden._Complex.B11;
 
 test.golden._Complex.B11.prototype._yoyoExpr = function() {
-  this._updateToCard(this._card.yoyos_9());
+  this._updateToCard(this._card.yoyos_8());
 }
 
 test.golden.Complex._FooHandler.prototype.reply = function(v0) {
@@ -432,7 +432,7 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
   return FLEval.error("test.golden.Complex._S0.get: case not handled");
 }
 
-test.golden.Complex.prototype.contents_1 = function() {
+test.golden.Complex.prototype.contents_2 = function() {
   "use strict";
   return this.hello;
 }
@@ -442,7 +442,7 @@ test.golden.Complex.prototype.contents_4 = function() {
   return this._src_lv.lv;
 }
 
-test.golden.Complex.prototype.formats_2 = function() {
+test.golden.Complex.prototype.formats_1 = function() {
   "use strict";
   return FLEval.closure(Cons, this.format, Nil);
 }
@@ -495,7 +495,7 @@ test.golden.Complex.prototype.teas_0 = function() {
   return this.hello;
 }
 
-test.golden.Complex.prototype.yoyos_9 = function() {
+test.golden.Complex.prototype.yoyos_8 = function() {
   "use strict";
   return this.yoyo;
 }

@@ -90,14 +90,28 @@ test.golden._TestCard.B5.prototype.constructor = test.golden._TestCard.B5;
 test.golden._TestCard.B6 = function(parent) {
   DivArea.call(this, parent, 'svg', 'http://www.w3.org/2000/svg');
   if (!parent) return;
-  this._mydiv.setAttribute('width', '400');
-  this._mydiv.setAttribute('height', '250');
+  test.golden._TestCard.B6.prototype._setAttr_1.call(this);
+  test.golden._TestCard.B6.prototype._setAttr_2.call(this);
   var b7 = new test.golden._TestCard.B7(this);
 }
 
 test.golden._TestCard.B6.prototype = new DivArea();
 
 test.golden._TestCard.B6.prototype.constructor = test.golden._TestCard.B6;
+
+test.golden._TestCard.B6.prototype._setAttr_1 = function() {
+  var attr = FLEval.full(this._card.teas_1());
+  if (attr && !(attr instanceof FLError)) {
+    this._mydiv.setAttribute('width', attr);
+  }
+}
+
+test.golden._TestCard.B6.prototype._setAttr_2 = function() {
+  var attr = FLEval.full(this._card.teas_2());
+  if (attr && !(attr instanceof FLError)) {
+    this._mydiv.setAttribute('height', attr);
+  }
+}
 
 test.golden._TestCard.B7 = function(parent) {
   D3Area.call(this, parent);
@@ -130,6 +144,16 @@ test.golden.TestCard.prototype.rejig = function(v0) {
   var v4 = FLEval.closure(Cons, 4, v3);
   var v5 = FLEval.closure(Assign, this, 'data', v4);
   return FLEval.closure(Cons, v5, Nil);
+}
+
+test.golden.TestCard.prototype.teas_1 = function() {
+  "use strict";
+  return '400';
+}
+
+test.golden.TestCard.prototype.teas_2 = function() {
+  "use strict";
+  return '250';
 }
 
 test.golden._TestCard.prototype._d3_chart_enter_rect = function() {

@@ -7,10 +7,12 @@ public class RWTemplateCardReference implements TemplateLine {
 	public final InputPosition location;
 	public final Object explicitCard;
 	public final Object yoyoVar;
+	public final String fnName;
 
-	public RWTemplateCardReference(InputPosition location, Object cardVar, Object yoyoVar) {
+	public RWTemplateCardReference(InputPosition location, Object cardVar, Object yoyoVar, String fnName) {
 		this.location = location;
 		this.explicitCard = cardVar;
 		this.yoyoVar = yoyoVar;
+		this.fnName = fnName;
 	}
 }
