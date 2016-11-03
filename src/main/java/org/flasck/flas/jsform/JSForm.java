@@ -18,6 +18,7 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
+import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -225,15 +226,23 @@ public class JSForm {
 		return new JSForm("var v" + h.bind.idx + " = v" + h.from.idx + "." + h.field);
 	}
 
-	public static JSForm ifCmd(IFCmd c) {
-		return new JSForm("if (v" + c.var.var.idx + " === " + c.value +")").needBlock();
+	public static List<JSForm> ifCmd(HSIEForm form, IFCmd c) {
+		List<JSForm> ret = new ArrayList<JSForm>();
+		ClosureCmd clos = form.getClosure(c.var.var);
+		if (clos != null)
+			ret.add(new JSForm("var v" + c.var.var.idx + " = " + closure(form, clos)));
+		if (c.value != null)
+			ret.add(new JSForm("if (v" + c.var.var.idx + " === " + c.value + ")").needBlock());
+		else
+			ret.add(new JSForm("if (v" + c.var.var.idx + ")").needBlock());
+		return ret;
 	}
 
 	public static JSForm error(String fnName) {
 		return new JSForm("return FLEval.error(\""+fnName +": case not handled\")");
 	}
 
-	public static List<JSForm> ret(PushReturn r, HSIEForm form) {
+	public static List<JSForm> ret(HSIEForm form, PushReturn r) {
 		List<JSForm> ret = new ArrayList<JSForm>();
 		StringBuilder sb = new StringBuilder();
 		sb.append("return ");

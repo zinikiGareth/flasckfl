@@ -204,14 +204,14 @@ public class Generator {
 				into.add(sw);
 			} else if (h instanceof IFCmd) {
 				IFCmd c = (IFCmd)h;
-				JSForm b = JSForm.ifCmd(c);
-				generateBlock(fn, form, b, c);
-				into.add(b);
+				List<JSForm> bs = JSForm.ifCmd(form, c);
+				into.addAll(bs);
+				generateBlock(fn, form, bs.get(bs.size()-1), c);
 			} else if (h instanceof BindCmd) {
 				into.add(JSForm.bind((BindCmd) h));
 			} else if (h instanceof PushReturn) {
 				PushReturn r = (PushReturn) h;
-				into.addAll(JSForm.ret(r, form));
+				into.addAll(JSForm.ret(form, r));
 			} else if (h instanceof ErrorCmd) {
 				into.add(JSForm.error(fn));
 			} else {

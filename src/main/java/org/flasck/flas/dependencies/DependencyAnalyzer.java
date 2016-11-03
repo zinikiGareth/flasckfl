@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
@@ -119,6 +120,11 @@ public class DependencyAnalyzer {
 			analyzeExpr(dcg, name, locals, ae.fn);
 			for (Object x : ae.args)
 				analyzeExpr(dcg, name, locals, x);
+		} else if (expr instanceof IfExpr) {
+			IfExpr ie = (IfExpr) expr;
+			analyzeExpr(dcg, name, locals, ie.guard);
+			analyzeExpr(dcg, name, locals, ie.ifExpr);
+			analyzeExpr(dcg, name, locals, ie.elseExpr);
 		} else if (expr instanceof TypeCheckMessages) {
 			TypeCheckMessages tcm = (TypeCheckMessages) expr;
 			analyzeExpr(dcg, name, locals, tcm.expr);

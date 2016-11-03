@@ -51,14 +51,14 @@ public class Expressions {
 		logger.info("Handling " + form.fnName + "; expr = " + expr + "; substs = " + substs);
 		// First handle the explicit "if" cases
 		if (expr instanceof IfExpr) {
-			IfExpr ae = (IfExpr) expr;
-			if (!convertedValues.containsKey(expr))
-				throw new UtilException("There is no return value for " + ae.guard);
-			LocatedObject lo = convertedValues.get(ae.guard);
+			IfExpr ie = (IfExpr) expr;
+			if (!convertedValues.containsKey(ie.guard))
+				throw new UtilException("There is no return value for " + ie.guard);
+			LocatedObject lo = convertedValues.get(ie.guard);
 			HSIEBlock ifCmd = writeTo.ifCmd(lo.loc, (VarInSource) lo.obj);
-			writeIfExpr(substs, ae.ifExpr, ifCmd);
-			if (ae.elseExpr != null)
-				writeIfExpr(substs, ae.elseExpr, writeTo);
+			writeIfExpr(substs, ie.ifExpr, ifCmd);
+			if (ie.elseExpr != null)
+				writeIfExpr(substs, ie.elseExpr, writeTo);
 			else
 				writeTo.caseError();
 			return;
@@ -103,7 +103,9 @@ public class Expressions {
 	}
 
 	public void translate(Object e, LocatedObject hsieValue) {
-		if (!convertedValues.containsKey(e))
+		if (!convertedValues.containsKey(e)) {
+			System.out.println("Will convert " + e + " to " + hsieValue);
 			convertedValues.put(e, hsieValue);
+		}
 	}
 }

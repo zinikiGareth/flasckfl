@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.CastExpr;
+import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.LocatedObject;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -137,6 +138,13 @@ public class GenerateClosures {
 		}
 	}
 
+	public LocatedObject process(IfExpr expr) {
+		ms.translate(expr.guard, dispatch(expr.guard));
+		ms.translate(expr.ifExpr, dispatch(expr.ifExpr));
+		ms.translate(expr.elseExpr, dispatch(expr.elseExpr));
+		return new LocatedObject(null, new UtilException("You cannot use this value"));
+	}
+	
 	public LocatedObject process(ApplyExpr expr) {
 		List<LocatedObject> ops = new ArrayList<LocatedObject>();
 		LocatedObject val = dispatch(expr.fn);

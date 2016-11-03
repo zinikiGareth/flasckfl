@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Function file="filter.fl" line="3" name="test.golden.filter" off="7">
+        <Function>
+            <Arg>
+                <Function>
+                    <Arg>
+                        <Poly name="A"/>
+                    </Arg>
+                    <Return>
+                        <Union name="Any"/>
+                    </Return>
+                </Function>
+            </Arg>
+            <Arg>
+                <Instance file="typecheck" line="1" off="1">
+                    <Union name="List"/>
+                    <Poly name="A"/>
+                </Instance>
+            </Arg>
+            <Return>
+                <Instance file="typecheck" line="1" off="1">
+                    <Union name="List"/>
+                    <Poly name="A"/>
+                </Instance>
+            </Return>
+        </Function>
+    </Function>
+</FLIM>

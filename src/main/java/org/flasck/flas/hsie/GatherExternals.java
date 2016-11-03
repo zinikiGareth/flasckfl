@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
@@ -124,6 +125,12 @@ public class GatherExternals {
 		dispatch(expr.fn);
 		for (Object o : expr.args)
 			dispatch(o);
+	}
+	
+	private void process(IfExpr expr) {
+		dispatch(expr.guard);
+		dispatch(expr.ifExpr);
+		dispatch(expr.elseExpr);
 	}
 	
 	private void process(AssertTypeExpr expr) {
