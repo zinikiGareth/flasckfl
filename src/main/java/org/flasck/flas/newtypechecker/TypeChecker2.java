@@ -8,7 +8,9 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
@@ -26,6 +28,7 @@ import org.zinutils.exceptions.UtilException;
 public class TypeChecker2 {
 	private final ErrorResult errors;
 	// is there a real need to keep these separate?  especially when we are promoting?
+	private final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
 	private final Map<String, TypeInfo> globalKnowledge = new HashMap<String, TypeInfo>();
 	private final Map<String, TypeInfo> localKnowledge = new HashMap<String, TypeInfo>();
 	private int nextTv;
@@ -38,7 +41,11 @@ public class TypeChecker2 {
 		for (Type bi : rw.builtins.values()) {
 			globalKnowledge.put(bi.name(), new NamedType(bi.name()));
 		}
+		for (RWUnionTypeDefn sd : rw.types.values()) {
+			globalKnowledge.put(sd.name(), new NamedType(sd.name()));
+		}
 		for (RWStructDefn sd : rw.structs.values()) {
+			structs.put(sd.uniqueName(), sd);
 			globalKnowledge.put(sd.uniqueName(), new TypeFunc(sd.fields, sd.uniqueName()));
 		}
 	}
@@ -77,19 +84,19 @@ public class TypeChecker2 {
 		}		
 	}
 
-	private void processHSI(HSIEForm f, HSIEBlock blk, Map<Var, TypeInfo> contextMappings) {
+	private void processHSI(HSIEForm f, HSIEBlock blk, Map<Var, RWStructDefn> contextMappings) {
 		for (HSIEBlock c : blk.nestedCommands()) {
 			if (c instanceof Head || c instanceof ErrorCmd)
 				continue;
 			if (c instanceof Switch) {
 				Switch sw = (Switch) c;
 				// TODO: state with certainty that sw.ctor is an option for sw.var
-				// needs updating
-				HashMap<Var, TypeInfo> nm = new HashMap<Var, TypeInfo>(contextMappings);
-				nm.put(sw.var, getTypeOf(sw.location, sw.ctor));
-				processHSI(f, sw, contextMappings);
+				HashMap<Var, RWStructDefn> nm = new HashMap<>(contextMappings);
+				nm.put(sw.var, structs.get(sw.ctor));
+				processHSI(f, sw, nm);
 			} else if (c instanceof BindCmd) {
 				BindCmd b = (BindCmd)c;
+				System.out.println("Processing BIND " + b.bind + " with " + convertType(contextMappings.get(b.from).findField(b.field).type));
 				// TODO: set up the definition of b.var based on the type of the field that we've got
 			} else if (c instanceof IFCmd) {
 				IFCmd sw = (IFCmd) c;
@@ -104,6 +111,15 @@ public class TypeChecker2 {
 			} else 
 				System.out.println("Handle " + c);
 		}
+	}
+
+	private TypeInfo convertType(Type type) {
+		if (type.iam == WhatAmI.POLYVAR)
+			return null; // OK, what to do here; introducing a type var seems obvious, but what is it's reach?
+		else if (type instanceof RWUnionTypeDefn)
+			return getTypeOf(type.location(), type.name());
+		else
+			throw new UtilException("Cannot convert " + type.getClass() + " " + type.iam);
 	}
 
 	private TypeInfo getTypeOf(HSIEBlock cmd) {
