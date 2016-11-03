@@ -20,7 +20,7 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -486,7 +486,7 @@ public class HSIETestData {
 				prev = b.switchCmd(posn, ret.var(Integer.parseInt(ps[1])), ps[2]);
 			} else if (ps[0].equals("IF")) {
 				int vidx = Integer.parseInt(ps[1]);
-				CreationOfVar var = new CreationOfVar(ret.var(vidx), posn, ps[2]);
+				VarInSource var = new VarInSource(ret.var(vidx), posn, ps[2]);
 				if (ps.length == 3) {
 					// the closure case
 					prev = b.ifCmd(posn, var);
@@ -506,11 +506,11 @@ public class HSIETestData {
 				prev = tmp;
 			} else if (ps[0].equals("RETURN")) {
 				Object tmp = analyze(ret, ps, 1);
-				List<CreationOfVar> deps = null;
-				if (tmp instanceof CreationOfVar) {
-					deps = new ArrayList<CreationOfVar>();
+				List<VarInSource> deps = null;
+				if (tmp instanceof VarInSource) {
+					deps = new ArrayList<VarInSource>();
 					for (int j=4;j+1<ps.length;j+=2)
-						deps.add(new CreationOfVar(ret.var(Integer.parseInt(ps[j])), posn, ps[j+1]));
+						deps.add(new VarInSource(ret.var(Integer.parseInt(ps[j])), posn, ps[j+1]));
 				}
 				prev = b.doReturn(posn, tmp, deps);
 			} else if (ps[0].equals("ERROR")) {
@@ -544,7 +544,7 @@ public class HSIETestData {
 
 	private static Object analyze(HSIEForm ret, String[] ps, int from) {
 		if (ps[from].equals("var"))
-			return new CreationOfVar(ret.var(Integer.parseInt(ps[from+1])), posn, ps[from+2]);
+			return new VarInSource(ret.var(Integer.parseInt(ps[from+1])), posn, ps[from+2]);
 		else if (Character.isDigit(ps[from].charAt(0)))
 			return Integer.parseInt(ps[from]);
 		else

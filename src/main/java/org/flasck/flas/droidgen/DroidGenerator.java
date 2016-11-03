@@ -35,7 +35,7 @@ import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
-import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -462,7 +462,7 @@ public class DroidGenerator {
 							stmts.add(meth.returnObject(hv));
 					} else {
 						if (pv.deps != null) {
-							for (CreationOfVar cov : pv.deps) {
+							for (VarInSource cov : pv.deps) {
 								Var v = vars.get(cov.var);
 								if (v == null) {
 									v = meth.avar("java.lang.Object", cov.var.toString());

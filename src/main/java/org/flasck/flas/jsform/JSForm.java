@@ -18,7 +18,7 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
-import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -242,7 +242,7 @@ public class JSForm {
 			if (pv.var.var.idx < form.nformal) {
 				ret.add(new JSForm("return " + pv.var.var));
 			} else if (pv.deps != null) {
-				for (CreationOfVar v : pv.deps) {
+				for (VarInSource v : pv.deps) {
 					ret.add(new JSForm("var v" + v.var.idx + " = " + closure(form, form.getClosure(v.var))));
 				}
 				ret.add(new JSForm("return " + closure(form, form.getClosure(pv.var.var))));

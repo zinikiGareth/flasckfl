@@ -9,12 +9,12 @@ import org.flasck.flas.blockForm.InputPosition;
 // Both 'k' and 'n' are defined to be var0.  But they came from different places and have different names.
 // This class is supposed to "undo" that while keeping the benefits.  We'll see ...
 
-public class CreationOfVar {
+public class VarInSource {
 	public final Var var;
 	public final InputPosition loc;
 	public final String called;
 
-	public CreationOfVar(Var var, InputPosition loc, String called) {
+	public VarInSource(Var var, InputPosition loc, String called) {
 		this.var = var;
 		this.loc = loc;
 		this.called = called;
@@ -29,8 +29,8 @@ public class CreationOfVar {
 	public boolean equals(Object obj) {
 		if (obj instanceof Var)
 			return this.var.equals(obj);
-		else if (obj instanceof CreationOfVar)
-			return var.equals(((CreationOfVar)obj).var);
+		else if (obj instanceof VarInSource)
+			return var.equals(((VarInSource)obj).var);
 		else
 			return false;
 	}

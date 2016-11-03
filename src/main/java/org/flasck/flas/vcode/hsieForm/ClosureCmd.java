@@ -11,7 +11,7 @@ public class ClosureCmd extends HSIEBlock {
 	public boolean typecheckMessages;
 	public Type assertType;
 	public boolean justScoping = false;
-	public final List<CreationOfVar> depends = new ArrayList<CreationOfVar>();
+	public final List<VarInSource> depends = new ArrayList<VarInSource>();
 
 	public ClosureCmd(InputPosition loc, Var var) {
 		super(loc);

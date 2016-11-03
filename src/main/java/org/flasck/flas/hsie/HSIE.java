@@ -19,7 +19,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
-import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -123,7 +123,7 @@ public class HSIE {
 			if (arg instanceof RWVarPattern) {
 				RWVarPattern vp = (RWVarPattern) arg;
 				String called = vp.var;
-				ms.subst(called, new CreationOfVar(formals.get(i), vp.varLoc, called));
+				ms.subst(called, new VarInSource(formals.get(i), vp.varLoc, called));
 			} else if (arg instanceof RWConstructorMatch)
 				ctorSub((RWConstructorMatch) arg, ms, formals.get(i), expr);
 			else if (arg instanceof ConstPattern)
@@ -131,7 +131,7 @@ public class HSIE {
 			else if (arg instanceof RWTypedPattern) {
 				RWTypedPattern tp = (RWTypedPattern) arg;
 				String called = tp.var;
-				ms.subst(called, new CreationOfVar(formals.get(i), tp.varLocation, called));
+				ms.subst(called, new VarInSource(formals.get(i), tp.varLocation, called));
 			} else
 				throw new UtilException("Not substituting into " + arg.getClass());
 		}
@@ -143,7 +143,7 @@ public class HSIE {
 			if (x.patt instanceof RWVarPattern) {
 				RWVarPattern vp = (RWVarPattern)x.patt;
 				String called = vp.var;
-				ms.subst(called, new CreationOfVar(v, vp.varLoc, called));
+				ms.subst(called, new VarInSource(v, vp.varLoc, called));
 			} else if (x.patt instanceof RWConstructorMatch)
 				ctorSub((RWConstructorMatch)x.patt, ms, v, expr);
 			else if (x.patt instanceof ConstPattern)
@@ -180,7 +180,7 @@ public class HSIE {
 		Option elim = chooseBest(t);
 		logger.info("Decided that best switching var is " + elim.var);
 		s.writeTo.head(elim.location, elim.var);
-		CreationOfVar cv = new CreationOfVar(elim.var, null, "ev"+elim.var.idx);
+		VarInSource cv = new VarInSource(elim.var, null, "ev"+elim.var.idx);
 		for (String ctor : elim.ctorCases) {
 //			System.out.println("Choosing " + elim.var + " to match " + ctor +":");
 			List<NestedBinds> list = elim.ctorCases.get(ctor);

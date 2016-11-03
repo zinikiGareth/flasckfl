@@ -8,7 +8,7 @@ import java.util.Map;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.LocatedObject;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -24,7 +24,7 @@ public class MetaState {
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<Object, LocatedObject> convertedValues = new HashMap<Object, LocatedObject>();
-	public final Map<String, CreationOfVar> substs = new HashMap<String, CreationOfVar>();
+	public final Map<String, VarInSource> substs = new HashMap<String, VarInSource>();
 
 	public MetaState(HSIEForm form) {
 		this.form = form;
@@ -60,14 +60,14 @@ public class MetaState {
 		exprs.add(expr);
 	}
 
-	public void subst(String varToSubst, CreationOfVar var) {
+	public void subst(String varToSubst, VarInSource var) {
 		if (substs.containsKey(varToSubst))
 			throw new HSIEException(var.loc, "duplicate var in patterns: " + varToSubst);
 		MetaState.logger.info("Defining " + varToSubst + " as " + var);
 		substs.put(varToSubst, var);
 	}
 
-	public void mapVar(String id, CreationOfVar cov) {
+	public void mapVar(String id, VarInSource cov) {
 		substs.put(id, cov);
 	}
 
@@ -75,7 +75,7 @@ public class MetaState {
 		writeIfExpr(substs, exprs.get(expr), writeTo);
 	}
 	
-	private void writeIfExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
+	private void writeIfExpr(Map<String, VarInSource> substs, Object expr, HSIEBlock writeTo) {
 		logger.info("Handling " + form.fnName + "; expr = " + expr + "; substs = " + substs);
 		// First handle the explicit "if" cases
 		if (expr instanceof IfExpr) {
@@ -83,7 +83,7 @@ public class MetaState {
 			if (!convertedValues.containsKey(expr))
 				throw new UtilException("There is no return value for " + ae.guard);
 			LocatedObject lo = convertedValues.get(ae.guard);
-			HSIEBlock ifCmd = writeTo.ifCmd(lo.loc, (CreationOfVar) lo.obj);
+			HSIEBlock ifCmd = writeTo.ifCmd(lo.loc, (VarInSource) lo.obj);
 			writeIfExpr(substs, ae.ifExpr, ifCmd);
 			if (ae.elseExpr != null)
 				writeIfExpr(substs, ae.elseExpr, writeTo);
@@ -94,30 +94,30 @@ public class MetaState {
 		writeFinalExpr(substs, expr, writeTo);
 	}
 
-	public void writeFinalExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
+	public void writeFinalExpr(Map<String, VarInSource> substs, Object expr, HSIEBlock writeTo) {
 		if (!convertedValues.containsKey(expr))
 			throw new UtilException("There is no return value for " + expr);
 		LocatedObject lo = convertedValues.get(expr);
 		writeTo.doReturn(lo.loc, lo.obj, closureDependencies(lo.obj));
 	}
 
-	public List<CreationOfVar> closureDependencies(Object var) {
-		List<CreationOfVar> ret = new ArrayList<CreationOfVar>();
+	public List<VarInSource> closureDependencies(Object var) {
+		List<VarInSource> ret = new ArrayList<VarInSource>();
 		closeDependencies(ret, var);
 		return ret;
 	}
 
-	private void closeDependencies(List<CreationOfVar> ret, Object var) {
+	private void closeDependencies(List<VarInSource> ret, Object var) {
 		ClosureCmd clos = null;
 		if (var instanceof Var)
 			clos = form.getClosure((Var)var);
-		else if (var instanceof CreationOfVar)
-			clos = form.getClosure(((CreationOfVar)var).var);
+		else if (var instanceof VarInSource)
+			clos = form.getClosure(((VarInSource)var).var);
 
 		if (clos == null)
 			return;
 
-		for (CreationOfVar cv : clos.depends)
+		for (VarInSource cv : clos.depends)
 			if (!ret.contains(cv)) {
 				closeDependencies(ret, cv);
 				if (ret.contains(cv))

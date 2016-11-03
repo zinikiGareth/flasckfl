@@ -36,7 +36,7 @@ import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -273,7 +273,7 @@ public class TypeChecker {
 			return null;
 		// then we need to build an expr tv0 -> tv1 -> tv2 -> E with all the vars substituted
 		for (int i=hsie.nformal-1;i>=0;i--) {
-			CreationOfVar myarg = new CreationOfVar(hsie.vars.get(i), null, "??");
+			VarInSource myarg = new VarInSource(hsie.vars.get(i), null, "??");
 			Object tv = s.gamma.valueOf(myarg).typeExpr;
 			rhs = new TypeExpr(new GarneredFrom(hsie.fnName, i, hsie.location), Type.builtin(new InputPosition("->", 0,0,null), "->"), s.phi.subst(tv), rhs);
 		}
@@ -297,7 +297,7 @@ public class TypeChecker {
 			else if (o instanceof Switch) {
 				Switch sw = (Switch) o;
 				String scname = sw.ctor;
-				TypeScheme valueOf = s.gamma.valueOf(new CreationOfVar(sw.var, null, "??"));
+				TypeScheme valueOf = s.gamma.valueOf(new VarInSource(sw.var, null, "??"));
 				if (scname.equals("Number") || scname.equals("Boolean") || scname.equals("String")) {
 					s.phi.unify(valueOf.typeExpr, new TypeExpr(new GarneredFrom(sw.location), this.knowledge.get(scname)));
 					returns.add(checkBlock(sft, s, form, sw));

@@ -14,7 +14,7 @@ import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
@@ -120,7 +120,7 @@ public class ApplyCurry {
 				oclos.push(pc.location, t.arity());
 			} else
 				oclos.push(pc.location, pc.fn);
-			r.inside.nestedCommands().set(r.pos, new PushVar(pc.location, new CreationOfVar(oclos.var, null, null)));
+			r.inside.nestedCommands().set(r.pos, new PushVar(pc.location, new VarInSource(oclos.var, null, null)));
 			Var myVar = ((ClosureCmd)r.inside).var;
 			updateAllReturnCommands(h, myVar, oclos.var);
 		}
@@ -138,7 +138,7 @@ public class ApplyCurry {
 //		System.out.println("Adding " + newClos + " to " + rc + " before " + before);
 		int at = -1;
 		if (rc.var.var == before) {
-			rc.deps.add(new CreationOfVar(newClos, null, null));
+			rc.deps.add(new VarInSource(newClos, null, null));
 		} else {
 			for (int i=0;i<rc.deps.size();i++)
 				if (rc.deps.get(i).var == before) {
@@ -147,7 +147,7 @@ public class ApplyCurry {
 				}
 			if (at == -1)
 				throw new UtilException("Did not find " + before + " in " + rc.deps);
-			rc.deps.add(at, new CreationOfVar(newClos, null, null));
+			rc.deps.add(at, new VarInSource(newClos, null, null));
 		}
 	}
 

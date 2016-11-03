@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
@@ -20,7 +20,7 @@ public class TypeEnvironment {
 		return ret;
 	}
 
-	public TypeScheme valueOf(CreationOfVar var) {
+	public TypeScheme valueOf(VarInSource var) {
 		if (!mapping.containsKey(var.var))
 			throw new UtilException("Unbound variable " + var.var);
 		return mapping.get(var.var);

@@ -21,8 +21,8 @@ public class Var {
 			return true;
 		if (obj == null)
 			return false;
-		if (obj instanceof CreationOfVar)
-			obj = ((CreationOfVar)obj).var;
+		if (obj instanceof VarInSource)
+			obj = ((VarInSource)obj).var;
 		if (!(obj instanceof Var))
 			return false;
 		Var other = (Var) obj;

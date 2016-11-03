@@ -29,7 +29,7 @@ import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.CreationOfVar;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
@@ -38,7 +38,7 @@ import org.zinutils.reflection.Reflection;
 public class GenerateClosures {
 	private final ErrorResult errors;
 	private final MetaState ms;
-	private final Map<String, CreationOfVar> substs;
+	private final Map<String, VarInSource> substs;
 	private final Map<String, HSIEForm> forms;
 	private final HSIEForm form;
 
@@ -69,7 +69,7 @@ public class GenerateClosures {
 			ClosureCmd clos = form.createClosure(sv.location);
 			clos.justScoping = true;
 			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
-			ms.mapVar(sv.id, new CreationOfVar(clos.var, sv.location, sv.id));
+			ms.mapVar(sv.id, new VarInSource(clos.var, sv.location, sv.id));
 			map.put(sv.id, clos);
 		}
 		for (VarNestedFromOuterFunctionScope sv : allScoped) {
@@ -100,7 +100,7 @@ public class GenerateClosures {
 
 	private void pushThing(MetaState ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
 		if (map.containsKey(i.id)) {
-			CreationOfVar cov = new CreationOfVar(map.get(i.id).var, i.location, i.id);
+			VarInSource cov = new VarInSource(map.get(i.id).var, i.location, i.id);
 			clos.push(i.location, cov);
 			clos.depends.add(cov);
 			return;
@@ -138,7 +138,7 @@ public class GenerateClosures {
 	public LocatedObject process(ApplyExpr expr) {
 		List<LocatedObject> ops = new ArrayList<LocatedObject>();
 		LocatedObject val = dispatch(expr.fn);
-		if (val.obj instanceof CreationOfVar && expr.args.isEmpty()) {
+		if (val.obj instanceof VarInSource && expr.args.isEmpty()) {
 			return val;
 		}
 		ops.add(val);
@@ -150,16 +150,16 @@ public class GenerateClosures {
 		for (int i=0;i<ops.size();i++) {
 			LocatedObject o = ops.get(i);
 			closure.push(o.loc, o.obj);
-			if (o.obj instanceof CreationOfVar) {
-				CreationOfVar cov = (CreationOfVar) o.obj;
+			if (o.obj instanceof VarInSource) {
+				VarInSource cov = (VarInSource) o.obj;
 				ClosureCmd c2 = form.getClosure(cov.var);
 				if (c2 != null) {
 					closure.depends.addAll(c2.depends);
-					closure.depends.add((CreationOfVar) o.obj);
+					closure.depends.add((VarInSource) o.obj);
 				}
 			}
 		}
-		return new LocatedObject(expr.location, new CreationOfVar(closure.var, expr.location, "clos" + closure.var.idx));
+		return new LocatedObject(expr.location, new VarInSource(closure.var, expr.location, "clos" + closure.var.idx));
 	}
 
 	public LocatedObject process(PackageVar pv) {
@@ -229,7 +229,7 @@ public class GenerateClosures {
 	// 20016-11-03: Note that this is not currently in any of our test cases
 	public LocatedObject process(CastExpr ce) {
 		LocatedObject lo = dispatch(ce.expr);
-		CreationOfVar cv = (CreationOfVar) lo.obj;
+		VarInSource cv = (VarInSource) lo.obj;
 		HSIEBlock closure = form.getClosure(cv.var);
 		closure.downcastType = (Type) ((PackageVar)ce.castTo).defn;
 		return lo;
@@ -237,7 +237,7 @@ public class GenerateClosures {
 	
 	public LocatedObject process(TypeCheckMessages tcm) {
 		LocatedObject lo = dispatch(tcm.expr);
-		CreationOfVar cv = (CreationOfVar) lo.obj;
+		VarInSource cv = (VarInSource) lo.obj;
 		ClosureCmd closure = form.getClosure(cv.var);
 		closure.typecheckMessages = true;
 		return lo;
@@ -245,8 +245,8 @@ public class GenerateClosures {
 	
 	public LocatedObject process(AssertTypeExpr ate) {
 		LocatedObject conv = dispatch(ate.expr);
-		if (conv.obj instanceof CreationOfVar) { // it's a closure, delegate to typechecker ..
-			CreationOfVar cv = (CreationOfVar) conv.obj;
+		if (conv.obj instanceof VarInSource) { // it's a closure, delegate to typechecker ..
+			VarInSource cv = (VarInSource) conv.obj;
 			ClosureCmd closure = form.getClosure(cv.var);
 			closure.assertType = ate.type;
 			return conv;

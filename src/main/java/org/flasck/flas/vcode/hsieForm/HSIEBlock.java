@@ -39,19 +39,19 @@ public class HSIEBlock {
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(InputPosition loc, CreationOfVar var) {
+	public HSIEBlock ifCmd(InputPosition loc, VarInSource var) {
 		IFCmd ret = new IFCmd(loc, var);
 		commands.add(ret);
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(InputPosition loc, CreationOfVar v, Object value) {
+	public HSIEBlock ifCmd(InputPosition loc, VarInSource v, Object value) {
 		IFCmd ret = new IFCmd(loc, v, value);
 		commands.add(ret);
 		return ret;
 	}
 
-	public HSIEBlock ifCmd(InputPosition loc, CreationOfVar v, boolean value) {
+	public HSIEBlock ifCmd(InputPosition loc, VarInSource v, boolean value) {
 		IFCmd ret = new IFCmd(loc, v, value);
 		commands.add(ret);
 		return ret;
@@ -73,8 +73,8 @@ public class HSIEBlock {
 
 	public PushReturn pushAt(InputPosition loc, int pos, Object o) {
 		PushReturn ret;
-		if (o instanceof CreationOfVar)
-			ret = new PushVar(loc, (CreationOfVar)o);
+		if (o instanceof VarInSource)
+			ret = new PushVar(loc, (VarInSource)o);
 		else if (o instanceof Integer)
 			ret = new PushInt(loc, (Integer)o);
 		else if (o instanceof ExternalRef)
@@ -95,12 +95,12 @@ public class HSIEBlock {
 		return ret;
 	}
 
-	public HSIEBlock doReturn(InputPosition loc, Object o, List<CreationOfVar> list) {
+	public HSIEBlock doReturn(InputPosition loc, Object o, List<VarInSource> list) {
 		PushReturn ret;
 		if (o == null)
 			throw new UtilException("Attempt to return null");
-		if (o instanceof CreationOfVar)
-			ret = new PushVar(loc, (CreationOfVar)o, list);
+		if (o instanceof VarInSource)
+			ret = new PushVar(loc, (VarInSource)o, list);
 		else if (o instanceof Integer)
 			ret = new PushInt(loc, (Integer)o);
 		else if (o instanceof StringLiteral)
