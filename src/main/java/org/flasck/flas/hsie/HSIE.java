@@ -74,23 +74,23 @@ public class HSIE {
 		HSIEForm ret = forms.get(defn.name);
 		if (ret == null)
 			throw new UtilException("There is no form for " + defn.name);
-		MetaState ms = new MetaState(ret);
-		GenerateClosures gc = new GenerateClosures(errors, ms, forms, ret);
+		CurrentFunction cf = new CurrentFunction(ret);
+		GenerateClosures gc = new GenerateClosures(errors, cf, forms, ret);
 		if (defn.nargs() == 0) {
 			if (defn.cases.size() != 1)
 				throw new UtilException("Constants can only have one case");
-			ms.addExpr(defn.cases.get(0).expr);
+			cf.expressions.addExpr(defn.cases.get(0).expr);
 			gc.generateExprClosures();
-			ms.writeExpr(ms.form, 0);
+			cf.expressions.writeExpr(cf.substs, cf.form, 0);
 		} else {
 			// build a state with the current set of variables and the list of patterns => expressions that they deal with
-			ms.add(buildFundamentalState(ms, ret, defn.nargs(), defn.cases));
+			cf.branching.add(buildFundamentalState(cf, defn));
 			gc.generateScopingClosures();
 			gc.generateExprClosures();
 			try {
-				while (!ms.allDone()) {
-					State f = ms.first();
-					recurse(ms, f);
+				while (!cf.branching.allDone()) {
+					State f = cf.branching.first();
+					recurse(cf, f);
 				}
 			} catch (HSIEException ex) {
 				errors.message(ex.where, ex.msg);
@@ -98,54 +98,54 @@ public class HSIE {
 		}
 	}
 
-	private State buildFundamentalState(MetaState ms, HSIEForm form, int nargs, List<RWFunctionCaseDefn> cases) {
-		State s = new State(form);
+	private State buildFundamentalState(CurrentFunction ms, RWFunctionDefinition defn) {
+		State s = new State(ms.form);
 		List<Var> formals = new ArrayList<Var>();
-		for (int i=0;i<nargs;i++)
+		for (int i=0;i<defn.nargs;i++)
 			formals.add(ms.allocateVar());
 		Map<Object, Integer> exprs = new HashMap<Object, Integer>();
-		for (RWFunctionCaseDefn c : cases) {
+		for (RWFunctionCaseDefn c : defn.cases) {
 			createSubsts(ms, c.caseName(), c.args(), formals, c.expr);
-			exprs.put(c, ms.exprs().size());
-			ms.addExpr(c.expr);
+			exprs.put(c, ms.expressions.exprs().size());
+			ms.expressions.addExpr(c.expr);
 		}
-		for (int i=0;i<nargs;i++) {
-			for (RWFunctionCaseDefn c : cases) {
+		for (int i=0;i<defn.nargs;i++) {
+			for (RWFunctionCaseDefn c : defn.cases) {
 				s.associate(formals.get(i), c.args().get(i), exprs.get(c));
 			}
 		}
 		return s;
 	}
 
-	private void createSubsts(MetaState ms, String methName, List<Object> args, List<Var> formals, Object expr) {
+	private void createSubsts(CurrentFunction cf, String methName, List<Object> args, List<Var> formals, Object expr) {
 		for (int i=0;i<args.size();i++) {
 			Object arg = args.get(i);
 			if (arg instanceof RWVarPattern) {
 				RWVarPattern vp = (RWVarPattern) arg;
 				String called = vp.var;
-				ms.subst(called, new VarInSource(formals.get(i), vp.varLoc, called));
+				cf.subst(called, new VarInSource(formals.get(i), vp.varLoc, called));
 			} else if (arg instanceof RWConstructorMatch)
-				ctorSub((RWConstructorMatch) arg, ms, formals.get(i), expr);
+				ctorSub((RWConstructorMatch) arg, cf, formals.get(i), expr);
 			else if (arg instanceof ConstPattern)
 				;
 			else if (arg instanceof RWTypedPattern) {
 				RWTypedPattern tp = (RWTypedPattern) arg;
 				String called = tp.var;
-				ms.subst(called, new VarInSource(formals.get(i), tp.varLocation, called));
+				cf.subst(called, new VarInSource(formals.get(i), tp.varLocation, called));
 			} else
 				throw new UtilException("Not substituting into " + arg.getClass());
 		}
 	}
 
-	private void ctorSub(RWConstructorMatch cm, MetaState ms, Var from, Object expr) {
+	private void ctorSub(RWConstructorMatch cm, CurrentFunction cf, Var from, Object expr) {
 		for (Field x : cm.args) {
-			Var v = ms.varFor(from, x.field);
+			Var v = cf.branching.varFor(from, x.field);
 			if (x.patt instanceof RWVarPattern) {
 				RWVarPattern vp = (RWVarPattern)x.patt;
 				String called = vp.var;
-				ms.subst(called, new VarInSource(v, vp.varLoc, called));
+				cf.subst(called, new VarInSource(v, vp.varLoc, called));
 			} else if (x.patt instanceof RWConstructorMatch)
-				ctorSub((RWConstructorMatch)x.patt, ms, v, expr);
+				ctorSub((RWConstructorMatch)x.patt, cf, v, expr);
 			else if (x.patt instanceof ConstPattern)
 				;
 			else
@@ -154,7 +154,7 @@ public class HSIE {
 		}
 	}
 
-	private void recurse(MetaState ms, State s) {
+	private void recurse(CurrentFunction ms, State s) {
 		logger.info("Recursing with state " + s);
 //		System.out.println("------ Entering recurse");
 		Table t = buildDecisionTable(s);
@@ -173,7 +173,7 @@ public class HSIE {
 			t.remove(o);
 		if (!needChoice) {
 			logger.info("There is no choice remaining: " + s);
-			evalExpr(ms, s, null);
+			ms.expressions.evalExpr(ms.substs, s, null);
 			return;
 		}
 //		t.dump();
@@ -204,7 +204,7 @@ public class HSIE {
 			logger.info("After selecting " + elim.var + " as " + ctor + ", state is " + s1);
 			Map<String, Var> mapFieldNamesToVars = new TreeMap<String, Var>();
 			for (Field b : binds) {
-				Var v = ms.varFor(elim.var, b.field);
+				Var v = ms.branching.varFor(elim.var, b.field);
 				blk.bindCmd(b.location, v, elim.var, b.field);
 				mapFieldNamesToVars.put(b.field, v);
 			}
@@ -225,7 +225,7 @@ public class HSIE {
 					for (Field b : binds) {
 						Object patt = nb.matchField(b.field);
 						if (patt != null) {
-							s1.associate(ms.varFor(elim.var, b.field), patt, nb.expr);
+							s1.associate(ms.branching.varFor(elim.var, b.field), patt, nb.expr);
 						}
 					}
 					wantS1 = true;
@@ -274,28 +274,17 @@ public class HSIE {
 		return possibles;
 	}
 
-	private void addState(MetaState ms, State s, Set<Integer> mycases) {
+	private void addState(CurrentFunction cf, State s, Set<Integer> mycases) {
 		if (s.hasNeeds()) {
 //			System.out.println("Adding state ---");
 //			s.dump();
 //			System.out.println("---");
-			ms.allStates.add(s);
+			cf.branching.allStates.add(s);
 		} else {
 //			System.out.println("Resolving to ---");
 //			s.dump();
 //			System.out.println("---");
-			evalExpr(ms, s, mycases);
-		}
-	}
-
-	private void evalExpr(MetaState ms, State s, Set<Integer> mycases) {
-		Integer e = s.singleExpr(mycases);
-//		System.out.println("Have expr " + e);
-		if (e != null) {
-			ms.writeExpr(s.writeTo, e);
-		} else {
-			if (s.writeTo instanceof HSIEForm)
-				s.writeTo.caseError();
+			cf.expressions.evalExpr(cf.substs, s, mycases);
 		}
 	}
 

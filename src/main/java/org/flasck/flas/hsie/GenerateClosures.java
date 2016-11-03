@@ -37,15 +37,17 @@ import org.zinutils.reflection.Reflection;
 
 public class GenerateClosures {
 	private final ErrorResult errors;
-	private final MetaState ms;
+	private final CurrentFunction cf;
+	private final Expressions ms;
 	private final Map<String, VarInSource> substs;
 	private final Map<String, HSIEForm> forms;
 	private final HSIEForm form;
 
-	public GenerateClosures(ErrorResult errors, MetaState ms, Map<String, HSIEForm> forms, HSIEForm form) {
+	public GenerateClosures(ErrorResult errors, CurrentFunction cf, Map<String, HSIEForm> forms, HSIEForm form) {
 		this.errors = errors;
-		this.ms = ms;
-		this.substs = ms.substs;
+		this.cf = cf;
+		this.ms = cf.expressions;
+		this.substs = cf.substs;
 		this.forms = forms;
 		this.form = form;
 	}
@@ -69,7 +71,7 @@ public class GenerateClosures {
 			ClosureCmd clos = form.createClosure(sv.location);
 			clos.justScoping = true;
 			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
-			ms.mapVar(sv.id, new VarInSource(clos.var, sv.location, sv.id));
+			cf.mapVar(sv.id, new VarInSource(clos.var, sv.location, sv.id));
 			map.put(sv.id, clos);
 		}
 		for (VarNestedFromOuterFunctionScope sv : allScoped) {
@@ -98,7 +100,7 @@ public class GenerateClosures {
 			generateClosure(expr);
 	}
 
-	private void pushThing(MetaState ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
+	private void pushThing(Expressions ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
 		if (map.containsKey(i.id)) {
 			VarInSource cov = new VarInSource(map.get(i.id).var, i.location, i.id);
 			clos.push(i.location, cov);
@@ -107,7 +109,7 @@ public class GenerateClosures {
 		}
 		if (form.isDefinedByMe(i)) {
 			if (i.defn instanceof LocalVar) {
-				clos.push(i.location, ms.getSubst(((LocalVar)i.defn).uniqueName()));
+				clos.push(i.location, cf.getSubst(((LocalVar)i.defn).uniqueName()));
 			} else if (i.defn instanceof RWHandlerImplements) {
 				// if it needs args, it will have been added to "map"
 				clos.push(i.location, new PackageVar(i.location, i.id, null));

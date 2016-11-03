@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.LocatedObject;
@@ -16,62 +17,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
-public class MetaState {
+public class Expressions {
 	static final Logger logger = LoggerFactory.getLogger("HSIE");
 
-	public final HSIEForm form;
+	private final HSIEForm form;
 	private final List<Object> exprs = new ArrayList<Object>();
-	final List<State> allStates = new ArrayList<State>();
-	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<Object, LocatedObject> convertedValues = new HashMap<Object, LocatedObject>();
-	public final Map<String, VarInSource> substs = new HashMap<String, VarInSource>();
 
-	public MetaState(HSIEForm form) {
+	public Expressions(HSIEForm form) {
 		this.form = form;
-	}
-
-	public void add(State s) {
-		allStates.add(s);
-	}
-
-	public boolean allDone() {
-		return allStates.isEmpty();
-	}
-
-	public State first() {
-		return allStates.remove(0);
-	}
-
-	public Var allocateVar() {
-		return form.allocateVar();
-	}
-
-	public Var varFor(Var from, String field) {
-		if (!fieldVars.containsKey(from))
-			fieldVars.put(from, new HashMap<String, Var>());
-		if (!fieldVars.get(from).containsKey(field))
-			fieldVars.get(from).put(field, allocateVar());
-		Var ret = fieldVars.get(from).get(field);
-//		System.out.println("Allocating " + ret + " for " + from + "." + field);
-		return ret;
 	}
 
 	public void addExpr(Object expr) {
 		exprs.add(expr);
 	}
 
-	public void subst(String varToSubst, VarInSource var) {
-		if (substs.containsKey(varToSubst))
-			throw new HSIEException(var.loc, "duplicate var in patterns: " + varToSubst);
-		MetaState.logger.info("Defining " + varToSubst + " as " + var);
-		substs.put(varToSubst, var);
+	public void evalExpr(Map<String, VarInSource> substs, State s, Set<Integer> mycases) {
+		Integer e = s.singleExpr(mycases);
+//		System.out.println("Have expr " + e);
+		if (e != null) {
+			writeExpr(substs, s.writeTo, e);
+		} else {
+			if (s.writeTo instanceof HSIEForm)
+				s.writeTo.caseError();
+		}
 	}
 
-	public void mapVar(String id, VarInSource cov) {
-		substs.put(id, cov);
-	}
-
-	public void writeExpr(HSIEBlock writeTo, int expr) {
+	public void writeExpr(Map<String, VarInSource> substs, HSIEBlock writeTo, int expr) {
 		writeIfExpr(substs, exprs.get(expr), writeTo);
 	}
 	
@@ -124,12 +96,6 @@ public class MetaState {
 					throw new UtilException("I suspect this is a cycle");
 				ret.add(cv);
 			}
-	}
-
-	public Object getSubst(String uniqueName) {
-		if (!substs.containsKey(uniqueName))
-			throw new UtilException("There is no var for " + uniqueName);
-		return substs.get(uniqueName);
 	}
 
 	public List<Object> exprs() {
