@@ -5,28 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.LocatedObject;
-import org.flasck.flas.commonBase.NumericLiteral;
-import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.TemplateListVar;
-import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.rewrittenForm.AssertTypeExpr;
-import org.flasck.flas.rewrittenForm.CardFunction;
-import org.flasck.flas.rewrittenForm.CardMember;
-import org.flasck.flas.rewrittenForm.CardStateRef;
-import org.flasck.flas.rewrittenForm.ExternalRef;
-import org.flasck.flas.rewrittenForm.FunctionLiteral;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
-import org.flasck.flas.rewrittenForm.IterVar;
-import org.flasck.flas.rewrittenForm.LocalVar;
-import org.flasck.flas.rewrittenForm.ObjectReference;
-import org.flasck.flas.rewrittenForm.PackageVar;
-import org.flasck.flas.rewrittenForm.TypeCheckMessages;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
-import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -39,7 +19,6 @@ import org.zinutils.exceptions.UtilException;
 public class MetaState {
 	static final Logger logger = LoggerFactory.getLogger("HSIE");
 
-	private final ErrorResult errors;
 	public final HSIEForm form;
 	private final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
 	final List<State> allStates = new ArrayList<State>();
@@ -47,8 +26,7 @@ public class MetaState {
 	private final Map<Object, LocatedObject> convertedValues = new HashMap<Object, LocatedObject>();
 //	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
 
-	public MetaState(ErrorResult errors, HSIEForm form) {
-		this.errors = errors;
+	public MetaState(HSIEForm form) {
 		this.form = form;
 	}
 
