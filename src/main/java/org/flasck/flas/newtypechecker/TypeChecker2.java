@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
@@ -21,6 +22,8 @@ import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker2 {
 	private final ErrorResult errors;
+	// is there a real need to keep these separate?  especially when we are promoting?
+	private final Map<String, TypeInfo> globalKnowledge = new HashMap<String, TypeInfo>();
 	private final Map<String, TypeInfo> localKnowledge = new HashMap<String, TypeInfo>();
 	private int nextTv;
 	
@@ -28,9 +31,10 @@ public class TypeChecker2 {
 		this.errors = errors;
 	}
 
-	public void populateTypes(Rewriter rewriter) {
-		// TODO Auto-generated method stub
-		
+	public void populateTypes(Rewriter rw) {
+		for (RWStructDefn sd : rw.structs.values()) {
+			globalKnowledge.put(sd.uniqueName(), new TypeFunc(sd.fields, sd.uniqueName()));
+		}
 	}
 
 	// Typecheck a set of HSIE forms in parallel ...
@@ -41,6 +45,8 @@ public class TypeChecker2 {
 		nextTv = 1;
 		for (HSIEForm f : forms) {
 			System.out.println("Checking type of " + f.fnName);
+			if (globalKnowledge.containsKey(f.fnName))
+				errors.message(f.location, "duplicate entry for " + f.fnName + " in type checking");
 			localKnowledge.put(f.fnName, nextVar());
 		}
 		
@@ -95,6 +101,9 @@ public class TypeChecker2 {
 		if (cmd instanceof PushExternal) {
 			String name = ((PushExternal)cmd).fn.uniqueName();
 			TypeInfo ret = localKnowledge.get(name);
+			if (ret != null)
+				return ret;
+			ret = globalKnowledge.get(name);
 			if (ret == null) {
 				errors.message(cmd.location, "the name '" + name + "' cannot be resolved for typechecking");
 			}
