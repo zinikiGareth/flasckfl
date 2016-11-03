@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.IfExpr;
@@ -101,8 +100,8 @@ public class MetaState {
 		// First handle the explicit "if" and "let" cases
 		if (expr instanceof IfExpr) {
 			IfExpr ae = (IfExpr) expr;
-			List<InputPosition> elocs = new ArrayList<InputPosition>();
-			HSIEBlock ifCmd = writeTo.ifCmd(ae.location(), (CreationOfVar) convertValue(elocs, substs, ae.guard));
+			LocatedObject lo = convertValue(substs, ae.guard);
+			HSIEBlock ifCmd = writeTo.ifCmd(lo.loc, (CreationOfVar) lo.obj);
 			writeIfExpr(substs, ae.ifExpr, ifCmd);
 			if (ae.elseExpr != null)
 				writeIfExpr(substs, ae.elseExpr, writeTo);
@@ -110,7 +109,6 @@ public class MetaState {
 				writeTo.caseError();
 			return;
 		}
-		
 		writeFinalExpr(substs, expr, writeTo);
 	}
 
@@ -121,123 +119,101 @@ public class MetaState {
 
 	public LocatedObject getValueFor(Map<String, CreationOfVar> substs, Object e) {
 		if (!retValues.containsKey(e)) {
-			List<InputPosition> elocs = new ArrayList<InputPosition>();
-			Object val = convertValue(elocs, substs, e);
-			retValues.put(e, new LocatedObject(elocs.get(0), val));
+			LocatedObject lo = convertValue(substs, e);
+			retValues.put(e, new LocatedObject(lo.loc, lo.obj));
 		}
 		return retValues.get(e);
 	}
 
-	private Object convertValue(List<InputPosition> locs, Map<String, CreationOfVar> substs, Object expr) {
+	private LocatedObject convertValue(Map<String, CreationOfVar> substs, Object expr) {
 		if (expr == null) { // mainly error trapping, but valid in if .. if .. <no else> case
-			locs.add(null);
-			return null;
+			return new LocatedObject(null, null);
 		} else if (expr instanceof NumericLiteral) {
-			locs.add(((NumericLiteral)expr).location);
-			return Integer.parseInt(((NumericLiteral)expr).text); // what about floats?
+			return new LocatedObject(((NumericLiteral)expr).location, Integer.parseInt(((NumericLiteral)expr).text)); // what about floats?
 		} else if (expr instanceof StringLiteral) {
-			locs.add(((StringLiteral)expr).location);
-			return expr;
+			return new LocatedObject(((StringLiteral)expr).location, expr);
 		} else if (expr instanceof FunctionLiteral) {
-			locs.add(((FunctionLiteral)expr).location);
-			return expr;
+			return new LocatedObject(((FunctionLiteral)expr).location, expr);
 		} else if (expr instanceof TemplateListVar) {
-			locs.add(((TemplateListVar)expr).location);
-			return expr;
+			return new LocatedObject(((TemplateListVar)expr).location, expr);
 		} else if (expr instanceof LocalVar) {
-			locs.add(((LocalVar)expr).varLoc);
 			String var = ((LocalVar)expr).uniqueName();
 			if (!substs.containsKey(var))
 				throw new UtilException("How can this be a local var? " + var + " not in " + substs);
-			return substs.get(var);
+			return new LocatedObject(((LocalVar)expr).varLoc, substs.get(var));
 		} else if (expr instanceof IterVar) {
-			locs.add(((IterVar)expr).location);
 			String var = ((IterVar)expr).var;
 			if (!substs.containsKey(var))
 				throw new UtilException("How can this be an iter var? " + var + " not in " + substs);
-			return substs.get(var);
+			return new LocatedObject(((IterVar)expr).location, substs.get(var));
 		} else if (expr instanceof PackageVar) {
 			// a package var is a reference to an absolute something that is referenced by its full scope
 			PackageVar pv = (PackageVar)expr;
-			locs.add(pv.location);
-			return expr;
+			return new LocatedObject(pv.location, expr);
 		} else if (expr instanceof VarNestedFromOuterFunctionScope) {
 			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;
-			locs.add(sv.location);
 			String var = sv.id;
 			if (!sv.definedLocally) {
-				return sv;
+				return new LocatedObject(sv.location, sv);
 			}
 			if (substs.containsKey(var))
-				return substs.get(var);
+				return new LocatedObject(sv.location, substs.get(var));
 			throw new UtilException("Scoped var " + var + " not in " + substs + " for " + form.fnName);
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
-			locs.add(((ExternalRef)expr).location());
-			return expr;
+			return new LocatedObject(((ExternalRef)expr).location(), expr);
 		} else if (expr instanceof CardMember) {
-			locs.add(((ExternalRef)expr).location());
-			return expr;
+			return new LocatedObject(((CardMember)expr).location(), expr);
 		} else if (expr instanceof CardStateRef) {
-			locs.add(((CardStateRef)expr).location());
-			return expr;
+			return new LocatedObject(((CardStateRef)expr).location(), expr);
 		} else if (expr instanceof HandlerLambda) {
-			locs.add(((ExternalRef)expr).location());
-			return expr;
+			return new LocatedObject(((ExternalRef)expr).location(), expr);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr e2 = (ApplyExpr) expr;
-			List<Object> ops = new ArrayList<Object>();
-			List<InputPosition> elocs = new ArrayList<InputPosition>();
-			Object val = convertValue(elocs, substs, e2.fn);
-			if (val instanceof CreationOfVar && e2.args.isEmpty()) {
-				locs.add(e2.location);
+			List<LocatedObject> ops = new ArrayList<LocatedObject>();
+			LocatedObject val = convertValue(substs, e2.fn);
+			if (val.obj instanceof CreationOfVar && e2.args.isEmpty()) {
 				return val;
 			}
 			ops.add(val);
-			for (Object o : e2.args)
-				ops.add(convertValue(elocs, substs, o));
+			for (Object o : e2.args) {
+				ops.add(convertValue(substs, o));
+			}
 			// TODO: check this doesn't already exist
 			ClosureCmd closure = form.createClosure(e2.location);
 			List<CreationOfVar> mydeps = new ArrayList<CreationOfVar>();
-			if (ops.size() != elocs.size())
-				throw new UtilException("Misplaced location or operation: " +  elocs.size() + " != " + ops.size());
 			for (int i=0;i<ops.size();i++) {
-				Object o = ops.get(i);
-				if (elocs.get(i) == null) {
-					System.out.println("Failed to find location for " + i + " in:");
-					System.out.println("   -> " + e2);
-					System.out.println("   -> " + ops);
-					System.out.println("   -> " + elocs);
-				}
-				closure.push(elocs.get(i), o);
-				if (o instanceof CreationOfVar && closureDepends.containsKey(o) && !mydeps.contains(o)) {
-					mydeps.addAll(closureDepends.get(o));
-					mydeps.add((CreationOfVar) o);
+				LocatedObject o = ops.get(i);
+				closure.push(o.loc, o.obj);
+				if (o.obj instanceof CreationOfVar && closureDepends.containsKey(o.obj) && !mydeps.contains(o.obj)) {
+					mydeps.addAll(closureDepends.get(o.obj));
+					mydeps.add((CreationOfVar) o.obj);
 				}
 			}
-			locs.add(e2.location);
 			closureDepends.put(closure.var, mydeps);
-			return new CreationOfVar(closure.var, e2.location, "clos" + closure.var.idx);
+			return new LocatedObject(e2.location, new CreationOfVar(closure.var, e2.location, "clos" + closure.var.idx));
 		} else if (expr instanceof CastExpr) {
 			CastExpr ce = (CastExpr) expr;
-			CreationOfVar cv = (CreationOfVar) convertValue(locs, substs, ce.expr);
+			LocatedObject lo = convertValue(substs, ce.expr);
+			CreationOfVar cv = (CreationOfVar) lo.obj;
 			HSIEBlock closure = form.getClosure(cv.var);
 			closure.downcastType = (Type) ((PackageVar)ce.castTo).defn;
-			return cv;
+			return lo;
 		} else if (expr instanceof TypeCheckMessages) {
 			TypeCheckMessages tcm = (TypeCheckMessages) expr;
-			CreationOfVar cv = (CreationOfVar) convertValue(locs, substs, tcm.expr);
+			LocatedObject lo = convertValue(substs, tcm.expr);
+			CreationOfVar cv = (CreationOfVar) lo.obj;
 			ClosureCmd closure = form.getClosure(cv.var);
 			closure.typecheckMessages = true;
-			return cv;
+			return lo;
 		} else if (expr instanceof AssertTypeExpr) {
 			AssertTypeExpr ate = (AssertTypeExpr) expr;
-			Object conv = convertValue(locs, substs, ate.expr);
-			if (conv instanceof CreationOfVar) { // it's a closure, delegate to typechecker ..
-				CreationOfVar cv = (CreationOfVar) conv;
+			LocatedObject conv = convertValue(substs, ate.expr);
+			if (conv.obj instanceof CreationOfVar) { // it's a closure, delegate to typechecker ..
+				CreationOfVar cv = (CreationOfVar) conv.obj;
 				ClosureCmd closure = form.getClosure(cv.var);
 				closure.assertType = ate.type;
-				return cv;
-			} else if (conv instanceof StringLiteral) {
+				return conv;
+			} else if (conv.obj instanceof StringLiteral) {
 				if (!ate.type.name().equals("String")) {
 					errors.message(ate.location(), "cannot assign a string to " + ate.type.name());
 				}
