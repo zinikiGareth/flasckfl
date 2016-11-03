@@ -13,18 +13,12 @@ import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
-import org.flasck.flas.rewrittenForm.LocalVar;
-import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
-import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -81,101 +75,27 @@ public class HSIE {
 		if (ret == null)
 			throw new UtilException("There is no form for " + defn.name);
 		MetaState ms = new MetaState(ret);
+		GenerateClosures gc = new GenerateClosures(errors, ms, forms, ret);
 		if (defn.nargs() == 0) {
-			handleConstant(ms, ret, defn);
-			return;
-		}
-		// build a state with the current set of variables and the list of patterns => expressions that they deal with
-		ms.add(buildFundamentalState(ms, ret, defn.nargs(), defn.cases));
-		generateScopingClosures(ms, ret, defn);
-		generateExprClosures(ms, ret, defn);
-		try {
-			while (!ms.allDone()) {
-				State f = ms.first();
-				recurse(ms, f);
-			}
-		} catch (HSIEException ex) {
-			errors.message(ex.where, ex.msg);
-		}
-	}
-
-	private void generateScopingClosures(MetaState ms, HSIEForm form, RWFunctionDefinition defn) {
-		Set<VarNestedFromOuterFunctionScope> allScoped = GatherExternals.allScopedFrom(forms, form);
-		allScoped.addAll(form.scopedDefinitions);
-		Map<String, ClosureCmd> map = new HashMap<>();
-		for (VarNestedFromOuterFunctionScope sv : allScoped) {
-			if (sv.defn instanceof LocalVar)
-				continue;
-			if (sv.defn instanceof RWHandlerImplements) {
-				boolean needClos = false;
-				RWHandlerImplements hi = (RWHandlerImplements) sv.defn;
-				for (HandlerLambda bv : hi.boundVars) {
-					needClos |= bv.scopedFrom != null;
+			if (defn.cases.size() != 1)
+				throw new UtilException("Constants can only have one case");
+			ms.addExpr(defn.cases.get(0).expr);
+			gc.generateExprClosures();
+			ms.writeExpr(ms.form, 0);
+		} else {
+			// build a state with the current set of variables and the list of patterns => expressions that they deal with
+			ms.add(buildFundamentalState(ms, ret, defn.nargs(), defn.cases));
+			gc.generateScopingClosures();
+			gc.generateExprClosures();
+			try {
+				while (!ms.allDone()) {
+					State f = ms.first();
+					recurse(ms, f);
 				}
-				if (!needClos)
-					continue;
+			} catch (HSIEException ex) {
+				errors.message(ex.where, ex.msg);
 			}
-			ClosureCmd clos = form.createClosure(sv.location);
-			clos.justScoping = true;
-			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
-			ms.mapVar(sv.id, new CreationOfVar(clos.var, sv.location, sv.id));
-			map.put(sv.id, clos);
 		}
-		for (VarNestedFromOuterFunctionScope sv : allScoped) {
-			if (sv.defn instanceof LocalVar)
-				continue;
-			ClosureCmd clos = map.get(sv.id);
-			HSIEForm fn = forms.get(sv.id);
-			if (fn != null /* && fn.scoped.isEmpty() */)  {// The case where there are no scoped vars is degenerate, but easier to deal with like this
-				for (VarNestedFromOuterFunctionScope i : fn.scoped) {
-					pushThing(ms, form, map, clos, i);
-				}
-			} else if (sv.defn instanceof RWHandlerImplements) {
-				RWHandlerImplements hi = (RWHandlerImplements) sv.defn;
-				for (HandlerLambda bv : hi.boundVars) {
-					if (bv.scopedFrom == null)
-						continue;
-					pushThing(ms, form, map, clos, bv.scopedFrom);
-				}
-			} else 
-				throw new UtilException("What is this?" + sv.defn.getClass());
-		}
-	}
-
-	protected void pushThing(MetaState ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
-		if (map.containsKey(i.id)) {
-			CreationOfVar cov = new CreationOfVar(map.get(i.id).var, i.location, i.id);
-			clos.push(i.location, cov);
-			clos.depends.add(cov);
-			return;
-		}
-		if (form.isDefinedByMe(i)) {
-			if (i.defn instanceof LocalVar) {
-				clos.push(i.location, ms.getSubst(((LocalVar)i.defn).uniqueName()));
-			} else if (i.defn instanceof RWHandlerImplements) {
-				// if it needs args, it will have been added to "map"
-				clos.push(i.location, new PackageVar(i.location, i.id, null));
-			}
-			else if (i.defn instanceof RWFunctionDefinition)
-				clos.push(i.location, new PackageVar(i.location, i.id, null));
-			else
-				throw new UtilException("Cannot handle " + i.defn + " of class " + i.defn.getClass());
-		} else
-			clos.push(i.location, i);
-	}
-
-	private void generateExprClosures(MetaState ms, HSIEForm ret, RWFunctionDefinition defn) {
-		GenerateClosures gc = new GenerateClosures(errors, ms, ret);
-		for (Object expr : ms.exprs())
-			gc.generateClosure(expr);
-	}
-
-	private void handleConstant(MetaState ms, HSIEForm form, RWFunctionDefinition defn) {
-		if (defn.cases.size() != 1)
-			throw new UtilException("Constants can only have one case");
-		ms.addExpr(defn.cases.get(0).expr);
-		generateExprClosures(ms, form, defn);
-		ms.writeExpr(ms.form, 0);
 	}
 
 	private State buildFundamentalState(MetaState ms, HSIEForm form, int nargs, List<RWFunctionCaseDefn> cases) {

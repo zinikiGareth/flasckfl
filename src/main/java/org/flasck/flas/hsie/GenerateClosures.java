@@ -1,8 +1,10 @@
 package org.flasck.flas.hsie;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.CastExpr;
@@ -21,6 +23,8 @@ import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
@@ -35,16 +39,88 @@ public class GenerateClosures {
 	private final ErrorResult errors;
 	private final MetaState ms;
 	private final Map<String, CreationOfVar> substs;
+	private final Map<String, HSIEForm> forms;
 	private final HSIEForm form;
 
-	public GenerateClosures(ErrorResult errors, MetaState ms, HSIEForm form) {
+	public GenerateClosures(ErrorResult errors, MetaState ms, Map<String, HSIEForm> forms, HSIEForm form) {
 		this.errors = errors;
 		this.ms = ms;
 		this.substs = ms.substs;
+		this.forms = forms;
 		this.form = form;
 	}
 
-	public void generateClosure(Object expr) {
+	public void generateScopingClosures() {
+		Set<VarNestedFromOuterFunctionScope> allScoped = GatherExternals.allScopedFrom(forms, form);
+		allScoped.addAll(form.scopedDefinitions);
+		Map<String, ClosureCmd> map = new HashMap<>();
+		for (VarNestedFromOuterFunctionScope sv : allScoped) {
+			if (sv.defn instanceof LocalVar)
+				continue;
+			if (sv.defn instanceof RWHandlerImplements) {
+				boolean needClos = false;
+				RWHandlerImplements hi = (RWHandlerImplements) sv.defn;
+				for (HandlerLambda bv : hi.boundVars) {
+					needClos |= bv.scopedFrom != null;
+				}
+				if (!needClos)
+					continue;
+			}
+			ClosureCmd clos = form.createClosure(sv.location);
+			clos.justScoping = true;
+			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
+			ms.mapVar(sv.id, new CreationOfVar(clos.var, sv.location, sv.id));
+			map.put(sv.id, clos);
+		}
+		for (VarNestedFromOuterFunctionScope sv : allScoped) {
+			if (sv.defn instanceof LocalVar)
+				continue;
+			ClosureCmd clos = map.get(sv.id);
+			HSIEForm fn = forms.get(sv.id);
+			if (fn != null /* && fn.scoped.isEmpty() */)  {// The case where there are no scoped vars is degenerate, but easier to deal with like this
+				for (VarNestedFromOuterFunctionScope i : fn.scoped) {
+					pushThing(ms, form, map, clos, i);
+				}
+			} else if (sv.defn instanceof RWHandlerImplements) {
+				RWHandlerImplements hi = (RWHandlerImplements) sv.defn;
+				for (HandlerLambda bv : hi.boundVars) {
+					if (bv.scopedFrom == null)
+						continue;
+					pushThing(ms, form, map, clos, bv.scopedFrom);
+				}
+			} else 
+				throw new UtilException("What is this?" + sv.defn.getClass());
+		}
+	}
+
+	public void generateExprClosures() {
+		for (Object expr : ms.exprs())
+			generateClosure(expr);
+	}
+
+	private void pushThing(MetaState ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
+		if (map.containsKey(i.id)) {
+			CreationOfVar cov = new CreationOfVar(map.get(i.id).var, i.location, i.id);
+			clos.push(i.location, cov);
+			clos.depends.add(cov);
+			return;
+		}
+		if (form.isDefinedByMe(i)) {
+			if (i.defn instanceof LocalVar) {
+				clos.push(i.location, ms.getSubst(((LocalVar)i.defn).uniqueName()));
+			} else if (i.defn instanceof RWHandlerImplements) {
+				// if it needs args, it will have been added to "map"
+				clos.push(i.location, new PackageVar(i.location, i.id, null));
+			}
+			else if (i.defn instanceof RWFunctionDefinition)
+				clos.push(i.location, new PackageVar(i.location, i.id, null));
+			else
+				throw new UtilException("Cannot handle " + i.defn + " of class " + i.defn.getClass());
+		} else
+			clos.push(i.location, i);
+	}
+
+	private void generateClosure(Object expr) {
 		ms.translate(expr, dispatch(expr));
 	}
 
