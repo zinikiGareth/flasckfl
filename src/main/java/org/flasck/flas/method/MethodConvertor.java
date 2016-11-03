@@ -12,7 +12,6 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -44,7 +43,6 @@ import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
-import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.typechecker.TypeOfSomethingElse;
 import org.flasck.flas.typechecker.TypedObject;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -55,18 +53,14 @@ import org.zinutils.exceptions.UtilException;
 public class MethodConvertor {
 	public static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private final ErrorResult errors;
-	private final HSIE hsie;
-//	private final TypeChecker tc;
 	private final Map<String, RWContractDecl> contracts;
 	private final Type messageList;
 
-	public MethodConvertor(ErrorResult errors, HSIE hsie, TypeChecker tc, Map<String, RWContractDecl> contracts) {
+	public MethodConvertor(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
-		this.hsie = hsie;
-//		this.tc = tc;
-		this.contracts = contracts;
+		this.contracts = rw.contracts;
 		InputPosition posn = new InputPosition("builtin", 0, 0, "");
-		this.messageList = tc.getType(posn, "List").instance(posn, tc.getType(null, "Message"));
+		this.messageList = ((Type)rw.getMe(posn, "List").defn).instance(posn, (Type) rw.getMe(posn, "Message").defn);
 	}
 
 	// 1. Main entry points to convert different kinds of things
@@ -85,7 +79,6 @@ public class MethodConvertor {
 			addFunction(functions, convertStandalone(rw, x));
 	}
 
-	// TODO: HSIE: this shouldn't be necessary, as we should just add it earlier ...
 	public void addFunction(Map<String, RWFunctionDefinition> functions, RWFunctionDefinition fd) {
 		if (fd != null) {
 			functions.put(fd.name(), fd);
@@ -145,30 +138,20 @@ public class MethodConvertor {
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
-//		if (ofType != null)
-//			tc.addExternal(m.method.name(), ofType);
 		
 		return ret;
 	}
 
 	public RWFunctionDefinition convertEventHandler(Rewriter rw, String card, RWEventHandlerDefinition eh) {
 		List<Type> types = new ArrayList<Type>();
-//		for (int i=0;i<eh.nargs();i++) {
-//			types.add(tc.getType(null, "Any"));
-//		}
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
 		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, eh.name(), eh.nargs(), true);
-//		Type ofType = null;
 		for (RWEventCaseDefn c : eh.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
-//			if (ofType == null)
-//				ofType = typedObject.type;
 			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, c.intro.vars), ret.cases.size(), typedObject.expr));
 		}
-//		if (ofType != null)
-//			tc.addExternal(eh.name(), ofType);
 		return ret;
 	}
 
@@ -187,17 +170,12 @@ public class MethodConvertor {
 
 		logger.info("Converting standalone " + mic.name);
 		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
-//		Type ofType = null;
 		for (RWMethodCaseDefn c : method.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, mic.type.isHandler());
-//			if (ofType == null)
-//				ofType = typedObject.type;
 			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
 		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, method.name(), margs.size(), true);
 		ret.cases.addAll(cases);
-//		if (ofType != null)
-//			tc.addExternal(method.name(), ofType);
 		return ret;
 	}
 
@@ -314,9 +292,9 @@ public class MethodConvertor {
 					} else
 						throw new UtilException("What is this?" + l.type);
 				} else
-					return handleExprCase(rw, margs, types, root);
+					return new TypeCheckMessages(root.location, root);
 			} else
-				return handleExprCase(rw, margs, types, root);
+				return new TypeCheckMessages(root.location, root);
 		}
 		InputPosition loc = null;
 		if (mm.expr instanceof Locatable)
@@ -399,31 +377,6 @@ public class MethodConvertor {
 			errors.message(slot.location(), "cannot assign directly to an object");
 			return null;
 		}
-		/*
-		if (exprType.name() != null && exprType.name().equals("MessageWrapper"))
-			exprType = exprType.poly(0);
-		if (!slotType.equals(exprType)) {
-			boolean isOK = false;
-			Type foo = slotType;
-			if (slotType.iam == WhatAmI.INSTANCE)
-				foo = slotType.innerType();
-			if (foo instanceof RWUnionTypeDefn) {
-				for (Type t : ((RWUnionTypeDefn)foo).cases) {
-					Type u = t;
-					if (slotType.iam == WhatAmI.INSTANCE)
-						u = t.applyInstanceVarsFrom(slotType);
-					if (u.equals(exprType)) {
-						isOK = true;
-						break;
-					}
-				}
-			}
-			if (!isOK) {
-				errors.message(slot.location(), "cannot assign " + exprType + " to slot of type " + slotType);
-				return null;
-			}
-		}
-		*/
 		return new ApplyExpr(slot.location(), rw.getMe(slot.location(), "Assign"), intoObj, slotName, new AssertTypeExpr(location, slotType, mm.expr));
 	}
 
@@ -467,97 +420,6 @@ public class MethodConvertor {
 		}
 		return new ApplyExpr(sender.location(),	rw.getMe(location, "Send"), sender, method, asList(sender.location(), rw, args));
 	}
-
-	private Object handleExprCase(Rewriter rw, List<Object> margs, List<Type> types, ApplyExpr expr) {
-		/* TODO: HSIE
-		Type t = calculateExprType(margs, types, expr);
-		if (t == null)
-			return null;
-		if (t.iam == WhatAmI.FUNCTION) {
-			errors.message(expr.location, "method expression must be of type Message or List[Message]");
-			return null;
-		}
-		if (t.name().equals("Nil"))
-			return expr;
-		if (t.iam == WhatAmI.INSTANCE) {
-			// to be an instance, it must be a List of one of the types
-			if (!t.name().equals("List") && !t.name().equals("Cons")) {
-				errors.message(expr.location, "method expression must be of type Message or List[Message], not " + t.name());
-				return null;
-			}
-			// if it is a list, check what it's a list of ...
-			t = t.poly(0);
-		}
-		if (t.iam != WhatAmI.STRUCT && t.iam != WhatAmI.UNION) {
-			errors.message(expr.location, "method expression must be of type Message or List[Message], not " + t.name());
-			return null;
-		}
-		String name = t.name();
-		if (!name.equals("Nil") && !name.equals("Message") && !name.equals("Send") && !name.equals("Assign") && !name.equals("CreateCard") && !name.equals("D3Action") && !name.equals("Debug")) {
-			errors.message(expr.location, "expression must be of type Message or List[Message], not " + name);
-			return null;
-		}
-		*/
-		
-		// TODO: HSIE: this is where we need to add the type constraint: typecheck(expr, "Message")
-		return new TypeCheckMessages(expr.location, expr);
-	}
-
-	/* TODO: HSIE
-	protected Type calculateExprType(List<Object> margs, List<Type> types, Object expr) {
-		List<Type> mytypes = new ArrayList<Type>();
-//		System.out.println("Convert method: " + mm.slot + " <- " + mm.expr);
-		List<String> args = new ArrayList<String>();
-		List<InputPosition> locs = new ArrayList<>();
-		for (int i=0;i<margs.size();i++) {
-			Object x = margs.get(i);
-			if (x instanceof RWVarPattern) {
-				mytypes.add(types.get(i));
-				args.add(((RWVarPattern)x).var);
-				locs.add(((RWVarPattern)x).varLoc);
-			} else if (x instanceof RWTypedPattern) {
-				RWTypedPattern tx = (RWTypedPattern)x;
-				args.add(tx.var);
-				Type ty = tx.type;
-				// we have an obligation to check that ty is a sub-type of types.get(i);
-				Type prev = types.get(i);
-				if (prev == null)
-					; // not a lot we can do, but there's probably an error out there somewhere
-				else if (prev.name().equals("Any"))
-					;	// this has to be OK
-				else if (prev.name().equals(ty.name())) {
-					;	// this should be OK - but do we need to consider poly vars?
-				}
-				else {
-					errors.message(tx.typeLocation, "cannot change method type from " + prev.name() + " to " + ty.name());
-				}
-				mytypes.add(ty);
-				locs.add(tx.typeLocation);
-			} else
-				throw new UtilException("Cannot map " + x.getClass());
-		}
-		HSIEForm hs = hsie.handleExprWith(expr, HSIEForm.CodeType.CONTRACT, args);
-		Type ret = tc.checkExpr(hs, mytypes, locs);
-		if (ret != null) {
-//			System.out.println("Returned type was " + ret + " and margs was " + margs);
-			if (!margs.isEmpty()) {
-				if (ret.iam != WhatAmI.FUNCTION)
-					throw new UtilException("Should be function, but isn't");
-				if (ret.arity() > margs.size()) {
-					List<Type> tmp = new ArrayList<>();
-					for (int i=margs.size();i<=ret.arity();i++)
-						tmp.add(ret.arg(i));
-					ret = Type.function(ret.location(), tmp);
-				} else if (ret.arity() < margs.size())
-					throw new UtilException("I don't think this should be possible");
-				else
-					ret = ret.arg(margs.size());
-			}
-//			System.out.println("Type for method message - " + mm.slot + " <- " + mm.expr + " :: " + ret);
-		}
-		return ret;
-	}
-	*/
 
 	private static Object asList(InputPosition loc, Rewriter rw, List<Object> args) {
 		Object ret = rw.getMe(loc, "Nil");

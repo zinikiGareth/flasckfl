@@ -145,7 +145,7 @@ public class MethodConvertorTests {
 		if (checkRewritingErrors)
 			assertFalse(errors.singleString(), errors.hasErrors());
 		tc.populateTypes(rewriter);
-		convertor = new MethodConvertor(errors, hsie, tc, rewriter.contracts);
+		convertor = new MethodConvertor(errors, rewriter);
 	}
 
 	/* ---- Trivial Tests of top level functionality ---- */

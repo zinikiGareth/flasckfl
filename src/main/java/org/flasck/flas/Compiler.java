@@ -285,6 +285,7 @@ public class Compiler {
 		if (failed)
 			return;
 		
+		// 3. Rework any "syntatic sugar" forms into their proper forms
 		new SugarDetox(errors).detox(scope);
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);
@@ -306,12 +307,12 @@ public class Compiler {
 
 			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
 
-			// 2. Prepare Typechecker & load types
+			// 4. Prepare Typechecker & load types
 			TypeChecker tc = new TypeChecker(errors);
 			tc.populateTypes(rewriter);
 			abortIfErrors(errors);
 		
-			// 3. Generate Class Definitions
+			// 5. Generate Class Definitions
 			JSTarget target = new JSTarget(inPkg);
 			Generator gen = new Generator(target);
 
@@ -375,20 +376,20 @@ public class Compiler {
 
 //			System.out.println("defns = " + rewriter.functions.keySet());
 			
-			// 4. Convert methods to functions
-			MethodConvertor mc = new MethodConvertor(errors, hsie, tc, rewriter.contracts);
+			// 6. Convert methods to functions
+			MethodConvertor mc = new MethodConvertor(errors, rewriter);
 			mc.convertContractMethods(rewriter, functions, rewriter.methods);
 			mc.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 			mc.convertStandaloneMethods(rewriter, functions, rewriter.standalone.values());
 			abortIfErrors(errors);
 
-			// 6. Do dependency analysis on functions and group them together in orchards
+			// 7. Do dependency analysis on functions and group them together in orchards
 			List<Orchard<RWFunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(functions);
 			abortIfErrors(errors);
 			
 //			System.out.println("tree = " + defns);
 
-			// 7. Now process each orchard
+			// 8. Now process each orchard
 			//   a. convert functions to HSIE
 			//   b. typechecking
 
@@ -403,40 +404,37 @@ public class Compiler {
 			
 			for (Orchard<RWFunctionDefinition> d : defns) {
 				
-				// 7a. Convert each orchard to HSIE
+				// 8a. Convert each orchard to HSIE
 				Set<HSIEForm> oh = hsie.orchard(d);
 				abortIfErrors(errors);
 				dumpOrchard(hsiePW, oh);
 				
-				// 7b. Typecheck all the methods together
+				// 8b. Typecheck all the methods together
 				tc.typecheck(oh);
 				abortIfErrors(errors);
 			}
 			if (hsiePW != null)
 				hsiePW.close();
 
-			// Now go back and handle all the "special cases" that sit at the top of the tree, such as methods and templates
-
-			// TODO: HSIE: I think this should move up as well
-			// This definitely does NOT want to move up, since it generates JS
-			// It does want the methods generated though ...
-			// 8. Generate code from templates
+			// 9. Generate code from templates
 			final TemplateGenerator tgen = new TemplateGenerator(rewriter, dg);
 			tgen.generate(rewriter, target);
 			
-			// 9. Check whether functions are curried and add in the appropriate indications if so
+			// 10. Check whether functions are curried and add in the appropriate indications if so
 			handleCurrying(curry, tc, hsie.allForms());
 			abortIfErrors(errors);
 
-			// 10. Save learned state for export
+			// 11. Save learned state for export
 			tc.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
 
-			// 11. generation of JSForms
+			// 12. generation of JSForms
 			generateForms(gen, hsie.allForms());
 			dg.generate(hsie.allForms());
 			abortIfErrors(errors);
 
-			// 12a. Issue JavaScript
+			// 13. Write final outputs
+			
+			// 13a. Issue JavaScript
 			try {
 				wjs = new FileWriter(writeTo);
 			} catch (IOException ex) {
@@ -445,7 +443,7 @@ public class Compiler {
 			}
 			target.writeTo(wjs);
 
-			// 12b. Issue Droid
+			// 13b. Issue Droid
 			try {
 				dg.write();
 			} catch (Exception ex) {
