@@ -41,11 +41,9 @@ public class HSIE {
 	static Logger logger = LoggerFactory.getLogger("HSIE");
 	private final ErrorResult errors;
 	private final Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
-	private int exprIdx;
 
 	public HSIE(ErrorResult errors) {
 		this.errors = errors;
-		exprIdx = 0;
 	}
 	
 	public void createForms(Orchard<RWFunctionDefinition> orch) {
@@ -84,9 +82,7 @@ public class HSIE {
 			throw new UtilException("There is no form for " + defn.name);
 		MetaState ms = new MetaState(ret);
 		if (defn.nargs() == 0) {
-			ms.addExpr(new SubstExpr(defn.cases.get(0).expr, exprIdx++));
-			generateExprClosures(ms, ret, defn);
-			handleConstant(ms, defn);
+			handleConstant(ms, ret, defn);
 			return;
 		}
 		// build a state with the current set of variables and the list of patterns => expressions that they deal with
@@ -99,7 +95,7 @@ public class HSIE {
 				recurse(ms, f);
 			}
 		} catch (HSIEException ex) {
-			errors.message(ex.block, ex.msg);
+			errors.message(ex.where, ex.msg);
 		}
 	}
 
@@ -146,13 +142,6 @@ public class HSIE {
 		}
 	}
 
-	private void generateExprClosures(MetaState ms, HSIEForm ret, RWFunctionDefinition defn) {
-		// TODO: I think I would like to centralize all the substs
-		GenerateClosures gc = new GenerateClosures(errors, ms, ret);
-		for (SubstExpr se : ms.substExprs())
-			gc.generateClosure(se.substs, se.expr);
-	}
-
 	protected void pushThing(MetaState ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
 		if (map.containsKey(i.id)) {
 			CreationOfVar cov = new CreationOfVar(map.get(i.id).var, i.location, i.id);
@@ -175,11 +164,18 @@ public class HSIE {
 			clos.push(i.location, i);
 	}
 
-	private HSIEForm handleConstant(MetaState ms, RWFunctionDefinition defn) {
+	private void generateExprClosures(MetaState ms, HSIEForm ret, RWFunctionDefinition defn) {
+		GenerateClosures gc = new GenerateClosures(errors, ms, ret);
+		for (Object expr : ms.exprs())
+			gc.generateClosure(expr);
+	}
+
+	private void handleConstant(MetaState ms, HSIEForm form, RWFunctionDefinition defn) {
 		if (defn.cases.size() != 1)
 			throw new UtilException("Constants can only have one case");
-		ms.writeExpr(ms.substExprs().get(0), ms.form);
-		return ms.form;
+		ms.addExpr(defn.cases.get(0).expr);
+		generateExprClosures(ms, form, defn);
+		ms.writeExpr(ms.form, 0);
 	}
 
 	private State buildFundamentalState(MetaState ms, HSIEForm form, int nargs, List<RWFunctionCaseDefn> cases) {
@@ -187,12 +183,11 @@ public class HSIE {
 		List<Var> formals = new ArrayList<Var>();
 		for (int i=0;i<nargs;i++)
 			formals.add(ms.allocateVar());
-		Map<Object, SubstExpr> exprs = new HashMap<Object, SubstExpr>();
+		Map<Object, Integer> exprs = new HashMap<Object, Integer>();
 		for (RWFunctionCaseDefn c : cases) {
-			SubstExpr ex = new SubstExpr(c.expr, exprIdx++);
-			createSubsts(ms, c.caseName(), c.args(), formals, ex);
-			exprs.put(c, ex);
-			ms.addExpr(ex);
+			createSubsts(ms, c.caseName(), c.args(), formals, c.expr);
+			exprs.put(c, ms.exprs().size());
+			ms.addExpr(c.expr);
 		}
 		for (int i=0;i<nargs;i++) {
 			for (RWFunctionCaseDefn c : cases) {
@@ -202,13 +197,13 @@ public class HSIE {
 		return s;
 	}
 
-	private void createSubsts(MetaState ms, String methName, List<Object> args, List<Var> formals, SubstExpr expr) {
+	private void createSubsts(MetaState ms, String methName, List<Object> args, List<Var> formals, Object expr) {
 		for (int i=0;i<args.size();i++) {
 			Object arg = args.get(i);
 			if (arg instanceof RWVarPattern) {
 				RWVarPattern vp = (RWVarPattern) arg;
 				String called = vp.var;
-				expr.subst(called, new CreationOfVar(formals.get(i), vp.varLoc, called));
+				ms.subst(called, new CreationOfVar(formals.get(i), vp.varLoc, called));
 			} else if (arg instanceof RWConstructorMatch)
 				ctorSub((RWConstructorMatch) arg, ms, formals.get(i), expr);
 			else if (arg instanceof ConstPattern)
@@ -216,19 +211,19 @@ public class HSIE {
 			else if (arg instanceof RWTypedPattern) {
 				RWTypedPattern tp = (RWTypedPattern) arg;
 				String called = tp.var;
-				expr.subst(called, new CreationOfVar(formals.get(i), tp.varLocation, called));
+				ms.subst(called, new CreationOfVar(formals.get(i), tp.varLocation, called));
 			} else
 				throw new UtilException("Not substituting into " + arg.getClass());
 		}
 	}
 
-	private void ctorSub(RWConstructorMatch cm, MetaState ms, Var from, SubstExpr expr) {
+	private void ctorSub(RWConstructorMatch cm, MetaState ms, Var from, Object expr) {
 		for (Field x : cm.args) {
 			Var v = ms.varFor(from, x.field);
 			if (x.patt instanceof RWVarPattern) {
 				RWVarPattern vp = (RWVarPattern)x.patt;
 				String called = vp.var;
-				expr.subst(called, new CreationOfVar(v, vp.varLoc, called));
+				ms.subst(called, new CreationOfVar(v, vp.varLoc, called));
 			} else if (x.patt instanceof RWConstructorMatch)
 				ctorSub((RWConstructorMatch)x.patt, ms, v, expr);
 			else if (x.patt instanceof ConstPattern)
@@ -240,14 +235,15 @@ public class HSIE {
 	}
 
 	private void recurse(MetaState ms, State s) {
+		logger.info("Recursing with state " + s);
 //		System.out.println("------ Entering recurse");
 		Table t = buildDecisionTable(s);
-//		t.dump();
+		t.dump(logger);
 		boolean needChoice = false;
 		List<Option> dulls = new ArrayList<Option>();
 		for (Option o : t) {
 			if (o.dull()) {
-//				System.out.println(o.var + " is dull");
+				logger.info("Eliminating var " + o.var + " which does not reduce choice");
 				s.eliminate(o.var);
 				dulls.add(o);
 			} else
@@ -256,12 +252,13 @@ public class HSIE {
 		for (Option o : dulls)
 			t.remove(o);
 		if (!needChoice) {
+			logger.info("There is no choice remaining: " + s);
 			evalExpr(ms, s, null);
 			return;
 		}
 //		t.dump();
 		Option elim = chooseBest(t);
-//		System.out.println("Choosing cases based on " + elim.var);
+		logger.info("Decided that best switching var is " + elim.var);
 		s.writeTo.head(elim.location, elim.var);
 		CreationOfVar cv = new CreationOfVar(elim.var, null, "ev"+elim.var.idx);
 		for (String ctor : elim.ctorCases) {
@@ -270,18 +267,21 @@ public class HSIE {
 //			ms.form.dependsOn(ctor);
 			HSIEBlock blk = s.writeTo.switchCmd(NestedBinds.firstLocation(list), elim.var, ctor);
 			Set<Field> binds = new TreeSet<Field>();
-			Set<SubstExpr> possibles = new HashSet<SubstExpr>();
-			Set<SubstExpr> mycases = new HashSet<SubstExpr>();
+			Set<Integer> possibles = new HashSet<>();
+			Set<Integer> mycases = new HashSet<>();
 			for (NestedBinds nb : list) {
 				if (nb.args != null) {
 					for (Field f : nb.args)
 						binds.add(f);
 				}
-				possibles.add(nb.substExpr);
-				mycases.add(nb.substExpr);
+				possibles.add(nb.expr);
+				mycases.add(nb.expr);
 			}
+			logger.info("Matching cases = " + mycases);
+			logger.info("Undecided cases = " + elim.undecidedCases);
 			possibles.addAll(elim.undecidedCases);
 			State s1 = s.cloneEliminate(elim.var, blk, possibles);
+			logger.info("After selecting " + elim.var + " as " + ctor + ", state is " + s1);
 			Map<String, Var> mapFieldNamesToVars = new TreeMap<String, Var>();
 			for (Field b : binds) {
 				Var v = ms.varFor(elim.var, b.field);
@@ -291,7 +291,7 @@ public class HSIE {
 			boolean wantS1 = false;
 			for (NestedBinds nb : orderIfs(list)) {
 				if (nb.ifConst != null) {
-//					System.out.println("Handling constant " + nb.ifConst.value);
+					logger.info("Handling constant " + nb.ifConst.value);
 					HSIEBlock inner;
 					if (nb.ifConst.type == ConstPattern.INTEGER)
 						inner = blk.ifCmd(nb.location, cv, Integer.parseInt(nb.ifConst.value));
@@ -300,16 +300,12 @@ public class HSIE {
 					else
 						throw new UtilException("Cannot handle " + nb.ifConst);
 					State s3 = s1.duplicate(inner);
-//					System.out.println("---");
-//					s3.dump();
-//					System.out.println("---");
-					
 					addState(ms, s3, casesForConst(list, nb.ifConst.value));
 				} else {
 					for (Field b : binds) {
 						Object patt = nb.matchField(b.field);
 						if (patt != null) {
-							s1.associate(ms.varFor(elim.var, b.field), patt, nb.substExpr);
+							s1.associate(ms.varFor(elim.var, b.field), patt, nb.expr);
 						}
 					}
 					wantS1 = true;
@@ -319,8 +315,10 @@ public class HSIE {
 				addState(ms, s1, mycases);
 		}
 		{
-//			System.out.println(elim.var + " is none of the above");
-			addState(ms, s.cloneEliminate(elim.var, s.writeTo, elim.undecidedCases), elim.undecidedCases);
+			System.out.println(elim.var + " is none of the above");
+			State elimState = s.cloneEliminate(elim.var, s.writeTo, elim.undecidedCases);
+			logger.info("After eliminating " + elim.var + ", state is " + elimState);
+			addState(ms, elimState, elim.undecidedCases);
 		}
 	}
 
@@ -347,16 +345,16 @@ public class HSIE {
 		return ret;
 	}
 
-	private Set<SubstExpr> casesForConst(List<NestedBinds> nbs, String value) {
-		Set<SubstExpr> possibles = new HashSet<SubstExpr>();
+	private Set<Integer> casesForConst(List<NestedBinds> nbs, String value) {
+		Set<Integer> possibles = new HashSet<>();
 		for (NestedBinds nb : nbs) {
 			if (nb.ifConst == null || nb.ifConst.value.equals(value))
-				possibles.add(nb.substExpr);
+				possibles.add(nb.expr);
 		}
 		return possibles;
 	}
 
-	private void addState(MetaState ms, State s, Set<SubstExpr> mycases) {
+	private void addState(MetaState ms, State s, Set<Integer> mycases) {
 		if (s.hasNeeds()) {
 //			System.out.println("Adding state ---");
 //			s.dump();
@@ -370,11 +368,11 @@ public class HSIE {
 		}
 	}
 
-	private void evalExpr(MetaState ms, State s, Set<SubstExpr> mycases) {
-		SubstExpr e = s.singleExpr(mycases);
+	private void evalExpr(MetaState ms, State s, Set<Integer> mycases) {
+		Integer e = s.singleExpr(mycases);
 //		System.out.println("Have expr " + e);
 		if (e != null) {
-			ms.writeExpr(e, s.writeTo);
+			ms.writeExpr(s.writeTo, e);
 		} else {
 			if (s.writeTo instanceof HSIEForm)
 				s.writeTo.caseError();
@@ -385,7 +383,7 @@ public class HSIE {
 		Table t = new Table();
 		for (Entry<Var, PattExpr> e : s) {
 			Option o = t.createOption(e.getValue().firstLocation(), e.getKey());
-			for (Entry<Object, SubstExpr> pe : e.getValue()) {
+			for (Entry<Object, Integer> pe : e.getValue()) {
 				Object patt = pe.getKey();
 				if (patt instanceof RWVarPattern) {
 					o.anything(pe.getValue(), ((RWVarPattern)patt).var);

@@ -20,11 +20,11 @@ public class MetaState {
 	static final Logger logger = LoggerFactory.getLogger("HSIE");
 
 	public final HSIEForm form;
-	private final List<SubstExpr> exprs = new ArrayList<SubstExpr>();
+	private final List<Object> exprs = new ArrayList<Object>();
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<Object, LocatedObject> convertedValues = new HashMap<Object, LocatedObject>();
-//	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
+	public final Map<String, CreationOfVar> substs = new HashMap<String, CreationOfVar>();
 
 	public MetaState(HSIEForm form) {
 		this.form = form;
@@ -56,17 +56,23 @@ public class MetaState {
 		return ret;
 	}
 
-	public void addExpr(SubstExpr ex) {
-		exprs.add(ex);
+	public void addExpr(Object expr) {
+		exprs.add(expr);
+	}
+
+	public void subst(String varToSubst, CreationOfVar var) {
+		if (substs.containsKey(varToSubst))
+			throw new HSIEException(var.loc, "duplicate var in patterns: " + varToSubst);
+		MetaState.logger.info("Defining " + varToSubst + " as " + var);
+		substs.put(varToSubst, var);
 	}
 
 	public void mapVar(String id, CreationOfVar cov) {
-		for (SubstExpr se : exprs)
-			se.substs.put(id, cov);
+		substs.put(id, cov);
 	}
 
-	public void writeExpr(SubstExpr se, HSIEBlock writeTo) {
-		writeIfExpr(se.substs, se.expr, writeTo);
+	public void writeExpr(HSIEBlock writeTo, int expr) {
+		writeIfExpr(substs, exprs.get(expr), writeTo);
 	}
 	
 	private void writeIfExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
@@ -89,7 +95,6 @@ public class MetaState {
 	}
 
 	public void writeFinalExpr(Map<String, CreationOfVar> substs, Object expr, HSIEBlock writeTo) {
-		System.out.println("expr = " + expr.getClass());
 		if (!convertedValues.containsKey(expr))
 			throw new UtilException("There is no return value for " + expr);
 		LocatedObject lo = convertedValues.get(expr);
@@ -122,14 +127,12 @@ public class MetaState {
 	}
 
 	public Object getSubst(String uniqueName) {
-		for (SubstExpr se : exprs) {
-			if (se.substs.containsKey(uniqueName))
-				return se.substs.get(uniqueName);
-		}
-		throw new UtilException("There is no var for " + uniqueName);
+		if (!substs.containsKey(uniqueName))
+			throw new UtilException("There is no var for " + uniqueName);
+		return substs.get(uniqueName);
 	}
 
-	public List<SubstExpr> substExprs() {
+	public List<Object> exprs() {
 		return exprs;
 	}
 

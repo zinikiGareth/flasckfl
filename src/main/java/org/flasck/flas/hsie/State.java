@@ -20,15 +20,23 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 	}
 	
 	// Create a mapping from v -> patt -> substexpr
-	public void associate(Var v, Object patt, SubstExpr expr) {
+	public void associate(Var v, Object patt, int expr) {
 		if (v == null)
 			throw new UtilException("Cannot use null var");
 		if (!mapping.containsKey(v))
 			mapping.put(v, new PattExpr());
 		mapping.get(v).associate(patt, expr);
 	}
+	
+	public State duplicate(HSIEBlock into) {
+		State ret = new State(into);
+		for (Entry<Var, PattExpr> x : mapping.entrySet())
+			ret.mapping.put(x.getKey(), x.getValue().duplicate(null));
+		ret.result = result;
+		return ret;
+	}
 
-	public State cloneEliminate(Var var, HSIEBlock into, Set<SubstExpr> possibles) {
+	public State cloneEliminate(Var var, HSIEBlock into, Set<Integer> possibles) {
 //		System.out.println("Eliminating " + var + " and allowing " + possibles);
 		State ret = new State(into);
 		for (Entry<Var, PattExpr> x : mapping.entrySet()) {
@@ -45,15 +53,6 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 		}
 		return ret;
 	}
-	
-
-	public State duplicate(HSIEBlock into) {
-		State ret = new State(into);
-		for (Entry<Var, PattExpr> x : mapping.entrySet())
-			ret.mapping.put(x.getKey(), x.getValue().duplicate(null));
-		ret.result = result;
-		return ret;
-	}
 
 	public void eliminate(Var var) {
 		if (!mapping.containsKey(var))
@@ -67,7 +66,7 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 		return !mapping.isEmpty();
 	}
 
-	public SubstExpr singleExpr(Set<SubstExpr> onlyCases) {
+	public Integer singleExpr(Set<Integer> onlyCases) {
 //		System.out.println("Result = " + result);
 		if (result == null)
 			return null;
@@ -89,5 +88,17 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 			System.out.println(e.getKey() + " -> ");
 			e.getValue().dump();
 		}
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder ret = new StringBuilder();
+		String sep ="";
+		for (Entry<Var, PattExpr> pe : mapping.entrySet()) {
+			ret.append(sep);
+			ret.append(pe.getKey() + " -> " + pe.getValue().keyString());
+			sep = "; ";
+		}
+		return ret.toString();
 	}
 }

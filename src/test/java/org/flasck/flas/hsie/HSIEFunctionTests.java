@@ -3,6 +3,8 @@ package org.flasck.flas.hsie;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.PrintWriter;
+
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -54,7 +56,7 @@ public class HSIEFunctionTests {
 	}
 
 	@Test
-	public void testConvertingTake() {
+	public void testConvertingTake() throws Exception {
 		Scope s = new Scope(null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n [] = []"));
@@ -68,9 +70,9 @@ public class HSIEFunctionTests {
 		s.define("take", "ME.take", c3);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope("ME", s);
-		System.out.println(rw.functions);
 		HSIEForm takeForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.take"));
 		assertNotNull(takeForm);
+		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
 		HSIETestData.assertHSIE(HSIETestData.take(), takeForm);
 	}

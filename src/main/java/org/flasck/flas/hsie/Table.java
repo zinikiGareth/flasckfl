@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
 
 public class Table implements Iterable<Option> {
@@ -26,6 +27,12 @@ public class Table implements Iterable<Option> {
 	public void dump() {
 		for (Option o : options) {
 			o.dump();
+		}
+	}
+
+	public void dump(Logger logger) {
+		for (Option o : options) {
+			o.dump(logger);
 		}
 	}
 

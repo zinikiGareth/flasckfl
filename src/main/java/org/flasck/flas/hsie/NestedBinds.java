@@ -10,20 +10,20 @@ public class NestedBinds {
 	public final InputPosition location;
 	public final ConstPattern ifConst;
 	public final List<Field> args;
-	public final SubstExpr substExpr;
+	public final int expr;
 
-	public NestedBinds(InputPosition location, ConstPattern patt, SubstExpr substExpr) {
+	public NestedBinds(InputPosition location, ConstPattern patt, int expr) {
 		this.location = location;
 		this.ifConst = patt;
 		this.args = null;
-		this.substExpr = substExpr;
+		this.expr = expr;
 	}
 
-	public NestedBinds(InputPosition location, List<Field> args, SubstExpr substExpr) {
+	public NestedBinds(InputPosition location, List<Field> args, int expr) {
 		this.location = location;
 		this.ifConst = null;
 		this.args = args;
-		this.substExpr = substExpr;
+		this.expr = expr;
 	}
 
 	public Object matchField(String b) {
@@ -39,14 +39,16 @@ public class NestedBinds {
 		return "NestedBinds[" + (ifConst != null?"const":"#args - " + args.size()) +"]";
 	}
 	
-	public void dump() {
-		System.out.print("    ");
+	public String dump() {
+		StringBuilder ret = new StringBuilder();
+		ret.append("    ");
 		if (ifConst != null)
-			System.out.print(ifConst);
+			ret.append(ifConst);
 		else
 			for (Field f : args)
-				System.out.print(f.field + ": " + f.patt + " ");
-		System.out.println("-> " + substExpr);
+				ret.append(f.field + ": " + f.patt + " ");
+		ret.append("-> " + expr);
+		return ret.toString();
 	}
 
 	public static InputPosition firstLocation(List<NestedBinds> list) {

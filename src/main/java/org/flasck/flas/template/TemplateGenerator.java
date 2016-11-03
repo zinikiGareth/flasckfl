@@ -212,29 +212,16 @@ public class TemplateGenerator {
 			for (Object a : td.attrs) {
 				if (a instanceof RWTemplateExplicitAttr) {
 					RWTemplateExplicitAttr tea = (RWTemplateExplicitAttr) a;
-//					switch (tea.type) {
-//					case TemplateToken.STRING: {
-//						fn.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr + "', " + tea.value +")"));
-//						break;
-//					}
-//					case TemplateToken.IDENTIFIER: {
-						String saf = called + ".prototype._setAttr_" + an;
-						JSForm sak = JSForm.flex(saf + " = function()").needBlock();
-						String tfn = simpleName(tea.fnName);
-						sak.add(JSForm.flex("var attr = FLEval.full(this._card." + tfn + "())"));
-						JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
-						sak.add(ifassign);
-//						ifassign.add(JSForm.flex("console.log('setting attribute " + tea.attr +" on', this._mydiv.id, 'to', attr)"));
-						ifassign.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr +"', attr)"));
-						cx.target.add(sak);
-//						fn.add(JSForm.flex("this._setAttr_" + an +"()"));
-						callOnAssign(fn, tea.value, cgrx, saf, true, null);
-						an++;
-//						break;
-//					}
-//					default:
-//						throw new UtilException("Cannot handle TEA type " + tea.type);
-//					}
+					String saf = called + ".prototype._setAttr_" + an;
+					JSForm sak = JSForm.flex(saf + " = function()").needBlock();
+					String tfn = simpleName(tea.fnName);
+					sak.add(JSForm.flex("var attr = FLEval.full(this._card." + tfn + "())"));
+					JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
+					sak.add(ifassign);
+					ifassign.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr +"', attr)"));
+					cx.target.add(sak);
+					callOnAssign(fn, tea.value, cgrx, saf, true, null);
+					an++;
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
 			}

@@ -34,18 +34,17 @@ import org.zinutils.reflection.Reflection;
 public class GenerateClosures {
 	private final ErrorResult errors;
 	private final MetaState ms;
+	private final Map<String, CreationOfVar> substs;
 	private final HSIEForm form;
-	private /* final */ Map<String, CreationOfVar> substs;
 
 	public GenerateClosures(ErrorResult errors, MetaState ms, HSIEForm form) {
 		this.errors = errors;
 		this.ms = ms;
+		this.substs = ms.substs;
 		this.form = form;
 	}
 
-	// TODO: I would like the substs to just "be a field" common across all expressions and passed into the constructor
-	public void generateClosure(Map<String, CreationOfVar> substs, Object expr) {
-		this.substs = substs;
+	public void generateClosure(Object expr) {
 		ms.translate(expr, dispatch(expr));
 	}
 
