@@ -122,7 +122,6 @@ public class HSIE {
 			ClosureCmd clos = form.createClosure(sv.location);
 			clos.justScoping = true;
 			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
-			ms.requireClosure(clos.var);
 			ms.mapVar(sv.id, new CreationOfVar(clos.var, sv.location, sv.id));
 			map.put(sv.id, clos);
 		}
@@ -156,7 +155,7 @@ public class HSIE {
 		if (map.containsKey(i.id)) {
 			CreationOfVar cov = new CreationOfVar(map.get(i.id).var, i.location, i.id);
 			clos.push(i.location, cov);
-			ms.dependency(clos, cov);
+			clos.depends.add(cov);
 			return;
 		}
 		if (form.isDefinedByMe(i)) {

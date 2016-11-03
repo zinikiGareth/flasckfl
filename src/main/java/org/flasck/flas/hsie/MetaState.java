@@ -45,7 +45,7 @@ public class MetaState {
 	final List<State> allStates = new ArrayList<State>();
 	private final Map<Var, Map<String, Var>> fieldVars = new HashMap<Var, Map<String, Var>>();
 	private final Map<Object, LocatedObject> retValues = new HashMap<Object, LocatedObject>();
-	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
+//	private final Map<Var, List<CreationOfVar>> closureDepends = new HashMap<Var, List<CreationOfVar>>();
 
 	public MetaState(ErrorResult errors, HSIEForm form) {
 		this.errors = errors;
@@ -80,10 +80,6 @@ public class MetaState {
 
 	public void addExpr(SubstExpr ex) {
 		exprs.add(ex);
-	}
-
-	public void requireClosure(Var var) {
-		closureDepends.put(var, new ArrayList<CreationOfVar>());
 	}
 
 	public void mapVar(String id, CreationOfVar cov) {
@@ -183,16 +179,18 @@ public class MetaState {
 			}
 			// TODO: check this doesn't already exist
 			ClosureCmd closure = form.createClosure(e2.location);
-			List<CreationOfVar> mydeps = new ArrayList<CreationOfVar>();
 			for (int i=0;i<ops.size();i++) {
 				LocatedObject o = ops.get(i);
 				closure.push(o.loc, o.obj);
-				if (o.obj instanceof CreationOfVar && closureDepends.containsKey(o.obj) && !mydeps.contains(o.obj)) {
-					mydeps.addAll(closureDepends.get(o.obj));
-					mydeps.add((CreationOfVar) o.obj);
+				if (o.obj instanceof CreationOfVar) {
+					CreationOfVar cov = (CreationOfVar) o.obj;
+					ClosureCmd c2 = form.getClosure(cov.var);
+					if (c2 != null) {
+						closure.depends.addAll(c2.depends);
+						closure.depends.add((CreationOfVar) o.obj);
+					}
 				}
 			}
-			closureDepends.put(closure.var, mydeps);
 			return new LocatedObject(e2.location, new CreationOfVar(closure.var, e2.location, "clos" + closure.var.idx));
 		} else if (expr instanceof CastExpr) {
 			CastExpr ce = (CastExpr) expr;
@@ -236,16 +234,16 @@ public class MetaState {
 	}
 
 	private void closeDependencies(List<CreationOfVar> ret, Object var) {
-		List<CreationOfVar> more = null;
+		ClosureCmd clos = null;
 		if (var instanceof Var)
-			more = closureDepends.get(var);
+			clos = form.getClosure((Var)var);
 		else if (var instanceof CreationOfVar)
-			more = closureDepends.get(((CreationOfVar)var).var);
+			clos = form.getClosure(((CreationOfVar)var).var);
 
-		if (more == null)
+		if (clos == null)
 			return;
-		
-		for (CreationOfVar cv : more)
+
+		for (CreationOfVar cv : clos.depends)
 			if (!ret.contains(cv)) {
 				closeDependencies(ret, cv);
 				if (ret.contains(cv))
@@ -260,10 +258,6 @@ public class MetaState {
 				return se.substs.get(uniqueName);
 		}
 		throw new UtilException("There is no var for " + uniqueName);
-	}
-
-	public void dependency(ClosureCmd clos, CreationOfVar cov) {
-		closureDepends.get(clos.var).add(cov);
 	}
 
 	public List<SubstExpr> substExprs() {

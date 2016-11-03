@@ -1,5 +1,8 @@
 package org.flasck.flas.vcode.hsieForm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.typechecker.Type;
 
@@ -8,6 +11,7 @@ public class ClosureCmd extends HSIEBlock {
 	public boolean typecheckMessages;
 	public Type assertType;
 	public boolean justScoping = false;
+	public final List<CreationOfVar> depends = new ArrayList<CreationOfVar>();
 
 	public ClosureCmd(InputPosition loc, Var var) {
 		super(loc);
