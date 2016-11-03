@@ -11,18 +11,34 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.LocatedObject;
+import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.rewrittenForm.AssertTypeExpr;
+import org.flasck.flas.rewrittenForm.CardFunction;
+import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
+import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
+import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.CreationOfVar;
@@ -148,7 +164,7 @@ public class HSIE {
 
 	private void generateExprClosures(MetaState ms, HSIEForm ret, RWFunctionDefinition defn) {
 		for (SubstExpr se : ms.substExprs())
-			ms.generateClosure(se.substs, se.expr);
+			generateClosure(ms, ret, se.substs, se.expr);
 	}
 
 	protected void pushThing(MetaState ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
@@ -234,6 +250,114 @@ public class HSIE {
 			else
 				throw new UtilException("Not substituting into " + x.patt.getClass());
 				
+		}
+	}
+	
+	public void generateClosure(MetaState ms, HSIEForm form, Map<String, CreationOfVar> substs, Object e) {
+		System.out.println("e = " + e.getClass());
+		ms.translate(e, convertValue(form, substs, e));
+	}
+
+	private LocatedObject convertValue(HSIEForm form, Map<String, CreationOfVar> substs, Object expr) {
+		if (expr == null) { // mainly error trapping, but valid in if .. if .. <no else> case
+			return new LocatedObject(null, null);
+		} else if (expr instanceof NumericLiteral) {
+			return new LocatedObject(((NumericLiteral)expr).location, Integer.parseInt(((NumericLiteral)expr).text)); // what about floats?
+		} else if (expr instanceof StringLiteral) {
+			return new LocatedObject(((StringLiteral)expr).location, expr);
+		} else if (expr instanceof FunctionLiteral) {
+			return new LocatedObject(((FunctionLiteral)expr).location, expr);
+		} else if (expr instanceof TemplateListVar) {
+			return new LocatedObject(((TemplateListVar)expr).location, expr);
+		} else if (expr instanceof LocalVar) {
+			String var = ((LocalVar)expr).uniqueName();
+			if (!substs.containsKey(var))
+				throw new UtilException("How can this be a local var? " + var + " not in " + substs);
+			return new LocatedObject(((LocalVar)expr).varLoc, substs.get(var));
+		} else if (expr instanceof IterVar) {
+			String var = ((IterVar)expr).var;
+			if (!substs.containsKey(var))
+				throw new UtilException("How can this be an iter var? " + var + " not in " + substs);
+			return new LocatedObject(((IterVar)expr).location, substs.get(var));
+		} else if (expr instanceof PackageVar) {
+			// a package var is a reference to an absolute something that is referenced by its full scope
+			PackageVar pv = (PackageVar)expr;
+			return new LocatedObject(pv.location, expr);
+		} else if (expr instanceof VarNestedFromOuterFunctionScope) {
+			VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope)expr;
+			String var = sv.id;
+			if (!sv.definedLocally) {
+				return new LocatedObject(sv.location, sv);
+			}
+			if (substs.containsKey(var))
+				return new LocatedObject(sv.location, substs.get(var));
+			throw new UtilException("Scoped var " + var + " not in " + substs + " for " + form.fnName);
+		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
+			return new LocatedObject(((ExternalRef)expr).location(), expr);
+		} else if (expr instanceof CardMember) {
+			return new LocatedObject(((CardMember)expr).location(), expr);
+		} else if (expr instanceof CardStateRef) {
+			return new LocatedObject(((CardStateRef)expr).location(), expr);
+		} else if (expr instanceof HandlerLambda) {
+			return new LocatedObject(((ExternalRef)expr).location(), expr);
+		} else if (expr instanceof ApplyExpr) {
+			ApplyExpr e2 = (ApplyExpr) expr;
+			List<LocatedObject> ops = new ArrayList<LocatedObject>();
+			LocatedObject val = convertValue(form, substs, e2.fn);
+			if (val.obj instanceof CreationOfVar && e2.args.isEmpty()) {
+				return val;
+			}
+			ops.add(val);
+			for (Object o : e2.args) {
+				ops.add(convertValue(form, substs, o));
+			}
+			// TODO: check this doesn't already exist
+			ClosureCmd closure = form.createClosure(e2.location);
+			for (int i=0;i<ops.size();i++) {
+				LocatedObject o = ops.get(i);
+				closure.push(o.loc, o.obj);
+				if (o.obj instanceof CreationOfVar) {
+					CreationOfVar cov = (CreationOfVar) o.obj;
+					ClosureCmd c2 = form.getClosure(cov.var);
+					if (c2 != null) {
+						closure.depends.addAll(c2.depends);
+						closure.depends.add((CreationOfVar) o.obj);
+					}
+				}
+			}
+			return new LocatedObject(e2.location, new CreationOfVar(closure.var, e2.location, "clos" + closure.var.idx));
+		} else if (expr instanceof CastExpr) {
+			CastExpr ce = (CastExpr) expr;
+			LocatedObject lo = convertValue(form, substs, ce.expr);
+			CreationOfVar cv = (CreationOfVar) lo.obj;
+			HSIEBlock closure = form.getClosure(cv.var);
+			closure.downcastType = (Type) ((PackageVar)ce.castTo).defn;
+			return lo;
+		} else if (expr instanceof TypeCheckMessages) {
+			TypeCheckMessages tcm = (TypeCheckMessages) expr;
+			LocatedObject lo = convertValue(form, substs, tcm.expr);
+			CreationOfVar cv = (CreationOfVar) lo.obj;
+			ClosureCmd closure = form.getClosure(cv.var);
+			closure.typecheckMessages = true;
+			return lo;
+		} else if (expr instanceof AssertTypeExpr) {
+			AssertTypeExpr ate = (AssertTypeExpr) expr;
+			LocatedObject conv = convertValue(form, substs, ate.expr);
+			if (conv.obj instanceof CreationOfVar) { // it's a closure, delegate to typechecker ..
+				CreationOfVar cv = (CreationOfVar) conv.obj;
+				ClosureCmd closure = form.getClosure(cv.var);
+				closure.assertType = ate.type;
+				return conv;
+			} else if (conv.obj instanceof StringLiteral) {
+				if (!ate.type.name().equals("String")) {
+					errors.message(ate.location(), "cannot assign a string to " + ate.type.name());
+				}
+				return conv;
+			} else
+				throw new UtilException("We should check " + conv + " against " + ate.type);
+		} else {
+			System.out.println("HSIE Cannot Handle: " + expr);
+			throw new UtilException("HSIE Cannot handle " + expr + " " + (expr != null? " of type " + expr.getClass() : ""));
 		}
 	}
 
