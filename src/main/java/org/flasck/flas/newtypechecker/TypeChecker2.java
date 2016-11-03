@@ -23,15 +23,17 @@ import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker2 {
 	private final ErrorResult errors;
-	// is there a real need to keep these separate?  especially when we are promoting?
 	private final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
+	// is there a real need to keep these separate?  especially when we are promoting?
 	private final Map<String, TypeInfo> globalKnowledge = new HashMap<String, TypeInfo>();
 	private final Map<String, TypeInfo> localKnowledge = new HashMap<String, TypeInfo>();
 	private int nextTv;
+	private ListMap<Var, Constraint> constraints = new ListMap<Var, Constraint>();
 	
 	public TypeChecker2(ErrorResult errors) {
 		this.errors = errors;
@@ -53,19 +55,30 @@ public class TypeChecker2 {
 	// Typecheck a set of HSIE forms in parallel ...
 	public void typecheck(Set<HSIEForm> forms) {
 		
-		// initialize the state for doing the checking ...
+		// 1. initialize the state for doing the checking ...
 		localKnowledge.clear();
+		constraints.clear();
 		nextTv = 1;
 		for (HSIEForm f : forms) {
 			System.out.println("Checking type of " + f.fnName);
 			if (globalKnowledge.containsKey(f.fnName))
 				errors.message(f.location, "duplicate entry for " + f.fnName + " in type checking");
 			localKnowledge.put(f.fnName, nextVar());
+			for (Var v : f.vars) {
+				if (constraints.contains(v))
+					throw new UtilException("Duplicate var definition " + v);
+				constraints.ensure(v);
+			}
 		}
 		
-		// now look at all the closures we have
+		// 2. collect constraints
+		// 2a. look at all the closures we have
 		for (HSIEForm f : forms) {
 			for (ClosureCmd c : f.closures()) {
+				if (c.justScoping) {
+					System.out.println("Not checking scoping closure for " + c.var);
+					continue;
+				}
 				System.out.println("Need to check " + f.fnName + " " + c.var);
 				HSIEBlock cmd = c.nestedCommands().get(0);
 				if (cmd instanceof PushVar) {
@@ -78,39 +91,61 @@ public class TypeChecker2 {
 			}
 		}
 		
-		// and now look at the switching blocks
+		// 2b. and at the switching blocks
 		for (HSIEForm f : forms) {
-			processHSI(f, f, new HashMap<>());
-		}		
+			processHSI(f, f);
+		}
+		
+		for (Var k : constraints.keySet())
+			System.out.println(k + " -> " + constraints.get(k));
+		
+		// 3. Resolve constraints
+		
+		// 4. Deduce types by looking at formal arguments & return types
 	}
 
-	private void processHSI(HSIEForm f, HSIEBlock blk, Map<Var, RWStructDefn> contextMappings) {
+	private void processHSI(HSIEForm f, HSIEBlock blk) {
 		for (HSIEBlock c : blk.nestedCommands()) {
-			if (c instanceof Head || c instanceof ErrorCmd)
-				continue;
-			if (c instanceof Switch) {
-				Switch sw = (Switch) c;
-				// TODO: state with certainty that sw.ctor is an option for sw.var
-				HashMap<Var, RWStructDefn> nm = new HashMap<>(contextMappings);
-				nm.put(sw.var, structs.get(sw.ctor));
-				processHSI(f, sw, nm);
-			} else if (c instanceof BindCmd) {
-				BindCmd b = (BindCmd)c;
-				System.out.println("Processing BIND " + b.bind + " with " + convertType(contextMappings.get(b.from).findField(b.field).type));
-				// TODO: set up the definition of b.var based on the type of the field that we've got
-			} else if (c instanceof IFCmd) {
-				IFCmd sw = (IFCmd) c;
-				// TODO: state with certainty that Boolean is an option for sw.var (in this context, is a requirement - but what is the nature of a context?)
-				processHSI(f, sw, contextMappings);
-			} else if (c instanceof PushReturn) {
-				PushReturn pr = (PushReturn) c;
-				if (pr instanceof PushVar)
-					System.out.println("Need to add a constraint to " + ((PushVar)pr).var);
-				else
-					System.out.println("Can return " + getTypeOf(pr));
-			} else 
-				System.out.println("Handle " + c);
+			processOne(f, c);
 		}
+	}
+
+	protected void processOne(HSIEForm f, HSIEBlock c) {
+		if (c instanceof Head || c instanceof ErrorCmd)
+			return;
+		if (c instanceof Switch) {
+			Switch sw = (Switch) c;
+			RWStructDefn sd = structs.get(sw.ctor);
+			if (sd != null) {
+				constraints.add(sw.var, new SwitchConstraint(sd));
+				for (HSIEBlock sc : sw.nestedCommands()) {
+					if (sc instanceof BindCmd) {
+						BindCmd b = (BindCmd)sc;
+						TypeInfo ty = convertType(sd.findField(b.field).type);
+						System.out.println("Processing BIND " + b.bind + " with " + ty);
+						if (ty != null) // null for poly vars, which (AFAIK) don't add constraints
+							constraints.add(b.bind, new BindConstraint(ty));
+					} else
+						processOne(f, sc);
+				}
+			} else {
+				constraints.add(sw.var, new TypeConstraint(sw.ctor));
+				processHSI(f, sw);
+			}
+		} else if (c instanceof BindCmd) {
+			throw new UtilException("Cannot have BIND except as child of SWITCH");
+		} else if (c instanceof IFCmd) {
+			IFCmd ic = (IFCmd) c;
+			// TODO: state with certainty that Boolean is an option for sw.var (in this context, is a requirement - but what is the nature of a context?)
+			processHSI(f, ic);
+		} else if (c instanceof PushReturn) {
+			PushReturn pr = (PushReturn) c;
+			if (pr instanceof PushVar)
+				System.out.println("Need to add a constraint to " + ((PushVar)pr).var);
+			else
+				System.out.println("Can return " + getTypeOf(pr));
+		} else 
+			System.out.println("Handle " + c);
 	}
 
 	private TypeInfo convertType(Type type) {
