@@ -125,7 +125,7 @@ public class HSIE {
 				String called = vp.var;
 				cf.subst(called, new VarInSource(formals.get(i), vp.varLoc, called));
 			} else if (arg instanceof RWConstructorMatch)
-				ctorSub((RWConstructorMatch) arg, cf, formals.get(i), expr);
+				ctorSub(cf, (RWConstructorMatch) arg, formals.get(i), expr);
 			else if (arg instanceof ConstPattern)
 				;
 			else if (arg instanceof RWTypedPattern) {
@@ -137,7 +137,7 @@ public class HSIE {
 		}
 	}
 
-	private void ctorSub(RWConstructorMatch cm, CurrentFunction cf, Var from, Object expr) {
+	private void ctorSub(CurrentFunction cf, RWConstructorMatch cm, Var from, Object expr) {
 		for (Field x : cm.args) {
 			Var v = cf.branching.varFor(from, x.field);
 			if (x.patt instanceof RWVarPattern) {
@@ -145,7 +145,7 @@ public class HSIE {
 				String called = vp.var;
 				cf.subst(called, new VarInSource(v, vp.varLoc, called));
 			} else if (x.patt instanceof RWConstructorMatch)
-				ctorSub((RWConstructorMatch)x.patt, cf, v, expr);
+				ctorSub(cf, (RWConstructorMatch)x.patt, v, expr);
 			else if (x.patt instanceof ConstPattern)
 				;
 			else
@@ -154,7 +154,7 @@ public class HSIE {
 		}
 	}
 
-	private void recurse(CurrentFunction ms, State s) {
+	private void recurse(CurrentFunction cf, State s) {
 		logger.info("Recursing with state " + s);
 //		System.out.println("------ Entering recurse");
 		Table t = buildDecisionTable(s);
@@ -173,7 +173,7 @@ public class HSIE {
 			t.remove(o);
 		if (!needChoice) {
 			logger.info("There is no choice remaining: " + s);
-			ms.expressions.evalExpr(ms.substs, s, null);
+			cf.expressions.evalExpr(cf.substs, s, null);
 			return;
 		}
 //		t.dump();
@@ -204,7 +204,7 @@ public class HSIE {
 			logger.info("After selecting " + elim.var + " as " + ctor + ", state is " + s1);
 			Map<String, Var> mapFieldNamesToVars = new TreeMap<String, Var>();
 			for (Field b : binds) {
-				Var v = ms.branching.varFor(elim.var, b.field);
+				Var v = cf.branching.varFor(elim.var, b.field);
 				blk.bindCmd(b.location, v, elim.var, b.field);
 				mapFieldNamesToVars.put(b.field, v);
 			}
@@ -220,25 +220,25 @@ public class HSIE {
 					else
 						throw new UtilException("Cannot handle " + nb.ifConst);
 					State s3 = s1.duplicate(inner);
-					addState(ms, s3, casesForConst(list, nb.ifConst.value));
+					addState(cf, s3, casesForConst(list, nb.ifConst.value));
 				} else {
 					for (Field b : binds) {
 						Object patt = nb.matchField(b.field);
 						if (patt != null) {
-							s1.associate(ms.branching.varFor(elim.var, b.field), patt, nb.expr);
+							s1.associate(cf.branching.varFor(elim.var, b.field), patt, nb.expr);
 						}
 					}
 					wantS1 = true;
 				}
 			}
 			if (wantS1)
-				addState(ms, s1, mycases);
+				addState(cf, s1, mycases);
 		}
 		{
 			System.out.println(elim.var + " is none of the above");
 			State elimState = s.cloneEliminate(elim.var, s.writeTo, elim.undecidedCases);
 			logger.info("After eliminating " + elim.var + ", state is " + elimState);
-			addState(ms, elimState, elim.undecidedCases);
+			addState(cf, elimState, elim.undecidedCases);
 		}
 	}
 
@@ -275,22 +275,15 @@ public class HSIE {
 	}
 
 	private void addState(CurrentFunction cf, State s, Set<Integer> mycases) {
-		if (s.hasNeeds()) {
-//			System.out.println("Adding state ---");
-//			s.dump();
-//			System.out.println("---");
+		if (s.hasNeeds())
 			cf.branching.allStates.add(s);
-		} else {
-//			System.out.println("Resolving to ---");
-//			s.dump();
-//			System.out.println("---");
+		else
 			cf.expressions.evalExpr(cf.substs, s, mycases);
-		}
 	}
 
 	private Table buildDecisionTable(State s) {
 		Table t = new Table();
-		for (Entry<Var, PattExpr> e : s) {
+		for (Entry<Var, PattExpr> e : s.members()) {
 			Option o = t.createOption(e.getValue().firstLocation(), e.getKey());
 			for (Entry<Object, Integer> pe : e.getValue()) {
 				Object patt = pe.getKey();

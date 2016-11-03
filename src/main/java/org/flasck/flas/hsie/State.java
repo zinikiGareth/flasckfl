@@ -1,7 +1,6 @@
 package org.flasck.flas.hsie;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -10,7 +9,8 @@ import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.exceptions.UtilException;
 
-public class State implements Iterable<Entry<Var,PattExpr>> {
+public class State {
+	// The mapping says what needs to be evaluated in this state, listing out the possible consequences
 	private final Map<Var, PattExpr> mapping = new HashMap<Var, PattExpr>();
 	public final HSIEBlock writeTo;
 	private PattExpr result;
@@ -78,9 +78,8 @@ public class State implements Iterable<Entry<Var,PattExpr>> {
 		return mapping.get(var);
 	}
 
-	@Override
-	public Iterator<Entry<Var, PattExpr>> iterator() {
-		return mapping.entrySet().iterator();
+	public Iterable<Entry<Var, PattExpr>> members() {
+		return mapping.entrySet();
 	}
 
 	public void dump() {
