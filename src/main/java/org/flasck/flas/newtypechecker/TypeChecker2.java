@@ -1,14 +1,22 @@
 package org.flasck.flas.newtypechecker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
@@ -20,8 +28,12 @@ import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
+import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
+import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.PushString;
+import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -42,15 +54,48 @@ public class TypeChecker2 {
 	}
 
 	public void populateTypes(Rewriter rw) {
-		for (Type bi : rw.builtins.values()) {
+		for (Type bi : rw.primitives.values()) {
 			globalKnowledge.put(bi.name(), new NamedType(bi.name()));
 		}
-		for (RWUnionTypeDefn sd : rw.types.values()) {
-			globalKnowledge.put(sd.name(), new NamedType(sd.name()));
+		for (RWUnionTypeDefn ud : rw.types.values()) {
+			globalKnowledge.put(ud.name(), new NamedType(ud.name()));
 		}
+		for (RWObjectDefn od : rw.objects.values()) {
+			globalKnowledge.put(od.name(), new NamedType(od.name()));
+		}
+		for (RWContractDecl cd : rw.contracts.values())
+			globalKnowledge.put(cd.name(), new NamedType(cd.name()));
 		for (RWStructDefn sd : rw.structs.values()) {
 			structs.put(sd.uniqueName(), sd);
 			globalKnowledge.put(sd.uniqueName(), new TypeFunc(sd.fields, sd.uniqueName()));
+		}
+		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
+			globalKnowledge.put(d.getKey(), new NamedType(d.getKey()));
+			// The elements of the card struct can appear directly as CardMembers
+			// push their types into the knowledge
+			for (RWStructField f : d.getValue().struct.fields) {
+				// TODO: right now, I feel that renaming this is really a rewriter responsibility, but I'm not clear on the consequences
+				globalKnowledge.put(d.getKey()+"."+f.name, convertType(f.type));
+			}
+			/*
+			cards.put(d.getKey(), cti);
+			prefixes.put(d.getKey(), cti);
+			for (ContractGrouping x : d.getValue().contracts) {
+				TypeHolder ctr = new TypeHolder(x.type);
+				cti.contracts.add(ctr);
+				prefixes.put(x.implName, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
+			}
+			for (HandlerGrouping x : d.getValue().handlers) {
+				TypeHolder ctr = new TypeHolder(x.type);
+				cti.handlers.add(ctr);
+//				handlers.put(ctr.name, x.impl);
+				prefixes.put(x.type, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
+			}
+			*/
+		}
+		for (RWFunctionDefinition fn : rw.functions.values()) {
+			if (fn.getType() != null) // a function has already been typechecked
+				globalKnowledge.put(fn.name(), convertType(fn.getType()));
 		}
 	}
 
@@ -195,22 +240,57 @@ public class TypeChecker2 {
 	private TypeInfo convertType(Type type) {
 		if (type.iam == WhatAmI.POLYVAR)
 			return null; // OK, what to do here; introducing a type var seems obvious, but what is it's reach?
-		else if (type instanceof RWUnionTypeDefn)
+		else if (type.iam == WhatAmI.BUILTIN ||
+				type instanceof RWStructDefn || type instanceof RWUnionTypeDefn ||
+				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWObjectDefn)
 			return getTypeOf(type.location(), type.name());
-		else
-			throw new UtilException("Cannot convert " + type.getClass() + " " + type.iam);
+		else if (type.iam == WhatAmI.INSTANCE) {
+			Map<Type, TypeVar> freshPolys = new HashMap<>();
+			List<TypeInfo> polyArgs = new ArrayList<TypeInfo>();
+			for (Type t : type.polys()) {
+				if (t.iam == WhatAmI.POLYVAR) {
+					if (freshPolys.containsKey(t)) // we assume that "equals" works for poly vars
+						polyArgs.add(freshPolys.get(t));
+					else {
+						TypeVar tv = new TypeVar(new Var(nextVar++));
+						freshPolys.put(t, tv);
+						polyArgs.add(tv);
+					}
+				} else {
+					polyArgs.add(convertType(t));
+				}
+			}
+			return new NamedType(type.name(), polyArgs);
+		} else if (type.iam == WhatAmI.FUNCTION) {
+			List<TypeInfo> args = new ArrayList<TypeInfo>();
+			int arity = type.arity();
+			for (int i=0;i<arity-1;i++)
+				args.add(convertType(type.arg(i)));
+			return new TypeFunc(args, convertType(type.arg(arity)));
+		} else
+			throw new UtilException("Cannot convert " + type.getClass() + " " + type.iam + ": " + type.name());
 	}
 
 	private TypeInfo getTypeOf(HSIEBlock cmd) {
 		if (cmd instanceof PushExternal) {
 			PushExternal pe = (PushExternal) cmd;
-			if (pe.fn instanceof VarNestedFromOuterFunctionScope) {
-				
-			}
 			String name = pe.fn.uniqueName();
+			if (name.equals("FLEval.field")) { // . needs special handling
+				return null;
+			}
+			return getTypeOf(cmd.location, name);
+		} else if (cmd instanceof PushTLV) {
+			PushTLV pt = (PushTLV) cmd;
+			String name = pt.tlv.name;
 			return getTypeOf(cmd.location, name);
 		} else if (cmd instanceof PushVar) {
 			return new TypeVar(((PushVar)cmd).var.var);
+		} else if (cmd instanceof PushInt) {
+			return getTypeOf(cmd.location, "Number");
+		} else if (cmd instanceof PushString) {
+			return getTypeOf(cmd.location, "String");
+		} else if (cmd instanceof PushCSR) {
+			return getTypeOf(cmd.location, "Card");
 		} else
 			throw new UtilException("Need to determine type of " + cmd.getClass());
 	}
@@ -220,9 +300,8 @@ public class TypeChecker2 {
 		if (ret != null)
 			return ret;
 		ret = globalKnowledge.get(name);
-		if (ret == null) {
-			errors.message(pos, "the name '" + name + "' cannot be resolved for typechecking");
-		}
+		if (ret == null)
+			throw new UtilException("the name '" + name + "' cannot be resolved for typechecking");
 		return ret;
 	}
 }

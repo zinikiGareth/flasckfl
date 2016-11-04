@@ -75,7 +75,7 @@ public class TypeChecker {
 	}
 
 	public void populateTypes(Rewriter rewriter) {
-		for (Entry<String, Type> t : rewriter.builtins.entrySet())
+		for (Entry<String, Type> t : rewriter.primitives.entrySet())
 			knowledge.put(t.getKey(), t.getValue());
 		for (Entry<String, RWFunctionDefinition> t : rewriter.functions.entrySet()) {
 			if (!t.getValue().generate) // only import pre-defined functions
@@ -443,10 +443,6 @@ public class TypeChecker {
 					if (fn instanceof CardMember) {
 						logger.debug(fn + " is a card member");
 						CardMember cm = (CardMember) fn;
-						// try and find the name of the card class
-						if (fn.equals("_card"))
-							throw new UtilException("Died in housefire");
-							// return freshVarsIn(new TypeReference(cm.location, cm.card, null));
 						CardTypeInfo cti = cards.get(cm.card);
 						if (cti == null)
 							throw new UtilException("There was no card definition called " + cm.card);

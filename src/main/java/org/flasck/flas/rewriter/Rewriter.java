@@ -146,7 +146,7 @@ public class Rewriter {
 	static final Logger logger = LoggerFactory.getLogger("Rewriter");
 	private final ErrorResult errors;
 	private final PackageFinder pkgFinder;
-	public final Map<String, Type> builtins = new TreeMap<String, Type>();
+	public final Map<String, Type> primitives = new TreeMap<String, Type>();
 	public final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	public final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
 	public final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
@@ -522,7 +522,7 @@ public class Rewriter {
 			} else if (val instanceof Type) {
 				Type ty = (Type) val;
 				if (ty.iam == WhatAmI.BUILTIN)
-					builtins.put(name, ty);
+					primitives.put(name, ty);
 				else
 					throw new UtilException("Cannot handle type of kind " + ty.iam);
 			}
@@ -1649,8 +1649,8 @@ public class Rewriter {
 	}
 
 	protected Object doIhave(InputPosition location, String id) {
-		if (builtins.containsKey(id))
-			return builtins.get(id);
+		if (primitives.containsKey(id))
+			return primitives.get(id);
 		else if (types.containsKey(id))
 			return types.get(id);
 		else if (structs.containsKey(id))

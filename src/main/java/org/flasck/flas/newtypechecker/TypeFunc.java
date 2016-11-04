@@ -18,6 +18,13 @@ public class TypeFunc extends TypeInfo {
 	public TypeFunc(List<Var> vars, int nformal, TypeVar returns) {
 		for (int i=0;i<nformal;i++)
 			this.args.add(new TypeVar(vars.get(i)));
+		this.args.add(returns);
+	}
+
+	public TypeFunc(List<TypeInfo> args, TypeInfo returns) {
+		for (TypeInfo ti : args)
+			this.args.add(ti);
+		this.args.add(returns);
 	}
 
 	@Override

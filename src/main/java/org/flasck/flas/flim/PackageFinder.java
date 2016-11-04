@@ -214,7 +214,7 @@ public class PackageFinder {
 		} else {
 			name = te.required("name");
 			if (te.hasTag("Builtin")) {
-				t = rw.builtins.get(name);
+				t = rw.primitives.get(name);
 				te.assertNoSubContents();
 			} else if (te.hasTag("Struct")) {
 				t = rw.structs.get(name);
