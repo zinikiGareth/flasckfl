@@ -37,6 +37,7 @@ import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
 
@@ -46,7 +47,8 @@ public class TypeChecker2 {
 	// is there a real need to keep these separate?  especially when we are promoting?
 	private final Map<String, TypeInfo> globalKnowledge = new HashMap<String, TypeInfo>();
 	private final Map<String, TypeInfo> localKnowledge = new HashMap<String, TypeInfo>();
-	private ListMap<Var, Constraint> constraints = new ListMap<Var, Constraint>();
+	private final ListMap<Var, Constraint> constraints = new ListMap<Var, Constraint>();
+	private final Map<String, Var> returns = new HashMap<String, Var>();
 	private int nextVar;
 	
 	public TypeChecker2(ErrorResult errors) {
@@ -67,7 +69,16 @@ public class TypeChecker2 {
 			globalKnowledge.put(cd.name(), new NamedType(cd.name()));
 		for (RWStructDefn sd : rw.structs.values()) {
 			structs.put(sd.uniqueName(), sd);
-			globalKnowledge.put(sd.uniqueName(), new TypeFunc(sd.fields, sd.uniqueName()));
+			List<TypeInfo> fs = new ArrayList<>();
+			for (RWStructField f : sd.fields)
+				fs.add(convertType(f.type));
+			List<TypeInfo> polys = null;
+			if (sd.hasPolys()) {
+				polys = new ArrayList<>();
+				for (Type t : sd.polys())
+					polys.add(convertType(t));
+			}
+			globalKnowledge.put(sd.uniqueName(), new TypeFunc(fs, new NamedType(sd.uniqueName(), polys)));
 		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
 			globalKnowledge.put(d.getKey(), new NamedType(d.getKey()));
@@ -77,21 +88,6 @@ public class TypeChecker2 {
 				// TODO: right now, I feel that renaming this is really a rewriter responsibility, but I'm not clear on the consequences
 				globalKnowledge.put(d.getKey()+"."+f.name, convertType(f.type));
 			}
-			/*
-			cards.put(d.getKey(), cti);
-			prefixes.put(d.getKey(), cti);
-			for (ContractGrouping x : d.getValue().contracts) {
-				TypeHolder ctr = new TypeHolder(x.type);
-				cti.contracts.add(ctr);
-				prefixes.put(x.implName, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
-			}
-			for (HandlerGrouping x : d.getValue().handlers) {
-				TypeHolder ctr = new TypeHolder(x.type);
-				cti.handlers.add(ctr);
-//				handlers.put(ctr.name, x.impl);
-				prefixes.put(x.type, ctr); // new ContractTypeInfo(cti); cti.addContract(that);
-			}
-			*/
 		}
 		for (RWFunctionDefinition fn : rw.functions.values()) {
 			if (fn.getType() != null) // a function has already been typechecked
@@ -106,6 +102,7 @@ public class TypeChecker2 {
 		// 1a. clean up from previous attempts (should this go in a separate currentState object?)
 		localKnowledge.clear();
 		constraints.clear();
+		returns.clear();
 		nextVar=0;
 		
 		// 1b. define all the vars that are already in the HSIE, trapping the max value for future reference
@@ -132,6 +129,7 @@ public class TypeChecker2 {
 			if (constraints.contains(rv))
 				throw new UtilException("Duplicate var definition " + rv);
 			constraints.ensure(rv);
+			returns.put(f.fnName, rv);
 		}
 		
 		// 1d. Now allocate FRESH vars for any scoped variables that still haven't been defined
@@ -158,25 +156,7 @@ public class TypeChecker2 {
 		// 2a. look at all the closures we have
 		for (HSIEForm f : forms) {
 			for (ClosureCmd c : f.closures()) {
-				if (c.justScoping) {
-					System.out.println("Not checking scoping closure for " + c.var);
-					continue;
-				}
-				System.out.println("Need to check " + f.fnName + " " + c.var);
-				List<HSIEBlock> cmds = c.nestedCommands();
-				HSIEBlock cmd = cmds.get(0);
-				if (cmd instanceof PushVar) {
-					// this is a tricky case
-				} else {
-					TypeInfo ti = getTypeOf(cmd);
-					if (ti == null)
-						continue;
-					for (int i=1;i<cmds.size();i++) {
-						TypeInfo ai = getTypeOf(cmds.get(i));
-						if (!(ti instanceof TypeFunc) || ((TypeFunc)ti).args.size() < i)
-							throw new UtilException("Error about applying a non-function to arg " + i + " in " + c.var);
-					}
-				}
+				processClosure(f, c);
 			}
 		}
 		
@@ -191,6 +171,64 @@ public class TypeChecker2 {
 		// 3. Resolve constraints
 		
 		// 4. Deduce types by looking at formal arguments & return types
+	}
+
+	protected void processClosure(HSIEForm f, ClosureCmd c) {
+		List<HSIEBlock> cmds = c.nestedCommands();
+		if (c.justScoping) {
+			TypeFunc ti = (TypeFunc) getTypeOf(cmds.get(0));
+			System.out.println("Copying type of " + cmds.get(0) + " to " + c.var + ": " + ti);
+			constraints.add(c.var, new FnCallConstraint(ti.args));
+			return;
+		}
+		System.out.println("Need to check " + f.fnName + " " + c.var);
+		List<TypeInfo> argtypes = new ArrayList<TypeInfo>();
+		for (int i=1;i<cmds.size();i++) {
+			TypeInfo ai = getTypeOf(cmds.get(i));
+			argtypes.add(ai);
+		}
+		HSIEBlock cmd = cmds.get(0);
+		if (cmd instanceof PushVar) {
+			Var fv = ((PushVar)cmd).var.var;
+			constraints.add(fv, new FnCallConstraint(argtypes, new TypeVar(c.var)));
+		} else {
+			// I think we need to consider FLEval.field as a special case here ...
+			TypeInfo ti = freshPolys(getTypeOf(cmd), new HashMap<>());
+			// TODO: if function is polymorphic, introduce fresh vars NOW
+			System.out.println("In " + c.var + " fi = " + ti);
+			if (c.var.idx == 9)
+				System.out.println(ti);
+			if (ti == null) {
+				System.out.println(c.var + " has a null first arg");
+				return;
+			}
+			if (!(ti instanceof TypeFunc))
+				throw new UtilException("I guess it's possible we could have a constant by itself or something"); // TODO: is this an error?
+			TypeFunc called = (TypeFunc) ti;
+			for (int i=0;i<argtypes.size();i++) {
+				if (called.args.size() < i)
+					throw new UtilException("Error about applying a non-function to arg " + i + " in " + c.var);
+				TypeInfo want = called.args.get(i);
+				TypeInfo have = argtypes.get(i);
+				System.out.println("Compare " + want + " to " + have);
+				if (want instanceof TypeVar) {
+					constraints.add(((TypeVar)want).var, new TopOfConstraint(have));
+				}
+				if (have instanceof TypeVar) {
+					constraints.add(((TypeVar)have).var, new BottomOfConstraint(want));
+				}
+			}
+			TypeInfo ret = called.args.get(called.args.size()-1);
+			if (called.args.size() == argtypes.size()+1) {
+				constraints.add(c.var, new TypeConstraint(ret));
+			} else {
+				List<TypeInfo> args = new ArrayList<TypeInfo>();
+				for (int i=argtypes.size();i+1<called.args.size();i++)
+					args.add(argtypes.get(i));
+				TypeFunc tf = new TypeFunc(argtypes, ret);
+				constraints.add(c.var, new TypeConstraint(tf));
+			}
+		}
 	}
 
 	private void processHSI(HSIEForm f, HSIEBlock blk) {
@@ -218,7 +256,7 @@ public class TypeChecker2 {
 						processOne(f, sc);
 				}
 			} else {
-				constraints.add(sw.var, new TypeConstraint(sw.ctor));
+				constraints.add(sw.var, new TypeConstraint(new NamedType(sw.ctor)));
 				processHSI(f, sw);
 			}
 		} else if (c instanceof BindCmd) {
@@ -229,38 +267,29 @@ public class TypeChecker2 {
 			processHSI(f, ic);
 		} else if (c instanceof PushReturn) {
 			PushReturn pr = (PushReturn) c;
-			if (pr instanceof PushVar)
-				System.out.println("Need to add a constraint to " + ((PushVar)pr).var);
-			else
-				System.out.println("Can return " + getTypeOf(pr));
+			Var rv = returns.get(f.fnName);
+			if (pr instanceof PushVar) {
+				VarInSource val = ((PushVar)pr).var;
+				System.out.println("Need to add a constraint to " + rv + " of " + val);
+				constraints.add(rv, new TopOfConstraint(new TypeVar(val.var)));
+			} else {
+				TypeInfo ty = getTypeOf(pr);
+				System.out.println("Can return " + rv + " as " + ty);
+				constraints.add(rv, new TopOfConstraint(ty));
+			}
 		} else 
 			System.out.println("Handle " + c);
 	}
 
 	private TypeInfo convertType(Type type) {
 		if (type.iam == WhatAmI.POLYVAR)
-			return null; // OK, what to do here; introducing a type var seems obvious, but what is it's reach?
+			return new PolyInfo(type.name());
 		else if (type.iam == WhatAmI.BUILTIN ||
 				type instanceof RWStructDefn || type instanceof RWUnionTypeDefn ||
 				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWObjectDefn)
 			return getTypeOf(type.location(), type.name());
 		else if (type.iam == WhatAmI.INSTANCE) {
-			Map<Type, TypeVar> freshPolys = new HashMap<>();
-			List<TypeInfo> polyArgs = new ArrayList<TypeInfo>();
-			for (Type t : type.polys()) {
-				if (t.iam == WhatAmI.POLYVAR) {
-					if (freshPolys.containsKey(t)) // we assume that "equals" works for poly vars
-						polyArgs.add(freshPolys.get(t));
-					else {
-						TypeVar tv = new TypeVar(new Var(nextVar++));
-						freshPolys.put(t, tv);
-						polyArgs.add(tv);
-					}
-				} else {
-					polyArgs.add(convertType(t));
-				}
-			}
-			return new NamedType(type.name(), polyArgs);
+			return new InstanceType(type);
 		} else if (type.iam == WhatAmI.FUNCTION) {
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
 			int arity = type.arity();
@@ -304,4 +333,46 @@ public class TypeChecker2 {
 			throw new UtilException("the name '" + name + "' cannot be resolved for typechecking");
 		return ret;
 	}
+	
+	private TypeInfo freshPolys(TypeInfo ti, Map<String, TypeVar> curr) {
+		if (ti instanceof TypeVar) {
+			return ti;
+		} else if (ti instanceof PolyInfo) {
+			PolyInfo pv = (PolyInfo) ti;
+			if (!curr.containsKey(pv.name))
+				curr.put(pv.name, new TypeVar(new Var(nextVar++)));
+			return curr.get(pv.name);
+		} else if (ti instanceof NamedType) {
+			NamedType nt = (NamedType) ti;
+			if (nt.polyArgs == null)
+				return nt;
+			else {
+				List<TypeInfo> polyArgs = new ArrayList<TypeInfo>();
+				for (TypeInfo t : nt.polyArgs) {
+//					if (t instanceof PolyInfo) {
+//						PolyInfo pi = (PolyInfo) t;
+//						if (curr.containsKey(pi.name)) // we assume that "equals" works for poly vars
+//							polyArgs.add(curr.get(t));
+//						else {
+//							TypeVar tv = new TypeVar(new Var(nextVar++));
+//							curr.put(pi.name, tv);
+//							polyArgs.add(tv);
+//						}
+//					} else {
+						polyArgs.add(freshPolys(t, curr));
+//					}
+				}
+				return new NamedType(nt.name, polyArgs);
+			}
+		} else if (ti instanceof TypeFunc) {
+			TypeFunc tf = (TypeFunc) ti;
+			List<TypeInfo> args = new ArrayList<TypeInfo>();
+			for (TypeInfo x : tf.args)
+				args.add(freshPolys(x, curr));
+			return new TypeFunc(args);
+		} else
+			throw new UtilException("Do what now? " + ti);
+	}
+
+
 }

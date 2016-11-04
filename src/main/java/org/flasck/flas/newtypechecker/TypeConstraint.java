@@ -1,10 +1,10 @@
 package org.flasck.flas.newtypechecker;
 
 public class TypeConstraint implements Constraint {
-	private final String ty;
+	private final TypeInfo ty;
 
-	public TypeConstraint(String ty) {
-		this.ty = ty;
+	public TypeConstraint(TypeInfo ti) {
+		this.ty = ti;
 	}
 
 	@Override
