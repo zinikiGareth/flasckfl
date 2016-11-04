@@ -1,6 +1,7 @@
 package org.flasck.flas.newtypechecker;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -32,8 +34,8 @@ public class TypeChecker2 {
 	// is there a real need to keep these separate?  especially when we are promoting?
 	private final Map<String, TypeInfo> globalKnowledge = new HashMap<String, TypeInfo>();
 	private final Map<String, TypeInfo> localKnowledge = new HashMap<String, TypeInfo>();
-	private int nextTv;
 	private ListMap<Var, Constraint> constraints = new ListMap<Var, Constraint>();
+	private int nextVar;
 	
 	public TypeChecker2(ErrorResult errors) {
 		this.errors = errors;
@@ -56,18 +58,54 @@ public class TypeChecker2 {
 	public void typecheck(Set<HSIEForm> forms) {
 		
 		// 1. initialize the state for doing the checking ...
+		// 1a. clean up from previous attempts (should this go in a separate currentState object?)
 		localKnowledge.clear();
 		constraints.clear();
-		nextTv = 1;
+		nextVar=0;
+		
+		// 1b. define all the vars that are already in the HSIE, trapping the max value for future reference
 		for (HSIEForm f : forms) {
 			System.out.println("Checking type of " + f.fnName);
 			if (globalKnowledge.containsKey(f.fnName))
 				errors.message(f.location, "duplicate entry for " + f.fnName + " in type checking");
-			localKnowledge.put(f.fnName, nextVar());
 			for (Var v : f.vars) {
 				if (constraints.contains(v))
 					throw new UtilException("Duplicate var definition " + v);
 				constraints.ensure(v);
+				if (v.idx >= nextVar)
+					nextVar = v.idx+1;
+			}
+		}
+		System.out.println("allocating FRESH vars from " + nextVar);
+
+		// 1c. Now allocate FRESH vars for the return types
+		for (HSIEForm f : forms) {
+			System.out.println("Allocating function/return vars for " + f.fnName);
+			Var rv = new Var(nextVar++);
+			localKnowledge.put(f.fnName, new TypeFunc(f.vars, f.nformal, new TypeVar(rv)));
+			System.out.println("Return type of " + f.fnName + " is " + rv);
+			if (constraints.contains(rv))
+				throw new UtilException("Duplicate var definition " + rv);
+			constraints.ensure(rv);
+		}
+		
+		// 1d. Now allocate FRESH vars for any scoped variables that still haven't been defined
+		for (HSIEForm f : forms) {
+			System.out.println("Checking type of " + f.fnName);
+			if (globalKnowledge.containsKey(f.fnName))
+				errors.message(f.location, "duplicate entry for " + f.fnName + " in type checking");
+			for (VarNestedFromOuterFunctionScope vn : f.scoped) {
+				String name = vn.id;
+				if (globalKnowledge.containsKey(name) || localKnowledge.containsKey(name)) {
+					System.out.println("Have definition for " + name);
+					continue;
+				}
+				Var sv = new Var(nextVar++);
+				System.out.println("Introducing scoped var " + sv + " for " + name);
+				localKnowledge.put(name, new TypeVar(sv));
+				if (constraints.contains(sv))
+					throw new UtilException("Duplicate var definition " + sv);
+				constraints.ensure(sv);
 			}
 		}
 		
@@ -80,13 +118,19 @@ public class TypeChecker2 {
 					continue;
 				}
 				System.out.println("Need to check " + f.fnName + " " + c.var);
-				HSIEBlock cmd = c.nestedCommands().get(0);
+				List<HSIEBlock> cmds = c.nestedCommands();
+				HSIEBlock cmd = cmds.get(0);
 				if (cmd instanceof PushVar) {
 					// this is a tricky case
 				} else {
 					TypeInfo ti = getTypeOf(cmd);
 					if (ti == null)
 						continue;
+					for (int i=1;i<cmds.size();i++) {
+						TypeInfo ai = getTypeOf(cmds.get(i));
+						if (!(ti instanceof TypeFunc) || ((TypeFunc)ti).args.size() < i)
+							throw new UtilException("Error about applying a non-function to arg " + i + " in " + c.var);
+					}
 				}
 			}
 		}
@@ -159,8 +203,14 @@ public class TypeChecker2 {
 
 	private TypeInfo getTypeOf(HSIEBlock cmd) {
 		if (cmd instanceof PushExternal) {
-			String name = ((PushExternal)cmd).fn.uniqueName();
+			PushExternal pe = (PushExternal) cmd;
+			if (pe.fn instanceof VarNestedFromOuterFunctionScope) {
+				
+			}
+			String name = pe.fn.uniqueName();
 			return getTypeOf(cmd.location, name);
+		} else if (cmd instanceof PushVar) {
+			return new TypeVar(((PushVar)cmd).var.var);
 		} else
 			throw new UtilException("Need to determine type of " + cmd.getClass());
 	}
@@ -175,8 +225,4 @@ public class TypeChecker2 {
 		}
 		return ret;
 	}
-	private TypeVar nextVar() {
-		return new TypeVar(nextTv++);
-	}
-
 }
