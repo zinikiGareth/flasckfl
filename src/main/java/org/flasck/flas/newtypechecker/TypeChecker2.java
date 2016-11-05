@@ -38,7 +38,7 @@ import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
-import org.zinutils.collections.ListMap;
+import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker2 {
@@ -47,9 +47,10 @@ public class TypeChecker2 {
 	// is there a real need to keep these separate?  especially when we are promoting?
 	private final Map<String, TypeInfo> globalKnowledge = new HashMap<String, TypeInfo>();
 	private final Map<String, TypeInfo> localKnowledge = new HashMap<String, TypeInfo>();
-	private final ListMap<Var, Constraint> constraints = new ListMap<Var, Constraint>();
+	private final SetMap<Var, Constraint> constraints = new SetMap<Var, Constraint>(new SimpleVarComparator(), new ConstraintComparator());
 	private final Map<String, Var> returns = new HashMap<String, Var>();
 	private int nextVar;
+	private final Map<Var, HSIEBlock> scoping = new HashMap<>();
 	
 	public TypeChecker2(ErrorResult errors) {
 		this.errors = errors;
@@ -106,6 +107,7 @@ public class TypeChecker2 {
 		nextVar=0;
 		
 		// 1b. define all the vars that are already in the HSIE, trapping the max value for future reference
+		Map<String, Var> knownScoped = new HashMap<String, Var>();
 		for (HSIEForm f : forms) {
 			System.out.println("Checking type of " + f.fnName);
 			if (globalKnowledge.containsKey(f.fnName))
@@ -117,7 +119,13 @@ public class TypeChecker2 {
 				if (v.idx >= nextVar)
 					nextVar = v.idx+1;
 			}
+			collectVarNames(knownScoped, f);
+			for (ClosureCmd c : f.closures())
+				collectVarNames(knownScoped, c);
 		}
+		System.out.println("collected " + knownScoped);
+		for (Entry<String, Var> e : knownScoped.entrySet())
+			localKnowledge.put(e.getKey(), new TypeVar(e.getValue()));
 		System.out.println("allocating FRESH vars from " + nextVar);
 
 		// 1c. Now allocate FRESH vars for the return types
@@ -125,7 +133,7 @@ public class TypeChecker2 {
 			System.out.println("Allocating function/return vars for " + f.fnName);
 			Var rv = new Var(nextVar++);
 			localKnowledge.put(f.fnName, new TypeFunc(f.vars, f.nformal, new TypeVar(rv)));
-			System.out.println("Return type of " + f.fnName + " is " + rv);
+			System.out.println("Allocating " + rv + " as return type of " + f.fnName);
 			if (constraints.contains(rv))
 				throw new UtilException("Duplicate var definition " + rv);
 			constraints.ensure(rv);
@@ -134,9 +142,6 @@ public class TypeChecker2 {
 		
 		// 1d. Now allocate FRESH vars for any scoped variables that still haven't been defined
 		for (HSIEForm f : forms) {
-			System.out.println("Checking type of " + f.fnName);
-			if (globalKnowledge.containsKey(f.fnName))
-				errors.message(f.location, "duplicate entry for " + f.fnName + " in type checking");
 			for (VarNestedFromOuterFunctionScope vn : f.scoped) {
 				String name = vn.id;
 				if (globalKnowledge.containsKey(name) || localKnowledge.containsKey(name)) {
@@ -153,14 +158,23 @@ public class TypeChecker2 {
 		}
 		
 		// 2. collect constraints
-		// 2a. look at all the closures we have
+		// 2a. define "scoping" closures as what they really are
+		for (HSIEForm f : forms) {
+			for (ClosureCmd c : f.closures()) {
+				if (c.justScoping) {
+					scoping.put(c.var, c.nestedCommands().get(0));
+				}
+			}
+		}
+		
+		// 2b. look at all the closures we have
 		for (HSIEForm f : forms) {
 			for (ClosureCmd c : f.closures()) {
 				processClosure(f, c);
 			}
 		}
 		
-		// 2b. and at the switching blocks
+		// 2c. and at the switching blocks
 		for (HSIEForm f : forms) {
 			processHSI(f, f);
 		}
@@ -173,12 +187,30 @@ public class TypeChecker2 {
 		// 4. Deduce types by looking at formal arguments & return types
 	}
 
+	private void collectVarNames(Map<String, Var> knownScoped, HSIEBlock f) {
+		for (HSIEBlock c : f.nestedCommands()) {
+			if (c instanceof Head || c instanceof BindCmd || c instanceof ErrorCmd)
+				continue;
+			if (c instanceof Switch || c instanceof IFCmd)
+				collectVarNames(knownScoped, c);
+			else if (c instanceof PushVar) {
+				VarInSource v = ((PushVar)c).var;
+				if (knownScoped.containsKey(v.called) && knownScoped.get(v.called).idx != v.var.idx)
+					throw new UtilException("Inconsistent var names " + v.called + " has " + v.var + " and " + knownScoped.get(v.called));
+				knownScoped.put(v.called, v.var);
+			} else if (c instanceof PushReturn)
+				;
+			else
+				throw new UtilException("What is " + c + "?");
+		}
+	}
+
 	protected void processClosure(HSIEForm f, ClosureCmd c) {
 		List<HSIEBlock> cmds = c.nestedCommands();
 		if (c.justScoping) {
-			TypeFunc ti = (TypeFunc) getTypeOf(cmds.get(0));
-			System.out.println("Copying type of " + cmds.get(0) + " to " + c.var + ": " + ti);
-			constraints.add(c.var, new FnCallConstraint(ti.args));
+//			TypeFunc ti = (TypeFunc) getTypeOf(cmds.get(0));
+//			System.out.println("Copying type of " + cmds.get(0) + " to " + c.var + ": " + ti);
+//			constraints.add(c.var, new FnCallConstraint(ti.args));
 			return;
 		}
 		System.out.println("Need to check " + f.fnName + " " + c.var);
@@ -188,16 +220,17 @@ public class TypeChecker2 {
 			argtypes.add(ai);
 		}
 		HSIEBlock cmd = cmds.get(0);
+		if (cmd instanceof PushVar && scoping.containsKey(((PushVar)cmd).var.var))
+			cmd = scoping.get(((PushVar)cmd).var.var);
 		if (cmd instanceof PushVar) {
 			Var fv = ((PushVar)cmd).var.var;
 			constraints.add(fv, new FnCallConstraint(argtypes, new TypeVar(c.var)));
+			constraints.add(c.var, new AppliedFnConstraint(fv, cmds.size()-1));
 		} else {
 			// I think we need to consider FLEval.field as a special case here ...
 			TypeInfo ti = freshPolys(getTypeOf(cmd), new HashMap<>());
 			// TODO: if function is polymorphic, introduce fresh vars NOW
 			System.out.println("In " + c.var + " fi = " + ti);
-			if (c.var.idx == 9)
-				System.out.println(ti);
 			if (ti == null) {
 				System.out.println(c.var + " has a null first arg");
 				return;
@@ -313,7 +346,10 @@ public class TypeChecker2 {
 			String name = pt.tlv.name;
 			return getTypeOf(cmd.location, name);
 		} else if (cmd instanceof PushVar) {
-			return new TypeVar(((PushVar)cmd).var.var);
+			Var var = ((PushVar)cmd).var.var;
+			if (scoping.containsKey(var))
+				return getTypeOf(scoping.get(var));
+			return new TypeVar(var);
 		} else if (cmd instanceof PushInt) {
 			return getTypeOf(cmd.location, "Number");
 		} else if (cmd instanceof PushString) {
@@ -339,8 +375,11 @@ public class TypeChecker2 {
 			return ti;
 		} else if (ti instanceof PolyInfo) {
 			PolyInfo pv = (PolyInfo) ti;
-			if (!curr.containsKey(pv.name))
-				curr.put(pv.name, new TypeVar(new Var(nextVar++)));
+			if (!curr.containsKey(pv.name)) {
+				Var rv = new Var(nextVar++);
+				curr.put(pv.name, new TypeVar(rv));
+				System.out.println("Allocating " + rv + " as fresh var for poly type " + pv.name);
+			}
 			return curr.get(pv.name);
 		} else if (ti instanceof NamedType) {
 			NamedType nt = (NamedType) ti;
