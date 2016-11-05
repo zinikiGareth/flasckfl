@@ -61,10 +61,22 @@ public class TypeChecker2 {
 			globalKnowledge.put(bi.name(), new NamedType(bi.name()));
 		}
 		for (RWUnionTypeDefn ud : rw.types.values()) {
-			globalKnowledge.put(ud.name(), new NamedType(ud.name()));
+			List<TypeInfo> polys = null;
+			if (ud.hasPolys()) {
+				polys = new ArrayList<>();
+				for (Type t : ud.polys())
+					polys.add(convertType(t));
+			}
+			globalKnowledge.put(ud.name(), new NamedType(ud.name(), polys));
 		}
 		for (RWObjectDefn od : rw.objects.values()) {
-			globalKnowledge.put(od.name(), new NamedType(od.name()));
+			List<TypeInfo> polys = null;
+			if (od.hasPolys()) {
+				polys = new ArrayList<>();
+				for (Type t : od.polys())
+					polys.add(convertType(t));
+			}
+			globalKnowledge.put(od.name(), new NamedType(od.name(), polys));
 		}
 		for (RWContractDecl cd : rw.contracts.values())
 			globalKnowledge.put(cd.name(), new NamedType(cd.name()));
@@ -208,9 +220,6 @@ public class TypeChecker2 {
 	protected void processClosure(HSIEForm f, ClosureCmd c) {
 		List<HSIEBlock> cmds = c.nestedCommands();
 		if (c.justScoping) {
-//			TypeFunc ti = (TypeFunc) getTypeOf(cmds.get(0));
-//			System.out.println("Copying type of " + cmds.get(0) + " to " + c.var + ": " + ti);
-//			constraints.add(c.var, new FnCallConstraint(ti.args));
 			return;
 		}
 		System.out.println("Need to check " + f.fnName + " " + c.var);
@@ -277,14 +286,14 @@ public class TypeChecker2 {
 			Switch sw = (Switch) c;
 			RWStructDefn sd = structs.get(sw.ctor);
 			if (sd != null) {
+				Map<String, TypeVar> mapping = new HashMap<>();
 				constraints.add(sw.var, new SwitchConstraint(sd));
 				for (HSIEBlock sc : sw.nestedCommands()) {
 					if (sc instanceof BindCmd) {
 						BindCmd b = (BindCmd)sc;
-						TypeInfo ty = convertType(sd.findField(b.field).type);
+						TypeInfo ty = freshPolys(convertType(sd.findField(b.field).type), mapping);
 						System.out.println("Processing BIND " + b.bind + " with " + ty);
-						if (ty != null) // null for poly vars, which (AFAIK) don't add constraints
-							constraints.add(b.bind, new BindConstraint(ty));
+						constraints.add(b.bind, new BindConstraint(ty));
 					} else
 						processOne(f, sc);
 				}
@@ -388,18 +397,7 @@ public class TypeChecker2 {
 			else {
 				List<TypeInfo> polyArgs = new ArrayList<TypeInfo>();
 				for (TypeInfo t : nt.polyArgs) {
-//					if (t instanceof PolyInfo) {
-//						PolyInfo pi = (PolyInfo) t;
-//						if (curr.containsKey(pi.name)) // we assume that "equals" works for poly vars
-//							polyArgs.add(curr.get(t));
-//						else {
-//							TypeVar tv = new TypeVar(new Var(nextVar++));
-//							curr.put(pi.name, tv);
-//							polyArgs.add(tv);
-//						}
-//					} else {
-						polyArgs.add(freshPolys(t, curr));
-//					}
+					polyArgs.add(freshPolys(t, curr));
 				}
 				return new NamedType(nt.name, polyArgs);
 			}
