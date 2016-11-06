@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
@@ -214,6 +215,7 @@ public class TypeChecker2 {
 			System.out.println(k + " -> " + constraints.get(k));
 		
 		// something in here has to be recursive over type parameters.  Is it the whole block, unify, or what?
+		SetMap<Var, Constraint> fullConstraints = constraints.duplicate();
 		Map<Var, TypeInfo> unions = unifyConstraints();
 
 		for (Var k : constraints.keySet())
@@ -231,9 +233,32 @@ public class TypeChecker2 {
 		for (Entry<Var, TypeInfo> e : unions.entrySet())
 			System.out.println(e.getKey() + " -> " + e.getValue());
 		
-		
-		
 		// 4. Deduce types by looking at formal arguments & return types
+		SetMap<Var, Var> min = new SetMap<Var, Var>(new SimpleVarComparator(), new SimpleVarComparator());
+		for (Var v : fullConstraints.keySet()) {
+			Set<Var> vars = new TreeSet<Var>(new SimpleVarComparator());
+			closeEquivalentVars(vars, unions, fullConstraints, v);
+			System.out.println("For " + v + ", vars = " + vars);
+			for (Var vq : vars) {
+				for (Var vi : vars) {
+//					if (vi.equals(vq))
+//						continue;
+					min.add(vq, vi);
+					min.add(vi, vq);
+				}
+			}
+		}
+		System.out.println("min = " + min);
+		Map<Var, Var> min1 = new TreeMap<Var, Var>(new SimpleVarComparator());
+		for (Var v : min)
+			min1.put(v, CollectionUtils.any(min.get(v))); // should be the first, which is smallest
+		System.out.println("min1 = " + min1);
+		
+		for (HSIEForm f : forms) {
+			TypeInfo nt = deduceType(min1, unions, f);
+			System.out.println("Concluded that " + f.fnName + " has type " + nt);
+			globalKnowledge.put(f.fnName, nt);
+		}
 	}
 
 	private void collectVarNames(Map<String, Var> knownScoped, HSIEBlock f) {
@@ -611,6 +636,89 @@ public class TypeChecker2 {
 			ret.add(ti);
 		}
 		return ret;
+	}
+
+	private TypeInfo deduceType(Map<Var, Var> min1, Map<Var, TypeInfo> unions, HSIEForm f) {
+		Map<Var, PolyInfo> install = new HashMap<Var, PolyInfo>();
+		List<TypeInfo> args = new ArrayList<TypeInfo>();
+		for (int i=0;i<f.nformal;i++) {
+			System.out.println(f.vars.get(i));
+			args.add(unions.get(f.vars.get(i)));
+		}
+		System.out.println(this.returns.get(f.fnName));
+		args.add(unions.get(this.returns.get(f.fnName)));
+		System.out.println("have " + args);
+		for (int i=0;i<args.size();i++)
+			args.set(i, poly(min1, install, args.get(i)));
+		System.out.println("install = " + install);
+		System.out.println("made " + args);
+		if (args.size() == 1)
+			return args.get(0);
+		else
+			return new TypeFunc(args);
+	}
+
+	// The objective of this is to turn poly vars back into real things
+	private TypeInfo poly(Map<Var, Var> min1, Map<Var, PolyInfo> install, TypeInfo ti) {
+		if (ti instanceof TypeVar) {
+			Var v = ((TypeVar)ti).var;
+			v = min1.get(v);
+			if (install.containsKey(v))
+				return install.get(v);
+			PolyInfo pv = new PolyInfo(new String(new char[] { (char)(65+install.size()) }));
+			install.put(v, pv);
+			return pv;
+		} else if (ti instanceof TypeFunc) {
+			TypeFunc tf = (TypeFunc) ti;
+			List<TypeInfo> args = new ArrayList<TypeInfo>();
+			for (TypeInfo i : tf.args)
+				args.add(poly(min1, install, i));
+			return new TypeFunc(args);
+		} else if (ti instanceof NamedType) {
+			NamedType nt = (NamedType) ti;
+			List<TypeInfo> args = new ArrayList<TypeInfo>();
+			if (nt.polyArgs != null) {
+				for (TypeInfo i : nt.polyArgs)
+					args.add(poly(min1, install, i));
+			}
+			return new NamedType(nt.name, args);
+		} else
+			throw new NotImplementedException(ti + " " +ti.getClass().getName());
+	}
+
+	private void closeEquivalentVars(Set<Var> vars, Map<Var, TypeInfo> unions, SetMap<Var, Constraint> constraints, Var var) {
+		if (vars.contains(var))
+			return;
+		
+		vars.add(var);
+		for (Constraint c : constraints.get(var)) {
+			if (c instanceof BindConstraint) {
+				BindConstraint bs = (BindConstraint) c;
+				if (bs.ty instanceof TypeVar) {
+					closeEquivalentVars(vars, unions, constraints, ((TypeVar)bs.ty).var);
+				} else if (bs.ty instanceof NamedType) {
+					// I don't think this is important ...
+				} else
+					throw new NotImplementedException(bs.ty.getClass().getName());
+			} else if (c instanceof TopOfConstraint) {
+				TopOfConstraint toc = (TopOfConstraint) c;
+				if (toc.have instanceof TypeVar)
+					closeEquivalentVars(vars, unions, constraints, ((TypeVar)toc.have).var);
+			} else if (c instanceof BottomOfConstraint) {
+				// I think we can safely ignore this one ..
+			} else if (c instanceof AppliedFnConstraint) {
+				AppliedFnConstraint afc = (AppliedFnConstraint) c;
+				afc.typeInfo(unions);
+			} else if (c instanceof FnCallConstraint) {
+				// I don't know what to do with this, or if I need to 
+			} else if (c instanceof SwitchConstraint) {
+				// I don't know what to do with this, or if I need to 
+			} else if (c instanceof TypeConstraint) {
+				// I don't know what to do with this, or if I need to 
+			} else
+				throw new NotImplementedException(c.getClass().getName());
+		}
+		
 	}
 
 	private TypeInfo convertType(Type type) {

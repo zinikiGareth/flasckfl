@@ -31,7 +31,12 @@ public class TypeFunc extends TypeInfo {
 		for (TypeInfo a : args) {
 			ret.append(sep);
 			sep = "->";
-			ret.append(a);
+			if (a instanceof TypeFunc) {
+				ret.append("(");
+				ret.append(a);
+				ret.append(")");
+			} else
+				ret.append(a);
 		}
 		return ret.toString();
 	}
