@@ -48,6 +48,7 @@ import org.zinutils.exceptions.UtilException;
 public class TypeChecker2 {
 	private final ErrorResult errors;
 	private final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
+	private final Map<String, TypeInfo> structTypes = new HashMap<String, TypeInfo>();
 	// is there a real need to keep these separate?  especially when we are promoting?
 	private final Map<String, TypeInfo> globalKnowledge = new HashMap<String, TypeInfo>();
 	private final Map<String, TypeInfo> localKnowledge = new HashMap<String, TypeInfo>();
@@ -55,6 +56,7 @@ public class TypeChecker2 {
 	private final Map<String, Var> returns = new HashMap<String, Var>();
 	private int nextVar;
 	private final Map<Var, HSIEBlock> scoping = new HashMap<>();
+	private final Map<String, RWUnionTypeDefn> unions = new HashMap<>();
 	
 	public TypeChecker2(ErrorResult errors) {
 		this.errors = errors;
@@ -71,7 +73,12 @@ public class TypeChecker2 {
 				for (Type t : ud.polys())
 					polys.add(convertType(t));
 			}
-			globalKnowledge.put(ud.name(), new NamedType(ud.name(), polys));
+			NamedType uty = new NamedType(ud.name(), polys);
+			globalKnowledge.put(ud.name(), uty);
+			
+			for (Type x : ud.cases) {
+				unions.put(x.name(), ud);
+			}
 		}
 		for (RWObjectDefn od : rw.objects.values()) {
 			List<TypeInfo> polys = null;
@@ -95,7 +102,9 @@ public class TypeChecker2 {
 				for (Type t : sd.polys())
 					polys.add(convertType(t));
 			}
-			globalKnowledge.put(sd.uniqueName(), new TypeFunc(fs, new NamedType(sd.uniqueName(), polys)));
+			NamedType sty = new NamedType(sd.uniqueName(), polys);
+			structTypes.put(sd.uniqueName(), sty);
+			globalKnowledge.put(sd.uniqueName(), new TypeFunc(fs, sty));
 		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
 			globalKnowledge.put(d.getKey(), new NamedType(d.getKey()));
@@ -305,7 +314,7 @@ public class TypeChecker2 {
 			RWStructDefn sd = structs.get(sw.ctor);
 			if (sd != null) {
 				Map<String, TypeVar> mapping = new HashMap<>();
-				constraints.add(sw.var, new SwitchConstraint(sd));
+				constraints.add(sw.var, new SwitchConstraint((NamedType) freshPolys(structTypes.get(sd.name()), mapping)));
 				for (HSIEBlock sc : sw.nestedCommands()) {
 					if (sc instanceof BindCmd) {
 						BindCmd b = (BindCmd)sc;
@@ -412,16 +421,18 @@ public class TypeChecker2 {
 	}
 
 	private TypeInfo makeUnion(Set<Constraint> values) {
-		if (values.isEmpty())
-			return null;
-		
-		if (values.size() == 1) {
-			Constraint val = CollectionUtils.any(values);
+		Set<TypeInfo> types = new HashSet<TypeInfo>();
+		for (Constraint val : values) {
 			if (val instanceof AppliedFnConstraint)
-				return null;
-			return val.typeInfo();
+				continue;
+			types.add(val.typeInfo());
 		}
-		throw new NotImplementedException("The hard case");
+		if (types.isEmpty())
+			return null;
+		else if (types.size() == 1)
+			return CollectionUtils.any(types);
+		else
+			return unifyTypes(types);
 	}
 	
 	private void applyFunctions(Map<Var, TypeInfo> unions, Var v, Set<Constraint> values) {
@@ -439,14 +450,90 @@ public class TypeChecker2 {
 		TypeInfo already = unions.get(v);
 		if (already != null)
 			toAdd.add(already);
-		if (toAdd.size() > 1)
-			throw new NotImplementedException("Need to unify this");
-		TypeInfo addMe = CollectionUtils.any(toAdd);
+		TypeInfo addMe;
+		if (toAdd.size() == 1)
+			addMe = CollectionUtils.any(toAdd);
+		else
+			addMe = unifyTypes(toAdd);
 		if (addMe instanceof TypeVar && ((TypeVar)addMe).var.equals(v))
 			return; // OK, I'm me.  Big deal.
 		unions.put(v, addMe);
 	}
 	
+	// There are at least 3 separate things we need to unify here
+	// First, we can unify multiple constructors into a union type, under certain circumstances
+	// Secondly, we can unify functions by ensuring that all instances have the same arity, then unifying their arguments
+	// Thirdly, we can unify polymorphic types by unifying the polymorphic arguments
+	// TODO: I believe this will be recursive, but I have some doubts about the termination conditions.
+	// Theoretically, it should end, because the recursion is structural; however, the need to reference other
+	// variables throws a spanner in the works.
+	// TODO: I think the solution to that is to unify the args later by creating a new UnifyTypeInfo right now.
+	private TypeInfo unifyTypes(Set<TypeInfo> set) {
+		System.out.println("Must unify " + set);
+		Set<RWUnionTypeDefn> unions = new HashSet<RWUnionTypeDefn>();
+		Set<String> structs = new HashSet<String>();
+		// Set<TypeInfo> functions = new HashSet<TypeInfo>();
+		
+		for (TypeInfo ti : set) {
+			// TODO: I'm not sure this should be allowed to get here; move it somewhere else?
+			while (ti instanceof TypeFunc && ((TypeFunc)ti).args.size() == 1) {
+				ti = ((TypeFunc)ti).args.get(0);
+			}
+			if (ti instanceof NamedType) {
+				NamedType nt = (NamedType) ti;
+				String ctor = nt.name;
+				structs.add(ctor);
+				if (this.unions.containsKey(ctor))
+					unions.add(this.unions.get(ctor));
+			} else
+				throw new NotImplementedException("There is at least a function case we need to handle: " + ti.getClass());
+		}
+		// TODO: check that not both unions and functions have entries
+		// else if unions
+		if (structs.size() == 1) {
+			// they all have the same type, so we just need to unify any (hypothetical) args
+			List<TypeInfo> polyArgs = null;
+			for (TypeInfo ti : set) {
+				// We can now be sure they are all NamedTypes, because otherwise we have already failed
+				NamedType nt = (NamedType) ti;
+				if (polyArgs == null) {
+					polyArgs = new ArrayList<TypeInfo>();
+					for (TypeInfo a : nt.polyArgs)
+						polyArgs.add(new UnifyType(a));
+				} else
+					for (int i=0;i<nt.polyArgs.size();i++)
+						((UnifyType)polyArgs.get(i)).add(nt.polyArgs.get(i));
+			}
+			return new NamedType(CollectionUtils.any(structs), polyArgs);
+		} else {
+			Type chosen = null;
+			if (unions.size() == 1)
+				chosen = CollectionUtils.any(unions);
+			else {
+				// we need to find exactly one union which matches all the constructors
+				for (RWUnionTypeDefn ud : unions) {
+					boolean haveAll = true;
+					for (Type cs : ud.cases)
+						haveAll &= structs.contains(cs.name());
+					for (String s : structs) {
+						haveAll &= ud.hasCtor(s) || ud.name().equals(s);
+					}
+					if (haveAll) {
+						if (chosen != null)
+							throw new UtilException("Cannot choose between " + chosen + " and " + ud);
+						chosen = ud;
+					}
+				}
+				if (chosen == null)
+					throw new UtilException("There is no union that applies to " + structs);
+			}
+			System.out.println("chosen = " + chosen);
+			throw new NotImplementedException("Must instantiate " + chosen);
+		}
+		// else if functions
+		// else // huh? something must have an entry
+	}
+
 	private TypeInfo convertType(Type type) {
 		if (type.iam == WhatAmI.POLYVAR)
 			return new PolyInfo(type.name());

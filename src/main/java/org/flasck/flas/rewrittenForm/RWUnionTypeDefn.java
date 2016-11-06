@@ -20,6 +20,13 @@ public class RWUnionTypeDefn extends Type {
 		return this;
 	}
 	
+	public boolean hasCtor(String s) {
+		for (Type cs : cases)
+			if (cs.name().equals(s))
+				return true;
+		return false;
+	}
+	
 	@Override
 	public String toString() {
 		return name();
