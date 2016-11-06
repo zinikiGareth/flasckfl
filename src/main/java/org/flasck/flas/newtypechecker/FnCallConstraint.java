@@ -15,6 +15,12 @@ public class FnCallConstraint implements Constraint {
 		this.argtypes.addAll(signature);
 	}
 
+	
+	@Override
+	public TypeInfo typeInfo() {
+		return new TypeFunc(argtypes);
+	}
+
 	@Override
 	public String toString() {
 		String sep = "";

@@ -6,6 +6,11 @@ public class BottomOfConstraint implements Constraint {
 	public BottomOfConstraint(TypeInfo want) {
 		this.want = want;
 	}
+	
+	@Override
+	public TypeInfo typeInfo() {
+		return want;
+	}
 
 	@Override
 	public String toString() {

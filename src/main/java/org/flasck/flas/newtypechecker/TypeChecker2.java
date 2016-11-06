@@ -2,10 +2,12 @@ package org.flasck.flas.newtypechecker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
@@ -38,7 +40,9 @@ import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.SetMap;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker2 {
@@ -195,6 +199,20 @@ public class TypeChecker2 {
 			System.out.println(k + " -> " + constraints.get(k));
 		
 		// 3. Resolve constraints
+		closeConstraints();
+		
+		for (Var k : constraints.keySet())
+			System.out.println(k + " -> " + constraints.get(k));
+		
+		// something in here has to be recursive over type parameters.  Is it the whole block, unify, or what?
+		Map<Var, TypeInfo> unions = unifyConstraints();
+
+		for (Var k : constraints.keySet())
+			System.out.println(k + " -> " + constraints.get(k));
+
+		for (Entry<Var, TypeInfo> e : unions.entrySet())
+			System.out.println(e.getKey() + " -> " + e.getValue());
+		
 		
 		// 4. Deduce types by looking at formal arguments & return types
 	}
@@ -323,6 +341,112 @@ public class TypeChecker2 {
 			System.out.println("Handle " + c);
 	}
 
+	private void closeConstraints() {
+		boolean didSomething = true;
+		while (didSomething) {
+			didSomething = false;
+			 
+			for (Var v : constraints.keySet()) {
+				Set<Constraint> values = constraints.get(v);
+				int sz = values.size();
+				Set<Constraint> toAdd = new HashSet<>();
+				for (Constraint cs : values) {
+					if (cs instanceof TopOfConstraint) {
+						pullConstraintsFromTypeVar(toAdd, ((TopOfConstraint) cs).have, true);
+					} else if (cs instanceof TypeConstraint) {
+						pullConstraintsFromTypeVar(toAdd, ((TypeConstraint) cs).ty, false);
+					} else if (cs instanceof BindConstraint) {
+						pullConstraintsFromTypeVar(toAdd, ((BindConstraint) cs).ty, false);
+					}
+				}
+				values.addAll(toAdd);
+				didSomething |= values.size() > sz;
+			}
+		}
+	}
+
+	protected void pullConstraintsFromTypeVar(Set<Constraint> toAdd, TypeInfo hv, boolean makeMoreTop) {
+		if (hv instanceof TypeVar) {
+			Var rv = ((TypeVar)hv).var;
+			for (Constraint rc : constraints.get(rv))
+				if (rc instanceof BottomOfConstraint)
+					;
+				else if (rc instanceof TopOfConstraint || !makeMoreTop)
+					toAdd.add(rc);
+				else if (rc instanceof TypeConstraint)
+					toAdd.add(new TopOfConstraint(((TypeConstraint)rc).ty));
+				else if (rc instanceof BindConstraint)
+					toAdd.add(new TopOfConstraint(((BindConstraint)rc).ty));
+		}
+	}
+
+	private Map<Var, TypeInfo> unifyConstraints() {
+		Map<Var, TypeInfo> unions = new TreeMap<>(new SimpleVarComparator());
+		// TODO: I think we need to copy this before we start hacking it around
+		for (Var v : constraints.keySet()) {
+			Set<Constraint> values = constraints.get(v);
+			Set<Constraint> toRemove = new HashSet<>();
+			for (Constraint cs : values) {
+				if (cs instanceof BottomOfConstraint)
+					toRemove.add(cs);
+				else if (cs instanceof TopOfConstraint)
+					removeVars(toRemove, cs, ((TopOfConstraint) cs).have);
+				else if (cs instanceof TypeConstraint)
+					removeVars(toRemove, cs, ((TypeConstraint) cs).ty);
+				else if (cs instanceof BindConstraint)
+					removeVars(toRemove, cs, ((BindConstraint) cs).ty);
+			}
+			values.removeAll(toRemove);
+		}
+		for (Var v : constraints.keySet())
+			unions.put(v, makeUnion(constraints.get(v)));
+		for (Var v : constraints.keySet())
+			applyFunctions(unions, v, constraints.get(v));
+		return unions;
+	}
+
+	private void removeVars(Set<Constraint> toRemove, Constraint cs, TypeInfo hv) {
+		if (hv instanceof TypeVar) {
+			toRemove.add(cs);
+		}
+	}
+
+	private TypeInfo makeUnion(Set<Constraint> values) {
+		if (values.isEmpty())
+			return null;
+		
+		if (values.size() == 1) {
+			Constraint val = CollectionUtils.any(values);
+			if (val instanceof AppliedFnConstraint)
+				return null;
+			return val.typeInfo();
+		}
+		throw new NotImplementedException("The hard case");
+	}
+	
+	private void applyFunctions(Map<Var, TypeInfo> unions, Var v, Set<Constraint> values) {
+		if (values.isEmpty())
+			return;
+		
+		HashSet<TypeInfo> toAdd = new HashSet<TypeInfo>();
+		for (Constraint cs : values) {
+			if (cs instanceof AppliedFnConstraint) {
+				toAdd.add(((AppliedFnConstraint)cs).typeInfo(unions));
+			}
+		}
+		if (toAdd.isEmpty())
+			return;
+		TypeInfo already = unions.get(v);
+		if (already != null)
+			toAdd.add(already);
+		if (toAdd.size() > 1)
+			throw new NotImplementedException("Need to unify this");
+		TypeInfo addMe = CollectionUtils.any(toAdd);
+		if (addMe instanceof TypeVar && ((TypeVar)addMe).var.equals(v))
+			return; // OK, I'm me.  Big deal.
+		unions.put(v, addMe);
+	}
+	
 	private TypeInfo convertType(Type type) {
 		if (type.iam == WhatAmI.POLYVAR)
 			return new PolyInfo(type.name());
@@ -388,6 +512,7 @@ public class TypeChecker2 {
 				Var rv = new Var(nextVar++);
 				curr.put(pv.name, new TypeVar(rv));
 				System.out.println("Allocating " + rv + " as fresh var for poly type " + pv.name);
+				constraints.ensure(rv);
 			}
 			return curr.get(pv.name);
 		} else if (ti instanceof NamedType) {
@@ -410,6 +535,4 @@ public class TypeChecker2 {
 		} else
 			throw new UtilException("Do what now? " + ti);
 	}
-
-
 }

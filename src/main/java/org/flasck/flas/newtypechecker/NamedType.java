@@ -2,8 +2,6 @@ package org.flasck.flas.newtypechecker;
 
 import java.util.List;
 
-import org.flasck.flas.vcode.hsieForm.Var;
-
 public class NamedType extends TypeInfo {
 	public final String name;
 	public final List<TypeInfo> polyArgs;
