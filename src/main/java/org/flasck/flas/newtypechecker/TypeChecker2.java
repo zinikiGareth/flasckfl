@@ -1,6 +1,7 @@
 package org.flasck.flas.newtypechecker;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -494,19 +495,26 @@ public class TypeChecker2 {
 			// they all have the same type, so we just need to unify any (hypothetical) args
 			List<TypeInfo> polyArgs = null;
 			for (TypeInfo ti : set) {
+				// TODO: I'm not sure this should be allowed to get here; move it somewhere else?
+				while (ti instanceof TypeFunc && ((TypeFunc)ti).args.size() == 1) {
+					ti = ((TypeFunc)ti).args.get(0);
+				}
 				// We can now be sure they are all NamedTypes, because otherwise we have already failed
 				NamedType nt = (NamedType) ti;
 				if (polyArgs == null) {
 					polyArgs = new ArrayList<TypeInfo>();
 					for (TypeInfo a : nt.polyArgs)
 						polyArgs.add(new UnifyType(a));
-				} else
+				} else {
+					if (nt.polyArgs.size() != polyArgs.size())
+						throw new UtilException("this suggests something went wrong elsewhere");
 					for (int i=0;i<nt.polyArgs.size();i++)
 						((UnifyType)polyArgs.get(i)).add(nt.polyArgs.get(i));
+				}
 			}
 			return new NamedType(CollectionUtils.any(structs), polyArgs);
 		} else {
-			Type chosen = null;
+			RWUnionTypeDefn chosen = null;
 			if (unions.size() == 1)
 				chosen = CollectionUtils.any(unions);
 			else {
@@ -528,7 +536,29 @@ public class TypeChecker2 {
 					throw new UtilException("There is no union that applies to " + structs);
 			}
 			System.out.println("chosen = " + chosen);
-			throw new NotImplementedException("Must instantiate " + chosen);
+			List<TypeInfo> polys = new ArrayList<TypeInfo>();
+			if (chosen.hasPolys()) {
+				for (@SuppressWarnings("unused") Type x : chosen.polys())
+					polys.add(new UnifyType());
+				for (TypeInfo ti : set) { // go through the list again, looking for poly vars
+					// TODO: I'm not sure this should be allowed to get here; move it somewhere else?
+					while (ti instanceof TypeFunc && ((TypeFunc)ti).args.size() == 1) {
+						ti = ((TypeFunc)ti).args.get(0);
+					}
+					NamedType nt = (NamedType) ti;
+					List<Integer> pas;
+					if (nt.name.equals(chosen.name())) {
+						pas = new ArrayList<Integer>();
+						for (@SuppressWarnings("unused") Type x : chosen.polys())
+							pas.add(pas.size());
+					} else
+						pas = chosen.getCtorPolyArgPosns(nt.name);
+					for (int i=0;i<pas.size();i++) {
+						((UnifyType) polys.get(pas.get(i))).add(nt.polyArgs.get(i));
+					}
+				}
+			}
+			return new NamedType(chosen.name(), polys);
 		}
 		// else if functions
 		// else // huh? something must have an entry
