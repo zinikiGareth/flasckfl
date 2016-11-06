@@ -1,7 +1,6 @@
 package org.flasck.flas.newtypechecker;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -222,6 +221,16 @@ public class TypeChecker2 {
 
 		for (Entry<Var, TypeInfo> e : unions.entrySet())
 			System.out.println(e.getKey() + " -> " + e.getValue());
+		
+		Map<Var, TypeInfo> resolved = new TreeMap<>(new SimpleVarComparator());
+		for (Entry<Var, TypeInfo> e : unions.entrySet()) {
+			resolved.put(e.getKey(), resolveUnions(e.getValue(), unions));
+		}
+		unions = resolved;
+
+		for (Entry<Var, TypeInfo> e : unions.entrySet())
+			System.out.println(e.getKey() + " -> " + e.getValue());
+		
 		
 		
 		// 4. Deduce types by looking at formal arguments & return types
@@ -470,11 +479,11 @@ public class TypeChecker2 {
 	// variables throws a spanner in the works.
 	// TODO: I think the solution to that is to unify the args later by creating a new UnifyTypeInfo right now.
 	private TypeInfo unifyTypes(Set<TypeInfo> set) {
-		System.out.println("Must unify " + set);
 		Set<RWUnionTypeDefn> unions = new HashSet<RWUnionTypeDefn>();
 		Set<String> structs = new HashSet<String>();
 		// Set<TypeInfo> functions = new HashSet<TypeInfo>();
 		
+		TypeInfo tv = null;
 		for (TypeInfo ti : set) {
 			// TODO: I'm not sure this should be allowed to get here; move it somewhere else?
 			while (ti instanceof TypeFunc && ((TypeFunc)ti).args.size() == 1) {
@@ -486,9 +495,13 @@ public class TypeChecker2 {
 				structs.add(ctor);
 				if (this.unions.containsKey(ctor))
 					unions.add(this.unions.get(ctor));
+			} else if (ti instanceof TypeVar) {
+				tv  = ti;
 			} else
 				throw new NotImplementedException("There is at least a function case we need to handle: " + ti.getClass());
 		}
+		if (unions.isEmpty() && structs.isEmpty())
+			return tv; // there is no constraint to speak of 
 		// TODO: check that not both unions and functions have entries
 		// else if unions
 		if (structs.size() == 1) {
@@ -535,7 +548,6 @@ public class TypeChecker2 {
 				if (chosen == null)
 					throw new UtilException("There is no union that applies to " + structs);
 			}
-			System.out.println("chosen = " + chosen);
 			List<TypeInfo> polys = new ArrayList<TypeInfo>();
 			if (chosen.hasPolys()) {
 				for (@SuppressWarnings("unused") Type x : chosen.polys())
@@ -562,6 +574,43 @@ public class TypeChecker2 {
 		}
 		// else if functions
 		// else // huh? something must have an entry
+	}
+
+	private TypeInfo resolveUnions(TypeInfo value, Map<Var, TypeInfo> unions) {
+		if (value == null)
+			return null;
+		else if (value instanceof NamedType) {
+			NamedType nt = (NamedType) value;
+			List<TypeInfo> polyArgs = new ArrayList<TypeInfo>();
+			if (nt.polyArgs != null) {
+				for (TypeInfo ti : nt.polyArgs) {
+					if (!(ti instanceof UnifyType))
+						polyArgs.add(ti);
+					else {
+						UnifyType ut = (UnifyType) ti;
+						polyArgs.add(unifyTypes(expandUnions(unions, ut.types)));
+					}
+				}
+			}
+			return new NamedType(nt.name, polyArgs);
+		} else if (value instanceof TypeFunc) {
+			// work needs to be done here, I think
+			return value;
+		} else
+			throw new NotImplementedException("other cases: " + value.getClass());
+	}
+
+	private Set<TypeInfo> expandUnions(Map<Var, TypeInfo> unions, Set<TypeInfo> types) {
+		Set<TypeInfo> ret = new HashSet<>();
+		for (TypeInfo ti : types) {
+			if (ti instanceof TypeVar) {
+				TypeInfo add = unions.get(((TypeVar)ti).var);
+				if (add != null)
+					ret.add(add);
+			}
+			ret.add(ti);
+		}
+		return ret;
 	}
 
 	private TypeInfo convertType(Type type) {
