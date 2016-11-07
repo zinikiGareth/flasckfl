@@ -652,6 +652,8 @@ public class TypeChecker2 {
 				ret = rw.objects.get(nt.name);
 			else if (rw.contracts.containsKey(nt.name))
 				ret = rw.contracts.get(nt.name);
+			else if (rw.cards.containsKey(nt.name))
+				ret = rw.cards.get(nt.name).struct;
 			else
 				throw new UtilException("Could not find type " + nt.name);
 			if (nt.polyArgs.isEmpty())
@@ -672,6 +674,6 @@ public class TypeChecker2 {
 			PolyInfo pi = (PolyInfo) ti;
 			return Type.polyvar(posn, pi.name);
 		} else
-			throw new UtilException("Not handled: " + ti.getClass());
+			throw new UtilException("Have computed type " + ti.getClass() + " but can't convert back to real Type");
 	}
 }

@@ -1,0 +1,2 @@
+test.golden.y :: test.golden.MyCard
+test.golden.x :: Number
