@@ -532,10 +532,9 @@ public class TypeChecker2 {
 			return new InstanceType(type);
 		} else if (type.iam == WhatAmI.FUNCTION) {
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
-			int arity = type.arity();
-			for (int i=0;i<arity-1;i++)
+			for (int i=0;i<type.arity()+1;i++)
 				args.add(convertType(type.arg(i)));
-			return new TypeFunc(args, convertType(type.arg(arity)));
+			return new TypeFunc(args);
 		} else
 			throw new UtilException("Cannot convert " + type.getClass() + " " + type.iam + ": " + type.name());
 	}

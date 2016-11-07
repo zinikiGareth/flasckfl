@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -21,15 +22,16 @@ public class Eliminator {
 	}
 
 	public void subst(Var k, Var v) {
+		System.out.println("Replacing " + k + " with " + v + " everywhere");
 		if (renames.containsKey(k))
 			throw new UtilException("Cannot rename more than once");
 		if (renames.containsKey(v))
 			throw new UtilException("Cannot rename to a renamed var");
 		renames.put(k, v);
-		for (Var q : renames.values())
-			if (q.equals(k))
-				throw new UtilException("Cannot (yet?) rename a var that has been renamed to");
-		System.out.println("Replacing " + k + " with " + v + " everywhere");
+		for (Entry<Var, Var> q : renames.entrySet())
+			if (q.getValue().equals(k)) {
+				renames.put(q.getKey(), v);
+			}
 		constraints.addAll(v, constraints.get(k));
 		constraints.removeAll(k);
 		for (Var m : constraints) {
