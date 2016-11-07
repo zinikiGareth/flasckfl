@@ -529,7 +529,10 @@ public class TypeChecker2 {
 				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWObjectDefn)
 			return getTypeOf(type.location(), type.name());
 		else if (type.iam == WhatAmI.INSTANCE) {
-			return new InstanceType(type);
+			List<TypeInfo> args = new ArrayList<>();
+			for (Type t : type.polys())
+				args.add(convertType(t));
+			return new NamedType(type.name(), args);
 		} else if (type.iam == WhatAmI.FUNCTION) {
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
 			for (int i=0;i<type.arity()+1;i++)
