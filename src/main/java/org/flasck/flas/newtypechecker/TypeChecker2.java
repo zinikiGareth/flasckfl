@@ -532,7 +532,7 @@ public class TypeChecker2 {
 			throw new NotImplementedException("Merging multiple functions: " + funcs);
 		else if (ctors.size() > 1) {
 			// try and find a union type that covers exactly and all these cases
-			HashSet<Type> possibles = new HashSet<Type>();
+			HashSet<RWUnionTypeDefn> possibles = new HashSet<>();
 			nextUnion:
 			for (RWUnionTypeDefn ud : unions.values()) {
 				// Make sure all the cases are actually used
@@ -549,7 +549,29 @@ public class TypeChecker2 {
 			}
 			if (possibles.isEmpty())
 				throw new UtilException("There is no good union for " + ctors);
-			return new NamedType(CollectionUtils.any(possibles).name());
+			List<TypeInfo> polyArgs = new ArrayList<>();
+			RWUnionTypeDefn chosen = CollectionUtils.any(possibles);
+			if (chosen.hasPolys()) {
+				for (@SuppressWarnings("unused") Type x : chosen.polys())
+					polyArgs.add(null);
+				for (TypeInfo ti : tis) { // go through the list again, looking for poly vars
+					// TODO: I'm not sure this should be allowed to get here;
+					// move it somewhere else?
+					while (ti instanceof TypeFunc && ((TypeFunc) ti).args.size() == 1) {
+						ti = ((TypeFunc) ti).args.get(0);
+					}
+					NamedType nt = (NamedType) ti;
+					if (nt.name.equals(chosen.name())) {
+						for (int i=0;i<chosen.polys().size();i++)
+							polyArgs.set(i, nt.polyArgs.get(i));
+					} else {
+						List<Integer> pas = chosen.getCtorPolyArgPosns(nt.name);
+						for (int i=0;i<pas.size();i++)
+							polyArgs.set(pas.get(i), nt.polyArgs.get(i));
+					}
+				}
+			}
+			return new NamedType(chosen.name(), polyArgs);
 		} else
 			throw new NotImplementedException("Other cases");
 	}
