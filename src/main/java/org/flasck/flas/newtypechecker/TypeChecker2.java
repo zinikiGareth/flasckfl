@@ -321,15 +321,7 @@ public class TypeChecker2 {
 			for (int i=0;i<argtypes.size();i++) {
 				if (called.args.size() < i)
 					throw new UtilException("Error about applying a non-function to arg " + i + " in " + c.var);
-				TypeInfo want = called.args.get(i);
-				TypeInfo have = argtypes.get(i);
-				System.out.println("Compare " + want + " to " + have);
-				if (want instanceof TypeVar) {
-					constraints.add(((TypeVar)want).var, have);
-				}
-				if (have instanceof TypeVar) {
-					constraints.add(((TypeVar)have).var, want);
-				}
+				checkArgType(called.args.get(i), argtypes.get(i));
 			}
 			TypeInfo ret = called.args.get(called.args.size()-1);
 			if (called.args.size() == argtypes.size()+1) {
@@ -341,6 +333,26 @@ public class TypeChecker2 {
 				TypeFunc tf = new TypeFunc(argtypes, ret);
 				constraints.add(c.var, tf);
 			}
+		}
+	}
+
+	protected void checkArgType(TypeInfo want, TypeInfo have) {
+		System.out.println("Compare " + want + " to " + have);
+		if (want instanceof TypeVar) {
+			constraints.add(((TypeVar)want).var, have);
+		}
+		if (have instanceof TypeVar) {
+			constraints.add(((TypeVar)have).var, want);
+		}
+		if (want instanceof TypeFunc && !(have instanceof TypeVar)) {
+			TypeFunc wf = (TypeFunc) want;
+			if (!(have instanceof TypeFunc))
+				throw new UtilException("Cannot pass " + have + " to " + want + ": not function");
+			TypeFunc hf = (TypeFunc) freshPolys(have, new HashMap<>());
+			if (wf.args.size() != hf.args.size())
+				throw new UtilException("Wrong arity: " + have + " not " + want);
+			for (int i=0;i<wf.args.size();i++)
+				checkArgType(wf.args.get(i), hf.args.get(i));
 		}
 	}
 
@@ -515,7 +527,7 @@ public class TypeChecker2 {
 				install.put(rv, pv);
 				return pv;
 			} else
-				return ret;
+				return poly(renames, merged, install, ret);
 		} else if (ti instanceof TypeFunc) {
 			TypeFunc tf = (TypeFunc) ti;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
@@ -638,6 +650,8 @@ public class TypeChecker2 {
 				ret = rw.types.get(nt.name);
 			else if (rw.objects.containsKey(nt.name))
 				ret = rw.objects.get(nt.name);
+			else if (rw.contracts.containsKey(nt.name))
+				ret = rw.contracts.get(nt.name);
 			else
 				throw new UtilException("Could not find type " + nt.name);
 			if (nt.polyArgs.isEmpty())

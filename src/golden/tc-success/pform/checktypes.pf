@@ -1,0 +1,20 @@
+package test.golden
+  test.golden.fred @{2:0|fred}
+    [var] x @{2:5|x}
+   =
+    # 32 @{2:9|32}
+  test.golden.t1 @{4:0|t1}
+   =
+    <apply> @{4:5|map fred []}
+      map @{4:5|map}
+      fred @{4:9|fred}
+      Nil @{4:14|[]}
+  test.golden.t2 @{5:0|t2}
+   =
+    <apply> @{5:5|map fred [3}
+      map @{5:5|map}
+      fred @{5:9|fred}
+      <apply> @{5:15|3}
+        Cons @{5:15|3}
+        # 3 @{5:15|3}
+        Nil @{5:15|3]}

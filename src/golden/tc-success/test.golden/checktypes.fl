@@ -1,0 +1,5 @@
+
+	fred x = 32
+	
+	t1 = map fred []
+	t2 = map fred [3]
