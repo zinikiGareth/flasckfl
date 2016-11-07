@@ -1,0 +1,1 @@
+test.golden.filter :: (A->B)->List[A]->List[A]

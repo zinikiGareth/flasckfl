@@ -1,5 +1,6 @@
 package org.flasck.flas.newtypechecker;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker2 {
 	private final ErrorResult errors;
+	private final Rewriter rw;
 	private final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
 	private final Map<String, TypeInfo> structTypes = new HashMap<String, TypeInfo>();
 	// is there a real need to keep these separate?  especially when we are promoting?
@@ -57,12 +59,19 @@ public class TypeChecker2 {
 	private int nextVar;
 	private final Map<Var, HSIEBlock> scoping = new HashMap<>();
 	private final Map<String, RWUnionTypeDefn> unions = new HashMap<>();
+	private PrintWriter trackTo;
 	
-	public TypeChecker2(ErrorResult errors) {
+	public TypeChecker2(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
+		this.rw = rw;
 	}
 
-	public void populateTypes(Rewriter rw) {
+	// Mainly for golden tests
+	public void trackTo(PrintWriter pw) {
+		this.trackTo = pw;
+	}
+
+	public void populateTypes() {
 		for (Type bi : rw.primitives.values()) {
 			globalKnowledge.put(bi.name(), new NamedType(bi.name()));
 		}
@@ -132,6 +141,7 @@ public class TypeChecker2 {
 		Map<String, Var> knownScoped = new HashMap<String, Var>();
 		for (HSIEForm f : forms) {
 			System.out.println("Checking type of " + f.fnName);
+			f.dump(new PrintWriter(System.out));
 			if (globalKnowledge.containsKey(f.fnName))
 				errors.message(f.location, "duplicate entry for " + f.fnName + " in type checking");
 			for (Var v : f.vars) {
@@ -257,6 +267,8 @@ public class TypeChecker2 {
 			TypeInfo nt = deduceType(renames, merged, f);
 			System.out.println("Concluded that " + f.fnName + " has type " + nt);
 			globalKnowledge.put(f.fnName, nt);
+			if (trackTo != null)
+				trackTo.println(f.fnName + " :: " + asType(nt));
 		}
 	}
 
@@ -299,7 +311,7 @@ public class TypeChecker2 {
 			// I think we need to consider FLEval.field as a special case here ...
 			TypeInfo ti = freshPolys(getTypeOf(cmd), new HashMap<>());
 			// TODO: if function is polymorphic, introduce fresh vars NOW
-			System.out.println("In " + c.var + " fi = " + ti);
+			System.out.println("In " + c.var + ", cmd = " + cmd + " fi = " + ti);
 			if (ti == null) {
 				System.out.println(c.var + " has a null first arg");
 				return;
@@ -506,7 +518,7 @@ public class TypeChecker2 {
 			}
 			return new NamedType(nt.name, args);
 		} else
-			throw new NotImplementedException(ti + " " +ti.getClass().getName());
+			throw new NotImplementedException(ti + " " +(ti == null ? "<null>": ti.getClass().getName()));
 	}
 
 	private TypeInfo convertType(Type type) {

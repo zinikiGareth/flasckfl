@@ -199,6 +199,7 @@ public class Compiler {
 	private DroidBuilder builder;
 	private File writeFlim;
 	private File writeHSIE;
+	private File trackTC;
 	private File writeJS;
 
 	public void searchIn(File file) {
@@ -227,6 +228,10 @@ public class Compiler {
 			return;
 		}
 		this.writeHSIE = file;
+	}
+
+	public void trackTC(File file) {
+		this.trackTC = new File(file, "types");
 	}
 
 	public void writeJSTo(File file) {
@@ -293,6 +298,7 @@ public class Compiler {
 		
 		FileWriter wjs = null;
 		FileOutputStream wex = null;
+		PrintWriter tcPW = null;
 		success = false;
 		try {
 			ImportPackage rootPkg = Builtin.builtins();
@@ -394,8 +400,12 @@ public class Compiler {
 			tc.populateTypes(rewriter);
 			abortIfErrors(errors);
 
-			TypeChecker2 tc2 = new TypeChecker2(errors);
-			tc2.populateTypes(rewriter);
+			TypeChecker2 tc2 = new TypeChecker2(errors, rewriter);
+			if (trackTC != null) {
+				tcPW = new PrintWriter(trackTC);
+				tc2.trackTo(tcPW);
+			}
+			tc2.populateTypes();
 			abortIfErrors(errors);
 
 			PrintWriter hsiePW = null;
@@ -464,6 +474,8 @@ public class Compiler {
 		} finally {
 			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
 			try { if (wex != null) wex.close(); } catch (IOException ex) {}
+			if (tcPW != null)
+				tcPW.close();
 		}
 
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.

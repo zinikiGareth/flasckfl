@@ -131,11 +131,13 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File jsto = new File(s, "jsout-tmp");
 		File hsie = new File(s, "hsie-tmp");
 		File flim = new File(s, "flim-tmp");
+		File tc2 = new File(s, "tc-tmp");
 		FileUtils.deleteDirectoryTree(new File(s, "errors-tmp"));
 		clean(pform);
 		clean(jsto);
 		clean(hsie);
 		clean(flim);
+		clean(tc2);
 		Compiler.setLogLevels();
 		Compiler compiler = new Compiler();
 		File dir = new File(s, "test.golden");
@@ -171,6 +173,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		
 //			compiler.dumpTypes();
 		try {
+			compiler.trackTC(tc2);
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
@@ -180,14 +183,15 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		}
 		
 		// Now assert that we matched things ...
-		assertGolden(new File(s, "flim"), flim);
 		File goldhs = new File(s, "hsie");
 		if (stripNumbers) {
 			stripHSIE(goldhs);
 			stripHSIE(hsie);
 		}
-		assertGolden(goldhs, hsie);
 		assertGolden(new File(s, "jsout"), jsto);
+		assertGolden(goldhs, hsie);
+		assertGolden(new File(s, "tc"), tc2);
+		assertGolden(new File(s, "flim"), flim);
 	}
 
 	// I want to see the locations, but I don't (always) want to be bound to them.  Remove them if desired (i.e. call this method if desired)

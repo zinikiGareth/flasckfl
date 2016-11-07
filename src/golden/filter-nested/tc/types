@@ -1,0 +1,2 @@
+test.golden.filter :: (A->Boolean)->List[A]->List[A]
+test.golden.filter_1.g :: Boolean->List[A]

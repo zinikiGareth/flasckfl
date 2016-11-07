@@ -1,0 +1,3 @@
+test.golden.Simple.contents_0 :: String
+test.golden.Simple.f :: Number
+test.golden.Simple.inits_hello :: String
