@@ -21,6 +21,6 @@ public class NamedType extends TypeInfo {
 	public String toString() {
 		if (polyArgs == null)
 			return name;
-		return name + polyArgs;
+		return name + (polyArgs.isEmpty()? "": polyArgs);
 	}
 }

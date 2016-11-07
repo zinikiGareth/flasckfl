@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
@@ -58,7 +59,7 @@ public class TypeChecker2 {
 	private final Map<String, Var> returns = new HashMap<String, Var>();
 	private int nextVar;
 	private final Map<Var, HSIEBlock> scoping = new HashMap<>();
-	private final Map<String, RWUnionTypeDefn> unions = new HashMap<>();
+	private final Set<RWUnionTypeDefn> unions = new TreeSet<>();
 	private PrintWriter trackTo;
 	
 	public TypeChecker2(ErrorResult errors, Rewriter rw) {
@@ -84,9 +85,7 @@ public class TypeChecker2 {
 			NamedType uty = new NamedType(ud.name(), polys);
 			globalKnowledge.put(ud.name(), uty);
 			
-			for (Type x : ud.cases) {
-				unions.put(x.name(), ud);
-			}
+			unions.add(ud);
 		}
 		for (RWObjectDefn od : rw.objects.values()) {
 			List<TypeInfo> polys = new ArrayList<>();
@@ -423,23 +422,35 @@ public class TypeChecker2 {
 			// try and find a union type that covers exactly and all these cases
 			HashSet<RWUnionTypeDefn> possibles = new HashSet<>();
 			nextUnion:
-			for (RWUnionTypeDefn ud : unions.values()) {
+			for (RWUnionTypeDefn ud : unions) {
 				if (!ctors.contains(ud.name())) {
 					// Make sure all the cases are actually used
 					for (Type cs : ud.cases)
 						if (!ctors.contains(cs.name()))
 							continue nextUnion;
 				}
-				// make sure all the ctors are in the union
-				for (String s : ctors)
-					if (!ud.hasCtor(s) && !ud.name().equals(s))
-						continue nextUnion;
+				if (!ud.name().equals("Any")) {
+					// make sure all the ctors are in the union
+					for (String s : ctors)
+						if (!ud.hasCtor(s) && !ud.name().equals(s))
+							continue nextUnion;
+				}
 				
 				// OK, this is viable
 				possibles.add(ud);
 			}
 			if (possibles.isEmpty())
 				throw new UtilException("There is no good union for " + ctors);
+			if (possibles.size() > 1) {
+				for (RWUnionTypeDefn p : possibles) {
+					if (p.name().equals("Any")) {
+						possibles.remove(p);
+						break;
+					}
+				}
+				if (possibles.size() > 1)
+					throw new UtilException("Two many possible matching unions: " + possibles + " for " + ctors);
+			}
 			List<TypeInfo> polyArgs = new ArrayList<>();
 			RWUnionTypeDefn chosen = CollectionUtils.any(possibles);
 			if (chosen.hasPolys()) {

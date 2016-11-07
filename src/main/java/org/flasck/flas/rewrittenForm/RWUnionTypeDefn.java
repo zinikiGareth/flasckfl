@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.typechecker.Type;
 import org.zinutils.exceptions.UtilException;
 
-public class RWUnionTypeDefn extends Type {
+public class RWUnionTypeDefn extends Type implements Comparable<RWUnionTypeDefn> {
 	public final transient boolean generate;
 	public final List<Type> cases = new ArrayList<Type>();
 
@@ -53,6 +53,11 @@ public class RWUnionTypeDefn extends Type {
 			}
 		}
 		throw new UtilException("The union " + name() + " does not contain " + name);
+	}
+
+	@Override
+	public int compareTo(RWUnionTypeDefn o) {
+		return name.compareTo(o.name);
 	}
 	
 	@Override
