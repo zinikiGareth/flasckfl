@@ -608,4 +608,36 @@ public class TypeChecker2 {
 		} else
 			throw new UtilException("Do what now? " + ti);
 	}
+	
+	private Type asType(TypeInfo ti) {
+		InputPosition posn = new InputPosition("should_have_this", 1, 1, null);
+		if (ti instanceof NamedType) {
+			NamedType nt = (NamedType) ti;
+			Type ret;
+			if (rw.primitives.containsKey(nt.name))
+				ret = rw.primitives.get(nt.name);
+			else if (rw.types.containsKey(nt.name))
+				ret = rw.types.get(nt.name);
+			else
+				throw new UtilException("Could not find type " + nt.name);
+			if (nt.polyArgs.isEmpty())
+				return ret;
+			
+			// if we have poly vars, we need to create an instance ...
+			List<Type> polys = new ArrayList<Type>();
+			for (TypeInfo t : nt.polyArgs)
+				polys.add(asType(t));
+			return ret.instance(posn, polys);
+		} else if (ti instanceof TypeFunc) {
+			TypeFunc tf = (TypeFunc) ti; 
+			List<Type> args = new ArrayList<Type>();
+			for (TypeInfo t : tf.args)
+				args.add(asType(t));
+			return Type.function(posn, args);
+		} else if (ti instanceof PolyInfo) {
+			PolyInfo pi = (PolyInfo) ti;
+			return Type.polyvar(posn, pi.name);
+		} else
+			throw new UtilException("Not handled: " + ti.getClass());
+	}
 }
