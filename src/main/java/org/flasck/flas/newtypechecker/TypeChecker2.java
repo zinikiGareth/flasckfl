@@ -768,7 +768,7 @@ public class TypeChecker2 {
 		args.add(merged.get(rename(renames, this.returns.get(f.fnName))));
 		System.out.println("have " + args);
 		for (int i=0;i<args.size();i++)
-			args.set(i, poly(renames, install, args.get(i)));
+			args.set(i, poly(renames, merged, install, args.get(i)));
 		System.out.println("install = " + install);
 		System.out.println("made " + args);
 		if (args.size() == 1)
@@ -784,26 +784,31 @@ public class TypeChecker2 {
 	}
 
 	// The objective of this is to turn poly vars back into real things
-	private TypeInfo poly(Map<Var, Var> renames, Map<Var, PolyInfo> install, TypeInfo ti) {
+	private TypeInfo poly(Map<Var, Var> renames, Map<Var, TypeInfo> merged, Map<Var, PolyInfo> install, TypeInfo ti) {
 		if (ti instanceof TypeVar) {
 			Var v = rename(renames, ((TypeVar)ti).var);
-			if (install.containsKey(v))
-				return install.get(v);
-			PolyInfo pv = new PolyInfo(new String(new char[] { (char)(65+install.size()) }));
-			install.put(v, pv);
-			return pv;
+			TypeInfo ret = merged.get(v);
+			if (ret instanceof TypeVar) {
+				Var rv = ((TypeVar)ret).var;
+				if (install.containsKey(rv))
+					return install.get(rv);
+				PolyInfo pv = new PolyInfo(new String(new char[] { (char)(65+install.size()) }));
+				install.put(rv, pv);
+				return pv;
+			} else
+				return ret;
 		} else if (ti instanceof TypeFunc) {
 			TypeFunc tf = (TypeFunc) ti;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
 			for (TypeInfo i : tf.args)
-				args.add(poly(renames, install, i));
+				args.add(poly(renames, merged, install, i));
 			return new TypeFunc(args);
 		} else if (ti instanceof NamedType) {
 			NamedType nt = (NamedType) ti;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
 			if (nt.polyArgs != null) {
 				for (TypeInfo i : nt.polyArgs)
-					args.add(poly(renames, install, i));
+					args.add(poly(renames, merged, install, i));
 			}
 			return new NamedType(nt.name, args);
 		} else
