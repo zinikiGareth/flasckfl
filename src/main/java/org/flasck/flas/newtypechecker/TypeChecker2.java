@@ -424,10 +424,12 @@ public class TypeChecker2 {
 			HashSet<RWUnionTypeDefn> possibles = new HashSet<>();
 			nextUnion:
 			for (RWUnionTypeDefn ud : unions.values()) {
-				// Make sure all the cases are actually used
-				for (Type cs : ud.cases)
-					if (!ctors.contains(cs.name()))
-						continue nextUnion;
+				if (!ctors.contains(ud.name())) {
+					// Make sure all the cases are actually used
+					for (Type cs : ud.cases)
+						if (!ctors.contains(cs.name()))
+							continue nextUnion;
+				}
 				// make sure all the ctors are in the union
 				for (String s : ctors)
 					if (!ud.hasCtor(s) && !ud.name().equals(s))
@@ -619,8 +621,12 @@ public class TypeChecker2 {
 			Type ret;
 			if (rw.primitives.containsKey(nt.name))
 				ret = rw.primitives.get(nt.name);
+			else if (rw.structs.containsKey(nt.name))
+				ret = rw.structs.get(nt.name);
 			else if (rw.types.containsKey(nt.name))
 				ret = rw.types.get(nt.name);
+			else if (rw.objects.containsKey(nt.name))
+				ret = rw.objects.get(nt.name);
 			else
 				throw new UtilException("Could not find type " + nt.name);
 			if (nt.polyArgs.isEmpty())
