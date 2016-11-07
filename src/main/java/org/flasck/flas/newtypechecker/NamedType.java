@@ -1,5 +1,6 @@
 package org.flasck.flas.newtypechecker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NamedType extends TypeInfo {
@@ -8,7 +9,7 @@ public class NamedType extends TypeInfo {
 
 	public NamedType(String name) {
 		this.name = name;
-		this.polyArgs = null; // it is not polymorphic
+		this.polyArgs = new ArrayList<TypeInfo>(); // it is not polymorphic
 	}
 
 	public NamedType(String name, List<TypeInfo> polyArgs) {

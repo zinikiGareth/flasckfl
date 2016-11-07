@@ -1,11 +1,14 @@
 package org.flasck.flas.newtypechecker;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
@@ -38,6 +41,7 @@ import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
+import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
@@ -64,9 +68,8 @@ public class TypeChecker2 {
 			globalKnowledge.put(bi.name(), new NamedType(bi.name()));
 		}
 		for (RWUnionTypeDefn ud : rw.types.values()) {
-			List<TypeInfo> polys = null;
+			List<TypeInfo> polys = new ArrayList<>();
 			if (ud.hasPolys()) {
-				polys = new ArrayList<>();
 				for (Type t : ud.polys())
 					polys.add(convertType(t));
 			}
@@ -78,9 +81,8 @@ public class TypeChecker2 {
 			}
 		}
 		for (RWObjectDefn od : rw.objects.values()) {
-			List<TypeInfo> polys = null;
+			List<TypeInfo> polys = new ArrayList<>();
 			if (od.hasPolys()) {
-				polys = new ArrayList<>();
 				for (Type t : od.polys())
 					polys.add(convertType(t));
 			}
@@ -93,9 +95,8 @@ public class TypeChecker2 {
 			List<TypeInfo> fs = new ArrayList<>();
 			for (RWStructField f : sd.fields)
 				fs.add(convertType(f.type));
-			List<TypeInfo> polys = null;
+			List<TypeInfo> polys = new ArrayList<>();
 			if (sd.hasPolys()) {
-				polys = new ArrayList<>();
 				for (Type t : sd.polys())
 					polys.add(convertType(t));
 			}
@@ -185,6 +186,7 @@ public class TypeChecker2 {
 			for (ClosureCmd c : f.closures()) {
 				if (c.justScoping) {
 					scoping.put(c.var, c.nestedCommands().get(0));
+					constraints.removeAll(c.var);
 				}
 			}
 		}
@@ -203,6 +205,54 @@ public class TypeChecker2 {
 		
 		for (Var k : constraints.keySet())
 			System.out.println(k + " -> " + constraints.get(k));
+
+		// 3. Eliminate vars that are duplicates
+		Map<Var, Var> renames = new TreeMap<Var, Var>(new SimpleVarComparator());
+		boolean changed = true;
+		elimLoop:
+		while (changed) {
+			changed = false;
+			for (Var k : constraints.keySet()) {
+				Set<TypeInfo> toRemove = new HashSet<TypeInfo>();
+				for (TypeInfo ti : constraints.get(k)) {
+					if (ti instanceof TypeVar) {
+						Var v = ((TypeVar) ti).var;
+						if (v.idx == k.idx) {
+							changed = true;
+							constraints.remove(k, ti);
+							continue elimLoop;
+						}
+						else if (v.idx < k.idx) { // eliminate k, replacing with v
+							changed = true;
+							new Eliminator(constraints, renames).subst(k, v);
+							continue elimLoop;
+						} else { // v.idx > k.idx
+							changed = true;
+							new Eliminator(constraints, renames).subst(v, k);
+							continue elimLoop;
+						}
+					}
+				}
+				constraints.get(k).removeAll(toRemove);
+			}
+		}
+
+		System.out.println(renames);
+		for (Var k : constraints.keySet())
+			System.out.println(k + " -> " + constraints.get(k));
+
+		// 4. Unify type arguments
+		
+		// TODO: as we don't have this case "right now", but basically v0 -> Cons[Number], Cons[v2]: ah, v2 must be Number
+		
+		// 5. Merge union types
+		Map<Var, TypeInfo> merged = new TreeMap<Var, TypeInfo>(new SimpleVarComparator());
+		for (Var k : constraints.keySet())
+			merged.put(k, mergeDown(constraints.get(k)));
+
+		for (Var k : merged.keySet())
+			System.out.println(k + " -> " + merged.get(k));
+
 		
 //		// 3. Resolve constraints
 //		closeConstraints();
@@ -449,6 +499,54 @@ public class TypeChecker2 {
 //			toRemove.add(cs);
 //		}
 //	}
+
+	private TypeInfo mergeDown(Set<TypeInfo> tis) {
+		if (tis.isEmpty())
+			return null;
+		else if (tis.size() == 1)
+			return CollectionUtils.any(tis);
+		
+		List<String> ctors = new ArrayList<String>();
+		List<TypeFunc> funcs = new ArrayList<TypeFunc>();
+		for (TypeInfo ti : tis) {
+			while (ti instanceof TypeFunc && ((TypeFunc) ti).args.size() == 1) {
+				ti = ((TypeFunc) ti).args.get(0);
+			}
+			if (ti instanceof NamedType)
+				ctors.add(((NamedType)ti).name);
+			else if (ti instanceof TypeFunc)
+				funcs.add((TypeFunc)ti);
+			else
+				throw new NotImplementedException(ti.getClass().getName());
+		}
+		
+		if (!ctors.isEmpty() && !funcs.isEmpty())
+			throw new NotImplementedException("Cannot merge functions and structs: " + funcs + " " + ctors);
+		else if (funcs.size() > 1)
+			throw new NotImplementedException("Merging multiple functions: " + funcs);
+		else if (ctors.size() > 1) {
+			// try and find a union type that covers exactly and all these cases
+			HashSet<Type> possibles = new HashSet<Type>();
+			nextUnion:
+			for (RWUnionTypeDefn ud : unions.values()) {
+				// Make sure all the cases are actually used
+				for (Type cs : ud.cases)
+					if (!ctors.contains(cs.name()))
+						continue nextUnion;
+				// make sure all the ctors are in the union
+				for (String s : ctors)
+					if (!ud.hasCtor(s) && !ud.name().equals(s))
+						continue nextUnion;
+				
+				// OK, this is viable
+				possibles.add(ud);
+			}
+			if (possibles.isEmpty())
+				throw new UtilException("There is no good union for " + ctors);
+			return new NamedType(CollectionUtils.any(possibles).name());
+		} else
+			throw new NotImplementedException("Other cases");
+	}
 
 //	private TypeInfo makeUnion(Set<Constraint> values) {
 //		Set<TypeInfo> types = new HashSet<TypeInfo>();
