@@ -248,11 +248,17 @@ public class TypeChecker2 {
 		// 5. Merge union types
 		Map<Var, TypeInfo> merged = new TreeMap<Var, TypeInfo>(new SimpleVarComparator());
 		for (Var k : constraints.keySet())
-			merged.put(k, mergeDown(constraints.get(k)));
+			merged.put(k, mergeDown(k, constraints.get(k)));
 
 		for (Var k : merged.keySet())
 			System.out.println(k + " -> " + merged.get(k));
 
+		// 6. Deduce actual function types
+		for (HSIEForm f : forms) {
+			TypeInfo nt = deduceType(renames, merged, f);
+			System.out.println("Concluded that " + f.fnName + " has type " + nt);
+			globalKnowledge.put(f.fnName, nt);
+		}
 		
 //		// 3. Resolve constraints
 //		closeConstraints();
@@ -500,9 +506,9 @@ public class TypeChecker2 {
 //		}
 //	}
 
-	private TypeInfo mergeDown(Set<TypeInfo> tis) {
+	private TypeInfo mergeDown(Var v, Set<TypeInfo> tis) {
 		if (tis.isEmpty())
-			return null;
+			return new TypeVar(v);
 		else if (tis.size() == 1)
 			return CollectionUtils.any(tis);
 		
@@ -731,18 +737,16 @@ public class TypeChecker2 {
 //		return ret;
 //	}
 
-	private TypeInfo deduceType(Map<Var, Var> min1, Map<Var, TypeInfo> unions, HSIEForm f) {
+	private TypeInfo deduceType(Map<Var, Var> renames, Map<Var, TypeInfo> merged, HSIEForm f) {
 		Map<Var, PolyInfo> install = new HashMap<Var, PolyInfo>();
 		List<TypeInfo> args = new ArrayList<TypeInfo>();
 		for (int i=0;i<f.nformal;i++) {
-			System.out.println(f.vars.get(i));
-			args.add(unions.get(f.vars.get(i)));
+			args.add(merged.get(rename(renames, f.vars.get(i))));
 		}
-		System.out.println(this.returns.get(f.fnName));
-		args.add(unions.get(this.returns.get(f.fnName)));
+		args.add(merged.get(rename(renames, this.returns.get(f.fnName))));
 		System.out.println("have " + args);
 		for (int i=0;i<args.size();i++)
-			args.set(i, poly(min1, install, args.get(i)));
+			args.set(i, poly(renames, install, args.get(i)));
 		System.out.println("install = " + install);
 		System.out.println("made " + args);
 		if (args.size() == 1)
@@ -751,11 +755,16 @@ public class TypeChecker2 {
 			return new TypeFunc(args);
 	}
 
+	private Var rename(Map<Var, Var> renames, Var var) {
+		if (renames.containsKey(var))
+			return renames.get(var);
+		return var;
+	}
+
 	// The objective of this is to turn poly vars back into real things
-	private TypeInfo poly(Map<Var, Var> min1, Map<Var, PolyInfo> install, TypeInfo ti) {
+	private TypeInfo poly(Map<Var, Var> renames, Map<Var, PolyInfo> install, TypeInfo ti) {
 		if (ti instanceof TypeVar) {
-			Var v = ((TypeVar)ti).var;
-			v = min1.get(v);
+			Var v = rename(renames, ((TypeVar)ti).var);
 			if (install.containsKey(v))
 				return install.get(v);
 			PolyInfo pv = new PolyInfo(new String(new char[] { (char)(65+install.size()) }));
@@ -765,14 +774,14 @@ public class TypeChecker2 {
 			TypeFunc tf = (TypeFunc) ti;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
 			for (TypeInfo i : tf.args)
-				args.add(poly(min1, install, i));
+				args.add(poly(renames, install, i));
 			return new TypeFunc(args);
 		} else if (ti instanceof NamedType) {
 			NamedType nt = (NamedType) ti;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
 			if (nt.polyArgs != null) {
 				for (TypeInfo i : nt.polyArgs)
-					args.add(poly(min1, install, i));
+					args.add(poly(renames, install, i));
 			}
 			return new NamedType(nt.name, args);
 		} else
