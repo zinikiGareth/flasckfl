@@ -5,11 +5,13 @@ import org.flasck.flas.commonBase.Locatable;
 
 public class TemplateListVar implements Locatable {
 	public final InputPosition location;
-	public final String name;
+	public final String simpleName;
+	public final String realName;
 
-	public TemplateListVar(InputPosition location, String name) {
+	public TemplateListVar(InputPosition location, String simpleName, String realName) {
 		this.location = location;
-		this.name = name;
+		this.simpleName = simpleName;
+		this.realName = realName;
 	}
 	
 	@Override
@@ -19,6 +21,6 @@ public class TemplateListVar implements Locatable {
 
 	@Override
 	public String toString() {
-		return "TLV[" + name + "]";
+		return "TLV[" + realName + "]";
 	}
 }

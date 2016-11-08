@@ -343,7 +343,7 @@ public class TemplateLineParser implements TryParsing{
 			return new TemplateDiv(seenDiv, customTag != null ? customTag.location : null, customTag != null ? customTag.text : null, customTagVar != null ? customTagVar.location : null, customTagVar != null ? customTagVar.text : null, attrs, formats);
 		else if (list != null) {
 			if (!formats.isEmpty() || customTag != null || customTagVar != null)
-				return new TemplateList(list.kw, list.listLoc, list.listVar, list.iterLoc, list.iterVar, customTag != null ? customTag.location : null, customTag != null ? customTag.text : null, customTagVar != null ? customTagVar.location : null, customTagVar != null ? customTagVar.text : null, formats, false);
+				return new TemplateList(list.kw, list.listLoc, list.listExpr, list.iterLoc, list.iterVar, customTag != null ? customTag.location : null, customTag != null ? customTag.text : null, customTagVar != null ? customTagVar.location : null, customTagVar != null ? customTagVar.text : null, formats, false);
 			else
 				return list;
 		} else if (cmd != null)

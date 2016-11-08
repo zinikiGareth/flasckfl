@@ -147,7 +147,7 @@ public class SugarDetox {
 				return ret;
 			} else if (tf instanceof TemplateList) {
 				TemplateList tl = (TemplateList) tf;
-				TemplateList ret = new TemplateList(tl.kw, tl.listLoc, tl.listVar, tl.iterLoc, tl.iterVar, tl.customTagLoc, tl.customTag, tl.customTagVarLoc, tl.customTagVar, formats, false);
+				TemplateList ret = new TemplateList(tl.kw, tl.listLoc, tl.listExpr, tl.iterLoc, tl.iterVar, tl.customTagLoc, tl.customTag, tl.customTagVarLoc, tl.customTagVar, formats, false);
 				ret.template = unroll(er, map, tl.template, subst);
 				return ret;
 			}

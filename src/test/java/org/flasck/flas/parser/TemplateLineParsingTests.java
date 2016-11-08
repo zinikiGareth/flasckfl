@@ -111,8 +111,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testSimpleList() throws Exception {
 		TemplateList tl = parseList("+ list");
-		assertTrue(tl.listVar instanceof UnresolvedVar);
-		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
+		assertTrue(tl.listExpr instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listExpr).var);
 		assertNull(tl.iterVar);
 		assertNull(tl.customTag);
 		assertNull(tl.customTagVar);
@@ -122,8 +122,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testSimpleListWithIterator() throws Exception {
 		TemplateList tl = parseList("+ list iter");
-		assertTrue(tl.listVar instanceof UnresolvedVar);
-		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
+		assertTrue(tl.listExpr instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listExpr).var);
 		assertEquals("iter", tl.iterVar);
 		assertNull(tl.customTag);
 		assertNull(tl.customTagVar);
@@ -133,8 +133,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testSimpleListWithFormat() throws Exception {
 		TemplateList tl = parseList("+ list : 'format'");
-		assertTrue(tl.listVar instanceof UnresolvedVar);
-		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
+		assertTrue(tl.listExpr instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listExpr).var);
 		assertNull(tl.iterVar);
 		assertNull(tl.customTag);
 		assertNull(tl.customTagVar);
@@ -145,8 +145,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testSimpleListWithIteratorAndFormat() throws Exception {
 		TemplateList tl = parseList("+ list iter : 'format'");
-		assertTrue(tl.listVar instanceof UnresolvedVar);
-		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
+		assertTrue(tl.listExpr instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listExpr).var);
 		assertEquals("iter", tl.iterVar);
 		assertNull(tl.customTag);
 		assertNull(tl.customTagVar);
@@ -157,8 +157,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testListWIthExpressionIterator() throws Exception {
 		TemplateList tl = parseList("+ (x.list) iter : 'format'");
-		assertTrue(tl.listVar instanceof ApplyExpr);
-		assertEquals("(. x list)", tl.listVar.toString());
+		assertTrue(tl.listExpr instanceof ApplyExpr);
+		assertEquals("(. x list)", tl.listExpr.toString());
 		assertEquals("iter", tl.iterVar);
 		assertNull(tl.customTag);
 		assertNull(tl.customTagVar);
@@ -240,8 +240,8 @@ public class TemplateLineParsingTests {
 	@Test
 	public void testListWithCustomTag() throws Exception {
 		TemplateList tl = parseList("+ list #ol");
-		assertTrue(tl.listVar instanceof UnresolvedVar);
-		assertEquals("list", ((UnresolvedVar)tl.listVar).var);
+		assertTrue(tl.listExpr instanceof UnresolvedVar);
+		assertEquals("list", ((UnresolvedVar)tl.listExpr).var);
 		assertNull(tl.iterVar);
 		assertEquals("ol", tl.customTag);
 		assertNull(tl.customTagVar);

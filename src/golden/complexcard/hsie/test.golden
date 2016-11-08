@@ -38,7 +38,7 @@ HSIE for test.golden.Complex.contents_4/0                    #complexcard. 45.0
 #Args: 0 #bound: 0
     externals: [] scoped = []
     all vars = []
-RETURN TLV[lv]                                               #complexcard. 43.2
+RETURN TLV[test.golden.Complex.lv]                           #complexcard. 43.7
 =======
 HSIE for test.golden.Complex.teas_0/0                        #complexcard. 41.9
 #Args: 0 #bound: 0

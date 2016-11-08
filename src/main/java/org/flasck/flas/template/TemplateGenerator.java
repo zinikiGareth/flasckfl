@@ -241,7 +241,7 @@ public class TemplateGenerator {
 		} else if (tl instanceof RWTemplateList) {
 			RWTemplateList l = (RWTemplateList) tl;
 			TemplateListVar lv = (TemplateListVar)l.iterVar;
-			String tlv = lv == null ? null : lv.name;
+			String tlv = lv == null ? null : lv.simpleName;
 			if (l.supportDragOrdering)
 				fn.add(JSForm.flex("this._supportDragging()"));
 			String item = cx.nextArea();
@@ -448,7 +448,7 @@ public class TemplateGenerator {
 			addToFunc.add(JSForm.flex("this._onAssign(this._card, '" + ((CardMember)valExpr).var + "', " + call + ")"));
 			dg.onAssign(cgrx, (CardMember)valExpr, call);
 		} else if (valExpr instanceof TemplateListVar) {
-			String var = ((TemplateListVar)valExpr).name;
+			String var = ((TemplateListVar)valExpr).simpleName;
 			addToFunc.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));
 			dg.interested(cgrx, var, call);
 		} else if (valExpr instanceof CardFunction) {
@@ -468,7 +468,7 @@ public class TemplateGenerator {
 				Expr dge = null;
 				if (expr instanceof TemplateListVar) {
 					callOnAssign(addToFunc, expr, cgrx, call, false, moreArgs);
-					String name = ((TemplateListVar)expr).name;
+					String name = ((TemplateListVar)expr).simpleName;
 					expr = "this._src_" + name + "." + name;
 					if (cgrx != null)
 						dge = cgrx.ctor.getField(cgrx.ctor.getField(cgrx.ctor.myThis(), "_src_" + name), name);

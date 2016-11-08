@@ -664,7 +664,7 @@ public class DroidGenerator {
 
 			@Override
 			public Object visit(PushTLV pt) {
-				return meth.getField(meth.getField("_src_" + pt.tlv.name), pt.tlv.name);
+				return meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName);
 			}
 
 			@Override

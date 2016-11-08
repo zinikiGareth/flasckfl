@@ -378,7 +378,7 @@ public class JSForm {
 
 			@Override
 			public Object visit(PushTLV pt) {
-				sb.append("this._src_" + pt.tlv.name + "." + pt.tlv.name);
+				sb.append("this._src_" + pt.tlv.simpleName + "." + pt.tlv.simpleName);
 				return null;
 			}
 

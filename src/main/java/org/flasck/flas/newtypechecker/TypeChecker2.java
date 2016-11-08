@@ -12,14 +12,15 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
@@ -122,6 +123,12 @@ public class TypeChecker2 {
 				// TODO: right now, I feel that renaming this is really a rewriter responsibility, but I'm not clear on the consequences
 				globalKnowledge.put(d.getKey()+"."+f.name, convertType(f.type));
 			}
+		}
+		for (RWHandlerImplements hi : rw.callbackHandlers.values()) {
+			List<TypeInfo> fs = new ArrayList<>();
+			for (HandlerLambda f : hi.boundVars)
+				fs.add(convertType(f.type));
+			globalKnowledge.put(hi.hiName, new TypeFunc(fs, new NamedType(hi.hiName)));
 		}
 		for (RWFunctionDefinition fn : rw.functions.values()) {
 			if (fn.getType() != null) // a function has already been typechecked
@@ -608,14 +615,27 @@ public class TypeChecker2 {
 		if (cmd instanceof PushExternal) {
 			PushExternal pe = (PushExternal) cmd;
 			String name = pe.fn.uniqueName();
-			if (name.equals("FLEval.field")) { // . needs special handling
-				return null;
-			}
-			return getTypeOf(cmd.location, name);
+			if (pe.fn instanceof HandlerLambda) {
+				HandlerLambda hl = (HandlerLambda) pe.fn;
+				String structName = hl.clzName+"$struct";
+				RWStructDefn sd = structs.get(structName);
+				for (RWStructField sf : sd.fields) {
+					if (sf.name.equals(hl.var)) {
+						return freshPolys(convertType(sf.type), new HashMap<>());
+					}
+				}
+				throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
+			} else
+				return getTypeOf(cmd.location, name);
 		} else if (cmd instanceof PushTLV) {
-			PushTLV pt = (PushTLV) cmd;
-			String name = pt.tlv.name;
-			return getTypeOf(cmd.location, name);
+//			PushTLV pt = (PushTLV) cmd;
+			// TODO: This is a tricky case.  I think that somebody external to here should define "name" globally
+			// as the type that is the poly var of the List that we're iterating over.
+			// But I don't even think we have that step - maybe we can figure it out from the functions we generate and
+			// push that back into the dependency analyzer
+//			return getTypeOf(cmd.location, pt.tlv.realName);
+			// Anyway, for now, I'm going to basically copy what the other one did, but return "Any" in lieu of a poly var
+			return getTypeOf(cmd.location, "Any");
 		} else if (cmd instanceof PushVar) {
 			Var var = ((PushVar)cmd).var.var;
 			if (scoping.containsKey(var))

@@ -467,7 +467,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pw.indent(), attr.value);
 		} else if (obj instanceof TemplateList) {
 			TemplateList td = (TemplateList) obj;
-			pw.print("+ " + td.listVar);
+			pw.print("+ " + td.listExpr);
 			if (td.iterVar != null)
 				pw.print(" " + td.iterVar);
 			dumpPosition(pw, td.kw, false);

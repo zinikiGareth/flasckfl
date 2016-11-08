@@ -523,7 +523,7 @@ public class TypeChecker {
 				public Object visit(PushTLV pt) {
 					// I don't think it's quite as simple as this ... I think we need to introduce it in one place and return it in another or something
 					TypeVar ret = factory.next();
-					logger.debug(pt.tlv.name + " is a template variable, assigning " + ret);
+					logger.debug(pt.tlv.realName + " is a template variable, assigning " + ret);
 					return ret;
 				}
 				

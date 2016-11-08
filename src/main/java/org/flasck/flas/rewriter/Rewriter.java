@@ -350,17 +350,20 @@ public class Rewriter {
 	}
 
 	public class TemplateContext extends NamingContext {
+		private final String tlvSimpleName;
 		private final TemplateListVar listVar;
 
 		public TemplateContext(CardContext cx) {
 			super(cx);
 			listVar = null;
+			this.tlvSimpleName = null;
 		}
 		
-		public TemplateContext(TemplateContext cx, TemplateListVar tlv) {
+		public TemplateContext(TemplateContext cx, String tlvSimpleName, TemplateListVar tlv) {
 			super(cx);
-			if (tlv != null && tlv.name == null)
+			if (tlv != null && tlv.simpleName == null)
 				throw new UtilException("Shouldn't happen");
+			this.tlvSimpleName = tlvSimpleName;
 			this.listVar = tlv;
 		}
 
@@ -375,7 +378,7 @@ public class Rewriter {
 		
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			if (listVar != null && listVar.name.equals(name))
+			if (listVar != null && tlvSimpleName.equals(name))
 				return listVar;
 			return nested.resolve(location, name);
 		}
@@ -925,8 +928,7 @@ public class Rewriter {
 			return ret;
 		} else if (tl instanceof TemplateList) {
 			TemplateList ul = (TemplateList)tl;
-			TemplateListVar tlv = ul.iterVar != null ? new TemplateListVar(ul.listLoc, (String) ul.iterVar) : null;
-			TemplateListVar rwv = tlv == null ? null : new TemplateListVar(tlv.location, tlv.name);
+			TemplateListVar rwv = ul.iterVar == null ? null : new TemplateListVar(ul.iterLoc, (String) ul.iterVar, cx.cardName() + "." + (String) ul.iterVar);
 			boolean supportDragOrdering = false;
 			for (SpecialFormat tt : specials) {
 				if (tt.name.equals("dragOrder")) {
@@ -935,7 +937,7 @@ public class Rewriter {
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
 
-			Object expr = rewriteExpr(cx, ul.listVar);
+			Object expr = rewriteExpr(cx, ul.listExpr);
 					
 			String fnName = cx.nextFunction("lvs");
 			RWFunctionDefinition fn = new RWFunctionDefinition(ul.listLoc, CodeType.CARD, fnName, 0, true);
@@ -944,7 +946,7 @@ public class Rewriter {
 			functions.put(fnName, fn);
 			
 			RWTemplateList rul = new RWTemplateList(ul.kw, ul.listLoc, expr, ul.iterLoc, rwv, ul.customTagLoc, ul.customTag, ul.customTagVarLoc, ul.customTagVar, formats, supportDragOrdering, fnName, dynamicFn);
-			cx = new TemplateContext(cx, rwv);
+			cx = new TemplateContext(cx, ul.iterVar, rwv);
 			rul.template = rewrite(cx, ul.template);
 			return rul;
 		} else if (tl instanceof TemplateCases) {
