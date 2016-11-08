@@ -12,9 +12,11 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -34,6 +36,7 @@ import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
+import org.flasck.flas.vcode.hsieForm.PushFunc;
 import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushString;
@@ -189,7 +192,13 @@ public class TypeChecker2 {
 		}
 		
 		// 2. collect constraints
-		// 2a. define "scoping" closures as what they really are
+		
+		// 2a. from the switching blocks
+		for (HSIEForm f : forms) {
+			processHSI(f, f);
+		}
+
+		// 2b. define "scoping" closures as what they really are
 		for (HSIEForm f : forms) {
 			for (ClosureCmd c : f.closures()) {
 				if (c.justScoping) {
@@ -199,16 +208,11 @@ public class TypeChecker2 {
 			}
 		}
 		
-		// 2b. look at all the closures we have
+		// 2c. look at all the actual closures
 		for (HSIEForm f : forms) {
 			for (ClosureCmd c : f.closures()) {
 				processClosure(f, c);
 			}
-		}
-		
-		// 2c. and at the switching blocks
-		for (HSIEForm f : forms) {
-			processHSI(f, f);
 		}
 		
 		for (Var k : constraints.keySet())
@@ -308,6 +312,32 @@ public class TypeChecker2 {
 			constraints.add(fv, new TypeFunc(argtypes, new TypeVar(c.var)));
 		} else {
 			// I think we need to consider FLEval.field as a special case here ...
+			if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.field")) {
+				System.out.println("FLEval.field");
+				if (argtypes.get(0) instanceof TypeVar) {
+					Set<TypeInfo> set = constraints.get(((TypeVar)argtypes.get(0)).var);
+					if (set.isEmpty())
+						throw new UtilException("This is a reasonable case, I think, but one I cannot handle");
+					if (set.size() > 1)
+						throw new UtilException("This is a dubious case, I think, and one I cannot handle");
+					TypeInfo ty = CollectionUtils.any(set);
+					if (ty instanceof NamedType) {
+						String sn = ((NamedType)ty).name;
+						RWStructDefn sd = structs.get(sn);
+						if (sd == null)
+							throw new UtilException(sn + " is not a struct; cannot do .");
+						String fname = ((PushString)cmds.get(2)).sval.text;
+						RWStructField sf = sd.findField(fname);
+						if (sf == null)
+							throw new UtilException(sn + " does not have a field " + fname);
+						constraints.add(c.var, freshPolys(convertType(sf.type), new HashMap<>()));
+					}
+					return;
+				} else
+					throw new NotImplementedException("FLEval.field(non-var)");
+			} else if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.tuple")) {
+				throw new NotImplementedException();
+			}
 			TypeInfo ti = freshPolys(getTypeOf(cmd), new HashMap<>());
 			// TODO: if function is polymorphic, introduce fresh vars NOW
 			System.out.println("In " + c.var + ", cmd = " + cmd + " fi = " + ti);
@@ -398,7 +428,7 @@ public class TypeChecker2 {
 				System.out.println("Need to add a constraint to " + rv + " of " + val);
 				constraints.add(rv, new TypeVar(val.var));
 			} else {
-				TypeInfo ty = getTypeOf(pr);
+				TypeInfo ty = freshPolys(getTypeOf(pr), new HashMap<>());
 				System.out.println("Can return " + rv + " as " + ty);
 				constraints.add(rv, ty);
 			}
@@ -590,6 +620,9 @@ public class TypeChecker2 {
 			return getTypeOf(cmd.location, "String");
 		} else if (cmd instanceof PushCSR) {
 			return getTypeOf(cmd.location, "Card");
+		} else if (cmd instanceof PushFunc) {
+			FunctionLiteral func = ((PushFunc)cmd).func;
+			return getTypeOf(func.location, func.name);
 		} else
 			throw new UtilException("Need to determine type of " + cmd.getClass());
 	}
