@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Function file="checktypes.fl" line="7" name="test.golden.bert" off="10">
+        <Tuple>
+            <Arg>
+                <Union name="Any"/>
+            </Arg>
+            <Arg>
+                <Union name="Any"/>
+            </Arg>
+        </Tuple>
+    </Function>
     <Function file="checktypes.fl" line="2" name="test.golden.fred" off="0">
         <Function>
             <Arg>

@@ -18,3 +18,9 @@ package test.golden
         Cons @{5:15|3}
         # 3 @{5:15|3}
         Nil @{5:15|3]}
+  test.golden.bert @{7:0|bert}
+   =
+    <apply> @{7:10|null}
+      () @{7:10|null}
+      # 2 @{7:8|2}
+      '' hello @{7:11|"hello"}

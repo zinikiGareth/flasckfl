@@ -336,7 +336,8 @@ public class TypeChecker2 {
 				} else
 					throw new NotImplementedException("FLEval.field(non-var)");
 			} else if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.tuple")) {
-				throw new NotImplementedException();
+				constraints.add(c.var, new TupleInfo(argtypes));
+				return;
 			}
 			TypeInfo ti = freshPolys(getTypeOf(cmd), new HashMap<>());
 			// TODO: if function is polymorphic, introduce fresh vars NOW
@@ -564,6 +565,12 @@ public class TypeChecker2 {
 			for (TypeInfo i : tf.args)
 				args.add(poly(renames, merged, install, i));
 			return new TypeFunc(args);
+		} else if (ti instanceof TupleInfo) {
+			TupleInfo tf = (TupleInfo) ti;
+			List<TypeInfo> args = new ArrayList<TypeInfo>();
+			for (TypeInfo i : tf.args)
+				args.add(poly(renames, merged, install, i));
+			return new TupleInfo(args);
 		} else if (ti instanceof NamedType) {
 			NamedType nt = (NamedType) ti;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
@@ -703,6 +710,12 @@ public class TypeChecker2 {
 			for (TypeInfo t : tf.args)
 				args.add(asType(t));
 			return Type.function(posn, args);
+		} else if (ti instanceof TupleInfo) {
+			TupleInfo tf = (TupleInfo) ti; 
+			List<Type> args = new ArrayList<Type>();
+			for (TypeInfo t : tf.args)
+				args.add(asType(t));
+			return Type.tuple(posn, args);
 		} else if (ti instanceof PolyInfo) {
 			PolyInfo pi = (PolyInfo) ti;
 			return Type.polyvar(posn, pi.name);

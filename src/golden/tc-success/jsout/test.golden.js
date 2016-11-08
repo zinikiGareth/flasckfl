@@ -8,6 +8,11 @@ if (typeof test.golden === 'undefined') {
   }
 }
 
+test.golden.bert = function() {
+  "use strict";
+  return FLEval.closure(FLEval.tuple, 2, 'hello');
+}
+
 test.golden.fred = function(v0) {
   "use strict";
   return 32;

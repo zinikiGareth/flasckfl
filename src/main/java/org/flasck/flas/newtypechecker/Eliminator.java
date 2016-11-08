@@ -63,6 +63,12 @@ public class Eliminator {
 			for (TypeInfo ai : tf.args)
 				args.add(ai);
 			return new TypeFunc(args);
+		} else if (ti instanceof TupleInfo) {
+			TupleInfo tf = (TupleInfo) ti;
+			List<TypeInfo> args = new ArrayList<>();
+			for (TypeInfo ai : tf.args)
+				args.add(ai);
+			return new TupleInfo(args);
 		} else
 			throw new NotImplementedException(ti.getClass().getName());
 	}
