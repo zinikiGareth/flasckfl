@@ -11,6 +11,6 @@ test.golden.Complex.ors_7 :: Boolean
 test.golden.Complex.formats_1 :: Cons[String]
 test.golden.Complex.sayHello :: test.golden.ClickIt->Cons[Assign]
 test.golden.Complex.handlers_6 :: test.golden.ClickIt->Cons[Assign]
-test.golden.Complex._S0.get :: String->Any->Cons[Send]
+test.golden.Complex._S0.get :: String->test.golden.Handler->Cons[Send]
 test.golden.Complex.FooHandler.reply :: String->Cons[Assign]
 test.golden.Complex._C0.ready :: test.golden.Thing->Cons[Send]

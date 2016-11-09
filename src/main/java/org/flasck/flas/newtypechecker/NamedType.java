@@ -17,6 +17,10 @@ public class NamedType extends TypeInfo {
 		this.polyArgs = polyArgs;
 	}
 
+	public boolean equals(Object other) {
+		return other instanceof NamedType && name.equals(((NamedType)other).name);
+	}
+	
 	@Override
 	public String toString() {
 		if (polyArgs == null)

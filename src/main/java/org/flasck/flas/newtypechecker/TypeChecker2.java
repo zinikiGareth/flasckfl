@@ -28,6 +28,7 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
+import org.flasck.flas.typechecker.TypeOfSomethingElse;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
@@ -103,17 +104,12 @@ public class TypeChecker2 {
 			globalKnowledge.put(cd.name(), new NamedType(cd.name()));
 		for (RWStructDefn sd : rw.structs.values()) {
 			structs.put(sd.uniqueName(), sd);
-			List<TypeInfo> fs = new ArrayList<>();
-			for (RWStructField f : sd.fields)
-				fs.add(convertType(f.type));
 			List<TypeInfo> polys = new ArrayList<>();
 			if (sd.hasPolys()) {
 				for (Type t : sd.polys())
 					polys.add(convertType(t));
 			}
-			NamedType sty = new NamedType(sd.uniqueName(), polys);
-			structTypes.put(sd.uniqueName(), sty);
-			globalKnowledge.put(sd.uniqueName(), new TypeFunc(fs, sty));
+			structTypes.put(sd.uniqueName(), new NamedType(sd.uniqueName(), polys));
 		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
 			globalKnowledge.put(d.getKey(), new NamedType(d.getKey()));
@@ -124,15 +120,29 @@ public class TypeChecker2 {
 				globalKnowledge.put(d.getKey()+"."+f.name, convertType(f.type));
 			}
 		}
-		for (RWHandlerImplements hi : rw.callbackHandlers.values()) {
-			List<TypeInfo> fs = new ArrayList<>();
-			for (HandlerLambda f : hi.boundVars)
-				fs.add(convertType(f.type));
-			globalKnowledge.put(hi.hiName, new TypeFunc(fs, new NamedType(hi.hiName)));
-		}
 		for (RWFunctionDefinition fn : rw.functions.values()) {
 			if (fn.getType() != null) // a function has already been typechecked
 				globalKnowledge.put(fn.name(), convertType(fn.getType()));
+		}
+		for (Entry<String, Type> e : rw.fnArgs.entrySet()) {
+			if (e.getValue() instanceof RWStructDefn)
+				globalKnowledge.put(e.getKey(), new NamedType(((RWStructDefn)e.getValue()).name()));
+			else
+				globalKnowledge.put(e.getKey(), convertType(e.getValue()));
+		}
+		for (RWStructDefn sd : rw.structs.values()) {
+			TypeInfo sty = structTypes.get(sd.uniqueName());
+			List<TypeInfo> fs = new ArrayList<>();
+			for (RWStructField f : sd.fields)
+				fs.add(convertType(f.type));
+			globalKnowledge.put(sd.uniqueName(), new TypeFunc(fs, sty));
+		}
+		for (RWHandlerImplements hi : rw.callbackHandlers.values()) {
+			List<TypeInfo> fs = new ArrayList<>();
+			for (HandlerLambda f : hi.boundVars)
+				if (f.scopedFrom == null)
+					fs.add(convertType(f.type));
+			globalKnowledge.put(hi.hiName, new TypeFunc(fs, new NamedType(hi.hiName)));
 		}
 	}
 
@@ -311,14 +321,6 @@ public class TypeChecker2 {
 		}
 	}
 
-	private boolean isScoped(HSIEForm f, String called) {
-		for (VarNestedFromOuterFunctionScope vn : f.scoped) {
-			if (vn.id.equals(called))
-				return true;
-		}
-		return false;
-	}
-
 	protected void processClosure(HSIEForm f, ClosureCmd c) {
 		List<HSIEBlock> cmds = c.nestedCommands();
 		if (c.justScoping) {
@@ -373,11 +375,6 @@ public class TypeChecker2 {
 				System.out.println(c.var + " has a null first arg");
 				return;
 			}
-//			if (ti instanceof TypeVar) {
-//				Var fv = ((TypeVar)ti).var;
-//				constraints.add(fv, new TypeFunc(argtypes, new TypeVar(c.var)));
-//				return;
-//			}
 			if (!(ti instanceof TypeFunc))
 				throw new UtilException("I guess it's possible we could have a constant by itself or something"); // TODO: is this an error?
 			TypeFunc called = (TypeFunc) ti;
@@ -389,8 +386,14 @@ public class TypeChecker2 {
 				String si = isScoped.get(i);
 				if (si != null) {
 					TypeInfo foo = globalKnowledge.get(si);
-					if (foo == null)
+					if (foo == null || ((foo instanceof NamedType) && ((NamedType)foo).name.equals("Any")))
 						globalKnowledge.put(si, tai);
+					else if ((tai instanceof NamedType) && ((NamedType)tai).name.equals("Any"))
+						globalKnowledge.put(si, foo);
+					else if (foo instanceof TypeVar)
+						constraints.add(((TypeVar)foo).var, tai);
+					else if (tai instanceof TypeVar)
+						constraints.add(((TypeVar)tai).var, foo);
 					else if (!foo.equals(tai))
 						throw new UtilException("Scoped var = " + si + " with already " + foo + " and now " + tai);
 				}
@@ -416,6 +419,8 @@ public class TypeChecker2 {
 
 	protected void checkArgType(TypeInfo want, TypeInfo have) {
 		System.out.println("Compare " + want + " to " + have);
+		if (want instanceof NamedType && ((NamedType)want).name.equals("Any"))
+			return; // this is not much of a constraint, but can confuse things
 		if (want instanceof TypeVar) {
 			constraints.add(((TypeVar)want).var, have);
 		}
@@ -647,6 +652,13 @@ public class TypeChecker2 {
 			for (int i=0;i<type.arity()+1;i++)
 				args.add(convertType(type.arg(i)));
 			return new TypeFunc(args);
+		} else if (type.iam == WhatAmI.SOMETHINGELSE) {
+			String other = ((TypeOfSomethingElse)type).other();
+			try {
+				return getTypeOf(type.location(), other);
+			} catch (UtilException ex) {
+				return new TypeIndirect(type.location(), other);
+			}
 		} else
 			throw new UtilException("Cannot convert " + type.getClass() + " " + type.iam + ": " + type.name());
 	}
@@ -733,6 +745,8 @@ public class TypeChecker2 {
 			for (TypeInfo x : tf.args)
 				args.add(freshPolys(x, curr));
 			return new TypeFunc(args);
+		} else if (ti instanceof TypeIndirect) {
+			return getTypeOf(((TypeIndirect)ti).location, ((TypeIndirect) ti).other);
 		} else
 			throw new UtilException("Do what now? " + ti);
 	}
