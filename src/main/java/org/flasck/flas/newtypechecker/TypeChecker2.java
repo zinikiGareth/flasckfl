@@ -160,13 +160,15 @@ public class TypeChecker2 {
 				if (v.idx >= nextVar)
 					nextVar = v.idx+1;
 			}
-			collectVarNames(knownScoped, f);
+			collectVarNames(knownScoped, f, f);
 			for (ClosureCmd c : f.closures())
-				collectVarNames(knownScoped, c);
+				collectVarNames(knownScoped, f, c);
 		}
 		System.out.println("collected " + knownScoped);
-		for (Entry<String, Var> e : knownScoped.entrySet())
-			localKnowledge.put(e.getKey(), new TypeVar(e.getValue()));
+		for (Entry<String, Var> e : knownScoped.entrySet()) {
+			if (!globalKnowledge.containsKey(e.getKey()))
+				localKnowledge.put(e.getKey(), new TypeVar(e.getValue()));
+		}
 		System.out.println("allocating FRESH vars from " + nextVar);
 
 		// 1c. Now allocate FRESH vars for the return types
@@ -211,6 +213,15 @@ public class TypeChecker2 {
 				if (c.justScoping) {
 					scoping.put(c.var, c.nestedCommands().get(0));
 					constraints.removeAll(c.var);
+					for (int i=1;i<c.nestedCommands().size();i++) {
+						HSIEBlock a = c.nestedCommands().get(i);
+						if (a instanceof PushVar) {
+							String name = ((PushVar)a).var.called;
+							TypeInfo ti = globalKnowledge.get(name);
+							if (ti != null)
+								constraints.add(((PushVar)a).var.var, ti);
+						}
+					}
 				}
 			}
 		}
@@ -282,12 +293,12 @@ public class TypeChecker2 {
 		}
 	}
 
-	private void collectVarNames(Map<String, Var> knownScoped, HSIEBlock f) {
-		for (HSIEBlock c : f.nestedCommands()) {
+	private void collectVarNames(Map<String, Var> knownScoped, HSIEForm f, HSIEBlock blk) {
+		for (HSIEBlock c : blk.nestedCommands()) {
 			if (c instanceof Head || c instanceof BindCmd || c instanceof ErrorCmd)
 				continue;
 			if (c instanceof Switch || c instanceof IFCmd)
-				collectVarNames(knownScoped, c);
+				collectVarNames(knownScoped, f, c);
 			else if (c instanceof PushVar) {
 				VarInSource v = ((PushVar)c).var;
 				if (knownScoped.containsKey(v.called) && knownScoped.get(v.called).idx != v.var.idx)
@@ -300,6 +311,14 @@ public class TypeChecker2 {
 		}
 	}
 
+	private boolean isScoped(HSIEForm f, String called) {
+		for (VarNestedFromOuterFunctionScope vn : f.scoped) {
+			if (vn.id.equals(called))
+				return true;
+		}
+		return false;
+	}
+
 	protected void processClosure(HSIEForm f, ClosureCmd c) {
 		List<HSIEBlock> cmds = c.nestedCommands();
 		if (c.justScoping) {
@@ -307,9 +326,11 @@ public class TypeChecker2 {
 		}
 		System.out.println("Need to check " + f.fnName + " " + c.var);
 		List<TypeInfo> argtypes = new ArrayList<TypeInfo>();
+		List<String> isScoped = new ArrayList<String>();
 		for (int i=1;i<cmds.size();i++) {
-			TypeInfo ai = getTypeOf(cmds.get(i));
-			argtypes.add(ai);
+			HSIEBlock cmd = cmds.get(i);
+			argtypes.add(getTypeOf(cmd));
+			isScoped.add(isPushScope(cmd));
 		}
 		HSIEBlock cmd = cmds.get(0);
 		if (cmd instanceof PushVar && scoping.containsKey(((PushVar)cmd).var.var))
@@ -318,7 +339,6 @@ public class TypeChecker2 {
 			Var fv = ((PushVar)cmd).var.var;
 			constraints.add(fv, new TypeFunc(argtypes, new TypeVar(c.var)));
 		} else {
-			// I think we need to consider FLEval.field as a special case here ...
 			if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.field")) {
 				System.out.println("FLEval.field");
 				if (argtypes.get(0) instanceof TypeVar) {
@@ -353,13 +373,27 @@ public class TypeChecker2 {
 				System.out.println(c.var + " has a null first arg");
 				return;
 			}
+//			if (ti instanceof TypeVar) {
+//				Var fv = ((TypeVar)ti).var;
+//				constraints.add(fv, new TypeFunc(argtypes, new TypeVar(c.var)));
+//				return;
+//			}
 			if (!(ti instanceof TypeFunc))
 				throw new UtilException("I guess it's possible we could have a constant by itself or something"); // TODO: is this an error?
 			TypeFunc called = (TypeFunc) ti;
 			for (int i=0;i<argtypes.size();i++) {
 				if (called.args.size() < i)
 					throw new UtilException("Error about applying a non-function to arg " + i + " in " + c.var);
-				checkArgType(called.args.get(i), argtypes.get(i));
+				TypeInfo tai = called.args.get(i);
+				checkArgType(tai, argtypes.get(i));
+				String si = isScoped.get(i);
+				if (si != null) {
+					TypeInfo foo = globalKnowledge.get(si);
+					if (foo == null)
+						globalKnowledge.put(si, tai);
+					else if (!foo.equals(tai))
+						throw new UtilException("Scoped var = " + si + " with already " + foo + " and now " + tai);
+				}
 			}
 			TypeInfo ret = called.args.get(called.args.size()-1);
 			if (called.args.size() == argtypes.size()+1) {
@@ -372,6 +406,12 @@ public class TypeChecker2 {
 				constraints.add(c.var, tf);
 			}
 		}
+	}
+
+	private String isPushScope(HSIEBlock cmd) {
+		if (cmd instanceof PushExternal && ((PushExternal)cmd).fn instanceof VarNestedFromOuterFunctionScope)
+			return ((VarNestedFromOuterFunctionScope)((PushExternal)cmd).fn).id;
+		return null;
 	}
 
 	protected void checkArgType(TypeInfo want, TypeInfo have) {
