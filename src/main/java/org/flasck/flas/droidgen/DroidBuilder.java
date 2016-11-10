@@ -58,11 +58,16 @@ public class DroidBuilder {
 	private List<String> jnis;
 	final List<PackageInfo> packages = new ArrayList<PackageInfo>();
 	private Map<String, DroidStyle> cssClasses = new TreeMap<>(new StringComparator());
+	private boolean reallyBuild = true;
 
 	public DroidBuilder(File androidDir, ByteCodeEnvironment bce) {
 		this.androidDir = androidDir;
 		this.bce = bce;
 		qbcdir = new File(androidDir, "qbout/classes");
+	}
+
+	public void dontBuild() {
+		reallyBuild = false;
 	}
 
 	public void init() {
@@ -262,6 +267,9 @@ public class DroidBuilder {
 	}
 
 	public void build() {
+		if (!reallyBuild)
+			return;
+		
 		for (Entry<String, DroidStyle> s: cssClasses.entrySet()) {
 			System.out.println("Class " + s.getKey() + " of type " + s.getValue().getFlasck("type") + " has height " + s.getValue().get("height"));
 		}

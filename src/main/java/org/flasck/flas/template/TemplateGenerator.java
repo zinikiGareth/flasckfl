@@ -364,7 +364,7 @@ public class TemplateGenerator {
 			}
 		} else if (tl instanceof D3Invoke) {
 			D3Invoke d3 = (D3Invoke) tl;
-			callOnAssign(fn, d3.d3.data, null, "D3Area.prototype._onUpdate", false, null);
+			callOnAssign(fn, d3.d3.data, cgrx, "D3Area.prototype._onUpdate", false, null);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}

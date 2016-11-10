@@ -1,0 +1,25 @@
+public abstract class test.golden.Foo extends org.flasck.android.ContractImpl {
+  public test.golden.Foo();
+    Code:
+       0: aload_0       
+       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       4: return        
+
+  public abstract java.lang.Object goodbye(java.lang.Object);
+}
+public abstract class test.golden.Handler extends org.flasck.android.ContractImpl {
+  public test.golden.Handler();
+    Code:
+       0: aload_0       
+       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       4: return        
+
+  public abstract java.lang.Object feedback(java.lang.Object);
+}
+public abstract class test.golden.Request extends org.flasck.android.ContractImpl {
+  public test.golden.Request();
+    Code:
+       0: aload_0       
+       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       4: return        
+}

@@ -27,7 +27,6 @@ public class AndroidCGRunner extends CGHarnessRunner {
 	private static Class<?>[] figureClasses() throws IOException, ErrorResultException {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		Compiler compiler = new Compiler();
-		compiler.writeDroidTo(new File("null"));
 		compiler.searchIn(new File("src/main/resources/flim"));
 		compiler.compile(new File("src/test/resources/cards/test.ziniki"));
 

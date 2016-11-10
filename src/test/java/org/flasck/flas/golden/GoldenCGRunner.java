@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.cgharness.CGHClassLoaderImpl;
 import org.zinutils.cgharness.CGHarnessRunner;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.system.RunProcess;
 import org.zinutils.utils.Crypto;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
@@ -96,11 +98,15 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File jsto = new File(s, "jsout-tmp");
 		File hsie = new File(s, "hsie-tmp");
 		File flim = new File(s, "flim-tmp");
+		File droidTo = new File(s, "droid-to");
+		File droid = new File(s, "droid-tmp");
 		FileUtils.deleteDirectoryTree(etmp);
 		clean(pform);
 		clean(jsto);
 		clean(hsie);
 		clean(flim);
+		clean(droidTo);
+		clean(droid);
 		try {
 			Compiler.setLogLevels();
 			Compiler compiler = new Compiler();
@@ -114,14 +120,22 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			}
 			assertGolden(new File(s, "pform"), pform);
 			
-			// read these kinds of things from "new File(s, ".settings")"
-	//		compiler.writeDroidTo(new File("null"));
-	//		compiler.searchIn(new File("src/main/resources/flim"));
-			
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
+			compiler.writeDroidTo(droidTo, false);
 			compiler.compile(dir);
+			
+			RunProcess proc = new RunProcess("javap");
+			proc.arg("-c");
+			for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.class")) {
+				proc.arg(f.getPath());
+			}
+			FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
+			proc.redirectStdout(fos);
+			proc.redirectStderr(fos);
+			proc.execute();
+			fos.close();
 			
 			// Now assert that we matched things ...
 			assertGolden(new File(s, "jsout"), jsto);
