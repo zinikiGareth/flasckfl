@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -132,11 +133,15 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File hsie = new File(s, "hsie-tmp");
 		File flim = new File(s, "flim-tmp");
 		File tc2 = new File(s, "tc-tmp");
+		File droidTo = new File(s, "droid-to");
+		File droid = new File(s, "droid-tmp");
 		FileUtils.deleteDirectoryTree(new File(s, "errors-tmp"));
 		clean(pform);
 		clean(jsto);
 		clean(hsie);
 		clean(flim);
+		clean(droidTo);
+		clean(droid);
 		clean(tc2);
 		Compiler.setLogLevels();
 		Compiler compiler = new Compiler();
@@ -177,7 +182,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
+			compiler.writeDroidTo(droidTo, false);
 			compiler.compile(dir);
+			
 		} catch (ErrorResultException ex) {
 			handleErrors(s, ex.errors);
 		}
@@ -192,6 +199,17 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		assertGolden(goldhs, hsie);
 		assertGolden(new File(s, "tc"), tc2);
 		assertGolden(new File(s, "flim"), flim);
+
+		RunProcess proc = new RunProcess("javap");
+		proc.arg("-c");
+		for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.class")) {
+			proc.arg(f.getPath());
+		}
+		FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
+		proc.redirectStdout(fos);
+		proc.redirectStderr(fos);
+		proc.execute();
+		fos.close();
 	}
 
 	// I want to see the locations, but I don't (always) want to be bound to them.  Remove them if desired (i.e. call this method if desired)

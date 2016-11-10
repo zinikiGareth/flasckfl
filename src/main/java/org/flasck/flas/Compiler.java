@@ -98,7 +98,7 @@ public class Compiler {
 							System.out.println("--android <build-dir>");
 							System.exit(1);
 						}
-						compiler.writeDroidTo(new File(args[++i]));
+						compiler.writeDroidTo(new File(args[++i]), true);
 					} else {
 						boolean matched = false;
 						if (compiler.builder != null) { // consider droid build options
@@ -207,10 +207,12 @@ public class Compiler {
 	}
 	
 	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put it
-	public void writeDroidTo(File file) {
+	public void writeDroidTo(File file, boolean andBuild) {
 		if (file.getPath().equals("null"))
 			return;
 		builder = new DroidBuilder(file, bce);
+		if (!andBuild)
+			builder.dontBuild();
 		builder.init();
 	}
 

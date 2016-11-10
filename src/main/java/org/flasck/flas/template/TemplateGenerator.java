@@ -341,7 +341,7 @@ public class TemplateGenerator {
 			}
 		} else if (tl instanceof RWD3Thing) {
 			RWD3Thing d3 = (RWD3Thing) tl;
-			callOnAssign(fn, d3.data, null, "D3Area.prototype._onUpdate", false, null);
+			callOnAssign(fn, d3.data, cgrx, "D3Area.prototype._onUpdate", false, null);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
