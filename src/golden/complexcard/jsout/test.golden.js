@@ -203,7 +203,7 @@ test.golden._Complex.B1.prototype = new DivArea();
 test.golden._Complex.B1.prototype.constructor = test.golden._Complex.B1;
 
 test.golden._Complex.B1.prototype._setAttr_1 = function() {
-  var attr = FLEval.full(this._card.teas_0());
+  var attr = FLEval.full(this.teas_0());
   if (attr && !(attr instanceof FLError)) {
     this._mydiv.setAttribute('title', attr);
   }
@@ -223,11 +223,11 @@ test.golden._Complex.B2.prototype = new TextArea();
 test.golden._Complex.B2.prototype.constructor = test.golden._Complex.B2;
 
 test.golden._Complex.B2.prototype._contentExpr = function() {
-  this._assignToText(this._card.contents_2());
+  this._assignToText(this.contents_1());
 }
 
 test.golden._Complex.B2.prototype._setVariableFormats = function() {
-  this._mydiv.setAttribute('class', join(FLEval.full(this._card.formats_1()), ' '));
+  this._mydiv.setAttribute('class', join(FLEval.full(this.formats_2()), ' '));
 }
 
 test.golden._Complex.B3 = function(parent) {
@@ -281,11 +281,11 @@ test.golden._Complex.B5.prototype = new TextArea();
 test.golden._Complex.B5.prototype.constructor = test.golden._Complex.B5;
 
 test.golden._Complex.B5.prototype._contentExpr = function() {
-  this._assignToText(this._card.contents_4());
+  this._assignToText(this.contents_4());
 }
 
 test.golden._Complex.B3.prototype._assignToVar = function() {
-  var lv = FLEval.full(this._card.lvs_3());
+  var lv = FLEval.full(this.lvs_3());
   ListArea.prototype._assignToVar.call(this, lv);
 }
 
@@ -327,12 +327,12 @@ test.golden._Complex.B8.prototype.constructor = test.golden._Complex.B8;
 
 test.golden._Complex.B8.prototype._add_handlers = function() {
   this._mydiv['onclick'] = function(event) {
-    this._area._wrapper.dispatchEvent(this._card.handlers_6(), event);
+    this._area._wrapper.dispatchEvent(this.handlers_6(), event);
   }
 }
 
 test.golden._Complex.B6.prototype._assignToVar = function() {
-  var lv = FLEval.full(this._card.lvs_5());
+  var lv = FLEval.full(this.lvs_5());
   ListArea.prototype._assignToVar.call(this, lv);
 }
 
@@ -349,7 +349,7 @@ test.golden._Complex.B9.prototype.constructor = test.golden._Complex.B9;
 
 test.golden._Complex.B9.prototype._chooseCase = function(parent) {
   "use strict";
-  if (FLEval.full(this._card.ors_7())) {
+  if (FLEval.full(this.ors_7())) {
     this._setTo(test.golden._Complex.B10);
     return;
   }
@@ -378,7 +378,7 @@ test.golden._Complex.B11.prototype = new CardSlotArea();
 test.golden._Complex.B11.prototype.constructor = test.golden._Complex.B11;
 
 test.golden._Complex.B11.prototype._yoyoExpr = function() {
-  this._updateToCard(this._card.yoyos_8());
+  this._updateToCard(this.yoyos_8());
 }
 
 test.golden.Complex._FooHandler.prototype.reply = function(v0) {
@@ -432,26 +432,6 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
   return FLEval.error("test.golden.Complex._S0.get: case not handled");
 }
 
-test.golden.Complex.prototype.contents_2 = function() {
-  "use strict";
-  return this.hello;
-}
-
-test.golden.Complex.prototype.contents_4 = function() {
-  "use strict";
-  return this._src_lv.lv;
-}
-
-test.golden.Complex.prototype.formats_1 = function() {
-  "use strict";
-  return FLEval.closure(Cons, this.format, Nil);
-}
-
-test.golden.Complex.prototype.handlers_6 = function() {
-  "use strict";
-  return test.golden.Complex.prototype.sayHello;
-}
-
 test.golden.Complex.inits_format = function() {
   "use strict";
   return 'basic';
@@ -460,21 +440,6 @@ test.golden.Complex.inits_format = function() {
 test.golden.Complex.inits_hello = function() {
   "use strict";
   return 'hello, world';
-}
-
-test.golden.Complex.prototype.lvs_3 = function() {
-  "use strict";
-  return this.list;
-}
-
-test.golden.Complex.prototype.lvs_5 = function() {
-  "use strict";
-  return this.list;
-}
-
-test.golden.Complex.prototype.ors_7 = function() {
-  "use strict";
-  return FLEval.closure(FLEval.compeq, this.hello, 'hello');
 }
 
 test.golden.Complex.prototype.sayHello = function(v0) {
@@ -490,19 +455,54 @@ test.golden.Complex.prototype.sayHello = function(v0) {
   return FLEval.error("test.golden.Complex.sayHello: case not handled");
 }
 
-test.golden.Complex.prototype.teas_0 = function() {
-  "use strict";
-  return this.hello;
-}
-
-test.golden.Complex.prototype.yoyos_8 = function() {
-  "use strict";
-  return this.yoyo;
-}
-
 test.golden.WithInit.inits_x = function() {
   "use strict";
   return 'hello';
+}
+
+test.golden._Complex.B1.prototype.teas_0 = function() {
+  "use strict";
+  return this._card.hello;
+}
+
+test.golden._Complex.B11.prototype.yoyos_8 = function() {
+  "use strict";
+  return this._card.yoyo;
+}
+
+test.golden._Complex.B2.prototype.contents_1 = function() {
+  "use strict";
+  return this._card.hello;
+}
+
+test.golden._Complex.B2.prototype.formats_2 = function() {
+  "use strict";
+  return FLEval.closure(Cons, this._card.format, Nil);
+}
+
+test.golden._Complex.B3.prototype.lvs_3 = function() {
+  "use strict";
+  return this._card.list;
+}
+
+test.golden._Complex.B5.prototype.contents_4 = function() {
+  "use strict";
+  return this._src_lv.lv;
+}
+
+test.golden._Complex.B6.prototype.lvs_5 = function() {
+  "use strict";
+  return this._card.list;
+}
+
+test.golden._Complex.B8.prototype.handlers_6 = function() {
+  "use strict";
+  return test.golden.Complex.prototype.sayHello;
+}
+
+test.golden._Complex.B9.prototype.ors_7 = function() {
+  "use strict";
+  return FLEval.closure(FLEval.compeq, this._card.hello, 'hello');
 }
 
 test.golden;

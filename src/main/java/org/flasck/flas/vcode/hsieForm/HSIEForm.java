@@ -193,7 +193,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	}
 
 	public boolean isMethod() {
-		return mytype == CodeType.CARD || mytype == CodeType.CONTRACT || mytype == CodeType.SERVICE || mytype == CodeType.HANDLER || mytype == CodeType.EVENTHANDLER;
+		return mytype == CodeType.CARD || mytype == CodeType.CONTRACT || mytype == CodeType.SERVICE || mytype == CodeType.HANDLER || mytype == CodeType.EVENTHANDLER || mytype == CodeType.AREA;
 	}
 
 	@Override

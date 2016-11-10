@@ -73,7 +73,7 @@ test.golden._TestCard.B4.prototype.constructor = test.golden._TestCard.B4;
 
 test.golden._TestCard.B3.prototype._add_handlers = function() {
   this._mydiv['onclick'] = function(event) {
-    this._area._wrapper.dispatchEvent(this._card.handlers_0(), event);
+    this._area._wrapper.dispatchEvent(this.handlers_0(), event);
   }
 }
 
@@ -100,14 +100,14 @@ test.golden._TestCard.B6.prototype = new DivArea();
 test.golden._TestCard.B6.prototype.constructor = test.golden._TestCard.B6;
 
 test.golden._TestCard.B6.prototype._setAttr_1 = function() {
-  var attr = FLEval.full(this._card.teas_1());
+  var attr = FLEval.full(this.teas_1());
   if (attr && !(attr instanceof FLError)) {
     this._mydiv.setAttribute('width', attr);
   }
 }
 
 test.golden._TestCard.B6.prototype._setAttr_2 = function() {
-  var attr = FLEval.full(this._card.teas_2());
+  var attr = FLEval.full(this.teas_2());
   if (attr && !(attr instanceof FLError)) {
     this._mydiv.setAttribute('height', attr);
   }
@@ -122,11 +122,6 @@ test.golden._TestCard.B7 = function(parent) {
 test.golden._TestCard.B7.prototype = new D3Area();
 
 test.golden._TestCard.B7.prototype.constructor = test.golden._TestCard.B7;
-
-test.golden.TestCard.prototype.handlers_0 = function() {
-  "use strict";
-  return test.golden.TestCard.prototype.rejig;
-}
 
 test.golden.TestCard.inits_data = function() {
   "use strict";
@@ -146,12 +141,17 @@ test.golden.TestCard.prototype.rejig = function(v0) {
   return FLEval.closure(Cons, v5, Nil);
 }
 
-test.golden.TestCard.prototype.teas_1 = function() {
+test.golden._TestCard.B3.prototype.handlers_0 = function() {
+  "use strict";
+  return test.golden.TestCard.prototype.rejig;
+}
+
+test.golden._TestCard.B6.prototype.teas_1 = function() {
   "use strict";
   return '400';
 }
 
-test.golden.TestCard.prototype.teas_2 = function() {
+test.golden._TestCard.B6.prototype.teas_2 = function() {
   "use strict";
   return '250';
 }

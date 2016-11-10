@@ -45,6 +45,8 @@ public class Generator {
 			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
 			if (input.mytype == CodeType.HANDLER) {
 				idx = jsname.lastIndexOf('.', idx-1);
+			} else if (input.mytype == CodeType.AREA) {
+				idx = -1;
 			} else {
 				idx = jsname.lastIndexOf("._C");
 				if (idx == -1) idx = jsname.lastIndexOf("._S");

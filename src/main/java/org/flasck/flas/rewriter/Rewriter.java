@@ -21,8 +21,6 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.TemplateFormat;
-import org.flasck.flas.commonBase.template.TemplateLine;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.ImportPackage;
@@ -59,7 +57,9 @@ import org.flasck.flas.parsedForm.TemplateCardReference;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
+import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
+import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
 import org.flasck.flas.parsedForm.TypeReference;
@@ -111,6 +111,7 @@ import org.flasck.flas.rewrittenForm.RWTemplateCases;
 import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
+import org.flasck.flas.rewrittenForm.RWTemplateLine;
 import org.flasck.flas.rewrittenForm.RWTemplateList;
 import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -317,8 +318,11 @@ public class Rewriter {
 			return true;
 		}
 
-		public String nextFunction(String type) {
-			return prefix+"."+type+"_"+(fnIdx++);
+		public String nextFunction(String type, HSIEForm.CodeType from, String name) {
+			if (from == CodeType.AREA)
+				return name +"." + type +"_"+(fnIdx++);
+			else // CodeType.CARD, at least ...
+				return prefix+"."+type+"_"+(fnIdx++);
 		}
 	}
 
@@ -352,19 +356,33 @@ public class Rewriter {
 	public class TemplateContext extends NamingContext {
 		private final String tlvSimpleName;
 		private final TemplateListVar listVar;
+		private final String areaName;
+		private int nextAreaNo;
 
 		public TemplateContext(CardContext cx) {
 			super(cx);
-			listVar = null;
+			this.listVar = null;
 			this.tlvSimpleName = null;
+			this.nextAreaNo = 1;
+			this.areaName = null;
 		}
 		
-		public TemplateContext(TemplateContext cx, String tlvSimpleName, TemplateListVar tlv) {
+		public TemplateContext(TemplateContext cx, String areaName) {
 			super(cx);
+			this.areaName = areaName;
+			this.listVar = null;
+			this.tlvSimpleName = null;
+			this.nextAreaNo = -1;
+		}
+
+		public TemplateContext(TemplateContext cx, String areaName, String tlvSimpleName, TemplateListVar tlv) {
+			super(cx);
+			this.areaName = areaName;
 			if (tlv != null && tlv.simpleName == null)
 				throw new UtilException("Shouldn't happen");
 			this.tlvSimpleName = tlvSimpleName;
 			this.listVar = tlv;
+			this.nextAreaNo = -1;
 		}
 
 		public String cardName() {
@@ -383,13 +401,23 @@ public class Rewriter {
 			return nested.resolve(location, name);
 		}
 
-		public String nextFunction(String type) {
+		public String nextFunction(String aname, String type, CodeType from) {
 			if (nested instanceof CardContext) {
-				return ((CardContext)nested).nextFunction(type);
+				return ((CardContext)nested).nextFunction(type, from, aname);
 			} else if (nested instanceof TemplateContext)
-				return ((TemplateContext)nested).nextFunction(type);
+				return ((TemplateContext)nested).nextFunction(aname, type, from);
 			else
 				throw new UtilException("Cannot handle " + nested.getClass());
+		}
+
+		public String nextArea() {
+			if (nextAreaNo == -1)
+				return ((TemplateContext)nested).nextArea();
+			String cn = cardName();
+			int idx = cn.lastIndexOf(".");
+			if (cn.charAt(idx+1) != '_')
+				cn = cn.substring(0, idx+1) + "_" + cn.substring(idx+1); 
+			return cn +".B"+(nextAreaNo++);
 		}
 
 	}
@@ -412,7 +440,7 @@ public class Rewriter {
 
 		public D3Context(TemplateContext cx, InputPosition location, String iv) {
 			super(cx);
-			this.iterVar = new IterVar(location, ((CardContext)cx.nested).prefix, iv);
+			this.iterVar = new IterVar(location, ((TemplateContext)cx.nested).cardName(), iv);
 		}
 		
 		@Override
@@ -420,6 +448,10 @@ public class Rewriter {
 			if (iterVar != null && iterVar.var.equals(name))
 				return iterVar;
 			return nested.resolve(location, name);
+		}
+
+		public String nextArea() {
+			return ((TemplateContext)nested).nextArea();
 		}
 
 	}
@@ -813,13 +845,13 @@ public class Rewriter {
 		}
 	}
 
-	private TemplateLine rewrite(TemplateContext cx, TemplateLine tl) {
+	private RWTemplateLine rewrite(TemplateContext cx, TemplateLine tl) {
 		if (tl == null)
 			return null;
 		List<Object> attrs = new ArrayList<Object>();
 		List<Object> formats = new ArrayList<Object>();
 		List<SpecialFormat> specials = new ArrayList<SpecialFormat>();
-		String dynamicFn = null;
+		Object dynamicExpr = null;
 		if (tl instanceof TemplateFormat) {
 			TemplateFormat tf = (TemplateFormat) tl;
 			FormatContext fc = new FormatContext(cx);
@@ -849,11 +881,12 @@ public class Rewriter {
 				} else 
 					throw new UtilException("Format type not handled: " + o.getClass());
 			}
-			dynamicFn = dynamicFormat(cx, tf, formats);
+			dynamicExpr = dynamicFormat(tf, formats);
 		}
 		if (tl instanceof ContentString) {
 			ContentString cs = (ContentString)tl;
-			return rewriteEventHandlers(cx, new RWContentString(cs.kw, cs.text, formats, dynamicFn), ((TemplateFormatEvents)tl).handlers);
+			String areaName = cx.nextArea();
+			return rewriteEventHandlers(cx, new RWContentString(cs.kw, cs.text, areaName, formats, makeFn(cx, cs, areaName, dynamicExpr)), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr)tl;
 			boolean rawHTML = false;
@@ -863,28 +896,31 @@ public class Rewriter {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
+			String areaName = cx.nextArea();
 			Object rwexpr = rewriteExpr(cx, ce.expr);
-			String fnName = cx.nextFunction("contents");
-			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.CARD, fnName, 0, true);
+			String fnName = cx.nextFunction(areaName, "contents", CodeType.AREA);
+			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.AREA, fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
-			return rewriteEventHandlers(cx, new RWContentExpr(ce.kw, rwexpr, ce.editable(), rawHTML, formats, fnName, dynamicFn), ((TemplateFormatEvents)tl).handlers);
+			return rewriteEventHandlers(cx, new RWContentExpr(ce.kw, rwexpr, ce.editable(), rawHTML, areaName, formats, fnName, makeFn(cx, ce, areaName, dynamicExpr)), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof TemplateCardReference) {
 			TemplateCardReference cr = (TemplateCardReference) tl;
 			Object cardVar = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
 			Object yoyoVar = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
 			String fnName = null;
+			String areaName = cx.nextArea();
 			if (cr.yoyoVar != null) {
-				fnName = cx.nextFunction("yoyos");
-				RWFunctionDefinition fn = new RWFunctionDefinition(cr.location, CodeType.CARD, fnName, 0, true);
+				fnName = cx.nextFunction(areaName, "yoyos", CodeType.AREA);
+				RWFunctionDefinition fn = new RWFunctionDefinition(cr.location, CodeType.AREA, fnName, 0, true);
 				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(cr.location, fnName, new ArrayList<>(), null), 0, yoyoVar);
 				fn.cases.add(fcd0);
 				functions.put(fnName, fn);
 			}
-			return new RWTemplateCardReference(cr.location, cardVar, yoyoVar, fnName);
+			return new RWTemplateCardReference(cr.location, cardVar, yoyoVar, areaName, fnName);
 		} else if (tl instanceof TemplateDiv) {
 			TemplateDiv td = (TemplateDiv) tl;
+			String areaName = cx.nextArea();
 			for (Object o : td.attrs) {
 				if (o instanceof TemplateExplicitAttr) {
 					TemplateExplicitAttr tea = (TemplateExplicitAttr) o;
@@ -896,8 +932,8 @@ public class Rewriter {
 					else
 						throw new UtilException("Cannot handle TEA: " + tea);
 
-					String fnName = cx.nextFunction("teas");
-					RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.CARD, fnName, 0, true);
+					String fnName = cx.nextFunction(areaName, "teas", CodeType.AREA);
+					RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.AREA, fnName, 0, true);
 					RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tea.location, fnName, new ArrayList<>(), null), 0, value);
 					fn.cases.add(fcd0);
 					functions.put(fnName, fn);
@@ -920,9 +956,9 @@ public class Rewriter {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			RWTemplateDiv ret = new RWTemplateDiv(td.kw, td.customTag, td.customTagVar, attrs, formats, dynamicFn);
+			RWTemplateDiv ret = new RWTemplateDiv(td.kw, td.customTag, td.customTagVar, attrs, areaName, formats, makeFn(cx, td, areaName, dynamicExpr));
 			for (TemplateLine i : td.nested)
-				ret.nested.add(rewrite(cx, i));
+				ret.nested.add(rewrite(new TemplateContext(cx, ret.areaName()), i));
 			rewriteEventHandlers(cx, ret, td.handlers);
 			ret.droppables = droppables;
 			return ret;
@@ -939,21 +975,22 @@ public class Rewriter {
 
 			Object expr = rewriteExpr(cx, ul.listExpr);
 					
-			String fnName = cx.nextFunction("lvs");
-			RWFunctionDefinition fn = new RWFunctionDefinition(ul.listLoc, CodeType.CARD, fnName, 0, true);
+			String areaName = cx.nextArea();
+			String fnName = cx.nextFunction(areaName, "lvs", CodeType.AREA);
+			RWFunctionDefinition fn = new RWFunctionDefinition(ul.listLoc, CodeType.AREA, fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ul.listLoc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
 			
-			RWTemplateList rul = new RWTemplateList(ul.kw, ul.listLoc, expr, ul.iterLoc, rwv, ul.customTagLoc, ul.customTag, ul.customTagVarLoc, ul.customTagVar, formats, supportDragOrdering, fnName, dynamicFn);
-			cx = new TemplateContext(cx, ul.iterVar, rwv);
+			RWTemplateList rul = new RWTemplateList(ul.kw, ul.listLoc, expr, ul.iterLoc, rwv, ul.customTagLoc, ul.customTag, ul.customTagVarLoc, ul.customTagVar, formats, supportDragOrdering, areaName, fnName, makeFn(cx, ul, areaName, dynamicExpr));
+			cx = new TemplateContext(cx, rul.areaName(), ul.iterVar, rwv);
 			rul.template = rewrite(cx, ul.template);
 			return rul;
 		} else if (tl instanceof TemplateCases) {
 			TemplateCases tc = (TemplateCases)tl;
-			RWTemplateCases ret = new RWTemplateCases(tc.loc, rewriteExpr(cx, tc.switchOn));
+			RWTemplateCases ret = new RWTemplateCases(tc.loc, cx.nextArea(), rewriteExpr(cx, tc.switchOn));
 			for (TemplateOr tor : tc.cases)
-				ret.addCase(rewrite(cx, ret, tor));
+				ret.addCase(rewrite(new TemplateContext(cx, ret.areaName()), ret, tor));
 			return ret;
 		} else if (tl instanceof D3Thing) {
 			D3Thing d3 = (D3Thing) tl;
@@ -965,7 +1002,7 @@ public class Rewriter {
 			if (prefix.charAt(idx+1) != '_')
 				prefix = prefix.substring(0, idx+1) + "_" + prefix.substring(idx+1);
 
-			RWD3Thing rwD3 = new RWD3Thing(rewriteExpr(c2, d3.d3.expr));
+			RWD3Thing rwD3 = new RWD3Thing(c2.nextArea(), rewriteExpr(c2, d3.d3.expr));
 			createD3Methods(c2, prefix, d3);
 			d3s.add(rwD3);
 			return rwD3;
@@ -973,7 +1010,7 @@ public class Rewriter {
 			throw new UtilException("Content type not handled: " + (tl == null?"null":tl.getClass()));
 	}
 
-	private String dynamicFormat(TemplateContext cx, TemplateFormat tf, List<Object> formats) {
+	private Object dynamicFormat(TemplateFormat tf, List<Object> formats) {
 		StringBuilder simple = new StringBuilder();
 		if (tf instanceof ContentExpr && ((ContentExpr)tf).editable())
 			simple.append(" flasck-editable");
@@ -1002,25 +1039,30 @@ public class Rewriter {
 		if (expr != null) {
 			if (simple.length() > 0)
 				expr = new ApplyExpr(first, cons, new StringLiteral(first, simple.substring(1)), expr);
-			String fnName = cx.nextFunction("formats");
-			RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.CARD, fnName, 0, true);
-			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tf.kw, fnName, new ArrayList<>(), null), 0, expr);
-			fn.cases.add(fcd0);
-			functions.put(fnName, fn);
-			return fnName;
 		}
-		return null;
+		return expr;
+	}
+	
+	public String makeFn(TemplateContext cx, TemplateFormat tf, String areaName, Object expr) {
+		if (expr == null)
+			return null;
+		String fnName = cx.nextFunction(areaName, "formats", CodeType.AREA);
+		RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.AREA, fnName, 0, true);
+		RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tf.kw, fnName, new ArrayList<>(), null), 0, expr);
+		fn.cases.add(fcd0);
+		functions.put(fnName, fn);
+		return fnName;
 	}
 
-	private TemplateLine rewriteEventHandlers(TemplateContext cx, RWTemplateFormatEvents ret, List<EventHandler> handlers) {
+	private RWTemplateLine rewriteEventHandlers(TemplateContext cx, RWTemplateFormatEvents ret, List<EventHandler> handlers) {
 		// It may or may not be the same array ... copy it to be sure ...
 		handlers = new ArrayList<EventHandler>(handlers);
 		ret.handlers.clear();
 		for (EventHandler h : handlers) {
-			String fnName = cx.nextFunction("handlers");
+			String fnName = cx.nextFunction(ret.areaName(), "handlers", CodeType.AREA);
 			InputPosition loc = ((Locatable)h.expr).location();
 			Object rwexpr = rewriteExpr(cx, h.expr);
-			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.CARD, fnName, 0, true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.AREA, fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
@@ -1032,8 +1074,8 @@ public class Rewriter {
 	private RWTemplateOr rewrite(TemplateContext cx, RWTemplateCases cs, TemplateOr tor) {
 		String fnName = null;
 		if (tor.cond != null) {
-			fnName = cx.nextFunction("ors");
-			RWFunctionDefinition fn = new RWFunctionDefinition(tor.location(), CodeType.CARD, fnName, 0, true);
+			fnName = cx.nextFunction(cs.areaName(), "ors", CodeType.AREA);
+			RWFunctionDefinition fn = new RWFunctionDefinition(tor.location(), CodeType.AREA, fnName, 0, true);
 			ApplyExpr expr = new ApplyExpr(tor.location(), getMe(tor.location(), "=="), cs.switchOn, tor.cond);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tor.location(), fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);

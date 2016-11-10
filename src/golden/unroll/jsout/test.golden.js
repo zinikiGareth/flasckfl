@@ -52,7 +52,7 @@ test.golden._Unroll.B2.prototype = new DivArea();
 test.golden._Unroll.B2.prototype.constructor = test.golden._Unroll.B2;
 
 test.golden._Unroll.B2.prototype._setAttr_1 = function() {
-  var attr = FLEval.full(this._card.teas_0());
+  var attr = FLEval.full(this.teas_0());
   if (attr && !(attr instanceof FLError)) {
     this._mydiv.setAttribute('title', attr);
   }
@@ -81,7 +81,7 @@ test.golden._Unroll.B4.prototype = new DivArea();
 test.golden._Unroll.B4.prototype.constructor = test.golden._Unroll.B4;
 
 test.golden._Unroll.B4.prototype._setAttr_1 = function() {
-  var attr = FLEval.full(this._card.teas_1());
+  var attr = FLEval.full(this.teas_1());
   if (attr && !(attr instanceof FLError)) {
     this._mydiv.setAttribute('title', attr);
   }
@@ -97,12 +97,12 @@ test.golden._Unroll.B5.prototype = new TextArea();
 
 test.golden._Unroll.B5.prototype.constructor = test.golden._Unroll.B5;
 
-test.golden.Unroll.prototype.teas_0 = function() {
+test.golden._Unroll.B2.prototype.teas_0 = function() {
   "use strict";
   return 'hello';
 }
 
-test.golden.Unroll.prototype.teas_1 = function() {
+test.golden._Unroll.B4.prototype.teas_1 = function() {
   "use strict";
   return 'goodbye';
 }

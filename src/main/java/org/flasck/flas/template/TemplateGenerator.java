@@ -7,7 +7,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.TemplateLine;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.droidgen.CGRContext;
 import org.flasck.flas.droidgen.DroidGenerator;
@@ -33,6 +32,7 @@ import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.rewrittenForm.RWTemplateFormat;
 import org.flasck.flas.rewrittenForm.RWTemplateFormatEvents;
+import org.flasck.flas.rewrittenForm.RWTemplateLine;
 import org.flasck.flas.rewrittenForm.RWTemplateList;
 import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -73,14 +73,6 @@ public class TemplateGenerator {
 			this.cons = rw.getMe(posn, "Cons");
 		}
 		
-		String nextArea() {
-			return this.simpleName + ".B" + (areaNo++);
-		}
-
-		public String currentVar() {
-			return "b" + areaNo;
-		}
-		
 		public void varToCopy(String s, String inClz) {
 			varsToCopy.add(new DefinedVar(s, inClz));
 		}
@@ -119,7 +111,7 @@ public class TemplateGenerator {
 		target.add(ir);
 		if (cg == null || cg.content == null)
 			return;
-		String topBlock = cx.nextArea();
+		String topBlock = cg.areaName();
 		ir.add(JSForm.flex("new " + topBlock + "(new CardArea(parent, wrapper, this))"));
 		
 		dg.generateRender(cx.javaName, javaName(topBlock));
@@ -127,7 +119,7 @@ public class TemplateGenerator {
 		recurse(cx, topBlock, cg.content, null);
 	}
 
-	private JSForm recurse(GeneratorContext cx, String called, TemplateLine tl, String parentClass) {
+	private JSForm recurse(GeneratorContext cx, String called, RWTemplateLine tl, String parentClass) {
 		if (tl == null)
 			return null;
 		JSForm fn = JSForm.flex(called +" = function(parent)").needBlock();
@@ -215,7 +207,7 @@ public class TemplateGenerator {
 					String saf = called + ".prototype._setAttr_" + an;
 					JSForm sak = JSForm.flex(saf + " = function()").needBlock();
 					String tfn = simpleName(tea.fnName);
-					sak.add(JSForm.flex("var attr = FLEval.full(this._card." + tfn + "())"));
+					sak.add(JSForm.flex("var attr = FLEval.full(this." + tfn + "())"));
 					JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
 					sak.add(ifassign);
 					ifassign.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr +"', attr)"));
@@ -231,9 +223,10 @@ public class TemplateGenerator {
 					asRegexps.add("/" + s + "/");
 				fn.add(JSForm.flex("this._dropSomethingHere(" + asRegexps + ")"));
 			}
-			for (TemplateLine c : td.nested) {
-				String v = cx.currentVar();
-				String cn = cx.nextArea();
+			for (RWTemplateLine c : td.nested) {
+				String cn = c.areaName();
+				int idx = cn.lastIndexOf(".B")+2;
+				String v = 'b'+cn.substring(idx);
 				fn.add(JSForm.flex("var " + v + " = new " + cn + "(this)"));
 				dg.createNested(cgrx, v, javaName(cn));
 				recurse(cx, cn, c, called);
@@ -244,7 +237,7 @@ public class TemplateGenerator {
 			String tlv = lv == null ? null : lv.simpleName;
 			if (l.supportDragOrdering)
 				fn.add(JSForm.flex("this._supportDragging()"));
-			String item = cx.nextArea();
+			String item = l.template.areaName();
 			{
 				JSForm nc = JSForm.flex(called +".prototype._newChild = function()").needBlock();
 				nc.add(JSForm.flex("return new " + item + "(this)"));
@@ -258,7 +251,7 @@ public class TemplateGenerator {
 				cfn.add(JSForm.flex("this._makeDraggable()"));
 			JSForm atv = JSForm.flex(called + ".prototype._assignToVar = function()").needBlock();
 			String tfn = simpleName(l.listFn);
-			atv.add(JSForm.flex("var lv = FLEval.full(this._card." + tfn + "())"));
+			atv.add(JSForm.flex("var lv = FLEval.full(this." + tfn + "())"));
 			callOnAssign(fn, l.listVar, cgrx, called + ".prototype._assignToVar", false, "lv");
 			fn.add(JSForm.flex(called + ".prototype._assignToVar.call(this)"));
 			atv.add(JSForm.flex("ListArea.prototype._assignToVar.call(this, lv)"));
@@ -275,9 +268,9 @@ public class TemplateGenerator {
 			JSForm cexpr = JSForm.flex(called +".prototype._contentExpr = function()").needBlock();
 			String tfn = simpleName(ce.fnName);
 			if (ce.rawHTML)
-				cexpr.add(JSForm.flex("this._insertHTML(this._card." + tfn +"())"));
+				cexpr.add(JSForm.flex("this._insertHTML(this." + tfn +"())"));
 			else
-				cexpr.add(JSForm.flex("this._assignToText(this._card." + tfn +"())"));
+				cexpr.add(JSForm.flex("this._assignToText(this." + tfn +"())"));
 			cx.target.add(cexpr);
 
 			dg.contentExpr(cgrx, tfn, ce.rawHTML);
@@ -307,7 +300,7 @@ public class TemplateGenerator {
 	
 				JSForm cexpr = JSForm.flex(called +".prototype._yoyoExpr = function()").needBlock();
 				String tfn = simpleName(cr.fnName);
-				cexpr.add(JSForm.flex("this._updateToCard(this._card." + tfn + "())"));
+				cexpr.add(JSForm.flex("this._updateToCard(this." + tfn + "())"));
 				cx.target.add(cexpr);
 
 				dg.yoyoExpr(cgrx, tfn);
@@ -322,14 +315,14 @@ public class TemplateGenerator {
 			callOnAssign(fn, tc.switchOn, cgrx, sn, true, null);
 
 			for (RWTemplateOr oc : tc.cases) {
-				String cn = cx.nextArea();
+				String cn = oc.areaName();
 
 				JSForm doit;
 				if (oc.cond == null)
 					doit = sw;
 				else {
 					String tfn = simpleName(oc.fnName);
-					doit = JSForm.flex("if (FLEval.full(this._card." + tfn + "()))").needBlock();
+					doit = JSForm.flex("if (FLEval.full(this." + tfn + "()))").needBlock();
 					sw.add(doit);
 				}
 				doit.add(JSForm.flex("this._setTo(" + cn +")"));
@@ -337,7 +330,7 @@ public class TemplateGenerator {
 				doit.add(JSForm.flex("return"));
 				recurse(cx, cn, oc.template, called);
 				if (oc.cond != null)
-					callOnAssign(fn, oc.cond, null, sn, false, null);
+					callOnAssign(fn, oc.cond, cgrx, sn, false, null);
 			}
 		} else if (tl instanceof RWD3Thing) {
 			RWD3Thing d3 = (RWD3Thing) tl;
@@ -386,7 +379,7 @@ public class TemplateGenerator {
 			String scf = called + ".prototype._setVariableFormats";
 			JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
 			String tfn = simpleName(tl.dynamicFunction);
-			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this._card."+tfn+"()), ' '))"));
+			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this."+tfn+"()), ' '))"));
 			cx.target.add(scvs);
 			dg.setVarFormats(cgrx, tfn);
 			callOnAssign(fn, expr, cgrx, scf, true, null);
@@ -410,7 +403,7 @@ public class TemplateGenerator {
 					if (eh.action.equals("drop"))
 						distinguish = "_";
 					JSForm cev = JSForm.flex("this._mydiv['on" + distinguish + eh.action + "'] = function(event)").needBlock();
-					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(this._card." + tfn + "(), event)"));
+					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(this." + tfn + "(), event)"));
 					ahf.add(cev);
 	
 					callOnAssign(fn, eh.expr, cgrx, called + ".prototype._add_handlers", isFirst, null);

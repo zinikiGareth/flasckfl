@@ -1,10 +1,10 @@
-test.golden.TestCard.teas_1 :: String
-test.golden.TestCard.teas_2 :: String
 test.golden._TestCard._gen_1 :: D3Element[A]->String
 test.golden._TestCard._gen_3 :: D3Element[A]->Number
 test.golden._TestCard._gen_6 :: D3Element[A]->String
 test.golden._TestCard._gen_7 :: D3Element[A]->String
 test.golden._TestCard._gen_8 :: D3Element[A]->String
+test.golden._TestCard.B6.teas_1 :: String
+test.golden._TestCard.B6.teas_2 :: String
 test.golden._TestCard._gen_11 :: D3Element[A]->String
 test.golden._TestCard._gen_12 :: D3Element[A]->Number
 test.golden._TestCard._gen_15 :: Cons[Number]
@@ -18,6 +18,6 @@ test.golden.TestCard.rejig :: A->Cons[Assign]
 test.golden._TestCard._gen_13 :: D3Element[A]->Number
 test.golden._TestCard._d3_chart_enter_rect :: Cons[D3Action]
 test.golden._TestCard._d3_chart_enter_text :: Cons[D3Action]
+test.golden._TestCard.B3.handlers_0 :: A->Cons[Assign]
 test.golden._TestCard._gen_14 :: D3Element[A]->Number
-test.golden.TestCard.handlers_0 :: A->Cons[Assign]
 test.golden._TestCard._d3init_chart :: Assoc[Cons[Number]]

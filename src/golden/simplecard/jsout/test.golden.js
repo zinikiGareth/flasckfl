@@ -51,12 +51,7 @@ test.golden._Simple.B2.prototype = new TextArea();
 test.golden._Simple.B2.prototype.constructor = test.golden._Simple.B2;
 
 test.golden._Simple.B2.prototype._contentExpr = function() {
-  this._assignToText(this._card.contents_0());
-}
-
-test.golden.Simple.prototype.contents_0 = function() {
-  "use strict";
-  return this.hello;
+  this._assignToText(this.contents_0());
 }
 
 test.golden.Simple.prototype.f = function() {
@@ -67,6 +62,11 @@ test.golden.Simple.prototype.f = function() {
 test.golden.Simple.inits_hello = function() {
   "use strict";
   return 'hello, world';
+}
+
+test.golden._Simple.B2.prototype.contents_0 = function() {
+  "use strict";
+  return this._card.hello;
 }
 
 test.golden;
