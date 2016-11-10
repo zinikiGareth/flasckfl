@@ -1,12 +1,17 @@
 package org.flasck.flas.rewrittenForm;
 
-import org.flasck.flas.commonBase.template.TemplateLine;
-
-public class RWD3Thing implements TemplateLine {
+public class RWD3Thing implements RWTemplateLine {
+	private final String areaName;
 	public final Object data;
 
-	public RWD3Thing(Object expr) {
+	public RWD3Thing(String areaName, Object expr) {
+		this.areaName = areaName;
 		this.data = expr;
+	}
+	
+	@Override
+	public String areaName() {
+		return areaName;
 	}
 
 	@Override

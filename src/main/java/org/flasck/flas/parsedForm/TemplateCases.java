@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.template.TemplateLine;
 
 public class TemplateCases implements TemplateLine, Locatable {
 	public final List<TemplateOr> cases = new ArrayList<TemplateOr>();

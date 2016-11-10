@@ -5,15 +5,16 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.template.TemplateLine;
 
-public class RWTemplateCases implements TemplateLine, Locatable {
+public class RWTemplateCases implements RWTemplateLine, Locatable {
 	public final List<RWTemplateOr> cases = new ArrayList<RWTemplateOr>();
 	public final InputPosition loc;
+	private final String areaName;
 	public final Object switchOn;
 
-	public RWTemplateCases(InputPosition loc, Object switchOn) {
+	public RWTemplateCases(InputPosition loc, String areaName, Object switchOn) {
 		this.loc = loc;
+		this.areaName = areaName;
 		this.switchOn = switchOn;
 	}
 
@@ -24,6 +25,11 @@ public class RWTemplateCases implements TemplateLine, Locatable {
 	@Override
 	public InputPosition location() {
 		return loc;
+	}
+
+	@Override
+	public String areaName() {
+		return areaName;
 	}
 
 }

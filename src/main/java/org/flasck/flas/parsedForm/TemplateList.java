@@ -3,8 +3,6 @@ package org.flasck.flas.parsedForm;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.template.TemplateFormat;
-import org.flasck.flas.commonBase.template.TemplateLine;
 
 public class TemplateList extends TemplateFormat {
 	public final InputPosition listLoc;

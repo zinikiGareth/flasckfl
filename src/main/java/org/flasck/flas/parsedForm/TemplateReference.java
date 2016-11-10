@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.template.TemplateLine;
 
 public class TemplateReference implements TemplateLine, Locatable {
 	public final InputPosition location;

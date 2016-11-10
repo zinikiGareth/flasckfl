@@ -2,8 +2,6 @@ package org.flasck.flas.parsedForm;
 
 import java.util.List;
 
-import org.flasck.flas.commonBase.template.TemplateLine;
-
 public class D3Thing implements TemplateLine {
 	public final D3Intro d3;
 	// TODO: D3

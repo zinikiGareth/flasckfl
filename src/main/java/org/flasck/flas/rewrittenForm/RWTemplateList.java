@@ -3,7 +3,6 @@ package org.flasck.flas.rewrittenForm;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.template.TemplateLine;
 
 public class RWTemplateList extends RWTemplateFormat {
 	public final InputPosition listLoc;
@@ -15,11 +14,11 @@ public class RWTemplateList extends RWTemplateFormat {
 	public final InputPosition customTagVarLoc;
 	public final String customTagVar;
 	public final boolean supportDragOrdering;
-	public TemplateLine template;
+	public RWTemplateLine template;
 	public final String listFn;
 
-	public RWTemplateList(InputPosition kw, InputPosition listLoc, Object listVar, InputPosition iterLoc, Object iterVar, InputPosition ctLoc, String customTag, InputPosition ctvLoc, String customTagVar, List<Object> formats, boolean supportDragOrdering, String listFn, String dynamicFn) {
-		super(kw, formats, dynamicFn);
+	public RWTemplateList(InputPosition kw, InputPosition listLoc, Object listVar, InputPosition iterLoc, Object iterVar, InputPosition ctLoc, String customTag, InputPosition ctvLoc, String customTagVar, List<Object> formats, boolean supportDragOrdering, String areaName, String listFn, String dynamicFn) {
+		super(kw, areaName, formats, dynamicFn);
 		this.listLoc = listLoc;
 		this.listVar = listVar;
 		this.iterLoc = iterLoc;

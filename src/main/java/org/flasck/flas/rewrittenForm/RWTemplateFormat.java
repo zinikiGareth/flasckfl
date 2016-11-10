@@ -4,15 +4,16 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.template.TemplateLine;
 
-public abstract class RWTemplateFormat implements TemplateLine, Locatable {
+public abstract class RWTemplateFormat implements RWTemplateLine, Locatable {
 	public final InputPosition kw;
+	private final String areaName;
 	public final List<Object> formats;
 	public final String dynamicFunction;
 	
-	public RWTemplateFormat(InputPosition kw, List<Object> formats, String dynamicFunction) {
+	public RWTemplateFormat(InputPosition kw, String areaName, List<Object> formats, String dynamicFunction) {
 		this.kw = kw;
+		this.areaName = areaName;
 		this.formats = formats;
 		this.dynamicFunction = dynamicFunction;
 	}
@@ -20,5 +21,10 @@ public abstract class RWTemplateFormat implements TemplateLine, Locatable {
 	@Override
 	public InputPosition location() {
 		return kw;
+	}
+
+	@Override
+	public String areaName() {
+		return areaName;
 	}
 }

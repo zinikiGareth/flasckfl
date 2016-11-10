@@ -2,7 +2,6 @@ package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.template.TemplateLine;
 
 public class TemplateOr implements TemplateLine, Locatable {
 	private final InputPosition location;
