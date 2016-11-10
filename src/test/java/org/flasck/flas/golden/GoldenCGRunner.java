@@ -24,7 +24,6 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.TemplateFormat;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -59,6 +58,7 @@ import org.flasck.flas.parsedForm.TemplateCardReference;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TemplateExplicitAttr;
+import org.flasck.flas.parsedForm.TemplateFormat;
 import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
@@ -173,10 +173,6 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		if (importFrom.isDirectory())
 			compiler.searchIn(importFrom);
 
-		// infer these kinds of things from the existence of directories; or else from some kind of settings.xml file
-//		compiler.writeDroidTo(new File("null"));
-		
-//			compiler.dumpTypes();
 		try {
 			compiler.trackTC(tc2);
 			compiler.writeJSTo(jsto);
@@ -200,16 +196,18 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		assertGolden(new File(s, "tc"), tc2);
 		assertGolden(new File(s, "flim"), flim);
 
-		RunProcess proc = new RunProcess("javap");
-		proc.arg("-c");
-		for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.class")) {
-			proc.arg(f.getPath());
+		if (new File(droidTo, "qbout").isDirectory()) {
+			RunProcess proc = new RunProcess("javap");
+			proc.arg("-c");
+			for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.class")) {
+				proc.arg(f.getPath());
+			}
+			FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
+			proc.redirectStdout(fos);
+			proc.redirectStderr(fos);
+			proc.execute();
+			fos.close();
 		}
-		FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
-		proc.redirectStdout(fos);
-		proc.redirectStderr(fos);
-		proc.execute();
-		fos.close();
 	}
 
 	// I want to see the locations, but I don't (always) want to be bound to them.  Remove them if desired (i.e. call this method if desired)

@@ -151,7 +151,10 @@ public class DroidGenerator {
 			} else if (sf.type instanceof RWObjectDefn) {
 				jt = javaType(sf.type.name());
 			} else if (sf.type instanceof Type) {
-				jt = javaType(sf.type.name());
+				if (sf.type.iam == WhatAmI.FUNCTION)
+					jt = JavaType.object_;
+				else
+					jt = javaType(sf.type.name());
 			} else
 				throw new UtilException("Not handled " + sf.type + " " + sf.type.getClass());
 			bcc.defineField(false, Access.PROTECTED, jt, sf.name);
@@ -348,6 +351,13 @@ public class DroidGenerator {
 			if (f.mytype == CodeType.HANDLER || f.mytype == CodeType.CONTRACT || f.mytype == CodeType.SERVICE) {
 				int idx2 = f.fnName.lastIndexOf(".", idx-1);
 				String clz = f.fnName.substring(0, idx2);
+				String sub = f.fnName.substring(idx2+1, idx);
+				inClz = clz +"$"+sub;
+				needTrampolineClass = false;
+			} else if (f.mytype == CodeType.AREA) {
+				int idx2 = f.fnName.lastIndexOf(".", idx-1);
+				int idx3 = f.fnName.lastIndexOf(".", idx2-1);
+				String clz = f.fnName.substring(0, idx3+1) + f.fnName.substring(idx3+2, idx2);
 				String sub = f.fnName.substring(idx2+1, idx);
 				inClz = clz +"$"+sub;
 				needTrampolineClass = false;
@@ -775,15 +785,13 @@ public class DroidGenerator {
 	public void setVarFormats(CGRContext cgrx, String tfn) {
 		if (cgrx == null)
 			return;
-		throw new UtilException("TODO: HSIE broke this; see comments elsewhere");
-//		GenericAnnotator svf = GenericAnnotator.newMethod(cgrx.bcc, false, "_setVariableFormats");
-//		svf.returns("java.lang.Object");
-//		MethodDefiner meth = svf.done();
-//		cgrx.currentMethod = meth;
-//		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to set variable formats"))).flush();
-//		Var fmts = generateFunctionFromForm(meth, tfn);
-//		meth.callSuper("void", "org.flasck.android.Area", "_setCSSObj", fmts).flush();
-//		meth.returnObject(meth.aNull()).flush();
+		GenericAnnotator svf = GenericAnnotator.newMethod(cgrx.bcc, false, "_setVariableFormats");
+		svf.returns("java.lang.Object");
+		MethodDefiner meth = svf.done();
+		cgrx.currentMethod = meth;
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to set variable formats"))).flush();
+		meth.callSuper("void", "org.flasck.android.Area", "_setCSSObj", meth.callVirtual("java.lang.String", meth.myThis(), tfn)).flush();
+		meth.returnObject(meth.aNull()).flush();
 	}
 
 	public void setText(CGRContext cgrx, String text) {
@@ -797,17 +805,16 @@ public class DroidGenerator {
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_contentExpr");
 		gen.returns("java.lang.Object");
-		throw new UtilException("Broken in removing HSIE");
-//		NewMethodDefiner meth = gen.done();
+		NewMethodDefiner meth = gen.done();
 		
 //		The rest of this code is basically correct, it's just that we used to have an HSIE block here
 		// that we converted into a Var.  Now we have a function to call, so we need to replace "str" with "tfn()"
-//		Var str = generateFunctionFromForm(meth, tfn);
-//		if (rawHTML)
-//			meth.callSuper("void", "org.flasck.android.TextArea", "_insertHTML", str).flush();
-//		else
-//			meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
-//		meth.returnObject(meth.aNull()).flush();
+		Expr str = meth.callVirtual(JavaType.string.getActual(), meth.myThis(), tfn);
+		if (rawHTML)
+			meth.callSuper("void", "org.flasck.android.TextArea", "_insertHTML", str).flush();
+		else
+			meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
+		meth.returnObject(meth.aNull()).flush();
 	}
 
 	public void newListChild(CGRContext cgrx, String child) {
@@ -830,21 +837,18 @@ public class DroidGenerator {
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_yoyoExpr");
 		gen.returns("java.lang.Object");
 		// TODO: HSIE: most of this was commented out when I got here (see 27a2f6cfdd5d90b9f9cfc6abaa193edee57b0904)
-		// but I made the change that we pass in a string function in lieu of a block.  We need to call that function
-		// here and do what we have otherwise done with it
-		throw new UtilException("Died in TODO: HSIE");
-//		NewMethodDefiner meth = gen.done();
-////		Var str = meth.avar("java.lang.String", "str");
-//		Expr blk = generateFunctionFromForm(meth, tfn);
-//		// TODO: if "blk" is null, that reflects the possibility of the method returning before we get here ... Huh?
-//		if (blk == null) return;
-////		meth.assign(str, blk).flush();
-////		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
-////		JSForm.assign(cexpr, "var card", form);
-////		cexpr.add(JSForm.flex("this._updateToCard(card)"));
-//
-//		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to implement yoyo card"))).flush();
-//		meth.returnObject(meth.aNull()).flush();
+		NewMethodDefiner meth = gen.done();
+//		Var str = meth.avar("java.lang.String", "str");
+		Expr blk = meth.callVirtual("java.lang.String", meth.myThis(), tfn);
+		// TODO: if "blk" is null, that reflects the possibility of the method returning before we get here ... Huh?
+		if (blk == null) return;
+//		meth.assign(str, blk).flush();
+//		meth.callSuper("void", "org.flasck.android.TextArea", "_assignToText", str).flush();
+//		JSForm.assign(cexpr, "var card", form);
+//		cexpr.add(JSForm.flex("this._updateToCard(card)"));
+
+		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to implement yoyo card"))).flush();
+		meth.returnObject(meth.aNull()).flush();
 	}
 
 	protected Var generateFunctionFromForm(NewMethodDefiner meth, HSIEForm form) {
