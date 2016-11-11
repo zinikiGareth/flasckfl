@@ -454,11 +454,26 @@ public class DroidGenerator {
 				stmts.add(meth.ifBoolean(meth.instanceOf(hv, ctor), generateBlock(meth, svars, vars, f, s, assignReturnTo), null));
 			} else if (h instanceof IFCmd) {
 				IFCmd c = (IFCmd)h;
-				Var hv = vars.get(c.var);
-				Expr testVal = upcast(meth, exprValue(meth, c.value));
-				stmts.add(meth.ifEquals(hv, testVal, generateBlock(meth, svars, vars, f, c, assignReturnTo), null));
+				Var hv = vars.get(c.var.var);
+				if (hv == null) {
+					hv = meth.avar("java.lang.Object", c.var.var.toString());
+					vars.put(c.var.var, hv);
+					Expr cl = closure(f, meth, svars, vars, f.mytype, f.getClosure(c.var.var));
+					stmts.add(meth.assign(hv, cl));
+				}
+
+				Expr testVal;
+				Expr ifblk = generateBlock(meth, svars, vars, f, c, assignReturnTo);
+				if (c.value != null) {
+					testVal = upcast(meth, exprValue(meth, c.value));
+					stmts.add(meth.ifEquals(hv, testVal, ifblk, null));
+				} else {
+					stmts.add(meth.ifBoolean(isTruthy(meth, hv), ifblk, null));
+				}
 			} else if (h instanceof BindCmd) {
-//				into.add(JSForm.bind((BindCmd) h));
+				System.out.println("Bind");
+				BindCmd bc = (BindCmd) h;
+				vars.put(bc.bind, meth.avar(JavaType.object_, bc.from + "." + bc.field));
 			} else if (h instanceof PushReturn) {
 				PushReturn r = (PushReturn) h;
 				if (r instanceof PushVar) {
@@ -508,6 +523,10 @@ public class DroidGenerator {
 			return new BlockExpr(meth, stmts);
 	}
 
+	private Expr isTruthy(NewMethodDefiner meth, Var hv) {
+		return meth.callStatic("FLEval", "boolean", "isTruthy", hv);
+	}
+
 	private void ensureString(List<Expr> stmts, NewMethodDefiner meth, Var blk) {
 		if (blk == null)
 			return;
@@ -521,56 +540,62 @@ public class DroidGenerator {
 
 	private Expr closure(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
 		// Loop over everything in the closure pushing it onto the stack (in al)
-		ExternalRef fn = ((PushExternal)closure.nestedCommands().get(0)).fn;
-		Expr needsObject = null;
-		boolean fromHandler = fntype == CodeType.AREA;
-		Object defn = fn;
-		if (fn != null) {
-			while (defn instanceof PackageVar)
-				defn = ((PackageVar)defn).defn;
-			if (defn instanceof ObjectReference || defn instanceof CardFunction) {
-				needsObject = meth.myThis();
-				fromHandler |= fn.fromHandler();
-			} else if (defn instanceof RWHandlerImplements) {
-				RWHandlerImplements hi = (RWHandlerImplements) defn;
-				if (hi.inCard)
+		HSIEBlock c0 = closure.nestedCommands().get(0);
+		if (c0 instanceof PushExternal) {
+			ExternalRef fn = ((PushExternal)c0).fn;
+			Expr needsObject = null;
+			boolean fromHandler = fntype == CodeType.AREA;
+			Object defn = fn;
+			if (fn != null) {
+				while (defn instanceof PackageVar)
+					defn = ((PackageVar)defn).defn;
+				if (defn instanceof ObjectReference || defn instanceof CardFunction) {
 					needsObject = meth.myThis();
-				System.out.println("Creating handler " + fn + " in block " + closure);
-			} else if (fn.toString().equals("FLEval.curry")) {
-				ExternalRef f2 = ((PushExternal)closure.nestedCommands().get(1)).fn;
-				if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
-					needsObject = meth.myThis();
-					fromHandler |= f2.fromHandler();
+					fromHandler |= fn.fromHandler();
+				} else if (defn instanceof RWHandlerImplements) {
+					RWHandlerImplements hi = (RWHandlerImplements) defn;
+					if (hi.inCard)
+						needsObject = meth.myThis();
+					System.out.println("Creating handler " + fn + " in block " + closure);
+				} else if (fn.toString().equals("FLEval.curry")) {
+					ExternalRef f2 = ((PushExternal)closure.nestedCommands().get(1)).fn;
+					if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
+						needsObject = meth.myThis();
+						fromHandler |= f2.fromHandler();
+					}
 				}
 			}
-		}
-		if (needsObject != null && fromHandler)
-			needsObject = meth.getField("_card");
-		int pos = 0;
-		boolean isField = false;
-		List<Expr> al = new ArrayList<Expr>();
-		for (HSIEBlock b : closure.nestedCommands()) {
-			PushReturn c = (PushReturn) b;
-			if (c instanceof PushExternal && pos == 0) {
-				isField = "FLEval.field".equals(((PushExternal)c).fn);
+			if (needsObject != null && fromHandler)
+				needsObject = meth.getField("_card");
+			int pos = 0;
+			boolean isField = false;
+			List<Expr> al = new ArrayList<Expr>();
+			for (HSIEBlock b : closure.nestedCommands()) {
+				PushReturn c = (PushReturn) b;
+				if (c instanceof PushExternal && pos == 0) {
+					isField = "FLEval.field".equals(((PushExternal)c).fn);
+				}
+				if (c instanceof PushExternal && isField && pos == 2)
+					System.out.println("c.fn = " + ((PushExternal)c).fn);
+				else
+					al.add(upcast(meth, appendValue(form, meth, svars, vars, fntype, c, pos)));
+				pos++;
 			}
-			if (c instanceof PushExternal && isField && pos == 2)
-				System.out.println("c.fn = " + ((PushExternal)c).fn);
+			Expr clz = al.remove(0);
+			String t = clz.getType();
+			if (!t.equals("java.lang.Class") && (needsObject != null || !t.equals("java.lang.Object"))) {
+				return meth.aNull();
+	//			throw new UtilException("Type of " + clz + " is not a Class but " + t);
+	//			clz = meth.castTo(clz, "java.lang.Class");
+			}
+			if (needsObject != null)
+				return meth.makeNew("org.flasck.android.FLClosure", meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
 			else
-				al.add(upcast(meth, appendValue(form, meth, svars, vars, fntype, c, pos)));
-			pos++;
-		}
-		Expr clz = al.remove(0);
-		String t = clz.getType();
-		if (!t.equals("java.lang.Class") && (needsObject != null || !t.equals("java.lang.Object"))) {
-			return meth.aNull();
-//			throw new UtilException("Type of " + clz + " is not a Class but " + t);
-//			clz = meth.castTo(clz, "java.lang.Class");
-		}
-		if (needsObject != null)
-			return meth.makeNew("org.flasck.android.FLClosure", meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
-		else
-			return meth.makeNew("org.flasck.android.FLClosure", clz, meth.arrayOf("java.lang.Object", al));
+				return meth.makeNew("org.flasck.android.FLClosure", clz, meth.arrayOf("java.lang.Object", al));
+		} else if (c0 instanceof PushVar) {
+			return vars.get(((PushVar)c0).var.var);
+		} else
+			throw new UtilException("Can't handle " + c0);
 	}
 
 	private Expr upcast(NewMethodDefiner meth, Expr expr) {
@@ -659,6 +684,8 @@ public class DroidGenerator {
 
 			@Override
 			public Object visit(PushVar pv) {
+				if (!vars.containsKey(pv.var.var))
+					throw new UtilException("Do not have the variable " + pv.var);
 				return vars.get(pv.var.var);
 			}
 
