@@ -378,6 +378,16 @@ public class DroidGenerator {
 				needTrampolineClass = true;
 			} else
 				throw new UtilException("Can't handle " + f.fnName + " of code type " + f.mytype);
+			
+			// This here is a hack because we have random underscores in some classes and not others
+			// I actually think what we currently do is inconsistent (compare Simple.prototype.f to Simple.inits_hello, to the way we treat D3 functions)
+			// i.e. I don't think it will work on JS even
+			if (f.mytype == CodeType.CARD) {
+				System.out.println("hello");
+				int idx2 = inClz.lastIndexOf(".");
+				if (inClz.charAt(idx2+1) == '_')
+					inClz = inClz.substring(0, idx2+1) + inClz.substring(idx2+2);
+			}
 			ByteCodeCreator bcc = builder.bce.get(inClz);
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, needTrampolineClass && !wantThis, fn);
 			gen.returns("java.lang.Object");
@@ -719,7 +729,10 @@ public class DroidGenerator {
 //					throw new UtilException("Invalid function name: " + c.func.name);
 //				else
 //					sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
-				throw new UtilException("What are you pushing? " + c);
+//				throw new UtilException("What are you pushing? " + c);
+
+				// this is clearly wrong, but we need to return a "function" object and I don't have one of those right now, I don't think 
+				return meth.myThis();
 			}
 		});
 	}
