@@ -1,0 +1,142 @@
+public class test.golden.Unroll$B1 extends org.flasck.android.areas.DivArea {
+  public test.golden.Unroll$B1(test.golden.Unroll, org.flasck.android.areas.Area);
+    Code:
+       0: aload_0       
+       1: aload_2       
+       2: aconst_null   
+       3: invokespecial #13                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       6: aload_0       
+       7: aload_1       
+       8: putfield      #15                 // Field _card:Ltest/golden/Unroll;
+      11: new           #16                 // class test/golden/Unroll$B2
+      14: dup           
+      15: aload_1       
+      16: aload_0       
+      17: invokespecial #20                 // Method test/golden/Unroll$B2."<init>":(Ltest/golden/Unroll;Lorg/flasck/android/areas/Area;)V
+      20: astore_3      
+      21: new           #21                 // class test/golden/Unroll$B4
+      24: dup           
+      25: aload_1       
+      26: aload_0       
+      27: invokespecial #23                 // Method test/golden/Unroll$B4."<init>":(Ltest/golden/Unroll;Lorg/flasck/android/areas/Area;)V
+      30: astore        4
+      32: return        
+}
+public class test.golden.Unroll$B2 extends org.flasck.android.areas.DivArea {
+  public test.golden.Unroll$B2(test.golden.Unroll, org.flasck.android.areas.Area);
+    Code:
+       0: aload_0       
+       1: aload_2       
+       2: ldc           #11                 // String p
+       4: invokespecial #15                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       7: aload_0       
+       8: aload_1       
+       9: putfield      #17                 // Field _card:Ltest/golden/Unroll;
+      12: aload_0       
+      13: invokevirtual #21                 // Method _setAttr_1:()Ljava/lang/Object;
+      16: pop           
+      17: new           #22                 // class test/golden/Unroll$B3
+      20: dup           
+      21: aload_1       
+      22: aload_0       
+      23: invokespecial #26                 // Method test/golden/Unroll$B3."<init>":(Ltest/golden/Unroll;Lorg/flasck/android/areas/Area;)V
+      26: astore_3      
+      27: aload_0       
+      28: ldc           #27                 // String styled hello
+      30: invokevirtual #32                 // Method setCSS:(Ljava/lang/String;)V
+      33: return        
+
+  public java.lang.Object teas_0();
+    Code:
+       0: ldc           #34                 // String hello
+       2: areturn       
+}
+public class test.golden.Unroll$B3 extends org.flasck.android.areas.TextArea {
+  public test.golden.Unroll$B3(test.golden.Unroll, org.flasck.android.areas.Area);
+    Code:
+       0: aload_0       
+       1: aload_2       
+       2: aconst_null   
+       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       6: aload_0       
+       7: aload_1       
+       8: putfield      #15                 // Field _card:Ltest/golden/Unroll;
+      11: aload_0       
+      12: ldc           #16                 // String hello
+      14: invokevirtual #21                 // Method _setText:(Ljava/lang/String;)V
+      17: return        
+}
+public class test.golden.Unroll$B4 extends org.flasck.android.areas.DivArea {
+  public test.golden.Unroll$B4(test.golden.Unroll, org.flasck.android.areas.Area);
+    Code:
+       0: aload_0       
+       1: aload_2       
+       2: ldc           #11                 // String p
+       4: invokespecial #15                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       7: aload_0       
+       8: aload_1       
+       9: putfield      #17                 // Field _card:Ltest/golden/Unroll;
+      12: aload_0       
+      13: invokevirtual #21                 // Method _setAttr_1:()Ljava/lang/Object;
+      16: pop           
+      17: new           #22                 // class test/golden/Unroll$B5
+      20: dup           
+      21: aload_1       
+      22: aload_0       
+      23: invokespecial #26                 // Method test/golden/Unroll$B5."<init>":(Ltest/golden/Unroll;Lorg/flasck/android/areas/Area;)V
+      26: astore_3      
+      27: aload_0       
+      28: ldc           #27                 // String styled goodbye
+      30: invokevirtual #32                 // Method setCSS:(Ljava/lang/String;)V
+      33: return        
+
+  public java.lang.Object teas_1();
+    Code:
+       0: ldc           #34                 // String goodbye
+       2: areturn       
+}
+public class test.golden.Unroll$B5 extends org.flasck.android.areas.TextArea {
+  public test.golden.Unroll$B5(test.golden.Unroll, org.flasck.android.areas.Area);
+    Code:
+       0: aload_0       
+       1: aload_2       
+       2: aconst_null   
+       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       6: aload_0       
+       7: aload_1       
+       8: putfield      #15                 // Field _card:Ltest/golden/Unroll;
+      11: aload_0       
+      12: ldc           #16                 // String goodbye
+      14: invokevirtual #21                 // Method _setText:(Ljava/lang/String;)V
+      17: return        
+}
+public class test.golden.Unroll extends org.flasck.android.FlasckActivity {
+  public test.golden.Unroll();
+    Code:
+       0: aload_0       
+       1: invokespecial #8                  // Method org/flasck/android/FlasckActivity."<init>":()V
+       4: return        
+
+  protected void onCreate(android.os.Bundle);
+    Code:
+       0: aload_0       
+       1: aload_1       
+       2: invokespecial #12                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
+       5: aload_0       
+       6: invokespecial #15                 // Method org/flasck/android/FlasckActivity.ready:()V
+       9: return        
+
+  public void render(java.lang.String);
+    Code:
+       0: new           #17                 // class test/golden/Unroll$B1
+       3: aload_0       
+       4: new           #19                 // class org/flasck/android/areas/CardArea
+       7: dup           
+       8: aload_0       
+       9: getfield      #24                 // Field _wrapper:Lorg/flasck/android/Wrapper;
+      12: aload_0       
+      13: aload_1       
+      14: invokespecial #27                 // Method org/flasck/android/areas/CardArea."<init>":(Lorg/flasck/android/Wrapper;Lorg/flasck/android/FlasckActivity;Ljava/lang/String;)V
+      17: invokespecial #30                 // Method test/golden/Unroll$B1."<init>":(Ltest/golden/Unroll;Lorg/flasck/android/areas/Area;)V
+      20: return        
+}

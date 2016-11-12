@@ -207,6 +207,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			proc.redirectStderr(fos);
 			proc.execute();
 			fos.close();
+			
+			assertGolden(new File(s, "droid"), droid);
 		}
 	}
 

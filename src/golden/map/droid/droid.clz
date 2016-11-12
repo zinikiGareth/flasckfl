@@ -1,0 +1,69 @@
+public class test.golden.PACKAGEFUNCTIONS$map1 {
+  public static java.lang.Object eval(java.lang.Object[]);
+    Code:
+       0: aload_0       
+       1: iconst_0      
+       2: aaload        
+       3: aload_0       
+       4: iconst_1      
+       5: aaload        
+       6: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.map1:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       9: areturn       
+}
+public class test.golden.PACKAGEFUNCTIONS {
+  public static java.lang.Object map1(java.lang.Object, java.lang.Object);
+    Code:
+       0: aload_1       
+       1: invokestatic  #23                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
+       4: astore_1      
+       5: aload_1       
+       6: instanceof    #24                 // class org/flasck/android/FLError
+       9: ifeq          14
+      12: aload_1       
+      13: areturn       
+      14: aload_1       
+      15: instanceof    #26                 // class org/flasck/android/builtin/Cons
+      18: ifeq          71
+      21: aload_0       
+      22: astore        4
+      24: new           #28                 // class org/flasck/android/FLClosure
+      27: dup           
+      28: ldc           #30                 // class test/golden/PACKAGEFUNCTIONS$map1
+      30: iconst_2      
+      31: anewarray     #3                  // class java/lang/Object
+      34: dup           
+      35: iconst_0      
+      36: aload_0       
+      37: aastore       
+      38: dup           
+      39: iconst_1      
+      40: aload_3       
+      41: aastore       
+      42: invokespecial #35                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      45: astore        5
+      47: new           #28                 // class org/flasck/android/FLClosure
+      50: dup           
+      51: ldc           #26                 // class org/flasck/android/builtin/Cons
+      53: iconst_2      
+      54: anewarray     #3                  // class java/lang/Object
+      57: dup           
+      58: iconst_0      
+      59: aload         4
+      61: aastore       
+      62: dup           
+      63: iconst_1      
+      64: aload         5
+      66: aastore       
+      67: invokespecial #35                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      70: areturn       
+      71: aload_1       
+      72: instanceof    #36                 // class org/flasck/android/builtin/Nil
+      75: ifeq          81
+      78: ldc           #36                 // class org/flasck/android/builtin/Nil
+      80: areturn       
+      81: new           #24                 // class org/flasck/android/FLError
+      84: dup           
+      85: ldc           #38                 // String map1: case not handled
+      87: invokespecial #42                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
+      90: areturn       
+}

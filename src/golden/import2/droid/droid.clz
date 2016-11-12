@@ -1,0 +1,103 @@
+public class test.golden.Foo$_C0 extends test.import.Fred {
+  public test.golden.Foo$_C0(test.golden.Foo);
+    Code:
+       0: aload_0       
+       1: invokespecial #13                 // Method test/import/Fred."<init>":()V
+       4: aload_0       
+       5: aload_1       
+       6: putfield      #15                 // Field _card:Ltest/golden/Foo;
+       9: return        
+
+  public java.lang.Object go(java.lang.Object);
+    Code:
+       0: aload_1       
+       1: invokestatic  #38                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
+       4: astore_1      
+       5: aload_1       
+       6: instanceof    #39                 // class org/flasck/android/FLError
+       9: ifeq          14
+      12: aload_1       
+      13: areturn       
+      14: aload_1       
+      15: instanceof    #41                 // class test/basic/Bert
+      18: ifeq          101
+      21: new           #43                 // class org/flasck/android/FLClosure
+      24: dup           
+      25: ldc           #45                 // class test/import/PACKAGEFUNCTIONS$f
+      27: iconst_1      
+      28: anewarray     #47                 // class java/lang/Object
+      31: dup           
+      32: iconst_0      
+      33: bipush        16
+      35: invokestatic  #54                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      38: aastore       
+      39: invokespecial #57                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      42: astore_2      
+      43: new           #43                 // class org/flasck/android/FLClosure
+      46: dup           
+      47: ldc           #58                 // class org/flasck/android/builtin/Assign
+      49: iconst_3      
+      50: anewarray     #47                 // class java/lang/Object
+      53: dup           
+      54: iconst_0      
+      55: aload_0       
+      56: getfield      #15                 // Field _card:Ltest/golden/Foo;
+      59: aastore       
+      60: dup           
+      61: iconst_1      
+      62: ldc           #60                 // String a
+      64: aastore       
+      65: dup           
+      66: iconst_2      
+      67: aload_2       
+      68: aastore       
+      69: invokespecial #57                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      72: astore_3      
+      73: new           #43                 // class org/flasck/android/FLClosure
+      76: dup           
+      77: ldc           #62                 // class org/flasck/android/builtin/Cons
+      79: iconst_2      
+      80: anewarray     #47                 // class java/lang/Object
+      83: dup           
+      84: iconst_0      
+      85: aload_3       
+      86: aastore       
+      87: dup           
+      88: iconst_1      
+      89: iconst_0      
+      90: anewarray     #47                 // class java/lang/Object
+      93: invokestatic  #69                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      96: aastore       
+      97: invokespecial #57                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     100: areturn       
+     101: new           #39                 // class org/flasck/android/FLError
+     104: dup           
+     105: ldc           #70                 // String go: case not handled
+     107: invokespecial #74                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
+     110: areturn       
+}
+public class test.golden.Foo extends org.flasck.android.FlasckActivity {
+  protected int a;
+
+  public test.golden.Foo();
+    Code:
+       0: aload_0       
+       1: invokespecial #13                 // Method org/flasck/android/FlasckActivity."<init>":()V
+       4: return        
+
+  protected void onCreate(android.os.Bundle);
+    Code:
+       0: aload_0       
+       1: aload_1       
+       2: invokespecial #17                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
+       5: aload_0       
+       6: ldc           #18                 // String test.import.Fred
+       8: new           #7                  // class test/golden/Foo$_C0
+      11: dup           
+      12: aload_0       
+      13: invokespecial #22                 // Method test/golden/Foo$_C0."<init>":(Ltest/golden/Foo;)V
+      16: invokevirtual #26                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/android/ContractImpl;)V
+      19: aload_0       
+      20: invokespecial #29                 // Method org/flasck/android/FlasckActivity.ready:()V
+      23: return        
+}

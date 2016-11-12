@@ -43,14 +43,18 @@ public class test.golden.Simple$B2 extends org.flasck.android.areas.TextArea {
   public java.lang.Object _contentExpr();
     Code:
        0: aload_0       
+       1: aload_0       
+       2: invokevirtual #36                 // Method contents_0:()Ljava/lang/String;
+       5: invokespecial #40                 // Method org/flasck/android/areas/TextArea._assignToText:(Ljava/lang/String;)V
+       8: aconst_null   
+       9: areturn       
+
+  public java.lang.Object contents_0();
+    Code:
+       0: aload_0       
        1: getfield      #15                 // Field _card:Ltest/golden/Simple;
-       4: getfield      #35                 // Field test/golden/Simple.hello:Ljava/lang/String;
+       4: getfield      #43                 // Field test/golden/Simple.hello:Ljava/lang/String;
        7: areturn       
-       8: aload_0       
-       9: aload_1       
-      10: invokespecial #39                 // Method org/flasck/android/areas/TextArea._assignToText:(Ljava/lang/Object;)V
-      13: aconst_null   
-      14: areturn       
 }
 public class test.golden.Simple$f {
   public test.golden.Simple$f(test.golden.Simple);
@@ -106,4 +110,16 @@ public class test.golden.Simple extends org.flasck.android.FlasckActivity {
        0: iconst_3      
        1: invokestatic  #40                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
        4: areturn       
+}
+public class test.golden.Simple.PACKAGEFUNCTIONS$inits_hello {
+  public static java.lang.Object eval(java.lang.Object[]);
+    Code:
+       0: invokestatic  #11                 // Method test/golden/Simple/PACKAGEFUNCTIONS.inits_hello:()Ljava/lang/Object;
+       3: areturn       
+}
+public class test.golden.Simple.PACKAGEFUNCTIONS {
+  public static java.lang.Object inits_hello();
+    Code:
+       0: ldc           #6                  // String hello, world
+       2: areturn       
 }

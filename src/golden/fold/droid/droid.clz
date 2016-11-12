@@ -1,0 +1,61 @@
+public class test.golden.PACKAGEFUNCTIONS$fold {
+  public static java.lang.Object eval(java.lang.Object[]);
+    Code:
+       0: aload_0       
+       1: iconst_0      
+       2: aaload        
+       3: aload_0       
+       4: iconst_1      
+       5: aaload        
+       6: aload_0       
+       7: iconst_2      
+       8: aaload        
+       9: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.fold:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      12: areturn       
+}
+public class test.golden.PACKAGEFUNCTIONS {
+  public static java.lang.Object fold(java.lang.Object, java.lang.Object, java.lang.Object);
+    Code:
+       0: aload_2       
+       1: invokestatic  #15                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
+       4: astore_2      
+       5: aload_2       
+       6: instanceof    #16                 // class org/flasck/android/FLError
+       9: ifeq          14
+      12: aload_2       
+      13: areturn       
+      14: aload_2       
+      15: instanceof    #18                 // class org/flasck/android/builtin/Cons
+      18: ifeq          52
+      21: aload_0       
+      22: astore        5
+      24: new           #20                 // class org/flasck/android/FLClosure
+      27: dup           
+      28: ldc           #22                 // class test/golden/PACKAGEFUNCTIONS$fold
+      30: iconst_3      
+      31: anewarray     #3                  // class java/lang/Object
+      34: dup           
+      35: iconst_0      
+      36: aload_0       
+      37: aastore       
+      38: dup           
+      39: iconst_1      
+      40: aload         5
+      42: aastore       
+      43: dup           
+      44: iconst_2      
+      45: aload         4
+      47: aastore       
+      48: invokespecial #27                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      51: areturn       
+      52: aload_2       
+      53: instanceof    #28                 // class org/flasck/android/builtin/Nil
+      56: ifeq          61
+      59: aload_1       
+      60: areturn       
+      61: new           #16                 // class org/flasck/android/FLError
+      64: dup           
+      65: ldc           #30                 // String fold: case not handled
+      67: invokespecial #34                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
+      70: areturn       
+}

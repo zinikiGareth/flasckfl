@@ -1,0 +1,39 @@
+public class test.golden.MyCard extends org.flasck.android.FlasckActivity {
+  public test.golden.MyCard();
+    Code:
+       0: aload_0       
+       1: invokespecial #8                  // Method org/flasck/android/FlasckActivity."<init>":()V
+       4: return        
+
+  protected void onCreate(android.os.Bundle);
+    Code:
+       0: aload_0       
+       1: aload_1       
+       2: invokespecial #12                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
+       5: aload_0       
+       6: invokespecial #15                 // Method org/flasck/android/FlasckActivity.ready:()V
+       9: return        
+}
+public class test.golden.PACKAGEFUNCTIONS$x {
+  public static java.lang.Object eval(java.lang.Object[]);
+    Code:
+       0: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.x:()Ljava/lang/Object;
+       3: areturn       
+}
+public class test.golden.PACKAGEFUNCTIONS$y {
+  public static java.lang.Object eval(java.lang.Object[]);
+    Code:
+       0: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.y:()Ljava/lang/Object;
+       3: areturn       
+}
+public class test.golden.PACKAGEFUNCTIONS {
+  public static java.lang.Object x();
+    Code:
+       0: ldc           #11                 // class org/flasck/android/builtin/Number
+       2: areturn       
+
+  public static java.lang.Object y();
+    Code:
+       0: ldc           #14                 // class test/golden$MyCard
+       2: areturn       
+}

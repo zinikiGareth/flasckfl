@@ -23,3 +23,12 @@ public abstract class test.golden.Request extends org.flasck.android.ContractImp
        1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
        4: return        
 }
+public abstract class test.golden.UsePolyInstance extends org.flasck.android.ContractImpl {
+  public test.golden.UsePolyInstance();
+    Code:
+       0: aload_0       
+       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       4: return        
+
+  public abstract java.lang.Object giveList(java.lang.Object);
+}
