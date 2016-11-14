@@ -3,6 +3,7 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
@@ -12,7 +13,6 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.typechecker.Type;
 import org.flasck.flas.typechecker.Type.WhatAmI;
-import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -38,7 +38,7 @@ public class ApplyCurry {
 		}
 	}
 	
-	public void rewrite(TypeChecker tc, HSIEForm h) {
+	public void rewrite(TypeChecker2 tc, HSIEForm h) {
 		List<Rewrite> rewrites = new ArrayList<Rewrite>();
 		Logger logger = LoggerFactory.getLogger("HSIE");
 		for (HSIEBlock c : h.closures()) {

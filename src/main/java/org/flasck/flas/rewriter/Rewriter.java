@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -681,7 +680,9 @@ public class Rewriter {
 			if (val instanceof CardDefinition) {
 				try {
 					CardDefinition cd = (CardDefinition) val;
-					pass2(new CardContext((PackageContext) cx, cd), cd.innerScope());
+					pass2Card(cx, cd);
+					if (!errors.hasErrors())
+						pass2(new CardContext((PackageContext) cx, cd), cd.innerScope());
 				} catch (ResolutionException ex) {
 					errors.message(ex.location, ex.getMessage());
 				}
@@ -739,7 +740,10 @@ public class Rewriter {
 		RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
 		CardGrouping grp = new CardGrouping(sd);
 		cards.put(cd.name, grp);
-		
+	}
+	
+	private void pass2Card(NamingContext cx, CardDefinition cd) {
+		CardGrouping grp = cards.get(cd.name);
 		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
 			RWContractImplements rw = rewriteCI(cx, ci);
@@ -749,7 +753,7 @@ public class Rewriter {
 			grp.contracts.add(new ContractGrouping(rw.name(), myname, rw.referAsVar));
 			cardImplements.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
+				grp.struct.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 			pos++;
 		}
 		
@@ -762,7 +766,7 @@ public class Rewriter {
 			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
 			cardServices.put(myname, rw);
 			if (rw.referAsVar != null)
-				sd.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
+				grp.struct.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
 			pos++;
 		}
 
@@ -964,7 +968,6 @@ public class Rewriter {
 			return ret;
 		} else if (tl instanceof TemplateList) {
 			TemplateList ul = (TemplateList)tl;
-			TemplateListVar rwv = ul.iterVar == null ? null : new TemplateListVar(ul.iterLoc, (String) ul.iterVar, cx.cardName() + "." + (String) ul.iterVar);
 			boolean supportDragOrdering = false;
 			for (SpecialFormat tt : specials) {
 				if (tt.name.equals("dragOrder")) {
@@ -982,6 +985,7 @@ public class Rewriter {
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
 			
+			TemplateListVar rwv = ul.iterVar == null ? null : new TemplateListVar(ul.iterLoc, fnName, (String) ul.iterVar, cx.cardName() + "." + (String) ul.iterVar);
 			RWTemplateList rul = new RWTemplateList(ul.kw, ul.listLoc, expr, ul.iterLoc, rwv, ul.customTagLoc, ul.customTag, ul.customTagVarLoc, ul.customTagVar, formats, supportDragOrdering, areaName, fnName, makeFn(cx, ul, areaName, dynamicExpr));
 			cx = new TemplateContext(cx, rul.areaName(), ul.iterVar, rwv);
 			rul.template = rewrite(cx, ul.template);
@@ -1123,7 +1127,7 @@ public class Rewriter {
 		try {
 			Object av = cx.resolve(ci.location(), ci.name());
 			if (av == null || !(av instanceof PackageVar)) {
-				errors.message((Block)null, "cannot find a valid definition of contract " + ci.name());
+				errors.message(ci.location(), "cannot find a valid definition of contract " + ci.name());
 				return null;
 			}
 			return new RWContractImplements(ci.kw, ci.location(), ((PackageVar)av).id, ci.varLocation, ci.referAsVar);
@@ -1137,7 +1141,7 @@ public class Rewriter {
 		try {
 			Object av = cx.resolve(cs.location(), cs.name());
 			if (av == null || !(av instanceof PackageVar)) {
-				errors.message((Block)null, "cannot find a valid definition of contract " + cs.name());
+				errors.message(cs.location(), "cannot find a valid definition of contract " + cs.name());
 				return null;
 			}
 			return new RWContractService(cs.kw, cs.location(), ((PackageVar)av).id, cs.vlocation, cs.referAsVar);
@@ -1151,7 +1155,7 @@ public class Rewriter {
 		Type any = (Type) getObject(cx.nested.resolve(hi.location(), "Any"));
 		Object av = cx.resolve(hi.location(), hi.name());
 		if (av == null || !(av instanceof PackageVar)) {
-			errors.message((Block)null, "cannot find a valid definition of contract " + hi.name());
+			errors.message(hi.location(), "cannot find a valid definition of contract " + hi.name());
 			return null;
 		}
 		PackageVar ctr = (PackageVar) av;
@@ -1733,7 +1737,22 @@ public class Rewriter {
 				list.add(resolveType(cx, tr));
 			return Type.function(type.location(), list);
 		}
-		return (Type)getObject(cx.resolve(type.location(), type.name()));
+		Type ty = (Type)getObject(cx.resolve(type.location(), type.name()));
+		if (!type.hasPolys() && !ty.hasPolys())
+			return ty;
+		else if (type.hasPolys() && !ty.hasPolys()) {
+			throw new UtilException("polys mismatch 1");
+		} else if (!type.hasPolys() && ty.hasPolys()) {
+			throw new UtilException("polys mismatch 2");
+		} else if (type.polys().size() != ty.polys().size()) {
+			throw new UtilException("polys mismatch 3");
+		} else {
+			// we have polys, right number on both sides
+			List<Type> polys = new ArrayList<Type>();
+			for (TypeReference p : type.polys())
+				polys.add(resolveType(cx, p));
+			return ty.instance(ty.location(), polys.toArray(new Type[polys.size()]));
+		}
 	}
 	
 	private void gatherEnclosing(List<Object> enclosingPatterns, NamingContext cx, Scope s) {

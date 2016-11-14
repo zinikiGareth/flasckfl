@@ -539,7 +539,7 @@ public class Compiler {
 		return (List<Block>) res;
 	}
 
-	private void handleCurrying(ApplyCurry curry, TypeChecker tc, Collection<HSIEForm> collection) {
+	private void handleCurrying(ApplyCurry curry, TypeChecker2 tc, Collection<HSIEForm> collection) {
 		for (HSIEForm h : collection)
 			curry.rewrite(tc, h);
 	}

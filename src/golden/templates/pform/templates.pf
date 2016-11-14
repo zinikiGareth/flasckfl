@@ -1,0 +1,24 @@
+package test.golden
+  struct test.golden.Item @{3:0|struct} @{3:7|Item}
+    title @{4:7|title}
+      String @{4:0|String}
+    format @{5:7|format}
+      String @{5:0|String}
+  card test.golden.Templates @{7:0|card} @{7:5|Templates}
+    state @{9:0|state}
+      data @{10:13|data}
+        Croset @{10:0|Croset}
+          Item @{10:7|Item}
+    template @{14:0|template} @{null}
+      . @{15:0|.}
+        + data e @{16:0|+} @{16:2|data} @{16:7|e}
+          . @{17:0|.}
+            <cexpr> @{18:2|title}
+              <apply> @{18:2|title}
+                . @{18:2|title}
+                e @{18:0|e}
+                title @{18:2|title}
+              <apply> @{18:11|e.format}
+                . @{18:12|.}
+                e @{18:11|e}
+                format @{18:13|format}

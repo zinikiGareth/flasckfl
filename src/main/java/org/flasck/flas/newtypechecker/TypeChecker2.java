@@ -1,5 +1,6 @@
 package org.flasck.flas.newtypechecker;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
@@ -66,6 +68,7 @@ public class TypeChecker2 {
 	private final Map<Var, HSIEBlock> scoping = new HashMap<>();
 	private final Set<RWUnionTypeDefn> unions = new TreeSet<>();
 	private PrintWriter trackTo;
+	private Map<String, Type> export = new HashMap<>();
 	
 	public TypeChecker2(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
@@ -78,7 +81,13 @@ public class TypeChecker2 {
 	}
 
 	public void populateTypes() {
+		pass1();
+		pass2();
+	}
+
+	private void pass1() {
 		for (Type bi : rw.primitives.values()) {
+			export.put(bi.name(), bi);
 			globalKnowledge.put(bi.name(), new NamedType(bi.name()));
 		}
 		for (RWUnionTypeDefn ud : rw.types.values()) {
@@ -100,8 +109,10 @@ public class TypeChecker2 {
 			}
 			globalKnowledge.put(od.name(), new NamedType(od.name(), polys));
 		}
-		for (RWContractDecl cd : rw.contracts.values())
+		for (RWContractDecl cd : rw.contracts.values()) {
 			globalKnowledge.put(cd.name(), new NamedType(cd.name()));
+			export.put(cd.name(), cd);
+		}
 		for (RWStructDefn sd : rw.structs.values()) {
 			structs.put(sd.uniqueName(), sd);
 			List<TypeInfo> polys = new ArrayList<>();
@@ -113,6 +124,20 @@ public class TypeChecker2 {
 		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
 			globalKnowledge.put(d.getKey(), new NamedType(d.getKey()));
+		}
+	}
+	
+	private void pass2() {
+		for (RWStructDefn sd : rw.structs.values()) {
+			TypeInfo sty = structTypes.get(sd.uniqueName());
+			List<TypeInfo> fs = new ArrayList<>();
+			for (RWStructField f : sd.fields)
+				fs.add(convertType(f.type));
+			TypeFunc ti = new TypeFunc(fs, sty);
+			globalKnowledge.put(sd.uniqueName(), ti);
+			export.put(sd.name(), asType(ti));
+		}
+		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
 			// The elements of the card struct can appear directly as CardMembers
 			// push their types into the knowledge
 			for (RWStructField f : d.getValue().struct.fields) {
@@ -121,8 +146,10 @@ public class TypeChecker2 {
 			}
 		}
 		for (RWFunctionDefinition fn : rw.functions.values()) {
-			if (fn.getType() != null) // a function has already been typechecked
+			if (fn.getType() != null) { // a function has already been typechecked
 				globalKnowledge.put(fn.name(), convertType(fn.getType()));
+				export.put(fn.name(), fn.getType());
+			}
 		}
 		for (Entry<String, Type> e : rw.fnArgs.entrySet()) {
 			if (e.getValue() instanceof RWStructDefn)
@@ -130,14 +157,8 @@ public class TypeChecker2 {
 			else
 				globalKnowledge.put(e.getKey(), convertType(e.getValue()));
 		}
-		for (RWStructDefn sd : rw.structs.values()) {
-			TypeInfo sty = structTypes.get(sd.uniqueName());
-			List<TypeInfo> fs = new ArrayList<>();
-			for (RWStructField f : sd.fields)
-				fs.add(convertType(f.type));
-			globalKnowledge.put(sd.uniqueName(), new TypeFunc(fs, sty));
-		}
 		for (RWHandlerImplements hi : rw.callbackHandlers.values()) {
+			export.put(hi.hiName, hi);
 			List<TypeInfo> fs = new ArrayList<>();
 			for (HandlerLambda f : hi.boundVars)
 				if (f.scopedFrom == null)
@@ -300,6 +321,8 @@ public class TypeChecker2 {
 			globalKnowledge.put(f.fnName, nt);
 			if (trackTo != null)
 				trackTo.println(f.fnName + " :: " + asType(nt));
+			Type ty = asType(nt);
+			export.put(f.fnName, ty);
 		}
 	}
 
@@ -343,27 +366,32 @@ public class TypeChecker2 {
 		} else {
 			if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.field")) {
 				System.out.println("FLEval.field");
+				
+				TypeInfo ty;
 				if (argtypes.get(0) instanceof TypeVar) {
 					Set<TypeInfo> set = constraints.get(((TypeVar)argtypes.get(0)).var);
 					if (set.isEmpty())
 						throw new UtilException("This is a reasonable case, I think, but one I cannot handle");
 					if (set.size() > 1)
 						throw new UtilException("This is a dubious case, I think, and one I cannot handle");
-					TypeInfo ty = CollectionUtils.any(set);
-					if (ty instanceof NamedType) {
-						String sn = ((NamedType)ty).name;
-						RWStructDefn sd = structs.get(sn);
-						if (sd == null)
-							throw new UtilException(sn + " is not a struct; cannot do .");
-						String fname = ((PushString)cmds.get(2)).sval.text;
-						RWStructField sf = sd.findField(fname);
-						if (sf == null)
-							throw new UtilException(sn + " does not have a field " + fname);
-						constraints.add(c.var, freshPolys(convertType(sf.type), new HashMap<>()));
-					}
-					return;
+					ty = CollectionUtils.any(set);
+				} else if (argtypes.get(0) instanceof NamedType) {
+					ty = argtypes.get(0);
 				} else
-					throw new NotImplementedException("FLEval.field(non-var)");
+					throw new NotImplementedException("FLEval.field(unhandled): " + argtypes.get(0));
+				if (ty instanceof NamedType) {
+					String sn = ((NamedType)ty).name;
+					RWStructDefn sd = structs.get(sn);
+					if (sd == null)
+						throw new UtilException(sn + " is not a struct; cannot do .");
+					String fname = ((PushString)cmds.get(2)).sval.text;
+					RWStructField sf = sd.findField(fname);
+					if (sf == null)
+						throw new UtilException(sn + " does not have a field " + fname);
+					constraints.add(c.var, freshPolys(convertType(sf.type), new HashMap<>()));
+				} else
+					throw new NotImplementedException("FLEval.field(non-named): " + ty);
+				return;
 			} else if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.tuple")) {
 				constraints.add(c.var, new TupleInfo(argtypes));
 				return;
@@ -638,9 +666,11 @@ public class TypeChecker2 {
 	private TypeInfo convertType(Type type) {
 		if (type.iam == WhatAmI.POLYVAR)
 			return new PolyInfo(type.name());
+		else if (type instanceof RWStructDefn)
+			return structTypes.get(type.name());
 		else if (type.iam == WhatAmI.BUILTIN ||
-				type instanceof RWStructDefn || type instanceof RWUnionTypeDefn ||
-				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWObjectDefn)
+				type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn ||
+				type instanceof RWContractDecl || type instanceof RWContractImplements)
 			return getTypeOf(type.location(), type.name());
 		else if (type.iam == WhatAmI.INSTANCE) {
 			List<TypeInfo> args = new ArrayList<>();
@@ -667,7 +697,10 @@ public class TypeChecker2 {
 		if (cmd instanceof PushExternal) {
 			PushExternal pe = (PushExternal) cmd;
 			String name = pe.fn.uniqueName();
-			if (pe.fn instanceof HandlerLambda) {
+			if (pe.fn instanceof CardMember) {
+				CardMember cm = (CardMember) pe.fn;
+				return freshPolys(convertType(cm.type), new HashMap<>());
+			} else if (pe.fn instanceof HandlerLambda) {
 				HandlerLambda hl = (HandlerLambda) pe.fn;
 				String structName = hl.clzName+"$struct";
 				RWStructDefn sd = structs.get(structName);
@@ -680,14 +713,8 @@ public class TypeChecker2 {
 			} else
 				return getTypeOf(cmd.location, name);
 		} else if (cmd instanceof PushTLV) {
-//			PushTLV pt = (PushTLV) cmd;
-			// TODO: This is a tricky case.  I think that somebody external to here should define "name" globally
-			// as the type that is the poly var of the List that we're iterating over.
-			// But I don't even think we have that step - maybe we can figure it out from the functions we generate and
-			// push that back into the dependency analyzer
-//			return getTypeOf(cmd.location, pt.tlv.realName);
-			// Anyway, for now, I'm going to basically copy what the other one did, but return "Any" in lieu of a poly var
-			return getTypeOf(cmd.location, "Any");
+			PushTLV pt = (PushTLV) cmd;
+			return freshPolys(deList(getTypeOf(cmd.location, pt.tlv.dataFuncName)), new HashMap<>());
 		} else if (cmd instanceof PushVar) {
 			Var var = ((PushVar)cmd).var.var;
 			if (scoping.containsKey(var))
@@ -793,7 +820,29 @@ public class TypeChecker2 {
 		} else if (ti instanceof PolyInfo) {
 			PolyInfo pi = (PolyInfo) ti;
 			return Type.polyvar(posn, pi.name);
+		} else if (ti instanceof TypeIndirect) {
+			// This shouldn't happen in types we care about, but in HandlerLambdas
+			// I don't think we actually test this ever
+			return Type.builtin(posn, "Any");
 		} else
 			throw new UtilException("Have computed type " + ti.getClass() + " but can't convert back to real Type");
+	}
+
+	public Type getTypeAsCtor(InputPosition location, String uniqueName) {
+		if (!export.containsKey(uniqueName))
+			throw new UtilException("There is no name " + uniqueName);
+		return export.get(uniqueName);
+	}
+
+	private TypeInfo deList(TypeInfo typeOf) {
+		// There may well be multiple cases here; add them as we see them
+		if (typeOf instanceof NamedType) {
+			NamedType nt = (NamedType) typeOf;
+			if (nt.name.equals("Croset"))
+				return nt.polyArgs.get(0);
+			else
+				throw new UtilException("deList(" + typeOf + ")");
+		} else
+			throw new UtilException("deList(" + typeOf + ")");
 	}
 }
