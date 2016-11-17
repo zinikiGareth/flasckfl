@@ -50,12 +50,15 @@ import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeChecker2 {
+	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	private final ErrorResult errors;
 	private final Rewriter rw;
 	private final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
@@ -187,8 +190,8 @@ public class TypeChecker2 {
 		// 1b. define all the vars that are already in the HSIE, trapping the max value for future reference
 		Map<String, Var> knownScoped = new HashMap<String, Var>();
 		for (HSIEForm f : forms) {
-			System.out.println("Checking type of " + f.fnName);
-			f.dump(new PrintWriter(System.out));
+			logger.info("Checking type of " + f.fnName);
+			f.dump(logger);
 			if (globalKnowledge.containsKey(f.fnName))
 				errors.message(f.location, "duplicate entry for " + f.fnName + " in type checking");
 			for (Var v : f.vars) {
@@ -202,19 +205,19 @@ public class TypeChecker2 {
 			for (ClosureCmd c : f.closures())
 				collectVarNames(knownScoped, f, c);
 		}
-		System.out.println("collected " + knownScoped);
+		logger.info("collected " + knownScoped);
 		for (Entry<String, Var> e : knownScoped.entrySet()) {
 			if (!globalKnowledge.containsKey(e.getKey()))
 				localKnowledge.put(e.getKey(), new TypeVar(null, e.getValue()));
 		}
-		System.out.println("allocating FRESH vars from " + nextVar);
+		logger.info("allocating FRESH vars from " + nextVar);
 
 		// 1c. Now allocate FRESH vars for the return types
 		for (HSIEForm f : forms) {
-			System.out.println("Allocating function/return vars for " + f.fnName);
+			logger.info("Allocating function/return vars for " + f.fnName);
 			Var rv = new Var(nextVar++);
 			localKnowledge.put(f.fnName, new TypeFunc(f.location, f.vars, f.nformal, new TypeVar(null, rv)));
-			System.out.println("Allocating " + rv + " as return type of " + f.fnName);
+			logger.info("Allocating " + rv + " as return type of " + f.fnName);
 			if (constraints.contains(rv))
 				throw new UtilException("Duplicate var definition " + rv);
 			constraints.ensure(rv);
@@ -226,11 +229,11 @@ public class TypeChecker2 {
 			for (VarNestedFromOuterFunctionScope vn : f.scoped) {
 				String name = vn.id;
 				if (globalKnowledge.containsKey(name) || localKnowledge.containsKey(name)) {
-					System.out.println("Have definition for " + name);
+					logger.debug("Have definition for " + name);
 					continue;
 				}
 				Var sv = new Var(nextVar++);
-				System.out.println("Introducing scoped var " + sv + " for " + name);
+				logger.info("Introducing scoped var " + sv + " for " + name);
 				localKnowledge.put(name, new TypeVar(vn.location(), sv));
 				if (constraints.contains(sv))
 					throw new UtilException("Duplicate var definition " + sv);
@@ -270,9 +273,6 @@ public class TypeChecker2 {
 				processClosure(f, c);
 			}
 		}
-		
-		for (Var k : constraints.keySet())
-			System.out.println(k + " -> " + constraints.get(k));
 
 		// 3. Eliminate vars that are duplicates
 		Map<Var, Var> renames = new TreeMap<Var, Var>(new SimpleVarComparator());
@@ -305,10 +305,6 @@ public class TypeChecker2 {
 			}
 		}
 
-		System.out.println(renames);
-		for (Var k : constraints.keySet())
-			System.out.println(k + " -> " + constraints.get(k));
-
 		// 4. Unify type arguments
 		
 		// TODO: as we don't have this case "right now", but basically v0 -> Cons[Number], Cons[v2]: ah, v2 must be Number
@@ -318,13 +314,10 @@ public class TypeChecker2 {
 		for (Var k : constraints.keySet())
 			merged.put(k, mergeDown(k, constraints.get(k)));
 
-		for (Var k : merged.keySet())
-			System.out.println(k + " -> " + merged.get(k));
-
 		// 6. Deduce actual function types
 		for (HSIEForm f : forms) {
 			TypeInfo nt = deduceType(renames, merged, f);
-			System.out.println("Concluded that " + f.fnName + " has type " + nt);
+			logger.info("Concluded that " + f.fnName + " has type " + nt);
 			globalKnowledge.put(f.fnName, nt);
 			if (trackTo != null)
 				trackTo.println(f.fnName + " :: " + asType(nt));
@@ -356,7 +349,7 @@ public class TypeChecker2 {
 		if (c.justScoping) {
 			return;
 		}
-		System.out.println("Need to check " + f.fnName + " " + c.var);
+		logger.info("Need to check " + f.fnName + " " + c.var);
 		List<TypeInfo> argtypes = new ArrayList<TypeInfo>();
 		List<String> isScoped = new ArrayList<String>();
 		for (int i=1;i<cmds.size();i++) {
@@ -373,8 +366,6 @@ public class TypeChecker2 {
 			constraints.add(fv, new TypeFunc(cmd.location, argtypes, new TypeVar(pc.var.loc, c.var)));
 		} else {
 			if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.field")) {
-				System.out.println("FLEval.field");
-				
 				TypeInfo ty;
 				if (argtypes.get(0) instanceof TypeVar) {
 					Set<TypeInfo> set = constraints.get(((TypeVar)argtypes.get(0)).var);
@@ -406,9 +397,9 @@ public class TypeChecker2 {
 			}
 			TypeInfo ti = freshPolys(getTypeOf(cmd), new HashMap<>());
 			// TODO: if function is polymorphic, introduce fresh vars NOW
-			System.out.println("In " + c.var + ", cmd = " + cmd + " fi = " + ti);
+			logger.debug("In " + c.var + ", cmd = " + cmd + " fi = " + ti);
 			if (ti == null) {
-				System.out.println(c.var + " has a null first arg");
+				logger.debug(c.var + " has a null first arg");
 				return;
 			}
 			if (!(ti instanceof TypeFunc))
@@ -454,7 +445,7 @@ public class TypeChecker2 {
 	}
 
 	protected void checkArgType(TypeInfo want, TypeInfo have) {
-		System.out.println("Compare " + want + " to " + have);
+		logger.info("Compare " + want + " to " + have);
 		if (want instanceof NamedType && ((NamedType)want).name.equals("Any"))
 			return; // this is not much of a constraint, but can confuse things
 		if (want instanceof TypeVar) {
@@ -494,7 +485,7 @@ public class TypeChecker2 {
 					if (sc instanceof BindCmd) {
 						BindCmd b = (BindCmd)sc;
 						TypeInfo ty = freshPolys(convertType(sd.findField(b.field).type), mapping);
-						System.out.println("Processing BIND " + b.bind + " with " + ty);
+						logger.info("Processing BIND " + b.bind + " with " + ty);
 						constraints.add(b.bind, ty);
 					} else
 						processOne(f, sc);
@@ -514,15 +505,15 @@ public class TypeChecker2 {
 			Var rv = returns.get(f.fnName);
 			if (pr instanceof PushVar) {
 				VarInSource val = ((PushVar)pr).var;
-				System.out.println("Need to add a constraint to " + rv + " of " + val);
+				logger.info("Need to add a constraint to " + rv + " of " + val);
 				constraints.add(rv, new TypeVar(val.loc, val.var));
 			} else {
 				TypeInfo ty = freshPolys(getTypeOf(pr), new HashMap<>());
-				System.out.println("Can return " + rv + " as " + ty);
+				logger.info("Can return " + rv + " as " + ty);
 				constraints.add(rv, ty);
 			}
 		} else 
-			System.out.println("Handle " + c);
+			logger.info("Handle " + c);
 	}
 
 	private TypeInfo mergeDown(Var v, Set<TypeInfo> tis) {
@@ -616,11 +607,8 @@ public class TypeChecker2 {
 			args.add(merged.get(rename(renames, f.vars.get(i))));
 		}
 		args.add(merged.get(rename(renames, this.returns.get(f.fnName))));
-		System.out.println("have " + args);
 		for (int i=0;i<args.size();i++)
 			args.set(i, poly(renames, merged, install, args.get(i)));
-		System.out.println("install = " + install);
-		System.out.println("made " + args);
 		if (args.size() == 1)
 			return args.get(0);
 		else
@@ -802,7 +790,7 @@ public class TypeChecker2 {
 			if (!curr.containsKey(pv.name)) {
 				Var rv = new Var(nextVar++);
 				curr.put(pv.name, new TypeVar(pv.location(), rv));
-				System.out.println("Allocating " + rv + " as fresh var for poly type " + pv.name);
+				logger.info("Allocating " + rv + " as fresh var for poly type " + pv.name);
 				constraints.ensure(rv);
 			}
 			return curr.get(pv.name);
@@ -830,7 +818,6 @@ public class TypeChecker2 {
 	}
 	
 	private Type asType(TypeInfo ti) {
-//		InputPosition posn = new InputPosition("should_have_this", 1, 1, null);
 		if (ti instanceof NamedType) {
 			NamedType nt = (NamedType) ti;
 			Type ret;

@@ -341,8 +341,8 @@ public class DroidGenerator {
 		if (builder == null)
 			return;
 		for (HSIEForm f : forms) {
-			logger.error("Considering form " + f + " with type " + f.mytype);
-			f.dump(logger);
+//			logger.error("Considering form " + f + " with type " + f.mytype);
+//			f.dump(logger);
 			int idx = f.fnName.lastIndexOf(".");
 			String inClz;
 			String fn = f.fnName.substring(idx+1);
@@ -383,7 +383,6 @@ public class DroidGenerator {
 			// I actually think what we currently do is inconsistent (compare Simple.prototype.f to Simple.inits_hello, to the way we treat D3 functions)
 			// i.e. I don't think it will work on JS even
 			if (f.mytype == CodeType.CARD) {
-				System.out.println("hello");
 				int idx2 = inClz.lastIndexOf(".");
 				if (inClz.charAt(idx2+1) == '_')
 					inClz = inClz.substring(0, idx2+1) + inClz.substring(idx2+2);
@@ -418,7 +417,6 @@ public class DroidGenerator {
 			if (needTrampolineClass) {
 				ByteCodeCreator inner = new ByteCodeCreator(builder.bce, inClz + "$" + fn);
 				inner.superclass("java.lang.Object");
-				System.out.println("Creating class " + inner);
 				if (wantThis) {
 					FieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");
 					GenericAnnotator ctor = GenericAnnotator.newConstructor(inner, false);
@@ -481,7 +479,6 @@ public class DroidGenerator {
 					stmts.add(meth.ifBoolean(isTruthy(meth, hv), ifblk, null));
 				}
 			} else if (h instanceof BindCmd) {
-				System.out.println("Bind");
 				BindCmd bc = (BindCmd) h;
 				vars.put(bc.bind, meth.avar(JavaType.object_, bc.from + "." + bc.field));
 			} else if (h instanceof PushReturn) {

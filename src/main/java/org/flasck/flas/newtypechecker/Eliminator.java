@@ -22,7 +22,7 @@ public class Eliminator {
 	}
 
 	public void subst(Var k, Var v) {
-		System.out.println("Replacing " + k + " with " + v + " everywhere");
+		TypeChecker2.logger.debug("Replacing " + k + " with " + v + " everywhere");
 		if (renames.containsKey(k))
 			throw new UtilException("Cannot rename more than once");
 		if (renames.containsKey(v))

@@ -396,11 +396,6 @@ public class Compiler {
 			//   a. convert functions to HSIE
 			//   b. typechecking
 
-			// 4. Prepare Typechecker & load types
-//			TypeChecker tc = new TypeChecker(errors);
-//			tc.populateTypes(rewriter);
-//			abortIfErrors(errors);
-
 			TypeChecker2 tc2 = new TypeChecker2(errors, rewriter);
 			if (trackTC != null) {
 				tcPW = new PrintWriter(trackTC);
@@ -426,8 +421,6 @@ public class Compiler {
 				dumpOrchard(hsiePW, forms);
 				
 				// 8b. Typecheck all the methods together
-//				tc.typecheck(forms);
-//				abortIfErrors(errors);
 				tc2.typecheck(forms);
 				abortIfErrors(errors);
 			}

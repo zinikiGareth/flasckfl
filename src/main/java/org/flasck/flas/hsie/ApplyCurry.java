@@ -41,9 +41,9 @@ public class ApplyCurry {
 	public void rewrite(TypeChecker2 tc, HSIEForm h) {
 		List<Rewrite> rewrites = new ArrayList<Rewrite>();
 		Logger logger = LoggerFactory.getLogger("HSIE");
+		logger.info("--- ApplyCurry to: " + h.fnName);
+		h.dump(logger);
 		for (HSIEBlock c : h.closures()) {
-			logger.info("-----");
-			c.dumpOne(logger, 4);
 			PushReturn pc = (PushReturn) c.nestedCommands().get(0);
 			if (pc instanceof PushString)
 				continue;
