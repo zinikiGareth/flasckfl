@@ -18,6 +18,7 @@ import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.DeferredSendExpr;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -86,6 +87,7 @@ public class DependencyAnalyzer {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void analyzeExpr(DirectedCyclicGraph<String> dcg, String name, Set<String> locals, Object expr) {
 		if (expr == null)
 			return;
@@ -118,7 +120,9 @@ public class DependencyAnalyzer {
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			analyzeExpr(dcg, name, locals, ae.fn);
-			for (Object x : ae.args)
+			analyzeExpr(dcg, name, locals, ae.args);
+		} else if (expr instanceof List) {
+			for (Object x : (List<Object>)expr)
 				analyzeExpr(dcg, name, locals, x);
 		} else if (expr instanceof IfExpr) {
 			IfExpr ie = (IfExpr) expr;
@@ -131,6 +135,10 @@ public class DependencyAnalyzer {
 		} else if (expr instanceof AssertTypeExpr) {
 			AssertTypeExpr tcm = (AssertTypeExpr) expr;
 			analyzeExpr(dcg, name, locals, tcm.expr);
+		} else if (expr instanceof DeferredSendExpr) {
+			DeferredSendExpr dse = (DeferredSendExpr) expr;
+			analyzeExpr(dcg, name, locals, dse.sender);
+			analyzeExpr(dcg, name, locals, dse.args);
 		} else
 			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass());
 	}

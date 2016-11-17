@@ -9,6 +9,7 @@ import org.flasck.flas.types.Type;
 public class ClosureCmd extends HSIEBlock {
 	public final Var var;
 	public boolean typecheckMessages;
+	public boolean deferredSend;
 	public Type assertType;
 	public boolean justScoping = false;
 	public final List<VarInSource> depends = new ArrayList<VarInSource>();

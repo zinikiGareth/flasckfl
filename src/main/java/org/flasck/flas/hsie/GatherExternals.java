@@ -1,6 +1,7 @@
 package org.flasck.flas.hsie;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.DeferredSendExpr;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.IterVar;
@@ -123,7 +125,11 @@ public class GatherExternals {
 	
 	private void process(ApplyExpr expr) {
 		dispatch(expr.fn);
-		for (Object o : expr.args)
+		dispatch(expr.args);
+	}
+	
+	private void process(List<Object> args) {
+		for (Object o : args)
 			dispatch(o);
 	}
 	
@@ -140,6 +146,11 @@ public class GatherExternals {
 	
 	private void process(TypeCheckMessages expr) {
 		dispatch(expr.expr);
+	}
+	
+	private void process(DeferredSendExpr expr) {
+		dispatch(expr.sender);
+		dispatch(expr.args);
 	}
 	
 	private void process(ExternalRef er) {

@@ -16,8 +16,6 @@ import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
-import org.flasck.flas.types.Type;
-import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -34,8 +32,9 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.types.Type;
+import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
-import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -52,8 +51,8 @@ import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.flas.vcode.hsieForm.Switch;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.BlockExpr;
 import org.zinutils.bytecode.ByteCodeCreator;
@@ -74,7 +73,7 @@ import org.zinutils.utils.StringUtil;
 
 public class DroidGenerator {
 	private final DroidBuilder builder;
-	private final static Logger logger = LoggerFactory.getLogger("DroidGen");
+//	private final static Logger logger = LoggerFactory.getLogger("DroidGen");
 
 	public DroidGenerator(HSIE hsie, DroidBuilder bldr) {
 		this.builder = bldr;
@@ -83,7 +82,6 @@ public class DroidGenerator {
 	public void generateAppObject() {
 		if (builder == null)
 			return;
-		System.out.println("packages = " + builder.packages);
 		// TODO: this package name needs to be configurable
 		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, "com.helpfulsidekick.chaddy.MainApplicationClass");
 		bcc.superclass("org.flasck.android.FlasckApplication");
@@ -226,7 +224,6 @@ public class DroidGenerator {
 		
 		for (RWContractMethodDecl m : cd.methods) {
 			if (m.dir.equals("down")) {
-				System.out.println(name + " " + m.dir + " " + m.name);
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
 				gm.returns("java.lang.Object");
 				int k = 0;

@@ -1,0 +1,10 @@
+
+	contract KVH
+		down update (Crokeys crokeys)
+		
+	f = []
+		s = Croset []
+		
+		handler KVH KVHImpl
+			update crokeys
+				<- s.mergeAppend crokeys

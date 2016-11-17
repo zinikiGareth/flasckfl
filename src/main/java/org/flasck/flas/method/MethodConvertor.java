@@ -17,6 +17,7 @@ import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.DeferredSendExpr;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -237,8 +238,6 @@ public class MethodConvertor {
 	}
 
 	private Object convertMessageToAction(Rewriter rw, List<Object> margs, List<Type> types, RWMethodMessage mm, boolean fromHandler) {
-//		System.out.println("Converting " + mm);
-
 		if (mm.slot != null) {
 			return convertAssignMessage(rw, margs, types, mm, fromHandler);
 		} else if (mm.expr instanceof ApplyExpr) {
@@ -287,8 +286,14 @@ public class MethodConvertor {
 						PackageVar me = rw.getMe(l.location, other);
 						if (me.defn instanceof TypeWithMethods)
 							return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) me.defn, l, method, args);
+						else if (me.defn instanceof RWFunctionDefinition) {
+							RWFunctionDefinition fd = (RWFunctionDefinition) me.defn;
+							if (fd.nargs() > 0)
+								errors.message(l.location(), "cannot use function " + me.id + " of arity " + fd.nargs() + " as constant");
+							return new DeferredSendExpr(l.location(), l.scopedFrom, rw.getMe(fd.location(), "Send"), method, rw, args);
+						}
 						else
-							throw new UtilException("Can't handle this case yet");
+							throw new UtilException("Can't handle this case yet: " + me.defn.getClass());
 					} else
 						throw new UtilException("What is this?" + l.type);
 				} else
@@ -421,7 +426,7 @@ public class MethodConvertor {
 		return new ApplyExpr(sender.location(),	rw.getMe(location, "Send"), sender, method, asList(sender.location(), rw, args));
 	}
 
-	private static Object asList(InputPosition loc, Rewriter rw, List<Object> args) {
+	public static Object asList(InputPosition loc, Rewriter rw, List<Object> args) {
 		Object ret = rw.getMe(loc, "Nil");
 		for (int n = args.size()-1;n>=0;n--) {
 			ret = new ApplyExpr(loc, rw.getMe(loc, "Cons"), args.get(n), ret);

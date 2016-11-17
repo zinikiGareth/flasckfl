@@ -69,6 +69,8 @@ public class Eliminator {
 			for (TypeInfo ai : tf.args)
 				args.add(ai);
 			return new TupleInfo(tf.location(), args);
+		} else if (ti instanceof PolyInfo) {
+			return ti;
 		} else
 			throw new NotImplementedException(ti.getClass().getName());
 	}

@@ -188,7 +188,7 @@ public class Compiler {
 		LogManager.getLogger("Generator").setLevel(Level.WARN);
 		LogManager.getLogger("HSIE").setLevel(Level.WARN);
 		LogManager.getLogger("Rewriter").setLevel(Level.ERROR);
-		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
+		LogManager.getLogger("TypeChecker").setLevel(Level.DEBUG);
 	}
 
 	private boolean success;

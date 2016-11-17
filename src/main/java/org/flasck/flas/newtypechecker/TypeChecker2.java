@@ -113,6 +113,13 @@ public class TypeChecker2 {
 					polys.add(convertType(t));
 			}
 			globalKnowledge.put(od.name(), new NamedType(od.location(), od.name(), polys));
+			if (od.ctorArgs != null) {
+				List<Type> args = new ArrayList<>();
+				for (RWStructField sf : od.ctorArgs)
+					args.add(sf.type);
+				args.add(od);
+				ctors.put(od.name(), Type.function(od.location(), args));
+			}
 		}
 		for (RWContractDecl cd : rw.contracts.values()) {
 			globalKnowledge.put(cd.name(), new NamedType(cd.location(), cd.name()));
@@ -370,9 +377,9 @@ public class TypeChecker2 {
 				if (argtypes.get(0) instanceof TypeVar) {
 					Set<TypeInfo> set = constraints.get(((TypeVar)argtypes.get(0)).var);
 					if (set.isEmpty())
-						throw new UtilException("This is a reasonable case, I think, but one I cannot handle");
+						throw new UtilException("This is a reasonable case, I think, but one I cannot handle: " + set);
 					if (set.size() > 1)
-						throw new UtilException("This is a dubious case, I think, and one I cannot handle");
+						throw new UtilException("This is a dubious case, I think, and one I cannot handle: "  + set);
 					ty = CollectionUtils.any(set);
 				} else if (argtypes.get(0) instanceof NamedType) {
 					ty = argtypes.get(0);
@@ -403,7 +410,7 @@ public class TypeChecker2 {
 				return;
 			}
 			if (!(ti instanceof TypeFunc))
-				throw new UtilException("I guess it's possible we could have a constant by itself or something"); // TODO: is this an error?
+				throw new UtilException("I guess it's possible we could have a constant by itself or something: " + ti + " " + ti.getClass()); // TODO: is this an error?
 			TypeFunc called = (TypeFunc) ti;
 			for (int i=0;i<argtypes.size();i++) {
 				if (called.args.size() < i)
@@ -697,6 +704,8 @@ public class TypeChecker2 {
 					args.add(poly(renames, merged, install, i));
 			}
 			return new NamedType(nt.location(), nt.name, args);
+		} else if (ti instanceof PolyInfo) {
+			return ti;
 		} else
 			throw new NotImplementedException(ti + " " +(ti == null ? "<null>": ti.getClass().getName()));
 	}
@@ -708,7 +717,8 @@ public class TypeChecker2 {
 			return structTypes.get(type.name());
 		else if (type.iam == WhatAmI.BUILTIN ||
 				type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn ||
-				type instanceof RWContractDecl || type instanceof RWContractImplements)
+				type instanceof RWContractDecl || type instanceof RWContractImplements ||
+				type instanceof RWHandlerImplements)
 			return getTypeOf(type.location(), type.name());
 		else if (type.iam == WhatAmI.INSTANCE) {
 			List<TypeInfo> args = new ArrayList<>();
@@ -748,8 +758,11 @@ public class TypeChecker2 {
 					}
 				}
 				throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
-			} else
+			} else {
+				if (ctors.containsKey(name))
+					return freshPolys(convertType(ctors.get(name)), new HashMap<>());
 				return getTypeOf(cmd.location, name);
+			}
 		} else if (cmd instanceof PushTLV) {
 			PushTLV pt = (PushTLV) cmd;
 			return freshPolys(deList(getTypeOf(cmd.location, pt.tlv.dataFuncName)), new HashMap<>());

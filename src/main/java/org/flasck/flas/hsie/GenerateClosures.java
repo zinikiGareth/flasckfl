@@ -14,10 +14,12 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.DeferredSendExpr;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
@@ -199,7 +201,7 @@ public class GenerateClosures {
 			throw new UtilException("How can this be an iter var? " + var + " not in " + substs);
 		return new LocatedObject(expr.location, substs.get(var));
 	}
-
+	
 	public LocatedObject process(CardMember expr) {
 		return new LocatedObject(expr.location(), expr);
 	}
@@ -266,5 +268,14 @@ public class GenerateClosures {
 			return conv;
 		} else
 			throw new UtilException("We should check " + conv + " against " + ate.type);
+	}
+
+	public LocatedObject process(DeferredSendExpr dse) {
+		ApplyExpr expr = new ApplyExpr(dse.location(), dse.send, dse.sender, dse.method, MethodConvertor.asList(dse.location(), dse.rw, dse.args));
+		LocatedObject conv = dispatch(expr);
+		VarInSource cv = (VarInSource) conv.obj;
+		ClosureCmd closure = form.getClosure(cv.var);
+		closure.deferredSend = true;
+		return conv;
 	}
 }

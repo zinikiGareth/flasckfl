@@ -1,0 +1,23 @@
+package test.golden
+  cdecl test.golden.KVH @{2:0|contract} @{2:9|KVH}
+    required down update @{3:0|down} @{3:5|update}
+      [type] crokeys @{3:21|crokeys}
+        Crokeys @{3:13|Crokeys}
+  test.golden.f @{5:0|f}
+   =
+    Nil @{5:4|[]}
+    test.golden.f_0.s @{6:0|s}
+     =
+      <apply> @{6:4|Croset []}
+        Croset @{6:4|Croset}
+        Nil @{6:11|[]}
+    handler KVH test.golden.f_0.KVHImpl (free) @{8:0|handler} @{8:8|KVH} @{8:12|KVHImpl}
+      method test.golden.f_0.KVHImpl.update @{9:0|update}
+        [var] crokeys @{9:7|crokeys}
+        invoke @{10:0|<-}
+          <apply> @{10:3|s.mergeAppend crokeys}
+            <apply> @{10:3|s.mergeAppend}
+              . @{10:4|.}
+              s @{10:3|s}
+              mergeAppend @{10:5|mergeAppend}
+            crokeys @{10:17|crokeys}
