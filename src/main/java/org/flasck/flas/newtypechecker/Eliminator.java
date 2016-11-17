@@ -48,7 +48,7 @@ public class Eliminator {
 		if (ti instanceof TypeVar) {
 			TypeVar tv = (TypeVar) ti;
 			if (tv.var.equals(k))
-				return new TypeVar(v);
+				return new TypeVar(tv.location(), v);
 			else
 				return tv;
 		} else if (ti instanceof NamedType) {
@@ -56,19 +56,19 @@ public class Eliminator {
 			List<TypeInfo> polys = new ArrayList<TypeInfo>();
 			for (TypeInfo pi : nt.polyArgs)
 				polys.add(substType(k, v, pi));
-			return new NamedType(nt.name, polys);
+			return new NamedType(nt.location(), nt.name, polys);
 		} else if (ti instanceof TypeFunc) {
 			TypeFunc tf = (TypeFunc) ti;
 			List<TypeInfo> args = new ArrayList<>();
 			for (TypeInfo ai : tf.args)
 				args.add(ai);
-			return new TypeFunc(args);
+			return new TypeFunc(tf.location(), args);
 		} else if (ti instanceof TupleInfo) {
 			TupleInfo tf = (TupleInfo) ti;
 			List<TypeInfo> args = new ArrayList<>();
 			for (TypeInfo ai : tf.args)
 				args.add(ai);
-			return new TupleInfo(args);
+			return new TupleInfo(tf.location(), args);
 		} else
 			throw new NotImplementedException(ti.getClass().getName());
 	}

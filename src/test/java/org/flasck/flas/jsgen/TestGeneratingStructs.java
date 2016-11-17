@@ -13,7 +13,7 @@ import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 import org.junit.Test;
 
 public class TestGeneratingStructs {

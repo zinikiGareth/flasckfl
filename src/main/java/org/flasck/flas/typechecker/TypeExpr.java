@@ -12,7 +12,8 @@ import java.util.Set;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.typechecker.Type.WhatAmI;
+import org.flasck.flas.types.Type;
+import org.flasck.flas.types.Type.WhatAmI;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 

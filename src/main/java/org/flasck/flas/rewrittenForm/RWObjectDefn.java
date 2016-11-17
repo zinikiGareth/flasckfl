@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.TypeWithMethods;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 import org.zinutils.collections.CollectionUtils;
 
 public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable {

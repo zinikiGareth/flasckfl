@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.TypeWithMethods;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class RWContractDecl extends TypeWithMethods {

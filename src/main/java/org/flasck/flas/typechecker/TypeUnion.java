@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringComparator;
 

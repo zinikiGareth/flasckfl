@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class RWUnionTypeDefn extends Type implements Comparable<RWUnionTypeDefn> {

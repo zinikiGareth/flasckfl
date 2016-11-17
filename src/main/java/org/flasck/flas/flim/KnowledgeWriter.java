@@ -8,6 +8,9 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
@@ -16,9 +19,7 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.typechecker.CardTypeInfo;
-import org.flasck.flas.typechecker.Type;
-import org.flasck.flas.typechecker.TypeHolder;
+import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Justification;
 import org.zinutils.xml.XML;
@@ -126,19 +127,23 @@ public class KnowledgeWriter {
 			throw new UtilException("Cannot handle " + arg.getClass());
 	}
 
-	public void add(CardTypeInfo cti) {
+	public void add(CardGrouping cg) {
 		XMLElement xe = top.addElement("Card");
 		// TODO: I think we should get the location of the first case ...
-		writeLocation(xe, cti);
-		xe.setAttribute("name", cti.name);
+		writeLocation(xe, cg.struct);
+		xe.setAttribute("name", cg.struct.name());
 		/* I don't think this is relevant to outsiders ...
 		XMLElement fs = xe.addElement("Fields");
 		writeStructFields(fs, cti.struct.fields);
 		*/
-		for (TypeHolder x : cti.contracts) {
+		TreeSet<String> impls = new TreeSet<>();
+		for (ContractGrouping x : cg.contracts) {
+			impls.add(x.type);
+		}
+		for (String it : impls) {
 			XMLElement xh = xe.addElement("Implements");
-			xh.setAttribute("contract", x.name);
-			requirePackageFor(x.name);
+			xh.setAttribute("contract", it);
+			requirePackageFor(it);
 		}
 		/* I don't think these are relevant to outsiders ...
 		for (TypeHolder x : cti.handlers) {
@@ -147,16 +152,16 @@ public class KnowledgeWriter {
 		}
 		*/
 		if (copyToScreen) {
-			System.out.println("  card " + cti.name);
-			for (TypeHolder x : cti.contracts) {
-				System.out.println("    contract " + x.name);
-				x.dump(6);
+			System.out.println("  card " + cg.struct.name());
+			for (ContractGrouping x : cg.contracts) {
+				System.out.println("    contract " + x.type);
+//				x.dump(6);
 			}
-			for (TypeHolder x : cti.handlers) {
-				System.out.println("    handler " + x.name);
-				x.dump(6);
+			for (HandlerGrouping x : cg.handlers) {
+				System.out.println("    handler " + x.type);
+//				x.dump(6);
 			}
-			cti.dump(4);
+//			cg.dump(4);
 		}
 	}
 

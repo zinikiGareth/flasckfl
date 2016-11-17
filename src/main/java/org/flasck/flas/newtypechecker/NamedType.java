@@ -3,16 +3,21 @@ package org.flasck.flas.newtypechecker;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class NamedType extends TypeInfo {
+	private final InputPosition location;
 	public final String name;
 	public final List<TypeInfo> polyArgs;
 
-	public NamedType(String name) {
+	public NamedType(InputPosition location, String name) {
+		this.location = location;
 		this.name = name;
 		this.polyArgs = new ArrayList<TypeInfo>(); // it is not polymorphic
 	}
 
-	public NamedType(String name, List<TypeInfo> polyArgs) {
+	public NamedType(InputPosition location, String name, List<TypeInfo> polyArgs) {
+		this.location = location;
 		this.name = name;
 		this.polyArgs = polyArgs;
 	}
@@ -26,5 +31,9 @@ public class NamedType extends TypeInfo {
 		if (polyArgs == null)
 			return name;
 		return name + (polyArgs.isEmpty()? "": polyArgs);
+	}
+
+	public InputPosition location() {
+		return location;
 	}
 }

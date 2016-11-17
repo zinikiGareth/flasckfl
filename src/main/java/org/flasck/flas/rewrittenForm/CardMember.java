@@ -1,7 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class CardMember implements ExternalRef {

@@ -53,7 +53,6 @@ import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateGenerator;
-import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -398,9 +397,9 @@ public class Compiler {
 			//   b. typechecking
 
 			// 4. Prepare Typechecker & load types
-			TypeChecker tc = new TypeChecker(errors);
-			tc.populateTypes(rewriter);
-			abortIfErrors(errors);
+//			TypeChecker tc = new TypeChecker(errors);
+//			tc.populateTypes(rewriter);
+//			abortIfErrors(errors);
 
 			TypeChecker2 tc2 = new TypeChecker2(errors, rewriter);
 			if (trackTC != null) {
@@ -427,8 +426,8 @@ public class Compiler {
 				dumpOrchard(hsiePW, forms);
 				
 				// 8b. Typecheck all the methods together
-				tc.typecheck(forms);
-				abortIfErrors(errors);
+//				tc.typecheck(forms);
+//				abortIfErrors(errors);
 				tc2.typecheck(forms);
 				abortIfErrors(errors);
 			}
@@ -444,7 +443,7 @@ public class Compiler {
 			abortIfErrors(errors);
 
 			// 11. Save learned state for export
-			tc.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
+			tc2.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
 
 			// 12. generation of JSForms
 			generateForms(gen, hsie.allForms());
@@ -545,8 +544,9 @@ public class Compiler {
 	}
 
 	private void generateForms(Generator gen, Collection<HSIEForm> collection) {
-		for (HSIEForm h : collection)
+		for (HSIEForm h : collection) {
 			gen.generate(h);
+		}
 	}
 
 	public ByteCodeEnvironment getBCE() {

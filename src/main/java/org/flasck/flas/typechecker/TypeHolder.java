@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.flasck.flas.types.Type;
 import org.zinutils.utils.Justification;
 import org.zinutils.utils.StringComparator;
 

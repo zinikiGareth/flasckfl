@@ -2,6 +2,7 @@ package org.flasck.flas.typechecker;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.FLASError;
+import org.flasck.flas.types.Type;
 
 public class UnificationError extends FLASError {
 

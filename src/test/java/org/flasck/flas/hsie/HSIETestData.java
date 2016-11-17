@@ -18,7 +18,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -35,7 +35,7 @@ public class HSIETestData {
 
 	static Map<String, PackageVar> ctorTypes = new HashMap<>();
 	static {
-		ctorTypes.put("Number", new PackageVar(posn, "Number", org.flasck.flas.typechecker.Type.builtin(posn, "Number")));
+		ctorTypes.put("Number", new PackageVar(posn, "Number", org.flasck.flas.types.Type.builtin(posn, "Number")));
 		PackageVar nil = new PackageVar(posn, "Nil", new RWStructDefn(posn, "Nil", false));
 		PackageVar cons = new PackageVar(posn, "Cons", new RWStructDefn(posn, "Cons", false));
 		PackageVar list = new PackageVar(posn, "List", new RWUnionTypeDefn(posn, false, "List", null));

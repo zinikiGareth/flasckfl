@@ -3,6 +3,8 @@ package org.flasck.flas.typechecker;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.flasck.flas.types.Type;
+
 public class TVPool {
 	private final Map<TypeVar, Type> already = new HashMap<TypeVar, Type>();
 	private final Map<TypeVar, Integer> varCounts;

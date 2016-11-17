@@ -1,4 +1,4 @@
-package org.flasck.flas.typechecker;
+package org.flasck.flas.types;
 
 import org.flasck.flas.blockForm.InputPosition;
 

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 
 public class ClosureCmd extends HSIEBlock {
 	public final Var var;

@@ -18,6 +18,7 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
+import org.flasck.flas.types.Type;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -644,7 +645,7 @@ public class TypeChecker {
 				else
 					throw new UtilException("Error or unhandled case in TCM: " + pt + " " +pt.getClass());
 			} else if (ty instanceof RWStructDefn) {
-				if (ty.name.equals("D3Action"))
+				if (ty.name().equals("D3Action"))
 					; // OK ...
 				else
 					throw new UtilException("Error or unhandled case in TCM: " + ty + " class: " +ty.getClass());
@@ -786,10 +787,10 @@ public class TypeChecker {
 			}
 		}
 		
-		for (CardTypeInfo cti : this.cards.values()) {
-			if (cti.struct != null)
-				kw.add(cti);
-		}
+//		for (CardTypeInfo cti : this.cards.values()) {
+//			if (cti.struct != null)
+//				kw.add(cti);
+//		}
 		
 		for (Entry<String, Type> x : this.knowledge.entrySet()) {
 			// Only save things in our package

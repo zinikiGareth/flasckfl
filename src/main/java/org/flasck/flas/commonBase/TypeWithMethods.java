@@ -3,7 +3,7 @@ package org.flasck.flas.commonBase;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 
 public abstract class TypeWithMethods extends Type {
 

@@ -1,6 +1,6 @@
 package org.flasck.flas.rewrittenForm;
 
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 
 public class RWObjectMethod {
 	public final String name;

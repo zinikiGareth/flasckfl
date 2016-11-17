@@ -17,7 +17,7 @@ import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 import org.slf4j.Logger;
 import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.UtilException;

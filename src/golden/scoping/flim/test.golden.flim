@@ -55,7 +55,7 @@
                 <Contract name="test.golden.Server"/>
             </Arg>
             <Arg>
-                <Union name="Any"/>
+                <Poly name="A"/>
             </Arg>
             <Return>
                 <Instance file="builtin" line="0" off="0">

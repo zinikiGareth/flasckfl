@@ -10,6 +10,10 @@ public class TypeIndirect extends TypeInfo {
 		this.location = location;
 		this.other = other;
 	}
+	
+	public InputPosition location() {
+		return location;
+	}
 
 	@Override
 	public String toString() {

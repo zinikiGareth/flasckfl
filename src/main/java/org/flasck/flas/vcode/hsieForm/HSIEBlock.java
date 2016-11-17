@@ -10,7 +10,7 @@ import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
-import org.flasck.flas.typechecker.Type;
+import org.flasck.flas.types.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;

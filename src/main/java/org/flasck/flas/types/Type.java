@@ -1,4 +1,4 @@
-package org.flasck.flas.typechecker;
+package org.flasck.flas.types;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +7,11 @@ import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.typechecker.GarneredFrom;
+import org.flasck.flas.typechecker.TypeChecker;
+import org.flasck.flas.typechecker.TypeExpr;
+import org.flasck.flas.typechecker.TypeVar;
+import org.flasck.flas.typechecker.VariableFactory;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 

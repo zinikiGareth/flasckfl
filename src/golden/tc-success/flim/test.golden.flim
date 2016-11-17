@@ -3,17 +3,17 @@
     <Function file="checktypes.fl" line="7" name="test.golden.bert" off="10">
         <Tuple>
             <Arg>
-                <Union name="Any"/>
+                <Builtin name="Number"/>
             </Arg>
             <Arg>
-                <Union name="Any"/>
+                <Builtin name="String"/>
             </Arg>
         </Tuple>
     </Function>
     <Function file="checktypes.fl" line="2" name="test.golden.fred" off="0">
         <Function>
             <Arg>
-                <Union name="Any"/>
+                <Poly name="A"/>
             </Arg>
             <Return>
                 <Builtin name="Number"/>

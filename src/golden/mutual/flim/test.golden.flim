@@ -3,7 +3,7 @@
     <Function file="mutual.fl" line="2" name="test.golden.f" off="0">
         <Function>
             <Arg>
-                <Union name="Any"/>
+                <Builtin name="Number"/>
             </Arg>
             <Return>
                 <Builtin name="Number"/>

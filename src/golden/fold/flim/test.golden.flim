@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Function file="fold.fl" line="3" name="test.golden.fold" off="5">
+    <Function file="fold.fl" line="2" name="test.golden.fold" off="0">
         <Function>
             <Arg>
                 <Function>
@@ -19,7 +19,7 @@
                 <Poly name="A"/>
             </Arg>
             <Arg>
-                <Instance file="typecheck" line="1" off="1">
+                <Instance file="builtin" line="0" off="0">
                     <Union name="List"/>
                     <Poly name="B"/>
                 </Instance>
