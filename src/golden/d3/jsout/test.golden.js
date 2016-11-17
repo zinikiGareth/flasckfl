@@ -73,7 +73,7 @@ test.golden._TestCard.B4.prototype.constructor = test.golden._TestCard.B4;
 
 test.golden._TestCard.B3.prototype._add_handlers = function() {
   this._mydiv['onclick'] = function(event) {
-    this._area._wrapper.dispatchEvent(this.handlers_0(), event);
+    this._area._wrapper.dispatchEvent(this._area.handlers_0(), event);
   }
 }
 

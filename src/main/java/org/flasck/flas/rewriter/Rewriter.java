@@ -268,7 +268,7 @@ public class Rewriter {
 			if (cd.state != null) {
 				for (StructField sf : cd.state.fields) {
 					try {
-						members.put(sf.name, resolveType(cx, sf.type));
+						members.put(sf.name, rewrite(cx, sf.type, true));
 					} catch (ResolutionException ex) {
 						errors.message(ex.location, ex.getMessage());
 					}
@@ -355,7 +355,6 @@ public class Rewriter {
 	public class TemplateContext extends NamingContext {
 		private final String tlvSimpleName;
 		private final TemplateListVar listVar;
-		private final String areaName;
 		private int nextAreaNo;
 
 		public TemplateContext(CardContext cx) {
@@ -363,12 +362,10 @@ public class Rewriter {
 			this.listVar = null;
 			this.tlvSimpleName = null;
 			this.nextAreaNo = 1;
-			this.areaName = null;
 		}
 		
 		public TemplateContext(TemplateContext cx, String areaName) {
 			super(cx);
-			this.areaName = areaName;
 			this.listVar = null;
 			this.tlvSimpleName = null;
 			this.nextAreaNo = -1;
@@ -376,7 +373,6 @@ public class Rewriter {
 
 		public TemplateContext(TemplateContext cx, String areaName, String tlvSimpleName, TemplateListVar tlv) {
 			super(cx);
-			this.areaName = areaName;
 			if (tlv != null && tlv.simpleName == null)
 				throw new UtilException("Shouldn't happen");
 			this.tlvSimpleName = tlvSimpleName;
@@ -1737,22 +1733,7 @@ public class Rewriter {
 				list.add(resolveType(cx, tr));
 			return Type.function(type.location(), list);
 		}
-		Type ty = (Type)getObject(cx.resolve(type.location(), type.name()));
-		if (!type.hasPolys() && !ty.hasPolys())
-			return ty;
-		else if (type.hasPolys() && !ty.hasPolys()) {
-			throw new UtilException("polys mismatch 1");
-		} else if (!type.hasPolys() && ty.hasPolys()) {
-			throw new UtilException("polys mismatch 2");
-		} else if (type.polys().size() != ty.polys().size()) {
-			throw new UtilException("polys mismatch 3");
-		} else {
-			// we have polys, right number on both sides
-			List<Type> polys = new ArrayList<Type>();
-			for (TypeReference p : type.polys())
-				polys.add(resolveType(cx, p));
-			return ty.instance(ty.location(), polys.toArray(new Type[polys.size()]));
-		}
+		return (Type)getObject(cx.resolve(type.location(), type.name()));
 	}
 	
 	private void gatherEnclosing(List<Object> enclosingPatterns, NamingContext cx, Scope s) {

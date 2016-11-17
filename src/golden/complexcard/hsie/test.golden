@@ -20,7 +20,7 @@ HSIE for test.golden._Complex.B5.contents_4/0                #complexcard. 45.0
 #Args: 0 #bound: 0
     externals: [] scoped = []
     all vars = []
-RETURN TLV[test.golden.Complex.lv]                           #complexcard. 43.7
+RETURN TLV[test.golden.Complex.lv<-test.golden._Complex.B3.l #complexcard. 43.7
 =======
 HSIE for test.golden.Complex.inits_hello/0                   #complexcard. 34.16
 #Args: 0 #bound: 0

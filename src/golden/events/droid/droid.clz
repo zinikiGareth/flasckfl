@@ -1,0 +1,213 @@
+public class test.golden.Events$B1 extends org.flasck.android.areas.DivArea {
+  public test.golden.Events$B1(test.golden.Events, org.flasck.android.areas.Area);
+    Code:
+       0: aload_0       
+       1: aload_2       
+       2: aconst_null   
+       3: invokespecial #13                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       6: aload_0       
+       7: aload_1       
+       8: putfield      #15                 // Field _card:Ltest/golden/Events;
+      11: new           #16                 // class test/golden/Events$B2
+      14: dup           
+      15: aload_1       
+      16: aload_0       
+      17: invokespecial #20                 // Method test/golden/Events$B2."<init>":(Ltest/golden/Events;Lorg/flasck/android/areas/Area;)V
+      20: astore_3      
+      21: new           #21                 // class test/golden/Events$B3
+      24: dup           
+      25: aload_1       
+      26: aload_0       
+      27: invokespecial #23                 // Method test/golden/Events$B3."<init>":(Ltest/golden/Events;Lorg/flasck/android/areas/Area;)V
+      30: astore        4
+      32: return        
+}
+public class test.golden.Events$B2 extends org.flasck.android.areas.TextArea {
+  public test.golden.Events$B2(test.golden.Events, org.flasck.android.areas.Area);
+    Code:
+       0: aload_0       
+       1: aload_2       
+       2: aconst_null   
+       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       6: aload_0       
+       7: aload_1       
+       8: putfield      #15                 // Field _card:Ltest/golden/Events;
+      11: aload_0       
+      12: ldc           #16                 // String OK
+      14: invokevirtual #21                 // Method _setText:(Ljava/lang/String;)V
+      17: aload_0       
+      18: ldc           #22                 // String button
+      20: invokevirtual #26                 // Method setCSS:(Ljava/lang/String;)V
+      23: aload_0       
+      24: invokevirtual #40                 // Method _add_handlers:()Ljava/lang/Object;
+      27: pop           
+      28: return        
+
+  public java.lang.Object _add_handlers();
+    Code:
+       0: ldc           #28                 // String FlasckLib
+       2: ldc           #30                 // String Need to add the handlers
+       4: invokestatic  #37                 // Method android/util/Log.e:(Ljava/lang/String;Ljava/lang/String;)I
+       7: pop           
+       8: aconst_null   
+       9: areturn       
+
+  public java.lang.Object handlers_0();
+    Code:
+       0: new           #42                 // class test/golden/Events$okThen
+       3: dup           
+       4: aload_0       
+       5: invokespecial #46                 // Method test/golden/Events$okThen."<init>":(Ltest/golden/Events$B2;)V
+       8: areturn       
+}
+public class test.golden.Events$B3 extends org.flasck.android.areas.TextArea {
+  public test.golden.Events$B3(test.golden.Events, org.flasck.android.areas.Area);
+    Code:
+       0: aload_0       
+       1: aload_2       
+       2: aconst_null   
+       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       6: aload_0       
+       7: aload_1       
+       8: putfield      #15                 // Field _card:Ltest/golden/Events;
+      11: aload_0       
+      12: ldc           #16                 // String Set13
+      14: invokevirtual #21                 // Method _setText:(Ljava/lang/String;)V
+      17: aload_0       
+      18: ldc           #22                 // String button
+      20: invokevirtual #26                 // Method setCSS:(Ljava/lang/String;)V
+      23: aload_0       
+      24: invokevirtual #40                 // Method _add_handlers:()Ljava/lang/Object;
+      27: pop           
+      28: return        
+
+  public java.lang.Object _add_handlers();
+    Code:
+       0: ldc           #28                 // String FlasckLib
+       2: ldc           #30                 // String Need to add the handlers
+       4: invokestatic  #37                 // Method android/util/Log.e:(Ljava/lang/String;Ljava/lang/String;)I
+       7: pop           
+       8: aconst_null   
+       9: areturn       
+
+  public java.lang.Object handlers_1();
+    Code:
+       0: new           #47                 // class org/flasck/android/FLClosure
+       3: dup           
+       4: aload_0       
+       5: getfield      #15                 // Field _card:Ltest/golden/Events;
+       8: ldc           #42                 // class org/flasck/android/FLEval$Curry
+      10: iconst_3      
+      11: anewarray     #49                 // class java/lang/Object
+      14: dup           
+      15: iconst_0      
+      16: new           #51                 // class test/golden/Events$setTo
+      19: dup           
+      20: aload_0       
+      21: invokespecial #55                 // Method test/golden/Events$setTo."<init>":(Ltest/golden/Events$B3;)V
+      24: aastore       
+      25: dup           
+      26: iconst_1      
+      27: iconst_2      
+      28: invokestatic  #61                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      31: aastore       
+      32: dup           
+      33: iconst_2      
+      34: bipush        13
+      36: invokestatic  #61                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      39: aastore       
+      40: invokespecial #64                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Object;)V
+      43: areturn       
+}
+public class test.golden.Events extends org.flasck.android.FlasckActivity {
+  public test.golden.Events();
+    Code:
+       0: aload_0       
+       1: invokespecial #8                  // Method org/flasck/android/FlasckActivity."<init>":()V
+       4: return        
+
+  protected void onCreate(android.os.Bundle);
+    Code:
+       0: aload_0       
+       1: aload_1       
+       2: invokespecial #12                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
+       5: aload_0       
+       6: invokespecial #15                 // Method org/flasck/android/FlasckActivity.ready:()V
+       9: return        
+
+  public void render(java.lang.String);
+    Code:
+       0: new           #17                 // class test/golden/Events$B1
+       3: aload_0       
+       4: new           #19                 // class org/flasck/android/areas/CardArea
+       7: dup           
+       8: aload_0       
+       9: getfield      #24                 // Field _wrapper:Lorg/flasck/android/Wrapper;
+      12: aload_0       
+      13: aload_1       
+      14: invokespecial #27                 // Method org/flasck/android/areas/CardArea."<init>":(Lorg/flasck/android/Wrapper;Lorg/flasck/android/FlasckActivity;Ljava/lang/String;)V
+      17: invokespecial #30                 // Method test/golden/Events$B1."<init>":(Ltest/golden/Events;Lorg/flasck/android/areas/Area;)V
+      20: return        
+
+  public java.lang.Object okThen(java.lang.Object);
+    Code:
+       0: new           #44                 // class org/flasck/android/FLClosure
+       3: dup           
+       4: ldc           #46                 // class org/flasck/android/builtin/Debug
+       6: iconst_1      
+       7: anewarray     #48                 // class java/lang/Object
+      10: dup           
+      11: iconst_0      
+      12: aload_1       
+      13: aastore       
+      14: invokespecial #52                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      17: astore_2      
+      18: new           #44                 // class org/flasck/android/FLClosure
+      21: dup           
+      22: ldc           #53                 // class org/flasck/android/builtin/Cons
+      24: iconst_2      
+      25: anewarray     #48                 // class java/lang/Object
+      28: dup           
+      29: iconst_0      
+      30: aload_2       
+      31: aastore       
+      32: dup           
+      33: iconst_1      
+      34: iconst_0      
+      35: anewarray     #48                 // class java/lang/Object
+      38: invokestatic  #60                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      41: aastore       
+      42: invokespecial #52                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      45: areturn       
+
+  public java.lang.Object setTo(java.lang.Object, java.lang.Object);
+    Code:
+       0: new           #44                 // class org/flasck/android/FLClosure
+       3: dup           
+       4: ldc           #46                 // class org/flasck/android/builtin/Debug
+       6: iconst_1      
+       7: anewarray     #48                 // class java/lang/Object
+      10: dup           
+      11: iconst_0      
+      12: aload_2       
+      13: aastore       
+      14: invokespecial #52                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      17: astore_3      
+      18: new           #44                 // class org/flasck/android/FLClosure
+      21: dup           
+      22: ldc           #53                 // class org/flasck/android/builtin/Cons
+      24: iconst_2      
+      25: anewarray     #48                 // class java/lang/Object
+      28: dup           
+      29: iconst_0      
+      30: aload_3       
+      31: aastore       
+      32: dup           
+      33: iconst_1      
+      34: iconst_0      
+      35: anewarray     #48                 // class java/lang/Object
+      38: invokestatic  #60                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      41: aastore       
+      42: invokespecial #52                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      45: areturn       
+}

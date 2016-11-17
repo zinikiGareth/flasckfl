@@ -47,6 +47,8 @@ public class ApplyCurry {
 			PushReturn pc = (PushReturn) c.nestedCommands().get(0);
 			if (pc instanceof PushString)
 				continue;
+			// The purpose of this is to stop us rewriting things we've already rewritten
+			int lookFrom = 0;
 			if (pc instanceof PushExternal) {
 				ExternalRef ex = ((PushExternal)pc).fn;
 				if (ex instanceof HandlerLambda)
@@ -80,26 +82,31 @@ public class ApplyCurry {
 				}
 				boolean scoping = (c instanceof ClosureCmd) && ((ClosureCmd)c).justScoping;
 				Type t = tc.getTypeAsCtor(pc.location, ex.uniqueName());
-				if (t.iam == WhatAmI.FUNCTION)
+				if (t.iam == WhatAmI.FUNCTION) {
 					logger.debug("Considering applying curry to: " + ex + ": " + t.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
-				if (t.iam != Type.WhatAmI.FUNCTION)
-					;
-				else if (t.arity() > c.nestedCommands().size()-1) {
-					c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
-					c.pushAt(pc.location, 2, t.arity());
-				} else if (t.arity() > 0 && scoping) {
-					int expected = t.arity() + c.nestedCommands().size()-1;
-					c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
-					c.pushAt(pc.location, 2, expected);
-				} else if (t.arity() < c.nestedCommands().size()-1 && !scoping) {
-					throw new UtilException("Have too many arguments for the function " + ex + " - error or need to replace f x y with (f x) y?");
+					if (t.arity() > c.nestedCommands().size()-1) {
+						c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
+						c.pushAt(pc.location, 2, t.arity());
+						lookFrom  = 2;
+					} else if (t.arity() > 0 && scoping) {
+						int expected = t.arity() + c.nestedCommands().size()-1;
+						c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
+						c.pushAt(pc.location, 2, expected);
+						lookFrom = 2;
+					} else if (t.arity() < c.nestedCommands().size()-1 && !scoping) {
+						throw new UtilException("Have too many arguments for the function " + ex + " - error or need to replace f x y with (f x) y?");
+					}
 				}
 			} else if (pc instanceof PushVar) { // the closure case, q.v.
 			} else if (pc instanceof PushFunc) {
 			} else {
 				throw new UtilException("I don't think this can have passed typecheck");
 			}
-			for (int pos=0;pos<c.nestedCommands().size();pos++) {
+			// Go through all the arguments here (including the command) and see if any of them are in fact functions
+			// that should be broken off into separate blocks and curried.
+			// If we curried the function above, don't look again, but do look at the remaining arguments (hence lookFrom = 2)
+			// To avoid contention, just build a list of things to rewrite here, and do that below ...
+			for (int pos=lookFrom;pos<c.nestedCommands().size();pos++) {
 				PushReturn pc2 = (PushReturn) c.nestedCommands().get(pos);
 				if (pc2 instanceof PushExternal) {
 					if (((PushExternal)pc2).fn instanceof CardFunction) {
@@ -109,6 +116,8 @@ public class ApplyCurry {
 				}
 			}
 		}
+		
+		// If we collected any arguments that were 0-applied curried functions above, apply the closure now ...
 		for (Rewrite r : rewrites) {
 			PushExternal pc = (PushExternal) r.inside.nestedCommands().get(r.pos);
 			ClosureCmd oclos = h.createClosure(pc.location);

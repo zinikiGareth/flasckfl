@@ -1,0 +1,41 @@
+HSIE for test.golden.Events.setTo/2                          #events.fl:   12.6
+#Args: 2 #bound: 2
+    externals: [Cons, Debug, Nil] scoped = []
+    all vars = [v0, v1, v2, v3]
+RETURN v3:clos3 [v2:clos2]                                   #events.fl:   13.3
+CLOSURE v2                                                   #events.fl:   13.3
+  PUSH PackageVar.Debug                                      #events.fl:   13.3
+  PUSH v1:test.golden.Events.setTo.ev                        #events.fl:   12.15
+CLOSURE v3                                                   #events.fl:   13.3
+  PUSH PackageVar.Cons                                       #events.fl:   12.6
+  PUSH v2:clos2                                              #events.fl:   13.3
+  PUSH PackageVar.Nil                                        #events.fl:   12.6
+=======
+HSIE for test.golden.Events.okThen/1                         #events.fl:    9.6
+#Args: 1 #bound: 2
+    externals: [Cons, Debug, Nil] scoped = []
+    all vars = [v0, v1, v2]
+RETURN v2:clos2 [v1:clos1]                                   #events.fl:   10.3
+CLOSURE v1                                                   #events.fl:   10.3
+  PUSH PackageVar.Debug                                      #events.fl:   10.3
+  PUSH v0:test.golden.Events.okThen.ev                       #events.fl:    9.13
+CLOSURE v2                                                   #events.fl:   10.3
+  PUSH PackageVar.Cons                                       #events.fl:    9.6
+  PUSH v1:clos1                                              #events.fl:   10.3
+  PUSH PackageVar.Nil                                        #events.fl:    9.6
+=======
+HSIE for test.golden._Events.B3.handlers_1/0                 #events.fl:    7.9
+#Args: 0 #bound: 1
+    externals: [test.golden.Events.setTo] scoped = []
+    all vars = [v0]
+RETURN v0:clos0 []                                           #events.fl:    7.9
+CLOSURE v0                                                   #events.fl:    7.9
+  PUSH CardFunction.test.golden.Events.setTo                 #events.fl:    7.9
+  PUSH 13                                                    #events.fl:    7.15
+=======
+HSIE for test.golden._Events.B2.handlers_0/0                 #events.fl:    5.9
+#Args: 0 #bound: 0
+    externals: [test.golden.Events.okThen] scoped = []
+    all vars = []
+RETURN CardFunction.test.golden.Events.okThen                #events.fl:    5.9
+=======

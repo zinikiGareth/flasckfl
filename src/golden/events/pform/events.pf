@@ -1,0 +1,29 @@
+package test.golden
+  card test.golden.Events @{1:0|card} @{1:5|Events}
+    template @{2:0|template} @{null}
+      . @{3:0|.}
+        '' OK @{4:0|'OK'}
+          format '' button @{4:7|'button'}
+          => @{5:6|=>}
+            click @{5:0|click}
+            okThen @{5:9|okThen}
+        '' Set13 @{6:0|'Set13'}
+          format '' button @{6:10|'button'}
+          => @{7:6|=>}
+            click @{7:0|click}
+            <apply> @{7:9|setTo 13}
+              setTo @{7:9|setTo}
+              # 13 @{7:15|13}
+    event test.golden.Events.okThen_1 @{9:0|event} @{9:6|okThen}
+      [var] ev @{9:13|ev}
+      invoke @{10:0|<-}
+        <apply> @{10:3|Debug ev}
+          Debug @{10:3|Debug}
+          ev @{10:9|ev}
+    event test.golden.Events.setTo_1 @{12:0|event} @{12:6|setTo}
+      [var] id @{12:12|id}
+      [var] ev @{12:15|ev}
+      invoke @{13:0|<-}
+        <apply> @{13:3|Debug ev}
+          Debug @{13:3|Debug}
+          ev @{13:9|ev}

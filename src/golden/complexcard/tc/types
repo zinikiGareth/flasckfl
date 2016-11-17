@@ -1,7 +1,7 @@
 test.golden._Complex.B1.teas_0 :: String
 test.golden._Complex.B2.contents_1 :: String
 test.golden._Complex.B3.lvs_3 :: Croset[String]
-test.golden._Complex.B5.contents_4 :: Any
+test.golden._Complex.B5.contents_4 :: String
 test.golden.Complex.inits_hello :: String
 test.golden._Complex.B11.yoyos_8 :: Card
 test.golden._Complex.B6.lvs_5 :: Croset[String]

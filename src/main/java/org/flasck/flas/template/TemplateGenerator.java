@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.droidgen.CGRContext;
@@ -54,9 +55,7 @@ public class TemplateGenerator {
 	public class GeneratorContext {
 
 		private final JSTarget target;
-		private final String simpleName;
 		private final String protoName;
-		private int areaNo = 1;
 		private String introduceVarHere;
 		private final List<DefinedVar> varsToCopy = new ArrayList<DefinedVar>();
 		private final Object nil;
@@ -67,7 +66,6 @@ public class TemplateGenerator {
 			this.target = target;
 			this.javaName = cg.prefix;
 			InputPosition posn = new InputPosition("template", 1, 1, "");
-			this.simpleName = Generator.lname(cg.prefix, false);
 			this.protoName = Generator.lname(cg.prefix, true);
 			this.nil = rw.getMe(posn, "Nil");
 			this.cons = rw.getMe(posn, "Cons");
@@ -403,7 +401,7 @@ public class TemplateGenerator {
 					if (eh.action.equals("drop"))
 						distinguish = "_";
 					JSForm cev = JSForm.flex("this._mydiv['on" + distinguish + eh.action + "'] = function(event)").needBlock();
-					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(this." + tfn + "(), event)"));
+					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(this._area." + tfn + "(), event)"));
 					ahf.add(cev);
 	
 					callOnAssign(fn, eh.expr, cgrx, called + ".prototype._add_handlers", isFirst, null);
@@ -452,7 +450,7 @@ public class TemplateGenerator {
 			if (fd != null)
 				for (RWFunctionCaseDefn fcd : fd.cases)
 					callOnAssign(addToFunc, fcd.expr, cgrx, call, false, moreArgs);
-		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof PackageVar || valExpr instanceof RWStructDefn) {
+		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof NumericLiteral || valExpr instanceof PackageVar || valExpr instanceof RWStructDefn) {
 			// nothing to do here, not variable
 		} else if (valExpr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) valExpr;

@@ -1,0 +1,13 @@
+	card Events
+		template
+			.
+				'OK' : 'button'
+					click => okThen
+				'Set13' : 'button'
+					click => setTo 13
+
+		event okThen ev
+			<- Debug ev
+			
+		event setTo id ev
+			<- Debug ev

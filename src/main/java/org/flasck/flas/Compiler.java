@@ -440,7 +440,7 @@ public class Compiler {
 			tgen.generate(rewriter, target);
 			
 			// 10. Check whether functions are curried and add in the appropriate indications if so
-			handleCurrying(curry, tc, hsie.allForms());
+			handleCurrying(curry, tc2, hsie.allForms());
 			abortIfErrors(errors);
 
 			// 11. Save learned state for export

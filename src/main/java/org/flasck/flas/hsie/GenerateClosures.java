@@ -257,8 +257,7 @@ public class GenerateClosures {
 		LocatedObject conv = dispatch(ate.expr);
 		if (conv.obj instanceof VarInSource) { // it's a closure, delegate to typechecker ..
 			VarInSource cv = (VarInSource) conv.obj;
-			ClosureCmd closure = form.getClosure(cv.var);
-			closure.assertType = ate.type;
+			form.varConstraints.add(cv, ate.type);
 			return conv;
 		} else if (conv.obj instanceof StringLiteral) {
 			if (!ate.type.name().equals("String")) {

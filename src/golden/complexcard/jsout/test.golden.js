@@ -327,7 +327,7 @@ test.golden._Complex.B8.prototype.constructor = test.golden._Complex.B8;
 
 test.golden._Complex.B8.prototype._add_handlers = function() {
   this._mydiv['onclick'] = function(event) {
-    this._area._wrapper.dispatchEvent(this.handlers_6(), event);
+    this._area._wrapper.dispatchEvent(this._area.handlers_6(), event);
   }
 }
 

@@ -17,7 +17,9 @@ import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.typechecker.Type;
 import org.slf4j.Logger;
+import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.UtilException;
 
 // So, basically an HSIE definition consists of
@@ -64,6 +66,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	
 	// Variables defined in an enclosing scope which we reference
 	public final Set<VarNestedFromOuterFunctionScope> scoped = new TreeSet<VarNestedFromOuterFunctionScope>();
+	public final SetMap<VarInSource, Type> varConstraints = new SetMap<>();
 
 	public HSIEForm(InputPosition nameLoc, String name, int nformal, CodeType mytype, VarFactory vf) {
 		super(nameLoc);

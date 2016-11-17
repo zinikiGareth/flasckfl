@@ -68,7 +68,8 @@ public class TypeChecker2 {
 	private final Map<Var, HSIEBlock> scoping = new HashMap<>();
 	private final Set<RWUnionTypeDefn> unions = new TreeSet<>();
 	private PrintWriter trackTo;
-	private Map<String, Type> export = new HashMap<>();
+	private final Map<String, Type> export = new TreeMap<>();
+	private final Map<String, Type> ctors = new TreeMap<>();
 	
 	public TypeChecker2(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
@@ -136,6 +137,7 @@ public class TypeChecker2 {
 			TypeFunc ti = new TypeFunc(fs, sty);
 			globalKnowledge.put(sd.uniqueName(), ti);
 			export.put(sd.name(), asType(ti));
+			ctors.put(sd.name(), asType(ti));
 		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
 			// The elements of the card struct can appear directly as CardMembers
@@ -163,7 +165,10 @@ public class TypeChecker2 {
 			for (HandlerLambda f : hi.boundVars)
 				if (f.scopedFrom == null)
 					fs.add(convertType(f.type));
-			globalKnowledge.put(hi.hiName, new TypeFunc(fs, new NamedType(hi.hiName)));
+			TypeFunc tf = new TypeFunc(fs, new NamedType(hi.hiName));
+			globalKnowledge.put(hi.hiName, tf);
+//			export.put(hi.hiName, asType(tf));
+			ctors.put(hi.hiName, asType(tf));
 		}
 	}
 
@@ -432,8 +437,8 @@ public class TypeChecker2 {
 			} else {
 				List<TypeInfo> args = new ArrayList<TypeInfo>();
 				for (int i=argtypes.size();i+1<called.args.size();i++)
-					args.add(argtypes.get(i));
-				TypeFunc tf = new TypeFunc(argtypes, ret);
+					args.add(called.args.get(i));
+				TypeFunc tf = new TypeFunc(args, ret);
 				constraints.add(c.var, tf);
 			}
 		}
@@ -795,6 +800,8 @@ public class TypeChecker2 {
 				ret = rw.contracts.get(nt.name);
 			else if (rw.cards.containsKey(nt.name))
 				ret = rw.cards.get(nt.name).struct;
+			else if (rw.callbackHandlers.containsKey(nt.name))
+				ret = rw.callbackHandlers.get(nt.name);
 			else
 				throw new UtilException("Could not find type " + nt.name);
 			if (nt.polyArgs.isEmpty())
@@ -829,9 +836,12 @@ public class TypeChecker2 {
 	}
 
 	public Type getTypeAsCtor(InputPosition location, String uniqueName) {
-		if (!export.containsKey(uniqueName))
+		if (ctors.containsKey(uniqueName))
+			return ctors.get(uniqueName);
+		else if (export.containsKey(uniqueName))
+			return export.get(uniqueName);
+		else
 			throw new UtilException("There is no name " + uniqueName);
-		return export.get(uniqueName);
 	}
 
 	private TypeInfo deList(TypeInfo typeOf) {
