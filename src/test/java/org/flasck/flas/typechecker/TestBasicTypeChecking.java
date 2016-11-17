@@ -1,205 +1,185 @@
 package org.flasck.flas.typechecker;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.Builtin;
+import org.flasck.flas.flim.ImportPackage;
+import org.flasck.flas.hsie.HSIE;
+import org.flasck.flas.hsie.HSIETestData;
+import org.flasck.flas.newtypechecker.TypeChecker2;
+import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parser.FunctionParser;
+import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.stories.FLASStory;
+import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.types.Type;
+import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.zinutils.collections.CollectionUtils;
+import org.zinutils.graphs.Orchard;
+
 public class TestBasicTypeChecking {
-	/*
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
 	ErrorResult errors = new ErrorResult();
 	Type number = Type.builtin(posn, "Number");
-	TypeChecker2 tc = new TypeChecker2(errors);
+	Type charT = Type.builtin(posn, "Char");
+	Type booleanT = Type.builtin(posn, "Boolean");
+	Rewriter rw;
+	TypeChecker2 tc;
 
 	@Before
 	public void setup() {
-		tc.addExternal("Number", number);
-		tc.addExternal("*", Type.function(posn, number, number, number));
-		tc.addExternal("+", Type.function(posn, number, number, number));
-		tc.addExternal("-", Type.function(posn, number, number, number));
-		tc.addExternal("==", Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.builtin(posn, "Boolean")));
-		tc.addTypeDefn(new RWUnionTypeDefn(posn, false, "Any", new ArrayList<>()));
+		LogManager.getLogger("TypeChecker").setLevel(Level.DEBUG);
 		Type varA = Type.polyvar(posn, "A");
+		ImportPackage pkg = new ImportPackage("");
+		pkg.define("Number", number);
+		pkg.define("Char", charT);
+		pkg.define("Boolean", booleanT);
+		fntype(pkg, "+", number, number, number);
+		fntype(pkg, "-", number, number, number);
+		fntype(pkg, "*", number, number, number);
+		fntype(pkg, "==", varA, varA, booleanT);
+		fntype(pkg, "plus1", number, number);
+		fntype(pkg, "decode", number, charT);
+		fntype(pkg, "id1", varA, varA);
 		RWStructDefn nil = new RWStructDefn(posn, "Nil", false);
-		tc.addStructDefn(nil);
+		pkg.define("Nil", nil);
 		RWStructDefn cons = new RWStructDefn(posn, "Cons", false, varA); 
 		cons.addField(new RWStructField(posn, false, varA, "head"));
 		cons.addField(new RWStructField(posn, false, cons, "tail"));
-		tc.addStructDefn(cons);
+		pkg.define("Cons", cons);
 		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, "List", CollectionUtils.listOf(varA));
 		list.addCase(nil);
 		list.addCase(cons);
-		tc.addTypeDefn(list);
-				
-		tc.addExternal("Nil", Type.function(posn, nil));
-		tc.addExternal("Cons", Type.function(posn, varA, list, list));
-		LogManager.getLogger("TypeChecker").setLevel(Level.DEBUG);
+		pkg.define("List", list);
+		rw = new Rewriter(errors, new ArrayList<>(), pkg);
+		tc = new TypeChecker2(errors, rw);
+		tc.populateTypes();
+		/*
+		tc.addExternal("==", Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), Type.builtin(posn, "Boolean")));
+		tc.addTypeDefn(new RWUnionTypeDefn(posn, false, "Any", new ArrayList<>()));
+		 */
 	}
 
-	@Test
-	public void testWeCanTypecheckANumber() throws IOException {
-		TypeState s = new TypeState(errors, tc);
-		HSIEForm fn = HSIETestData.simpleFn();
-		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
-		errors.showTo(new PrintWriter(System.out), 0);
-		assertFalse(errors.hasErrors());
-		assertNotNull(te);
-		assertTrue(te instanceof TypeExpr);
-		TypeExpr rte = (TypeExpr) te;
-		assertEquals("Number", rte.type.name());
-		assertTrue(rte.args.isEmpty());
+	protected void fntype(ImportPackage pkg, String name, Type... types) {
+		RWFunctionDefinition fn = new RWFunctionDefinition(posn, CodeType.FUNCTION, name, types.length-1, false);
+		fn.setType(Type.function(posn, types));
+		pkg.define(name, fn);
 	}
-
-	@Test
-	public void testWeCanTypecheckAVerySimpleLambda() throws IOException {
-		TypeState s = new TypeState(errors, tc);
-		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
-		Object te = tc.checkHSIE(s, HSIETestData.simpleFn());
-		errors.showTo(new PrintWriter(System.out), 0);
-		assertFalse(errors.hasErrors());
-		assertNotNull(te);
-		// The type should be A -> Number
-		assertTrue(te instanceof TypeExpr);
-		TypeExpr rte = (TypeExpr) te;
-		assertEquals("->", rte.type.name());
-		assertEquals(2, rte.args.size());
-		assertTrue(rte.args.get(0) instanceof TypeVar);
-		assertEquals("Number", ((TypeExpr)rte.args.get(1)).type.name());
-	}
-
-	@Test
-	public void testWeCanTypecheckID() throws IOException {
-		TypeState s = new TypeState(errors, tc);
-		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
-		Object te = tc.checkHSIE(s, HSIETestData.idFn());
-		errors.showTo(new PrintWriter(System.out), 0);
-		assertFalse(errors.hasErrors());
-		assertNotNull(te);
-		// The type should be A -> A
-		assertTrue(te instanceof TypeExpr);
-		TypeExpr rte = (TypeExpr) te;
-		assertEquals("->", rte.type.name());
-		assertEquals(2, rte.args.size());
-		assertTrue(rte.args.get(0) instanceof TypeVar);
-		assertTrue(rte.args.get(1) instanceof TypeVar);
-		assertEquals(rte.args.get(1), rte.args.get(0));
-	}
-
 	
 	@Test
-	public void testExternalPlus1HasExpectedType() throws IOException {
-		tc.addExternal("plus1", Type.function(posn, number, number));
-		TypeState s = new TypeState(errors, tc);
+	public void testWeCanTypecheckASimpleFn() throws Exception {
+		HSIEForm fn = HSIETestData.simpleFn();
+		tc.typecheck(CollectionUtils.setOf(fn));
+		errors.showTo(new PrintWriter(System.out), 0);
+		assertFalse(errors.hasErrors());
+		Type ty = tc.getExportedType(fn.fnName);
+		assertNotNull(ty);
+		assertEquals("A->Number", ty.toString());
+	}
+
+	@Test
+	public void testWeCanTypecheckID() throws Exception {
+		HSIEForm fn = HSIETestData.idFn();
+		tc.typecheck(CollectionUtils.setOf(fn));
+		errors.showTo(new PrintWriter(System.out), 0);
+		assertFalse(errors.hasErrors());
+		Type ty = tc.getExportedType(fn.fnName);
+		assertNotNull(ty);
+		assertEquals("A->A", ty.toString());
+	}
+
+	@Test
+	public void testExternalPlus1HasExpectedType() throws Exception {
 		HSIEForm fn = HSIETestData.returnPlus1();
-		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
+		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertNotNull(te);
-		// The type should be Number -> Number
-		assertTrue(te instanceof TypeExpr);
-		TypeExpr rte = (TypeExpr) te;
-//		assertEquals("Number->Number", rte.asType(tc).toString());
-		assertEquals("->", rte.type.name());
-		assertEquals(2, rte.args.size());
-		assertTrue(rte.args.get(0) instanceof TypeExpr);
-		assertTrue(rte.args.get(1) instanceof TypeExpr);
-		assertEquals("Number", ((TypeExpr)rte.args.get(0)).type.name());
-		assertEquals("Number", ((TypeExpr)rte.args.get(1)).type.name());
+		Type ty = tc.getExportedType(fn.fnName);
+		assertNotNull(ty);
+		assertEquals("Number->Number", ty.toString());
 	}
 
 	@Test
-	public void testWeCanTypecheckSimpleFunctionApplication() throws IOException {
-		tc.addExternal("plus1", Type.function(posn, number, number));
-		TypeState s = new TypeState(errors, tc);
+	public void testWeCanTypecheckSimpleFunctionApplication() throws Exception {
 		HSIEForm fn = HSIETestData.plus1Of1();
-		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
+		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertNotNull(te);
-		// The type should be Number
-		assertTrue(te instanceof TypeExpr);
-		TypeExpr rte = (TypeExpr) te;
-		assertEquals("Number", rte.type.name());
-		assertTrue(rte.args.isEmpty());
+		Type ty = tc.getExportedType(fn.fnName);
+		assertNotNull(ty);
+		assertEquals("Number", ty.toString());
 	}
 
 	@Test
-	public void testWeCanTypecheckAFunctionApplicationWithTwoArguments() throws IOException {
-		TypeState s = new TypeState(errors, tc);
+	public void testWeCanTypecheckAFunctionApplicationWithTwoArguments() throws Exception {
 		HSIEForm fn = HSIETestData.plus2And2();
-		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
+		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertNotNull(te);
-		// The type should be Number
-		assertTrue(te instanceof TypeExpr);
-		TypeExpr rte = (TypeExpr) te;
-		assertEquals("Number", rte.type.name());
-		assertTrue(rte.args.isEmpty());
+		Type ty = tc.getExportedType(fn.fnName);
+		assertNotNull(ty);
+		assertEquals("Number", ty.toString());
 	}
 
 	@Test
-	public void testWeCanUseIDTwiceWithDifferentInstationsOfItsSchematicVar() throws IOException {
-		tc.addExternal("id", Type.function(posn, Type.polyvar(posn, "A"), Type.polyvar(posn, "A")));
-		tc.addExternal("decode", Type.function(posn, number, Type.builtin(posn, "Char")));
-		TypeState s = new TypeState(errors, tc);
+	public void testWeCanUseIDTwiceWithDifferentInstationsOfItsSchematicVar() throws Exception {
 		HSIEForm fn = HSIETestData.idDecode();
-		Object te = tc.checkExpr(s, fn, fn.nestedCommands().get(0));
+		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertNotNull(te);
-		System.out.println(te);
-		// The type should be Char
-		assertTrue(te instanceof TypeExpr);
-		TypeExpr rte = (TypeExpr) te;
-		assertEquals("Char", rte.type.name());
-		assertTrue(rte.args.isEmpty());
+		Type ty = tc.getExportedType(fn.fnName);
+		assertNotNull(ty);
+		assertEquals("Char", ty.toString());
 	}
 	
 	@Test
 	public void testWeCanCheckTwoFunctionsAtOnceBecauseTheyAreMutuallyRecursive() throws Exception {
-		tc.addTypeDefn(new RWUnionTypeDefn(posn, false, "Any", new ArrayList<>()));
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.rdf1(), HSIETestData.rdf2(3)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertEquals(9, tc.knowledge.size());
 		{
-			Object rdf1 = tc.knowledge.get("ME.f");
+			Object rdf1 = tc.getExportedType("ME.f");
 			assertNotNull(rdf1);
 			System.out.println(rdf1);
 			assertTrue(rdf1 instanceof Type);
-			assertEquals("Number->Any", rdf1.toString());
+			assertEquals("Number->A", rdf1.toString());
 		}
 		{
-			Object rdf2 = tc.knowledge.get("ME.g");
+			Object rdf2 = tc.getExportedType("ME.g");
 			assertNotNull(rdf2);
 			assertTrue(rdf2 instanceof Type);
-			assertEquals("Number->Any", rdf2.toString());
+			assertEquals("Number->A", rdf2.toString());
 		}
 	}
 
 	@Test
 	public void testWeCanUseSwitchToLimitId() throws Exception {
-		TypeState s = new TypeState(errors, tc);
-		s.gamma = s.gamma.bind(new Var(0), new TypeScheme(null, new TypeVar(null, 1)));
-		Object te = tc.checkHSIE(s, HSIETestData.numberIdFn());
-		System.out.println(te);
+		HSIEForm fn = HSIETestData.numberIdFn();
+		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertNotNull(te);
-		// The type should be Number -> Number
-		assertTrue(te instanceof TypeExpr);
-		TypeExpr rte = (TypeExpr) te;
-		assertEquals("->", rte.type.name());
-		assertEquals(2, rte.args.size());
-		{
-			Object te1 = rte.args.get(0);
-			assertTrue(te1 instanceof TypeExpr);
-			assertEquals("Number", ((TypeExpr)te1).type.name());
-			assertEquals(0, ((TypeExpr)te1).args.size());
-		}
-		{
-			Object te2 = rte.args.get(1);
-			assertTrue(te2 instanceof TypeExpr);
-			assertEquals("Number", ((TypeExpr)te2).type.name());
-			assertEquals(0, ((TypeExpr)te2).args.size());
-		}
+		Type ty = tc.getExportedType(fn.fnName);
+		assertNotNull(ty);
+		assertEquals("Number->Number", ty.toString());
 	}
 	
 	@Test
@@ -207,7 +187,7 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.fib()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		Object te = tc.knowledge.get("ME.fib");
+		Object te = tc.getExportedType("ME.fib");
 		System.out.println(te);
 		assertNotNull(te);
 		// The type should be Number -> Number
@@ -220,21 +200,20 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.takeConsCase()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
-		Object te = tc.knowledge.get("take");
+		Object te = tc.getExportedType("take");
 		System.out.println(te);
 		assertNotNull(te);
 		// The type should be Number -> Cons -> List
 		assertTrue(te instanceof Type);
 		assertEquals("Number->Cons[A]->List[A]", te.toString());
 	}
-
 	
 	@Test
 	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.take()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
-		Object te = tc.knowledge.get("ME.take");
+		Object te = tc.getExportedType("ME.take");
 		System.out.println(te);
 		assertNotNull(te);
 		assertTrue(te instanceof Type);
@@ -242,37 +221,35 @@ public class TestBasicTypeChecking {
 	}
 
 	@Test
-	@Ignore
 	public void testWeCanCheckUnionTypes() throws Exception {
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.unionType()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
-		Object te = tc.knowledge.get("ME.f");
+		Object te = tc.getExportedType("ME.f");
 		System.out.println(te);
 		assertNotNull(te);
 		assertTrue(te instanceof Type);
-		assertEquals("List[Any]->Number", te.toString());
+		assertEquals("List[A]->Number", te.toString());
 	}
-
 	@Test
 	public void testWeCanCheckASimpleNestedFunction() throws Exception {
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleG()));
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleF()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertEquals(9, tc.knowledge.size());
-		System.out.println(tc.knowledge);
 		{
-			Object mf = tc.knowledge.get("ME.f");
-			assertNotNull(mf);
-			assertTrue(mf instanceof Type);
-			assertEquals("Number->Number", mf.toString());
-		}
-		{
-			Object mg = tc.knowledge.get("ME.f_0.g");
+			Object mg = tc.getExportedType("ME.f_0.g");
 			assertNotNull(mg);
 			assertTrue(mg instanceof Type);
 			assertEquals("Number->Number", mg.toString());
+		}
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleF()));
+		errors.showTo(new PrintWriter(System.out), 0);
+		assertFalse(errors.hasErrors());
+		{
+			Object mf = tc.getExportedType("ME.f");
+			assertNotNull(mf);
+			assertTrue(mf instanceof Type);
+			assertEquals("Number->Number", mf.toString());
 		}
 	}
 
@@ -284,23 +261,21 @@ public class TestBasicTypeChecking {
 			assertFalse(errors.hasErrors());
 		}
 		{
+			Object mg = tc.getExportedType("ME.f_0.g");
+			assertNotNull(mg);
+			assertTrue(mg instanceof Type);
+			assertEquals("Number->Number", mg.toString());
+		}
+		{
 			tc.typecheck(CollectionUtils.setOf(HSIETestData.mutualF()));
 			errors.showTo(new PrintWriter(System.out), 0);
 			assertFalse(errors.hasErrors());
 		}
-		assertEquals(9, tc.knowledge.size());
-		System.out.println(tc.knowledge);
 		{
-			Object mf = tc.knowledge.get("ME.f");
+			Object mf = tc.getExportedType("ME.f");
 			assertNotNull(mf);
 			assertTrue(mf instanceof Type);
-			assertEquals("Number->Number", mf.toString());
-		}
-		{
-			Object mg = tc.knowledge.get("ME.f_0.g");
-			assertNotNull(mg);
-			assertTrue(mg instanceof Type);
-			assertEquals("Number->Number", mg.toString());
+			assertEquals("Number->A", mf.toString());
 		}
 	}
 
@@ -309,10 +284,8 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleIf()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertEquals(8, tc.knowledge.size());
-		System.out.println(tc.knowledge);
 		{
-			Object mf = tc.knowledge.get("ME.fact");
+			Object mf = tc.getExportedType("ME.fact");
 			assertNotNull(mf);
 			assertTrue(mf instanceof Type);
 			assertEquals("Number->Number", mf.toString());
@@ -324,10 +297,8 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleIfElse()));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		assertEquals(8, tc.knowledge.size());
-		System.out.println(tc.knowledge);
 		{
-			Object mf = tc.knowledge.get("ME.fact");
+			Object mf = tc.getExportedType("ME.fact");
 			assertNotNull(mf);
 			assertTrue(mf instanceof Type);
 			assertEquals("Number->Number", mf.toString());
@@ -335,8 +306,9 @@ public class TestBasicTypeChecking {
 	}
 	
 	@Test
+	@Ignore // I think this test *should* work, but we have eliminated Poly->Any promotion, which is how it used to work
+	// I think it should work NOW because we should have a constraint on the input arg of f
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
-		tc = new TypeChecker(errors);
 		ImportPackage biscope = Builtin.builtins();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
@@ -350,18 +322,11 @@ public class TestBasicTypeChecking {
 		assertNotNull(g1);
 		g1.provideCaseName("ME.g_0");
 		s.define("g", "ME.g", g1);
-		tc.addExternal("Number", (Type) biscope.get("Number"));
-		tc.addExternal("String", (Type) biscope.get("String"));
-		tc.addExternal("join", ((RWFunctionDefinition) biscope.get("join")).getType());
-		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("Any"));
-		tc.addStructDefn((RWStructDefn) biscope.get("Nil"));
-		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("List"));
-		tc.addStructDefn((RWStructDefn) biscope.get("Cons"));
-		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
-		tc.addStructDefn((RWStructDefn) biscope.get("Send"));
 		Rewriter rewriter = new Rewriter(errors, null, biscope);
 		rewriter.rewritePackageScope("ME", s);
 		assertEquals(errors.singleString(), 0, errors.count());
+		tc = new TypeChecker2(errors, rewriter);
+		tc.populateTypes();
 		HSIE hsie = new HSIE(errors);
 		
 		{
@@ -378,19 +343,17 @@ public class TestBasicTypeChecking {
 			tc.typecheck(hsie.orchard(o2));
 			assertEquals(errors.singleString(), 0, errors.count());
 		}
-		assertEquals(5, tc.knowledge.size());
 		{
-			Object mf = tc.knowledge.get("ME.f");
+			Object mf = tc.getExportedType("ME.f");
 			assertNotNull(mf);
 			assertTrue(mf instanceof Type);
 			assertEquals("Any->Number", mf.toString());
 		}
 		{
-			Object mg = tc.knowledge.get("ME.g");
+			Object mg = tc.getExportedType("ME.g");
 			assertNotNull(mg);
 			assertTrue(mg instanceof Type);
 			assertEquals("Any->Number", mg.toString());
 		}
 	}
-	*/
 }

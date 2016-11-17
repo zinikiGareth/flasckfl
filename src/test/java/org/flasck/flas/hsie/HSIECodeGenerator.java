@@ -48,11 +48,11 @@ public class HSIECodeGenerator {
 	public void testConvertingIdDecode() throws Exception {
 		Scope s = new Scope(null);
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
-		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = id (decode (id 32))"));
+		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = id1 (decode (id1 32))"));
 		c1.provideCaseName("ME.f_0");
 		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
-		rw.functions.put("id", new RWFunctionDefinition(posn, CodeType.FUNCTION, "id", 1, false));
+		rw.functions.put("id1", new RWFunctionDefinition(posn, CodeType.FUNCTION, "id1", 1, false));
 		rw.functions.put("decode", new RWFunctionDefinition(posn, CodeType.FUNCTION, "decode", 1, false));
 		rw.rewritePackageScope("ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);

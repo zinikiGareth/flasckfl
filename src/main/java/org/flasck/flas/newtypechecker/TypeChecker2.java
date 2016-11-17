@@ -888,4 +888,8 @@ public class TypeChecker2 {
 		} else
 			throw new UtilException("deList(" + typeOf + ")");
 	}
+
+	public Type getExportedType(String name) {
+		return export.get(name);
+	}
 }

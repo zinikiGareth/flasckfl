@@ -172,7 +172,8 @@ public class HSIETestData {
 			ctorTypes,
 			"HEAD 1",
 			"SWITCH 1 Cons",
-			"{", "BIND 2 1 head",
+			"{",
+				"BIND 2 1 head",
 				"BIND 3 1 tail",
 				"HEAD 0",
 				"SWITCH 0 Number",
@@ -181,7 +182,7 @@ public class HSIETestData {
 						"}",
 					"}",
 				"RETURN var 6 clos6 4 clos4 5 clos5",
-				"}",
+			"}",
 			"ERROR",
 			"CLOSURE 4",
 			"{", "-", 
@@ -325,19 +326,19 @@ public class HSIETestData {
 
 	public static HSIEForm idDecode() {
 		ArrayList<String> externals = new ArrayList<String>();
-		externals.add("id");
+		externals.add("id1");
 		externals.add("decode");
 		return thingy("ME.f", 0, 3, externals,
 			null,
 			"RETURN var 2 clos2 0 clos0 1 clos1",
 			"CLOSURE 0", "{",
-				"id", "32",
+				"id1", "32",
 			"}",
 			"CLOSURE 1", "{",
 				"decode", "var 0 clos0",
 			"}", 
 			"CLOSURE 2", "{",
-				"id", "var 1 clos1",
+				"id1", "var 1 clos1",
 			"}"
 		);
 	}
