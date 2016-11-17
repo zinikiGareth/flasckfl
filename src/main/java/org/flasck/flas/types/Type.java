@@ -1,17 +1,9 @@
 package org.flasck.flas.types;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.typechecker.GarneredFrom;
-import org.flasck.flas.typechecker.TypeChecker;
-import org.flasck.flas.typechecker.TypeExpr;
-import org.flasck.flas.typechecker.TypeVar;
-import org.flasck.flas.typechecker.VariableFactory;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
@@ -165,56 +157,6 @@ public class Type implements Locatable {
 		return new Type(loc, WhatAmI.TUPLE, args);
 	}
 	
-	public Object asExpr(GarneredFrom from, TypeChecker tc, VariableFactory factory) {
-		Map<String, TypeVar> mapping = new HashMap<String, TypeVar>();
-		return convertToExpr(tc, from, factory, mapping);
-	}
-
-	protected Object convertToExpr(TypeChecker tc, GarneredFrom from, VariableFactory factory, Map<String, TypeVar> mapping) {
-		switch (iam) {
-		case BUILTIN:
-		case CONTRACT:
-		case CONTRACTIMPL:
-		case CONTRACTSERVICE:
-		case HANDLERIMPLEMENTS:
-		{
-			return new TypeExpr(from, this);
-		}
-		case STRUCT:
-		case UNION:
-		case INSTANCE:
-		case OBJECT:
-		{
-			List<Object> mypolys = new ArrayList<Object>();
-			if (polys != null) {
-				for (Type t : polys)
-					mypolys.add(t.convertToExpr(tc, from, factory, mapping));
-			}
-			return new TypeExpr(from, this, mypolys);
-		}
-		case POLYVAR: {
-			if (mapping.containsKey(name))
-				return mapping.get(name);
-			TypeVar var = factory.next();
-			mapping.put(name, var);
-			return var;
-		}
-		case FUNCTION: {
-			Object ret = fnargs.get(fnargs.size()-1).convertToExpr(tc, new GarneredFrom(this, fnargs.size()-1), factory, mapping);
-			for (int i=fnargs.size()-2;i>=0;i--) {
-				Object left = fnargs.get(i).convertToExpr(tc, from, factory, mapping);
-				ret = new TypeExpr(from, Type.builtin(new InputPosition("builtin", 0, 0, null), "->"), left, ret);
-			}
-			return ret;
-		}
-		case SOMETHINGELSE: {
-			return tc.getType(this.location, this.name).convertToExpr(tc, from, factory, mapping);
-		}
-		default:
-			throw new UtilException("cannot convert type "+ iam + " " + name() + " to type expr");
-		}
-	}
-
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		show(sb);

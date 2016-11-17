@@ -1,4 +1,4 @@
-package org.flasck.flas.typechecker;
+package org.flasck.flas.flim;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -7,21 +7,21 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 
-public class CardTypeInfo extends TypeHolder implements Locatable {
+public class ImportedCard extends ImportedContract implements Locatable {
 	private final InputPosition location;
 	public final RWStructDefn struct;
-	public final Set<TypeHolder> contracts = new TreeSet<TypeHolder>();
-	public final Set<TypeHolder> handlers = new TreeSet<TypeHolder>();
+	public final Set<ImportedContract> contracts = new TreeSet<ImportedContract>();
+	public final Set<ImportedContract> handlers = new TreeSet<ImportedContract>();
 
 	// Used when parsing and generating
-	public CardTypeInfo(RWStructDefn struct) {
+	public ImportedCard(RWStructDefn struct) {
 		super(struct.name());
 		this.struct = struct;
 		this.location = struct.location();
 	}
 
 	// External view loaded back in from FLIM
-	public CardTypeInfo(InputPosition location, String name) {
+	public ImportedCard(InputPosition location, String name) {
 		super(name);
 		this.location = location;
 		this.struct = null;

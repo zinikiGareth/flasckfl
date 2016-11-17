@@ -1,6 +1,4 @@
-package org.flasck.flas.typechecker;
-
-import org.flasck.flas.types.Type;
+package org.flasck.flas.types;
 
 public class TypedObject {
 	public final Type type;

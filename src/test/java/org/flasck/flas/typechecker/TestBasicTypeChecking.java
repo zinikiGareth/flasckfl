@@ -1,45 +1,11 @@
 package org.flasck.flas.typechecker;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.flim.Builtin;
-import org.flasck.flas.flim.ImportPackage;
-import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.hsie.HSIETestData;
-import org.flasck.flas.parsedForm.FunctionCaseDefn;
-import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.parser.FunctionParser;
-import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.RWStructDefn;
-import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.stories.FLASStory;
-import org.flasck.flas.tokenizers.Tokenizable;
-import org.flasck.flas.types.Type;
-import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.Var;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.zinutils.collections.CollectionUtils;
-import org.zinutils.graphs.Orchard;
-
 public class TestBasicTypeChecking {
+	/*
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
 	ErrorResult errors = new ErrorResult();
 	Type number = Type.builtin(posn, "Number");
-	TypeChecker tc = new TypeChecker(errors);
+	TypeChecker2 tc = new TypeChecker2(errors);
 
 	@Before
 	public void setup() {
@@ -426,4 +392,5 @@ public class TestBasicTypeChecking {
 			assertEquals("Any->Number", mg.toString());
 		}
 	}
+	*/
 }

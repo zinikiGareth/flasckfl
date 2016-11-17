@@ -16,6 +16,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.hsie.HSIE;
+import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -41,7 +42,6 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.typechecker.TypeChecker;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class MethodConvertorTests {
 	private Rewriter rewriter;
 	private ErrorResult errors;
 	private HSIE hsie;
-	private TypeChecker tc;
+	private TypeChecker2 tc;
 	private MethodConvertor convertor;
 	private Map<String, RWFunctionDefinition> functions = new HashMap<>(); 
 	private CardDefinition cd;
@@ -125,7 +125,7 @@ public class MethodConvertorTests {
 		}
 		
 		hsie = new HSIE(errors);
-		tc = new TypeChecker(errors);
+		tc = new TypeChecker2(errors, rewriter);
 		// I don't know how broken this is, but I don't believe in any of it anymore
 //		tc.addExternal("String", (Type) biscope.get("String"));
 //		tc.addExternal("join", (Type) biscope.get("join"));
@@ -144,7 +144,6 @@ public class MethodConvertorTests {
 		rewriter.rewritePackageScope("org.foo", orgFooScope);
 		if (checkRewritingErrors)
 			assertFalse(errors.singleString(), errors.hasErrors());
-		tc.populateTypes(rewriter);
 		convertor = new MethodConvertor(errors, rewriter);
 	}
 

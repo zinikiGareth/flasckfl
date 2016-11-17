@@ -23,6 +23,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.ImportPackage;
+import org.flasck.flas.flim.ImportedCard;
 import org.flasck.flas.flim.PackageFinder;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -120,7 +121,6 @@ import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
-import org.flasck.flas.typechecker.CardTypeInfo;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.Type.WhatAmI;
@@ -153,7 +153,7 @@ public class Rewriter {
 	public final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
 	// I'm not 100% sure we need both of these, but it seems we need more info for "generating" cards than we do for "referencing" cards on import ...
 	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
-	public final Map<String, CardTypeInfo> ctis = new TreeMap<String, CardTypeInfo>();
+	public final Map<String, ImportedCard> ctis = new TreeMap<String, ImportedCard>();
 	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
 	public final List<RWD3Thing> d3s = new ArrayList<RWD3Thing>();
 	public final Map<String, RWContractImplements> cardImplements = new TreeMap<String, RWContractImplements>();
@@ -543,8 +543,8 @@ public class Rewriter {
 				contracts.put(name, (RWContractDecl) val);
 			} else if (val instanceof CardGrouping) {
 				throw new UtilException("I claim we don't import CardGrouping objects");
-			} else if (val instanceof CardTypeInfo) {
-				ctis.put(name, (CardTypeInfo)val);
+			} else if (val instanceof ImportedCard) {
+				ctis.put(name, (ImportedCard)val);
 			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
 //					System.out.println("Not adding anything for " + x.getValue().getKey() + " " + val);
 			} else if (val == null) {

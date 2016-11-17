@@ -17,8 +17,6 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
-import org.flasck.flas.typechecker.CardTypeInfo;
-import org.flasck.flas.typechecker.TypeHolder;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
@@ -101,7 +99,7 @@ public class PackageFinder {
 							// we don't have anything to create right now ...
 							todos.add(new Pass2(xe, xe));
 						} else if (xe.hasTag("Card")) {
-							CardTypeInfo cti = new CardTypeInfo(location(xe), xe.required("name"));
+							ImportedCard cti = new ImportedCard(location(xe), xe.required("name"));
 							xe.attributesDone();
 							pkg.define(cti.name, cti);
 							todos.add(new Pass2(cti, xe));
@@ -139,10 +137,10 @@ public class PackageFinder {
 								cme.attributesDone();
 								cd.methods.add(cmd);
 							}
-						} else if (p.parent instanceof CardTypeInfo) {
-							CardTypeInfo cti = (CardTypeInfo) p.parent;
+						} else if (p.parent instanceof ImportedCard) {
+							ImportedCard cti = (ImportedCard) p.parent;
 							for (XMLElement ie : p.children) {
-								cti.contracts.add(new TypeHolder(ie.required("contract")));
+								cti.contracts.add(new ImportedContract(ie.required("contract")));
 								ie.attributesDone();
 								ie.assertNoSubContents();
 							}

@@ -1,4 +1,4 @@
-package org.flasck.flas.typechecker;
+package org.flasck.flas.flim;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,12 +8,12 @@ import org.flasck.flas.types.Type;
 import org.zinutils.utils.Justification;
 import org.zinutils.utils.StringComparator;
 
-public class TypeHolder implements Comparable<TypeHolder> {
+public class ImportedContract implements Comparable<ImportedContract> {
 	private transient final StringComparator comp = new StringComparator();
 	public final String name;
 	public final Map<String, Type> fns = new TreeMap<String, Type>(comp);
 
-	public TypeHolder(String name) {
+	public ImportedContract(String name) {
 		this.name = name;
 	}
 	
@@ -30,7 +30,7 @@ public class TypeHolder implements Comparable<TypeHolder> {
 	}
 
 	@Override
-	public int compareTo(TypeHolder o) {
+	public int compareTo(ImportedContract o) {
 		return comp.compare(this.name, o.name);
 	}
 }
