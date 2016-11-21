@@ -88,7 +88,7 @@ public class MethodConvertor {
 
 	// 2. Convert An individual element
 	protected RWFunctionDefinition convertMIC(Rewriter rw, MethodInContext m) {
-		logger.info("converting " + m.direction + " " + m.name);
+		logger.info("Converting " + (m.direction == MethodInContext.DOWN?"down":"up") + " " + m.name);
 		// Get the contract and from that find the method and thus the argument types
 		List<Type> types;
 		if (m.fromContract == null) {

@@ -31,6 +31,16 @@ org.flasck.ChangeEvent = function(v0, v1, v2) {
   return new org.flasck._ChangeEvent({index: v0, id: v1, value: v2});
 }
 
+org.flasck._ClickEvent = function(v0) {
+  "use strict";
+  this._ctor = 'org.flasck.ClickEvent';
+}
+
+org.flasck.ClickEvent = function() {
+  "use strict";
+  return new org.flasck._ClickEvent({});
+}
+
 org.flasck._DropEvent = function(v0) {
   "use strict";
   this._ctor = 'org.flasck.DropEvent';

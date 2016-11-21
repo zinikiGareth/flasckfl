@@ -100,7 +100,10 @@ public class DependencyAnalyzer {
 			dcg.ensure("_var_" + ((CardMember)expr).uniqueName());
 		}
 		else if (expr instanceof HandlerLambda) {
-			dcg.ensure("_var_" + ((HandlerLambda)expr).uniqueName());
+			HandlerLambda hl = (HandlerLambda) expr;
+			dcg.ensure("_var_" + hl.uniqueName());
+			if (hl.scopedFrom != null)
+				analyzeExpr(dcg, name, locals, hl.scopedFrom);
 		}
 		else if (expr instanceof LocalVar)
 			dcg.ensureLink(name, "_var_" + ((LocalVar)expr).uniqueName());

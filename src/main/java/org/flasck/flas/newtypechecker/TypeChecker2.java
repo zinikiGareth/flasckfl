@@ -63,17 +63,18 @@ public class TypeChecker2 {
 	private final Rewriter rw;
 	private final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
 	private final Map<String, TypeInfo> structTypes = new HashMap<String, TypeInfo>();
-	// is there a real need to keep these separate?  especially when we are promoting?
-	private final Map<String, TypeInfo> globalKnowledge = new HashMap<String, TypeInfo>();
-	private final Map<String, TypeInfo> localKnowledge = new HashMap<String, TypeInfo>();
-	private final SetMap<Var, TypeInfo> constraints = new SetMap<Var, TypeInfo>(new SimpleVarComparator(), new TypeInfoComparator());
-	private final Map<String, Var> returns = new HashMap<String, Var>();
-	private int nextVar;
-	private final Map<Var, HSIEBlock> scoping = new HashMap<>();
-	private final Set<RWUnionTypeDefn> unions = new TreeSet<>();
-	private PrintWriter trackTo;
 	private final Map<String, Type> export = new TreeMap<>();
 	private final Map<String, Type> ctors = new TreeMap<>();
+	private final Set<RWUnionTypeDefn> unions = new TreeSet<>();
+	private PrintWriter trackTo;
+
+	private int nextVar;
+	// is there a real need to keep these separate?  especially when we are promoting?
+	private final Map<String, TypeInfo> globalKnowledge = new TreeMap<String, TypeInfo>();
+	private final Map<String, TypeInfo> localKnowledge = new TreeMap<String, TypeInfo>();
+	private final SetMap<Var, TypeInfo> constraints = new SetMap<Var, TypeInfo>(new SimpleVarComparator(), new TypeInfoComparator());
+	private final Map<String, Var> returns = new TreeMap<String, Var>();
+	private final Map<Var, HSIEBlock> scoping = new HashMap<>();
 	
 	public TypeChecker2(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
@@ -93,7 +94,7 @@ public class TypeChecker2 {
 	private void pass1() {
 		for (Type bi : rw.primitives.values()) {
 			export.put(bi.name(), bi);
-			globalKnowledge.put(bi.name(), new NamedType(bi.location(), bi.name()));
+			gk(bi.name(), new NamedType(bi.location(), bi.name()));
 		}
 		for (RWUnionTypeDefn ud : rw.types.values()) {
 			List<TypeInfo> polys = new ArrayList<>();
@@ -102,7 +103,7 @@ public class TypeChecker2 {
 					polys.add(convertType(t));
 			}
 			NamedType uty = new NamedType(ud.location(), ud.name(), polys);
-			globalKnowledge.put(ud.name(), uty);
+			gk(ud.name(), uty);
 			
 			unions.add(ud);
 		}
@@ -112,7 +113,7 @@ public class TypeChecker2 {
 				for (Type t : od.polys())
 					polys.add(convertType(t));
 			}
-			globalKnowledge.put(od.name(), new NamedType(od.location(), od.name(), polys));
+			gk(od.name(), new NamedType(od.location(), od.name(), polys));
 			if (od.ctorArgs != null) {
 				List<Type> args = new ArrayList<>();
 				for (RWStructField sf : od.ctorArgs)
@@ -122,7 +123,7 @@ public class TypeChecker2 {
 			}
 		}
 		for (RWContractDecl cd : rw.contracts.values()) {
-			globalKnowledge.put(cd.name(), new NamedType(cd.location(), cd.name()));
+			gk(cd.name(), new NamedType(cd.location(), cd.name()));
 //			export.put(cd.name(), cd);
 		}
 		for (RWStructDefn sd : rw.structs.values()) {
@@ -135,7 +136,7 @@ public class TypeChecker2 {
 			structTypes.put(sd.uniqueName(), new NamedType(sd.location(), sd.uniqueName(), polys));
 		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
-			globalKnowledge.put(d.getKey(), new NamedType(d.getValue().struct.location(), d.getKey()));
+			gk(d.getKey(), new NamedType(d.getValue().struct.location(), d.getKey()));
 		}
 	}
 	
@@ -146,7 +147,7 @@ public class TypeChecker2 {
 			for (RWStructField f : sd.fields)
 				fs.add(convertType(f.type));
 			TypeFunc ti = new TypeFunc(sd.location(), fs, sty);
-			globalKnowledge.put(sd.uniqueName(), ti);
+			gk(sd.uniqueName(), ti);
 //			export.put(sd.name(), asType(ti));
 			ctors.put(sd.name(), asType(ti));
 		}
@@ -155,21 +156,27 @@ public class TypeChecker2 {
 			// push their types into the knowledge
 			for (RWStructField f : d.getValue().struct.fields) {
 				// TODO: right now, I feel that renaming this is really a rewriter responsibility, but I'm not clear on the consequences
-				globalKnowledge.put(d.getKey()+"."+f.name, convertType(f.type));
+				TypeInfo ct = convertType(f.type);
+				gk(d.getKey()+"."+f.name, ct);
 			}
 		}
 		for (RWFunctionDefinition fn : rw.functions.values()) {
 			if (fn.getType() != null) { // a function has already been typechecked
-				globalKnowledge.put(fn.name(), convertType(fn.getType()));
+				TypeInfo ct = convertType(fn.getType());
+				if (ct instanceof TypeVar)
+					throw new UtilException("That's not really a type now, is it ...");
+				gk(fn.name(), ct);
 				export.put(fn.name(), fn.getType());
 			}
 		}
 		for (Entry<String, Type> e : rw.fnArgs.entrySet()) {
 			if (e.getValue() instanceof RWStructDefn) {
 				RWStructDefn val = (RWStructDefn)e.getValue();
-				globalKnowledge.put(e.getKey(), new NamedType(val.location(), val.name()));
-			} else
-				globalKnowledge.put(e.getKey(), convertType(e.getValue()));
+				gk(e.getKey(), new NamedType(val.location(), val.name()));
+			} else {
+				TypeInfo ty = convertType(e.getValue());
+				gk(e.getKey(), ty);
+			}
 		}
 		for (RWHandlerImplements hi : rw.callbackHandlers.values()) {
 			export.put(hi.hiName, hi);
@@ -178,10 +185,18 @@ public class TypeChecker2 {
 				if (f.scopedFrom == null)
 					fs.add(convertType(f.type));
 			TypeFunc tf = new TypeFunc(hi.location(), fs, new NamedType(hi.location(), hi.hiName));
-			globalKnowledge.put(hi.hiName, tf);
+			gk(hi.hiName, tf);
 //			export.put(hi.hiName, asType(tf));
 			ctors.put(hi.hiName, asType(tf));
 		}
+	}
+
+	private void gk(String name, TypeInfo ty) {
+		if (name.endsWith(".index"))
+			System.out.println("yo");
+		if (ty instanceof TypeVar)
+			throw new UtilException("That's not really a type now, is it ...");
+		globalKnowledge.put(name, ty);
 	}
 
 	// Typecheck a set of HSIE forms in parallel ...
@@ -192,6 +207,7 @@ public class TypeChecker2 {
 		localKnowledge.clear();
 		constraints.clear();
 		returns.clear();
+		scoping.clear();
 		nextVar=0;
 		
 		// 1b. define all the vars that are already in the HSIE, trapping the max value for future reference
@@ -277,7 +293,12 @@ public class TypeChecker2 {
 		// 2c. look at all the actual closures
 		for (HSIEForm f : forms) {
 			for (ClosureCmd c : f.closures()) {
-				processClosure(f, c);
+				try {
+					processClosure(f, c);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					errors.message(c.location, ex.toString());
+				}
 			}
 		}
 
@@ -325,7 +346,7 @@ public class TypeChecker2 {
 		for (HSIEForm f : forms) {
 			TypeInfo nt = deduceType(renames, merged, f);
 			logger.info("Concluded that " + f.fnName + " has type " + nt);
-			globalKnowledge.put(f.fnName, nt);
+			gk(f.fnName, nt);
 			if (trackTo != null)
 				trackTo.println(f.fnName + " :: " + asType(nt));
 			Type ty = asType(nt);
@@ -375,7 +396,10 @@ public class TypeChecker2 {
 			if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.field")) {
 				TypeInfo ty;
 				if (argtypes.get(0) instanceof TypeVar) {
-					Set<TypeInfo> set = constraints.get(((TypeVar)argtypes.get(0)).var);
+					Set<TypeInfo> set = new HashSet<>();
+					for (TypeInfo ti : constraints.get(((TypeVar)argtypes.get(0)).var))
+						if (ti instanceof NamedType)
+							set.add(ti);
 					if (set.isEmpty())
 						throw new UtilException("This is a reasonable case, I think, but one I cannot handle: " + set);
 					if (set.size() > 1)
@@ -421,9 +445,9 @@ public class TypeChecker2 {
 				if (si != null) {
 					TypeInfo foo = globalKnowledge.get(si);
 					if (foo == null || ((foo instanceof NamedType) && ((NamedType)foo).name.equals("Any")))
-						globalKnowledge.put(si, tai);
+						gk(si, tai);
 					else if ((tai instanceof NamedType) && ((NamedType)tai).name.equals("Any"))
-						globalKnowledge.put(si, foo);
+						gk(si, foo);
 					else if (foo instanceof TypeVar)
 						constraints.add(((TypeVar)foo).var, tai);
 					else if (tai instanceof TypeVar)
