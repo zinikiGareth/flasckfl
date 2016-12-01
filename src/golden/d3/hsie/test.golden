@@ -243,7 +243,7 @@ HSIE for test.golden._TestCard._d3_chart_enter_rect/0        #d3.fl:       25.0
     externals: [Cons, D3Action, Nil] scoped = []
     all vars = [v0, v1, v2]
 RETURN v2:clos2 [v0:clos0, v1:clos1]                         #d3.fl:       26.3
-CLOSURE v1                                                   #d3.fl:       26.3
+CLOSURE v1 M                                                 #d3.fl:       26.3
   PUSH PackageVar.D3Action                                   #d3.fl:       26.3
   PUSH "append"                                              #d3.fl:       26.12
   PUSH v0:clos0                                              #d3.fl:       26.22
@@ -261,7 +261,7 @@ HSIE for test.golden._TestCard._d3_chart_enter_text/0        #d3.fl:       40.0
     externals: [Cons, D3Action, Nil] scoped = []
     all vars = [v0, v1, v2]
 RETURN v2:clos2 [v0:clos0, v1:clos1]                         #d3.fl:       41.3
-CLOSURE v1                                                   #d3.fl:       41.3
+CLOSURE v1 M                                                 #d3.fl:       41.3
   PUSH PackageVar.D3Action                                   #d3.fl:       41.3
   PUSH "append"                                              #d3.fl:       41.12
   PUSH v0:clos0                                              #d3.fl:       41.22

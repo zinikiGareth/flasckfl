@@ -13,7 +13,7 @@ HSIE for test.golden.f/1                                     #mutual.fl:    2.0
     externals: [] scoped = []
     all vars = [v0, v1, v2]
 RETURN v2:clos2 [v1:test.golden.f_0.g]                       #mutual.fl:    2.6
-CLOSURE v1                                                   #mutual.fl:    3.0
+CLOSURE v1 !                                                 #mutual.fl:    3.0
   PUSH PackageVar.test.golden.f_0.g                          #mutual.fl:    3.0
   PUSH v0:test.golden.f_0.x                                  #mutual.fl:    2.2
 CLOSURE v2                                                   #mutual.fl:    2.6

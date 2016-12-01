@@ -21,6 +21,12 @@ public class ClosureCmd extends HSIEBlock {
 
 	@Override
 	public String toString() {
-		return "CLOSURE " + var + (downcastType != null?" " + downcastType:"");
+		return "CLOSURE " + var + leftpad((justScoping?"!":"") + (typecheckMessages?"M":"") + (deferredSend?"S":"")) + (downcastType != null?" " + downcastType:"") + (assertType != null? " " + assertType:"");
+	}
+
+	private String leftpad(String string) {
+		if (string.isEmpty())
+			return string;
+		return " " + string;
 	}
 }

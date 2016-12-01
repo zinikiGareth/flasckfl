@@ -21,13 +21,13 @@ HEAD v0                                                      #methods.fl:   9.7
 SWITCH v0 Crokeys                                            #methods.fl:   9.7
   RETURN v4:clos4 [v2:clos2, v3:clos3]                       #methods.fl:  10.3
 ERROR                                                        #methods.fl:   9.0
-CLOSURE v1                                                   #methods.fl:   6.0
+CLOSURE v1 !                                                 #methods.fl:   6.0
   PUSH PackageVar.test.golden.f_0.s                          #methods.fl:   6.0
 CLOSURE v2                                                   #methods.fl:   6.0
   PUSH PackageVar.Cons                                       #methods.fl:   6.0
   PUSH v0:test.golden.f_0.KVHImpl.update.crokeys             #methods.fl:   9.7
   PUSH PackageVar.Nil                                        #methods.fl:   6.0
-CLOSURE v3                                                   #methods.fl:   6.0
+CLOSURE v3 S                                                 #methods.fl:   6.0
   PUSH PackageVar.Send                                       #methods.fl:   6.0
   PUSH Scoped[test.golden.f_0.s]                             #methods.fl:   6.0
   PUSH "mergeAppend"                                         #methods.fl:  10.5
