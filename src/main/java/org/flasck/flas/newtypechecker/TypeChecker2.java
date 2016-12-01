@@ -192,10 +192,8 @@ public class TypeChecker2 {
 	}
 
 	private void gk(String name, TypeInfo ty) {
-		if (name.endsWith(".index"))
-			System.out.println("yo");
 		if (ty instanceof TypeVar)
-			throw new UtilException("That's not really a type now, is it ...");
+			throw new UtilException("That's not really a type now, is it ... binding " + name + " to " + ty);
 		globalKnowledge.put(name, ty);
 	}
 
@@ -444,9 +442,10 @@ public class TypeChecker2 {
 				String si = isScoped.get(i);
 				if (si != null) {
 					TypeInfo foo = globalKnowledge.get(si);
-					if (foo == null || ((foo instanceof NamedType) && ((NamedType)foo).name.equals("Any")))
-						gk(si, tai);
-					else if ((tai instanceof NamedType) && ((NamedType)tai).name.equals("Any"))
+					if (foo == null || ((foo instanceof NamedType) && ((NamedType)foo).name.equals("Any"))) {
+						if (!(tai instanceof TypeVar))
+							gk(si, tai);
+					} else if ((tai instanceof NamedType) && ((NamedType)tai).name.equals("Any"))
 						gk(si, foo);
 					else if (foo instanceof TypeVar)
 						constraints.add(((TypeVar)foo).var, tai);

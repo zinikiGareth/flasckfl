@@ -15,7 +15,7 @@ import org.zinutils.graphs.Orchard;
 
 public class TestDependencyAnalysis {
 	private final ErrorResult errors = new ErrorResult();
-	private final DependencyAnalyzer analyzer = new DependencyAnalyzer(errors);
+	private final DependencyAnalyzer analyzer = new DependencyAnalyzer();
 	private final Rewriter rewriter = new Rewriter(errors, null, null);
 
 	@Test

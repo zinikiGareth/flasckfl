@@ -1,0 +1,43 @@
+Node ++ depends on:
+Node == depends on:
+Node test.golden.filter_1.f depends on:
+Node string depends on:
+Node test.golden.filter_1.g depends on:
+  Cons
+  test.golden.filter_1.f
+  test.golden.filter
+  test.golden.filter_1.a
+  test.golden.filter_1.l
+Node * depends on:
+Node + depends on:
+Node concat depends on:
+Node - depends on:
+Node test.golden.filter_1.a depends on:
+Node _var_test.golden.filter_1.a depends on:
+  test.golden.filter
+Node / depends on:
+Node Nil depends on:
+Node _var_test.golden.filter_1.f depends on:
+  test.golden.filter
+Node Cons depends on:
+Node _var_test.golden.filter_0.f depends on:
+  test.golden.filter
+Node assoc depends on:
+Node test.golden.filter_1.l depends on:
+Node join depends on:
+Node _var_test.golden.filter_1.l depends on:
+  test.golden.filter
+Node if depends on:
+Node map depends on:
+Node ^ depends on:
+Node test.golden.filter depends on:
+  _var_test.golden.filter_1.a
+  test.golden.filter_1.g
+  _var_test.golden.filter_1.f
+  Nil
+========
+test.golden.filter
+-----
+test.golden.filter_1.g
+-----
+======

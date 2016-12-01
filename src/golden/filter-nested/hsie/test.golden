@@ -10,7 +10,7 @@ SWITCH v1 Cons                                               #filter.fl:    3.9
 SWITCH v1 Nil                                                #filter.fl:    2.9
   RETURN PackageVar.Nil                                      #filter.fl:    2.14
 ERROR                                                        #filter.fl:    2.0
-CLOSURE v4                                                   #filter.fl:    4.0
+CLOSURE v4 !                                                 #filter.fl:    4.0
   PUSH PackageVar.test.golden.filter_1.g                     #filter.fl:    4.0
   PUSH v2:test.golden.filter_1.a                             #filter.fl:    3.10
   PUSH v0:test.golden.filter_1.f                             #filter.fl:    3.7

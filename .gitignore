@@ -4,6 +4,7 @@ src/test/resources/**/*.js
 src/test/resources/**/*.flim
 parser-tmp/
 errors-tmp/
+depend-tmp/
 hsie-tmp/
 flim-tmp/
 jsout-tmp/

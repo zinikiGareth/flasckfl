@@ -58,8 +58,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.graphs.Node;
 import org.zinutils.graphs.Orchard;
+import org.zinutils.graphs.Tree;
 import org.zinutils.utils.FileUtils;
+import org.zinutils.utils.Justification;
 
 public class Compiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
@@ -197,6 +200,7 @@ public class Compiler {
 	private ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	private DroidBuilder builder;
 	private File writeFlim;
+	private File writeDepends;
 	private File writeHSIE;
 	private File trackTC;
 	private File writeJS;
@@ -221,6 +225,14 @@ public class Compiler {
 			return;
 		}
 		this.writeFlim = file;
+	}
+
+	public void writeDependsTo(File file) {
+		if (!file.isDirectory()) {
+			System.out.println("there is no directory " + file);
+			return;
+		}
+		this.writeDepends = file;
 	}
 
 	public void writeHSIETo(File file) {
@@ -387,11 +399,17 @@ public class Compiler {
 			abortIfErrors(errors);
 
 			// 7. Do dependency analysis on functions and group them together in orchards
-			List<Orchard<RWFunctionDefinition>> defns = new DependencyAnalyzer(errors).analyze(functions);
+			DependencyAnalyzer da = new DependencyAnalyzer();
+			List<Orchard<RWFunctionDefinition>> defns = da.analyze(functions);
 			abortIfErrors(errors);
+			if (writeDepends != null)
+				writeDependencies(da, defns);
 			
-//			System.out.println("tree = " + defns);
-
+			for (Orchard<RWFunctionDefinition> orch : defns) {
+				for (Tree<RWFunctionDefinition> t : orch) {
+					showTree(t, t.getRoot(), 0);
+				}
+			}
 			// 8. Now process each orchard
 			//   a. convert functions to HSIE
 			//   b. typechecking
@@ -418,7 +436,7 @@ public class Compiler {
 				// 8a. Convert each orchard to HSIE
 				Set<HSIEForm> forms = hsie.orchard(d);
 				abortIfErrors(errors);
-				dumpOrchard(hsiePW, forms);
+				dumpForms(hsiePW, forms);
 				
 				// 8b. Typecheck all the methods together
 				tc2.typecheck(forms);
@@ -475,7 +493,34 @@ public class Compiler {
 		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
 	}
 
-	private void dumpOrchard(PrintWriter hsiePW, Set<HSIEForm> hs) {
+	private void writeDependencies(DependencyAnalyzer da, List<Orchard<RWFunctionDefinition>> defns) throws IOException {
+		PrintWriter pw = new PrintWriter(new File(writeDepends, "depends.txt"));
+		da.dump(pw);
+		for (Orchard<RWFunctionDefinition> d : defns) {
+			for (Tree<RWFunctionDefinition> t : d) {
+				writeTree(pw, t, t.getRoot(), 0);
+				pw.println("-----");
+			}
+			pw.println("======");
+		}
+		pw.close();
+	}
+
+	private void writeTree(PrintWriter pw, Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node, int i) {
+		RWFunctionDefinition fn = node.getEntry();
+		pw.println(Justification.PADLEFT.format(fn.name(), fn.name().length()+i));
+		for (Node<RWFunctionDefinition> c : t.getChildren(node))
+			writeTree(pw, t, c, i+2);
+	}
+
+	private void showTree(Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node, int i) {
+		RWFunctionDefinition fn = node.getEntry();
+		logger.info(Justification.PADLEFT.format(fn.name(), fn.name().length()+i));
+		for (Node<RWFunctionDefinition> c : t.getChildren(node))
+			showTree(t, c, i+2);
+	}
+
+	private void dumpForms(PrintWriter hsiePW, Set<HSIEForm> hs) {
 		if (hsiePW == null)
 			return;
 		

@@ -1,5 +1,6 @@
 package org.flasck.flas.dependencies;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,6 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
-import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -39,21 +39,18 @@ import org.zinutils.graphs.Orchard;
 import org.zinutils.graphs.Tree;
 
 public class DependencyAnalyzer {
-//	private final ErrorResult errors;
+	final DirectedCyclicGraph<String> dcg = new DirectedCyclicGraph<String>();
 
-	public DependencyAnalyzer(ErrorResult errors) {
-//		this.errors = errors;
+	public DependencyAnalyzer() {
 	}
 
 	public List<Orchard<RWFunctionDefinition>> analyze(Map<String, RWFunctionDefinition> map) {
-		DirectedCyclicGraph<String> dcg = new DirectedCyclicGraph<String>();
 		Map<String, RWFunctionDefinition> fdm = new TreeMap<String, RWFunctionDefinition>();
-		addFunctionsToDCG(dcg, new TreeMap<String, String>(), fdm, map);
-//		System.out.print(dcg);
-		return buildOrchards(dcg, fdm);
+		addFunctionsToDCG(new TreeMap<String, String>(), fdm, map);
+		return buildOrchards(fdm);
 	}
 
-	private void addFunctionsToDCG(DirectedCyclicGraph<String> dcg, Map<String, String> map, Map<String, RWFunctionDefinition> fdm, Map<String, RWFunctionDefinition> functions) {
+	private void addFunctionsToDCG(Map<String, String> map, Map<String, RWFunctionDefinition> fdm, Map<String, RWFunctionDefinition> functions) {
 		// First make sure all the nodes are in the DCG
 		for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {
 			String name = x.getValue().name();
@@ -78,7 +75,7 @@ public class DependencyAnalyzer {
 			RWFunctionDefinition fd = x.getValue();
 			for (RWFunctionCaseDefn c : fd.cases)
 				try {
-					analyzeExpr(dcg, fd.name(), c.varNames(), c.expr);
+					analyzeExpr(fd.name(), c.varNames(), c.expr);
 				} catch (UtilException ex) {
 					ex.printStackTrace();
 					System.out.println(dcg);
@@ -88,7 +85,7 @@ public class DependencyAnalyzer {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void analyzeExpr(DirectedCyclicGraph<String> dcg, String name, Set<String> locals, Object expr) {
+	private void analyzeExpr(String name, Set<String> locals, Object expr) {
 		if (expr == null)
 			return;
 //		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
@@ -103,7 +100,7 @@ public class DependencyAnalyzer {
 			HandlerLambda hl = (HandlerLambda) expr;
 			dcg.ensure("_var_" + hl.uniqueName());
 			if (hl.scopedFrom != null)
-				analyzeExpr(dcg, name, locals, hl.scopedFrom);
+				analyzeExpr(name, locals, hl.scopedFrom);
 		}
 		else if (expr instanceof LocalVar)
 			dcg.ensureLink(name, "_var_" + ((LocalVar)expr).uniqueName());
@@ -122,31 +119,31 @@ public class DependencyAnalyzer {
 			dcg.ensureLink(name, orname);
 		} else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
-			analyzeExpr(dcg, name, locals, ae.fn);
-			analyzeExpr(dcg, name, locals, ae.args);
+			analyzeExpr(name, locals, ae.fn);
+			analyzeExpr(name, locals, ae.args);
 		} else if (expr instanceof List) {
 			for (Object x : (List<Object>)expr)
-				analyzeExpr(dcg, name, locals, x);
+				analyzeExpr(name, locals, x);
 		} else if (expr instanceof IfExpr) {
 			IfExpr ie = (IfExpr) expr;
-			analyzeExpr(dcg, name, locals, ie.guard);
-			analyzeExpr(dcg, name, locals, ie.ifExpr);
-			analyzeExpr(dcg, name, locals, ie.elseExpr);
+			analyzeExpr(name, locals, ie.guard);
+			analyzeExpr(name, locals, ie.ifExpr);
+			analyzeExpr(name, locals, ie.elseExpr);
 		} else if (expr instanceof TypeCheckMessages) {
 			TypeCheckMessages tcm = (TypeCheckMessages) expr;
-			analyzeExpr(dcg, name, locals, tcm.expr);
+			analyzeExpr(name, locals, tcm.expr);
 		} else if (expr instanceof AssertTypeExpr) {
 			AssertTypeExpr tcm = (AssertTypeExpr) expr;
-			analyzeExpr(dcg, name, locals, tcm.expr);
+			analyzeExpr(name, locals, tcm.expr);
 		} else if (expr instanceof DeferredSendExpr) {
 			DeferredSendExpr dse = (DeferredSendExpr) expr;
-			analyzeExpr(dcg, name, locals, dse.sender);
-			analyzeExpr(dcg, name, locals, dse.args);
+			analyzeExpr(name, locals, dse.sender);
+			analyzeExpr(name, locals, dse.args);
 		} else
 			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass());
 	}
 
-	List<Orchard<RWFunctionDefinition>> buildOrchards(DirectedCyclicGraph<String> dcg, Map<String, RWFunctionDefinition> fdm) {
+	List<Orchard<RWFunctionDefinition>> buildOrchards(Map<String, RWFunctionDefinition> fdm) {
 		Set<Set<String>> spanners = new TreeSet<Set<String>>(new SortOnSize());
 		for (String name : dcg.nodes()) {
 			if (!name.startsWith("_var_"))
@@ -165,7 +162,7 @@ public class DependencyAnalyzer {
 //		System.out.println("groups = " + groups);
 		List<Orchard<RWFunctionDefinition>> ret = new ArrayList<Orchard<RWFunctionDefinition>>();
 		for (Set<String> g : groups) {
-			Orchard<RWFunctionDefinition> orch = buildOrchard(dcg, fdm, g);
+			Orchard<RWFunctionDefinition> orch = buildOrchard(fdm, g);
 			if (!orch.isEmpty())
 				ret.add(orch);
 		}
@@ -173,7 +170,7 @@ public class DependencyAnalyzer {
 		return ret;
 	}
 
-	private Orchard<RWFunctionDefinition> buildOrchard(DirectedCyclicGraph<String> dcg, Map<String, RWFunctionDefinition> fdm, Set<String> g) {
+	private Orchard<RWFunctionDefinition> buildOrchard(Map<String, RWFunctionDefinition> fdm, Set<String> g) {
 //		System.out.println("Attempting to build orchard from " + g);
 		Orchard<RWFunctionDefinition> ret = new Orchard<RWFunctionDefinition>();
 		Set<String> topCandidates = new TreeSet<String>();
@@ -238,5 +235,10 @@ public class DependencyAnalyzer {
 				ret.addTree(fdm.get(s));
 
 		return ret;
+	}
+
+	public void dump(PrintWriter pw) {
+		pw.print(dcg);
+		pw.println("========");
 	}
 }

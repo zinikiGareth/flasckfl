@@ -130,6 +130,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File importFrom = new File(s, "import");
 		File pform = new File(s, "parser-tmp");
 		File jsto = new File(s, "jsout-tmp");
+		File dependTo = new File(s, "depend-tmp");
 		File hsie = new File(s, "hsie-tmp");
 		File flim = new File(s, "flim-tmp");
 		File tc2 = new File(s, "tc-tmp");
@@ -173,19 +174,29 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		if (importFrom.isDirectory())
 			compiler.searchIn(importFrom);
 
+		File depend = new File(s, "depend");
 		try {
 			compiler.trackTC(tc2);
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
 			compiler.writeDroidTo(droidTo, false);
+			if (depend.isDirectory()) {
+				clean(dependTo);
+				compiler.writeDependsTo(dependTo);
+			}
 			compiler.compile(dir);
-			
+			File errors = new File(s, "errors");
+			if (errors.isDirectory())
+				fail("expected errors, but none occurred");
 		} catch (ErrorResultException ex) {
 			handleErrors(s, ex.errors);
 		}
 		
 		// Now assert that we matched things ...
+		if (depend.isDirectory()) {
+			assertGolden(depend, dependTo);
+		}
 		File goldhs = new File(s, "hsie");
 		if (stripNumbers) {
 			stripHSIE(goldhs);
