@@ -2,11 +2,11 @@ package org.flasck.flas.dependencies;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -30,13 +30,8 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.DirectedCyclicGraph;
-import org.zinutils.graphs.Link;
-import org.zinutils.graphs.Node;
-import org.zinutils.graphs.Orchard;
-import org.zinutils.graphs.Tree;
 
 public class DependencyAnalyzer {
 	final DirectedCyclicGraph<String> dcg = new DirectedCyclicGraph<String>();
@@ -44,44 +39,40 @@ public class DependencyAnalyzer {
 	public DependencyAnalyzer() {
 	}
 
-	public List<Orchard<RWFunctionDefinition>> analyze(Map<String, RWFunctionDefinition> map) {
-		Map<String, RWFunctionDefinition> fdm = new TreeMap<String, RWFunctionDefinition>();
-		addFunctionsToDCG(new TreeMap<String, String>(), fdm, map);
-		return buildOrchards(fdm);
+	public List<Set<RWFunctionDefinition>> analyze(Map<String, RWFunctionDefinition> functions) {
+		for (Entry<String, RWFunctionDefinition> x : functions.entrySet())
+			addFunctionToDCG(x.getKey(), x.getValue());
+		for (Entry<String, RWFunctionDefinition> x : functions.entrySet())
+			addLinksToDCG(x.getKey(), x.getValue());
+		return group(functions);
 	}
 
-	private void addFunctionsToDCG(Map<String, String> map, Map<String, RWFunctionDefinition> fdm, Map<String, RWFunctionDefinition> functions) {
-		// First make sure all the nodes are in the DCG
-		for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {
-			String name = x.getValue().name();
-			dcg.ensure(name);
+	private void addFunctionToDCG(String name, RWFunctionDefinition fd) {
+		dcg.ensure(name);
 
-			RWFunctionDefinition fd = x.getValue();
-			if (!fd.generate)
-				continue;
-			fdm.put(name,  fd);
-			for (RWFunctionCaseDefn c : fd.cases) {
-				for (LocalVar v : c.vars()) {
-					String realname = "_var_" + v.uniqueName();
-//					System.out.println("Ensuring local var in graph: " + realname);
-					dcg.ensure(realname);
-					dcg.ensureLink(realname, name);
-				}
+		if (!fd.generate)
+			return;
+		for (RWFunctionCaseDefn c : fd.cases) {
+			for (LocalVar v : c.vars()) {
+				String varUniqueName = v.uniqueName();
+				dcg.ensure(varUniqueName);
+				
+				// There is a circular dependency between functions and the vars they introduce
+				dcg.ensureLink(varUniqueName, name);
+				dcg.ensureLink(name, varUniqueName);
 			}
 		}
+	}
 
-		// Then add the links
-		for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {
-			RWFunctionDefinition fd = x.getValue();
-			for (RWFunctionCaseDefn c : fd.cases)
-				try {
-					analyzeExpr(fd.name(), c.varNames(), c.expr);
-				} catch (UtilException ex) {
-					ex.printStackTrace();
-					System.out.println(dcg);
-					throw ex;
-				}
-		}
+	private void addLinksToDCG(String name, RWFunctionDefinition fd) {
+		for (RWFunctionCaseDefn c : fd.cases)
+			try {
+				analyzeExpr(name, c.varNames(), c.expr);
+			} catch (UtilException ex) {
+				ex.printStackTrace();
+				System.out.println(dcg);
+				throw ex;
+			}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -94,17 +85,18 @@ public class DependencyAnalyzer {
 		else if (expr instanceof CardStateRef)
 			; // I don't think this introduces dependencies between functions, just on the card
 		else if (expr instanceof CardMember) {
-			dcg.ensure("_var_" + ((CardMember)expr).uniqueName());
+			dcg.ensure(((CardMember)expr).uniqueName());
 		}
 		else if (expr instanceof HandlerLambda) {
 			HandlerLambda hl = (HandlerLambda) expr;
-			dcg.ensure("_var_" + hl.uniqueName());
+			dcg.ensure(hl.uniqueName());
 			if (hl.scopedFrom != null)
 				analyzeExpr(name, locals, hl.scopedFrom);
 		}
-		else if (expr instanceof LocalVar)
-			dcg.ensureLink(name, "_var_" + ((LocalVar)expr).uniqueName());
-		else if (expr instanceof IterVar)
+		else if (expr instanceof LocalVar) {
+			String un = ((LocalVar)expr).uniqueName();
+			dcg.ensureLink(name, un);
+		} else if (expr instanceof IterVar)
 			// I think because this is synthetic, it's not needed here ...
 			; // dcg.ensureLink(name, "_iter_" + ((IterVar)expr).uniqueName());
 		else if (expr instanceof PackageVar) {
@@ -143,97 +135,25 @@ public class DependencyAnalyzer {
 			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass());
 	}
 
-	List<Orchard<RWFunctionDefinition>> buildOrchards(Map<String, RWFunctionDefinition> fdm) {
-		Set<Set<String>> spanners = new TreeSet<Set<String>>(new SortOnSize());
-		for (String name : dcg.nodes()) {
-			if (!name.startsWith("_var_"))
-				spanners.add(dcg.spanOf(name));
-		}
-//		System.out.println("spanners = " + spanners);
-		Set<String> done = new TreeSet<String>();
-		List<Set<String>> groups = new ArrayList<Set<String>>();
-		for (Set<String> s : spanners) {
-			s.removeAll(done);
-			if (!s.isEmpty()) {
-				groups.add(s);
-				done.addAll(s);
-			}
-		}
-//		System.out.println("groups = " + groups);
-		List<Orchard<RWFunctionDefinition>> ret = new ArrayList<Orchard<RWFunctionDefinition>>();
-		for (Set<String> g : groups) {
-			Orchard<RWFunctionDefinition> orch = buildOrchard(fdm, g);
-			if (!orch.isEmpty())
-				ret.add(orch);
-		}
-//		System.out.println("orch = " + ret);
-		return ret;
-	}
-
-	private Orchard<RWFunctionDefinition> buildOrchard(Map<String, RWFunctionDefinition> fdm, Set<String> g) {
-//		System.out.println("Attempting to build orchard from " + g);
-		Orchard<RWFunctionDefinition> ret = new Orchard<RWFunctionDefinition>();
-		Set<String> topCandidates = new TreeSet<String>();
-
-		// Collect together all the people that "defined" variables that were later used
-		for (String s : g) {
-			if (s.startsWith("_var_")) {
-				Set<Link<String>> definers = dcg.find(s).linksFrom();
-				if (definers.size() != 1)
-					throw new UtilException("Inconsistency in definition of " + s + "; defined by " + definers);
-				topCandidates.add(CollectionUtils.any(definers).getTo());
-			}
-		}
-
-//		System.out.println("top candidates = " + topCandidates);
-		// Go through this list, seeing which ones don't use other people's variables
-		// This must terminate, because scoping, unlike referencing, is tree-based
-		for (String s : topCandidates) {
-			Node<String> top = dcg.find(s);
-			boolean reject = false;
-			for (Link<String> l : top.linksFrom()) {
-				// If a function depends on a var, check if it is one of its own or an "inherited" one
-				// If it's inherited, we reject this candidate.
-//				System.out.println(l);
-				if (l.getTo().startsWith("_var_")) {
-					String s1 = l.getTo().replace("_var_", "");
-					s1 = s1.replace(s, "");
-					int i1 = s1.indexOf('.');
-					int i2 = s1.lastIndexOf('.');
-					if (i2 > i1) {
-						reject = true;
-						System.out.println("Rejecting " + s + " because of " + s1);
-					}
-				}
-			}
-			if (reject)
+	List<Set<RWFunctionDefinition>> group(Map<String, RWFunctionDefinition> functions) {
+		// First build a "list" of all the function groups, from least complicated to most complicated
+		TreeSet<Set<RWFunctionDefinition>> order = new TreeSet<Set<RWFunctionDefinition>>(new SortOnSize());
+		for (RWFunctionDefinition s : functions.values()) {
+			if (!s.generate)
 				continue;
-			
-			// Create a new tree with the definer at the top
-			Tree<RWFunctionDefinition> t = ret.addTree(fdm.get(s));
-			g.remove(s); // remove everything that we do something with
-			for (Link<String> lc : top.linksTo()) {
-				// find all the variables it defines and then make their sub-functions our children
-				if (lc.getFrom().startsWith("_var")) {
-					g.remove(lc.getFrom());
-					for (Link<String> lu : lc.getFromNode().linksTo()) {
-						g.remove(lu.getFrom());
-						if (fdm.containsKey(lu.getFrom())) {
-							RWFunctionDefinition to = fdm.get(lu.getFrom());
-							if (!to.name().equals(lu.getFrom()))
-								t.addChild(t.getRoot(), to);
-						}
-					}
-				}
-			}
+			Set<RWFunctionDefinition> mine = functionsIn(functions, dcg.spanOf(s.name()));
+			order.add(mine);
 		}
 		
-		// when there are no more vars, everything is just a peer
-		// add one tree for all remaining items
-		for (String s : g)
-			if (fdm.containsKey(s))
-				ret.addTree(fdm.get(s));
+		// Now convert it to a list
+		return new ArrayList<Set<RWFunctionDefinition>>(order);
+	}
 
+	private Set<RWFunctionDefinition> functionsIn(Map<String, RWFunctionDefinition> functions, Set<String> spanOf) {
+		Set<RWFunctionDefinition> ret = new HashSet<RWFunctionDefinition>();
+		for (String s : spanOf)
+			if (functions.containsKey(s))
+				ret.add(functions.get(s));
 		return ret;
 	}
 

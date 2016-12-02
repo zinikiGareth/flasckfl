@@ -1,0 +1,10 @@
+
+	contract DoIt
+		up calc (Number n)
+		
+		
+	f (DoIt d) size = MessageWrapper 0 [m]
+	
+		method m
+			<- d.calc size
+		

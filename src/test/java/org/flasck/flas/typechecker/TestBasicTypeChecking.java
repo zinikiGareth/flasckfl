@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -34,7 +36,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
-import org.zinutils.graphs.Orchard;
 
 public class TestBasicTypeChecking {
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
@@ -330,15 +331,15 @@ public class TestBasicTypeChecking {
 		HSIE hsie = new HSIE(errors);
 		
 		{
-			Orchard<RWFunctionDefinition> o1 = new Orchard<>();
-			o1.addTree(rewriter.functions.get("ME.f"));
+			Set<RWFunctionDefinition> o1 = new HashSet<>();
+			o1.add(rewriter.functions.get("ME.f"));
 			hsie.createForms(o1);
 			tc.typecheck(hsie.orchard(o1));
 			assertEquals(errors.singleString(), 0, errors.count());
 		}
 		{
-			Orchard<RWFunctionDefinition> o2 = new Orchard<>();
-			o2.addTree(rewriter.functions.get("ME.g"));
+			Set<RWFunctionDefinition> o2 = new HashSet<>();
+			o2.add(rewriter.functions.get("ME.g"));
 			hsie.createForms(o2);
 			tc.typecheck(hsie.orchard(o2));
 			assertEquals(errors.singleString(), 0, errors.count());

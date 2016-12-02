@@ -433,7 +433,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card._C0.bar", func.name);
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (Send CardMember[org.foo.Card.ce] \"request\" (Cons \"hello\" Nil)) Nil)", c1.expr.toString());
+		assertEquals("(Cons (Send CardMember[org.foo.Card.ce] \"request\" (Cons (#assertType String \"hello\") Nil)) Nil)", c1.expr.toString());
 	}
 
 	@Test

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Contract file="pushback.fl" line="2" name="test.golden.DoIt" off="9">
+        <Method dir="up" file="pushback.fl" line="3" name="calc" off="3" required="true">
+            <Typed file="pushback.fl" line="3" off="9"
+                var="test.golden.DoIt.calc.n" vfile="pushback.fl"
+                vline="3" voff="16">
+                <Builtin name="Number"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Function file="pushback.fl" line="6" name="test.golden.f" off="0">
+        <Function>
+            <Arg>
+                <Contract name="test.golden.DoIt"/>
+            </Arg>
+            <Arg>
+                <Poly name="A"/>
+            </Arg>
+            <Return>
+                <Instance file="builtin" line="0" off="0">
+                    <Struct name="MessageWrapper"/>
+                    <Builtin name="Number"/>
+                </Instance>
+            </Return>
+        </Function>
+    </Function>
+</FLIM>

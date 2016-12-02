@@ -5,9 +5,11 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
@@ -27,7 +29,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.graphs.Orchard;
 
 public class HSIETestData {
 	
@@ -554,8 +555,8 @@ public class HSIETestData {
 
 	protected static HSIEForm doHSIE(ErrorResult errors, Rewriter rw, RWFunctionDefinition fn) {
 		HSIE hsie = new HSIE(errors);
-		Orchard<RWFunctionDefinition> o1 = new Orchard<>();
-		o1.addTree(fn);
+		Set<RWFunctionDefinition> o1 = new HashSet<>();
+		o1.add(fn);
 		hsie.createForms(o1);
 		hsie.orchard(o1);
 		return hsie.getForm(fn.name);

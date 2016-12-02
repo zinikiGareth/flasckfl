@@ -1,0 +1,38 @@
+Node * depends on:
+Node + depends on:
+Node ++ depends on:
+Node - depends on:
+Node / depends on:
+Node == depends on:
+Node Cons depends on:
+Node MessageWrapper depends on:
+Node Nil depends on:
+Node Send depends on:
+Node ^ depends on:
+Node assoc depends on:
+Node concat depends on:
+Node if depends on:
+Node join depends on:
+Node map depends on:
+Node string depends on:
+Node test.golden.f depends on:
+  Cons
+  MessageWrapper
+  Nil
+  test.golden.f_0.d
+  test.golden.f_0.m
+  test.golden.f_0.size
+Node test.golden.f_0.d depends on:
+  test.golden.f
+Node test.golden.f_0.m depends on:
+  Cons
+  Nil
+  Send
+  test.golden.f_0.d
+  test.golden.f_0.size
+Node test.golden.f_0.size depends on:
+  test.golden.f
+========
+test.golden.f
+test.golden.f_0.m
+-----

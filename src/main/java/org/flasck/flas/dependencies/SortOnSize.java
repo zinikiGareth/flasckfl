@@ -10,10 +10,10 @@ import java.util.Set;
  * @author Gareth Powell
  *
  */
-public class SortOnSize implements Comparator<Set<String>> {
+public class SortOnSize implements Comparator<Set<?>> {
 
 	@Override
-	public int compare(Set<String> o1, Set<String> o2) {
+	public int compare(Set<?> o1, Set<?> o2) {
 		if (o1.size() != o2.size())
 			return Integer.compare(o1.size(), o2.size());
 		return Integer.compare(o1.hashCode(), o2.hashCode());

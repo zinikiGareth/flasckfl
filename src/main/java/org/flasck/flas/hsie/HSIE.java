@@ -19,16 +19,13 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
-import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.graphs.Node;
-import org.zinutils.graphs.Orchard;
-import org.zinutils.graphs.Tree;
 import org.zinutils.utils.StringComparator;
 
 public class HSIE {
@@ -40,34 +37,27 @@ public class HSIE {
 		this.errors = errors;
 	}
 	
-	public void createForms(Orchard<RWFunctionDefinition> orch) {
+	public void createForms(Set<RWFunctionDefinition> d) {
 		VarFactory vf = new VarFactory();
 		GatherExternals ge = new GatherExternals();
-		for (RWFunctionDefinition fn : orch.allNodes()) {
+		for (RWFunctionDefinition fn : d) {
 			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, vf);
 			ge.process(hf, fn);
 			forms.put(fn.name, hf);
 		}
 	}
 	
-	public Set<HSIEForm> orchard(Orchard<RWFunctionDefinition> orch) {
+	public Set<HSIEForm> orchard(Set<RWFunctionDefinition> d) {
 		TreeMap<String, HSIEForm> ret = new TreeMap<String, HSIEForm>();
-		for (RWFunctionDefinition fn : orch.allNodes()) {
+		for (RWFunctionDefinition fn : d) {
 			ret.put(fn.name, forms.get(fn.name));
 		}
 		GatherExternals.transitiveClosure(forms, ret.values());
-		logger.info("HSIE transforming orchard in parallel: " + orch);
-		for (Tree<RWFunctionDefinition> t : orch) {
-			hsieTree(t, t.getRoot());
+		logger.info("HSIE transforming orchard in parallel: " + d);
+		for (RWFunctionDefinition t : d) {
+			handle(t);
 		}
 		return new TreeSet<HSIEForm>(ret.values());
-	}
-
-	private void hsieTree(Tree<RWFunctionDefinition> t, Node<RWFunctionDefinition> node) {
-		logger.info("HSIE transforming " + node.getEntry().name());
-		handle(node.getEntry());
-		for (Node<RWFunctionDefinition> x : t.getChildren(node))
-			hsieTree(t, x);
 	}
 
 	private void handle(RWFunctionDefinition defn) {

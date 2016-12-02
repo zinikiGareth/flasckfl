@@ -1,0 +1,25 @@
+package test.golden
+  cdecl test.golden.DoIt @{2:0|contract} @{2:9|DoIt}
+    required up calc @{3:0|up} @{3:3|calc}
+      [type] n @{3:16|n}
+        Number @{3:9|Number}
+  test.golden.f @{6:0|f}
+    [type] d @{6:8|d}
+      DoIt @{6:3|DoIt}
+    [var] size @{6:11|size}
+   =
+    <apply> @{6:18|MessageWrapper 0 [m}
+      MessageWrapper @{6:18|MessageWrapper}
+      # 0 @{6:33|0}
+      <apply> @{6:36|m}
+        Cons @{6:36|m}
+        m @{6:36|m}
+        Nil @{6:36|m]}
+    method test.golden.f_0.m_0 @{8:7|m}
+      invoke @{9:0|<-}
+        <apply> @{9:3|d.calc size}
+          <apply> @{9:3|d.calc}
+            . @{9:4|.}
+            d @{9:3|d}
+            calc @{9:5|calc}
+          size @{9:10|size}

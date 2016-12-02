@@ -1,7 +1,9 @@
 package org.flasck.flas.dependency;
 
 import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
+import java.util.Set;
 
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.errors.ErrorResult;
@@ -11,7 +13,6 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.sampleData.BlockTestData;
 import org.flasck.flas.stories.FLASStory;
 import org.junit.Test;
-import org.zinutils.graphs.Orchard;
 
 public class TestDependencyAnalysis {
 	private final ErrorResult errors = new ErrorResult();
@@ -27,7 +28,7 @@ public class TestDependencyAnalysis {
 		rewriter.rewritePackageScope("ME", s);
 		
 		// Now begins the real test on this data
-		List<Orchard<RWFunctionDefinition>> orchards = analyzer.analyze(rewriter.functions);
+		List<Set<RWFunctionDefinition>> orchards = analyzer.analyze(rewriter.functions);
 		assertNotNull(orchards);
 	}
 
