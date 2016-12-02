@@ -1,148 +1,3 @@
-HSIE for test.golden._TestCard._gen_1/1                      #d3.fl:       21.7
-#Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
-    all vars = [v0]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN "red"                                               #d3.fl:       21.7
-ERROR                                                        #d3.fl:       21.7
-=======
-HSIE for test.golden._TestCard._gen_3/1                      #d3.fl:       22.8
-#Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
-    all vars = [v0]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN 20                                                  #d3.fl:       22.8
-ERROR                                                        #d3.fl:       22.8
-=======
-HSIE for test.golden._TestCard._gen_6/1                      #d3.fl:       36.7
-#Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
-    all vars = [v0]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN "black"                                             #d3.fl:       36.7
-ERROR                                                        #d3.fl:       36.7
-=======
-HSIE for test.golden._TestCard._gen_7/1                      #d3.fl:       37.13
-#Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
-    all vars = [v0]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN "sans-serif"                                        #d3.fl:       37.13
-ERROR                                                        #d3.fl:       37.13
-=======
-HSIE for test.golden._TestCard._gen_8/1                      #d3.fl:       38.11
-#Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
-    all vars = [v0]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN "11px"                                              #d3.fl:       38.11
-ERROR                                                        #d3.fl:       38.11
-=======
-HSIE for test.golden._TestCard.B6.teas_1/0                   #d3.fl:       13.12
-#Args: 0 #bound: 0
-    externals: [] scoped = []
-    all vars = []
-RETURN "400"                                                 #d3.fl:       13.12
-=======
-HSIE for test.golden._TestCard.B6.teas_2/0                   #d3.fl:       13.26
-#Args: 0 #bound: 0
-    externals: [] scoped = []
-    all vars = []
-RETURN "250"                                                 #d3.fl:       13.26
-=======
-HSIE for test.golden._TestCard._gen_11/1                     #d3.fl:       31.13
-#Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
-    all vars = [v0]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN "middle"                                            #d3.fl:       31.13
-ERROR                                                        #d3.fl:       31.13
-=======
-HSIE for test.golden._TestCard._gen_12/1                     #d3.fl:       34.8
-#Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
-    all vars = [v0]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN 20                                                  #d3.fl:       34.8
-ERROR                                                        #d3.fl:       34.8
-=======
-HSIE for test.golden._TestCard._gen_15/0                     #d3.fl:       16.9
-#Args: 0 #bound: 0
-    externals: [test.golden.TestCard.data] scoped = []
-    all vars = []
-RETURN CardMember.CardMember[test.golden.TestCard.data]      #d3.fl:       16.9
-=======
-HSIE for test.golden._TestCard._gen_10/1                     #d3.fl:       30.7
-#Args: 1 #bound: 1
-    externals: [D3Element, FLEval.field] scoped = []
-    all vars = [v0, v1]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN v1:clos1 []                                         #d3.fl:       30.7
-ERROR                                                        #d3.fl:       30.7
-CLOSURE v1                                                   #d3.fl:       30.7
-  PUSH PackageVar.FLEval.field                               #d3.fl:       30.7
-  PUSH v0:elt                                                #d3.fl:       16.14
-  PUSH "data"                                                #d3.fl:       30.11
-=======
-HSIE for test.golden._TestCard._gen_2/1                      #d3.fl:       23.9
-#Args: 1 #bound: 2
-    externals: [*, D3Element, FLEval.field] scoped = []
-    all vars = [v0, v1, v2]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN v2:clos2 [v1:clos1]                                 #d3.fl:       23.9
-ERROR                                                        #d3.fl:       23.9
-CLOSURE v1                                                   #d3.fl:       23.12
-  PUSH PackageVar.FLEval.field                               #d3.fl:       23.12
-  PUSH v0:elt                                                #d3.fl:       16.14
-  PUSH "data"                                                #d3.fl:       23.16
-CLOSURE v2                                                   #d3.fl:       23.9
-  PUSH PackageVar.*                                          #d3.fl:       23.11
-  PUSH 10                                                    #d3.fl:       23.9
-  PUSH v1:clos1                                              #d3.fl:       23.12
-=======
-HSIE for test.golden._TestCard._gen_4/1                      #d3.fl:       19.4
-#Args: 1 #bound: 2
-    externals: [*, D3Element, FLEval.field] scoped = []
-    all vars = [v0, v1, v2]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN v2:clos2 [v1:clos1]                                 #d3.fl:       19.4
-ERROR                                                        #d3.fl:       19.4
-CLOSURE v1                                                   #d3.fl:       19.9
-  PUSH PackageVar.FLEval.field                               #d3.fl:       19.9
-  PUSH v0:elt                                                #d3.fl:       16.14
-  PUSH "idx"                                                 #d3.fl:       19.13
-CLOSURE v2                                                   #d3.fl:       19.4
-  PUSH PackageVar.*                                          #d3.fl:       19.7
-  PUSH 22                                                    #d3.fl:       19.4
-  PUSH v1:clos1                                              #d3.fl:       19.9
-=======
-HSIE for test.golden._TestCard._gen_9/1                      #d3.fl:       35.9
-#Args: 1 #bound: 2
-    externals: [*, D3Element, FLEval.field] scoped = []
-    all vars = [v0, v1, v2]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN v2:clos2 [v1:clos1]                                 #d3.fl:       35.9
-ERROR                                                        #d3.fl:       35.9
-CLOSURE v1                                                   #d3.fl:       35.12
-  PUSH PackageVar.FLEval.field                               #d3.fl:       35.12
-  PUSH v0:elt                                                #d3.fl:       16.14
-  PUSH "data"                                                #d3.fl:       35.16
-CLOSURE v2                                                   #d3.fl:       35.9
-  PUSH PackageVar.*                                          #d3.fl:       35.11
-  PUSH 10                                                    #d3.fl:       35.9
-  PUSH v1:clos1                                              #d3.fl:       35.12
-=======
 HSIE for test.golden.TestCard.inits_data/0                   #d3.fl:        4.23
 #Args: 0 #bound: 4
     externals: [Cons, Nil] scoped = []
@@ -164,27 +19,6 @@ CLOSURE v0                                                   #d3.fl:        4.32
   PUSH PackageVar.Cons                                       #d3.fl:        4.32
   PUSH 16                                                    #d3.fl:        4.32
   PUSH PackageVar.Nil                                        #d3.fl:        4.31
-=======
-HSIE for test.golden._TestCard._gen_5/1                      #d3.fl:       20.4
-#Args: 1 #bound: 3
-    externals: [*, -, D3Element, FLEval.field] scoped = []
-    all vars = [v0, v1, v2, v3]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN v3:clos3 [v1:clos1, v2:clos2]                       #d3.fl:       20.4
-ERROR                                                        #d3.fl:       20.4
-CLOSURE v1                                                   #d3.fl:       20.15
-  PUSH PackageVar.FLEval.field                               #d3.fl:       20.15
-  PUSH v0:elt                                                #d3.fl:       16.14
-  PUSH "data"                                                #d3.fl:       20.19
-CLOSURE v2                                                   #d3.fl:       20.10
-  PUSH PackageVar.*                                          #d3.fl:       20.13
-  PUSH 10                                                    #d3.fl:       20.10
-  PUSH v1:clos1                                              #d3.fl:       20.15
-CLOSURE v3                                                   #d3.fl:       20.4
-  PUSH PackageVar.-                                          #d3.fl:       20.8
-  PUSH 200                                                   #d3.fl:       20.4
-  PUSH v2:clos2                                              #d3.fl:       20.10
 =======
 HSIE for test.golden.TestCard.rejig/1                        #d3.fl:       43.6
 #Args: 1 #bound: 6
@@ -217,26 +51,17 @@ CLOSURE v6                                                   #d3.fl:       44.9
   PUSH v5:clos5                                              #d3.fl:       44.0
   PUSH PackageVar.Nil                                        #d3.fl:       43.6
 =======
-HSIE for test.golden._TestCard._gen_13/1                     #d3.fl:       32.4
-#Args: 1 #bound: 3
-    externals: [*, +, D3Element, FLEval.field] scoped = []
-    all vars = [v0, v1, v2, v3]
-HEAD v0                                                      #d3.fl:       16.14
-SWITCH v0 D3Element                                          #d3.fl:       16.14
-  RETURN v3:clos3 [v1:clos1, v2:clos2]                       #d3.fl:       32.4
-ERROR                                                        #d3.fl:       32.4
-CLOSURE v1                                                   #d3.fl:       32.9
-  PUSH PackageVar.FLEval.field                               #d3.fl:       32.9
-  PUSH v0:elt                                                #d3.fl:       16.14
-  PUSH "idx"                                                 #d3.fl:       32.13
-CLOSURE v2                                                   #d3.fl:       32.4
-  PUSH PackageVar.*                                          #d3.fl:       32.7
-  PUSH 22                                                    #d3.fl:       32.4
-  PUSH v1:clos1                                              #d3.fl:       32.9
-CLOSURE v3                                                   #d3.fl:       32.4
-  PUSH PackageVar.+                                          #d3.fl:       32.17
-  PUSH v2:clos2                                              #d3.fl:       32.4
-  PUSH 10                                                    #d3.fl:       32.19
+HSIE for test.golden._TestCard.B6.teas_1/0                   #d3.fl:       13.12
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN "400"                                                 #d3.fl:       13.12
+=======
+HSIE for test.golden._TestCard.B6.teas_2/0                   #d3.fl:       13.26
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN "250"                                                 #d3.fl:       13.26
 =======
 HSIE for test.golden._TestCard._d3_chart_enter_rect/0        #d3.fl:       25.0
 #Args: 0 #bound: 3
@@ -274,11 +99,66 @@ CLOSURE v0                                                   #d3.fl:       41.22
   PUSH "text"                                                #d3.fl:       41.22
   PUSH PackageVar.Nil                                        #d3.fl:       41.22
 =======
-HSIE for test.golden._TestCard.B3.handlers_0/0               #d3.fl:       11.9
-#Args: 0 #bound: 0
-    externals: [test.golden.TestCard.rejig] scoped = []
-    all vars = []
-RETURN CardFunction.test.golden.TestCard.rejig               #d3.fl:       11.9
+HSIE for test.golden._TestCard._gen_1/1                      #d3.fl:       21.7
+#Args: 1 #bound: 0
+    externals: [D3Element] scoped = []
+    all vars = [v0]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN "red"                                               #d3.fl:       21.7
+ERROR                                                        #d3.fl:       21.7
+=======
+HSIE for test.golden._TestCard._gen_10/1                     #d3.fl:       30.7
+#Args: 1 #bound: 1
+    externals: [D3Element, FLEval.field] scoped = []
+    all vars = [v0, v1]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN v1:clos1 []                                         #d3.fl:       30.7
+ERROR                                                        #d3.fl:       30.7
+CLOSURE v1                                                   #d3.fl:       30.7
+  PUSH PackageVar.FLEval.field                               #d3.fl:       30.7
+  PUSH v0:elt                                                #d3.fl:       16.14
+  PUSH "data"                                                #d3.fl:       30.11
+=======
+HSIE for test.golden._TestCard._gen_11/1                     #d3.fl:       31.13
+#Args: 1 #bound: 0
+    externals: [D3Element] scoped = []
+    all vars = [v0]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN "middle"                                            #d3.fl:       31.13
+ERROR                                                        #d3.fl:       31.13
+=======
+HSIE for test.golden._TestCard._gen_12/1                     #d3.fl:       34.8
+#Args: 1 #bound: 0
+    externals: [D3Element] scoped = []
+    all vars = [v0]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN 20                                                  #d3.fl:       34.8
+ERROR                                                        #d3.fl:       34.8
+=======
+HSIE for test.golden._TestCard._gen_13/1                     #d3.fl:       32.4
+#Args: 1 #bound: 3
+    externals: [*, +, D3Element, FLEval.field] scoped = []
+    all vars = [v0, v1, v2, v3]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN v3:clos3 [v1:clos1, v2:clos2]                       #d3.fl:       32.4
+ERROR                                                        #d3.fl:       32.4
+CLOSURE v1                                                   #d3.fl:       32.9
+  PUSH PackageVar.FLEval.field                               #d3.fl:       32.9
+  PUSH v0:elt                                                #d3.fl:       16.14
+  PUSH "idx"                                                 #d3.fl:       32.13
+CLOSURE v2                                                   #d3.fl:       32.4
+  PUSH PackageVar.*                                          #d3.fl:       32.7
+  PUSH 22                                                    #d3.fl:       32.4
+  PUSH v1:clos1                                              #d3.fl:       32.9
+CLOSURE v3                                                   #d3.fl:       32.4
+  PUSH PackageVar.+                                          #d3.fl:       32.17
+  PUSH v2:clos2                                              #d3.fl:       32.4
+  PUSH 10                                                    #d3.fl:       32.19
 =======
 HSIE for test.golden._TestCard._gen_14/1                     #d3.fl:       33.4
 #Args: 1 #bound: 4
@@ -304,6 +184,126 @@ CLOSURE v4                                                   #d3.fl:       33.4
   PUSH PackageVar.+                                          #d3.fl:       33.24
   PUSH v3:clos3                                              #d3.fl:       33.4
   PUSH 14                                                    #d3.fl:       33.26
+=======
+HSIE for test.golden._TestCard._gen_15/0                     #d3.fl:       16.9
+#Args: 0 #bound: 0
+    externals: [test.golden.TestCard.data] scoped = []
+    all vars = []
+RETURN CardMember.CardMember[test.golden.TestCard.data]      #d3.fl:       16.9
+=======
+HSIE for test.golden._TestCard._gen_2/1                      #d3.fl:       23.9
+#Args: 1 #bound: 2
+    externals: [*, D3Element, FLEval.field] scoped = []
+    all vars = [v0, v1, v2]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN v2:clos2 [v1:clos1]                                 #d3.fl:       23.9
+ERROR                                                        #d3.fl:       23.9
+CLOSURE v1                                                   #d3.fl:       23.12
+  PUSH PackageVar.FLEval.field                               #d3.fl:       23.12
+  PUSH v0:elt                                                #d3.fl:       16.14
+  PUSH "data"                                                #d3.fl:       23.16
+CLOSURE v2                                                   #d3.fl:       23.9
+  PUSH PackageVar.*                                          #d3.fl:       23.11
+  PUSH 10                                                    #d3.fl:       23.9
+  PUSH v1:clos1                                              #d3.fl:       23.12
+=======
+HSIE for test.golden._TestCard._gen_3/1                      #d3.fl:       22.8
+#Args: 1 #bound: 0
+    externals: [D3Element] scoped = []
+    all vars = [v0]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN 20                                                  #d3.fl:       22.8
+ERROR                                                        #d3.fl:       22.8
+=======
+HSIE for test.golden._TestCard._gen_4/1                      #d3.fl:       19.4
+#Args: 1 #bound: 2
+    externals: [*, D3Element, FLEval.field] scoped = []
+    all vars = [v0, v1, v2]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN v2:clos2 [v1:clos1]                                 #d3.fl:       19.4
+ERROR                                                        #d3.fl:       19.4
+CLOSURE v1                                                   #d3.fl:       19.9
+  PUSH PackageVar.FLEval.field                               #d3.fl:       19.9
+  PUSH v0:elt                                                #d3.fl:       16.14
+  PUSH "idx"                                                 #d3.fl:       19.13
+CLOSURE v2                                                   #d3.fl:       19.4
+  PUSH PackageVar.*                                          #d3.fl:       19.7
+  PUSH 22                                                    #d3.fl:       19.4
+  PUSH v1:clos1                                              #d3.fl:       19.9
+=======
+HSIE for test.golden._TestCard._gen_5/1                      #d3.fl:       20.4
+#Args: 1 #bound: 3
+    externals: [*, -, D3Element, FLEval.field] scoped = []
+    all vars = [v0, v1, v2, v3]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN v3:clos3 [v1:clos1, v2:clos2]                       #d3.fl:       20.4
+ERROR                                                        #d3.fl:       20.4
+CLOSURE v1                                                   #d3.fl:       20.15
+  PUSH PackageVar.FLEval.field                               #d3.fl:       20.15
+  PUSH v0:elt                                                #d3.fl:       16.14
+  PUSH "data"                                                #d3.fl:       20.19
+CLOSURE v2                                                   #d3.fl:       20.10
+  PUSH PackageVar.*                                          #d3.fl:       20.13
+  PUSH 10                                                    #d3.fl:       20.10
+  PUSH v1:clos1                                              #d3.fl:       20.15
+CLOSURE v3                                                   #d3.fl:       20.4
+  PUSH PackageVar.-                                          #d3.fl:       20.8
+  PUSH 200                                                   #d3.fl:       20.4
+  PUSH v2:clos2                                              #d3.fl:       20.10
+=======
+HSIE for test.golden._TestCard._gen_6/1                      #d3.fl:       36.7
+#Args: 1 #bound: 0
+    externals: [D3Element] scoped = []
+    all vars = [v0]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN "black"                                             #d3.fl:       36.7
+ERROR                                                        #d3.fl:       36.7
+=======
+HSIE for test.golden._TestCard._gen_7/1                      #d3.fl:       37.13
+#Args: 1 #bound: 0
+    externals: [D3Element] scoped = []
+    all vars = [v0]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN "sans-serif"                                        #d3.fl:       37.13
+ERROR                                                        #d3.fl:       37.13
+=======
+HSIE for test.golden._TestCard._gen_8/1                      #d3.fl:       38.11
+#Args: 1 #bound: 0
+    externals: [D3Element] scoped = []
+    all vars = [v0]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN "11px"                                              #d3.fl:       38.11
+ERROR                                                        #d3.fl:       38.11
+=======
+HSIE for test.golden._TestCard._gen_9/1                      #d3.fl:       35.9
+#Args: 1 #bound: 2
+    externals: [*, D3Element, FLEval.field] scoped = []
+    all vars = [v0, v1, v2]
+HEAD v0                                                      #d3.fl:       16.14
+SWITCH v0 D3Element                                          #d3.fl:       16.14
+  RETURN v2:clos2 [v1:clos1]                                 #d3.fl:       35.9
+ERROR                                                        #d3.fl:       35.9
+CLOSURE v1                                                   #d3.fl:       35.12
+  PUSH PackageVar.FLEval.field                               #d3.fl:       35.12
+  PUSH v0:elt                                                #d3.fl:       16.14
+  PUSH "data"                                                #d3.fl:       35.16
+CLOSURE v2                                                   #d3.fl:       35.9
+  PUSH PackageVar.*                                          #d3.fl:       35.11
+  PUSH 10                                                    #d3.fl:       35.9
+  PUSH v1:clos1                                              #d3.fl:       35.12
+=======
+HSIE for test.golden._TestCard.B3.handlers_0/0               #d3.fl:       11.9
+#Args: 0 #bound: 0
+    externals: [test.golden.TestCard.rejig] scoped = []
+    all vars = []
+RETURN CardFunction.test.golden.TestCard.rejig               #d3.fl:       11.9
 =======
 HSIE for test.golden._TestCard._d3init_chart/0               #d3.fl:       16.14
 #Args: 0 #bound: 37

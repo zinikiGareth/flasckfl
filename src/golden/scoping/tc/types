@@ -1,5 +1,5 @@
-test.golden.f_0.var :: Number
 test.golden.cna :: test.golden.NoArg->Cons[Send]
-test.golden.f_0.HandleReply.reply :: Number->Cons[Send]
-test.golden.f_0.q :: Cons[Send]
+test.golden.f_0.var :: Number
 test.golden.f :: test.golden.Server->A->MessageWrapper[Number]
+test.golden.f_0.q :: Cons[Send]
+test.golden.f_0.HandleReply.reply :: Number->Cons[Send]

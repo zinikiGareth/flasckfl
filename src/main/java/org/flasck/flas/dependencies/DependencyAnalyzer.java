@@ -2,7 +2,6 @@ package org.flasck.flas.dependencies;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -80,9 +79,13 @@ public class DependencyAnalyzer {
 		if (expr == null)
 			return;
 //		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
-		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof TemplateListVar || expr instanceof FunctionLiteral)
+		if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
 			;
-		else if (expr instanceof CardStateRef)
+		else if (expr instanceof FunctionLiteral) {
+			String un = ((FunctionLiteral)expr).name;
+			dcg.ensure(un);
+			dcg.ensureLink(name, un);
+		} else if (expr instanceof CardStateRef)
 			; // I don't think this introduces dependencies between functions, just on the card
 		else if (expr instanceof CardMember) {
 			dcg.ensure(((CardMember)expr).uniqueName());
@@ -95,17 +98,19 @@ public class DependencyAnalyzer {
 		}
 		else if (expr instanceof LocalVar) {
 			String un = ((LocalVar)expr).uniqueName();
+			dcg.ensure(un);
 			dcg.ensureLink(name, un);
-		} else if (expr instanceof IterVar)
+		} else if (expr instanceof TemplateListVar) {
+			String un = ((TemplateListVar)expr).realName;
+			dcg.ensure(un);
+			dcg.ensureLink(name, un);
+		} else if (expr instanceof IterVar) {
 			// I think because this is synthetic, it's not needed here ...
 			; // dcg.ensureLink(name, "_iter_" + ((IterVar)expr).uniqueName());
-		else if (expr instanceof PackageVar) {
-			dcg.ensure(((PackageVar) expr).id);
-			dcg.ensureLink(name, ((PackageVar) expr).id);
 		} else if (expr instanceof VarNestedFromOuterFunctionScope) {
 			dcg.ensure(((VarNestedFromOuterFunctionScope) expr).id);
 			dcg.ensureLink(name, ((VarNestedFromOuterFunctionScope) expr).id);
-		} else if (expr instanceof ObjectReference || expr instanceof CardFunction) {
+		} else if (expr instanceof ObjectReference || expr instanceof CardFunction || expr instanceof PackageVar) {
 			String orname = ((ExternalRef)expr).uniqueName();
 			dcg.ensure(orname);
 			dcg.ensureLink(name, orname);
@@ -136,29 +141,48 @@ public class DependencyAnalyzer {
 	}
 
 	List<Set<RWFunctionDefinition>> group(Map<String, RWFunctionDefinition> functions) {
+		
 		// First build a "list" of all the function groups, from least complicated to most complicated
 		TreeSet<Set<RWFunctionDefinition>> order = new TreeSet<Set<RWFunctionDefinition>>(new SortOnSize());
 		for (RWFunctionDefinition s : functions.values()) {
 			if (!s.generate)
 				continue;
-			Set<RWFunctionDefinition> mine = functionsIn(functions, dcg.spanOf(s.name()));
+			Set<String> span = dcg.spanOf(s.name());
+			Set<RWFunctionDefinition> mine = functionsIn(functions, span);
+			System.out.println("Adding " + mine + " which depends on " + span);
 			order.add(mine);
 		}
 		
-		// Now convert it to a list
-		return new ArrayList<Set<RWFunctionDefinition>>(order);
+		// Now convert it to a list, removing "strict" dependencies
+		System.out.println("Have " + order);
+		ArrayList<Set<RWFunctionDefinition>> ret = new ArrayList<Set<RWFunctionDefinition>>();
+		Set<String> done = new TreeSet<String>();
+		for (Set<RWFunctionDefinition> s : order) {
+			Set<RWFunctionDefinition> r = new TreeSet<>();
+			for (RWFunctionDefinition f : s) {
+				if (done.contains(f.name()))
+					continue;
+				r.add(f);
+				done.add(f.name());
+			}
+			ret.add(r);
+		}
+		return ret;
 	}
 
 	private Set<RWFunctionDefinition> functionsIn(Map<String, RWFunctionDefinition> functions, Set<String> spanOf) {
-		Set<RWFunctionDefinition> ret = new HashSet<RWFunctionDefinition>();
-		for (String s : spanOf)
-			if (functions.containsKey(s))
-				ret.add(functions.get(s));
+		Set<RWFunctionDefinition> ret = new TreeSet<RWFunctionDefinition>();
+		for (String s : spanOf) {
+			RWFunctionDefinition f = functions.get(s);
+			if (f != null && f.generate)
+				ret.add(f);
+		}
 		return ret;
 	}
 
 	public void dump(PrintWriter pw) {
 		pw.print(dcg);
 		pw.println("========");
+		pw.flush();
 	}
 }

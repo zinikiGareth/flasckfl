@@ -502,7 +502,7 @@ public class Compiler {
 
 	private void showDefns(Set<RWFunctionDefinition> defns) {
 		for (RWFunctionDefinition d : defns)
-			logger.info(d.name());
+			logger.info("  " + d.name());
 	}
 
 	private void dumpForms(PrintWriter hsiePW, Set<HSIEForm> hs) {

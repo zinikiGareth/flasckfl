@@ -10,7 +10,7 @@ import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
-public class RWFunctionDefinition implements Locatable {
+public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDefinition> {
 	public final InputPosition location;
 	public final CodeType mytype;
 	public final String name;
@@ -50,6 +50,11 @@ public class RWFunctionDefinition implements Locatable {
 			fcd.dumpTo(pw);
 		pw.append("}\n");
 		pw.flush();
+	}
+	
+	@Override
+	public int compareTo(RWFunctionDefinition o) {
+		return name.compareTo(o.name);
 	}
 	
 	@Override

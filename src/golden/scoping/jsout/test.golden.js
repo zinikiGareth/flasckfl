@@ -80,11 +80,11 @@ test.golden.f_0._HandleReply.prototype.reply = function(v0) {
 
 test.golden.f_0.q = function(s0, s1, s2) {
   "use strict";
-  var v0 = FLEval.closure(s0, s2);
-  var v1 = FLEval.closure(Cons, v0, Nil);
-  var v2 = FLEval.closure(Cons, s2, v1);
-  var v3 = FLEval.closure(Send, s1, 'get', v2);
-  return FLEval.closure(Cons, v3, Nil);
+  var v7 = FLEval.closure(s0, s2);
+  var v8 = FLEval.closure(Cons, v7, Nil);
+  var v9 = FLEval.closure(Cons, s2, v8);
+  var v10 = FLEval.closure(Send, s1, 'get', v9);
+  return FLEval.closure(Cons, v10, Nil);
 }
 
 test.golden.f_0.var = function() {

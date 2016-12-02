@@ -1,4 +1,4 @@
-test.golden.fred :: A->Number
 test.golden.bert :: (Number,String)
+test.golden.fred :: A->Number
 test.golden.t1 :: List[Number]
 test.golden.t2 :: List[Number]

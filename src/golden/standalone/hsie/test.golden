@@ -1,21 +1,3 @@
-HSIE for test.golden.Foo.request2/1                          #standalone.f 17.0
-#Args: 1 #bound: 2
-    externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
-    all vars = [v0, v1, v2]
-HEAD v0                                                      #standalone.f 17.10
-SWITCH v0 Crokey                                             #standalone.f 17.10
-  RETURN v2:clos2 [v1:clos1]                                 #standalone.f 17.23
-ERROR                                                        #standalone.f 17.0
-CLOSURE v1                                                   #standalone.f 17.39
-  PUSH PackageVar.Cons                                       #standalone.f 17.39
-  PUSH v0:test.golden.Foo.request2_1.ck                      #standalone.f 17.17
-  PUSH PackageVar.Nil                                        #standalone.f 17.39
-CLOSURE v2                                                   #standalone.f 17.23
-  PUSH PackageVar.Send                                       #standalone.f 17.23
-  PUSH CardMember.CardMember[test.golden.Foo.kv]             #standalone.f 17.28
-  PUSH "mine"                                                #standalone.f 17.31
-  PUSH v1:clos1                                              #standalone.f 17.39
-=======
 HSIE for test.golden.Foo.request/1                           #standalone.f 16.0
 #Args: 1 #bound: 2
     externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
@@ -33,6 +15,24 @@ CLOSURE v2                                                   #standalone.f 16.22
   PUSH CardMember.CardMember[test.golden.Foo.kv]             #standalone.f 16.27
   PUSH "typed"                                               #standalone.f 16.30
   PUSH v1:clos1                                              #standalone.f 16.39
+=======
+HSIE for test.golden.Foo.request2/1                          #standalone.f 17.0
+#Args: 1 #bound: 2
+    externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
+    all vars = [v0, v1, v2]
+HEAD v0                                                      #standalone.f 17.10
+SWITCH v0 Crokey                                             #standalone.f 17.10
+  RETURN v2:clos2 [v1:clos1]                                 #standalone.f 17.23
+ERROR                                                        #standalone.f 17.0
+CLOSURE v1                                                   #standalone.f 17.39
+  PUSH PackageVar.Cons                                       #standalone.f 17.39
+  PUSH v0:test.golden.Foo.request2_1.ck                      #standalone.f 17.17
+  PUSH PackageVar.Nil                                        #standalone.f 17.39
+CLOSURE v2                                                   #standalone.f 17.23
+  PUSH PackageVar.Send                                       #standalone.f 17.23
+  PUSH CardMember.CardMember[test.golden.Foo.kv]             #standalone.f 17.28
+  PUSH "mine"                                                #standalone.f 17.31
+  PUSH v1:clos1                                              #standalone.f 17.39
 =======
 HSIE for test.golden.Foo._C1.go/0                            #standalone.f 12.0
 #Args: 0 #bound: 4

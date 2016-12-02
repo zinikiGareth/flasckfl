@@ -1,9 +1,3 @@
-HSIE for test.golden.f_0.var/0                               #scoping.fl:  17.0
-#Args: 0 #bound: 0
-    externals: [] scoped = []
-    all vars = []
-RETURN 32                                                    #scoping.fl:  17.6
-=======
 HSIE for test.golden.cna/1                                   #scoping.fl:  29.7
 #Args: 1 #bound: 3
     externals: [Cons, Nil, Send, test.golden.NoArg] scoped = []
@@ -26,57 +20,11 @@ CLOSURE v3                                                   #scoping.fl:  30.3
   PUSH v2:clos2                                              #scoping.fl:  29.18
   PUSH PackageVar.Nil                                        #scoping.fl:  29.7
 =======
-HSIE for test.golden.f_0.HandleReply.reply/1                 #scoping.fl:  23.0
-#Args: 1 #bound: 4
-    externals: [+, Cons, Nil, Number, Send, test.golden.f_0.HandleReply.server, test.golden.f_0.HandleReply.v, test.golden.f_0.HandleReply.var] scoped = []
-    all vars = [v0, v1, v2, v3, v4]
-HEAD v0                                                      #scoping.fl:  23.6
-SWITCH v0 Number                                             #scoping.fl:  23.6
-  RETURN v4:clos4 [v1:clos1, v2:clos2, v3:clos3]             #scoping.fl:  24.3
-ERROR                                                        #scoping.fl:  23.0
-CLOSURE v1                                                   #scoping.fl:  24.14
-  PUSH PackageVar.+                                          #scoping.fl:  24.19
-  PUSH HandlerLambda.HL[test.golden.f_0.HandleReply.var]     #scoping.fl:  17.0
-  PUSH HandlerLambda.HL[test.golden.f_0.HandleReply.v]       #scoping.fl:  22.34
-CLOSURE v2                                                   #scoping.fl:  16.10
-  PUSH PackageVar.Cons                                       #scoping.fl:  16.10
-  PUSH v1:clos1                                              #scoping.fl:  24.14
-  PUSH PackageVar.Nil                                        #scoping.fl:  16.10
-CLOSURE v3                                                   #scoping.fl:  16.10
-  PUSH PackageVar.Send                                       #scoping.fl:  24.3
-  PUSH HandlerLambda.HL[test.golden.f_0.HandleReply.server]  #scoping.fl:  16.10
-  PUSH "put"                                                 #scoping.fl:  24.10
-  PUSH v2:clos2                                              #scoping.fl:  16.10
-CLOSURE v4                                                   #scoping.fl:  24.3
-  PUSH PackageVar.Cons                                       #scoping.fl:  23.0
-  PUSH v3:clos3                                              #scoping.fl:  16.10
-  PUSH PackageVar.Nil                                        #scoping.fl:  23.0
-=======
-HSIE for test.golden.f_0.q/0                                 #scoping.fl:  19.7
-#Args: 0 #bound: 5
-    externals: [Cons, Nil, Send] scoped = [test.golden.f_0.HandleReply, test.golden.f_0.server, test.golden.f_0.var]
-    all vars = [v0, v1, v2, v3, v4]
-RETURN v4:clos4 [v0:clos0, v1:clos1, v2:clos2, v3:clos3]     #scoping.fl:  20.3
-CLOSURE v1                                                   #scoping.fl:  16.10
-  PUSH PackageVar.Cons                                       #scoping.fl:  16.10
-  PUSH v0:clos0                                              #scoping.fl:  20.18
-  PUSH PackageVar.Nil                                        #scoping.fl:  16.10
-CLOSURE v2                                                   #scoping.fl:  16.10
-  PUSH PackageVar.Cons                                       #scoping.fl:  16.10
-  PUSH Scoped[test.golden.f_0.var]                           #scoping.fl:  17.0
-  PUSH v1:clos1                                              #scoping.fl:  16.10
-CLOSURE v3                                                   #scoping.fl:  16.10
-  PUSH PackageVar.Send                                       #scoping.fl:  20.3
-  PUSH Scoped[test.golden.f_0.server]                        #scoping.fl:  16.10
-  PUSH "get"                                                 #scoping.fl:  20.10
-  PUSH v2:clos2                                              #scoping.fl:  16.10
-CLOSURE v4                                                   #scoping.fl:  20.3
-  PUSH PackageVar.Cons                                       #scoping.fl:  19.7
-  PUSH v3:clos3                                              #scoping.fl:  16.10
-  PUSH PackageVar.Nil                                        #scoping.fl:  19.7
-CLOSURE v0                                                   #scoping.fl:  20.18
-  PUSH Scoped[test.golden.f_0.HandleReply]                   #scoping.fl:  22.14
-  PUSH Scoped[test.golden.f_0.var]                           #scoping.fl:  17.0
+HSIE for test.golden.f_0.var/0                               #scoping.fl:  17.0
+#Args: 0 #bound: 0
+    externals: [] scoped = []
+    all vars = []
+RETURN 32                                                    #scoping.fl:  17.6
 =======
 HSIE for test.golden.f/2                                     #scoping.fl:  16.0
 #Args: 2 #bound: 5
@@ -105,4 +53,56 @@ CLOSURE v6                                                   #scoping.fl:  16.22
   PUSH PackageVar.MessageWrapper                             #scoping.fl:  16.22
   PUSH v4:test.golden.f_0.var                                #scoping.fl:  17.0
   PUSH v5:clos5                                              #scoping.fl:  16.42
+-------
+HSIE for test.golden.f_0.q/0                                 #scoping.fl:  19.7
+#Args: 0 #bound: 5
+    externals: [Cons, Nil, Send] scoped = [test.golden.f_0.HandleReply, test.golden.f_0.server, test.golden.f_0.var]
+    all vars = [v7, v8, v9, v10, v11]
+RETURN v11:clos11 [v7:clos7, v8:clos8, v9:clos9, v10:clos10] #scoping.fl:  20.3
+CLOSURE v7                                                   #scoping.fl:  20.18
+  PUSH Scoped[test.golden.f_0.HandleReply]                   #scoping.fl:  22.14
+  PUSH Scoped[test.golden.f_0.var]                           #scoping.fl:  17.0
+CLOSURE v8                                                   #scoping.fl:  16.10
+  PUSH PackageVar.Cons                                       #scoping.fl:  16.10
+  PUSH v7:clos7                                              #scoping.fl:  20.18
+  PUSH PackageVar.Nil                                        #scoping.fl:  16.10
+CLOSURE v9                                                   #scoping.fl:  16.10
+  PUSH PackageVar.Cons                                       #scoping.fl:  16.10
+  PUSH Scoped[test.golden.f_0.var]                           #scoping.fl:  17.0
+  PUSH v8:clos8                                              #scoping.fl:  16.10
+CLOSURE v10                                                  #scoping.fl:  16.10
+  PUSH PackageVar.Send                                       #scoping.fl:  20.3
+  PUSH Scoped[test.golden.f_0.server]                        #scoping.fl:  16.10
+  PUSH "get"                                                 #scoping.fl:  20.10
+  PUSH v9:clos9                                              #scoping.fl:  16.10
+CLOSURE v11                                                  #scoping.fl:  20.3
+  PUSH PackageVar.Cons                                       #scoping.fl:  19.7
+  PUSH v10:clos10                                            #scoping.fl:  16.10
+  PUSH PackageVar.Nil                                        #scoping.fl:  19.7
+=======
+HSIE for test.golden.f_0.HandleReply.reply/1                 #scoping.fl:  23.0
+#Args: 1 #bound: 4
+    externals: [+, Cons, Nil, Number, Send, test.golden.f_0.HandleReply.server, test.golden.f_0.HandleReply.v, test.golden.f_0.HandleReply.var] scoped = []
+    all vars = [v0, v1, v2, v3, v4]
+HEAD v0                                                      #scoping.fl:  23.6
+SWITCH v0 Number                                             #scoping.fl:  23.6
+  RETURN v4:clos4 [v1:clos1, v2:clos2, v3:clos3]             #scoping.fl:  24.3
+ERROR                                                        #scoping.fl:  23.0
+CLOSURE v1                                                   #scoping.fl:  24.14
+  PUSH PackageVar.+                                          #scoping.fl:  24.19
+  PUSH HandlerLambda.HL[test.golden.f_0.HandleReply.var]     #scoping.fl:  17.0
+  PUSH HandlerLambda.HL[test.golden.f_0.HandleReply.v]       #scoping.fl:  22.34
+CLOSURE v2                                                   #scoping.fl:  16.10
+  PUSH PackageVar.Cons                                       #scoping.fl:  16.10
+  PUSH v1:clos1                                              #scoping.fl:  24.14
+  PUSH PackageVar.Nil                                        #scoping.fl:  16.10
+CLOSURE v3                                                   #scoping.fl:  16.10
+  PUSH PackageVar.Send                                       #scoping.fl:  24.3
+  PUSH HandlerLambda.HL[test.golden.f_0.HandleReply.server]  #scoping.fl:  16.10
+  PUSH "put"                                                 #scoping.fl:  24.10
+  PUSH v2:clos2                                              #scoping.fl:  16.10
+CLOSURE v4                                                   #scoping.fl:  24.3
+  PUSH PackageVar.Cons                                       #scoping.fl:  23.0
+  PUSH v3:clos3                                              #scoping.fl:  16.10
+  PUSH PackageVar.Nil                                        #scoping.fl:  23.0
 =======

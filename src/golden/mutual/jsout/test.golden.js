@@ -14,9 +14,9 @@ test.golden.f = function(v0) {
   return FLEval.closure(v1, 2);
 }
 
-test.golden.f_0.g = function(s0, v0) {
+test.golden.f_0.g = function(s0, v3) {
   "use strict";
-  return FLEval.closure(FLEval.mul, s0, v0);
+  return FLEval.closure(FLEval.mul, s0, v3);
 }
 
 test.golden;

@@ -16,7 +16,7 @@ public class SortOnSize implements Comparator<Set<?>> {
 	public int compare(Set<?> o1, Set<?> o2) {
 		if (o1.size() != o2.size())
 			return Integer.compare(o1.size(), o2.size());
-		return Integer.compare(o1.hashCode(), o2.hashCode());
+		return o1.toString().compareTo(o2.toString());
 	}
 
 }
