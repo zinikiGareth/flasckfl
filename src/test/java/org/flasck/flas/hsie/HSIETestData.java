@@ -22,11 +22,11 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Var;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
 
@@ -554,7 +554,7 @@ public class HSIETestData {
 	}
 
 	protected static HSIEForm doHSIE(ErrorResult errors, Rewriter rw, RWFunctionDefinition fn) {
-		HSIE hsie = new HSIE(errors);
+		HSIE hsie = new HSIE(errors, rw);
 		Set<RWFunctionDefinition> o1 = new HashSet<>();
 		o1.add(fn);
 		hsie.createForms(o1);

@@ -6,20 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.IfExpr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.LocatedObject;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
-import org.flasck.flas.method.MethodConvertor;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
-import org.flasck.flas.rewrittenForm.DeferredSendExpr;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
@@ -28,26 +29,29 @@ import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
 
 public class GenerateClosures {
 	private final ErrorResult errors;
+	private final Rewriter rw;
 	private final CurrentFunction cf;
 	private final Expressions ms;
 	private final Map<String, VarInSource> substs;
 	private final Map<String, HSIEForm> forms;
 	private final HSIEForm form;
 
-	public GenerateClosures(ErrorResult errors, CurrentFunction cf, Map<String, HSIEForm> forms, HSIEForm form) {
+	public GenerateClosures(ErrorResult errors, Rewriter rw, CurrentFunction cf, Map<String, HSIEForm> forms, HSIEForm form) {
 		this.errors = errors;
+		this.rw = rw;
 		this.cf = cf;
 		this.ms = cf.expressions;
 		this.substs = cf.substs;
@@ -266,16 +270,33 @@ public class GenerateClosures {
 				errors.message(ate.location(), "cannot assign a string to " + ate.type.name());
 			}
 			return conv;
+		} else if (conv.obj instanceof NumericLiteral || conv.obj instanceof Integer) {
+			if (!ate.type.name().equals("Number")) {
+				errors.message(ate.location(), "cannot assign a number to " + ate.type.name());
+			}
+			return conv;
 		} else
-			throw new UtilException("We should check " + conv + " against " + ate.type);
+			return new LocatedObject(conv.loc, new AssertTypeExpr(conv.loc, ate.type, conv.obj));
 	}
 
-	public LocatedObject process(DeferredSendExpr dse) {
-		ApplyExpr expr = new ApplyExpr(dse.location(), dse.send, dse.sender, dse.method, MethodConvertor.asList(dse.location(), dse.rw, dse.args));
+	public LocatedObject process(SendExpr dse) {
+		PackageVar send = rw.getMe(dse.location(), "Send");
+		form.dependsOn(send);
+		ApplyExpr expr = new ApplyExpr(dse.location(), send, dse.sender, dse.method, asList(dse.location(), dse.args));
 		LocatedObject conv = dispatch(expr);
 		VarInSource cv = (VarInSource) conv.obj;
 		ClosureCmd closure = form.getClosure(cv.var);
-		closure.deferredSend = true;
+		closure.checkSend = true;
 		return conv;
+	}
+	
+
+	private Object asList(InputPosition loc, List<Object> args) {
+		Object ret = rw.getMe(loc, "Nil");
+		for (int n = args.size()-1;n>=0;n--) {
+			Locatable arg = (Locatable) args.get(n);
+			ret = new ApplyExpr(arg.location(), rw.getMe(loc, "Cons"), arg, ret);
+		}
+		return ret;
 	}
 }

@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.KnowledgeWriter;
 import org.flasck.flas.rewriter.Rewriter;
@@ -164,7 +165,7 @@ public class TypeChecker2 {
 			if (fn.getType() != null) { // a function has already been typechecked
 				TypeInfo ct = convertType(fn.getType());
 				if (ct instanceof TypeVar)
-					throw new UtilException("That's not really a type now, is it ...");
+					throw new UtilException("That's not really a type now, is it ... " + ct);
 				gk(fn.name(), ct);
 				export.put(fn.name(), fn.getType());
 			}
@@ -331,6 +332,14 @@ public class TypeChecker2 {
 			}
 		}
 
+		// Now check closures with "Send" tags
+		for (HSIEForm f : forms) {
+			for (ClosureCmd c : f.closures()) {
+				if (c.checkSend) {
+					checkSendCall(f, c);
+				}
+			}
+		}
 		// 4. Unify type arguments
 		
 		// TODO: as we don't have this case "right now", but basically v0 -> Cons[Number], Cons[v2]: ah, v2 must be Number
@@ -544,6 +553,61 @@ public class TypeChecker2 {
 			}
 		} else 
 			logger.info("Handle " + c);
+	}
+
+	private void checkSendCall(HSIEForm f, ClosureCmd c) {
+		// By definition, the closure must have four fields: Send; the contract var; the method (string literal); a closure pointing to the list of args (or else Nil)
+		List<HSIEBlock> ncs = c.nestedCommands();
+		TypeInfo ot = getTypeOf(ncs.get(1));
+		PushString ps = (PushString) ncs.get(2);
+		if (ot instanceof NamedType) {
+			NamedType tot = (NamedType) ot;
+			checkMethodCall(tot.location(), f, ncs, ps, tot.name);
+		} else if (ot instanceof TypeVar) {
+			TypeVar tv = (TypeVar) ot;
+			Var v = tv.var;
+			Set<TypeInfo> cs = constraints.get(v);
+			Set<String> nts = new HashSet<String>();
+			for (TypeInfo t : cs) {
+				if (t instanceof NamedType)
+					nts.add(((NamedType)t).name);
+			}
+			if (nts.size() != 1)
+				throw new UtilException("Cannot handle " + v + " with constraints " + cs + " leading to " + nts);
+			checkMethodCall(tv.location(), f, ncs, ps, CollectionUtils.any(nts));
+		} else
+			throw new UtilException("Cannot handle ot = " + ot + " " + ot.getClass());
+	}
+
+	private void checkMethodCall(InputPosition loc, HSIEForm f, List<HSIEBlock> ncs, PushString ps, String tn) {
+		Type t = (Type) rw.getMe(loc, tn).defn;
+		if (t instanceof TypeWithMethods) {
+			TypeWithMethods cd = (TypeWithMethods) t;
+			Type mt = cd.getMethodType(ps.sval.text);
+			checkCallArgs(f, mt, 0, ncs.get(3));
+		} else
+			throw new UtilException("Cannot handle t = " + t +  " " + t.getClass());
+	}
+
+	private void checkCallArgs(HSIEForm f, Type mt, int pos, HSIEBlock cmd) {
+		boolean isNil = cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("Nil");
+		if (pos >= mt.arity()) {
+			// we have run out of args to call
+			if (!isNil)
+				errors.message(cmd.location, "too many arguments to method");
+		} else if (cmd instanceof PushVar) {
+			Var cv = ((PushVar)cmd).var.var;
+			ClosureCmd c = f.getClosure(cv);
+			List<HSIEBlock> nc = c.nestedCommands();
+			HSIEBlock shouldBeCons = nc.get(0);
+			if (!(shouldBeCons instanceof PushExternal) || !((PushExternal)shouldBeCons).fn.uniqueName().equals("Cons"))
+				throw new UtilException("No, should be cons at " + cv);
+			checkArgType(convertType(mt.arg(pos)), getTypeOf(nc.get(1)));
+			checkCallArgs(f, mt, pos+1, nc.get(2));
+		} else if (isNil)
+			errors.message(cmd.location, "too few arguments to method");
+		else
+			throw new UtilException("Cannot handle " + cmd + " " + cmd.getClass());
 	}
 
 	private TypeInfo mergeDown(Var v, Set<TypeInfo> tis) {

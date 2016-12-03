@@ -16,7 +16,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardStateRef;
-import org.flasck.flas.rewrittenForm.DeferredSendExpr;
+import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.IterVar;
@@ -148,7 +148,7 @@ public class GatherExternals {
 		dispatch(expr.expr);
 	}
 	
-	private void process(DeferredSendExpr expr) {
+	private void process(SendExpr expr) {
 		dispatch(expr.sender);
 		dispatch(expr.args);
 	}

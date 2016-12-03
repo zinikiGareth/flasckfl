@@ -778,7 +778,6 @@ public class DroidGenerator {
 	public void newVar(CGRContext cgrx, String newVar) {
 		if (cgrx == null)
 			return;
-		System.out.println("Creating var " + newVar + " in " + cgrx.bcc.getCreatedName());
 		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, cgrx.bcc.getCreatedName(), "_src_"+newVar);
 		cgrx.bcc.defineField(false, Access.PUBLIC, "java.lang.Object", newVar);
 		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.myThis()).flush();
@@ -787,7 +786,6 @@ public class DroidGenerator {
 	public void copyVar(CGRContext cgrx, String parentClass, String definedInType, String s) {
 		if (cgrx == null)
 			return;
-		System.out.println("Copying var " + s + " from " + parentClass + " into " + cgrx.bcc.getCreatedName());
 		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, javaNestedName(definedInType), "_src_"+s);
 		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.getField(cgrx.ctor.castTo(cgrx.parent, javaNestedName(parentClass)), "_src_"+s)).flush();
 	}

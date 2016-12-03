@@ -4,22 +4,17 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.rewriter.Rewriter;
 
-public class DeferredSendExpr {
+public class SendExpr {
 	private InputPosition loc;
 	public final Object sender;
 	public final List<Object> args;
-	public final PackageVar send;
 	public final StringLiteral method;
-	public final Rewriter rw;
 
-	public DeferredSendExpr(InputPosition loc, Object sender, PackageVar send, StringLiteral method, Rewriter rw, List<Object> args) {
+	public SendExpr(InputPosition loc, Object sender, StringLiteral method, List<Object> args) {
 		this.loc = loc;
 		this.sender = sender;
-		this.send = send;
 		this.method = method;
-		this.rw = rw;
 		this.args = args;
 	}
 
@@ -27,4 +22,8 @@ public class DeferredSendExpr {
 		return loc;
 	}
 
+	@Override
+	public String toString() {
+		return "(#send " + sender + "." + method + args + ")";
+	}
 }

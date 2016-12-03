@@ -42,7 +42,7 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 		return this;
 	}
 
-	public Type getMethod(String named) {
+	public Type getMethodType(String named) {
 		for (RWObjectMethod m : methods)
 			if (m.name.equals(named))
 				return m.type;

@@ -15,8 +15,6 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
-import org.flasck.flas.hsie.HSIE;
-import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractDecl;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -52,8 +50,6 @@ public class MethodConvertorTests {
 	private Scope orgFooScope;
 	private Rewriter rewriter;
 	private ErrorResult errors;
-	private HSIE hsie;
-	private TypeChecker2 tc;
 	private MethodConvertor convertor;
 	private Map<String, RWFunctionDefinition> functions = new HashMap<>(); 
 	private CardDefinition cd;
@@ -123,21 +119,6 @@ public class MethodConvertorTests {
 				cd.handlers.add(he);
 			}
 		}
-		
-		hsie = new HSIE(errors);
-		tc = new TypeChecker2(errors, rewriter);
-		// I don't know how broken this is, but I don't believe in any of it anymore
-//		tc.addExternal("String", (Type) biscope.get("String"));
-//		tc.addExternal("join", (Type) biscope.get("join"));
-//		tc.addExternal("map", (Type) biscope.get("map"));
-//		tc.addExternal("org.foo.doSend", (Type) orgFooScope.get("doSend"));
-//		tc.addTypeDefn(any);
-//		tc.addStructDefn((RWStructDefn) biscope.get("Nil"));
-//		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("List"));
-//		tc.addStructDefn((RWStructDefn) biscope.get("Cons"));
-//		tc.addStructDefn((RWStructDefn) biscope.get("Assign"));
-//		tc.addTypeDefn((RWUnionTypeDefn) biscope.get("Message"));
-//		tc.addStructDefn(send);
 	}
 	
 	public void stage2(boolean checkRewritingErrors) throws Exception {
@@ -418,11 +399,11 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card._C0.bar", func.name);
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (Send CardMember[org.foo.Card.ce] \"start\" Nil) Nil)", c1.expr.toString());
+		assertEquals("(Cons (#send CardMember[org.foo.Card.ce].\"start\"[]) Nil)", c1.expr.toString());
 	}
 
 	@Test
-	public void testWeCanSendAMessageToAServiceWithOneArgs() throws Exception {
+	public void testWeCanSendAMessageToAServiceWithOneArg() throws Exception {
 		defineContractMethod(ce, "bar", new MethodMessage(posn, null, new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request 'hello'"), new ApplyExpr(new InputPosition("test", 1, 3, "<- ce.request 'hello'"), new UnresolvedOperator(new InputPosition("test", 1, 6, "<- ce.request 'hello'"), "."), new UnresolvedVar(new InputPosition("test", 1, 5, "<- ce.request 'hello'"), "ce"), new UnresolvedVar(new InputPosition("test", 1, 7, "<- ce.request 'hello'"), "request")), new StringLiteral(new InputPosition("test", 1, 14, "<- ce.request 'hello'"), "hello"))));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
@@ -433,7 +414,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card._C0.bar", func.name);
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (Send CardMember[org.foo.Card.ce] \"request\" (Cons (#assertType String \"hello\") Nil)) Nil)", c1.expr.toString());
+		assertEquals("(Cons (#send CardMember[org.foo.Card.ce].\"request\"[\"hello\"]) Nil)", c1.expr.toString());
 	}
 
 	@Test

@@ -15,7 +15,7 @@ CLOSURE v0                                                   #methods.fl:   6.4
 =======
 HSIE for test.golden.f_0.KVHImpl.update/1                    #methods.fl:   9.0
 #Args: 1 #bound: 4
-    externals: [Cons, Crokeys, Nil] scoped = [test.golden.f_0.s]
+    externals: [Cons, Crokeys, Nil, Send] scoped = [test.golden.f_0.s]
     all vars = [v0, v1, v2, v3, v4]
 HEAD v0                                                      #methods.fl:   9.7
 SWITCH v0 Crokeys                                            #methods.fl:   9.7
@@ -23,7 +23,7 @@ SWITCH v0 Crokeys                                            #methods.fl:   9.7
 ERROR                                                        #methods.fl:   9.0
 CLOSURE v1 !                                                 #methods.fl:   6.0
   PUSH PackageVar.test.golden.f_0.s                          #methods.fl:   6.0
-CLOSURE v2                                                   #methods.fl:   6.0
+CLOSURE v2                                                   #methods.fl:   9.7
   PUSH PackageVar.Cons                                       #methods.fl:   6.0
   PUSH v0:test.golden.f_0.KVHImpl.update.crokeys             #methods.fl:   9.7
   PUSH PackageVar.Nil                                        #methods.fl:   6.0
@@ -31,7 +31,7 @@ CLOSURE v3 S                                                 #methods.fl:   6.0
   PUSH PackageVar.Send                                       #methods.fl:   6.0
   PUSH Scoped[test.golden.f_0.s]                             #methods.fl:   6.0
   PUSH "mergeAppend"                                         #methods.fl:  10.5
-  PUSH v2:clos2                                              #methods.fl:   6.0
+  PUSH v2:clos2                                              #methods.fl:   9.7
 CLOSURE v4                                                   #methods.fl:  10.3
   PUSH PackageVar.Cons                                       #methods.fl:   9.0
   PUSH v3:clos3                                              #methods.fl:   6.0

@@ -328,7 +328,7 @@ public class TestBasicTypeChecking {
 		assertEquals(errors.singleString(), 0, errors.count());
 		tc = new TypeChecker2(errors, rewriter);
 		tc.populateTypes();
-		HSIE hsie = new HSIE(errors);
+		HSIE hsie = new HSIE(errors, rewriter);
 		
 		{
 			Set<RWFunctionDefinition> o1 = new HashSet<>();

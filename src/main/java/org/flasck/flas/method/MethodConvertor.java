@@ -17,7 +17,7 @@ import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
-import org.flasck.flas.rewrittenForm.DeferredSendExpr;
+import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -290,7 +290,7 @@ public class MethodConvertor {
 							RWFunctionDefinition fd = (RWFunctionDefinition) me.defn;
 							if (fd.nargs() > 0)
 								errors.message(l.location(), "cannot use function " + me.id + " of arity " + fd.nargs() + " as constant");
-							return new DeferredSendExpr(l.location(), l.scopedFrom, rw.getMe(fd.location(), "Send"), method, rw, args);
+							return new SendExpr(l.location(), l.scopedFrom, method, args);
 						}
 						else
 							throw new UtilException("Can't handle this case yet: " + me.defn.getClass());
@@ -400,7 +400,7 @@ public class MethodConvertor {
 		} else if (senderType instanceof RWObjectDefn) {
 			RWObjectDefn od = (RWObjectDefn) senderType;
 			if (senderType.hasMethod(method.text))
-				methodType = od.getMethod(method.text);
+				methodType = od.getMethodType(method.text);
 		}
 		if (methodType == null) {
 			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());
@@ -423,14 +423,6 @@ public class MethodConvertor {
 			errors.message(method.location, "missing arguments in call of " + method.text);
 			return null;
 		}
-		return new ApplyExpr(sender.location(),	rw.getMe(location, "Send"), sender, method, asList(sender.location(), rw, args));
-	}
-
-	public static Object asList(InputPosition loc, Rewriter rw, List<Object> args) {
-		Object ret = rw.getMe(loc, "Nil");
-		for (int n = args.size()-1;n>=0;n--) {
-			ret = new ApplyExpr(loc, rw.getMe(loc, "Cons"), args.get(n), ret);
-		}
-		return ret;
+		return new SendExpr(location, sender, method, args);
 	}
 }

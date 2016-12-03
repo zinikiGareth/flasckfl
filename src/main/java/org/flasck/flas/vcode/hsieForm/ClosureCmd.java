@@ -9,7 +9,7 @@ import org.flasck.flas.types.Type;
 public class ClosureCmd extends HSIEBlock {
 	public final Var var;
 	public boolean typecheckMessages;
-	public boolean deferredSend;
+	public boolean checkSend;
 	public Type assertType;
 	public boolean justScoping = false;
 	public final List<VarInSource> depends = new ArrayList<VarInSource>();
@@ -21,7 +21,7 @@ public class ClosureCmd extends HSIEBlock {
 
 	@Override
 	public String toString() {
-		return "CLOSURE " + var + leftpad((justScoping?"!":"") + (typecheckMessages?"M":"") + (deferredSend?"S":"")) + (downcastType != null?" " + downcastType:"") + (assertType != null? " " + assertType:"");
+		return "CLOSURE " + var + leftpad((justScoping?"!":"") + (typecheckMessages?"M":"") + (checkSend?"S":"")) + (downcastType != null?" >" + downcastType:"") + (assertType != null? " #" + assertType:"");
 	}
 
 	private String leftpad(String string) {

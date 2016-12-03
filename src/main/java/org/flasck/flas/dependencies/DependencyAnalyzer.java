@@ -17,7 +17,7 @@ import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
-import org.flasck.flas.rewrittenForm.DeferredSendExpr;
+import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -78,7 +78,6 @@ public class DependencyAnalyzer {
 	private void analyzeExpr(String name, Set<String> locals, Object expr) {
 		if (expr == null)
 			return;
-//		System.out.println("checking " + name + " against " + expr + " of type " + expr.getClass());
 		if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
 			;
 		else if (expr instanceof FunctionLiteral) {
@@ -132,8 +131,8 @@ public class DependencyAnalyzer {
 		} else if (expr instanceof AssertTypeExpr) {
 			AssertTypeExpr tcm = (AssertTypeExpr) expr;
 			analyzeExpr(name, locals, tcm.expr);
-		} else if (expr instanceof DeferredSendExpr) {
-			DeferredSendExpr dse = (DeferredSendExpr) expr;
+		} else if (expr instanceof SendExpr) {
+			SendExpr dse = (SendExpr) expr;
 			analyzeExpr(name, locals, dse.sender);
 			analyzeExpr(name, locals, dse.args);
 		} else
@@ -149,12 +148,10 @@ public class DependencyAnalyzer {
 				continue;
 			Set<String> span = dcg.spanOf(s.name());
 			Set<RWFunctionDefinition> mine = functionsIn(functions, span);
-			System.out.println("Adding " + mine + " which depends on " + span);
 			order.add(mine);
 		}
 		
 		// Now convert it to a list, removing "strict" dependencies
-		System.out.println("Have " + order);
 		ArrayList<Set<RWFunctionDefinition>> ret = new ArrayList<Set<RWFunctionDefinition>>();
 		Set<String> done = new TreeSet<String>();
 		for (Set<RWFunctionDefinition> s : order) {

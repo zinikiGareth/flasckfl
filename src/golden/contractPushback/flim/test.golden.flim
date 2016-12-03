@@ -15,7 +15,7 @@
                 <Contract name="test.golden.DoIt"/>
             </Arg>
             <Arg>
-                <Poly name="A"/>
+                <Builtin name="Number"/>
             </Arg>
             <Return>
                 <Instance file="builtin" line="0" off="0">

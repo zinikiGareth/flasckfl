@@ -187,7 +187,7 @@ public class Compiler {
 		LogManager.getLogger("Generator").setLevel(Level.WARN);
 		LogManager.getLogger("HSIE").setLevel(Level.WARN);
 		LogManager.getLogger("Rewriter").setLevel(Level.ERROR);
-		LogManager.getLogger("TypeChecker").setLevel(Level.DEBUG);
+		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 	}
 
 	private boolean success;
@@ -313,7 +313,7 @@ public class Compiler {
 			ImportPackage rootPkg = Builtin.builtins();
 			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg);
 			final ApplyCurry curry = new ApplyCurry();
-			final HSIE hsie = new HSIE(errors);
+			final HSIE hsie = new HSIE(errors, rewriter);
 			final DroidGenerator dg = new DroidGenerator(hsie, builder);
 
 			rewriter.importPackage1(rootPkg);

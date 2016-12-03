@@ -69,7 +69,7 @@ public class ApplyCurry {
 							if (cm.type instanceof RWObjectDefn) {
 								RWObjectDefn od = (RWObjectDefn) cm.type;
 								if (od.hasMethod(fld.sval.text)) {
-									Type t = od.getMethod(fld.sval.text);
+									Type t = od.getMethodType(fld.sval.text);
 									c.pushAt(pc.location, 0, new PackageVar(pc.location, "FLEval.curry", null));
 									c.removeAt(1);
 									c.pushAt(pc.location, 1, new PackageVar(pc.location, "FLEval.method", null));

@@ -12,4 +12,6 @@ public abstract class TypeWithMethods extends Type {
 	}
 
 	public abstract boolean hasMethod(String named);
+
+	public abstract Type getMethodType(String named);
 }

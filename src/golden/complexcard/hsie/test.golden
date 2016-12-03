@@ -35,19 +35,19 @@ CLOSURE v1                                                   #complexcard. 58.10
 CLOSURE v2                                                   #complexcard. 58.16
   PUSH ObjectReference.test.golden.Complex.test.golden.Compl #complexcard. 58.17
   PUSH "yo"                                                  #complexcard. 58.28
-CLOSURE v3                                                   #complexcard. 58.3
+CLOSURE v3                                                   #complexcard. 58.16
   PUSH PackageVar.Cons                                       #complexcard. 58.3
   PUSH v2:clos2                                              #complexcard. 58.16
   PUSH PackageVar.Nil                                        #complexcard. 58.3
-CLOSURE v4                                                   #complexcard. 58.3
+CLOSURE v4                                                   #complexcard. 58.10
   PUSH PackageVar.Cons                                       #complexcard. 58.3
   PUSH v1:clos1                                              #complexcard. 58.10
-  PUSH v3:clos3                                              #complexcard. 58.3
-CLOSURE v5                                                   #complexcard. 58.3
+  PUSH v3:clos3                                              #complexcard. 58.16
+CLOSURE v5 S                                                 #complexcard. 58.3
   PUSH PackageVar.Send                                       #complexcard. 58.3
   PUSH CardMember.CardMember[test.golden.Complex.ds]         #complexcard. 58.3
   PUSH "get"                                                 #complexcard. 58.6
-  PUSH v4:clos4                                              #complexcard. 58.3
+  PUSH v4:clos4                                              #complexcard. 58.10
 CLOSURE v6                                                   #complexcard. 58.3
   PUSH PackageVar.Cons                                       #complexcard. 57.0
   PUSH v5:clos5                                              #complexcard. 58.3
@@ -63,18 +63,18 @@ SWITCH v1 test.golden.Handler                                #complexcard. 70.6
   SWITCH v0 String                                           #complexcard. 70.4
     RETURN v4:clos4 [v2:clos2, v3:clos3]                     #complexcard. 71.3
 ERROR                                                        #complexcard. 70.0
-CLOSURE v2                                                   #complexcard. 70.6
-  PUSH PackageVar.Cons                                       #complexcard. 70.6
+CLOSURE v2                                                   #complexcard. 70.4
+  PUSH PackageVar.Cons                                       #complexcard. 71.3
   PUSH v0:test.golden.Complex._S0.get.x                      #complexcard. 70.4
-  PUSH PackageVar.Nil                                        #complexcard. 70.6
-CLOSURE v3                                                   #complexcard. 70.6
+  PUSH PackageVar.Nil                                        #complexcard. 71.3
+CLOSURE v3 S                                                 #complexcard. 71.3
   PUSH PackageVar.Send                                       #complexcard. 71.3
   PUSH v1:test.golden.Complex._S0.get.h                      #complexcard. 70.6
   PUSH "reply"                                               #complexcard. 71.5
-  PUSH v2:clos2                                              #complexcard. 70.6
+  PUSH v2:clos2                                              #complexcard. 70.4
 CLOSURE v4                                                   #complexcard. 71.3
   PUSH PackageVar.Cons                                       #complexcard. 70.0
-  PUSH v3:clos3                                              #complexcard. 70.6
+  PUSH v3:clos3                                              #complexcard. 71.3
   PUSH PackageVar.Nil                                        #complexcard. 70.0
 =======
 HSIE for test.golden.Complex.inits_format/0                  #complexcard. 35.17

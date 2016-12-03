@@ -13,6 +13,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
@@ -31,10 +32,12 @@ import org.zinutils.utils.StringComparator;
 public class HSIE {
 	static Logger logger = LoggerFactory.getLogger("HSIE");
 	private final ErrorResult errors;
+	private final Rewriter rw;
 	private final Map<String, HSIEForm> forms = new TreeMap<String, HSIEForm>(new StringComparator());
 
-	public HSIE(ErrorResult errors) {
+	public HSIE(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
+		this.rw = rw;
 	}
 	
 	public void createForms(Set<RWFunctionDefinition> d) {
@@ -65,7 +68,7 @@ public class HSIE {
 		if (ret == null)
 			throw new UtilException("There is no form for " + defn.name);
 		CurrentFunction cf = new CurrentFunction(ret);
-		GenerateClosures gc = new GenerateClosures(errors, cf, forms, ret);
+		GenerateClosures gc = new GenerateClosures(errors, rw, cf, forms, ret);
 		if (defn.nargs() == 0) {
 			if (defn.cases.size() != 1)
 				throw new UtilException("Constants can only have one case");

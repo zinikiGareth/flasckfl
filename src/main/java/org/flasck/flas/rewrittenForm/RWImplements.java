@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.TypeWithMethods;
+import org.flasck.flas.types.Type;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class RWImplements extends TypeWithMethods {
 	public final List<RWMethodDefinition> methods = new ArrayList<RWMethodDefinition>();
@@ -24,6 +26,15 @@ public class RWImplements extends TypeWithMethods {
 				return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public Type getMethodType(String named) {
+		throw new NotImplementedException("This cannot be implemented because RWMethodDefinition does not (yet?) have a type");
+//		for (RWMethodDefinition md : methods)
+//			if (md.name().equals(named))
+//				return md.getType();
+//		return null;
 	}
 	
 	@Override
