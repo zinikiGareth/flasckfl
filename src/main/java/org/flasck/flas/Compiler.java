@@ -175,7 +175,6 @@ public class Compiler {
 			System.exit(1);
 		}
 		if (compiler.success) {
-			System.out.println("done");
 			System.exit(0);
 		} else
 			System.exit(1);
