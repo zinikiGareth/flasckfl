@@ -23,6 +23,10 @@ public class VarNestedFromOuterFunctionScope implements ExternalRef {
 	public VarNestedFromOuterFunctionScope notLocal() {
 		return new VarNestedFromOuterFunctionScope(location, id, defn, false);
 	}
+
+	public VarNestedFromOuterFunctionScope asLocal() {
+		return new VarNestedFromOuterFunctionScope(location, id, defn, true);
+	}
 	
 	public InputPosition location() {
 		return location;

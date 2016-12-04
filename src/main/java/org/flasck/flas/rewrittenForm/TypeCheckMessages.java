@@ -1,14 +1,13 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 
 public class TypeCheckMessages implements Locatable {
 	private final InputPosition location;
-	public final ApplyExpr expr;
+	public final Object expr;
 
-	public TypeCheckMessages(InputPosition location, ApplyExpr expr) {
+	public TypeCheckMessages(InputPosition location, Object expr) {
 		this.location = location;
 		this.expr = expr;
 	}

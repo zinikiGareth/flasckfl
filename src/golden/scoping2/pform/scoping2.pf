@@ -1,0 +1,32 @@
+package test.golden
+  cdecl test.golden.UpC @{1:0|contract} @{1:9|UpC}
+    required up call @{2:0|up} @{2:4|call}
+      [type] handler @{2:13|handler}
+        Hc @{2:10|Hc}
+  cdecl test.golden.Hc @{4:0|contract} @{4:9|Hc}
+    required down reply @{5:0|down} @{5:5|reply}
+  test.golden.scoped @{7:0|scoped}
+    [type] ctr @{7:12|ctr}
+      UpC @{7:8|UpC}
+   =
+    <apply> @{7:19|MessageWrapper 32 [request}
+      MessageWrapper @{7:19|MessageWrapper}
+      # 32 @{7:34|32}
+      <apply> @{7:38|request}
+        Cons @{7:38|request}
+        request @{7:38|request}
+        Nil @{7:38|request]}
+    method test.golden.scoped_0.request_0 @{9:7|request}
+      invoke @{10:0|<-}
+        <apply> @{10:3|ctr.call MyHc}
+          <apply> @{10:3|ctr.call}
+            . @{10:6|.}
+            ctr @{10:3|ctr}
+            call @{10:7|call}
+          <apply> @{10:12|MyHc}
+            MyHc @{10:12|MyHc}
+    handler Hc test.golden.scoped_0.MyHc (free) @{12:0|handler} @{12:8|Hc} @{12:11|MyHc}
+      method test.golden.scoped_0.MyHc.reply @{13:0|reply}
+        invoke @{14:0|<-}
+          requestObj @{14:3|requestObj}
+    method test.golden.scoped_0.requestObj_0 @{16:7|requestObj}

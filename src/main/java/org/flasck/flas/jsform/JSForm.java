@@ -350,7 +350,7 @@ public class JSForm {
 							return null;
 						} else
 							j++;
-					throw new UtilException("ScopedVar not in scope: " + pe.fn);
+					throw new UtilException("ScopedVar not in scope: " + pe.fn + " in " + form.fnName + ": we have " + form.scoped);
 				} else if (pe.fn instanceof ObjectReference) {
 					sb.append(pe.fn.uniqueName());
 				} else if (pe.fn instanceof CardFunction) {

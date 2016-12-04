@@ -300,6 +300,9 @@ public class MethodConvertor {
 					return new TypeCheckMessages(root.location, root);
 			} else
 				return new TypeCheckMessages(root.location, root);
+		} else if (mm.expr instanceof HandlerLambda) {
+			Locatable ex = (Locatable) mm.expr;
+			return new TypeCheckMessages(ex.location(), new ApplyExpr(ex.location(), mm.expr, new ArrayList<>()));
 		}
 		InputPosition loc = null;
 		if (mm.expr instanceof Locatable)

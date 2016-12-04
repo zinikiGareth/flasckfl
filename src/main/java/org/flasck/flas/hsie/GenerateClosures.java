@@ -88,14 +88,14 @@ public class GenerateClosures {
 			HSIEForm fn = forms.get(sv.id);
 			if (fn != null /* && fn.scoped.isEmpty() */)  {// The case where there are no scoped vars is degenerate, but easier to deal with like this
 				for (VarNestedFromOuterFunctionScope i : fn.scoped) {
-					pushThing(ms, form, map, clos, i);
+					pushThing(ms, form, map, clos, i.asLocal());
 				}
 			} else if (sv.defn instanceof RWHandlerImplements) {
 				RWHandlerImplements hi = (RWHandlerImplements) sv.defn;
 				for (HandlerLambda bv : hi.boundVars) {
 					if (bv.scopedFrom == null)
 						continue;
-					pushThing(ms, form, map, clos, bv.scopedFrom);
+					pushThing(ms, form, map, clos, bv.scopedFrom.asLocal());
 				}
 			} else 
 				throw new UtilException("What is this?" + sv.defn.getClass());

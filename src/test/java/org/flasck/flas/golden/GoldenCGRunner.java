@@ -87,6 +87,8 @@ import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.StringUtil;
 
 public class GoldenCGRunner extends CGHarnessRunner {
+	static String checkEverythingS = System.getProperty("org.flasck.golden.check");
+	static boolean checkEverything = checkEverythingS == null || !checkEverythingS.equalsIgnoreCase("false");
 	static String stripNumbersS = System.getProperty("org.flasck.golden.strip"); 
 	static boolean stripNumbers = stripNumbersS != null && stripNumbersS.equalsIgnoreCase("true");
 	
@@ -207,7 +209,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		assertGolden(new File(s, "tc"), tc2);
 		assertGolden(new File(s, "flim"), flim);
 
-		if (new File(droidTo, "qbout").isDirectory()) {
+		if (new File(droidTo, "qbout/classes/test/golden").isDirectory()) {
 			RunProcess proc = new RunProcess("javap");
 			proc.arg("-c");
 			for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.class")) {
@@ -677,10 +679,16 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	}
 
 	private static void assertGolden(File golden, File genned) {
-		if (!golden.isDirectory())
+		if (!golden.isDirectory()) {
+			if (!checkEverything)
+				return;
 			fail("There is no golden directory " + golden);
-		if (!genned.isDirectory())
+		}
+		if (!genned.isDirectory()) {
+			if (!checkEverything)
+				return;
 			fail("There is no generated directory " + genned);
+		}
 		for (File f : genned.listFiles())
 			assertTrue("There is no golden file for the generated " + f, new File(golden, f.getName()).exists());
 		for (File f : golden.listFiles()) {

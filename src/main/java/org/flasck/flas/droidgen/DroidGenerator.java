@@ -660,7 +660,8 @@ public class DroidGenerator {
 				} else if (pe.fn instanceof VarNestedFromOuterFunctionScope) {
 					VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope) pe.fn;
 					if (sv.definedLocally) {
-						return null;
+						// TODO: I'm not quite sure what should happen here, or even what this case represents, but I know it should be something to do with the *actual* function definition
+						return meth.stringConst(pe.fn.uniqueName());
 					}
 					if (!svars.containsKey(pe.fn.uniqueName()))
 						throw new UtilException("ScopedVar not in scope: " + pe.fn);
