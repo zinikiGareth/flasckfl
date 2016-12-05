@@ -23,6 +23,7 @@ import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
@@ -804,7 +805,7 @@ public class TypeChecker2 {
 			return structTypes.get(type.name());
 		else if (type.iam == WhatAmI.BUILTIN ||
 				type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn ||
-				type instanceof RWContractDecl || type instanceof RWContractImplements ||
+				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWContractService ||
 				type instanceof RWHandlerImplements)
 			return getTypeOf(type.location(), type.name());
 		else if (type.iam == WhatAmI.INSTANCE) {

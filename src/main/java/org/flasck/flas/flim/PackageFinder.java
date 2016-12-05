@@ -114,7 +114,7 @@ public class PackageFinder {
 						if (p.parent instanceof RWStructDefn) {
 							RWStructDefn sd = (RWStructDefn) p.parent;
 							for (XMLElement fe : p.children) {
-								RWStructField sf = new RWStructField(location(fe), fe.requiredBoolean("accessor"), getUniqueNestedType(fe), fe.required("name"));
+								RWStructField sf = new RWStructField(location(fe), fe.requiredBoolean("accessor"), getUniqueNestedType(location(fe), fe), fe.required("name"));
 								fe.attributesDone();
 								sd.fields.add(sf);
 							}
@@ -125,7 +125,7 @@ public class PackageFinder {
 								List<Type> types = new ArrayList<Type>();
 								for (XMLElement pe : cme.elementChildren()) {
 									if (pe.hasTag("Typed")) {
-										RWTypedPattern tp = new RWTypedPattern(location(pe), getUniqueNestedType(pe), location(pe, "v"), pe.required("var"));
+										RWTypedPattern tp = new RWTypedPattern(location(pe), getUniqueNestedType(location(pe, "v"), pe), location(pe, "v"), pe.required("var"));
 										args.add(tp);
 										types.add(tp.type);
 									} else
@@ -157,7 +157,7 @@ public class PackageFinder {
 								for (XMLElement fe : te.elementChildren()) { 
 									// Then that has n-1 "Arg" objects
 									// and one "Return" object
-									args.add(getUniqueNestedType(fe));
+									args.add(getUniqueNestedType(location(xe), fe));
 								}
 								// TODO: should we be (writing and) reading the code type?
 								RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, xe.required("name"), args.size()-1, false);
@@ -186,26 +186,26 @@ public class PackageFinder {
 		}
 	}
 
-	protected Type getUniqueNestedType(XMLElement fe) {
+	protected Type getUniqueNestedType(InputPosition loc, XMLElement fe) {
 		Type t = null;
 		for (XMLElement te : fe.elementChildren()) {
 			if (t != null)
 				throw new UtilException("Multiple type declarations");
-			t = extractType(te);
+			t = extractType(loc, te);
 		}
 		if (t == null)
 			throw new UtilException("I believe this must imply that we didn't have any definitions");
 		return t;
 	}
 
-	protected Type extractType(XMLElement te) {
+	protected Type extractType(InputPosition loc, XMLElement te) {
 		Type t = null;
 		// Need to consider function first
 		String name = "";
 		if (te.hasTag("Instance")) {
 			List<Type> types = new ArrayList<Type>();
 			for (XMLElement ct : te.elementChildren()) {
-				types.add(extractType(ct));
+				types.add(extractType(loc, ct));
 			}
 			Type base = types.remove(0);
 			t = base.instance(location(te), types);
@@ -226,8 +226,12 @@ public class PackageFinder {
 			} else if (te.hasTag("Object")) {
 				t = rw.objects.get(name);
 				te.assertNoSubContents();
+			} else if (te.hasTag("Poly")) {
+				t = Type.polyvar(loc, te.required("name"));
+				te.attributesDone();
+				te.assertNoSubContents();
 			} else 
-				throw new UtilException("What is " + te.tag() + " " + name + "?");
+				throw new UtilException("What is " + te.tag() + " " + name + " in " + te + "?");
 		}
 		if (t == null)
 			throw new UtilException("Failed to find " + te.tag() + " " + name);
