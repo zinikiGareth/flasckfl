@@ -140,11 +140,13 @@ public class HSIEBlock {
 	public void dump(PrintWriter pw, int ind) {
 		for (HSIEBlock c : commands)
 			c.dumpOne(pw, ind);
+		pw.flush();
 	}
 
 	public void dumpOne(PrintWriter pw, int ind) {
 		pw.println(asString(ind));
 		dump(pw, ind+2);
+		pw.flush();
 	}
 	
 	protected String asString(int ind) {

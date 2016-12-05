@@ -18,6 +18,7 @@ public class MethodInContext implements Locatable {
 	public final String fromContract;
 	public final InputPosition contractLocation;
 	public final int direction;
+	public final String inCard;
 	public final String name;
 	public final CodeType type;
 	public final RWMethodDefinition method;
@@ -27,6 +28,7 @@ public class MethodInContext implements Locatable {
 		this.direction = dir;
 		this.contractLocation = cloc;
 		this.fromContract = fromContract;
+		this.inCard = cx.cardNameIfAny();
 		this.name = name;
 		this.type = type;
 		this.method = method;

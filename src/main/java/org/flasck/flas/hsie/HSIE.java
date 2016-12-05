@@ -44,7 +44,7 @@ public class HSIE {
 		VarFactory vf = new VarFactory();
 		GatherExternals ge = new GatherExternals();
 		for (RWFunctionDefinition fn : d) {
-			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, vf);
+			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, fn.inCard, vf);
 			ge.process(hf, fn);
 			forms.put(fn.name, hf);
 		}

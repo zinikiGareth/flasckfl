@@ -1,0 +1,91 @@
+public class test.golden.Card extends org.flasck.android.FlasckActivity {
+  protected test.golden.Container c;
+
+  public test.golden.Card();
+    Code:
+       0: aload_0       
+       1: invokespecial #10                 // Method org/flasck/android/FlasckActivity."<init>":()V
+       4: return        
+
+  protected void onCreate(android.os.Bundle);
+    Code:
+       0: aload_0       
+       1: aload_1       
+       2: invokespecial #14                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
+       5: aload_0       
+       6: invokespecial #17                 // Method org/flasck/android/FlasckActivity.ready:()V
+       9: return        
+
+  public java.lang.Object doit();
+    Code:
+       0: new           #35                 // class org/flasck/android/FLClosure
+       3: dup           
+       4: ldc           #19                 // class org/flasck/android/FLEval$Field
+       6: iconst_2      
+       7: anewarray     #37                 // class java/lang/Object
+      10: dup           
+      11: iconst_0      
+      12: aload_0       
+      13: aastore       
+      14: dup           
+      15: iconst_1      
+      16: ldc           #39                 // String c
+      18: aastore       
+      19: invokespecial #43                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      22: astore_1      
+      23: new           #35                 // class org/flasck/android/FLClosure
+      26: dup           
+      27: ldc           #44                 // class org/flasck/android/builtin/Assign
+      29: iconst_3      
+      30: anewarray     #37                 // class java/lang/Object
+      33: dup           
+      34: iconst_0      
+      35: aload_1       
+      36: aastore       
+      37: dup           
+      38: iconst_1      
+      39: ldc           #46                 // String value
+      41: aastore       
+      42: dup           
+      43: iconst_2      
+      44: ldc           #48                 // String hello
+      46: aastore       
+      47: invokespecial #43                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      50: astore_2      
+      51: new           #35                 // class org/flasck/android/FLClosure
+      54: dup           
+      55: ldc           #50                 // class org/flasck/android/builtin/Cons
+      57: iconst_2      
+      58: anewarray     #37                 // class java/lang/Object
+      61: dup           
+      62: iconst_0      
+      63: aload_2       
+      64: aastore       
+      65: dup           
+      66: iconst_1      
+      67: iconst_0      
+      68: anewarray     #37                 // class java/lang/Object
+      71: invokestatic  #57                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      74: aastore       
+      75: invokespecial #43                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      78: areturn       
+}
+public class test.golden.Container extends org.flasck.android.FLASObject {
+  public java.lang.Object value;
+
+  public test.golden.Container();
+    Code:
+       0: aload_0       
+       1: invokespecial #10                 // Method org/flasck/android/FLASObject."<init>":()V
+       4: return        
+
+  public void _doFullEval();
+    Code:
+       0: aload_0       
+       1: aload_0       
+       2: aload_0       
+       3: getfield      #13                 // Field value:Ljava/lang/Object;
+       6: invokevirtual #17                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
+       9: putfield      #13                 // Field value:Ljava/lang/Object;
+      12: return        
+}

@@ -138,6 +138,7 @@ public class TypeChecker2 {
 			structTypes.put(sd.uniqueName(), new NamedType(sd.location(), sd.uniqueName(), polys));
 		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
+			structs.put(d.getKey(), d.getValue().struct);
 			gk(d.getKey(), new NamedType(d.getValue().struct.location(), d.getKey()));
 		}
 	}
@@ -390,7 +391,7 @@ public class TypeChecker2 {
 		List<String> isScoped = new ArrayList<String>();
 		for (int i=1;i<cmds.size();i++) {
 			HSIEBlock cmd = cmds.get(i);
-			argtypes.add(getTypeOf(cmd));
+			argtypes.add(getTypeOf(f, cmd));
 			isScoped.add(isPushScope(cmd));
 		}
 		HSIEBlock cmd = cmds.get(0);
@@ -415,13 +416,17 @@ public class TypeChecker2 {
 					ty = CollectionUtils.any(set);
 				} else if (argtypes.get(0) instanceof NamedType) {
 					ty = argtypes.get(0);
-				} else
-					throw new NotImplementedException("FLEval.field(unhandled): " + argtypes.get(0));
+				} else {
+					c.dumpOne(new PrintWriter(System.err), 0);
+					throw new NotImplementedException("FLEval.field(unhandled): " + argtypes.get(0) + " " + argtypes.get(0).getClass());
+				}
 				if (ty instanceof NamedType) {
 					String sn = ((NamedType)ty).name;
 					RWStructDefn sd = structs.get(sn);
-					if (sd == null)
+					if (sd == null) {
+						c.dumpOne(new PrintWriter(System.err), 0);
 						throw new UtilException(sn + " is not a struct; cannot do .");
+					}
 					String fname = ((PushString)cmds.get(2)).sval.text;
 					RWStructField sf = sd.findField(fname);
 					if (sf == null)
@@ -434,7 +439,7 @@ public class TypeChecker2 {
 				constraints.add(c.var, new TupleInfo(cmd.location, argtypes));
 				return;
 			}
-			TypeInfo ti = freshPolys(getTypeOf(cmd), new HashMap<>());
+			TypeInfo ti = freshPolys(getTypeOf(f, cmd), new HashMap<>());
 			// TODO: if function is polymorphic, introduce fresh vars NOW
 			logger.debug("In " + c.var + ", cmd = " + cmd + " fi = " + ti);
 			if (ti == null) {
@@ -548,7 +553,7 @@ public class TypeChecker2 {
 				logger.info("Need to add a constraint to " + rv + " of " + val);
 				constraints.add(rv, new TypeVar(val.loc, val.var));
 			} else {
-				TypeInfo ty = freshPolys(getTypeOf(pr), new HashMap<>());
+				TypeInfo ty = freshPolys(getTypeOf(f, pr), new HashMap<>());
 				logger.info("Can return " + rv + " as " + ty);
 				constraints.add(rv, ty);
 			}
@@ -559,7 +564,7 @@ public class TypeChecker2 {
 	private void checkSendCall(HSIEForm f, ClosureCmd c) {
 		// By definition, the closure must have four fields: Send; the contract var; the method (string literal); a closure pointing to the list of args (or else Nil)
 		List<HSIEBlock> ncs = c.nestedCommands();
-		TypeInfo ot = getTypeOf(ncs.get(1));
+		TypeInfo ot = getTypeOf(f, ncs.get(1));
 		PushString ps = (PushString) ncs.get(2);
 		if (ot instanceof NamedType) {
 			NamedType tot = (NamedType) ot;
@@ -603,7 +608,7 @@ public class TypeChecker2 {
 			HSIEBlock shouldBeCons = nc.get(0);
 			if (!(shouldBeCons instanceof PushExternal) || !((PushExternal)shouldBeCons).fn.uniqueName().equals("Cons"))
 				throw new UtilException("No, should be cons at " + cv);
-			checkArgType(convertType(mt.arg(pos)), getTypeOf(nc.get(1)));
+			checkArgType(convertType(mt.arg(pos)), getTypeOf(f, nc.get(1)));
 			checkCallArgs(f, mt, pos+1, nc.get(2));
 		} else if (isNil)
 			errors.message(cmd.location, "too few arguments to method");
@@ -829,7 +834,7 @@ public class TypeChecker2 {
 			throw new UtilException("Cannot convert " + type.getClass() + " " + type.iam + ": " + type.name());
 	}
 
-	private TypeInfo getTypeOf(HSIEBlock cmd) {
+	private TypeInfo getTypeOf(HSIEForm form, HSIEBlock cmd) {
 		if (cmd instanceof PushExternal) {
 			PushExternal pe = (PushExternal) cmd;
 			String name = pe.fn.uniqueName();
@@ -858,14 +863,14 @@ public class TypeChecker2 {
 			VarInSource cov = ((PushVar)cmd).var;
 			Var var = cov.var;
 			if (scoping.containsKey(var))
-				return getTypeOf(scoping.get(var));
+				return getTypeOf(form, scoping.get(var));
 			return new TypeVar(cov.loc, var);
 		} else if (cmd instanceof PushInt) {
 			return getTypeOf(cmd.location, "Number");
 		} else if (cmd instanceof PushString) {
 			return getTypeOf(cmd.location, "String");
 		} else if (cmd instanceof PushCSR) {
-			return getTypeOf(cmd.location, "Card");
+			return getTypeOf(cmd.location, form.inCard);
 		} else if (cmd instanceof PushFunc) {
 			FunctionLiteral func = ((PushFunc)cmd).func;
 			return getTypeOf(func.location, func.name);

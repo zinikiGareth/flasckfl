@@ -1,0 +1,11 @@
+package test.golden
+  struct test.golden.Container @{1:0|struct} @{1:7|Container}
+    value @{2:7|value}
+      String @{2:0|String}
+  card test.golden.Card @{4:0|card} @{4:5|Card}
+    state @{5:0|state}
+      c @{6:10|c}
+        Container @{6:0|Container}
+    event test.golden.Card.doit_1 @{8:0|event} @{8:6|doit}
+      assign c.value <- @{9:0|c} @{9:2|value} @{9:8|<-}
+        '' hello @{9:11|"hello"}

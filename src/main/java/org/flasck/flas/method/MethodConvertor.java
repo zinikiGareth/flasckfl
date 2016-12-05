@@ -73,7 +73,7 @@ public class MethodConvertor {
 
 	public void convertEventHandlers(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, EventHandlerInContext> eventHandlers) {
 		for (EventHandlerInContext x : eventHandlers.values())
-			addFunction(functions, convertEventHandler(rw, x.name, x.handler));
+			addFunction(functions, convertEventHandler(rw, x.cardName, x.handler));
 	}
 
 	public void convertStandaloneMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Collection<MethodInContext> methods) {
@@ -103,7 +103,7 @@ public class MethodConvertor {
 		if (m.method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(m.method.location(), m.type, m.method.name(), m.method.nargs(), true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(m.method.location(), m.type, m.method.name(), m.method.nargs(), m.inCard, true);
 
 		// Now process all of the method cases
 		Type ofType = null;
@@ -149,7 +149,7 @@ public class MethodConvertor {
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, eh.name(), eh.nargs(), true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, eh.name(), eh.nargs(), card, true);
 		for (RWEventCaseDefn c : eh.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
 			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, c.intro.vars), ret.cases.size(), typedObject.expr));
@@ -176,7 +176,7 @@ public class MethodConvertor {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, mic.type.isHandler());
 			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
-		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, method.name(), margs.size(), true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, method.name(), margs.size(), mic.inCard, true);
 		ret.cases.addAll(cases);
 		return ret;
 	}

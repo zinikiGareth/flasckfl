@@ -51,6 +51,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		}
 	}
 
+	public final String inCard;
 	public final String fnName;
 	public final int nformal;
 	public final CodeType mytype;
@@ -68,8 +69,9 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public final Set<VarNestedFromOuterFunctionScope> scoped = new TreeSet<VarNestedFromOuterFunctionScope>();
 	public final SetMap<VarInSource, Type> varConstraints = new SetMap<>();
 
-	public HSIEForm(InputPosition nameLoc, String name, int nformal, CodeType mytype, VarFactory vf) {
+	public HSIEForm(InputPosition nameLoc, String name, int nformal, CodeType mytype, String inCard, VarFactory vf) {
 		super(nameLoc);
+		this.inCard = inCard;
 		this.vf = vf;
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;

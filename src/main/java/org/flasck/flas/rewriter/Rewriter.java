@@ -179,6 +179,12 @@ public class Rewriter {
 				return nested.hasCard();
 			return false;
 		}
+
+		public String cardNameIfAny() {
+			if (nested != null)
+				return nested.cardNameIfAny();
+			return null;
+		}
 	}
 
 	/** The Root Context exists exactly one time to include the BuiltinScope and nothing else
@@ -255,16 +261,18 @@ public class Rewriter {
 	/** The Card Context can only be found directly in a Package Context 
 	 */
 	public class CardContext extends NamingContext {
-		private final String prefix;
+		private final String cardName;
 		private final Map<String, Type> members = new TreeMap<String, Type>();
 		private final Map<String, ObjectReference> statics = new TreeMap<String, ObjectReference>();
 		private final Scope innerScope;
 		private int fnIdx = 0;
 
-		public CardContext(PackageContext cx, CardDefinition cd) {
+		public CardContext(PackageContext cx, CardDefinition cd, boolean doAll) {
 			super(cx);
-			this.prefix = cd.name;
+			this.cardName = cd.name;
 			this.innerScope = cd.innerScope();
+			if (!doAll)
+				return;
 			if (cd.state != null) {
 				for (StructField sf : cd.state.fields) {
 					try {
@@ -297,18 +305,18 @@ public class Rewriter {
 				}
 			}
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(State.simpleName(hi.hiName), new ObjectReference(hi.location(), prefix, hi.hiName));
+				statics.put(State.simpleName(hi.hiName), new ObjectReference(hi.location(), cardName, hi.hiName));
 			}
 		}
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (members.containsKey(name))
-				return new CardMember(location, prefix, name, members.get(name));
+				return new CardMember(location, cardName, name, members.get(name));
 			if (statics.containsKey(name))
 				return statics.get(name);
 			if (innerScope.contains(name))
-				return new CardFunction(location, prefix, name);
+				return new CardFunction(location, cardName, name);
 			return nested.resolve(location, name);
 		}
 
@@ -317,11 +325,16 @@ public class Rewriter {
 			return true;
 		}
 
+		@Override
+		public String cardNameIfAny() {
+			return cardName;
+		}
+
 		public String nextFunction(String type, HSIEForm.CodeType from, String name) {
 			if (from == CodeType.AREA)
 				return name +"." + type +"_"+(fnIdx++);
 			else // CodeType.CARD, at least ...
-				return prefix+"."+type+"_"+(fnIdx++);
+				return cardName+"."+type+"_"+(fnIdx++);
 		}
 	}
 
@@ -382,7 +395,7 @@ public class Rewriter {
 
 		public String cardName() {
 			if (nested instanceof CardContext) {
-				return ((CardContext)nested).prefix;
+				return ((CardContext)nested).cardName;
 			} else if (nested instanceof TemplateContext)
 				return ((TemplateContext)nested).cardName();
 			else
@@ -589,7 +602,7 @@ public class Rewriter {
 			if (val instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) val;
 				createCard(cx, cd);
-				pass1(null, cd.fnScope);
+				pass1(new CardContext((PackageContext) cx, cd, false), cd.fnScope);
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
 				String fn = c.functionName();
@@ -602,7 +615,7 @@ public class Rewriter {
 					if (ret.nargs != c.nargs())
 						errors.message(c.location(), "inconsistent argument counts in function " + fn);
 				} else {
-					RWFunctionDefinition ret = new RWFunctionDefinition(c.location(), c.mytype(), fn, c.nargs(), true);
+					RWFunctionDefinition ret = new RWFunctionDefinition(c.location(), c.mytype(), fn, c.nargs(), cx.cardNameIfAny(), true);
 					functions.put(name, ret);
 				}
 				pass1(cx, c.innerScope());
@@ -638,7 +651,7 @@ public class Rewriter {
 						errors.message(ehd.location(), "inconsistent argument counts in function " + mn);
 				}
 				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(ehd.location(), ehd.intro.name, ehd.intro.args.size());
-				EventHandlerInContext ehic = new EventHandlerInContext(name, rw);
+				EventHandlerInContext ehic = new EventHandlerInContext(cx.cardNameIfAny(), name, rw);
 				eventHandlers.put(ehic.name, ehic);
 				pass1(cx, ehd.innerScope());
 			} else if (val instanceof StructDefn) {
@@ -678,7 +691,7 @@ public class Rewriter {
 					CardDefinition cd = (CardDefinition) val;
 					pass2Card(cx, cd);
 					if (!errors.hasErrors())
-						pass2(new CardContext((PackageContext) cx, cd), cd.innerScope());
+						pass2(new CardContext((PackageContext) cx, cd, true), cd.innerScope());
 				} catch (ResolutionException ex) {
 					errors.message(ex.location, ex.getMessage());
 				}
@@ -771,7 +784,7 @@ public class Rewriter {
 	private void rewriteCard(NamingContext cx, CardDefinition cd) {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope: " + cx.getClass());
-		CardContext c2 = new CardContext((PackageContext) cx, cd);
+		CardContext c2 = new CardContext((PackageContext) cx, cd, true);
 		CardGrouping grp = cards.get(cd.name);
 		RWStructDefn sd = grp.struct;
 		if (cd.state != null) {
@@ -899,7 +912,7 @@ public class Rewriter {
 			String areaName = cx.nextArea();
 			Object rwexpr = rewriteExpr(cx, ce.expr);
 			String fnName = cx.nextFunction(areaName, "contents", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.AREA, fnName, 0, true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.AREA, fnName, 0, cx.cardName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
@@ -912,7 +925,7 @@ public class Rewriter {
 			String areaName = cx.nextArea();
 			if (cr.yoyoVar != null) {
 				fnName = cx.nextFunction(areaName, "yoyos", CodeType.AREA);
-				RWFunctionDefinition fn = new RWFunctionDefinition(cr.location, CodeType.AREA, fnName, 0, true);
+				RWFunctionDefinition fn = new RWFunctionDefinition(cr.location, CodeType.AREA, fnName, 0, cx.cardName(), true);
 				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(cr.location, fnName, new ArrayList<>(), null), 0, yoyoVar);
 				fn.cases.add(fcd0);
 				functions.put(fnName, fn);
@@ -933,7 +946,7 @@ public class Rewriter {
 						throw new UtilException("Cannot handle TEA: " + tea);
 
 					String fnName = cx.nextFunction(areaName, "teas", CodeType.AREA);
-					RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.AREA, fnName, 0, true);
+					RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.AREA, fnName, 0, cx.cardName(), true);
 					RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tea.location, fnName, new ArrayList<>(), null), 0, value);
 					fn.cases.add(fcd0);
 					functions.put(fnName, fn);
@@ -976,7 +989,7 @@ public class Rewriter {
 					
 			String areaName = cx.nextArea();
 			String fnName = cx.nextFunction(areaName, "lvs", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(ul.listLoc, CodeType.AREA, fnName, 0, true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(ul.listLoc, CodeType.AREA, fnName, 0, cx.cardName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ul.listLoc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
@@ -1047,7 +1060,7 @@ public class Rewriter {
 		if (expr == null)
 			return null;
 		String fnName = cx.nextFunction(areaName, "formats", CodeType.AREA);
-		RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.AREA, fnName, 0, true);
+		RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.AREA, fnName, 0, cx.cardName(), true);
 		RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tf.kw, fnName, new ArrayList<>(), null), 0, expr);
 		fn.cases.add(fcd0);
 		functions.put(fnName, fn);
@@ -1062,7 +1075,7 @@ public class Rewriter {
 			String fnName = cx.nextFunction(ret.areaName(), "handlers", CodeType.AREA);
 			InputPosition loc = ((Locatable)h.expr).location();
 			Object rwexpr = rewriteExpr(cx, h.expr);
-			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.AREA, fnName, 0, true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.AREA, fnName, 0, cx.cardName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
@@ -1075,7 +1088,7 @@ public class Rewriter {
 		String fnName = null;
 		if (tor.cond != null) {
 			fnName = cx.nextFunction(cs.areaName(), "ors", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(tor.location(), CodeType.AREA, fnName, 0, true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(tor.location(), CodeType.AREA, fnName, 0, cx.cardName(), true);
 			ApplyExpr expr = new ApplyExpr(tor.location(), getMe(tor.location(), "=="), cs.switchOn, tor.cond);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tor.location(), fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
@@ -1269,7 +1282,7 @@ public class Rewriter {
 			InputPosition loc = ((Locatable)rw).location();
 			Object expr = new AssertTypeExpr(loc, st, rw);
 			fnName = sd.name() + ".inits_" + sf.name;
-			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, sx.cardNameIfAny(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
@@ -1353,7 +1366,7 @@ public class Rewriter {
 					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
 					method.cases.add(mcd);
 					List<Object> enc = new ArrayList<Object>();
-					MethodInContext mic = new MethodInContext(this, null, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method, enc); // PROB NEEDS D3Action type
+					MethodInContext mic = new MethodInContext(this, c2, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method, enc); // PROB NEEDS D3Action type
 					this.methods.put(method.name(), mic);
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 				} else { // something like layout, that is just a set of definitions
@@ -1377,7 +1390,7 @@ public class Rewriter {
 		init = new ApplyExpr(dataExpr.location(), assoc, new StringLiteral(dataExpr.location(), "data"), dataFn, init);
 
 		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.varLoc, prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>(), null);
-		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, d3f.name, 0, true);
+		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, d3f.name, 0, c2.cardNameIfAny(), true);
 		func.cases.add(new RWFunctionCaseDefn(d3f, 0, init));
 		functions.put(d3f.name, func);
 	}
@@ -1394,7 +1407,7 @@ public class Rewriter {
 
 		InputPosition loc = ((Locatable)expr).location(); // may or may not be correct location
 		RWFunctionIntro d3f = new RWFunctionIntro(loc, prefix + "." + name, args, null);
-		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, d3f.name, args.size(), true);
+		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, d3f.name, args.size(), prefix, true);
 		func.cases.add(new RWFunctionCaseDefn(d3f, 0, expr));
 		functions.put(d3f.name, func);
 

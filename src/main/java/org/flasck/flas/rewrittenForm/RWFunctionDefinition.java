@@ -15,11 +15,13 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	public final CodeType mytype;
 	public final String name;
 	public final int nargs;
+	public final String inCard;
 	public final List<RWFunctionCaseDefn> cases = new ArrayList<>();
 	public final boolean generate;
 	private Type type;
 
-	public RWFunctionDefinition(InputPosition location, CodeType mytype, String name, int nargs, boolean generate) {
+	public RWFunctionDefinition(InputPosition location, CodeType mytype, String name, int nargs, String inCard, boolean generate) {
+		this.inCard = inCard;
 		if (location == null)
 			throw new UtilException("Null location");
 		this.location = location;

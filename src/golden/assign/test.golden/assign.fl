@@ -1,0 +1,9 @@
+	struct Container
+		String value
+		
+	card Card
+		state
+			Container c
+		
+		event doit
+			c.value <- "hello"

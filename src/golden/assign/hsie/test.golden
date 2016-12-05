@@ -1,0 +1,19 @@
+HSIE for test.golden.Card.doit/0                             #assign.fl:    8.6
+#Args: 0 #bound: 3
+    externals: [Assign, Cons, FLEval.field, Nil] scoped = []
+    all vars = [v0, v1, v2]
+RETURN v2:clos2 [v0:clos0, v1:clos1]                         #assign.fl:    9.11
+CLOSURE v1                                                   #assign.fl:    9.0
+  PUSH PackageVar.Assign                                     #assign.fl:    9.0
+  PUSH v0:clos0                                              #assign.fl:    9.2
+  PUSH "value"                                               #assign.fl:    9.2
+  PUSH "hello"                                               #assign.fl:    9.11
+CLOSURE v2                                                   #assign.fl:    9.11
+  PUSH PackageVar.Cons                                       #assign.fl:    8.6
+  PUSH v1:clos1                                              #assign.fl:    9.0
+  PUSH PackageVar.Nil                                        #assign.fl:    8.6
+CLOSURE v0                                                   #assign.fl:    9.2
+  PUSH PackageVar.FLEval.field                               #assign.fl:    9.2
+  PUSH this                                                  #assign.fl:    9.0
+  PUSH "c"                                                   #assign.fl:    9.0
+=======

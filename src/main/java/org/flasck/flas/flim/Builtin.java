@@ -178,7 +178,7 @@ public class Builtin {
 
 	protected static RWFunctionDefinition fnhelper(String name, Type... args) {
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
-		RWFunctionDefinition ret = new RWFunctionDefinition(posn, CodeType.FUNCTION, name, args.length-1, false);
+		RWFunctionDefinition ret = new RWFunctionDefinition(posn, CodeType.FUNCTION, name, args.length-1, null, false);
 		ret.setType(Type.function(posn, args));
 		return ret;
 	}
