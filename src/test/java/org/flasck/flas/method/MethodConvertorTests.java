@@ -187,7 +187,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanHaveAnEventHandlerWithNoActions() throws Exception {
-		defineEHMethod(orgFooScope, "bar");
+		defineEHMethod(cd.innerScope(), "bar");
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertFalse(errors.singleString(), errors.hasErrors());

@@ -870,6 +870,10 @@ public class TypeChecker2 {
 		} else if (cmd instanceof PushString) {
 			return getTypeOf(cmd.location, "String");
 		} else if (cmd instanceof PushCSR) {
+			if (form.inCard == null) {
+				form.dump(new PrintWriter(System.err));
+				throw new UtilException("Cannot get type of CSR if no card");
+			}
 			return getTypeOf(cmd.location, form.inCard);
 		} else if (cmd instanceof PushFunc) {
 			FunctionLiteral func = ((PushFunc)cmd).func;

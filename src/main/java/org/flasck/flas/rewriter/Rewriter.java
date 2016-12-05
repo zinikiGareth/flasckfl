@@ -805,7 +805,7 @@ public class Rewriter {
 				List<Object> enc = new ArrayList<>();
 				// I don't think there can be
 //				gatherEnclosing(enc, cx, from);
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, rw.location(), rw.name(), c.intro.name, HSIEForm.CodeType.CONTRACT, rwm, enc);
+				MethodInContext mic = new MethodInContext(this, c2, MethodInContext.DOWN, rw.location(), rw.name(), c.intro.name, HSIEForm.CodeType.CONTRACT, rwm, enc);
 				rewriteCase(c2, mic, c, true, false);
 				methods.put(c.intro.name, mic);
 				rw.methods.add(rwm);
@@ -826,7 +826,7 @@ public class Rewriter {
 				List<Object> enc = new ArrayList<>();
 				// I don't think there can be
 //				gatherEnclosing(enc, cx, from);
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.UP, rw.location(), rw.name(), c.intro.name, HSIEForm.CodeType.SERVICE, rwm, enc);
+				MethodInContext mic = new MethodInContext(this, c2, MethodInContext.UP, rw.location(), rw.name(), c.intro.name, HSIEForm.CodeType.SERVICE, rwm, enc);
 				rewriteCase(c2, mic, c, true, false);
 				methods.put(c.intro.name, mic);
 			}
