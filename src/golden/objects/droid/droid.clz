@@ -1,0 +1,141 @@
+public class test.golden.Card$_C0 extends test.golden.Ctr {
+  public test.golden.Card$_C0(test.golden.Card);
+    Code:
+       0: aload_0       
+       1: invokespecial #13                 // Method test/golden/Ctr."<init>":()V
+       4: aload_0       
+       5: aload_1       
+       6: putfield      #15                 // Field _card:Ltest/golden/Card;
+       9: return        
+
+  public java.lang.Object go();
+    Code:
+       0: new           #28                 // class org/flasck/android/FLClosure
+       3: dup           
+       4: ldc           #30                 // class org/flasck/android/builtin/Cons
+       6: iconst_2      
+       7: anewarray     #32                 // class java/lang/Object
+      10: dup           
+      11: iconst_0      
+      12: bipush        42
+      14: invokestatic  #39                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      17: aastore       
+      18: dup           
+      19: iconst_1      
+      20: iconst_0      
+      21: anewarray     #32                 // class java/lang/Object
+      24: invokestatic  #45                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      27: aastore       
+      28: invokespecial #48                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      31: astore_1      
+      32: new           #28                 // class org/flasck/android/FLClosure
+      35: dup           
+      36: ldc           #49                 // class org/flasck/android/builtin/Send
+      38: iconst_3      
+      39: anewarray     #32                 // class java/lang/Object
+      42: dup           
+      43: iconst_0      
+      44: aload_0       
+      45: getfield      #15                 // Field _card:Ltest/golden/Card;
+      48: getfield      #54                 // Field test/golden/Card.c:Lorg/flasck/android/builtin/Croset;
+      51: aastore       
+      52: dup           
+      53: iconst_1      
+      54: ldc           #55                 // String put
+      56: aastore       
+      57: dup           
+      58: iconst_2      
+      59: aload_1       
+      60: aastore       
+      61: invokespecial #48                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      64: astore_2      
+      65: new           #28                 // class org/flasck/android/FLClosure
+      68: dup           
+      69: ldc           #49                 // class org/flasck/android/builtin/Send
+      71: iconst_3      
+      72: anewarray     #32                 // class java/lang/Object
+      75: dup           
+      76: iconst_0      
+      77: aload_0       
+      78: getfield      #15                 // Field _card:Ltest/golden/Card;
+      81: getfield      #54                 // Field test/golden/Card.c:Lorg/flasck/android/builtin/Croset;
+      84: aastore       
+      85: dup           
+      86: iconst_1      
+      87: ldc           #57                 // String clear
+      89: aastore       
+      90: dup           
+      91: iconst_2      
+      92: iconst_0      
+      93: anewarray     #32                 // class java/lang/Object
+      96: invokestatic  #45                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      99: aastore       
+     100: invokespecial #48                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     103: astore_3      
+     104: new           #28                 // class org/flasck/android/FLClosure
+     107: dup           
+     108: ldc           #30                 // class org/flasck/android/builtin/Cons
+     110: iconst_2      
+     111: anewarray     #32                 // class java/lang/Object
+     114: dup           
+     115: iconst_0      
+     116: aload_3       
+     117: aastore       
+     118: dup           
+     119: iconst_1      
+     120: iconst_0      
+     121: anewarray     #32                 // class java/lang/Object
+     124: invokestatic  #45                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+     127: aastore       
+     128: invokespecial #48                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     131: astore        4
+     133: new           #28                 // class org/flasck/android/FLClosure
+     136: dup           
+     137: ldc           #30                 // class org/flasck/android/builtin/Cons
+     139: iconst_2      
+     140: anewarray     #32                 // class java/lang/Object
+     143: dup           
+     144: iconst_0      
+     145: aload_2       
+     146: aastore       
+     147: dup           
+     148: iconst_1      
+     149: aload         4
+     151: aastore       
+     152: invokespecial #48                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     155: areturn       
+}
+public class test.golden.Card extends org.flasck.android.FlasckActivity {
+  protected org.flasck.android.builtin.Croset c;
+
+  public test.golden.Card();
+    Code:
+       0: aload_0       
+       1: invokespecial #13                 // Method org/flasck/android/FlasckActivity."<init>":()V
+       4: return        
+
+  protected void onCreate(android.os.Bundle);
+    Code:
+       0: aload_0       
+       1: aload_1       
+       2: invokespecial #17                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
+       5: aload_0       
+       6: ldc           #18                 // String test.golden.Ctr
+       8: new           #7                  // class test/golden/Card$_C0
+      11: dup           
+      12: aload_0       
+      13: invokespecial #22                 // Method test/golden/Card$_C0."<init>":(Ltest/golden/Card;)V
+      16: invokevirtual #26                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/android/ContractImpl;)V
+      19: aload_0       
+      20: invokespecial #29                 // Method org/flasck/android/FlasckActivity.ready:()V
+      23: return        
+}
+public abstract class test.golden.Ctr extends org.flasck.android.ContractImpl {
+  public test.golden.Ctr();
+    Code:
+       0: aload_0       
+       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       4: return        
+
+  public abstract java.lang.Object go();
+}

@@ -1,0 +1,12 @@
+	contract Ctr
+		down go
+		
+	card Card
+		state
+			Croset[Number] c
+		
+		implements Ctr
+			go
+				<- c.put 42
+				<- c.clear
+				

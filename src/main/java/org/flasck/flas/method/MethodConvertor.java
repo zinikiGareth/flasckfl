@@ -46,6 +46,7 @@ import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.TypedObject;
+import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -296,8 +297,17 @@ public class MethodConvertor {
 							throw new UtilException("Can't handle this case yet: " + me.defn.getClass());
 					} else
 						throw new UtilException("What is this?" + l.type);
+				} else if (sender instanceof CardMember) {
+					CardMember cm = (CardMember) sender;
+					Type ot = cm.type;
+					while (ot.iam == WhatAmI.INSTANCE)
+						ot = ot.innerType();
+					if (ot instanceof RWObjectDefn)
+						return new SendExpr(((ApplyExpr)mm.expr).location(), sender, method, args);
+					else
+						return new TypeCheckMessages(root.location, root);
 				} else
-					return new TypeCheckMessages(root.location, root);
+					throw new UtilException("Cannot handle this case: " + sender + " of " + sender.getClass());
 			} else
 				return new TypeCheckMessages(root.location, root);
 		} else if (mm.expr instanceof HandlerLambda) {

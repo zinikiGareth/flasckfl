@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Contract file="objects.fl" line="1" name="test.golden.Ctr" off="9">
+        <Method dir="down" file="objects.fl" line="2" name="go" off="5" required="true"/>
+    </Contract>
+    <Card file="objects.fl" line="4" name="test.golden.Card" off="5">
+        <Implements contract="test.golden.Ctr"/>
+    </Card>
+</FLIM>

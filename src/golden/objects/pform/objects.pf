@@ -1,0 +1,22 @@
+package test.golden
+  cdecl test.golden.Ctr @{1:0|contract} @{1:9|Ctr}
+    required down go @{2:0|down} @{2:5|go}
+  card test.golden.Card @{4:0|card} @{4:5|Card}
+    state @{5:0|state}
+      c @{6:15|c}
+        Croset @{6:0|Croset}
+          Number @{6:7|Number}
+    implements Ctr @{8:0|implements} @{8:11|Ctr}
+      method test.golden.Card._C0.go @{9:0|go}
+        invoke @{10:0|<-}
+          <apply> @{10:3|c.put 42}
+            <apply> @{10:3|c.put}
+              . @{10:4|.}
+              c @{10:3|c}
+              put @{10:5|put}
+            # 42 @{10:9|42}
+        invoke @{11:0|<-}
+          <apply> @{11:3|c.clear}
+            . @{11:4|.}
+            c @{11:3|c}
+            clear @{11:5|clear}

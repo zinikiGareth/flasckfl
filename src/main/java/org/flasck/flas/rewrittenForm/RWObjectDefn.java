@@ -25,6 +25,10 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 		this.generate = generate;
 	}
 
+	public String uniqueName() {
+		return name;
+	}
+
 	public void constructorArg(InputPosition pos, Type type, String name) {
 		ctorArgs.add(new RWStructField(pos, false, type, name));
 	}
