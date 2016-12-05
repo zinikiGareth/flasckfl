@@ -17,13 +17,15 @@ public class RWContentExpr extends RWTemplateFormatEvents {
 	private boolean editable;
 	public final boolean rawHTML;
 	public final String fnName;
+	public final String editFn;
 
-	public RWContentExpr(InputPosition kw, Object expr, boolean edit, boolean rawHTML, String areaName, List<Object> formats, String fnName, String dynamicFn) {
+	public RWContentExpr(InputPosition kw, Object expr, boolean edit, boolean rawHTML, String areaName, List<Object> formats, String fnName, String dynamicFn, String editFn) {
 		super(kw, areaName, formats, dynamicFn);
 		this.expr = expr;
 		this.editable = edit;
 		this.rawHTML = rawHTML;
 		this.fnName = fnName;
+		this.editFn = editFn;
 	}
 
 	public void makeEditable() {

@@ -1,0 +1,14 @@
+package test.golden
+  struct test.golden.Container @{1:0|struct} @{1:7|Container}
+    title @{2:7|title}
+      String @{2:0|String}
+  card test.golden.MyCard @{4:0|card} @{4:5|MyCard}
+    state @{5:0|state}
+      c @{6:10|c}
+        Container @{6:0|Container}
+    template @{8:0|template} @{null}
+      <cexpr> @{9:2|title}
+        <apply> @{9:2|title}
+          . @{9:2|title}
+          c @{9:0|c}
+          title @{9:2|title}

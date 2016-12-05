@@ -1,0 +1,9 @@
+	struct Container
+		String title
+		
+	card MyCard
+		state
+			Container c
+		
+		template
+			c.title? 

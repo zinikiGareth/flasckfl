@@ -278,13 +278,13 @@ public class TemplateGenerator {
 				if (valExpr instanceof CardMember) {
 					CardMember cm = (CardMember) valExpr;
 					fn.add(JSForm.flex("this._editable(" + called + "._rules)"));
-					createRules(cx, called, null, cm.var);
+					createRules(cx, ce, called, null, cm.var);
 				} else if (valExpr instanceof ApplyExpr) {
 					ApplyExpr ae = (ApplyExpr) valExpr;
 					if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
 						throw new UtilException("Cannot edit: " + ae);
 					fn.add(JSForm.flex("this._editable(" + called + "._rules)"));
-					createRules(cx, called, ae.args.get(0), ((StringLiteral)ae.args.get(1)).text);
+					createRules(cx, ce, called, ae.args.get(0), ((StringLiteral)ae.args.get(1)).text);
 				} else 
 					throw new UtilException("Cannot edit: " + valExpr);
 			}
@@ -411,14 +411,11 @@ public class TemplateGenerator {
 		}
 	}
 	
-	private void createRules(GeneratorContext cx, String area, Object container, String field) {
+	private void createRules(GeneratorContext cx, RWContentExpr ce, String area, Object container, String field) {
 		JSForm rules = JSForm.flex(area + "._rules =").needBlock();
 		JSForm save = JSForm.flex("save: function(wrapper, text)").needBlock();
-		if (container != null) {
-			// TODO: HSIE: we don't have a test of this case
-//			JSForm.assign(save, "var containingObject", hsie.handleExpr(container, CodeType.AREA));
-			// I ***think*** what we need to do is generate a function for "container" in TemplateFunctionGenerator and then call it here
-			throw new UtilException("We don't have a test of this case");
+		if (ce.editFn != null) {
+			save.add(JSForm.flex("var containingObject = " + ce.editFn + "()"));
 		} else
 			save.add(JSForm.flex("var containingObject = this._card"));
 		// TODO: we may need to convert the text field to a more complex object type (e.g. integer) as specified in the rules we are given

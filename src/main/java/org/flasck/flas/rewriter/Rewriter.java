@@ -916,7 +916,18 @@ public class Rewriter {
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
-			return rewriteEventHandlers(cx, new RWContentExpr(ce.kw, rwexpr, ce.editable(), rawHTML, areaName, formats, fnName, makeFn(cx, ce, areaName, dynamicExpr)), ((TemplateFormatEvents)tl).handlers);
+			String editFn = null;
+			if (ce.editable() && rwexpr instanceof ApplyExpr) {
+				ApplyExpr ae = (ApplyExpr) rwexpr;
+				if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
+					throw new UtilException("Cannot edit: " + ae);
+				editFn = cx.nextFunction(areaName, "editcontainer", CodeType.AREA);
+				RWFunctionDefinition efn = new RWFunctionDefinition(ce.kw, CodeType.AREA, editFn, 0, cx.cardName(), true);
+				RWFunctionCaseDefn efcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, editFn, new ArrayList<>(), null), 0, ae.args.get(0));
+				efn.cases.add(efcd0);
+				functions.put(editFn, efn);
+			}
+			return rewriteEventHandlers(cx, new RWContentExpr(ce.kw, rwexpr, ce.editable(), rawHTML, areaName, formats, fnName, makeFn(cx, ce, areaName, dynamicExpr), editFn), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof TemplateCardReference) {
 			TemplateCardReference cr = (TemplateCardReference) tl;
 			Object cardVar = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
