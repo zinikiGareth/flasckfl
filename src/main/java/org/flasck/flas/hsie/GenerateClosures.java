@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.LocatedObject;
@@ -27,6 +26,7 @@ import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.SendExpr;
@@ -34,7 +34,6 @@ import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.zinutils.exceptions.UtilException;
@@ -242,11 +241,15 @@ public class GenerateClosures {
 		return new LocatedObject(expr.location(), expr);
 	}
 
-	// 20016-11-03: Note that this is not currently in any of our test cases
-	public LocatedObject process(CastExpr ce) {
+	public LocatedObject process(RWCastExpr ce) {
 		LocatedObject lo = dispatch(ce.expr);
 		VarInSource cv = (VarInSource) lo.obj;
-		HSIEBlock closure = form.getClosure(cv.var);
+		ClosureCmd closure = form.getClosure(cv.var);
+		if (closure == null) {
+			closure = form.createClosure(lo.loc);
+			closure.push(lo.loc, cv);
+			lo = new LocatedObject(lo.loc, new VarInSource(closure.var, lo.loc, "clos" + closure.var.idx));
+		}
 		closure.downcastType = (Type) ((PackageVar)ce.castTo).defn;
 		return lo;
 	}

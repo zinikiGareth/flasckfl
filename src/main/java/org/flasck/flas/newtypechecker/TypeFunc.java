@@ -36,6 +36,8 @@ public class TypeFunc extends TypeInfo {
 	@Override
 	public String toString() {
 		String sep = "";
+		if (args.size() == 1)
+			sep = "->";
 		StringBuilder ret = new StringBuilder();
 		for (TypeInfo a : args) {
 			ret.append(sep);

@@ -1,0 +1,13 @@
+package test.golden
+  struct test.golden.Role @{1:0|struct} @{1:7|Role}
+    id @{2:7|id}
+      String @{2:0|String}
+  test.golden.f @{4:0|f}
+    [type] x @{4:7|x}
+      Any @{4:3|Any}
+   =
+    <apply> @{4:12|(downcast Role x).id}
+      . @{4:29|.}
+      cast Role @{4:22|Role}
+        x @{4:27|x}
+      id @{4:30|id}

@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -121,16 +121,16 @@ public class Expression implements TryParsing {
 					return args.get(1);
 				return ((ApplyExpr)args.get(1)).fn;
 			} else if (args.size() == 3 && args.get(0) instanceof UnresolvedVar && ((UnresolvedVar)args.get(0)).var.equals("downcast")) {
-				Object ex = args.get(1);
-				if (ex instanceof ApplyExpr) {
-					ApplyExpr ae = (ApplyExpr) ex;
+				Object castTo = args.get(1);
+				if (castTo instanceof ApplyExpr) {
+					ApplyExpr ae = (ApplyExpr) castTo;
 					if (ae.args.isEmpty())
-						ex = ae.fn;
+						castTo = ae.fn;
 				}
-				if (!(ex instanceof UnresolvedVar))
+				if (!(castTo instanceof UnresolvedVar))
 					return ErrorResult.oneMessage(((Locatable)args.get(1)).location(), "cannot downcast to " + args.get(1));
-				UnresolvedVar type = (UnresolvedVar)ex;
-				return new CastExpr(type.location, type.var, args.get(2));
+				UnresolvedVar castToType = (UnresolvedVar)castTo;
+				return new CastExpr(((Locatable) args.get(0)).location(), castToType.location, castToType.var, args.get(2));
 			} else if (args.size() == 1) {
 				Locatable a0 = (Locatable) args.get(0);
 				return promoteConstructors(deparen(a0.location(), a0));
@@ -305,7 +305,7 @@ public class Expression implements TryParsing {
 			return new ApplyExpr(loc, deparen(((Locatable)ae.fn).location(), ae.fn), args);
 		} else if (pe instanceof CastExpr) {
 			CastExpr ce = (CastExpr) pe;
-			return new CastExpr(loc, ce.castTo, deparen(ce.location, ce.expr));
+			return new CastExpr(loc, ce.ctLoc, ce.castTo, deparen(ce.location, ce.expr));
 		} else if (pe instanceof NumericLiteral || pe instanceof UnresolvedVar || pe instanceof UnresolvedOperator || pe instanceof StringLiteral)
 			return pe;
 		else

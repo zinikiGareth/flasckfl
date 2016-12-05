@@ -27,6 +27,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
@@ -365,6 +366,11 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				pw.println("else");
 				dumpRecursive(pw.indent(), ie.elseExpr);
 			}
+		} else if (obj instanceof CastExpr) {
+			CastExpr ce = (CastExpr) obj;
+			pw.print("cast " + ce.castTo);
+			dumpPosition(pw, ce.ctLoc, true);
+			dumpRecursive(pw.indent(), ce.expr);
 		} else if (obj instanceof FunctionCaseDefn) {
 			FunctionCaseDefn fcd = (FunctionCaseDefn) obj;
 			pw.print(fcd.intro.name);

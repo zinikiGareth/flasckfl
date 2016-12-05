@@ -386,6 +386,8 @@ public class TypeChecker2 {
 		if (c.justScoping) {
 			return;
 		}
+		if (c.downcastType != null)
+			constraints.add(c.var, convertType(c.downcastType));
 		logger.info("Need to check " + f.fnName + " " + c.var);
 		List<TypeInfo> argtypes = new ArrayList<TypeInfo>();
 		List<String> isScoped = new ArrayList<String>();
@@ -400,7 +402,10 @@ public class TypeChecker2 {
 		if (cmd instanceof PushVar) {
 			PushVar pc = (PushVar)cmd;
 			Var fv = pc.var.var;
-			constraints.add(fv, new TypeFunc(cmd.location, argtypes, new TypeVar(pc.var.loc, c.var)));
+			if (argtypes.isEmpty())
+				constraints.add(fv, new TypeVar(pc.var.loc, c.var));
+			else
+				constraints.add(fv, new TypeFunc(cmd.location, argtypes, new TypeVar(pc.var.loc, c.var)));
 		} else {
 			if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.field")) {
 				TypeInfo ty;
@@ -409,8 +414,12 @@ public class TypeChecker2 {
 					for (TypeInfo ti : constraints.get(((TypeVar)argtypes.get(0)).var))
 						if (ti instanceof NamedType)
 							set.add(ti);
-					if (set.isEmpty())
+					if (set.isEmpty()) {
+						f.dump(new PrintWriter(System.err));
+						System.err.println("-----; looking at: ");
+						c.dump(new PrintWriter(System.err), 0);
 						throw new UtilException("This is a reasonable case, I think, but one I cannot handle: " + set);
+					}
 					if (set.size() > 1)
 						throw new UtilException("This is a dubious case, I think, and one I cannot handle: "  + set);
 					ty = CollectionUtils.any(set);

@@ -21,6 +21,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch.Field;
 import org.flasck.flas.types.Type;
@@ -137,6 +138,10 @@ public class GatherExternals {
 		dispatch(expr.guard);
 		dispatch(expr.ifExpr);
 		dispatch(expr.elseExpr);
+	}
+	
+	private void process(RWCastExpr expr) {
+		dispatch(expr.expr);
 	}
 	
 	private void process(AssertTypeExpr expr) {

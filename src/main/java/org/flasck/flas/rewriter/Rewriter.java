@@ -13,7 +13,6 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
-import org.flasck.flas.commonBase.CastExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
@@ -26,6 +25,7 @@ import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.flim.ImportedCard;
 import org.flasck.flas.flim.PackageFinder;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
 import org.flasck.flas.parsedForm.ConstructorMatch.Field;
 import org.flasck.flas.parsedForm.ContentExpr;
@@ -84,6 +84,7 @@ import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWContentString;
@@ -1563,7 +1564,7 @@ public class Rewriter {
 					// expr . field
 					Object applyFn = rewriteExpr(cx, aefn);
 					if (castTo != null)
-						applyFn = new CastExpr(castLoc, castTo, applyFn);
+						applyFn = new RWCastExpr(castLoc, castTo, applyFn);
 	
 					return new ApplyExpr(ae.location, cx.resolve(ae.location, "."), applyFn, new StringLiteral(loc, fname));
 				}
@@ -1574,7 +1575,7 @@ public class Rewriter {
 			} else if (expr instanceof CastExpr) {
 				CastExpr ce = (CastExpr) expr;
 				Object resolve = cx.resolve(ce.location, (String) ce.castTo);
-				return new CastExpr(ce.location, resolve, rewriteExpr(cx, ce.expr));
+				return new RWCastExpr(ce.location, resolve, rewriteExpr(cx, ce.expr));
 			} else if (expr instanceof IfExpr) {
 				IfExpr ie = (IfExpr)expr;
 				return new IfExpr((Locatable) rewriteExpr(cx, ie.guard), rewriteExpr(cx, ie.ifExpr), rewriteExpr(cx, ie.elseExpr));

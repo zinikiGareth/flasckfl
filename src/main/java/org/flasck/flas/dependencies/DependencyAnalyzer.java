@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.IfExpr;
+import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
@@ -25,6 +26,7 @@ import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
@@ -125,6 +127,9 @@ public class DependencyAnalyzer {
 			analyzeExpr(name, locals, ie.guard);
 			analyzeExpr(name, locals, ie.ifExpr);
 			analyzeExpr(name, locals, ie.elseExpr);
+		} else if (expr instanceof RWCastExpr) {
+			RWCastExpr ce = (RWCastExpr) expr;
+			analyzeExpr(name, locals, ce.expr);
 		} else if (expr instanceof TypeCheckMessages) {
 			TypeCheckMessages tcm = (TypeCheckMessages) expr;
 			analyzeExpr(name, locals, tcm.expr);
@@ -136,7 +141,7 @@ public class DependencyAnalyzer {
 			analyzeExpr(name, locals, dse.sender);
 			analyzeExpr(name, locals, dse.args);
 		} else
-			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass());
+			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass() + " at " + ((Locatable)expr).location());
 	}
 
 	List<Set<RWFunctionDefinition>> group(Map<String, RWFunctionDefinition> functions) {
