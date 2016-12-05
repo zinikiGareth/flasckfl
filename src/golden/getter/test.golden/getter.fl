@@ -1,0 +1,7 @@
+	card Getter
+		state
+			String curr
+			Croset[String] strings
+		
+		event choose (String id)
+			curr <- strings.item id

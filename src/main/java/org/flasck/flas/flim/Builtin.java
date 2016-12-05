@@ -162,8 +162,8 @@ public class Builtin {
 			croset.constructorArg(posn, crokeys, "init");
 			
 			// These are actually accessors ...
-			croset.addMethod(new RWObjectMethod(Type.function(posn, string, any), "item"));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, any, any), "member")); // crokey, natural crokey or string as input
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, varA), "item"));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, any, varA), "member")); // crokey, natural crokey or string as input
 
 			// These are real methods
 			croset.addMethod(new RWObjectMethod(Type.function(posn, any, send), "put"));

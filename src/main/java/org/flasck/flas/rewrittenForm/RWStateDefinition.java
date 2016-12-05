@@ -16,4 +16,11 @@ public class RWStateDefinition {
 				return true;
 		return false;
 	}
+
+	public RWStructField getMember(String fname) {
+		for (RWStructField sf : fields)
+			if (sf.name.equals(fname))
+				return sf;
+		return null;
+	}
 }

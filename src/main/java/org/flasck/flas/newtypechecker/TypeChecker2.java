@@ -64,6 +64,7 @@ public class TypeChecker2 {
 	private final ErrorResult errors;
 	private final Rewriter rw;
 	private final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
+	private final Map<String, RWObjectDefn> objects = new HashMap<String, RWObjectDefn>();
 	private final Map<String, TypeInfo> structTypes = new HashMap<String, TypeInfo>();
 	private final Map<String, Type> export = new TreeMap<>();
 	private final Map<String, Type> ctors = new TreeMap<>();
@@ -110,6 +111,7 @@ public class TypeChecker2 {
 			unions.add(ud);
 		}
 		for (RWObjectDefn od : rw.objects.values()) {
+			objects.put(od.uniqueName(), od);
 			List<TypeInfo> polys = new ArrayList<>();
 			if (od.hasPolys()) {
 				for (Type t : od.polys())
@@ -303,7 +305,81 @@ public class TypeChecker2 {
 			}
 		}
 
-		// 3. Eliminate vars that are duplicates
+		// TODO: I suspect 3 & 4 may need to be merged into a single, until-we're-done loop
+		// 3. Unify type arguments
+		SetMap<Var, TypeInfo> addTo = new SetMap<Var, TypeInfo>();
+		for (Var k : constraints.keySet()) {
+			Set<TypeInfo> tis = constraints.get(k);
+			if (tis.size() < 2)
+				continue;
+			Set<TypeFunc> tfs = new HashSet<TypeFunc>();
+			Set<NamedType> nts = new HashSet<NamedType>();
+			for (TypeInfo ti : tis) {
+				if (ti instanceof TypeVar)
+					continue;
+				else if (ti instanceof TypeFunc)
+					tfs.add((TypeFunc) ti);
+				else if (ti instanceof NamedType)
+					nts.add((NamedType) ti);
+				else if (ti instanceof TupleInfo)
+					; // TODO: this is also a case that needs handling
+				else
+					throw new UtilException("Cannot handle " + ti + " " + ti.getClass());
+			}
+			if (!tfs.isEmpty() && !nts.isEmpty())
+				throw new UtilException("There should be a clear error message for this case: cannot merge " + nts + " with " + tfs);
+			if (tfs.size() > 1) {
+				int arity = -1;
+				for (TypeFunc tf : tfs) {
+					if (arity == -1)
+						arity = tf.args.size();
+					else if (arity != tf.args.size())
+						throw new UtilException("Cannot merge multiple functions with different arity unless the final thing is a var, which is a complicated case");
+				}
+				List<TypeInfo> unified = new ArrayList<TypeInfo>();
+				for (int i=0;i<arity;i++) {
+					// TODO: in the real world, I think this needs to be recursive, handling nested function and polymorphic types
+					Set<TypeInfo> mas = new HashSet<TypeInfo>();
+					for (TypeFunc tf : tfs) {
+						mas.add(tf.args.get(i));
+					}
+					TypeInfo hard = null;
+					TypeInfo soft = null;
+					for (TypeInfo ti : mas) {
+						if (!(ti instanceof TypeVar)) {
+							if (hard != null)
+								throw new UtilException("Need to handle recursive case or something");
+							else
+								hard = ti;
+							continue;
+						}
+						soft = ti;
+						Var v = ((TypeVar)ti).var;
+						for (TypeInfo tj : mas) {
+							if (ti.equals(tj))
+								continue;
+							addTo.add(v, tj);
+						}
+					}
+					if (hard != null)
+						unified.add(hard);
+					else
+						unified.add(soft);
+				}
+				tis.removeAll(tfs);
+				tis.add(new TypeFunc(CollectionUtils.any(tfs).location(), unified));
+			}
+			if (nts.size() > 1) {
+				// Note: there are two cases here
+				// It is possible we have something like Nil & Cons[v0], in which case we want to defer until merging
+				// But we should look at the case where we have Cons[v0] and Cons[String]
+			}
+		}
+		for (Var v : addTo.keySet()) {
+			constraints.addAll(v, addTo.get(v));
+		}
+		
+		// 4. Eliminate vars that are duplicates
 		Map<Var, Var> renames = new TreeMap<Var, Var>(new SimpleVarComparator());
 		boolean changed = true;
 		elimLoop:
@@ -342,9 +418,6 @@ public class TypeChecker2 {
 				}
 			}
 		}
-		// 4. Unify type arguments
-		
-		// TODO: as we don't have this case "right now", but basically v0 -> Cons[Number], Cons[v2]: ah, v2 must be Number
 		
 		// 5. Merge union types
 		Map<Var, TypeInfo> merged = new TreeMap<Var, TypeInfo>(new SimpleVarComparator());
@@ -430,17 +503,29 @@ public class TypeChecker2 {
 					throw new NotImplementedException("FLEval.field(unhandled): " + argtypes.get(0) + " " + argtypes.get(0).getClass());
 				}
 				if (ty instanceof NamedType) {
-					String sn = ((NamedType)ty).name;
+					NamedType nt = (NamedType) ty;
+					String sn = nt.name;
+					String fname = ((PushString)cmds.get(2)).sval.text;
 					RWStructDefn sd = structs.get(sn);
-					if (sd == null) {
+					RWObjectDefn od = objects.get(sn);
+					if (sd != null) {
+						RWStructField sf = sd.findField(fname);
+						if (sf == null)
+							throw new UtilException(sn + " does not have a field " + fname);
+						constraints.add(c.var, freshPolys(convertType(sf.type), new HashMap<>()));
+					} else if (od != null) {
+						Type ot;
+						if (od.state != null && od.state.hasMember(fname)) {
+							ot = od.state.getMember(fname).type;
+						} else if (od.hasMethod(fname)) {
+							ot = od.getMethodType(fname);
+						} else
+							throw new UtilException("There is no field " + fname + " in object " + sn);
+						constraints.add(c.var, instantiate(convertType(ot), nt, od));
+					} else {
 						c.dumpOne(new PrintWriter(System.err), 0);
 						throw new UtilException(sn + " is not a struct; cannot do .");
 					}
-					String fname = ((PushString)cmds.get(2)).sval.text;
-					RWStructField sf = sd.findField(fname);
-					if (sf == null)
-						throw new UtilException(sn + " does not have a field " + fname);
-					constraints.add(c.var, freshPolys(convertType(sf.type), new HashMap<>()));
 				} else
 					throw new NotImplementedException("FLEval.field(non-named): " + ty);
 				return;
@@ -936,6 +1021,29 @@ public class TypeChecker2 {
 			throw new UtilException("Do what now? " + ti);
 	}
 	
+	private TypeInfo instantiate(TypeInfo subst, NamedType nt, Type od) {
+		if (subst instanceof TypeFunc) {
+			TypeFunc work = (TypeFunc) subst;
+			List<TypeInfo> args = new ArrayList<TypeInfo>();
+			for (TypeInfo ti : work.args) {
+				if (ti instanceof PolyInfo) {
+					String s = ((PolyInfo)ti).name;
+					TypeInfo ut = null;
+					for (int i=0;i<od.polys().size();i++) {
+						if (od.poly(i).name().equals(s))
+							ut = nt.polyArgs.get(i);
+					}
+					if (ut == null)
+						throw new UtilException("Could not find poly " + s + " in " + od);
+					args.add(ut);
+				} else
+					args.add(ti);
+			}
+			return new TypeFunc(work.location(), args);
+		} else
+			throw new UtilException("Cannot handle subst being " + subst + " " + subst.getClass());
+	}
+
 	private Type asType(TypeInfo ti) {
 		if (ti instanceof NamedType) {
 			NamedType nt = (NamedType) ti;

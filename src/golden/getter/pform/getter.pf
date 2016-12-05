@@ -1,0 +1,18 @@
+package test.golden
+  card test.golden.Getter @{1:0|card} @{1:5|Getter}
+    state @{2:0|state}
+      curr @{3:7|curr}
+        String @{3:0|String}
+      strings @{4:15|strings}
+        Croset @{4:0|Croset}
+          String @{4:7|String}
+    event test.golden.Getter.choose_1 @{6:0|event} @{6:6|choose}
+      [type] id @{6:21|id}
+        String @{6:14|String}
+      assign curr <- @{7:0|curr} @{7:5|<-}
+        <apply> @{7:8|strings.item id}
+          <apply> @{7:8|strings.item}
+            . @{7:15|.}
+            strings @{7:8|strings}
+            item @{7:16|item}
+          id @{7:21|id}
