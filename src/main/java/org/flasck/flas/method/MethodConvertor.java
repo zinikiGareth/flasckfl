@@ -291,7 +291,7 @@ public class MethodConvertor {
 							RWFunctionDefinition fd = (RWFunctionDefinition) me.defn;
 							if (fd.nargs() > 0)
 								errors.message(l.location(), "cannot use function " + me.id + " of arity " + fd.nargs() + " as constant");
-							return new SendExpr(l.location(), l.scopedFrom, method, args);
+							return new SendExpr(l.location(), l, method, args);
 						}
 						else
 							throw new UtilException("Can't handle this case yet: " + me.defn.getClass());
