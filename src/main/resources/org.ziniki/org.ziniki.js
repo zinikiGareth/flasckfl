@@ -133,48 +133,48 @@ org.ziniki.loadCroset = function(v0, v1, v2, v3, v4, v5) {
   return FLEval.error("org.ziniki.loadCroset: case not handled");
 }
 
-org.ziniki.loadCroset_0._ItemHandler.prototype.update = function(s0, v0) {
+org.ziniki.loadCroset_0._ItemHandler.prototype.update = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {
     return v0;
   }
   if (v0) {
-    var v2 = FLEval.closure(Cons, v0, Nil);
-    var v3 = FLEval.closure(Cons, this.ck, v2);
-    var v4 = FLEval.closure(Send, s0, 'insert', v3);
-    return FLEval.closure(Cons, v4, Nil);
+    var v1 = FLEval.closure(Cons, v0, Nil);
+    var v2 = FLEval.closure(Cons, this.ck, v1);
+    var v3 = FLEval.closure(Send, this.set, 'insert', v2);
+    return FLEval.closure(Cons, v3, Nil);
   }
   return FLEval.error("org.ziniki.loadCroset_0.ItemHandler.update: case not handled");
 }
 
-org.ziniki.loadCroset_0._SetHandler.prototype.remove = function(s0, v0) {
+org.ziniki.loadCroset_0._SetHandler.prototype.remove = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {
     return v0;
   }
   if (FLEval.isA(v0, 'Crokeys')) {
-    var v2 = FLEval.closure(Cons, v0, Nil);
-    var v3 = FLEval.closure(Send, s0, 'deleteSet', v2);
-    return FLEval.closure(Cons, v3, Nil);
+    var v1 = FLEval.closure(Cons, v0, Nil);
+    var v2 = FLEval.closure(Send, this.set, 'deleteSet', v1);
+    return FLEval.closure(Cons, v2, Nil);
   }
   return FLEval.error("org.ziniki.loadCroset_0.SetHandler.remove: case not handled");
 }
 
-org.ziniki.loadCroset_0._SetHandler.prototype.update = function(s0, v0) {
+org.ziniki.loadCroset_0._SetHandler.prototype.update = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {
     return v0;
   }
   if (FLEval.isA(v0, 'Crokeys')) {
-    var v2 = FLEval.closure(Cons, v0, Nil);
-    var v3 = FLEval.closure(Send, s0, 'mergeAppend', v2);
-    var v4 = FLEval.closure(FLEval.field, v0, 'keys');
-    var v5 = FLEval.closure(map, this.requestObj, v4);
-    var v6 = FLEval.closure(Cons, v5, Nil);
-    return FLEval.closure(Cons, v3, v6);
+    var v1 = FLEval.closure(Cons, v0, Nil);
+    var v2 = FLEval.closure(Send, this.set, 'mergeAppend', v1);
+    var v3 = FLEval.closure(FLEval.field, v0, 'keys');
+    var v4 = FLEval.closure(map, this.requestObj, v3);
+    var v5 = FLEval.closure(Cons, v4, Nil);
+    return FLEval.closure(Cons, v2, v5);
   }
   return FLEval.error("org.ziniki.loadCroset_0.SetHandler.update: case not handled");
 }
@@ -235,34 +235,34 @@ org.ziniki.scanNatural = function(v0, v1, v2, v3, v4) {
   return FLEval.error("org.ziniki.scanNatural: case not handled");
 }
 
-org.ziniki.scanNatural_0._ItemHandler.prototype.update = function(s0, v0) {
+org.ziniki.scanNatural_0._ItemHandler.prototype.update = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {
     return v0;
   }
   if (v0) {
-    var v2 = FLEval.closure(Cons, v0, Nil);
-    var v3 = FLEval.closure(Cons, this.nk, v2);
-    var v4 = FLEval.closure(Send, s0, 'insert', v3);
-    return FLEval.closure(Cons, v4, Nil);
+    var v1 = FLEval.closure(Cons, v0, Nil);
+    var v2 = FLEval.closure(Cons, this.nk, v1);
+    var v3 = FLEval.closure(Send, this.set, 'insert', v2);
+    return FLEval.closure(Cons, v3, Nil);
   }
   return FLEval.error("org.ziniki.scanNatural_0.ItemHandler.update: case not handled");
 }
 
-org.ziniki.scanNatural_0._QHandler.prototype.keys = function(s0, v0) {
+org.ziniki.scanNatural_0._QHandler.prototype.keys = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {
     return v0;
   }
   if (FLEval.isA(v0, 'Crokeys')) {
-    var v2 = FLEval.closure(Cons, v0, Nil);
-    var v3 = FLEval.closure(Send, s0, 'mergeAppend', v2);
-    var v4 = FLEval.closure(FLEval.field, v0, 'keys');
-    var v5 = FLEval.closure(map, this.requestObj, v4);
-    var v6 = FLEval.closure(Cons, v5, Nil);
-    return FLEval.closure(Cons, v3, v6);
+    var v1 = FLEval.closure(Cons, v0, Nil);
+    var v2 = FLEval.closure(Send, this.set, 'mergeAppend', v1);
+    var v3 = FLEval.closure(FLEval.field, v0, 'keys');
+    var v4 = FLEval.closure(map, this.requestObj, v3);
+    var v5 = FLEval.closure(Cons, v4, Nil);
+    return FLEval.closure(Cons, v2, v5);
   }
   return FLEval.error("org.ziniki.scanNatural_0.QHandler.keys: case not handled");
 }
