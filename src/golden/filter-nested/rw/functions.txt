@@ -1,0 +1,35 @@
+function test.golden.filter 2
+  case test.golden.filter_0
+    var test.golden.filter_0.f
+    ctor Nil
+  =
+    PackageVar.Nil
+  case test.golden.filter_1
+    var test.golden.filter_1.f
+    ctor Cons
+      var test.golden.filter_1.a
+      var test.golden.filter_1.l
+  =
+    @
+      VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.g]
+      @
+        LocalVar.test.golden.filter_1.f
+        LocalVar.test.golden.filter_1.a
+function test.golden.filter_1.g 1
+  case test.golden.filter_1.g_0
+    const true
+  =
+    @
+      PackageVar.Cons
+      VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.a]
+      @
+        PackageVar.test.golden.filter
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.f]
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.l]
+  case test.golden.filter_1.g_1
+    const false
+  =
+    @
+      PackageVar.test.golden.filter
+      VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.f]
+      VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.l]

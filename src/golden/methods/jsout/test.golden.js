@@ -36,16 +36,16 @@ test.golden.f = function() {
   return Nil;
 }
 
-test.golden.f_0._KVHImpl.prototype.update = function(s0, v0) {
+test.golden.f_0._KVHImpl.prototype.update = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
   if (v0 instanceof FLError) {
     return v0;
   }
   if (FLEval.isA(v0, 'Crokeys')) {
-    var v2 = FLEval.closure(Cons, v0, Nil);
-    var v3 = FLEval.closure(Send, s0, 'mergeAppend', v2);
-    return FLEval.closure(Cons, v3, Nil);
+    var v1 = FLEval.closure(Cons, v0, Nil);
+    var v2 = FLEval.closure(Send, this.s, 'mergeAppend', v1);
+    return FLEval.closure(Cons, v2, Nil);
   }
   return FLEval.error("test.golden.f_0.KVHImpl.update: case not handled");
 }

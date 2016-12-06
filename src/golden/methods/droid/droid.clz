@@ -30,19 +30,19 @@ public class test.golden.f_0$KVHImpl extends test.golden.KVH {
       25: invokespecial #30                 // Method "<init>":(Ljava/lang/Object;)V
       28: areturn       
 
-  public java.lang.Object update(org.flasck.android.post.DeliveryAddress, java.lang.Object, java.lang.Object);
+  public java.lang.Object update(org.flasck.android.post.DeliveryAddress, java.lang.Object);
     Code:
-       0: aload_3       
+       0: aload_2       
        1: invokestatic  #19                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
-       4: astore_3      
-       5: aload_3       
+       4: astore_2      
+       5: aload_2       
        6: instanceof    #43                 // class org/flasck/android/FLError
        9: ifeq          14
-      12: aload_3       
+      12: aload_2       
       13: areturn       
-      14: aload_3       
+      14: aload_2       
       15: instanceof    #45                 // class org/flasck/android/builtin/Crokeys
-      18: ifeq          108
+      18: ifeq          109
       21: new           #47                 // class org/flasck/android/FLClosure
       24: dup           
       25: ldc           #49                 // class org/flasck/android/builtin/Cons
@@ -50,7 +50,7 @@ public class test.golden.f_0$KVHImpl extends test.golden.KVH {
       28: anewarray     #51                 // class java/lang/Object
       31: dup           
       32: iconst_0      
-      33: aload_3       
+      33: aload_2       
       34: aastore       
       35: dup           
       36: iconst_1      
@@ -59,48 +59,49 @@ public class test.golden.f_0$KVHImpl extends test.golden.KVH {
       41: invokestatic  #57                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       44: aastore       
       45: invokespecial #60                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      48: astore        4
-      50: new           #47                 // class org/flasck/android/FLClosure
-      53: dup           
-      54: ldc           #61                 // class org/flasck/android/builtin/Send
-      56: iconst_3      
-      57: anewarray     #51                 // class java/lang/Object
-      60: dup           
-      61: iconst_0      
-      62: aload_2       
-      63: aastore       
-      64: dup           
-      65: iconst_1      
-      66: ldc           #63                 // String mergeAppend
-      68: aastore       
-      69: dup           
-      70: iconst_2      
-      71: aload         4
-      73: aastore       
-      74: invokespecial #60                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      77: astore        5
-      79: new           #47                 // class org/flasck/android/FLClosure
-      82: dup           
-      83: ldc           #49                 // class org/flasck/android/builtin/Cons
-      85: iconst_2      
-      86: anewarray     #51                 // class java/lang/Object
-      89: dup           
-      90: iconst_0      
-      91: aload         5
-      93: aastore       
-      94: dup           
-      95: iconst_1      
-      96: iconst_0      
-      97: anewarray     #51                 // class java/lang/Object
-     100: invokestatic  #57                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
-     103: aastore       
-     104: invokespecial #60                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-     107: areturn       
-     108: new           #43                 // class org/flasck/android/FLError
-     111: dup           
-     112: ldc           #65                 // String update: case not handled
-     114: invokespecial #69                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
-     117: areturn       
+      48: astore_3      
+      49: new           #47                 // class org/flasck/android/FLClosure
+      52: dup           
+      53: ldc           #61                 // class org/flasck/android/builtin/Send
+      55: iconst_3      
+      56: anewarray     #51                 // class java/lang/Object
+      59: dup           
+      60: iconst_0      
+      61: aload_0       
+      62: getfield      #21                 // Field s:Ljava/lang/Object;
+      65: aastore       
+      66: dup           
+      67: iconst_1      
+      68: ldc           #63                 // String mergeAppend
+      70: aastore       
+      71: dup           
+      72: iconst_2      
+      73: aload_3       
+      74: aastore       
+      75: invokespecial #60                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      78: astore        4
+      80: new           #47                 // class org/flasck/android/FLClosure
+      83: dup           
+      84: ldc           #49                 // class org/flasck/android/builtin/Cons
+      86: iconst_2      
+      87: anewarray     #51                 // class java/lang/Object
+      90: dup           
+      91: iconst_0      
+      92: aload         4
+      94: aastore       
+      95: dup           
+      96: iconst_1      
+      97: iconst_0      
+      98: anewarray     #51                 // class java/lang/Object
+     101: invokestatic  #57                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+     104: aastore       
+     105: invokespecial #60                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     108: areturn       
+     109: new           #43                 // class org/flasck/android/FLError
+     112: dup           
+     113: ldc           #65                 // String update: case not handled
+     115: invokespecial #69                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
+     118: areturn       
 }
 public abstract class test.golden.KVH extends org.flasck.android.ContractImpl {
   public test.golden.KVH();

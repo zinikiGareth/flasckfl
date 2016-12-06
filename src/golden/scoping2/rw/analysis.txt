@@ -1,0 +1,18 @@
+handler test.golden.scoped_0.MyHc *function*
+  lambda test.golden.scoped_0.MyHc requestObj
+  method test.golden.scoped_0.MyHc.reply
+    case test.golden.scoped_0.MyHc.reply
+    =
+      <-
+        HandlerLambda.HL[test.golden.scoped_0.MyHc.requestObj]
+function test.golden.scoped 1
+  case test.golden.scoped_0
+    typed contract test.golden.UpC test.golden.scoped_0.ctr
+  =
+    @
+      PackageVar.MessageWrapper
+      32
+      @
+        PackageVar.Cons
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.request]
+        PackageVar.Nil

@@ -1,0 +1,66 @@
+handler test.golden.Complex.FooHandler *card*
+  lambda test.golden.Complex.FooHandler k
+  method test.golden.Complex.FooHandler.reply
+    case test.golden.Complex.FooHandler.reply
+      var test.golden.Complex.FooHandler.reply.x
+    =
+      [CardMember[test.golden.Complex.hello]]
+      <-
+        @
+          PackageVar.++
+          HandlerLambda.HL[test.golden.Complex.FooHandler.k]
+          LocalVar.test.golden.Complex.FooHandler.reply.x
+function test.golden.Complex.inits_format 0
+  case test.golden.Complex.inits_format_0
+  =
+    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "basic")
+function test.golden.Complex.inits_hello 0
+  case test.golden.Complex.inits_hello_0
+  =
+    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello, world")
+function test.golden.WithInit.inits_x 0
+  case test.golden.WithInit.inits_x_0
+  =
+    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello")
+function test.golden._Complex.B1.teas_0 test.golden.Complex 0
+  case test.golden._Complex.B1.teas_0_0
+  =
+    CardMember.CardMember[test.golden.Complex.hello]
+function test.golden._Complex.B11.yoyos_8 test.golden.Complex 0
+  case test.golden._Complex.B11.yoyos_8_0
+  =
+    CardMember.CardMember[test.golden.Complex.yoyo]
+function test.golden._Complex.B2.contents_1 test.golden.Complex 0
+  case test.golden._Complex.B2.contents_1_0
+  =
+    CardMember.CardMember[test.golden.Complex.hello]
+function test.golden._Complex.B2.formats_2 test.golden.Complex 0
+  case test.golden._Complex.B2.formats_2_0
+  =
+    @
+      PackageVar.Cons
+      CardMember.CardMember[test.golden.Complex.format]
+      PackageVar.Nil
+function test.golden._Complex.B3.lvs_3 test.golden.Complex 0
+  case test.golden._Complex.B3.lvs_3_0
+  =
+    CardMember.CardMember[test.golden.Complex.list]
+function test.golden._Complex.B5.contents_4 test.golden.Complex 0
+  case test.golden._Complex.B5.contents_4_0
+  =
+    ?? class org.flasck.flas.commonBase.template.TemplateListVar:TLV[test.golden.Complex.lv<-test.golden._Complex.B3.lvs_3]
+function test.golden._Complex.B6.lvs_5 test.golden.Complex 0
+  case test.golden._Complex.B6.lvs_5_0
+  =
+    CardMember.CardMember[test.golden.Complex.list]
+function test.golden._Complex.B8.handlers_6 test.golden.Complex 0
+  case test.golden._Complex.B8.handlers_6_0
+  =
+    CardFunction.test.golden.Complex.sayHello
+function test.golden._Complex.B9.ors_7 test.golden.Complex 0
+  case test.golden._Complex.B9.ors_7_0
+  =
+    @
+      PackageVar.==
+      CardMember.CardMember[test.golden.Complex.hello]
+      "hello"

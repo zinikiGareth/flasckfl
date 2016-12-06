@@ -1,0 +1,8 @@
+function test.golden.x 0
+  case test.golden.x_0
+  =
+    PackageVar.Number
+function test.golden.y 0
+  case test.golden.y_0
+  =
+    PackageVar.test.golden.MyCard

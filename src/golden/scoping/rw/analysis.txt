@@ -1,0 +1,34 @@
+handler test.golden.f_0.HandleReply *function*
+  lambda test.golden.f_0.HandleReply server
+  lambda test.golden.f_0.HandleReply var
+  lambda test.golden.f_0.HandleReply v
+  method test.golden.f_0.HandleReply.reply
+    case test.golden.f_0.HandleReply.reply
+      var test.golden.f_0.HandleReply.reply.y
+    =
+      <-
+        @
+          @
+            PackageVar.FLEval.field
+            HandlerLambda.HL[test.golden.f_0.HandleReply.server]
+            "put"
+          @
+            PackageVar.+
+            HandlerLambda.HL[test.golden.f_0.HandleReply.var]
+            HandlerLambda.HL[test.golden.f_0.HandleReply.v]
+function test.golden.f 2
+  case test.golden.f_0
+    typed contract test.golden.Server test.golden.f_0.server
+    var test.golden.f_0.x
+  =
+    @
+      PackageVar.MessageWrapper
+      VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.var]
+      @
+        PackageVar.Cons
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.q]
+        PackageVar.Nil
+function test.golden.f_0.var 0
+  case test.golden.f_0.var_0
+  =
+    32

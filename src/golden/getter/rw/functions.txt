@@ -1,0 +1,12 @@
+function test.golden.Getter.choose test.golden.Getter 1
+  case test.golden.Getter.choose_0
+    typed String test.golden.Getter.choose.id
+  =
+    @
+      PackageVar.Cons
+      @
+        PackageVar.Assign
+        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this
+        "curr"
+        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String ((FLEval.field CardMember[test.golden.Getter.strings] "item") test.golden.Getter.choose.id))
+      PackageVar.Nil

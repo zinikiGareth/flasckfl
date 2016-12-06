@@ -1,0 +1,13 @@
+function test.golden.filter 2
+  case test.golden.filter_0
+    var test.golden.filter_0.f
+    ctor Nil
+  =
+    PackageVar.Nil
+  case test.golden.filter_1
+    var test.golden.filter_1.f
+    ctor Cons
+      var test.golden.filter_1.a
+      var test.golden.filter_1.l
+  =
+    ?? class org.flasck.flas.commonBase.IfExpr:org.flasck.flas.commonBase.IfExpr@2e4b8173

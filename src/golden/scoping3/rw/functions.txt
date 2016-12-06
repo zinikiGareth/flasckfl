@@ -1,0 +1,23 @@
+function test.golden.f 1
+  case test.golden.f_0
+    var test.golden.f_0.x
+  =
+    VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.set]
+function test.golden.f_0.ItemHandler.update 1
+  case test.golden.f_0.ItemHandler.update_0
+    typed Any test.golden.f_0.ItemHandler.update.obj
+  =
+    @
+      PackageVar.Cons
+      <-
+        HandlerLambda.HL[test.golden.f_0.ItemHandler.set]
+        "insert"
+        HandlerLambda.HL[test.golden.f_0.ItemHandler.ck]
+        LocalVar.test.golden.f_0.ItemHandler.update.obj
+      PackageVar.Nil
+function test.golden.f_0.set 0
+  case test.golden.f_0.set_0
+  =
+    @
+      PackageVar.Croset
+      PackageVar.Nil

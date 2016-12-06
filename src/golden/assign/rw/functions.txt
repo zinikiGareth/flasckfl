@@ -1,0 +1,14 @@
+function test.golden.Card.doit test.golden.Card 0
+  case test.golden.Card.doit_0
+  =
+    @
+      PackageVar.Cons
+      @
+        PackageVar.Assign
+        @
+          PackageVar.FLEval.field
+          ?? class org.flasck.flas.rewrittenForm.CardStateRef:this
+          "c"
+        "value"
+        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello")
+      PackageVar.Nil

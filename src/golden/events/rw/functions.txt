@@ -1,0 +1,27 @@
+function test.golden.Events.okThen test.golden.Events 1
+  case test.golden.Events.okThen_0
+    var test.golden.Events.okThen.ev
+  =
+    @
+      PackageVar.Cons
+      ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (Debug test.golden.Events.okThen.ev))
+      PackageVar.Nil
+function test.golden.Events.setTo test.golden.Events 2
+  case test.golden.Events.setTo_0
+    var test.golden.Events.setTo.id
+    var test.golden.Events.setTo.ev
+  =
+    @
+      PackageVar.Cons
+      ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (Debug test.golden.Events.setTo.ev))
+      PackageVar.Nil
+function test.golden._Events.B2.handlers_0 test.golden.Events 0
+  case test.golden._Events.B2.handlers_0_0
+  =
+    CardFunction.test.golden.Events.okThen
+function test.golden._Events.B3.handlers_1 test.golden.Events 0
+  case test.golden._Events.B3.handlers_1_0
+  =
+    @
+      CardFunction.test.golden.Events.setTo
+      13

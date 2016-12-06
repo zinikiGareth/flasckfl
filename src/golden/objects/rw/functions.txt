@@ -1,0 +1,15 @@
+function test.golden.Card._C0.go test.golden.Card 0
+  case test.golden.Card._C0.go_0
+  =
+    @
+      PackageVar.Cons
+      <-
+        CardMember.CardMember[test.golden.Card.c]
+        "put"
+        42
+      @
+        PackageVar.Cons
+        <-
+          CardMember.CardMember[test.golden.Card.c]
+          "clear"
+        PackageVar.Nil

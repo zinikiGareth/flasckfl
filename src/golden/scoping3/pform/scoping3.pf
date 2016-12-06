@@ -1,0 +1,26 @@
+package test.golden
+  cdecl test.golden.KVUpdate @{1:0|contract} @{1:9|KVUpdate}
+    required down update @{2:0|down} @{2:5|update}
+      [type] obj @{2:17|obj}
+        Any @{2:13|Any}
+  test.golden.f @{6:0|f}
+    [var] x @{6:2|x}
+   =
+    set @{6:6|set}
+    test.golden.f_0.set @{7:0|set}
+     =
+      <apply> @{7:6|Croset Nil}
+        Croset @{7:6|Croset}
+        Nil @{7:13|Nil}
+    handler KVUpdate test.golden.f_0.ItemHandler (free) @{12:0|handler} @{12:8|KVUpdate} @{12:17|ItemHandler}
+      [var] ck @{12:29|ck}
+      method test.golden.f_0.ItemHandler.update @{16:0|update}
+        [var] obj @{16:7|obj}
+        invoke @{17:0|<-}
+          <apply> @{17:3|set.insert ck obj}
+            <apply> @{17:3|set.insert}
+              . @{17:6|.}
+              set @{17:3|set}
+              insert @{17:7|insert}
+            ck @{17:14|ck}
+            obj @{17:17|obj}

@@ -1,0 +1,54 @@
+function test.golden.cna 1
+  case test.golden.cna_0
+    typed contract test.golden.NoArg test.golden.cna_0.na
+  =
+    @
+      PackageVar.Cons
+      <-
+        LocalVar.test.golden.cna_0.na
+        "get"
+        42
+      PackageVar.Nil
+function test.golden.f 2
+  case test.golden.f_0
+    typed contract test.golden.Server test.golden.f_0.server
+    var test.golden.f_0.x
+  =
+    @
+      PackageVar.MessageWrapper
+      VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.var]
+      @
+        PackageVar.Cons
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.q]
+        PackageVar.Nil
+function test.golden.f_0.HandleReply.reply 1
+  case test.golden.f_0.HandleReply.reply_0
+    typed Number test.golden.f_0.HandleReply.reply.y
+  =
+    @
+      PackageVar.Cons
+      <-
+        HandlerLambda.HL[test.golden.f_0.HandleReply.server]
+        "put"
+        @
+          PackageVar.+
+          HandlerLambda.HL[test.golden.f_0.HandleReply.var]
+          HandlerLambda.HL[test.golden.f_0.HandleReply.v]
+      PackageVar.Nil
+function test.golden.f_0.q 0
+  case test.golden.f_0.q_0
+  =
+    @
+      PackageVar.Cons
+      <-
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.server]
+        "get"
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.var]
+        @
+          VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.HandleReply]
+          VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.var]
+      PackageVar.Nil
+function test.golden.f_0.var 0
+  case test.golden.f_0.var_0
+  =
+    32

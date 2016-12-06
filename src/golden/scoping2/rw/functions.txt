@@ -1,0 +1,33 @@
+function test.golden.scoped 1
+  case test.golden.scoped_0
+    typed contract test.golden.UpC test.golden.scoped_0.ctr
+  =
+    @
+      PackageVar.MessageWrapper
+      32
+      @
+        PackageVar.Cons
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.request]
+        PackageVar.Nil
+function test.golden.scoped_0.MyHc.reply 0
+  case test.golden.scoped_0.MyHc.reply_0
+  =
+    @
+      PackageVar.Cons
+      ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (HL[test.golden.scoped_0.MyHc.requestObj]))
+      PackageVar.Nil
+function test.golden.scoped_0.request 0
+  case test.golden.scoped_0.request_0
+  =
+    @
+      PackageVar.Cons
+      <-
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.ctr]
+        "call"
+        @
+          VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.MyHc]
+      PackageVar.Nil
+function test.golden.scoped_0.requestObj 0
+  case test.golden.scoped_0.requestObj_0
+  =
+    PackageVar.Nil

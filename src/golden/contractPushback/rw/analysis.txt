@@ -1,0 +1,12 @@
+function test.golden.f 2
+  case test.golden.f_0
+    typed contract test.golden.DoIt test.golden.f_0.d
+    var test.golden.f_0.size
+  =
+    @
+      PackageVar.MessageWrapper
+      0
+      @
+        PackageVar.Cons
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.m]
+        PackageVar.Nil

@@ -1,0 +1,23 @@
+handler test.golden.f_0.KVHImpl *function*
+  lambda test.golden.f_0.KVHImpl s
+  method test.golden.f_0.KVHImpl.update
+    case test.golden.f_0.KVHImpl.update
+      var test.golden.f_0.KVHImpl.update.crokeys
+    =
+      <-
+        @
+          @
+            PackageVar.FLEval.field
+            HandlerLambda.HL[test.golden.f_0.KVHImpl.s]
+            "mergeAppend"
+          LocalVar.test.golden.f_0.KVHImpl.update.crokeys
+function test.golden.f 0
+  case test.golden.f_0
+  =
+    PackageVar.Nil
+function test.golden.f_0.s 0
+  case test.golden.f_0.s_0
+  =
+    @
+      PackageVar.Croset
+      PackageVar.Nil

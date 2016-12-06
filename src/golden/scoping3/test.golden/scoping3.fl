@@ -1,0 +1,17 @@
+	contract KVUpdate
+		down update (Any obj)
+
+TODO: this parameter should not be needed, but it gives some kind of problem when I don't
+
+	f x = set
+		set = Croset Nil
+
+
+HERE, the handler needs "set" to be added as an argument
+
+		handler KVUpdate ItemHandler ck
+		
+HERE, update needs "set" to NOT be added as an argument
+
+			update obj
+				<- set.insert ck obj

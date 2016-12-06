@@ -1,6 +1,7 @@
 package org.flasck.flas.rewriter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,6 +78,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.EventHandlerInContext;
+import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
@@ -118,6 +120,7 @@ import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
+import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -132,6 +135,7 @@ import org.slf4j.LoggerFactory;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.utils.Indenter;
 
 /** The objective of this class is to resolve all of the names of all of the
  * items in all of the expressions so that it is all unambiguous
@@ -1774,5 +1778,112 @@ public class Rewriter {
 				}
 			}
 		}
+	}
+
+	public void writeGeneratableTo(File writeRW) throws FileNotFoundException {
+		Indenter pw = new Indenter(writeRW);
+		for (RWHandlerImplements h : this.callbackHandlers.values()) {
+			writeHandler(pw, h);
+		}
+		writeGeneratableFunctionsTo(pw, functions);
+		pw.close();
+	}
+
+	private void writeHandler(Indenter pw, RWHandlerImplements h) {
+		pw.println("handler " + h.hiName + " " + (h.inCard?"*card*":"*function*"));
+		for (HandlerLambda v : h.boundVars)
+			writeLambda(pw.indent(), v);
+		for (RWMethodDefinition m : h.methods)
+			writeMethod(pw.indent(), m);
+	}
+
+	private void writeLambda(Indenter pw, HandlerLambda v) {
+		pw.println("lambda " + v.clzName + " " + v.var);
+	}
+
+	private void writeMethod(Indenter pw, RWMethodDefinition m) {
+		pw.println("method " + m.name());
+		for (RWMethodCaseDefn c : m.cases)
+			writeMethodCase(pw.indent(), c);
+	}
+
+	private void writeMethodCase(Indenter pw, RWMethodCaseDefn c) {
+		pw.println("case " + c.intro.name);
+		for (Object a : c.intro.args)
+			writeArgumentTo(pw.indent(), a);
+		pw.println("=");
+		for (RWMethodMessage m : c.messages)
+			writeMessage(pw.indent(), m);
+	}
+
+	private void writeMessage(Indenter pw, RWMethodMessage m) {
+		if (m.slot != null)
+			pw.println(m.slot.toString());
+		pw.println("<-");
+		writeExpr(pw.indent(), m.expr);
+	}
+
+	public void writeGeneratableFunctionsTo(File file, Map<String, RWFunctionDefinition> functions) throws FileNotFoundException {
+		Indenter pw = new Indenter(file);
+		writeGeneratableFunctionsTo(pw, functions);
+		pw.close();
+	}
+
+	private void writeGeneratableFunctionsTo(Indenter pw, Map<String, RWFunctionDefinition> functions) {
+		for (RWFunctionDefinition fn : functions.values()) {
+			if (!fn.generate)
+				continue;
+			pw.println("function " + fn.name + (fn.inCard != null?" " + fn.inCard:"") + " " + fn.nargs);
+			for (RWFunctionCaseDefn c : fn.cases) {
+				Indenter p2 = pw.indent();
+				p2.println("case " + c.caseName());
+				for (Object a : c.args())
+					writeArgumentTo(p2.indent(), a);
+				p2.println("=");
+				writeExpr(p2.indent(), c.expr);
+			}
+		}
+	}
+
+	private void writeArgumentTo(Indenter pw, Object a) {
+		if (a instanceof RWVarPattern) {
+			pw.println("var " + ((RWVarPattern)a).var);
+		} else if (a instanceof RWTypedPattern) {
+			RWTypedPattern tp = (RWTypedPattern)a;
+			pw.println("typed " + tp.type + " " + tp.var);
+		} else if (a instanceof RWConstructorMatch) {
+			RWConstructorMatch cm = (RWConstructorMatch)a;
+			pw.println("ctor " + cm.ref);
+			for (org.flasck.flas.rewrittenForm.RWConstructorMatch.Field x : cm.args) {
+				writeArgumentTo(pw.indent(), x.patt);
+			}
+		} else if (a instanceof ConstPattern) {
+			pw.println("const " + ((ConstPattern)a).value);
+		} else
+			throw new UtilException("Cannot handle " + a.getClass());
+	}
+
+	private void writeExpr(Indenter pw, Object expr) {
+		if (expr instanceof LocalVar || expr instanceof ExternalRef)
+			pw.println(expr.getClass().getSimpleName()+"."+expr);
+		else if (expr instanceof StringLiteral || expr instanceof NumericLiteral)
+			pw.println("" + expr);
+		else if (expr instanceof ApplyExpr) {
+			ApplyExpr ae = (ApplyExpr) expr;
+			pw.println("@");
+			writeExpr(pw.indent(), ae.fn);
+			for (Object o : ae.args)
+				writeExpr(pw.indent(), o);
+		}
+		else if (expr instanceof SendExpr) {
+			SendExpr se = (SendExpr) expr;
+			pw.println("<-");
+			writeExpr(pw.indent(), se.sender);
+			writeExpr(pw.indent(), se.method);
+			for (Object o : se.args)
+				writeExpr(pw.indent(), o);
+		}
+		else
+			pw.println("?? " + expr.getClass() + ":" + expr);
 	}
 }

@@ -193,6 +193,7 @@ public class Compiler {
 	private boolean dumpTypes = false;
 	private final List<File> pkgdirs = new ArrayList<File>();
 	private ByteCodeEnvironment bce = new ByteCodeEnvironment();
+	private File writeRW;
 	private DroidBuilder builder;
 	private File writeFlim;
 	private File writeDepends;
@@ -212,6 +213,14 @@ public class Compiler {
 		if (!andBuild)
 			builder.dontBuild();
 		builder.init();
+	}
+
+	public void writeRWTo(File file) {
+		if (!file.isDirectory()) {
+			System.out.println("there is no directory " + file);
+			return;
+		}
+		this.writeRW = file;
 	}
 
 	public void writeFlimTo(File file) {
@@ -319,6 +328,10 @@ public class Compiler {
 			
 			rewriter.rewritePackageScope(inPkg, scope);
 			abortIfErrors(errors);
+			
+			if (writeRW != null) {
+				rewriter.writeGeneratableTo(new File(writeRW, "analysis.txt"));
+			}
 
 			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
 
@@ -392,6 +405,10 @@ public class Compiler {
 			mc.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 			mc.convertStandaloneMethods(rewriter, functions, rewriter.standalone.values());
 			abortIfErrors(errors);
+
+			if (writeRW != null) {
+				rewriter.writeGeneratableFunctionsTo(new File(writeRW, "functions.txt"), functions);
+			}
 
 			// 7. Do dependency analysis on functions and group them together in orchards
 			DependencyAnalyzer da = new DependencyAnalyzer();

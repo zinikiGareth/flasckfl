@@ -1,0 +1,12 @@
+function test.golden.Foo._C0.go test.golden.Foo 1
+  case test.golden.Foo._C0.go_0
+    typed Number test.golden.Foo._C0.go.x
+  =
+    @
+      PackageVar.Cons
+      @
+        PackageVar.Assign
+        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this._card
+        "a"
+        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Number (test.import.f test.golden.Foo._C0.go.x))
+      PackageVar.Nil

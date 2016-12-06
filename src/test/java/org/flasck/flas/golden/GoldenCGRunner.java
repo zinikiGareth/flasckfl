@@ -85,6 +85,7 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.system.RunProcess;
 import org.zinutils.utils.Crypto;
 import org.zinutils.utils.FileUtils;
+import org.zinutils.utils.Indenter;
 import org.zinutils.utils.StringUtil;
 
 public class GoldenCGRunner extends CGHarnessRunner {
@@ -132,6 +133,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		System.out.println("Run golden test for " + s);
 		File importFrom = new File(s, "import");
 		File pform = new File(s, "parser-tmp");
+		File rwform = new File(s, "rw-tmp");
 		File jsto = new File(s, "jsout-tmp");
 		File dependTo = new File(s, "depend-tmp");
 		File hsie = new File(s, "hsie-tmp");
@@ -141,6 +143,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File droid = new File(s, "droid-tmp");
 		FileUtils.deleteDirectoryTree(new File(s, "errors-tmp"));
 		clean(pform);
+		clean(rwform);
 		clean(jsto);
 		clean(hsie);
 		clean(flim);
@@ -180,6 +183,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File depend = new File(s, "depend");
 		try {
 			compiler.trackTC(tc2);
+			compiler.writeRWTo(rwform);
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
@@ -200,6 +204,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		if (depend.isDirectory()) {
 			assertGolden(depend, dependTo);
 		}
+		assertGolden(new File(s, "rw"), rwform);
 		File goldhs = new File(s, "hsie");
 		if (stripNumbers) {
 			stripHSIE(goldhs);

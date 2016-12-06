@@ -1,0 +1,21 @@
+function test.golden.map1 2
+  case test.golden.map1_0
+    var test.golden.map1_0.f
+    ctor Nil
+  =
+    PackageVar.Nil
+  case test.golden.map1_1
+    var test.golden.map1_1.f
+    ctor Cons
+      var test.golden.map1_1.a
+      var test.golden.map1_1.l
+  =
+    @
+      PackageVar.Cons
+      @
+        LocalVar.test.golden.map1_1.f
+        LocalVar.test.golden.map1_1.a
+      @
+        PackageVar.test.golden.map1
+        LocalVar.test.golden.map1_1.f
+        LocalVar.test.golden.map1_1.l

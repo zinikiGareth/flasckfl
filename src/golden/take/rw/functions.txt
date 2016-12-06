@@ -1,0 +1,27 @@
+function test.golden.take 2
+  case test.golden.take_0
+    var test.golden.take_0.n
+    ctor Nil
+  =
+    PackageVar.Nil
+  case test.golden.take_1
+    const 0
+    ctor Cons
+  =
+    PackageVar.Nil
+  case test.golden.take_2
+    var test.golden.take_2.n
+    ctor Cons
+      var test.golden.take_2.a
+      var test.golden.take_2.b
+  =
+    @
+      PackageVar.Cons
+      LocalVar.test.golden.take_2.a
+      @
+        PackageVar.test.golden.take
+        @
+          PackageVar.-
+          LocalVar.test.golden.take_2.n
+          1
+        LocalVar.test.golden.take_2.b

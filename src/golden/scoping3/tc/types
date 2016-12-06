@@ -1,0 +1,3 @@
+test.golden.f_0.set :: Croset[A]
+test.golden.f :: A->B
+test.golden.f_0.ItemHandler.update :: Any->Cons[Send]

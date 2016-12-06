@@ -1,0 +1,29 @@
+function test.golden.bert 0
+  case test.golden.bert_0
+  =
+    @
+      PackageVar.FLEval.tuple
+      2
+      "hello"
+function test.golden.fred 1
+  case test.golden.fred_0
+    var test.golden.fred_0.x
+  =
+    32
+function test.golden.t1 0
+  case test.golden.t1_0
+  =
+    @
+      PackageVar.map
+      PackageVar.test.golden.fred
+      PackageVar.Nil
+function test.golden.t2 0
+  case test.golden.t2_0
+  =
+    @
+      PackageVar.map
+      PackageVar.test.golden.fred
+      @
+        PackageVar.Cons
+        3
+        PackageVar.Nil
