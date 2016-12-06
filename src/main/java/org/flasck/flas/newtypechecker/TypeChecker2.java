@@ -511,7 +511,7 @@ public class TypeChecker2 {
 					if (sd != null) {
 						RWStructField sf = sd.findField(fname);
 						if (sf == null)
-							throw new UtilException(sn + " does not have a field " + fname);
+							throw new UtilException(sn + " does not have a field '" + fname + "'");
 						constraints.add(c.var, freshPolys(convertType(sf.type), new HashMap<>()));
 					} else if (od != null) {
 						Type ot;

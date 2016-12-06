@@ -114,10 +114,10 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public void dump(Logger logTo) {
 		if (logTo == null)
 			logTo = logger;
-		logTo.debug(asString(0));
-		logTo.debug("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
-		logTo.debug("    externals: " + externals + " scoped = " + justNames(scoped));
-		logTo.debug("    all vars = " + vars);
+		logTo.info(asString(0));
+		logTo.info("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
+		logTo.info("    externals: " + externals + " scoped = " + justNames(scoped));
+		logTo.info("    all vars = " + vars);
 		dump(logTo, 0);
 		for (HSIEBlock c : closures.values())
 			c.dumpOne(logTo, 0);
