@@ -73,6 +73,7 @@ public class HSIE {
 			if (defn.cases.size() != 1)
 				throw new UtilException("Constants can only have one case");
 			cf.expressions.addExpr(defn.cases.get(0).expr);
+			gc.generateScopingClosures();
 			gc.generateExprClosures();
 			cf.expressions.writeExpr(cf.substs, cf.form, 0);
 		} else {

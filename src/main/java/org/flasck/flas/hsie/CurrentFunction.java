@@ -32,6 +32,7 @@ public class CurrentFunction {
 	}
 
 	public void mapVar(String id, VarInSource cov) {
+		Branching.logger.info("Defining " + id + " as " + cov);
 		substs.put(id, cov);
 	}
 

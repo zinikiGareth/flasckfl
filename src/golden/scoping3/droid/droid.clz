@@ -138,14 +138,11 @@ public abstract class test.golden.KVUpdate extends org.flasck.android.ContractIm
 public class test.golden.PACKAGEFUNCTIONS$f {
   public static java.lang.Object eval(java.lang.Object[]);
     Code:
-       0: aload_0       
-       1: iconst_0      
-       2: aaload        
-       3: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.f:(Ljava/lang/Object;)Ljava/lang/Object;
-       6: areturn       
+       0: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.f:()Ljava/lang/Object;
+       3: areturn       
 }
 public class test.golden.PACKAGEFUNCTIONS {
-  public static java.lang.Object f(java.lang.Object);
+  public static java.lang.Object f();
     Code:
        0: new           #11                 // class org/flasck/android/FLClosure
        3: dup           

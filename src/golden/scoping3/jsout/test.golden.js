@@ -32,7 +32,7 @@ test.golden.f_0.ItemHandler = function(v0, v1) {
   return new test.golden.f_0._ItemHandler(v0, v1);
 }
 
-test.golden.f = function(v0) {
+test.golden.f = function() {
   "use strict";
   return FLEval.closure(test.golden.f_0.set);
 }

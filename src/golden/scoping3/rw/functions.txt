@@ -1,6 +1,5 @@
-function test.golden.f 1
+function test.golden.f 0
   case test.golden.f_0
-    var test.golden.f_0.x
   =
     VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.set]
 function test.golden.f_0.ItemHandler.update 1
