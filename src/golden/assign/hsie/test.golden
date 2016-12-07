@@ -1,6 +1,8 @@
 HSIE for test.golden.Card.doit/0                             #assign.fl:    8.6
 #Args: 0 #bound: 3
-    externals: [Assign, Cons, FLEval.field, Nil] scoped = []
+    externals: [Assign, Cons, FLEval.field, Nil]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2]
 RETURN v2:clos2 [v0:clos0, v1:clos1]                         #assign.fl:    9.11
 CLOSURE v1                                                   #assign.fl:    9.0

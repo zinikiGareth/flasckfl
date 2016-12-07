@@ -1,6 +1,8 @@
 HSIE for test.golden._MyCard.B1.contents_0/0                 #rules.fl:     9.2
 #Args: 0 #bound: 1
-    externals: [FLEval.field, test.golden.MyCard.c] scoped = []
+    externals: [FLEval.field, test.golden.MyCard.c]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #rules.fl:     9.2
 CLOSURE v0                                                   #rules.fl:     9.2
@@ -10,7 +12,9 @@ CLOSURE v0                                                   #rules.fl:     9.2
 =======
 HSIE for test.golden._MyCard.B1.editcontainer_1/0            #rules.fl:     9.2
 #Args: 0 #bound: 0
-    externals: [test.golden.MyCard.c] scoped = []
+    externals: [test.golden.MyCard.c]
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN CardMember.CardMember[test.golden.MyCard.c]           #rules.fl:     9.0
 =======

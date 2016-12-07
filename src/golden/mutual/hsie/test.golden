@@ -1,6 +1,8 @@
 HSIE for test.golden.f/1                                     #mutual.fl:    2.0
 #Args: 1 #bound: 2
-    externals: [] scoped = []
+    externals: []
+    scoped = []
+    scopedDefns = [test.golden.f_0.g]
     all vars = [v0, v1, v2]
 RETURN v2:clos2 [v1:test.golden.f_0.g]                       #mutual.fl:    2.6
 CLOSURE v1 !                                                 #mutual.fl:    3.0
@@ -12,7 +14,9 @@ CLOSURE v2                                                   #mutual.fl:    2.6
 -------
 HSIE for test.golden.f_0.g/1                                 #mutual.fl:    3.0
 #Args: 1 #bound: 1
-    externals: [*] scoped = [test.golden.f_0.x]
+    externals: [*]
+    scoped = [test.golden.f_0.x]
+    scopedDefns = []
     all vars = [v3, v4]
 RETURN v4:clos4 []                                           #mutual.fl:    3.6
 CLOSURE v4                                                   #mutual.fl:    3.6

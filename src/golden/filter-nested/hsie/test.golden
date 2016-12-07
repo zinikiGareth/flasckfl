@@ -1,6 +1,8 @@
 HSIE for test.golden.filter/2                                #filter.fl:    2.0
 #Args: 2 #bound: 5
-    externals: [Cons, Nil] scoped = []
+    externals: [Cons, Nil]
+    scoped = []
+    scopedDefns = [test.golden.filter_1.g]
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v1                                                      #filter.fl:    2.9
 SWITCH v1 Cons                                               #filter.fl:    3.9
@@ -24,7 +26,9 @@ CLOSURE v6                                                   #filter.fl:    3.17
 -------
 HSIE for test.golden.filter_1.g/1                            #filter.fl:    4.0
 #Args: 1 #bound: 3
-    externals: [Boolean, Cons, test.golden.filter] scoped = [test.golden.filter_1.a, test.golden.filter_1.f, test.golden.filter_1.l]
+    externals: [Boolean, Cons, test.golden.filter]
+    scoped = [test.golden.filter_1.a, test.golden.filter_1.f, test.golden.filter_1.l]
+    scopedDefns = []
     all vars = [v7, v8, v9, v10]
 HEAD v7                                                      #filter.fl:    4.2
 SWITCH v7 Boolean                                            #filter.fl:    4.2

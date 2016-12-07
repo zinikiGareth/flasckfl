@@ -1,6 +1,8 @@
 HSIE for test.golden.f/2                                     #pushback.fl:  6.0
 #Args: 2 #bound: 3
-    externals: [Cons, MessageWrapper, Nil, test.golden.DoIt] scoped = []
+    externals: [Cons, MessageWrapper, Nil, test.golden.DoIt]
+    scoped = []
+    scopedDefns = [test.golden.f_0.m]
     all vars = [v0, v1, v2, v3, v4]
 HEAD v0                                                      #pushback.fl:  6.3
 SWITCH v0 test.golden.DoIt                                   #pushback.fl:  6.3
@@ -21,7 +23,9 @@ CLOSURE v4                                                   #pushback.fl:  6.18
 -------
 HSIE for test.golden.f_0.m/0                                 #pushback.fl:  8.7
 #Args: 0 #bound: 3
-    externals: [Cons, Nil, Send] scoped = [test.golden.f_0.d, test.golden.f_0.size]
+    externals: [Cons, Nil, Send]
+    scoped = [test.golden.f_0.d, test.golden.f_0.size]
+    scopedDefns = []
     all vars = [v5, v6, v7]
 RETURN v7:clos7 [v5:clos5, v6:clos6]                         #pushback.fl:  9.3
 CLOSURE v5                                                   #pushback.fl:  6.11

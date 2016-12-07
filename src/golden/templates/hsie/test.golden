@@ -1,12 +1,16 @@
 HSIE for test.golden._Templates.B2.lvs_0/0                   #templates.fl 16.2
 #Args: 0 #bound: 0
-    externals: [test.golden.Templates.data] scoped = []
+    externals: [test.golden.Templates.data]
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN CardMember.CardMember[test.golden.Templates.data]     #templates.fl 16.2
 =======
 HSIE for test.golden._Templates.B4.contents_1/0              #templates.fl 18.2
 #Args: 0 #bound: 1
-    externals: [FLEval.field] scoped = []
+    externals: [FLEval.field]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #templates.fl 18.2
 CLOSURE v0                                                   #templates.fl 18.2
@@ -16,7 +20,9 @@ CLOSURE v0                                                   #templates.fl 18.2
 =======
 HSIE for test.golden._Templates.B4.formats_2/0               #templates.fl 18.2
 #Args: 0 #bound: 2
-    externals: [Cons, FLEval.field, Nil] scoped = []
+    externals: [Cons, FLEval.field, Nil]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1]
 RETURN v1:clos1 [v0:clos0]                                   #templates.fl 18.11
 CLOSURE v1                                                   #templates.fl 18.11

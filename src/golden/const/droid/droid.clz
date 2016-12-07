@@ -1,0 +1,13 @@
+public class test.golden.PACKAGEFUNCTIONS$x {
+  public static java.lang.Object eval(java.lang.Object[]);
+    Code:
+       0: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.x:()Ljava/lang/Object;
+       3: areturn       
+}
+public class test.golden.PACKAGEFUNCTIONS {
+  public static java.lang.Object x();
+    Code:
+       0: bipush        32
+       2: invokestatic  #11                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+       5: areturn       
+}

@@ -1882,6 +1882,14 @@ public class Rewriter {
 			writeExpr(pw.indent(), se.method);
 			for (Object o : se.args)
 				writeExpr(pw.indent(), o);
+		} else if (expr instanceof IfExpr) {
+			IfExpr ie = (IfExpr) expr;
+			pw.println("if");
+			writeExpr(pw.indent(), ie.guard);
+			pw.println("then");
+			writeExpr(pw.indent(), ie.ifExpr);
+			pw.println("else");
+			writeExpr(pw.indent(), ie.elseExpr);
 		}
 		else
 			pw.println("?? " + expr.getClass() + ":" + expr);

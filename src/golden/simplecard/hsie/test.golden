@@ -1,18 +1,24 @@
 HSIE for test.golden.Simple.f/0                              #simplecard.f 11.0
 #Args: 0 #bound: 0
-    externals: [] scoped = []
+    externals: []
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN 3                                                     #simplecard.f 11.4
 =======
 HSIE for test.golden.Simple.inits_hello/0                    #simplecard.f  5.16
 #Args: 0 #bound: 0
-    externals: [] scoped = []
+    externals: []
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN "hello, world"                                        #simplecard.f  5.16
 =======
 HSIE for test.golden._Simple.B2.contents_0/0                 #simplecard.f  9.0
 #Args: 0 #bound: 0
-    externals: [test.golden.Simple.hello] scoped = []
+    externals: [test.golden.Simple.hello]
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN CardMember.CardMember[test.golden.Simple.hello]       #simplecard.f  9.0
 =======

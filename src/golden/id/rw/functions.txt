@@ -1,0 +1,5 @@
+function test.golden.id 1
+  case test.golden.id_0
+    var test.golden.id_0.x
+  =
+    LocalVar.test.golden.id_0.x

@@ -1,0 +1,5 @@
+package test.golden
+  test.golden.id @{1:0|id}
+    [var] x @{1:3|x}
+   =
+    x @{1:7|x}

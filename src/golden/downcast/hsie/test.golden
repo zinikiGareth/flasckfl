@@ -1,6 +1,8 @@
 HSIE for test.golden.f/1                                     #downcast.fl:  4.0
 #Args: 1 #bound: 2
-    externals: [Any, FLEval.field] scoped = []
+    externals: [Any, FLEval.field]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2]
 HEAD v0                                                      #downcast.fl:  4.3
 SWITCH v0 Any                                                #downcast.fl:  4.3

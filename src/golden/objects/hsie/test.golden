@@ -1,6 +1,8 @@
 HSIE for test.golden.Card._C0.go/0                           #objects.fl:   9.0
 #Args: 0 #bound: 5
-    externals: [Cons, Nil, Send, test.golden.Card.c] scoped = []
+    externals: [Cons, Nil, Send, test.golden.Card.c]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3, v4]
 RETURN v4:clos4 [v0:clos0, v1:clos1, v2:clos2, v3:clos3]     #objects.fl:  10.3
 CLOSURE v1 S                                                 #objects.fl:  10.3

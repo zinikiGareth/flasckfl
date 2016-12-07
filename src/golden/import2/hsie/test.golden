@@ -1,6 +1,8 @@
 HSIE for test.golden.Foo._C0.go/1                            #import2.fl:   6.0
 #Args: 1 #bound: 3
-    externals: [Assign, Cons, Nil, test.basic.Bert, test.import.f] scoped = []
+    externals: [Assign, Cons, Nil, test.basic.Bert, test.import.f]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3]
 HEAD v0                                                      #import2.fl:   6.3
 SWITCH v0 test.basic.Bert                                    #import2.fl:   6.3

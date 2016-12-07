@@ -1,6 +1,8 @@
 HSIE for test.golden.Getter.choose/1                         #getter.fl:    6.6
 #Args: 1 #bound: 4
-    externals: [Assign, Cons, FLEval.field, Nil, String, test.golden.Getter.strings] scoped = []
+    externals: [Assign, Cons, FLEval.field, Nil, String, test.golden.Getter.strings]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3, v4]
 HEAD v0                                                      #getter.fl:    6.14
 SWITCH v0 String                                             #getter.fl:    6.14

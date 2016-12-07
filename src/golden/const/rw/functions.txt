@@ -1,0 +1,4 @@
+function test.golden.x 0
+  case test.golden.x_0
+  =
+    32

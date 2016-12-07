@@ -1,6 +1,8 @@
 HSIE for test.golden.TestCard.inits_data/0                   #d3.fl:        4.23
 #Args: 0 #bound: 4
-    externals: [Cons, Nil] scoped = []
+    externals: [Cons, Nil]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3]
 RETURN v3:clos3 [v0:clos0, v1:clos1, v2:clos2]               #d3.fl:        4.23
 CLOSURE v1                                                   #d3.fl:        4.29
@@ -22,7 +24,9 @@ CLOSURE v0                                                   #d3.fl:        4.32
 =======
 HSIE for test.golden.TestCard.rejig/1                        #d3.fl:       43.6
 #Args: 1 #bound: 6
-    externals: [Assign, Cons, Nil] scoped = []
+    externals: [Assign, Cons, Nil]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 RETURN v6:clos6 [v1:clos1, v2:clos2, v3:clos3, v4:clos4, v5: #d3.fl:       44.9
 CLOSURE v1                                                   #d3.fl:       44.19
@@ -53,19 +57,25 @@ CLOSURE v6                                                   #d3.fl:       44.9
 =======
 HSIE for test.golden._TestCard.B6.teas_1/0                   #d3.fl:       13.12
 #Args: 0 #bound: 0
-    externals: [] scoped = []
+    externals: []
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN "400"                                                 #d3.fl:       13.12
 =======
 HSIE for test.golden._TestCard.B6.teas_2/0                   #d3.fl:       13.26
 #Args: 0 #bound: 0
-    externals: [] scoped = []
+    externals: []
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN "250"                                                 #d3.fl:       13.26
 =======
 HSIE for test.golden._TestCard._d3_chart_enter_rect/0        #d3.fl:       25.0
 #Args: 0 #bound: 3
-    externals: [Cons, D3Action, Nil] scoped = []
+    externals: [Cons, D3Action, Nil]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2]
 RETURN v2:clos2 [v0:clos0, v1:clos1]                         #d3.fl:       26.3
 CLOSURE v1 M                                                 #d3.fl:       26.3
@@ -83,7 +93,9 @@ CLOSURE v0                                                   #d3.fl:       26.22
 =======
 HSIE for test.golden._TestCard._d3_chart_enter_text/0        #d3.fl:       40.0
 #Args: 0 #bound: 3
-    externals: [Cons, D3Action, Nil] scoped = []
+    externals: [Cons, D3Action, Nil]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2]
 RETURN v2:clos2 [v0:clos0, v1:clos1]                         #d3.fl:       41.3
 CLOSURE v1 M                                                 #d3.fl:       41.3
@@ -101,7 +113,9 @@ CLOSURE v0                                                   #d3.fl:       41.22
 =======
 HSIE for test.golden._TestCard._gen_1/1                      #d3.fl:       21.7
 #Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
+    externals: [D3Element]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -110,7 +124,9 @@ ERROR                                                        #d3.fl:       21.7
 =======
 HSIE for test.golden._TestCard._gen_10/1                     #d3.fl:       30.7
 #Args: 1 #bound: 1
-    externals: [D3Element, FLEval.field] scoped = []
+    externals: [D3Element, FLEval.field]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -123,7 +139,9 @@ CLOSURE v1                                                   #d3.fl:       30.7
 =======
 HSIE for test.golden._TestCard._gen_11/1                     #d3.fl:       31.13
 #Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
+    externals: [D3Element]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -132,7 +150,9 @@ ERROR                                                        #d3.fl:       31.13
 =======
 HSIE for test.golden._TestCard._gen_12/1                     #d3.fl:       34.8
 #Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
+    externals: [D3Element]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -141,7 +161,9 @@ ERROR                                                        #d3.fl:       34.8
 =======
 HSIE for test.golden._TestCard._gen_13/1                     #d3.fl:       32.4
 #Args: 1 #bound: 3
-    externals: [*, +, D3Element, FLEval.field] scoped = []
+    externals: [*, +, D3Element, FLEval.field]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -162,7 +184,9 @@ CLOSURE v3                                                   #d3.fl:       32.4
 =======
 HSIE for test.golden._TestCard._gen_14/1                     #d3.fl:       33.4
 #Args: 1 #bound: 4
-    externals: [*, +, -, D3Element, FLEval.field] scoped = []
+    externals: [*, +, -, D3Element, FLEval.field]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3, v4]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -187,13 +211,17 @@ CLOSURE v4                                                   #d3.fl:       33.4
 =======
 HSIE for test.golden._TestCard._gen_15/0                     #d3.fl:       16.9
 #Args: 0 #bound: 0
-    externals: [test.golden.TestCard.data] scoped = []
+    externals: [test.golden.TestCard.data]
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN CardMember.CardMember[test.golden.TestCard.data]      #d3.fl:       16.9
 =======
 HSIE for test.golden._TestCard._gen_2/1                      #d3.fl:       23.9
 #Args: 1 #bound: 2
-    externals: [*, D3Element, FLEval.field] scoped = []
+    externals: [*, D3Element, FLEval.field]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -210,7 +238,9 @@ CLOSURE v2                                                   #d3.fl:       23.9
 =======
 HSIE for test.golden._TestCard._gen_3/1                      #d3.fl:       22.8
 #Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
+    externals: [D3Element]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -219,7 +249,9 @@ ERROR                                                        #d3.fl:       22.8
 =======
 HSIE for test.golden._TestCard._gen_4/1                      #d3.fl:       19.4
 #Args: 1 #bound: 2
-    externals: [*, D3Element, FLEval.field] scoped = []
+    externals: [*, D3Element, FLEval.field]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -236,7 +268,9 @@ CLOSURE v2                                                   #d3.fl:       19.4
 =======
 HSIE for test.golden._TestCard._gen_5/1                      #d3.fl:       20.4
 #Args: 1 #bound: 3
-    externals: [*, -, D3Element, FLEval.field] scoped = []
+    externals: [*, -, D3Element, FLEval.field]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -257,7 +291,9 @@ CLOSURE v3                                                   #d3.fl:       20.4
 =======
 HSIE for test.golden._TestCard._gen_6/1                      #d3.fl:       36.7
 #Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
+    externals: [D3Element]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -266,7 +302,9 @@ ERROR                                                        #d3.fl:       36.7
 =======
 HSIE for test.golden._TestCard._gen_7/1                      #d3.fl:       37.13
 #Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
+    externals: [D3Element]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -275,7 +313,9 @@ ERROR                                                        #d3.fl:       37.13
 =======
 HSIE for test.golden._TestCard._gen_8/1                      #d3.fl:       38.11
 #Args: 1 #bound: 0
-    externals: [D3Element] scoped = []
+    externals: [D3Element]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -284,7 +324,9 @@ ERROR                                                        #d3.fl:       38.11
 =======
 HSIE for test.golden._TestCard._gen_9/1                      #d3.fl:       35.9
 #Args: 1 #bound: 2
-    externals: [*, D3Element, FLEval.field] scoped = []
+    externals: [*, D3Element, FLEval.field]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2]
 HEAD v0                                                      #d3.fl:       16.14
 SWITCH v0 D3Element                                          #d3.fl:       16.14
@@ -301,13 +343,17 @@ CLOSURE v2                                                   #d3.fl:       35.9
 =======
 HSIE for test.golden._TestCard.B3.handlers_0/0               #d3.fl:       11.9
 #Args: 0 #bound: 0
-    externals: [test.golden.TestCard.rejig] scoped = []
+    externals: [test.golden.TestCard.rejig]
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN CardFunction.test.golden.TestCard.rejig               #d3.fl:       11.9
 =======
 HSIE for test.golden._TestCard._d3init_chart/0               #d3.fl:       16.14
 #Args: 0 #bound: 37
-    externals: [Assoc, Cons, FLEval.tuple, Nil, NilMap] scoped = []
+    externals: [Assoc, Cons, FLEval.tuple, Nil, NilMap]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35, v36]
 RETURN v36:clos36 [v0:clos0, v1:clos1, v2:clos2, v3:clos3, v #d3.fl:       16.9
 CLOSURE v33                                                  #d3.fl:       25.0

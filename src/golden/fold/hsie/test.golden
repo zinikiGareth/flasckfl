@@ -1,6 +1,8 @@
 HSIE for test.golden.fold/3                                  #fold.fl:      2.0
 #Args: 3 #bound: 4
-    externals: [Cons, Nil] scoped = []
+    externals: [Cons, Nil]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
 HEAD v2                                                      #fold.fl:      2.11
 SWITCH v2 Cons                                               #fold.fl:      3.11

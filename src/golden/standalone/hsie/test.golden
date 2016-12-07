@@ -1,6 +1,8 @@
 HSIE for test.golden.Foo.request/1                           #standalone.f 16.0
 #Args: 1 #bound: 2
-    externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
+    externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2]
 HEAD v0                                                      #standalone.f 16.9
 SWITCH v0 Crokey                                             #standalone.f 16.9
@@ -18,7 +20,9 @@ CLOSURE v2                                                   #standalone.f 16.22
 =======
 HSIE for test.golden.Foo.request2/1                          #standalone.f 17.0
 #Args: 1 #bound: 2
-    externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv] scoped = []
+    externals: [Cons, Crokey, Nil, Send, test.golden.Foo.kv]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2]
 HEAD v0                                                      #standalone.f 17.10
 SWITCH v0 Crokey                                             #standalone.f 17.10
@@ -36,7 +40,9 @@ CLOSURE v2                                                   #standalone.f 17.23
 =======
 HSIE for test.golden.Foo._C1.go/0                            #standalone.f 12.0
 #Args: 0 #bound: 4
-    externals: [Cons, Nil, map, test.golden.Foo.request, test.golden.Foo.request2] scoped = []
+    externals: [Cons, Nil, map, test.golden.Foo.request, test.golden.Foo.request2]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1, v2, v3]
 RETURN v3:clos3 [v0:clos0, v1:clos1, v2:clos2]               #standalone.f 13.3
 CLOSURE v1 M                                                 #standalone.f 14.3

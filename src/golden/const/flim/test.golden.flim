@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Function file="builtin" line="0" name="test.golden.x" off="0">
+        <Builtin name="Number"/>
+    </Function>
+</FLIM>

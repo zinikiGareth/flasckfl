@@ -116,7 +116,9 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			logTo = logger;
 		logTo.info(asString(0));
 		logTo.info("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
-		logTo.info("    externals: " + externals + " scoped = " + justNames(scoped));
+		logTo.info("    externals: " + externals);
+		logTo.info("    scoped = " + justNames(scoped));
+		logTo.info("    scopedDefns = " + justNames(scopedDefinitions));
 		logTo.info("    all vars = " + vars);
 		dump(logTo, 0);
 		for (HSIEBlock c : closures.values())
@@ -126,7 +128,9 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public void dump(PrintWriter pw) {
 		pw.println(asString(0));
 		pw.println("#Args: " + nformal + " #bound: " + (vars.size()-nformal));
-		pw.println("    externals: " + externals + " scoped = " + justNames(scoped));
+		pw.println("    externals: " + externals);
+		pw.println("    scoped = " + justNames(scoped));
+		pw.println("    scopedDefns = " + justNames(scopedDefinitions));
 		pw.println("    all vars = " + vars);
 		dump(pw, 0);
 		for (HSIEBlock c : closures.values())

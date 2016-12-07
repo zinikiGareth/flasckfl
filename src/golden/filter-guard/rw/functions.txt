@@ -10,4 +10,20 @@ function test.golden.filter 2
       var test.golden.filter_1.a
       var test.golden.filter_1.l
   =
-    ?? class org.flasck.flas.commonBase.IfExpr:org.flasck.flas.commonBase.IfExpr@2e4b8173
+    if
+      @
+        LocalVar.test.golden.filter_1.f
+        LocalVar.test.golden.filter_1.a
+    then
+      @
+        PackageVar.Cons
+        LocalVar.test.golden.filter_1.a
+        @
+          PackageVar.test.golden.filter
+          LocalVar.test.golden.filter_1.f
+          LocalVar.test.golden.filter_1.l
+    else
+      @
+        PackageVar.test.golden.filter
+        LocalVar.test.golden.filter_1.f
+        LocalVar.test.golden.filter_1.l

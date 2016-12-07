@@ -1,6 +1,8 @@
 HSIE for test.golden.bert/0                                  #checktypes.f  7.0
 #Args: 0 #bound: 1
-    externals: [FLEval.tuple] scoped = []
+    externals: [FLEval.tuple]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #checktypes.f  7.10
 CLOSURE v0                                                   #checktypes.f  7.10
@@ -10,13 +12,17 @@ CLOSURE v0                                                   #checktypes.f  7.10
 =======
 HSIE for test.golden.fred/1                                  #checktypes.f  2.0
 #Args: 1 #bound: 0
-    externals: [] scoped = []
+    externals: []
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 RETURN 32                                                    #checktypes.f  2.9
 =======
 HSIE for test.golden.t1/0                                    #checktypes.f  4.0
 #Args: 0 #bound: 1
-    externals: [Nil, map, test.golden.fred] scoped = []
+    externals: [Nil, map, test.golden.fred]
+    scoped = []
+    scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #checktypes.f  4.5
 CLOSURE v0                                                   #checktypes.f  4.5
@@ -26,7 +32,9 @@ CLOSURE v0                                                   #checktypes.f  4.5
 =======
 HSIE for test.golden.t2/0                                    #checktypes.f  5.0
 #Args: 0 #bound: 2
-    externals: [Cons, Nil, map, test.golden.fred] scoped = []
+    externals: [Cons, Nil, map, test.golden.fred]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1]
 RETURN v1:clos1 [v0:clos0]                                   #checktypes.f  5.5
 CLOSURE v1                                                   #checktypes.f  5.5

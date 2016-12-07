@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Function file="id.fl" line="1" name="test.golden.id" off="0">
+        <Function>
+            <Arg>
+                <Poly name="A"/>
+            </Arg>
+            <Return>
+                <Poly name="A"/>
+            </Return>
+        </Function>
+    </Function>
+</FLIM>

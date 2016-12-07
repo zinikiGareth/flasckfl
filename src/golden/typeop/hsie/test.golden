@@ -1,12 +1,16 @@
 HSIE for test.golden.x/0                                     #typeop.fl:    4.0
 #Args: 0 #bound: 0
-    externals: [Number] scoped = []
+    externals: [Number]
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN PackageVar.Number                                     #typeop.fl:    4.9
 =======
 HSIE for test.golden.y/0                                     #typeop.fl:    5.0
 #Args: 0 #bound: 0
-    externals: [test.golden.MyCard] scoped = []
+    externals: [test.golden.MyCard]
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN PackageVar.test.golden.MyCard                         #typeop.fl:    5.9
 =======
