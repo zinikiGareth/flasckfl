@@ -1,26 +1,22 @@
-package org.flasck.flas;
+package org.flasck.flas.compiler;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
@@ -40,7 +36,6 @@ import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardGrouping;
-import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
@@ -49,6 +44,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
@@ -62,136 +58,8 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.MultiTextEmitter;
 
-public class Compiler {
+public class FLASCompiler implements ScriptCompiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
-	
-	public static void main(String[] args) {
-		setLogLevels();
-		Compiler compiler = new Compiler();
-		try {
-			for (int i=0;i<args.length;i++) {
-				String f = args[i];
-				int hasMore = args.length-i-1;
-				if (f.startsWith("-")) {
-					if (f.equals("--dump"))
-						compiler.dumpTypes = true;
-					else if (f.equals("--wflim")) {
-						if (hasMore == 0) {
-							System.out.println("--wflim <dir>");
-							System.exit(1);
-						}
-						compiler.writeFlimTo(new File(args[++i]));
-					} else if (f.equals("--flim")) {
-						if (hasMore == 0) {
-							System.out.println("--flim <dir>");
-							System.exit(1);
-						}
-						compiler.searchIn(new File(args[++i]));
-					} else if (f.equals("--jsout")) {
-						if (hasMore == 0) {
-							System.out.println("--jsout <dir>");
-							System.exit(1);
-						}
-						compiler.writeJSTo(new File(args[++i]));
-					} else if (f.equals("--android")) {
-						if (hasMore == 0) {
-							System.out.println("--android <build-dir>");
-							System.exit(1);
-						}
-						compiler.writeDroidTo(new File(args[++i]), true);
-					} else {
-						boolean matched = false;
-						if (compiler.builder != null) { // consider droid build options
-							matched = true;
-							if (f.equals("--clean")) {
-								compiler.builder.cleanFirst();
-							} else if (f.equals("--jack")) {
-								compiler.builder.useJack();
-							} else if (f.equals("--jni")) {
-								if (hasMore == 0) {
-									System.out.println("--jni <arch>");
-									System.exit(1);
-								}
-								compiler.builder.restrictJni(args[++i]);
-							} else if (f.equals("--launch")) {
-								if (hasMore == 0) {
-									System.out.println("--launch <card>");
-									System.exit(1);
-								}
-								compiler.builder.setLaunchCard(args[++i]);
-							} else if (f.equals("--lib")) {
-								if (hasMore == 0) {
-									System.out.println("--lib <file|dir>");
-									System.exit(1);
-								}
-								compiler.builder.useLib(args[++i]);
-							} else if (f.equals("--maven")) {
-								if (hasMore == 0) {
-									System.out.println("--maven <mvn_entry>");
-									System.exit(1);
-								}
-								compiler.builder.useMaven(args[++i]);
-							} else if (f.equals("--css")) {
-								if (hasMore == 0) {
-									System.out.println("--css <file|dir>");
-									System.exit(1);
-								}
-								compiler.builder.useCSS(args[++i]);
-							} else if (f.equals("--package")) {
-								if (hasMore == 0) {
-									System.out.println("--package <local=ziniki:version>");
-									System.exit(1);
-								}
-								compiler.builder.usePackage(args[++i]);
-							} else
-								matched = false;
-						}
-						if (!matched) {
-							System.out.println("unknown option: " + f);
-							compiler.success = false;
-							break;
-						}
-					}
-					continue;
-				}
-				try {
-					compiler.compile(new File(f));
-					if (!compiler.success)
-						break;
-				} catch (ErrorResultException ex) {
-					try {
-						ex.errors.showTo(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true), 4);
-					} catch (IOException ex2) {
-						ex2.printStackTrace();
-					}
-					compiler.success = false;
-					break;
-				} catch (Throwable ex) {
-					ex.printStackTrace();
-				}
-			}
-			if (compiler.builder != null && compiler.success)
-				compiler.builder.build();
-		} catch (ArgumentException ex) {
-			System.err.println(ex.getMessage());
-			System.exit(1);
-		}
-		if (compiler.success) {
-			System.exit(0);
-		} else
-			System.exit(1);
-	}
-
-	public static void setLogLevels() {
-		LogManager.getLogger("Compiler").setLevel(Level.WARN);
-		LogManager.getLogger("DroidGen").setLevel(Level.WARN);
-		LogManager.getLogger("Generator").setLevel(Level.WARN);
-		LogManager.getLogger("HSIE").setLevel(Level.WARN);
-		LogManager.getLogger("Rewriter").setLevel(Level.ERROR);
-		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
-	}
-
-	private boolean success;
 	private boolean dumpTypes = false;
 	private final List<File> pkgdirs = new ArrayList<File>();
 	private ByteCodeEnvironment bce = new ByteCodeEnvironment();
@@ -276,7 +144,7 @@ public class Compiler {
 	
 	// The objective of this method is to convert an entire package directory at one go
 	// Thus the entire context of this is a single package
-	public void compile(File dir) throws ErrorResultException, IOException {
+	public boolean compile(File dir) throws ErrorResultException, IOException {
 		String inPkg = dir.getName();
 		if (!dir.isDirectory()) {
 			ErrorResult errors = new ErrorResult();
@@ -317,7 +185,7 @@ public class Compiler {
 			throw new ErrorResultException(errors);
 
 		if (failed)
-			return;
+			return false;
 		
 		// 3. Rework any "syntatic sugar" forms into their proper forms
 		new SugarDetox(errors).detox(scope);
@@ -327,7 +195,7 @@ public class Compiler {
 		FileWriter wjs = null;
 		FileOutputStream wex = null;
 		PrintWriter tcPW = null;
-		success = false;
+		boolean success = false;
 		try {
 			ImportPackage rootPkg = Builtin.builtins();
 			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg);
@@ -490,7 +358,7 @@ public class Compiler {
 				wjs = new FileWriter(writeTo);
 			} catch (IOException ex) {
 				System.err.println("Cannot write to " + writeTo + ": " + ex.getMessage());
-				return;
+				return false;
 			}
 			target.writeTo(wjs);
 
@@ -500,7 +368,7 @@ public class Compiler {
 			} catch (Exception ex) {
 				System.err.println("Cannot write to " + builder.androidDir + ": " + ex.getMessage());
 				ex.printStackTrace();
-				return;
+				return false;
 			}
 			abortIfErrors(errors);
 
@@ -524,7 +392,7 @@ public class Compiler {
 			}
 			
 			try {
-				UnitTestRunner utr = new UnitTestRunner(results, f);
+				UnitTestRunner utr = new UnitTestRunner(results, this, f);
 				utr.run();
 			} finally {
 			if (close)
@@ -533,6 +401,15 @@ public class Compiler {
 		}
 		
 		// TODO: we also want to support general *.pt (protocol test) files and run them against cards/services that claim to support that protocol
+		
+		return success;
+	}
+
+
+	@Override
+	public List<Class<?>> createJVM(String pkg, String flas) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private void writeDependencies(DependencyAnalyzer da, List<Set<RWFunctionDefinition>> defns) throws IOException {
@@ -621,5 +498,13 @@ public class Compiler {
 
 	public ByteCodeEnvironment getBCE() {
 		return bce;
+	}
+
+	public void setDumpTypes(boolean b) {
+		this.dumpTypes = b;
+	}
+
+	public DroidBuilder getBuilder() {
+		return builder;
 	}
 }

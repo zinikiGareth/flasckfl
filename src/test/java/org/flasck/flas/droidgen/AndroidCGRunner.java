@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.flasck.flas.Compiler;
+import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
@@ -26,7 +26,7 @@ public class AndroidCGRunner extends CGHarnessRunner {
 	
 	private static Class<?>[] figureClasses() throws IOException, ErrorResultException {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
-		Compiler compiler = new Compiler();
+		FLASCompiler compiler = new FLASCompiler();
 		compiler.searchIn(new File("src/main/resources/flim"));
 		compiler.compile(new File("src/test/resources/cards/test.ziniki"));
 

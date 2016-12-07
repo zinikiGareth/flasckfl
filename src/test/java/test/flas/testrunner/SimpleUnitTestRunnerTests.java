@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.junit.Test;
 import org.zinutils.utils.MultiTextEmitter;
@@ -17,7 +18,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testItCanTestASimpleValue() throws Exception {
 		File f = createFile("\tvalue x", "\t\t32");
 		StringWriter sw = new StringWriter();
-		UnitTestRunner r = new UnitTestRunner(new MultiTextEmitter(sw), f);
+		UnitTestRunner r = new UnitTestRunner(new MultiTextEmitter(sw), new FLASCompiler(), f);
 		r.run();
 		assertEquals("PASSED:\tvalue x\n", sw.toString());
 	}

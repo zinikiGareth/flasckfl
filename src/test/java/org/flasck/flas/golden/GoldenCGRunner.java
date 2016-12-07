@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.flasck.flas.Compiler;
+import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -24,6 +24,7 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -154,8 +155,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		clean(droid);
 		clean(tc2);
 		
-		Compiler.setLogLevels();
-		Compiler compiler = new Compiler();
+		Main.setLogLevels();
+		FLASCompiler compiler = new FLASCompiler();
 		File dir = new File(s, "test.golden");
 		ErrorResult er = new ErrorResult();
 		for (File input : FileUtils.findFilesMatching(dir, "*.fl")) {
