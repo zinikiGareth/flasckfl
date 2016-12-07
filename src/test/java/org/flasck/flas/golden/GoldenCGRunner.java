@@ -142,7 +142,6 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File droidTo = new File(s, "droid-to");
 		File droid = new File(s, "droid-tmp");
 		
-		File tests = new File(s, "tests");
 		File testReportTo = new File("test-reports-tmp");
 		
 		FileUtils.deleteDirectoryTree(new File(s, "errors-tmp"));
@@ -159,7 +158,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		Compiler compiler = new Compiler();
 		File dir = new File(s, "test.golden");
 		ErrorResult er = new ErrorResult();
-		for (File input : dir.listFiles()) {
+		for (File input : FileUtils.findFilesMatching(dir, "*.fl")) {
 			StoryRet sr = compiler.parse("test.golden", FileUtils.readFile(input));
 			Indenter pw = new Indenter(new File(pform, input.getName().replace(".fl", ".pf")));
 			if (sr.scope != null) {
@@ -193,7 +192,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
 			compiler.writeDroidTo(droidTo, false);
-			if (tests.isDirectory()) {
+			if (haveTests(dir)) {
 				clean(testReportTo);
 				compiler.writeTestReportsTo(testReportTo);
 			}
@@ -239,9 +238,13 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			assertGolden(new File(s, "droid"), droid);
 		}
 		
-		if (tests.isDirectory()) {
+		if (haveTests(dir)) {
 			assertGolden(new File(s, "testReports"), testReportTo);
 		}
+	}
+
+	private static boolean haveTests(File dir) {
+		return !FileUtils.findFilesMatching(dir, "*.ut").isEmpty();
 	}
 
 	// I want to see the locations, but I don't (always) want to be bound to them.  Remove them if desired (i.e. call this method if desired)

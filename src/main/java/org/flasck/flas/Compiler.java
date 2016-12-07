@@ -53,12 +53,14 @@ import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateGenerator;
+import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
+import org.zinutils.utils.MultiTextEmitter;
 
 public class Compiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
@@ -274,15 +276,15 @@ public class Compiler {
 	
 	// The objective of this method is to convert an entire package directory at one go
 	// Thus the entire context of this is a single package
-	public void compile(File file) throws ErrorResultException, IOException {
-		String inPkg = file.getName();
-		if (!file.isDirectory()) {
+	public void compile(File dir) throws ErrorResultException, IOException {
+		String inPkg = dir.getName();
+		if (!dir.isDirectory()) {
 			ErrorResult errors = new ErrorResult();
-			errors.message((InputPosition)null, "there is no input directory " + file);
+			errors.message((InputPosition)null, "there is no input directory " + dir);
 			throw new ErrorResultException(errors);
 		}
-		File writeTo = new File((writeJS!=null?writeJS:file), inPkg + ".js");
-		File exportTo = new File((writeFlim!=null?writeFlim:file), inPkg + ".flim");
+		File writeTo = new File((writeJS!=null?writeJS:dir), inPkg + ".js");
+		File exportTo = new File((writeFlim!=null?writeFlim:dir), inPkg + ".flim");
 		System.out.println("compiling package " + inPkg + " to " + writeTo);
 			
 		boolean failed = false;
@@ -292,7 +294,7 @@ public class Compiler {
 		final List<String> pkgs = new ArrayList<String>();
 		pkgs.add(inPkg);
 		
-		for (File f : FileUtils.findFilesMatching(file, "*.fl")) {
+		for (File f : FileUtils.findFilesMatching(dir, "*.fl")) {
 			System.out.println(" > " + f.getName());
 			FileReader r = null;
 			try {
@@ -510,7 +512,27 @@ public class Compiler {
 				tcPW.close();
 		}
 
-		// TODO: look for *.ut (unit test) and *.pt (protocol test) files and compile & execute them, too.
+		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
+			MultiTextEmitter results;
+			boolean close;
+			if (writeTestReports != null && writeTestReports.isDirectory()) {
+				results = new MultiTextEmitter(new File(writeTestReports, f.getName().replaceFirst(".ut$", ".txt")));
+				close = true;
+			} else {
+				results = new MultiTextEmitter(System.out);
+				close = false;
+			}
+			
+			try {
+				UnitTestRunner utr = new UnitTestRunner(results, f);
+				utr.run();
+			} finally {
+			if (close)
+				results.close();
+			}
+		}
+		
+		// TODO: we also want to support general *.pt (protocol test) files and run them against cards/services that claim to support that protocol
 	}
 
 	private void writeDependencies(DependencyAnalyzer da, List<Set<RWFunctionDefinition>> defns) throws IOException {
