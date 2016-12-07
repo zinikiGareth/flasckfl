@@ -141,6 +141,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File tc2 = new File(s, "tc-tmp");
 		File droidTo = new File(s, "droid-to");
 		File droid = new File(s, "droid-tmp");
+		
+		File tests = new File(s, "tests");
+		File testReportTo = new File("test-reports-tmp");
+		
 		FileUtils.deleteDirectoryTree(new File(s, "errors-tmp"));
 		clean(pform);
 		clean(rwform);
@@ -150,6 +154,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		clean(droidTo);
 		clean(droid);
 		clean(tc2);
+		
 		Compiler.setLogLevels();
 		Compiler compiler = new Compiler();
 		File dir = new File(s, "test.golden");
@@ -188,6 +193,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
 			compiler.writeDroidTo(droidTo, false);
+			if (tests.isDirectory()) {
+				clean(testReportTo);
+				compiler.writeTestReportsTo(testReportTo);
+			}
 			if (depend.isDirectory()) {
 				clean(dependTo);
 				compiler.writeDependsTo(dependTo);
@@ -228,6 +237,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			fos.close();
 			
 			assertGolden(new File(s, "droid"), droid);
+		}
+		
+		if (tests.isDirectory()) {
+			assertGolden(new File(s, "testReports"), testReportTo);
 		}
 	}
 

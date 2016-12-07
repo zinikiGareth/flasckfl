@@ -200,6 +200,7 @@ public class Compiler {
 	private File writeHSIE;
 	private File trackTC;
 	private File writeJS;
+	private File writeTestReports;
 
 	public void searchIn(File file) {
 		pkgdirs.add(file);
@@ -257,6 +258,14 @@ public class Compiler {
 			return;
 		}
 		this.writeJS = file;
+	}
+
+	public void writeTestReportsTo(File file) {
+		if (!file.isDirectory()) {
+			System.out.println("there is no directory " + file);
+			return;
+		}
+		this.writeTestReports = file;
 	}
 
 	public void dumpTypes() {
