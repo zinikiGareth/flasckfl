@@ -20,7 +20,6 @@ import org.w3c.dom.css.CSSRuleList;
 import org.w3c.dom.css.CSSStyleDeclaration;
 import org.w3c.dom.css.CSSStyleRule;
 import org.w3c.dom.css.CSSStyleSheet;
-import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.parser.TokenizedLine;
 import org.zinutils.utils.FileUtils;
@@ -49,7 +48,6 @@ import com.steadystate.css.parser.selectors.ClassConditionImpl;
 
 public class DroidBuilder {
 	public final File androidDir;
-	final ByteCodeEnvironment bce;
 	final File qbcdir;
 	private String launchCard;
 	final List<File> libs = new ArrayList<File>();
@@ -60,9 +58,8 @@ public class DroidBuilder {
 	private Map<String, DroidStyle> cssClasses = new TreeMap<>(new StringComparator());
 	private boolean reallyBuild = true;
 
-	public DroidBuilder(File androidDir, ByteCodeEnvironment bce) {
+	public DroidBuilder(File androidDir) {
 		this.androidDir = androidDir;
-		this.bce = bce;
 		qbcdir = new File(androidDir, "qbout/classes");
 	}
 

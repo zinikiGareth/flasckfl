@@ -62,7 +62,6 @@ public class FLASCompiler implements ScriptCompiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private boolean dumpTypes = false;
 	private final List<File> pkgdirs = new ArrayList<File>();
-	private ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	private File writeRW;
 	private DroidBuilder builder;
 	private File writeFlim;
@@ -80,7 +79,7 @@ public class FLASCompiler implements ScriptCompiler {
 	public void writeDroidTo(File file, boolean andBuild) {
 		if (file.getPath().equals("null"))
 			return;
-		builder = new DroidBuilder(file, bce);
+		builder = new DroidBuilder(file);
 		if (!andBuild)
 			builder.dontBuild();
 		builder.init();
@@ -144,17 +143,14 @@ public class FLASCompiler implements ScriptCompiler {
 	
 	// The objective of this method is to convert an entire package directory at one go
 	// Thus the entire context of this is a single package
-	public boolean compile(File dir) throws ErrorResultException, IOException {
+	public CompileResult compile(File dir) throws ErrorResultException, IOException {
 		String inPkg = dir.getName();
 		if (!dir.isDirectory()) {
 			ErrorResult errors = new ErrorResult();
 			errors.message((InputPosition)null, "there is no input directory " + dir);
 			throw new ErrorResultException(errors);
 		}
-		File writeTo = new File((writeJS!=null?writeJS:dir), inPkg + ".js");
-		File exportTo = new File((writeFlim!=null?writeFlim:dir), inPkg + ".flim");
-		System.out.println("compiling package " + inPkg + " to " + writeTo);
-			
+
 		boolean failed = false;
 		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
@@ -167,12 +163,7 @@ public class FLASCompiler implements ScriptCompiler {
 			FileReader r = null;
 			try {
 				r = new FileReader(f);
-
-				// 1. Use indentation to break the input file up into blocks
-				List<Block> blocks = makeBlocks(errors, f.getName(), r);
-				
-				// 2. Use the parser factory and story to convert blocks to a package definition
-				storyProc.process(inPkg, scope, errors, blocks, true);
+				readIntoScope(inPkg, errors, storyProc, scope, f.getName(), r);
 			} catch (IOException ex1) {
 				failed = true;
 				ex1.printStackTrace();
@@ -185,8 +176,43 @@ public class FLASCompiler implements ScriptCompiler {
 			throw new ErrorResultException(errors);
 
 		if (failed)
-			return false;
+			return null;
+
+		CompileResult cr = stage2(errors, inPkg, scope);
+		if (cr == null)
+			return null;
+
+		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
+			MultiTextEmitter results;
+			boolean close;
+			if (writeTestReports != null && writeTestReports.isDirectory()) {
+				results = new MultiTextEmitter(new File(writeTestReports, f.getName().replaceFirst(".ut$", ".txt")));
+				close = true;
+			} else {
+				results = new MultiTextEmitter(System.out);
+				close = false;
+			}
+			
+			try {
+				// TODO: we probably need to configure the compiler here ...
+				UnitTestRunner utr = new UnitTestRunner(results, new FLASCompiler(), f);
+				utr.run();
+			} finally {
+			if (close)
+				results.close();
+			}
+		}
 		
+		// TODO: we also want to support general *.pt (protocol test) files and run them against cards/services that claim to support that protocol
+		
+		return cr;
+	}
+
+	private CompileResult stage2(ErrorResult errors, String inPkg, Scope scope) throws ErrorResultException, IOException {
+		File writeTo = writeJS!= null ? new File(writeJS, inPkg + ".js"):null;
+		File exportTo = writeFlim!=null?new File(writeFlim, inPkg + ".flim"):null;
+		ByteCodeEnvironment bce = new ByteCodeEnvironment();
+			
 		// 3. Rework any "syntatic sugar" forms into their proper forms
 		new SugarDetox(errors).detox(scope);
 		if (errors.hasErrors())
@@ -195,13 +221,12 @@ public class FLASCompiler implements ScriptCompiler {
 		FileWriter wjs = null;
 		FileOutputStream wex = null;
 		PrintWriter tcPW = null;
-		boolean success = false;
 		try {
 			ImportPackage rootPkg = Builtin.builtins();
 			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter);
-			final DroidGenerator dg = new DroidGenerator(hsie, builder);
+			final DroidGenerator dg = new DroidGenerator(hsie, builder, bce);
 
 			rewriter.importPackage1(rootPkg);
 			
@@ -358,7 +383,7 @@ public class FLASCompiler implements ScriptCompiler {
 				wjs = new FileWriter(writeTo);
 			} catch (IOException ex) {
 				System.err.println("Cannot write to " + writeTo + ": " + ex.getMessage());
-				return false;
+				return null;
 			}
 			target.writeTo(wjs);
 
@@ -368,48 +393,35 @@ public class FLASCompiler implements ScriptCompiler {
 			} catch (Exception ex) {
 				System.err.println("Cannot write to " + builder.androidDir + ": " + ex.getMessage());
 				ex.printStackTrace();
-				return false;
+				return null;
 			}
 			abortIfErrors(errors);
 
-			success = true;
+			return new CompileResult(bce);
 		} finally {
 			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
 			try { if (wex != null) wex.close(); } catch (IOException ex) {}
 			if (tcPW != null)
 				tcPW.close();
 		}
+	}
 
-		for (File f : FileUtils.findFilesMatching(dir, "*.ut")) {
-			MultiTextEmitter results;
-			boolean close;
-			if (writeTestReports != null && writeTestReports.isDirectory()) {
-				results = new MultiTextEmitter(new File(writeTestReports, f.getName().replaceFirst(".ut$", ".txt")));
-				close = true;
-			} else {
-				results = new MultiTextEmitter(System.out);
-				close = false;
-			}
-			
-			try {
-				UnitTestRunner utr = new UnitTestRunner(results, this, f);
-				utr.run();
-			} finally {
-			if (close)
-				results.close();
-			}
-		}
+	protected void readIntoScope(String inPkg, ErrorResult errors, final FLASStory storyProc, final Scope scope, String fileName, Reader r) throws IOException {
+		// 1. Use indentation to break the input file up into blocks
+		List<Block> blocks = makeBlocks(errors, fileName, r);
 		
-		// TODO: we also want to support general *.pt (protocol test) files and run them against cards/services that claim to support that protocol
-		
-		return success;
+		// 2. Use the parser factory and story to convert blocks to a package definition
+		storyProc.process(inPkg, scope, errors, blocks, true);
 	}
 
 
 	@Override
-	public List<Class<?>> createJVM(String pkg, String flas) {
-		// TODO Auto-generated method stub
-		return null;
+	public CompileResult createJVM(String pkg, String flas) throws IOException, ErrorResultException {
+		ErrorResult errors = new ErrorResult();
+		final FLASStory storyProc = new FLASStory();
+		final Scope scope = new Scope(null);
+		readIntoScope(pkg, errors, storyProc, scope, "script.fl", new StringReader(flas));
+		return stage2(errors, pkg, scope);
 	}
 
 	private void writeDependencies(DependencyAnalyzer da, List<Set<RWFunctionDefinition>> defns) throws IOException {
@@ -494,10 +506,6 @@ public class FLASCompiler implements ScriptCompiler {
 		for (HSIEForm h : collection) {
 			gen.generate(h);
 		}
-	}
-
-	public ByteCodeEnvironment getBCE() {
-		return bce;
 	}
 
 	public void setDumpTypes(boolean b) {

@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
+import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.runners.model.InitializationError;
@@ -28,12 +29,12 @@ public class AndroidCGRunner extends CGHarnessRunner {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		FLASCompiler compiler = new FLASCompiler();
 		compiler.searchIn(new File("src/main/resources/flim"));
-		compiler.compile(new File("src/test/resources/cards/test.ziniki"));
+		CompileResult cr = compiler.compile(new File("src/test/resources/cards/test.ziniki"));
 
 		CGHClassLoaderImpl zcl = new CGHClassLoaderImpl();
 		List<Class<?>> ret = new ArrayList<Class<?>>();
 
-		ByteCodeEnvironment bce = compiler.getBCE();
+		ByteCodeEnvironment bce = cr.bce;
 		compare(bce, zcl, ret, "test.ziniki.CounterObj");
 		compare(bce, zcl, ret, "test.ziniki.CounterCard");
 		compare(bce, zcl, ret, "test.ziniki.CounterCard$B1");

@@ -123,7 +123,7 @@ public class Main {
 		boolean failed = false;
 		for (File input : inputs) {
 			try {
-				failed |= !compiler.compile(input);
+				failed |= compiler.compile(input) == null;
 			} catch (ErrorResultException ex) {
 				try {
 					ex.errors.showTo(new PrintWriter(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), true), 4);

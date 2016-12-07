@@ -56,6 +56,7 @@ import org.slf4j.Logger;
 import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.BlockExpr;
 import org.zinutils.bytecode.ByteCodeCreator;
+import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.FieldInfo;
@@ -73,17 +74,19 @@ import org.zinutils.utils.StringUtil;
 
 public class DroidGenerator {
 	private final DroidBuilder builder;
+	private ByteCodeEnvironment bce;
 //	private final static Logger logger = LoggerFactory.getLogger("DroidGen");
 
-	public DroidGenerator(HSIE hsie, DroidBuilder bldr) {
+	public DroidGenerator(HSIE hsie, DroidBuilder bldr, ByteCodeEnvironment bce) {
 		this.builder = bldr;
+		this.bce = bce;
 	}
 	
 	public void generateAppObject() {
 		if (builder == null)
 			return;
 		// TODO: this package name needs to be configurable
-		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, "com.helpfulsidekick.chaddy.MainApplicationClass");
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, "com.helpfulsidekick.chaddy.MainApplicationClass");
 		bcc.superclass("org.flasck.android.FlasckApplication");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
@@ -107,7 +110,7 @@ public class DroidGenerator {
 	public void generate(RWStructDefn value) {
 		if (builder == null || !value.generate)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, value.name());
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, value.name());
 		Map<String, FieldInfo> fields = new TreeMap<String,FieldInfo>();
 		for (RWStructField sf : value.fields) {
 			FieldInfo fi = bcc.defineField(false, Access.PUBLIC, new JavaType("java.lang.Object"), sf.name);
@@ -132,7 +135,7 @@ public class DroidGenerator {
 	public void generate(String key, CardGrouping grp) {
 		if (builder == null)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, grp.struct.name());
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, grp.struct.name());
 		bcc.superclass("org.flasck.android.FlasckActivity");
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
 		for (RWStructField sf : grp.struct.fields) {
@@ -212,7 +215,7 @@ public class DroidGenerator {
 	public void generateContractDecl(String name, RWContractDecl cd) {
 		if (builder == null)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, name);
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, name);
 		bcc.superclass("org.flasck.android.ContractImpl");
 		bcc.makeAbstract();
 		{
@@ -237,7 +240,7 @@ public class DroidGenerator {
 	public void generateContractImpl(String name, RWContractImplements ci) {
 		if (builder == null)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, javaNestedName(name));
 		bcc.superclass(ci.name());
 		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(javaBaseName(name)), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(name), javaNestedSimpleName(name));
@@ -255,7 +258,7 @@ public class DroidGenerator {
 	public void generateService(String name, RWContractService cs) {
 		if (builder == null)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, javaNestedName(name));
 		bcc.superclass(cs.name());
 		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(javaBaseName(name)), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, javaBaseName(name), javaNestedSimpleName(name));
@@ -272,7 +275,7 @@ public class DroidGenerator {
 	public void generateHandler(String name, RWHandlerImplements hi) {
 		if (builder == null)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(name));
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, javaNestedName(name));
 		bcc.superclass(hi.name());
 		FieldInfo fi = null;
 		if (hi.inCard)
@@ -368,8 +371,8 @@ public class DroidGenerator {
 			} else if (f.mytype == CodeType.FUNCTION || f.mytype == CodeType.STANDALONE) {
 				String pkg = f.fnName.substring(0, idx);
 				inClz = pkg +".PACKAGEFUNCTIONS";
-				if (!builder.bce.hasClass(inClz)) {
-					ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, inClz);
+				if (!bce.hasClass(inClz)) {
+					ByteCodeCreator bcc = new ByteCodeCreator(bce, inClz);
 					bcc.superclass("java.lang.Object");
 				}
 				needTrampolineClass = true;
@@ -384,7 +387,7 @@ public class DroidGenerator {
 				if (inClz.charAt(idx2+1) == '_')
 					inClz = inClz.substring(0, idx2+1) + inClz.substring(idx2+2);
 			}
-			ByteCodeCreator bcc = builder.bce.get(inClz);
+			ByteCodeCreator bcc = bce.get(inClz);
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, needTrampolineClass && !wantThis, fn);
 			gen.returns("java.lang.Object");
 			List<PendingVar> tmp = new ArrayList<PendingVar>();
@@ -412,7 +415,7 @@ public class DroidGenerator {
 			
 			// for package-level methods (i.e. regular floating functions in a functional language), generate a nested class
 			if (needTrampolineClass) {
-				ByteCodeCreator inner = new ByteCodeCreator(builder.bce, inClz + "$" + fn);
+				ByteCodeCreator inner = new ByteCodeCreator(bce, inClz + "$" + fn);
 				inner.superclass("java.lang.Object");
 				if (wantThis) {
 					FieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");
@@ -744,7 +747,7 @@ public class DroidGenerator {
 	public NewMethodDefiner generateRender(String clz, String topBlock) {
 		if (builder == null)
 			return null;
-		ByteCodeCreator bcc = builder.bce.get(clz);
+		ByteCodeCreator bcc = bce.get(clz);
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
 		PendingVar into = gen.argument("java.lang.String", "into");
 		gen.returns("void");
@@ -758,7 +761,7 @@ public class DroidGenerator {
 	public CGRContext area(String clz, String base, String customTag) {
 		if (builder == null)
 			return null;
-		ByteCodeCreator bcc = new ByteCodeCreator(builder.bce, javaNestedName(clz));
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, javaNestedName(clz));
 		String baseClz = "org.flasck.android.areas." + base;
 		bcc.superclass(baseClz);
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
@@ -964,7 +967,7 @@ public class DroidGenerator {
 	public void write() {
 		if (builder == null)
 			return;
-		for (ByteCodeCreator bcc : builder.bce.all()) {
+		for (ByteCodeCreator bcc : bce.all()) {
 			File wto = new File(builder.qbcdir, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
 			bcc.writeTo(wto);
 		}

@@ -1,9 +1,11 @@
 package org.flasck.flas.compiler;
 
-import java.util.List;
+import java.io.IOException;
+
+import org.flasck.flas.errors.ErrorResultException;
 
 public interface ScriptCompiler {
 
-	List<Class<?>> createJVM(String pkg, String flas);
+	CompileResult createJVM(String pkg, String flas) throws IOException, ErrorResultException;
 
 }
