@@ -365,6 +365,7 @@ public class FLASCompiler implements ScriptCompiler {
 			for (Set<RWFunctionDefinition> d : defns) {
 				hsie.createForms(d);
 			}
+			hsie.liftLambdas();
 			
 			for (Set<RWFunctionDefinition> d : defns) {
 				

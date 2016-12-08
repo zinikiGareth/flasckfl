@@ -116,7 +116,7 @@ public class TestBasicTypeChecking {
 		assertFalse(errors.hasErrors());
 		Type ty = tc.getExportedType(fn.fnName);
 		assertNotNull(ty);
-		assertEquals("Number->Number", ty.toString());
+		assertEquals("->(Number->Number)", ty.toString());
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class TestBasicTypeChecking {
 		assertFalse(errors.hasErrors());
 		Type ty = tc.getExportedType(fn.fnName);
 		assertNotNull(ty);
-		assertEquals("Number", ty.toString());
+		assertEquals("->Number", ty.toString());
 	}
 
 	@Test
@@ -138,7 +138,7 @@ public class TestBasicTypeChecking {
 		assertFalse(errors.hasErrors());
 		Type ty = tc.getExportedType(fn.fnName);
 		assertNotNull(ty);
-		assertEquals("Number", ty.toString());
+		assertEquals("->Number", ty.toString());
 	}
 
 	@Test
@@ -149,7 +149,7 @@ public class TestBasicTypeChecking {
 		assertFalse(errors.hasErrors());
 		Type ty = tc.getExportedType(fn.fnName);
 		assertNotNull(ty);
-		assertEquals("Char", ty.toString());
+		assertEquals("->Char", ty.toString());
 	}
 	
 	@Test

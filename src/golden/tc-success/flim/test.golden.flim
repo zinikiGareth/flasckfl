@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Function file="checktypes.fl" line="7" name="test.golden.bert" off="10">
+    <Function file="checktypes.fl" line="7" name="test.golden.bert" off="0">
         <Function>
             <Return>
                 <Tuple>
@@ -24,7 +24,7 @@
             </Return>
         </Function>
     </Function>
-    <Function file="builtin" line="0" name="test.golden.t1" off="0">
+    <Function file="checktypes.fl" line="4" name="test.golden.t1" off="0">
         <Function>
             <Return>
                 <Instance file="builtin" line="0" off="0">
@@ -34,7 +34,7 @@
             </Return>
         </Function>
     </Function>
-    <Function file="builtin" line="0" name="test.golden.t2" off="0">
+    <Function file="checktypes.fl" line="5" name="test.golden.t2" off="0">
         <Function>
             <Return>
                 <Instance file="builtin" line="0" off="0">

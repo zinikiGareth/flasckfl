@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -59,10 +60,12 @@ public class GenerateClosures {
 	}
 
 	public void generateScopingClosures() {
-		Set<VarNestedFromOuterFunctionScope> allScoped = GatherExternals.allScopedFrom(forms, form);
+		Set<VarNestedFromOuterFunctionScope> allScoped = new TreeSet<>(form.scoped);
 		allScoped.addAll(form.scopedDefinitions);
 		Map<String, ClosureCmd> map = new HashMap<>();
 		for (VarNestedFromOuterFunctionScope sv : allScoped) {
+			if (!sv.definedIn.equals(form.fnName))
+				continue;
 			if (sv.defn instanceof LocalVar)
 				continue;
 			if (sv.defn instanceof RWHandlerImplements) {
@@ -84,6 +87,8 @@ public class GenerateClosures {
 			if (sv.defn instanceof LocalVar)
 				continue;
 			ClosureCmd clos = map.get(sv.id);
+			if (clos == null)
+				continue;
 			HSIEForm fn = forms.get(sv.id);
 			if (fn != null /* && fn.scoped.isEmpty() */)  {// The case where there are no scoped vars is degenerate, but easier to deal with like this
 				for (VarNestedFromOuterFunctionScope i : fn.scoped) {

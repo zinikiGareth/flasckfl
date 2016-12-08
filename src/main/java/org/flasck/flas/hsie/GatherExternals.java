@@ -49,43 +49,6 @@ public class GatherExternals {
 		curr = null;
 	}
 
-	public static void transitiveClosure(Map<String, HSIEForm> forms, Collection<HSIEForm> curr) {
-		boolean again = true;
-		while (again) {
-			again = false;
-			for (HSIEForm x : curr) {
-				for (String s : x.externals)
-					again |= include(forms, x, s);
-				for (VarNestedFromOuterFunctionScope vn : x.scoped)
-					again |= include(forms, x, vn.id);
-				for (VarNestedFromOuterFunctionScope vn : x.scopedDefinitions)
-					again |= include(forms, x, vn.id);
-			}
-		}
-	}
-
-	private static boolean include(Map<String, HSIEForm> forms, HSIEForm x, String s) {
-		boolean again = false;
-		HSIEForm d = forms.get(s);
-		if (d == null) {
-			return again;
-		}
-		for (VarNestedFromOuterFunctionScope nv : d.scoped)
-			again |= x.dependsOn(nv);
-		return again;
-	}
-
-	public static Set<VarNestedFromOuterFunctionScope> allScopedFrom(Map<String, HSIEForm> forms, HSIEForm form) {
-		TreeSet<VarNestedFromOuterFunctionScope> ret = new TreeSet<>(new ExternalRef.Comparator());
-		ret.addAll(form.scoped);
-		for (VarNestedFromOuterFunctionScope vn : form.scopedDefinitions) {
-			HSIEForm of = forms.get(vn.id);
-			if (of != null)
-				ret.addAll(of.scoped);
-		}
-		return ret;
-	}
-
 	private void process(RWFunctionCaseDefn cs) {
 		for (Object a : cs.args())
 			dispatch(a);
@@ -160,11 +123,7 @@ public class GatherExternals {
 	
 	private void process(ExternalRef er) {
 		if (er instanceof VarNestedFromOuterFunctionScope) {
-			VarNestedFromOuterFunctionScope vn = (VarNestedFromOuterFunctionScope) er;
-			if (!vn.definedLocally)
-				curr.dependsOn(vn);
-			else
-				curr.definesScoped(vn);
+			return;
 		}
 		curr.dependsOn(er);
 	}

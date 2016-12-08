@@ -10,10 +10,14 @@
             </Typed>
         </Method>
     </Contract>
-    <Function file="builtin" line="0" name="test.golden.f" off="0">
+    <Function file="methods.fl" line="5" name="test.golden.f" off="0">
         <Function>
             <Return>
-                <Struct name="Nil"/>
+                <Function>
+                    <Return>
+                        <Struct name="Nil"/>
+                    </Return>
+                </Function>
             </Return>
         </Function>
     </Function>

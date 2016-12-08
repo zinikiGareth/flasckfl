@@ -20,6 +20,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
+import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -45,8 +46,32 @@ public class HSIE {
 		GatherExternals ge = new GatherExternals();
 		for (RWFunctionDefinition fn : d) {
 			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, fn.inCard, vf);
+			for (VarNestedFromOuterFunctionScope sv : fn.scopedVars) {
+				System.out.println("* " + sv.id + " " + sv.definedIn + " " + hf.fnName);
+				if (sv.definedIn.equals(fn.name()))
+					hf.scopedDefinitions.add(sv);
+				else
+					hf.scoped.add(sv);
+			}
 			ge.process(hf, fn);
 			forms.put(fn.name, hf);
+		}
+	}
+
+	// The process of "lambda lifting" means that we need to add additional lambda entries to each
+	// form where it is automatically included in the parent.
+	// We do this by allocating "scopedVars", which for any given form come directly from the function it
+	// is mapping: so far, so good.
+	// But here we need to look at where those lambdas are coming from and tell that form that it needs to
+	// generate the appropriate closure for this form
+	
+	// Having done all this, I think it duplicates the over-eager definition in the creator above
+	public void liftLambdas() {
+		for (HSIEForm h : forms.values()) {
+			for (VarNestedFromOuterFunctionScope sv : h.scoped) {
+				if (!sv.definedIn.equals(h.fnName))
+					forms.get(sv.definedIn).scopedDefinitions.add(sv);
+			}
 		}
 	}
 	
@@ -55,7 +80,7 @@ public class HSIE {
 		for (RWFunctionDefinition fn : d) {
 			ret.put(fn.name, forms.get(fn.name));
 		}
-		GatherExternals.transitiveClosure(forms, ret.values());
+//		GatherExternals.transitiveClosure(forms, ret.values());
 		logger.info("HSIE transforming orchard in parallel: " + d);
 		for (RWFunctionDefinition t : d) {
 			handle(t);

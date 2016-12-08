@@ -1,12 +1,16 @@
 HSIE for test.golden.scoped_0.requestObj/0                   #scoping2.fl: 16.7
 #Args: 0 #bound: 0
-    externals: [Nil] scoped = []
+    externals: [Nil]
+    scoped = []
+    scopedDefns = []
     all vars = []
 RETURN PackageVar.Nil                                        #scoping2.fl: 16.7
 =======
 HSIE for test.golden.scoped/1                                #scoping2.fl:  7.0
 #Args: 1 #bound: 4
-    externals: [Cons, MessageWrapper, Nil, test.golden.UpC] scoped = []
+    externals: [Cons, MessageWrapper, Nil, test.golden.UpC]
+    scoped = []
+    scopedDefns = [test.golden.scoped_0.MyHc, test.golden.scoped_0.ctr, test.golden.scoped_0.request]
     all vars = [v0, v1, v2, v3, v4]
 HEAD v0                                                      #scoping2.fl:  7.8
 SWITCH v0 test.golden.UpC                                    #scoping2.fl:  7.8
@@ -30,7 +34,9 @@ CLOSURE v4                                                   #scoping2.fl:  7.19
 -------
 HSIE for test.golden.scoped_0.request/0                      #scoping2.fl:  9.7
 #Args: 0 #bound: 4
-    externals: [Cons, Nil, Send] scoped = [test.golden.scoped_0.MyHc, test.golden.scoped_0.ctr]
+    externals: [Cons, Nil, Send]
+    scoped = [test.golden.scoped_0.MyHc, test.golden.scoped_0.ctr]
+    scopedDefns = []
     all vars = [v5, v6, v7, v8]
 RETURN v8:clos8 [v5:clos5, v6:clos6, v7:clos7]               #scoping2.fl: 10.3
 CLOSURE v5                                                   #scoping2.fl: 10.12
@@ -51,7 +57,9 @@ CLOSURE v8                                                   #scoping2.fl: 10.3
 =======
 HSIE for test.golden.scoped_0.MyHc.reply/0                   #scoping2.fl: 13.0
 #Args: 0 #bound: 2
-    externals: [Cons, Nil, test.golden.scoped_0.MyHc.requestObj] scoped = []
+    externals: [Cons, Nil, test.golden.scoped_0.MyHc.requestObj]
+    scoped = []
+    scopedDefns = []
     all vars = [v0, v1]
 RETURN v1:clos1 [v0:clos0]                                   #scoping2.fl: 16.7
 CLOSURE v1                                                   #scoping2.fl: 16.7

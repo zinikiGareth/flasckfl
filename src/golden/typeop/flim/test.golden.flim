@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
     <Card file="typeop.fl" line="2" name="test.golden.MyCard" off="5"/>
-    <Function file="builtin" line="0" name="test.golden.x" off="0">
+    <Function file="typeop.fl" line="4" name="test.golden.x" off="0">
         <Function>
             <Return>
                 <Builtin name="Number"/>
             </Return>
         </Function>
     </Function>
-    <Function file="typeop.fl" line="2" name="test.golden.y" off="5">
+    <Function file="typeop.fl" line="5" name="test.golden.y" off="0">
         <Function>
             <Return>
                 <Struct name="test.golden.MyCard"/>

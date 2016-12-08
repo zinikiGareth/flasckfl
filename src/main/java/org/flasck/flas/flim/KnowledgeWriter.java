@@ -167,13 +167,17 @@ public class KnowledgeWriter {
 	public void add(String name, Type type) {
 		XMLElement xe = top.addElement("Function");
 		if (type.iam != WhatAmI.FUNCTION)
-			type = Type.function(type.location(), type);
+			throw new UtilException("Not a function");
 		// TODO: I think we should get the location of the first case ...
 		writeLocation(xe, type);
 		xe.setAttribute("name", name);
 		writeTypeUsage(xe, type);
-		if (copyToScreen)
-			System.out.println("  function " + name + " :: " + type + " => " + type.location());
+		if (copyToScreen) {
+			Type ty = type;
+			if (ty.arity() == 0)
+				ty = type.arg(0);
+			System.out.println("  function " + name + " :: " + ty + " => " + type.location());
+		}
 	}
 
 	// This is responsible for writing a type when it is used (as opposed to its

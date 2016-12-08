@@ -232,7 +232,6 @@ public class TypeChecker2 {
 			for (ClosureCmd c : f.closures())
 				collectVarNames(knownScoped, f, c);
 		}
-		logger.info("collected " + knownScoped);
 		for (Entry<String, VarInSource> e : knownScoped.entrySet()) {
 			if (!globalKnowledge.containsKey(e.getKey()))
 				localKnowledge.put(e.getKey(), new TypeVar(e.getValue().loc, e.getValue().var));
@@ -430,10 +429,14 @@ public class TypeChecker2 {
 			TypeInfo nt = deduceType(renames, merged, f);
 			logger.info("Concluded that " + f.fnName + " has type " + nt);
 			gk(f.fnName, nt);
-			if (trackTo != null)
-				trackTo.println(f.fnName + " :: " + asType(nt));
 			Type ty = asType(nt);
 			export.put(f.fnName, ty);
+			if (trackTo != null) {
+				Type t1 = ty;
+				if (t1.arity() == 0)
+					t1 = t1.arg(0);
+				trackTo.println(f.fnName + " :: " + t1);
+			}
 		}
 	}
 
@@ -445,8 +448,9 @@ public class TypeChecker2 {
 				collectVarNames(knownScoped, f, c);
 			else if (c instanceof PushVar) {
 				VarInSource v = ((PushVar)c).var;
-				if (knownScoped.containsKey(v.called) && knownScoped.get(v.called).var.idx != v.var.idx)
+				if (knownScoped.containsKey(v.called) && knownScoped.get(v.called).var.idx != v.var.idx) {
 					throw new UtilException("Inconsistent var names " + v.called + " has " + v.var + " and " + knownScoped.get(v.called));
+				}
 				knownScoped.put(v.called, v);
 			} else if (c instanceof PushReturn)
 				;
@@ -561,7 +565,11 @@ public class TypeChecker2 {
 						constraints.add(((TypeVar)foo).var, tai);
 					else if (tai instanceof TypeVar)
 						constraints.add(((TypeVar)tai).var, foo);
-					else if (!foo.equals(tai))
+					else if (foo.equals(tai))
+						;
+					else if (foo instanceof TypeFunc && ((TypeFunc)foo).args.size() == 1 && ((TypeFunc)foo).args.get(0).equals(tai))
+						;
+					else
 						throw new UtilException("Scoped var = " + si + " with already " + foo + " and now " + tai);
 				}
 			}
@@ -676,6 +684,11 @@ public class TypeChecker2 {
 			if (nts.size() != 1)
 				throw new UtilException("Cannot handle " + v + " with constraints " + cs + " leading to " + nts);
 			checkMethodCall(tv.location(), f, ncs, ps, CollectionUtils.any(nts));
+		} else if (ot instanceof TypeFunc) {
+			TypeFunc tf = (TypeFunc) ot;
+			if (tf.args.size() != 1)
+				throw new UtilException("Should have just 1 arg");
+			checkMethodCall(tf.location(), f, ncs, ps, ((NamedType)tf.args.get(0)).name);
 		} else
 			throw new UtilException("Cannot handle ot = " + ot + " " + ot.getClass());
 	}
@@ -804,10 +817,7 @@ public class TypeChecker2 {
 		args.add(merged.get(rename(renames, this.returns.get(f.fnName))));
 		for (int i=0;i<args.size();i++)
 			args.set(i, poly(renames, merged, install, args.get(i)));
-		if (args.size() == 1)
-			return args.get(0);
-		else
-			return new TypeFunc(f.location, args);
+		return new TypeFunc(f.location, args);
 	}
 
 	public void writeLearnedKnowledge(File exportTo, String inPkg, boolean dumpTypes) {
@@ -1076,7 +1086,7 @@ public class TypeChecker2 {
 			// if we have poly vars, we need to create an instance ...
 			List<Type> polys = new ArrayList<Type>();
 			for (TypeInfo t : nt.polyArgs)
-				polys.add(asType(t));
+				polys.add(nonFunction(asType(t)));
 			return ret.instance(nt.location(), polys);
 		} else if (ti instanceof TypeFunc) {
 			TypeFunc tf = (TypeFunc) ti; 
@@ -1101,6 +1111,14 @@ public class TypeChecker2 {
 			throw new UtilException("Have computed type " + ti.getClass() + " but can't convert back to real Type");
 	}
 
+	private Type nonFunction(Type asType) {
+		if (asType.iam == WhatAmI.FUNCTION) {
+			if (asType.arity() == 0)
+				return asType.arg(0);
+		}
+		return asType;
+	}
+
 	public Type getTypeAsCtor(InputPosition location, String uniqueName) {
 		if (ctors.containsKey(uniqueName))
 			return ctors.get(uniqueName);
@@ -1112,7 +1130,12 @@ public class TypeChecker2 {
 
 	private TypeInfo deList(TypeInfo typeOf) {
 		// There may well be multiple cases here; add them as we see them
-		if (typeOf instanceof NamedType) {
+		if (typeOf instanceof TypeFunc) {
+			TypeFunc tf = (TypeFunc)typeOf;
+			if (tf.args.size() == 1)
+				return deList(tf.args.get(0));
+			throw new UtilException("deList(" + typeOf + ")");
+		} else if (typeOf instanceof NamedType) {
 			NamedType nt = (NamedType) typeOf;
 			if (nt.name.equals("Croset"))
 				return nt.polyArgs.get(0);
