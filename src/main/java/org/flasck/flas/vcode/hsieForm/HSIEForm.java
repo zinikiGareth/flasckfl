@@ -13,7 +13,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.LocalVar;
-import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
