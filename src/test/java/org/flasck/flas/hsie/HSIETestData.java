@@ -213,7 +213,7 @@ public class HSIETestData {
 	public static HSIEForm mutualG() {
 		ArrayList<Object> externals = new ArrayList<Object>();
 		externals.add("*");
-		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.x", new LocalVar("ME.f_0", posn, "x", null, null), false));
+		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.x", new LocalVar("ME.f", "ME.f_0", posn, "x", null, null), "ME.f", false));
 		return thingy("ME.f_0.g", 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
@@ -274,7 +274,7 @@ public class HSIETestData {
 	public static HSIEForm splitF_G1() {
 		ArrayList<Object> externals = new ArrayList<Object>();
 		externals.add("*");
-		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.q", new LocalVar("ME.f_0", posn, "q", null, null), false));
+		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.q", new LocalVar("ME.f", "ME.f_0", posn, "q", null, null), "ME.f", false));
 		return thingy("ME.f_0.g", 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",

@@ -5,6 +5,22 @@ handler test.golden.scoped_0.MyHc *function*
     =
       <-
         HandlerLambda.HL[test.golden.scoped_0.MyHc.requestObj]
+method test.golden.scoped_0.request
+  nested test.golden.scoped_0.MyHc test.golden.scoped
+  nested test.golden.scoped_0.ctr test.golden.scoped
+  case test.golden.scoped_0.request
+  =
+    <-
+      @
+        @
+          PackageVar.FLEval.field
+          VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.ctr]
+          "call"
+        @
+          VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.MyHc]
+method test.golden.scoped_0.requestObj
+  case test.golden.scoped_0.requestObj
+  =
 function test.golden.scoped 1
   case test.golden.scoped_0
     typed contract test.golden.UpC test.golden.scoped_0.ctr

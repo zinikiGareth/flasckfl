@@ -175,7 +175,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			return true;
 		if (vn.defn instanceof LocalVar) {
 			LocalVar lv = (LocalVar) vn.defn;
-			int idx = lv.definedBy.lastIndexOf("_");
+			int idx = lv.caseName.lastIndexOf("_");
 			if (fnName.indexOf(".", idx) == -1)
 				return true;
 		} else if (vn.defn instanceof RWFunctionDefinition) {

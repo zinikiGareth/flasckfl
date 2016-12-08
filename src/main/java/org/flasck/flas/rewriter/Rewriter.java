@@ -478,18 +478,20 @@ public class Rewriter {
 		protected final Map<String, LocalVar> bound;
 		private final Scope inner;
 		private final boolean fromMethod;
-		private final String name;
+		private final String funcName;
+		private final String caseName;
 
-		FunctionCaseContext(NamingContext cx, String caseName, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
+		FunctionCaseContext(NamingContext cx, String funcName, String caseName, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
 			super(cx);
-			this.name = caseName;
+			this.funcName = funcName;
+			this.caseName = caseName;
 			this.bound = locals;
 			this.inner = inner;
 			this.fromMethod = fromMethod;
 		}
 
 		public String name() {
-			return name;
+			return caseName;
 		}
 		
 		public Object resolve(InputPosition location, String name) {
@@ -504,7 +506,7 @@ public class Rewriter {
 					defn = callbackHandlers.get(full);
 				if (defn == null)
 					throw new UtilException("Scope has definition of " + name + " as " + full + " but it is not a function, method or handler");
-				return new VarNestedFromOuterFunctionScope(defn.location(), full, defn, true);
+				return new VarNestedFromOuterFunctionScope(defn.location(), full, defn, funcName, true);
 			}
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
@@ -526,7 +528,7 @@ public class Rewriter {
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof LocalVar) {
 				LocalVar lv = (LocalVar) ret;
-				return new VarNestedFromOuterFunctionScope(lv.location(), lv.uniqueName(), lv, false);
+				return new VarNestedFromOuterFunctionScope(lv.location(), lv.uniqueName(), lv, lv.fnName, false);
 			} else if (ret instanceof VarNestedFromOuterFunctionScope) {
 				return ((VarNestedFromOuterFunctionScope)ret).notLocal();
 			} else
@@ -702,7 +704,7 @@ public class Rewriter {
 				}
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
-				FunctionCaseContext fccx = new FunctionCaseContext(cx, c.caseName(), null, c.innerScope(), false);
+				FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), null, c.innerScope(), false);
 				pass2(fccx, c.innerScope());
 			} else if (val instanceof MethodCaseDefn) {
 			} else if (val instanceof EventCaseDefn) {
@@ -814,6 +816,7 @@ public class Rewriter {
 				rewriteCase(c2, mic, c, true, false);
 				methods.put(c.intro.name, mic);
 				rw.methods.add(rwm);
+				rwm.gatherScopedVars();
 			}
 			
 			pos++;
@@ -834,6 +837,7 @@ public class Rewriter {
 				MethodInContext mic = new MethodInContext(this, c2, MethodInContext.UP, rw.location(), rw.name(), c.intro.name, HSIEForm.CodeType.SERVICE, rwm, enc);
 				rewriteCase(c2, mic, c, true, false);
 				methods.put(c.intro.name, mic);
+				rwm.gatherScopedVars();
 			}
 
 			pos++;
@@ -1224,6 +1228,7 @@ public class Rewriter {
 				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), c.intro.name, HSIEForm.CodeType.HANDLER, rm, enc);
 				rewriteCase(hc, mic, c, true, false);
 				ret.methods.add(rm);
+				rm.gatherScopedVars();
 				methods.put(c.intro.name, mic);
 			}
 
@@ -1254,29 +1259,31 @@ public class Rewriter {
 	public void rewrite(NamingContext cx, FunctionCaseDefn c) {
 		RWFunctionDefinition ret = functions.get(c.functionName());
 		final Map<String, LocalVar> vars = new HashMap<>();
-		gatherVars(errors, this, cx, c.caseName(), vars, c.intro);
-		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.caseName(), vars, c.innerScope(), false);
+		gatherVars(errors, this, cx, c.functionName(), c.caseName(), vars, c.intro);
+		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);
 		RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
 		ret.cases.add(rwc);
 	}
 
 	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodCaseDefn c, HSIEForm.CodeType codeType) {
-		rewriteCase(cx, standalone.get(c.intro.name), c, false, true);
+		MethodInContext rm = standalone.get(c.intro.name);
+		rewriteCase(cx, rm, c, false, true);
+		rm.method.gatherScopedVars();
 	}
 	
 	protected void rewriteCase(NamingContext cx, MethodInContext mic, MethodCaseDefn c, boolean fromHandler, boolean useCases) {
 		Map<String, LocalVar> vars = new HashMap<>();
 		String name = useCases ? c.caseName() : c.methodName();
-		gatherVars(errors, this, cx, name, vars, c.intro);
-		mic.method.cases.add(rewrite(new FunctionCaseContext(cx, name, vars, c.innerScope(), fromHandler), c, vars));
+		gatherVars(errors, this, cx, c.methodName(), name, vars, c.intro);
+		mic.method.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), name, vars, c.innerScope(), fromHandler), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, EventCaseDefn c) {
 		EventHandlerInContext ehic = eventHandlers.get(c.intro.name);
 		RWEventHandlerDefinition rw = ehic.handler;
 		Map<String, LocalVar> vars = new HashMap<>();
-		gatherVars(errors, this, cx, rw.name(), vars, c.intro);
-		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.caseName(), vars, c.innerScope(), false), c, vars));
+		gatherVars(errors, this, cx, rw.name(), rw.name(), vars, c.intro);
+		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), false), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, StructDefn sd) {
@@ -1381,6 +1388,7 @@ public class Rewriter {
 						mcd.messages.add(rewrite(c2, mm));
 					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
 					method.cases.add(mcd);
+					method.gatherScopedVars();
 					List<Object> enc = new ArrayList<Object>();
 					MethodInContext mic = new MethodInContext(this, c2, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method, enc); // PROB NEEDS D3Action type
 					this.methods.put(method.name(), mic);
@@ -1645,14 +1653,14 @@ public class Rewriter {
 		}
 	}
 
-	public void gatherVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, String definedBy, Map<String, LocalVar> into, FunctionIntro fi) {
+	public void gatherVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, String fnName, String caseName, Map<String, LocalVar> into, FunctionIntro fi) {
 		for (int i=0;i<fi.args.size();i++) {
 			Object arg = fi.args.get(i);
 			if (arg instanceof VarPattern) {
 				VarPattern vp = (VarPattern)arg;
-				into.put(vp.var, new LocalVar(definedBy, vp.varLoc, vp.var, null, null));
+				into.put(vp.var, new LocalVar(fnName, caseName, vp.varLoc, vp.var, null, null));
 			} else if (arg instanceof ConstructorMatch)
-				gatherCtor(errors, cx, definedBy, into, (ConstructorMatch) arg);
+				gatherCtor(errors, cx, fnName, caseName, into, (ConstructorMatch) arg);
 			else if (arg instanceof ConstPattern)
 				;
 			else if (arg instanceof TypedPattern) {
@@ -1665,13 +1673,13 @@ public class Rewriter {
 						throw new UtilException("Need to consider if " + tp.type + " might be a polymorphic var");
 					}
 				}
-				into.put(tp.var, new LocalVar(definedBy, tp.varLocation, tp.var, tp.typeLocation, t));
+				into.put(tp.var, new LocalVar(fnName, caseName, tp.varLocation, tp.var, tp.typeLocation, t));
 			} else
 				throw new UtilException("Not gathering vars from " + arg.getClass());
 		}
 	}
 
-	private void gatherCtor(ErrorResult errors, NamingContext cx, String definedBy, Map<String, LocalVar> into, ConstructorMatch cm) {
+	private void gatherCtor(ErrorResult errors, NamingContext cx, String fnName, String caseName, Map<String, LocalVar> into, ConstructorMatch cm) {
 		// NOTE: I am deliberately NOT returning any errors here because I figure this should already have been checked for validity somewhere else
 		// But this (albeit, defensively) assumes that cm.ctor is a struct defn and that it has the defined fields 
 		for (Field x : cm.args) {
@@ -1689,9 +1697,9 @@ public class Rewriter {
 						}
 					}
 				}
-				into.put(vp.var, new LocalVar(definedBy, vp.varLoc, vp.var, vp.varLoc, t));
+				into.put(vp.var, new LocalVar(fnName, caseName, vp.varLoc, vp.var, vp.varLoc, t));
 			} else if (x.patt instanceof ConstructorMatch)
-				gatherCtor(errors, cx, definedBy, into, (ConstructorMatch)x.patt);
+				gatherCtor(errors, cx, fnName, caseName, into, (ConstructorMatch)x.patt);
 			else if (x.patt instanceof ConstPattern)
 				;
 			else
@@ -1785,6 +1793,9 @@ public class Rewriter {
 		for (RWHandlerImplements h : this.callbackHandlers.values()) {
 			writeHandler(pw, h);
 		}
+		for (MethodInContext d : this.standalone.values()) {
+			writeMethod(pw, d.method);
+		}
 		writeGeneratableFunctionsTo(pw, functions);
 		pw.close();
 	}
@@ -1803,6 +1814,8 @@ public class Rewriter {
 
 	private void writeMethod(Indenter pw, RWMethodDefinition m) {
 		pw.println("method " + m.name());
+		for (VarNestedFromOuterFunctionScope sv : m.scopedVars)
+			pw.indent().println("nested " + sv.id + " " + sv.definedIn);
 		for (RWMethodCaseDefn c : m.cases)
 			writeMethodCase(pw.indent(), c);
 	}

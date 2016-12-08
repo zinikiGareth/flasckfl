@@ -1,7 +1,5 @@
 package org.flasck.flas.compiler;
 
-import java.io.File;
-
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.xml.XML;

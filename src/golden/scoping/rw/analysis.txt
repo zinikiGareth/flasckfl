@@ -16,6 +16,33 @@ handler test.golden.f_0.HandleReply *function*
             PackageVar.+
             HandlerLambda.HL[test.golden.f_0.HandleReply.var]
             HandlerLambda.HL[test.golden.f_0.HandleReply.v]
+method test.golden.cna
+  case test.golden.cna
+    typed contract test.golden.NoArg test.golden.cna_0.na
+  =
+    <-
+      @
+        @
+          PackageVar.FLEval.field
+          LocalVar.test.golden.cna_0.na
+          "get"
+        42
+method test.golden.f_0.q
+  nested test.golden.f_0.HandleReply test.golden.f
+  nested test.golden.f_0.server test.golden.f
+  nested test.golden.f_0.var test.golden.f
+  case test.golden.f_0.q
+  =
+    <-
+      @
+        @
+          PackageVar.FLEval.field
+          VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.server]
+          "get"
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.var]
+        @
+          VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.HandleReply]
+          VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.var]
 function test.golden.f 2
   case test.golden.f_0
     typed contract test.golden.Server test.golden.f_0.server

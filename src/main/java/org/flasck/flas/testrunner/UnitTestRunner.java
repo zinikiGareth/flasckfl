@@ -13,7 +13,6 @@ import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.bytecode.ByteCodeEnvironment;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.reflection.Reflection;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.MultiTextEmitter;

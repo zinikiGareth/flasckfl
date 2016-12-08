@@ -140,6 +140,8 @@ public class Type implements Locatable {
 	}
 	
 	public static Type polyvar(InputPosition loc, String name) {
+		if (loc == null)
+			throw new UtilException("Type without input location 4");
 		return new Type(loc, loc, WhatAmI.POLYVAR, name, null);
 	}
 	

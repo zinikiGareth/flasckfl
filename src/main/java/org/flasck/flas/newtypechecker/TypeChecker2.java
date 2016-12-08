@@ -215,7 +215,7 @@ public class TypeChecker2 {
 		nextVar=0;
 		
 		// 1b. define all the vars that are already in the HSIE, trapping the max value for future reference
-		Map<String, Var> knownScoped = new HashMap<String, Var>();
+		Map<String, VarInSource> knownScoped = new HashMap<>();
 		for (HSIEForm f : forms) {
 			logger.info("Checking type of " + f.fnName);
 			f.dump(logger);
@@ -233,9 +233,9 @@ public class TypeChecker2 {
 				collectVarNames(knownScoped, f, c);
 		}
 		logger.info("collected " + knownScoped);
-		for (Entry<String, Var> e : knownScoped.entrySet()) {
+		for (Entry<String, VarInSource> e : knownScoped.entrySet()) {
 			if (!globalKnowledge.containsKey(e.getKey()))
-				localKnowledge.put(e.getKey(), new TypeVar(null, e.getValue()));
+				localKnowledge.put(e.getKey(), new TypeVar(e.getValue().loc, e.getValue().var));
 		}
 		logger.info("allocating FRESH vars from " + nextVar);
 
@@ -243,7 +243,7 @@ public class TypeChecker2 {
 		for (HSIEForm f : forms) {
 			logger.info("Allocating function/return vars for " + f.fnName);
 			Var rv = new Var(nextVar++);
-			localKnowledge.put(f.fnName, new TypeFunc(f.location, f.vars, f.nformal, new TypeVar(null, rv)));
+			localKnowledge.put(f.fnName, new TypeFunc(f.location, f.vars, f.nformal, new TypeVar(f.location, rv)));
 			logger.info("Allocating " + rv + " as return type of " + f.fnName);
 			if (constraints.contains(rv))
 				throw new UtilException("Duplicate var definition " + rv);
@@ -437,7 +437,7 @@ public class TypeChecker2 {
 		}
 	}
 
-	private void collectVarNames(Map<String, Var> knownScoped, HSIEForm f, HSIEBlock blk) {
+	private void collectVarNames(Map<String, VarInSource> knownScoped, HSIEForm f, HSIEBlock blk) {
 		for (HSIEBlock c : blk.nestedCommands()) {
 			if (c instanceof Head || c instanceof BindCmd || c instanceof ErrorCmd)
 				continue;
@@ -445,9 +445,9 @@ public class TypeChecker2 {
 				collectVarNames(knownScoped, f, c);
 			else if (c instanceof PushVar) {
 				VarInSource v = ((PushVar)c).var;
-				if (knownScoped.containsKey(v.called) && knownScoped.get(v.called).idx != v.var.idx)
+				if (knownScoped.containsKey(v.called) && knownScoped.get(v.called).var.idx != v.var.idx)
 					throw new UtilException("Inconsistent var names " + v.called + " has " + v.var + " and " + knownScoped.get(v.called));
-				knownScoped.put(v.called, v.var);
+				knownScoped.put(v.called, v);
 			} else if (c instanceof PushReturn)
 				;
 			else
@@ -713,7 +713,7 @@ public class TypeChecker2 {
 
 	private TypeInfo mergeDown(Var v, Set<TypeInfo> tis) {
 		if (tis.isEmpty())
-			return new TypeVar(null, v);
+			return new TypeVar(new InputPosition("mergeDown", 1, 1, null), v);
 		else if (tis.size() == 1)
 			return CollectionUtils.any(tis);
 		
