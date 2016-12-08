@@ -11,6 +11,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.FunctionName;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
@@ -33,7 +34,7 @@ public class HSIECodeGenerator {
 		c1.provideCaseName("ME.f_0");
 		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
-		rw.functions.put("plus1", new RWFunctionDefinition(posn, CodeType.FUNCTION, "plus1", 1, null, false));
+		rw.functions.put("plus1", new RWFunctionDefinition(posn, CodeType.FUNCTION, new FunctionName("plus1"), 1, null, false));
 		rw.rewritePackageScope("ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
@@ -52,8 +53,8 @@ public class HSIECodeGenerator {
 		c1.provideCaseName("ME.f_0");
 		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
-		rw.functions.put("id1", new RWFunctionDefinition(posn, CodeType.FUNCTION, "id1", 1, null, false));
-		rw.functions.put("decode", new RWFunctionDefinition(posn, CodeType.FUNCTION, "decode", 1, null, false));
+		rw.functions.put("id1", new RWFunctionDefinition(posn, CodeType.FUNCTION, new FunctionName("id1"), 1, null, false));
+		rw.functions.put("decode", new RWFunctionDefinition(posn, CodeType.FUNCTION, new FunctionName("decode"), 1, null, false));
 		rw.rewritePackageScope("ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());

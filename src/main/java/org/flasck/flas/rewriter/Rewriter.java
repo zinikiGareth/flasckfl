@@ -80,6 +80,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
+import org.flasck.flas.rewrittenForm.FunctionName;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -619,7 +620,7 @@ public class Rewriter {
 					if (ret.nargs != c.nargs())
 						errors.message(c.location(), "inconsistent argument counts in function " + fn);
 				} else {
-					RWFunctionDefinition ret = new RWFunctionDefinition(c.location(), c.mytype(), fn, c.nargs(), cx.cardNameIfAny(), true);
+					RWFunctionDefinition ret = new RWFunctionDefinition(c.location(), c.mytype(), new FunctionName(fn), c.nargs(), cx.cardNameIfAny(), true);
 					functions.put(name, ret);
 				}
 				pass1(cx, c.innerScope());
@@ -907,7 +908,7 @@ public class Rewriter {
 			AreaName areaName = cx.nextArea();
 			Object rwexpr = rewriteExpr(cx, ce.expr);
 			String fnName = cx.nextFunction(areaName.jsName(), "contents", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.AREA, fnName, 0, cx.cardName(), true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
@@ -917,7 +918,7 @@ public class Rewriter {
 				if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
 					throw new UtilException("Cannot edit: " + ae);
 				editFn = cx.nextFunction(areaName.jsName(), "editcontainer", CodeType.AREA);
-				RWFunctionDefinition efn = new RWFunctionDefinition(ce.kw, CodeType.AREA, editFn, 0, cx.cardName(), true);
+				RWFunctionDefinition efn = new RWFunctionDefinition(ce.kw, CodeType.AREA, new FunctionName(editFn), 0, cx.cardName(), true);
 				RWFunctionCaseDefn efcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, editFn, new ArrayList<>(), null), 0, ae.args.get(0));
 				efn.cases.add(efcd0);
 				functions.put(editFn, efn);
@@ -933,7 +934,7 @@ public class Rewriter {
 			AreaName areaName = cx.nextArea();
 			if (cr.yoyoVar != null) {
 				fnName = cx.nextFunction(areaName.jsName(), "yoyos", CodeType.AREA);
-				RWFunctionDefinition fn = new RWFunctionDefinition(cr.location, CodeType.AREA, fnName, 0, cx.cardName(), true);
+				RWFunctionDefinition fn = new RWFunctionDefinition(cr.location, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
 				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(cr.location, fnName, new ArrayList<>(), null), 0, yoyoVar);
 				fn.cases.add(fcd0);
 				functions.put(fnName, fn);
@@ -955,7 +956,7 @@ public class Rewriter {
 						throw new UtilException("Cannot handle TEA: " + tea);
 
 					String fnName = cx.nextFunction(areaName.jsName(), "teas", CodeType.AREA);
-					RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.AREA, fnName, 0, cx.cardName(), true);
+					RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
 					RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tea.location, fnName, new ArrayList<>(), null), 0, value);
 					fn.cases.add(fcd0);
 					functions.put(fnName, fn);
@@ -999,7 +1000,7 @@ public class Rewriter {
 					
 			AreaName areaName = cx.nextArea();
 			String fnName = cx.nextFunction(areaName.jsName(), "lvs", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(ul.listLoc, CodeType.AREA, fnName, 0, cx.cardName(), true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(ul.listLoc, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ul.listLoc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
@@ -1071,7 +1072,7 @@ public class Rewriter {
 		if (expr == null)
 			return null;
 		String fnName = cx.nextFunction(areaName.jsName(), "formats", CodeType.AREA);
-		RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.AREA, fnName, 0, cx.cardName(), true);
+		RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
 		RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tf.kw, fnName, new ArrayList<>(), null), 0, expr);
 		fn.cases.add(fcd0);
 		fn.gatherScopedVars();
@@ -1087,7 +1088,7 @@ public class Rewriter {
 			String fnName = cx.nextFunction(ret.areaName().jsName(), "handlers", CodeType.AREA);
 			InputPosition loc = ((Locatable)h.expr).location();
 			Object rwexpr = rewriteExpr(cx, h.expr);
-			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.AREA, fnName, 0, cx.cardName(), true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.cases.add(fcd0);
 			fn.gatherScopedVars();
@@ -1101,7 +1102,7 @@ public class Rewriter {
 		String fnName = null;
 		if (tor.cond != null) {
 			fnName = cx.nextFunction(cs.areaName().jsName(), "ors", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(tor.location(), CodeType.AREA, fnName, 0, cx.cardName(), true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(tor.location(), CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
 			ApplyExpr expr = new ApplyExpr(tor.location(), getMe(tor.location(), "=="), cs.switchOn, tor.cond);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tor.location(), fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
@@ -1296,7 +1297,7 @@ public class Rewriter {
 			InputPosition loc = ((Locatable)rw).location();
 			Object expr = new AssertTypeExpr(loc, st, rw);
 			fnName = sd.name() + ".inits_" + sf.name;
-			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, sx.cardNameIfAny(), true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, new FunctionName(fnName), 0, sx.cardNameIfAny(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
 			fn.gatherScopedVars();
@@ -1404,7 +1405,7 @@ public class Rewriter {
 		init = new ApplyExpr(dataExpr.location(), assoc, new StringLiteral(dataExpr.location(), "data"), dataFn, init);
 
 		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.varLoc, prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>(), null);
-		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, d3f.name, 0, c2.cardNameIfAny(), true);
+		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, new FunctionName(d3f.name), 0, c2.cardNameIfAny(), true);
 		func.cases.add(new RWFunctionCaseDefn(d3f, 0, init));
 		func.gatherScopedVars();
 		functions.put(d3f.name, func);
@@ -1422,7 +1423,7 @@ public class Rewriter {
 
 		InputPosition loc = ((Locatable)expr).location(); // may or may not be correct location
 		RWFunctionIntro d3f = new RWFunctionIntro(loc, prefix + "." + name, args, null);
-		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, d3f.name, args.size(), prefix, true);
+		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, new FunctionName(d3f.name), args.size(), prefix, true);
 		func.cases.add(new RWFunctionCaseDefn(d3f, 0, expr));
 		functions.put(d3f.name, func);
 

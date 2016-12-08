@@ -19,6 +19,7 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.FunctionName;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
@@ -101,7 +102,7 @@ public class MethodConvertor {
 		if (m.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(m.location(), m.type, m.name(), m.nargs(), m.inCard, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(m.location(), m.type, new FunctionName(m.name()), m.nargs(), m.inCard, true);
 
 		// Now process all of the method cases
 		Type ofType = null;
@@ -148,7 +149,7 @@ public class MethodConvertor {
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, eh.name(), eh.nargs(), card, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, new FunctionName(eh.name()), eh.nargs(), card, true);
 		for (RWEventCaseDefn c : eh.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
 			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, c.intro.vars), ret.cases.size(), typedObject.expr));
@@ -176,7 +177,7 @@ public class MethodConvertor {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, mic.type.isHandler());
 			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
-		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, method.name(), margs.size(), mic.inCard, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, new FunctionName(method.name()), margs.size(), mic.inCard, true);
 		ret.cases.addAll(cases);
 		ret.gatherScopedVars();
 		return ret;

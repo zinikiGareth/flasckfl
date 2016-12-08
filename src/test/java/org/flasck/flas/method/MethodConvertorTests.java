@@ -36,6 +36,7 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.FunctionName;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -63,7 +64,7 @@ public class MethodConvertorTests {
 		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
 		RWStructDefn send = (RWStructDefn) biscope.get("Send");
 		{
-			RWFunctionDefinition doSend = new RWFunctionDefinition(posn, CodeType.FUNCTION, "doSend", 1, null, false);
+			RWFunctionDefinition doSend = new RWFunctionDefinition(posn, CodeType.FUNCTION, new FunctionName("doSend"), 1, null, false);
 			doSend.setType(Type.function(posn, any, send));
 			biscope.define("doSend", doSend);
 		}
