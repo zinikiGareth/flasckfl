@@ -530,7 +530,7 @@ public class DroidGenerator {
 	}
 
 	public void write() {
-		if (builder == null)
+		if (builder == null || builder.qbcdir == null)
 			return;
 		for (ByteCodeCreator bcc : bce.all()) {
 			File wto = new File(builder.qbcdir, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
