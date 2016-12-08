@@ -20,6 +20,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.bytecode.GenericAnnotator;
+import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.utils.MultiTextEmitter;
 
 public class SimpleUnitTestRunnerTests {
@@ -50,7 +52,21 @@ public class SimpleUnitTestRunnerTests {
 	}
 
 	private void defineX(ByteCodeEnvironment bce) {
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.golden.PACKAGEFUNCTIONS$x");
+		{
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.golden.PACKAGEFUNCTIONS$x");
+			GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "eval");
+			ga.argument("[java.lang.Object", "args");
+			ga.returns("java.lang.Object");
+			MethodDefiner meth = ga.done();
+			meth.returnObject(meth.callStatic("test.golden.PACKAGEFUNCTIONS", "java.lang.Object", "x")).flush();;
+		}
+		{
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.golden.PACKAGEFUNCTIONS");
+			GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "x");
+			ga.returns("java.lang.Object");
+			MethodDefiner meth = ga.done();
+			meth.returnObject(meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(32))).flush();;
+		}
 		System.out.println(bce.all());
 	}
 
