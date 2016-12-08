@@ -10,7 +10,7 @@
             </Typed>
         </Method>
     </Contract>
-    <Function file="scoping3.fl" line="6" name="test.golden.f" off="0">
+    <Function file="scoping3.fl" line="4" name="test.golden.f" off="0">
         <Function>
             <Return>
                 <Poly name="A"/>

@@ -8,7 +8,7 @@ The idea here is to test that things in scopes work out right
 		up put (Number k)
 
 Note: I had to specifically identify the type of "server" here in order
-to get type checking to pass
+to get method conversion to pass
 
 Either I shouldn't need to do that, or it should give a good error message,
 so we should consider that case

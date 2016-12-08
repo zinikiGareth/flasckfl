@@ -1,8 +1,6 @@
 	contract KVUpdate
 		down update (Any obj)
 
-TODO: this parameter should not be needed, but it gives some kind of problem when I don't
-
 	f = set
 		set = Croset Nil
 
