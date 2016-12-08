@@ -7,10 +7,9 @@ public class ScopedVar implements ExternalRef {
 	public final InputPosition location;
 	public final String id;
 	public final Object defn;
-	public boolean definedLocally;
 	public String definedIn;
 
-	public ScopedVar(InputPosition location, String id, Object defn, String definedBy, boolean definedLocally) {
+	public ScopedVar(InputPosition location, String id, Object defn, String definedBy) {
 		definedIn = definedBy;
 		if (defn == null)
 			throw new NullPointerException("NestedVar cannot be in a null function");
@@ -19,17 +18,8 @@ public class ScopedVar implements ExternalRef {
 		this.location = location;
 		this.id = id;
 		this.defn = defn;
-		this.definedLocally = definedLocally;
 	}
 
-	public ScopedVar notLocal() {
-		return new ScopedVar(location, id, defn, definedIn, false);
-	}
-
-	public ScopedVar asLocal() {
-		return new ScopedVar(location, id, defn, definedIn, true);
-	}
-	
 	public InputPosition location() {
 		return location;
 	}

@@ -506,7 +506,7 @@ public class Rewriter {
 					defn = callbackHandlers.get(full);
 				if (defn == null)
 					throw new UtilException("Scope has definition of " + name + " as " + full + " but it is not a function, method or handler");
-				return new ScopedVar(defn.location(), full, defn, funcName, true);
+				return new ScopedVar(defn.location(), full, defn, funcName);
 			}
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
@@ -528,9 +528,7 @@ public class Rewriter {
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof LocalVar) {
 				LocalVar lv = (LocalVar) ret;
-				return new ScopedVar(lv.location(), lv.uniqueName(), lv, lv.fnName, false);
-			} else if (ret instanceof ScopedVar) {
-				return ((ScopedVar)ret).notLocal();
+				return new ScopedVar(lv.location(), lv.uniqueName(), lv, lv.fnName);
 			} else
 				return ret;
 		}

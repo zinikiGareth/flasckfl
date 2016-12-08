@@ -47,7 +47,6 @@ public class HSIE {
 		for (RWFunctionDefinition fn : d) {
 			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, fn.inCard, vf);
 			for (ScopedVar sv : fn.scopedVars) {
-				System.out.println("* " + sv.id + " " + sv.definedIn + " " + hf.fnName);
 				if (sv.definedIn.equals(fn.name()))
 					hf.scopedDefinitions.add(sv);
 				else

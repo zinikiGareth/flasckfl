@@ -92,14 +92,14 @@ public class GenerateClosures {
 			HSIEForm fn = forms.get(sv.id);
 			if (fn != null /* && fn.scoped.isEmpty() */)  {// The case where there are no scoped vars is degenerate, but easier to deal with like this
 				for (ScopedVar i : fn.scoped) {
-					pushThing(ms, form, map, clos, i.asLocal());
+					pushThing(ms, form, map, clos, i);
 				}
 			} else if (sv.defn instanceof RWHandlerImplements) {
 				RWHandlerImplements hi = (RWHandlerImplements) sv.defn;
 				for (HandlerLambda bv : hi.boundVars) {
 					if (bv.scopedFrom == null)
 						continue;
-					pushThing(ms, form, map, clos, bv.scopedFrom.asLocal());
+					pushThing(ms, form, map, clos, bv.scopedFrom);
 				}
 			} else 
 				throw new UtilException("What is this?" + sv.defn.getClass());
@@ -195,7 +195,7 @@ public class GenerateClosures {
 
 	public LocatedObject process(ScopedVar sv) {
 		String var = sv.id;
-		if (!sv.definedLocally) {
+		if (!sv.definedIn.equals(form.fnName)) {
 			return new LocatedObject(sv.location, sv);
 		}
 		if (substs.containsKey(var))

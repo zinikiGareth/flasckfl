@@ -662,7 +662,7 @@ public class DroidGenerator {
 					}
 				} else if (pe.fn instanceof ScopedVar) {
 					ScopedVar sv = (ScopedVar) pe.fn;
-					if (sv.definedLocally) {
+					if (sv.definedIn.equals(form.fnName)) {
 						// TODO: I'm not quite sure what should happen here, or even what this case represents, but I know it should be something to do with the *actual* function definition
 						return meth.stringConst(pe.fn.uniqueName());
 					}

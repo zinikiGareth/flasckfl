@@ -341,7 +341,7 @@ public class JSForm {
 				} else if (pe.fn instanceof ScopedVar) {
 					int j = 0;
 					ScopedVar sv = (ScopedVar) pe.fn;
-					if (sv.definedLocally) {
+					if (sv.definedIn.equals(form.fnName)) {
 						return null;
 					}
 					for (ScopedVar s : form.scoped)
