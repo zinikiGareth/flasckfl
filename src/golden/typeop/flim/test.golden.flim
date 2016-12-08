@@ -2,9 +2,17 @@
 <FLIM package="test.golden">
     <Card file="typeop.fl" line="2" name="test.golden.MyCard" off="5"/>
     <Function file="builtin" line="0" name="test.golden.x" off="0">
-        <Builtin name="Number"/>
+        <Function>
+            <Return>
+                <Builtin name="Number"/>
+            </Return>
+        </Function>
     </Function>
     <Function file="typeop.fl" line="2" name="test.golden.y" off="5">
-        <Struct name="test.golden.MyCard"/>
+        <Function>
+            <Return>
+                <Struct name="test.golden.MyCard"/>
+            </Return>
+        </Function>
     </Function>
 </FLIM>

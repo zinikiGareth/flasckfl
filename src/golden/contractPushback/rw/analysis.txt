@@ -1,4 +1,17 @@
+method test.golden.f_0.m
+  nested test.golden.f_0.d test.golden.f
+  nested test.golden.f_0.size test.golden.f
+  case test.golden.f_0.m
+  =
+    <-
+      @
+        @
+          PackageVar.FLEval.field
+          VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.d]
+          "calc"
+        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.size]
 function test.golden.f 2
+  nested test.golden.f_0.m test.golden.f
   case test.golden.f_0
     typed contract test.golden.DoIt test.golden.f_0.d
     var test.golden.f_0.size

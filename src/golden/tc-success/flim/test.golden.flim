@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
     <Function file="checktypes.fl" line="7" name="test.golden.bert" off="10">
-        <Tuple>
-            <Arg>
-                <Builtin name="Number"/>
-            </Arg>
-            <Arg>
-                <Builtin name="String"/>
-            </Arg>
-        </Tuple>
+        <Function>
+            <Return>
+                <Tuple>
+                    <Arg>
+                        <Builtin name="Number"/>
+                    </Arg>
+                    <Arg>
+                        <Builtin name="String"/>
+                    </Arg>
+                </Tuple>
+            </Return>
+        </Function>
     </Function>
     <Function file="checktypes.fl" line="2" name="test.golden.fred" off="0">
         <Function>
@@ -21,15 +25,23 @@
         </Function>
     </Function>
     <Function file="builtin" line="0" name="test.golden.t1" off="0">
-        <Instance file="builtin" line="0" off="0">
-            <Union name="List"/>
-            <Builtin name="Number"/>
-        </Instance>
+        <Function>
+            <Return>
+                <Instance file="builtin" line="0" off="0">
+                    <Union name="List"/>
+                    <Builtin name="Number"/>
+                </Instance>
+            </Return>
+        </Function>
     </Function>
     <Function file="builtin" line="0" name="test.golden.t2" off="0">
-        <Instance file="builtin" line="0" off="0">
-            <Union name="List"/>
-            <Builtin name="Number"/>
-        </Instance>
+        <Function>
+            <Return>
+                <Instance file="builtin" line="0" off="0">
+                    <Union name="List"/>
+                    <Builtin name="Number"/>
+                </Instance>
+            </Return>
+        </Function>
     </Function>
 </FLIM>

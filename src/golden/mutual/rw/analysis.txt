@@ -1,4 +1,5 @@
 function test.golden.f 1
+  nested test.golden.f_0.g test.golden.f
   case test.golden.f_0
     var test.golden.f_0.x
   =
@@ -6,6 +7,7 @@ function test.golden.f 1
       VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.g]
       2
 function test.golden.f_0.g 1
+  nested test.golden.f_0.x test.golden.f
   case test.golden.f_0.g_0
     var test.golden.f_0.g_0.y
   =

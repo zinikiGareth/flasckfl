@@ -1,4 +1,5 @@
 function test.golden.filter 2
+  nested test.golden.filter_1.g test.golden.filter
   case test.golden.filter_0
     var test.golden.filter_0.f
     ctor Nil
@@ -16,6 +17,9 @@ function test.golden.filter 2
         LocalVar.test.golden.filter_1.f
         LocalVar.test.golden.filter_1.a
 function test.golden.filter_1.g 1
+  nested test.golden.filter_1.a test.golden.filter
+  nested test.golden.filter_1.f test.golden.filter
+  nested test.golden.filter_1.l test.golden.filter
   case test.golden.filter_1.g_0
     const true
   =
