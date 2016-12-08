@@ -32,7 +32,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -60,10 +60,10 @@ public class GenerateClosures {
 	}
 
 	public void generateScopingClosures() {
-		Set<VarNestedFromOuterFunctionScope> allScoped = new TreeSet<>(form.scoped);
+		Set<ScopedVar> allScoped = new TreeSet<>(form.scoped);
 		allScoped.addAll(form.scopedDefinitions);
 		Map<String, ClosureCmd> map = new HashMap<>();
-		for (VarNestedFromOuterFunctionScope sv : allScoped) {
+		for (ScopedVar sv : allScoped) {
 			if (!sv.definedIn.equals(form.fnName))
 				continue;
 			if (sv.defn instanceof LocalVar)
@@ -83,7 +83,7 @@ public class GenerateClosures {
 			cf.mapVar(sv.id, new VarInSource(clos.var, sv.location, sv.id));
 			map.put(sv.id, clos);
 		}
-		for (VarNestedFromOuterFunctionScope sv : allScoped) {
+		for (ScopedVar sv : allScoped) {
 			if (sv.defn instanceof LocalVar)
 				continue;
 			ClosureCmd clos = map.get(sv.id);
@@ -91,7 +91,7 @@ public class GenerateClosures {
 				continue;
 			HSIEForm fn = forms.get(sv.id);
 			if (fn != null /* && fn.scoped.isEmpty() */)  {// The case where there are no scoped vars is degenerate, but easier to deal with like this
-				for (VarNestedFromOuterFunctionScope i : fn.scoped) {
+				for (ScopedVar i : fn.scoped) {
 					pushThing(ms, form, map, clos, i.asLocal());
 				}
 			} else if (sv.defn instanceof RWHandlerImplements) {
@@ -111,7 +111,7 @@ public class GenerateClosures {
 			generateClosure(expr);
 	}
 
-	private void pushThing(Expressions ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, VarNestedFromOuterFunctionScope i) {
+	private void pushThing(Expressions ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, ScopedVar i) {
 		if (map.containsKey(i.id)) {
 			VarInSource cov = new VarInSource(map.get(i.id).var, i.location, i.id);
 			clos.push(i.location, cov);
@@ -193,7 +193,7 @@ public class GenerateClosures {
 		return new LocatedObject(nl.varLoc, substs.get(var));
 	}
 
-	public LocatedObject process(VarNestedFromOuterFunctionScope sv) {
+	public LocatedObject process(ScopedVar sv) {
 		String var = sv.id;
 		if (!sv.definedLocally) {
 			return new LocatedObject(sv.location, sv);

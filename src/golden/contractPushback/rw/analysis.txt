@@ -7,9 +7,9 @@ method test.golden.f_0.m
       @
         @
           PackageVar.FLEval.field
-          VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.d]
+          ScopedVar.Scoped[test.golden.f_0.d]
           "calc"
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.size]
+        ScopedVar.Scoped[test.golden.f_0.size]
 function test.golden.f 2
   nested test.golden.f_0.m test.golden.f
   case test.golden.f_0
@@ -21,5 +21,5 @@ function test.golden.f 2
       0
       @
         PackageVar.Cons
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.m]
+        ScopedVar.Scoped[test.golden.f_0.m]
         PackageVar.Nil

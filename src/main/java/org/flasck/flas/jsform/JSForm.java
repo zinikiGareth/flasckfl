@@ -15,7 +15,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -180,7 +180,7 @@ public class JSForm {
 		return ret;
 	}
 
-	public static JSForm function(String fnName, List<Var> hsvs, Set<VarNestedFromOuterFunctionScope> scoped, int nformal) {
+	public static JSForm function(String fnName, List<Var> hsvs, Set<ScopedVar> scoped, int nformal) {
 		List<String> vars = new ArrayList<String>();
 		for (int j=0;j<scoped.size();j++)
 			vars.add("s"+j);
@@ -338,13 +338,13 @@ public class JSForm {
 					sb.append(rename(pe.fn.uniqueName()));
 				} else if (pe.fn instanceof Type) {
 					sb.append(((Type)pe.fn).name());
-				} else if (pe.fn instanceof VarNestedFromOuterFunctionScope) {
+				} else if (pe.fn instanceof ScopedVar) {
 					int j = 0;
-					VarNestedFromOuterFunctionScope sv = (VarNestedFromOuterFunctionScope) pe.fn;
+					ScopedVar sv = (ScopedVar) pe.fn;
 					if (sv.definedLocally) {
 						return null;
 					}
-					for (VarNestedFromOuterFunctionScope s : form.scoped)
+					for (ScopedVar s : form.scoped)
 						if (s.uniqueName().equals(pe.fn.uniqueName())) {
 							sb.append("s" + j);
 							return null;

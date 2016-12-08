@@ -19,13 +19,13 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.zinutils.reflection.Reflection;
 
 public class GatherScopedVars {
-	private Set<VarNestedFromOuterFunctionScope> scopedVars;
+	private Set<ScopedVar> scopedVars;
 
-	public GatherScopedVars(Set<VarNestedFromOuterFunctionScope> scopedVars) {
+	public GatherScopedVars(Set<ScopedVar> scopedVars) {
 		this.scopedVars = scopedVars;
 		// TODO Auto-generated constructor stub
 	}
@@ -98,7 +98,7 @@ public class GatherScopedVars {
 	public void process(HandlerLambda hl) {
 	}
 	
-	public void process(VarNestedFromOuterFunctionScope sv) {
+	public void process(ScopedVar sv) {
 		scopedVars.add(sv);
 	}
 

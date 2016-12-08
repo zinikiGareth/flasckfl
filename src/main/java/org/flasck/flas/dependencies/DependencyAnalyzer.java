@@ -30,7 +30,7 @@ import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.DirectedCyclicGraph;
 
@@ -108,9 +108,9 @@ public class DependencyAnalyzer {
 		} else if (expr instanceof IterVar) {
 			// I think because this is synthetic, it's not needed here ...
 			; // dcg.ensureLink(name, "_iter_" + ((IterVar)expr).uniqueName());
-		} else if (expr instanceof VarNestedFromOuterFunctionScope) {
-			dcg.ensure(((VarNestedFromOuterFunctionScope) expr).id);
-			dcg.ensureLink(name, ((VarNestedFromOuterFunctionScope) expr).id);
+		} else if (expr instanceof ScopedVar) {
+			dcg.ensure(((ScopedVar) expr).id);
+			dcg.ensureLink(name, ((ScopedVar) expr).id);
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction || expr instanceof PackageVar) {
 			String orname = ((ExternalRef)expr).uniqueName();
 			dcg.ensure(orname);

@@ -35,7 +35,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -146,8 +146,8 @@ public class RewriterTests {
 		System.out.println(rw.functions);
 		assertEquals("ME.f_0.g", g.name());
 		Object sv = g.cases.get(0).expr;
-		assertTrue(sv instanceof VarNestedFromOuterFunctionScope);
-		Object lv = ((VarNestedFromOuterFunctionScope)sv).defn;
+		assertTrue(sv instanceof ScopedVar);
+		Object lv = ((ScopedVar)sv).defn;
 		assertTrue(lv instanceof LocalVar);
 		assertEquals("x", ((LocalVar)lv).var);
 	}

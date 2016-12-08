@@ -30,7 +30,7 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.Type.WhatAmI;
@@ -252,7 +252,7 @@ public class TypeChecker2 {
 		
 		// 1d. Now allocate FRESH vars for any scoped variables that still haven't been defined
 		for (HSIEForm f : forms) {
-			for (VarNestedFromOuterFunctionScope vn : f.scoped) {
+			for (ScopedVar vn : f.scoped) {
 				String name = vn.id;
 				if (globalKnowledge.containsKey(name) || localKnowledge.containsKey(name)) {
 					logger.debug("Have definition for " + name);
@@ -587,8 +587,8 @@ public class TypeChecker2 {
 	}
 
 	private String isPushScope(HSIEBlock cmd) {
-		if (cmd instanceof PushExternal && ((PushExternal)cmd).fn instanceof VarNestedFromOuterFunctionScope)
-			return ((VarNestedFromOuterFunctionScope)((PushExternal)cmd).fn).id;
+		if (cmd instanceof PushExternal && ((PushExternal)cmd).fn instanceof ScopedVar)
+			return ((ScopedVar)((PushExternal)cmd).fn).id;
 		return null;
 	}
 

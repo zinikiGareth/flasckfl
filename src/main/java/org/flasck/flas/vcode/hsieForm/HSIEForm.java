@@ -16,7 +16,7 @@ import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.slf4j.Logger;
 import org.zinutils.collections.SetMap;
@@ -60,13 +60,13 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	private final Map<Var, ClosureCmd> closures = new HashMap<Var, ClosureCmd>();
 	
 	// This is a set of vars which are defined in our nested scope that we actually use
-	public final Set<VarNestedFromOuterFunctionScope> scopedDefinitions = new TreeSet<VarNestedFromOuterFunctionScope>();
+	public final Set<ScopedVar> scopedDefinitions = new TreeSet<ScopedVar>();
 	
 	// The names of things outside of us that we reference
 	public final Set<String> externals = new TreeSet<String>();
 	
 	// Variables defined in an enclosing scope which we reference
-	public final Set<VarNestedFromOuterFunctionScope> scoped = new TreeSet<VarNestedFromOuterFunctionScope>();
+	public final Set<ScopedVar> scoped = new TreeSet<ScopedVar>();
 	public final SetMap<VarInSource, Type> varConstraints = new SetMap<>();
 
 	public HSIEForm(InputPosition nameLoc, String name, int nformal, CodeType mytype, String inCard, VarFactory vf) {
@@ -145,7 +145,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		return ret;
 	}
 
-	public void definesScoped(VarNestedFromOuterFunctionScope vn) {
+	public void definesScoped(ScopedVar vn) {
 		scopedDefinitions.add(vn);
 	}
 
@@ -160,17 +160,17 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		if (name.equals(this.fnName))
 			return false; // we don't reference ourselves and this is not new
 
-		if (ref instanceof VarNestedFromOuterFunctionScope) {
-			VarNestedFromOuterFunctionScope vn = (VarNestedFromOuterFunctionScope) ref;
+		if (ref instanceof ScopedVar) {
+			ScopedVar vn = (ScopedVar) ref;
 			// Try and eliminate the case where we have our own local vars, masquerading as scoped vars by other people ...
 			if (isDefinedByMe(vn))
 				return false;
-			return scoped.add((VarNestedFromOuterFunctionScope)ref);
+			return scoped.add((ScopedVar)ref);
 		} else
 			return externals.add(name);
 	}
 
-	public boolean isDefinedByMe(VarNestedFromOuterFunctionScope vn) {
+	public boolean isDefinedByMe(ScopedVar vn) {
 		if (scopedDefinitions.contains(vn))
 			return true;
 		if (vn.defn instanceof LocalVar) {

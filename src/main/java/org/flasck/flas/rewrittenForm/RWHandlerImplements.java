@@ -16,7 +16,7 @@ public class RWHandlerImplements extends RWImplements {
 		this.boundVars = lambdas;
 	}
 
-	public void addScoped(HandlerLambda hl, VarNestedFromOuterFunctionScope ret) {
+	public void addScoped(HandlerLambda hl, ScopedVar ret) {
 		hl.scopedFrom = ret;
 		int pos=0;
 		for (Object o : boundVars) {

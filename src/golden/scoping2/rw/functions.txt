@@ -8,7 +8,7 @@ function test.golden.scoped 1
       32
       @
         PackageVar.Cons
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.request]
+        ScopedVar.Scoped[test.golden.scoped_0.request]
         PackageVar.Nil
 function test.golden.scoped_0.MyHc.reply 0
   case test.golden.scoped_0.MyHc.reply_0
@@ -25,10 +25,10 @@ function test.golden.scoped_0.request 0
     @
       PackageVar.Cons
       <-
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.ctr]
+        ScopedVar.Scoped[test.golden.scoped_0.ctr]
         "call"
         @
-          VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.MyHc]
+          ScopedVar.Scoped[test.golden.scoped_0.MyHc]
       PackageVar.Nil
 function test.golden.scoped_0.requestObj 0
   case test.golden.scoped_0.requestObj_0

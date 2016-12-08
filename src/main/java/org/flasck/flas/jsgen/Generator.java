@@ -15,7 +15,7 @@ import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -63,7 +63,7 @@ public class Generator {
 			return;
 		int idx = sd.name().lastIndexOf(".");
 		String uname = sd.name().substring(0, idx+1) + "_" + sd.name().substring(idx+1);
-		JSForm ret = JSForm.function(uname, CollectionUtils.listOf(new Var(0)), new TreeSet<VarNestedFromOuterFunctionScope>(), 1);
+		JSForm ret = JSForm.function(uname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		ret.add(new JSForm("this._ctor = '" + sd.name() + "'"));
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
@@ -92,7 +92,7 @@ public class Generator {
 			vars.add(v);
 			fields.add(sf.name+": "+ v);
 		}
-		JSForm ctor = JSForm.function(sd.name(), vars, new TreeSet<VarNestedFromOuterFunctionScope>(), vars.size());
+		JSForm ctor = JSForm.function(sd.name(), vars, new TreeSet<ScopedVar>(), vars.size());
 		ctor.add(new JSForm("return new " + uname + "({" + String.join(", ", fields) + "})"));
 		target.add(ctor);
 	}
@@ -106,7 +106,7 @@ public class Generator {
 
 	public void generate(String name, CardGrouping card) {
 		String lname = lname(name, false);
-		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), new TreeSet<VarNestedFromOuterFunctionScope>(), 1);
+		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
@@ -128,35 +128,35 @@ public class Generator {
 				cf.add(new JSForm("this." + ci.referAsVar + " = this._contracts['" + ci.type + "']"));
 		}
 		target.add(cf);
-		JSForm ci = JSForm.function(name, CollectionUtils.listOf(new Var(0)), new TreeSet<VarNestedFromOuterFunctionScope>(), 1);
+		JSForm ci = JSForm.function(name, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		ci.add(new JSForm("return new " + lname + "(v0)"));
 		target.add(ci);
 	}
 
 	public void generateContract(String ctorName, RWContractImplements ci) {
 		String clzname = ctorName.replace("._C", ".__C");
-		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<VarNestedFromOuterFunctionScope>(), 1);
+		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'contract'"));
 		clz.add(new JSForm("this._contract = '" + ci.name() + "'"));
 		target.add(clz);
 
-		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), new TreeSet<VarNestedFromOuterFunctionScope>(), 0);
+		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), new TreeSet<ScopedVar>(), 0);
 		ctor.add(new JSForm("return new " + clzname + "(this)"));
 		target.add(ctor);
 	}
 
 	public void generateService(String ctorName, RWContractService cs) {
 		String clzname = ctorName.replace("._S", ".__S");
-		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<VarNestedFromOuterFunctionScope>(), 1);
+		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'service'"));
 		clz.add(new JSForm("this._contract = '" + cs.name() + "'"));
 		target.add(clz);
 
-		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), new TreeSet<VarNestedFromOuterFunctionScope>(), 0);
+		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), new TreeSet<ScopedVar>(), 0);
 		ctor.add(new JSForm("return new " + clzname + "(this)"));
 		target.add(ctor);
 	}
@@ -169,7 +169,7 @@ public class Generator {
 			vars.add(new Var(i));
 		
 		int v = hi.inCard?1:0;
-		JSForm clz = JSForm.function(clzname, vars, new TreeSet<VarNestedFromOuterFunctionScope>(), hi.boundVars.size() + v);
+		JSForm clz = JSForm.function(clzname, vars, new TreeSet<ScopedVar>(), hi.boundVars.size() + v);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		if (hi.inCard)
 			clz.add(new JSForm("this._card = v0"));
@@ -179,7 +179,7 @@ public class Generator {
 			clz.add(new JSForm("this." + s.var + " = v" + v++));
 		target.add(clz);
 
-		JSForm ctor = JSForm.function(ctorName, vars, new TreeSet<VarNestedFromOuterFunctionScope>(), hi.boundVars.size());
+		JSForm ctor = JSForm.function(ctorName, vars, new TreeSet<ScopedVar>(), hi.boundVars.size());
 		StringBuffer sb = new StringBuffer();
 		String sep = "";
 		if (hi.inCard) {

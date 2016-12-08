@@ -4,7 +4,7 @@ function test.golden.f 1
     var test.golden.f_0.x
   =
     @
-      VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.g]
+      ScopedVar.Scoped[test.golden.f_0.g]
       2
 function test.golden.f_0.g 1
   nested test.golden.f_0.x test.golden.f
@@ -13,5 +13,5 @@ function test.golden.f_0.g 1
   =
     @
       PackageVar.*
-      VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.x]
+      ScopedVar.Scoped[test.golden.f_0.x]
       LocalVar.test.golden.f_0.g_0.y

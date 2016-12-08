@@ -10,7 +10,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
@@ -55,7 +55,7 @@ public class ApplyCurry {
 					continue;
 				if (ex instanceof CardMember)
 					continue;
-				if (ex instanceof VarNestedFromOuterFunctionScope)
+				if (ex instanceof ScopedVar)
 					continue;
 				if (ex.uniqueName().equals("FLEval.tuple"))
 					continue;

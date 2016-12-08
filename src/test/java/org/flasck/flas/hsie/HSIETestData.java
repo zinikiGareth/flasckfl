@@ -19,7 +19,7 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -213,7 +213,7 @@ public class HSIETestData {
 	public static HSIEForm mutualG() {
 		ArrayList<Object> externals = new ArrayList<Object>();
 		externals.add("*");
-		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.x", new LocalVar("ME.f", "ME.f_0", posn, "x", null, null), "ME.f", false));
+		externals.add(new ScopedVar(posn, "ME.f_0.x", new LocalVar("ME.f", "ME.f_0", posn, "x", null, null), "ME.f", false));
 		return thingy("ME.f_0.g", 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
@@ -274,7 +274,7 @@ public class HSIETestData {
 	public static HSIEForm splitF_G1() {
 		ArrayList<Object> externals = new ArrayList<Object>();
 		externals.add("*");
-		externals.add(new VarNestedFromOuterFunctionScope(posn, "ME.f_0.q", new LocalVar("ME.f", "ME.f_0", posn, "q", null, null), "ME.f", false));
+		externals.add(new ScopedVar(posn, "ME.f_0.q", new LocalVar("ME.f", "ME.f_0", posn, "q", null, null), "ME.f", false));
 		return thingy("ME.f_0.g", 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
@@ -528,7 +528,7 @@ public class HSIETestData {
 				for (Object o : dependsOn) {
 					if (o instanceof String && s.equals(o))
 						toPush = new PackageVar(posn, s, null);
-					else if (o instanceof VarNestedFromOuterFunctionScope && ((VarNestedFromOuterFunctionScope)o).id.equals(s))
+					else if (o instanceof ScopedVar && ((ScopedVar)o).id.equals(s))
 						toPush = o;
 				}
 				if (toPush == null) {

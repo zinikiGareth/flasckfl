@@ -21,7 +21,7 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	public final List<RWFunctionCaseDefn> cases = new ArrayList<>();
 	public final boolean generate;
 	private Type type;
-	public final Set<VarNestedFromOuterFunctionScope> scopedVars = new TreeSet<VarNestedFromOuterFunctionScope>();
+	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
 
 	public RWFunctionDefinition(InputPosition location, CodeType mytype, String name, int nargs, String inCard, boolean generate) {
 		this.inCard = inCard;

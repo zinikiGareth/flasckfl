@@ -15,7 +15,7 @@ public class RWMethodMessage {
 		this.expr = expr;
 	}
 	
-	public void gatherScopedVars(Set<VarNestedFromOuterFunctionScope> scopedVars) {
+	public void gatherScopedVars(Set<ScopedVar> scopedVars) {
 		new GatherScopedVars(scopedVars).dispatch(expr);
 	}
 	

@@ -121,7 +121,7 @@ import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.SendExpr;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
@@ -359,11 +359,11 @@ public class Rewriter {
 				if (((HandlerLambda)o).var.equals(name))
 					return o;
 			Object ret = nested.resolve(location, name);
-			if (ret instanceof VarNestedFromOuterFunctionScope) {
-				InputPosition loc = ((VarNestedFromOuterFunctionScope) ret).location();
-				Type type = new TypeOfSomethingElse(loc, ((VarNestedFromOuterFunctionScope)ret).id);
+			if (ret instanceof ScopedVar) {
+				InputPosition loc = ((ScopedVar) ret).location();
+				Type type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
 				HandlerLambda hl = new HandlerLambda(loc, hi.hiName, type, name);
-				hi.addScoped(hl, (VarNestedFromOuterFunctionScope) ret);
+				hi.addScoped(hl, (ScopedVar) ret);
 				return hl;
 			}
 			return ret;
@@ -506,7 +506,7 @@ public class Rewriter {
 					defn = callbackHandlers.get(full);
 				if (defn == null)
 					throw new UtilException("Scope has definition of " + name + " as " + full + " but it is not a function, method or handler");
-				return new VarNestedFromOuterFunctionScope(defn.location(), full, defn, funcName, true);
+				return new ScopedVar(defn.location(), full, defn, funcName, true);
 			}
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
@@ -528,9 +528,9 @@ public class Rewriter {
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof LocalVar) {
 				LocalVar lv = (LocalVar) ret;
-				return new VarNestedFromOuterFunctionScope(lv.location(), lv.uniqueName(), lv, lv.fnName, false);
-			} else if (ret instanceof VarNestedFromOuterFunctionScope) {
-				return ((VarNestedFromOuterFunctionScope)ret).notLocal();
+				return new ScopedVar(lv.location(), lv.uniqueName(), lv, lv.fnName, false);
+			} else if (ret instanceof ScopedVar) {
+				return ((ScopedVar)ret).notLocal();
 			} else
 				return ret;
 		}
@@ -1510,7 +1510,7 @@ public class Rewriter {
 		try {
 			if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
 				return expr;
-			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof VarNestedFromOuterFunctionScope || expr instanceof CardMember)
+			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof ScopedVar || expr instanceof CardMember)
 				return expr;
 			else if (expr instanceof PackageVar) {
 				System.out.println("expr = " + expr);
@@ -1531,7 +1531,7 @@ public class Rewriter {
 				Object ret = cx.resolve(location, s);
 				if (ret == null)
 					ret = cx.resolve(location, s); // debug
-				if (ret instanceof PackageVar || ret instanceof VarNestedFromOuterFunctionScope || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
+				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
 					return ret;
 				else
 					throw new UtilException("cannot handle id " + s + ": " + (ret == null ? "null": ret.getClass()));
@@ -1825,7 +1825,7 @@ public class Rewriter {
 
 	private void writeMethod(Indenter pw, RWMethodDefinition m) {
 		pw.println("method " + m.name());
-		for (VarNestedFromOuterFunctionScope sv : m.scopedVars)
+		for (ScopedVar sv : m.scopedVars)
 			pw.indent().println("nested " + sv.id + " " + sv.definedIn);
 		for (RWMethodCaseDefn c : m.cases)
 			writeMethodCase(pw.indent(), c);
@@ -1858,7 +1858,7 @@ public class Rewriter {
 			if (!fn.generate)
 				continue;
 			pw.println("function " + fn.name + (fn.inCard != null?" " + fn.inCard:"") + " " + fn.nargs);
-			for (VarNestedFromOuterFunctionScope sv : fn.scopedVars)
+			for (ScopedVar sv : fn.scopedVars)
 				pw.indent().println("nested " + sv.id + " " + sv.definedIn);
 			for (RWFunctionCaseDefn c : fn.cases) {
 				Indenter p2 = pw.indent();

@@ -20,7 +20,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
@@ -46,7 +46,7 @@ public class HSIE {
 		GatherExternals ge = new GatherExternals();
 		for (RWFunctionDefinition fn : d) {
 			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, fn.inCard, vf);
-			for (VarNestedFromOuterFunctionScope sv : fn.scopedVars) {
+			for (ScopedVar sv : fn.scopedVars) {
 				System.out.println("* " + sv.id + " " + sv.definedIn + " " + hf.fnName);
 				if (sv.definedIn.equals(fn.name()))
 					hf.scopedDefinitions.add(sv);
@@ -68,7 +68,7 @@ public class HSIE {
 	// Having done all this, I think it duplicates the over-eager definition in the creator above
 	public void liftLambdas() {
 		for (HSIEForm h : forms.values()) {
-			for (VarNestedFromOuterFunctionScope sv : h.scoped) {
+			for (ScopedVar sv : h.scoped) {
 				if (!sv.definedIn.equals(h.fnName))
 					forms.get(sv.definedIn).scopedDefinitions.add(sv);
 			}

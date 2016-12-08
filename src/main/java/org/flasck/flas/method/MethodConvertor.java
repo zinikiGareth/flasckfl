@@ -42,7 +42,7 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.TypedObject;
@@ -272,8 +272,8 @@ public class MethodConvertor {
 					if (t instanceof TypeWithMethods)
 						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) t, lv, method, args);
 				}
-				else if (sender instanceof VarNestedFromOuterFunctionScope) {
-					VarNestedFromOuterFunctionScope vn = (VarNestedFromOuterFunctionScope) sender;
+				else if (sender instanceof ScopedVar) {
+					ScopedVar vn = (ScopedVar) sender;
 					String other = vn.uniqueName();
 					PackageVar me = rw.getMe(vn.location, other);
 					if (me.defn instanceof TypeWithMethods)

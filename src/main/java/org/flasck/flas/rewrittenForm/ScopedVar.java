@@ -3,14 +3,14 @@ package org.flasck.flas.rewrittenForm;
 import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.UtilException;
 
-public class VarNestedFromOuterFunctionScope implements ExternalRef {
+public class ScopedVar implements ExternalRef {
 	public final InputPosition location;
 	public final String id;
 	public final Object defn;
 	public boolean definedLocally;
 	public String definedIn;
 
-	public VarNestedFromOuterFunctionScope(InputPosition location, String id, Object defn, String definedBy, boolean definedLocally) {
+	public ScopedVar(InputPosition location, String id, Object defn, String definedBy, boolean definedLocally) {
 		definedIn = definedBy;
 		if (defn == null)
 			throw new NullPointerException("NestedVar cannot be in a null function");
@@ -22,12 +22,12 @@ public class VarNestedFromOuterFunctionScope implements ExternalRef {
 		this.definedLocally = definedLocally;
 	}
 
-	public VarNestedFromOuterFunctionScope notLocal() {
-		return new VarNestedFromOuterFunctionScope(location, id, defn, definedIn, false);
+	public ScopedVar notLocal() {
+		return new ScopedVar(location, id, defn, definedIn, false);
 	}
 
-	public VarNestedFromOuterFunctionScope asLocal() {
-		return new VarNestedFromOuterFunctionScope(location, id, defn, definedIn, true);
+	public ScopedVar asLocal() {
+		return new ScopedVar(location, id, defn, definedIn, true);
 	}
 	
 	public InputPosition location() {
@@ -41,7 +41,7 @@ public class VarNestedFromOuterFunctionScope implements ExternalRef {
 	
 	@Override
 	public int compareTo(Object o) {
-		return this.id.compareTo(((VarNestedFromOuterFunctionScope)o).id);
+		return this.id.compareTo(((ScopedVar)o).id);
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ public class VarNestedFromOuterFunctionScope implements ExternalRef {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof VarNestedFromOuterFunctionScope && this.id.equals(((VarNestedFromOuterFunctionScope)obj).id);
+		return obj instanceof ScopedVar && this.id.equals(((ScopedVar)obj).id);
 	}
 
 	public boolean fromHandler() {

@@ -9,7 +9,7 @@ public class HandlerLambda implements ExternalRef {
 	public final String clzName;
 	public final String var;
 	public final Type type;
-	public VarNestedFromOuterFunctionScope scopedFrom;
+	public ScopedVar scopedFrom;
 
 	public HandlerLambda(InputPosition location, String clzName, Type type, String var) {
 		this.location = location;

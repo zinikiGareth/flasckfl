@@ -9,7 +9,7 @@ function test.golden.f 2
       0
       @
         PackageVar.Cons
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.m]
+        ScopedVar.Scoped[test.golden.f_0.m]
         PackageVar.Nil
 function test.golden.f_0.m 0
   nested test.golden.f_0.d test.golden.f
@@ -19,7 +19,7 @@ function test.golden.f_0.m 0
     @
       PackageVar.Cons
       <-
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.d]
+        ScopedVar.Scoped[test.golden.f_0.d]
         "calc"
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.size]
+        ScopedVar.Scoped[test.golden.f_0.size]
       PackageVar.Nil

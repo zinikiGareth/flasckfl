@@ -30,7 +30,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
-import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
@@ -122,7 +122,7 @@ public class GatherExternals {
 	}
 	
 	private void process(ExternalRef er) {
-		if (er instanceof VarNestedFromOuterFunctionScope) {
+		if (er instanceof ScopedVar) {
 			return;
 		}
 		curr.dependsOn(er);

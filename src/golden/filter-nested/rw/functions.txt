@@ -12,7 +12,7 @@ function test.golden.filter 2
       var test.golden.filter_1.l
   =
     @
-      VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.g]
+      ScopedVar.Scoped[test.golden.filter_1.g]
       @
         LocalVar.test.golden.filter_1.f
         LocalVar.test.golden.filter_1.a
@@ -25,15 +25,15 @@ function test.golden.filter_1.g 1
   =
     @
       PackageVar.Cons
-      VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.a]
+      ScopedVar.Scoped[test.golden.filter_1.a]
       @
         PackageVar.test.golden.filter
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.f]
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.l]
+        ScopedVar.Scoped[test.golden.filter_1.f]
+        ScopedVar.Scoped[test.golden.filter_1.l]
   case test.golden.filter_1.g_1
     const false
   =
     @
       PackageVar.test.golden.filter
-      VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.f]
-      VarNestedFromOuterFunctionScope.Scoped[test.golden.filter_1.l]
+      ScopedVar.Scoped[test.golden.filter_1.f]
+      ScopedVar.Scoped[test.golden.filter_1.l]

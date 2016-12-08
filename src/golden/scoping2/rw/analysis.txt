@@ -14,10 +14,10 @@ method test.golden.scoped_0.request
       @
         @
           PackageVar.FLEval.field
-          VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.ctr]
+          ScopedVar.Scoped[test.golden.scoped_0.ctr]
           "call"
         @
-          VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.MyHc]
+          ScopedVar.Scoped[test.golden.scoped_0.MyHc]
 method test.golden.scoped_0.requestObj
   case test.golden.scoped_0.requestObj
   =
@@ -31,5 +31,5 @@ function test.golden.scoped 1
       32
       @
         PackageVar.Cons
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.scoped_0.request]
+        ScopedVar.Scoped[test.golden.scoped_0.request]
         PackageVar.Nil

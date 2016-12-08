@@ -22,7 +22,7 @@ public class RWFunctionCaseDefn {
 		return intro.name + "_" + csNo;
 	}
 	
-	public void gatherScopedVars(Set<VarNestedFromOuterFunctionScope> scopedVars) {
+	public void gatherScopedVars(Set<ScopedVar> scopedVars) {
 		new GatherScopedVars(scopedVars).dispatch(expr);
 	}
 	

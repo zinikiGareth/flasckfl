@@ -18,10 +18,10 @@ function test.golden.f 2
   =
     @
       PackageVar.MessageWrapper
-      VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.var]
+      ScopedVar.Scoped[test.golden.f_0.var]
       @
         PackageVar.Cons
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.q]
+        ScopedVar.Scoped[test.golden.f_0.q]
         PackageVar.Nil
 function test.golden.f_0.HandleReply.reply 1
   case test.golden.f_0.HandleReply.reply_0
@@ -46,12 +46,12 @@ function test.golden.f_0.q 0
     @
       PackageVar.Cons
       <-
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.server]
+        ScopedVar.Scoped[test.golden.f_0.server]
         "get"
-        VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.var]
+        ScopedVar.Scoped[test.golden.f_0.var]
         @
-          VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.HandleReply]
-          VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.var]
+          ScopedVar.Scoped[test.golden.f_0.HandleReply]
+          ScopedVar.Scoped[test.golden.f_0.var]
       PackageVar.Nil
 function test.golden.f_0.var 0
   case test.golden.f_0.var_0

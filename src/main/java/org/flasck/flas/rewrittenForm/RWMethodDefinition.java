@@ -13,7 +13,7 @@ public class RWMethodDefinition implements Locatable {
 	private final InputPosition location;
 	private final String name;
 	private final int nargs;
-	public final Set<VarNestedFromOuterFunctionScope> scopedVars = new TreeSet<VarNestedFromOuterFunctionScope>();
+	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
 	
 	public RWMethodDefinition(InputPosition location, String name, int nargs) {
 		this.location = location;
