@@ -10,6 +10,8 @@ function test.golden.cna 1
         42
       PackageVar.Nil
 function test.golden.f 2
+  nested test.golden.f_0.q test.golden.f
+  nested test.golden.f_0.var test.golden.f
   case test.golden.f_0
     typed contract test.golden.Server test.golden.f_0.server
     var test.golden.f_0.x
@@ -36,6 +38,9 @@ function test.golden.f_0.HandleReply.reply 1
           HandlerLambda.HL[test.golden.f_0.HandleReply.v]
       PackageVar.Nil
 function test.golden.f_0.q 0
+  nested test.golden.f_0.HandleReply test.golden.f
+  nested test.golden.f_0.server test.golden.f
+  nested test.golden.f_0.var test.golden.f
   case test.golden.f_0.q_0
   =
     @

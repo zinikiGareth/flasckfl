@@ -8,6 +8,8 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.SendExpr;
+import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.VarNestedFromOuterFunctionScope;
 import org.zinutils.reflection.Reflection;
 
@@ -27,6 +29,16 @@ public class GatherScopedVars {
 		dispatch(expr.fn);
 		for (Object o : expr.args)
 			dispatch(o);
+	}
+	
+	public void process(SendExpr expr) {
+		dispatch(expr.sender);
+		for (Object o : expr.args)
+			dispatch(o);
+	}
+	
+	public void process(TypeCheckMessages expr) {
+		dispatch(expr.expr);
 	}
 	
 	public void process(StringLiteral sl) {

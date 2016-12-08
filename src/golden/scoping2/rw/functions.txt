@@ -1,4 +1,5 @@
 function test.golden.scoped 1
+  nested test.golden.scoped_0.request test.golden.scoped
   case test.golden.scoped_0
     typed contract test.golden.UpC test.golden.scoped_0.ctr
   =
@@ -17,6 +18,8 @@ function test.golden.scoped_0.MyHc.reply 0
       ?? class org.flasck.flas.rewrittenForm.TypeCheckMessages:(#tcMessages (HL[test.golden.scoped_0.MyHc.requestObj]))
       PackageVar.Nil
 function test.golden.scoped_0.request 0
+  nested test.golden.scoped_0.MyHc test.golden.scoped
+  nested test.golden.scoped_0.ctr test.golden.scoped
   case test.golden.scoped_0.request_0
   =
     @

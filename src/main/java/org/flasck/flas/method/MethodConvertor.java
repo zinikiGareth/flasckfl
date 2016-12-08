@@ -140,7 +140,8 @@ public class MethodConvertor {
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
-		
+
+		ret.gatherScopedVars();
 		return ret;
 	}
 
@@ -154,6 +155,7 @@ public class MethodConvertor {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
 			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, c.intro.vars), ret.cases.size(), typedObject.expr));
 		}
+		ret.gatherScopedVars();
 		return ret;
 	}
 
@@ -178,6 +180,7 @@ public class MethodConvertor {
 		}
 		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, method.name(), margs.size(), mic.inCard, true);
 		ret.cases.addAll(cases);
+		ret.gatherScopedVars();
 		return ret;
 	}
 

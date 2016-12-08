@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.flasck.flas.rewriter.GatherScopedVars;
+
 public class RWFunctionCaseDefn {
 	private final RWFunctionIntro intro;
 	public final Object expr;
@@ -18,6 +20,10 @@ public class RWFunctionCaseDefn {
 	
 	public String caseName() {
 		return intro.name + "_" + csNo;
+	}
+	
+	public void gatherScopedVars(Set<VarNestedFromOuterFunctionScope> scopedVars) {
+		new GatherScopedVars(scopedVars).dispatch(expr);
 	}
 	
 	public Set<String> varNames() {

@@ -22,6 +22,7 @@ method test.golden.scoped_0.requestObj
   case test.golden.scoped_0.requestObj
   =
 function test.golden.scoped 1
+  nested test.golden.scoped_0.request test.golden.scoped
   case test.golden.scoped_0
     typed contract test.golden.UpC test.golden.scoped_0.ctr
   =

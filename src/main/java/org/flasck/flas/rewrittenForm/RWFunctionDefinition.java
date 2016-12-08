@@ -3,6 +3,8 @@ package org.flasck.flas.rewrittenForm;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
@@ -19,6 +21,7 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	public final List<RWFunctionCaseDefn> cases = new ArrayList<>();
 	public final boolean generate;
 	private Type type;
+	public final Set<VarNestedFromOuterFunctionScope> scopedVars = new TreeSet<VarNestedFromOuterFunctionScope>();
 
 	public RWFunctionDefinition(InputPosition location, CodeType mytype, String name, int nargs, String inCard, boolean generate) {
 		this.inCard = inCard;
@@ -44,6 +47,12 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	
 	public int nargs() {
 		return nargs;
+	}
+	
+	public void gatherScopedVars() {
+		for (RWFunctionCaseDefn c : cases) {
+			c.gatherScopedVars(scopedVars);
+		}
 	}
 
 	public void dumpTo(Writer pw) throws Exception {

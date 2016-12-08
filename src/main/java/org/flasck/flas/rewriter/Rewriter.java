@@ -935,7 +935,9 @@ public class Rewriter {
 				RWFunctionCaseDefn efcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, editFn, new ArrayList<>(), null), 0, ae.args.get(0));
 				efn.cases.add(efcd0);
 				functions.put(editFn, efn);
+				efn.gatherScopedVars();
 			}
+			fn.gatherScopedVars();
 			return rewriteEventHandlers(cx, new RWContentExpr(ce.kw, rwexpr, ce.editable(), rawHTML, areaName, formats, fnName, makeFn(cx, ce, areaName, dynamicExpr), editFn), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof TemplateCardReference) {
 			TemplateCardReference cr = (TemplateCardReference) tl;
@@ -949,6 +951,7 @@ public class Rewriter {
 				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(cr.location, fnName, new ArrayList<>(), null), 0, yoyoVar);
 				fn.cases.add(fcd0);
 				functions.put(fnName, fn);
+				fn.gatherScopedVars();
 			}
 			return new RWTemplateCardReference(cr.location, cardVar, yoyoVar, areaName, fnName);
 		} else if (tl instanceof TemplateDiv) {
@@ -970,7 +973,8 @@ public class Rewriter {
 					RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tea.location, fnName, new ArrayList<>(), null), 0, value);
 					fn.cases.add(fcd0);
 					functions.put(fnName, fn);
-					
+					fn.gatherScopedVars();
+
 					attrs.add(new RWTemplateExplicitAttr(tea.location, tea.attr, tea.type, value, fnName));
 				} else
 					throw new UtilException("Attr type not handled: " + o.getClass());
@@ -1013,7 +1017,8 @@ public class Rewriter {
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ul.listLoc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
 			functions.put(fnName, fn);
-			
+			fn.gatherScopedVars();
+
 			TemplateListVar rwv = ul.iterVar == null ? null : new TemplateListVar(ul.iterLoc, fnName, (String) ul.iterVar, cx.cardName() + "." + (String) ul.iterVar);
 			RWTemplateList rul = new RWTemplateList(ul.kw, ul.listLoc, expr, ul.iterLoc, rwv, ul.customTagLoc, ul.customTag, ul.customTagVarLoc, ul.customTagVar, formats, supportDragOrdering, areaName, fnName, makeFn(cx, ul, areaName, dynamicExpr));
 			cx = new TemplateContext(cx, rul.areaName(), ul.iterVar, rwv);
@@ -1083,6 +1088,7 @@ public class Rewriter {
 		RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.AREA, fnName, 0, cx.cardName(), true);
 		RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tf.kw, fnName, new ArrayList<>(), null), 0, expr);
 		fn.cases.add(fcd0);
+		fn.gatherScopedVars();
 		functions.put(fnName, fn);
 		return fnName;
 	}
@@ -1098,6 +1104,7 @@ public class Rewriter {
 			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.AREA, fnName, 0, cx.cardName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.cases.add(fcd0);
+			fn.gatherScopedVars();
 			functions.put(fnName, fn);
 			ret.handlers.add(new RWEventHandler(h.action, rwexpr, fnName));
 		}
@@ -1112,6 +1119,7 @@ public class Rewriter {
 			ApplyExpr expr = new ApplyExpr(tor.location(), getMe(tor.location(), "=="), cs.switchOn, tor.cond);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tor.location(), fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
+			fn.gatherScopedVars();
 			functions.put(fnName, fn);
 		}
 		return new RWTemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template), fnName);
@@ -1263,6 +1271,7 @@ public class Rewriter {
 		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);
 		RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
 		ret.cases.add(rwc);
+		ret.gatherScopedVars();
 	}
 
 	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodCaseDefn c, HSIEForm.CodeType codeType) {
@@ -1308,6 +1317,7 @@ public class Rewriter {
 			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, sx.cardNameIfAny(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
+			fn.gatherScopedVars();
 			functions.put(fnName, fn);
 		}
 		RWStructField rsf = new RWStructField(sf.loc, false, st, sf.name, fnName);
@@ -1416,6 +1426,7 @@ public class Rewriter {
 		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.varLoc, prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>(), null);
 		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, d3f.name, 0, c2.cardNameIfAny(), true);
 		func.cases.add(new RWFunctionCaseDefn(d3f, 0, init));
+		func.gatherScopedVars();
 		functions.put(d3f.name, func);
 	}
 
@@ -1847,6 +1858,8 @@ public class Rewriter {
 			if (!fn.generate)
 				continue;
 			pw.println("function " + fn.name + (fn.inCard != null?" " + fn.inCard:"") + " " + fn.nargs);
+			for (VarNestedFromOuterFunctionScope sv : fn.scopedVars)
+				pw.indent().println("nested " + sv.id + " " + sv.definedIn);
 			for (RWFunctionCaseDefn c : fn.cases) {
 				Indenter p2 = pw.indent();
 				p2.println("case " + c.caseName());

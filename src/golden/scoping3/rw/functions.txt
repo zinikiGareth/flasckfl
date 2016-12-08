@@ -1,4 +1,5 @@
 function test.golden.f 0
+  nested test.golden.f_0.set test.golden.f
   case test.golden.f_0
   =
     VarNestedFromOuterFunctionScope.Scoped[test.golden.f_0.set]
