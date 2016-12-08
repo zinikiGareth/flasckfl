@@ -8,11 +8,13 @@ import org.flasck.flas.commonBase.Locatable;
 
 public class RWEventHandlerDefinition implements Locatable {
 	public final List<RWEventCaseDefn> cases = new ArrayList<>();
+	public final String cardName;
 	private InputPosition loc;
 	private String name;
 	private int nargs;
 	
-	public RWEventHandlerDefinition(InputPosition loc, String name, int nargs) {
+	public RWEventHandlerDefinition(String cardName, InputPosition loc, String name, int nargs) {
+		this.cardName = cardName;
 		this.loc = loc;
 		this.name = name;
 		this.nargs = nargs;

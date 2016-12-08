@@ -18,7 +18,6 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.SendExpr;
-import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -70,9 +69,9 @@ public class MethodConvertor {
 			addFunction(functions, convertMIC(rw, m));
 	}
 
-	public void convertEventHandlers(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, EventHandlerInContext> eventHandlers) {
-		for (EventHandlerInContext x : eventHandlers.values())
-			addFunction(functions, convertEventHandler(rw, x.cardName, x.handler));
+	public void convertEventHandlers(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, RWEventHandlerDefinition> eventHandlers) {
+		for (RWEventHandlerDefinition x : eventHandlers.values())
+			addFunction(functions, convertEventHandler(rw, x.cardName, x));
 	}
 
 	public void convertStandaloneMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Collection<RWMethodDefinition> methods) {

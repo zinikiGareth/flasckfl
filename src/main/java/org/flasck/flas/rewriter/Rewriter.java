@@ -77,7 +77,6 @@ import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
-import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -164,7 +163,7 @@ public class Rewriter {
 	public final Map<String, RWContractService> cardServices = new TreeMap<String, RWContractService>();
 	public final Map<String, RWHandlerImplements> callbackHandlers = new TreeMap<String, RWHandlerImplements>();
 	public final Map<String, RWMethodDefinition> methods = new TreeMap<String, RWMethodDefinition>();
-	public final Map<String, EventHandlerInContext> eventHandlers = new TreeMap<String, EventHandlerInContext>();
+	public final Map<String, RWEventHandlerDefinition> eventHandlers = new TreeMap<String, RWEventHandlerDefinition>();
 	public final Map<String, RWMethodDefinition> standalone = new TreeMap<String, RWMethodDefinition>();
 	public final Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>();
 	public final Map<String, Type> fnArgs = new TreeMap<String, Type>();
@@ -643,17 +642,17 @@ public class Rewriter {
 				EventCaseDefn ehd = (EventCaseDefn) val;
 				String mn = ehd.methodName();
 				if (eventHandlers.containsKey(mn)) {
-					EventHandlerInContext rw = eventHandlers.get(mn);
+					RWEventHandlerDefinition rw = eventHandlers.get(mn);
 					if (prev != null && !prev.equals(name))
 						errors.message(ehd.location(), "split function definition: " + mn);
 //					if (ret.mytype != m.mytype())
 //						errors.message(m.location(), "mismatched kinds in function " + mn);
-					if (rw.handler.nargs() != ehd.intro.args.size())
+					if (rw.nargs() != ehd.intro.args.size())
 						errors.message(ehd.location(), "inconsistent argument counts in function " + mn);
+				} else {
+					RWEventHandlerDefinition rw = new RWEventHandlerDefinition(cx.cardNameIfAny(), ehd.location(), ehd.intro.name, ehd.intro.args.size());
+					eventHandlers.put(rw.name(), rw);
 				}
-				RWEventHandlerDefinition rw = new RWEventHandlerDefinition(ehd.location(), ehd.intro.name, ehd.intro.args.size());
-				EventHandlerInContext ehic = new EventHandlerInContext(cx.cardNameIfAny(), name, rw);
-				eventHandlers.put(ehic.name, ehic);
 				pass1(cx, ehd.innerScope());
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
@@ -1271,8 +1270,7 @@ public class Rewriter {
 	}
 
 	private void rewrite(NamingContext cx, EventCaseDefn c) {
-		EventHandlerInContext ehic = eventHandlers.get(c.intro.name);
-		RWEventHandlerDefinition rw = ehic.handler;
+		RWEventHandlerDefinition rw = eventHandlers.get(c.intro.name);
 		Map<String, LocalVar> vars = new HashMap<>();
 		gatherVars(errors, this, cx, rw.name(), rw.name(), vars, c.intro);
 		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), false), c, vars));
