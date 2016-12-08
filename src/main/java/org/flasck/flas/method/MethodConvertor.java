@@ -89,7 +89,7 @@ public class MethodConvertor {
 
 	// 2. Convert An individual element
 	protected RWFunctionDefinition convertMIC(Rewriter rw, MethodInContext m) {
-		logger.info("Converting " + (m.direction == MethodInContext.DOWN?"down":"up") + " " + m.name);
+		logger.info("Converting " + (m.direction == RWMethodDefinition.DOWN?"down":"up") + " " + m.name);
 		// Get the contract and from that find the method and thus the argument types
 		List<Type> types;
 		if (m.fromContract == null) {
@@ -195,11 +195,11 @@ public class MethodConvertor {
 		String mn = m.name.substring(idx+1);
 		for (RWContractMethodDecl md : cd.methods) {
 			if (mn.equals(md.name)) {
-				if (m.direction == MethodInContext.DOWN && md.dir.equals("up")) {
+				if (m.direction == RWMethodDefinition.DOWN && md.dir.equals("up")) {
 					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is an up method");
 					return null;
 				}
-				if (m.direction == MethodInContext.UP && md.dir.equals("down")) {
+				if (m.direction == RWMethodDefinition.UP && md.dir.equals("down")) {
 					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is a down method");
 					return null;
 				}

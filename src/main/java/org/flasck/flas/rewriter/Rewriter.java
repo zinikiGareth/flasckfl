@@ -636,10 +636,10 @@ public class Rewriter {
 					if (ret.method.nargs() != m.nargs())
 						errors.message(m.location(), "inconsistent argument counts in function " + mn);
 				} else {
-					RWMethodDefinition rw = new RWMethodDefinition(m.location(), m.intro.name, m.intro.args.size());
 					List<Object> enc = new ArrayList<>();
 					gatherEnclosing(enc, cx, from);
-					MethodInContext mic = new MethodInContext(this, cx, MethodInContext.STANDALONE, rw.location(), null, rw.name(), cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, rw, enc);
+					RWMethodDefinition rw = new RWMethodDefinition(cx.cardNameIfAny(), m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, enc, m.location(), m.intro.name, m.intro.args.size());
+					MethodInContext mic = new MethodInContext(cx.cardNameIfAny(), rw.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, enc, rw.name(), rw);
 					standalone.put(mic.name, mic);
 				}
 				pass1(cx, m.innerScope());
@@ -806,11 +806,11 @@ public class Rewriter {
 			for (MethodCaseDefn c : ci.methods) {
 				if (methods.containsKey(c.intro.name))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(c.location(), c.intro.name, c.intro.args.size());
 				List<Object> enc = new ArrayList<>();
 				// I don't think there can be
 //				gatherEnclosing(enc, cx, from);
-				MethodInContext mic = new MethodInContext(this, c2, MethodInContext.DOWN, rw.location(), rw.name(), c.intro.name, HSIEForm.CodeType.CONTRACT, rwm, enc);
+				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny(), rw.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, enc, c.location(), c.intro.name, c.intro.args.size());
+				MethodInContext mic = new MethodInContext(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, enc, c.intro.name, rwm);
 				rewriteCase(c2, mic, c, true, false);
 				methods.put(c.intro.name, mic);
 				rw.methods.add(rwm);
@@ -828,11 +828,11 @@ public class Rewriter {
 			for (MethodCaseDefn c : cs.methods) {
 				if (methods.containsKey(c.intro.name))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(c.intro.location, c.intro.name, c.intro.args.size());
 				List<Object> enc = new ArrayList<>();
 				// I don't think there can be
 //				gatherEnclosing(enc, cx, from);
-				MethodInContext mic = new MethodInContext(this, c2, MethodInContext.UP, rw.location(), rw.name(), c.intro.name, HSIEForm.CodeType.SERVICE, rwm, enc);
+				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, enc, c.intro.location, c.intro.name, c.intro.args.size());
+				MethodInContext mic = new MethodInContext(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, enc, c.intro.name, rwm);
 				rewriteCase(c2, mic, c, true, false);
 				methods.put(c.intro.name, mic);
 				rwm.gatherScopedVars();
@@ -1228,10 +1228,10 @@ public class Rewriter {
 			for (MethodCaseDefn c : hi.methods) {
 				if (methods.containsKey(c.intro.name))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rm = new RWMethodDefinition(c.intro.location, c.intro.name, c.intro.args.size());
 				List<Object> enc = new ArrayList<>();
 				gatherEnclosing(enc, cx, scope);
-				MethodInContext mic = new MethodInContext(this, cx, MethodInContext.DOWN, ret.location(), ret.name(), c.intro.name, HSIEForm.CodeType.HANDLER, rm, enc);
+				RWMethodDefinition rm = new RWMethodDefinition(hc.cardNameIfAny(), ret.location(), ret.name(), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, enc, c.intro.location, c.intro.name, c.intro.args.size());
+				MethodInContext mic = new MethodInContext(hc.cardNameIfAny(), ret.location(), ret.name(), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, enc, c.intro.name, rm);
 				rewriteCase(hc, mic, c, true, false);
 				ret.methods.add(rm);
 				rm.gatherScopedVars();
@@ -1394,11 +1394,11 @@ public class Rewriter {
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					for (MethodMessage mm : s.actions)
 						mcd.addMessage(rewrite(c2, mm));
-					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
+					List<Object> enc = new ArrayList<Object>();
+					RWMethodDefinition method = new RWMethodDefinition(c2.cardNameIfAny(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, enc, fi.location, fi.name, fi.args.size());
 					method.cases.add(mcd);
 					method.gatherScopedVars();
-					List<Object> enc = new ArrayList<Object>();
-					MethodInContext mic = new MethodInContext(this, c2, MethodInContext.EVENT, null, null, fi.name, HSIEForm.CodeType.CARD, method, enc); // PROB NEEDS D3Action type
+					MethodInContext mic = new MethodInContext(c2.cardNameIfAny(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, enc, fi.name, method); // PROB NEEDS D3Action type
 					this.methods.put(method.name(), mic);
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 				} else { // something like layout, that is just a set of definitions
