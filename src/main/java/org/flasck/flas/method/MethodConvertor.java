@@ -22,7 +22,6 @@ import org.flasck.flas.rewrittenForm.EventHandlerInContext;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
-import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
@@ -66,8 +65,8 @@ public class MethodConvertor {
 	}
 
 	// 1. Main entry points to convert different kinds of things
-	public void convertContractMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, MethodInContext> methods) {
-		for (MethodInContext m : methods.values())
+	public void convertContractMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, RWMethodDefinition> methods) {
+		for (RWMethodDefinition m : methods.values())
 			addFunction(functions, convertMIC(rw, m));
 	}
 
@@ -76,8 +75,8 @@ public class MethodConvertor {
 			addFunction(functions, convertEventHandler(rw, x.cardName, x.handler));
 	}
 
-	public void convertStandaloneMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Collection<MethodInContext> methods) {
-		for (MethodInContext x : methods)
+	public void convertStandaloneMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Collection<RWMethodDefinition> methods) {
+		for (RWMethodDefinition x : methods)
 			addFunction(functions, convertStandalone(rw, x));
 	}
 
@@ -88,8 +87,8 @@ public class MethodConvertor {
 	}
 
 	// 2. Convert An individual element
-	protected RWFunctionDefinition convertMIC(Rewriter rw, MethodInContext m) {
-		logger.info("Converting " + (m.direction == RWMethodDefinition.DOWN?"down":"up") + " " + m.name);
+	protected RWFunctionDefinition convertMIC(Rewriter rw, RWMethodDefinition m) {
+		logger.info("Converting " + (m.dir == RWMethodDefinition.DOWN?"down":"up") + " " + m.name());
 		// Get the contract and from that find the method and thus the argument types
 		List<Type> types;
 		if (m.fromContract == null) {
@@ -100,14 +99,14 @@ public class MethodConvertor {
 				return null;
 		}
 		
-		if (m.method.cases.isEmpty())
+		if (m.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(m.method.location(), m.type, m.method.name(), m.method.nargs(), m.inCard, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(m.location(), m.type, m.name(), m.nargs(), m.inCard, true);
 
 		// Now process all of the method cases
 		Type ofType = null;
-		for (RWMethodCaseDefn mcd : m.method.cases) {
+		for (RWMethodCaseDefn mcd : m.cases) {
 			InputPosition loc = mcd.intro.location;
 			if (mcd.intro.args.size() != types.size()) {
 				if (!mcd.intro.args.isEmpty())
@@ -159,8 +158,8 @@ public class MethodConvertor {
 		return ret;
 	}
 
-	public RWFunctionDefinition convertStandalone(Rewriter rw, MethodInContext mic) {
-		RWMethodDefinition method = mic.method;
+	public RWFunctionDefinition convertStandalone(Rewriter rw, RWMethodDefinition mic) {
+		RWMethodDefinition method = mic;
 		logger.info("Converting standalone " + method.name());
 		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
 		// This seems likely to fail quite often :-)
@@ -172,7 +171,7 @@ public class MethodConvertor {
 		if (method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		logger.info("Converting standalone " + mic.name);
+		logger.info("Converting standalone " + mic.name());
 		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		for (RWMethodCaseDefn c : method.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, mic.type.isHandler());
@@ -184,22 +183,22 @@ public class MethodConvertor {
 		return ret;
 	}
 
-	protected List<Type> figureCMD(MethodInContext m) {
+	protected List<Type> figureCMD(RWMethodDefinition m) {
 		RWContractDecl cd = contracts.get(m.fromContract);
 		if (cd == null) {
 			errors.message(m.contractLocation, "cannot find contract " + m.fromContract);
 			return null;
 		}
 		RWContractMethodDecl cmd = null;
-		int idx = m.name.lastIndexOf(".");
-		String mn = m.name.substring(idx+1);
+		int idx = m.name().lastIndexOf(".");
+		String mn = m.name().substring(idx+1);
 		for (RWContractMethodDecl md : cd.methods) {
 			if (mn.equals(md.name)) {
-				if (m.direction == RWMethodDefinition.DOWN && md.dir.equals("up")) {
+				if (m.dir == RWMethodDefinition.DOWN && md.dir.equals("up")) {
 					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is an up method");
 					return null;
 				}
-				if (m.direction == RWMethodDefinition.UP && md.dir.equals("down")) {
+				if (m.dir == RWMethodDefinition.UP && md.dir.equals("down")) {
 					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is a down method");
 					return null;
 				}

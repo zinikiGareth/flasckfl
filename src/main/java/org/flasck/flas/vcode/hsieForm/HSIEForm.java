@@ -16,6 +16,7 @@ import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.slf4j.Logger;
@@ -184,7 +185,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			int idx = hi.hiName.lastIndexOf("_");
 			if (fnName.indexOf(".", idx) == -1)
 				return true;
-		} else if (vn.defn instanceof MethodInContext) {
+		} else if (vn.defn instanceof RWMethodDefinition) {
 		} else { // if (vn.defn instanceof HandlerLambda) {
 			throw new UtilException("Unexpected class for vn defn: " + vn.defn.getClass());
 		}

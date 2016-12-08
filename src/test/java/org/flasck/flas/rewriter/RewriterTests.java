@@ -204,7 +204,7 @@ public class RewriterTests {
 		rw.rewritePackageScope("ME", scope);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
-		RWMethodDefinition rmd = rw.methods.get("ME.MyCard._C0.m").method;
+		RWMethodDefinition rmd = rw.methods.get("ME.MyCard._C0.m");
 		assertEquals("ME.MyCard._C0.m", rmd.name());
 		assertTrue(rmd.cases.get(0).messages.get(0).expr instanceof CardMember);
 		assertEquals("counter", ((CardMember)rmd.cases.get(0).messages.get(0).expr).var);

@@ -83,7 +83,6 @@ import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
-import org.flasck.flas.rewrittenForm.MethodInContext;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWCastExpr;
@@ -164,9 +163,9 @@ public class Rewriter {
 	public final Map<String, RWContractImplements> cardImplements = new TreeMap<String, RWContractImplements>();
 	public final Map<String, RWContractService> cardServices = new TreeMap<String, RWContractService>();
 	public final Map<String, RWHandlerImplements> callbackHandlers = new TreeMap<String, RWHandlerImplements>();
-	public final Map<String, MethodInContext> methods = new TreeMap<String, MethodInContext>();
+	public final Map<String, RWMethodDefinition> methods = new TreeMap<String, RWMethodDefinition>();
 	public final Map<String, EventHandlerInContext> eventHandlers = new TreeMap<String, EventHandlerInContext>();
-	public final Map<String, MethodInContext> standalone = new TreeMap<String, MethodInContext>();
+	public final Map<String, RWMethodDefinition> standalone = new TreeMap<String, RWMethodDefinition>();
 	public final Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>();
 	public final Map<String, Type> fnArgs = new TreeMap<String, Type>();
 
@@ -628,19 +627,18 @@ public class Rewriter {
 				MethodCaseDefn m = (MethodCaseDefn) val;
 				String mn = m.methodName();
 				if (methods.containsKey(mn)) {
-					MethodInContext ret = methods.get(mn);
+					RWMethodDefinition ret = methods.get(mn);
 					if (prev != null && !prev.equals(name))
 						errors.message(m.location(), "split function definition: " + mn);
 //					if (ret.mytype != m.mytype())
 //						errors.message(m.location(), "mismatched kinds in function " + mn);
-					if (ret.method.nargs() != m.nargs())
+					if (ret.nargs() != m.nargs())
 						errors.message(m.location(), "inconsistent argument counts in function " + mn);
 				} else {
 					List<Object> enc = new ArrayList<>();
 					gatherEnclosing(enc, cx, from);
 					RWMethodDefinition rw = new RWMethodDefinition(cx.cardNameIfAny(), m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, enc, m.location(), m.intro.name, m.intro.args.size());
-					MethodInContext mic = new MethodInContext(cx.cardNameIfAny(), rw.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, enc, rw.name(), rw);
-					standalone.put(mic.name, mic);
+					standalone.put(rw.name(), rw);
 				}
 				pass1(cx, m.innerScope());
 			} else if (val instanceof EventCaseDefn) {
@@ -809,10 +807,9 @@ public class Rewriter {
 				List<Object> enc = new ArrayList<>();
 				// I don't think there can be
 //				gatherEnclosing(enc, cx, from);
-				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny(), rw.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, enc, c.location(), c.intro.name, c.intro.args.size());
-				MethodInContext mic = new MethodInContext(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, enc, c.intro.name, rwm);
-				rewriteCase(c2, mic, c, true, false);
-				methods.put(c.intro.name, mic);
+				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, enc, c.location(), c.intro.name, c.intro.args.size());
+				rewriteCase(c2, rwm, c, true, false);
+				methods.put(c.intro.name, rwm);
 				rw.methods.add(rwm);
 				rwm.gatherScopedVars();
 			}
@@ -832,9 +829,8 @@ public class Rewriter {
 				// I don't think there can be
 //				gatherEnclosing(enc, cx, from);
 				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, enc, c.intro.location, c.intro.name, c.intro.args.size());
-				MethodInContext mic = new MethodInContext(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, enc, c.intro.name, rwm);
-				rewriteCase(c2, mic, c, true, false);
-				methods.put(c.intro.name, mic);
+				rewriteCase(c2, rwm, c, true, false);
+				methods.put(c.intro.name, rwm);
 				rwm.gatherScopedVars();
 			}
 
@@ -1231,11 +1227,10 @@ public class Rewriter {
 				List<Object> enc = new ArrayList<>();
 				gatherEnclosing(enc, cx, scope);
 				RWMethodDefinition rm = new RWMethodDefinition(hc.cardNameIfAny(), ret.location(), ret.name(), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, enc, c.intro.location, c.intro.name, c.intro.args.size());
-				MethodInContext mic = new MethodInContext(hc.cardNameIfAny(), ret.location(), ret.name(), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, enc, c.intro.name, rm);
-				rewriteCase(hc, mic, c, true, false);
+				rewriteCase(hc, rm, c, true, false);
 				ret.methods.add(rm);
 				rm.gatherScopedVars();
-				methods.put(c.intro.name, mic);
+				methods.put(c.intro.name, rm);
 			}
 
 			// Create a struct to store the state.  It feels weird creating a struct in pass3, but we don't creating the bound vars for scoped/lambdas
@@ -1273,16 +1268,16 @@ public class Rewriter {
 	}
 
 	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodCaseDefn c, HSIEForm.CodeType codeType) {
-		MethodInContext rm = standalone.get(c.intro.name);
+		RWMethodDefinition rm = standalone.get(c.intro.name);
 		rewriteCase(cx, rm, c, false, true);
-		rm.method.gatherScopedVars();
+		rm.gatherScopedVars();
 	}
 	
-	protected void rewriteCase(NamingContext cx, MethodInContext mic, MethodCaseDefn c, boolean fromHandler, boolean useCases) {
+	protected void rewriteCase(NamingContext cx, RWMethodDefinition rm, MethodCaseDefn c, boolean fromHandler, boolean useCases) {
 		Map<String, LocalVar> vars = new HashMap<>();
 		String name = useCases ? c.caseName() : c.methodName();
 		gatherVars(errors, this, cx, c.methodName(), name, vars, c.intro);
-		mic.method.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), name, vars, c.innerScope(), fromHandler), c, vars));
+		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), name, vars, c.innerScope(), fromHandler), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, EventCaseDefn c) {
@@ -1398,8 +1393,7 @@ public class Rewriter {
 					RWMethodDefinition method = new RWMethodDefinition(c2.cardNameIfAny(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, enc, fi.location, fi.name, fi.args.size());
 					method.cases.add(mcd);
 					method.gatherScopedVars();
-					MethodInContext mic = new MethodInContext(c2.cardNameIfAny(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, enc, fi.name, method); // PROB NEEDS D3Action type
-					this.methods.put(method.name(), mic);
+					this.methods.put(method.name(), method);
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
 				} else { // something like layout, that is just a set of definitions
 					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
@@ -1802,8 +1796,8 @@ public class Rewriter {
 		for (RWHandlerImplements h : this.callbackHandlers.values()) {
 			writeHandler(pw, h);
 		}
-		for (MethodInContext d : this.standalone.values()) {
-			writeMethod(pw, d.method);
+		for (RWMethodDefinition m : this.standalone.values()) {
+			writeMethod(pw, m);
 		}
 		writeGeneratableFunctionsTo(pw, functions);
 		pw.close();

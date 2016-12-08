@@ -15,11 +15,11 @@ public class RWMethodDefinition implements Locatable {
 	public static final int EVENT = 3;
 	public static final int UP = 2;
 	public static final int DOWN = 1;
-	private String cardNameIfAny;
-	private InputPosition cloc;
-	private String contractName;
-	private CodeType type;
-	private int dir;
+	public final String inCard;
+	public final InputPosition contractLocation;
+	public final String fromContract;
+	public final CodeType type;
+	public final int dir;
 	private List<Object> enclosing;
 	private final InputPosition location;
 	private final String name;
@@ -28,9 +28,9 @@ public class RWMethodDefinition implements Locatable {
 	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
 	
 	public RWMethodDefinition(String cardNameIfAny, InputPosition cloc, String contractName, CodeType type, int dir, List<Object> enclosing, InputPosition location, String name, int nargs) {
-		this.cardNameIfAny = cardNameIfAny;
-		this.cloc = cloc;
-		this.contractName = contractName;
+		this.inCard = cardNameIfAny;
+		this.contractLocation = cloc;
+		this.fromContract = contractName;
 		this.type = type;
 		this.dir = dir;
 		this.enclosing = enclosing;
