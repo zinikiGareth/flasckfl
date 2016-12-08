@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 public class RWContentString extends RWTemplateFormatEvents {
 	public final String text;
 
-	public RWContentString(InputPosition kw, String text, String areaName, List<Object> formats, String dynamicFn) {
+	public RWContentString(InputPosition kw, String text, AreaName areaName, List<Object> formats, String dynamicFn) {
 		super(kw, areaName, formats, dynamicFn);
 		this.text = text;
 	}

@@ -9,10 +9,10 @@ import org.flasck.flas.commonBase.Locatable;
 public class RWTemplateCases implements RWTemplateLine, Locatable {
 	public final List<RWTemplateOr> cases = new ArrayList<RWTemplateOr>();
 	public final InputPosition loc;
-	private final String areaName;
+	private final AreaName areaName;
 	public final Object switchOn;
 
-	public RWTemplateCases(InputPosition loc, String areaName, Object switchOn) {
+	public RWTemplateCases(InputPosition loc, AreaName areaName, Object switchOn) {
 		this.loc = loc;
 		this.areaName = areaName;
 		this.switchOn = switchOn;
@@ -28,7 +28,7 @@ public class RWTemplateCases implements RWTemplateLine, Locatable {
 	}
 
 	@Override
-	public String areaName() {
+	public AreaName areaName() {
 		return areaName;
 	}
 

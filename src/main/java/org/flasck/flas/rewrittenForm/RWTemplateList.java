@@ -17,7 +17,7 @@ public class RWTemplateList extends RWTemplateFormat {
 	public RWTemplateLine template;
 	public final String listFn;
 
-	public RWTemplateList(InputPosition kw, InputPosition listLoc, Object listVar, InputPosition iterLoc, Object iterVar, InputPosition ctLoc, String customTag, InputPosition ctvLoc, String customTagVar, List<Object> formats, boolean supportDragOrdering, String areaName, String listFn, String dynamicFn) {
+	public RWTemplateList(InputPosition kw, InputPosition listLoc, Object listVar, InputPosition iterLoc, Object iterVar, InputPosition ctLoc, String customTag, InputPosition ctvLoc, String customTagVar, List<Object> formats, boolean supportDragOrdering, AreaName areaName, String listFn, String dynamicFn) {
 		super(kw, areaName, formats, dynamicFn);
 		this.listLoc = listLoc;
 		this.listVar = listVar;

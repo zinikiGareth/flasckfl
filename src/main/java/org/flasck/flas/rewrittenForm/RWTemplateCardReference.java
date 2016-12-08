@@ -6,10 +6,10 @@ public class RWTemplateCardReference implements RWTemplateLine {
 	public final InputPosition location;
 	public final Object explicitCard;
 	public final Object yoyoVar;
-	private final String areaName;
+	private final AreaName areaName;
 	public final String fnName;
 
-	public RWTemplateCardReference(InputPosition location, Object cardVar, Object yoyoVar, String areaName, String fnName) {
+	public RWTemplateCardReference(InputPosition location, Object cardVar, Object yoyoVar, AreaName areaName, String fnName) {
 		this.location = location;
 		this.explicitCard = cardVar;
 		this.yoyoVar = yoyoVar;
@@ -18,7 +18,7 @@ public class RWTemplateCardReference implements RWTemplateLine {
 	}
 
 	@Override
-	public String areaName() {
+	public AreaName areaName() {
 		return areaName;
 	}
 }

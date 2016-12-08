@@ -95,7 +95,6 @@ public final class DroidAppendPush implements PushVisitor {
 				clz = inside + dot + member;
 			}
 			meth.getBCC().addInnerClassReference(Access.PUBLICSTATIC, inside, member);
-			System.out.println("Appending " + pe + " " + needToCallEvalMethod + " with clz " + clz);
 			if (!needToCallEvalMethod) { // handle the simple class case ...
 				return meth.classConst(clz);
 			} else {

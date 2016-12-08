@@ -8,7 +8,7 @@ import org.flasck.flas.blockForm.InputPosition;
 public abstract class RWTemplateFormatEvents extends RWTemplateFormat {
 	public final List<RWEventHandler> handlers = new ArrayList<RWEventHandler>();
 	
-	public RWTemplateFormatEvents(InputPosition pos, String areaName, List<Object> formats, String dynamicFn) {
+	public RWTemplateFormatEvents(InputPosition pos, AreaName areaName, List<Object> formats, String dynamicFn) {
 		super(pos, areaName, formats, dynamicFn);
 	}
 }

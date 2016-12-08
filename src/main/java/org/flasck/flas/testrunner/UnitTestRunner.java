@@ -1,7 +1,6 @@
 package org.flasck.flas.testrunner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -20,8 +19,6 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.reflection.Reflection;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.MultiTextEmitter;
-
-import junit.framework.AssertionFailedError;
 
 public class UnitTestRunner {
 	private final MultiTextEmitter results;

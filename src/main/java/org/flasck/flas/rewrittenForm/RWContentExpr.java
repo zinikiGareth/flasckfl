@@ -19,7 +19,7 @@ public class RWContentExpr extends RWTemplateFormatEvents {
 	public final String fnName;
 	public final String editFn;
 
-	public RWContentExpr(InputPosition kw, Object expr, boolean edit, boolean rawHTML, String areaName, List<Object> formats, String fnName, String dynamicFn, String editFn) {
+	public RWContentExpr(InputPosition kw, Object expr, boolean edit, boolean rawHTML, AreaName areaName, List<Object> formats, String fnName, String dynamicFn, String editFn) {
 		super(kw, areaName, formats, dynamicFn);
 		this.expr = expr;
 		this.editable = edit;

@@ -7,11 +7,11 @@ import org.flasck.flas.commonBase.Locatable;
 
 public abstract class RWTemplateFormat implements RWTemplateLine, Locatable {
 	public final InputPosition kw;
-	private final String areaName;
+	private final AreaName areaName;
 	public final List<Object> formats;
 	public final String dynamicFunction;
 	
-	public RWTemplateFormat(InputPosition kw, String areaName, List<Object> formats, String dynamicFunction) {
+	public RWTemplateFormat(InputPosition kw, AreaName areaName, List<Object> formats, String dynamicFunction) {
 		this.kw = kw;
 		this.areaName = areaName;
 		this.formats = formats;
@@ -24,7 +24,7 @@ public abstract class RWTemplateFormat implements RWTemplateLine, Locatable {
 	}
 
 	@Override
-	public String areaName() {
+	public AreaName areaName() {
 		return areaName;
 	}
 }

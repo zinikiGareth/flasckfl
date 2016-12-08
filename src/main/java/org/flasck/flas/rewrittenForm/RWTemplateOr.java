@@ -17,7 +17,7 @@ public class RWTemplateOr implements RWTemplateLine, Locatable {
 	}
 	
 	@Override
-	public String areaName() {
+	public AreaName areaName() {
 		return template.areaName();
 	}
 

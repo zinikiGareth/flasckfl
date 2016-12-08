@@ -26,7 +26,7 @@ public class RWTemplate implements Locatable {
 		return loc;
 	}
 	
-	public String areaName() {
+	public AreaName areaName() {
 		return content.areaName();
 	}
 	

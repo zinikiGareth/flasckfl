@@ -15,6 +15,7 @@ import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.AreaName;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -109,18 +110,18 @@ public class TemplateGenerator {
 		target.add(ir);
 		if (cg == null || cg.content == null)
 			return;
-		String topBlock = cg.areaName();
-		ir.add(JSForm.flex("new " + topBlock + "(new CardArea(parent, wrapper, this))"));
+		AreaName areaName = cg.areaName();
+		ir.add(JSForm.flex("new " + areaName.jsName() + "(new CardArea(parent, wrapper, this))"));
 		
-		dg.generateRender(cx.javaName, javaName(topBlock));
+		dg.generateRender(cx.javaName, areaName.javaName());
 		
-		recurse(cx, topBlock, cg.content, null);
+		recurse(cx, areaName, cg.content, null);
 	}
 
-	private JSForm recurse(GeneratorContext cx, String called, RWTemplateLine tl, String parentClass) {
+	private JSForm recurse(GeneratorContext cx, AreaName areaName, RWTemplateLine tl, AreaName parentArea) {
 		if (tl == null)
 			return null;
-		JSForm fn = JSForm.flex(called +" = function(parent)").needBlock();
+		JSForm fn = JSForm.flex(areaName.jsName() +" = function(parent)").needBlock();
 		cx.target.add(fn);
 		String base;
 		String moreArgs = "";
@@ -164,24 +165,24 @@ public class TemplateGenerator {
 		} else {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
 		}
-		CGRContext cgrx = dg.area(javaName(called), base, customTag);
+		CGRContext cgrx = dg.area(areaName.javaName(), base, customTag);
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
 		fn.add(JSForm.flex("if (!parent) return"));
 		for (DefinedVar vc : cx.varsToCopy) {
 			String s = vc.name;
 			fn.add(JSForm.flex("this._src_" + s + " = parent._src_" + s));
-			dg.copyVar(cgrx, javaName(parentClass), javaName(vc.definedIn), s);
+			dg.copyVar(cgrx, parentArea.javaName(), javaName(vc.definedIn), s);
 		}
 		String newVar = cx.extractNewVar();
 		if (newVar != null) {
 			fn.add(JSForm.flex("this._src_"+newVar+ " = this"));
-			cx.varToCopy(newVar, called);
+			cx.varToCopy(newVar, areaName.jsName());
 			dg.newVar(cgrx, newVar);
 		}
-		cx.target.add(JSForm.flex(called +".prototype = new " + base + "()"));
-		cx.target.add(JSForm.flex(called +".prototype.constructor = " + called));
+		cx.target.add(JSForm.flex(areaName.jsName() +".prototype = new " + base + "()"));
+		cx.target.add(JSForm.flex(areaName.jsName() +".prototype.constructor = " + areaName.jsName()));
 		if (newVar != null) {
-			JSForm nda = JSForm.flex(called +".prototype._assignToVar = function(obj)").needBlock();
+			JSForm nda = JSForm.flex(areaName.jsName() +".prototype._assignToVar = function(obj)").needBlock();
 			nda.add(JSForm.flex("if (this. " + newVar + " == obj) return"));
 			JSForm ifremove = JSForm.flex("if (this." + newVar+ ")");
 			// TODO: I claim this should be this.newVar, not obj
@@ -202,7 +203,7 @@ public class TemplateGenerator {
 			for (Object a : td.attrs) {
 				if (a instanceof RWTemplateExplicitAttr) {
 					RWTemplateExplicitAttr tea = (RWTemplateExplicitAttr) a;
-					String saf = called + ".prototype._setAttr_" + an;
+					String saf = areaName.jsName() + ".prototype._setAttr_" + an;
 					JSForm sak = JSForm.flex(saf + " = function()").needBlock();
 					String tfn = simpleName(tea.fnName);
 					sak.add(JSForm.flex("var attr = FLEval.full(this." + tfn + "())"));
@@ -222,12 +223,12 @@ public class TemplateGenerator {
 				fn.add(JSForm.flex("this._dropSomethingHere(" + asRegexps + ")"));
 			}
 			for (RWTemplateLine c : td.nested) {
-				String cn = c.areaName();
-				int idx = cn.lastIndexOf(".B")+2;
-				String v = 'b'+cn.substring(idx);
-				fn.add(JSForm.flex("var " + v + " = new " + cn + "(this)"));
-				dg.createNested(cgrx, v, javaName(cn));
-				recurse(cx, cn, c, called);
+				AreaName cn = c.areaName();
+				int idx = cn.jsName().lastIndexOf(".B")+2;
+				String v = 'b'+cn.jsName().substring(idx);
+				fn.add(JSForm.flex("var " + v + " = new " + cn.jsName() + "(this)"));
+				dg.createNested(cgrx, v, cn.javaName());
+				recurse(cx, cn, c, areaName);
 			}
 		} else if (tl instanceof RWTemplateList) {
 			RWTemplateList l = (RWTemplateList) tl;
@@ -235,23 +236,23 @@ public class TemplateGenerator {
 			String tlv = lv == null ? null : lv.simpleName;
 			if (l.supportDragOrdering)
 				fn.add(JSForm.flex("this._supportDragging()"));
-			String item = l.template.areaName();
+			AreaName item = l.template.areaName();
 			{
-				JSForm nc = JSForm.flex(called +".prototype._newChild = function()").needBlock();
-				nc.add(JSForm.flex("return new " + item + "(this)"));
+				JSForm nc = JSForm.flex(areaName.jsName() +".prototype._newChild = function()").needBlock();
+				nc.add(JSForm.flex("return new " + item.jsName() + "(this)"));
 				cx.target.add(nc);
 			}
-			dg.newListChild(cgrx, javaName(item));
+			dg.newListChild(cgrx, item.javaName());
 			if (tlv != null)
 				cx.newVar(tlv);
-			JSForm cfn = recurse(cx, item, l.template, called);
+			JSForm cfn = recurse(cx, item, l.template, areaName);
 			if (l.supportDragOrdering)
 				cfn.add(JSForm.flex("this._makeDraggable()"));
-			JSForm atv = JSForm.flex(called + ".prototype._assignToVar = function()").needBlock();
+			JSForm atv = JSForm.flex(areaName.jsName() + ".prototype._assignToVar = function()").needBlock();
 			String tfn = simpleName(l.listFn);
 			atv.add(JSForm.flex("var lv = FLEval.full(this." + tfn + "())"));
-			callOnAssign(fn, l.listVar, cgrx, called + ".prototype._assignToVar", false, "lv");
-			fn.add(JSForm.flex(called + ".prototype._assignToVar.call(this)"));
+			callOnAssign(fn, l.listVar, cgrx, areaName.jsName() + ".prototype._assignToVar", false, "lv");
+			fn.add(JSForm.flex(areaName.jsName() + ".prototype._assignToVar.call(this)"));
 			atv.add(JSForm.flex("ListArea.prototype._assignToVar.call(this, lv)"));
 			cx.target.add(atv);
 		} else if (tl instanceof RWContentString) {
@@ -261,9 +262,9 @@ public class TemplateGenerator {
 		} else if (tl instanceof RWContentExpr) {
 			RWContentExpr ce = (RWContentExpr)tl;
 			Object valExpr = ce.expr;
-			callOnAssign(fn, valExpr, cgrx, called + ".prototype._contentExpr", true, null);
+			callOnAssign(fn, valExpr, cgrx, areaName.jsName() + ".prototype._contentExpr", true, null);
 
-			JSForm cexpr = JSForm.flex(called +".prototype._contentExpr = function()").needBlock();
+			JSForm cexpr = JSForm.flex(areaName.jsName() +".prototype._contentExpr = function()").needBlock();
 			String tfn = simpleName(ce.fnName);
 			if (ce.rawHTML)
 				cexpr.add(JSForm.flex("this._insertHTML(this." + tfn +"())"));
@@ -277,14 +278,14 @@ public class TemplateGenerator {
 				// for it to be editable, it must be a clear field of a clear object
 				if (valExpr instanceof CardMember) {
 					CardMember cm = (CardMember) valExpr;
-					fn.add(JSForm.flex("this._editable(" + called + "._rules)"));
-					createRules(cx, ce, called, null, cm.var);
+					fn.add(JSForm.flex("this._editable(" + areaName.jsName() + "._rules)"));
+					createRules(cx, ce, areaName, null, cm.var);
 				} else if (valExpr instanceof ApplyExpr) {
 					ApplyExpr ae = (ApplyExpr) valExpr;
 					if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
 						throw new UtilException("Cannot edit: " + ae);
-					fn.add(JSForm.flex("this._editable(" + called + "._rules)"));
-					createRules(cx, ce, called, ae.args.get(0), ((StringLiteral)ae.args.get(1)).text);
+					fn.add(JSForm.flex("this._editable(" + areaName.jsName() + "._rules)"));
+					createRules(cx, ce, areaName, ae.args.get(0), ((StringLiteral)ae.args.get(1)).text);
 				} else 
 					throw new UtilException("Cannot edit: " + valExpr);
 			}
@@ -294,9 +295,9 @@ public class TemplateGenerator {
 				; // fully handled above
 			else if (cr.yoyoVar != null) {
 				Object valExpr = cr.yoyoVar;
-				callOnAssign(fn, valExpr, cgrx, called + ".prototype._yoyoExpr", true, null);
+				callOnAssign(fn, valExpr, cgrx, areaName.jsName() + ".prototype._yoyoExpr", true, null);
 	
-				JSForm cexpr = JSForm.flex(called +".prototype._yoyoExpr = function()").needBlock();
+				JSForm cexpr = JSForm.flex(areaName.jsName() +".prototype._yoyoExpr = function()").needBlock();
 				String tfn = simpleName(cr.fnName);
 				cexpr.add(JSForm.flex("this._updateToCard(this." + tfn + "())"));
 				cx.target.add(cexpr);
@@ -306,14 +307,14 @@ public class TemplateGenerator {
 				throw new UtilException("handle this case");
 		} else if (tl instanceof RWTemplateCases) {
 			RWTemplateCases tc = (RWTemplateCases) tl;
-			String sn = called + ".prototype._chooseCase";
+			String sn = areaName.jsName() + ".prototype._chooseCase";
 			JSForm sw = JSForm.flex(sn +" = function(parent)").needBlock();
 			sw.add(JSForm.flex("\"use strict\""));
 			cx.target.add(sw);
 			callOnAssign(fn, tc.switchOn, cgrx, sn, true, null);
 
 			for (RWTemplateOr oc : tc.cases) {
-				String cn = oc.areaName();
+				AreaName cn = oc.areaName();
 
 				JSForm doit;
 				if (oc.cond == null)
@@ -323,10 +324,10 @@ public class TemplateGenerator {
 					doit = JSForm.flex("if (FLEval.full(this." + tfn + "()))").needBlock();
 					sw.add(doit);
 				}
-				doit.add(JSForm.flex("this._setTo(" + cn +")"));
-//				doit.add(JSForm.flex("var v = new " + cn + "(this)"));
+				doit.add(JSForm.flex("this._setTo(" + cn.jsName() +")"));
+//				doit.add(JSForm.flex("var v = new " + cn.jsName() + "(this)"));
 				doit.add(JSForm.flex("return"));
-				recurse(cx, cn, oc.template, called);
+				recurse(cx, cn, oc.template, areaName);
 				if (oc.cond != null)
 					callOnAssign(fn, oc.cond, cgrx, sn, false, null);
 			}
@@ -337,7 +338,7 @@ public class TemplateGenerator {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
 		if (tl instanceof RWTemplateFormat) {
-			handleFormatsAndEvents(cx, cgrx, called, fn, isEditable, (RWTemplateFormat)tl);
+			handleFormatsAndEvents(cx, cgrx, areaName, fn, isEditable, (RWTemplateFormat)tl);
 		}
 		if (newVar != null) {
 			cx.removeLastCopyVar();
@@ -346,7 +347,7 @@ public class TemplateGenerator {
 		return fn;
 	}
 
-	protected void handleFormatsAndEvents(GeneratorContext cx, CGRContext cgrx, String called, JSForm fn, boolean isEditable, RWTemplateFormat tl) {
+	protected void handleFormatsAndEvents(GeneratorContext cx, CGRContext cgrx, AreaName areaName, JSForm fn, boolean isEditable, RWTemplateFormat tl) {
 		StringBuilder simple = new StringBuilder();
 		if (isEditable)
 			simple.append(" flasck-editable");
@@ -374,7 +375,7 @@ public class TemplateGenerator {
 		if (expr != null) {
 			if (simple.length() > 0)
 				expr = new ApplyExpr(first, cx.cons, new StringLiteral(first, simple.substring(1)), expr);
-			String scf = called + ".prototype._setVariableFormats";
+			String scf = areaName.jsName() + ".prototype._setVariableFormats";
 			JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
 			String tfn = simpleName(tl.dynamicFunction);
 			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this."+tfn+"()), ' '))"));
@@ -389,7 +390,7 @@ public class TemplateGenerator {
 		if (tl instanceof RWTemplateFormatEvents) {
 			RWTemplateFormatEvents tfe = (RWTemplateFormatEvents) tl;
 			if (!tfe.handlers.isEmpty()) {
-				JSForm ahf = JSForm.flex(called +".prototype._add_handlers = function()").needBlock();
+				JSForm ahf = JSForm.flex(areaName.jsName() +".prototype._add_handlers = function()").needBlock();
 				dg.needAddHandlers(cgrx);
 				cx.target.add(ahf);
 				boolean isFirst = true;
@@ -404,15 +405,15 @@ public class TemplateGenerator {
 					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(this._area." + tfn + "(), event)"));
 					ahf.add(cev);
 	
-					callOnAssign(fn, eh.expr, cgrx, called + ".prototype._add_handlers", isFirst, null);
+					callOnAssign(fn, eh.expr, cgrx, areaName.jsName() + ".prototype._add_handlers", isFirst, null);
 					isFirst = false;
 				}
 			}
 		}
 	}
 	
-	private void createRules(GeneratorContext cx, RWContentExpr ce, String area, Object container, String field) {
-		JSForm rules = JSForm.flex(area + "._rules =").needBlock();
+	private void createRules(GeneratorContext cx, RWContentExpr ce, AreaName areaName, Object container, String field) {
+		JSForm rules = JSForm.flex(areaName.jsName() + "._rules =").needBlock();
 		JSForm save = JSForm.flex("save: function(wrapper, text)").needBlock();
 		if (ce.editFn != null) {
 			save.add(JSForm.flex("var containingObject = " + ce.editFn + "()"));
