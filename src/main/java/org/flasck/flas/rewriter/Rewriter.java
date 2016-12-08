@@ -1352,7 +1352,7 @@ public class Rewriter {
 	private RWMethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c, Map<String, LocalVar> vars) {
 		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, c.caseName(), vars));
 		for (MethodMessage mm : c.messages)
-			ret.messages.add(rewrite(cx, mm));
+			ret.addMessage(rewrite(cx, mm));
 		return ret;
 	}
 
@@ -1395,7 +1395,7 @@ public class Rewriter {
 					RWFunctionIntro fi = new RWFunctionIntro(s.location, prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>(), null);
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					for (MethodMessage mm : s.actions)
-						mcd.messages.add(rewrite(c2, mm));
+						mcd.addMessage(rewrite(c2, mm));
 					RWMethodDefinition method = new RWMethodDefinition(fi.location, fi.name, fi.args.size());
 					method.cases.add(mcd);
 					method.gatherScopedVars();

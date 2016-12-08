@@ -13,7 +13,8 @@ public class RWMethodCaseDefn {
 	}
 	
 	public void addMessage(RWMethodMessage mm) {
-		messages.add(mm);
+		if (mm != null)
+			messages.add(mm);
 	}
 	
 	public void gatherScopedVars(Set<VarNestedFromOuterFunctionScope> scopedVars) {
