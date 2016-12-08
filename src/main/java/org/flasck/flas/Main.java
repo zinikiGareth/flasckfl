@@ -26,7 +26,7 @@ public class Main {
 				int hasMore = args.length-i-1;
 				if (arg.startsWith("-")) {
 					if (arg.equals("--dump"))
-						compiler.setDumpTypes(true);
+						compiler.dumpTypes();
 					else if (arg.equals("--wflim")) {
 						if (hasMore == 0) {
 							System.out.println("--wflim <dir>");

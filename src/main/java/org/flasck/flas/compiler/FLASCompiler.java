@@ -508,10 +508,6 @@ public class FLASCompiler implements ScriptCompiler {
 		}
 	}
 
-	public void setDumpTypes(boolean b) {
-		this.dumpTypes = b;
-	}
-
 	public DroidBuilder getBuilder() {
 		return builder;
 	}
