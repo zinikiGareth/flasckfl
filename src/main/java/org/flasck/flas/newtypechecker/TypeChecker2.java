@@ -58,6 +58,7 @@ import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.SetMap;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.xml.XML;
 
 public class TypeChecker2 {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
@@ -812,7 +813,12 @@ public class TypeChecker2 {
 	public void writeLearnedKnowledge(File exportTo, String inPkg, boolean dumpTypes) {
 		if (dumpTypes)
 			System.out.println("Exporting inferred types at top scope:");
-		KnowledgeWriter kw = new KnowledgeWriter(exportTo, inPkg, dumpTypes);
+		XML knowledge = buildXML(inPkg, dumpTypes);
+		knowledge.write(exportTo);
+	}
+
+	public XML buildXML(String inPkg, boolean dumpTypes) {
+		KnowledgeWriter kw = new KnowledgeWriter(inPkg, dumpTypes);
 
 		for (RWStructDefn sd : rw.structs.values()) {
 			if (sd.generate) {
@@ -848,7 +854,7 @@ public class TypeChecker2 {
 
 			kw.add(x.getKey(), x.getValue());
 		}
-		kw.commit();
+		return kw.commit();
 	}
 
 	private Var rename(Map<Var, Var> renames, Var var) {
@@ -1118,5 +1124,9 @@ public class TypeChecker2 {
 
 	public Type getExportedType(String name) {
 		return export.get(name);
+	}
+
+	public void define(String name, Type ty) {
+		export.put(name, ty);
 	}
 }

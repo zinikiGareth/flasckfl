@@ -27,6 +27,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
+import org.flasck.flas.flim.PackageImporter;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.jsform.JSTarget;
@@ -57,6 +58,7 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.MultiTextEmitter;
+import org.zinutils.xml.XML;
 
 public class FLASCompiler implements ScriptCompiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
@@ -70,6 +72,7 @@ public class FLASCompiler implements ScriptCompiler {
 	private File trackTC;
 	private File writeJS;
 	private File writeTestReports;
+	private final List<CompileResult> priors = new ArrayList<>();
 
 	public void searchIn(File file) {
 		pkgdirs.add(file);
@@ -83,6 +86,11 @@ public class FLASCompiler implements ScriptCompiler {
 		if (!andBuild)
 			builder.dontBuild();
 		builder.init();
+	}
+	
+	public void internalBuildJVM() {
+		builder = new DroidBuilder();
+		builder.dontBuild();
 	}
 
 	public void writeRWTo(File file) {
@@ -135,6 +143,10 @@ public class FLASCompiler implements ScriptCompiler {
 			return;
 		}
 		this.writeTestReports = file;
+	}
+
+	public void includePrior(CompileResult cr) {
+		priors.add(cr);
 	}
 
 	public void dumpTypes() {
@@ -194,8 +206,10 @@ public class FLASCompiler implements ScriptCompiler {
 			}
 			
 			try {
+				FLASCompiler sc = new FLASCompiler();
+				sc.includePrior(cr);
 				// TODO: we probably need to configure the compiler here ...
-				UnitTestRunner utr = new UnitTestRunner(results, new FLASCompiler(), f);
+				UnitTestRunner utr = new UnitTestRunner(results, sc, cr.bce, cr.getPackage(), f);
 				utr.run();
 			} finally {
 			if (close)
@@ -229,6 +243,12 @@ public class FLASCompiler implements ScriptCompiler {
 			final DroidGenerator dg = new DroidGenerator(hsie, builder, bce);
 
 			rewriter.importPackage1(rootPkg);
+			
+			for (CompileResult cr : priors) {
+				XML xml = cr.exports();
+				System.out.println(xml.asString(true));
+				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage(), xml);
+			}
 			
 			rewriter.rewritePackageScope(inPkg, scope);
 			abortIfErrors(errors);
@@ -369,7 +389,8 @@ public class FLASCompiler implements ScriptCompiler {
 			abortIfErrors(errors);
 
 			// 11. Save learned state for export
-			tc2.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
+			if (exportTo != null)
+				tc2.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
 
 			// 12. generation of JSForms
 			generateForms(gen, hsie.allForms());
@@ -379,25 +400,29 @@ public class FLASCompiler implements ScriptCompiler {
 			// 13. Write final outputs
 			
 			// 13a. Issue JavaScript
-			try {
-				wjs = new FileWriter(writeTo);
-			} catch (IOException ex) {
-				System.err.println("Cannot write to " + writeTo + ": " + ex.getMessage());
-				return null;
+			if (writeTo != null) {
+				try {
+					wjs = new FileWriter(writeTo);
+				} catch (IOException ex) {
+					System.err.println("Cannot write to " + writeTo + ": " + ex.getMessage());
+					return null;
+				}
+				target.writeTo(wjs);
 			}
-			target.writeTo(wjs);
 
 			// 13b. Issue Droid
-			try {
-				dg.write();
-			} catch (Exception ex) {
-				System.err.println("Cannot write to " + builder.androidDir + ": " + ex.getMessage());
-				ex.printStackTrace();
-				return null;
+			if (dg != null) {
+				try {
+					dg.write();
+				} catch (Exception ex) {
+					System.err.println("Cannot write to " + builder.androidDir + ": " + ex.getMessage());
+					ex.printStackTrace();
+					return null;
+				}
 			}
 			abortIfErrors(errors);
 
-			return new CompileResult(bce);
+			return new CompileResult(inPkg, bce, tc2);
 		} finally {
 			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
 			try { if (wex != null) wex.close(); } catch (IOException ex) {}
@@ -417,6 +442,7 @@ public class FLASCompiler implements ScriptCompiler {
 
 	@Override
 	public CompileResult createJVM(String pkg, String flas) throws IOException, ErrorResultException {
+		this.internalBuildJVM();
 		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
 		final Scope scope = new Scope(null);

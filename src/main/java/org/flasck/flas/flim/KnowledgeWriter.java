@@ -1,6 +1,5 @@
 package org.flasck.flas.flim;
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -20,21 +19,20 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.types.Type;
+import org.flasck.flas.types.Type.WhatAmI;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Justification;
 import org.zinutils.xml.XML;
 import org.zinutils.xml.XMLElement;
 
 public class KnowledgeWriter {
-	private final File exportTo;
 	private final String pkg; 
 	private final XML xml;
 	private final XMLElement top;
 	private final boolean copyToScreen;
 	private final Set<String> imports = new TreeSet<String>();
 
-	public KnowledgeWriter(File exportTo, String pkg, boolean copyToScreen) {
-		this.exportTo = exportTo;
+	public KnowledgeWriter(String pkg, boolean copyToScreen) {
 		this.pkg = pkg;
 		xml = XML.create("1.0", "FLIM");
 		top = xml.top();
@@ -168,6 +166,8 @@ public class KnowledgeWriter {
 	// I believe this is *just* functions, but that includes functions of 0 args, which don't *look* like functions to the naked eye ...
 	public void add(String name, Type type) {
 		XMLElement xe = top.addElement("Function");
+		if (type.iam != WhatAmI.FUNCTION)
+			type = Type.function(type.location(), type);
 		// TODO: I think we should get the location of the first case ...
 		writeLocation(xe, type);
 		xe.setAttribute("name", name);
@@ -303,12 +303,12 @@ public class KnowledgeWriter {
 		xe.setAttribute(prefix+"off", Integer.toString(loc.off));
 	}
 
-	public void commit() {
+	public XML commit() {
 		imports.remove(pkg); // obviously we don't want to depend on ourselves ...
 		int k = 0;
 		for (String s : imports) {
 			xml.addElementAt(k++, "Import").setAttribute("package", s);
 		}
-		xml.write(exportTo);
+		return xml;
 	}
 }

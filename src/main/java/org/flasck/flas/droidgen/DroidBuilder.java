@@ -58,6 +58,11 @@ public class DroidBuilder {
 	private Map<String, DroidStyle> cssClasses = new TreeMap<>(new StringComparator());
 	private boolean reallyBuild = true;
 
+	public DroidBuilder() {
+		this.androidDir = null;
+		this.qbcdir = null;
+	}
+	
 	public DroidBuilder(File androidDir) {
 		this.androidDir = androidDir;
 		qbcdir = new File(androidDir, "qbout/classes");

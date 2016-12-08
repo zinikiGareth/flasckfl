@@ -150,7 +150,7 @@ import org.zinutils.utils.Indenter;
 public class Rewriter {
 	static final Logger logger = LoggerFactory.getLogger("Rewriter");
 	private final ErrorResult errors;
-	private final PackageFinder pkgFinder;
+	public final PackageFinder pkgFinder;
 	public final Map<String, Type> primitives = new TreeMap<String, Type>();
 	public final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	public final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
