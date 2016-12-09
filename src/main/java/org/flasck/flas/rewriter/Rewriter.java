@@ -807,8 +807,8 @@ public class Rewriter {
 		CardContext c2 = new CardContext((PackageContext) cx, grp.name(), cd, true);
 		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
-			String myname = cd.name +"._C" + pos;
-			RWContractImplements rw = cardImplements.get(myname);
+			CSName myname = new CSName(grp.name(), "_C" + pos);
+			RWContractImplements rw = cardImplements.get(myname.jsName());
 
 			for (MethodCaseDefn c : ci.methods) {
 				if (methods.containsKey(c.intro.name))
@@ -825,8 +825,8 @@ public class Rewriter {
 		
 		pos=0;
 		for (ContractService cs : cd.services) {
-			String myname = cd.name +"._S" + pos;
-			RWContractService rw = cardServices.get(myname);
+			CSName myname = new CSName(grp.name(), "_S" + pos);
+			RWContractService rw = cardServices.get(myname.jsName());
 
 			for (MethodCaseDefn c : cs.methods) {
 				if (methods.containsKey(c.intro.name))
