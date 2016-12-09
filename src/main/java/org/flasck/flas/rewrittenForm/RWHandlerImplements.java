@@ -9,9 +9,9 @@ public class RWHandlerImplements extends RWImplements {
 	public final List<HandlerLambda> boundVars;
 	public final boolean inCard;
 
-	public RWHandlerImplements(InputPosition kw, InputPosition location, String named, String type, boolean inCard, List<HandlerLambda> lambdas) {
+	public RWHandlerImplements(InputPosition kw, InputPosition location, HandlerName handlerName, String type, boolean inCard, List<HandlerLambda> lambdas) {
 		super(kw, location, WhatAmI.HANDLERIMPLEMENTS, type);
-		this.hiName = named;
+		this.hiName = handlerName.jsName();
 		this.inCard = inCard;
 		this.boundVars = lambdas;
 	}

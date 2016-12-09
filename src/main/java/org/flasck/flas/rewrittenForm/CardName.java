@@ -26,4 +26,8 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 		if (pc != 0) return pc;
 		return cardName.compareTo(o.cardName);
 	}
+
+	public boolean isValid() {
+		return pkg != null && cardName != null;
+	}
 }

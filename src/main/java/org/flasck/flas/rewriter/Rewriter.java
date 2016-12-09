@@ -70,6 +70,8 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
+import org.flasck.flas.rewriter.Rewriter.NamingContext;
+import org.flasck.flas.rewriter.Rewriter.Pass1ScopeContext;
 import org.flasck.flas.rewrittenForm.AreaName;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CSName;
@@ -84,6 +86,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.FunctionName;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.HandlerName;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
@@ -123,6 +126,7 @@ import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
+import org.flasck.flas.rewrittenForm.ScopeName;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.stories.FLASStory.State;
@@ -192,6 +196,12 @@ public class Rewriter {
 			if (nested != null)
 				return nested.cardNameIfAny();
 			return CardName.none();
+		}
+
+		public ScopeName scopeNameIfAny() {
+			if (nested != null)
+				return nested.scopeNameIfAny();
+			return ScopeName.none();
 		}
 	}
 
@@ -476,6 +486,28 @@ public class Rewriter {
 
 	}
 
+	// This is for functions to use in Pass1 to identify scoping context
+	public class Pass1ScopeContext extends NamingContext {
+		private ScopeName scopeName;
+
+		public Pass1ScopeContext(NamingContext cx, String caseName) {
+			super(cx);
+			this.scopeName = new ScopeName(caseName);
+		}
+
+		@Override
+		public Object resolve(InputPosition location, String name) {
+			// Because this is a partial context, we don't know anything yet
+			return nested.resolve(location, name);
+		}
+
+		@Override
+		public ScopeName scopeNameIfAny() {
+			return scopeName;
+		}
+	}
+
+
 	// I think I still need ImplementsContext, MethodContext and EventHandlerContext
 	// BUT I think the latter two can just be FunctionContext & ImplementsContext is dull
 	
@@ -487,11 +519,13 @@ public class Rewriter {
 		private final boolean fromMethod;
 		private final String funcName;
 		private final String caseName;
+		private final ScopeName scopeName;
 
 		FunctionCaseContext(NamingContext cx, String funcName, String caseName, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
 			super(cx);
 			this.funcName = funcName;
 			this.caseName = caseName;
+			this.scopeName = new ScopeName(caseName);
 			this.bound = locals;
 			this.inner = inner;
 			this.fromMethod = fromMethod;
@@ -521,6 +555,11 @@ public class Rewriter {
 			if (res instanceof CardFunction)
 				return new CardFunction(location, (CardFunction)res, fromMethod);
 			return res;
+		}
+		
+		@Override
+		public ScopeName scopeNameIfAny() {
+			return scopeName;
 		}
 	}
 
@@ -630,7 +669,7 @@ public class Rewriter {
 					RWFunctionDefinition ret = new RWFunctionDefinition(c.location(), c.mytype(), new FunctionName(fn), c.nargs(), cx.cardNameIfAny().jsName(), true);
 					functions.put(name, ret);
 				}
-				pass1(cx, c.innerScope());
+				pass1(new Pass1ScopeContext(cx, c.caseName()), c.innerScope());
 			} else if (val instanceof MethodCaseDefn) {
 				MethodCaseDefn m = (MethodCaseDefn) val;
 				String mn = m.methodName();
@@ -1207,7 +1246,7 @@ public class Rewriter {
 				throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 			bvs.add(hl);
 		}
-		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), hi.hiName, ctr.id, hi.inCard, bvs);
+		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), new HandlerName(cx.cardNameIfAny(), cx.scopeNameIfAny(), hi.baseName), ctr.id, hi.inCard, bvs);
 		callbackHandlers.put(hi.hiName, rw);
 		return rw;
 	}

@@ -116,7 +116,7 @@ public class MethodConvertorTests {
 				cd.services.add(se);
 			}
 			{
-				he = new HandlerImplements(posn, posn, posn, "org.foo.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "stateArg"), (Object)new VarPattern(posn, "freeArg")));
+				he = new HandlerImplements(posn, posn, posn, "org.foo.Card.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "stateArg"), (Object)new VarPattern(posn, "freeArg")));
 				cd.handlers.add(he);
 			}
 		}
@@ -350,7 +350,7 @@ public class MethodConvertorTests {
 		assertEquals("org.foo.Card._C0.handle", func.name);
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
-		assertEquals("(Cons (Assign HL[org.foo.MyHandler.stateArg] \"x\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
+		assertEquals("(Cons (Assign HL[org.foo.Card.MyHandler.stateArg] \"x\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
 	}
 
 	@Test
