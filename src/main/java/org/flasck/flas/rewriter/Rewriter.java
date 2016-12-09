@@ -78,6 +78,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.CardName;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.FunctionName;
@@ -271,7 +272,7 @@ public class Rewriter {
 	/** The Card Context can only be found directly in a Package Context 
 	 */
 	public class CardContext extends NamingContext {
-		private final String cardName;
+		private final CardName cardName;
 		private final Map<String, Type> members = new TreeMap<String, Type>();
 		private final Map<String, ObjectReference> statics = new TreeMap<String, ObjectReference>();
 		private final Scope innerScope;
@@ -279,7 +280,7 @@ public class Rewriter {
 
 		public CardContext(PackageContext cx, CardDefinition cd, boolean doAll) {
 			super(cx);
-			this.cardName = cd.name;
+			this.cardName = new CardName(cx.pkgName, cd.simpleName);
 			this.innerScope = cd.innerScope();
 			if (!doAll)
 				return;
@@ -315,18 +316,18 @@ public class Rewriter {
 				}
 			}
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(State.simpleName(hi.hiName), new ObjectReference(hi.location(), cardName, hi.hiName));
+				statics.put(State.simpleName(hi.hiName), new ObjectReference(hi.location(), cardName.jsName(), hi.hiName));
 			}
 		}
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (members.containsKey(name))
-				return new CardMember(location, cardName, name, members.get(name));
+				return new CardMember(location, cardName.jsName(), name, members.get(name));
 			if (statics.containsKey(name))
 				return statics.get(name);
 			if (innerScope.contains(name))
-				return new CardFunction(location, cardName, name);
+				return new CardFunction(location, cardName.jsName(), name);
 			return nested.resolve(location, name);
 		}
 
@@ -337,14 +338,14 @@ public class Rewriter {
 
 		@Override
 		public String cardNameIfAny() {
-			return cardName;
+			return cardName.jsName();
 		}
 
 		public String nextFunction(String type, HSIEForm.CodeType from, String name) {
 			if (from == CodeType.AREA)
 				return name +"." + type +"_"+(fnIdx++);
 			else // CodeType.CARD, at least ...
-				return cardName+"."+type+"_"+(fnIdx++);
+				return cardName.jsName()+"."+type+"_"+(fnIdx++);
 		}
 	}
 
@@ -405,7 +406,7 @@ public class Rewriter {
 
 		public String cardName() {
 			if (nested instanceof CardContext) {
-				return ((CardContext)nested).cardName;
+				return ((CardContext)nested).cardName.jsName();
 			} else if (nested instanceof TemplateContext)
 				return ((TemplateContext)nested).cardName();
 			else

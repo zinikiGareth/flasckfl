@@ -13,6 +13,7 @@ import org.flasck.flas.stories.FLASStory.State;
 public class CardDefinition implements ContainsScope, Locatable {
 	public final InputPosition kw;
 	public final InputPosition location;
+	public final String simpleName;
 	public final String name;
 	public StateDefinition state;
 	public final List<Template> templates = new ArrayList<Template>();
@@ -27,7 +28,8 @@ public class CardDefinition implements ContainsScope, Locatable {
 	public CardDefinition(InputPosition kw, InputPosition location, Scope outer, String name) {
 		this.kw = kw;
 		this.location = location;
-		outer.define(State.simpleName(name), name, this);
+		this.simpleName = State.simpleName(name);
+		outer.define(simpleName, name, this);
 		this.name = name;
 		this.fnScope = new Scope(this);
 	}
