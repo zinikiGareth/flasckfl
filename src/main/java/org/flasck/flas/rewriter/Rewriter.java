@@ -771,8 +771,8 @@ public class Rewriter {
 			if (rw == null)
 				continue;
 			CSName myname = new CSName(grp.name(), "_C" + pos);
-			grp.contracts.add(new ContractGrouping(rw.name(), myname.jsName(), rw.referAsVar));
-			cardImplements.put(myname.jsName(), rw);
+			grp.contracts.add(new ContractGrouping(rw.name(), myname, rw.referAsVar));
+			cardImplements.put(myname, rw);
 			if (rw.referAsVar != null)
 				grp.struct.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 			pos++;
@@ -784,7 +784,7 @@ public class Rewriter {
 			if (rw == null)
 				continue;
 			CSName myname = new CSName(grp.name(), "_S" + pos);
-			grp.services.add(new ServiceGrouping(rw.name(), myname.jsName(), rw.referAsVar));
+			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
 			cardServices.put(myname, rw);
 			if (rw.referAsVar != null)
 				grp.struct.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));

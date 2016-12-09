@@ -289,7 +289,7 @@ public class FLASCompiler implements ScriptCompiler {
 					for (RWMethodDefinition m : ci.methods) {
 						boolean haveMethod = false;
 						for (RWContractMethodDecl dc : cd.methods) {
-							if (dc.dir.equals("down") && (ctr.implName +"." + dc.name).equals(m.name())) {
+							if (dc.dir.equals("down") && (ctr.implName.jsName() +"." + dc.name).equals(m.name())) {
 								if (dc.args.size() != m.nargs())
 									errors.message(m.location(), "incorrect number of arguments in declaration, expected " + dc.args.size());
 								requireds.remove(dc);

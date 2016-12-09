@@ -117,13 +117,13 @@ public class Generator {
 		}
 		cf.add(new JSForm("this._services = {}"));
 		for (ServiceGrouping cs : card.services) {
-			cf.add(new JSForm("this._services['" + cs.type + "'] = " + cs.implName + ".apply(this)"));
+			cf.add(new JSForm("this._services['" + cs.type + "'] = " + cs.implName.jsName() + ".apply(this)"));
 			if (cs.referAsVar != null)
 				cf.add(new JSForm("this." + cs.referAsVar + " = this._services['" + cs.type + "']"));
 		}
 		cf.add(new JSForm("this._contracts = {}"));
 		for (ContractGrouping ci : card.contracts) {
-			cf.add(new JSForm("this._contracts['" + ci.type +"'] = "+ ci.implName + ".apply(this)"));
+			cf.add(new JSForm("this._contracts['" + ci.type +"'] = "+ ci.implName.jsName() + ".apply(this)"));
 			if (ci.referAsVar != null)
 				cf.add(new JSForm("this." + ci.referAsVar + " = this._contracts['" + ci.type + "']"));
 		}

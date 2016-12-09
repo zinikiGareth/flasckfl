@@ -10,10 +10,10 @@ import org.flasck.flas.commonBase.PlatformSpec;
 public class CardGrouping {
 	public static class ContractGrouping {
 		public final String type;
-		public final String implName;
+		public final CSName implName;
 		public final String referAsVar;
 
-		public ContractGrouping(String type, String implName, String referAsVar) {
+		public ContractGrouping(String type, CSName implName, String referAsVar) {
 			this.type = type;
 			this.implName = implName;
 			this.referAsVar = referAsVar;
@@ -22,10 +22,10 @@ public class CardGrouping {
 	
 	public static class ServiceGrouping {
 		public final String type;
-		public final String implName;
+		public final CSName implName;
 		public final String referAsVar;
 
-		public ServiceGrouping(String type, String implName, String referAsVar) {
+		public ServiceGrouping(String type, CSName implName, String referAsVar) {
 			this.type = type;
 			this.implName = implName;
 			this.referAsVar = referAsVar;

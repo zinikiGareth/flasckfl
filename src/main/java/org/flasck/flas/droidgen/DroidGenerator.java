@@ -134,8 +134,8 @@ public class DroidGenerator {
 		}
 		for (ContractGrouping x : grp.contracts) {
 			if (x.referAsVar != null)
-				bcc.defineField(false, Access.PROTECTED, new JavaType(DroidUtils.javaNestedName(x.implName)), x.referAsVar);
-			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), DroidUtils.javaNestedSimpleName(x.implName));
+				bcc.defineField(false, Access.PROTECTED, new JavaType(DroidUtils.javaNestedName(x.implName.jsName())), x.referAsVar);
+			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), DroidUtils.javaNestedSimpleName(x.implName.jsName()));
 		}
 		for (HandlerGrouping h : grp.handlers) {
 			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), DroidUtils.javaNestedSimpleName(h.impl.hiName));
@@ -154,7 +154,7 @@ public class DroidGenerator {
 			oc.setAccess(Access.PROTECTED);
 			oc.callSuper("void", "org.flasck.android.FlasckActivity", "onCreate", sis.getVar()).flush();
 			for (ContractGrouping x : grp.contracts) {
-				Expr impl = oc.makeNew(DroidUtils.javaNestedName(x.implName), oc.myThis());
+				Expr impl = oc.makeNew(DroidUtils.javaNestedName(x.implName.jsName()), oc.myThis());
 				if (x.referAsVar != null) {
 					oc.assign(oc.getField(x.referAsVar), impl).flush();
 					impl = oc.getField(x.referAsVar);
