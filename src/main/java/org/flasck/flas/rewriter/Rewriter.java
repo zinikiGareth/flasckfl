@@ -164,8 +164,8 @@ public class Rewriter {
 	public final Map<String, ImportedCard> ctis = new TreeMap<String, ImportedCard>();
 	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
 	public final List<RWD3Thing> d3s = new ArrayList<RWD3Thing>();
-	public final Map<String, RWContractImplements> cardImplements = new TreeMap<String, RWContractImplements>();
-	public final Map<String, RWContractService> cardServices = new TreeMap<String, RWContractService>();
+	public final Map<CSName, RWContractImplements> cardImplements = new TreeMap<CSName, RWContractImplements>();
+	public final Map<CSName, RWContractService> cardServices = new TreeMap<CSName, RWContractService>();
 	public final Map<String, RWHandlerImplements> callbackHandlers = new TreeMap<String, RWHandlerImplements>();
 	public final Map<String, RWMethodDefinition> methods = new TreeMap<String, RWMethodDefinition>();
 	public final Map<String, RWEventHandlerDefinition> eventHandlers = new TreeMap<String, RWEventHandlerDefinition>();
@@ -785,7 +785,7 @@ public class Rewriter {
 				continue;
 			CSName myname = new CSName(grp.name(), "_S" + pos);
 			grp.services.add(new ServiceGrouping(rw.name(), myname.jsName(), rw.referAsVar));
-			cardServices.put(myname.jsName(), rw);
+			cardServices.put(myname, rw);
 			if (rw.referAsVar != null)
 				grp.struct.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
 			pos++;
@@ -808,7 +808,7 @@ public class Rewriter {
 		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
 			CSName myname = new CSName(grp.name(), "_C" + pos);
-			RWContractImplements rw = cardImplements.get(myname.jsName());
+			RWContractImplements rw = cardImplements.get(myname);
 
 			for (MethodCaseDefn c : ci.methods) {
 				if (methods.containsKey(c.intro.name))
@@ -826,7 +826,7 @@ public class Rewriter {
 		pos=0;
 		for (ContractService cs : cd.services) {
 			CSName myname = new CSName(grp.name(), "_S" + pos);
-			RWContractService rw = cardServices.get(myname.jsName());
+			RWContractService rw = cardServices.get(myname);
 
 			for (MethodCaseDefn c : cs.methods) {
 				if (methods.containsKey(c.intro.name))
@@ -1716,10 +1716,10 @@ public class Rewriter {
 				System.out.println("Struct " + x.getKey());
 			for (Entry<String, CardGrouping> x : cards.entrySet())
 				System.out.println("Card " + x.getKey());
-			for (Entry<String, RWContractImplements> x : cardImplements.entrySet())
-				System.out.println("Impl " + x.getKey());
-			for (Entry<String, RWContractService> x : cardServices.entrySet())
-				System.out.println("Service " + x.getKey());
+			for (Entry<CSName, RWContractImplements> x : cardImplements.entrySet())
+				System.out.println("Impl " + x.getKey().jsName());
+			for (Entry<CSName, RWContractService> x : cardServices.entrySet())
+				System.out.println("Service " + x.getKey().jsName());
 			for (Entry<String, RWHandlerImplements> x : callbackHandlers.entrySet())
 				System.out.println("Handler " + x.getKey());
 			for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {

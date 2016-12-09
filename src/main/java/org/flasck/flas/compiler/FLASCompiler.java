@@ -36,6 +36,7 @@ import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.rewrittenForm.CSName;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
@@ -308,13 +309,13 @@ public class FLASCompiler implements ScriptCompiler {
 			for (Entry<String, RWContractDecl> c : rewriter.contracts.entrySet()) {
 				dg.generateContractDecl(c.getKey(), c.getValue());
 			}
-			for (Entry<String, RWContractImplements> ci : rewriter.cardImplements.entrySet()) {
-				gen.generateContract(ci.getKey(), ci.getValue());
-				dg.generateContractImpl(ci.getKey(), ci.getValue());
+			for (Entry<CSName, RWContractImplements> ci : rewriter.cardImplements.entrySet()) {
+				gen.generateContract(ci.getKey().jsName(), ci.getValue());
+				dg.generateContractImpl(ci.getKey().jsName(), ci.getValue());
 			}
-			for (Entry<String, RWContractService> cs : rewriter.cardServices.entrySet()) {
-				gen.generateService(cs.getKey(), cs.getValue());
-				dg.generateService(cs.getKey(), cs.getValue());
+			for (Entry<CSName, RWContractService> cs : rewriter.cardServices.entrySet()) {
+				gen.generateService(cs.getKey().jsName(), cs.getValue());
+				dg.generateService(cs.getKey().jsName(), cs.getValue());
 			}
 			for (Entry<String, RWHandlerImplements> hi : rewriter.callbackHandlers.entrySet()) {
 				gen.generateHandler(hi.getKey(), hi.getValue());
