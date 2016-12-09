@@ -48,7 +48,21 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	public int nargs() {
 		return nargs;
 	}
+
+	public int nextCase() {
+		return cases.size();
+	}
 	
+	public void addCase(RWFunctionCaseDefn fcase) {
+		if (fcase == null)
+			throw new UtilException("Cannot add null case to fn");
+		cases.add(fcase);
+	}
+
+	public void addCases(List<RWFunctionCaseDefn> cases) {
+		this.cases.addAll(cases);
+	}
+
 	public void gatherScopedVars() {
 		for (RWFunctionCaseDefn c : cases) {
 			c.gatherScopedVars(scopedVars);

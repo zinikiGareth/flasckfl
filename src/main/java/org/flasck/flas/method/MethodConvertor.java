@@ -135,7 +135,7 @@ public class MethodConvertor {
 					throw new UtilException("Cannot handle pattern " + patt.getClass());
 			}
 			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, types, mcd.messages, m.type.isHandler());
-			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.name, rwargs, mcd.intro.vars), ret.cases.size(), typedObject.expr));
+			ret.addCase(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.name, rwargs, mcd.intro.vars), ret.nextCase(), typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
@@ -152,7 +152,7 @@ public class MethodConvertor {
 		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, new FunctionName(eh.name()), eh.nargs(), card, true);
 		for (RWEventCaseDefn c : eh.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
-			ret.cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, c.intro.vars), ret.cases.size(), typedObject.expr));
+			ret.addCase(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, c.intro.vars), ret.nextCase(), typedObject.expr));
 		}
 		ret.gatherScopedVars();
 		return ret;
@@ -178,7 +178,7 @@ public class MethodConvertor {
 			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
 		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, new FunctionName(method.name()), margs.size(), mic.inCard, true);
-		ret.cases.addAll(cases);
+		ret.addCases(cases);
 		ret.gatherScopedVars();
 		return ret;
 	}
