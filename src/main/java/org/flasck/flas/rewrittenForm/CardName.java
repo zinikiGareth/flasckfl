@@ -1,6 +1,6 @@
 package org.flasck.flas.rewrittenForm;
 
-public class CardName implements NameOfThing {
+public class CardName implements NameOfThing, Comparable<CardName> {
 	private final PackageName pkg;
 	private final String cardName;
 
@@ -18,5 +18,12 @@ public class CardName implements NameOfThing {
 		if (pkg == null && cardName == null)
 			return null;
 		return pkg.simpleName() + "." + cardName;
+	}
+
+	@Override
+	public int compareTo(CardName o) {
+		int pc = pkg.compareTo(o.pkg);
+		if (pc != 0) return pc;
+		return cardName.compareTo(o.cardName);
 	}
 }
