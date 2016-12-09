@@ -85,6 +85,7 @@ import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
+import org.flasck.flas.rewrittenForm.PackageName;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
@@ -226,10 +227,10 @@ public class Rewriter {
 	/** The Package Context represents one package which must exist exactly in the builtin scope
 	 */
 	public class PackageContext extends NamingContext {
-		private final String pkgName;
+		private final PackageName pkgName;
 		private final Scope scope;
 
-		public PackageContext(NamingContext cx, String pkgName, Scope scope) {
+		public PackageContext(NamingContext cx, PackageName pkgName, Scope scope) {
 			super(cx);
 			this.pkgName = pkgName;
 			this.scope = scope;
@@ -238,9 +239,13 @@ public class Rewriter {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (scope.contains(name)) {
-				return getMe(location, pkgName + "." + name);
+				return getMe(location, pkgName.simpleName() + "." + name);
 			}
 			return nested.resolve(location, name);
+		}
+
+		public String toString() {
+			throw new UtilException("Yo!");
 		}
 	}
 
@@ -588,7 +593,7 @@ public class Rewriter {
 	}
 
 	public void rewritePackageScope(String inPkg, final Scope scope) {
-		PackageContext cx = new PackageContext(new RootContext(), inPkg, scope);
+		PackageContext cx = new PackageContext(new RootContext(), new PackageName(inPkg), scope);
 		pass1(cx, scope);
 		if (errors.hasErrors())
 			return;

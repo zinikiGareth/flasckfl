@@ -15,11 +15,10 @@ import org.zinutils.exceptions.UtilException;
 //  * storing this function name
 //  * offering the different options for the name (jsName, className, basicName, etc)
 //  * eventually hiding the "name" var ...
-public class FunctionName {
+public class FunctionName implements NameOfThing {
 	private final CodeType codeType;
 	private String inPkg;
 	private String name;
-
 	
 	// an old hack
 	private final String jsname;
