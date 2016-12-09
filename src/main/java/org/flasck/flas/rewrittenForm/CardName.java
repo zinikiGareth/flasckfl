@@ -8,9 +8,15 @@ public class CardName implements NameOfThing {
 		this.pkg = pkg;
 		this.cardName = cardName;
 	}
+	
+	public static CardName none() {
+		return new CardName(null, null);
+	}
 
 	@Override
 	public String jsName() {
+		if (pkg == null && cardName == null)
+			return null;
 		return pkg.simpleName() + "." + cardName;
 	}
 }
