@@ -190,7 +190,7 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAContractMethod() throws Exception {
-		CardDefinition cd = new CardDefinition(posn, posn, scope, "MyCard");
+		CardDefinition cd = new CardDefinition(posn, posn, scope, "ME.MyCard");
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract

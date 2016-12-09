@@ -42,13 +42,19 @@ public class CardGrouping {
 		}
 	}
 	
+	private final CardName cardName;
 	public final RWStructDefn struct;
 	public final List<ContractGrouping> contracts = new ArrayList<ContractGrouping>();
 	public final List<ServiceGrouping> services = new ArrayList<ServiceGrouping>();
 	public final List<HandlerGrouping> handlers = new ArrayList<HandlerGrouping>();
 	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
 	
-	public CardGrouping(RWStructDefn struct) {
+	public CardGrouping(CardName name, RWStructDefn struct) {
+		this.cardName = name;
 		this.struct = struct;
+	}
+
+	public CardName name() {
+		return cardName;
 	}
 }

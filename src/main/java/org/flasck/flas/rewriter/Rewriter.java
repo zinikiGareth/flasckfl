@@ -72,6 +72,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.rewrittenForm.AreaName;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
+import org.flasck.flas.rewrittenForm.CSName;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -278,9 +279,9 @@ public class Rewriter {
 		private final Scope innerScope;
 		private int fnIdx = 0;
 
-		public CardContext(PackageContext cx, CardDefinition cd, boolean doAll) {
+		public CardContext(PackageContext cx, CardName name, CardDefinition cd, boolean doAll) {
 			super(cx);
-			this.cardName = new CardName(cx.pkgName, cd.simpleName);
+			this.cardName = name;
 			this.innerScope = cd.innerScope();
 			if (!doAll)
 				return;
@@ -612,8 +613,8 @@ public class Rewriter {
 			Object val = x.getValue();
 			if (val instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) val;
-				createCard(cx, cd);
-				pass1(new CardContext((PackageContext) cx, cd, false), cd.fnScope);
+				CardGrouping cg = createCard((PackageContext)cx, cd);
+				pass1(new CardContext((PackageContext) cx, cg.name(), cd, false), cd.fnScope);
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
 				String fn = c.functionName();
@@ -697,9 +698,11 @@ public class Rewriter {
 			if (val instanceof CardDefinition) {
 				try {
 					CardDefinition cd = (CardDefinition) val;
-					pass2Card(cx, cd);
-					if (!errors.hasErrors())
-						pass2(new CardContext((PackageContext) cx, cd, true), cd.innerScope());
+					CardGrouping cg = pass2Card(cx, cd);
+					if (!errors.hasErrors()) {
+						CardContext c2 = new CardContext((PackageContext) cx, cg.name(), cd, true);
+						pass2(c2, cd.innerScope());
+					}
 				} catch (ResolutionException ex) {
 					errors.message(ex.location, ex.getMessage());
 				}
@@ -753,22 +756,23 @@ public class Rewriter {
 		}
 	}
 
-	private void createCard(NamingContext cx, CardDefinition cd) {
+	private CardGrouping createCard(PackageContext cx, CardDefinition cd) {
 		RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
-		CardGrouping grp = new CardGrouping(sd);
+		CardGrouping grp = new CardGrouping(new CardName(cx.pkgName, cd.simpleName), sd);
 		cards.put(cd.name, grp);
+		return grp;
 	}
 	
-	private void pass2Card(NamingContext cx, CardDefinition cd) {
+	private CardGrouping pass2Card(NamingContext cx, CardDefinition cd) {
 		CardGrouping grp = cards.get(cd.name);
 		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
 			RWContractImplements rw = rewriteCI(cx, ci);
 			if (rw == null)
 				continue;
-			String myname = cd.name +"._C" + pos;
-			grp.contracts.add(new ContractGrouping(rw.name(), myname, rw.referAsVar));
-			cardImplements.put(myname, rw);
+			CSName myname = new CSName(grp.name(), "_C" + pos);
+			grp.contracts.add(new ContractGrouping(rw.name(), myname.jsName(), rw.referAsVar));
+			cardImplements.put(myname.jsName(), rw);
 			if (rw.referAsVar != null)
 				grp.struct.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
 			pos++;
@@ -779,20 +783,19 @@ public class Rewriter {
 			RWContractService rw = rewriteCS(cx, cs);
 			if (rw == null)
 				continue;
-			String myname = cd.name +"._S" + pos;
-			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
-			cardServices.put(myname, rw);
+			CSName myname = new CSName(grp.name(), "_S" + pos);
+			grp.services.add(new ServiceGrouping(rw.name(), myname.jsName(), rw.referAsVar));
+			cardServices.put(myname.jsName(), rw);
 			if (rw.referAsVar != null)
 				grp.struct.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
 			pos++;
 		}
-
+		return grp;
 	}
 
 	private void rewriteCard(NamingContext cx, CardDefinition cd) {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope: " + cx.getClass());
-		CardContext c2 = new CardContext((PackageContext) cx, cd, true);
 		CardGrouping grp = cards.get(cd.name);
 		RWStructDefn sd = grp.struct;
 		if (cd.state != null) {
@@ -801,6 +804,7 @@ public class Rewriter {
 			}
 		}
 		
+		CardContext c2 = new CardContext((PackageContext) cx, grp.name(), cd, true);
 		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
 			String myname = cd.name +"._C" + pos;
