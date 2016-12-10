@@ -7,4 +7,8 @@ public class ValueTestCase implements TestCase {
 		this.eval = eval;
 	}
 
+	@Override
+	public String toString() {
+		return "expr " + eval + " should have value ";
+	}
 }
