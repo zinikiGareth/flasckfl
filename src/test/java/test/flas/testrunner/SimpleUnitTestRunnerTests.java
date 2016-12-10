@@ -14,8 +14,12 @@ import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.types.Type;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.integration.junit4.JMock;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.GenericAnnotator;
@@ -25,7 +29,7 @@ import org.zinutils.utils.LinePrinter;
 import org.zinutils.utils.MultiTextEmitter;
 
 public class SimpleUnitTestRunnerTests {
-	Mockery context = new Mockery();
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	FLASCompiler sc = new FLASCompiler();
 	ErrorResult errors = new ErrorResult();

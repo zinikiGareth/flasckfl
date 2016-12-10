@@ -32,14 +32,15 @@ public class UnitTestRunner {
 		// I think:
 		// 1. Convert f into a standard fl "program" with a set of functions
 		//      and build a meta-repository of what's going on
-		UnitTestConvertor c = new UnitTestConvertor();
-		TestScript script = c.convert(pkg+".script", FileUtils.readFileAsLines(f));
+		TestScript script = new TestScript();
+		UnitTestConvertor c = new UnitTestConvertor(script, pkg);
+		c.convert(FileUtils.readFileAsLines(f));
 
 		// 2. Compile this to JVM bytecodes using the regular compiler
 		// - should only have access to exported things
 		CompileResult cr = null;
 		try {
-			cr = compiler.createJVM(pkg+".script", script.flas);
+			cr = compiler.createJVM(pkg+".script", script.flas());
 			System.out.println("cr = " + cr.bce.all());
 		} catch (ErrorResultException ex) {
 			ex.errors.showTo(new PrintWriter(System.err), 0);
