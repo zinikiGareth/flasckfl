@@ -1,5 +1,5 @@
 package org.flasck.flas.testrunner;
 
-public interface TestCase {
+public interface TestStep {
 
 }

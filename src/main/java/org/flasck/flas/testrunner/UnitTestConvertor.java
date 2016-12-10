@@ -23,16 +23,29 @@ public class UnitTestConvertor {
 	public void convert(List<String> list) {
 		List<Block> block = Blocker.block(list);
 		for (Block b : block) {
-			Tokenizable tok = new Tokenizable(b);
-			convert(tok, b.nested);
+			Tokenizable line = new Tokenizable(b);
+			convertSection(line, b.nested);
 		}
 	}
 
-	private void convert(Tokenizable line, List<Block> nested) {
+	private void convertSection(Tokenizable line, List<Block> nested) {
 		if (!line.hasMore())
 			return; // nothing to do
 		KeywordToken kw = KeywordToken.from(line);
-		if (kw.text.equals("value"))
+		if (kw.text.equals("test")) {
+			String message = line.remainder().trim();
+			for (Block b : nested)
+				convertStep(new Tokenizable(b.line), b.nested);
+			builder.addTestCase(message);
+		} else
+			builder.error("cannot handle input line: " + kw.text);
+	}
+
+	private void convertStep(Tokenizable line, List<Block> nested) {
+		if (!line.hasMore())
+			return; // nothing to do
+		KeywordToken kw = KeywordToken.from(line);
+		if (kw.text.equals("assert"))
 			convertValue(line, nested);
 		else
 			builder.error("cannot handle input line: " + kw.text);
@@ -47,7 +60,7 @@ public class UnitTestConvertor {
 			throw new NotImplementedException();
 		else {
 			System.out.println(ret.getClass());
-			builder.add(new ValueTestCase(ret));
+			builder.add(new AssertTestStep(ret));
 		}
 	}
 }

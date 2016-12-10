@@ -1,14 +1,14 @@
 package test.flas.testrunner;
 
-import org.flasck.flas.testrunner.ValueTestCase;
+import org.flasck.flas.testrunner.AssertTestStep;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
-public class ValueMatcher extends TypeSafeMatcher<ValueTestCase> {
+public class AssertMatcher extends TypeSafeMatcher<AssertTestStep> {
 	private final Matcher<Object> eval;
 
-	public ValueMatcher(Matcher<Object> eval) {
+	public AssertMatcher(Matcher<Object> eval) {
 		this.eval = eval;
 	}
 
@@ -20,7 +20,7 @@ public class ValueMatcher extends TypeSafeMatcher<ValueTestCase> {
 	}
 
 	@Override
-	protected boolean matchesSafely(ValueTestCase in) {
+	protected boolean matchesSafely(AssertTestStep in) {
 		return eval.matches(in.eval);
 	}
 }

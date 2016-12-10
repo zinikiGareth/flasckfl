@@ -1,9 +1,9 @@
 package org.flasck.flas.testrunner;
 
-public class ValueTestCase implements TestCase {
+public class AssertTestStep implements TestStep {
 	public final Object eval;
 
-	public ValueTestCase(Object eval) {
+	public AssertTestStep(Object eval) {
 		this.eval = eval;
 	}
 

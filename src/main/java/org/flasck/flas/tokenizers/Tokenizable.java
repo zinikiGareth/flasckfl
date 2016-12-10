@@ -68,6 +68,10 @@ public class Tokenizable {
 		return input.substring(mark, pos);
 	}
 
+	public String remainder() {
+		return input.substring(pos, input.length());
+	}
+	
 	public String getTo(int length) {
 		if (pos+length > input.length())
 			length = input.length()-pos;
