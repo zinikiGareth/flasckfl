@@ -3,6 +3,7 @@ package test.flas.testrunner;
 import static org.junit.Assert.*;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -35,12 +36,6 @@ public class ScriptBuilderTests {
 	}
 
 	@Test
-	public void testValue1IsInTheSimpleScript() {
-		Scope scope = runUxCase();
-		assertTrue("expr1 was not in the scope", scope.contains("value1"));
-	}
-
-	@Test
 	public void testExpr1IsAFunction() {
 		Scope scope = runUxCase();
 		ScopeEntry se = scope.get("expr1");
@@ -57,9 +52,33 @@ public class ScriptBuilderTests {
 		assertTrue("var was not 'x'", ((UnresolvedVar)((FunctionCaseDefn)se.getValue()).expr).var.equals("x"));
 	}
 
+	@Test
+	public void testValue1IsInTheSimpleScript() {
+		Scope scope = runUxCase();
+		assertTrue("expr1 was not in the scope", scope.contains("value1"));
+	}
+
+
+	@Test
+	public void testValue1IsAFunction() {
+		Scope scope = runUxCase();
+		ScopeEntry se = scope.get("value1");
+		assertNotNull("did not find value1", se);
+		assertNotNull("entry was null", se.getValue());
+		assertTrue("not a function", se.getValue() instanceof FunctionCaseDefn);
+	}
+
+	@Test
+	public void testValue1HasTheRightExpression() {
+		Scope scope = runUxCase();
+		ScopeEntry se = scope.get("value1");
+		assertTrue("expr not a var", ((FunctionCaseDefn)se.getValue()).expr instanceof NumericLiteral);
+		assertTrue("var was not 'x'", ((NumericLiteral)((FunctionCaseDefn)se.getValue()).expr).text.equals("420"));
+	}
+
 	private Scope runUxCase() {
 		InputPosition posn = new InputPosition("test", 1, 1, null);
-		script.add(new AssertTestStep(posn, new UnresolvedVar(posn, "x")));
+		script.add(new AssertTestStep(posn, new UnresolvedVar(posn, "x"), posn, new NumericLiteral(posn, "420", 4)));
 		script.addTestCase("test a simple case");
 		return script.scope();
 	}

@@ -23,9 +23,16 @@ public class TestScript implements TestScriptBuilder {
 
 	@Override
 	public void add(AssertTestStep step) {
-		String key = "expr" + nextStep;
-		define(key, new FunctionCaseDefn(step.evalPos, CodeType.FUNCTION, key, new ArrayList<>(), step.eval));
-		define("value" + nextStep, null);
+		{
+			String key = "expr" + nextStep;
+			String longName = defineInPkg+"."+key;
+			scope.define(key, longName, new FunctionCaseDefn(step.evalPos, CodeType.FUNCTION, longName, new ArrayList<>(), step.eval));
+		}
+		{
+			String key = "value" + nextStep;
+			String longName = defineInPkg+"."+key;
+			scope.define(key, longName, new FunctionCaseDefn(step.valuePos, CodeType.FUNCTION, longName, new ArrayList<>(), step.value));
+		}
 		nextStep++;
 	}
 
@@ -37,9 +44,5 @@ public class TestScript implements TestScriptBuilder {
 
 	public Scope scope() {
 		return scope;
-	}
-
-	private void define(String simple, Object fn) {
-		scope.define(simple, defineInPkg+"."+simple, fn);
 	}
 }
