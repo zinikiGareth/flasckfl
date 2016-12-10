@@ -40,7 +40,7 @@ public class UnitTestRunner {
 		// - should only have access to exported things
 		CompileResult cr = null;
 		try {
-			cr = compiler.createJVM(pkg+".script", script.flas());
+			cr = compiler.createJVM(pkg+".script", script.scope());
 			System.out.println("cr = " + cr.bce.all());
 		} catch (ErrorResultException ex) {
 			ex.errors.showTo(new PrintWriter(System.err), 0);

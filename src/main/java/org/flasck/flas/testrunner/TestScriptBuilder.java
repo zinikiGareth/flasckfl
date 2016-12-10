@@ -2,11 +2,9 @@ package org.flasck.flas.testrunner;
 
 public interface TestScriptBuilder {
 
-	void add(SingleTestCase test);
-
 	void error(String msg);
 
-	void add(AssertTestStep assertTestStep);
+	void add(TestStep step);
 
 	void addTestCase(String message);
 

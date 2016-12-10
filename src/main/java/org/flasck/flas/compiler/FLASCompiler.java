@@ -441,7 +441,6 @@ public class FLASCompiler implements ScriptCompiler {
 		storyProc.process(inPkg, scope, errors, blocks, true);
 	}
 
-
 	@Override
 	public CompileResult createJVM(String pkg, String flas) throws IOException, ErrorResultException {
 		this.internalBuildJVM();
@@ -450,6 +449,12 @@ public class FLASCompiler implements ScriptCompiler {
 		final Scope scope = new Scope(null);
 		readIntoScope(pkg, errors, storyProc, scope, "script.fl", new StringReader(flas));
 		return stage2(errors, pkg, scope);
+	}
+
+	@Override
+	public CompileResult createJVM(String pkg, Scope scope) throws IOException, ErrorResultException {
+		this.internalBuildJVM();
+		return stage2(new ErrorResult(), pkg, scope);
 	}
 
 	private void writeDependencies(DependencyAnalyzer da, List<Set<RWFunctionDefinition>> defns) throws IOException {

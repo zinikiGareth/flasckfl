@@ -1,31 +1,24 @@
 package org.flasck.flas.testrunner;
 
-import junit.framework.TestCase;
+import org.flasck.flas.parsedForm.Scope;
 
 public class TestScript implements TestScriptBuilder {
 	public TestScript() {
 	}
 
 	@Override
-	public void add(TestCase test) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
 	public void error(String msg) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Deprecated // we want to return a Scope here, not a String
-	public String flas() {
+	public Scope scope() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void add(AssertTestStep assertTestStep) {
+	public void add(TestStep step) {
 		// TODO Auto-generated method stub
 		
 	}
