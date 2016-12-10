@@ -1,9 +1,13 @@
 package org.flasck.flas.testrunner;
 
+import org.flasck.flas.blockForm.InputPosition;
+
 public class AssertTestStep implements TestStep {
 	public final Object eval;
+	public final InputPosition evalPos;
 
-	public AssertTestStep(Object eval) {
+	public AssertTestStep(InputPosition evalPos, Object eval) {
+		this.evalPos = evalPos;
 		this.eval = eval;
 	}
 

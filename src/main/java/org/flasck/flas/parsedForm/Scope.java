@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.errors.ScopeDefineException;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.zinutils.exceptions.UtilException;
 
 public class Scope implements Iterable<Scope.ScopeEntry> {
@@ -70,6 +71,17 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 
 	public String fullName(String key) {
 		return fullNames.get(key);
+	}
+
+	public ScopeEntry get(String key) {
+		if (!contains(key))
+			return null;
+		String fn = fullNames.get(key);
+		for (ScopeEntry se : defns) {
+			if (se.name.equals(fn))
+				return se;
+		}
+		return null;
 	}
 
 	public void define(String key, String name, Object defn) {
