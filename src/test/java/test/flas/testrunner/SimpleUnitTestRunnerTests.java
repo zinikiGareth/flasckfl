@@ -37,6 +37,7 @@ public class SimpleUnitTestRunnerTests {
 	TypeChecker2 tc = new TypeChecker2(errors, rw);
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	CompileResult prior;
+	// This is the wrong thing to mock.  We should have a "results" interface
 	LinePrinter writer = context.mock(LinePrinter.class);
 	
 	@BeforeClass
@@ -68,7 +69,7 @@ public class SimpleUnitTestRunnerTests {
 			oneOf(writer).println(":\tvalue x");
 		}});
 
-		runTestScript("\tvalue x", "\t\t32");
+		runTestScript("\ttest a simple test\n", "\t\tassert x", "\t\t\t32");
 	}
 
 	@Test
@@ -82,7 +83,7 @@ public class SimpleUnitTestRunnerTests {
 			oneOf(writer).println(":\tvalue x");
 		}});
 
-		runTestScript("\tvalue (id 'hello')", "\t\t'hello'");
+		runTestScript("\ttest a simple test\n", "\t\tassert (id 'hello')", "\t\t\t'hello'");
 	}
 
 	private void runTestScript(String... lines) throws IOException {

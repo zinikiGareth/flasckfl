@@ -51,6 +51,10 @@ public class InputPosition implements Comparable<InputPosition> {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof InputPosition && this.compareTo((InputPosition) obj) == 0;
+	}
+	@Override
 	public int compareTo(InputPosition o) {
 		int ret = file.compareTo(o.file);
 		if (ret == 0)

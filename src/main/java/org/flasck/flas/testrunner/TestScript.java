@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class TestScript implements TestScriptBuilder {
 	private final Scope scope = new Scope(null);
@@ -20,8 +21,7 @@ public class TestScript implements TestScriptBuilder {
 
 	@Override
 	public void error(String msg) {
-		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException(msg);
 	}
 
 	@Override
