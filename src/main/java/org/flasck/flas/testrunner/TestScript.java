@@ -30,12 +30,16 @@ public class TestScript implements TestScriptBuilder {
 		{
 			String key = "expr" + nextStep;
 			String longName = defineInPkg+"."+key;
-			scope.define(key, longName, new FunctionCaseDefn(step.evalPos, CodeType.FUNCTION, longName, new ArrayList<>(), step.eval));
+			FunctionCaseDefn fn = new FunctionCaseDefn(step.evalPos, CodeType.FUNCTION, longName, new ArrayList<>(), step.eval);
+			fn.provideCaseName(longName+"_0");
+			scope.define(key, longName, fn);
 		}
 		{
 			String key = "value" + nextStep;
 			String longName = defineInPkg+"."+key;
-			scope.define(key, longName, new FunctionCaseDefn(step.valuePos, CodeType.FUNCTION, longName, new ArrayList<>(), step.value));
+			FunctionCaseDefn fn = new FunctionCaseDefn(step.valuePos, CodeType.FUNCTION, longName, new ArrayList<>(), step.value);
+			fn.provideCaseName(longName+"_0");
+			scope.define(key, longName, fn);
 		}
 		nextStep++;
 		currentSteps.add(step);

@@ -3,23 +3,22 @@ package test.flas.testrunner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.newtypechecker.TypeChecker2;
+import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.types.Type;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.GenericAnnotator;
@@ -55,7 +54,9 @@ public class SimpleUnitTestRunnerTests {
 	private void go(Setup setup) {
 		defineSupportingFunctions(bce);
 		bce.dumpAll(true);
-		prior = new CompileResult("test.golden", bce, tc);
+		Scope scope = new Scope(null);
+		scope.define("x", "x", null);
+		prior = new CompileResult("test.golden", scope, bce, tc);
 		sc.includePrior(prior);
 	}
 	
@@ -88,7 +89,7 @@ public class SimpleUnitTestRunnerTests {
 
 	private void runTestScript(String... lines) throws IOException {
 		File f = createFile(lines);
-		UnitTestRunner r = new UnitTestRunner(new MultiTextEmitter(writer), sc, prior.bce, prior.getPackage(), f);
+		UnitTestRunner r = new UnitTestRunner(new MultiTextEmitter(writer), sc, prior, f);
 		r.run();
 	}
 

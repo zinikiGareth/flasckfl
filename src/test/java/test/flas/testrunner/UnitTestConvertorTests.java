@@ -40,6 +40,7 @@ public class UnitTestConvertorTests {
 		ctor.handle(new Tokenizable("assert x"), CollectionUtils.listOf(new Block(3, "32")));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testSimpleFunction() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);

@@ -123,7 +123,7 @@ public class MethodConvertorTests {
 	}
 	
 	public void stage2(boolean checkRewritingErrors) throws Exception {
-		rewriter.rewritePackageScope("org.foo", orgFooScope);
+		rewriter.rewritePackageScope(null, "org.foo", orgFooScope);
 		if (checkRewritingErrors)
 			assertFalse(errors.singleString(), errors.hasErrors());
 		convertor = new MethodConvertor(errors, rewriter);

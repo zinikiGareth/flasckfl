@@ -25,7 +25,7 @@ public class TestDependencyAnalysis {
 		// Can we go back and refactor this at some point into the checked output of FlasStoryTests?
 		Scope s = new Scope(null);
 		new FLASStory().process(s, BlockTestData.simpleMutualRecursionBlock());
-		rewriter.rewritePackageScope("ME", s);
+		rewriter.rewritePackageScope(null, "ME", s);
 		
 		// Now begins the real test on this data
 		List<Set<RWFunctionDefinition>> orchards = analyzer.analyze(rewriter.functions);

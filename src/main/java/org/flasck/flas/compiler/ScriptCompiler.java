@@ -7,8 +7,8 @@ import org.flasck.flas.parsedForm.Scope;
 
 public interface ScriptCompiler {
 
-	CompileResult createJVM(String pkg, String flas) throws IOException, ErrorResultException;
+	CompileResult createJVM(String pkg, CompileResult prior, String flas) throws IOException, ErrorResultException;
 
-	CompileResult createJVM(String pkg, Scope flas) throws IOException, ErrorResultException;
+	CompileResult createJVM(String pkg, CompileResult prior, Scope flas) throws IOException, ErrorResultException;
 
 }

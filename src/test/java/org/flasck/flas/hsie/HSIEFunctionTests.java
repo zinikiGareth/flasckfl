@@ -27,7 +27,7 @@ public class HSIEFunctionTests {
 		c1.provideCaseName("ME.primes_0");
 		s.define("primes", "ME.primes", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
-		rw.rewritePackageScope("ME", s);
+		rw.rewritePackageScope(null, "ME", s);
 		System.out.println(rw.functions);
 		HSIEForm primesForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.primes"));
 		assertNotNull(primesForm);
@@ -48,7 +48,7 @@ public class HSIEFunctionTests {
 		s.define("fib", "ME.fib", c2);
 		s.define("fib", "ME.fib", c3);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
-		rw.rewritePackageScope("ME", s);
+		rw.rewritePackageScope(null, "ME", s);
 		System.out.println(rw.functions);
 		HSIEForm fibForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.fib"));
 		assertNotNull(fibForm);
@@ -69,7 +69,7 @@ public class HSIEFunctionTests {
 		s.define("take", "ME.take", c2);
 		s.define("take", "ME.take", c3);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
-		rw.rewritePackageScope("ME", s);
+		rw.rewritePackageScope(null, "ME", s);
 		HSIEForm takeForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.take"));
 		assertNotNull(takeForm);
 		errors.showTo(new PrintWriter(System.out), 0);

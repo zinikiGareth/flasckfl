@@ -25,33 +25,35 @@ public class UnitTestRunner {
 	private final List<Class<?>> toRun = new ArrayList<>();
 	private final BCEClassLoader loader;
 
-	public UnitTestRunner(MultiTextEmitter results, ScriptCompiler compiler, ByteCodeEnvironment bce, String pkg, File f) throws IOException {
+	public UnitTestRunner(MultiTextEmitter results, ScriptCompiler compiler, CompileResult prior, File f) throws IOException {
 		this.results = results;
-		loader = new BCEClassLoader(bce);
+		loader = new BCEClassLoader(prior.bce);
 
 		// I think:
 		// 1. Convert f into a standard fl "program" with a set of functions
 		//      and build a meta-repository of what's going on
-		TestScript script = new TestScript(pkg + ".script");
+		String scriptPkg = prior.getPackage() + ".script";
+		TestScript script = new TestScript(scriptPkg);
 		UnitTestConvertor c = new UnitTestConvertor(script);
 		c.convert(FileUtils.readFileAsLines(f));
 
 		// 2. Compile this to JVM bytecodes using the regular compiler
 		// - should only have access to exported things
-		CompileResult cr = null;
+		CompileResult tcr = null;
 		try {
-			cr = compiler.createJVM(pkg+".script", script.scope());
-			System.out.println("cr = " + cr.bce.all());
+			tcr = compiler.createJVM(scriptPkg, prior, script.scope());
+			System.out.println("cr = " + tcr.bce.all());
 		} catch (ErrorResultException ex) {
 			ex.errors.showTo(new PrintWriter(System.err), 0);
 			fail("Errors compiling test script");
 		}
 		// 3. Load the class(es) into memory
-		cr.bce.dumpAll(true);
-		loader.add(cr.bce);
-		loader.defineClass(pkg + ".script.PACKAGEFUNCTIONS");
-		toRun.add(loader.defineClass(pkg + ".script.PACKAGEFUNCTIONS$expr1"));
-		toRun.add(loader.defineClass(pkg + ".script.PACKAGEFUNCTIONS$value1"));
+		tcr.bce.dumpAll(true);
+		loader.add(tcr.bce);
+		String pkg = prior.getPackage();
+		loader.defineClass(scriptPkg + ".PACKAGEFUNCTIONS");
+		toRun.add(loader.defineClass(scriptPkg + ".PACKAGEFUNCTIONS$expr1"));
+		toRun.add(loader.defineClass(scriptPkg + ".PACKAGEFUNCTIONS$value1"));
 		loader.defineClass(pkg + ".PACKAGEFUNCTIONS$x");
 		loader.defineClass(pkg + ".PACKAGEFUNCTIONS");
 	}

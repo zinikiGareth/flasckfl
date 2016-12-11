@@ -21,6 +21,7 @@ import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
+import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.flim.ImportedCard;
@@ -630,8 +631,11 @@ public class Rewriter {
 		}
 	}
 
-	public void rewritePackageScope(String inPkg, final Scope scope) {
-		PackageContext cx = new PackageContext(new RootContext(), new PackageName(inPkg), scope);
+	public void rewritePackageScope(CompileResult prior, String inPkg, final Scope scope) {
+		NamingContext rc = new RootContext();
+		if (prior != null)
+			rc = new PackageContext(rc, new PackageName(prior.getPackage()), prior.getScope());
+		PackageContext cx = new PackageContext(rc, new PackageName(inPkg), scope);
 		pass1(cx, scope);
 		if (errors.hasErrors())
 			return;

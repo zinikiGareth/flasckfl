@@ -191,7 +191,7 @@ public class FLASCompiler implements ScriptCompiler {
 		if (failed)
 			return null;
 
-		CompileResult cr = stage2(errors, inPkg, scope);
+		CompileResult cr = stage2(errors, null, inPkg, scope);
 		if (cr == null)
 			return null;
 
@@ -210,7 +210,7 @@ public class FLASCompiler implements ScriptCompiler {
 				FLASCompiler sc = new FLASCompiler();
 				sc.includePrior(cr);
 				// TODO: we probably need to configure the compiler here ...
-				UnitTestRunner utr = new UnitTestRunner(results, sc, cr.bce, cr.getPackage(), f);
+				UnitTestRunner utr = new UnitTestRunner(results, sc, cr, f);
 				utr.run();
 			} finally {
 			if (close)
@@ -223,7 +223,7 @@ public class FLASCompiler implements ScriptCompiler {
 		return cr;
 	}
 
-	private CompileResult stage2(ErrorResult errors, String inPkg, Scope scope) throws ErrorResultException, IOException {
+	private CompileResult stage2(ErrorResult errors, CompileResult prior, String inPkg, Scope scope) throws ErrorResultException, IOException {
 		File writeTo = writeJS!= null ? new File(writeJS, inPkg + ".js"):null;
 		File exportTo = writeFlim!=null?new File(writeFlim, inPkg + ".flim"):null;
 		ByteCodeEnvironment bce = new ByteCodeEnvironment();
@@ -251,7 +251,7 @@ public class FLASCompiler implements ScriptCompiler {
 				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage(), xml);
 			}
 			
-			rewriter.rewritePackageScope(inPkg, scope);
+			rewriter.rewritePackageScope(prior, inPkg, scope);
 			abortIfErrors(errors);
 			
 			if (writeRW != null) {
@@ -424,7 +424,7 @@ public class FLASCompiler implements ScriptCompiler {
 			}
 			abortIfErrors(errors);
 
-			return new CompileResult(inPkg, bce, tc2);
+			return new CompileResult(inPkg, scope, bce, tc2);
 		} finally {
 			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
 			try { if (wex != null) wex.close(); } catch (IOException ex) {}
@@ -442,19 +442,19 @@ public class FLASCompiler implements ScriptCompiler {
 	}
 
 	@Override
-	public CompileResult createJVM(String pkg, String flas) throws IOException, ErrorResultException {
+	public CompileResult createJVM(String pkg, CompileResult prior, String flas) throws IOException, ErrorResultException {
 		this.internalBuildJVM();
 		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
 		final Scope scope = new Scope(null);
 		readIntoScope(pkg, errors, storyProc, scope, "script.fl", new StringReader(flas));
-		return stage2(errors, pkg, scope);
+		return stage2(errors, prior, pkg, scope);
 	}
 
 	@Override
-	public CompileResult createJVM(String pkg, Scope scope) throws IOException, ErrorResultException {
+	public CompileResult createJVM(String pkg, CompileResult prior, Scope scope) throws IOException, ErrorResultException {
 		this.internalBuildJVM();
-		return stage2(new ErrorResult(), pkg, scope);
+		return stage2(new ErrorResult(), prior, pkg, scope);
 	}
 
 	private void writeDependencies(DependencyAnalyzer da, List<Set<RWFunctionDefinition>> defns) throws IOException {
