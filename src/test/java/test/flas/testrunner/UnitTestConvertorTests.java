@@ -33,7 +33,7 @@ public class UnitTestConvertorTests {
 	public void testWeCanConvertAScriptStepIntoAnAssertionTest() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
-			oneOf(script).add(with(new AssertMatcher(unresolved("x"), number(32)).evalLocation("test", 1, 8, "assert x")));
+			oneOf(script).add(with(new AssertMatcher(unresolved("x"), number(32)).evalLocation("test", 1, 6, "assert x").valueLocation("-", 1, 0, "32")));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);

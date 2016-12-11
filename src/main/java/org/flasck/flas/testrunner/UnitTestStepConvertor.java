@@ -3,6 +3,7 @@ package org.flasck.flas.testrunner;
 import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parser.Expression;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -11,6 +12,7 @@ import org.zinutils.exceptions.NotImplementedException;
 
 public class UnitTestStepConvertor {
 	private final TestScriptBuilder builder;
+	private final Expression expr = new Expression();
 
 	public UnitTestStepConvertor(TestScriptBuilder builder) {
 		this.builder = builder;
@@ -27,16 +29,35 @@ public class UnitTestStepConvertor {
 	}
 
 	private void handleAssert(Tokenizable line, List<Block> nested) {
-		Expression expr = new Expression();
+		InputPosition pos = line.realinfo();
 		Object ret = expr.tryParsing(line);
 		if (ret instanceof ErrorResult)
 			throw new NotImplementedException();
 		else if (ret == null)
 			throw new NotImplementedException();
 		else {
-			System.out.println(ret.getClass());
-			builder.add(new AssertTestStep(line.realinfo(), ret, null, null));
+			if (nested.size() != 1) {
+				builder.error("needed exactly one nested line for assert");
+				return;
+			}
+			Block valueBlock = nested.get(0);
+			if (!valueBlock.nested.isEmpty()) {
+				builder.error("value block cannot have nested lines");
+				return;
+			}
+			convertValue(pos, ret, new Tokenizable(valueBlock));
 		}
 	}
 
+	private void convertValue(InputPosition evalPos, Object eval, Tokenizable line) {
+		InputPosition pos = line.realinfo();
+		Object valueExpr = expr.tryParsing(line);
+		if (valueExpr instanceof ErrorResult)
+			throw new NotImplementedException();
+		else if (valueExpr == null)
+			throw new NotImplementedException();
+		else {
+			builder.add(new AssertTestStep(evalPos, eval, pos, valueExpr));
+		}
+	}
 }

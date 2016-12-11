@@ -46,7 +46,7 @@ public class AssertMatcher extends TypeSafeMatcher<AssertTestStep> {
 			return false;
 		if (evalLocation != null && !evalLocation.equals(in.evalPos))
 			return false;
-		if (valueLocation != null && !valueLocation.equals(in.evalPos))
+		if (valueLocation != null && !valueLocation.equals(in.valuePos))
 			return false;
 		return true;
 	}
