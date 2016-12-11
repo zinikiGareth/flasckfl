@@ -13,6 +13,7 @@ import org.flasck.flas.testrunner.TestScript;
 import org.junit.Test;
 
 public class ScriptBuilderTests {
+	String TEST_CASE_NAME = "test a simple case";
 	TestScript script = new TestScript("test.golden.script");
 	
 	@Test
@@ -33,6 +34,25 @@ public class ScriptBuilderTests {
 	public void testASimpleCaseHasATestCaseItem() {
 		runUxCase();
 		assertEquals("there was not 1 test case", 1, script.cases().size());
+	}
+
+	@Test
+	public void testTheTestCaseObjectHasTheRightName() {
+		runUxCase();
+		assertEquals("the test case did not have the right name", TEST_CASE_NAME, script.cases().get(0).description());
+	}
+
+	@Test
+	public void testTheTestCaseObjectHasOneStep() {
+		runUxCase();
+		assertEquals("the test case did not have exactly one step", 1, script.cases().get(0).steps().size());
+	}
+
+	@Test
+	public void testTheFirstStepIsAssert1() {
+		runUxCase();
+		assertTrue("the first step was not an assert", script.cases().get(0).steps().get(0) instanceof AssertTestStep);
+		assertEquals("the test case did not have exactly one step", 1, ((AssertTestStep)script.cases().get(0).steps().get(0)).exprId());
 	}
 
 	@Test
@@ -85,7 +105,7 @@ public class ScriptBuilderTests {
 	private Scope runUxCase() {
 		InputPosition posn = new InputPosition("test", 1, 1, null);
 		script.add(new AssertTestStep(posn, new UnresolvedVar(posn, "x"), posn, new NumericLiteral(posn, "420", 4)));
-		script.addTestCase("test a simple case");
+		script.addTestCase(TEST_CASE_NAME);
 		return script.scope();
 	}
 

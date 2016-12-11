@@ -10,6 +10,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 public class TestScript implements TestScriptBuilder {
 	private final Scope scope = new Scope(null);
 	private final List<SingleTestCase> cases = new ArrayList<SingleTestCase>();
+	private List<TestStep> currentSteps = new ArrayList<TestStep>();
 	private int nextStep = 1;
 	private String defineInPkg;
 	
@@ -25,6 +26,7 @@ public class TestScript implements TestScriptBuilder {
 
 	@Override
 	public void add(AssertTestStep step) {
+		step.exprId(nextStep);
 		{
 			String key = "expr" + nextStep;
 			String longName = defineInPkg+"."+key;
@@ -36,11 +38,12 @@ public class TestScript implements TestScriptBuilder {
 			scope.define(key, longName, new FunctionCaseDefn(step.valuePos, CodeType.FUNCTION, longName, new ArrayList<>(), step.value));
 		}
 		nextStep++;
+		currentSteps.add(step);
 	}
 
 	@Override
 	public void addTestCase(String message) {
-		cases.add(new SingleTestCase());
+		cases.add(new SingleTestCase(message, currentSteps));
 	}
 
 	public Scope scope() {
