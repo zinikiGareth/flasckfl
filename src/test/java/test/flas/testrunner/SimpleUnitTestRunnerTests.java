@@ -45,6 +45,7 @@ public class SimpleUnitTestRunnerTests {
 	}
 
 	class Setup {
+		Scope scope = new Scope(null);
 		Setup() {
 			System.out.println("hello");
 		}
@@ -54,15 +55,14 @@ public class SimpleUnitTestRunnerTests {
 	private void go(Setup setup) {
 		defineSupportingFunctions(bce);
 		bce.dumpAll(true);
-		Scope scope = new Scope(null);
-		scope.define("x", "x", null);
-		prior = new CompileResult("test.golden", scope, bce, tc);
+		prior = new CompileResult("test.golden", setup.scope, bce, tc);
 		sc.includePrior(prior);
 	}
 	
 	@Test
 	public void testItCanTestASimpleValue() throws Exception {
 		go(new Setup() {{
+			scope.define("x", "x", null);
 			tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
 		}});
 		context.checking(new Expectations() {{
@@ -76,6 +76,7 @@ public class SimpleUnitTestRunnerTests {
 	@Test
 	public void testItCanTestATrivialFunctionCall() throws Exception {
 		go(new Setup() {{
+			scope.define("id", "id", null);
 			Type varA = Type.polyvar(loc, "A");
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
