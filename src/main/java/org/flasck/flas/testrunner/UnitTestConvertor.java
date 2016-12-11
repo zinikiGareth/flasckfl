@@ -60,7 +60,7 @@ public class UnitTestConvertor {
 			throw new NotImplementedException();
 		else {
 			System.out.println(ret.getClass());
-			builder.add(new AssertTestStep(ret));
+			builder.add(new AssertTestStep(null, ret, null, null));
 		}
 	}
 }

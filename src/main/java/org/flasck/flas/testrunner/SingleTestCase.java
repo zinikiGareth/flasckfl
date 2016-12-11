@@ -1,7 +1,9 @@
 package org.flasck.flas.testrunner;
 
-public interface SingleTestCase {
+public class SingleTestCase {
 
-	String description();
+	public String description() {
+		return null;
+	}
 
 }

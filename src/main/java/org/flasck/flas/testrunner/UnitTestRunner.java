@@ -32,7 +32,7 @@ public class UnitTestRunner {
 		// I think:
 		// 1. Convert f into a standard fl "program" with a set of functions
 		//      and build a meta-repository of what's going on
-		TestScript script = new TestScript();
+		TestScript script = new TestScript(pkg + ".script");
 		UnitTestConvertor c = new UnitTestConvertor(script, pkg);
 		c.convert(FileUtils.readFileAsLines(f));
 

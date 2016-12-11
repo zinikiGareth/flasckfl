@@ -1,6 +1,7 @@
 package org.flasck.flas.testrunner;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
@@ -8,6 +9,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class TestScript implements TestScriptBuilder {
 	private final Scope scope = new Scope(null);
+	private final List<SingleTestCase> cases = new ArrayList<SingleTestCase>();
 	private int nextStep = 1;
 	private String defineInPkg;
 	
@@ -38,11 +40,14 @@ public class TestScript implements TestScriptBuilder {
 
 	@Override
 	public void addTestCase(String message) {
-		// TODO Auto-generated method stub
-		
+		cases.add(new SingleTestCase());
 	}
 
 	public Scope scope() {
 		return scope;
+	}
+
+	public List<SingleTestCase> cases() {
+		return cases;
 	}
 }

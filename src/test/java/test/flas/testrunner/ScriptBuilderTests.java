@@ -30,6 +30,12 @@ public class ScriptBuilderTests {
 	}
 
 	@Test
+	public void testASimpleCaseHasATestCaseItem() {
+		runUxCase();
+		assertEquals("there was not 1 test case", 1, script.cases().size());
+	}
+
+	@Test
 	public void testExpr1IsInTheSimpleScript() {
 		Scope scope = runUxCase();
 		assertTrue("expr1 was not in the scope", scope.contains("expr1"));
