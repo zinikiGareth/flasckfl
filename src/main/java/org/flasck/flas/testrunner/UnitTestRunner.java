@@ -97,7 +97,6 @@ public class UnitTestRunner {
 		CompileResult tcr = null;
 		try {
 			tcr = compiler.createJVM(scriptPkg, prior, scope);
-			System.out.println("cr = " + tcr.bce.all());
 		} catch (ErrorResultException ex) {
 			ex.errors.showTo(new PrintWriter(System.err), 0);
 			fail("Errors compiling test script");

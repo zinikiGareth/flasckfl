@@ -255,9 +255,7 @@ public class FLASCompiler implements ScriptCompiler {
 			rewriter.importPackage1(rootPkg);
 			
 			for (CompileResult cr : priors) {
-				XML xml = cr.exports();
-				System.out.println(xml.asString(true));
-				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage(), xml);
+				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage(), cr.exports());
 			}
 			
 			rewriter.rewritePackageScope(prior, inPkg, scope);
