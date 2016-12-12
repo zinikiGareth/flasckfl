@@ -101,6 +101,20 @@ public class SimpleUnitTestRunnerTests {
 		);
 	}
 
+	@Test
+	public void testItFailsWhenGivenTheWrongValue() throws Exception {
+		go(new Setup() {{
+			scope.define("x", "x", null);
+			tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
+		}});
+		context.checking(new Expectations() {{
+			oneOf(resultHandler).testFailed("a simple test", 420, 32);
+		}});
+
+		runTestScript("\ttest a simple test\n", "\t\tassert x", "\t\t\t420");
+	}
+
+
 	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);
 		UnitTestRunner r = new UnitTestRunner(sc, prior);

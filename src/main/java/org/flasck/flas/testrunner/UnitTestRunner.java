@@ -60,7 +60,6 @@ public class UnitTestRunner {
 		List<Class<?>> toRun = new ArrayList<>();
 		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$expr1", false, loader));
 		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$value1", false, loader));
-		// 5. Execute all the relevant functions & compare the results
 
 		Class<?> fleval = Class.forName("org.flasck.jvm.FLEval", false, loader);
 		Map<String, Object> evals = new TreeMap<String, Object>();
@@ -71,13 +70,17 @@ public class UnitTestRunner {
 			evals.put(key, o);
 		}
 		
+		Object expected = evals.get("value1");
+		Object actual = evals.get("expr1");
 		try {
-			assertEquals(evals.get("value1"), evals.get("expr1"));
+			assertEquals(expected, actual);
 			for (UnitTestResultHandler h : handlers) {
 				h.testPassed(tc.getDescription());
 			}
 		} catch (AssertionError ex) {
 			ex.printStackTrace();
+			for (UnitTestResultHandler h : handlers)
+				h.testFailed(tc.getDescription(), expected, actual);
 		}
 	}
 
