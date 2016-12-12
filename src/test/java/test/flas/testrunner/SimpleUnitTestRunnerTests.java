@@ -83,6 +83,24 @@ public class SimpleUnitTestRunnerTests {
 		runTestScript("\ttest a test of id\n", "\t\tassert (id 'hello')", "\t\t\t'hello'");
 	}
 
+	@Test
+	public void testItCanTestTwoCases() throws Exception {
+		go(new Setup() {{
+			scope.define("id", "id", null);
+			Type varA = Type.polyvar(loc, "A");
+			tc.define("test.golden.id", Type.function(loc, varA, varA));
+		}});
+		context.checking(new Expectations() {{
+			oneOf(resultHandler).testPassed("test id with a string");
+			oneOf(resultHandler).testPassed("test id with a number");
+		}});
+
+		runTestScript(
+			"\ttest test id with a string\n", "\t\tassert (id 'hello')", "\t\t\t'hello'",
+			"\ttest test id with a number\n", "\t\tassert (id 420)", "\t\t\t420"
+		);
+	}
+
 	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);
 		UnitTestRunner r = new UnitTestRunner(sc, prior);
