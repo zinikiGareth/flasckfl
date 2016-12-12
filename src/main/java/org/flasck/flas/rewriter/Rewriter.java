@@ -1353,18 +1353,18 @@ public class Rewriter {
 	}
 
 	protected void rewriteField(NamingContext sx, RWStructDefn sd, StructField sf) {
-		String fnName = null;
+		FunctionName fnName = null;
 		Type st = rewrite(sx, sf.type, false);
 		if (sf.init != null) {
 			Object rw = rewriteExpr(sx, sf.init);
 			InputPosition loc = ((Locatable)rw).location();
 			Object expr = new AssertTypeExpr(loc, st, rw);
-			fnName = sd.name() + ".inits_" + sf.name;
-			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, new FunctionName(fnName), 0, sx.cardNameIfAny().jsName(), true);
+			fnName = FunctionName.function(loc, CodeType.FUNCTION, new PackageName(sd.name()), null, "inits_" + sf.name);
+			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, sx.cardNameIfAny().jsName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
-			functions.put(fnName, fn);
+			functions.put(fnName.jsName(), fn);
 		}
 		RWStructField rsf = new RWStructField(sf.loc, false, st, sf.name, fnName);
 		sd.addField(rsf);

@@ -2,6 +2,7 @@ package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.types.Type;
 
 public class RWStructField implements Locatable {
@@ -9,7 +10,7 @@ public class RWStructField implements Locatable {
 	public final boolean accessor;
 	public final Type type;
 	public final String name;
-	public final String init;
+	public final FunctionName init;
 
 	public RWStructField(InputPosition loc, boolean accessor, Type type, String name) {
 		this.loc = loc;
@@ -19,12 +20,12 @@ public class RWStructField implements Locatable {
 		this.init = null;
 	}
 
-	public RWStructField(InputPosition loc, boolean accessor, Type type, String name, String initFn) {
+	public RWStructField(InputPosition loc, boolean accessor, Type type, String name, FunctionName fnName) {
 		this.loc = loc;
 		this.accessor = accessor;
 		this.type = type;
 		this.name = name;
-		this.init = initFn;
+		this.init = fnName;
 	}
 
 	@Override

@@ -77,8 +77,8 @@ public class Generator {
 				if (x.init != null) {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
-					defass.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + x.init + "())"));
-					elseBlock.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + x.init + "())"));
+					defass.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + x.init.jsName() + "())"));
+					elseBlock.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + x.init.jsName() + "())"));
 				}
 			}
 		}
@@ -113,7 +113,7 @@ public class Generator {
 		cf.add(new JSForm("this._special = 'card'"));
 		for (RWStructField x : card.struct.fields) {
 			if (x.init != null)
-				generateField(cf, x.name, x.init);
+				generateField(cf, x.name, x.init.jsName());
 		}
 		cf.add(new JSForm("this._services = {}"));
 		for (ServiceGrouping cs : card.services) {
