@@ -7,13 +7,8 @@ public class Block {
 	public ContinuedLine line;
 	public final List<Block> nested = new ArrayList<Block>();
 
-	@Deprecated // but the logic that uses this appears to be tangled
 	public Block() {
-	}
-	
-	// I think this is the constructor I really want
-	public Block(ContinuedLine line) {
-		this.line = line;
+		this.line = new ContinuedLine();
 	}
 	
 	// constructor for testing purposes

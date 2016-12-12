@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
-import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
@@ -70,7 +69,6 @@ public class Blocker {
 
 	private Block pushBlock(Indent ind, String text, boolean addToParent, boolean addToStack) {
 		Block b = new Block();
-		b.line = new ContinuedLine();
 		b.line.lines.add(new SingleLine(file, lineNo, ind, text));
 		if (addToParent)
 			stack.get(stack.size()-1).nested.add(b);

@@ -31,7 +31,7 @@ public class BlockBuilder {
 	}
 	
 	private Block addBlockInAppropriatePlace() {
-		Block newBlock = new Block(new ContinuedLine());
+		Block newBlock = new Block();
 		if (!indent) {
 			stack.remove(stack.size()-1);
 			if (stack.isEmpty())
