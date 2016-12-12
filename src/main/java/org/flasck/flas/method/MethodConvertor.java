@@ -111,7 +111,7 @@ public class MethodConvertor {
 			if (mcd.intro.args.size() != types.size()) {
 				if (!mcd.intro.args.isEmpty())
 					loc = ((Locatable)mcd.intro.args.get(0)).location();
-				errors.message(loc, "incorrect number of formal parameters to contract method '" + mcd.intro.name +"': expected " + types.size() + " but was " + mcd.intro.args.size());
+				errors.message(loc, "incorrect number of formal parameters to contract method '" + mcd.intro.fnName.jsName() +"': expected " + types.size() + " but was " + mcd.intro.args.size());
 				continue;
 			}
 			
@@ -135,7 +135,7 @@ public class MethodConvertor {
 					throw new UtilException("Cannot handle pattern " + patt.getClass());
 			}
 			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, types, mcd.messages, m.type.isHandler());
-			ret.addCase(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.name, rwargs, mcd.intro.vars), ret.nextCase(), typedObject.expr));
+			ret.addCase(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.fnName, rwargs, mcd.intro.vars), ret.nextCase(), typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
 		}
@@ -175,7 +175,7 @@ public class MethodConvertor {
 		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		for (RWMethodCaseDefn c : method.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, mic.type.isHandler());
-			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, margs, c.intro.vars), cases.size(), typedObject.expr));
+			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.fnName, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
 		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, new FunctionName(method.name()), margs.size(), mic.inCard, true);
 		ret.addCases(cases);

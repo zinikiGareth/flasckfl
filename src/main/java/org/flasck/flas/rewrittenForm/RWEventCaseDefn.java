@@ -21,6 +21,6 @@ public class RWEventCaseDefn {
 	
 	@Override
 	public String toString() {
-		return "ECD[" + intro.name + "/" + intro.args.size() + "]";
+		return "ECD[" + intro.fnName.jsName() + "/" + intro.args.size() + "]";
 	}
 }

@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class RWMethodDefinition implements Locatable {
@@ -35,6 +36,17 @@ public class RWMethodDefinition implements Locatable {
 		this.dir = dir;
 		this.location = location;
 		this.name = name;
+		this.nargs = nargs;
+	}
+	
+	public RWMethodDefinition(CardName cardNameIfAny, InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, FunctionName name, int nargs) {
+		this.inCard = cardNameIfAny.jsName();
+		this.contractLocation = cloc;
+		this.fromContract = contractName;
+		this.type = type;
+		this.dir = dir;
+		this.location = location;
+		this.name = name.jsName();
 		this.nargs = nargs;
 	}
 	

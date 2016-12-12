@@ -10,27 +10,23 @@ import org.zinutils.exceptions.UtilException;
 
 public class RWFunctionIntro {
 	public final InputPosition location;
-	public final String name;
 	public final List<Object> args;
 	public final Map<String, LocalVar> vars;
+	public final FunctionName fnName;
 
-	public RWFunctionIntro(InputPosition location, String name, List<Object> args, Map<String, LocalVar> vars) {
+	public RWFunctionIntro(InputPosition location, FunctionName name, List<Object> args, Map<String, LocalVar> vars) {
 		this.location = location;
 		if (location == null)
 			throw new UtilException("Null location");
-		this.name = name;
 		if (args == null)
 			throw new UtilException("Cannot pass in null args");
 		this.args = args;
 		this.vars = (vars == null? new HashMap<>(): vars);
-	}
-
-	public RWFunctionIntro(InputPosition location, FunctionName name, List<Object> args, Map<String, LocalVar> vars) {
-		this(location, name.jsName(), args, vars);
+		this.fnName = name;
 	}
 
 	@Override
 	public String toString() {
-		return "FI[" + name + "/" + args.size() + "]";
+		return "FI[" + fnName.jsName() + "/" + args.size() + "]";
 	}
 }

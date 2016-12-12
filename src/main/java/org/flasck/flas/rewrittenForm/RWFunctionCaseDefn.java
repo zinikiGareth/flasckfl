@@ -19,7 +19,7 @@ public class RWFunctionCaseDefn {
 	}
 	
 	public String caseName() {
-		return intro.name + "_" + csNo;
+		return intro.fnName.jsName() + "_" + csNo;
 	}
 	
 	public void gatherScopedVars(Set<ScopedVar> scopedVars) {
@@ -52,6 +52,6 @@ public class RWFunctionCaseDefn {
 	
 	@Override
 	public String toString() {
-		return "FCD[" + intro.name + "/" + intro.args.size() + "]";
+		return "FCD[" + intro.fnName.jsName() + "/" + intro.args.size() + "]";
 	}
 }

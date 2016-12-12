@@ -1443,11 +1443,11 @@ public class Rewriter {
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					for (MethodMessage mm : s.actions)
 						mcd.addMessage(rewrite(c2, mm));
-					RWMethodDefinition method = new RWMethodDefinition(c2.cardNameIfAny(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, fi.location, fi.name, fi.args.size());
+					RWMethodDefinition method = new RWMethodDefinition(c2.cardNameIfAny(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, fi.location, fi.fnName, fi.args.size());
 					method.cases.add(mcd);
 					method.gatherScopedVars();
 					this.methods.put(method.name(), method);
-					byKey.add(s.name, new FunctionLiteral(fi.location, fi.name));
+					byKey.add(s.name, new FunctionLiteral(fi.location, fi.fnName.jsName()));
 				} else { // something like layout, that is just a set of definitions
 					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
 				}
@@ -1491,9 +1491,9 @@ public class Rewriter {
 		RWFunctionIntro d3f = new RWFunctionIntro(loc, fn, args, null);
 		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, fn, args.size(), prefix, true);
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, expr));
-		functions.put(d3f.name, func);
+		functions.put(d3f.fnName.jsName(), func);
 
-		return new FunctionLiteral(d3f.location, d3f.name);
+		return new FunctionLiteral(d3f.location, d3f.fnName.jsName());
 	}
 
 	private RWFunctionIntro rewrite(NamingContext cx, FunctionIntro intro, String csName, Map<String, LocalVar> vars) {
@@ -1864,7 +1864,7 @@ public class Rewriter {
 	}
 
 	private void writeMethodCase(Indenter pw, RWMethodCaseDefn c) {
-		pw.println("case " + c.intro.name);
+		pw.println("case " + c.intro.fnName.jsName());
 		for (Object a : c.intro.args)
 			writeArgumentTo(pw.indent(), a);
 		pw.println("=");
