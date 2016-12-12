@@ -21,11 +21,11 @@ import org.zinutils.cgharness.CGHarnessRunner;
 import org.zinutils.utils.FileUtils;
 
 public class AndroidCGRunner extends CGHarnessRunner {
-	public AndroidCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException {
+	public AndroidCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException, ClassNotFoundException {
 		super(builder, figureClasses());
 	}
 	
-	private static Class<?>[] figureClasses() throws IOException, ErrorResultException {
+	private static Class<?>[] figureClasses() throws IOException, ErrorResultException, ClassNotFoundException {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		FLASCompiler compiler = new FLASCompiler();
 		compiler.searchIn(new File("src/main/resources/flim"));

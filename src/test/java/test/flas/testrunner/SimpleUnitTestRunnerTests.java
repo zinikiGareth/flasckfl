@@ -47,7 +47,6 @@ public class SimpleUnitTestRunnerTests {
 	class Setup {
 		Scope scope = new Scope(null);
 		Setup() {
-			System.out.println("hello");
 		}
 		
 	}
@@ -88,9 +87,10 @@ public class SimpleUnitTestRunnerTests {
 		runTestScript("\ttest a simple test\n", "\t\tassert (id 'hello')", "\t\t\t'hello'");
 	}
 
-	private void runTestScript(String... lines) throws IOException {
+	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);
 		UnitTestRunner r = new UnitTestRunner(new MultiTextEmitter(writer), sc, prior, f);
+		r.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		r.run();
 	}
 

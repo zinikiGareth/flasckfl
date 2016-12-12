@@ -273,7 +273,7 @@ public class DroidGenerator {
 			else
 				objArg = eval.aNull();
 			eval.ifOp(0xa2, eval.arraylen(argsArg.getVar()), eval.intConst(hi.boundVars.size()), 
-					eval.returnObject(eval.makeNew("org.flasck.android.FLCurry", objArg, eval.classConst(DroidUtils.javaNestedName(name)), argsArg.getVar())), 
+					eval.returnObject(eval.makeNew("org.flasck.jvm.FLCurry", objArg, eval.classConst(DroidUtils.javaNestedName(name)), argsArg.getVar())), 
 					eval.returnObject(eval.makeNew(DroidUtils.javaNestedName(name), newArgs))).flush();
 		}
 		{

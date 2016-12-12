@@ -285,9 +285,9 @@ public class FormGenerator {
 	//			clz = meth.castTo(clz, "java.lang.Class");
 			}
 			if (needsObject != null)
-				return meth.makeNew("org.flasck.android.FLClosure", meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
+				return meth.makeNew("org.flasck.jvm.FLClosure", meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
 			else
-				return meth.makeNew("org.flasck.android.FLClosure", clz, meth.arrayOf("java.lang.Object", al));
+				return meth.makeNew("org.flasck.jvm.FLClosure", clz, meth.arrayOf("java.lang.Object", al));
 		} else if (c0 instanceof PushVar) {
 			return vars.get(((PushVar)c0).var.var);
 		} else

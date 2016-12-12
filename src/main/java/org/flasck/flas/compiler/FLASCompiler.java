@@ -156,7 +156,7 @@ public class FLASCompiler implements ScriptCompiler {
 	
 	// The objective of this method is to convert an entire package directory at one go
 	// Thus the entire context of this is a single package
-	public CompileResult compile(File dir) throws ErrorResultException, IOException {
+	public CompileResult compile(File dir) throws ErrorResultException, IOException, ClassNotFoundException {
 		String inPkg = dir.getName();
 		if (!dir.isDirectory()) {
 			ErrorResult errors = new ErrorResult();

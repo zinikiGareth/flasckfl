@@ -15,7 +15,6 @@ import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.zinutils.bytecode.BCEClassLoader;
-import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.reflection.Reflection;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.MultiTextEmitter;
@@ -25,7 +24,7 @@ public class UnitTestRunner {
 	private final List<Class<?>> toRun = new ArrayList<>();
 	private final BCEClassLoader loader;
 
-	public UnitTestRunner(MultiTextEmitter results, ScriptCompiler compiler, CompileResult prior, File f) throws IOException {
+	public UnitTestRunner(MultiTextEmitter results, ScriptCompiler compiler, CompileResult prior, File f) throws IOException, ClassNotFoundException {
 		this.results = results;
 		loader = new BCEClassLoader(prior.bce);
 
@@ -50,15 +49,19 @@ public class UnitTestRunner {
 		// 3. Load the class(es) into memory
 		tcr.bce.dumpAll(true);
 		loader.add(tcr.bce);
-		String pkg = prior.getPackage();
-		loader.defineClass(scriptPkg + ".PACKAGEFUNCTIONS");
-		toRun.add(loader.defineClass(scriptPkg + ".PACKAGEFUNCTIONS$expr1"));
-		toRun.add(loader.defineClass(scriptPkg + ".PACKAGEFUNCTIONS$value1"));
-		loader.defineClass(pkg + ".PACKAGEFUNCTIONS$x");
-		loader.defineClass(pkg + ".PACKAGEFUNCTIONS");
+//		String pkg = prior.getPackage();
+//		loader.defineClass(scriptPkg + ".PACKAGEFUNCTIONS");
+		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$expr1", false, loader));
+		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$value1", false, loader));
+//		loader.defineClass(pkg + ".PACKAGEFUNCTIONS$x");
+//		loader.defineClass(pkg + ".PACKAGEFUNCTIONS");
 	}
 	
-	public void run() {
+	public void considerResource(File file) {
+		loader.addClassesFrom(file);
+	}
+	
+	public void run() throws ClassNotFoundException {
 		// 5. Execute all the relevant functions & compare the results
 
 		Map<String, Object> evals = new TreeMap<String, Object>();
@@ -69,9 +72,12 @@ public class UnitTestRunner {
 			evals.put(key, o);
 		}
 		
+		Class<?> fleval = Class.forName("org.flasck.jvm.FLEval", false, loader);
 		boolean passed = true;
 		try {
-			assertEquals(evals.get("value1"), evals.get("expr1"));
+			Object expected = Reflection.callStatic(fleval, "full", evals.get("value1"));
+			Object actual = Reflection.callStatic(fleval, "full", evals.get("expr1"));
+			assertEquals(expected, actual);
 		} catch (AssertionError ex) {
 			ex.printStackTrace();
 			passed = false;
