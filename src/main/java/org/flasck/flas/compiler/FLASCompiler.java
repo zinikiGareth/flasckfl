@@ -215,10 +215,10 @@ public class FLASCompiler implements ScriptCompiler {
 				FLASCompiler sc = new FLASCompiler();
 				sc.includePrior(cr);
 				// TODO: we probably need to configure the compiler here ...
-				UnitTestRunner utr = new UnitTestRunner(results, sc, cr, f);
+				UnitTestRunner utr = new UnitTestRunner(results, sc, cr);
 				for (File p : utpaths)
 					utr.considerResource(p);
-				utr.run();
+				utr.run(f);
 			} finally {
 			if (close)
 				results.close();

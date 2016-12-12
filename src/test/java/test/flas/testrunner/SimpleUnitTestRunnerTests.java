@@ -89,9 +89,9 @@ public class SimpleUnitTestRunnerTests {
 
 	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);
-		UnitTestRunner r = new UnitTestRunner(new MultiTextEmitter(writer), sc, prior, f);
+		UnitTestRunner r = new UnitTestRunner(new MultiTextEmitter(writer), sc, prior);
 		r.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
-		r.run();
+		r.run(f);
 	}
 
 	private void defineSupportingFunctions(ByteCodeEnvironment bce) {
