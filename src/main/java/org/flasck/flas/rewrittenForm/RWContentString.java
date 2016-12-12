@@ -3,6 +3,7 @@ package org.flasck.flas.rewrittenForm;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.AreaName;
 
 public class RWContentString extends RWTemplateFormatEvents {
 	public final String text;

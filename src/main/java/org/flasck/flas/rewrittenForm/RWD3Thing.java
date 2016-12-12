@@ -1,5 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
+import org.flasck.flas.commonBase.names.AreaName;
+
 public class RWD3Thing implements RWTemplateLine {
 	private final AreaName areaName;
 	public final Object data;

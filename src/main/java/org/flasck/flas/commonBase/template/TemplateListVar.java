@@ -2,6 +2,7 @@ package org.flasck.flas.commonBase.template;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 
 public class TemplateListVar implements Locatable {
 	public final InputPosition location;
@@ -9,9 +10,9 @@ public class TemplateListVar implements Locatable {
 	public final String simpleName;
 	public final String realName;
 
-	public TemplateListVar(InputPosition location, String dataFuncName, String simpleName, String realName) {
+	public TemplateListVar(InputPosition location, FunctionName fnName, String simpleName, String realName) {
 		this.location = location;
-		this.dataFuncName = dataFuncName;
+		this.dataFuncName = fnName.jsName();
 		this.simpleName = simpleName;
 		this.realName = realName;
 	}

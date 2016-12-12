@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.AreaName;
 
 public abstract class RWTemplateFormatEvents extends RWTemplateFormat {
 	public final List<RWEventHandler> handlers = new ArrayList<RWEventHandler>();

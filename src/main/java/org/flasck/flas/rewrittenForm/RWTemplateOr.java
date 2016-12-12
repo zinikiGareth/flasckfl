@@ -2,6 +2,8 @@ package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.FunctionName;
 
 public class RWTemplateOr implements RWTemplateLine, Locatable {
 	private final InputPosition location;
@@ -9,11 +11,11 @@ public class RWTemplateOr implements RWTemplateLine, Locatable {
 	public final RWTemplateLine template;
 	public final String fnName;
 
-	public RWTemplateOr(InputPosition loc, Object expr, RWTemplateLine template, String fnName) {
+	public RWTemplateOr(InputPosition loc, Object expr, RWTemplateLine template, FunctionName fnName) {
 		this.location = loc;
 		this.cond = expr;
 		this.template = template;
-		this.fnName = fnName;
+		this.fnName = fnName == null?null:fnName.jsName();
 	}
 	
 	@Override

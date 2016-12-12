@@ -22,6 +22,8 @@ public class FunctionName implements NameOfThing {
 	public final CodeType codeType;
 	private final PackageName inPkg;
 	private String name;
+	public final CardName inCard;
+	private final AreaName area;
 	
 	// an old hack
 	private final String jsname;
@@ -31,20 +33,38 @@ public class FunctionName implements NameOfThing {
 		this.location = null;
 		this.codeType = CodeType.FUNCTION; // a random guess, but not used yet
 		this.inPkg = null;
+		this.inCard = null;
+		this.area = null;
 		this.jsname = s;
 	}
 
 	// This is the one true constructor that should be called by a bunch of statics
-	public FunctionName(InputPosition location, CodeType codeType, PackageName pkg, String name) {
+	private FunctionName(InputPosition location, CodeType codeType, PackageName pkg, CardName card, AreaName area, String name) {
 		this.location = location;
 		this.codeType = codeType;
 		this.inPkg = pkg;
+		this.inCard = card;
+		this.area = area;
 		this.name = name;
-		this.jsname = ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
+		if (area != null) {
+			this.jsname = area.jsName() + "." + name;
+			System.out.println("jsname = " + this.jsname);
+		}
+		else if (card != null)
+			this.jsname = card.cardName + "." + name;
+		else
+			this.jsname = ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
 	}
 
+	// I think the CodeType for this should just be "FUNCTION"; and you should use another type for other things
+	// But the parser creates FI's with a "kind", so we kind of need it
+	// Maybe we should have a "generic" or something
 	public static FunctionName function(InputPosition location, CodeType codeType, PackageName pkg, String name) {
-		return new FunctionName(location, codeType, pkg, name);
+		return new FunctionName(location, codeType, pkg, null, null, name);
+	}
+
+	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {
+		return new FunctionName(location, CodeType.AREA, areaName.cardName.pkg, areaName.cardName, areaName, fnName);
 	}
 
 	public String jsName() {

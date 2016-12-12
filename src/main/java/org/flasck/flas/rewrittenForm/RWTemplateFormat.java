@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.AreaName;
 
 public abstract class RWTemplateFormat implements RWTemplateLine, Locatable {
 	public final InputPosition kw;

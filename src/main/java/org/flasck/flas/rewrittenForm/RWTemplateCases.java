@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.AreaName;
 
 public class RWTemplateCases implements RWTemplateLine, Locatable {
 	public final List<RWTemplateOr> cases = new ArrayList<RWTemplateOr>();

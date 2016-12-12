@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.zinutils.exceptions.UtilException;
 
 public class RWFunctionIntro {
@@ -23,7 +24,11 @@ public class RWFunctionIntro {
 		this.args = args;
 		this.vars = (vars == null? new HashMap<>(): vars);
 	}
-	
+
+	public RWFunctionIntro(InputPosition location, FunctionName name, List<Object> args, Map<String, LocalVar> vars) {
+		this(location, name.jsName(), args, vars);
+	}
+
 	@Override
 	public String toString() {
 		return "FI[" + name + "/" + args.size() + "]";

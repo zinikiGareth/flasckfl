@@ -21,6 +21,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -77,7 +78,6 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
-import org.flasck.flas.rewrittenForm.AreaName;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -350,11 +350,11 @@ public class Rewriter {
 			return cardName;
 		}
 
-		public String nextFunction(String type, HSIEForm.CodeType from, String name) {
+		public FunctionName nextFunction(InputPosition loc, String type, HSIEForm.CodeType from, AreaName areaName) {
 			if (from == CodeType.AREA)
-				return name +"." + type +"_"+(fnIdx++);
+				return FunctionName.areaMethod(loc, areaName, type +"_"+(fnIdx++));
 			else // CodeType.CARD, at least ...
-				return cardName.jsName()+"."+type+"_"+(fnIdx++);
+				return new FunctionName(cardName.jsName()+"."+type+"_"+(fnIdx++));
 		}
 	}
 
@@ -413,9 +413,19 @@ public class Rewriter {
 			this.nextAreaNo = -1;
 		}
 
-		public String cardName() {
+		@Deprecated
+		public String cardNameAsString() {
 			if (nested instanceof CardContext) {
 				return ((CardContext)nested).cardName.jsName();
+			} else if (nested instanceof TemplateContext)
+				return ((TemplateContext)nested).cardNameAsString();
+			else
+				throw new UtilException("Cannot handle " + nested.getClass());
+		}
+		
+		public CardName cardName() {
+			if (nested instanceof CardContext) {
+				return ((CardContext)nested).cardName;
 			} else if (nested instanceof TemplateContext)
 				return ((TemplateContext)nested).cardName();
 			else
@@ -429,11 +439,11 @@ public class Rewriter {
 			return nested.resolve(location, name);
 		}
 
-		public String nextFunction(String aname, String type, CodeType from) {
+		public FunctionName nextFunction(InputPosition loc, AreaName aname, String type, CodeType from) {
 			if (nested instanceof CardContext) {
-				return ((CardContext)nested).nextFunction(type, from, aname);
+				return ((CardContext)nested).nextFunction(loc, type, from, aname);
 			} else if (nested instanceof TemplateContext)
-				return ((TemplateContext)nested).nextFunction(aname, type, from);
+				return ((TemplateContext)nested).nextFunction(loc, aname, type, from);
 			else
 				throw new UtilException("Cannot handle " + nested.getClass());
 		}
@@ -441,11 +451,11 @@ public class Rewriter {
 		public AreaName nextArea() {
 			if (nextAreaNo == -1)
 				return ((TemplateContext)nested).nextArea();
-			String cn = cardName();
-			int idx = cn.lastIndexOf(".");
-			if (cn.charAt(idx+1) != '_')
-				cn = cn.substring(0, idx+1) + "_" + cn.substring(idx+1); 
-			return new AreaName(cn +".B"+(nextAreaNo++));
+//			String cn = cardNameAsString();
+//			int idx = cn.lastIndexOf(".");
+//			if (cn.charAt(idx+1) != '_')
+//				cn = cn.substring(0, idx+1) + "_" + cn.substring(idx+1); 
+			return new AreaName(cardName(), "B"+(nextAreaNo++));
 		}
 
 	}
@@ -468,7 +478,7 @@ public class Rewriter {
 
 		public D3Context(TemplateContext cx, InputPosition location, String iv) {
 			super(cx);
-			this.iterVar = new IterVar(location, ((TemplateContext)cx.nested).cardName(), iv);
+			this.iterVar = new IterVar(location, ((TemplateContext)cx.nested).cardNameAsString(), iv);
 		}
 		
 		@Override
@@ -943,7 +953,7 @@ public class Rewriter {
 		if (tl instanceof ContentString) {
 			ContentString cs = (ContentString)tl;
 			AreaName areaName = cx.nextArea();
-			return rewriteEventHandlers(cx, new RWContentString(cs.kw, cs.text, areaName, formats, makeFn(cx, cs, areaName, dynamicExpr)), ((TemplateFormatEvents)tl).handlers);
+			return rewriteEventHandlers(cx, areaName, new RWContentString(cs.kw, cs.text, areaName, formats, makeFn(cx, cs, areaName, dynamicExpr)), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof ContentExpr) {
 			ContentExpr ce = (ContentExpr)tl;
 			boolean rawHTML = false;
@@ -955,37 +965,37 @@ public class Rewriter {
 			}
 			AreaName areaName = cx.nextArea();
 			Object rwexpr = rewriteExpr(cx, ce.expr);
-			String fnName = cx.nextFunction(areaName.jsName(), "contents", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(ce.kw, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
+			FunctionName fnName = cx.nextFunction(ce.location(), areaName, "contents", CodeType.AREA);
+			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.addCase(fcd0);
-			functions.put(fnName, fn);
-			String editFn = null;
+			functions.put(fnName.jsName(), fn);
+			FunctionName editFn = null;
 			if (ce.editable() && rwexpr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) rwexpr;
 				if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
 					throw new UtilException("Cannot edit: " + ae);
-				editFn = cx.nextFunction(areaName.jsName(), "editcontainer", CodeType.AREA);
-				RWFunctionDefinition efn = new RWFunctionDefinition(ce.kw, CodeType.AREA, new FunctionName(editFn), 0, cx.cardName(), true);
+				editFn = cx.nextFunction(ae.location(), areaName, "editcontainer", CodeType.AREA);
+				RWFunctionDefinition efn = new RWFunctionDefinition(editFn, 0, true);
 				RWFunctionCaseDefn efcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, editFn, new ArrayList<>(), null), 0, ae.args.get(0));
 				efn.addCase(efcd0);
-				functions.put(editFn, efn);
+				functions.put(editFn.jsName(), efn);
 				efn.gatherScopedVars();
 			}
 			fn.gatherScopedVars();
-			return rewriteEventHandlers(cx, new RWContentExpr(ce.kw, rwexpr, ce.editable(), rawHTML, areaName, formats, fnName, makeFn(cx, ce, areaName, dynamicExpr), editFn), ((TemplateFormatEvents)tl).handlers);
+			return rewriteEventHandlers(cx, areaName, new RWContentExpr(ce.kw, rwexpr, ce.editable(), rawHTML, areaName, formats, fnName, makeFn(cx, ce, areaName, dynamicExpr), editFn), ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof TemplateCardReference) {
 			TemplateCardReference cr = (TemplateCardReference) tl;
 			Object cardVar = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
 			Object yoyoVar = cr.yoyoVar == null ? null : cx.resolve(cr.location, (String)cr.yoyoVar);
-			String fnName = null;
+			FunctionName fnName = null;
 			AreaName areaName = cx.nextArea();
 			if (cr.yoyoVar != null) {
-				fnName = cx.nextFunction(areaName.jsName(), "yoyos", CodeType.AREA);
-				RWFunctionDefinition fn = new RWFunctionDefinition(cr.location, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
+				fnName = cx.nextFunction(cr.location, areaName, "yoyos", CodeType.AREA);
+				RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(cr.location, fnName, new ArrayList<>(), null), 0, yoyoVar);
 				fn.addCase(fcd0);
-				functions.put(fnName, fn);
+				functions.put(fnName.jsName(), fn);
 				fn.gatherScopedVars();
 			}
 			return new RWTemplateCardReference(cr.location, cardVar, yoyoVar, areaName, fnName);
@@ -1003,11 +1013,11 @@ public class Rewriter {
 					else
 						throw new UtilException("Cannot handle TEA: " + tea);
 
-					String fnName = cx.nextFunction(areaName.jsName(), "teas", CodeType.AREA);
-					RWFunctionDefinition fn = new RWFunctionDefinition(tea.location, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
+					FunctionName fnName = cx.nextFunction(tea.location, areaName, "teas", CodeType.AREA);
+					RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 					RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tea.location, fnName, new ArrayList<>(), null), 0, value);
 					fn.cases.add(fcd0);
-					functions.put(fnName, fn);
+					functions.put(fnName.jsName(), fn);
 					fn.gatherScopedVars();
 
 					attrs.add(new RWTemplateExplicitAttr(tea.location, tea.attr, tea.type, value, fnName));
@@ -1031,7 +1041,7 @@ public class Rewriter {
 			RWTemplateDiv ret = new RWTemplateDiv(td.kw, td.customTag, td.customTagVar, attrs, areaName, formats, makeFn(cx, td, areaName, dynamicExpr));
 			for (TemplateLine i : td.nested)
 				ret.nested.add(rewrite(new TemplateContext(cx, ret.areaName()), i));
-			rewriteEventHandlers(cx, ret, td.handlers);
+			rewriteEventHandlers(cx, areaName, ret, td.handlers);
 			ret.droppables = droppables;
 			return ret;
 		} else if (tl instanceof TemplateList) {
@@ -1047,14 +1057,14 @@ public class Rewriter {
 			Object expr = rewriteExpr(cx, ul.listExpr);
 					
 			AreaName areaName = cx.nextArea();
-			String fnName = cx.nextFunction(areaName.jsName(), "lvs", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(ul.listLoc, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
+			FunctionName fnName = cx.nextFunction(ul.listLoc, areaName, "lvs", CodeType.AREA);
+			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ul.listLoc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
-			functions.put(fnName, fn);
+			functions.put(fnName.jsName(), fn);
 			fn.gatherScopedVars();
 
-			TemplateListVar rwv = ul.iterVar == null ? null : new TemplateListVar(ul.iterLoc, fnName, (String) ul.iterVar, cx.cardName() + "." + (String) ul.iterVar);
+			TemplateListVar rwv = ul.iterVar == null ? null : new TemplateListVar(ul.iterLoc, fnName, (String) ul.iterVar, cx.cardNameAsString() + "." + (String) ul.iterVar);
 			RWTemplateList rul = new RWTemplateList(ul.kw, ul.listLoc, expr, ul.iterLoc, rwv, ul.customTagLoc, ul.customTag, ul.customTagVarLoc, ul.customTagVar, formats, supportDragOrdering, areaName, fnName, makeFn(cx, ul, areaName, dynamicExpr));
 			cx = new TemplateContext(cx, rul.areaName(), ul.iterVar, rwv);
 			rul.template = rewrite(cx, ul.template);
@@ -1070,7 +1080,7 @@ public class Rewriter {
 			D3Context c2 = new D3Context(cx, d3.d3.varLoc, d3.d3.iterVar);
 			
 			// Figure the correct prefix for the methods
-			String prefix = cx.cardName();
+			String prefix = cx.cardNameAsString();
 			int idx = prefix.lastIndexOf(".");
 			if (prefix.charAt(idx+1) != '_')
 				prefix = prefix.substring(0, idx+1) + "_" + prefix.substring(idx+1);
@@ -1119,43 +1129,43 @@ public class Rewriter {
 	public String makeFn(TemplateContext cx, TemplateFormat tf, AreaName areaName, Object expr) {
 		if (expr == null)
 			return null;
-		String fnName = cx.nextFunction(areaName.jsName(), "formats", CodeType.AREA);
-		RWFunctionDefinition fn = new RWFunctionDefinition(tf.kw, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
+		FunctionName fnName = cx.nextFunction(tf.kw, areaName, "formats", CodeType.AREA);
+		RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 		RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tf.kw, fnName, new ArrayList<>(), null), 0, expr);
 		fn.addCase(fcd0);
 		fn.gatherScopedVars();
-		functions.put(fnName, fn);
-		return fnName;
+		functions.put(fnName.jsName(), fn);
+		return fnName.jsName();
 	}
 
-	private RWTemplateLine rewriteEventHandlers(TemplateContext cx, RWTemplateFormatEvents ret, List<EventHandler> handlers) {
+	private RWTemplateLine rewriteEventHandlers(TemplateContext cx, AreaName areaName, RWTemplateFormatEvents ret, List<EventHandler> handlers) {
 		// It may or may not be the same array ... copy it to be sure ...
 		handlers = new ArrayList<EventHandler>(handlers);
 		ret.handlers.clear();
 		for (EventHandler h : handlers) {
-			String fnName = cx.nextFunction(ret.areaName().jsName(), "handlers", CodeType.AREA);
 			InputPosition loc = ((Locatable)h.expr).location();
+			FunctionName fnName = cx.nextFunction(loc, ret.areaName(), "handlers", CodeType.AREA);
 			Object rwexpr = rewriteExpr(cx, h.expr);
-			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
-			functions.put(fnName, fn);
-			ret.handlers.add(new RWEventHandler(h.action, rwexpr, fnName));
+			functions.put(fnName.jsName(), fn);
+			ret.handlers.add(new RWEventHandler(h.action, rwexpr, fnName.jsName()));
 		}
 		return ret;
 	}
 
 	private RWTemplateOr rewrite(TemplateContext cx, RWTemplateCases cs, TemplateOr tor) {
-		String fnName = null;
+		FunctionName fnName = null;
 		if (tor.cond != null) {
-			fnName = cx.nextFunction(cs.areaName().jsName(), "ors", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(tor.location(), CodeType.AREA, new FunctionName(fnName), 0, cx.cardName(), true);
+			fnName = cx.nextFunction(tor.location(), cs.areaName(), "ors", CodeType.AREA);
+			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			ApplyExpr expr = new ApplyExpr(tor.location(), getMe(tor.location(), "=="), cs.switchOn, tor.cond);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tor.location(), fnName, new ArrayList<>(), null), 0, expr);
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
-			functions.put(fnName, fn);
+			functions.put(fnName.jsName(), fn);
 		}
 		return new RWTemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template), fnName);
 	}

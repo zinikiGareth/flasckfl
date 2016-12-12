@@ -11,7 +11,6 @@ import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class FunctionParser implements TryParsing {
 	private final State state;

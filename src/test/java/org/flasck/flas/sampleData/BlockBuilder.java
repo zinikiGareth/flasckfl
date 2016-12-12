@@ -54,12 +54,6 @@ public class BlockBuilder {
 
 	public BlockBuilder comment(String line) {
 		Block block = addBlockInAppropriatePlace();
-//		if (cl != null) { 
-//			Block b = new Block(new ContinuedLine());
-//			stack.get(stack.size()-1).nested.add(b);
-//			cl = b.line;
-//		} else
-//			cl = stack.get(stack.size()-1).line = new ContinuedLine();
 		block.line.lines.add(new SingleLine(file, lineNo++, null, line));
 		return this;
 	}

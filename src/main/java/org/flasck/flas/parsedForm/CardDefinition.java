@@ -9,7 +9,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.stories.FLASStory.State;
 
 public class CardDefinition implements ContainsScope, Locatable {
 	public final InputPosition kw;

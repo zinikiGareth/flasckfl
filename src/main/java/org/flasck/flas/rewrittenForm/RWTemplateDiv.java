@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.AreaName;
 
 public class RWTemplateDiv extends RWTemplateFormatEvents {
 	public final String customTag;

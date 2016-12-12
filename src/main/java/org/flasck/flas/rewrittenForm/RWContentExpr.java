@@ -3,6 +3,8 @@ package org.flasck.flas.rewrittenForm;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.FunctionName;
 
 /* How to test this?
  * One option would be to compile the templates to javascript, then build one or more models,
@@ -19,13 +21,13 @@ public class RWContentExpr extends RWTemplateFormatEvents {
 	public final String fnName;
 	public final String editFn;
 
-	public RWContentExpr(InputPosition kw, Object expr, boolean edit, boolean rawHTML, AreaName areaName, List<Object> formats, String fnName, String dynamicFn, String editFn) {
+	public RWContentExpr(InputPosition kw, Object expr, boolean edit, boolean rawHTML, AreaName areaName, List<Object> formats, FunctionName fnName, String dynamicFn, FunctionName editFn) {
 		super(kw, areaName, formats, dynamicFn);
 		this.expr = expr;
 		this.editable = edit;
 		this.rawHTML = rawHTML;
-		this.fnName = fnName;
-		this.editFn = editFn;
+		this.fnName = fnName.jsName();
+		this.editFn = editFn == null?null:editFn.jsName();
 	}
 
 	public void makeEditable() {

@@ -1,6 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 
 public class RWTemplateExplicitAttr {
 	public final InputPosition location;
@@ -9,12 +10,12 @@ public class RWTemplateExplicitAttr {
 	public final Object value;
 	public final String fnName;
 
-	public RWTemplateExplicitAttr(InputPosition loc, String attr, int type, Object value, String fnName) {
+	public RWTemplateExplicitAttr(InputPosition loc, String attr, int type, Object value, FunctionName fnName) {
 		this.location = loc;
 		this.attr = attr;
 		this.type = type;
 		this.value = value;
-		this.fnName = fnName;
+		this.fnName = fnName.jsName();
 	}
 	
 	@Override
