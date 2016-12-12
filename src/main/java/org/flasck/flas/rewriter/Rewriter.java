@@ -677,7 +677,7 @@ public class Rewriter {
 					if (ret.nargs != c.nargs())
 						errors.message(c.location(), "inconsistent argument counts in function " + fn);
 				} else {
-					RWFunctionDefinition ret = new RWFunctionDefinition(c.location(), c.mytype(), new FunctionName(fn), c.nargs(), cx.cardNameIfAny().jsName(), true);
+					RWFunctionDefinition ret = new RWFunctionDefinition(c.intro.name(),c.nargs(), true);
 					functions.put(name, ret);
 				}
 				pass1(new Pass1ScopeContext(cx, c.caseName()), c.innerScope());

@@ -12,6 +12,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -27,14 +28,14 @@ public class ParsedFormTestData {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(posn, ConstPattern.INTEGER, "0"));
 		Object ie = ItemExpr.from(new ExprToken(posn, ExprToken.NUMBER, "1"));
-		return new FunctionCaseDefn(posn, CodeType.FUNCTION, "fib", args, ie);
+		return new FunctionCaseDefn(FunctionName.function(posn, CodeType.FUNCTION, null, null, "fib"), args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefn2() {
 		List<Object> args = new ArrayList<Object>();
 		args.add(new ConstPattern(posn, ConstPattern.INTEGER, "1"));
 		Object ie = ItemExpr.from(new ExprToken(posn, ExprToken.NUMBER, "1"));
-		return new FunctionCaseDefn(posn, CodeType.FUNCTION, "fib", args, ie);
+		return new FunctionCaseDefn(FunctionName.function(posn, CodeType.FUNCTION, null, null, "fib"), args, ie);
 	}
 
 	public static FunctionCaseDefn fibDefnN() {
@@ -47,7 +48,7 @@ public class ParsedFormTestData {
 		ApplyExpr rhs = new ApplyExpr(posn, ie("fib"), minus2);
 		ApplyExpr top = new ApplyExpr(posn, se("+"), lhs, rhs);
 		
-		return new FunctionCaseDefn(posn, CodeType.FUNCTION, "fib", args, top);
+		return new FunctionCaseDefn(FunctionName.function(posn, CodeType.FUNCTION, null, null, "fib"), args, top);
 	}
 
 	private static Object ie(String tok) {

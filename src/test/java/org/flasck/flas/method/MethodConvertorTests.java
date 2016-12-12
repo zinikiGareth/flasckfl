@@ -12,6 +12,7 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -66,7 +67,7 @@ public class MethodConvertorTests {
 		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
 		RWStructDefn send = (RWStructDefn) biscope.get("Send");
 		{
-			RWFunctionDefinition doSend = new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, CodeType.FUNCTION, null, "doSend"), 1, null, false);
+			RWFunctionDefinition doSend = new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, CodeType.FUNCTION, null, null, "doSend"), 1, null, false);
 			doSend.setType(Type.function(posn, any, send));
 			biscope.define("doSend", doSend);
 		}
@@ -490,7 +491,7 @@ public class MethodConvertorTests {
 
 	/* ---- Helper Methods ---- */
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(posn, "org.foo.Card._C0." + name, new ArrayList<>());
+		FunctionIntro intro = new FunctionIntro(FunctionName.contractMethod(posn, CodeType.CONTRACT, new CSName(new CardName(new PackageName("org.foo"), "Card"), "_C0"), name), new ArrayList<>());
 		MethodCaseDefn cs = new MethodCaseDefn(intro);
 		cs.provideCaseName(intro.name);
 		for (MethodMessage m : msgs)
@@ -499,7 +500,7 @@ public class MethodConvertorTests {
 	}
 
 	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(posn, "org.foo.Card." + name, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, "ev")));
+		FunctionIntro intro = new FunctionIntro(FunctionName.eventMethod(posn, CodeType.EVENTHANDLER, new CardName(new PackageName("org.foo"), "Card"), name), CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, "ev")));
 		EventCaseDefn cs = new EventCaseDefn(posn, intro);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);

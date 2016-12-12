@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -31,15 +33,17 @@ public class TestScript implements TestScriptBuilder {
 		AssertTestStep as = new AssertTestStep(nextStep, evalPos, evalExpr, valuePos, valueExpr);
 		{
 			String key = "expr" + nextStep;
+			FunctionName fnName = FunctionName.function(evalPos, CodeType.FUNCTION, new PackageName(defineInPkg), null, key);
 			String longName = defineInPkg+"."+key;
-			FunctionCaseDefn fn = new FunctionCaseDefn(evalPos, CodeType.FUNCTION, longName, new ArrayList<>(), evalExpr);
+			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), evalExpr);
 			fn.provideCaseName(longName+"_0");
 			scope.define(key, longName, fn);
 		}
 		{
 			String key = "value" + nextStep;
+			FunctionName fnName = FunctionName.function(evalPos, CodeType.FUNCTION, new PackageName(defineInPkg), null, key);
 			String longName = defineInPkg+"."+key;
-			FunctionCaseDefn fn = new FunctionCaseDefn(valuePos, CodeType.FUNCTION, longName, new ArrayList<>(), valueExpr);
+			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), valueExpr);
 			fn.provideCaseName(longName+"_0");
 			scope.define(key, longName, fn);
 		}

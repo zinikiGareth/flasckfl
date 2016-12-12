@@ -59,8 +59,9 @@ public class FunctionParser implements TryParsing {
 			}
 		}
 		
+		FunctionName fname = FunctionName.function(vit.location, state.kind, state.pkgName, state.inCard, name);
 		if (!line.hasMore())
-			return new FunctionIntro(vit.location, state.withPkg(name), args);
+			return new FunctionIntro(fname, args);
 		
 		ExprToken tok = ExprToken.from(line);
 		if (tok == null || !tok.text.equals("="))
@@ -73,7 +74,7 @@ public class FunctionParser implements TryParsing {
 			return ErrorResult.oneMessage(line, "unexpected tokens at end of line");
 
 		// Build a response object
-		return new FunctionCaseDefn(FunctionName.function(vit.location, state.kind, state.pkgName, name), args, expr);
+		return new FunctionCaseDefn(fname, args, expr);
 	}
 
 }

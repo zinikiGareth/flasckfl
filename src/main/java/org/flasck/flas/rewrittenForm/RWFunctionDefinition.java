@@ -38,7 +38,7 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	}
 
 	public RWFunctionDefinition(FunctionName name, int nargs, boolean generate) {
-		this.inCard = name.inCard.jsName();
+		this.inCard = name.inCard == null ? null : name.inCard.jsName();
 		if (name.location == null)
 			throw new UtilException("Null location");
 		this.location = name.location;

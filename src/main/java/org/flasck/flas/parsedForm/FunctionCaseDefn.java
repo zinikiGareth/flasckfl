@@ -10,23 +10,17 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
 public class FunctionCaseDefn implements ContainsScope, Locatable {
-	private final CodeType kind;
 	public final FunctionIntro intro;
 	public final Object expr;
 	private final Scope scope;
 	private String caseName;
 
-	public FunctionCaseDefn(InputPosition location, CodeType kind, String name, List<Object> args, Object expr) {
-		this.kind = kind;
-		intro = new FunctionIntro(location, name, args);
+	public FunctionCaseDefn(FunctionName name, List<Object> args, Object expr) {
+		intro = new FunctionIntro(name, args);
 		if (expr == null)
 			throw new UtilException("Cannot build function case with null expr");
 		this.expr = expr;
 		this.scope = new Scope(this);
-	}
-
-	public FunctionCaseDefn(FunctionName name, List<Object> args, Object expr) {
-		this(name.location, name.codeType, name.jsName(), args, expr);
 	}
 
 	@Override
@@ -40,7 +34,7 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 	}
 
 	public CodeType mytype() {
-		return kind;
+		return intro.name().codeType;
 	}
 
 	public int nargs() {

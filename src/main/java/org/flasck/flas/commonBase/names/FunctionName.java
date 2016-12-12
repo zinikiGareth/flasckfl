@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -27,6 +28,7 @@ public class FunctionName implements NameOfThing {
 	
 	// an old hack
 	private final String jsname;
+	private static CardName inCard2;
 
 	@Deprecated // this is  too simplistic but was good for compatibility and small changes
 	public FunctionName(String s) {
@@ -39,7 +41,7 @@ public class FunctionName implements NameOfThing {
 	}
 
 	// This is the one true constructor that should be called by a bunch of statics
-	private FunctionName(InputPosition location, CodeType codeType, PackageName pkg, CardName card, AreaName area, String name) {
+	private FunctionName(InputPosition location, CodeType codeType, PackageName pkg, CardName card, CSName csName, AreaName area, String name) {
 		this.location = location;
 		this.codeType = codeType;
 		this.inPkg = pkg;
@@ -48,10 +50,13 @@ public class FunctionName implements NameOfThing {
 		this.name = name;
 		if (area != null) {
 			this.jsname = area.jsName() + "." + name;
+		}
+		else if (csName != null) {
+			this.jsname = csName.jsName() + "." + name;
 			System.out.println("jsname = " + this.jsname);
 		}
 		else if (card != null)
-			this.jsname = card.cardName + "." + name;
+			this.jsname = card.jsName() + "." + name;
 		else
 			this.jsname = ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
 	}
@@ -59,12 +64,20 @@ public class FunctionName implements NameOfThing {
 	// I think the CodeType for this should just be "FUNCTION"; and you should use another type for other things
 	// But the parser creates FI's with a "kind", so we kind of need it
 	// Maybe we should have a "generic" or something
-	public static FunctionName function(InputPosition location, CodeType codeType, PackageName pkg, String name) {
-		return new FunctionName(location, codeType, pkg, null, null, name);
+	public static FunctionName function(InputPosition location, CodeType codeType, PackageName pkg, CardName inCard, String name) {
+		return new FunctionName(location, codeType, pkg, inCard, null, null, name);
+	}
+	
+	public static FunctionName contractMethod(InputPosition location, CodeType kind, CSName csName, String name) {
+		return new FunctionName(location, kind, csName.pkgName(), csName.cardName(), csName, null, name);
+	}
+	
+	public static FunctionName eventMethod(InputPosition location, CodeType kind, CardName cardName, String name) {
+		return new FunctionName(location, kind, cardName.pkg, cardName, null, null, name);
 	}
 
 	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {
-		return new FunctionName(location, CodeType.AREA, areaName.cardName.pkg, areaName.cardName, areaName, fnName);
+		return new FunctionName(location, CodeType.AREA, areaName.cardName.pkg, areaName.cardName, null, areaName, fnName);
 	}
 
 	public String jsName() {

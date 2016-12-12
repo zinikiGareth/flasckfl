@@ -11,6 +11,7 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
@@ -80,10 +81,19 @@ public class FLASStory {
 		public final PackageName pkgName;
 		public final Scope scope;
 		public final HSIEForm.CodeType kind;
+		public final CardName inCard;
 
 		public State(Scope scope, String pkg, HSIEForm.CodeType kind) {
 			this.scope = scope;
 			this.pkgName = new PackageName(pkg);
+			this.kind = kind;
+			this.inCard = null;
+		}
+
+		public State(State outer, Scope scope, CardName inCard, String pkg, HSIEForm.CodeType kind) {
+			this.scope = scope;
+			this.pkgName = new PackageName(pkg);
+			this.inCard = inCard != null ? inCard : outer.inCard;
 			this.kind = kind;
 		}
 
@@ -147,7 +157,7 @@ public class FLASStory {
 					if (arr == null)
 						continue;
 					Block lastBlock = (Block) arr[1];
-					FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, s.kind, fi.name, fi.args, arr[0]);
+					FunctionCaseDefn fcd = new FunctionCaseDefn(fi.name(), fi.args, arr[0]);
 					fcd.provideCaseName(caseName);
 					ret.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
 					if (!lastBlock.nested.isEmpty()) {
@@ -182,7 +192,7 @@ public class FLASStory {
 					doContractMethods(er, cd, b.nested);
 				} else if (o instanceof CardDefinition) {
 					CardDefinition cd = (CardDefinition) o;
-					doCardDefinition(er, new State(cd.innerScope(), cd.name, HSIEForm.CodeType.CARD), cd, b.nested);
+					doCardDefinition(er, new State(s, cd.innerScope(), cd.cardName, cd.name, HSIEForm.CodeType.CARD), cd, b.nested);
 				} else if (o instanceof HandlerImplements) {
 					HandlerImplements hi = (HandlerImplements)o;
 					ret.define(State.simpleName(hi.hiName), hi.hiName, hi);
@@ -446,7 +456,7 @@ public class FLASStory {
 				if (arr == null)
 					continue;
 				Block lastBlock = (Block) arr[1];
-				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.location, s.kind, fi.name, fi.args, arr[0]);
+				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.name(), fi.args, arr[0]);
 				String caseName = inner.caseName(fcd.intro.name);
 				fcd.provideCaseName(caseName);
 				inner.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);

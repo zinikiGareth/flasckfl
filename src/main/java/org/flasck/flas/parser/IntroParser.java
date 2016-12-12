@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -214,7 +215,8 @@ public class IntroParser implements TryParsing {
 					return ErrorResult.oneMessage(line, "invalid contract argument pattern");
 				args.add(patt);
 			}
-			return new MethodCaseDefn(new FunctionIntro(tn.location, state.withPkg(tn.text), args));
+			FunctionName fname = FunctionName.function(tn.location, state.kind, state.pkgName, null, tn.text);
+			return new MethodCaseDefn(new FunctionIntro(fname, args));
 		}
 		default:
 			// we didn't find anything we could handle - "not us"

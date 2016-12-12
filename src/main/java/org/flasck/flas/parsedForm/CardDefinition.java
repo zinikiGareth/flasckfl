@@ -24,12 +24,14 @@ public class CardDefinition implements ContainsScope, Locatable {
 	public final List<ContractService> services = new ArrayList<ContractService>();
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final Scope fnScope;
+	public final CardName cardName;
 
 	public CardDefinition(InputPosition kw, InputPosition location, Scope outer, CardName name) {
 		this.kw = kw;
 		this.location = location;
 		this.simpleName = name.cardName;
 		outer.define(simpleName, name.jsName(), this);
+		this.cardName = name;
 		this.name = name.jsName();
 		this.fnScope = new Scope(this);
 	}
