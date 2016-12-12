@@ -24,33 +24,19 @@ public class RWMethodDefinition implements Locatable {
 	public final CodeType type;
 	public final int dir;
 	private final InputPosition location;
-	private final String name;
 	private final int nargs;
 	public final List<RWMethodCaseDefn> cases = new ArrayList<>();
 	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
 	private FunctionName fnName;
 	
-	public RWMethodDefinition(CardName cardNameIfAny, InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, String name, int nargs) {
-		this.inCard = cardNameIfAny.jsName();
-		this.contractLocation = cloc;
-		this.fromContract = contractName;
-		this.type = type;
-		this.dir = dir;
-		this.location = location;
-		this.name = name;
-		this.fnName = new FunctionName(name);
-		this.nargs = nargs;
-	}
-	
 	public RWMethodDefinition(CardName cardNameIfAny, InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, FunctionName name, int nargs) {
-		fnName = name;
+		this.fnName = name;
 		this.inCard = cardNameIfAny.jsName();
 		this.contractLocation = cloc;
 		this.fromContract = contractName;
 		this.type = type;
 		this.dir = dir;
 		this.location = location;
-		this.name = name.jsName();
 		this.nargs = nargs;
 	}
 	
@@ -77,6 +63,6 @@ public class RWMethodDefinition implements Locatable {
 	
 	@Override
 	public String toString() {
-		return name + "/" + nargs;
+		return fnName.jsName() + "/" + nargs;
 	}
 }
