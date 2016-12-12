@@ -114,6 +114,24 @@ public class SimpleUnitTestRunnerTests {
 		runTestScript("\ttest a simple test\n", "\t\tassert x", "\t\t\t420");
 	}
 
+	@Test
+	public void testIfRunningTwoCasesOneCanPassWhileTheOtherFails() throws Exception {
+		go(new Setup() {{
+			scope.define("id", "id", null);
+			Type varA = Type.polyvar(loc, "A");
+			tc.define("test.golden.id", Type.function(loc, varA, varA));
+		}});
+		context.checking(new Expectations() {{
+			oneOf(resultHandler).testPassed("test id with a string");
+			oneOf(resultHandler).testFailed("test id with a number", 32, 420);
+		}});
+
+		runTestScript(
+			"\ttest test id with a string\n", "\t\tassert (id 'hello')", "\t\t\t'hello'",
+			"\ttest test id with a number\n", "\t\tassert (id 420)", "\t\t\t32"
+		);
+	}
+
 
 	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);

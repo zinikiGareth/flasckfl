@@ -6,4 +6,6 @@ public interface UnitTestResultHandler {
 
 	void testFailed(String caseName, Object expected, Object actual);
 
+	void testError(String description, Exception ex);
+
 }

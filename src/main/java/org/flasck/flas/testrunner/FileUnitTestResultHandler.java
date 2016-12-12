@@ -13,4 +13,15 @@ public class FileUnitTestResultHandler implements UnitTestResultHandler {
 	public void testPassed(String caseName) {
 		results.println("PASSED: " + caseName);
 	}
+
+	@Override
+	public void testFailed(String caseName, Object expected, Object actual) {
+		results.println("FAILED: " + caseName);
+	}
+
+	@Override
+	public void testError(String caseName, Exception ex) {
+		results.println("ERROR:  " + caseName);
+		results.showException(ex);
+	}
 }

@@ -48,6 +48,7 @@ public class TestScript implements TestScriptBuilder {
 	@Override
 	public void addTestCase(String message) {
 		cases.add(new SingleTestCase(message, currentSteps));
+		currentSteps.clear();
 	}
 
 	public Scope scope() {

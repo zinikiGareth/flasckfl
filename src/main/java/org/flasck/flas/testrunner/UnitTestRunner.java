@@ -1,6 +1,5 @@
 package org.flasck.flas.testrunner;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -8,15 +7,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
 import org.zinutils.bytecode.BCEClassLoader;
-import org.zinutils.reflection.Reflection;
 import org.zinutils.utils.FileUtils;
 
 public class UnitTestRunner {
@@ -48,39 +44,21 @@ public class UnitTestRunner {
 			public void run(SingleTestCase tc) {
 				try {
 					runCase(scriptPkg, tc);
+				} catch (AssertFailed ex) {
+					for (UnitTestResultHandler h : handlers)
+						h.testFailed(tc.getDescription(), ex.expected, ex.actual);
 				} catch (Exception ex) {
-					// this should call handler.failed()
-					ex.printStackTrace();
+					for (UnitTestResultHandler h : handlers)
+						h.testError(tc.getDescription(), ex);
 				}
 			}
 		});
 	}
 
-	protected void runCase(String scriptPkg, SingleTestCase tc) throws ClassNotFoundException {
-		List<Class<?>> toRun = new ArrayList<>();
-		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$expr1", false, loader));
-		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$value1", false, loader));
-
-		Class<?> fleval = Class.forName("org.flasck.jvm.FLEval", false, loader);
-		Map<String, Object> evals = new TreeMap<String, Object>();
-		for (Class<?> clz : toRun) {
-			String key = clz.getSimpleName().replaceFirst(".*\\$", "");
-			Object o = Reflection.callStatic(clz, "eval", new Object[] { new Object[] {} });
-			o = Reflection.callStatic(fleval, "full", o);
-			evals.put(key, o);
-		}
-		
-		Object expected = evals.get("value1");
-		Object actual = evals.get("expr1");
-		try {
-			assertEquals(expected, actual);
-			for (UnitTestResultHandler h : handlers) {
-				h.testPassed(tc.getDescription());
-			}
-		} catch (AssertionError ex) {
-			ex.printStackTrace();
-			for (UnitTestResultHandler h : handlers)
-				h.testFailed(tc.getDescription(), expected, actual);
+	protected void runCase(String scriptPkg, SingleTestCase tc) throws Exception {
+		tc.run(loader, scriptPkg);
+		for (UnitTestResultHandler h : handlers) {
+			h.testPassed(tc.getDescription());
 		}
 	}
 

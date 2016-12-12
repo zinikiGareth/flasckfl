@@ -2,6 +2,7 @@ package test.flas.testrunner;
 
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -32,6 +33,20 @@ public class ExprMatcher {
 			@Override
 			protected boolean matchesSafely(Object expr) {
 				return expr instanceof NumericLiteral && ((NumericLiteral)expr).text.equals(Integer.toString(k));
+			}
+		};
+	}
+
+	public static Matcher<Object> string(final String s) {
+		return new TypeSafeMatcher<Object>() {
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("is string literal '" + s + "'");
+			}
+
+			@Override
+			protected boolean matchesSafely(Object expr) {
+				return expr instanceof StringLiteral && ((StringLiteral)expr).text.equals(s);
 			}
 		};
 	}

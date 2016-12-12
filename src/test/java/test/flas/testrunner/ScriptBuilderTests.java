@@ -116,6 +116,19 @@ public class ScriptBuilderTests {
 		assertTrue("var was not 'x'", ((NumericLiteral)((FunctionCaseDefn)se.getValue()).expr).text.equals("420"));
 	}
 
+	@Test
+	public void testAddingTwoCasesOnlyHasOneStepInEachCase() {
+		runUxCase();
+		runUxCase();
+		script.runAllTests(new TestCaseRunner() {
+			
+			@Override
+			public void run(SingleTestCase tc) {
+				tc.assertStepCount(1);
+			}
+		});
+	}
+
 	private Scope runUxCase() {
 		InputPosition posn = new InputPosition("test", 1, 1, null);
 		script.add(new AssertTestStep(posn, new UnresolvedVar(posn, "x"), posn, new NumericLiteral(posn, "420", 4)));
