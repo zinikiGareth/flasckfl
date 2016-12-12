@@ -11,7 +11,6 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.TypeWithMethods;
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
@@ -88,7 +87,7 @@ public class MethodConvertor {
 
 	// 2. Convert An individual element
 	protected RWFunctionDefinition convertMIC(Rewriter rw, RWMethodDefinition m) {
-		logger.info("Converting " + (m.dir == RWMethodDefinition.DOWN?"down":"up") + " " + m.name());
+		logger.info("Converting " + (m.dir == RWMethodDefinition.DOWN?"down":"up") + " " + m.name().jsName());
 		// Get the contract and from that find the method and thus the argument types
 		List<Type> types;
 		if (m.fromContract == null) {
@@ -102,7 +101,7 @@ public class MethodConvertor {
 		if (m.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(m.location(), m.type, new FunctionName(m.name()), m.nargs(), m.inCard, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(m.location(), m.type, m.name(), m.nargs(), m.inCard, true);
 
 		// Now process all of the method cases
 		Type ofType = null;
@@ -158,9 +157,8 @@ public class MethodConvertor {
 		return ret;
 	}
 
-	public RWFunctionDefinition convertStandalone(Rewriter rw, RWMethodDefinition mic) {
-		RWMethodDefinition method = mic;
-		logger.info("Converting standalone " + method.name());
+	public RWFunctionDefinition convertStandalone(Rewriter rw, RWMethodDefinition method) {
+		logger.info("Converting standalone " + method.name().jsName());
 		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
 		// This seems likely to fail quite often :-)
 		margs.addAll(method.cases.get(0).intro.args);
@@ -171,13 +169,13 @@ public class MethodConvertor {
 		if (method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		logger.info("Converting standalone " + mic.name());
+		logger.info("Converting standalone " + method.name().jsName());
 		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		for (RWMethodCaseDefn c : method.cases) {
-			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, mic.type.isHandler());
+			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, method.type.isHandler());
 			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.fnName, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
-		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), mic.type, new FunctionName(method.name()), margs.size(), mic.inCard, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), method.type, method.name(), margs.size(), method.inCard, true);
 		ret.addCases(cases);
 		ret.gatherScopedVars();
 		return ret;
@@ -190,8 +188,8 @@ public class MethodConvertor {
 			return null;
 		}
 		RWContractMethodDecl cmd = null;
-		int idx = m.name().lastIndexOf(".");
-		String mn = m.name().substring(idx+1);
+		int idx = m.name().jsName().lastIndexOf(".");
+		String mn = m.name().jsName().substring(idx+1);
 		for (RWContractMethodDecl md : cd.methods) {
 			if (mn.equals(md.name)) {
 				if (m.dir == RWMethodDefinition.DOWN && md.dir.equals("up")) {

@@ -293,7 +293,7 @@ public class FLASCompiler implements ScriptCompiler {
 					for (RWMethodDefinition m : ci.methods) {
 						boolean haveMethod = false;
 						for (RWContractMethodDecl dc : cd.methods) {
-							if (dc.dir.equals("down") && (ctr.implName.jsName() +"." + dc.name).equals(m.name())) {
+							if (dc.dir.equals("down") && (ctr.implName.jsName() +"." + dc.name).equals(m.name().jsName())) {
 								if (dc.args.size() != m.nargs())
 									errors.message(m.location(), "incorrect number of arguments in declaration, expected " + dc.args.size());
 								requireds.remove(dc);
@@ -302,7 +302,7 @@ public class FLASCompiler implements ScriptCompiler {
 							}
 						}
 						if (!haveMethod)
-							errors.message(m.location(), "cannot implement down method " + m.name() + " because it is not in the contract declaration");
+							errors.message(m.location(), "cannot implement down method " + m.name().jsName() + " because it is not in the contract declaration");
 					}
 					if (!requireds.isEmpty()) {
 						for (RWContractMethodDecl d : requireds)

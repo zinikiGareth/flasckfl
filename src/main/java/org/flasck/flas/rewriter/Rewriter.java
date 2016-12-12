@@ -695,7 +695,7 @@ public class Rewriter {
 						errors.message(m.location(), "inconsistent argument counts in function " + mn);
 				} else {
 					RWMethodDefinition rw = new RWMethodDefinition(cx.cardNameIfAny(), m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name, m.intro.args.size());
-					standalone.put(rw.name(), rw);
+					standalone.put(rw.name().jsName(), rw);
 				}
 				pass1(cx, m.innerScope());
 			} else if (val instanceof EventCaseDefn) {
@@ -1446,7 +1446,7 @@ public class Rewriter {
 					RWMethodDefinition method = new RWMethodDefinition(c2.cardNameIfAny(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, fi.location, fi.fnName, fi.args.size());
 					method.cases.add(mcd);
 					method.gatherScopedVars();
-					this.methods.put(method.name(), method);
+					this.methods.put(method.name().jsName(), method);
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.fnName.jsName()));
 				} else { // something like layout, that is just a set of definitions
 					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
@@ -1856,7 +1856,7 @@ public class Rewriter {
 	}
 
 	private void writeMethod(Indenter pw, RWMethodDefinition m) {
-		pw.println("method " + m.name());
+		pw.println("method " + m.name().jsName());
 		for (ScopedVar sv : m.scopedVars)
 			pw.indent().println("nested " + sv.id + " " + sv.definedIn);
 		for (RWMethodCaseDefn c : m.cases)

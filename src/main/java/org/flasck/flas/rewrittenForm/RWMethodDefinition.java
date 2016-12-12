@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.zinutils.exceptions.UtilException;
 
 public class RWMethodDefinition implements Locatable {
 	public static final int STANDALONE = 5;
@@ -27,6 +28,7 @@ public class RWMethodDefinition implements Locatable {
 	private final int nargs;
 	public final List<RWMethodCaseDefn> cases = new ArrayList<>();
 	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
+	private FunctionName fnName;
 	
 	public RWMethodDefinition(CardName cardNameIfAny, InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, String name, int nargs) {
 		this.inCard = cardNameIfAny.jsName();
@@ -36,10 +38,12 @@ public class RWMethodDefinition implements Locatable {
 		this.dir = dir;
 		this.location = location;
 		this.name = name;
+		this.fnName = new FunctionName(name);
 		this.nargs = nargs;
 	}
 	
 	public RWMethodDefinition(CardName cardNameIfAny, InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, FunctionName name, int nargs) {
+		fnName = name;
 		this.inCard = cardNameIfAny.jsName();
 		this.contractLocation = cloc;
 		this.fromContract = contractName;
@@ -55,8 +59,10 @@ public class RWMethodDefinition implements Locatable {
 		return location;
 	}
 	
-	public String name() {
-		return name;
+	public FunctionName name() {
+		if (fnName == null)
+			throw new UtilException("Deprecated");
+		return fnName;
 	}
 	
 	public int nargs() {
