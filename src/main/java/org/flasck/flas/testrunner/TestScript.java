@@ -54,7 +54,8 @@ public class TestScript implements TestScriptBuilder {
 		return scope;
 	}
 
-	public List<SingleTestCase> cases() {
-		return cases;
+	public void runAllTests(TestCaseRunner testCaseRunner) {
+		for (SingleTestCase tc : cases)
+			testCaseRunner.run(tc);
 	}
 }

@@ -12,7 +12,7 @@ public class SingleTestCase {
 		this.steps = new ArrayList<TestStep>(steps);
 	}
 
-	public String description() {
+	public String getDescription() {
 		return message;
 	}
 

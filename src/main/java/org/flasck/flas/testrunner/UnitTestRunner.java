@@ -18,16 +18,14 @@ import org.flasck.flas.parsedForm.Scope;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.reflection.Reflection;
 import org.zinutils.utils.FileUtils;
-import org.zinutils.utils.MultiTextEmitter;
 
 public class UnitTestRunner {
-	private final MultiTextEmitter results;
 	private final ScriptCompiler compiler;
 	private final CompileResult prior;
 	private final BCEClassLoader loader;
+	private final List<UnitTestResultHandler> handlers = new ArrayList<>();
 
-	public UnitTestRunner(MultiTextEmitter results, ScriptCompiler compiler, CompileResult prior) {
-		this.results = results;
+	public UnitTestRunner(ScriptCompiler compiler, CompileResult prior) {
 		this.compiler = compiler;
 		this.prior = prior;
 		loader = new BCEClassLoader(prior.bce);
@@ -36,11 +34,29 @@ public class UnitTestRunner {
 	public void considerResource(File file) {
 		loader.addClassesFrom(file);
 	}
+
+	public void sendResultsTo(UnitTestResultHandler resultHandler) {
+		handlers.add(resultHandler);
+	}
 	
 	public void run(File f) throws ClassNotFoundException, IOException {
 		String scriptPkg = prior.getPackage() + ".script";
 		TestScript script = convertScript(scriptPkg, f);
 		compileScope(scriptPkg, script.scope());
+		script.runAllTests(new TestCaseRunner() {
+			@Override
+			public void run(SingleTestCase tc) {
+				try {
+					runCase(scriptPkg, tc);
+				} catch (Exception ex) {
+					// this should call handler.failed()
+					ex.printStackTrace();
+				}
+			}
+		});
+	}
+
+	protected void runCase(String scriptPkg, SingleTestCase tc) throws ClassNotFoundException {
 		List<Class<?>> toRun = new ArrayList<>();
 		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$expr1", false, loader));
 		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$value1", false, loader));
@@ -55,15 +71,14 @@ public class UnitTestRunner {
 			evals.put(key, o);
 		}
 		
-		boolean passed = true;
 		try {
 			assertEquals(evals.get("value1"), evals.get("expr1"));
+			for (UnitTestResultHandler h : handlers) {
+				h.testPassed(tc.getDescription());
+			}
 		} catch (AssertionError ex) {
 			ex.printStackTrace();
-			passed = false;
 		}
-		results.print(passed?"PASSED":"FAILED");
-		results.println(":\tvalue x");
 	}
 
 	// Convert f into a standard fl "program" with a set of functions

@@ -12,6 +12,7 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.testrunner.UnitTestResultHandler;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.types.Type;
 import org.jmock.Expectations;
@@ -24,8 +25,6 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.utils.LinePrinter;
-import org.zinutils.utils.MultiTextEmitter;
 
 public class SimpleUnitTestRunnerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -36,8 +35,7 @@ public class SimpleUnitTestRunnerTests {
 	TypeChecker2 tc = new TypeChecker2(errors, rw);
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	CompileResult prior;
-	// This is the wrong thing to mock.  We should have a "results" interface
-	LinePrinter writer = context.mock(LinePrinter.class);
+	private UnitTestResultHandler resultHandler = context.mock(UnitTestResultHandler.class);
 	
 	@BeforeClass
 	public static void prepareLogs() {
@@ -65,8 +63,7 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
 		}});
 		context.checking(new Expectations() {{
-			oneOf(writer).print("PASSED");
-			oneOf(writer).println(":\tvalue x");
+			oneOf(resultHandler).testPassed("a simple test");
 		}});
 
 		runTestScript("\ttest a simple test\n", "\t\tassert x", "\t\t\t32");
@@ -80,16 +77,16 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{
-			oneOf(writer).print("PASSED");
-			oneOf(writer).println(":\tvalue x");
+			oneOf(resultHandler).testPassed("a test of id");
 		}});
 
-		runTestScript("\ttest a simple test\n", "\t\tassert (id 'hello')", "\t\t\t'hello'");
+		runTestScript("\ttest a test of id\n", "\t\tassert (id 'hello')", "\t\t\t'hello'");
 	}
 
 	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);
-		UnitTestRunner r = new UnitTestRunner(new MultiTextEmitter(writer), sc, prior);
+		UnitTestRunner r = new UnitTestRunner(sc, prior);
+		r.sendResultsTo(resultHandler);
 		r.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		r.run(f);
 	}

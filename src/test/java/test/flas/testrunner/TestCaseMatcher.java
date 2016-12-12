@@ -19,7 +19,7 @@ public class TestCaseMatcher extends TypeSafeMatcher<SingleTestCase> {
 
 	@Override
 	protected boolean matchesSafely(SingleTestCase item) {
-		return item.description().equals(caseName);
+		return item.getDescription().equals(caseName);
 	}
 
 }

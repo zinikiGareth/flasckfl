@@ -51,6 +51,7 @@ import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateGenerator;
+import org.flasck.flas.testrunner.FileUnitTestResultHandler;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
@@ -215,7 +216,8 @@ public class FLASCompiler implements ScriptCompiler {
 				FLASCompiler sc = new FLASCompiler();
 				sc.includePrior(cr);
 				// TODO: we probably need to configure the compiler here ...
-				UnitTestRunner utr = new UnitTestRunner(results, sc, cr);
+				UnitTestRunner utr = new UnitTestRunner(sc, cr);
+				utr.sendResultsTo(new FileUnitTestResultHandler(results));
 				for (File p : utpaths)
 					utr.considerResource(p);
 				utr.run(f);
