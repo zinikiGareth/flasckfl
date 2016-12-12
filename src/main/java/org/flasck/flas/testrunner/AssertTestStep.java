@@ -12,23 +12,20 @@ import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.reflection.Reflection;
 
 public class AssertTestStep implements TestStep {
-	public final InputPosition evalPos;
-	public final Object eval;
-	public final InputPosition valuePos;
-	public final Object value;
-	private int exprId;
+//	private final InputPosition evalPos;
+	private final Object eval;
+//	private final InputPosition valuePos;
+	private final Object value;
+	private final int exprId;
 
-	public AssertTestStep(InputPosition evalPos, Object eval, InputPosition valuePos, Object value) {
-		this.evalPos = evalPos;
+	public AssertTestStep(int exprId, InputPosition evalPos, Object eval, InputPosition valuePos, Object value) {
+		this.exprId = exprId;
+//		this.evalPos = evalPos;
 		this.eval = eval;
-		this.valuePos = valuePos;
+//		this.valuePos = valuePos;
 		this.value = value;
 	}
 	
-	public void exprId(int nextStep) {
-		this.exprId = nextStep;
-	}
-
 	@Override
 	public void run(BCEClassLoader loader, String scriptPkg) throws AssertFailed, ClassNotFoundException {
 		List<Class<?>> toRun = new ArrayList<>();
@@ -55,6 +52,6 @@ public class AssertTestStep implements TestStep {
 
 	@Override
 	public String toString() {
-		return "expr " + eval + " should have value ";
+		return "expr " + eval + " should have value " + value;
 	}
 }

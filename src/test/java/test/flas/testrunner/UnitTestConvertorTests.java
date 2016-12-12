@@ -1,6 +1,12 @@
 package test.flas.testrunner;
 
+import static test.flas.testrunner.ExprMatcher.apply;
+import static test.flas.testrunner.ExprMatcher.number;
+import static test.flas.testrunner.ExprMatcher.string;
+import static test.flas.testrunner.ExprMatcher.unresolved;
+
 import org.flasck.flas.blockForm.Block;
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.testrunner.TestScriptBuilder;
 import org.flasck.flas.testrunner.UnitTestConvertor;
 import org.flasck.flas.testrunner.UnitTestStepConvertor;
@@ -10,10 +16,6 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
-import static test.flas.testrunner.ExprMatcher.apply;
-import static test.flas.testrunner.ExprMatcher.number;
-import static test.flas.testrunner.ExprMatcher.string;
-import static test.flas.testrunner.ExprMatcher.unresolved;
 
 public class UnitTestConvertorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -22,7 +24,7 @@ public class UnitTestConvertorTests {
 	public void testWeCanConvertAScriptWithASingleTestCaseGettingIntoAStructuredObject() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
-			oneOf(script).add(with(new AssertMatcher(unresolved("x"), number(32))));
+			oneOf(script).addAssert(with(any(InputPosition.class)), with(unresolved("x")), with(any(InputPosition.class)), with(number(32)));
 			oneOf(script).addTestCase("the value of x is 32");
 		}});
 
@@ -34,7 +36,7 @@ public class UnitTestConvertorTests {
 	public void testWeCanConvertAScriptStepIntoAnAssertionTest() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
-			oneOf(script).add(with(new AssertMatcher(unresolved("x"), number(32)).evalLocation("test", 1, 6, "assert x").valueLocation("-", 1, 0, "32")));
+			oneOf(script).addAssert(with(aNonNull(InputPosition.class)), with(unresolved("x")), with(aNonNull(InputPosition.class)), with(number(32)));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
@@ -46,7 +48,7 @@ public class UnitTestConvertorTests {
 	public void testSimpleFunction() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
-			oneOf(script).add(with(new AssertMatcher(apply(unresolved("id"), number(420)), number(420))));
+			oneOf(script).addAssert(with(any(InputPosition.class)), with(apply(unresolved("id"), number(420))), with(any(InputPosition.class)), with(number(420)));
 			oneOf(script).addTestCase("id returns what you pass it");
 		}});
 		
@@ -60,9 +62,9 @@ public class UnitTestConvertorTests {
 	public void testWeCanConvertAScriptWithTwoCases() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
-			oneOf(script).add(with(new AssertMatcher(apply(unresolved("id"), number(420)), number(420))));
+			oneOf(script).addAssert(with(any(InputPosition.class)), with(apply(unresolved("id"), number(420))), with(any(InputPosition.class)), with(number(420)));
 			oneOf(script).addTestCase("id returns what you pass it");
-			oneOf(script).add(with(new AssertMatcher(apply(unresolved("id"), string("hello")), string("hello"))));
+			oneOf(script).addAssert(with(any(InputPosition.class)), with(apply(unresolved("id"), string("hello"))), with(any(InputPosition.class)), with(string("hello")));
 			oneOf(script).addTestCase("id does something else");
 		}});
 		

@@ -1,6 +1,11 @@
 package test.flas.testrunner;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -8,14 +13,10 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.UnresolvedVar;
-import org.flasck.flas.testrunner.AssertTestStep;
 import org.flasck.flas.testrunner.SingleTestCase;
 import org.flasck.flas.testrunner.TestCaseRunner;
 import org.flasck.flas.testrunner.TestScript;
 import org.jmock.Expectations;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.hasProperty;
-
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
@@ -131,7 +132,7 @@ public class ScriptBuilderTests {
 
 	private Scope runUxCase() {
 		InputPosition posn = new InputPosition("test", 1, 1, null);
-		script.add(new AssertTestStep(posn, new UnresolvedVar(posn, "x"), posn, new NumericLiteral(posn, "420", 4)));
+		script.addAssert(posn, new UnresolvedVar(posn, "x"), posn, new NumericLiteral(posn, "420", 4));
 		script.addTestCase(TEST_CASE_NAME);
 		return script.scope();
 	}

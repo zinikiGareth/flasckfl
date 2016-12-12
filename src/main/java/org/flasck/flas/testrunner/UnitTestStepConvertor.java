@@ -57,7 +57,7 @@ public class UnitTestStepConvertor {
 		else if (valueExpr == null)
 			throw new NotImplementedException();
 		else {
-			builder.add(new AssertTestStep(evalPos, eval, pos, valueExpr));
+			builder.addAssert(evalPos, eval, pos, valueExpr);
 		}
 	}
 }

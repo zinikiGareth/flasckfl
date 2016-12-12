@@ -3,6 +3,7 @@ package org.flasck.flas.testrunner;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -23,26 +24,27 @@ public class TestScript implements TestScriptBuilder {
 	public void error(String msg) {
 		throw new NotImplementedException(msg);
 	}
+	
 
 	@Override
-	public void add(AssertTestStep step) {
-		step.exprId(nextStep);
+	public void addAssert(InputPosition evalPos, Object evalExpr, InputPosition valuePos, Object valueExpr) {
+		AssertTestStep as = new AssertTestStep(nextStep, evalPos, evalExpr, valuePos, valueExpr);
 		{
 			String key = "expr" + nextStep;
 			String longName = defineInPkg+"."+key;
-			FunctionCaseDefn fn = new FunctionCaseDefn(step.evalPos, CodeType.FUNCTION, longName, new ArrayList<>(), step.eval);
+			FunctionCaseDefn fn = new FunctionCaseDefn(evalPos, CodeType.FUNCTION, longName, new ArrayList<>(), evalExpr);
 			fn.provideCaseName(longName+"_0");
 			scope.define(key, longName, fn);
 		}
 		{
 			String key = "value" + nextStep;
 			String longName = defineInPkg+"."+key;
-			FunctionCaseDefn fn = new FunctionCaseDefn(step.valuePos, CodeType.FUNCTION, longName, new ArrayList<>(), step.value);
+			FunctionCaseDefn fn = new FunctionCaseDefn(valuePos, CodeType.FUNCTION, longName, new ArrayList<>(), valueExpr);
 			fn.provideCaseName(longName+"_0");
 			scope.define(key, longName, fn);
 		}
 		nextStep++;
-		currentSteps.add(step);
+		currentSteps.add(as);
 	}
 
 	@Override
