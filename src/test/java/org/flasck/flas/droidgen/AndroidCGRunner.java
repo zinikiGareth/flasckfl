@@ -29,6 +29,7 @@ public class AndroidCGRunner extends CGHarnessRunner {
 		LogManager.getLogger("TypeChecker").setLevel(Level.WARN);
 		FLASCompiler compiler = new FLASCompiler();
 		compiler.searchIn(new File("src/main/resources/flim"));
+		compiler.unitTestPath(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		CompileResult cr = compiler.compile(new File("src/test/resources/cards/test.ziniki"));
 
 		CGHClassLoaderImpl zcl = new CGHClassLoaderImpl();

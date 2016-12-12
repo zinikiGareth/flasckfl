@@ -74,9 +74,14 @@ public class FLASCompiler implements ScriptCompiler {
 	private File writeJS;
 	private File writeTestReports;
 	private final List<CompileResult> priors = new ArrayList<>();
+	private final List<File> utpaths = new ArrayList<File>();
 
 	public void searchIn(File file) {
 		pkgdirs.add(file);
+	}
+	
+	public void unitTestPath(File file) {
+		utpaths.add(file);
 	}
 	
 	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put it
@@ -211,6 +216,8 @@ public class FLASCompiler implements ScriptCompiler {
 				sc.includePrior(cr);
 				// TODO: we probably need to configure the compiler here ...
 				UnitTestRunner utr = new UnitTestRunner(results, sc, cr, f);
+				for (File p : utpaths)
+					utr.considerResource(p);
 				utr.run();
 			} finally {
 			if (close)

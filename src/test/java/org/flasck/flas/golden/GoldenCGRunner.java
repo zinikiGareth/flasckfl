@@ -142,8 +142,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File tc2 = new File(s, "tc-tmp");
 		File droidTo = new File(s, "droid-to");
 		File droid = new File(s, "droid-tmp");
-		
-		File testReportTo = new File("test-reports-tmp");
+		File testReportTo = new File(s, "testReports-tmp");
 		
 		FileUtils.deleteDirectoryTree(new File(s, "errors-tmp"));
 		clean(pform);
@@ -157,6 +156,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		
 		Main.setLogLevels();
 		FLASCompiler compiler = new FLASCompiler();
+		compiler.unitTestPath(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		File dir = new File(s, "test.golden");
 		ErrorResult er = new ErrorResult();
 		for (File input : FileUtils.findFilesMatching(dir, "*.fl")) {
