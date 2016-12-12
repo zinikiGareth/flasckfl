@@ -5,28 +5,28 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 
 public class RWEventHandlerDefinition implements Locatable {
 	public final List<RWEventCaseDefn> cases = new ArrayList<>();
-	public final String cardName;
-	private InputPosition loc;
-	private String name;
+//	public final String cardName;
+//	private InputPosition loc;
+//	private String name;
 	private int nargs;
+	private FunctionName fnName;
 	
-	public RWEventHandlerDefinition(String cardName, InputPosition loc, String name, int nargs) {
-		this.cardName = cardName;
-		this.loc = loc;
-		this.name = name;
+	public RWEventHandlerDefinition(FunctionName name, int nargs) {
+		this.fnName = name;
 		this.nargs = nargs;
 	}
-	
+
 	@Override
 	public InputPosition location() {
-		return loc;
+		return fnName.location;
 	}
 	
-	public String name() {
-		return name;
+	public FunctionName name() {
+		return fnName;
 	}
 	
 	public int nargs() {

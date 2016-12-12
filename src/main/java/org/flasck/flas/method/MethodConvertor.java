@@ -72,7 +72,7 @@ public class MethodConvertor {
 
 	public void convertEventHandlers(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, RWEventHandlerDefinition> eventHandlers) {
 		for (RWEventHandlerDefinition x : eventHandlers.values())
-			addFunction(functions, convertEventHandler(rw, x.cardName, x));
+			addFunction(functions, convertEventHandler(rw, x.name().inCard.jsName(), x));
 	}
 
 	public void convertStandaloneMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Collection<RWMethodDefinition> methods) {
@@ -149,10 +149,10 @@ public class MethodConvertor {
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, new FunctionName(eh.name()), eh.nargs(), card, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, eh.name(), eh.nargs(), card, true);
 		for (RWEventCaseDefn c : eh.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
-			ret.addCase(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.name, c.intro.args, c.intro.vars), ret.nextCase(), typedObject.expr));
+			ret.addCase(new RWFunctionCaseDefn(c.intro, ret.nextCase(), typedObject.expr));
 		}
 		ret.gatherScopedVars();
 		return ret;

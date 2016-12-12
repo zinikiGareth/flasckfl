@@ -231,7 +231,7 @@ public class RewriterTests {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		RWEventHandlerDefinition reh = (RWEventHandlerDefinition) rw.eventHandlers.get("ME.MyCard.eh");
-		assertEquals("ME.MyCard.eh", reh.name());
+		assertEquals("ME.MyCard.eh", reh.name().jsName());
 		assertTrue(reh.cases.get(0).messages.get(0).expr instanceof CardMember);
 		assertEquals("counter", ((CardMember)reh.cases.get(0).messages.get(0).expr).var);
 	}

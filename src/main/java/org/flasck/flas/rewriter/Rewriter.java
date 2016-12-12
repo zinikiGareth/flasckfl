@@ -139,6 +139,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Indenter;
 
@@ -350,11 +351,13 @@ public class Rewriter {
 			return cardName;
 		}
 
-		public FunctionName nextFunction(InputPosition loc, String type, HSIEForm.CodeType from, AreaName areaName) {
-			if (from == CodeType.AREA)
+		public FunctionName nextFunction(InputPosition loc, String type, HSIEForm.CodeType kind, AreaName areaName) {
+			if (kind == CodeType.AREA)
 				return FunctionName.areaMethod(loc, areaName, type +"_"+(fnIdx++));
-			else // CodeType.CARD, at least ...
-				return new FunctionName(cardName.jsName()+"."+type+"_"+(fnIdx++));
+			else if (kind == CodeType.CARD) 
+				return FunctionName.function(loc, kind, new PackageName(cardName.jsName()), cardName, type+"_"+(fnIdx++));
+			else
+				throw new NotImplementedException("nextFunction of type " + kind);
 		}
 	}
 
@@ -707,8 +710,8 @@ public class Rewriter {
 					if (rw.nargs() != ehd.intro.args.size())
 						errors.message(ehd.location(), "inconsistent argument counts in function " + mn);
 				} else {
-					RWEventHandlerDefinition rw = new RWEventHandlerDefinition(cx.cardNameIfAny().jsName(), ehd.location(), ehd.intro.name, ehd.intro.args.size());
-					eventHandlers.put(rw.name(), rw);
+					RWEventHandlerDefinition rw = new RWEventHandlerDefinition(ehd.intro.name(), ehd.intro.args.size());
+					eventHandlers.put(rw.name().jsName(), rw);
 				}
 				pass1(cx, ehd.innerScope());
 			} else if (val instanceof StructDefn) {
@@ -1334,7 +1337,7 @@ public class Rewriter {
 	private void rewrite(NamingContext cx, EventCaseDefn c) {
 		RWEventHandlerDefinition rw = eventHandlers.get(c.intro.name);
 		Map<String, LocalVar> vars = new HashMap<>();
-		gatherVars(errors, this, cx, rw.name(), rw.name(), vars, c.intro);
+		gatherVars(errors, this, cx, rw.name().jsName(), rw.name().jsName(), vars, c.intro);
 		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), false), c, vars));
 	}
 

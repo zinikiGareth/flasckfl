@@ -53,7 +53,6 @@ public class FunctionName implements NameOfThing {
 		}
 		else if (csName != null) {
 			this.jsname = csName.jsName() + "." + name;
-			System.out.println("jsname = " + this.jsname);
 		}
 		else if (card != null)
 			this.jsname = card.jsName() + "." + name;
