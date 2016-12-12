@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
@@ -135,7 +136,9 @@ public class PackageImporter {
 						args.add(getUniqueNestedType(rw, location(xe), fe));
 					}
 					// TODO: should we be (writing and) reading the code type?
-					RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, new FunctionName(xe.required("name")), args.size()-1, xe.optional("incard"), false);
+					String fullName = xe.required("name");
+					int idx = fullName.lastIndexOf(".");
+					RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, FunctionName.function(location(xe), CodeType.FUNCTION, new PackageName(fullName.substring(0, idx)), null, fullName.substring(idx+1)), args.size()-1, xe.optional("incard"), false);
 					Type fntype;
 					if (args.size() == 1)
 						fntype = args.get(0);

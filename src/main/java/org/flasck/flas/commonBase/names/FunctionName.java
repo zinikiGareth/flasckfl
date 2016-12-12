@@ -25,40 +25,16 @@ public class FunctionName implements NameOfThing {
 	private String name;
 	public final CardName inCard;
 	private final AreaName area;
+	private final CSName csName;
 	
-	// an old hack
-	private final String jsname;
-	private static CardName inCard2;
-
-	@Deprecated // this is  too simplistic but was good for compatibility and small changes
-	public FunctionName(String s) {
-		this.location = null;
-		this.codeType = CodeType.FUNCTION; // a random guess, but not used yet
-		this.inPkg = null;
-		this.inCard = null;
-		this.area = null;
-		this.jsname = s;
-	}
-
-	// This is the one true constructor that should be called by a bunch of statics
 	private FunctionName(InputPosition location, CodeType codeType, PackageName pkg, CardName card, CSName csName, AreaName area, String name) {
 		this.location = location;
 		this.codeType = codeType;
 		this.inPkg = pkg;
 		this.inCard = card;
+		this.csName = csName;
 		this.area = area;
 		this.name = name;
-		if (area != null) {
-			this.jsname = area.jsName() + "." + name;
-		}
-		else if (csName != null) {
-			this.jsname = csName.jsName() + "." + name;
-		}
-		else if (card != null) {
-			this.jsname = card.jsName() + "." + name;
-		}
-		else
-			this.jsname = ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
 	}
 
 	// I think the CodeType for this should just be "FUNCTION"; and you should use another type for other things
@@ -81,10 +57,20 @@ public class FunctionName implements NameOfThing {
 	}
 
 	public String jsName() {
-		return jsname;
+		if (area != null) {
+			return area.jsName() + "." + name;
+		}
+		else if (csName != null) {
+			return csName.jsName() + "." + name;
+		}
+		else if (inCard != null) {
+			return inCard.jsName() + "." + name;
+		}
+		else
+			return ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
 	}
 
 	public String toString() {
-		throw new UtilException("Yo!");
+		throw new UtilException("Do not call toString() on a FunctionName; call jsName(), javaName() or other appropriate method");
 	}
 }
