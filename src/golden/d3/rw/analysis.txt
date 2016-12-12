@@ -1,3 +1,246 @@
+function test.golden.TestCard._d3init_chart test.golden.TestCard 0
+  case test.golden.TestCard._d3init_chart_0
+  =
+    @
+      PackageVar.Assoc
+      "data"
+      ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_15()
+      @
+        PackageVar.Assoc
+        "layout"
+        @
+          PackageVar.Cons
+          @
+            PackageVar.FLEval.tuple
+            "rect"
+            @
+              PackageVar.Cons
+              @
+                PackageVar.FLEval.tuple
+                "y"
+                ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_5()
+              @
+                PackageVar.Cons
+                @
+                  PackageVar.FLEval.tuple
+                  "x"
+                  ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_4()
+                @
+                  PackageVar.Cons
+                  @
+                    PackageVar.FLEval.tuple
+                    "width"
+                    ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_3()
+                  @
+                    PackageVar.Cons
+                    @
+                      PackageVar.FLEval.tuple
+                      "height"
+                      ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_2()
+                    @
+                      PackageVar.Cons
+                      @
+                        PackageVar.FLEval.tuple
+                        "fill"
+                        ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_1()
+                      PackageVar.Nil
+          @
+            PackageVar.Cons
+            @
+              PackageVar.FLEval.tuple
+              "text"
+              @
+                PackageVar.Cons
+                @
+                  PackageVar.FLEval.tuple
+                  "y"
+                  ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_14()
+                @
+                  PackageVar.Cons
+                  @
+                    PackageVar.FLEval.tuple
+                    "x"
+                    ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_13()
+                  @
+                    PackageVar.Cons
+                    @
+                      PackageVar.FLEval.tuple
+                      "width"
+                      ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_12()
+                    @
+                      PackageVar.Cons
+                      @
+                        PackageVar.FLEval.tuple
+                        "textAnchor"
+                        ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_11()
+                      @
+                        PackageVar.Cons
+                        @
+                          PackageVar.FLEval.tuple
+                          "text"
+                          ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_10()
+                        @
+                          PackageVar.Cons
+                          @
+                            PackageVar.FLEval.tuple
+                            "height"
+                            ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_9()
+                          @
+                            PackageVar.Cons
+                            @
+                              PackageVar.FLEval.tuple
+                              "fontSize"
+                              ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_8()
+                            @
+                              PackageVar.Cons
+                              @
+                                PackageVar.FLEval.tuple
+                                "fontFamily"
+                                ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_7()
+                              @
+                                PackageVar.Cons
+                                @
+                                  PackageVar.FLEval.tuple
+                                  "fill"
+                                  ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_6()
+                                PackageVar.Nil
+            PackageVar.Nil
+        @
+          PackageVar.Assoc
+          "enter"
+          @
+            PackageVar.Cons
+            ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._d3_chart_enter_rect()
+            @
+              PackageVar.Cons
+              ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._d3_chart_enter_text()
+              PackageVar.Nil
+          PackageVar.NilMap
+function test.golden.TestCard._gen_1 test.golden._TestCard 1
+  case test.golden.TestCard._gen_1_0
+    typed D3Element[A] elt
+  =
+    "red"
+function test.golden.TestCard._gen_10 test.golden._TestCard 1
+  case test.golden.TestCard._gen_10_0
+    typed D3Element[A] elt
+  =
+    @
+      PackageVar.FLEval.field
+      ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
+      "data"
+function test.golden.TestCard._gen_11 test.golden._TestCard 1
+  case test.golden.TestCard._gen_11_0
+    typed D3Element[A] elt
+  =
+    "middle"
+function test.golden.TestCard._gen_12 test.golden._TestCard 1
+  case test.golden.TestCard._gen_12_0
+    typed D3Element[A] elt
+  =
+    20
+function test.golden.TestCard._gen_13 test.golden._TestCard 1
+  case test.golden.TestCard._gen_13_0
+    typed D3Element[A] elt
+  =
+    @
+      PackageVar.+
+      @
+        PackageVar.*
+        22
+        @
+          PackageVar.FLEval.field
+          ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
+          "idx"
+      10
+function test.golden.TestCard._gen_14 test.golden._TestCard 1
+  case test.golden.TestCard._gen_14_0
+    typed D3Element[A] elt
+  =
+    @
+      PackageVar.+
+      @
+        PackageVar.-
+        200
+        @
+          PackageVar.*
+          10
+          @
+            PackageVar.FLEval.field
+            ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
+            "data"
+      14
+function test.golden.TestCard._gen_15 test.golden._TestCard 0
+  case test.golden.TestCard._gen_15_0
+  =
+    CardMember.CardMember[test.golden.TestCard.data]
+function test.golden.TestCard._gen_2 test.golden._TestCard 1
+  case test.golden.TestCard._gen_2_0
+    typed D3Element[A] elt
+  =
+    @
+      PackageVar.*
+      10
+      @
+        PackageVar.FLEval.field
+        ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
+        "data"
+function test.golden.TestCard._gen_3 test.golden._TestCard 1
+  case test.golden.TestCard._gen_3_0
+    typed D3Element[A] elt
+  =
+    20
+function test.golden.TestCard._gen_4 test.golden._TestCard 1
+  case test.golden.TestCard._gen_4_0
+    typed D3Element[A] elt
+  =
+    @
+      PackageVar.*
+      22
+      @
+        PackageVar.FLEval.field
+        ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
+        "idx"
+function test.golden.TestCard._gen_5 test.golden._TestCard 1
+  case test.golden.TestCard._gen_5_0
+    typed D3Element[A] elt
+  =
+    @
+      PackageVar.-
+      200
+      @
+        PackageVar.*
+        10
+        @
+          PackageVar.FLEval.field
+          ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
+          "data"
+function test.golden.TestCard._gen_6 test.golden._TestCard 1
+  case test.golden.TestCard._gen_6_0
+    typed D3Element[A] elt
+  =
+    "black"
+function test.golden.TestCard._gen_7 test.golden._TestCard 1
+  case test.golden.TestCard._gen_7_0
+    typed D3Element[A] elt
+  =
+    "sans-serif"
+function test.golden.TestCard._gen_8 test.golden._TestCard 1
+  case test.golden.TestCard._gen_8_0
+    typed D3Element[A] elt
+  =
+    "11px"
+function test.golden.TestCard._gen_9 test.golden._TestCard 1
+  case test.golden.TestCard._gen_9_0
+    typed D3Element[A] elt
+  =
+    @
+      PackageVar.*
+      10
+      @
+        PackageVar.FLEval.field
+        ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
+        "data"
 function test.golden.TestCard.inits_data 0
   case test.golden.TestCard.inits_data_0
   =
@@ -14,246 +257,3 @@ function test.golden._TestCard.B6.teas_2 test.golden.TestCard 0
   case test.golden._TestCard.B6.teas_2_0
   =
     "250"
-function test.golden._TestCard._d3init_chart test.golden.TestCard 0
-  case test.golden._TestCard._d3init_chart_0
-  =
-    @
-      PackageVar.Assoc
-      "data"
-      ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_15()
-      @
-        PackageVar.Assoc
-        "layout"
-        @
-          PackageVar.Cons
-          @
-            PackageVar.FLEval.tuple
-            "rect"
-            @
-              PackageVar.Cons
-              @
-                PackageVar.FLEval.tuple
-                "y"
-                ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_5()
-              @
-                PackageVar.Cons
-                @
-                  PackageVar.FLEval.tuple
-                  "x"
-                  ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_4()
-                @
-                  PackageVar.Cons
-                  @
-                    PackageVar.FLEval.tuple
-                    "width"
-                    ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_3()
-                  @
-                    PackageVar.Cons
-                    @
-                      PackageVar.FLEval.tuple
-                      "height"
-                      ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_2()
-                    @
-                      PackageVar.Cons
-                      @
-                        PackageVar.FLEval.tuple
-                        "fill"
-                        ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_1()
-                      PackageVar.Nil
-          @
-            PackageVar.Cons
-            @
-              PackageVar.FLEval.tuple
-              "text"
-              @
-                PackageVar.Cons
-                @
-                  PackageVar.FLEval.tuple
-                  "y"
-                  ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_14()
-                @
-                  PackageVar.Cons
-                  @
-                    PackageVar.FLEval.tuple
-                    "x"
-                    ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_13()
-                  @
-                    PackageVar.Cons
-                    @
-                      PackageVar.FLEval.tuple
-                      "width"
-                      ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_12()
-                    @
-                      PackageVar.Cons
-                      @
-                        PackageVar.FLEval.tuple
-                        "textAnchor"
-                        ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_11()
-                      @
-                        PackageVar.Cons
-                        @
-                          PackageVar.FLEval.tuple
-                          "text"
-                          ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_10()
-                        @
-                          PackageVar.Cons
-                          @
-                            PackageVar.FLEval.tuple
-                            "height"
-                            ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_9()
-                          @
-                            PackageVar.Cons
-                            @
-                              PackageVar.FLEval.tuple
-                              "fontSize"
-                              ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_8()
-                            @
-                              PackageVar.Cons
-                              @
-                                PackageVar.FLEval.tuple
-                                "fontFamily"
-                                ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_7()
-                              @
-                                PackageVar.Cons
-                                @
-                                  PackageVar.FLEval.tuple
-                                  "fill"
-                                  ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._gen_6()
-                                PackageVar.Nil
-            PackageVar.Nil
-        @
-          PackageVar.Assoc
-          "enter"
-          @
-            PackageVar.Cons
-            ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._d3_chart_enter_rect()
-            @
-              PackageVar.Cons
-              ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden._TestCard._d3_chart_enter_text()
-              PackageVar.Nil
-          PackageVar.NilMap
-function test.golden._TestCard._gen_1 test.golden._TestCard 1
-  case test.golden._TestCard._gen_1_0
-    typed D3Element[A] elt
-  =
-    "red"
-function test.golden._TestCard._gen_10 test.golden._TestCard 1
-  case test.golden._TestCard._gen_10_0
-    typed D3Element[A] elt
-  =
-    @
-      PackageVar.FLEval.field
-      ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
-      "data"
-function test.golden._TestCard._gen_11 test.golden._TestCard 1
-  case test.golden._TestCard._gen_11_0
-    typed D3Element[A] elt
-  =
-    "middle"
-function test.golden._TestCard._gen_12 test.golden._TestCard 1
-  case test.golden._TestCard._gen_12_0
-    typed D3Element[A] elt
-  =
-    20
-function test.golden._TestCard._gen_13 test.golden._TestCard 1
-  case test.golden._TestCard._gen_13_0
-    typed D3Element[A] elt
-  =
-    @
-      PackageVar.+
-      @
-        PackageVar.*
-        22
-        @
-          PackageVar.FLEval.field
-          ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
-          "idx"
-      10
-function test.golden._TestCard._gen_14 test.golden._TestCard 1
-  case test.golden._TestCard._gen_14_0
-    typed D3Element[A] elt
-  =
-    @
-      PackageVar.+
-      @
-        PackageVar.-
-        200
-        @
-          PackageVar.*
-          10
-          @
-            PackageVar.FLEval.field
-            ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
-            "data"
-      14
-function test.golden._TestCard._gen_15 test.golden._TestCard 0
-  case test.golden._TestCard._gen_15_0
-  =
-    CardMember.CardMember[test.golden.TestCard.data]
-function test.golden._TestCard._gen_2 test.golden._TestCard 1
-  case test.golden._TestCard._gen_2_0
-    typed D3Element[A] elt
-  =
-    @
-      PackageVar.*
-      10
-      @
-        PackageVar.FLEval.field
-        ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
-        "data"
-function test.golden._TestCard._gen_3 test.golden._TestCard 1
-  case test.golden._TestCard._gen_3_0
-    typed D3Element[A] elt
-  =
-    20
-function test.golden._TestCard._gen_4 test.golden._TestCard 1
-  case test.golden._TestCard._gen_4_0
-    typed D3Element[A] elt
-  =
-    @
-      PackageVar.*
-      22
-      @
-        PackageVar.FLEval.field
-        ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
-        "idx"
-function test.golden._TestCard._gen_5 test.golden._TestCard 1
-  case test.golden._TestCard._gen_5_0
-    typed D3Element[A] elt
-  =
-    @
-      PackageVar.-
-      200
-      @
-        PackageVar.*
-        10
-        @
-          PackageVar.FLEval.field
-          ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
-          "data"
-function test.golden._TestCard._gen_6 test.golden._TestCard 1
-  case test.golden._TestCard._gen_6_0
-    typed D3Element[A] elt
-  =
-    "black"
-function test.golden._TestCard._gen_7 test.golden._TestCard 1
-  case test.golden._TestCard._gen_7_0
-    typed D3Element[A] elt
-  =
-    "sans-serif"
-function test.golden._TestCard._gen_8 test.golden._TestCard 1
-  case test.golden._TestCard._gen_8_0
-    typed D3Element[A] elt
-  =
-    "11px"
-function test.golden._TestCard._gen_9 test.golden._TestCard 1
-  case test.golden._TestCard._gen_9_0
-    typed D3Element[A] elt
-  =
-    @
-      PackageVar.*
-      10
-      @
-        PackageVar.FLEval.field
-        ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
-        "data"

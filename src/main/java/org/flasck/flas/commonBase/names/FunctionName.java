@@ -54,8 +54,9 @@ public class FunctionName implements NameOfThing {
 		else if (csName != null) {
 			this.jsname = csName.jsName() + "." + name;
 		}
-		else if (card != null)
+		else if (card != null) {
 			this.jsname = card.jsName() + "." + name;
+		}
 		else
 			this.jsname = ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
 	}

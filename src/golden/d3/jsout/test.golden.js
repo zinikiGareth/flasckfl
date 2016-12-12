@@ -123,6 +123,244 @@ test.golden._TestCard.B7.prototype = new D3Area();
 
 test.golden._TestCard.B7.prototype.constructor = test.golden._TestCard.B7;
 
+test.golden.TestCard.prototype._d3_chart_enter_rect = function() {
+  "use strict";
+  var v0 = FLEval.closure(Cons, 'rect', Nil);
+  var v1 = FLEval.closure(D3Action, 'append', v0);
+  return FLEval.closure(Cons, v1, Nil);
+}
+
+test.golden.TestCard.prototype._d3_chart_enter_text = function() {
+  "use strict";
+  var v0 = FLEval.closure(Cons, 'text', Nil);
+  var v1 = FLEval.closure(D3Action, 'append', v0);
+  return FLEval.closure(Cons, v1, Nil);
+}
+
+test.golden.TestCard.prototype._d3init_chart = function() {
+  "use strict";
+  var v0 = FLEval.closure(FLEval.tuple, 'y', test.golden.TestCard.prototype._gen_5);
+  var v1 = FLEval.closure(FLEval.tuple, 'x', test.golden.TestCard.prototype._gen_4);
+  var v2 = FLEval.closure(FLEval.tuple, 'width', test.golden.TestCard.prototype._gen_3);
+  var v3 = FLEval.closure(FLEval.tuple, 'height', test.golden.TestCard.prototype._gen_2);
+  var v4 = FLEval.closure(FLEval.tuple, 'fill', test.golden.TestCard.prototype._gen_1);
+  var v5 = FLEval.closure(Cons, v4, Nil);
+  var v6 = FLEval.closure(Cons, v3, v5);
+  var v7 = FLEval.closure(Cons, v2, v6);
+  var v8 = FLEval.closure(Cons, v1, v7);
+  var v9 = FLEval.closure(Cons, v0, v8);
+  var v10 = FLEval.closure(FLEval.tuple, 'rect', v9);
+  var v11 = FLEval.closure(FLEval.tuple, 'y', test.golden.TestCard.prototype._gen_14);
+  var v12 = FLEval.closure(FLEval.tuple, 'x', test.golden.TestCard.prototype._gen_13);
+  var v13 = FLEval.closure(FLEval.tuple, 'width', test.golden.TestCard.prototype._gen_12);
+  var v14 = FLEval.closure(FLEval.tuple, 'textAnchor', test.golden.TestCard.prototype._gen_11);
+  var v15 = FLEval.closure(FLEval.tuple, 'text', test.golden.TestCard.prototype._gen_10);
+  var v16 = FLEval.closure(FLEval.tuple, 'height', test.golden.TestCard.prototype._gen_9);
+  var v17 = FLEval.closure(FLEval.tuple, 'fontSize', test.golden.TestCard.prototype._gen_8);
+  var v18 = FLEval.closure(FLEval.tuple, 'fontFamily', test.golden.TestCard.prototype._gen_7);
+  var v19 = FLEval.closure(FLEval.tuple, 'fill', test.golden.TestCard.prototype._gen_6);
+  var v20 = FLEval.closure(Cons, v19, Nil);
+  var v21 = FLEval.closure(Cons, v18, v20);
+  var v22 = FLEval.closure(Cons, v17, v21);
+  var v23 = FLEval.closure(Cons, v16, v22);
+  var v24 = FLEval.closure(Cons, v15, v23);
+  var v25 = FLEval.closure(Cons, v14, v24);
+  var v26 = FLEval.closure(Cons, v13, v25);
+  var v27 = FLEval.closure(Cons, v12, v26);
+  var v28 = FLEval.closure(Cons, v11, v27);
+  var v29 = FLEval.closure(FLEval.tuple, 'text', v28);
+  var v30 = FLEval.closure(Cons, v29, Nil);
+  var v31 = FLEval.closure(Cons, v10, v30);
+  var v32 = FLEval.closure(Cons, test.golden.TestCard.prototype._d3_chart_enter_text, Nil);
+  var v33 = FLEval.closure(Cons, test.golden.TestCard.prototype._d3_chart_enter_rect, v32);
+  var v34 = FLEval.closure(Assoc, 'enter', v33, NilMap);
+  var v35 = FLEval.closure(Assoc, 'layout', v31, v34);
+  return FLEval.closure(Assoc, 'data', test.golden.TestCard.prototype._gen_15, v35);
+}
+
+test.golden.TestCard.prototype._gen_1 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    return 'red';
+  }
+  return FLEval.error("test.golden.TestCard._gen_1: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_10 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    return FLEval.closure(FLEval.field, v0, 'data');
+  }
+  return FLEval.error("test.golden.TestCard._gen_10: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_11 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    return 'middle';
+  }
+  return FLEval.error("test.golden.TestCard._gen_11: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_12 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    return 20;
+  }
+  return FLEval.error("test.golden.TestCard._gen_12: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_13 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    var v1 = FLEval.closure(FLEval.field, v0, 'idx');
+    var v2 = FLEval.closure(FLEval.mul, 22, v1);
+    return FLEval.closure(FLEval.plus, v2, 10);
+  }
+  return FLEval.error("test.golden.TestCard._gen_13: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_14 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    var v1 = FLEval.closure(FLEval.field, v0, 'data');
+    var v2 = FLEval.closure(FLEval.mul, 10, v1);
+    var v3 = FLEval.closure(FLEval.minus, 200, v2);
+    return FLEval.closure(FLEval.plus, v3, 14);
+  }
+  return FLEval.error("test.golden.TestCard._gen_14: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_15 = function() {
+  "use strict";
+  return this.data;
+}
+
+test.golden.TestCard.prototype._gen_2 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    var v1 = FLEval.closure(FLEval.field, v0, 'data');
+    return FLEval.closure(FLEval.mul, 10, v1);
+  }
+  return FLEval.error("test.golden.TestCard._gen_2: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_3 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    return 20;
+  }
+  return FLEval.error("test.golden.TestCard._gen_3: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_4 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    var v1 = FLEval.closure(FLEval.field, v0, 'idx');
+    return FLEval.closure(FLEval.mul, 22, v1);
+  }
+  return FLEval.error("test.golden.TestCard._gen_4: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_5 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    var v1 = FLEval.closure(FLEval.field, v0, 'data');
+    var v2 = FLEval.closure(FLEval.mul, 10, v1);
+    return FLEval.closure(FLEval.minus, 200, v2);
+  }
+  return FLEval.error("test.golden.TestCard._gen_5: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_6 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    return 'black';
+  }
+  return FLEval.error("test.golden.TestCard._gen_6: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_7 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    return 'sans-serif';
+  }
+  return FLEval.error("test.golden.TestCard._gen_7: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_8 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    return '11px';
+  }
+  return FLEval.error("test.golden.TestCard._gen_8: case not handled");
+}
+
+test.golden.TestCard.prototype._gen_9 = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (FLEval.isA(v0, 'D3Element')) {
+    var v1 = FLEval.closure(FLEval.field, v0, 'data');
+    return FLEval.closure(FLEval.mul, 10, v1);
+  }
+  return FLEval.error("test.golden.TestCard._gen_9: case not handled");
+}
+
 test.golden.TestCard.inits_data = function() {
   "use strict";
   var v0 = FLEval.closure(Cons, 16, Nil);
@@ -154,244 +392,6 @@ test.golden._TestCard.B6.prototype.teas_1 = function() {
 test.golden._TestCard.B6.prototype.teas_2 = function() {
   "use strict";
   return '250';
-}
-
-test.golden._TestCard.prototype._d3_chart_enter_rect = function() {
-  "use strict";
-  var v0 = FLEval.closure(Cons, 'rect', Nil);
-  var v1 = FLEval.closure(D3Action, 'append', v0);
-  return FLEval.closure(Cons, v1, Nil);
-}
-
-test.golden._TestCard.prototype._d3_chart_enter_text = function() {
-  "use strict";
-  var v0 = FLEval.closure(Cons, 'text', Nil);
-  var v1 = FLEval.closure(D3Action, 'append', v0);
-  return FLEval.closure(Cons, v1, Nil);
-}
-
-test.golden._TestCard.prototype._d3init_chart = function() {
-  "use strict";
-  var v0 = FLEval.closure(FLEval.tuple, 'y', test.golden._TestCard.prototype._gen_5);
-  var v1 = FLEval.closure(FLEval.tuple, 'x', test.golden._TestCard.prototype._gen_4);
-  var v2 = FLEval.closure(FLEval.tuple, 'width', test.golden._TestCard.prototype._gen_3);
-  var v3 = FLEval.closure(FLEval.tuple, 'height', test.golden._TestCard.prototype._gen_2);
-  var v4 = FLEval.closure(FLEval.tuple, 'fill', test.golden._TestCard.prototype._gen_1);
-  var v5 = FLEval.closure(Cons, v4, Nil);
-  var v6 = FLEval.closure(Cons, v3, v5);
-  var v7 = FLEval.closure(Cons, v2, v6);
-  var v8 = FLEval.closure(Cons, v1, v7);
-  var v9 = FLEval.closure(Cons, v0, v8);
-  var v10 = FLEval.closure(FLEval.tuple, 'rect', v9);
-  var v11 = FLEval.closure(FLEval.tuple, 'y', test.golden._TestCard.prototype._gen_14);
-  var v12 = FLEval.closure(FLEval.tuple, 'x', test.golden._TestCard.prototype._gen_13);
-  var v13 = FLEval.closure(FLEval.tuple, 'width', test.golden._TestCard.prototype._gen_12);
-  var v14 = FLEval.closure(FLEval.tuple, 'textAnchor', test.golden._TestCard.prototype._gen_11);
-  var v15 = FLEval.closure(FLEval.tuple, 'text', test.golden._TestCard.prototype._gen_10);
-  var v16 = FLEval.closure(FLEval.tuple, 'height', test.golden._TestCard.prototype._gen_9);
-  var v17 = FLEval.closure(FLEval.tuple, 'fontSize', test.golden._TestCard.prototype._gen_8);
-  var v18 = FLEval.closure(FLEval.tuple, 'fontFamily', test.golden._TestCard.prototype._gen_7);
-  var v19 = FLEval.closure(FLEval.tuple, 'fill', test.golden._TestCard.prototype._gen_6);
-  var v20 = FLEval.closure(Cons, v19, Nil);
-  var v21 = FLEval.closure(Cons, v18, v20);
-  var v22 = FLEval.closure(Cons, v17, v21);
-  var v23 = FLEval.closure(Cons, v16, v22);
-  var v24 = FLEval.closure(Cons, v15, v23);
-  var v25 = FLEval.closure(Cons, v14, v24);
-  var v26 = FLEval.closure(Cons, v13, v25);
-  var v27 = FLEval.closure(Cons, v12, v26);
-  var v28 = FLEval.closure(Cons, v11, v27);
-  var v29 = FLEval.closure(FLEval.tuple, 'text', v28);
-  var v30 = FLEval.closure(Cons, v29, Nil);
-  var v31 = FLEval.closure(Cons, v10, v30);
-  var v32 = FLEval.closure(Cons, test.golden._TestCard.prototype._d3_chart_enter_text, Nil);
-  var v33 = FLEval.closure(Cons, test.golden._TestCard.prototype._d3_chart_enter_rect, v32);
-  var v34 = FLEval.closure(Assoc, 'enter', v33, NilMap);
-  var v35 = FLEval.closure(Assoc, 'layout', v31, v34);
-  return FLEval.closure(Assoc, 'data', test.golden._TestCard.prototype._gen_15, v35);
-}
-
-test.golden._TestCard.prototype._gen_1 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    return 'red';
-  }
-  return FLEval.error("test.golden._TestCard._gen_1: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_10 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    return FLEval.closure(FLEval.field, v0, 'data');
-  }
-  return FLEval.error("test.golden._TestCard._gen_10: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_11 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    return 'middle';
-  }
-  return FLEval.error("test.golden._TestCard._gen_11: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_12 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    return 20;
-  }
-  return FLEval.error("test.golden._TestCard._gen_12: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_13 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    var v1 = FLEval.closure(FLEval.field, v0, 'idx');
-    var v2 = FLEval.closure(FLEval.mul, 22, v1);
-    return FLEval.closure(FLEval.plus, v2, 10);
-  }
-  return FLEval.error("test.golden._TestCard._gen_13: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_14 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    var v1 = FLEval.closure(FLEval.field, v0, 'data');
-    var v2 = FLEval.closure(FLEval.mul, 10, v1);
-    var v3 = FLEval.closure(FLEval.minus, 200, v2);
-    return FLEval.closure(FLEval.plus, v3, 14);
-  }
-  return FLEval.error("test.golden._TestCard._gen_14: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_15 = function() {
-  "use strict";
-  return this.data;
-}
-
-test.golden._TestCard.prototype._gen_2 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    var v1 = FLEval.closure(FLEval.field, v0, 'data');
-    return FLEval.closure(FLEval.mul, 10, v1);
-  }
-  return FLEval.error("test.golden._TestCard._gen_2: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_3 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    return 20;
-  }
-  return FLEval.error("test.golden._TestCard._gen_3: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_4 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    var v1 = FLEval.closure(FLEval.field, v0, 'idx');
-    return FLEval.closure(FLEval.mul, 22, v1);
-  }
-  return FLEval.error("test.golden._TestCard._gen_4: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_5 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    var v1 = FLEval.closure(FLEval.field, v0, 'data');
-    var v2 = FLEval.closure(FLEval.mul, 10, v1);
-    return FLEval.closure(FLEval.minus, 200, v2);
-  }
-  return FLEval.error("test.golden._TestCard._gen_5: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_6 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    return 'black';
-  }
-  return FLEval.error("test.golden._TestCard._gen_6: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_7 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    return 'sans-serif';
-  }
-  return FLEval.error("test.golden._TestCard._gen_7: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_8 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    return '11px';
-  }
-  return FLEval.error("test.golden._TestCard._gen_8: case not handled");
-}
-
-test.golden._TestCard.prototype._gen_9 = function(v0) {
-  "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
-  }
-  if (FLEval.isA(v0, 'D3Element')) {
-    var v1 = FLEval.closure(FLEval.field, v0, 'data');
-    return FLEval.closure(FLEval.mul, 10, v1);
-  }
-  return FLEval.error("test.golden._TestCard._gen_9: case not handled");
 }
 
 test.golden;

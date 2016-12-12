@@ -1431,14 +1431,15 @@ public class Rewriter {
 						Object expr = rewriteExpr(c2, prop.value);
 						// TODO: only create functions for things that depend on the class
 						// constants can just be used directly
-						FunctionLiteral efn = functionWithArgs(prefix, nextFn++, CollectionUtils.listOf(new RWTypedPattern(d3.d3.varLoc, d3Elt, d3.d3.varLoc, d3.d3.iterVar)), expr);
+						FunctionLiteral efn = functionWithArgs(c2.cardNameIfAny(), prefix, nextFn++, CollectionUtils.listOf(new RWTypedPattern(d3.d3.varLoc, d3Elt, d3.d3.varLoc, d3.d3.iterVar)), expr);
 						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
 						pl = new ApplyExpr(prop.location, cons, pair, pl);
 					}
 					byKey.add(s.name, new ApplyExpr(s.location, tuple, p.pattern, pl));
 				}
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
-					RWFunctionIntro fi = new RWFunctionIntro(s.location, prefix + "._d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text, new ArrayList<Object>(), null);
+					FunctionName fn = FunctionName.function(s.location, CodeType.CARD, new PackageName(prefix), c2.cardNameIfAny(), "_d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text);
+					RWFunctionIntro fi = new RWFunctionIntro(s.location, fn, new ArrayList<Object>(), null);
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					for (MethodMessage mm : s.actions)
 						mcd.addMessage(rewrite(c2, mm));
@@ -1464,14 +1465,15 @@ public class Rewriter {
 		}
 
 		Locatable dataExpr = (Locatable) rewriteExpr(c2, d3.d3.expr);
-		FunctionLiteral dataFn = functionWithArgs(prefix, nextFn++, new ArrayList<Object>(), dataExpr);
+		FunctionLiteral dataFn = functionWithArgs(c2.cardNameIfAny(), prefix, nextFn++, new ArrayList<Object>(), dataExpr);
 		init = new ApplyExpr(dataExpr.location(), assoc, new StringLiteral(dataExpr.location(), "data"), dataFn, init);
 
-		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.varLoc, prefix + "._d3init_" + d3.d3.name, new ArrayList<Object>(), null);
-		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, new FunctionName(d3f.name), 0, c2.cardNameIfAny().jsName(), true);
+		FunctionName name = FunctionName.function(d3.d3.varLoc, CodeType.CARD, new PackageName(prefix), c2.cardNameIfAny(), "_d3init_" + d3.d3.name);
+		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.varLoc, name, new ArrayList<Object>(), null);
+		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, name, 0, c2.cardNameIfAny().jsName(), true);
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, init));
 		func.gatherScopedVars();
-		functions.put(d3f.name, func);
+		functions.put(name.jsName(), func);
 	}
 
 	private <T extends Comparable<T>> List<T> sortAlphabetically(List<T> items) {
@@ -1481,12 +1483,13 @@ public class Rewriter {
 		return ret;
 	}
 
-	private FunctionLiteral functionWithArgs(final String prefix, final int nextFn, List<Object> args, Object expr) {
+	private FunctionLiteral functionWithArgs(CardName inCard, final String prefix, final int nextFn, List<Object> args, Object expr) {
 		String name = "_gen_" + nextFn;
 
 		InputPosition loc = ((Locatable)expr).location(); // may or may not be correct location
-		RWFunctionIntro d3f = new RWFunctionIntro(loc, prefix + "." + name, args, null);
-		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, new FunctionName(d3f.name), args.size(), prefix, true);
+		FunctionName fn = FunctionName.function(loc, CodeType.CARD, new PackageName(prefix), inCard, name);
+		RWFunctionIntro d3f = new RWFunctionIntro(loc, fn, args, null);
+		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, fn, args.size(), prefix, true);
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, expr));
 		functions.put(d3f.name, func);
 
@@ -1498,7 +1501,7 @@ public class Rewriter {
 		for (Object o : intro.args) {
 			args.add(rewritePattern(cx, csName, o));
 		}
-		return new RWFunctionIntro(intro.location, intro.name, args, vars);
+		return new RWFunctionIntro(intro.location, intro.name(), args, vars);
 	}
 
 	public Object rewritePattern(NamingContext cx, String name, Object o) {
