@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
@@ -22,6 +23,10 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 			throw new UtilException("Cannot build function case with null expr");
 		this.expr = expr;
 		this.scope = new Scope(this);
+	}
+
+	public FunctionCaseDefn(FunctionName name, List<Object> args, Object expr) {
+		this(name.location, name.codeType, name.jsName(), args, expr);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
@@ -17,8 +18,9 @@ import org.zinutils.exceptions.UtilException;
 //  * offering the different options for the name (jsName, className, basicName, etc)
 //  * eventually hiding the "name" var ...
 public class FunctionName implements NameOfThing {
-	private final CodeType codeType;
-	private String inPkg;
+	public final InputPosition location;
+	public final CodeType codeType;
+	private final PackageName inPkg;
 	private String name;
 	
 	// an old hack
@@ -26,20 +28,23 @@ public class FunctionName implements NameOfThing {
 
 	@Deprecated // this is  too simplistic but was good for compatibility and small changes
 	public FunctionName(String s) {
+		this.location = null;
 		this.codeType = CodeType.FUNCTION; // a random guess, but not used yet
+		this.inPkg = null;
 		this.jsname = s;
 	}
 
 	// This is the one true constructor that should be called by a bunch of statics
-	public FunctionName(CodeType codeType, String inPkg, String name) {
+	public FunctionName(InputPosition location, CodeType codeType, PackageName pkg, String name) {
+		this.location = location;
 		this.codeType = codeType;
-		this.inPkg = inPkg;
+		this.inPkg = pkg;
 		this.name = name;
-		this.jsname = (inPkg!=null?inPkg+".":"")+name;
+		this.jsname = ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
 	}
 
-	public static FunctionName function(String inPkg, String name) {
-		return new FunctionName(CodeType.FUNCTION, inPkg, name);
+	public static FunctionName function(InputPosition location, CodeType codeType, PackageName pkg, String name) {
+		return new FunctionName(location, codeType, pkg, name);
 	}
 
 	public String jsName() {

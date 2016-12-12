@@ -66,7 +66,7 @@ public class MethodConvertorTests {
 		RWUnionTypeDefn any = (RWUnionTypeDefn) biscope.get("Any");
 		RWStructDefn send = (RWStructDefn) biscope.get("Send");
 		{
-			RWFunctionDefinition doSend = new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(null, "doSend"), 1, null, false);
+			RWFunctionDefinition doSend = new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, CodeType.FUNCTION, null, "doSend"), 1, null, false);
 			doSend.setType(Type.function(posn, any, send));
 			biscope.define("doSend", doSend);
 		}
