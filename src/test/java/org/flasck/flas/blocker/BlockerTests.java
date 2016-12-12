@@ -48,14 +48,15 @@ public class BlockerTests {
 		BlockTestData.assertBlocksEqual(BlockTestData.packageAndFibNWithG(), blocks.get(0));
 	}
 
-	public static void showBlocks(int ind, List<Block> blocks) {
+	public static void showBlocks(String tag, int ind, List<Block> blocks) {
 		for (Block b : blocks) {
-			showBlock(ind, b);
+			showBlock(tag, ind, b);
 		}
 	}
 
-	public static void showBlock(int ind, Block b) {
+	public static void showBlock(String tag, int ind, Block b) {
 		for (SingleLine sl : b.line.lines) {
+			System.out.print(tag + " ");
 			for (int i=0;i<ind;i++) {
 				System.out.print(' ');
 			}
@@ -64,6 +65,6 @@ public class BlockerTests {
 			System.out.print(sl.line);
 			System.out.println();
 		}
-		showBlocks(ind+2, b.nested);
+		showBlocks(tag, ind+2, b.nested);
 	}
 }

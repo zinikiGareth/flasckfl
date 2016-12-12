@@ -15,9 +15,10 @@ public class BlockTestData {
 		return builder()
 			.lineNo(2)
 			.line("package org.ziniki")
-			.comment("fred")
 			.indent()
+			.comment("fred")
 			.line("fib n = fib (n-1) + fib (n-2)")
+			.indent()
 			.comment("bert")
 			.build();
 	}
@@ -196,8 +197,8 @@ public class BlockTestData {
 	}
 
 	public static void assertBlocksEqual(Block expected, Block actual) {
-		BlockerTests.showBlock(0, expected);
-		BlockerTests.showBlock(0, actual);
+		BlockerTests.showBlock("Ex", 0, expected);
+		BlockerTests.showBlock("Ac", 0, actual);
 		int lines = expected.line.lines.size();
 		assertEquals(expected.line.lines.size(), actual.line.lines.size());
 		for (int i=0;i<lines;i++) {

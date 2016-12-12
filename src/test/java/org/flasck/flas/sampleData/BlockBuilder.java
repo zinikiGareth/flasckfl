@@ -7,16 +7,16 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.ContinuedLine;
 import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.SingleLine;
+import org.zinutils.exceptions.UtilException;
 
 public class BlockBuilder {
 	private final String file;
-	private Block block = new Block();
+	private boolean indent = true;
 	private List<Block> stack = new ArrayList<Block>();
 	private int lineNo = 1;
 	
 	public BlockBuilder(String file) {
 		this.file = file;
-		stack.add(block);
 	}
 	
 	public BlockBuilder lineNo(int n) {
@@ -25,21 +25,25 @@ public class BlockBuilder {
 	}
 	
 	public BlockBuilder line(String line) {
-		ContinuedLine cl = stack.get(stack.size()-1).line;
-		if (cl == null)
-			cl = stack.get(stack.size()-1).line = new ContinuedLine();
-		else {
-			stack.remove(stack.size()-1);
-			Block b = new Block();
-			stack.get(stack.size()-1).nested.add(b);
-			stack.add(b);
-			cl = new ContinuedLine();
-			b.line = cl;
-		}
-		cl.lines.add(new SingleLine(file, lineNo++, new Indent(stack.size(), 0), line));
+		Block newBlock = addBlockInAppropriatePlace();
+		newBlock.line.lines.add(new SingleLine(file, lineNo++, new Indent(stack.size(), 0), line));
 		return this;
 	}
 	
+	private Block addBlockInAppropriatePlace() {
+		Block newBlock = new Block(new ContinuedLine());
+		if (!indent) {
+			stack.remove(stack.size()-1);
+			if (stack.isEmpty())
+				throw new UtilException("Cannot have multiple top-level blocks");
+		}
+		if (!stack.isEmpty())
+			stack.get(stack.size()-1).nested.add(newBlock);
+		stack.add(newBlock);
+		indent = false;
+		return newBlock;
+	}
+
 	public BlockBuilder continuation(int ind, String line) {
 		ContinuedLine cl = stack.get(stack.size()-1).line;
 		if (cl == null) 
@@ -49,32 +53,29 @@ public class BlockBuilder {
 	}
 
 	public BlockBuilder comment(String line) {
-		ContinuedLine cl = stack.get(stack.size()-1).line;
-		if (cl != null) { 
-			Block b = new Block();
-			stack.get(stack.size()-1).nested.add(b);
-			cl = new ContinuedLine();
-			b.line = cl;
-		} else
-			cl = stack.get(stack.size()-1).line = new ContinuedLine();
-		cl.lines.add(new SingleLine(file, lineNo++, null, line));
+		Block block = addBlockInAppropriatePlace();
+//		if (cl != null) { 
+//			Block b = new Block(new ContinuedLine());
+//			stack.get(stack.size()-1).nested.add(b);
+//			cl = b.line;
+//		} else
+//			cl = stack.get(stack.size()-1).line = new ContinuedLine();
+		block.line.lines.add(new SingleLine(file, lineNo++, null, line));
 		return this;
 	}
 	
 	public BlockBuilder indent() {
-		Block b = new Block();
-		stack.get(stack.size()-1).nested.add(b);
-		stack.add(b);
+		indent = true;
 		return this;
 	}
 
 	public BlockBuilder exdent() {
 		stack.remove(stack.size()-1);
-		stack.get(stack.size()-1).nested.add(new Block());
+		indent = true;
 		return this;
 	}
 
 	public Block build() {
-		return block;
+		return stack.get(0);
 	}
 }
