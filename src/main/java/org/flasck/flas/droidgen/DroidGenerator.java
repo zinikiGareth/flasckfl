@@ -1,6 +1,5 @@
 package org.flasck.flas.droidgen;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,45 +41,18 @@ import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.utils.FileUtils;
 
 public class DroidGenerator {
-	private final DroidBuilder builder;
+	private final boolean doBuild;
 	private ByteCodeEnvironment bce;
-//	private final static Logger logger = LoggerFactory.getLogger("DroidGen");
 
-	public DroidGenerator(HSIE hsie, DroidBuilder bldr, ByteCodeEnvironment bce) {
-		this.builder = bldr;
+	public DroidGenerator(HSIE hsie, boolean doBuild, ByteCodeEnvironment bce) {
+		this.doBuild = doBuild;
 		this.bce = bce;
 	}
 	
-	public void generateAppObject() {
-		if (builder == null)
-			return;
-		// TODO: this package name needs to be configurable
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, "com.helpfulsidekick.chaddy.MainApplicationClass");
-		bcc.superclass("org.flasck.android.FlasckApplication");
-		{
-			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", "org/flasck/android/FLASObject", "<init>").flush();
-			ctor.returnVoid().flush();
-		}
-		{
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "onCreate");
-			gen.returns("void");
-			NewMethodDefiner oc = gen.done();
-			oc.setAccess(Access.PUBLIC);
-			oc.callSuper("void", "org.flasck.android.FlasckActivity", "onCreate").flush();
-			for (PackageInfo x : builder.packages) {
-				oc.callVirtual("void", oc.myThis(), "bindPackage", oc.stringConst(x.local), oc.stringConst(x.remote), oc.intConst(x.version)).flush();
-			}
-			oc.returnVoid().flush();
-		}
-	}
-	
 	public void generate(RWStructDefn value) {
-		if (builder == null || !value.generate)
+		if (!doBuild || !value.generate)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, value.name());
 		Map<String, FieldInfo> fields = new TreeMap<String,FieldInfo>();
@@ -105,7 +77,7 @@ public class DroidGenerator {
 	}
 
 	public void generate(String key, CardGrouping grp) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, grp.struct.name());
 		bcc.superclass("org.flasck.android.FlasckActivity");
@@ -185,7 +157,7 @@ public class DroidGenerator {
 	}
 
 	public void generateContractDecl(String name, RWContractDecl cd) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, name);
 		bcc.superclass("org.flasck.android.ContractImpl");
@@ -210,7 +182,7 @@ public class DroidGenerator {
 	}
 
 	public void generateContractImpl(String name, RWContractImplements ci) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, DroidUtils.javaNestedName(name));
 		bcc.superclass(ci.name());
@@ -228,7 +200,7 @@ public class DroidGenerator {
 	}
 
 	public void generateService(String name, RWContractService cs) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, DroidUtils.javaNestedName(name));
 		bcc.superclass(cs.name());
@@ -245,7 +217,7 @@ public class DroidGenerator {
 	}
 
 	public void generateHandler(String name, RWHandlerImplements hi) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, DroidUtils.javaNestedName(name));
 		bcc.superclass(hi.name());
@@ -310,7 +282,7 @@ public class DroidGenerator {
 	}
 
 	public void generate(Collection<HSIEForm> forms) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		for (HSIEForm f : forms) {
 			new FormGenerator(bce, f).generate();
@@ -318,7 +290,7 @@ public class DroidGenerator {
 	}
 
 	public NewMethodDefiner generateRender(String clz, String topBlock) {
-		if (builder == null)
+		if (!doBuild)
 			return null;
 		ByteCodeCreator bcc = bce.get(clz);
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
@@ -332,7 +304,7 @@ public class DroidGenerator {
 	}
 
 	public CGRContext area(String clz, String base, String customTag) {
-		if (builder == null)
+		if (!doBuild)
 			return null;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, DroidUtils.javaNestedName(clz));
 		String baseClz = "org.flasck.android.areas." + base;
@@ -404,13 +376,13 @@ public class DroidGenerator {
 	}
 
 	public void setText(CGRContext cgrx, String text) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		cgrx.ctor.callVirtual("void", cgrx.ctor.myThis(), "_setText", cgrx.ctor.stringConst(text)).flush();
 	}
 
 	public void contentExpr(CGRContext cgrx, String tfn, boolean rawHTML) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_contentExpr");
 		gen.returns("java.lang.Object");
@@ -427,7 +399,7 @@ public class DroidGenerator {
 	}
 
 	public void newListChild(CGRContext cgrx, String child) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_newChild");
 		PendingVar ck = gen.argument("org.flasck.android.builtin.Crokey", "crokey");
@@ -441,7 +413,7 @@ public class DroidGenerator {
 	}
 
 	public void yoyoExpr(CGRContext cgrx, String tfn) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_yoyoExpr");
 		gen.returns("java.lang.Object");
@@ -461,7 +433,7 @@ public class DroidGenerator {
 	}
 
 	public void onAssign(CGRContext cgrx, CardMember valExpr, String call) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		// I think this is removing the "prototype" ... at some point, rationalize all this
 		// so that we pass around a struct with "package" "class", "area", "method" or whatever we need ...
@@ -472,7 +444,7 @@ public class DroidGenerator {
 	}
 
 	public void onAssign(CGRContext cgrx, Expr expr, String field, String call) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		int idx = call.lastIndexOf(".");
 		if (idx != -1)
@@ -481,7 +453,7 @@ public class DroidGenerator {
 	}
 
 	public void interested(CGRContext cgrx, String var, String call) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		int idx = call.lastIndexOf(".");
 		if (idx != -1)
@@ -491,7 +463,7 @@ public class DroidGenerator {
 	}
 
 	public void addAssign(CGRContext cgrx, String call) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		int idx = call.lastIndexOf(".prototype");
 		call = call.substring(idx+11);
@@ -499,7 +471,7 @@ public class DroidGenerator {
 	}
 
 	public void assignToVar(CGRContext cgrx, String varName) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		GenericAnnotator gen = GenericAnnotator.newMethod(cgrx.bcc, false, "_assignToVar");
 		PendingVar arg = gen.argument("java.lang.Object", "obj");
@@ -524,17 +496,8 @@ public class DroidGenerator {
 	}
 
 	public void done(CGRContext cgrx) {
-		if (builder == null)
+		if (!doBuild)
 			return;
 		cgrx.ctor.returnVoid().flush();
-	}
-
-	public void write() {
-		if (builder == null || builder.qbcdir == null)
-			return;
-		for (ByteCodeCreator bcc : bce.all()) {
-			File wto = new File(builder.qbcdir, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
-			bcc.writeTo(wto);
-		}
 	}
 }

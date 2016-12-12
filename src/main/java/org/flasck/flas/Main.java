@@ -10,8 +10,8 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
+import org.flasck.builder.jvm.DroidBuilder;
 import org.flasck.flas.compiler.FLASCompiler;
-import org.flasck.flas.droidgen.DroidBuilder;
 import org.flasck.flas.errors.ErrorResultException;
 
 public class Main {

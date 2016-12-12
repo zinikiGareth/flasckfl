@@ -17,11 +17,11 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
+import org.flasck.builder.jvm.DroidBuilder;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
-import org.flasck.flas.droidgen.DroidBuilder;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
@@ -226,7 +226,6 @@ public class FLASCompiler implements ScriptCompiler {
 	private CompileResult stage2(ErrorResult errors, CompileResult prior, String inPkg, Scope scope) throws ErrorResultException, IOException {
 		File writeTo = writeJS!= null ? new File(writeJS, inPkg + ".js"):null;
 		File exportTo = writeFlim!=null?new File(writeFlim, inPkg + ".flim"):null;
-		ByteCodeEnvironment bce = new ByteCodeEnvironment();
 			
 		// 3. Rework any "syntatic sugar" forms into their proper forms
 		new SugarDetox(errors).detox(scope);
@@ -241,7 +240,8 @@ public class FLASCompiler implements ScriptCompiler {
 			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter);
-			final DroidGenerator dg = new DroidGenerator(hsie, builder, bce);
+			final ByteCodeEnvironment bce = new ByteCodeEnvironment();
+			final DroidGenerator dg = new DroidGenerator(hsie, builder != null, bce);
 
 			rewriter.importPackage1(rootPkg);
 			
@@ -264,8 +264,6 @@ public class FLASCompiler implements ScriptCompiler {
 			JSTarget target = new JSTarget(inPkg);
 			Generator gen = new Generator(target);
 
-			dg.generateAppObject();
-			
 			for (Entry<String, RWStructDefn> sd : rewriter.structs.entrySet()) {
 				gen.generate(sd.getValue());
 				dg.generate(sd.getValue());
@@ -413,9 +411,10 @@ public class FLASCompiler implements ScriptCompiler {
 			}
 
 			// 13b. Issue Droid
-			if (dg != null) {
+			if (builder != null) {
 				try {
-					dg.write();
+					builder.generateAppObject(bce);
+					builder.write(bce);
 				} catch (Exception ex) {
 					System.err.println("Cannot write to " + builder.androidDir + ": " + ex.getMessage());
 					ex.printStackTrace();
