@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class RWMethodDefinition implements Locatable {
@@ -26,8 +27,8 @@ public class RWMethodDefinition implements Locatable {
 	public final List<RWMethodCaseDefn> cases = new ArrayList<>();
 	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
 	
-	public RWMethodDefinition(String cardNameIfAny, InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, String name, int nargs) {
-		this.inCard = cardNameIfAny;
+	public RWMethodDefinition(CardName cardNameIfAny, InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, String name, int nargs) {
+		this.inCard = cardNameIfAny.jsName();
 		this.contractLocation = cloc;
 		this.fromContract = contractName;
 		this.type = type;

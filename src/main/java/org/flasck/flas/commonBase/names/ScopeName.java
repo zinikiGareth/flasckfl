@@ -1,4 +1,6 @@
-package org.flasck.flas.rewrittenForm;
+package org.flasck.flas.commonBase.names;
+
+import org.flasck.flas.commonBase.NameOfThing;
 
 public class ScopeName implements NameOfThing {
 	private final String scope;

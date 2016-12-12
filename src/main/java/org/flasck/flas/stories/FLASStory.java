@@ -11,6 +11,7 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.FLASError;
@@ -76,20 +77,20 @@ import org.zinutils.exceptions.UtilException;
 
 public class FLASStory {
 	public static class State {
-		private String pkg;
+		public final PackageName pkgName;
 		public final Scope scope;
 		public final HSIEForm.CodeType kind;
 
 		public State(Scope scope, String pkg, HSIEForm.CodeType kind) {
 			this.scope = scope;
-			this.pkg = pkg;
+			this.pkgName = new PackageName(pkg);
 			this.kind = kind;
 		}
 
 		public String withPkg(String name) {
-			if (pkg == null || pkg.length() == 0)
+			if (pkgName == null || pkgName.simpleName() == null || pkgName.simpleName().length() == 0)
 				return name;
-			return pkg +"." + name;
+			return pkgName.simpleName() +"." + name;
 		}
 
 		public static String simpleName(String key) {

@@ -1,8 +1,10 @@
-package org.flasck.flas.rewrittenForm;
+package org.flasck.flas.commonBase.names;
+
+import org.flasck.flas.commonBase.NameOfThing;
 
 public class CardName implements NameOfThing, Comparable<CardName> {
-	private final PackageName pkg;
-	private final String cardName;
+	public final PackageName pkg;
+	public final String cardName;
 
 	public CardName(PackageName pkg, String cardName) {
 		this.pkg = pkg;
@@ -17,6 +19,8 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	public String jsName() {
 		if (pkg == null && cardName == null)
 			return null;
+		if (pkg == null || pkg.simpleName() == null)
+			return cardName;
 		return pkg.simpleName() + "." + cardName;
 	}
 

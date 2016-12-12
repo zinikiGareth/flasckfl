@@ -15,11 +15,17 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.errors.ErrorResult;
@@ -73,23 +79,18 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.parser.ItemExpr;
 import org.flasck.flas.rewrittenForm.AreaName;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
-import org.flasck.flas.rewrittenForm.CSName;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
-import org.flasck.flas.rewrittenForm.CardName;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
-import org.flasck.flas.rewrittenForm.FunctionName;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
-import org.flasck.flas.rewrittenForm.HandlerName;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.ObjectReference;
-import org.flasck.flas.rewrittenForm.PackageName;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
@@ -125,7 +126,6 @@ import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
-import org.flasck.flas.rewrittenForm.ScopeName;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.tokenizers.ExprToken;
@@ -678,12 +678,10 @@ public class Rewriter {
 					RWMethodDefinition ret = methods.get(mn);
 					if (prev != null && !prev.equals(name))
 						errors.message(m.location(), "split function definition: " + mn);
-//					if (ret.mytype != m.mytype())
-//						errors.message(m.location(), "mismatched kinds in function " + mn);
 					if (ret.nargs() != m.nargs())
 						errors.message(m.location(), "inconsistent argument counts in function " + mn);
 				} else {
-					RWMethodDefinition rw = new RWMethodDefinition(cx.cardNameIfAny().jsName(), m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name, m.intro.args.size());
+					RWMethodDefinition rw = new RWMethodDefinition(cx.cardNameIfAny(), m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name, m.intro.args.size());
 					standalone.put(rw.name(), rw);
 				}
 				pass1(cx, m.innerScope());
@@ -853,7 +851,7 @@ public class Rewriter {
 			for (MethodCaseDefn c : ci.methods) {
 				if (methods.containsKey(c.intro.name))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny().jsName(), rw.location(), rw.name(), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, c.location(), c.intro.name, c.intro.args.size());
+				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, c.location(), c.intro.name, c.intro.args.size());
 				rewriteCase(c2, rwm, c, true, false);
 				methods.put(c.intro.name, rwm);
 				rw.methods.add(rwm);
@@ -871,7 +869,7 @@ public class Rewriter {
 			for (MethodCaseDefn c : cs.methods) {
 				if (methods.containsKey(c.intro.name))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny().jsName(), rw.location(), rw.name(), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, c.intro.location, c.intro.name, c.intro.args.size());
+				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, c.intro.location, c.intro.name, c.intro.args.size());
 				rewriteCase(c2, rwm, c, true, false);
 				methods.put(c.intro.name, rwm);
 				rwm.gatherScopedVars();
@@ -1267,7 +1265,7 @@ public class Rewriter {
 			for (MethodCaseDefn c : hi.methods) {
 				if (methods.containsKey(c.intro.name))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rm = new RWMethodDefinition(hc.cardNameIfAny().jsName(), ret.location(), ret.name(), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, c.intro.location, c.intro.name, c.intro.args.size());
+				RWMethodDefinition rm = new RWMethodDefinition(hc.cardNameIfAny(), ret.location(), ret.name(), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, c.intro.location, c.intro.name, c.intro.args.size());
 				rewriteCase(hc, rm, c, true, false);
 				ret.methods.add(rm);
 				rm.gatherScopedVars();
@@ -1431,7 +1429,7 @@ public class Rewriter {
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					for (MethodMessage mm : s.actions)
 						mcd.addMessage(rewrite(c2, mm));
-					RWMethodDefinition method = new RWMethodDefinition(c2.cardNameIfAny().jsName(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, fi.location, fi.name, fi.args.size());
+					RWMethodDefinition method = new RWMethodDefinition(c2.cardNameIfAny(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, fi.location, fi.name, fi.args.size());
 					method.cases.add(mcd);
 					method.gatherScopedVars();
 					this.methods.put(method.name(), method);

@@ -1,7 +1,7 @@
 package org.flasck.flas.flim;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.rewrittenForm.FunctionName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWObjectMethod;

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.commonBase.PlatformSpec;
+import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.CardName;
 
 public class CardGrouping {
 	public static class ContractGrouping {

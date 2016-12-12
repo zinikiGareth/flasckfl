@@ -1,5 +1,6 @@
-package org.flasck.flas.rewrittenForm;
+package org.flasck.flas.commonBase.names;
 
+import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 

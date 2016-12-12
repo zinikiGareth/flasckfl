@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.stories.FLASStory.State;
 
 public class CardDefinition implements ContainsScope, Locatable {
@@ -25,12 +26,12 @@ public class CardDefinition implements ContainsScope, Locatable {
 	public final List<HandlerImplements> handlers = new ArrayList<HandlerImplements>();
 	public final Scope fnScope;
 
-	public CardDefinition(InputPosition kw, InputPosition location, Scope outer, String name) {
+	public CardDefinition(InputPosition kw, InputPosition location, Scope outer, CardName name) {
 		this.kw = kw;
 		this.location = location;
-		this.simpleName = State.simpleName(name);
-		outer.define(simpleName, name, this);
-		this.name = name;
+		this.simpleName = name.cardName;
+		outer.define(simpleName, name.jsName(), this);
+		this.name = name.jsName();
 		this.fnScope = new Scope(this);
 	}
 

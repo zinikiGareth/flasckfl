@@ -11,6 +11,7 @@ public class FunctionIntro {
 
 	public FunctionIntro(InputPosition location, String name, List<Object> args) {
 		this.location = location;
+		System.out.println("FI: " + name);
 		this.name = name;
 		this.args = args;
 	}

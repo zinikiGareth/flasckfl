@@ -1,5 +1,7 @@
-package org.flasck.flas.rewrittenForm;
+package org.flasck.flas.commonBase;
 
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.ScopeName;
 import org.zinutils.exceptions.UtilException;
 
 public class HandlerName implements NameOfThing, Comparable<HandlerName> {

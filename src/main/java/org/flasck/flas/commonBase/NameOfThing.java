@@ -1,4 +1,4 @@
-package org.flasck.flas.rewrittenForm;
+package org.flasck.flas.commonBase;
 
 public interface NameOfThing {
 

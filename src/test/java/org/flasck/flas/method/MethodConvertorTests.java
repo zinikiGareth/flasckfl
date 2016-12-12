@@ -12,6 +12,9 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
@@ -36,7 +39,6 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewrittenForm.FunctionName;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -104,7 +106,7 @@ public class MethodConvertorTests {
 		
 		{
 			rewriter = new Rewriter(errors, null, biscope);
-			cd = new CardDefinition(posn, posn, orgFooScope, "org.foo.Card");
+			cd = new CardDefinition(posn, posn, orgFooScope, new CardName(new PackageName("org.foo"), "Card"));
 			cd.state = new StateDefinition(posn);
 			cd.state.addField(new StructField(posn, false, new TypeReference(posn, "String"), "str"));
 			{

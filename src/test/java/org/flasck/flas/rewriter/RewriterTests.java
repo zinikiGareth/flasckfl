@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
@@ -154,7 +156,7 @@ public class RewriterTests {
 	
 	@Test
 	public void testRewritingAStateVar() throws Exception {
-		CardDefinition cd = new CardDefinition(posn, posn, scope, "MyCard");
+		CardDefinition cd = new CardDefinition(posn, posn, scope, new CardName(null, "MyCard"));
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
@@ -172,7 +174,7 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAContractVar() throws Exception {
-		CardDefinition cd = new CardDefinition(posn, posn, scope, "MyCard");
+		CardDefinition cd = new CardDefinition(posn, posn, scope, new CardName(null, "MyCard"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		cd.contracts.add(new ContractImplements(posn, posn, "Timer", posn, "timer"));
 //		scope.define("MyCard", "ME.MyCard", cd);
@@ -190,7 +192,7 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAContractMethod() throws Exception {
-		CardDefinition cd = new CardDefinition(posn, posn, scope, "ME.MyCard");
+		CardDefinition cd = new CardDefinition(posn, posn, scope, new CardName(new PackageName("ME"), "MyCard"));
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
@@ -214,7 +216,7 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAnEventHandler() throws Exception {
-		CardDefinition cd = new CardDefinition(posn, posn, scope, "MyCard");
+		CardDefinition cd = new CardDefinition(posn, posn, scope, new CardName(null, "MyCard"));
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract

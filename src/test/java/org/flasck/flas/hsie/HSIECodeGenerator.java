@@ -5,13 +5,13 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.PrintWriter;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parser.FunctionParser;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewrittenForm.FunctionName;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;

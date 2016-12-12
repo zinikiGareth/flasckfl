@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewrittenForm.FunctionName;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
