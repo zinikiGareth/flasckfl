@@ -65,7 +65,7 @@ public class test.golden.MyCard$B1 extends org.flasck.android.areas.TextArea {
 
   public java.lang.Object contents_0();
     Code:
-       0: new           #56                 // class org/flasck/android/FLClosure
+       0: new           #56                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: ldc           #51                 // class org/flasck/android/FLEval$Field
        6: iconst_2      
@@ -80,7 +80,7 @@ public class test.golden.MyCard$B1 extends org.flasck.android.areas.TextArea {
       21: iconst_1      
       22: ldc           #33                 // String title
       24: aastore       
-      25: invokespecial #62                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      25: invokespecial #62                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       28: areturn       
 
   public java.lang.Object editcontainer_1();

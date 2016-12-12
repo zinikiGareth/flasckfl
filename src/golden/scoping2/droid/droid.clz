@@ -30,7 +30,7 @@ public class test.golden.PACKAGEFUNCTIONS {
       14: aload_0       
       15: instanceof    #33                 // class test/golden/UpC
       18: ifeq          116
-      21: new           #35                 // class org/flasck/android/FLClosure
+      21: new           #35                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #6                  // class test/golden/scoped_0$MyHc
       27: iconst_1      
@@ -39,9 +39,9 @@ public class test.golden.PACKAGEFUNCTIONS {
       32: iconst_0      
       33: ldc           #37                 // String test.golden.scoped_0.requestObj
       35: aastore       
-      36: invokespecial #42                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      36: invokespecial #42                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       39: astore_1      
-      40: new           #35                 // class org/flasck/android/FLClosure
+      40: new           #35                 // class org/flasck/jvm/FLClosure
       43: dup           
       44: ldc           #11                 // class test/golden/scoped_0$request
       46: iconst_2      
@@ -54,9 +54,9 @@ public class test.golden.PACKAGEFUNCTIONS {
       55: iconst_1      
       56: aload_0       
       57: aastore       
-      58: invokespecial #42                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      58: invokespecial #42                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       61: astore_2      
-      62: new           #35                 // class org/flasck/android/FLClosure
+      62: new           #35                 // class org/flasck/jvm/FLClosure
       65: dup           
       66: ldc           #43                 // class org/flasck/android/builtin/Cons
       68: iconst_2      
@@ -71,9 +71,9 @@ public class test.golden.PACKAGEFUNCTIONS {
       79: anewarray     #3                  // class java/lang/Object
       82: invokestatic  #50                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       85: aastore       
-      86: invokespecial #42                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      86: invokespecial #42                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       89: astore_3      
-      90: new           #35                 // class org/flasck/android/FLClosure
+      90: new           #35                 // class org/flasck/jvm/FLClosure
       93: dup           
       94: ldc           #51                 // class org/flasck/android/builtin/MessageWrapper
       96: iconst_2      
@@ -87,7 +87,7 @@ public class test.golden.PACKAGEFUNCTIONS {
      109: iconst_1      
      110: aload_3       
      111: aastore       
-     112: invokespecial #42                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     112: invokespecial #42                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      115: areturn       
      116: new           #31                 // class org/flasck/android/FLError
      119: dup           
@@ -112,12 +112,12 @@ public class test.golden.scoped_0$MyHc extends test.golden.Hc {
        1: arraylength   
        2: iconst_1      
        3: if_icmpge     18
-       6: new           #23                 // class org/flasck/android/FLCurry
+       6: new           #23                 // class org/flasck/jvm/FLCurry
        9: dup           
       10: aconst_null   
       11: ldc           #1                  // class test/golden/scoped_0$MyHc
       13: aload_0       
-      14: invokespecial #27                 // Method org/flasck/android/FLCurry."<init>":(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Object;)V
+      14: invokespecial #27                 // Method org/flasck/jvm/FLCurry."<init>":(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Object;)V
       17: areturn       
       18: new           #1                  // class test/golden/scoped_0$MyHc
       21: dup           
@@ -129,15 +129,15 @@ public class test.golden.scoped_0$MyHc extends test.golden.Hc {
 
   public java.lang.Object reply(org.flasck.android.post.DeliveryAddress);
     Code:
-       0: new           #40                 // class org/flasck/android/FLClosure
+       0: new           #40                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: aload_0       
        5: getfield      #21                 // Field requestObj:Ljava/lang/Object;
        8: iconst_0      
        9: anewarray     #42                 // class java/lang/Object
-      12: invokespecial #46                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Object;[Ljava/lang/Object;)V
+      12: invokespecial #46                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Object;[Ljava/lang/Object;)V
       15: astore_2      
-      16: new           #40                 // class org/flasck/android/FLClosure
+      16: new           #40                 // class org/flasck/jvm/FLClosure
       19: dup           
       20: ldc           #47                 // class org/flasck/android/builtin/Cons
       22: iconst_2      
@@ -152,7 +152,7 @@ public class test.golden.scoped_0$MyHc extends test.golden.Hc {
       33: anewarray     #42                 // class java/lang/Object
       36: invokestatic  #53                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       39: aastore       
-      40: invokespecial #56                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #56                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: areturn       
 }
 public abstract class test.golden.UpC extends org.flasck.android.ContractImpl {
@@ -183,14 +183,14 @@ public class test.golden.scoped_0.PACKAGEFUNCTIONS$requestObj {
 public class test.golden.scoped_0.PACKAGEFUNCTIONS {
   public static java.lang.Object request(java.lang.Object, java.lang.Object);
     Code:
-       0: new           #17                 // class org/flasck/android/FLClosure
+       0: new           #17                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: aload_0       
        5: iconst_0      
        6: anewarray     #3                  // class java/lang/Object
-       9: invokespecial #22                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Object;[Ljava/lang/Object;)V
+       9: invokespecial #22                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Object;[Ljava/lang/Object;)V
       12: astore_2      
-      13: new           #17                 // class org/flasck/android/FLClosure
+      13: new           #17                 // class org/flasck/jvm/FLClosure
       16: dup           
       17: ldc           #23                 // class org/flasck/android/builtin/Cons
       19: iconst_2      
@@ -205,9 +205,9 @@ public class test.golden.scoped_0.PACKAGEFUNCTIONS {
       30: anewarray     #3                  // class java/lang/Object
       33: invokestatic  #30                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       36: aastore       
-      37: invokespecial #33                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      37: invokespecial #33                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       40: astore_3      
-      41: new           #17                 // class org/flasck/android/FLClosure
+      41: new           #17                 // class org/flasck/jvm/FLClosure
       44: dup           
       45: ldc           #34                 // class org/flasck/android/builtin/Send
       47: iconst_3      
@@ -224,9 +224,9 @@ public class test.golden.scoped_0.PACKAGEFUNCTIONS {
       61: iconst_2      
       62: aload_3       
       63: aastore       
-      64: invokespecial #33                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      64: invokespecial #33                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       67: astore        4
-      69: new           #17                 // class org/flasck/android/FLClosure
+      69: new           #17                 // class org/flasck/jvm/FLClosure
       72: dup           
       73: ldc           #23                 // class org/flasck/android/builtin/Cons
       75: iconst_2      
@@ -241,7 +241,7 @@ public class test.golden.scoped_0.PACKAGEFUNCTIONS {
       87: anewarray     #3                  // class java/lang/Object
       90: invokestatic  #30                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       93: aastore       
-      94: invokespecial #33                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      94: invokespecial #33                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       97: areturn       
 
   public static java.lang.Object requestObj();

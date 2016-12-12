@@ -31,7 +31,7 @@ public class test.golden.Getter extends org.flasck.android.FlasckActivity {
       14: aload_1       
       15: instanceof    #43                 // class org/flasck/android/builtin/String
       18: ifeq          103
-      21: new           #45                 // class org/flasck/android/FLClosure
+      21: new           #45                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #21                 // class org/flasck/android/FLEval$Field
       27: iconst_2      
@@ -44,11 +44,11 @@ public class test.golden.Getter extends org.flasck.android.FlasckActivity {
       36: iconst_1      
       37: ldc           #49                 // String item
       39: aastore       
-      40: invokespecial #53                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #53                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: astore_2      
       44: aload_2       
       45: astore_3      
-      46: new           #45                 // class org/flasck/android/FLClosure
+      46: new           #45                 // class org/flasck/jvm/FLClosure
       49: dup           
       50: ldc           #54                 // class org/flasck/android/builtin/Assign
       52: iconst_3      
@@ -65,9 +65,9 @@ public class test.golden.Getter extends org.flasck.android.FlasckActivity {
       66: iconst_2      
       67: aload_3       
       68: aastore       
-      69: invokespecial #53                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      69: invokespecial #53                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       72: astore        4
-      74: new           #45                 // class org/flasck/android/FLClosure
+      74: new           #45                 // class org/flasck/jvm/FLClosure
       77: dup           
       78: ldc           #58                 // class org/flasck/android/builtin/Cons
       80: iconst_2      
@@ -82,7 +82,7 @@ public class test.golden.Getter extends org.flasck.android.FlasckActivity {
       92: anewarray     #47                 // class java/lang/Object
       95: invokestatic  #65                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       98: aastore       
-      99: invokespecial #53                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      99: invokespecial #53                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      102: areturn       
      103: new           #41                 // class org/flasck/android/FLError
      106: dup           

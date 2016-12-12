@@ -21,7 +21,7 @@ public class test.golden.Foo$_C0 extends test.import.Fred {
       14: aload_1       
       15: instanceof    #41                 // class org/flasck/android/builtin/Number
       18: ifeq          97
-      21: new           #43                 // class org/flasck/android/FLClosure
+      21: new           #43                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #45                 // class test/import/PACKAGEFUNCTIONS$f
       27: iconst_1      
@@ -30,9 +30,9 @@ public class test.golden.Foo$_C0 extends test.import.Fred {
       32: iconst_0      
       33: aload_1       
       34: aastore       
-      35: invokespecial #51                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      35: invokespecial #51                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       38: astore_2      
-      39: new           #43                 // class org/flasck/android/FLClosure
+      39: new           #43                 // class org/flasck/jvm/FLClosure
       42: dup           
       43: ldc           #52                 // class org/flasck/android/builtin/Assign
       45: iconst_3      
@@ -50,9 +50,9 @@ public class test.golden.Foo$_C0 extends test.import.Fred {
       62: iconst_2      
       63: aload_2       
       64: aastore       
-      65: invokespecial #51                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      65: invokespecial #51                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       68: astore_3      
-      69: new           #43                 // class org/flasck/android/FLClosure
+      69: new           #43                 // class org/flasck/jvm/FLClosure
       72: dup           
       73: ldc           #56                 // class org/flasck/android/builtin/Cons
       75: iconst_2      
@@ -67,7 +67,7 @@ public class test.golden.Foo$_C0 extends test.import.Fred {
       86: anewarray     #47                 // class java/lang/Object
       89: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       92: aastore       
-      93: invokespecial #51                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      93: invokespecial #51                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       96: areturn       
       97: new           #39                 // class org/flasck/android/FLError
      100: dup           

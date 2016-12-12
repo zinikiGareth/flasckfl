@@ -548,7 +548,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
 
   public java.lang.Object rejig(java.lang.Object);
     Code:
-       0: new           #46                 // class org/flasck/android/FLClosure
+       0: new           #46                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: ldc           #48                 // class org/flasck/android/builtin/Cons
        6: iconst_2      
@@ -564,9 +564,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       21: anewarray     #50                 // class java/lang/Object
       24: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       27: aastore       
-      28: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      28: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       31: astore_2      
-      32: new           #46                 // class org/flasck/android/FLClosure
+      32: new           #46                 // class org/flasck/jvm/FLClosure
       35: dup           
       36: ldc           #48                 // class org/flasck/android/builtin/Cons
       38: iconst_2      
@@ -580,9 +580,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       51: iconst_1      
       52: aload_2       
       53: aastore       
-      54: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      54: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       57: astore_3      
-      58: new           #46                 // class org/flasck/android/FLClosure
+      58: new           #46                 // class org/flasck/jvm/FLClosure
       61: dup           
       62: ldc           #48                 // class org/flasck/android/builtin/Cons
       64: iconst_2      
@@ -596,9 +596,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       77: iconst_1      
       78: aload_3       
       79: aastore       
-      80: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      80: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       83: astore        4
-      85: new           #46                 // class org/flasck/android/FLClosure
+      85: new           #46                 // class org/flasck/jvm/FLClosure
       88: dup           
       89: ldc           #48                 // class org/flasck/android/builtin/Cons
       91: iconst_2      
@@ -612,9 +612,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      103: iconst_1      
      104: aload         4
      106: aastore       
-     107: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     107: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      110: astore        5
-     112: new           #46                 // class org/flasck/android/FLClosure
+     112: new           #46                 // class org/flasck/jvm/FLClosure
      115: dup           
      116: ldc           #67                 // class org/flasck/android/builtin/Assign
      118: iconst_3      
@@ -631,9 +631,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      132: iconst_2      
      133: aload         5
      135: aastore       
-     136: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     136: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      139: astore        6
-     141: new           #46                 // class org/flasck/android/FLClosure
+     141: new           #46                 // class org/flasck/jvm/FLClosure
      144: dup           
      145: ldc           #48                 // class org/flasck/android/builtin/Cons
      147: iconst_2      
@@ -648,12 +648,12 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      159: anewarray     #50                 // class java/lang/Object
      162: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
      165: aastore       
-     166: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     166: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      169: areturn       
 
   public java.lang.Object _d3_chart_enter_rect();
     Code:
-       0: new           #46                 // class org/flasck/android/FLClosure
+       0: new           #46                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: ldc           #48                 // class org/flasck/android/builtin/Cons
        6: iconst_2      
@@ -668,9 +668,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       18: anewarray     #50                 // class java/lang/Object
       21: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       24: aastore       
-      25: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      25: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       28: astore_1      
-      29: new           #46                 // class org/flasck/android/FLClosure
+      29: new           #46                 // class org/flasck/jvm/FLClosure
       32: dup           
       33: ldc           #77                 // class org/flasck/android/builtin/D3Action
       35: iconst_2      
@@ -683,9 +683,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       45: iconst_1      
       46: aload_1       
       47: aastore       
-      48: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      48: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       51: astore_2      
-      52: new           #46                 // class org/flasck/android/FLClosure
+      52: new           #46                 // class org/flasck/jvm/FLClosure
       55: dup           
       56: ldc           #48                 // class org/flasck/android/builtin/Cons
       58: iconst_2      
@@ -700,12 +700,12 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       69: anewarray     #50                 // class java/lang/Object
       72: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       75: aastore       
-      76: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      76: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       79: areturn       
 
   public java.lang.Object _d3_chart_enter_text();
     Code:
-       0: new           #46                 // class org/flasck/android/FLClosure
+       0: new           #46                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: ldc           #48                 // class org/flasck/android/builtin/Cons
        6: iconst_2      
@@ -720,9 +720,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       18: anewarray     #50                 // class java/lang/Object
       21: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       24: aastore       
-      25: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      25: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       28: astore_1      
-      29: new           #46                 // class org/flasck/android/FLClosure
+      29: new           #46                 // class org/flasck/jvm/FLClosure
       32: dup           
       33: ldc           #77                 // class org/flasck/android/builtin/D3Action
       35: iconst_2      
@@ -735,9 +735,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       45: iconst_1      
       46: aload_1       
       47: aastore       
-      48: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      48: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       51: astore_2      
-      52: new           #46                 // class org/flasck/android/FLClosure
+      52: new           #46                 // class org/flasck/jvm/FLClosure
       55: dup           
       56: ldc           #48                 // class org/flasck/android/builtin/Cons
       58: iconst_2      
@@ -752,12 +752,12 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       69: anewarray     #50                 // class java/lang/Object
       72: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       75: aastore       
-      76: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      76: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       79: areturn       
 
   public java.lang.Object _d3init_chart();
     Code:
-       0: new           #46                 // class org/flasck/android/FLClosure
+       0: new           #46                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: ldc           #85                 // class org/flasck/android/FLEval$Tuple
        6: iconst_2      
@@ -770,9 +770,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       16: iconst_1      
       17: aload_0       
       18: aastore       
-      19: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      19: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       22: astore_1      
-      23: new           #46                 // class org/flasck/android/FLClosure
+      23: new           #46                 // class org/flasck/jvm/FLClosure
       26: dup           
       27: ldc           #85                 // class org/flasck/android/FLEval$Tuple
       29: iconst_2      
@@ -785,9 +785,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       39: iconst_1      
       40: aload_0       
       41: aastore       
-      42: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      42: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       45: astore_2      
-      46: new           #46                 // class org/flasck/android/FLClosure
+      46: new           #46                 // class org/flasck/jvm/FLClosure
       49: dup           
       50: ldc           #85                 // class org/flasck/android/FLEval$Tuple
       52: iconst_2      
@@ -800,9 +800,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       62: iconst_1      
       63: aload_0       
       64: aastore       
-      65: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      65: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       68: astore_3      
-      69: new           #46                 // class org/flasck/android/FLClosure
+      69: new           #46                 // class org/flasck/jvm/FLClosure
       72: dup           
       73: ldc           #85                 // class org/flasck/android/FLEval$Tuple
       75: iconst_2      
@@ -815,9 +815,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       85: iconst_1      
       86: aload_0       
       87: aastore       
-      88: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      88: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       91: astore        4
-      93: new           #46                 // class org/flasck/android/FLClosure
+      93: new           #46                 // class org/flasck/jvm/FLClosure
       96: dup           
       97: ldc           #85                 // class org/flasck/android/FLEval$Tuple
       99: iconst_2      
@@ -830,9 +830,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      109: iconst_1      
      110: aload_0       
      111: aastore       
-     112: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     112: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      115: astore        5
-     117: new           #46                 // class org/flasck/android/FLClosure
+     117: new           #46                 // class org/flasck/jvm/FLClosure
      120: dup           
      121: ldc           #48                 // class org/flasck/android/builtin/Cons
      123: iconst_2      
@@ -847,9 +847,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      135: anewarray     #50                 // class java/lang/Object
      138: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
      141: aastore       
-     142: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     142: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      145: astore        6
-     147: new           #46                 // class org/flasck/android/FLClosure
+     147: new           #46                 // class org/flasck/jvm/FLClosure
      150: dup           
      151: ldc           #48                 // class org/flasck/android/builtin/Cons
      153: iconst_2      
@@ -862,9 +862,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      163: iconst_1      
      164: aload         6
      166: aastore       
-     167: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     167: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      170: astore        7
-     172: new           #46                 // class org/flasck/android/FLClosure
+     172: new           #46                 // class org/flasck/jvm/FLClosure
      175: dup           
      176: ldc           #48                 // class org/flasck/android/builtin/Cons
      178: iconst_2      
@@ -877,9 +877,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      187: iconst_1      
      188: aload         7
      190: aastore       
-     191: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     191: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      194: astore        8
-     196: new           #46                 // class org/flasck/android/FLClosure
+     196: new           #46                 // class org/flasck/jvm/FLClosure
      199: dup           
      200: ldc           #48                 // class org/flasck/android/builtin/Cons
      202: iconst_2      
@@ -892,9 +892,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      211: iconst_1      
      212: aload         8
      214: aastore       
-     215: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     215: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      218: astore        9
-     220: new           #46                 // class org/flasck/android/FLClosure
+     220: new           #46                 // class org/flasck/jvm/FLClosure
      223: dup           
      224: ldc           #48                 // class org/flasck/android/builtin/Cons
      226: iconst_2      
@@ -907,9 +907,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      235: iconst_1      
      236: aload         9
      238: aastore       
-     239: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     239: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      242: astore        10
-     244: new           #46                 // class org/flasck/android/FLClosure
+     244: new           #46                 // class org/flasck/jvm/FLClosure
      247: dup           
      248: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      250: iconst_2      
@@ -922,9 +922,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      260: iconst_1      
      261: aload         10
      263: aastore       
-     264: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     264: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      267: astore        11
-     269: new           #46                 // class org/flasck/android/FLClosure
+     269: new           #46                 // class org/flasck/jvm/FLClosure
      272: dup           
      273: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      275: iconst_2      
@@ -937,9 +937,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      285: iconst_1      
      286: aload_0       
      287: aastore       
-     288: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     288: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      291: astore        12
-     293: new           #46                 // class org/flasck/android/FLClosure
+     293: new           #46                 // class org/flasck/jvm/FLClosure
      296: dup           
      297: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      299: iconst_2      
@@ -952,9 +952,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      309: iconst_1      
      310: aload_0       
      311: aastore       
-     312: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     312: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      315: astore        13
-     317: new           #46                 // class org/flasck/android/FLClosure
+     317: new           #46                 // class org/flasck/jvm/FLClosure
      320: dup           
      321: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      323: iconst_2      
@@ -967,9 +967,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      333: iconst_1      
      334: aload_0       
      335: aastore       
-     336: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     336: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      339: astore        14
-     341: new           #46                 // class org/flasck/android/FLClosure
+     341: new           #46                 // class org/flasck/jvm/FLClosure
      344: dup           
      345: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      347: iconst_2      
@@ -982,9 +982,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      357: iconst_1      
      358: aload_0       
      359: aastore       
-     360: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     360: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      363: astore        15
-     365: new           #46                 // class org/flasck/android/FLClosure
+     365: new           #46                 // class org/flasck/jvm/FLClosure
      368: dup           
      369: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      371: iconst_2      
@@ -997,9 +997,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      381: iconst_1      
      382: aload_0       
      383: aastore       
-     384: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     384: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      387: astore        16
-     389: new           #46                 // class org/flasck/android/FLClosure
+     389: new           #46                 // class org/flasck/jvm/FLClosure
      392: dup           
      393: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      395: iconst_2      
@@ -1012,9 +1012,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      405: iconst_1      
      406: aload_0       
      407: aastore       
-     408: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     408: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      411: astore        17
-     413: new           #46                 // class org/flasck/android/FLClosure
+     413: new           #46                 // class org/flasck/jvm/FLClosure
      416: dup           
      417: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      419: iconst_2      
@@ -1027,9 +1027,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      429: iconst_1      
      430: aload_0       
      431: aastore       
-     432: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     432: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      435: astore        18
-     437: new           #46                 // class org/flasck/android/FLClosure
+     437: new           #46                 // class org/flasck/jvm/FLClosure
      440: dup           
      441: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      443: iconst_2      
@@ -1042,9 +1042,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      453: iconst_1      
      454: aload_0       
      455: aastore       
-     456: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     456: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      459: astore        19
-     461: new           #46                 // class org/flasck/android/FLClosure
+     461: new           #46                 // class org/flasck/jvm/FLClosure
      464: dup           
      465: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      467: iconst_2      
@@ -1057,9 +1057,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      477: iconst_1      
      478: aload_0       
      479: aastore       
-     480: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     480: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      483: astore        20
-     485: new           #46                 // class org/flasck/android/FLClosure
+     485: new           #46                 // class org/flasck/jvm/FLClosure
      488: dup           
      489: ldc           #48                 // class org/flasck/android/builtin/Cons
      491: iconst_2      
@@ -1074,9 +1074,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      503: anewarray     #50                 // class java/lang/Object
      506: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
      509: aastore       
-     510: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     510: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      513: astore        21
-     515: new           #46                 // class org/flasck/android/FLClosure
+     515: new           #46                 // class org/flasck/jvm/FLClosure
      518: dup           
      519: ldc           #48                 // class org/flasck/android/builtin/Cons
      521: iconst_2      
@@ -1089,9 +1089,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      531: iconst_1      
      532: aload         21
      534: aastore       
-     535: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     535: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      538: astore        22
-     540: new           #46                 // class org/flasck/android/FLClosure
+     540: new           #46                 // class org/flasck/jvm/FLClosure
      543: dup           
      544: ldc           #48                 // class org/flasck/android/builtin/Cons
      546: iconst_2      
@@ -1104,9 +1104,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      556: iconst_1      
      557: aload         22
      559: aastore       
-     560: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     560: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      563: astore        23
-     565: new           #46                 // class org/flasck/android/FLClosure
+     565: new           #46                 // class org/flasck/jvm/FLClosure
      568: dup           
      569: ldc           #48                 // class org/flasck/android/builtin/Cons
      571: iconst_2      
@@ -1119,9 +1119,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      581: iconst_1      
      582: aload         23
      584: aastore       
-     585: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     585: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      588: astore        24
-     590: new           #46                 // class org/flasck/android/FLClosure
+     590: new           #46                 // class org/flasck/jvm/FLClosure
      593: dup           
      594: ldc           #48                 // class org/flasck/android/builtin/Cons
      596: iconst_2      
@@ -1134,9 +1134,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      606: iconst_1      
      607: aload         24
      609: aastore       
-     610: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     610: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      613: astore        25
-     615: new           #46                 // class org/flasck/android/FLClosure
+     615: new           #46                 // class org/flasck/jvm/FLClosure
      618: dup           
      619: ldc           #48                 // class org/flasck/android/builtin/Cons
      621: iconst_2      
@@ -1149,9 +1149,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      631: iconst_1      
      632: aload         25
      634: aastore       
-     635: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     635: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      638: astore        26
-     640: new           #46                 // class org/flasck/android/FLClosure
+     640: new           #46                 // class org/flasck/jvm/FLClosure
      643: dup           
      644: ldc           #48                 // class org/flasck/android/builtin/Cons
      646: iconst_2      
@@ -1164,9 +1164,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      656: iconst_1      
      657: aload         26
      659: aastore       
-     660: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     660: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      663: astore        27
-     665: new           #46                 // class org/flasck/android/FLClosure
+     665: new           #46                 // class org/flasck/jvm/FLClosure
      668: dup           
      669: ldc           #48                 // class org/flasck/android/builtin/Cons
      671: iconst_2      
@@ -1179,9 +1179,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      681: iconst_1      
      682: aload         27
      684: aastore       
-     685: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     685: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      688: astore        28
-     690: new           #46                 // class org/flasck/android/FLClosure
+     690: new           #46                 // class org/flasck/jvm/FLClosure
      693: dup           
      694: ldc           #48                 // class org/flasck/android/builtin/Cons
      696: iconst_2      
@@ -1194,9 +1194,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      706: iconst_1      
      707: aload         28
      709: aastore       
-     710: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     710: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      713: astore        29
-     715: new           #46                 // class org/flasck/android/FLClosure
+     715: new           #46                 // class org/flasck/jvm/FLClosure
      718: dup           
      719: ldc           #85                 // class org/flasck/android/FLEval$Tuple
      721: iconst_2      
@@ -1209,9 +1209,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      731: iconst_1      
      732: aload         29
      734: aastore       
-     735: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     735: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      738: astore        30
-     740: new           #46                 // class org/flasck/android/FLClosure
+     740: new           #46                 // class org/flasck/jvm/FLClosure
      743: dup           
      744: ldc           #48                 // class org/flasck/android/builtin/Cons
      746: iconst_2      
@@ -1226,9 +1226,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      758: anewarray     #50                 // class java/lang/Object
      761: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
      764: aastore       
-     765: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     765: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      768: astore        31
-     770: new           #46                 // class org/flasck/android/FLClosure
+     770: new           #46                 // class org/flasck/jvm/FLClosure
      773: dup           
      774: ldc           #48                 // class org/flasck/android/builtin/Cons
      776: iconst_2      
@@ -1241,9 +1241,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      786: iconst_1      
      787: aload         31
      789: aastore       
-     790: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     790: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      793: astore        32
-     795: new           #46                 // class org/flasck/android/FLClosure
+     795: new           #46                 // class org/flasck/jvm/FLClosure
      798: dup           
      799: ldc           #48                 // class org/flasck/android/builtin/Cons
      801: iconst_2      
@@ -1258,9 +1258,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      812: anewarray     #50                 // class java/lang/Object
      815: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
      818: aastore       
-     819: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     819: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      822: astore        33
-     824: new           #46                 // class org/flasck/android/FLClosure
+     824: new           #46                 // class org/flasck/jvm/FLClosure
      827: dup           
      828: ldc           #48                 // class org/flasck/android/builtin/Cons
      830: iconst_2      
@@ -1273,9 +1273,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      839: iconst_1      
      840: aload         33
      842: aastore       
-     843: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     843: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      846: astore        34
-     848: new           #46                 // class org/flasck/android/FLClosure
+     848: new           #46                 // class org/flasck/jvm/FLClosure
      851: dup           
      852: ldc           #112                // class org/flasck/android/builtin/Assoc
      854: iconst_3      
@@ -1294,9 +1294,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      871: anewarray     #50                 // class java/lang/Object
      874: invokestatic  #118                // Method org/flasck/android/builtin/NilMap.eval:([Ljava/lang/Object;)Ljava/lang/Object;
      877: aastore       
-     878: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     878: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      881: astore        35
-     883: new           #46                 // class org/flasck/android/FLClosure
+     883: new           #46                 // class org/flasck/jvm/FLClosure
      886: dup           
      887: ldc           #112                // class org/flasck/android/builtin/Assoc
      889: iconst_3      
@@ -1313,9 +1313,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      904: iconst_2      
      905: aload         35
      907: aastore       
-     908: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     908: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      911: astore        36
-     913: new           #46                 // class org/flasck/android/FLClosure
+     913: new           #46                 // class org/flasck/jvm/FLClosure
      916: dup           
      917: ldc           #112                // class org/flasck/android/builtin/Assoc
      919: iconst_3      
@@ -1332,7 +1332,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      933: iconst_2      
      934: aload         36
      936: aastore       
-     937: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     937: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      940: areturn       
 
   public java.lang.Object _gen_1(java.lang.Object);
@@ -1369,7 +1369,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       14: aload_1       
       15: instanceof    #128                // class org/flasck/android/builtin/D3Element
       18: ifeq          44
-      21: new           #46                 // class org/flasck/android/FLClosure
+      21: new           #46                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #138                // class org/flasck/android/FLEval$Field
       27: iconst_2      
@@ -1382,7 +1382,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       36: iconst_1      
       37: ldc           #69                 // String data
       39: aastore       
-      40: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: areturn       
       44: new           #126                // class org/flasck/android/FLError
       47: dup           
@@ -1446,7 +1446,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       14: aload_1       
       15: instanceof    #128                // class org/flasck/android/builtin/D3Element
       18: ifeq          96
-      21: new           #46                 // class org/flasck/android/FLClosure
+      21: new           #46                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #138                // class org/flasck/android/FLEval$Field
       27: iconst_2      
@@ -1459,9 +1459,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       36: iconst_1      
       37: ldc           #158                // String idx
       39: aastore       
-      40: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: astore_2      
-      44: new           #46                 // class org/flasck/android/FLClosure
+      44: new           #46                 // class org/flasck/jvm/FLClosure
       47: dup           
       48: ldc           #160                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$*"
       50: iconst_2      
@@ -1475,9 +1475,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       63: iconst_1      
       64: aload_2       
       65: aastore       
-      66: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      66: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       69: astore_3      
-      70: new           #46                 // class org/flasck/android/FLClosure
+      70: new           #46                 // class org/flasck/jvm/FLClosure
       73: dup           
       74: ldc           #162                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$+"
       76: iconst_2      
@@ -1491,7 +1491,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       86: bipush        10
       88: invokestatic  #57                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
       91: aastore       
-      92: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      92: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       95: areturn       
       96: new           #126                // class org/flasck/android/FLError
       99: dup           
@@ -1512,7 +1512,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       14: aload_1       
       15: instanceof    #128                // class org/flasck/android/builtin/D3Element
       18: ifeq          125
-      21: new           #46                 // class org/flasck/android/FLClosure
+      21: new           #46                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #138                // class org/flasck/android/FLEval$Field
       27: iconst_2      
@@ -1525,9 +1525,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       36: iconst_1      
       37: ldc           #69                 // String data
       39: aastore       
-      40: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: astore_2      
-      44: new           #46                 // class org/flasck/android/FLClosure
+      44: new           #46                 // class org/flasck/jvm/FLClosure
       47: dup           
       48: ldc           #160                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$*"
       50: iconst_2      
@@ -1541,9 +1541,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       63: iconst_1      
       64: aload_2       
       65: aastore       
-      66: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      66: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       69: astore_3      
-      70: new           #46                 // class org/flasck/android/FLClosure
+      70: new           #46                 // class org/flasck/jvm/FLClosure
       73: dup           
       74: ldc           #170                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$-"
       76: iconst_2      
@@ -1557,9 +1557,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       90: iconst_1      
       91: aload_3       
       92: aastore       
-      93: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      93: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       96: astore        4
-      98: new           #46                 // class org/flasck/android/FLClosure
+      98: new           #46                 // class org/flasck/jvm/FLClosure
      101: dup           
      102: ldc           #162                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$+"
      104: iconst_2      
@@ -1573,7 +1573,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
      115: bipush        14
      117: invokestatic  #57                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
      120: aastore       
-     121: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     121: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      124: areturn       
      125: new           #126                // class org/flasck/android/FLError
      128: dup           
@@ -1599,7 +1599,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       14: aload_1       
       15: instanceof    #128                // class org/flasck/android/builtin/D3Element
       18: ifeq          70
-      21: new           #46                 // class org/flasck/android/FLClosure
+      21: new           #46                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #138                // class org/flasck/android/FLEval$Field
       27: iconst_2      
@@ -1612,9 +1612,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       36: iconst_1      
       37: ldc           #69                 // String data
       39: aastore       
-      40: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: astore_2      
-      44: new           #46                 // class org/flasck/android/FLClosure
+      44: new           #46                 // class org/flasck/jvm/FLClosure
       47: dup           
       48: ldc           #160                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$*"
       50: iconst_2      
@@ -1628,7 +1628,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       63: iconst_1      
       64: aload_2       
       65: aastore       
-      66: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      66: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       69: areturn       
       70: new           #126                // class org/flasck/android/FLError
       73: dup           
@@ -1671,7 +1671,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       14: aload_1       
       15: instanceof    #128                // class org/flasck/android/builtin/D3Element
       18: ifeq          70
-      21: new           #46                 // class org/flasck/android/FLClosure
+      21: new           #46                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #138                // class org/flasck/android/FLEval$Field
       27: iconst_2      
@@ -1684,9 +1684,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       36: iconst_1      
       37: ldc           #158                // String idx
       39: aastore       
-      40: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: astore_2      
-      44: new           #46                 // class org/flasck/android/FLClosure
+      44: new           #46                 // class org/flasck/jvm/FLClosure
       47: dup           
       48: ldc           #160                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$*"
       50: iconst_2      
@@ -1700,7 +1700,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       63: iconst_1      
       64: aload_2       
       65: aastore       
-      66: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      66: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       69: areturn       
       70: new           #126                // class org/flasck/android/FLError
       73: dup           
@@ -1721,7 +1721,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       14: aload_1       
       15: instanceof    #128                // class org/flasck/android/builtin/D3Element
       18: ifeq          97
-      21: new           #46                 // class org/flasck/android/FLClosure
+      21: new           #46                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #138                // class org/flasck/android/FLEval$Field
       27: iconst_2      
@@ -1734,9 +1734,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       36: iconst_1      
       37: ldc           #69                 // String data
       39: aastore       
-      40: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: astore_2      
-      44: new           #46                 // class org/flasck/android/FLClosure
+      44: new           #46                 // class org/flasck/jvm/FLClosure
       47: dup           
       48: ldc           #160                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$*"
       50: iconst_2      
@@ -1750,9 +1750,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       63: iconst_1      
       64: aload_2       
       65: aastore       
-      66: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      66: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       69: astore_3      
-      70: new           #46                 // class org/flasck/android/FLClosure
+      70: new           #46                 // class org/flasck/jvm/FLClosure
       73: dup           
       74: ldc           #170                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$-"
       76: iconst_2      
@@ -1766,7 +1766,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       90: iconst_1      
       91: aload_3       
       92: aastore       
-      93: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      93: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       96: areturn       
       97: new           #126                // class org/flasck/android/FLError
      100: dup           
@@ -1850,7 +1850,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       14: aload_1       
       15: instanceof    #128                // class org/flasck/android/builtin/D3Element
       18: ifeq          70
-      21: new           #46                 // class org/flasck/android/FLClosure
+      21: new           #46                 // class org/flasck/jvm/FLClosure
       24: dup           
       25: ldc           #138                // class org/flasck/android/FLEval$Field
       27: iconst_2      
@@ -1863,9 +1863,9 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       36: iconst_1      
       37: ldc           #69                 // String data
       39: aastore       
-      40: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: astore_2      
-      44: new           #46                 // class org/flasck/android/FLClosure
+      44: new           #46                 // class org/flasck/jvm/FLClosure
       47: dup           
       48: ldc           #160                // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$*"
       50: iconst_2      
@@ -1879,7 +1879,7 @@ public class test.golden.TestCard extends org.flasck.android.FlasckActivity {
       63: iconst_1      
       64: aload_2       
       65: aastore       
-      66: invokespecial #66                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      66: invokespecial #66                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       69: areturn       
       70: new           #126                // class org/flasck/android/FLError
       73: dup           
@@ -1896,7 +1896,7 @@ public class test.golden.TestCard.PACKAGEFUNCTIONS$inits_data {
 public class test.golden.TestCard.PACKAGEFUNCTIONS {
   public static java.lang.Object inits_data();
     Code:
-       0: new           #14                 // class org/flasck/android/FLClosure
+       0: new           #14                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: ldc           #16                 // class org/flasck/android/builtin/Cons
        6: iconst_2      
@@ -1912,9 +1912,9 @@ public class test.golden.TestCard.PACKAGEFUNCTIONS {
       21: anewarray     #3                  // class java/lang/Object
       24: invokestatic  #29                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       27: aastore       
-      28: invokespecial #33                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      28: invokespecial #33                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       31: astore_0      
-      32: new           #14                 // class org/flasck/android/FLClosure
+      32: new           #14                 // class org/flasck/jvm/FLClosure
       35: dup           
       36: ldc           #16                 // class org/flasck/android/builtin/Cons
       38: iconst_2      
@@ -1928,9 +1928,9 @@ public class test.golden.TestCard.PACKAGEFUNCTIONS {
       50: iconst_1      
       51: aload_0       
       52: aastore       
-      53: invokespecial #33                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      53: invokespecial #33                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       56: astore_1      
-      57: new           #14                 // class org/flasck/android/FLClosure
+      57: new           #14                 // class org/flasck/jvm/FLClosure
       60: dup           
       61: ldc           #16                 // class org/flasck/android/builtin/Cons
       63: iconst_2      
@@ -1944,9 +1944,9 @@ public class test.golden.TestCard.PACKAGEFUNCTIONS {
       76: iconst_1      
       77: aload_1       
       78: aastore       
-      79: invokespecial #33                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      79: invokespecial #33                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       82: astore_2      
-      83: new           #14                 // class org/flasck/android/FLClosure
+      83: new           #14                 // class org/flasck/jvm/FLClosure
       86: dup           
       87: ldc           #16                 // class org/flasck/android/builtin/Cons
       89: iconst_2      
@@ -1960,6 +1960,6 @@ public class test.golden.TestCard.PACKAGEFUNCTIONS {
      101: iconst_1      
      102: aload_2       
      103: aastore       
-     104: invokespecial #33                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+     104: invokespecial #33                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      107: areturn       
 }

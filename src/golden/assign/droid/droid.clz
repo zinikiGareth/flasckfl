@@ -18,7 +18,7 @@ public class test.golden.Card extends org.flasck.android.FlasckActivity {
 
   public java.lang.Object doit();
     Code:
-       0: new           #35                 // class org/flasck/android/FLClosure
+       0: new           #35                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: ldc           #19                 // class org/flasck/android/FLEval$Field
        6: iconst_2      
@@ -31,9 +31,9 @@ public class test.golden.Card extends org.flasck.android.FlasckActivity {
       15: iconst_1      
       16: ldc           #39                 // String c
       18: aastore       
-      19: invokespecial #43                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      19: invokespecial #43                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       22: astore_1      
-      23: new           #35                 // class org/flasck/android/FLClosure
+      23: new           #35                 // class org/flasck/jvm/FLClosure
       26: dup           
       27: ldc           #44                 // class org/flasck/android/builtin/Assign
       29: iconst_3      
@@ -50,9 +50,9 @@ public class test.golden.Card extends org.flasck.android.FlasckActivity {
       43: iconst_2      
       44: ldc           #48                 // String hello
       46: aastore       
-      47: invokespecial #43                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      47: invokespecial #43                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       50: astore_2      
-      51: new           #35                 // class org/flasck/android/FLClosure
+      51: new           #35                 // class org/flasck/jvm/FLClosure
       54: dup           
       55: ldc           #50                 // class org/flasck/android/builtin/Cons
       57: iconst_2      
@@ -67,7 +67,7 @@ public class test.golden.Card extends org.flasck.android.FlasckActivity {
       68: anewarray     #37                 // class java/lang/Object
       71: invokestatic  #57                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       74: aastore       
-      75: invokespecial #43                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      75: invokespecial #43                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       78: areturn       
 }
 public class test.golden.Container extends org.flasck.android.FLASObject {

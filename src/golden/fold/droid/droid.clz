@@ -29,7 +29,7 @@ public class test.golden.PACKAGEFUNCTIONS {
       18: ifeq          52
       21: aload_0       
       22: astore        5
-      24: new           #20                 // class org/flasck/android/FLClosure
+      24: new           #20                 // class org/flasck/jvm/FLClosure
       27: dup           
       28: ldc           #22                 // class test/golden/PACKAGEFUNCTIONS$fold
       30: iconst_3      
@@ -46,7 +46,7 @@ public class test.golden.PACKAGEFUNCTIONS {
       44: iconst_2      
       45: aload         4
       47: aastore       
-      48: invokespecial #27                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      48: invokespecial #27                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       51: areturn       
       52: aload_2       
       53: instanceof    #28                 // class org/flasck/android/builtin/Nil

@@ -29,7 +29,7 @@ public class test.golden.PACKAGEFUNCTIONS {
       24: aload         4
       26: invokestatic  #33                 // Method FLEval.isTruthy:(Ljava/lang/Object;)Z
       29: ifeq          78
-      32: new           #34                 // class org/flasck/android/FLClosure
+      32: new           #34                 // class org/flasck/jvm/FLClosure
       35: dup           
       36: ldc           #36                 // class test/golden/PACKAGEFUNCTIONS$filter
       38: iconst_2      
@@ -42,9 +42,9 @@ public class test.golden.PACKAGEFUNCTIONS {
       47: iconst_1      
       48: aload_3       
       49: aastore       
-      50: invokespecial #41                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      50: invokespecial #41                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       53: astore        5
-      55: new           #34                 // class org/flasck/android/FLClosure
+      55: new           #34                 // class org/flasck/jvm/FLClosure
       58: dup           
       59: ldc           #26                 // class org/flasck/android/builtin/Cons
       61: iconst_2      
@@ -57,9 +57,9 @@ public class test.golden.PACKAGEFUNCTIONS {
       70: iconst_1      
       71: aload         5
       73: aastore       
-      74: invokespecial #41                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      74: invokespecial #41                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       77: areturn       
-      78: new           #34                 // class org/flasck/android/FLClosure
+      78: new           #34                 // class org/flasck/jvm/FLClosure
       81: dup           
       82: ldc           #36                 // class test/golden/PACKAGEFUNCTIONS$filter
       84: iconst_2      
@@ -72,7 +72,7 @@ public class test.golden.PACKAGEFUNCTIONS {
       93: iconst_1      
       94: aload_3       
       95: aastore       
-      96: invokespecial #41                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      96: invokespecial #41                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       99: areturn       
      100: aload_1       
      101: instanceof    #42                 // class org/flasck/android/builtin/Nil

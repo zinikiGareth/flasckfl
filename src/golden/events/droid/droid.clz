@@ -92,7 +92,7 @@ public class test.golden.Events$B3 extends org.flasck.android.areas.TextArea {
 
   public java.lang.Object handlers_1();
     Code:
-       0: new           #47                 // class org/flasck/android/FLClosure
+       0: new           #47                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: aload_0       
        5: getfield      #15                 // Field _card:Ltest/golden/Events;
@@ -116,7 +116,7 @@ public class test.golden.Events$B3 extends org.flasck.android.areas.TextArea {
       34: bipush        13
       36: invokestatic  #61                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
       39: aastore       
-      40: invokespecial #64                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #64                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Object;)V
       43: areturn       
 }
 public class test.golden.Events extends org.flasck.android.FlasckActivity {
@@ -151,7 +151,7 @@ public class test.golden.Events extends org.flasck.android.FlasckActivity {
 
   public java.lang.Object okThen(java.lang.Object);
     Code:
-       0: new           #44                 // class org/flasck/android/FLClosure
+       0: new           #44                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: ldc           #46                 // class org/flasck/android/builtin/Debug
        6: iconst_1      
@@ -160,9 +160,9 @@ public class test.golden.Events extends org.flasck.android.FlasckActivity {
       11: iconst_0      
       12: aload_1       
       13: aastore       
-      14: invokespecial #52                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      14: invokespecial #52                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       17: astore_2      
-      18: new           #44                 // class org/flasck/android/FLClosure
+      18: new           #44                 // class org/flasck/jvm/FLClosure
       21: dup           
       22: ldc           #53                 // class org/flasck/android/builtin/Cons
       24: iconst_2      
@@ -177,12 +177,12 @@ public class test.golden.Events extends org.flasck.android.FlasckActivity {
       35: anewarray     #48                 // class java/lang/Object
       38: invokestatic  #60                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       41: aastore       
-      42: invokespecial #52                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      42: invokespecial #52                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       45: areturn       
 
   public java.lang.Object setTo(java.lang.Object, java.lang.Object);
     Code:
-       0: new           #44                 // class org/flasck/android/FLClosure
+       0: new           #44                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: ldc           #46                 // class org/flasck/android/builtin/Debug
        6: iconst_1      
@@ -191,9 +191,9 @@ public class test.golden.Events extends org.flasck.android.FlasckActivity {
       11: iconst_0      
       12: aload_2       
       13: aastore       
-      14: invokespecial #52                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      14: invokespecial #52                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       17: astore_3      
-      18: new           #44                 // class org/flasck/android/FLClosure
+      18: new           #44                 // class org/flasck/jvm/FLClosure
       21: dup           
       22: ldc           #53                 // class org/flasck/android/builtin/Cons
       24: iconst_2      
@@ -208,6 +208,6 @@ public class test.golden.Events extends org.flasck.android.FlasckActivity {
       35: anewarray     #48                 // class java/lang/Object
       38: invokestatic  #60                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       41: aastore       
-      42: invokespecial #52                 // Method org/flasck/android/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      42: invokespecial #52                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       45: areturn       
 }
