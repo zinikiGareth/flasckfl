@@ -103,6 +103,20 @@ public class FLASStory {
 		public State nest(Scope is, String string, CodeType kind) {
 			return new State(is, new PackageName(string), null, kind);
 		}
+
+		// This is in fact wrong: the package name should not change but we should nest things properly
+		public State nestImplementation(Implements impl, String clz) {
+			CodeType nk;
+			if (impl instanceof HandlerImplements)
+				nk = CodeType.HANDLER;
+			else if (impl instanceof ContractImplements)
+				nk = CodeType.CONTRACT;
+			else if (impl instanceof ContractService)
+				nk = CodeType.SERVICE;
+			else
+				throw new UtilException("What is " + impl + "?");
+			return new State(scope, new PackageName(withPkg(clz)), null, nk);
+		}
 		
 		public State as(CodeType newKind) {
 			return new State(scope, pkgName, inCard, newKind);
@@ -778,7 +792,7 @@ public class FLASStory {
 	}
 
 	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested, String clz) {
-		FunctionParser fp = new FunctionParser(s.nest(s.scope, s.withPkg(clz), s.kind));
+		FunctionParser fp = new FunctionParser(s.nestImplementation(impl, clz));
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;
