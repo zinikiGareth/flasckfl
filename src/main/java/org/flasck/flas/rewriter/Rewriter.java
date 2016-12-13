@@ -1435,7 +1435,7 @@ public class Rewriter {
 
 		FunctionName name = FunctionName.functionInCardContext(d3.d3.varLoc, c2.cardNameIfAny(), "_d3init_" + d3.d3.name);
 		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.varLoc, name, new ArrayList<Object>(), null);
-		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, name, 0, c2.cardNameIfAny().jsName(), true);
+		RWFunctionDefinition func = new RWFunctionDefinition(name, 0, true);
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, init));
 		func.gatherScopedVars();
 		functions.put(name.jsName(), func);
@@ -1454,7 +1454,7 @@ public class Rewriter {
 		InputPosition loc = ((Locatable)expr).location(); // may or may not be correct location
 		FunctionName fn = FunctionName.functionInCardContext(loc, inCard, name);
 		RWFunctionIntro d3f = new RWFunctionIntro(loc, fn, args, null);
-		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, fn, args.size(), prefix, true);
+		RWFunctionDefinition func = new RWFunctionDefinition(fn, args.size(), true);
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, expr));
 		functions.put(d3f.fnName.jsName(), func);
 

@@ -26,20 +26,6 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	private Type type;
 	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
 
-	public RWFunctionDefinition(InputPosition location, CodeType mytype, FunctionName name, int nargs, String inCard, boolean generate) {
-		this.inCard = inCard;
-		if (location == null)
-			throw new UtilException("Null location");
-		this.location = location;
-		this.mytype = mytype;
-		this.fnName = name;
-		this.name = name.jsName();
-		this.nargs = nargs;
-		this.generate = generate;
-		if (mytype == null)
-			throw new UtilException("Null mytype");
-	}
-
 	public RWFunctionDefinition(FunctionName name, int nargs, boolean generate) {
 		this.inCard = name.inCard == null ? null : name.inCard.jsName();
 		if (name.location == null)
