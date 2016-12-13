@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -67,7 +68,7 @@ public class IntroParser implements TryParsing {
 			}
 			if (er.hasErrors())
 				return er;
-			return new StructDefn(kw.location, tn.location, state.withPkg(tn.text), true, args);
+			return new StructDefn(kw.location, tn.location, new StructName(state.pkgName, tn.text), true, args);
 		}
 		case "object": {
 			TypeNameToken tn = TypeNameToken.from(line);

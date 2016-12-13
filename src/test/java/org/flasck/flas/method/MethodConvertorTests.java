@@ -100,7 +100,7 @@ public class MethodConvertorTests {
 			orgFooScope.define("Handler1", handler1.name(), handler1);
 		}
 		{
-			StructDefn struct = new StructDefn(posn, "org.foo.Thing", true);
+			StructDefn struct = new StructDefn(posn, "org.foo", "Thing", true);
 			struct.addField(new StructField(posn, false, new TypeReference(posn, "String"), "x"));
 			orgFooScope.define("Thing", struct.name(), struct);
 		}

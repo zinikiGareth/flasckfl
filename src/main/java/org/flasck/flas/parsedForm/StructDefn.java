@@ -6,6 +6,8 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.zinutils.collections.CollectionUtils;
 
 public class StructDefn implements AsString, Locatable {
@@ -17,15 +19,15 @@ public class StructDefn implements AsString, Locatable {
 	private List<PolyType> polys;
 
 	// for tests
-	public StructDefn(InputPosition location, String tn, boolean generate, PolyType... polys) {
-		this(null, location, tn, generate, CollectionUtils.listOf(polys));
+	public StructDefn(InputPosition location, String pkg, String tn, boolean generate, PolyType... polys) {
+		this(null, location, new StructName(new PackageName(pkg), tn), generate, CollectionUtils.listOf(polys));
 	}
 	
 	// The real constructor
-	public StructDefn(InputPosition kw, InputPosition location, String tn, boolean generate, List<PolyType> polys) {
+	public StructDefn(InputPosition kw, InputPosition location, StructName tn, boolean generate, List<PolyType> polys) {
 		this.kw = kw;
 		this.location = location;
-		this.name = tn;
+		this.name = tn.jsName();
 		this.generate = generate;
 		this.polys = polys;
 	}

@@ -58,7 +58,7 @@ public class FunctionName implements NameOfThing {
 	}
 
 	public static FunctionName contractMethod(InputPosition location, CodeType kind, CSName csName, String name) {
-		return new FunctionName(location, kind, csName.pkgName(), csName.containingCard(), csName, name);
+		return new FunctionName(location, kind, csName, name);
 	}
 	
 	public static FunctionName eventMethod(InputPosition location, CodeType kind, CardName cardName, String name) {

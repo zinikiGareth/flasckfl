@@ -33,6 +33,7 @@ public class PackageImporter {
 	}
 	
 	public static void importInto(PackageFinder finder, ErrorResult errors, Rewriter rw, String pkgName, XML xml) {
+		PackageName packageName = new PackageName(pkgName);
 		ImportPackage pkg = new ImportPackage(pkgName);
 		finder.imported.put(pkgName, pkg);
 		XMLElement top = xml.top();
@@ -140,7 +141,7 @@ public class PackageImporter {
 					// But it seems to me it would be better to just save/restore the simple name, since we have the package name as what we're importing
 					String fullName = xe.required("name");
 					int idx = fullName.lastIndexOf(".");
-					RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, FunctionName.function(location(xe), new PackageName(fullName.substring(0, idx)), fullName.substring(idx+1)), args.size()-1, xe.optional("incard"), false);
+					RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, FunctionName.function(location(xe), packageName, fullName.substring(idx+1)), args.size()-1, xe.optional("incard"), false);
 					Type fntype;
 					if (args.size() == 1)
 						fntype = args.get(0);

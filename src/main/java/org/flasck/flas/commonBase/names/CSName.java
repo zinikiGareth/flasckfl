@@ -11,10 +11,6 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 		this.cname = cname;
 	}
 	
-	public PackageName pkgName() {
-		return card.pkg;
-	}
-	
 	public CardName containingCard() {
 		return card;
 	}
