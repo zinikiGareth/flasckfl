@@ -465,14 +465,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpList(pw, hi.methods);
 		} else if (obj instanceof MethodCaseDefn) {
 			MethodCaseDefn mcd = (MethodCaseDefn) obj;
-			pw.print("method " + mcd.caseName());
+			pw.print("method " + mcd.caseName().jsName());
 			dumpLocation(pw, mcd);
 			dumpList(pw, mcd.intro.args);
 			dumpList(pw, mcd.messages);
 			dumpScope(pw, mcd.innerScope());
 		} else if (obj instanceof EventCaseDefn) {
 			EventCaseDefn ecd = (EventCaseDefn) obj;
-			pw.print("event " + ecd.caseName());
+			pw.print("event " + ecd.caseName().jsName());
 			dumpPosition(pw, ecd.kw, false);
 			dumpLocation(pw, ecd);
 			dumpList(pw, ecd.intro.args);

@@ -110,10 +110,6 @@ public class FLASStory {
 			return new State(is, name, null, kind);
 		}
 
-		public State nest(Scope is, String string, CodeType kind) {
-			return new State(is, new PackageName(string), null, kind);
-		}
-
 		public State nestCard(Scope innerScope, CardName cardName) {
 			return new State(innerScope, cardName, cardName, HSIEForm.CodeType.CARD);
 		}

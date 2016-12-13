@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.types.Type;
 import org.zinutils.collections.CollectionUtils;

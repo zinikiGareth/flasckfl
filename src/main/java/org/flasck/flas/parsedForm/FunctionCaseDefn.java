@@ -50,10 +50,17 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 		this.scope = new Scope(this.caseName);
 	}
 
-	public String caseName() {
+	@Deprecated
+	public String caseNameAsString() {
 		if (caseName == null)
 			throw new UtilException("Asked for caseName when none provided");
 		return caseName.jsName();
+	}
+	
+	public ScopeName caseName() {
+		if (caseName == null)
+			throw new UtilException("Asked for caseName when none provided");
+		return caseName;
 	}
 	
 	public void dumpTo(Writer pw) throws Exception {

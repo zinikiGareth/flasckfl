@@ -25,6 +25,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.compiler.CompileResult;
@@ -125,13 +126,13 @@ import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
-import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.Type.WhatAmI;
+import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
@@ -492,7 +493,7 @@ public class Rewriter {
 
 	// This is for functions to use in Pass1 to identify scoping context
 	public class Pass1ScopeContext extends NamingContext {
-		public Pass1ScopeContext(NamingContext cx, String caseName) {
+		public Pass1ScopeContext(NamingContext cx) {
 			super(cx);
 		}
 
@@ -514,19 +515,19 @@ public class Rewriter {
 		private final Scope inner;
 		private final boolean fromMethod;
 		private final String funcName;
-		private final String caseName;
+		private final ScopeName caseName;
 
-		FunctionCaseContext(NamingContext cx, String funcName, String caseName, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
+		FunctionCaseContext(NamingContext cx, String funcName, ScopeName scopeName, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
 			super(cx);
 			this.funcName = funcName;
-			this.caseName = caseName;
+			this.caseName = scopeName;
 			this.bound = locals;
 			this.inner = inner;
 			this.fromMethod = fromMethod;
 		}
 
 		public String name() {
-			return caseName;
+			return caseName.jsName();
 		}
 		
 		public Object resolve(InputPosition location, String name) {
@@ -661,7 +662,7 @@ public class Rewriter {
 					RWFunctionDefinition ret = new RWFunctionDefinition(c.intro.name(),c.nargs(), true);
 					functions.put(name, ret);
 				}
-				pass1(new Pass1ScopeContext(cx, c.caseName()), c.innerScope());
+				pass1(new Pass1ScopeContext(cx), c.innerScope());
 			} else if (val instanceof MethodCaseDefn) {
 				MethodCaseDefn m = (MethodCaseDefn) val;
 				String mn = m.methodNameAsString();
@@ -1290,7 +1291,7 @@ public class Rewriter {
 	public void rewrite(NamingContext cx, FunctionCaseDefn c) {
 		RWFunctionDefinition ret = functions.get(c.functionName());
 		final Map<String, LocalVar> vars = new HashMap<>();
-		gatherVars(errors, this, cx, c.functionName(), c.caseName(), vars, c.intro);
+		gatherVars(errors, this, cx, c.functionName(), c.caseNameAsString(), vars, c.intro);
 		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);
 		RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
 		if (rwc == null)
@@ -1307,9 +1308,9 @@ public class Rewriter {
 	
 	protected void rewriteCase(NamingContext cx, RWMethodDefinition rm, MethodCaseDefn c, boolean fromHandler, boolean useCases) {
 		Map<String, LocalVar> vars = new HashMap<>();
-		String name = useCases ? c.caseName() : c.methodNameAsString();
+		String name = useCases ? c.caseNameAsString() : c.methodNameAsString();
 		gatherVars(errors, this, cx, c.methodNameAsString(), name, vars, c.intro);
-		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodNameAsString(), name, vars, c.innerScope(), fromHandler), c, vars));
+		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodNameAsString(), c.caseName(), vars, c.innerScope(), fromHandler), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, EventCaseDefn c) {
@@ -1337,7 +1338,6 @@ public class Rewriter {
 			Object rw = rewriteExpr(sx, sf.init);
 			InputPosition loc = ((Locatable)rw).location();
 			Object expr = new AssertTypeExpr(loc, st, rw);
-			// TODO: this is probably OK, but I would like to refine the use of this name to something like "StructName"
 			fnName = FunctionName.function(loc, sd.structName(), "inits_" + sf.name);
 			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, sx.cardNameIfAny().jsName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
@@ -1375,7 +1375,7 @@ public class Rewriter {
 	}
 
 	private RWMethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c, Map<String, LocalVar> vars) {
-		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, c.caseName(), vars));
+		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, c.caseNameAsString(), vars));
 		for (MethodMessage mm : c.messages)
 			ret.addMessage(rewrite(cx, mm));
 		return ret;

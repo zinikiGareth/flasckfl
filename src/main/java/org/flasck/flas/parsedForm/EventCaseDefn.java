@@ -34,8 +34,12 @@ public class EventCaseDefn implements Locatable, MessagesHandler, ContainsScope 
 		this.scope = new Scope(this.caseName);
 	}
 
-	public String caseName() {
+	public String caseNameAsString() {
 		return caseName.jsName();
+	}
+	
+	public ScopeName caseName() {
+		return caseName;
 	}
 	
 	public void addMessage(MethodMessage mm) {
