@@ -191,7 +191,7 @@ public class IntroParser implements TryParsing {
 			return new HandlerImplements(kw.location, named.location, tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
 		}
 		case "event": {
-			Object o = new FunctionParser(state).tryParsing(line);
+			Object o = new FunctionParser(state.as(CodeType.EVENTHANDLER)).tryParsing(line);
 			if (o == null)
 				return ErrorResult.oneMessage(line, "syntax error");
 			else if (o instanceof ErrorResult)

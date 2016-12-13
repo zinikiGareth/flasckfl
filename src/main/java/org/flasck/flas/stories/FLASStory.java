@@ -86,11 +86,11 @@ public class FLASStory {
 		public final HSIEForm.CodeType kind;
 		public final CardName inCard;
 
-		private State(Scope scope, String pkg, HSIEForm.CodeType kind) {
+		private State(Scope scope, PackageName pkg, CardName inCard, HSIEForm.CodeType kind) {
 			this.scope = scope;
-			this.pkgName = new PackageName(pkg);
+			this.pkgName = pkg;
 			this.kind = kind;
-			this.inCard = null;
+			this.inCard = inCard;
 		}
 
 		public State(Scope scope, String pkg) {
@@ -101,7 +101,11 @@ public class FLASStory {
 		}
 
 		public State nest(Scope is, String string, CodeType kind) {
-			return new State(is, string, kind);
+			return new State(is, new PackageName(string), null, kind);
+		}
+		
+		public State as(CodeType newKind) {
+			return new State(scope, pkgName, inCard, newKind);
 		}
 		
 		public State(State outer, Scope scope, CardName inCard, String pkg, HSIEForm.CodeType kind) {
