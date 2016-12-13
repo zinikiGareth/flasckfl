@@ -42,7 +42,6 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.junit.Before;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
@@ -201,7 +200,7 @@ public class RewriterTests {
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		ContractImplements ci = new ContractImplements(posn, posn, "Timer", posn, "timer");
 		cd.contracts.add(ci);
-		MethodCaseDefn mcd1 = new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(posn, CodeType.CONTRACT, new CSName(new CardName(new PackageName("ME"), "MyCard"), "_C0"), "m"), new ArrayList<Object>()));
+		MethodCaseDefn mcd1 = new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(posn, new CSName(new CardName(new PackageName("ME"), "MyCard"), "_C0"), "m"), new ArrayList<Object>()));
 		mcd1.provideCaseName("ME.MyCard._C0.m");
 		mcd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(mcd1);
@@ -223,7 +222,7 @@ public class RewriterTests {
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
-		EventCaseDefn ecd1 = new EventCaseDefn(posn, new FunctionIntro(FunctionName.eventMethod(posn, CodeType.EVENTHANDLER, new CardName(new PackageName("ME"), "MyCard"), "eh"), new ArrayList<Object>()));
+		EventCaseDefn ecd1 = new EventCaseDefn(posn, new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("ME"), "MyCard"), "eh"), new ArrayList<Object>()));
 		ecd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "counter")), new UnresolvedVar(posn, "counter")));
 		cd.fnScope.define("eh", "ME.MyCard.eh", ecd1);
 //		scope.define("MyCard", "ME.MyCard", cd);

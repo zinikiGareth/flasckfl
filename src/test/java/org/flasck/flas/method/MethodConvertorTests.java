@@ -491,7 +491,7 @@ public class MethodConvertorTests {
 
 	/* ---- Helper Methods ---- */
 	protected void defineContractMethod(Implements on, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(FunctionName.contractMethod(posn, CodeType.CONTRACT, new CSName(new CardName(new PackageName("org.foo"), "Card"), "_C0"), name), new ArrayList<>());
+		FunctionIntro intro = new FunctionIntro(FunctionName.contractMethod(posn, new CSName(new CardName(new PackageName("org.foo"), "Card"), "_C0"), name), new ArrayList<>());
 		MethodCaseDefn cs = new MethodCaseDefn(intro);
 		cs.provideCaseName(intro.name);
 		for (MethodMessage m : msgs)
@@ -500,7 +500,7 @@ public class MethodConvertorTests {
 	}
 
 	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(FunctionName.eventMethod(posn, CodeType.EVENTHANDLER, new CardName(new PackageName("org.foo"), "Card"), name), CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, "ev")));
+		FunctionIntro intro = new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("org.foo"), "Card"), name), CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, "ev")));
 		EventCaseDefn cs = new EventCaseDefn(posn, intro);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);

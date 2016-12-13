@@ -57,12 +57,12 @@ public class FunctionName implements NameOfThing {
 		return new FunctionName(location, CodeType.CARD, inCard.pkg, inCard, null, name);
 	}
 
-	public static FunctionName contractMethod(InputPosition location, CodeType kind, CSName csName, String name) {
-		return new FunctionName(location, kind, csName, name);
+	public static FunctionName contractMethod(InputPosition location, CSName csName, String name) {
+		return new FunctionName(location, CodeType.CONTRACT, csName, name);
 	}
 	
-	public static FunctionName eventMethod(InputPosition location, CodeType kind, CardName cardName, String name) {
-		return new FunctionName(location, kind, cardName.pkg, cardName, null, name);
+	public static FunctionName eventMethod(InputPosition location, CardName cardName, String name) {
+		return new FunctionName(location, CodeType.EVENTHANDLER, cardName.pkg, cardName, null, name);
 	}
 
 	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {
