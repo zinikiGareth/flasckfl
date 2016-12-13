@@ -17,7 +17,7 @@ public class RWMethodDefinition implements Locatable {
 	public static final int UP = 2;
 	public static final int DOWN = 1;
 	public final InputPosition contractLocation;
-	public final String fromContract;
+	public final RWContractDecl fromContract;
 	public final CodeType type;
 	public final int dir;
 	private final InputPosition location;
@@ -26,10 +26,10 @@ public class RWMethodDefinition implements Locatable {
 	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
 	private FunctionName fnName;
 	
-	public RWMethodDefinition(InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, FunctionName name, int nargs) {
+	public RWMethodDefinition(InputPosition cloc, RWContractDecl contract, CodeType type, int dir, InputPosition location, FunctionName name, int nargs) {
 		this.fnName = name;
 		this.contractLocation = cloc;
-		this.fromContract = contractName;
+		this.fromContract = contract;
 		this.type = type;
 		this.dir = dir;
 		this.location = location;

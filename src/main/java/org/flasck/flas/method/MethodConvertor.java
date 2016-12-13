@@ -181,15 +181,14 @@ public class MethodConvertor {
 	}
 
 	protected List<Type> figureCMD(RWMethodDefinition m) {
-		RWContractDecl cd = contracts.get(m.fromContract);
-		if (cd == null) {
+		if (m.fromContract == null) {
 			errors.message(m.contractLocation, "cannot find contract " + m.fromContract);
 			return null;
 		}
 		RWContractMethodDecl cmd = null;
 		int idx = m.name().jsName().lastIndexOf(".");
 		String mn = m.name().jsName().substring(idx+1);
-		for (RWContractMethodDecl md : cd.methods) {
+		for (RWContractMethodDecl md : m.fromContract.methods) {
 			if (mn.equals(md.name)) {
 				if (m.dir == RWMethodDefinition.DOWN && md.dir.equals("up")) {
 					errors.message(m.contractLocation, "cannot implement '" + md.name + "' because it is an up method");
@@ -204,7 +203,7 @@ public class MethodConvertor {
 			}
 		}
 		if (cmd == null) {
-			errors.message(m.contractLocation, "contract '" + m.fromContract + "' does not have a method '" + mn +"' to implement");
+			errors.message(m.contractLocation, "contract '" + m.fromContract.name() + "' does not have a method '" + mn +"' to implement");
 			return null;
 		}
 		

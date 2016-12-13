@@ -17,8 +17,6 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	}
 
 	public String javaName() {
-		if (pkg == null && cardName == null)
-			return null;
 		if (pkg == null || pkg.simpleName() == null)
 			return cardName;
 		return pkg.simpleName() + "." + cardName;
@@ -26,17 +24,12 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 
 	@Override
 	public String jsName() {
-		if (pkg == null && cardName == null)
-			return null;
 		if (pkg == null || pkg.simpleName() == null)
 			return cardName;
 		return pkg.simpleName() + "." + cardName;
 	}
 
-	// I think this is the whole reason we're doing this ...
 	public String jsUName() {
-		if (pkg == null && cardName == null)
-			return null;
 		if (pkg == null || pkg.simpleName() == null)
 			return cardName;
 		return pkg.simpleName() + "._" + cardName;
