@@ -90,18 +90,20 @@ public class FLASStory {
 		public final HSIEForm.CodeType kind;
 		public final CardName inCard;
 
-		private State(Scope scope, NameOfThing pkg, CardName inCard, HSIEForm.CodeType kind) {
-			this.scope = scope;
-			this.pkgName = pkg;
-			this.kind = kind;
-			this.inCard = inCard;
-		}
-
+		// The top level scope
 		public State(Scope scope, String pkg) {
 			this.scope = scope;
 			this.pkgName = new PackageName(pkg);
 			this.kind = CodeType.FUNCTION;
 			this.inCard = null;
+		}
+
+		// A nested scope constructor, created via static methods
+		private State(Scope scope, NameOfThing pkg, CardName inCard, HSIEForm.CodeType kind) {
+			this.scope = scope;
+			this.pkgName = pkg;
+			this.kind = kind;
+			this.inCard = inCard;
 		}
 
 		public State nest(Scope is, String string, CodeType kind) {
@@ -112,7 +114,6 @@ public class FLASStory {
 			return new State(innerScope, cardName, cardName, HSIEForm.CodeType.CARD);
 		}
 
-		// This is in fact wrong: the package name should not change but we should nest things properly
 		public State nestImplementation(Implements impl, String clz) {
 			CodeType nk;
 			NameOfThing name;

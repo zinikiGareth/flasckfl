@@ -15,7 +15,7 @@ public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope
 
 	public MethodCaseDefn(FunctionIntro fi) {
 		intro = fi;
-		scope = new Scope(this);
+		scope = new Scope(fi.name());
 	}
 	
 	@Override

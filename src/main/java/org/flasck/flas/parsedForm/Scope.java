@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.errors.ScopeDefineException;
 import org.zinutils.exceptions.UtilException;
 
@@ -58,12 +59,15 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 
 	private final List<ScopeEntry> defns = new ArrayList<ScopeEntry>();
 	private final Map<String, String> fullNames = new TreeMap<String, String>();
-	public final Object container;
+	private final NameOfThing name;
 
-	public Scope(Object container) {
-		this.container = container;
+	public Scope(NameOfThing name) {
+		this.name = name;
 	}
-	
+
+	public static Scope topScope() {
+		return new Scope(null);
+	}
 	public boolean contains(String key) {
 		return fullNames.containsKey(key);
 	}

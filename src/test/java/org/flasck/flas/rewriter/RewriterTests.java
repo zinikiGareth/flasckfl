@@ -50,7 +50,7 @@ public class RewriterTests {
 	private final InputPosition posn = new InputPosition("test", 1, 1, null);
 	private final ErrorResult errors = new ErrorResult();
 	private Rewriter rw;
-	private final Scope scope = new Scope(null);
+	private final Scope scope = Scope.topScope();
 	
 	@Before
 	public void setup() {

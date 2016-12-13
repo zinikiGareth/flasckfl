@@ -20,7 +20,7 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 		if (expr == null)
 			throw new UtilException("Cannot build function case with null expr");
 		this.expr = expr;
-		this.scope = new Scope(this);
+		this.scope = new Scope(name);
 	}
 
 	@Override

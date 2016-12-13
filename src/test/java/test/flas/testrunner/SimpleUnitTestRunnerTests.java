@@ -43,7 +43,7 @@ public class SimpleUnitTestRunnerTests {
 	}
 
 	class Setup {
-		Scope scope = new Scope(null);
+		Scope scope = Scope.topScope();
 		Setup() {
 		}
 		

@@ -15,7 +15,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
-import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -26,7 +25,6 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.errors.ErrorResult;
@@ -195,12 +193,6 @@ public class Rewriter {
 			if (nested != null)
 				return nested.cardNameIfAny();
 			return CardName.none();
-		}
-
-		public ScopeName scopeNameIfAny() {
-			if (nested != null)
-				return nested.scopeNameIfAny();
-			return ScopeName.none();
 		}
 	}
 
@@ -499,22 +491,14 @@ public class Rewriter {
 
 	// This is for functions to use in Pass1 to identify scoping context
 	public class Pass1ScopeContext extends NamingContext {
-		private ScopeName scopeName;
-
 		public Pass1ScopeContext(NamingContext cx, String caseName) {
 			super(cx);
-			this.scopeName = new ScopeName(caseName);
 		}
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			// Because this is a partial context, we don't know anything yet
 			return nested.resolve(location, name);
-		}
-
-		@Override
-		public ScopeName scopeNameIfAny() {
-			return scopeName;
 		}
 	}
 
@@ -530,13 +514,11 @@ public class Rewriter {
 		private final boolean fromMethod;
 		private final String funcName;
 		private final String caseName;
-		private final ScopeName scopeName;
 
 		FunctionCaseContext(NamingContext cx, String funcName, String caseName, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
 			super(cx);
 			this.funcName = funcName;
 			this.caseName = caseName;
-			this.scopeName = new ScopeName(caseName);
 			this.bound = locals;
 			this.inner = inner;
 			this.fromMethod = fromMethod;
@@ -566,11 +548,6 @@ public class Rewriter {
 			if (res instanceof CardFunction)
 				return new CardFunction(location, (CardFunction)res, fromMethod);
 			return res;
-		}
-		
-		@Override
-		public ScopeName scopeNameIfAny() {
-			return scopeName;
 		}
 	}
 
@@ -1258,7 +1235,7 @@ public class Rewriter {
 				throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 			bvs.add(hl);
 		}
-		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), new HandlerName(cx.cardNameIfAny(), cx.scopeNameIfAny(), hi.baseName), ctr.id, hi.inCard, bvs);
+		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), hi.handlerName, ctr.id, hi.inCard, bvs);
 		callbackHandlers.put(hi.hiName, rw);
 		return rw;
 	}

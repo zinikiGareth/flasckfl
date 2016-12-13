@@ -28,7 +28,7 @@ public class HSIECodeGenerator {
 	
 	@Test
 	public void testConvertingIdOf1() throws Exception {
-		Scope s = new Scope(null);
+		Scope s = Scope.topScope();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = plus1 1"));
 		c1.provideCaseName("ME.f_0");
@@ -47,7 +47,7 @@ public class HSIECodeGenerator {
 	// This is a pathological case of LET with vars
 	@Test
 	public void testConvertingIdDecode() throws Exception {
-		Scope s = new Scope(null);
+		Scope s = Scope.topScope();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = id1 (decode (id1 32))"));
 		c1.provideCaseName("ME.f_0");
@@ -67,7 +67,7 @@ public class HSIECodeGenerator {
 	@Test
 	@Ignore
 	public void testPatternMatchingAPolyVar() throws Exception {
-		Scope s = new Scope(null);
+		Scope s = Scope.topScope();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("push (Cons[A] x) (A y) = Cons y x"));
 		c1.provideCaseName("ME.f_0");
@@ -85,7 +85,7 @@ public class HSIECodeGenerator {
 
 	@Test
 	public void testPatternMatchingAUnionType() throws Exception {
-		Scope s = new Scope(null);
+		Scope s = Scope.topScope();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f (List[A] x) = 10"));
 		c1.provideCaseName("ME.f_0");
@@ -103,7 +103,7 @@ public class HSIECodeGenerator {
 
 	@Test
 	public void testASimpleRecursivelyDefinedFunction1() throws Exception {
-		Scope s = new Scope(null);
+		Scope s = Scope.topScope();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
 		c1.provideCaseName("ME.f_0");
@@ -124,7 +124,7 @@ public class HSIECodeGenerator {
 
 	@Test
 	public void testASimpleRecursivelyDefinedFunction2() throws Exception {
-		Scope s = new Scope(null);
+		Scope s = Scope.topScope();
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
 		c1.provideCaseName("ME.f_0");

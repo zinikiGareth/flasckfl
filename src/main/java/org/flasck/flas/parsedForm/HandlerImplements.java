@@ -12,10 +12,12 @@ public class HandlerImplements extends Implements {
 	public final List<Object> boundVars;
 	public final boolean inCard;
 	public final InputPosition typeLocation;
+	public final HandlerName handlerName;
 
 	public HandlerImplements(InputPosition kw, InputPosition location, InputPosition typeLocation, HandlerName handlerName, String type, boolean inCard, List<Object> lambdas) {
 		super(kw, location, type);
 		this.typeLocation = typeLocation;
+		this.handlerName = handlerName;
 		this.hiName = handlerName.jsName();
 		this.baseName = State.simpleName(handlerName.jsName());
 		this.inCard = inCard;

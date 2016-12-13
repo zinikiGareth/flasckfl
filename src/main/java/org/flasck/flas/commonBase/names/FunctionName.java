@@ -21,9 +21,9 @@ import org.zinutils.exceptions.UtilException;
 public class FunctionName implements NameOfThing {
 	public final InputPosition location;
 	public final CodeType codeType;
-	private String name;
+	public final String name;
 	public final CardName inCard;
-	private final NameOfThing inContext;
+	public final NameOfThing inContext;
 	
 	private FunctionName(InputPosition location, CodeType codeType, NameOfThing cxt, String name) {
 		this.location = location;

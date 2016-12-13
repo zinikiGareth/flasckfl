@@ -17,7 +17,7 @@ public class EventCaseDefn implements Locatable, MessagesHandler, ContainsScope 
 	public EventCaseDefn(InputPosition kw, FunctionIntro fi) {
 		this.kw = kw;
 		intro = fi;
-		this.scope = new Scope(this);
+		this.scope = new Scope(fi.name());
 	}
 	
 	@Override

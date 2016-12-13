@@ -25,7 +25,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 		this.generate = generate;
 		this.polys = polys;
 		outer.define(State.simpleName(name), name, this);
-		this.innerScope = new Scope(this);
+		this.innerScope = new Scope(tn);
 	}
 
 	@Override

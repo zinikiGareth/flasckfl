@@ -73,7 +73,7 @@ public class MethodConvertorTests {
 			doSend.setType(Type.function(posn, any, send));
 			biscope.define("doSend", doSend);
 		}
-		orgFooScope = new Scope(null);
+		orgFooScope = Scope.topScope();
 //		orgFooScope.define("doSend", "org.foo.doSend", new FunctionCaseDefn(posn, CodeType.FUNCTION, "org.foo.doSend", args, expr));
 		{
 			ContractDecl contract1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Contract1"));

@@ -317,7 +317,7 @@ public class TestBasicTypeChecking {
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);
 		f1.provideCaseName("ME.f_0");
-		Scope s = new Scope(null);
+		Scope s = Scope.topScope();
 		s.define("f", "ME.f", f1);
 		FunctionCaseDefn g1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("g x = f [ 42, 'hello']"));
 		assertEquals(errors.singleString(), 0, errors.count());
