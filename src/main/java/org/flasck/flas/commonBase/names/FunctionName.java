@@ -35,19 +35,9 @@ public class FunctionName implements NameOfThing {
 		this.inCard = cxt == null? null: cxt.containingCard();
 	}
 
-	private FunctionName(InputPosition location, CodeType codeType, NameOfThing pkg, CardName card, CSName csName, String name) {
-		this.location = location;
-		this.codeType = codeType;
-		this.name = name;
-		this.inContext = csName != null?csName:card!=null?card:pkg;
-		
-		// This wants to go away and be recovered from inContext.containingCard()
-		this.inCard = card;
-	}
-
 	@Deprecated // I would like the caller of this to think more carefully and call the correct method ...
-	public static FunctionName functionKind(InputPosition location, CodeType codeType, NameOfThing pkg, CardName inCard, String name) {
-		return new FunctionName(location, codeType, pkg, inCard, null, name);
+	public static FunctionName functionKind(InputPosition location, CodeType codeType, NameOfThing pkg, String name) {
+		return new FunctionName(location, codeType, pkg, name);
 	}
 	
 	public static FunctionName function(InputPosition location, NameOfThing pkg, String name) {
@@ -55,7 +45,7 @@ public class FunctionName implements NameOfThing {
 	}
 
 	public static FunctionName functionInCardContext(InputPosition location, CardName inCard, String name) {
-		return new FunctionName(location, CodeType.CARD, inCard.pkg, inCard, null, name);
+		return new FunctionName(location, CodeType.CARD, inCard, name);
 	}
 
 	public static FunctionName contractMethod(InputPosition location, CSName csName, String name) {
@@ -63,7 +53,7 @@ public class FunctionName implements NameOfThing {
 	}
 	
 	public static FunctionName eventMethod(InputPosition location, CardName cardName, String name) {
-		return new FunctionName(location, CodeType.EVENTHANDLER, cardName.pkg, cardName, null, name);
+		return new FunctionName(location, CodeType.EVENTHANDLER, cardName, name);
 	}
 
 	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {

@@ -152,7 +152,7 @@ public class FLASStory {
 		}
 
 		public FunctionName functionName(ValidIdentifierToken vit) {
-			return FunctionName.functionKind(vit.location, kind, pkgName, inCard, vit.text);
+			return FunctionName.functionKind(vit.location, kind, pkgName, vit.text);
 		}
 	}
 
