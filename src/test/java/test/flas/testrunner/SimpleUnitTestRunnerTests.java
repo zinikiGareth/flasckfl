@@ -43,7 +43,7 @@ public class SimpleUnitTestRunnerTests {
 	}
 
 	class Setup {
-		Scope scope = Scope.topScope();
+		Scope scope = Scope.topScope("test.golden.script");
 		Setup() {
 		}
 		

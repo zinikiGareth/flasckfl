@@ -172,7 +172,7 @@ public class FLASCompiler implements ScriptCompiler {
 		boolean failed = false;
 		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
-		final Scope scope = Scope.topScope();
+		final Scope scope = Scope.topScope(inPkg);
 		final List<String> pkgs = new ArrayList<String>();
 		pkgs.add(inPkg);
 		
@@ -451,7 +451,7 @@ public class FLASCompiler implements ScriptCompiler {
 		this.internalBuildJVM();
 		ErrorResult errors = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
-		final Scope scope = Scope.topScope();
+		final Scope scope = Scope.topScope(pkg);
 		readIntoScope(pkg, errors, storyProc, scope, "script.fl", new StringReader(flas));
 		return stage2(errors, prior, pkg, scope);
 	}
@@ -498,7 +498,7 @@ public class FLASCompiler implements ScriptCompiler {
 	public StoryRet parse(String inPkg, String input) {
 		ErrorResult er = new ErrorResult();
 		final FLASStory storyProc = new FLASStory();
-		final Scope scope = Scope.topScope();
+		final Scope scope = Scope.topScope(inPkg);
 		StoryRet ret = new StoryRet(er, scope);
 		StringReader r = null;
 		try {

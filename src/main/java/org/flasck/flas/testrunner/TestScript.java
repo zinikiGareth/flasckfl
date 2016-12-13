@@ -11,7 +11,7 @@ import org.flasck.flas.parsedForm.Scope;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TestScript implements TestScriptBuilder {
-	private final Scope scope = Scope.topScope();
+	private final Scope scope;
 	private final List<SingleTestCase> cases = new ArrayList<SingleTestCase>();
 	private List<TestStep> currentSteps = new ArrayList<TestStep>();
 	private int nextStep = 1;
@@ -19,6 +19,7 @@ public class TestScript implements TestScriptBuilder {
 	
 	public TestScript(String defineInPkg) {
 		this.defineInPkg = defineInPkg;
+		scope = Scope.topScope(defineInPkg);
 	}
 
 	@Override

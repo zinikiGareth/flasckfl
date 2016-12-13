@@ -24,7 +24,7 @@ public class TestDependencyAnalysis {
 	public void testMutualFandG() throws ErrorResultException {
 		// In spite of my desire for "chain-of-custody" testing, defining functions as cases has eluded me
 		// Can we go back and refactor this at some point into the checked output of FlasStoryTests?
-		Scope s = Scope.topScope();
+		Scope s = Scope.topScope("ME");
 		ErrorResult er = new ErrorResult();
 		new FLASStory().process("ME", s, er, BlockTestData.simpleMutualRecursionBlock(), false);
 		if (er.hasErrors())
