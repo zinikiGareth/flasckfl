@@ -82,7 +82,7 @@ public class TestBasicTypeChecking {
 	}
 
 	protected void fntype(ImportPackage pkg, String name, Type... types) {
-		RWFunctionDefinition fn = new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, CodeType.FUNCTION, null, null, name), types.length-1, null, false);
+		RWFunctionDefinition fn = new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, null, name), types.length-1, null, false);
 		fn.setType(Type.function(posn, types));
 		pkg.define(name, fn);
 	}

@@ -40,10 +40,18 @@ public class FunctionName implements NameOfThing {
 	// I think the CodeType for this should just be "FUNCTION"; and you should use another type for other things
 	// But the parser creates FI's with a "kind", so we kind of need it
 	// Maybe we should have a "generic" or something
-	public static FunctionName function(InputPosition location, CodeType codeType, PackageName pkg, CardName inCard, String name) {
+	public static FunctionName functionKind(InputPosition location, CodeType codeType, PackageName pkg, CardName inCard, String name) {
 		return new FunctionName(location, codeType, pkg, inCard, null, null, name);
 	}
 	
+	public static FunctionName function(InputPosition location, PackageName pkg, String name) {
+		return new FunctionName(location, CodeType.FUNCTION, pkg, null, null, null, name);
+	}
+
+	public static FunctionName functionInCardContext(InputPosition location, CardName inCard, String name) {
+		return new FunctionName(location, CodeType.CARD, inCard.pkg, inCard, null, null, name);
+	}
+
 	public static FunctionName contractMethod(InputPosition location, CodeType kind, CSName csName, String name) {
 		return new FunctionName(location, kind, csName.pkgName(), csName.cardName(), csName, null, name);
 	}

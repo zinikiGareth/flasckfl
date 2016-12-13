@@ -215,7 +215,7 @@ public class IntroParser implements TryParsing {
 					return ErrorResult.oneMessage(line, "invalid contract argument pattern");
 				args.add(patt);
 			}
-			FunctionName fname = FunctionName.function(tn.location, state.kind, state.pkgName, null, tn.text);
+			FunctionName fname = FunctionName.functionKind(tn.location, state.kind, state.pkgName, null, tn.text);
 			return new MethodCaseDefn(new FunctionIntro(fname, args));
 		}
 		default:

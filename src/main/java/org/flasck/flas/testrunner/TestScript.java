@@ -8,7 +8,6 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class TestScript implements TestScriptBuilder {
@@ -33,7 +32,7 @@ public class TestScript implements TestScriptBuilder {
 		AssertTestStep as = new AssertTestStep(nextStep, evalPos, evalExpr, valuePos, valueExpr);
 		{
 			String key = "expr" + nextStep;
-			FunctionName fnName = FunctionName.function(evalPos, CodeType.FUNCTION, new PackageName(defineInPkg), null, key);
+			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
 			String longName = defineInPkg+"."+key;
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), evalExpr);
 			fn.provideCaseName(longName+"_0");
@@ -41,7 +40,7 @@ public class TestScript implements TestScriptBuilder {
 		}
 		{
 			String key = "value" + nextStep;
-			FunctionName fnName = FunctionName.function(evalPos, CodeType.FUNCTION, new PackageName(defineInPkg), null, key);
+			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
 			String longName = defineInPkg+"."+key;
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), valueExpr);
 			fn.provideCaseName(longName+"_0");

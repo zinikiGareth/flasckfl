@@ -138,7 +138,7 @@ public class PackageImporter {
 					// TODO: should we be (writing and) reading the code type?
 					String fullName = xe.required("name");
 					int idx = fullName.lastIndexOf(".");
-					RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, FunctionName.function(location(xe), CodeType.FUNCTION, new PackageName(fullName.substring(0, idx)), null, fullName.substring(idx+1)), args.size()-1, xe.optional("incard"), false);
+					RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, FunctionName.function(location(xe), new PackageName(fullName.substring(0, idx)), fullName.substring(idx+1)), args.size()-1, xe.optional("incard"), false);
 					Type fntype;
 					if (args.size() == 1)
 						fntype = args.get(0);

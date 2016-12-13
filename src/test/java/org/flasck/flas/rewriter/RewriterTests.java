@@ -62,7 +62,7 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingSomethingGloballyDefined() {
-		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, CodeType.FUNCTION, new PackageName("ME"), null, "f"), new ArrayList<Object>(), new UnresolvedVar(posn, "Nil"));
+		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), new ArrayList<Object>(), new UnresolvedVar(posn, "Nil"));
 		fcd0.provideCaseName("ME.f_0");
 		scope.define("f", "ME.f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
@@ -76,7 +76,7 @@ public class RewriterTests {
 	public void testRewritingAParameter() {
 		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern(posn, "x"));
-		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, CodeType.FUNCTION, new PackageName("ME"), null, "f"), args, new UnresolvedVar(posn, "x"));
+		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), args, new UnresolvedVar(posn, "x"));
 		fcd0.provideCaseName("ME.f_0");
 		scope.define("f", "ME.f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
@@ -133,7 +133,7 @@ public class RewriterTests {
 		{
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(posn, "x"));
-			FunctionCaseDefn fn_f = new FunctionCaseDefn(FunctionName.function(posn, CodeType.FUNCTION, new PackageName("ME"), null, "f"), args, new StringLiteral(posn, "x"));
+			FunctionCaseDefn fn_f = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), args, new StringLiteral(posn, "x"));
 			fn_f.provideCaseName("ME.f_0");
 			scope.define("f", "ME.f", fn_f);
 			innerScope = fn_f.innerScope();
@@ -141,7 +141,7 @@ public class RewriterTests {
 		{
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(posn, "y"));
-			FunctionCaseDefn fn_g = new FunctionCaseDefn(FunctionName.function(posn, CodeType.FUNCTION, new PackageName("ME.f_0"), null, "g"), args, new UnresolvedVar(posn, "x"));
+			FunctionCaseDefn fn_g = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.f_0"), "g"), args, new UnresolvedVar(posn, "x"));
 			innerScope.define("g", "ME.f_0.g", fn_g);
 			fn_g.provideCaseName("ME.f_0.g_0");
 		}
@@ -162,7 +162,7 @@ public class RewriterTests {
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
-		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, CodeType.FUNCTION, new PackageName("ME.MyCard"), null, "f"), new ArrayList<Object>(), new UnresolvedVar(null, "counter"));
+		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.MyCard"), "f"), new ArrayList<Object>(), new UnresolvedVar(null, "counter"));
 		fcd0.provideCaseName("ME.MyCard.f_0");
 		cd.fnScope.define("f", "ME.MyCard.f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
@@ -181,7 +181,7 @@ public class RewriterTests {
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		cd.contracts.add(new ContractImplements(posn, posn, "Timer", posn, "timer"));
 //		scope.define("MyCard", "ME.MyCard", cd);
-		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, CodeType.FUNCTION, new PackageName("ME.MyCard"), null, "f"), new ArrayList<Object>(), new UnresolvedVar(null, "timer"));
+		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.MyCard"), "f"), new ArrayList<Object>(), new UnresolvedVar(null, "timer"));
 		fcd0.provideCaseName("ME.MyCard.f_0");
 		cd.fnScope.define("f", "ME.MyCard.f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);

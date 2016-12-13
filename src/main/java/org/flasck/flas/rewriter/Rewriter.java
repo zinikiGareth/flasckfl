@@ -355,7 +355,7 @@ public class Rewriter {
 			if (kind == CodeType.AREA)
 				return FunctionName.areaMethod(loc, areaName, type +"_"+(fnIdx++));
 			else if (kind == CodeType.CARD) 
-				return FunctionName.function(loc, kind, new PackageName(cardName.jsName()), cardName, type+"_"+(fnIdx++));
+				return FunctionName.functionInCardContext(loc, cardName, type+"_"+(fnIdx++));
 			else
 				throw new NotImplementedException("nextFunction of type " + kind);
 		}
@@ -1359,7 +1359,7 @@ public class Rewriter {
 			Object rw = rewriteExpr(sx, sf.init);
 			InputPosition loc = ((Locatable)rw).location();
 			Object expr = new AssertTypeExpr(loc, st, rw);
-			fnName = FunctionName.function(loc, CodeType.FUNCTION, new PackageName(sd.name()), null, "inits_" + sf.name);
+			fnName = FunctionName.function(loc, new PackageName(sd.name()), "inits_" + sf.name);
 			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, sx.cardNameIfAny().jsName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.addCase(fcd0);
@@ -1438,7 +1438,7 @@ public class Rewriter {
 					byKey.add(s.name, new ApplyExpr(s.location, tuple, p.pattern, pl));
 				}
 				else if (!s.actions.isEmpty()) { // something like enter, that is a "method"
-					FunctionName fn = FunctionName.function(s.location, CodeType.CARD, new PackageName(prefix), c2.cardNameIfAny(), "_d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text);
+					FunctionName fn = FunctionName.functionInCardContext(s.location, c2.cardNameIfAny(), "_d3_" + d3.d3.name + "_" + s.name+"_"+p.pattern.text);
 					RWFunctionIntro fi = new RWFunctionIntro(s.location, fn, new ArrayList<Object>(), null);
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					for (MethodMessage mm : s.actions)
@@ -1468,7 +1468,7 @@ public class Rewriter {
 		FunctionLiteral dataFn = functionWithArgs(c2.cardNameIfAny(), prefix, nextFn++, new ArrayList<Object>(), dataExpr);
 		init = new ApplyExpr(dataExpr.location(), assoc, new StringLiteral(dataExpr.location(), "data"), dataFn, init);
 
-		FunctionName name = FunctionName.function(d3.d3.varLoc, CodeType.CARD, new PackageName(prefix), c2.cardNameIfAny(), "_d3init_" + d3.d3.name);
+		FunctionName name = FunctionName.functionInCardContext(d3.d3.varLoc, c2.cardNameIfAny(), "_d3init_" + d3.d3.name);
 		RWFunctionIntro d3f = new RWFunctionIntro(d3.d3.varLoc, name, new ArrayList<Object>(), null);
 		RWFunctionDefinition func = new RWFunctionDefinition(d3.d3.varLoc, HSIEForm.CodeType.CARD, name, 0, c2.cardNameIfAny().jsName(), true);
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, init));
@@ -1487,7 +1487,7 @@ public class Rewriter {
 		String name = "_gen_" + nextFn;
 
 		InputPosition loc = ((Locatable)expr).location(); // may or may not be correct location
-		FunctionName fn = FunctionName.function(loc, CodeType.CARD, new PackageName(prefix), inCard, name);
+		FunctionName fn = FunctionName.functionInCardContext(loc, inCard, name);
 		RWFunctionIntro d3f = new RWFunctionIntro(loc, fn, args, null);
 		RWFunctionDefinition func = new RWFunctionDefinition(loc, HSIEForm.CodeType.CARD, fn, args.size(), prefix, true);
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, expr));
