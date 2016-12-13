@@ -136,6 +136,8 @@ public class PackageImporter {
 						args.add(getUniqueNestedType(rw, location(xe), fe));
 					}
 					// TODO: should we be (writing and) reading the code type?
+					// TODO: because we can only import things at the top level, I believe this is correct
+					// But it seems to me it would be better to just save/restore the simple name, since we have the package name as what we're importing
 					String fullName = xe.required("name");
 					int idx = fullName.lastIndexOf(".");
 					RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, FunctionName.function(location(xe), new PackageName(fullName.substring(0, idx)), fullName.substring(idx+1)), args.size()-1, xe.optional("incard"), false);

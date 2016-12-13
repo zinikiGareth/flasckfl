@@ -9,6 +9,7 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -96,7 +97,7 @@ public class IntroParser implements TryParsing {
 			TypeNameToken tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid card name");
-			return new CardDefinition(kw.location, tn.location, state.scope, new CardName(state.pkgName, tn.text));
+			return new CardDefinition(kw.location, tn.location, state.scope, new CardName((PackageName)state.pkgName, tn.text));
 		}
 		case "platform": {
 			ValidIdentifierToken tok = VarNameToken.from(line);

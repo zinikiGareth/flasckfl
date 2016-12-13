@@ -25,38 +25,48 @@ public class FunctionName implements NameOfThing {
 	public final CardName inCard;
 	private final NameOfThing inContext;
 	
-	private FunctionName(InputPosition location, CodeType codeType, PackageName pkg, CardName card, CSName csName, AreaName area, String name) {
+	private FunctionName(InputPosition location, CodeType codeType, NameOfThing cxt, String name) {
 		this.location = location;
 		this.codeType = codeType;
 		this.name = name;
-		this.inContext = area!=null?area:csName != null?csName:card!=null?card:pkg;
+		this.inContext = cxt;
 		
-		// All of these are bogus substitutes for inContext
+		// This wants to go away and be recovered from inContext.containingCard()
+		this.inCard = cxt == null? null: cxt.containingCard();
+	}
+
+	private FunctionName(InputPosition location, CodeType codeType, NameOfThing pkg, CardName card, CSName csName, String name) {
+		this.location = location;
+		this.codeType = codeType;
+		this.name = name;
+		this.inContext = csName != null?csName:card!=null?card:pkg;
+		
+		// This wants to go away and be recovered from inContext.containingCard()
 		this.inCard = card;
 	}
 
-	public static FunctionName functionKind(InputPosition location, CodeType codeType, PackageName pkg, CardName inCard, String name) {
-		return new FunctionName(location, codeType, pkg, inCard, null, null, name);
+	public static FunctionName functionKind(InputPosition location, CodeType codeType, NameOfThing pkg, CardName inCard, String name) {
+		return new FunctionName(location, codeType, pkg, inCard, null, name);
 	}
 	
 	public static FunctionName function(InputPosition location, PackageName pkg, String name) {
-		return new FunctionName(location, CodeType.FUNCTION, pkg, null, null, null, name);
+		return new FunctionName(location, CodeType.FUNCTION, pkg, name);
 	}
 
 	public static FunctionName functionInCardContext(InputPosition location, CardName inCard, String name) {
-		return new FunctionName(location, CodeType.CARD, inCard.pkg, inCard, null, null, name);
+		return new FunctionName(location, CodeType.CARD, inCard.pkg, inCard, null, name);
 	}
 
 	public static FunctionName contractMethod(InputPosition location, CodeType kind, CSName csName, String name) {
-		return new FunctionName(location, kind, csName.pkgName(), csName.containingCard(), csName, null, name);
+		return new FunctionName(location, kind, csName.pkgName(), csName.containingCard(), csName, name);
 	}
 	
 	public static FunctionName eventMethod(InputPosition location, CodeType kind, CardName cardName, String name) {
-		return new FunctionName(location, kind, cardName.pkg, cardName, null, null, name);
+		return new FunctionName(location, kind, cardName.pkg, cardName, null, name);
 	}
 
 	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {
-		return new FunctionName(location, CodeType.AREA, areaName.cardName.pkg, areaName.cardName, null, areaName, fnName);
+		return new FunctionName(location, CodeType.AREA, areaName, fnName);
 	}
 
 	public CardName containingCard() {

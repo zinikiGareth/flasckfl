@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -81,12 +82,12 @@ import org.zinutils.exceptions.UtilException;
 
 public class FLASStory {
 	public static class State {
-		public final PackageName pkgName;
+		public final NameOfThing pkgName;
 		public final Scope scope;
 		public final HSIEForm.CodeType kind;
 		public final CardName inCard;
 
-		private State(Scope scope, PackageName pkg, CardName inCard, HSIEForm.CodeType kind) {
+		private State(Scope scope, NameOfThing pkg, CardName inCard, HSIEForm.CodeType kind) {
 			this.scope = scope;
 			this.pkgName = pkg;
 			this.kind = kind;
@@ -127,6 +128,7 @@ public class FLASStory {
 		}
 		
 		public String withPkg(String name) {
+			PackageName pkgName = (PackageName) this.pkgName;
 			if (pkgName == null || pkgName.simpleName() == null || pkgName.simpleName().length() == 0)
 				return name;
 			return pkgName.simpleName() +"." + name;

@@ -1359,6 +1359,7 @@ public class Rewriter {
 			Object rw = rewriteExpr(sx, sf.init);
 			InputPosition loc = ((Locatable)rw).location();
 			Object expr = new AssertTypeExpr(loc, st, rw);
+			// TODO: this is probably OK, but I would like to refine the use of this name to something like "StructName"
 			fnName = FunctionName.function(loc, new PackageName(sd.name()), "inits_" + sf.name);
 			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, sx.cardNameIfAny().jsName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
