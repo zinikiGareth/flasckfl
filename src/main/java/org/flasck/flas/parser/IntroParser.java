@@ -86,13 +86,13 @@ public class IntroParser implements TryParsing {
 			}
 			if (er.hasErrors())
 				return er;
-			return new ObjectDefn(tn.location, state.scope, state.withPkg(tn.text), true, args);
+			return new ObjectDefn(tn.location, state.scope, state.structName(tn.text), true, args);
 		}
 		case "contract": {
 			TypeNameToken tn = TypeNameToken.from(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract name");
-			return new ContractDecl(kw.location, tn.location, state.withPkg(tn.text));
+			return new ContractDecl(kw.location, tn.location, state.structName(tn.text));
 		}
 		case "card": {
 			TypeNameToken tn = TypeNameToken.from(line);
@@ -182,7 +182,7 @@ public class IntroParser implements TryParsing {
 				return ErrorResult.oneMessage(line, "invalid handler name");
 			ArrayList<Object> lambdas = new ArrayList<Object>();
 			if (!line.hasMore())
-				return new HandlerImplements(kw.location, named.location, tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
+				return new HandlerImplements(kw.location, named.location, tn.location, state.handlerName(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
 			while (line.hasMore()) {
 				PatternParser pp = new PatternParser();
 				Object patt = pp.tryParsing(line);
@@ -190,7 +190,7 @@ public class IntroParser implements TryParsing {
 					return ErrorResult.oneMessage(line, "invalid contract argument pattern");
 				lambdas.add(patt);
 			}
-			return new HandlerImplements(kw.location, named.location, tn.location, state.withPkg(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
+			return new HandlerImplements(kw.location, named.location, tn.location, state.handlerName(named.text), tn.text, state.kind == CodeType.CARD, lambdas);
 		}
 		case "event": {
 			Object o = new FunctionParser(state.as(CodeType.EVENTHANDLER)).tryParsing(line);

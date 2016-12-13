@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.StructName;
 
 public class ContractDecl implements Locatable {
 	public final List<ContractMethodDecl> methods = new ArrayList<ContractMethodDecl>();
@@ -13,10 +14,10 @@ public class ContractDecl implements Locatable {
 	private final InputPosition loc;
 	private String contractName;
 
-	public ContractDecl(InputPosition kw, InputPosition location, String contractName) {
+	public ContractDecl(InputPosition kw, InputPosition location, StructName structName) {
 		this.kw = kw;
 		this.loc = location;
-		this.contractName = contractName;
+		this.contractName = structName.jsName();
 		this.generate = true;
 	}
 

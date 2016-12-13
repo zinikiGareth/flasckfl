@@ -10,12 +10,14 @@ import java.util.Map;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
@@ -74,7 +76,7 @@ public class MethodConvertorTests {
 		orgFooScope = new Scope(null);
 //		orgFooScope.define("doSend", "org.foo.doSend", new FunctionCaseDefn(posn, CodeType.FUNCTION, "org.foo.doSend", args, expr));
 		{
-			ContractDecl contract1 = new ContractDecl(posn, posn, "org.foo.Contract1");
+			ContractDecl contract1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Contract1"));
 			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", "bar", new ArrayList<>());
 			contract1.methods.add(m1);
 			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "up", "start", new ArrayList<>());
@@ -84,7 +86,7 @@ public class MethodConvertorTests {
 			orgFooScope.define("Contract1", contract1.name(), contract1);
 		}
 		{
-			ContractDecl service1 = new ContractDecl(posn, posn, "org.foo.Service1");
+			ContractDecl service1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Service1"));
 			ContractMethodDecl m0 = new ContractMethodDecl(posn, posn, posn, true, "up", "go", new ArrayList<>());
 			service1.methods.add(m0);
 			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
@@ -94,7 +96,7 @@ public class MethodConvertorTests {
 			orgFooScope.define("Service1", service1.name(), service1);
 		}
 		{
-			ContractDecl handler1 = new ContractDecl(posn, posn, "org.foo.Handler1");
+			ContractDecl handler1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Handler1"));
 			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", "handle", new ArrayList<>());
 			handler1.methods.add(m1);
 			orgFooScope.define("Handler1", handler1.name(), handler1);
@@ -119,7 +121,7 @@ public class MethodConvertorTests {
 				cd.services.add(se);
 			}
 			{
-				he = new HandlerImplements(posn, posn, posn, "org.foo.Card.MyHandler", "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "stateArg"), (Object)new VarPattern(posn, "freeArg")));
+				he = new HandlerImplements(posn, posn, posn, new HandlerName(new CardName(new PackageName("org.foo"), "Card"), "MyHandler"), "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "stateArg"), (Object)new VarPattern(posn, "freeArg")));
 				cd.handlers.add(he);
 			}
 		}

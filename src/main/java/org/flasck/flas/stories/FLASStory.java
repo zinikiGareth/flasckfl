@@ -17,6 +17,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.FLASError;
@@ -133,18 +134,17 @@ public class FLASStory {
 			return new State(scope, pkgName, inCard, newKind);
 		}
 		
-		public String withPkg(String name) {
-			if (pkgName == null)
-				return name;
-			String prefix = pkgName.jsName();
-			if (prefix == null || prefix.length() == 0)
-				return name;
-			return prefix +"." + name;
-		}
-
 		public static String simpleName(String key) {
 			int idx = key.lastIndexOf(".");
 			return key.substring(idx+1);
+		}
+		
+		public StructName structName(String text) {
+			return new StructName(pkgName, text);
+		}
+		
+		public HandlerName handlerName(String text) {
+			return new HandlerName(pkgName, text);
 		}
 
 		public FunctionName functionName(ValidIdentifierToken vit) {
@@ -208,7 +208,8 @@ public class FLASStory {
 					TupleAssignment ta = (TupleAssignment) o;
 					int k=0;
 					for (LocatedName x : ta.vars) {
-						ret.define(x.text, s.withPkg(x.text), new TupleMember(x.location, ta, k++));
+						FunctionName f = s.functionName(new ValidIdentifierToken(x.location, x.text, -1));
+						ret.define(x.text, f.jsName(), new TupleMember(x.location, ta, k++));
 					}
 					// I don't think we need to do anything here, but if recursion is called for, we probably have a scope
 				} else if (o instanceof StructDefn) {
