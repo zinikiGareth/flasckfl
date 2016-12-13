@@ -1,6 +1,7 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.CSName;
 
 public class ContractService extends Implements {
 	public final String referAsVar;
@@ -10,5 +11,9 @@ public class ContractService extends Implements {
 		super(kw, location, type);
 		this.vlocation = vlocation;
 		this.referAsVar = referAsVar;
+	}
+	
+	public CSName getRealName() {
+		return (CSName) realName;
 	}
 }

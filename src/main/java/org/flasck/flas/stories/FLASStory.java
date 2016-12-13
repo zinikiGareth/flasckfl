@@ -120,12 +120,15 @@ public class FLASStory {
 			if (impl instanceof HandlerImplements) {
 				nk = CodeType.HANDLER;
 				name = new HandlerName(pkgName, clz);
+				impl.setRealName(name);
 			} else if (impl instanceof ContractImplements) {
 				nk = CodeType.CONTRACT;
 				name = new CSName((CardName) this.pkgName, clz);
+				impl.setRealName(name);
 			} else if (impl instanceof ContractService) {
 				nk = CodeType.SERVICE;
 				name = new CSName((CardName) this.pkgName, clz);
+				impl.setRealName(name);
 			} else
 				throw new UtilException("What is " + impl + "?");
 			return new State(scope, name, null, nk);

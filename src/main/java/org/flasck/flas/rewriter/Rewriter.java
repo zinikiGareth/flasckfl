@@ -788,37 +788,31 @@ public class Rewriter {
 
 	private CardGrouping createCard(PackageContext cx, CardDefinition cd) {
 		RWStructDefn sd = new RWStructDefn(cd.location, new StructName(cd.cardName.pkg, cd.cardName.cardName), false);
-		CardGrouping grp = new CardGrouping(new CardName(cx.pkgName, cd.simpleName), sd);
+		CardGrouping grp = new CardGrouping(cd.cardName, sd);
 		cards.put(cd.name, grp);
 		return grp;
 	}
 	
 	private CardGrouping pass2Card(NamingContext cx, CardDefinition cd) {
 		CardGrouping grp = cards.get(cd.name);
-		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
 			RWContractImplements rw = rewriteCI(cx, ci);
 			if (rw == null)
 				continue;
-			CSName myname = new CSName(grp.name(), "_C" + pos);
-			grp.contracts.add(new ContractGrouping(rw.name(), myname, rw.referAsVar));
-			cardImplements.put(myname, rw);
+			grp.contracts.add(new ContractGrouping(rw.name(), ci.getRealName(), rw.referAsVar));
+			cardImplements.put(ci.getRealName(), rw);
 			if (rw.referAsVar != null)
 				grp.struct.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));
-			pos++;
 		}
 		
-		pos=0;
 		for (ContractService cs : cd.services) {
 			RWContractService rw = rewriteCS(cx, cs);
 			if (rw == null)
 				continue;
-			CSName myname = new CSName(grp.name(), "_S" + pos);
-			grp.services.add(new ServiceGrouping(rw.name(), myname, rw.referAsVar));
-			cardServices.put(myname, rw);
+			grp.services.add(new ServiceGrouping(rw.name(), cs.getRealName(), rw.referAsVar));
+			cardServices.put(cs.getRealName(), rw);
 			if (rw.referAsVar != null)
 				grp.struct.fields.add(new RWStructField(rw.vlocation, false, rw, rw.referAsVar));
-			pos++;
 		}
 		return grp;
 	}
@@ -835,10 +829,8 @@ public class Rewriter {
 		}
 		
 		CardContext c2 = new CardContext((PackageContext) cx, grp.name(), cd, true);
-		int pos = 0;
 		for (ContractImplements ci : cd.contracts) {
-			CSName myname = new CSName(grp.name(), "_C" + pos);
-			RWContractImplements rw = cardImplements.get(myname);
+			RWContractImplements rw = cardImplements.get(ci.getRealName());
 
 			for (MethodCaseDefn c : ci.methods) {
 				if (methods.containsKey(c.intro.name))
@@ -849,14 +841,10 @@ public class Rewriter {
 				rw.methods.add(rwm);
 				rwm.gatherScopedVars();
 			}
-			
-			pos++;
 		}
 		
-		pos=0;
 		for (ContractService cs : cd.services) {
-			CSName myname = new CSName(grp.name(), "_S" + pos);
-			RWContractService rw = cardServices.get(myname);
+			RWContractService rw = cardServices.get(cs.getRealName());
 
 			for (MethodCaseDefn c : cs.methods) {
 				if (methods.containsKey(c.intro.name))
@@ -866,8 +854,6 @@ public class Rewriter {
 				methods.put(c.intro.name, rwm);
 				rwm.gatherScopedVars();
 			}
-
-			pos++;
 		}
 
 		if (!cd.templates.isEmpty())

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.HandlerName;
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.stories.FLASStory.State;
 
 public class HandlerImplements extends Implements {
@@ -22,5 +23,9 @@ public class HandlerImplements extends Implements {
 		this.baseName = State.simpleName(handlerName.jsName());
 		this.inCard = inCard;
 		this.boundVars = lambdas;
+	}
+	
+	public HandlerName getRealName() {
+		return (HandlerName) realName;
 	}
 }

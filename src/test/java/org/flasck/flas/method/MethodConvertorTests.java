@@ -114,14 +114,18 @@ public class MethodConvertorTests {
 			cd.state.addField(new StructField(posn, false, new TypeReference(posn, "String"), "str"));
 			{
 				ce = new ContractImplements(posn, posn, "org.foo.Contract1", posn, "ce");
+				ce.setRealName(new CSName(cd.cardName, "_C0"));
 				cd.contracts.add(ce);
 			}
 			{
 				se = new ContractService(posn, posn, "org.foo.Service1", posn, "se");
+				se.setRealName(new CSName(cd.cardName, "_S0"));
 				cd.services.add(se);
 			}
 			{
-				he = new HandlerImplements(posn, posn, posn, new HandlerName(new CardName(new PackageName("org.foo"), "Card"), "MyHandler"), "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "stateArg"), (Object)new VarPattern(posn, "freeArg")));
+				HandlerName hn = new HandlerName(new CardName(new PackageName("org.foo"), "Card"), "MyHandler");
+				he = new HandlerImplements(posn, posn, posn, hn, "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "stateArg"), (Object)new VarPattern(posn, "freeArg")));
+				he.setRealName(hn);
 				cd.handlers.add(he);
 			}
 		}

@@ -178,7 +178,9 @@ public class RewriterTests {
 		CardName cn = new CardName(new PackageName("ME"), "MyCard");
 		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
 		// TODO: I would have expected this to complain that it can't find the referenced contract
-		cd.contracts.add(new ContractImplements(posn, posn, "Timer", posn, "timer"));
+		ContractImplements ci = new ContractImplements(posn, posn, "Timer", posn, "timer");
+		ci.setRealName(new CSName(cn, "_C0"));
+		cd.contracts.add(ci);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.MyCard"), "f"), new ArrayList<Object>(), new UnresolvedVar(null, "timer"));
 		fcd0.provideCaseName(0);
@@ -198,9 +200,11 @@ public class RewriterTests {
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
+		CSName iName = new CSName(new CardName(new PackageName("ME"), "MyCard"), "_C0");
 		ContractImplements ci = new ContractImplements(posn, posn, "Timer", posn, "timer");
+		ci.setRealName(iName);
 		cd.contracts.add(ci);
-		MethodCaseDefn mcd1 = new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(posn, new CSName(new CardName(new PackageName("ME"), "MyCard"), "_C0"), "m"), new ArrayList<Object>()));
+		MethodCaseDefn mcd1 = new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(posn, iName, "m"), new ArrayList<Object>()));
 		mcd1.provideCaseName(-1);
 		mcd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(mcd1);
