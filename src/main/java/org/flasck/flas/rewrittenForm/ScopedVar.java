@@ -1,6 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.zinutils.exceptions.UtilException;
 
 public class ScopedVar implements ExternalRef {
@@ -9,8 +10,8 @@ public class ScopedVar implements ExternalRef {
 	public final Object defn;
 	public String definedIn;
 
-	public ScopedVar(InputPosition location, String id, Object defn, String definedBy) {
-		definedIn = definedBy;
+	public ScopedVar(InputPosition location, String id, Object defn, FunctionName definedBy) {
+		definedIn = definedBy.jsName();
 		if (defn == null)
 			throw new NullPointerException("NestedVar cannot be in a null function");
 		if (location == null)

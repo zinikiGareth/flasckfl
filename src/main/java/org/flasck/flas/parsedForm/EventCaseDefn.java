@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.ScopeName;
 import org.zinutils.exceptions.UtilException;
 
@@ -25,8 +26,13 @@ public class EventCaseDefn implements Locatable, MessagesHandler, ContainsScope 
 		return intro.location;
 	}
 
-	public String methodName() {
+	@Deprecated
+	public String methodNameAsString() {
 		return intro.name;
+	}
+	
+	public FunctionName methodName() {
+		return intro.name();
 	}
 
 	public void provideCaseName(int caseNum) {

@@ -514,10 +514,10 @@ public class Rewriter {
 		protected final Map<String, LocalVar> bound;
 		private final Scope inner;
 		private final boolean fromMethod;
-		private final String funcName;
+		private final FunctionName funcName;
 		private final ScopeName caseName;
 
-		FunctionCaseContext(NamingContext cx, String funcName, ScopeName scopeName, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
+		FunctionCaseContext(NamingContext cx, FunctionName funcName, ScopeName scopeName, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
 			super(cx);
 			this.funcName = funcName;
 			this.caseName = scopeName;
@@ -649,7 +649,7 @@ public class Rewriter {
 				pass1(new CardContext((PackageContext) cx, cg.name(), cd, false), cd.fnScope);
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
-				String fn = c.functionName();
+				String fn = c.functionNameAsString();
 				if (functions.containsKey(fn)) {
 					RWFunctionDefinition ret = functions.get(fn);
 					if (prev != null && !prev.equals(name))
@@ -679,7 +679,7 @@ public class Rewriter {
 				pass1(cx, m.innerScope());
 			} else if (val instanceof EventCaseDefn) {
 				EventCaseDefn ehd = (EventCaseDefn) val;
-				String mn = ehd.methodName();
+				String mn = ehd.methodNameAsString();
 				if (eventHandlers.containsKey(mn)) {
 					RWEventHandlerDefinition rw = eventHandlers.get(mn);
 					if (prev != null && !prev.equals(name))
@@ -1275,7 +1275,7 @@ public class Rewriter {
 	}
 
 	public void rewrite(NamingContext cx, FunctionCaseDefn c) {
-		RWFunctionDefinition ret = functions.get(c.functionName());
+		RWFunctionDefinition ret = functions.get(c.functionNameAsString());
 		final Map<String, LocalVar> vars = new HashMap<>();
 		gatherVars(errors, this, cx, c.functionName(), c.caseNameAsString(), vars, c.intro);
 		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);
@@ -1295,14 +1295,14 @@ public class Rewriter {
 	protected void rewriteCase(NamingContext cx, RWMethodDefinition rm, MethodCaseDefn c, boolean fromHandler, boolean useCases) {
 		Map<String, LocalVar> vars = new HashMap<>();
 		String name = useCases ? c.caseNameAsString() : c.methodNameAsString();
-		gatherVars(errors, this, cx, c.methodNameAsString(), name, vars, c.intro);
-		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodNameAsString(), c.caseName(), vars, c.innerScope(), fromHandler), c, vars));
+		gatherVars(errors, this, cx, c.methodName(), name, vars, c.intro);
+		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), fromHandler), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, EventCaseDefn c) {
 		RWEventHandlerDefinition rw = eventHandlers.get(c.intro.name);
 		Map<String, LocalVar> vars = new HashMap<>();
-		gatherVars(errors, this, cx, rw.name().jsName(), rw.name().jsName(), vars, c.intro);
+		gatherVars(errors, this, cx, rw.name(), rw.name().jsName(), vars, c.intro);
 		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), false), c, vars));
 	}
 
@@ -1676,7 +1676,7 @@ public class Rewriter {
 		}
 	}
 
-	public void gatherVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, String fnName, String caseName, Map<String, LocalVar> into, FunctionIntro fi) {
+	public void gatherVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, FunctionName fnName, String caseName, Map<String, LocalVar> into, FunctionIntro fi) {
 		for (int i=0;i<fi.args.size();i++) {
 			Object arg = fi.args.get(i);
 			if (arg instanceof VarPattern) {
@@ -1702,7 +1702,7 @@ public class Rewriter {
 		}
 	}
 
-	private void gatherCtor(ErrorResult errors, NamingContext cx, String fnName, String caseName, Map<String, LocalVar> into, ConstructorMatch cm) {
+	private void gatherCtor(ErrorResult errors, NamingContext cx, FunctionName fnName, String caseName, Map<String, LocalVar> into, ConstructorMatch cm) {
 		// NOTE: I am deliberately NOT returning any errors here because I figure this should already have been checked for validity somewhere else
 		// But this (albeit, defensively) assumes that cm.ctor is a struct defn and that it has the defined fields 
 		for (Field x : cm.args) {

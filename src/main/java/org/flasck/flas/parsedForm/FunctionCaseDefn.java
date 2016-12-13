@@ -41,8 +41,13 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 		return intro.args.size();
 	}
 
-	public String functionName() {
+	@Deprecated
+	public String functionNameAsString() {
 		return intro.name;
+	}
+	
+	public FunctionName functionName() {
+		return intro.name();
 	}
 
 	public void provideCaseName(int caseNum) {
