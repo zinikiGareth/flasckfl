@@ -15,7 +15,7 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 		return card.pkg;
 	}
 	
-	public CardName cardName() {
+	public CardName containingCard() {
 		return card;
 	}
 	

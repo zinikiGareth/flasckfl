@@ -14,6 +14,11 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	public static CardName none() {
 		return new CardName(null, null);
 	}
+	
+	@Override
+	public CardName containingCard() {
+		return this;
+	}
 
 	public String javaName() {
 		if (pkg == null && cardName == null)

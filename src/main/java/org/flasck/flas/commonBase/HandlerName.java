@@ -18,6 +18,11 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 	}
 
 	@Override
+	public CardName containingCard() {
+		return cn;
+	}
+
+	@Override
 	public int compareTo(HandlerName o) {
 		int cc;
 		if (cn != null && o.cn == null)

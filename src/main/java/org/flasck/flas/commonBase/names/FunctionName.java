@@ -21,20 +21,18 @@ import org.zinutils.exceptions.UtilException;
 public class FunctionName implements NameOfThing {
 	public final InputPosition location;
 	public final CodeType codeType;
-	private final PackageName inPkg;
 	private String name;
 	public final CardName inCard;
-	private final AreaName area;
-	private final CSName csName;
+	private final NameOfThing inContext;
 	
 	private FunctionName(InputPosition location, CodeType codeType, PackageName pkg, CardName card, CSName csName, AreaName area, String name) {
 		this.location = location;
 		this.codeType = codeType;
-		this.inPkg = pkg;
-		this.inCard = card;
-		this.csName = csName;
-		this.area = area;
 		this.name = name;
+		this.inContext = area!=null?area:csName != null?csName:card!=null?card:pkg;
+		
+		// All of these are bogus substitutes for inContext
+		this.inCard = card;
 	}
 
 	public static FunctionName functionKind(InputPosition location, CodeType codeType, PackageName pkg, CardName inCard, String name) {
@@ -50,7 +48,7 @@ public class FunctionName implements NameOfThing {
 	}
 
 	public static FunctionName contractMethod(InputPosition location, CodeType kind, CSName csName, String name) {
-		return new FunctionName(location, kind, csName.pkgName(), csName.cardName(), csName, null, name);
+		return new FunctionName(location, kind, csName.pkgName(), csName.containingCard(), csName, null, name);
 	}
 	
 	public static FunctionName eventMethod(InputPosition location, CodeType kind, CardName cardName, String name) {
@@ -61,18 +59,26 @@ public class FunctionName implements NameOfThing {
 		return new FunctionName(location, CodeType.AREA, areaName.cardName.pkg, areaName.cardName, null, areaName, fnName);
 	}
 
+	public CardName containingCard() {
+		return inContext.containingCard();
+	}
+
 	public String jsName() {
-		if (area != null) {
-			return area.jsName() + "." + name;
-		}
-		else if (csName != null) {
-			return csName.jsName() + "." + name;
-		}
-		else if (inCard != null) {
-			return inCard.jsName() + "." + name;
-		}
+		if (inContext == null || inContext.jsName() == null || inContext.jsName().length() == 0)
+			return name;
 		else
-			return ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
+			return inContext.jsName() + "." + name;
+//		if (area != null) {
+//			return area.jsName() + "." + name;
+//		}
+//		else if (csName != null) {
+//			return csName.jsName() + "." + name;
+//		}
+//		else if (inCard != null) {
+//			return inCard.jsName() + "." + name;
+//		}
+//		else
+//			return ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
 	}
 
 	public String toString() {

@@ -10,6 +10,11 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	}
 	
 	@Override
+	public CardName containingCard() {
+		return null;
+	}
+	
+	@Override
 	public String jsName() {
 		return name;
 	}
@@ -22,5 +27,4 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	public int compareTo(PackageName o) {
 		return name.compareTo(o.name);
 	}
-
 }

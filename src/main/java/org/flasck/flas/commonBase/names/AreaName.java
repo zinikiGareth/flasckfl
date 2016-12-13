@@ -24,4 +24,9 @@ public class AreaName implements NameOfThing {
 	public String toString() {
 		throw new UtilException("Yo!");
 	}
+
+	@Override
+	public CardName containingCard() {
+		return cardName;
+	}
 }

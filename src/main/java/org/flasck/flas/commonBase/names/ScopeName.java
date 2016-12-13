@@ -10,6 +10,11 @@ public class ScopeName implements NameOfThing {
 	}
 
 	@Override
+	public CardName containingCard() {
+		return null; // TODO: this is wrong because this scope should be able to be within something else
+	}
+
+	@Override
 	public String jsName() {
 		return scope;
 	}
