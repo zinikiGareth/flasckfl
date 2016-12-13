@@ -62,7 +62,7 @@ public class RewriterTests {
 	@Test
 	public void testRewritingSomethingGloballyDefined() {
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), new ArrayList<Object>(), new UnresolvedVar(posn, "Nil"));
-		fcd0.provideCaseName("ME.f_0");
+		fcd0.provideCaseName(0);
 		scope.define("f", "ME.f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
@@ -76,7 +76,7 @@ public class RewriterTests {
 		ArrayList<Object> args = new ArrayList<Object>();
 		args.add(new VarPattern(posn, "x"));
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), args, new UnresolvedVar(posn, "x"));
-		fcd0.provideCaseName("ME.f_0");
+		fcd0.provideCaseName(0);
 		scope.define("f", "ME.f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
@@ -133,7 +133,7 @@ public class RewriterTests {
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(posn, "x"));
 			FunctionCaseDefn fn_f = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), args, new StringLiteral(posn, "x"));
-			fn_f.provideCaseName("ME.f_0");
+			fn_f.provideCaseName(0);
 			scope.define("f", "ME.f", fn_f);
 			innerScope = fn_f.innerScope();
 		}
@@ -142,7 +142,7 @@ public class RewriterTests {
 			args.add(new VarPattern(posn, "y"));
 			FunctionCaseDefn fn_g = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.f_0"), "g"), args, new UnresolvedVar(posn, "x"));
 			innerScope.define("g", "ME.f_0.g", fn_g);
-			fn_g.provideCaseName("ME.f_0.g_0");
+			fn_g.provideCaseName(0);
 		}
 		rw.rewritePackageScope(null, "ME", scope);
 		RWFunctionDefinition g = rw.functions.get("ME.f_0.g");
@@ -162,7 +162,7 @@ public class RewriterTests {
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.MyCard"), "f"), new ArrayList<Object>(), new UnresolvedVar(null, "counter"));
-		fcd0.provideCaseName("ME.MyCard.f_0");
+		fcd0.provideCaseName(0);
 		cd.fnScope.define("f", "ME.MyCard.f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -181,7 +181,7 @@ public class RewriterTests {
 		cd.contracts.add(new ContractImplements(posn, posn, "Timer", posn, "timer"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.MyCard"), "f"), new ArrayList<Object>(), new UnresolvedVar(null, "timer"));
-		fcd0.provideCaseName("ME.MyCard.f_0");
+		fcd0.provideCaseName(0);
 		cd.fnScope.define("f", "ME.MyCard.f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		errors.showTo(new PrintWriter(System.out), 0);
@@ -201,7 +201,7 @@ public class RewriterTests {
 		ContractImplements ci = new ContractImplements(posn, posn, "Timer", posn, "timer");
 		cd.contracts.add(ci);
 		MethodCaseDefn mcd1 = new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(posn, new CSName(new CardName(new PackageName("ME"), "MyCard"), "_C0"), "m"), new ArrayList<Object>()));
-		mcd1.provideCaseName("ME.MyCard._C0.m");
+		mcd1.provideCaseName(-1);
 		mcd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(mcd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
@@ -223,6 +223,7 @@ public class RewriterTests {
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		EventCaseDefn ecd1 = new EventCaseDefn(posn, new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("ME"), "MyCard"), "eh"), new ArrayList<Object>()));
+		ecd1.provideCaseName(-1);
 		ecd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "counter")), new UnresolvedVar(posn, "counter")));
 		cd.fnScope.define("eh", "ME.MyCard.eh", ecd1);
 //		scope.define("MyCard", "ME.MyCard", cd);

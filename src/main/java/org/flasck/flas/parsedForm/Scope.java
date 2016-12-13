@@ -19,8 +19,10 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 		private final InputPosition location;
 		private final String name;
 		private Object defn;
+		private final String key;
 
-		public ScopeEntry(String name, Object defn) {
+		public ScopeEntry(String key, String name, Object defn) {
+			this.key = key;
 			location = (defn == null)?null:((Locatable)defn).location();
 			if (defn != null && this.location == null)
 				throw new UtilException("null location se1");
@@ -92,7 +94,7 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 	public void define(String key, String name, Object defn) {
 		if (key.contains("."))
 			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);
-		ScopeEntry ret = new ScopeEntry(name, defn);
+		ScopeEntry ret = new ScopeEntry(key, name, defn);
 		defns.add(ret);
 		fullNames.put(key, name);
 	}
@@ -106,12 +108,14 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 		return defns.iterator();
 	}
 
-	public String caseName(String name) {
+	public int caseName(String name) {
+		int idx = name.lastIndexOf(".");
+		String key = name.substring(idx+1); 
 		int cs = 0;
 		for (ScopeEntry se : this)
-			if (se.name.equals(name))
+			if (se.key.equals(key))
 				cs++;
-		return name +"_"+ cs;
+		return cs;
 	}
 
 	@Override

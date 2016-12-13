@@ -663,7 +663,7 @@ public class Rewriter {
 				pass1(new Pass1ScopeContext(cx, c.caseName()), c.innerScope());
 			} else if (val instanceof MethodCaseDefn) {
 				MethodCaseDefn m = (MethodCaseDefn) val;
-				String mn = m.methodName();
+				String mn = m.methodNameAsString();
 				if (methods.containsKey(mn)) {
 					RWMethodDefinition ret = methods.get(mn);
 					if (prev != null && !prev.equals(name))
@@ -1306,9 +1306,9 @@ public class Rewriter {
 	
 	protected void rewriteCase(NamingContext cx, RWMethodDefinition rm, MethodCaseDefn c, boolean fromHandler, boolean useCases) {
 		Map<String, LocalVar> vars = new HashMap<>();
-		String name = useCases ? c.caseName() : c.methodName();
-		gatherVars(errors, this, cx, c.methodName(), name, vars, c.intro);
-		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), name, vars, c.innerScope(), fromHandler), c, vars));
+		String name = useCases ? c.caseName() : c.methodNameAsString();
+		gatherVars(errors, this, cx, c.methodNameAsString(), name, vars, c.intro);
+		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodNameAsString(), name, vars, c.innerScope(), fromHandler), c, vars));
 	}
 
 	private void rewrite(NamingContext cx, EventCaseDefn c) {

@@ -316,13 +316,13 @@ public class TestBasicTypeChecking {
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);
-		f1.provideCaseName("ME.f_0");
+		f1.provideCaseName(0);
 		Scope s = Scope.topScope("ME");
 		s.define("f", "ME.f", f1);
 		FunctionCaseDefn g1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("g x = f [ 42, 'hello']"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(g1);
-		g1.provideCaseName("ME.g_0");
+		g1.provideCaseName(0);
 		s.define("g", "ME.g", g1);
 		Rewriter rewriter = new Rewriter(errors, null, biscope);
 		rewriter.rewritePackageScope(null, "ME", s);

@@ -24,7 +24,7 @@ public class HSIEFunctionTests {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("primes = [2,3,5]"));
-		c1.provideCaseName("ME.primes_0");
+		c1.provideCaseName(0);
 		s.define("primes", "ME.primes", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, "ME", s);
@@ -39,11 +39,11 @@ public class HSIEFunctionTests {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 0 = 1"));
-		c1.provideCaseName("ME.fib_0");
+		c1.provideCaseName(0);
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib 1 = 1"));
-		c2.provideCaseName("ME.fib_1");
+		c2.provideCaseName(1);
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("fib n = fib (n-1) + fib (n-2)"));
-		c3.provideCaseName("ME.fib_2");
+		c3.provideCaseName(2);
 		s.define("fib", "ME.fib", c1);
 		s.define("fib", "ME.fib", c2);
 		s.define("fib", "ME.fib", c3);
@@ -60,11 +60,11 @@ public class HSIEFunctionTests {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n [] = []"));
-		c1.provideCaseName("ME.take_0");
+		c1.provideCaseName(0);
 		FunctionCaseDefn c2 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take 0 Cons = []"));
-		c2.provideCaseName("ME.take_1");
+		c2.provideCaseName(1);
 		FunctionCaseDefn c3 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("take n (a:b) = a:(take (n-1) b)"));
-		c3.provideCaseName("ME.take_2");
+		c3.provideCaseName(2);
 		s.define("take", "ME.take", c1);
 		s.define("take", "ME.take", c2);
 		s.define("take", "ME.take", c3);

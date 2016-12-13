@@ -31,7 +31,7 @@ public class HSIECodeGenerator {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = plus1 1"));
-		c1.provideCaseName("ME.f_0");
+		c1.provideCaseName(0);
 		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.functions.put("plus1", new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, null, "plus1"), 1, null, false));
@@ -50,7 +50,7 @@ public class HSIECodeGenerator {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f = id1 (decode (id1 32))"));
-		c1.provideCaseName("ME.f_0");
+		c1.provideCaseName(0);
 		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.functions.put("id1", new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, null, "id1"), 1, null, false));
@@ -70,7 +70,7 @@ public class HSIECodeGenerator {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("push (Cons[A] x) (A y) = Cons y x"));
-		c1.provideCaseName("ME.f_0");
+		c1.provideCaseName(0);
 		s.define("push", "ME.push", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, "ME", s);
@@ -88,7 +88,7 @@ public class HSIECodeGenerator {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f (List[A] x) = 10"));
-		c1.provideCaseName("ME.f_0");
+		c1.provideCaseName(0);
 		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
 		rw.rewritePackageScope(null, "ME", s);
@@ -106,9 +106,9 @@ public class HSIECodeGenerator {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
-		c1.provideCaseName("ME.f_0");
+		c1.provideCaseName(0);
 		FunctionCaseDefn g1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("g x = f (x+1)"));
-		g1.provideCaseName("ME.g_0");
+		g1.provideCaseName(0);
 		s.define("f", "ME.f", c1);
 		s.define("g", "ME.g", g1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
@@ -127,9 +127,9 @@ public class HSIECodeGenerator {
 		Scope s = Scope.topScope("ME");
 		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn c1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("f x = g (x-1)"));
-		c1.provideCaseName("ME.f_0");
+		c1.provideCaseName(0);
 		FunctionCaseDefn g1 = (FunctionCaseDefn)p.tryParsing(new Tokenizable("g x = f (x+1)"));
-		g1.provideCaseName("ME.g_0");
+		g1.provideCaseName(0);
 		s.define("f", "ME.f", c1);
 		s.define("g", "ME.g", g1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());

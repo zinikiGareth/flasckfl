@@ -36,7 +36,7 @@ public class TestScript implements TestScriptBuilder {
 			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
 			String longName = defineInPkg+"."+key;
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), evalExpr);
-			fn.provideCaseName(longName+"_0");
+			fn.provideCaseName(0);
 			scope.define(key, longName, fn);
 		}
 		{
@@ -44,7 +44,7 @@ public class TestScript implements TestScriptBuilder {
 			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
 			String longName = defineInPkg+"."+key;
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), valueExpr);
-			fn.provideCaseName(longName+"_0");
+			fn.provideCaseName(0);
 			scope.define(key, longName, fn);
 		}
 		nextStep++;
