@@ -195,7 +195,7 @@ public class FLASStory {
 					FunctionCaseDefn fcd = (FunctionCaseDefn)o;
 					int caseName = ret.caseName(fcd.intro.name);
 					fcd.provideCaseName(caseName);
-					ret.define(State.simpleName(fcd.functionNameAsString()), fcd.functionNameAsString(), fcd);
+					ret.define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
 					if (!b.nested.isEmpty()) {
 						doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), b.nested);
 					}
@@ -208,15 +208,15 @@ public class FLASStory {
 					Block lastBlock = (Block) arr[1];
 					FunctionCaseDefn fcd = new FunctionCaseDefn(fi.name(), fi.args, arr[0]);
 					fcd.provideCaseName(caseName);
-					ret.define(State.simpleName(fcd.functionNameAsString()), fcd.functionNameAsString(), fcd);
+					ret.define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
 					if (!lastBlock.nested.isEmpty()) {
 						doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), lastBlock.nested);
 					}
 				} else if (o instanceof MethodCaseDefn) {
 					MethodCaseDefn mcd = (MethodCaseDefn)o;
-					int caseName = ret.caseName(mcd.methodNameAsString());
+					int caseName = ret.caseName(mcd.methodName().name);
 					mcd.provideCaseName(caseName);
-					ret.define(State.simpleName(mcd.methodNameAsString()), mcd.methodNameAsString(), mcd);
+					ret.define(mcd.methodName().name, mcd.methodNameAsString(), mcd);
 					addMethodMessages(er, mcd.messages, b.nested);
 				} else if (o instanceof TupleAssignment) {
 					TupleAssignment ta = (TupleAssignment) o;
@@ -360,7 +360,7 @@ public class FLASStory {
 						FunctionCaseDefn fcd = (FunctionCaseDefn) omm.what;
 						int caseName = sd.innerScope().caseName(fcd.intro.name);
 						fcd.provideCaseName(caseName);
-						sd.innerScope().define(State.simpleName(fcd.functionNameAsString()), fcd.functionNameAsString(), fcd);
+						sd.innerScope().define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
 						if (!b.nested.isEmpty()) {
 							doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), b.nested);
 						}
@@ -494,7 +494,7 @@ public class FLASStory {
 				doImplementation(s, er, hi, b.nested, State.simpleName(hi.hiName));
 			} else if (o instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fcd = (FunctionCaseDefn) o;
-				inner.define(State.simpleName(fcd.functionNameAsString()), fcd.functionNameAsString(), fcd);
+				inner.define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
 				int caseName = inner.caseName(fcd.intro.name);
 				fcd.provideCaseName(caseName);
 			} else if (o instanceof FunctionIntro) {
@@ -509,19 +509,19 @@ public class FLASStory {
 				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.name(), fi.args, arr[0]);
 				int caseName = inner.caseName(fcd.intro.name);
 				fcd.provideCaseName(caseName);
-				inner.define(State.simpleName(fcd.functionNameAsString()), fcd.functionNameAsString(), fcd);
+				inner.define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
 				if (!lastBlock.nested.isEmpty()) {
 					Scope is = ((ContainsScope)o).innerScope();
 					doScope(er, s.nest(is, fcd.caseName(), s.kind), lastBlock.nested);
 				}
 			} else if (o instanceof MethodCaseDefn) {
 				MethodCaseDefn mcd = (MethodCaseDefn) o;
-				inner.define(State.simpleName(mcd.methodNameAsString()), mcd.methodNameAsString(), mcd);
+				inner.define(mcd.methodName().name, mcd.methodNameAsString(), mcd);
 				addMethodMessages(er, mcd.messages, b.nested);
 			} else if (o instanceof EventCaseDefn) {
 				EventCaseDefn ecd = (EventCaseDefn) o;
-				inner.define(State.simpleName(ecd.methodNameAsString()), ecd.methodNameAsString(), ecd);
-				int caseName = inner.caseName(ecd.methodNameAsString());
+				inner.define(ecd.methodName().name, ecd.methodNameAsString(), ecd);
+				int caseName = inner.caseName(ecd.methodName().name);
 				ecd.provideCaseName(caseName);
 				addMethodMessages(er, ecd.messages, b.nested);
 			} else if (o instanceof ContractDecl) {
