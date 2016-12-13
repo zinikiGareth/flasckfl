@@ -3,8 +3,8 @@ package org.flasck.flas.commonBase;
 import org.flasck.flas.commonBase.names.CardName;
 
 public class HandlerName implements NameOfThing, Comparable<HandlerName> {
-	private final NameOfThing name;
-	private String baseName;
+	public final NameOfThing name;
+	public final String baseName;
 
 	public HandlerName(NameOfThing n, String baseName) {
 		this.name = n;

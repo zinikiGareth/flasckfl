@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
@@ -63,7 +64,9 @@ public class PackageImporter {
 				; // handled in pass 0
 			else if (xe.hasTag("Struct")) {
 				List<Type> polys = new ArrayList<>();
-				RWStructDefn sd = new RWStructDefn(location(xe), xe.required("name"), false, polys);
+				String fullName = xe.required("name");
+				int idx = fullName.lastIndexOf(".");
+				RWStructDefn sd = new RWStructDefn(location(xe), new StructName(packageName, fullName.substring(idx+1)), false, polys);
 				xe.attributesDone();
 				pkg.define(sd.name(), sd);
 				todos.add(new Pass2(sd, xe));

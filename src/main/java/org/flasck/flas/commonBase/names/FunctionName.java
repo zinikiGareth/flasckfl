@@ -45,11 +45,12 @@ public class FunctionName implements NameOfThing {
 		this.inCard = card;
 	}
 
+	@Deprecated // I would like the caller of this to think more carefully and call the correct method ...
 	public static FunctionName functionKind(InputPosition location, CodeType codeType, NameOfThing pkg, CardName inCard, String name) {
 		return new FunctionName(location, codeType, pkg, inCard, null, name);
 	}
 	
-	public static FunctionName function(InputPosition location, PackageName pkg, String name) {
+	public static FunctionName function(InputPosition location, NameOfThing pkg, String name) {
 		return new FunctionName(location, CodeType.FUNCTION, pkg, name);
 	}
 

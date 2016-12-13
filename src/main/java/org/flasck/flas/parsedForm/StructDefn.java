@@ -17,6 +17,7 @@ public class StructDefn implements AsString, Locatable {
 	private final InputPosition location;
 	private String name;
 	private List<PolyType> polys;
+	public final StructName structName;
 
 	// for tests
 	public StructDefn(InputPosition location, String pkg, String tn, boolean generate, PolyType... polys) {
@@ -27,6 +28,7 @@ public class StructDefn implements AsString, Locatable {
 	public StructDefn(InputPosition kw, InputPosition location, StructName tn, boolean generate, List<PolyType> polys) {
 		this.kw = kw;
 		this.location = location;
+		this.structName = tn;
 		this.name = tn.jsName();
 		this.generate = generate;
 		this.polys = polys;

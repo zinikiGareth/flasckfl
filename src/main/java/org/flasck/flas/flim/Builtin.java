@@ -2,6 +2,7 @@ package org.flasck.flas.flim;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWObjectMethod;
@@ -48,10 +49,10 @@ public class Builtin {
 			root.define("/", fnhelper("/", number, number, number));
 			root.define("^", fnhelper("^", number, number, number));
 		}
-		RWStructDefn nil = new RWStructDefn(posn, "Nil", false);
+		RWStructDefn nil = new RWStructDefn(posn, new StructName(null, "Nil"), false);
 		list.addCase(nil);
 		{ // lists
-			RWStructDefn cons = new RWStructDefn(posn, "Cons", false, varA);
+			RWStructDefn cons = new RWStructDefn(posn, new StructName(null, "Cons"), false, varA);
 			cons.addField(new RWStructField(posn, false, varA, "head"));
 			cons.addField(new RWStructField(posn, false, list, "tail"));
 			list.addCase(cons);
@@ -62,7 +63,7 @@ public class Builtin {
 		}
 		{ // stacks
 			RWUnionTypeDefn stack = new RWUnionTypeDefn(posn, false, "Stack", CollectionUtils.listOf(Type.polyvar(posn, "A")));
-			RWStructDefn push = new RWStructDefn(posn, "StackPush", false, varA);
+			RWStructDefn push = new RWStructDefn(posn, new StructName(null, "StackPush"), false, varA);
 			push.addField(new RWStructField(posn, false, varA, "head"));
 			push.addField(new RWStructField(posn, false, stack, "tail"));
 			stack.addCase(nil);
@@ -72,8 +73,8 @@ public class Builtin {
 		}
 		RWUnionTypeDefn map = new RWUnionTypeDefn(posn, false, "Map", CollectionUtils.listOf(varA));
 		{ // maps
-			RWStructDefn nilMap = new RWStructDefn(posn, "NilMap", false);
-			RWStructDefn assoc = new RWStructDefn(posn, "Assoc", false, varA);
+			RWStructDefn nilMap = new RWStructDefn(posn, new StructName(null, "NilMap"), false);
+			RWStructDefn assoc = new RWStructDefn(posn, new StructName(null, "Assoc"), false, varA);
 			map.addCase(nilMap);
 			map.addCase(assoc);
 			root.define("Map", map);
@@ -85,7 +86,7 @@ public class Builtin {
 			root.define("assoc", fnhelper("assoc", map.instance(posn, varA), string, varA));
 		}
 		{ // d3
-			RWStructDefn d3 = new RWStructDefn(posn, "D3Element", false, varA);
+			RWStructDefn d3 = new RWStructDefn(posn, new StructName(null, "D3Element"), false, varA);
 			root.define("D3Element", d3);
 			d3.addField(new RWStructField(posn, false, varA, "data"));
 			d3.addField(new RWStructField(posn, false, number, "idx"));
@@ -96,13 +97,13 @@ public class Builtin {
 			card.constructorArg(posn, string, "explicit");
 			card.constructorArg(posn, string, "loadId");
 		}
-		RWStructDefn send = new RWStructDefn(posn, "Send", false);
+		RWStructDefn send = new RWStructDefn(posn, new StructName(null, "Send"), false);
 		{ // messaging
 			RWUnionTypeDefn message = new RWUnionTypeDefn(posn, false, "Message", null);
-			RWStructDefn assign = new RWStructDefn(posn, "Assign", false);
-			RWStructDefn crCard = new RWStructDefn(posn, "CreateCard", false);
-			RWStructDefn d3 = new RWStructDefn(posn, "D3Action", false);
-			RWStructDefn debug = new RWStructDefn(posn, "Debug", false);
+			RWStructDefn assign = new RWStructDefn(posn, new StructName(null, "Assign"), false);
+			RWStructDefn crCard = new RWStructDefn(posn, new StructName(null, "CreateCard"), false);
+			RWStructDefn d3 = new RWStructDefn(posn, new StructName(null, "D3Action"), false);
+			RWStructDefn debug = new RWStructDefn(posn, new StructName(null, "Debug"), false);
 			message.addCase(assign);
 			message.addCase(send);
 			message.addCase(crCard);
@@ -132,14 +133,14 @@ public class Builtin {
 //			root.define("JSNI", "JSNI", null);
 			
 			Type polyT = Type.polyvar(posn, "T");
-			RWStructDefn mw = new RWStructDefn(posn, "MessageWrapper", false, polyT);
+			RWStructDefn mw = new RWStructDefn(posn, new StructName(null, "MessageWrapper"), false, polyT);
 			mw.addField(new RWStructField(posn, false, polyT, "value"));
 			mw.addField(new RWStructField(posn, false, list.instance(posn, message), "msgs"));
 			root.define("MessageWrapper", mw);
 
 		}
 		{ // crosets
-			RWStructDefn crokey = new RWStructDefn(posn, "Crokey", false);
+			RWStructDefn crokey = new RWStructDefn(posn, new StructName(null, "Crokey"), false);
 			root.define("Crokey", crokey);
 			crokey.addField(new RWStructField(posn, false, string, "key"));
 			crokey.addField(new RWStructField(posn, false, string, "id"));
@@ -147,12 +148,12 @@ public class Builtin {
 			// It is not abundantly clear to me that we want to project this level of detail into the API
 			// This comes from having two separate classes down in the JS layer
 			// At some level, we DO need to distinguish between them, but I'm not sure we should put it on the user
-			RWStructDefn ncrokey = new RWStructDefn(posn, "NaturalCrokey", false);
+			RWStructDefn ncrokey = new RWStructDefn(posn, new StructName(null, "NaturalCrokey"), false);
 			root.define("NaturalCrokey", ncrokey);
 			ncrokey.addField(new RWStructField(posn, false, string, "key"));
 			ncrokey.addField(new RWStructField(posn, false, string, "id"));
 			
-			RWStructDefn crokeys = new RWStructDefn(posn, "Crokeys", false);
+			RWStructDefn crokeys = new RWStructDefn(posn, new StructName(null, "Crokeys"), false);
 			root.define("Crokeys", crokeys);
 			crokeys.addField(new RWStructField(posn, false, string, "id"));
 			crokeys.addField(new RWStructField(posn, false, string, "keytype"));
@@ -193,7 +194,7 @@ public class Builtin {
 		Type list = (Type) root.get("List");
 		{ // DOM
 //			PackageDefn domPkg = new PackageDefn(posn, ret, "DOM");
-			RWStructDefn elt = new RWStructDefn(posn, "DOM.Element", false, varA, varB);
+			RWStructDefn elt = new RWStructDefn(posn, new StructName(null, "DOM.Element"), false, varA, varB);
 //			domPkg.innerScope().define("Element", "DOM.Element", elt);
 			elt.addField(new RWStructField(posn, false, string, "tag"));
 			elt.addField(new RWStructField(posn, false, list, "attrs"));

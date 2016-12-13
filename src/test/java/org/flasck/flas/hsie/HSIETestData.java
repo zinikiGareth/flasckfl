@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -37,8 +38,8 @@ public class HSIETestData {
 	static Map<String, PackageVar> ctorTypes = new HashMap<>();
 	static {
 		ctorTypes.put("Number", new PackageVar(posn, "Number", org.flasck.flas.types.Type.builtin(posn, "Number")));
-		PackageVar nil = new PackageVar(posn, "Nil", new RWStructDefn(posn, "Nil", false));
-		PackageVar cons = new PackageVar(posn, "Cons", new RWStructDefn(posn, "Cons", false));
+		PackageVar nil = new PackageVar(posn, "Nil", new RWStructDefn(posn, new StructName(null, "Nil"), false));
+		PackageVar cons = new PackageVar(posn, "Cons", new RWStructDefn(posn, new StructName(null, "Cons"), false));
 		PackageVar list = new PackageVar(posn, "List", new RWUnionTypeDefn(posn, false, "List", null));
 		ctorTypes.put("Cons", cons);
 		ctorTypes.put("Nil", nil);

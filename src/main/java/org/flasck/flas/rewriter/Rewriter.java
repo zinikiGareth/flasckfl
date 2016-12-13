@@ -25,6 +25,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.errors.ErrorResult;
@@ -693,7 +694,7 @@ public class Rewriter {
 				pass1(cx, ehd.innerScope());
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
-				structs.put(name, new RWStructDefn(sd.location(), sd.name(), sd.generate, rewritePolys(sd.polys())));
+				structs.put(name, new RWStructDefn(sd.location(), sd.structName, sd.generate, rewritePolys(sd.polys())));
 			} else if (val instanceof UnionTypeDefn) {
 				UnionTypeDefn ud = (UnionTypeDefn) val;
 				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.name(), rewritePolys(ud.polys())));
@@ -785,7 +786,7 @@ public class Rewriter {
 	}
 
 	private CardGrouping createCard(PackageContext cx, CardDefinition cd) {
-		RWStructDefn sd = new RWStructDefn(cd.location, cd.name, false);
+		RWStructDefn sd = new RWStructDefn(cd.location, new StructName(cd.cardName.pkg, cd.cardName.cardName), false);
 		CardGrouping grp = new CardGrouping(new CardName(cx.pkgName, cd.simpleName), sd);
 		cards.put(cd.name, grp);
 		return grp;
@@ -1266,13 +1267,13 @@ public class Rewriter {
 			// until just above, so we have to wait ...
 			
 			// I don't want to have two arrays with the same named entry, so add a random thing to the end of the struct
-			String sdname = hi.hiName+"$struct";
+			StructName sdname = new StructName(hi.handlerName.name, hi.handlerName.baseName+"$struct");
 			RWStructDefn hsd = new RWStructDefn(hi.location(), sdname, false);
 			for (Object s : ret.boundVars) {
 				HandlerLambda hl = (HandlerLambda) s;
 				hsd.fields.add(new RWStructField(hl.location, false, hl.type, hl.var));
 			}
-			structs.put(sdname, hsd);
+			structs.put(sdname.jsName(), hsd);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return;
@@ -1337,7 +1338,7 @@ public class Rewriter {
 			InputPosition loc = ((Locatable)rw).location();
 			Object expr = new AssertTypeExpr(loc, st, rw);
 			// TODO: this is probably OK, but I would like to refine the use of this name to something like "StructName"
-			fnName = FunctionName.function(loc, new PackageName(sd.name()), "inits_" + sf.name);
+			fnName = FunctionName.function(loc, sd.structName(), "inits_" + sf.name);
 			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, sx.cardNameIfAny().jsName(), true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.addCase(fcd0);

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.jsform.JSForm;
@@ -21,7 +22,7 @@ public class TestGeneratingStructs {
 
 	@Test
 	public void testACaseWithNoFields() throws IOException {
-		RWStructDefn sd = new RWStructDefn(posn, "ME.Hello", true);
+		RWStructDefn sd = new RWStructDefn(posn, new StructName(null, "ME.Hello"), true);
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(target);
 		gen.generate(sd);
@@ -41,7 +42,7 @@ public class TestGeneratingStructs {
 		ImportPackage biScope = Builtin.builtins();
 		Type str = (Type) biScope.get("String");
 		Type nbr = (Type) biScope.get("Number");
-		RWStructDefn sd = new RWStructDefn(posn, "ME.Hello", true);
+		RWStructDefn sd = new RWStructDefn(posn, new StructName(null, "ME.Hello"), true);
 		sd.addField(new RWStructField(posn, false, str, "name"));
 		sd.addField(new RWStructField(posn, false, nbr, "quant"));
 		JSTarget target = new JSTarget("ME");

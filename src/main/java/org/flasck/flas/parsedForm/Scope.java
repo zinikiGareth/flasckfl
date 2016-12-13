@@ -83,9 +83,8 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 	public ScopeEntry get(String key) {
 		if (!contains(key))
 			return null;
-		String fn = fullNames.get(key);
 		for (ScopeEntry se : defns) {
-			if (se.name.equals(fn))
+			if (se.key.equals(key))
 				return se;
 		}
 		return null;
