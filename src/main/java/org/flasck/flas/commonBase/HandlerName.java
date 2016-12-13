@@ -5,34 +5,37 @@ import org.flasck.flas.commonBase.names.ScopeName;
 import org.zinutils.exceptions.UtilException;
 
 public class HandlerName implements NameOfThing, Comparable<HandlerName> {
-	private final CardName cn;
-	private ScopeName sn;
+	// TODO: reduce these down to one
+	private final NameOfThing name;
 	private String baseName;
 
 	public HandlerName(CardName cn, ScopeName sn, String baseName) {
-		this.cn = cn.isValid()?cn:null;
-		this.sn = sn.isValid()?sn:null;
-		if (this.cn == null && this.sn == null)
+		this.name = cn.isValid()?cn:sn.isValid()?sn:null;
+		if (this.name == null)
 			throw new UtilException("Must have cn or sn");
+		this.baseName = baseName;
+	}
+
+	public HandlerName(NameOfThing n, String baseName) {
+		this.name = n;
 		this.baseName = baseName;
 	}
 
 	@Override
 	public CardName containingCard() {
-		return cn;
+		return name.containingCard();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(HandlerName o) {
-		int cc;
-		if (cn != null && o.cn == null)
+		int cc = 0;
+		if (name != null && o.name == null)
 			return -1;
-		else if (cn == null && o.cn != null)
+		else if (name == null && o.name != null)
 			return 1;
-		else if (cn != null && o.cn != null)
-			cc = cn.compareTo(o.cn);
-		else
-			cc = sn.compareTo(o.sn);
+		else if (name != null && o.name != null)
+			cc = ((Comparable<NameOfThing>)name).compareTo(o.name);
 		if (cc != 0)
 			return cc;
 		return baseName.compareTo(o.baseName);
@@ -40,10 +43,7 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 
 	@Override
 	public String jsName() {
-		if (cn != null)
-			return cn.jsName() + "." + baseName;
-		else
-			return sn.jsName() + "." + baseName;
+		return name.jsName() + "." + baseName;
 	}
 
 }

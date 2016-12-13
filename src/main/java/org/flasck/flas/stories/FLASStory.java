@@ -8,10 +8,12 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.PlatformSpec;
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -106,21 +108,25 @@ public class FLASStory {
 		}
 
 		public State nestCard(Scope innerScope, CardName cardName) {
-			return new State(innerScope, new PackageName(cardName.jsName()), cardName, HSIEForm.CodeType.CARD);
+			return new State(innerScope, cardName, cardName, HSIEForm.CodeType.CARD);
 		}
 
 		// This is in fact wrong: the package name should not change but we should nest things properly
 		public State nestImplementation(Implements impl, String clz) {
 			CodeType nk;
-			if (impl instanceof HandlerImplements)
+			NameOfThing name;
+			if (impl instanceof HandlerImplements) {
 				nk = CodeType.HANDLER;
-			else if (impl instanceof ContractImplements)
+				name = new HandlerName(pkgName, clz);
+			} else if (impl instanceof ContractImplements) {
 				nk = CodeType.CONTRACT;
-			else if (impl instanceof ContractService)
+				name = new CSName((CardName) this.pkgName, clz);
+			} else if (impl instanceof ContractService) {
 				nk = CodeType.SERVICE;
-			else
+				name = new CSName((CardName) this.pkgName, clz);
+			} else
 				throw new UtilException("What is " + impl + "?");
-			return new State(scope, new PackageName(withPkg(clz)), null, nk);
+			return new State(scope, name, null, nk);
 		}
 		
 		public State as(CodeType newKind) {
@@ -128,10 +134,12 @@ public class FLASStory {
 		}
 		
 		public String withPkg(String name) {
-			PackageName pkgName = (PackageName) this.pkgName;
-			if (pkgName == null || pkgName.simpleName() == null || pkgName.simpleName().length() == 0)
+			if (pkgName == null)
 				return name;
-			return pkgName.simpleName() +"." + name;
+			String prefix = pkgName.jsName();
+			if (prefix == null || prefix.length() == 0)
+				return name;
+			return prefix +"." + name;
 		}
 
 		public static String simpleName(String key) {

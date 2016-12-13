@@ -7,5 +7,4 @@ public interface NameOfThing {
 	String jsName();
 
 	CardName containingCard();
-
 }
