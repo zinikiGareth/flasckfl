@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
@@ -73,7 +74,9 @@ import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.parser.TryParsing;
 import org.flasck.flas.parser.TupleDeclarationParser;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
 public class FLASStory {
@@ -83,13 +86,24 @@ public class FLASStory {
 		public final HSIEForm.CodeType kind;
 		public final CardName inCard;
 
-		public State(Scope scope, String pkg, HSIEForm.CodeType kind) {
+		private State(Scope scope, String pkg, HSIEForm.CodeType kind) {
 			this.scope = scope;
 			this.pkgName = new PackageName(pkg);
 			this.kind = kind;
 			this.inCard = null;
 		}
 
+		public State(Scope scope, String pkg) {
+			this.scope = scope;
+			this.pkgName = new PackageName(pkg);
+			this.kind = CodeType.FUNCTION;
+			this.inCard = null;
+		}
+
+		public State nest(Scope is, String string, CodeType kind) {
+			return new State(is, string, kind);
+		}
+		
 		public State(State outer, Scope scope, CardName inCard, String pkg, HSIEForm.CodeType kind) {
 			this.scope = scope;
 			this.pkgName = new PackageName(pkg);
@@ -107,18 +121,14 @@ public class FLASStory {
 			int idx = key.lastIndexOf(".");
 			return key.substring(idx+1);
 		}
-	}
 
-	public Object process(Scope top, List<Block> blocks) {
-		ErrorResult er = new ErrorResult();
-		process("ME", top, er, blocks, false);
-		if (er.hasErrors())
-			return er;
-		return top;
+		public FunctionName functionName(ValidIdentifierToken vit) {
+			return FunctionName.functionKind(vit.location, kind, pkgName, inCard, vit.text);
+		}
 	}
 
 	public void process(String pkg, Scope sc, ErrorResult er, List<Block> blocks, boolean optimism) {
-		State s = new State(sc, pkg, HSIEForm.CodeType.FUNCTION);
+		State s = new State(sc, pkg);
 		doScope(er, s, blocks);
 	}
 
@@ -148,7 +158,7 @@ public class FLASStory {
 					fcd.provideCaseName(caseName);
 					ret.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
 					if (!b.nested.isEmpty()) {
-						doScope(er, new State(fcd.innerScope(), caseName, s.kind), b.nested);
+						doScope(er, s.nest(fcd.innerScope(), caseName, s.kind), b.nested);
 					}
 				} else if (o instanceof FunctionIntro) {
 					FunctionIntro fi = (FunctionIntro) o;
@@ -161,7 +171,7 @@ public class FLASStory {
 					fcd.provideCaseName(caseName);
 					ret.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
 					if (!lastBlock.nested.isEmpty()) {
-						doScope(er, new State(fcd.innerScope(), caseName, s.kind), lastBlock.nested);
+						doScope(er, s.nest(fcd.innerScope(), caseName, s.kind), lastBlock.nested);
 					}
 				} else if (o instanceof MethodCaseDefn) {
 					MethodCaseDefn mcd = (MethodCaseDefn)o;
@@ -312,7 +322,7 @@ public class FLASStory {
 						fcd.provideCaseName(caseName);
 						sd.innerScope().define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
 						if (!b.nested.isEmpty()) {
-							doScope(er, new State(fcd.innerScope(), caseName, s.kind), b.nested);
+							doScope(er, s.nest(fcd.innerScope(), caseName, s.kind), b.nested);
 						}
 					}
 					else
@@ -462,7 +472,7 @@ public class FLASStory {
 				inner.define(State.simpleName(fcd.functionName()), fcd.functionName(), fcd);
 				if (!lastBlock.nested.isEmpty()) {
 					Scope is = ((ContainsScope)o).innerScope();
-					doScope(er, new State(is, fcd.caseName(), s.kind), lastBlock.nested);
+					doScope(er, s.nest(is, fcd.caseName(), s.kind), lastBlock.nested);
 				}
 			} else if (o instanceof MethodCaseDefn) {
 				MethodCaseDefn mcd = (MethodCaseDefn) o;
@@ -764,7 +774,7 @@ public class FLASStory {
 	}
 
 	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested, String clz) {
-		FunctionParser fp = new FunctionParser(new State(s.scope, s.withPkg(clz), s.kind));
+		FunctionParser fp = new FunctionParser(s.nest(s.scope, s.withPkg(clz), s.kind));
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;

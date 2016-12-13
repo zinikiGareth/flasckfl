@@ -312,7 +312,7 @@ public class TestBasicTypeChecking {
 	// I think it should work NOW because we should have a constraint on the input arg of f
 	public void testWeCanResolveAnyUnionIfCallingAFunctionWithAny() throws Exception {
 		ImportPackage biscope = Builtin.builtins();
-		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME", HSIEForm.CodeType.FUNCTION));
+		FunctionParser p = new FunctionParser(new FLASStory.State(null, "ME"));
 		FunctionCaseDefn f1 = (FunctionCaseDefn) p.tryParsing(new Tokenizable("f (Any a) = 42"));
 		assertEquals(errors.singleString(), 0, errors.count());
 		assertNotNull(f1);

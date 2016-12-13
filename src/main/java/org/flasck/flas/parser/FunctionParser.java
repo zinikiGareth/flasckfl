@@ -59,7 +59,7 @@ public class FunctionParser implements TryParsing {
 			}
 		}
 		
-		FunctionName fname = FunctionName.functionKind(vit.location, state.kind, state.pkgName, state.inCard, name);
+		FunctionName fname = state.functionName(vit);;
 		if (!line.hasMore())
 			return new FunctionIntro(fname, args);
 		
