@@ -109,25 +109,23 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			p = Pattern.compile(match);
 		}
 
-		List<Class<?>> ret = new ArrayList<Class<?>>();
+		ByteCodeCreator bcc = emptyTestClass(bce, "goldenTests");
 		for (File f : new File("src/golden").listFiles()) {
 			if (f.isDirectory() && (p == null || p.matcher(f.getName()).find()))
-				ret.add(goldenTest(bce, cl, f));
+				addGoldenTest(bcc, f);
 		}
-		return ret.toArray(new Class<?>[ret.size()]);
+		return new Class<?>[] { generate(cl, bcc) };
 	}
 
-	private static Class<?> goldenTest(ByteCodeEnvironment bce, CGHClassLoaderImpl cl, final File f) {
-		ByteCodeCreator bcc = emptyTestClass(bce, "test" + StringUtil.capitalize(f.getName()));
+	private static void addGoldenTest(ByteCodeCreator bcc, final File f) {
 		boolean ignoreTest = new File(f, "ignore").exists();
 			
-		addMethod(bcc, "testFlasckCompilation", ignoreTest, new TestMethodContentProvider() {
+		addMethod(bcc, "test" + StringUtil.capitalize(f.getName()), ignoreTest, new TestMethodContentProvider() {
 			@Override
 			public void defineMethod(NewMethodDefiner done) {
 				done.callStatic(GoldenCGRunner.class.getName(), "void", "runGolden", done.stringConst(f.getPath())).flush();
 			}
 		});
-		return generate(cl, bcc);
 	}
 	
 	public static void runGolden(String s) throws Exception {
