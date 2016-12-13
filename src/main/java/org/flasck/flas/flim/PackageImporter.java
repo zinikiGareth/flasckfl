@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.NameOfThing;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.StructName;
@@ -142,9 +144,17 @@ public class PackageImporter {
 					// TODO: should we be (writing and) reading the code type?
 					// TODO: because we can only import things at the top level, I believe this is correct
 					// But it seems to me it would be better to just save/restore the simple name, since we have the package name as what we're importing
+					NameOfThing inside = packageName;
+					String inCard = xe.optional("incard");
+					if (inCard != null) {
+						int icx = inCard.lastIndexOf(".");
+						inCard = inCard.substring(icx+1);
+						inside = new CardName(packageName, inCard);
+					}
 					String fullName = xe.required("name");
 					int idx = fullName.lastIndexOf(".");
-					RWFunctionDefinition ret = new RWFunctionDefinition(location(xe), CodeType.FUNCTION, FunctionName.function(location(xe), packageName, fullName.substring(idx+1)), args.size()-1, xe.optional("incard"), false);
+					
+					RWFunctionDefinition ret = new RWFunctionDefinition(FunctionName.function(location(xe), inside, fullName.substring(idx+1)), args.size()-1, false);
 					Type fntype;
 					if (args.size() == 1)
 						fntype = args.get(0);

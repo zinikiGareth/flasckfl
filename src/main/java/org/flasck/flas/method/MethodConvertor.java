@@ -66,7 +66,7 @@ public class MethodConvertor {
 	// 1. Main entry points to convert different kinds of things
 	public void convertContractMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, RWMethodDefinition> methods) {
 		for (RWMethodDefinition m : methods.values())
-			addFunction(functions, convertMIC(rw, m));
+			addFunction(functions, convertMethod(rw, m));
 	}
 
 	public void convertEventHandlers(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, RWEventHandlerDefinition> eventHandlers) {
@@ -86,7 +86,7 @@ public class MethodConvertor {
 	}
 
 	// 2. Convert An individual element
-	protected RWFunctionDefinition convertMIC(Rewriter rw, RWMethodDefinition m) {
+	protected RWFunctionDefinition convertMethod(Rewriter rw, RWMethodDefinition m) {
 		logger.info("Converting " + (m.dir == RWMethodDefinition.DOWN?"down":"up") + " " + m.name().jsName());
 		// Get the contract and from that find the method and thus the argument types
 		List<Type> types;
@@ -101,7 +101,7 @@ public class MethodConvertor {
 		if (m.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(m.location(), m.type, m.name(), m.nargs(), m.inCard, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(m.name(), m.nargs(), true);
 
 		// Now process all of the method cases
 		Type ofType = null;
@@ -148,7 +148,7 @@ public class MethodConvertor {
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		RWFunctionDefinition ret = new RWFunctionDefinition(eh.location(), HSIEForm.CodeType.EVENTHANDLER, eh.name(), eh.nargs(), card, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(eh.name(), eh.nargs(), true);
 		for (RWEventCaseDefn c : eh.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, eh.location(), c.intro.args, types, c.messages, false);
 			ret.addCase(new RWFunctionCaseDefn(c.intro, ret.nextCase(), typedObject.expr));
@@ -175,7 +175,7 @@ public class MethodConvertor {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, method.type.isHandler());
 			cases.add(new RWFunctionCaseDefn(new RWFunctionIntro(c.intro.location, c.intro.fnName, margs, c.intro.vars), cases.size(), typedObject.expr));
 		}
-		RWFunctionDefinition ret = new RWFunctionDefinition(method.location(), method.type, method.name(), margs.size(), method.inCard, true);
+		RWFunctionDefinition ret = new RWFunctionDefinition(method.name(), margs.size(), true);
 		ret.addCases(cases);
 		ret.gatherScopedVars();
 		return ret;

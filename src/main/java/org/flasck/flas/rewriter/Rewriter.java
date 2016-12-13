@@ -1325,7 +1325,7 @@ public class Rewriter {
 			InputPosition loc = ((Locatable)rw).location();
 			Object expr = new AssertTypeExpr(loc, st, rw);
 			fnName = FunctionName.function(loc, sd.structName(), "inits_" + sf.name);
-			RWFunctionDefinition fn = new RWFunctionDefinition(loc, CodeType.FUNCTION, fnName, 0, sx.cardNameIfAny().jsName(), true);
+			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();

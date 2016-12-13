@@ -34,7 +34,7 @@ public class HSIECodeGenerator {
 		c1.provideCaseName(0);
 		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
-		rw.functions.put("plus1", new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, null, "plus1"), 1, null, false));
+		rw.functions.put("plus1", new RWFunctionDefinition(FunctionName.function(posn, null, "plus1"), 1, false));
 		rw.rewritePackageScope(null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
@@ -53,8 +53,8 @@ public class HSIECodeGenerator {
 		c1.provideCaseName(0);
 		s.define("f", "ME.f", c1);
 		Rewriter rw = new Rewriter(errors, null, Builtin.builtins());
-		rw.functions.put("id1", new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, null, "id1"), 1, null, false));
-		rw.functions.put("decode", new RWFunctionDefinition(posn, CodeType.FUNCTION, FunctionName.function(posn, null, "decode"), 1, null, false));
+		rw.functions.put("id1", new RWFunctionDefinition(FunctionName.function(posn, null, "id1"), 1, false));
+		rw.functions.put("decode", new RWFunctionDefinition(FunctionName.function(posn, null, "decode"), 1, false));
 		rw.rewritePackageScope(null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
