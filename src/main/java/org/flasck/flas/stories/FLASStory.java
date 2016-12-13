@@ -88,30 +88,27 @@ public class FLASStory {
 		public final NameOfThing pkgName;
 		public final Scope scope;
 		public final HSIEForm.CodeType kind;
-		public final CardName inCard;
 
 		// The top level scope
 		public State(Scope scope, String pkg) {
 			this.scope = scope;
 			this.pkgName = new PackageName(pkg);
 			this.kind = CodeType.FUNCTION;
-			this.inCard = null;
 		}
 
 		// A nested scope constructor, created via static methods
-		private State(Scope scope, NameOfThing pkg, CardName inCard, HSIEForm.CodeType kind) {
+		private State(Scope scope, NameOfThing pkg, HSIEForm.CodeType kind) {
 			this.scope = scope;
 			this.pkgName = pkg;
 			this.kind = kind;
-			this.inCard = inCard;
 		}
 
 		public State nest(Scope is, NameOfThing name, CodeType kind) {
-			return new State(is, name, null, kind);
+			return new State(is, name, kind);
 		}
 
 		public State nestCard(Scope innerScope, CardName cardName) {
-			return new State(innerScope, cardName, cardName, HSIEForm.CodeType.CARD);
+			return new State(innerScope, cardName, HSIEForm.CodeType.CARD);
 		}
 
 		public State nestImplementation(Implements impl, String clz) {
@@ -131,11 +128,11 @@ public class FLASStory {
 				impl.setRealName(name);
 			} else
 				throw new UtilException("What is " + impl + "?");
-			return new State(scope, name, null, nk);
+			return new State(scope, name, nk);
 		}
 		
 		public State as(CodeType newKind) {
-			return new State(scope, pkgName, inCard, newKind);
+			return new State(scope, pkgName, newKind);
 		}
 		
 		public static String simpleName(String key) {
@@ -152,7 +149,20 @@ public class FLASStory {
 		}
 
 		public FunctionName functionName(ValidIdentifierToken vit) {
-			return FunctionName.functionKind(vit.location, kind, pkgName, vit.text);
+			if (kind == CodeType.FUNCTION)
+				return FunctionName.function(vit.location, pkgName, vit.text);
+			else if (kind == CodeType.CARD)
+				return FunctionName.functionInCardContext(vit.location, (CardName) pkgName, vit.text);
+			else if (kind == CodeType.CONTRACT)
+				return FunctionName.contractMethod(vit.location, (CSName) pkgName, vit.text);
+			else if (kind == CodeType.SERVICE)
+				return FunctionName.serviceMethod(vit.location, (CSName) pkgName, vit.text);
+			else if (kind == CodeType.HANDLER)
+				return FunctionName.handlerMethod(vit.location, (HandlerName) pkgName, vit.text);
+			else if (kind == CodeType.EVENTHANDLER)
+				return FunctionName.eventMethod(vit.location, (CardName) pkgName, vit.text);
+			else
+				throw new UtilException("Cannot handle method of type " + kind);
 		}
 	}
 

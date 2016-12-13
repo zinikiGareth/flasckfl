@@ -2,6 +2,7 @@ package org.flasck.flas.commonBase.names;
 
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
@@ -31,11 +32,6 @@ public class FunctionName implements NameOfThing {
 		this.inContext = cxt;
 	}
 
-	@Deprecated // I would like the caller of this to think more carefully and call the correct method ...
-	public static FunctionName functionKind(InputPosition location, CodeType codeType, NameOfThing pkg, String name) {
-		return new FunctionName(location, codeType, pkg, name);
-	}
-	
 	public static FunctionName function(InputPosition location, NameOfThing pkg, String name) {
 		return new FunctionName(location, CodeType.FUNCTION, pkg, name);
 	}
@@ -44,14 +40,22 @@ public class FunctionName implements NameOfThing {
 		return new FunctionName(location, CodeType.CARD, card, name);
 	}
 
-	public static FunctionName contractMethod(InputPosition location, CSName csName, String name) {
-		return new FunctionName(location, CodeType.CONTRACT, csName, name);
-	}
-	
 	public static FunctionName eventMethod(InputPosition location, CardName cardName, String name) {
 		return new FunctionName(location, CodeType.EVENTHANDLER, cardName, name);
 	}
 
+	public static FunctionName contractMethod(InputPosition location, CSName csName, String name) {
+		return new FunctionName(location, CodeType.CONTRACT, csName, name);
+	}
+
+	public static FunctionName serviceMethod(InputPosition location, CSName csName, String name) {
+		return new FunctionName(location, CodeType.SERVICE, csName, name);
+	}
+	
+	public static FunctionName handlerMethod(InputPosition location, HandlerName csName, String name) {
+		return new FunctionName(location, CodeType.HANDLER, csName, name);
+	}
+	
 	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {
 		return new FunctionName(location, CodeType.AREA, areaName, fnName);
 	}
@@ -67,17 +71,6 @@ public class FunctionName implements NameOfThing {
 			return name;
 		else
 			return inContext.jsName() + "." + name;
-//		if (area != null) {
-//			return area.jsName() + "." + name;
-//		}
-//		else if (csName != null) {
-//			return csName.jsName() + "." + name;
-//		}
-//		else if (inCard != null) {
-//			return inCard.jsName() + "." + name;
-//		}
-//		else
-//			return ((inPkg!=null && inPkg.jsName() != null && inPkg.jsName().length() > 0)?inPkg.jsName()+".":"")+name;
 	}
 
 	public String toString() {
