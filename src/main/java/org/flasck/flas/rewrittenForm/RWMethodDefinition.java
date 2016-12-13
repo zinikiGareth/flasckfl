@@ -7,10 +7,8 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
-import org.zinutils.exceptions.UtilException;
 
 public class RWMethodDefinition implements Locatable {
 	public static final int STANDALONE = 5;
@@ -18,7 +16,6 @@ public class RWMethodDefinition implements Locatable {
 	public static final int EVENT = 3;
 	public static final int UP = 2;
 	public static final int DOWN = 1;
-	public final String inCard;
 	public final InputPosition contractLocation;
 	public final String fromContract;
 	public final CodeType type;
@@ -29,9 +26,8 @@ public class RWMethodDefinition implements Locatable {
 	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
 	private FunctionName fnName;
 	
-	public RWMethodDefinition(CardName cardNameIfAny, InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, FunctionName name, int nargs) {
+	public RWMethodDefinition(InputPosition cloc, String contractName, CodeType type, int dir, InputPosition location, FunctionName name, int nargs) {
 		this.fnName = name;
-		this.inCard = cardNameIfAny.jsName();
 		this.contractLocation = cloc;
 		this.fromContract = contractName;
 		this.type = type;
@@ -46,8 +42,6 @@ public class RWMethodDefinition implements Locatable {
 	}
 	
 	public FunctionName name() {
-		if (fnName == null)
-			throw new UtilException("Deprecated");
 		return fnName;
 	}
 	

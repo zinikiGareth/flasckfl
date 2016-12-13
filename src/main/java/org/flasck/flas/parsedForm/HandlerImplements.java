@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.HandlerName;
-import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.stories.FLASStory.State;
 
 public class HandlerImplements extends Implements {

@@ -47,7 +47,6 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 

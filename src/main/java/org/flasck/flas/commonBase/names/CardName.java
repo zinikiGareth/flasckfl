@@ -11,10 +11,6 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 		this.cardName = cardName;
 	}
 	
-	public static CardName none() {
-		return new CardName(null, null);
-	}
-	
 	@Override
 	public CardName containingCard() {
 		return this;

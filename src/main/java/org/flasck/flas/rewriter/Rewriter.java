@@ -194,7 +194,7 @@ public class Rewriter {
 		public CardName cardNameIfAny() {
 			if (nested != null)
 				return nested.cardNameIfAny();
-			return CardName.none();
+			return null;
 		}
 	}
 
@@ -673,7 +673,7 @@ public class Rewriter {
 					if (ret.nargs() != m.nargs())
 						errors.message(m.location(), "inconsistent argument counts in function " + mn);
 				} else {
-					RWMethodDefinition rw = new RWMethodDefinition(cx.cardNameIfAny(), m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
+					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
 					standalone.put(rw.name().jsName(), rw);
 				}
 				pass1(cx, m.innerScope());
@@ -835,7 +835,7 @@ public class Rewriter {
 			for (MethodCaseDefn c : ci.methods) {
 				if (methods.containsKey(c.intro.name))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, c.location(), c.intro.name(), c.intro.args.size());
+				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), rw.name(), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, c.location(), c.intro.name(), c.intro.args.size());
 				rewriteCase(c2, rwm, c, true, false);
 				methods.put(c.intro.name, rwm);
 				rw.methods.add(rwm);
@@ -849,7 +849,7 @@ public class Rewriter {
 			for (MethodCaseDefn c : cs.methods) {
 				if (methods.containsKey(c.intro.name))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rwm = new RWMethodDefinition(c2.cardNameIfAny(), rw.location(), rw.name(), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, c.intro.location, c.intro.name(), c.intro.args.size());
+				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), rw.name(), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, c.intro.location, c.intro.name(), c.intro.args.size());
 				rewriteCase(c2, rwm, c, true, false);
 				methods.put(c.intro.name, rwm);
 				rwm.gatherScopedVars();
@@ -1243,7 +1243,7 @@ public class Rewriter {
 			for (MethodCaseDefn c : hi.methods) {
 				if (methods.containsKey(c.intro.name))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
-				RWMethodDefinition rm = new RWMethodDefinition(hc.cardNameIfAny(), ret.location(), ret.name(), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, c.intro.location, c.intro.name(), c.intro.args.size());
+				RWMethodDefinition rm = new RWMethodDefinition(ret.location(), ret.name(), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, c.intro.location, c.intro.name(), c.intro.args.size());
 				rewriteCase(hc, rm, c, true, false);
 				ret.methods.add(rm);
 				rm.gatherScopedVars();
@@ -1408,7 +1408,7 @@ public class Rewriter {
 					RWMethodCaseDefn mcd = new RWMethodCaseDefn(fi);
 					for (MethodMessage mm : s.actions)
 						mcd.addMessage(rewrite(c2, mm));
-					RWMethodDefinition method = new RWMethodDefinition(c2.cardNameIfAny(), null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, fi.location, fi.fnName, fi.args.size());
+					RWMethodDefinition method = new RWMethodDefinition(null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, fi.location, fi.fnName, fi.args.size());
 					method.cases.add(mcd);
 					method.gatherScopedVars();
 					this.methods.put(method.name().jsName(), method);
