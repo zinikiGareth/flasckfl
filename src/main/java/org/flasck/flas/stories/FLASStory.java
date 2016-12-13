@@ -104,6 +104,10 @@ public class FLASStory {
 			return new State(is, new PackageName(string), null, kind);
 		}
 
+		public State nestCard(Scope innerScope, CardName cardName) {
+			return new State(innerScope, new PackageName(cardName.jsName()), cardName, HSIEForm.CodeType.CARD);
+		}
+
 		// This is in fact wrong: the package name should not change but we should nest things properly
 		public State nestImplementation(Implements impl, String clz) {
 			CodeType nk;
@@ -122,13 +126,6 @@ public class FLASStory {
 			return new State(scope, pkgName, inCard, newKind);
 		}
 		
-		public State(State outer, Scope scope, CardName inCard, String pkg, HSIEForm.CodeType kind) {
-			this.scope = scope;
-			this.pkgName = new PackageName(pkg);
-			this.inCard = inCard != null ? inCard : outer.inCard;
-			this.kind = kind;
-		}
-
 		public String withPkg(String name) {
 			if (pkgName == null || pkgName.simpleName() == null || pkgName.simpleName().length() == 0)
 				return name;
@@ -220,7 +217,7 @@ public class FLASStory {
 					doContractMethods(er, cd, b.nested);
 				} else if (o instanceof CardDefinition) {
 					CardDefinition cd = (CardDefinition) o;
-					doCardDefinition(er, new State(s, cd.innerScope(), cd.cardName, cd.name, HSIEForm.CodeType.CARD), cd, b.nested);
+					doCardDefinition(er, s.nestCard(cd.innerScope(), cd.cardName), cd, b.nested);
 				} else if (o instanceof HandlerImplements) {
 					HandlerImplements hi = (HandlerImplements)o;
 					ret.define(State.simpleName(hi.hiName), hi.hiName, hi);
