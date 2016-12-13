@@ -71,7 +71,7 @@ public class MethodConvertor {
 
 	public void convertEventHandlers(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, RWEventHandlerDefinition> eventHandlers) {
 		for (RWEventHandlerDefinition x : eventHandlers.values())
-			addFunction(functions, convertEventHandler(rw, x.name().inCard.jsName(), x));
+			addFunction(functions, convertEventHandler(rw, x.name().containingCard().jsName(), x));
 	}
 
 	public void convertStandaloneMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Collection<RWMethodDefinition> methods) {

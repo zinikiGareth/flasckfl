@@ -22,7 +22,6 @@ public class FunctionName implements NameOfThing {
 	public final InputPosition location;
 	public final CodeType codeType;
 	public final String name;
-	public final CardName inCard;
 	public final NameOfThing inContext;
 	
 	private FunctionName(InputPosition location, CodeType codeType, NameOfThing cxt, String name) {
@@ -30,9 +29,6 @@ public class FunctionName implements NameOfThing {
 		this.codeType = codeType;
 		this.name = name;
 		this.inContext = cxt;
-		
-		// This wants to go away and be recovered from inContext.containingCard()
-		this.inCard = cxt == null? null: cxt.containingCard();
 	}
 
 	@Deprecated // I would like the caller of this to think more carefully and call the correct method ...
@@ -44,8 +40,8 @@ public class FunctionName implements NameOfThing {
 		return new FunctionName(location, CodeType.FUNCTION, pkg, name);
 	}
 
-	public static FunctionName functionInCardContext(InputPosition location, CardName inCard, String name) {
-		return new FunctionName(location, CodeType.CARD, inCard, name);
+	public static FunctionName functionInCardContext(InputPosition location, CardName card, String name) {
+		return new FunctionName(location, CodeType.CARD, card, name);
 	}
 
 	public static FunctionName contractMethod(InputPosition location, CSName csName, String name) {
@@ -61,6 +57,8 @@ public class FunctionName implements NameOfThing {
 	}
 
 	public CardName containingCard() {
+		if (inContext == null)
+			return null;
 		return inContext.containingCard();
 	}
 
