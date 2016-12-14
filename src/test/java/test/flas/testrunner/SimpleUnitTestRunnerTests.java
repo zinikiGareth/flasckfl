@@ -43,9 +43,6 @@ public class SimpleUnitTestRunnerTests {
 
 	class Setup {
 		Scope scope = Scope.topScope("test.golden.script");
-		Setup() {
-		}
-		
 	}
 
 	private void go(Setup setup) {

@@ -76,5 +76,4 @@ public class JVMRunner implements TestRunner {
 			throw new AssertFailed(expected, actual);
 		}
 	}
-
 }
