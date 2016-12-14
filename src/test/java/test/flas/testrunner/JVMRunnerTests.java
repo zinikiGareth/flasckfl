@@ -1,6 +1,7 @@
 package test.flas.testrunner;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -10,6 +11,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
@@ -41,39 +43,40 @@ public class JVMRunnerTests {
 	FLASCompiler sc = new FLASCompiler();
 	JVMRunner runner;
 	Scope mainScope = Scope.topScope("test.golden");
+	private Scope testScope;
 	
-	@Test
-	public void testAssertDoesNotThrowIfXDoesIndeedEqualX() throws Exception {
+	@Before
+	public void setup() {
 		mainScope.define("x", "test.golden.x", null);
 		tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
 		prior = new CompileResult("test.golden", mainScope, bce, tc);
-		Scope testScope = Scope.topScope("test.golden.script");
+		testScope = Scope.topScope("test.golden.script");
+	}
+	
+	@Test
+	public void testAssertDoesNotThrowIfXDoesIndeedEqualX() throws Exception {
 		testScope.define("expr1", "test.golden.script.expr1", function("expr1", new UnresolvedVar(loc, "x")));
 		testScope.define("value1", "test.golden.script.value1", function("value1", new NumericLiteral(loc, Integer.toString(X_VALUE), -1)));
-		sc.includePrior(prior);
-		sc.createJVM("test.golden.script", prior, testScope);
-		runner = new JVMRunner(prior);
-		runner.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
-		runner.prepareScript(sc, testScope);
+		prepareRunner();
 		runner.assertCorrectValue(1);
 	}
 
 	@Test(expected=AssertFailed.class)
 	public void testAssertThrowsIfXIsNotThePrescribedValue() throws Exception {
-		mainScope.define("x", "test.golden.x", null);
-		tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
-		prior = new CompileResult("test.golden", mainScope, bce, tc);
-		Scope testScope = Scope.topScope("test.golden.script");
 		testScope.define("expr1", "test.golden.script.expr1", function("expr1", new UnresolvedVar(loc, "x")));
 		testScope.define("value1", "test.golden.script.value1", function("value1", new NumericLiteral(loc, Integer.toString(X_OTHER_VALUE), -1)));
+		prepareRunner();
+		runner.assertCorrectValue(1);
+	}
+
+	protected void prepareRunner() throws IOException, ErrorResultException {
 		sc.includePrior(prior);
 		sc.createJVM("test.golden.script", prior, testScope);
 		runner = new JVMRunner(prior);
 		runner.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		runner.prepareScript(sc, testScope);
-		runner.assertCorrectValue(1);
 	}
-
+	
 	protected FunctionCaseDefn function(String name, Object expr) {
 		FunctionCaseDefn defn = new FunctionCaseDefn(FunctionName.function(loc, new PackageName("test.golden.script"), name), new ArrayList<>(), expr);
 		defn.provideCaseName(0);
