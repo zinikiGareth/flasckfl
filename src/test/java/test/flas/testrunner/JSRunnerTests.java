@@ -9,7 +9,7 @@ public class JSRunnerTests extends BaseRunnerTests {
 	
 	protected void prepareRunner() throws IOException, ErrorResultException {
 		sc.includePrior(prior);
-		sc.createJVM("test.golden.script", prior, testScope);
+		sc.createJS("test.golden.script", prior, testScope);
 		JSRunner jr = new JSRunner(prior);
 //		jr.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		jr.prepareScript(sc, testScope);

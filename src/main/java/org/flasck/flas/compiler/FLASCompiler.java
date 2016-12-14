@@ -468,6 +468,11 @@ public class FLASCompiler implements ScriptCompiler {
 		return stage2(new ErrorResult(), prior, pkg, scope);
 	}
 
+	@Override
+	public CompileResult createJS(String pkg, CompileResult prior, Scope scope) throws IOException, ErrorResultException {
+		return stage2(new ErrorResult(), prior, pkg, scope);
+	}
+
 	private void writeDependencies(DependencyAnalyzer da, List<Set<RWFunctionDefinition>> defns) throws IOException {
 		PrintWriter pw = new PrintWriter(new File(writeDepends, "depends.txt"));
 		da.dump(pw);

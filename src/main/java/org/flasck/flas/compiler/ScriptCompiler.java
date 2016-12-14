@@ -1,5 +1,6 @@
 package org.flasck.flas.compiler;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.flasck.flas.errors.ErrorResultException;
@@ -10,5 +11,9 @@ public interface ScriptCompiler {
 	CompileResult createJVM(String pkg, CompileResult prior, String flas) throws IOException, ErrorResultException;
 
 	CompileResult createJVM(String pkg, CompileResult prior, Scope flas) throws IOException, ErrorResultException;
+
+	CompileResult createJS(String pkg, CompileResult prior, Scope flas) throws IOException, ErrorResultException;
+
+	void writeJSTo(File scriptTo);
 
 }
