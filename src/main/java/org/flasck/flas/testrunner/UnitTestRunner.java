@@ -27,11 +27,11 @@ public class UnitTestRunner {
 		String scriptPkg = prior.getPackage() + ".script";
 		TestScript script = convertScript(scriptPkg, f);
 		runner.prepareScript(compiler, script.scope());
-		script.runAllTests(runner, new TestCaseRunner() {
+		script.runAllTests(new TestCaseRunner() {
 			@Override
-			public void run(TestRunner runner, SingleTestCase tc) {
+			public void run(SingleTestCase tc) {
 				try {
-					runCase(runner, scriptPkg, tc);
+					runCase(runner, tc);
 				} catch (AssertFailed ex) {
 					for (UnitTestResultHandler h : handlers)
 						h.testFailed(tc.getDescription(), ex.expected, ex.actual);
@@ -43,7 +43,7 @@ public class UnitTestRunner {
 		});
 	}
 
-	protected void runCase(TestRunner runner, String scriptPkg, SingleTestCase tc) throws Exception {
+	protected void runCase(TestRunner runner, SingleTestCase tc) throws Exception {
 		tc.run(runner);
 		for (UnitTestResultHandler h : handlers) {
 			h.testPassed(tc.getDescription());
