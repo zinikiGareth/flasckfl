@@ -15,6 +15,7 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.testrunner.SingleTestCase;
 import org.flasck.flas.testrunner.TestCaseRunner;
+import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.TestScript;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -44,11 +45,10 @@ public class ScriptBuilderTests {
 	public void testASimpleCaseHasATestCaseItem() {
 		TestCaseRunner it = context.mock(TestCaseRunner.class);
 		context.checking(new Expectations() {{
-			oneOf(it).run(with(allOf(isA(SingleTestCase.class), hasProperty("description"))));
+			oneOf(it).run(with(aNull(TestRunner.class)), with(allOf(isA(SingleTestCase.class), hasProperty("description"))));
 		}});
 		runUxCase();
-		script.runAllTests(it);
-//		assertEquals("there was not 1 test case", 1, script.cases().size());
+		script.runAllTests(null, it);
 	}
 
 	@Test
@@ -121,10 +121,10 @@ public class ScriptBuilderTests {
 	public void testAddingTwoCasesOnlyHasOneStepInEachCase() {
 		runUxCase();
 		runUxCase();
-		script.runAllTests(new TestCaseRunner() {
+		script.runAllTests(null, new TestCaseRunner() {
 			
 			@Override
-			public void run(SingleTestCase tc) {
+			public void run(TestRunner runner, SingleTestCase tc) {
 				tc.assertStepCount(1);
 			}
 		});

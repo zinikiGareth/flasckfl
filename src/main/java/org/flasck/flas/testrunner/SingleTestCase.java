@@ -3,7 +3,6 @@ package org.flasck.flas.testrunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
 
 public class SingleTestCase {
@@ -19,9 +18,9 @@ public class SingleTestCase {
 		return message;
 	}
 	
-	public void run(BCEClassLoader loader, String scriptPkg) throws Exception {
+	public void run(TestRunner runner) throws Exception {
 		for (TestStep s : steps)
-			s.run(loader, scriptPkg);
+			s.run(runner);
 	}
 
 	public void assertStepCount(int quant) {

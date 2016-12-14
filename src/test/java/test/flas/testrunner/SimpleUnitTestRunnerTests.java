@@ -12,6 +12,8 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
+import org.flasck.flas.testrunner.AssertFailed;
+import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.UnitTestResultHandler;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.types.Type;
@@ -20,11 +22,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
-import org.zinutils.bytecode.GenericAnnotator;
-import org.zinutils.bytecode.GenericAnnotator.PendingVar;
-import org.zinutils.bytecode.MethodDefiner;
 
 public class SimpleUnitTestRunnerTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -36,6 +34,7 @@ public class SimpleUnitTestRunnerTests {
 	ByteCodeEnvironment bce = new ByteCodeEnvironment();
 	CompileResult prior;
 	private UnitTestResultHandler resultHandler = context.mock(UnitTestResultHandler.class);
+	private TestRunner runner = context.mock(TestRunner.class);
 	
 	@BeforeClass
 	public static void prepareLogs() {
@@ -50,8 +49,6 @@ public class SimpleUnitTestRunnerTests {
 	}
 
 	private void go(Setup setup) {
-		defineSupportingFunctions(bce);
-		bce.dumpAll(true);
 		prior = new CompileResult("test.golden", setup.scope, bce, tc);
 		sc.includePrior(prior);
 	}
@@ -63,6 +60,8 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
 		}});
 		context.checking(new Expectations() {{
+			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).assertCorrectValue(1);
 			oneOf(resultHandler).testPassed("a simple test");
 		}});
 
@@ -77,6 +76,8 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{
+			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).assertCorrectValue(1);
 			oneOf(resultHandler).testPassed("a test of id");
 		}});
 
@@ -91,6 +92,9 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{
+			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).assertCorrectValue(1);
+			oneOf(runner).assertCorrectValue(2);
 			oneOf(resultHandler).testPassed("test id with a string");
 			oneOf(resultHandler).testPassed("test id with a number");
 		}});
@@ -108,6 +112,8 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
 		}});
 		context.checking(new Expectations() {{
+			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).assertCorrectValue(1); will(throwException(new AssertFailed(420, 32)));
 			oneOf(resultHandler).testFailed("a simple test", 420, 32);
 		}});
 
@@ -122,59 +128,24 @@ public class SimpleUnitTestRunnerTests {
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{
+			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).assertCorrectValue(1);
+			oneOf(runner).assertCorrectValue(2); will(throwException(new AssertFailed(420, 32)));
 			oneOf(resultHandler).testPassed("test id with a string");
-			oneOf(resultHandler).testFailed("test id with a number", 32, 420);
+			oneOf(resultHandler).testFailed("test id with a number", 420, 32);
 		}});
 
 		runTestScript(
 			"\ttest test id with a string\n", "\t\tassert (id 'hello')", "\t\t\t'hello'",
-			"\ttest test id with a number\n", "\t\tassert (id 420)", "\t\t\t32"
+			"\ttest test id with a number\n", "\t\tassert (id 32)", "\t\t\t420"
 		);
 	}
-
 
 	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);
 		UnitTestRunner r = new UnitTestRunner(sc, prior);
 		r.sendResultsTo(resultHandler);
-		r.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
-		r.run(f);
-	}
-
-	private void defineSupportingFunctions(ByteCodeEnvironment bce) {
-		{
-			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.golden.PACKAGEFUNCTIONS$x");
-			GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "eval");
-			ga.argument("[java.lang.Object", "args");
-			ga.returns("java.lang.Object");
-			MethodDefiner meth = ga.done();
-			meth.returnObject(meth.callStatic("test.golden.PACKAGEFUNCTIONS", "java.lang.Object", "x")).flush();
-		}
-		{
-			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.golden.PACKAGEFUNCTIONS$id");
-			GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "eval");
-			PendingVar args = ga.argument("[java.lang.Object", "args");
-			ga.returns("java.lang.Object");
-			MethodDefiner meth = ga.done();
-			meth.returnObject(meth.callStatic("test.golden.PACKAGEFUNCTIONS", "java.lang.Object", "id", meth.arrayElt(args.getVar(), meth.intConst(0)))).flush();
-		}
-		{
-			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.golden.PACKAGEFUNCTIONS");
-			{
-				GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "x");
-				ga.returns("java.lang.Object");
-				MethodDefiner meth = ga.done();
-				meth.returnObject(meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(32))).flush();
-			}
-			{
-				GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "id");
-				PendingVar val = ga.argument("java.lang.Object", "val");
-				ga.returns("java.lang.Object");
-				MethodDefiner meth = ga.done();
-				meth.returnObject(val.getVar()).flush();
-			}
-		}
-		System.out.println(bce.all());
+		r.run(f, runner);
 	}
 
 	private File createFile(String... lines) throws IOException {
@@ -186,5 +157,4 @@ public class SimpleUnitTestRunnerTests {
 		ret.deleteOnExit();
 		return ret;
 	}
-
 }

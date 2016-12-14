@@ -2,6 +2,6 @@ package org.flasck.flas.testrunner;
 
 public interface TestCaseRunner {
 
-	void run(SingleTestCase tc);
+	void run(TestRunner runner, SingleTestCase tc);
 
 }
