@@ -52,7 +52,7 @@ import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.testrunner.FileUnitTestResultHandler;
-import org.flasck.flas.testrunner.JVMRunner;
+import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
@@ -218,9 +218,13 @@ public class FLASCompiler implements ScriptCompiler {
 				// TODO: we probably need to configure the compiler here ...
 				UnitTestRunner utr = new UnitTestRunner(sc, cr);
 				utr.sendResultsTo(new FileUnitTestResultHandler(results));
-				JVMRunner runner = new JVMRunner(cr);
-				for (File p : utpaths)
-					runner.considerResource(p);
+				
+				// We presumably needs some set of options to say which runners
+				// we want to execute - could be more than one
+//				JVMRunner runner = new JVMRunner(cr);
+//				for (File p : utpaths)
+//					runner.considerResource(p);
+				JSRunner runner = new JSRunner(cr);
 				utr.run(f, runner);
 			} finally {
 			if (close)
