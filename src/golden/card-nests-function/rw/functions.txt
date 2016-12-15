@@ -1,0 +1,21 @@
+function test.golden.NestFunction.styleIf test.golden.NestFunction 2
+  case test.golden.NestFunction.styleIf_0
+    var test.golden.NestFunction.styleIf_0.style
+    var test.golden.NestFunction.styleIf_0.b
+  =
+    if
+      LocalVar.test.golden.NestFunction.styleIf_0.b
+    then
+      LocalVar.test.golden.NestFunction.styleIf_0.style
+    else
+      ""
+function test.golden._NestFunction.B1.formats_0 test.golden.NestFunction 0
+  case test.golden._NestFunction.B1.formats_0_0
+  =
+    @
+      PackageVar.Cons
+      @
+        CardFunction.test.golden.NestFunction.styleIf
+        "show"
+        CardMember.CardMember[test.golden.NestFunction.sayHello]
+      PackageVar.Nil

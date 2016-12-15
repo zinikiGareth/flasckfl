@@ -123,3 +123,11 @@ package test.golden
         ClickIt @{66:16|ClickIt}
       assign hello <- @{67:0|hello} @{67:6|<-}
         '' goodbye @{67:9|'goodbye'}
+    test.golden.Complex.styleIf @{73:0|styleIf}
+      [var] style @{73:8|style}
+      [var] b @{73:14|b}
+     =
+      if b
+        style @{74:9|style}
+      else
+        ''  @{75:7|''}

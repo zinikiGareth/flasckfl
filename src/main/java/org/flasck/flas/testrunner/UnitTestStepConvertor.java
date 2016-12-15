@@ -19,9 +19,9 @@ public class UnitTestStepConvertor {
 	}
 
 	public void handle(Tokenizable line, List<Block> nested) {
-		if (!line.hasMore())
-			return; // nothing to do
 		KeywordToken kw = KeywordToken.from(line);
+		if (kw == null)
+			return;
 		if (kw.text.equals("assert"))
 			handleAssert(line, nested);
 		else

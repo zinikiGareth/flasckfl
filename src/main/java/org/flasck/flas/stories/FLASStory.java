@@ -511,8 +511,7 @@ public class FLASStory {
 				fcd.provideCaseName(caseName);
 				inner.define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
 				if (!lastBlock.nested.isEmpty()) {
-					Scope is = ((ContainsScope)o).innerScope();
-					doScope(er, s.nest(is, fcd.caseName(), s.kind), lastBlock.nested);
+					doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), lastBlock.nested);
 				}
 			} else if (o instanceof MethodCaseDefn) {
 				MethodCaseDefn mcd = (MethodCaseDefn) o;

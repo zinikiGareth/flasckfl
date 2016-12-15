@@ -59,6 +59,17 @@ function test.golden.Complex.sayHello test.golden.Complex 1
         "hello"
         ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "goodbye")
       PackageVar.Nil
+function test.golden.Complex.styleIf test.golden.Complex 2
+  case test.golden.Complex.styleIf_0
+    var test.golden.Complex.styleIf_0.style
+    var test.golden.Complex.styleIf_0.b
+  =
+    if
+      LocalVar.test.golden.Complex.styleIf_0.b
+    then
+      LocalVar.test.golden.Complex.styleIf_0.style
+    else
+      ""
 function test.golden.WithInit.inits_x 0
   case test.golden.WithInit.inits_x_0
   =

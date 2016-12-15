@@ -455,6 +455,14 @@ test.golden.Complex.prototype.sayHello = function(v0) {
   return FLEval.error("test.golden.Complex.sayHello: case not handled");
 }
 
+test.golden.Complex.prototype.styleIf = function(v0, v1) {
+  "use strict";
+  if (v1) {
+    return v0;
+  }
+  return '';
+}
+
 test.golden.WithInit.inits_x = function() {
   "use strict";
   return 'hello';

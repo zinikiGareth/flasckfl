@@ -89,6 +89,8 @@ public class DroidGenerator {
 					jt = JavaType.int_; // what about floats?
 				else if (((Type)sf.type).name().equals("String"))
 					jt = JavaType.string;
+				else if (((Type)sf.type).name().equals("Boolean"))
+					jt = JavaType.boolean_;
 				else
 					throw new UtilException("Not handled " + sf.type);
 			} else if (sf.type instanceof RWContractImplements || sf.type instanceof RWContractDecl) {

@@ -1,0 +1,19 @@
+package test.golden
+  card test.golden.NestFunction @{1:0|card} @{1:5|NestFunction}
+    state @{2:0|state}
+      sayHello @{3:8|sayHello}
+        Boolean @{3:0|Boolean}
+    template @{5:0|template} @{null}
+      '' hello @{6:0|'hello'}
+        <apply> @{6:11|styleIf 'show' sayHello}
+          styleIf @{6:11|styleIf}
+          '' show @{6:19|'show'}
+          sayHello @{6:26|sayHello}
+    test.golden.NestFunction.styleIf @{8:0|styleIf}
+      [var] style @{8:8|style}
+      [var] b @{8:14|b}
+     =
+      if b
+        style @{9:9|style}
+      else
+        ''  @{10:7|''}

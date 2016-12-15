@@ -69,3 +69,8 @@ This is a complex card with "one of everything"
 		service Offer
 			get x h
 				<- h.reply x
+
+		styleIf style b
+			if (b) = style
+			else = ''
+		

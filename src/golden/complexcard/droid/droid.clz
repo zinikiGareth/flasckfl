@@ -857,6 +857,29 @@ public class test.golden.Complex$FooHandler extends test.golden.Handler {
      112: invokespecial #81                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
      115: areturn       
 }
+public class test.golden.Complex$styleIf {
+  public test.golden.Complex$styleIf(test.golden.Complex);
+    Code:
+       0: aload_0       
+       1: invokespecial #10                 // Method java/lang/Object."<init>":()V
+       4: aload_0       
+       5: aload_1       
+       6: putfield      #12                 // Field _card:Ltest/golden/Complex;
+       9: return        
+
+  public java.lang.Object eval(java.lang.Object[]);
+    Code:
+       0: aload_0       
+       1: getfield      #12                 // Field _card:Ltest/golden/Complex;
+       4: aload_1       
+       5: iconst_0      
+       6: aaload        
+       7: aload_1       
+       8: iconst_1      
+       9: aaload        
+      10: invokevirtual #19                 // Method test/golden/Complex.styleIf:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      13: areturn       
+}
 public class test.golden.Complex extends org.flasck.android.FlasckActivity {
   protected test.golden.DataStore ds;
 
@@ -973,6 +996,16 @@ public class test.golden.Complex extends org.flasck.android.FlasckActivity {
       81: ldc           #110                // String sayHello: case not handled
       83: invokespecial #114                // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
       86: areturn       
+
+  public java.lang.Object styleIf(java.lang.Object, java.lang.Object);
+    Code:
+       0: aload_2       
+       1: invokestatic  #121                // Method FLEval.isTruthy:(Ljava/lang/Object;)Z
+       4: ifeq          9
+       7: aload_1       
+       8: areturn       
+       9: ldc           #122                // String 
+      11: areturn       
 }
 public abstract class test.golden.DataStore extends org.flasck.android.ContractImpl {
   public test.golden.DataStore();

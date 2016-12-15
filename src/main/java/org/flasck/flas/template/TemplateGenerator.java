@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -491,6 +492,11 @@ public class TemplateGenerator {
 				for (Object o : ae.args)
 					callOnAssign(addToFunc, o, cgrx, call, false, moreArgs);
 			}
+		} else if (valExpr instanceof IfExpr) {
+			IfExpr ie = (IfExpr) valExpr;
+			callOnAssign(addToFunc, ie.guard, cgrx, call, false, moreArgs);
+			callOnAssign(addToFunc, ie.ifExpr, cgrx, call, false, moreArgs);
+			callOnAssign(addToFunc, ie.elseExpr, cgrx, call, false, moreArgs);
 		} else
 			throw new UtilException("Not handled: " + valExpr.getClass());
 		if (addAssign) {
