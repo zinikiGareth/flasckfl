@@ -3,8 +3,6 @@ package org.flasck.flas.testrunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.zinutils.exceptions.UtilException;
-
 public class SingleTestCase {
 	private final String message;
 	private final List<TestStep> steps;
@@ -21,10 +19,5 @@ public class SingleTestCase {
 	public void run(TestRunner runner) throws Exception {
 		for (TestStep s : steps)
 			s.run(runner);
-	}
-
-	public void assertStepCount(int quant) {
-		if (steps == null || steps.size() != quant)
-			throw new UtilException("Did not have " + quant + " steps, but " + steps.size());
 	}
 }

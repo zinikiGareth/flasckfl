@@ -124,15 +124,27 @@ public class ScriptBuilderTests {
 	}
 
 	@Test
-	public void testAddingTwoCasesOnlyHasOneStepInEachCase() {
+	public void testAddingTwoCasesOnlyHasOneStepInEachCase() throws Exception {
+		List<Exception> errs = new ArrayList<Exception>();
+		TestRunner stepRunner = context.mock(TestRunner.class);
+		context.checking(new Expectations() {{
+			oneOf(stepRunner).assertCorrectValue(1);
+			oneOf(stepRunner).assertCorrectValue(2);
+		}});
 		runUxCase();
 		runUxCase();
 		script.runAllTests(new TestCaseRunner() {
 			@Override
 			public void run(SingleTestCase tc) {
-				tc.assertStepCount(1);
+				try {
+					tc.run(stepRunner);
+				} catch (Exception e) {
+					errs.add(e);
+				}
 			}
 		});
+		if (!errs.isEmpty())
+			throw errs.get(0);
 	}
 
 	@Test
@@ -158,7 +170,32 @@ public class ScriptBuilderTests {
 		script.runAllTests(new TestCaseRunner() {
 			@Override
 			public void run(SingleTestCase tc) {
-				tc.assertStepCount(1);
+				try {
+					tc.run(stepRunner);
+				} catch (Exception e) {
+					errs.add(e);
+				}
+			}
+		});
+		if (!errs.isEmpty())
+			throw errs.get(0);
+	}
+
+	@Test
+	public void testThatWeCaptureMatchCommands() throws Exception {
+		TestRunner stepRunner = context.mock(TestRunner.class);
+		String cardVar = "q";
+		String selector = "div#x";
+		String contents = "<div id='x'>hello</div>";
+		context.checking(new Expectations() {{
+			oneOf(stepRunner).matchElement(cardVar, selector, contents);
+		}});
+		script.addMatchElement(posn, cardVar, selector, contents);
+		script.addTestCase(TEST_CASE_NAME);
+		List<Exception> errs = new ArrayList<Exception>();
+		script.runAllTests(new TestCaseRunner() {
+			@Override
+			public void run(SingleTestCase tc) {
 				try {
 					tc.run(stepRunner);
 				} catch (Exception e) {

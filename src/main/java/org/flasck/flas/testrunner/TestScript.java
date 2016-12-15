@@ -59,6 +59,12 @@ public class TestScript implements TestScriptBuilder {
 		CreateTestStep cs = new CreateTestStep(at, bindVar, cardType);
 		currentSteps.add(cs);
 	}
+	
+	@Override
+	public void addMatchElement(InputPosition posn, String onCard, String selector, String contents) {
+		MatchElementStep ms = new MatchElementStep(posn, onCard, selector, contents);
+		currentSteps.add(ms);
+	}
 
 	@Override
 	public void addTestCase(String message) {
