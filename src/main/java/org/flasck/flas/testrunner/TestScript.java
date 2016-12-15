@@ -56,7 +56,8 @@ public class TestScript implements TestScriptBuilder {
 	
 	@Override
 	public void addCreate(InputPosition at, String bindVar, String cardType) {
-		
+		CreateTestStep cs = new CreateTestStep(at, bindVar, cardType);
+		currentSteps.add(cs);
 	}
 
 	@Override

@@ -7,6 +7,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.errors.ErrorReporter;
@@ -16,6 +19,7 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.testrunner.SingleTestCase;
 import org.flasck.flas.testrunner.TestCaseRunner;
+import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.TestScript;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -124,7 +128,6 @@ public class ScriptBuilderTests {
 		runUxCase();
 		runUxCase();
 		script.runAllTests(new TestCaseRunner() {
-			
 			@Override
 			public void run(SingleTestCase tc) {
 				tc.assertStepCount(1);
@@ -141,6 +144,32 @@ public class ScriptBuilderTests {
 		script.error(posn, errorMsg);
 	}
 
+	@Test
+	public void testThatWeCaptureCreateCommands() throws Exception {
+		TestRunner stepRunner = context.mock(TestRunner.class);
+		String cardName = "CardName";
+		String cardVar = "q";
+		context.checking(new Expectations() {{
+			oneOf(stepRunner).createCardAs(cardName, cardVar);
+		}});
+		script.addCreate(posn, cardVar, cardName);
+		script.addTestCase(TEST_CASE_NAME);
+		List<Exception> errs = new ArrayList<Exception>();
+		script.runAllTests(new TestCaseRunner() {
+			@Override
+			public void run(SingleTestCase tc) {
+				tc.assertStepCount(1);
+				try {
+					tc.run(stepRunner);
+				} catch (Exception e) {
+					errs.add(e);
+				}
+			}
+		});
+		if (!errs.isEmpty())
+			throw errs.get(0);
+	}
+	
 	private Scope runUxCase() {
 		script.addAssert(posn, new UnresolvedVar(posn, "x"), posn, new NumericLiteral(posn, "420", 4));
 		script.addTestCase(TEST_CASE_NAME);

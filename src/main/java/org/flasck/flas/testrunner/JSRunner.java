@@ -85,4 +85,10 @@ public class JSRunner implements TestRunner {
 		}
 	}
 
+	@Override
+	public void createCardAs(String cardType, String bindVar) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

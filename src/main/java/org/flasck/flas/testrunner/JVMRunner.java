@@ -76,4 +76,10 @@ public class JVMRunner implements TestRunner {
 			throw new AssertFailed(expected, actual);
 		}
 	}
+
+	@Override
+	public void createCardAs(String cardType, String bindVar) {
+		// TODO Auto-generated method stub
+		
+	}
 }
