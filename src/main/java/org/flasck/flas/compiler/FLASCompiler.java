@@ -435,7 +435,7 @@ public class FLASCompiler implements ScriptCompiler {
 			}
 			abortIfErrors(errors);
 
-			return new CompileResult(inPkg, scope, bce, tc2);
+			return new CompileResult(inPkg, scope, bce, tc2).addJS(writeTo);
 		} finally {
 			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
 			try { if (wex != null) wex.close(); } catch (IOException ex) {}
