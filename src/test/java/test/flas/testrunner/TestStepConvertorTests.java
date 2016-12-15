@@ -4,6 +4,7 @@ import static test.flas.testrunner.ExprMatcher.number;
 import static test.flas.testrunner.ExprMatcher.unresolved;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
@@ -74,4 +75,15 @@ public class TestStepConvertorTests {
 		ctor.handle(new Tokenizable("create q CardName"), CollectionUtils.listOf(new Block(3, "property or something")));
 	}
 
+	@Test
+	public void testWeCanConvertMatchElement() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		String matchingText = "<div>hello</div>";
+		context.checking(new Expectations() {{
+			oneOf(script).addMatchElement(with(aNonNull(InputPosition.class)), with("q"), with("div"), with(matchingText));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("matchElement q div"), Arrays.asList(new Block(3, matchingText)));
+	}
 }

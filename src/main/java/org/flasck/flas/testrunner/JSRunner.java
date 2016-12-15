@@ -91,4 +91,10 @@ public class JSRunner implements TestRunner {
 		
 	}
 
+	@Override
+	public void matchElement(String cardVar, String selector, String contents) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

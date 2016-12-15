@@ -28,6 +28,8 @@ public class UnitTestStepConvertor {
 			handleAssert(line, nested);
 		else if (kw.text.equals("create"))
 			handleCreate(kw, line, nested);
+		else if (kw.text.equals("matchElement"))
+			handleMatchElement(kw, line, nested);
 		else
 			builder.error(kw.location, "cannot handle input line: " + kw.text);
 	}
@@ -86,6 +88,30 @@ public class UnitTestStepConvertor {
 			return;
 		}
 		builder.addCreate(kw.location, var.text, card.text);
+	}
+
+	private void handleMatchElement(KeywordToken kw, Tokenizable line, List<Block> nested) {
+		ValidIdentifierToken var = ValidIdentifierToken.from(line);
+		if (var == null) {
+			builder.error(line.realinfo(), "matchElement needs a card var as first argument: '" + line.remainder().trim() +"'");
+			return;
+		}
+		line.skipWS();
+		if (!line.hasMore()) {
+			builder.error(line.realinfo(), "no pattern in matchElement");
+			return;
+		}
+		String selectors = line.remainder().trim();
+		if (nested.size() != 1) {
+			builder.error(kw.location, "match must have exactly one nested block");
+			return;
+		}
+		Block block = nested.get(0);
+		if (!block.nested.isEmpty()) {
+			builder.error(block.line.locationAtText(0), "matching line cannot have nested blocks");
+			return;
+		}
+		builder.addMatchElement(kw.location, var.text, selectors, block.line.text().toString().trim());
 	}
 
 }
