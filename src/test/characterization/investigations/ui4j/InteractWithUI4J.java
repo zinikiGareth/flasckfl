@@ -3,14 +3,9 @@ package investigations.ui4j;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.zinutils.sync.SyncUtils;
-
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
 import com.ui4j.api.browser.Page;
-import com.ui4j.api.dom.Element;
-import com.ui4j.test.JSObjectTest;
-
 import netscape.javascript.JSObject;
 
 public class InteractWithUI4J {

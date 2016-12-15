@@ -7,14 +7,17 @@ import java.util.List;
 
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
+import org.flasck.flas.errors.ErrorResult;
 import org.zinutils.utils.FileUtils;
 
 public class UnitTestRunner {
+	private final ErrorResult errors;
 	private final ScriptCompiler compiler;
 	private final CompileResult prior;
 	private final List<UnitTestResultHandler> handlers = new ArrayList<>();
 
-	public UnitTestRunner(ScriptCompiler compiler, CompileResult prior) {
+	public UnitTestRunner(ErrorResult errors, ScriptCompiler compiler, CompileResult prior) {
+		this.errors = errors;
 		this.compiler = compiler;
 		this.prior = prior;
 	}
@@ -53,7 +56,7 @@ public class UnitTestRunner {
 	// Convert f into a standard fl "program" with a set of functions
 	//      and build a meta-repository of what's going on
 	private TestScript convertScript(String scriptPkg, File f) {
-		TestScript script = new TestScript(scriptPkg);
+		TestScript script = new TestScript(errors, scriptPkg);
 		UnitTestConvertor c = new UnitTestConvertor(script);
 		c.convert(FileUtils.readFileAsLines(f));
 		return script;

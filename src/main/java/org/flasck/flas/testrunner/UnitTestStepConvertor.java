@@ -25,7 +25,7 @@ public class UnitTestStepConvertor {
 		if (kw.text.equals("assert"))
 			handleAssert(line, nested);
 		else
-			builder.error("cannot handle input line: " + kw.text);
+			builder.error(kw.location, "cannot handle input line: " + kw.text);
 	}
 
 	private void handleAssert(Tokenizable line, List<Block> nested) {
@@ -37,12 +37,12 @@ public class UnitTestStepConvertor {
 			throw new NotImplementedException();
 		else {
 			if (nested.size() != 1) {
-				builder.error("needed exactly one nested line for assert");
+				builder.error(pos, "needed exactly one nested line for assert");
 				return;
 			}
 			Block valueBlock = nested.get(0);
 			if (!valueBlock.nested.isEmpty()) {
-				builder.error("value block cannot have nested lines");
+				builder.error(pos, "value block cannot have nested lines");
 				return;
 			}
 			convertValue(pos, ret, new Tokenizable(valueBlock));

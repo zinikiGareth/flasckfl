@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -24,7 +25,9 @@ import org.junit.Test;
 public class ScriptBuilderTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	String TEST_CASE_NAME = "test a simple case";
-	TestScript script = new TestScript("test.golden.script");
+	ErrorReporter reporter = context.mock(ErrorReporter.class);
+	TestScript script = new TestScript(reporter, "test.golden.script");
+	InputPosition posn = new InputPosition("test", 1, 1, null);
 	
 	@Test
 	public void testABuilderHasANonNullScope() {
@@ -129,8 +132,16 @@ public class ScriptBuilderTests {
 		});
 	}
 
+	@Test
+	public void testItRaisesAnErrorIfWeCallError() {
+		String errorMsg = "there is no command 'foo'";
+		context.checking(new Expectations() {{
+			oneOf(reporter).message(posn, errorMsg);
+		}});
+		script.error(posn, errorMsg);
+	}
+
 	private Scope runUxCase() {
-		InputPosition posn = new InputPosition("test", 1, 1, null);
 		script.addAssert(posn, new UnresolvedVar(posn, "x"), posn, new NumericLiteral(posn, "420", 4));
 		script.addTestCase(TEST_CASE_NAME);
 		return script.scope();

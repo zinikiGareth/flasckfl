@@ -6,9 +6,9 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
-import org.zinutils.exceptions.NotImplementedException;
 
 public class TestScript implements TestScriptBuilder {
 	private final Scope scope;
@@ -16,15 +16,17 @@ public class TestScript implements TestScriptBuilder {
 	private List<TestStep> currentSteps = new ArrayList<TestStep>();
 	private int nextStep = 1;
 	private String defineInPkg;
+	private final ErrorReporter reporter;
 	
-	public TestScript(String defineInPkg) {
+	public TestScript(ErrorReporter errors, String defineInPkg) {
+		this.reporter = errors;
 		this.defineInPkg = defineInPkg;
 		scope = Scope.topScope(defineInPkg);
 	}
 
 	@Override
-	public void error(String msg) {
-		throw new NotImplementedException(msg);
+	public void error(InputPosition posn, String msg) {
+		reporter.message(posn, msg);
 	}
 	
 

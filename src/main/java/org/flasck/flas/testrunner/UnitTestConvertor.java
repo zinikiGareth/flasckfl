@@ -34,6 +34,6 @@ public class UnitTestConvertor {
 				steppor.handle(new Tokenizable(b.line), b.nested);
 			builder.addTestCase(message);
 		} else
-			builder.error("cannot handle input line: " + kw.text);
+			builder.error(kw.location, "cannot handle input line: " + kw.text);
 	}
 }

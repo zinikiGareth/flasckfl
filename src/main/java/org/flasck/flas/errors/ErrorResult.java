@@ -12,7 +12,7 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.utils.Justification;
 
-public class ErrorResult {
+public class ErrorResult implements ErrorReporter {
 	private final Set<FLASError> errors = new TreeSet<FLASError>();
 
 	public int count() {

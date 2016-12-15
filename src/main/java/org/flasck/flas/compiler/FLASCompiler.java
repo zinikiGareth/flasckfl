@@ -216,7 +216,7 @@ public class FLASCompiler implements ScriptCompiler {
 				FLASCompiler sc = new FLASCompiler();
 				sc.includePrior(cr);
 				// TODO: we probably need to configure the compiler here ...
-				UnitTestRunner utr = new UnitTestRunner(sc, cr);
+				UnitTestRunner utr = new UnitTestRunner(errors, sc, cr);
 				utr.sendResultsTo(new FileUnitTestResultHandler(results));
 				
 				// We presumably needs some set of options to say which runners

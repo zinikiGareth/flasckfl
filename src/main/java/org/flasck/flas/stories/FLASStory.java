@@ -23,7 +23,6 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.ContainsScope;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContentString;
 import org.flasck.flas.parsedForm.ContractDecl;

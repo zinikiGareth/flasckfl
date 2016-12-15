@@ -140,7 +140,7 @@ public class SimpleUnitTestRunnerTests {
 
 	private void runTestScript(String... lines) throws Exception {
 		File f = createFile(lines);
-		UnitTestRunner r = new UnitTestRunner(sc, prior);
+		UnitTestRunner r = new UnitTestRunner(errors, sc, prior);
 		r.sendResultsTo(resultHandler);
 		r.run(f, runner);
 	}
