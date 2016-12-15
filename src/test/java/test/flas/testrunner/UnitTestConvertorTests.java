@@ -71,4 +71,15 @@ public class UnitTestConvertorTests {
 		UnitTestConvertor ctor = new UnitTestConvertor(script);
 		ctor.convert(CollectionUtils.listOf("\ttest id returns what you pass it", "\t\tassert (id 420)", "\t\t\t420", "\ttest id does something else", "\t\tassert (id 'hello')", "\t\t\t'hello'"));
 	}
+	
+	@Test
+	public void testThanBadInputProducesAnError() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		context.checking(new Expectations() {{
+			oneOf(script).error(with(aNonNull(InputPosition.class)), with("cannot handle input line: throw"));
+		}});
+		
+		UnitTestConvertor ctor = new UnitTestConvertor(script);
+		ctor.convert(CollectionUtils.listOf("\tthrow an error"));
+	}
 }
