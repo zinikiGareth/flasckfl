@@ -8,6 +8,7 @@ import java.util.List;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.ErrorResultException;
 import org.zinutils.utils.FileUtils;
 
 public class UnitTestRunner {
@@ -26,9 +27,11 @@ public class UnitTestRunner {
 		handlers.add(resultHandler);
 	}
 	
-	public void run(File f, TestRunner runner) throws ClassNotFoundException, IOException {
+	public void run(File f, TestRunner runner) throws ClassNotFoundException, IOException, ErrorResultException {
 		String scriptPkg = prior.getPackage() + ".script";
 		TestScript script = convertScript(scriptPkg, f);
+		if (errors.hasErrors())
+			throw new ErrorResultException(errors);
 		runner.prepareScript(compiler, script.scope());
 		script.runAllTests(new TestCaseRunner() {
 			@Override
