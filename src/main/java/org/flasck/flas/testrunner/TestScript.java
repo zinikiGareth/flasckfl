@@ -53,6 +53,12 @@ public class TestScript implements TestScriptBuilder {
 		currentSteps.add(as);
 	}
 
+	
+	@Override
+	public void addCreate(InputPosition at, String bindVar, String cardType) {
+		
+	}
+
 	@Override
 	public void addTestCase(String message) {
 		cases.add(new SingleTestCase(message, currentSteps));

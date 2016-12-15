@@ -8,6 +8,8 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parser.Expression;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.tokenizers.TypeNameToken;
+import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class UnitTestStepConvertor {
@@ -24,6 +26,8 @@ public class UnitTestStepConvertor {
 			return;
 		if (kw.text.equals("assert"))
 			handleAssert(line, nested);
+		else if (kw.text.equals("create"))
+			handleCreate(kw, line, nested);
 		else
 			builder.error(kw.location, "cannot handle input line: " + kw.text);
 	}
@@ -60,4 +64,28 @@ public class UnitTestStepConvertor {
 			builder.addAssert(evalPos, eval, pos, valueExpr);
 		}
 	}
+
+	private void handleCreate(KeywordToken kw, Tokenizable line, List<Block> nested) {
+		if (!nested.isEmpty()) {
+			builder.error(kw.location, "create may not have nested instructions");
+			return;
+		}
+		ValidIdentifierToken var = ValidIdentifierToken.from(line);
+		if (var == null) {
+			builder.error(line.realinfo(), "create needs a var as first argument: '" + line +"'");
+			return;
+		}
+		TypeNameToken card = TypeNameToken.from(line);
+		if (card == null) {
+			builder.error(line.realinfo(), "create needs a type as first argument: '" + line +"'");
+			return;
+		}
+		line.skipWS();
+		if (line.hasMore()) {
+			builder.error(line.realinfo(), "extra characters at end of command: '" + line.remainder().trim() +"'");
+			return;
+		}
+		builder.addCreate(kw.location, var.text, card.text);
+	}
+
 }

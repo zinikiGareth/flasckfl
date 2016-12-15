@@ -6,8 +6,10 @@ public interface TestScriptBuilder {
 	void error(InputPosition posn, String msg);
 
 	void addAssert(InputPosition evalPos, Object eval, InputPosition pos, Object valueExpr);
+	void addCreate(InputPosition at, String bindVar, String cardType);
 	// TODO: other steps as well
 
 	void addTestCase(String message);
+
 
 }

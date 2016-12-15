@@ -40,4 +40,38 @@ public class TestStepConvertorTests {
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
 		ctor.handle(new Tokenizable("throw an error"), new ArrayList<>());
 	}
+
+	@Test
+	public void testWeCanConvertACreateStep() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		context.checking(new Expectations() {{
+			oneOf(script).addCreate(with(aNonNull(InputPosition.class)), with("q"), with("CardName"));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("create q CardName"), new ArrayList<>());
+	}
+
+	@Test
+	public void testThatCreateWillNotAllowJunkAtTheEndOfTheCommand() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		context.checking(new Expectations() {{
+			oneOf(script).error(with(aNonNull(InputPosition.class)), with("extra characters at end of command: 'xx'"));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("create q CardName xx"), new ArrayList<>());
+	}
+
+	@Test
+	public void testThatCreateDoesNotHaveNestedBlocks() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		context.checking(new Expectations() {{
+			oneOf(script).error(with(aNonNull(InputPosition.class)), with("create may not have nested instructions"));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("create q CardName"), CollectionUtils.listOf(new Block(3, "property or something")));
+	}
+
 }
