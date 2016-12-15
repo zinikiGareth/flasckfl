@@ -12,6 +12,7 @@ import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.testrunner.MatchStep.WhatToMatch;
 import org.zinutils.exceptions.UtilException;
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
@@ -92,7 +93,7 @@ public class JSRunner implements TestRunner {
 	}
 
 	@Override
-	public void matchElement(String cardVar, String selector, String contents) {
+	public void match(WhatToMatch what, String cardVar, String selector, String contents) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -10,6 +10,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.testrunner.TestScriptBuilder;
 import org.flasck.flas.testrunner.UnitTestStepConvertor;
+import org.flasck.flas.testrunner.MatchStep.WhatToMatch;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -80,10 +81,34 @@ public class TestStepConvertorTests {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		String matchingText = "<div>hello</div>";
 		context.checking(new Expectations() {{
-			oneOf(script).addMatchElement(with(aNonNull(InputPosition.class)), with("q"), with("div"), with(matchingText));
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.ELEMENT), with("q"), with("div"), with(matchingText));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
 		ctor.handle(new Tokenizable("matchElement q div"), Arrays.asList(new Block(3, matchingText)));
+	}
+
+	@Test
+	public void testWeCanConvertMatchContent() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		String matchingText = "hello";
+		context.checking(new Expectations() {{
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CONTENTS), with("q"), with("div"), with(matchingText));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("matchContents q div"), Arrays.asList(new Block(3, matchingText)));
+	}
+
+	@Test
+	public void testWeCanConvertMatchCount() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		String matchingText = "0";
+		context.checking(new Expectations() {{
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.COUNT), with("q"), with("div"), with(matchingText));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("matchCount q div"), Arrays.asList(new Block(3, matchingText)));
 	}
 }

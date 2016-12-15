@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parser.Expression;
+import org.flasck.flas.testrunner.MatchStep.WhatToMatch;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -29,7 +30,11 @@ public class UnitTestStepConvertor {
 		else if (kw.text.equals("create"))
 			handleCreate(kw, line, nested);
 		else if (kw.text.equals("matchElement"))
-			handleMatchElement(kw, line, nested);
+			handleMatchElement(kw, WhatToMatch.ELEMENT, line, nested);
+		else if (kw.text.equals("matchContents"))
+			handleMatchElement(kw, WhatToMatch.CONTENTS, line, nested);
+		else if (kw.text.equals("matchCount"))
+			handleMatchElement(kw, WhatToMatch.COUNT, line, nested);
 		else
 			builder.error(kw.location, "cannot handle input line: " + kw.text);
 	}
@@ -90,7 +95,7 @@ public class UnitTestStepConvertor {
 		builder.addCreate(kw.location, var.text, card.text);
 	}
 
-	private void handleMatchElement(KeywordToken kw, Tokenizable line, List<Block> nested) {
+	private void handleMatchElement(KeywordToken kw, WhatToMatch what, Tokenizable line, List<Block> nested) {
 		ValidIdentifierToken var = ValidIdentifierToken.from(line);
 		if (var == null) {
 			builder.error(line.realinfo(), "matchElement needs a card var as first argument: '" + line.remainder().trim() +"'");
@@ -111,7 +116,7 @@ public class UnitTestStepConvertor {
 			builder.error(block.line.locationAtText(0), "matching line cannot have nested blocks");
 			return;
 		}
-		builder.addMatchElement(kw.location, var.text, selectors, block.line.text().toString().trim());
+		builder.addMatch(kw.location, what, var.text, selectors, block.line.text().toString().trim());
 	}
 
 }

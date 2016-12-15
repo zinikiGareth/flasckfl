@@ -21,6 +21,7 @@ import org.flasck.flas.testrunner.SingleTestCase;
 import org.flasck.flas.testrunner.TestCaseRunner;
 import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.TestScript;
+import org.flasck.flas.testrunner.MatchStep.WhatToMatch;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -32,6 +33,8 @@ public class ScriptBuilderTests {
 	ErrorReporter reporter = context.mock(ErrorReporter.class);
 	TestScript script = new TestScript(reporter, "test.golden.script");
 	InputPosition posn = new InputPosition("test", 1, 1, null);
+	List<Exception> errs = new ArrayList<Exception>();
+	TestRunner stepRunner = context.mock(TestRunner.class);
 	
 	@Test
 	public void testABuilderHasANonNullScope() {
@@ -125,26 +128,13 @@ public class ScriptBuilderTests {
 
 	@Test
 	public void testAddingTwoCasesOnlyHasOneStepInEachCase() throws Exception {
-		List<Exception> errs = new ArrayList<Exception>();
-		TestRunner stepRunner = context.mock(TestRunner.class);
 		context.checking(new Expectations() {{
 			oneOf(stepRunner).assertCorrectValue(1);
 			oneOf(stepRunner).assertCorrectValue(2);
 		}});
 		runUxCase();
 		runUxCase();
-		script.runAllTests(new TestCaseRunner() {
-			@Override
-			public void run(SingleTestCase tc) {
-				try {
-					tc.run(stepRunner);
-				} catch (Exception e) {
-					errs.add(e);
-				}
-			}
-		});
-		if (!errs.isEmpty())
-			throw errs.get(0);
+		wrapUp();
 	}
 
 	@Test
@@ -158,7 +148,6 @@ public class ScriptBuilderTests {
 
 	@Test
 	public void testThatWeCaptureCreateCommands() throws Exception {
-		TestRunner stepRunner = context.mock(TestRunner.class);
 		String cardName = "CardName";
 		String cardVar = "q";
 		context.checking(new Expectations() {{
@@ -166,33 +155,23 @@ public class ScriptBuilderTests {
 		}});
 		script.addCreate(posn, cardVar, cardName);
 		script.addTestCase(TEST_CASE_NAME);
-		List<Exception> errs = new ArrayList<Exception>();
-		script.runAllTests(new TestCaseRunner() {
-			@Override
-			public void run(SingleTestCase tc) {
-				try {
-					tc.run(stepRunner);
-				} catch (Exception e) {
-					errs.add(e);
-				}
-			}
-		});
-		if (!errs.isEmpty())
-			throw errs.get(0);
+		wrapUp();
 	}
 
 	@Test
 	public void testThatWeCaptureMatchCommands() throws Exception {
-		TestRunner stepRunner = context.mock(TestRunner.class);
 		String cardVar = "q";
 		String selector = "div#x";
 		String contents = "<div id='x'>hello</div>";
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).matchElement(cardVar, selector, contents);
+			oneOf(stepRunner).match(WhatToMatch.CONTENTS, cardVar, selector, contents);
 		}});
-		script.addMatchElement(posn, cardVar, selector, contents);
+		script.addMatch(posn, WhatToMatch.CONTENTS, cardVar, selector, contents);
 		script.addTestCase(TEST_CASE_NAME);
-		List<Exception> errs = new ArrayList<Exception>();
+		wrapUp();
+	}
+
+	protected void wrapUp() throws Exception {
 		script.runAllTests(new TestCaseRunner() {
 			@Override
 			public void run(SingleTestCase tc) {

@@ -1,2 +1,8 @@
 	test that we can create the card
 		create s NestFunction
+		matchElement s div
+			<div>hello</div>
+		matchContents s div
+			hello
+		matchCount s div.show
+			0

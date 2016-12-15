@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.testrunner.MatchStep.WhatToMatch;
 
 public class TestScript implements TestScriptBuilder {
 	private final Scope scope;
@@ -61,8 +62,8 @@ public class TestScript implements TestScriptBuilder {
 	}
 	
 	@Override
-	public void addMatchElement(InputPosition posn, String onCard, String selector, String contents) {
-		MatchElementStep ms = new MatchElementStep(posn, onCard, selector, contents);
+	public void addMatch(InputPosition posn, WhatToMatch what, String onCard, String selector, String contents) {
+		MatchStep ms = new MatchStep(posn, what, onCard, selector, contents);
 		currentSteps.add(ms);
 	}
 
