@@ -14,7 +14,6 @@ import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
-import org.flasck.flas.testrunner.MatchStep.WhatToMatch;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
@@ -85,7 +84,7 @@ public class JVMRunner implements TestRunner {
 	}
 
 	@Override
-	public void match(WhatToMatch what, String cardVar, String selector, String contents) {
+	public void match(WhatToMatch what, String selector, String contents) {
 		// TODO Auto-generated method stub
 		
 	}

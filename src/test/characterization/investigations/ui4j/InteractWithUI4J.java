@@ -67,7 +67,7 @@ public class InteractWithUI4J {
 	}
 	
 	@Test
-	public void testWeCanXPathTheCurrentElementsAddedProgrammatically() throws Exception {
+	public void testWeCanQueryTheCurrentElementsAddedProgrammatically() throws Exception {
 		BrowserEngine webKit = BrowserFactory.getWebKit();
 		Page page = webKit.navigate("about:blank");
 		Element body = page.getDocument().getBody();

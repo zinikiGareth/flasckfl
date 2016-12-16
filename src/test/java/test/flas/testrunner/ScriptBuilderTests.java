@@ -21,7 +21,7 @@ import org.flasck.flas.testrunner.SingleTestCase;
 import org.flasck.flas.testrunner.TestCaseRunner;
 import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.TestScript;
-import org.flasck.flas.testrunner.MatchStep.WhatToMatch;
+import org.flasck.flas.testrunner.WhatToMatch;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -164,9 +164,9 @@ public class ScriptBuilderTests {
 		String selector = "div#x";
 		String contents = "<div id='x'>hello</div>";
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).match(WhatToMatch.CONTENTS, cardVar, selector, contents);
+			oneOf(stepRunner).match(WhatToMatch.CONTENTS, selector, contents);
 		}});
-		script.addMatch(posn, WhatToMatch.CONTENTS, cardVar, selector, contents);
+		script.addMatch(posn, WhatToMatch.CONTENTS, selector, contents);
 		script.addTestCase(TEST_CASE_NAME);
 		wrapUp();
 	}

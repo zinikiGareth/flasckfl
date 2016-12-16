@@ -6,7 +6,6 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parser.Expression;
-import org.flasck.flas.testrunner.MatchStep.WhatToMatch;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -116,7 +115,7 @@ public class UnitTestStepConvertor {
 			builder.error(block.line.locationAtText(0), "matching line cannot have nested blocks");
 			return;
 		}
-		builder.addMatch(kw.location, what, var.text, selectors, block.line.text().toString().trim());
+		builder.addMatch(kw.location, what, selectors, block.line.text().toString().trim());
 	}
 
 }

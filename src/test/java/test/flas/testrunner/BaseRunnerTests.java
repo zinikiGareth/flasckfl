@@ -18,7 +18,9 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.testrunner.AssertFailed;
+import org.flasck.flas.testrunner.NotMatched;
 import org.flasck.flas.testrunner.TestRunner;
+import org.flasck.flas.testrunner.WhatToMatch;
 import org.flasck.flas.types.Type;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -40,38 +42,67 @@ public abstract class BaseRunnerTests {
 	CompileResult prior;
 	FLASCompiler sc = new FLASCompiler();
 	TestRunner runner;
-	Scope mainScope = Scope.topScope("test.golden");
+	Scope mainScope = Scope.topScope("test.runner");
 	Scope testScope;
 	
 	@Before
 	public void setup() {
 		Main.setLogLevels();
-		mainScope.define("x", "test.golden.x", null);
-		tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
-		prior = new CompileResult("test.golden", mainScope, bce, tc);
-		testScope = Scope.topScope("test.golden.script");
+		mainScope.define("x", "test.runner.x", null);
+		tc.define("test.runner.x", Type.function(loc, Type.builtin(loc, "Number")));
+		prior = new CompileResult("test.runner", mainScope, bce, tc);
+		testScope = Scope.topScope("test.runner.script");
 	}
 	
 	@Test
 	public void testAssertDoesNotThrowIfXDoesIndeedEqualX() throws Exception {
-		testScope.define("expr1", "test.golden.script.expr1", function("expr1", new UnresolvedVar(loc, "x")));
-		testScope.define("value1", "test.golden.script.value1", function("value1", new NumericLiteral(loc, Integer.toString(X_VALUE), -1)));
+		testScope.define("expr1", "test.runner.script.expr1", function("expr1", new UnresolvedVar(loc, "x")));
+		testScope.define("value1", "test.runner.script.value1", function("value1", new NumericLiteral(loc, Integer.toString(X_VALUE), -1)));
 		prepareRunner();
 		runner.assertCorrectValue(1);
 	}
 
 	@Test(expected=AssertFailed.class)
 	public void testAssertThrowsIfXIsNotThePrescribedValue() throws Exception {
-		testScope.define("expr1", "test.golden.script.expr1", function("expr1", new UnresolvedVar(loc, "x")));
-		testScope.define("value1", "test.golden.script.value1", function("value1", new NumericLiteral(loc, Integer.toString(X_OTHER_VALUE), -1)));
+		testScope.define("expr1", "test.runner.script.expr1", function("expr1", new UnresolvedVar(loc, "x")));
+		testScope.define("value1", "test.runner.script.value1", function("value1", new NumericLiteral(loc, Integer.toString(X_OTHER_VALUE), -1)));
 		prepareRunner();
 		runner.assertCorrectValue(1);
 	}
 
+	@Test
+	public void testRunnerDoesNotThrowIfTheContentsMatches() throws Exception {
+		prepareRunner();
+		runner.createCardAs("test.runner.Card", "q");
+		runner.match(WhatToMatch.CONTENTS, "div>span", "hello, world");
+	}
+
+	@Test
+	public void testRunnerDoesNotThrowIfTheElementMatches() throws Exception {
+		prepareRunner();
+		runner.createCardAs("test.runner.Card", "q");
+		runner.match(WhatToMatch.ELEMENT, "div>span", "<span id=\"uid_1\">hello, world</span>");
+	}
+
+	@Test(expected=NotMatched.class)
+	public void testRunnerThrowsIfTheRequestedElementIsNotThere() throws Exception {
+		prepareRunner();
+		runner.createCardAs("test.runner.Card", "q");
+		runner.match(WhatToMatch.CONTENTS, "div#missing", "irrelevant");
+	}
+
+	@Test(expected=NotMatched.class)
+	public void testRunnerThrowIfTheElementCountExpectsZeroButItIsThere() throws Exception {
+		prepareRunner();
+		runner.createCardAs("test.runner.Card", "q");
+		runner.match(WhatToMatch.COUNT, "div>span", "0");
+	}
+
+
 	protected abstract void prepareRunner() throws IOException, ErrorResultException;
 	
 	protected FunctionCaseDefn function(String name, Object expr) {
-		FunctionCaseDefn defn = new FunctionCaseDefn(FunctionName.function(loc, new PackageName("test.golden.script"), name), new ArrayList<>(), expr);
+		FunctionCaseDefn defn = new FunctionCaseDefn(FunctionName.function(loc, new PackageName("test.runner.script"), name), new ArrayList<>(), expr);
 		defn.provideCaseName(0);
 		return defn;
 	}

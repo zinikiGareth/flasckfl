@@ -15,7 +15,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 	
 	protected void prepareRunner() throws IOException, ErrorResultException {
 		sc.includePrior(prior);
-		sc.createJVM("test.golden.script", prior, testScope);
+		sc.createJVM("test.runner.script", prior, testScope);
 		JVMRunner jr = new JVMRunner(prior);
 		jr.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		jr.prepareScript(sc, testScope);
@@ -25,23 +25,23 @@ public class JVMRunnerTests extends BaseRunnerTests {
 	@Before
 	public void defineSupportingFunctions() {
 		{
-			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.golden.PACKAGEFUNCTIONS$x");
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.PACKAGEFUNCTIONS$x");
 			GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "eval");
 			ga.argument("[java.lang.Object", "args");
 			ga.returns("java.lang.Object");
 			MethodDefiner meth = ga.done();
-			meth.returnObject(meth.callStatic("test.golden.PACKAGEFUNCTIONS", "java.lang.Object", "x")).flush();
+			meth.returnObject(meth.callStatic("test.runner.PACKAGEFUNCTIONS", "java.lang.Object", "x")).flush();
 		}
 		{
-			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.golden.PACKAGEFUNCTIONS$id");
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.PACKAGEFUNCTIONS$id");
 			GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "eval");
 			PendingVar args = ga.argument("[java.lang.Object", "args");
 			ga.returns("java.lang.Object");
 			MethodDefiner meth = ga.done();
-			meth.returnObject(meth.callStatic("test.golden.PACKAGEFUNCTIONS", "java.lang.Object", "id", meth.arrayElt(args.getVar(), meth.intConst(0)))).flush();
+			meth.returnObject(meth.callStatic("test.runner.PACKAGEFUNCTIONS", "java.lang.Object", "id", meth.arrayElt(args.getVar(), meth.intConst(0)))).flush();
 		}
 		{
-			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.golden.PACKAGEFUNCTIONS");
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.PACKAGEFUNCTIONS");
 			{
 				GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "x");
 				ga.returns("java.lang.Object");
