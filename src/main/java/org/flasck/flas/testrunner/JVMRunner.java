@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.flasck.android.FlasckActivity;
 import org.flasck.flas.compiler.CompileResult;
@@ -114,8 +115,7 @@ public class JVMRunner implements TestRunner {
 	}
 
 	@Override
-	public void match(WhatToMatch what, String selector, String contents) {
-		// TODO Auto-generated method stub
-		
+	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
+		what.match(selector, contents, document.select(selector).stream().map(e -> new JVMWrapperElement(e)).collect(Collectors.toList()));
 	}
 }

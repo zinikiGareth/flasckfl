@@ -7,9 +7,9 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.PrintWriter;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
@@ -21,8 +21,6 @@ import org.zinutils.exceptions.UtilException;
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
 import com.ui4j.api.browser.Page;
-import com.ui4j.api.dom.Element;
-
 import javafx.application.Platform;
 import netscape.javascript.JSObject;
 
@@ -158,8 +156,6 @@ public class JSRunner implements TestRunner {
 
 	@Override
 	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
-		System.out.println(page.getDocument().getBody().getOuterHTML());
-		List<Element> divX = page.getDocument().queryAll(selector);
-		what.match(selector, contents, divX);
+		what.match(selector, contents, page.getDocument().queryAll(selector).stream().map(e -> new JSWrapperElement(e)).collect(Collectors.toList()));
 	}
 }
