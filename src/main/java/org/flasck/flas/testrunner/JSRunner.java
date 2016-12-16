@@ -23,6 +23,7 @@ import com.ui4j.api.browser.BrowserFactory;
 import com.ui4j.api.browser.Page;
 import com.ui4j.api.dom.Element;
 
+import javafx.application.Platform;
 import netscape.javascript.JSObject;
 
 public class JSRunner implements TestRunner {
@@ -45,7 +46,20 @@ public class JSRunner implements TestRunner {
 		*/
 	}
 
+	public class SetTimeout {
+		public void callAsync(final JSObject fn) {
+			System.out.println("set timeout called");
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					fn.eval("this.f()");
+				}
+			});
+		}
+	}
+	
 	private final MyLogger ml = new MyLogger();
+	private final SetTimeout st = new SetTimeout();
 	private final CompileResult prior;
 	private final BrowserEngine browser;
 	private Page page;
@@ -92,6 +106,7 @@ public class JSRunner implements TestRunner {
 			page = browser.navigate("file:" + html.getPath());
 			JSObject win = (JSObject)page.executeScript("window");
 			win.setMember("console", ml);
+			win.setMember("callJava", st);
 			spkg = tcr.getPackage();
 		} catch (Exception ex) {
 			ex.printStackTrace();
