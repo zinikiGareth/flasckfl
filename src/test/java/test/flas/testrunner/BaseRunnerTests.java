@@ -92,12 +92,11 @@ public abstract class BaseRunnerTests {
 	}
 
 	@Test(expected=NotMatched.class)
-	public void testRunnerThrowIfTheElementCountExpectsZeroButItIsThere() throws Exception {
+	public void testRunnerThrowsIfTheElementCountExpectsZeroButItIsThere() throws Exception {
 		prepareRunner();
 		runner.createCardAs("test.runner.Card", "q");
 		runner.match(WhatToMatch.COUNT, "div>span", "0");
 	}
-
 
 	protected abstract void prepareRunner() throws IOException, ErrorResultException;
 	

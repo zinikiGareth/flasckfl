@@ -16,7 +16,6 @@ public class JSRunnerTests extends BaseRunnerTests {
 		sc.writeJSTo(tmpdir);
 		sc.createJS("test.runner.script", prior, testScope);
 		JSRunner jr = new JSRunner(prior);
-//		jr.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		jr.prepareScript(sc, testScope);
 		runner = jr;
 	}
