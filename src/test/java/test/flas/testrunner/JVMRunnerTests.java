@@ -64,10 +64,11 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			bcc.superclass("org.flasck.jvm.areas.TextArea");
 			{
 				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
-				ann.argument("test.runner.Card", "_card");
+				ann.argument("test.runner.Card", "card");
 				PendingVar parent = ann.argument("org.flasck.jvm.areas.CardArea", "_parent");
 				MethodDefiner ctor = ann.done();
 				ctor.callSuper("void", "org.flasck.jvm.areas.TextArea", "<init>", ctor.as(parent.getVar(), "org.flasck.jvm.areas.Area"), ctor.as(ctor.aNull(), "java.lang.String")).flush();
+				ctor.callVirtual("void", ctor.myThis(), "_setText", ctor.stringConst("hello, world")).flush();
 				ctor.returnVoid().flush();
 			}
 		}
