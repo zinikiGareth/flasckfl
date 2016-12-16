@@ -9,7 +9,10 @@ import org.junit.Before;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
+import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.NewMethodDefiner;
 
 public class JVMRunnerTests extends BaseRunnerTests {
 	
@@ -57,13 +60,35 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			}
 		}
 		{
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card$B1");
+			bcc.superclass("org.flasck.jvm.areas.TextArea");
+			{
+				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+				ann.argument("test.runner.Card", "_card");
+				PendingVar parent = ann.argument("org.flasck.jvm.areas.CardArea", "_parent");
+				MethodDefiner ctor = ann.done();
+				ctor.callSuper("void", "org.flasck.jvm.areas.TextArea", "<init>", ctor.as(parent.getVar(), "org.flasck.jvm.areas.Area"), ctor.as(ctor.aNull(), "java.lang.String")).flush();
+				ctor.returnVoid().flush();
+			}
+		}
+		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card");
+			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jvm.Wrapper"), "_wrapper");
+			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jdk.display.JDKDisplay"), "_display");
 			bcc.superclass("org.flasck.android.FlasckActivity");
 			{
 				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
 				MethodDefiner ctor = ann.done();
 				ctor.callSuper("void", "org.flasck.android.FlasckActivity", "<init>").flush();
 				ctor.returnVoid().flush();
+			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "render");
+				PendingVar into = ann.argument("java.lang.String", "into");
+				ann.returns(JavaType.void_);
+				NewMethodDefiner meth = ann.done();
+				meth.makeNewVoid("test.runner.Card$B1", meth.myThis(), meth.makeNew("org.flasck.jvm.areas.CardArea", meth.getField("_wrapper"), meth.as(meth.getField("_display"), "org.flasck.jvm.display.DisplayEngine"), into.getVar())).flush();
+				meth.returnVoid().flush();
 			}
 		}
 		System.out.println(bce.all());
