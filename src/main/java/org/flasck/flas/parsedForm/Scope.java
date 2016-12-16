@@ -14,8 +14,8 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ScopeDefineException;
 import org.zinutils.exceptions.UtilException;
 
-public class Scope implements Iterable<Scope.ScopeEntry> {
-	public class ScopeEntry implements Entry<String, Object> {
+public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
+	public static class ScopeEntry implements Entry<String, Object> {
 		private final InputPosition location;
 		private final String name;
 		private Object defn;
@@ -50,10 +50,6 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 			return defn;
 		}
 		
-		public Scope scope() {
-			return Scope.this;
-		}
-		
 		@Override
 		public String toString() {
 			return name + " => " + defn;
@@ -80,6 +76,7 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 		return fullNames.get(key);
 	}
 
+	@Override
 	public ScopeEntry get(String key) {
 		if (!contains(key))
 			return null;
@@ -90,6 +87,7 @@ public class Scope implements Iterable<Scope.ScopeEntry> {
 		return null;
 	}
 
+	@Override
 	public void define(String key, String name, Object defn) {
 		if (key.contains("."))
 			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);

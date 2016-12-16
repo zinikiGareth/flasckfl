@@ -29,11 +29,11 @@ public class UnitTestStepConvertor {
 		else if (kw.text.equals("create"))
 			handleCreate(kw, line, nested);
 		else if (kw.text.equals("matchElement"))
-			handleMatchElement(kw, WhatToMatch.ELEMENT, line, nested);
+			handleMatch(kw, WhatToMatch.ELEMENT, line, nested);
 		else if (kw.text.equals("matchContents"))
-			handleMatchElement(kw, WhatToMatch.CONTENTS, line, nested);
+			handleMatch(kw, WhatToMatch.CONTENTS, line, nested);
 		else if (kw.text.equals("matchCount"))
-			handleMatchElement(kw, WhatToMatch.COUNT, line, nested);
+			handleMatch(kw, WhatToMatch.COUNT, line, nested);
 		else
 			builder.error(kw.location, "cannot handle input line: " + kw.text);
 	}
@@ -94,15 +94,10 @@ public class UnitTestStepConvertor {
 		builder.addCreate(kw.location, var.text, card.text);
 	}
 
-	private void handleMatchElement(KeywordToken kw, WhatToMatch what, Tokenizable line, List<Block> nested) {
-		ValidIdentifierToken var = ValidIdentifierToken.from(line);
-		if (var == null) {
-			builder.error(line.realinfo(), "matchElement needs a card var as first argument: '" + line.remainder().trim() +"'");
-			return;
-		}
+	private void handleMatch(KeywordToken kw, WhatToMatch what, Tokenizable line, List<Block> nested) {
 		line.skipWS();
 		if (!line.hasMore()) {
-			builder.error(line.realinfo(), "no pattern in matchElement");
+			builder.error(line.realinfo(), "no pattern in match");
 			return;
 		}
 		String selectors = line.remainder().trim();

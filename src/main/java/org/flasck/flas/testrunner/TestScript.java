@@ -7,8 +7,12 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.zinutils.exceptions.UtilException;
 
 public class TestScript implements TestScriptBuilder {
 	private final Scope scope;
@@ -17,11 +21,13 @@ public class TestScript implements TestScriptBuilder {
 	private int nextStep = 1;
 	private String defineInPkg;
 	private final ErrorReporter reporter;
+	private IScope priorScope;
 	
-	public TestScript(ErrorReporter errors, String defineInPkg) {
+	public TestScript(ErrorReporter errors, IScope inScope, String defineInPkg) {
 		this.reporter = errors;
+		this.priorScope = inScope;
 		this.defineInPkg = defineInPkg;
-		scope = Scope.topScope(defineInPkg);
+		this.scope = Scope.topScope(defineInPkg);
 	}
 
 	@Override
@@ -56,7 +62,13 @@ public class TestScript implements TestScriptBuilder {
 	
 	@Override
 	public void addCreate(InputPosition at, String bindVar, String cardType) {
-		CreateTestStep cs = new CreateTestStep(at, bindVar, cardType);
+		ScopeEntry se = priorScope.get(cardType);
+		if (se == null)
+			throw new UtilException("could not find card " + cardType);
+		Object cd = se.getValue();
+		if (!(cd instanceof CardDefinition))
+			throw new UtilException(cardType + " was not a card definition");
+		CreateTestStep cs = new CreateTestStep(at, bindVar, ((CardDefinition) cd).name);
 		currentSteps.add(cs);
 	}
 	

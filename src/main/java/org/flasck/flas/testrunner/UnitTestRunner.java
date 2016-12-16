@@ -9,6 +9,7 @@ import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.parsedForm.Scope;
 import org.zinutils.utils.FileUtils;
 
 public class UnitTestRunner {
@@ -29,7 +30,7 @@ public class UnitTestRunner {
 	
 	public void run(File f, TestRunner runner) throws ClassNotFoundException, IOException, ErrorResultException {
 		String scriptPkg = prior.getPackage() + ".script";
-		TestScript script = convertScript(scriptPkg, f);
+		TestScript script = convertScript(prior.getScope(), scriptPkg, f);
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);
 		runner.prepareScript(compiler, script.scope());
@@ -58,8 +59,8 @@ public class UnitTestRunner {
 
 	// Convert f into a standard fl "program" with a set of functions
 	//      and build a meta-repository of what's going on
-	private TestScript convertScript(String scriptPkg, File f) {
-		TestScript script = new TestScript(errors, scriptPkg);
+	private TestScript convertScript(Scope scope, String scriptPkg, File f) {
+		TestScript script = new TestScript(errors, scope, scriptPkg);
 		UnitTestConvertor c = new UnitTestConvertor(script);
 		c.convert(FileUtils.readFileAsLines(f));
 		return script;

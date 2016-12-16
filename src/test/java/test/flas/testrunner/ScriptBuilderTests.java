@@ -12,8 +12,12 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
+import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -22,7 +26,10 @@ import org.flasck.flas.testrunner.TestCaseRunner;
 import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.TestScript;
 import org.flasck.flas.testrunner.WhatToMatch;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
+import org.jmock.api.Action;
+import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +38,10 @@ public class ScriptBuilderTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	String TEST_CASE_NAME = "test a simple case";
 	ErrorReporter reporter = context.mock(ErrorReporter.class);
-	TestScript script = new TestScript(reporter, "test.golden.script");
+	String pkg = "test.golden";
+	String spkg = pkg + ".script";
+	IScope priorScope = context.mock(IScope.class);
+	TestScript script = new TestScript(reporter, priorScope, spkg);
 	InputPosition posn = new InputPosition("test", 1, 1, null);
 	List<Exception> errs = new ArrayList<Exception>();
 	TestRunner stepRunner = context.mock(TestRunner.class);
@@ -151,16 +161,34 @@ public class ScriptBuilderTests {
 		String cardName = "CardName";
 		String cardVar = "q";
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).createCardAs(cardName, cardVar);
+			oneOf(priorScope).get(cardName); will(createCard(cardName));
+			oneOf(stepRunner).createCardAs(pkg + "." + cardName, cardVar);
+			oneOf(priorScope).define(with(any(String.class)), with(any(String.class)), with(any(Object.class)));
 		}});
+
 		script.addCreate(posn, cardVar, cardName);
 		script.addTestCase(TEST_CASE_NAME);
 		wrapUp();
 	}
 
+	protected Action createCard(final String cardName) {
+		return new Action() {
+			
+			@Override
+			public Object invoke(Invocation arg0) throws Throwable {
+				CardName jsName = new CardName(new PackageName(pkg), cardName);
+				return new Scope.ScopeEntry(cardName, jsName.jsName(), new CardDefinition(posn, posn, priorScope, jsName));
+			}
+			
+			@Override
+			public void describeTo(Description desc) {
+				desc.appendText("Create card for " + cardName);
+			}
+		};
+	}
+
 	@Test
 	public void testThatWeCaptureMatchCommands() throws Exception {
-		String cardVar = "q";
 		String selector = "div#x";
 		String contents = "<div id='x'>hello</div>";
 		context.checking(new Expectations() {{

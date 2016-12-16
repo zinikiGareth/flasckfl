@@ -26,7 +26,7 @@ public class CardDefinition implements ContainsScope, Locatable {
 	public final Scope fnScope;
 	public final CardName cardName;
 
-	public CardDefinition(InputPosition kw, InputPosition location, Scope outer, CardName name) {
+	public CardDefinition(InputPosition kw, InputPosition location, IScope outer, CardName name) {
 		this.kw = kw;
 		this.location = location;
 		this.simpleName = name.cardName;
