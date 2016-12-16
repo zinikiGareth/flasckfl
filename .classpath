@@ -19,5 +19,8 @@
 	<classpathentry kind="lib" path="/Users/gareth/Ziniki/ThirdParty/qb/mvncache/junit/junit/4.12/junit-4.12.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ui4j"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="/flasjdk"/>
+	<classpathentry kind="src" path="/flasjvm"/>
+	<classpathentry kind="lib" path="/Users/gareth/Ziniki/ThirdParty/qb/mvncache/org/jsoup/jsoup/1.10.1/jsoup-1.10.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

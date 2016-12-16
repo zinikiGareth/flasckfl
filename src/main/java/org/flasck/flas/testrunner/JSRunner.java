@@ -123,9 +123,10 @@ public class JSRunner implements TestRunner {
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 		
-		// probably should be earlier
+		// this first line probably should be earlier
 		String l0 = "_tmp_postbox = new Postbox('main', window);";
-  		String l1 = "_tmp_body = document.getElementsByTagName('body')[0];";
+
+		String l1 = "_tmp_body = document.getElementsByTagName('body')[0];";
 		String l2 = "_tmp_div = document.createElement('div');";
 		String l3 = "_tmp_body.appendChild(_tmp_div);";
 		String l4 = "_tmp_services = {};"; // surely we need something better

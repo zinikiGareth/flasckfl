@@ -56,6 +56,16 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				meth.returnObject(val.getVar()).flush();
 			}
 		}
+		{
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card");
+			bcc.superclass("org.flasck.android.FlasckActivity");
+			{
+				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+				MethodDefiner ctor = ann.done();
+				ctor.callSuper("void", "org.flasck.android.FlasckActivity", "<init>").flush();
+				ctor.returnVoid().flush();
+			}
+		}
 		System.out.println(bce.all());
 	}
 }

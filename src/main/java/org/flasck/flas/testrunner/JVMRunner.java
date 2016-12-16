@@ -14,6 +14,13 @@ import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.jdk.post.FlasckCard;
+import org.flasck.jdk.post.JDKPostbox;
+import org.flasck.jvm.post.Postbox;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
@@ -22,11 +29,14 @@ public class JVMRunner implements TestRunner {
 	private final CompileResult prior;
 	private final String scriptPkg;
 	private final BCEClassLoader loader;
+	private final Document document;
+	private final Map<String, FlasckCard> cards = new TreeMap<String, FlasckCard>();
 
 	public JVMRunner(CompileResult prior) {
 		this.prior = prior;
 		scriptPkg = prior.getPackage()+".script";
 		loader = new BCEClassLoader(prior.bce);
+		document = Jsoup.parse("<html><head></head><body></body></html>");
 	}
 
 	public void considerResource(File file) {
@@ -79,8 +89,24 @@ public class JVMRunner implements TestRunner {
 
 	@Override
 	public void createCardAs(String cardType, String bindVar) {
-		// TODO Auto-generated method stub
-		
+		if (cards.containsKey(bindVar))
+			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
+
+		try {
+			Class<?> clz = loader.loadClass(cardType);
+			Postbox postbox = new JDKPostbox();
+			List<Object> services = new ArrayList<>();
+			System.out.println(document);
+			Element body = document.select("body").get(0);
+			Element div = document.createElement("div");
+			body.appendChild(div);
+			System.out.println(document);
+			System.out.println(div);
+			FlasckCard card = new FlasckCard(postbox, div, clz, services);
+			cards.put(bindVar, card);
+		} catch (Exception ex) {
+			throw UtilException.wrap(ex);
+		}
 	}
 
 	@Override
