@@ -2,7 +2,7 @@ package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class NumericLiteral implements Locatable {
+public class NumericLiteral implements Expr {
 	public final InputPosition location;
 	public final String text;
 

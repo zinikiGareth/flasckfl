@@ -2,7 +2,7 @@ package org.flasck.flas.commonBase;
 
 import org.flasck.flas.blockForm.InputPosition;
 
-public class IfExpr implements Locatable {
+public class IfExpr implements Expr {
 	public final Locatable guard;
 	public final Object ifExpr;
 	public final Object elseExpr;

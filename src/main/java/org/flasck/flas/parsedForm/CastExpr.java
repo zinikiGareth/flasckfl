@@ -1,9 +1,9 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.Expr;
 
-public class CastExpr implements Locatable {
+public class CastExpr implements Expr {
 	public final InputPosition location;
 	public final InputPosition ctLoc;
 	public final String castTo;

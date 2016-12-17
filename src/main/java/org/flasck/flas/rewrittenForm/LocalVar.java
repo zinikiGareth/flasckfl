@@ -1,12 +1,12 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.types.Type;
 
-public class LocalVar implements Locatable {
+public class LocalVar implements Expr {
 	public final InputPosition varLoc;
 	public final FunctionName fnName;
 	public final String caseName;

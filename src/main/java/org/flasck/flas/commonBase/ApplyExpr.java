@@ -6,7 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.UtilException;
 
-public class ApplyExpr implements Locatable {
+public class ApplyExpr implements Expr {
 	public final InputPosition location;
 	public final Object fn;
 	public final List<Object> args = new ArrayList<Object>();
