@@ -27,4 +27,11 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 		return cname.compareTo(o.cname);
 	}
 
+	@Override
+	public <T extends NameOfThing> int compareTo(T other) {
+		if (!(other instanceof CSName))
+			return other.getClass().getName().compareTo(this.getClass().getName());
+		return this.compareTo((CSName)other);
+	}
+
 }

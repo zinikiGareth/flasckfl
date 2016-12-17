@@ -116,7 +116,7 @@ public class PackageImporter {
 					}
 					types.add(rw.structs.get("Send"));
 					Type type = Type.function(location(cme), types);
-					RWContractMethodDecl cmd = new RWContractMethodDecl(location(cme), cme.requiredBoolean("required"), cme.required("dir"), cme.required("name"), args, type);
+					RWContractMethodDecl cmd = new RWContractMethodDecl(location(cme), cme.requiredBoolean("required"), cme.required("dir"), fn, args, type);
 					cme.attributesDone();
 					cd.methods.add(cmd);
 				}

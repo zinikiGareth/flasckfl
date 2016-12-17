@@ -5,6 +5,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 
 public class ContractMethodDecl implements Locatable, Comparable<ContractMethodDecl> {
 	public final InputPosition rkw;
@@ -12,10 +13,10 @@ public class ContractMethodDecl implements Locatable, Comparable<ContractMethodD
 	private final InputPosition pos;
 	public final boolean required;
 	public final String dir;
-	public final String name;
+	public final FunctionName name;
 	public final List<Object> args;
 
-	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, String dir, String name, List<Object> args) {
+	public ContractMethodDecl(InputPosition rkw, InputPosition dkw, InputPosition pos, boolean required, String dir, FunctionName name, List<Object> args) {
 		this.rkw = rkw;
 		this.dkw = dkw;
 		this.pos = pos;

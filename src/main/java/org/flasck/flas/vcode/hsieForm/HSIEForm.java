@@ -39,6 +39,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public enum CodeType {
 		FUNCTION,	// standalone, package-scoped function 
 		CARD, 		// card-scoped function (method)
+		DECL,		// method on a contract declaration (cannot be generated)
 		CONTRACT,	// method on a contract impl
 		SERVICE,	// method on a service impl
 		HANDLER,	// method on a handler impl

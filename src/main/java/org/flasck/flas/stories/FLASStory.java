@@ -148,6 +148,8 @@ public class FLASStory {
 				return FunctionName.function(vit.location, pkgName, vit.text);
 			else if (kind == CodeType.CARD)
 				return FunctionName.functionInCardContext(vit.location, (CardName) pkgName, vit.text);
+			else if (kind == CodeType.DECL)
+				return FunctionName.contractDecl(vit.location, (StructName) pkgName, vit.text);
 			else if (kind == CodeType.CONTRACT)
 				return FunctionName.contractMethod(vit.location, (CSName) pkgName, vit.text);
 			else if (kind == CodeType.SERVICE)
@@ -234,7 +236,7 @@ public class FLASStory {
 						er.message(b, "duplicate definition for name " + name.baseName());
 					else
 						ret.define(name.baseName(), cd);
-					doContractMethods(er, cd, b.nested);
+					doContractMethods(er, s.nest(s.scope, name, CodeType.DECL), cd, b.nested);
 				} else if (o instanceof CardDefinition) {
 					CardDefinition cd = (CardDefinition) o;
 					doCardDefinition(er, s.nestCard(cd.innerScope(), cd.cardName), cd, b.nested);
@@ -381,8 +383,8 @@ public class FLASStory {
 		}
 	}
 
-	private void doContractMethods(ErrorResult er, ContractDecl cd, List<Block> methods) {
-		MethodParser mp = new MethodParser();
+	private void doContractMethods(ErrorResult er, State s, ContractDecl cd, List<Block> methods) {
+		MethodParser mp = new MethodParser(s);
 		for (Block b : methods) {
 			if (b.isComment())
 				continue;

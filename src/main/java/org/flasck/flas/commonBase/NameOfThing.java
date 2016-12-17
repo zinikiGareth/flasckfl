@@ -7,4 +7,6 @@ public interface NameOfThing {
 	String jsName();
 
 	CardName containingCard();
+
+	<T extends NameOfThing> int compareTo(T other);
 }

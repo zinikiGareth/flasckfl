@@ -2,7 +2,7 @@ package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.commonBase.NameOfThing;
 
-public class TemplateName implements NameOfThing {
+public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 	private final CardName cardName;
 	private String name;
 
@@ -31,6 +31,26 @@ public class TemplateName implements NameOfThing {
 	@Override
 	public CardName containingCard() {
 		return cardName;
+	}
+	
+	public int compareTo(TemplateName other) {
+		int cs = 0;
+		if (cardName != null && other.cardName == null)
+			return -1;
+		else if (cardName == null && other.cardName != null)
+			return 1;
+		else if (cardName != null && other.cardName != null)
+			cs = cardName.compareTo(other.cardName);
+		if (cs != 0)
+			return cs;
+		return name.compareTo(other.name);
+	}
+
+	@Override
+	public <T extends NameOfThing> int compareTo(T other) {
+		if (!(other instanceof TemplateName))
+			return other.getClass().getName().compareTo(this.getClass().getName());
+		return this.compareTo((TemplateName)other);
 	}
 
 }

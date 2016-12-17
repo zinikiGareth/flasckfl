@@ -75,28 +75,31 @@ public class MethodConvertorTests {
 		orgFooScope = Scope.topScope("org.foo");
 //		orgFooScope.define("doSend", "org.foo.doSend", new FunctionCaseDefn(posn, CodeType.FUNCTION, "org.foo.doSend", args, expr));
 		{
-			ContractDecl contract1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Contract1"));
-			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", "bar", new ArrayList<>());
+			StructName cn = new StructName(new PackageName("org.foo"), "Contract1");
+			ContractDecl contract1 = new ContractDecl(posn, posn, cn);
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "bar"), new ArrayList<>());
 			contract1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "up", "start", new ArrayList<>());
+			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "start"), new ArrayList<>());
 			contract1.methods.add(m2);
-			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "request"), CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			contract1.methods.add(m3);
 			orgFooScope.define("Contract1", contract1);
 		}
 		{
-			ContractDecl service1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Service1"));
-			ContractMethodDecl m0 = new ContractMethodDecl(posn, posn, posn, true, "up", "go", new ArrayList<>());
+			StructName cn = new StructName(new PackageName("org.foo"), "Service1");
+			ContractDecl service1 = new ContractDecl(posn, posn, cn);
+			ContractMethodDecl m0 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "go"), new ArrayList<>());
 			service1.methods.add(m0);
-			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "request"), CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "down", "respond", CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "respond"), CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m2);
 			orgFooScope.define("Service1", service1);
 		}
 		{
-			ContractDecl handler1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Handler1"));
-			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", "handle", new ArrayList<>());
+			StructName cn = new StructName(new PackageName("org.foo"), "Handler1");
+			ContractDecl handler1 = new ContractDecl(posn, posn, cn);
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "handle"), new ArrayList<>());
 			handler1.methods.add(m1);
 			orgFooScope.define("Handler1", handler1);
 		}

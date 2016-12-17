@@ -42,6 +42,13 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 		return cardName.compareTo(o.cardName);
 	}
 
+	@Override
+	public <T extends NameOfThing> int compareTo(T other) {
+		if (!(other instanceof CardName))
+			return other.getClass().getName().compareTo(this.getClass().getName());
+		return this.compareTo((CardName)other);
+	}
+
 	public boolean isValid() {
 		return pkg != null && cardName != null;
 	}

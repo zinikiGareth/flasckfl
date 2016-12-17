@@ -32,6 +32,13 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 	}
 
 	@Override
+	public <T extends NameOfThing> int compareTo(T other) {
+		if (!(other instanceof HandlerName))
+			return other.getClass().getName().compareTo(this.getClass().getName());
+		return this.compareTo((HandlerName)other);
+	}
+
+	@Override
 	public String jsName() {
 		return name.jsName() + "." + baseName;
 	}

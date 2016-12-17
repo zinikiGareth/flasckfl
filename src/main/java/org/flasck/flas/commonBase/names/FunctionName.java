@@ -19,7 +19,7 @@ import org.zinutils.exceptions.UtilException;
 //  * storing this function name
 //  * offering the different options for the name (jsName, className, basicName, etc)
 //  * eventually hiding the "name" var ...
-public class FunctionName implements NameOfThing {
+public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	public final InputPosition location;
 	public final CodeType codeType;
 	public final String name;
@@ -42,6 +42,10 @@ public class FunctionName implements NameOfThing {
 
 	public static FunctionName eventMethod(InputPosition location, CardName cardName, String name) {
 		return new FunctionName(location, CodeType.EVENTHANDLER, cardName, name);
+	}
+
+	public static FunctionName contractDecl(InputPosition location, StructName contractName, String name) {
+		return new FunctionName(location, CodeType.DECL, contractName, name);
 	}
 
 	public static FunctionName contractMethod(InputPosition location, CSName csName, String name) {
@@ -71,6 +75,26 @@ public class FunctionName implements NameOfThing {
 			return name;
 		else
 			return inContext.jsName() + "." + name;
+	}
+	
+	public int compareTo(FunctionName other) {
+		int cs = 0;
+		if (inContext != null && other.inContext == null)
+			return -1;
+		else if (inContext == null && other.inContext != null)
+			return 1;
+		else if (inContext != null && other.inContext != null)
+			cs = inContext.compareTo(other.inContext);
+		if (cs != 0)
+			return cs;
+		return name.compareTo(other.name);
+	}
+
+	@Override
+	public <T extends NameOfThing> int compareTo(T other) {
+		if (!(other instanceof FunctionName))
+			return other.getClass().getName().compareTo(this.getClass().getName());
+		return this.compareTo((FunctionName)other);
 	}
 
 	public String toString() {

@@ -35,12 +35,12 @@ public class ContractDeclarationParsingTests {
 
 	@Test
 	public void testParsingAContractDeclarationField() {
-		Object o = new MethodParser().tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().nested.get(0)));
+		Object o = new MethodParser(new State(null, null)).tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().nested.get(0)));
 		assertNotNull(o);
 		assertTrue(o instanceof ContractMethodDecl);
 		ContractMethodDecl cd = (ContractMethodDecl) o;
 		assertEquals("up", cd.dir);
-		assertEquals("call", cd.name);
+		assertEquals("call", cd.name.name);
 		assertEquals(1, cd.args.size());
 		Object patt = cd.args.get(0);
 		assertTrue(patt instanceof VarPattern);

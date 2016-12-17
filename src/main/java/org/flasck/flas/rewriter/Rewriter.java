@@ -1134,7 +1134,7 @@ public class Rewriter {
 		List<Object> args = new ArrayList<Object>();
 		List<Type> targs = new ArrayList<Type>(); 
 		for (Object o : cmd.args) {
-			args.add(rewritePattern(cx, new VarName(cmd.location(), name, cmd.name), o));
+			args.add(rewritePattern(cx, cmd.name, o));
 			if (o instanceof TypedPattern) {
 				targs.add(rewrite(cx, ((TypedPattern)o).type, false));
 			} else if (o instanceof ConstructorMatch) { // we can get this instead of a typed patter

@@ -37,4 +37,11 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	public int compareTo(PackageName o) {
 		return name.compareTo(o.name);
 	}
+	
+	@Override
+	public <T extends NameOfThing> int compareTo(T other) {
+		if (!(other instanceof PackageName))
+			return other.getClass().getName().compareTo(this.getClass().getName());
+		return this.compareTo((PackageName)other);
+	}
 }
