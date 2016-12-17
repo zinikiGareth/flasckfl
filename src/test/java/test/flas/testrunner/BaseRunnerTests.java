@@ -100,6 +100,20 @@ public abstract class BaseRunnerTests {
 		runner.match(WhatToMatch.COUNT, "div>span", "0");
 	}
 
+	@Test(expected=NotMatched.class)
+	public void testRunnerThrowsIfThereAreNoClassesButSomeExpected() throws Exception {
+		prepareRunner();
+		runner.createCardAs(cn, "q");
+		runner.match(WhatToMatch.CLASS, "div>span", "bright");
+	}
+
+	@Test
+	public void testRunnerDoesNotThrowIfThereAreNoClassesAndNoneWereExpected() throws Exception {
+		prepareRunner();
+		runner.createCardAs(cn, "q");
+		runner.match(WhatToMatch.CLASS, "div>span", "");
+	}
+
 	protected abstract void prepareRunner() throws IOException, ErrorResultException;
 	
 	protected FunctionCaseDefn function(String name, Object expr) {

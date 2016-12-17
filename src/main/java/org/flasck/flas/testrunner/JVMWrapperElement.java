@@ -18,4 +18,9 @@ public class JVMWrapperElement implements ElementWrapper {
 	public String getElement() {
 		return elt.outerHtml();
 	}
+
+	@Override
+	public String getAttribute(String name) {
+		return elt.attr(name);
+	}
 }

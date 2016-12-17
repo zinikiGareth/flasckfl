@@ -6,4 +6,6 @@ public interface ElementWrapper {
 
 	String getElement();
 
+	String getAttribute(String name);
+
 }

@@ -1,8 +1,8 @@
 package org.flasck.flas.testrunner;
 
+import java.util.Arrays;
 import java.util.List;
-
-import org.zinutils.exceptions.UtilException;
+import java.util.TreeSet;
 
 public enum WhatToMatch {
 	COUNT {
@@ -28,7 +28,17 @@ public enum WhatToMatch {
 	}, CLASS {
 		@Override
 		public void match(String selector, String expected, List<ElementWrapper> actual) throws NotMatched {
-			throw new UtilException("not implemented");
+			ElementWrapper elt = getElement(actual, selector);
+			String classes = elt.getAttribute("class");
+			TreeSet<String> classSet = new TreeSet<String>();
+			if (classes != null) {
+				classSet.addAll(Arrays.asList(classes.split(" ")));
+				classSet.removeIf(x->x.length() == 0);
+			}
+			TreeSet<String> expectedSet = new TreeSet<String>(Arrays.asList(expected.split(" ")));
+			expectedSet.removeIf(x->x.length() == 0);
+			if (!expectedSet.equals(classSet))
+				throw new NotMatched(selector, expectedSet.toString(), classSet.toString());
 		}
 	};
 
