@@ -14,7 +14,9 @@ import java.util.TreeMap;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.ConstPattern;
+import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NameOfThing;
@@ -160,6 +162,7 @@ public class Rewriter {
 	private final ErrorResult errors;
 	public final PackageFinder pkgFinder;
 	public final Map<String, Type> primitives = new TreeMap<String, Type>();
+	private final Map<String, Expr> constants = new TreeMap<>();
 	public final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	public final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
 	public final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
@@ -217,8 +220,12 @@ public class Rewriter {
 			if (name.equals("let"))
 				return new PackageVar(location, "let", null);
 			Object val = getMe(location, name);
-			if (val != null)
-				return val;
+			if (val != null) {
+				if (val instanceof PackageVar && ((PackageVar)val).defn instanceof BooleanLiteral) // possibly other cases - group with an appropriate interface
+					return ((PackageVar)val).defn;
+				else
+					return val;
+			}
 			if (name.contains(".")) {
 				int idx = name.lastIndexOf(".");
 				String pkgName = name.substring(0, idx);
@@ -601,6 +608,8 @@ public class Rewriter {
 					primitives.put(name, ty);
 				else
 					throw new UtilException("Cannot handle type of kind " + ty.iam);
+			} else if (val instanceof BooleanLiteral) {
+				constants.put(name, (Expr) val);
 			}
 		}
 	}
@@ -1505,7 +1514,7 @@ public class Rewriter {
 		if (expr == null)
 			return null;
 		try {
-			if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
+			if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof BooleanLiteral)
 				return expr;
 			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof ScopedVar || expr instanceof CardMember)
 				return expr;
@@ -1528,7 +1537,7 @@ public class Rewriter {
 				Object ret = cx.resolve(location, s);
 				if (ret == null)
 					ret = cx.resolve(location, s); // debug
-				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat)
+				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat || ret instanceof BooleanLiteral)
 					return ret;
 				else
 					throw new UtilException("cannot handle id " + s + ": " + (ret == null ? "null": ret.getClass()));
@@ -1740,6 +1749,8 @@ public class Rewriter {
 	protected Object doIhave(InputPosition location, String id) {
 		if (primitives.containsKey(id))
 			return primitives.get(id);
+		else if (constants.containsKey(id))
+			return constants.get(id);
 		else if (types.containsKey(id))
 			return types.get(id);
 		else if (structs.containsKey(id))

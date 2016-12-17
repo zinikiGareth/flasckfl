@@ -24,6 +24,7 @@ import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
@@ -145,6 +146,11 @@ public final class DroidAppendPush implements PushVisitor {
 	@Override
 	public Object visit(PushString ps) {
 		return meth.stringConst(ps.sval.text);
+	}
+
+	@Override
+	public Object visit(PushBool pb) {
+		return meth.boolConst(pb.bval.value());
 	}
 
 	@Override

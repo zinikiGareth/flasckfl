@@ -3,6 +3,7 @@ package org.flasck.flas.rewriter;
 import java.util.Set;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -69,6 +70,9 @@ public class GatherScopedVars {
 	}
 
 	public void process(NumericLiteral nl) {
+	}
+	
+	public void process(BooleanLiteral bl) {
 	}
 	
 	public void process(LocalVar lv) {

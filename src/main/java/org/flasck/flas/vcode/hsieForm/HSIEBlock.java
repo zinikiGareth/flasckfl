@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardStateRef;
@@ -81,6 +82,8 @@ public class HSIEBlock {
 			ret = new PushExternal(loc, (ExternalRef)o);
 		else if (o instanceof StringLiteral)
 			ret = new PushString(loc, (StringLiteral)o);
+		else if (o instanceof BooleanLiteral)
+			ret = new PushBool(loc, (BooleanLiteral)o);
 		else if (o instanceof TemplateListVar)
 			ret = new PushTLV(loc, (TemplateListVar)o);
 		else if (o instanceof FunctionLiteral)

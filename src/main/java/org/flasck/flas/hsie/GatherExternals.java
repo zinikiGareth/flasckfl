@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -149,6 +150,10 @@ public class GatherExternals {
 	}
 	
 	private void process(StringLiteral sl) {
+		// no externals here
+	}
+	
+	private void process(BooleanLiteral bl) {
 		// no externals here
 	}
 	

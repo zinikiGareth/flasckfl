@@ -41,6 +41,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
+import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushFunc;
@@ -979,6 +980,8 @@ public class TypeChecker2 {
 			return getTypeOf(cmd.location, "Number");
 		} else if (cmd instanceof PushString) {
 			return getTypeOf(cmd.location, "String");
+		} else if (cmd instanceof PushBool) {
+			return getTypeOf(cmd.location, "Boolean");
 		} else if (cmd instanceof PushCSR) {
 			if (form.inCard == null) {
 				form.dump(new PrintWriter(System.err));

@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
@@ -80,7 +81,7 @@ public class DependencyAnalyzer {
 	private void analyzeExpr(String name, Set<String> locals, Object expr) {
 		if (expr == null)
 			return;
-		if (expr instanceof NumericLiteral || expr instanceof StringLiteral)
+		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof BooleanLiteral)
 			;
 		else if (expr instanceof FunctionLiteral) {
 			String un = ((FunctionLiteral)expr).name;

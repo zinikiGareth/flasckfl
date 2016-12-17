@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
+import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.LocatedObject;
@@ -242,6 +243,10 @@ public class GenerateClosures {
 		return new LocatedObject(expr.location, expr);
 	}
 
+	public LocatedObject process(BooleanLiteral expr) {
+		return new LocatedObject(expr.location(), expr);
+	}
+
 	public LocatedObject process(ObjectReference expr) {
 		return new LocatedObject(expr.location(), expr);
 	}
@@ -283,8 +288,13 @@ public class GenerateClosures {
 				errors.message(ate.location(), "cannot assign a number to " + ate.type.name());
 			}
 			return conv;
+		} else if (conv.obj instanceof BooleanLiteral) {
+			if (!ate.type.name().equals("Boolean")) {
+				errors.message(ate.location(), "cannot assign a boolean to " + ate.type.name());
+			}
+			return conv;
 		} else
-			return new LocatedObject(conv.loc, new AssertTypeExpr(conv.loc, ate.type, conv.obj));
+			throw new UtilException("You haven't covered the case for " + conv.obj + (conv.obj != null ? " of " + conv.obj.getClass() : ""));
 	}
 
 	public LocatedObject process(SendExpr dse) {

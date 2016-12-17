@@ -1,6 +1,7 @@
 package org.flasck.flas.flim;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -39,6 +40,8 @@ public class Builtin {
 		{ // boolean logic
 			root.define("Boolean", bool);
 			root.define("==", fnhelper("==", Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), bool)); // Any -> Any -> Boolean
+			root.define("true", new BooleanLiteral(posn, true));
+			root.define("false", new BooleanLiteral(posn, false));
 		}
 		{ // math
 			root.define("Number", number);
