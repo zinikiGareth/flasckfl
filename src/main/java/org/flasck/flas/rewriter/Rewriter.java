@@ -527,8 +527,8 @@ public class Rewriter {
 			this.fromMethod = fromMethod;
 		}
 
-		public String name() {
-			return caseName.jsName();
+		public ScopeName name() {
+			return caseName;
 		}
 		
 		public Object resolve(InputPosition location, String name) {
@@ -1352,7 +1352,7 @@ public class Rewriter {
 	}
 
 	private RWFunctionCaseDefn rewrite(FunctionCaseContext cx, FunctionCaseDefn c, int csNo, Map<String, LocalVar> vars) {
-		RWFunctionIntro intro = rewrite(cx, c.intro, cx.name(), vars);
+		RWFunctionIntro intro = rewriteFunctionIntro(cx, c.intro, cx.name(), vars);
 		Object expr = rewriteExpr(cx, c.expr);
 		if (expr == null)
 			return null;
@@ -1362,17 +1362,25 @@ public class Rewriter {
 	}
 
 	private RWMethodCaseDefn rewrite(FunctionCaseContext cx, MethodCaseDefn c, Map<String, LocalVar> vars) {
-		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewrite(cx, c.intro, c.caseNameAsString(), vars));
+		RWMethodCaseDefn ret = new RWMethodCaseDefn(rewriteFunctionIntro(cx, c.intro, c.caseName(), vars));
 		for (MethodMessage mm : c.messages)
 			ret.addMessage(rewrite(cx, mm));
 		return ret;
 	}
 
 	private RWEventCaseDefn rewrite(FunctionCaseContext cx, EventCaseDefn c, Map<String, LocalVar> vars) {
-		RWEventCaseDefn ret = new RWEventCaseDefn(c.kw, rewrite(cx, c.intro, c.intro.name, vars));
+		RWEventCaseDefn ret = new RWEventCaseDefn(c.kw, rewriteFunctionIntro(cx, c.intro, c.intro.name(), vars));
 		for (MethodMessage mm : c.messages)
 			ret.messages.add(rewrite(cx, mm));
 		return ret;
+	}
+
+	private RWFunctionIntro rewriteFunctionIntro(NamingContext cx, FunctionIntro intro, NameOfThing csName, Map<String, LocalVar> vars) {
+		List<Object> args = new ArrayList<Object>();
+		for (Object o : intro.args) {
+			args.add(rewritePattern(cx, csName.jsName(), o));
+		}
+		return new RWFunctionIntro(intro.location, intro.name(), args, vars);
 	}
 
 	private void createD3Methods(D3Context c2, String prefix, D3Thing d3) {
@@ -1460,14 +1468,6 @@ public class Rewriter {
 		functions.put(d3f.fnName.jsName(), func);
 
 		return new FunctionLiteral(d3f.location, d3f.fnName.jsName());
-	}
-
-	private RWFunctionIntro rewrite(NamingContext cx, FunctionIntro intro, String csName, Map<String, LocalVar> vars) {
-		List<Object> args = new ArrayList<Object>();
-		for (Object o : intro.args) {
-			args.add(rewritePattern(cx, csName, o));
-		}
-		return new RWFunctionIntro(intro.location, intro.name(), args, vars);
 	}
 
 	public Object rewritePattern(NamingContext cx, String name, Object o) {
