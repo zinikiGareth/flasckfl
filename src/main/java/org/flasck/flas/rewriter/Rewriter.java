@@ -1038,15 +1038,8 @@ public class Rewriter {
 		} else if (tl instanceof D3Thing) {
 			D3Thing d3 = (D3Thing) tl;
 			D3Context c2 = new D3Context(cx, d3.d3.varLoc, d3.d3.iterVar);
-			
-			// Figure the correct prefix for the methods
-			String prefix = cx.cardName().jsName();
-			int idx = prefix.lastIndexOf(".");
-			if (prefix.charAt(idx+1) != '_')
-				prefix = prefix.substring(0, idx+1) + "_" + prefix.substring(idx+1);
-
 			RWD3Thing rwD3 = new RWD3Thing(c2.nextArea(), rewriteExpr(c2, d3.d3.expr));
-			createD3Methods(c2, prefix, d3);
+			createD3Methods(c2, cx.cardName(), d3);
 			d3s.add(rwD3);
 			return rwD3;
 		} else 
@@ -1374,7 +1367,7 @@ public class Rewriter {
 		return new RWFunctionIntro(intro.location, intro.name(), args, vars);
 	}
 
-	private void createD3Methods(D3Context c2, String prefix, D3Thing d3) {
+	private void createD3Methods(D3Context c2, CardName cardName, D3Thing d3) {
 		int nextFn = 1;
 		// TODO: we should figure out the right positions for everything labelled "hack" here :-)
 		InputPosition posn = new InputPosition("d3", 1, 1, null);
@@ -1396,7 +1389,7 @@ public class Rewriter {
 						Object expr = rewriteExpr(c2, prop.value);
 						// TODO: only create functions for things that depend on the class
 						// constants can just be used directly
-						FunctionLiteral efn = functionWithArgs(c2.cardNameIfAny(), prefix, nextFn++, CollectionUtils.listOf(new RWTypedPattern(d3.d3.varLoc, d3Elt, d3.d3.varLoc, d3.d3.iterVar)), expr);
+						FunctionLiteral efn = functionWithArgs(cardName, nextFn++, CollectionUtils.listOf(new RWTypedPattern(d3.d3.varLoc, d3Elt, d3.d3.varLoc, d3.d3.iterVar)), expr);
 						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
 						pl = new ApplyExpr(prop.location, cons, pair, pl);
 					}
@@ -1430,7 +1423,7 @@ public class Rewriter {
 		}
 
 		Locatable dataExpr = (Locatable) rewriteExpr(c2, d3.d3.expr);
-		FunctionLiteral dataFn = functionWithArgs(c2.cardNameIfAny(), prefix, nextFn++, new ArrayList<Object>(), dataExpr);
+		FunctionLiteral dataFn = functionWithArgs(cardName, nextFn++, new ArrayList<Object>(), dataExpr);
 		init = new ApplyExpr(dataExpr.location(), assoc, new StringLiteral(dataExpr.location(), "data"), dataFn, init);
 
 		FunctionName name = FunctionName.functionInCardContext(d3.d3.varLoc, c2.cardNameIfAny(), "_d3init_" + d3.d3.name);
@@ -1448,7 +1441,7 @@ public class Rewriter {
 		return ret;
 	}
 
-	private FunctionLiteral functionWithArgs(CardName inCard, final String prefix, final int nextFn, List<Object> args, Object expr) {
+	private FunctionLiteral functionWithArgs(CardName inCard, final int nextFn, List<Object> args, Object expr) {
 		String name = "_gen_" + nextFn;
 
 		InputPosition loc = ((Locatable)expr).location(); // may or may not be correct location
