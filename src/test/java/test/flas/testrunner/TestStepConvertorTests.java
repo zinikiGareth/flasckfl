@@ -101,6 +101,41 @@ public class TestStepConvertorTests {
 	}
 
 	@Test
+	public void testWeCanConvertMatchNoClasses() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		context.checking(new Expectations() {{
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(""));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("matchClass div"), Arrays.asList());
+	}
+
+	@Test
+	public void testWeCanConvertMatchOneClass() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		String matchingText = "show";
+		context.checking(new Expectations() {{
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(matchingText));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("matchClass div"), Arrays.asList(new Block(3, matchingText)));
+	}
+
+	@Test
+	public void testWeCanConvertMatchTwoClass() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		String matchingText = "show bright";
+		context.checking(new Expectations() {{
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(matchingText));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("matchClass div"), Arrays.asList(new Block(3, matchingText)));
+	}
+
+	@Test
 	public void testWeCanConvertMatchCount() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		String matchingText = "0";

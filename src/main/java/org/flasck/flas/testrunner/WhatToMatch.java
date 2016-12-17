@@ -2,6 +2,8 @@ package org.flasck.flas.testrunner;
 
 import java.util.List;
 
+import org.zinutils.exceptions.UtilException;
+
 public enum WhatToMatch {
 	COUNT {
 		@Override
@@ -22,6 +24,11 @@ public enum WhatToMatch {
 			String html = getElement(actual, selector).getContents();
 			if (!expected.equals(html))
 				throw new NotMatched(selector, expected, html);
+		}
+	}, CLASS {
+		@Override
+		public void match(String selector, String expected, List<ElementWrapper> actual) throws NotMatched {
+			throw new UtilException("not implemented");
 		}
 	};
 
