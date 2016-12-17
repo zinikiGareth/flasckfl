@@ -2,6 +2,7 @@ package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.types.Type;
 
@@ -13,10 +14,10 @@ public class LocalVar implements Locatable {
 	public final InputPosition typeLoc;
 	public final Type type;
 
-	public LocalVar(FunctionName fnName, String caseName, InputPosition varLoc, String var, InputPosition typeLoc, Type type) {
+	public LocalVar(FunctionName fnName, NameOfThing caseName, InputPosition varLoc, String var, InputPosition typeLoc, Type type) {
 		this.fnName = fnName;
 		this.varLoc = varLoc;
-		this.caseName = caseName;
+		this.caseName = caseName.jsName();
 		this.var = var;
 		this.typeLoc = typeLoc;
 		this.type = type;

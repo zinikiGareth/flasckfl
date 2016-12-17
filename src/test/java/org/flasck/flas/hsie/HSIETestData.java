@@ -14,6 +14,7 @@ import java.util.Set;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
@@ -217,7 +218,7 @@ public class HSIETestData {
 		ArrayList<Object> externals = new ArrayList<Object>();
 		externals.add("*");
 		FunctionName fn = FunctionName.function(posn, new PackageName("ME"), "f");
-		externals.add(new ScopedVar(posn, "ME.f_0.x", new LocalVar(fn, "ME.f_0", posn, "x", null, null), fn));
+		externals.add(new ScopedVar(posn, "ME.f_0.x", new LocalVar(fn, new ScopeName(fn, "0"), posn, "x", null, null), fn));
 		return thingy("ME.f_0.g", 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
@@ -279,7 +280,7 @@ public class HSIETestData {
 		ArrayList<Object> externals = new ArrayList<Object>();
 		externals.add("*");
 		FunctionName fn = FunctionName.function(posn, new PackageName("ME"), "f");
-		externals.add(new ScopedVar(posn, "ME.f_0.q", new LocalVar(fn, "ME.f_0", posn, "q", null, null), fn));
+		externals.add(new ScopedVar(posn, "ME.f_0.q", new LocalVar(fn, new ScopeName(fn, "0"), posn, "q", null, null), fn));
 		return thingy("ME.f_0.g", 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",

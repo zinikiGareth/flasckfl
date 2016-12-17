@@ -17,6 +17,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -1277,7 +1278,7 @@ public class Rewriter {
 	public void rewrite(NamingContext cx, FunctionCaseDefn c) {
 		RWFunctionDefinition ret = functions.get(c.functionNameAsString());
 		final Map<String, LocalVar> vars = new HashMap<>();
-		gatherVars(errors, this, cx, c.functionName(), c.caseNameAsString(), vars, c.intro);
+		gatherVars(errors, this, cx, c.functionName(), c.caseName(), vars, c.intro);
 		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);
 		RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
 		if (rwc == null)
@@ -1294,7 +1295,7 @@ public class Rewriter {
 	
 	protected void rewriteCase(NamingContext cx, RWMethodDefinition rm, MethodCaseDefn c, boolean fromHandler, boolean useCases) {
 		Map<String, LocalVar> vars = new HashMap<>();
-		String name = useCases ? c.caseNameAsString() : c.methodNameAsString();
+		NameOfThing name = useCases ? c.caseName() : c.methodName();
 		gatherVars(errors, this, cx, c.methodName(), name, vars, c.intro);
 		rm.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), fromHandler), c, vars));
 	}
@@ -1302,7 +1303,7 @@ public class Rewriter {
 	private void rewrite(NamingContext cx, EventCaseDefn c) {
 		RWEventHandlerDefinition rw = eventHandlers.get(c.intro.name);
 		Map<String, LocalVar> vars = new HashMap<>();
-		gatherVars(errors, this, cx, rw.name(), rw.name().jsName(), vars, c.intro);
+		gatherVars(errors, this, cx, rw.name(), rw.name(), vars, c.intro);
 		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), false), c, vars));
 	}
 
@@ -1676,7 +1677,7 @@ public class Rewriter {
 		}
 	}
 
-	public void gatherVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, FunctionName fnName, String caseName, Map<String, LocalVar> into, FunctionIntro fi) {
+	public void gatherVars(ErrorResult errors, Rewriter rewriter, Rewriter.NamingContext cx, FunctionName fnName, NameOfThing caseName, Map<String, LocalVar> into, FunctionIntro fi) {
 		for (int i=0;i<fi.args.size();i++) {
 			Object arg = fi.args.get(i);
 			if (arg instanceof VarPattern) {
@@ -1702,7 +1703,7 @@ public class Rewriter {
 		}
 	}
 
-	private void gatherCtor(ErrorResult errors, NamingContext cx, FunctionName fnName, String caseName, Map<String, LocalVar> into, ConstructorMatch cm) {
+	private void gatherCtor(ErrorResult errors, NamingContext cx, FunctionName fnName, NameOfThing caseName, Map<String, LocalVar> into, ConstructorMatch cm) {
 		// NOTE: I am deliberately NOT returning any errors here because I figure this should already have been checked for validity somewhere else
 		// But this (albeit, defensively) assumes that cm.ctor is a struct defn and that it has the defined fields 
 		for (Field x : cm.args) {
