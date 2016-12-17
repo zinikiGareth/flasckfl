@@ -259,11 +259,11 @@ public class MethodConvertor {
 					for (int i=0;t == null && i<margs.size();i++) {
 						if (margs.get(i) instanceof RWTypedPattern && ((RWTypedPattern)margs.get(i)).var.equals(m))
 							t = ((RWTypedPattern)margs.get(i)).type;
-						else if (margs.get(i) instanceof RWVarPattern && ((RWVarPattern)margs.get(i)).var.equals(m))
+						else if (margs.get(i) instanceof RWVarPattern && ((RWVarPattern)margs.get(i)).var.jsName().equals(m))
 							t = types.get(i);
 					}
 					if (t == null)
-						throw new UtilException("Can't handle this case yet (but I think it's an error)");
+						throw new UtilException("Can't handle this case yet (but I think it's an error): " + m + " not in " + margs);
 					if (t instanceof TypeWithMethods)
 						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) t, lv, method, args);
 				}

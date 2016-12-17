@@ -27,12 +27,12 @@ public class CurrentFunction {
 	public void subst(String varToSubst, VarInSource var) {
 		if (substs.containsKey(varToSubst))
 			throw new HSIEException(var.loc, "duplicate var in patterns: " + varToSubst);
-		Branching.logger.info("Defining " + varToSubst + " as " + var);
+		Branching.logger.info("Defining subst " + varToSubst + " as " + var);
 		substs.put(varToSubst, var);
 	}
 
 	public void mapVar(String id, VarInSource cov) {
-		Branching.logger.info("Defining " + id + " as " + cov);
+		Branching.logger.info("Defining mapvar " + id + " as " + cov);
 		substs.put(id, cov);
 	}
 

@@ -1,6 +1,7 @@
 package org.flasck.flas.parsedForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.VarName;
 
 public class D3Intro {
 	public final InputPosition kw;
@@ -8,9 +9,9 @@ public class D3Intro {
 	public final String name;
 	public final Object expr;
 	public final InputPosition varLoc;
-	public final String iterVar;
+	public final VarName iterVar;
 
-	public D3Intro(InputPosition kw, InputPosition location, String name, Object object, InputPosition varLoc, String iterVar) {
+	public D3Intro(InputPosition kw, InputPosition location, String name, Object object, InputPosition varLoc, VarName iterVar) {
 		this.kw = kw;
 		this.nameLoc = location;
 		this.name = name;
@@ -21,6 +22,6 @@ public class D3Intro {
 
 	@Override
 	public String toString() {
-		return "D3[" + name +","+ expr +"," + iterVar +"]";
+		return "D3[" + name +","+ expr +"," + iterVar.jsName() +"]";
 	}
 }

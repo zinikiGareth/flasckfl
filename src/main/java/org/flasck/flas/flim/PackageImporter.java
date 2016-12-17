@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
@@ -102,11 +103,12 @@ public class PackageImporter {
 			} else if (p.parent instanceof RWContractDecl) {
 				RWContractDecl cd = (RWContractDecl) p.parent;
 				for (XMLElement cme : p.children) {
+					FunctionName fn = FunctionName.functionInCardContext(location(cme), new CardName(packageName, cd.name()), cme.required("name"));
 					List<Object> args = new ArrayList<Object>();
 					List<Type> types = new ArrayList<Type>();
 					for (XMLElement pe : cme.elementChildren()) {
 						if (pe.hasTag("Typed")) {
-							RWTypedPattern tp = new RWTypedPattern(location(pe), getUniqueNestedType(rw, location(pe, "v"), pe), location(pe, "v"), pe.required("var"));
+							RWTypedPattern tp = new RWTypedPattern(location(pe), getUniqueNestedType(rw, location(pe, "v"), pe), location(pe, "v"), new VarName(location(pe, "v"), fn, pe.required("var")));
 							args.add(tp);
 							types.add(tp.type);
 						} else

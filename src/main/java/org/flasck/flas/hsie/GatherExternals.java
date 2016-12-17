@@ -59,7 +59,7 @@ public class GatherExternals {
 		try {
 			Reflection.call(this, "process", a);
 		} catch (UtilException ex) {
-			System.out.println("Process: " + a.getClass());
+			System.out.println("Error during processing of: " + a.getClass());
 			throw ex;
 		}
 	}

@@ -12,12 +12,12 @@ public class ContractDecl implements Locatable {
 	public final transient boolean generate;
 	public final InputPosition kw;
 	private final InputPosition loc;
-	private String contractName;
+	private StructName contractName;
 
 	public ContractDecl(InputPosition kw, InputPosition location, StructName structName) {
 		this.kw = kw;
 		this.loc = location;
-		this.contractName = structName.jsName();
+		this.contractName = structName;
 		this.generate = true;
 	}
 
@@ -26,7 +26,12 @@ public class ContractDecl implements Locatable {
 		return loc;
 	}
 	
+	@Deprecated
 	public String name() {
+		return contractName.jsName();
+	}
+
+	public StructName nameAsName() {
 		return contractName;
 	}
 

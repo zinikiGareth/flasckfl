@@ -132,12 +132,12 @@ function test.golden.TestCard._d3init_chart test.golden.TestCard 0
           PackageVar.NilMap
 function test.golden.TestCard._gen_1 test.golden.TestCard 1
   case test.golden.TestCard._gen_1_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     "red"
 function test.golden.TestCard._gen_10 test.golden.TestCard 1
   case test.golden.TestCard._gen_10_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     @
       PackageVar.FLEval.field
@@ -145,17 +145,17 @@ function test.golden.TestCard._gen_10 test.golden.TestCard 1
       "data"
 function test.golden.TestCard._gen_11 test.golden.TestCard 1
   case test.golden.TestCard._gen_11_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     "middle"
 function test.golden.TestCard._gen_12 test.golden.TestCard 1
   case test.golden.TestCard._gen_12_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     20
 function test.golden.TestCard._gen_13 test.golden.TestCard 1
   case test.golden.TestCard._gen_13_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     @
       PackageVar.+
@@ -169,7 +169,7 @@ function test.golden.TestCard._gen_13 test.golden.TestCard 1
       10
 function test.golden.TestCard._gen_14 test.golden.TestCard 1
   case test.golden.TestCard._gen_14_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     @
       PackageVar.+
@@ -190,7 +190,7 @@ function test.golden.TestCard._gen_15 test.golden.TestCard 0
     CardMember.CardMember[test.golden.TestCard.data]
 function test.golden.TestCard._gen_2 test.golden.TestCard 1
   case test.golden.TestCard._gen_2_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     @
       PackageVar.*
@@ -201,12 +201,12 @@ function test.golden.TestCard._gen_2 test.golden.TestCard 1
         "data"
 function test.golden.TestCard._gen_3 test.golden.TestCard 1
   case test.golden.TestCard._gen_3_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     20
 function test.golden.TestCard._gen_4 test.golden.TestCard 1
   case test.golden.TestCard._gen_4_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     @
       PackageVar.*
@@ -217,7 +217,7 @@ function test.golden.TestCard._gen_4 test.golden.TestCard 1
         "idx"
 function test.golden.TestCard._gen_5 test.golden.TestCard 1
   case test.golden.TestCard._gen_5_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     @
       PackageVar.-
@@ -231,22 +231,22 @@ function test.golden.TestCard._gen_5 test.golden.TestCard 1
           "data"
 function test.golden.TestCard._gen_6 test.golden.TestCard 1
   case test.golden.TestCard._gen_6_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     "black"
 function test.golden.TestCard._gen_7 test.golden.TestCard 1
   case test.golden.TestCard._gen_7_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     "sans-serif"
 function test.golden.TestCard._gen_8 test.golden.TestCard 1
   case test.golden.TestCard._gen_8_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     "11px"
 function test.golden.TestCard._gen_9 test.golden.TestCard 1
   case test.golden.TestCard._gen_9_0
-    typed D3Element[A] elt
+    typed D3Element[A] test.golden.TestCard.elt
   =
     @
       PackageVar.*

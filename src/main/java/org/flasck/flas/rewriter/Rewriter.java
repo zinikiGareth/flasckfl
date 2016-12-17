@@ -28,6 +28,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.errors.ErrorResult;
@@ -474,9 +475,9 @@ public class Rewriter {
 	public class D3Context extends NamingContext {
 		private final IterVar iterVar;
 
-		public D3Context(TemplateContext cx, InputPosition location, String iv) {
+		public D3Context(TemplateContext cx, InputPosition location, VarName iv) {
 			super(cx);
-			this.iterVar = new IterVar(location, ((TemplateContext)cx.nested).cardNameAsString(), iv);
+			this.iterVar = new IterVar(location, ((TemplateContext)cx.nested).cardNameAsString(), iv.var);
 		}
 		
 		@Override
@@ -1142,15 +1143,15 @@ public class Rewriter {
 	private void rewrite(NamingContext cx, ContractDecl ctr) {
 		RWContractDecl ret = contracts.get(ctr.name());
 		for (ContractMethodDecl cmd : ctr.methods) {
-			ret.addMethod(rewrite(cx, ctr.name(), cmd));
+			ret.addMethod(rewriteCMD(cx, ctr.nameAsName(), cmd));
 		}
 	}
 
-	private RWContractMethodDecl rewrite(NamingContext cx, String name, ContractMethodDecl cmd) {
+	private RWContractMethodDecl rewriteCMD(NamingContext cx, StructName name, ContractMethodDecl cmd) {
 		List<Object> args = new ArrayList<Object>();
 		List<Type> targs = new ArrayList<Type>(); 
 		for (Object o : cmd.args) {
-			args.add(rewritePattern(cx, name + "." + cmd.name, o));
+			args.add(rewritePattern(cx, new VarName(cmd.location(), name, cmd.name), o));
 			if (o instanceof TypedPattern) {
 				targs.add(rewrite(cx, ((TypedPattern)o).type, false));
 			} else if (o instanceof ConstructorMatch) { // we can get this instead of a typed patter
@@ -1378,7 +1379,7 @@ public class Rewriter {
 	private RWFunctionIntro rewriteFunctionIntro(NamingContext cx, FunctionIntro intro, NameOfThing csName, Map<String, LocalVar> vars) {
 		List<Object> args = new ArrayList<Object>();
 		for (Object o : intro.args) {
-			args.add(rewritePattern(cx, csName.jsName(), o));
+			args.add(rewritePattern(cx, csName, o));
 		}
 		return new RWFunctionIntro(intro.location, intro.name(), args, vars);
 	}
@@ -1470,17 +1471,17 @@ public class Rewriter {
 		return new FunctionLiteral(d3f.location, d3f.fnName.jsName());
 	}
 
-	public Object rewritePattern(NamingContext cx, String name, Object o) {
+	public Object rewritePattern(NamingContext cx, NameOfThing name, Object o) {
 		try {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;
-				String vn = name + "." + tp.var;
+				VarName vn = new VarName(tp.varLocation, name, tp.var);
 				Type rt = rewrite(cx, tp.type, false);
-				fnArgs.put(vn, rt);
+				fnArgs.put(vn.jsName(), rt);
 				return new RWTypedPattern(tp.typeLocation, rt, tp.varLocation, vn);
 			} else if (o instanceof VarPattern) {
 				VarPattern vp = (VarPattern) o;
-				return new RWVarPattern(vp.location(), name + "." + vp.var);
+				return new RWVarPattern(vp.location(), new VarName(vp.varLoc, name, vp.var));
 			} else if (o instanceof ConstructorMatch) {
 				ConstructorMatch cm = (ConstructorMatch) o;
 				Object type = cx.resolve(cm.location, cm.ctor);
@@ -1871,7 +1872,7 @@ public class Rewriter {
 
 	private void writeArgumentTo(Indenter pw, Object a) {
 		if (a instanceof RWVarPattern) {
-			pw.println("var " + ((RWVarPattern)a).var);
+			pw.println("var " + ((RWVarPattern)a).var.jsName());
 		} else if (a instanceof RWTypedPattern) {
 			RWTypedPattern tp = (RWTypedPattern)a;
 			pw.println("typed " + tp.type + " " + tp.var);

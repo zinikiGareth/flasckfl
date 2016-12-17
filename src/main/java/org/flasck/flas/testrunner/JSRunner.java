@@ -46,7 +46,6 @@ public class JSRunner implements TestRunner {
 
 	public class SetTimeout {
 		public void callAsync(final JSObject fn) {
-			System.out.println("set timeout called");
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {

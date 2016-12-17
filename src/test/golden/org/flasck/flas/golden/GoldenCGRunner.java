@@ -574,7 +574,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpList(pw, d3.patterns);
 		} else if (obj instanceof D3Intro) {
 			D3Intro d3 = (D3Intro) obj;
-			pw.print("d3 " + d3.name + " " + d3.iterVar);
+			pw.print("d3 " + d3.name + " " + d3.iterVar.var);
 			dumpPosition(pw, d3.kw, false);
 			dumpPosition(pw, d3.nameLoc, false);
 			dumpPosition(pw, d3.varLoc, true);

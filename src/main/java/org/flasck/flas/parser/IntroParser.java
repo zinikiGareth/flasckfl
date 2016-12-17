@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -141,7 +142,7 @@ public class IntroParser implements TryParsing {
 			if (var == null)
 				return ErrorResult.oneMessage(line, "invalid D3 expression");
 			
-			return new D3Intro(kw.location, tok.location, tok.text, expr, var.location, var.text);
+			return new D3Intro(kw.location, tok.location, tok.text, expr, var.location, new VarName(var.location, state.pkgName, var.text));
 		}
 		case "implements": {
 			TypeNameToken tn = QualifiedTypeNameToken.from(line);

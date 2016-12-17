@@ -143,7 +143,7 @@ public class GenerateClosures {
 		try {
 			return Reflection.call(this, "process", expr);
 		} catch (UtilException ex) {
-			System.out.println("Process: " + expr.getClass());
+			System.out.println("Error during closure generation of: " + expr.getClass());
 			throw ex;
 		}
 	}
@@ -204,7 +204,7 @@ public class GenerateClosures {
 	}
 
 	public LocatedObject process(IterVar expr) {
-		String var = expr.var;
+		String var = expr.uniqueName();
 		if (!substs.containsKey(var))
 			throw new UtilException("How can this be an iter var? " + var + " not in " + substs);
 		return new LocatedObject(expr.location, substs.get(var));
