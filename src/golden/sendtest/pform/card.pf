@@ -1,0 +1,29 @@
+package test.golden
+  cdecl test.golden.SetState @{1:0|contract} @{1:9|SetState}
+    required down setOn @{2:0|down} @{2:5|setOn}
+    required down setOff @{3:0|down} @{3:5|setOff}
+  card test.golden.ControlledCard @{5:0|card} @{5:5|ControlledCard}
+    state @{6:0|state}
+      sayHello @{7:8|sayHello}
+        Boolean @{7:0|Boolean}
+    template @{9:0|template} @{null}
+      '' hello @{10:0|'hello'}
+        <apply> @{10:11|styleIf 'show' sayHello}
+          styleIf @{10:11|styleIf}
+          '' show @{10:19|'show'}
+          sayHello @{10:26|sayHello}
+    implements SetState @{12:0|implements} @{12:11|SetState}
+      method test.golden.ControlledCard._C0.setOn @{13:0|setOn}
+        assign sayHello <- @{14:0|sayHello} @{14:9|<-}
+          true @{14:12|true}
+      method test.golden.ControlledCard._C0.setOff @{15:0|setOff}
+        assign sayHello <- @{16:0|sayHello} @{16:9|<-}
+          false @{16:12|false}
+    test.golden.ControlledCard.styleIf @{18:0|styleIf}
+      [var] style @{18:8|style}
+      [var] b @{18:14|b}
+     =
+      if b
+        style @{19:9|style}
+      else
+        ''  @{20:7|''}

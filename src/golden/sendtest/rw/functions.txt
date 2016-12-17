@@ -1,0 +1,43 @@
+function test.golden.ControlledCard._C0.setOff test.golden.ControlledCard 0
+  case test.golden.ControlledCard._C0.setOff_0
+  =
+    @
+      PackageVar.Cons
+      @
+        PackageVar.Assign
+        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this._card
+        "sayHello"
+        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Boolean false)
+      PackageVar.Nil
+function test.golden.ControlledCard._C0.setOn test.golden.ControlledCard 0
+  case test.golden.ControlledCard._C0.setOn_0
+  =
+    @
+      PackageVar.Cons
+      @
+        PackageVar.Assign
+        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this._card
+        "sayHello"
+        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Boolean true)
+      PackageVar.Nil
+function test.golden.ControlledCard.styleIf test.golden.ControlledCard 2
+  case test.golden.ControlledCard.styleIf_0
+    var test.golden.ControlledCard.styleIf_0.style
+    var test.golden.ControlledCard.styleIf_0.b
+  =
+    if
+      LocalVar.test.golden.ControlledCard.styleIf_0.b
+    then
+      LocalVar.test.golden.ControlledCard.styleIf_0.style
+    else
+      ""
+function test.golden._ControlledCard.B1.formats_0 test.golden.ControlledCard 0
+  case test.golden._ControlledCard.B1.formats_0_0
+  =
+    @
+      PackageVar.Cons
+      @
+        CardFunction.test.golden.ControlledCard.styleIf
+        "show"
+        CardMember.CardMember[test.golden.ControlledCard.sayHello]
+      PackageVar.Nil

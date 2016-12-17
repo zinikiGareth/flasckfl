@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Contract file="card.fl" line="1" name="test.golden.SetState" off="9">
+        <Method dir="down" file="card.fl" line="2" name="setOn" off="5" required="true"/>
+        <Method dir="down" file="card.fl" line="3" name="setOff" off="5" required="true"/>
+    </Contract>
+    <Card file="card.fl" line="5" name="test.golden.ControlledCard" off="5">
+        <Implements contract="test.golden.SetState"/>
+    </Card>
+</FLIM>

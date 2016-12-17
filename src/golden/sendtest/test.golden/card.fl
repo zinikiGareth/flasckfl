@@ -1,0 +1,21 @@
+	contract SetState
+		down setOn
+		down setOff
+
+	card ControlledCard
+		state
+			Boolean sayHello
+			
+		template
+			'hello' : (styleIf 'show' sayHello)
+		
+		implements SetState
+			setOn
+				sayHello <- true 
+			setOff
+				sayHello <- false 
+
+		styleIf style b
+			if (b) = style
+			else = ''
+		

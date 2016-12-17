@@ -1,0 +1,4 @@
+test.golden.ControlledCard._C0.setOff :: Cons[Assign]
+test.golden.ControlledCard._C0.setOn :: Cons[Assign]
+test.golden.ControlledCard.styleIf :: String->A->String
+test.golden._ControlledCard.B1.formats_0 :: Cons[String]
