@@ -7,7 +7,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.StructName;
-import org.flasck.flas.stories.FLASStory.State;
 
 public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	public StateDefinition state;
@@ -24,7 +23,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 		this.name = tn.jsName();
 		this.generate = generate;
 		this.polys = polys;
-		outer.define(State.simpleName(name), this);
+		outer.define(tn.baseName(), this);
 		this.innerScope = new Scope(tn);
 	}
 

@@ -11,6 +11,10 @@ public class StructName implements NameOfThing {
 		this.name = name;
 	}
 
+	public String baseName() {
+		return name;
+	}
+	
 	@Override
 	public String jsName() {
 		if (container == null || container.jsName() == null || container.jsName().length() == 0)

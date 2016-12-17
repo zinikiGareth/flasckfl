@@ -134,11 +134,6 @@ public class FLASStory {
 			return new State(scope, pkgName, newKind);
 		}
 		
-		public static String simpleName(String key) {
-			int idx = key.lastIndexOf(".");
-			return key.substring(idx+1);
-		}
-		
 		public StructName structName(String text) {
 			return new StructName(pkgName, text);
 		}
@@ -221,31 +216,31 @@ public class FLASStory {
 					TupleAssignment ta = (TupleAssignment) o;
 					int k=0;
 					for (LocatedName x : ta.vars) {
-						FunctionName f = s.functionName(new ValidIdentifierToken(x.location, x.text, -1));
 						ret.define(x.text, new TupleMember(x.location, ta, k++));
 					}
 					// I don't think we need to do anything here, but if recursion is called for, we probably have a scope
 				} else if (o instanceof StructDefn) {
 					StructDefn sd = (StructDefn)o;
-					ret.define(State.simpleName(sd.name()), sd);
+					ret.define(sd.structName.baseName(), sd);
 					doStructFields(er, sd, b.nested);
 				} else if (o instanceof ObjectDefn) {
 					ObjectDefn od = (ObjectDefn)o;
 					doObjectMembers(er, s, od, b.nested);
 				} else if (o instanceof ContractDecl) {
 					ContractDecl cd = (ContractDecl) o;
-					if (ret.contains(cd.name()))
-						er.message(b, "duplicate definition for name " + cd.name());
+					StructName name = cd.nameAsName();
+					if (ret.contains(name.baseName()))
+						er.message(b, "duplicate definition for name " + name.baseName());
 					else
-						ret.define(State.simpleName(cd.name()), cd);
+						ret.define(name.baseName(), cd);
 					doContractMethods(er, cd, b.nested);
 				} else if (o instanceof CardDefinition) {
 					CardDefinition cd = (CardDefinition) o;
 					doCardDefinition(er, s.nestCard(cd.innerScope(), cd.cardName), cd, b.nested);
 				} else if (o instanceof HandlerImplements) {
 					HandlerImplements hi = (HandlerImplements)o;
-					ret.define(State.simpleName(hi.hiName), hi);
-					doImplementation(s, er, hi, b.nested, State.simpleName(hi.hiName));
+					ret.define(hi.baseName, hi);
+					doImplementation(s, er, hi, b.nested, hi.baseName);
 				} else if (o instanceof ContractImplements) {
 					er.message(((ContractImplements) o).location(), "implements cannot appear at the top level");
 				} else
@@ -490,7 +485,7 @@ public class FLASStory {
 			} else if (o instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements)o;
 				cd.addHandlerImplementation(hi);
-				doImplementation(s, er, hi, b.nested, State.simpleName(hi.hiName));
+				doImplementation(s, er, hi, b.nested, hi.baseName);
 			} else if (o instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fcd = (FunctionCaseDefn) o;
 				inner.define(fcd.functionName().name, fcd);
