@@ -41,11 +41,6 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 		return intro.args.size();
 	}
 
-	@Deprecated
-	public String functionNameAsString() {
-		return intro.name;
-	}
-	
 	public FunctionName functionName() {
 		return intro.name();
 	}
@@ -55,13 +50,6 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 		this.scope = new Scope(this.caseName);
 	}
 
-	@Deprecated
-	public String caseNameAsString() {
-		if (caseName == null)
-			throw new UtilException("Asked for caseName when none provided");
-		return caseName.jsName();
-	}
-	
 	public ScopeName caseName() {
 		if (caseName == null)
 			throw new UtilException("Asked for caseName when none provided");

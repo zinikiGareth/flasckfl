@@ -26,11 +26,6 @@ public class EventCaseDefn implements Locatable, MessagesHandler, ContainsScope 
 		return intro.location;
 	}
 
-	@Deprecated
-	public String methodNameAsString() {
-		return intro.name;
-	}
-	
 	public FunctionName methodName() {
 		return intro.name();
 	}

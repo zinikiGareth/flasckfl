@@ -26,11 +26,6 @@ public class ContractDecl implements Locatable {
 		return loc;
 	}
 	
-	@Deprecated
-	public String name() {
-		return contractName.jsName();
-	}
-
 	public StructName nameAsName() {
 		return contractName;
 	}
@@ -41,6 +36,6 @@ public class ContractDecl implements Locatable {
 	
 	@Override
 	public String toString() {
-		return "contract " + name();
+		return "contract " + contractName.jsName();
 	}
 }

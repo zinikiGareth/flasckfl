@@ -412,16 +412,6 @@ public class Rewriter {
 			this.nextAreaNo = -1;
 		}
 
-		@Deprecated
-		public String cardNameAsString() {
-			if (nested instanceof CardContext) {
-				return ((CardContext)nested).cardName.jsName();
-			} else if (nested instanceof TemplateContext)
-				return ((TemplateContext)nested).cardNameAsString();
-			else
-				throw new UtilException("Cannot handle " + nested.getClass());
-		}
-		
 		public CardName cardName() {
 			if (nested instanceof CardContext) {
 				return ((CardContext)nested).cardName;
@@ -477,7 +467,7 @@ public class Rewriter {
 
 		public D3Context(TemplateContext cx, InputPosition location, VarName iv) {
 			super(cx);
-			this.iterVar = new IterVar(location, ((TemplateContext)cx.nested).cardNameAsString(), iv.var);
+			this.iterVar = new IterVar(location, ((TemplateContext)cx.nested).cardName(), iv.var);
 		}
 		
 		@Override
@@ -651,7 +641,7 @@ public class Rewriter {
 				pass1(new CardContext((PackageContext) cx, cg.name(), cd, false), cd.fnScope);
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
-				String fn = c.functionNameAsString();
+				String fn = c.functionName().jsName();
 				if (functions.containsKey(fn)) {
 					RWFunctionDefinition ret = functions.get(fn);
 					if (prev != null && !prev.equals(name))
@@ -667,7 +657,7 @@ public class Rewriter {
 				pass1(new Pass1ScopeContext(cx), c.innerScope());
 			} else if (val instanceof MethodCaseDefn) {
 				MethodCaseDefn m = (MethodCaseDefn) val;
-				String mn = m.methodNameAsString();
+				String mn = m.methodName().jsName();
 				if (methods.containsKey(mn)) {
 					RWMethodDefinition ret = methods.get(mn);
 					if (prev != null && !prev.equals(name))
@@ -681,7 +671,7 @@ public class Rewriter {
 				pass1(cx, m.innerScope());
 			} else if (val instanceof EventCaseDefn) {
 				EventCaseDefn ehd = (EventCaseDefn) val;
-				String mn = ehd.methodNameAsString();
+				String mn = ehd.methodName().jsName();
 				if (eventHandlers.containsKey(mn)) {
 					RWEventHandlerDefinition rw = eventHandlers.get(mn);
 					if (prev != null && !prev.equals(name))
@@ -703,7 +693,7 @@ public class Rewriter {
 				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.name(), rewritePolys(ud.polys())));
 			} else if (val instanceof ContractDecl) {
 				ContractDecl ctr = (ContractDecl)val;
-				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.name(), true);
+				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.nameAsName().jsName(), true);
 				contracts.put(name, ret);
 			} else if (val instanceof ObjectDefn) {
 				ObjectDefn od = (ObjectDefn)val;
@@ -1034,7 +1024,7 @@ public class Rewriter {
 			functions.put(fnName.jsName(), fn);
 			fn.gatherScopedVars();
 
-			TemplateListVar rwv = ul.iterVar == null ? null : new TemplateListVar(ul.iterLoc, fnName, (String) ul.iterVar, cx.cardNameAsString() + "." + (String) ul.iterVar);
+			TemplateListVar rwv = ul.iterVar == null ? null : new TemplateListVar(ul.iterLoc, fnName, new IterVar(ul.iterLoc, cx.cardName(), (String) ul.iterVar));
 			RWTemplateList rul = new RWTemplateList(ul.kw, ul.listLoc, expr, ul.iterLoc, rwv, ul.customTagLoc, ul.customTag, ul.customTagVarLoc, ul.customTagVar, formats, supportDragOrdering, areaName, fnName, makeFn(cx, ul, areaName, dynamicExpr));
 			cx = new TemplateContext(cx, rul.areaName(), ul.iterVar, rwv);
 			rul.template = rewrite(cx, ul.template);
@@ -1050,7 +1040,7 @@ public class Rewriter {
 			D3Context c2 = new D3Context(cx, d3.d3.varLoc, d3.d3.iterVar);
 			
 			// Figure the correct prefix for the methods
-			String prefix = cx.cardNameAsString();
+			String prefix = cx.cardName().jsName();
 			int idx = prefix.lastIndexOf(".");
 			if (prefix.charAt(idx+1) != '_')
 				prefix = prefix.substring(0, idx+1) + "_" + prefix.substring(idx+1);
@@ -1141,7 +1131,7 @@ public class Rewriter {
 	}
 
 	private void rewrite(NamingContext cx, ContractDecl ctr) {
-		RWContractDecl ret = contracts.get(ctr.name());
+		RWContractDecl ret = contracts.get(ctr.nameAsName().jsName());
 		for (ContractMethodDecl cmd : ctr.methods) {
 			ret.addMethod(rewriteCMD(cx, ctr.nameAsName(), cmd));
 		}
@@ -1277,7 +1267,7 @@ public class Rewriter {
 	}
 
 	public void rewrite(NamingContext cx, FunctionCaseDefn c) {
-		RWFunctionDefinition ret = functions.get(c.functionNameAsString());
+		RWFunctionDefinition ret = functions.get(c.functionName().jsName());
 		final Map<String, LocalVar> vars = new HashMap<>();
 		gatherVars(errors, this, cx, c.functionName(), c.caseName(), vars, c.intro);
 		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);

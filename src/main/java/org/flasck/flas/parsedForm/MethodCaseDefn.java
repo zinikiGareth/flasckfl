@@ -34,11 +34,6 @@ public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope
 		return intro.name();
 	}
 
-	@Deprecated
-	public String methodNameAsString() {
-		return intro.name;
-	}
-
 	public void provideCaseName(int caseNum) {
 		if (caseNum == -1)
 			this.caseName = new ScopeName(this.intro.name().inContext, this.intro.name().name);
@@ -47,13 +42,6 @@ public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope
 		this.scope = new Scope(this.caseName);
 	}
 
-	@Deprecated
-	public String caseNameAsString() {
-		if (caseName == null)
-			throw new UtilException("caseName has not yet been assigned");
-		return caseName.jsName();
-	}
-	
 	public ScopeName caseName() {
 		if (caseName == null)
 			throw new UtilException("caseName has not yet been assigned");
