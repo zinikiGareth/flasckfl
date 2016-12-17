@@ -2,6 +2,7 @@ bin/
 qbout/
 src/test/resources/**/*.js
 src/test/resources/**/*.flim
+!src/test/resources/flasck/*.js
 parser-tmp/
 rw-tmp/
 errors-tmp/
