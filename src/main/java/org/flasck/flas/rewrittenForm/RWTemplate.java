@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.TemplateName;
 
 public class RWTemplate implements Locatable {
 	public final InputPosition kw;
@@ -15,10 +16,10 @@ public class RWTemplate implements Locatable {
 	public final RWTemplateLine content;
 	public final List<LocatedToken> args = new ArrayList<LocatedToken>();
 	
-	public RWTemplate(InputPosition kw, InputPosition loc, String prefix, RWTemplateLine content) {
+	public RWTemplate(InputPosition kw, InputPosition loc, TemplateName prefix, RWTemplateLine content) {
 		this.kw = kw;
 		this.loc = loc;
-		this.prefix = prefix;
+		this.prefix = prefix.jsName();
 		this.content = content;
 	}
 

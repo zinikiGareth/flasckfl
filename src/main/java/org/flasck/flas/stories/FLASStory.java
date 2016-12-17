@@ -18,6 +18,7 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.FLASError;
@@ -451,7 +452,7 @@ public class FLASStory {
 					
 					boolean err = false;
 					for (Template t : cd.templates)
-						if (intro.name.equals(t.name)) {
+						if (intro.name.equals(t.name.baseName())) {
 							er.message(b, "duplicate template name " + intro.name);
 							err = true;
 						}
@@ -468,7 +469,7 @@ public class FLASStory {
 				}
 				TemplateLine t = doCardTemplate(er, frTemplates, b.nested);
 				if (!er.hasErrors())
-					cd.templates.add(new Template(intro.kw, intro.location, intro.name, intro.args, t));
+					cd.templates.add(new Template(intro.kw, intro.location, new TemplateName(cd.cardName, intro.name), intro.args, t));
 			} else if (o instanceof D3Intro) {
 				D3Intro d3 = (D3Intro) o;
 				List<D3PatternBlock> lines = new ArrayList<D3PatternBlock>();

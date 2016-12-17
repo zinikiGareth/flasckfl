@@ -400,7 +400,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpScope(pw, fcd.innerScope());
 		} else if (obj instanceof CardDefinition) {
 			CardDefinition cd = (CardDefinition) obj;
-			pw.print("card " + cd.name);
+			pw.print("card " + cd.cardName.jsName());
 			dumpPosition(pw, cd.kw, false);
 			dumpLocation(pw, cd);
 			if (cd.state != null)
@@ -489,7 +489,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pw.indent(), mm.expr);
 		} else if (obj instanceof Template) {
 			Template t = (Template) obj;
-			pw.print("template" + (t.name != null ? " " + t.name : ""));
+			pw.print("template" + (t.name.baseName() != null ? " " + t.name.baseName() : ""));
 			dumpPosition(pw, t.kw, false);
 			dumpPosition(pw, t.location(), false);
 			for (LocatedToken a : t.args) {

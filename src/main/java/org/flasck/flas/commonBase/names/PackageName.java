@@ -24,6 +24,16 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof PackageName && name.equals(((PackageName)obj).name);
+	}
+	
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+	
+	@Override
 	public int compareTo(PackageName o) {
 		return name.compareTo(o.name);
 	}

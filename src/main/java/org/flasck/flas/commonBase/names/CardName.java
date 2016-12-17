@@ -45,4 +45,17 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	public boolean isValid() {
 		return pkg != null && cardName != null;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof CardName))
+			return false;
+		CardName o = (CardName) obj;
+		return pkg.equals(o.pkg) && o.cardName.equals(cardName);
+	}
+	
+	@Override
+	public int hashCode() {
+		return pkg.hashCode() ^ cardName.hashCode();
+	}
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.compiler.CompileResult;
@@ -44,6 +45,7 @@ public abstract class BaseRunnerTests {
 	TestRunner runner;
 	Scope mainScope = Scope.topScope("test.runner");
 	Scope testScope;
+	CardName cn = new CardName(new PackageName("test.runner"), "Card");
 	
 	@Before
 	public void setup() {
@@ -73,28 +75,28 @@ public abstract class BaseRunnerTests {
 	@Test
 	public void testRunnerDoesNotThrowIfTheContentsMatches() throws Exception {
 		prepareRunner();
-		runner.createCardAs("test.runner.Card", "q");
+		runner.createCardAs(cn, "q");
 		runner.match(WhatToMatch.CONTENTS, "div>span", "hello, world");
 	}
 
 	@Test
 	public void testRunnerDoesNotThrowIfTheElementMatches() throws Exception {
 		prepareRunner();
-		runner.createCardAs("test.runner.Card", "q");
+		runner.createCardAs(cn, "q");
 		runner.match(WhatToMatch.ELEMENT, "div>span", "<span id=\"uid_1\">hello, world</span>");
 	}
 
 	@Test(expected=NotMatched.class)
 	public void testRunnerThrowsIfTheRequestedElementIsNotThere() throws Exception {
 		prepareRunner();
-		runner.createCardAs("test.runner.Card", "q");
+		runner.createCardAs(cn, "q");
 		runner.match(WhatToMatch.CONTENTS, "div#missing", "irrelevant");
 	}
 
 	@Test(expected=NotMatched.class)
 	public void testRunnerThrowsIfTheElementCountExpectsZeroButItIsThere() throws Exception {
 		prepareRunner();
-		runner.createCardAs("test.runner.Card", "q");
+		runner.createCardAs(cn, "q");
 		runner.match(WhatToMatch.COUNT, "div>span", "0");
 	}
 

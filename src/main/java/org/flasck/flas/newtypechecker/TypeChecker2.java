@@ -968,7 +968,7 @@ public class TypeChecker2 {
 			}
 		} else if (cmd instanceof PushTLV) {
 			PushTLV pt = (PushTLV) cmd;
-			return freshPolys(deList(getTypeOf(cmd.location, pt.tlv.dataFuncName)), new HashMap<>());
+			return freshPolys(deList(getTypeOf(cmd.location, pt.tlv.dataFunc.jsName())), new HashMap<>());
 		} else if (cmd instanceof PushVar) {
 			VarInSource cov = ((PushVar)cmd).var;
 			Var var = cov.var;

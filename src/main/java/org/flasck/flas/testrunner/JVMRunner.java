@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.flasck.android.FlasckActivity;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
@@ -88,13 +89,13 @@ public class JVMRunner implements TestRunner {
 	}
 
 	@Override
-	public void createCardAs(String cardType, String bindVar) {
+	public void createCardAs(CardName cardType, String bindVar) {
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 
 		try {
 			@SuppressWarnings("unchecked")
-			Class<? extends FlasckActivity> clz = (Class<? extends FlasckActivity>) loader.loadClass(cardType);
+			Class<? extends FlasckActivity> clz = (Class<? extends FlasckActivity>) loader.loadClass(cardType.javaName());
 			Postbox postbox = new JDKPostbox();
 			List<Object> services = new ArrayList<>();
 			System.out.println(document);

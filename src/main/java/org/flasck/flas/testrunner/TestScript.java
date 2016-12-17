@@ -66,7 +66,7 @@ public class TestScript implements TestScriptBuilder {
 		Object cd = se.getValue();
 		if (!(cd instanceof CardDefinition))
 			throw new UtilException(cardType + " was not a card definition");
-		CreateTestStep cs = new CreateTestStep(at, bindVar, ((CardDefinition) cd).name);
+		CreateTestStep cs = new CreateTestStep(at, bindVar, ((CardDefinition) cd).cardName);
 		currentSteps.add(cs);
 	}
 	

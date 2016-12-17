@@ -7,13 +7,13 @@ import org.flasck.flas.rewrittenForm.IterVar;
 
 public class TemplateListVar implements Locatable {
 	public final InputPosition location;
-	public final String dataFuncName; // the name of the function that generates the data
+	public final FunctionName dataFunc;
 	public final String simpleName;
 	public final String realName;
 
 	public TemplateListVar(InputPosition location, FunctionName fnName, IterVar iv) {
 		this.location = location;
-		this.dataFuncName = fnName.jsName();
+		this.dataFunc = fnName;
 		this.simpleName = iv.var;
 		this.realName = iv.uniqueName();
 	}
@@ -25,6 +25,6 @@ public class TemplateListVar implements Locatable {
 
 	@Override
 	public String toString() {
-		return "TLV[" + realName + "<-" + dataFuncName + "]";
+		return "TLV[" + realName + "<-" + dataFunc.jsName() + "]";
 	}
 }

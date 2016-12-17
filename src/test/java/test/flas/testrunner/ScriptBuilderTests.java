@@ -40,6 +40,8 @@ public class ScriptBuilderTests {
 	ErrorReporter reporter = context.mock(ErrorReporter.class);
 	String pkg = "test.golden";
 	String spkg = pkg + ".script";
+	PackageName pn = new PackageName(pkg);
+	CardName cn = new CardName(pn, "Card");
 	IScope priorScope = context.mock(IScope.class);
 	TestScript script = new TestScript(reporter, priorScope, spkg);
 	InputPosition posn = new InputPosition("test", 1, 1, null);
@@ -158,11 +160,11 @@ public class ScriptBuilderTests {
 
 	@Test
 	public void testThatWeCaptureCreateCommands() throws Exception {
-		String cardName = "CardName";
+		String cardName = "Card";
 		String cardVar = "q";
 		context.checking(new Expectations() {{
 			oneOf(priorScope).get(cardName); will(createCard(cardName));
-			oneOf(stepRunner).createCardAs(pkg + "." + cardName, cardVar);
+			oneOf(stepRunner).createCardAs(cn, cardVar);
 			oneOf(priorScope).define(with(any(String.class)), with(any(Object.class)));
 		}});
 
@@ -176,7 +178,7 @@ public class ScriptBuilderTests {
 			
 			@Override
 			public Object invoke(Invocation arg0) throws Throwable {
-				CardName jsName = new CardName(new PackageName(pkg), cardName);
+				CardName jsName = new CardName(pn, cardName);
 				return new Scope.ScopeEntry(cardName, jsName.jsName(), new CardDefinition(posn, posn, priorScope, jsName));
 			}
 			

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
@@ -132,7 +133,7 @@ public class JSRunner implements TestRunner {
 	}
 
 	@Override
-	public void createCardAs(String cardType, String bindVar) {
+	public void createCardAs(CardName cardType, String bindVar) {
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 		
@@ -143,7 +144,7 @@ public class JSRunner implements TestRunner {
 		String l2 = "_tmp_div = document.createElement('div');";
 		String l3 = "_tmp_body.appendChild(_tmp_div);";
 		String l4 = "_tmp_services = {};"; // surely we need something better
-		String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType + ", mode: 'local' }, _tmp_services)";
+		String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType.jsName() + ", mode: 'local' }, _tmp_services)";
 
 		String instr = l0+l1+l2+l3+l4+l5;
 		// TODO: refactor this to be standard error handling

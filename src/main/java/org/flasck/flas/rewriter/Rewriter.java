@@ -781,12 +781,12 @@ public class Rewriter {
 	private CardGrouping createCard(PackageContext cx, CardDefinition cd) {
 		RWStructDefn sd = new RWStructDefn(cd.location, new StructName(cd.cardName.pkg, cd.cardName.cardName), false);
 		CardGrouping grp = new CardGrouping(cd.cardName, sd);
-		cards.put(cd.name, grp);
+		cards.put(cd.cardName.jsName(), grp);
 		return grp;
 	}
 	
 	private CardGrouping pass2Card(NamingContext cx, CardDefinition cd) {
-		CardGrouping grp = cards.get(cd.name);
+		CardGrouping grp = cards.get(cd.cardName.jsName());
 		for (ContractImplements ci : cd.contracts) {
 			RWContractImplements rw = rewriteCI(cx, ci);
 			if (rw == null)
@@ -812,7 +812,7 @@ public class Rewriter {
 	private void rewriteCard(NamingContext cx, CardDefinition cd) {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope: " + cx.getClass());
-		CardGrouping grp = cards.get(cd.name);
+		CardGrouping grp = cards.get(cd.cardName.jsName());
 		RWStructDefn sd = grp.struct;
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {

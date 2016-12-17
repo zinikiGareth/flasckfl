@@ -5,15 +5,16 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.TemplateName;
 
 public class Template implements Locatable {
 	public final InputPosition kw;
 	private final InputPosition loc;
-	public final String name;
+	public final TemplateName name;
 	public final List<LocatedToken> args;
 	public final TemplateLine content;
 
-	public Template(InputPosition kw, InputPosition loc, String name, List<LocatedToken> args, TemplateLine content) {
+	public Template(InputPosition kw, InputPosition loc, TemplateName name, List<LocatedToken> args, TemplateLine content) {
 		this.kw = kw;
 		this.loc = loc;
 		this.name = name;
@@ -28,6 +29,6 @@ public class Template implements Locatable {
 
 	@Override
 	public String toString() {
-		return "Template[" + name + "]";
+		return "Template[" + name.jsName() + "]";
 	}
 }

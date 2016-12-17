@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContentExpr;
@@ -50,11 +51,11 @@ public class SugarDetox {
 	private void detoxTemplates(CardDefinition cd) {
 		if (cd.templates.isEmpty()) {
 			// we have nothing to rewrite, but we need a minimal template - create one
-			cd.templates.add(new Template(cd.kw, cd.location, cd.name, null, null));
+			cd.templates.add(new Template(cd.kw, cd.location, new TemplateName(cd.cardName), null, null));
 			return;
 		}
 		Template t = cd.templates.get(0);
-		Template tmp = new Template(t.kw, t.location(), cd.name, null, unroll(errors, cd.templates, cd.d3s, new TreeMap<String, Object>()));
+		Template tmp = new Template(t.kw, t.location(), new TemplateName(cd.cardName), null, unroll(errors, cd.templates, cd.d3s, new TreeMap<String, Object>()));
 		cd.templates.clear();
 		cd.templates.add(tmp);
 	}
@@ -65,9 +66,9 @@ public class SugarDetox {
 		Map<String, Object> map = new TreeMap<String, Object>();
 		Template ret = templates.get(0);
 		for (Template t : templates) {
-			if (t.name == null)
+			if (t.name.baseName() == null)
 				continue;
-			map.put(t.name, t);
+			map.put(t.name.baseName(), t);
 		}
 		for (D3Thing t : d3s) {
 			map.put(t.d3.name, t);
