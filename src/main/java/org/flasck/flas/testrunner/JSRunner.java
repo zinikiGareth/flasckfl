@@ -49,6 +49,7 @@ public class JSRunner implements TestRunner {
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {
+					System.out.println("this.f = " + fn.getMember("f"));
 					fn.eval("this.f()");
 				}
 			});

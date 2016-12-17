@@ -30,7 +30,7 @@ public class CardDefinition implements ContainsScope, Locatable {
 		this.kw = kw;
 		this.location = location;
 		this.simpleName = name.cardName;
-		outer.define(simpleName, name.jsName(), this);
+		outer.define(simpleName, this);
 		this.cardName = name;
 		this.name = name.jsName();
 		this.fnScope = new Scope(name);

@@ -72,7 +72,7 @@ public class MethodConvertorTests {
 			doSend.setType(Type.function(posn, any, send));
 			biscope.define("doSend", doSend);
 		}
-		orgFooScope = Scope.topScope("ME");
+		orgFooScope = Scope.topScope("org.foo");
 //		orgFooScope.define("doSend", "org.foo.doSend", new FunctionCaseDefn(posn, CodeType.FUNCTION, "org.foo.doSend", args, expr));
 		{
 			ContractDecl contract1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Contract1"));
@@ -82,7 +82,7 @@ public class MethodConvertorTests {
 			contract1.methods.add(m2);
 			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, "up", "request", CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			contract1.methods.add(m3);
-			orgFooScope.define("Contract1", contract1.name(), contract1);
+			orgFooScope.define("Contract1", contract1);
 		}
 		{
 			ContractDecl service1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Service1"));
@@ -92,18 +92,18 @@ public class MethodConvertorTests {
 			service1.methods.add(m1);
 			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "down", "respond", CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m2);
-			orgFooScope.define("Service1", service1.name(), service1);
+			orgFooScope.define("Service1", service1);
 		}
 		{
 			ContractDecl handler1 = new ContractDecl(posn, posn, new StructName(new PackageName("org.foo"), "Handler1"));
 			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", "handle", new ArrayList<>());
 			handler1.methods.add(m1);
-			orgFooScope.define("Handler1", handler1.name(), handler1);
+			orgFooScope.define("Handler1", handler1);
 		}
 		{
 			StructDefn struct = new StructDefn(posn, "org.foo", "Thing", true);
 			struct.addField(new StructField(posn, false, new TypeReference(posn, "String"), "x"));
-			orgFooScope.define("Thing", struct.name(), struct);
+			orgFooScope.define("Thing", struct);
 		}
 		
 		{
@@ -510,7 +510,7 @@ public class MethodConvertorTests {
 		cs.provideCaseName(-1);
 		for (MethodMessage m : msgs)
 			cs.messages.add(m);
-		s.define(name, intro.name, cs);
+		s.define(name, cs);
 	}
 	
 	// the other cases are where it's just <- ...

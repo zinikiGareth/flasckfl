@@ -317,7 +317,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println("String: " + (String) obj);
 		} else if (obj instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) obj;
-			pw.print("cdecl " + cd.name());
+			pw.print("cdecl " + cd.nameAsName().jsName());
 			dumpPosition(pw, cd.kw, false);
 			dumpLocation(pw, cd);
 			dumpList(pw, cd.methods);

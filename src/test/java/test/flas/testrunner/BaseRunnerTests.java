@@ -48,7 +48,7 @@ public abstract class BaseRunnerTests {
 	@Before
 	public void setup() {
 		Main.setLogLevels();
-		mainScope.define("x", "test.runner.x", null);
+		mainScope.define("x", null);
 		tc.define("test.runner.x", Type.function(loc, Type.builtin(loc, "Number")));
 		prior = new CompileResult("test.runner", mainScope, bce, tc);
 		testScope = Scope.topScope("test.runner.script");
@@ -56,16 +56,16 @@ public abstract class BaseRunnerTests {
 	
 	@Test
 	public void testAssertDoesNotThrowIfXDoesIndeedEqualX() throws Exception {
-		testScope.define("expr1", "test.runner.script.expr1", function("expr1", new UnresolvedVar(loc, "x")));
-		testScope.define("value1", "test.runner.script.value1", function("value1", new NumericLiteral(loc, Integer.toString(X_VALUE), -1)));
+		testScope.define("expr1", function("expr1", new UnresolvedVar(loc, "x")));
+		testScope.define("value1", function("value1", new NumericLiteral(loc, Integer.toString(X_VALUE), -1)));
 		prepareRunner();
 		runner.assertCorrectValue(1);
 	}
 
 	@Test(expected=AssertFailed.class)
 	public void testAssertThrowsIfXIsNotThePrescribedValue() throws Exception {
-		testScope.define("expr1", "test.runner.script.expr1", function("expr1", new UnresolvedVar(loc, "x")));
-		testScope.define("value1", "test.runner.script.value1", function("value1", new NumericLiteral(loc, Integer.toString(X_OTHER_VALUE), -1)));
+		testScope.define("expr1", function("expr1", new UnresolvedVar(loc, "x")));
+		testScope.define("value1", function("value1", new NumericLiteral(loc, Integer.toString(X_OTHER_VALUE), -1)));
 		prepareRunner();
 		runner.assertCorrectValue(1);
 	}

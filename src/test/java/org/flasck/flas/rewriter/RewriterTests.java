@@ -63,7 +63,7 @@ public class RewriterTests {
 	public void testRewritingSomethingGloballyDefined() {
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), new ArrayList<Object>(), new UnresolvedVar(posn, "Nil"));
 		fcd0.provideCaseName(0);
-		scope.define("f", "ME.f", fcd0);
+		scope.define("f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
 		assertEquals("ME.f", rfn.name());
@@ -77,7 +77,7 @@ public class RewriterTests {
 		args.add(new VarPattern(posn, "x"));
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), args, new UnresolvedVar(posn, "x"));
 		fcd0.provideCaseName(0);
-		scope.define("f", "ME.f", fcd0);
+		scope.define("f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
 		assertEquals("ME.f", rfn.name());
@@ -89,7 +89,7 @@ public class RewriterTests {
 	public void testWeRewriteStructFields() {
 		StructDefn sd = new StructDefn(posn, "ME", "Container", true);
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "String"), "f"));
-		scope.define("Container", "ME.Container", sd);
+		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);
 		RWStructDefn rsd = rw.structs.get("ME.Container");
 		RWStructField sf = rsd.fields.get(0);
@@ -102,7 +102,7 @@ public class RewriterTests {
 	public void testAStructReferencingAListFieldGetsARewrittenParameterList() {
 		StructDefn sd = new StructDefn(posn, "ME", "Container", true);
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "List", new TypeReference(posn, "String")), "list"));
-		scope.define("Container", "ME.Container", sd);
+		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);
 		RWStructDefn rsd = rw.structs.get("ME.Container");
 		RWStructField sf = rsd.fields.get(0);
@@ -119,7 +119,7 @@ public class RewriterTests {
 	public void testAStructReferencingAListFieldMustHaveATypeArgument() {
 		StructDefn sd = new StructDefn(posn, "ME", "Container", true);
 		sd.addField(new StructField(null, false, new TypeReference(posn, "List"), "list"));
-		scope.define("Container", "ME.Container", sd);
+		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);
 		assertTrue(errors.hasErrors());
 		assertEquals(1, errors.count());
@@ -134,14 +134,14 @@ public class RewriterTests {
 			args.add(new VarPattern(posn, "x"));
 			FunctionCaseDefn fn_f = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME"), "f"), args, new StringLiteral(posn, "x"));
 			fn_f.provideCaseName(0);
-			scope.define("f", "ME.f", fn_f);
+			scope.define("f", fn_f);
 			innerScope = fn_f.innerScope();
 		}
 		{
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(posn, "y"));
 			FunctionCaseDefn fn_g = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.f_0"), "g"), args, new UnresolvedVar(posn, "x"));
-			innerScope.define("g", "ME.f_0.g", fn_g);
+			innerScope.define("g", fn_g);
 			fn_g.provideCaseName(0);
 		}
 		rw.rewritePackageScope(null, "ME", scope);
@@ -157,13 +157,13 @@ public class RewriterTests {
 	
 	@Test
 	public void testRewritingAStateVar() throws Exception {
-		CardDefinition cd = new CardDefinition(posn, posn, scope, new CardName(null, "MyCard"));
+		CardDefinition cd = new CardDefinition(posn, posn, scope, new CardName(new PackageName("ME"), "MyCard"));
 		cd.state = new StateDefinition(posn);
 		cd.state.fields.add(new StructField(posn, false, new TypeReference(posn, "Number"), "counter"));
 //		scope.define("MyCard", "ME.MyCard", cd);
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.MyCard"), "f"), new ArrayList<Object>(), new UnresolvedVar(null, "counter"));
 		fcd0.provideCaseName(0);
-		cd.fnScope.define("f", "ME.MyCard.f", fcd0);
+		cd.fnScope.define("f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -184,7 +184,7 @@ public class RewriterTests {
 //		scope.define("MyCard", "ME.MyCard", cd);
 		FunctionCaseDefn fcd0 = new FunctionCaseDefn(FunctionName.function(posn, new PackageName("ME.MyCard"), "f"), new ArrayList<Object>(), new UnresolvedVar(null, "timer"));
 		fcd0.provideCaseName(0);
-		cd.fnScope.define("f", "ME.MyCard.f", fcd0);
+		cd.fnScope.define("f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -229,7 +229,7 @@ public class RewriterTests {
 		EventCaseDefn ecd1 = new EventCaseDefn(posn, new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("ME"), "MyCard"), "eh"), new ArrayList<Object>()));
 		ecd1.provideCaseName(-1);
 		ecd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "counter")), new UnresolvedVar(posn, "counter")));
-		cd.fnScope.define("eh", "ME.MyCard.eh", ecd1);
+		cd.fnScope.define("eh", ecd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope(null, "ME", scope);
 		errors.showTo(new PrintWriter(System.out), 0);

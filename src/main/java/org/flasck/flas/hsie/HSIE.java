@@ -12,7 +12,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.commonBase.ConstPattern;
-import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWConstructorMatch;
@@ -46,8 +45,6 @@ public class HSIE {
 		VarFactory vf = new VarFactory();
 		GatherExternals ge = new GatherExternals();
 		for (RWFunctionDefinition fn : d) {
-			CardName inCard = fn.inCard();
-//			inCard == null ? null : inCard.jsName()
 			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, fn.inCard, vf);
 			for (ScopedVar sv : fn.scopedVars) {
 				if (sv.definedIn.equals(fn.name()))

@@ -194,7 +194,7 @@ public class FLASStory {
 					FunctionCaseDefn fcd = (FunctionCaseDefn)o;
 					int caseName = ret.caseName(fcd.intro.name);
 					fcd.provideCaseName(caseName);
-					ret.define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
+					ret.define(fcd.functionName().name, fcd);
 					if (!b.nested.isEmpty()) {
 						doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), b.nested);
 					}
@@ -207,7 +207,7 @@ public class FLASStory {
 					Block lastBlock = (Block) arr[1];
 					FunctionCaseDefn fcd = new FunctionCaseDefn(fi.name(), fi.args, arr[0]);
 					fcd.provideCaseName(caseName);
-					ret.define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
+					ret.define(fcd.functionName().name, fcd);
 					if (!lastBlock.nested.isEmpty()) {
 						doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), lastBlock.nested);
 					}
@@ -215,19 +215,19 @@ public class FLASStory {
 					MethodCaseDefn mcd = (MethodCaseDefn)o;
 					int caseName = ret.caseName(mcd.methodName().name);
 					mcd.provideCaseName(caseName);
-					ret.define(mcd.methodName().name, mcd.methodNameAsString(), mcd);
+					ret.define(mcd.methodName().name, mcd);
 					addMethodMessages(er, mcd.messages, b.nested);
 				} else if (o instanceof TupleAssignment) {
 					TupleAssignment ta = (TupleAssignment) o;
 					int k=0;
 					for (LocatedName x : ta.vars) {
 						FunctionName f = s.functionName(new ValidIdentifierToken(x.location, x.text, -1));
-						ret.define(x.text, f.jsName(), new TupleMember(x.location, ta, k++));
+						ret.define(x.text, new TupleMember(x.location, ta, k++));
 					}
 					// I don't think we need to do anything here, but if recursion is called for, we probably have a scope
 				} else if (o instanceof StructDefn) {
 					StructDefn sd = (StructDefn)o;
-					ret.define(State.simpleName(sd.name()), sd.name(), sd);
+					ret.define(State.simpleName(sd.name()), sd);
 					doStructFields(er, sd, b.nested);
 				} else if (o instanceof ObjectDefn) {
 					ObjectDefn od = (ObjectDefn)o;
@@ -237,14 +237,14 @@ public class FLASStory {
 					if (ret.contains(cd.name()))
 						er.message(b, "duplicate definition for name " + cd.name());
 					else
-						ret.define(State.simpleName(cd.name()), cd.name(), cd);
+						ret.define(State.simpleName(cd.name()), cd);
 					doContractMethods(er, cd, b.nested);
 				} else if (o instanceof CardDefinition) {
 					CardDefinition cd = (CardDefinition) o;
 					doCardDefinition(er, s.nestCard(cd.innerScope(), cd.cardName), cd, b.nested);
 				} else if (o instanceof HandlerImplements) {
 					HandlerImplements hi = (HandlerImplements)o;
-					ret.define(State.simpleName(hi.hiName), hi.hiName, hi);
+					ret.define(State.simpleName(hi.hiName), hi);
 					doImplementation(s, er, hi, b.nested, State.simpleName(hi.hiName));
 				} else if (o instanceof ContractImplements) {
 					er.message(((ContractImplements) o).location(), "implements cannot appear at the top level");
@@ -359,7 +359,7 @@ public class FLASStory {
 						FunctionCaseDefn fcd = (FunctionCaseDefn) omm.what;
 						int caseName = sd.innerScope().caseName(fcd.intro.name);
 						fcd.provideCaseName(caseName);
-						sd.innerScope().define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
+						sd.innerScope().define(fcd.functionName().name, fcd);
 						if (!b.nested.isEmpty()) {
 							doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), b.nested);
 						}
@@ -493,7 +493,7 @@ public class FLASStory {
 				doImplementation(s, er, hi, b.nested, State.simpleName(hi.hiName));
 			} else if (o instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fcd = (FunctionCaseDefn) o;
-				inner.define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
+				inner.define(fcd.functionName().name, fcd);
 				int caseName = inner.caseName(fcd.intro.name);
 				fcd.provideCaseName(caseName);
 			} else if (o instanceof FunctionIntro) {
@@ -508,17 +508,17 @@ public class FLASStory {
 				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.name(), fi.args, arr[0]);
 				int caseName = inner.caseName(fcd.intro.name);
 				fcd.provideCaseName(caseName);
-				inner.define(fcd.functionName().name, fcd.functionNameAsString(), fcd);
+				inner.define(fcd.functionName().name, fcd);
 				if (!lastBlock.nested.isEmpty()) {
 					doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), lastBlock.nested);
 				}
 			} else if (o instanceof MethodCaseDefn) {
 				MethodCaseDefn mcd = (MethodCaseDefn) o;
-				inner.define(mcd.methodName().name, mcd.methodNameAsString(), mcd);
+				inner.define(mcd.methodName().name, mcd);
 				addMethodMessages(er, mcd.messages, b.nested);
 			} else if (o instanceof EventCaseDefn) {
 				EventCaseDefn ecd = (EventCaseDefn) o;
-				inner.define(ecd.methodName().name, ecd.methodNameAsString(), ecd);
+				inner.define(ecd.methodName().name, ecd);
 				int caseName = inner.caseName(ecd.methodName().name);
 				ecd.provideCaseName(caseName);
 				addMethodMessages(er, ecd.messages, b.nested);

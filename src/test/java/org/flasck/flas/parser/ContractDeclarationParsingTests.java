@@ -20,7 +20,7 @@ public class ContractDeclarationParsingTests {
 		assertNotNull(o);
 		assertTrue(o instanceof ContractDecl);
 		ContractDecl cd = (ContractDecl) o;
-		assertEquals("OnTick", cd.name());
+		assertEquals("OnTick", cd.nameAsName().jsName());
 	}
 
 	@Test
@@ -29,7 +29,7 @@ public class ContractDeclarationParsingTests {
 		assertNotNull(o);
 		assertTrue(o instanceof ContractDecl);
 		ContractDecl cd = (ContractDecl) o;
-		assertEquals("OnTick", cd.name());
+		assertEquals("OnTick", cd.nameAsName().jsName());
 		new FieldParser(FieldParser.CARD).tryParsing(new Tokenizable(BlockTestData.contractWithMethodBlock().nested.get(0)));
 	}
 

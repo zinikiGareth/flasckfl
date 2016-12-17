@@ -42,18 +42,16 @@ public class TestScript implements TestScriptBuilder {
 		{
 			String key = "expr" + nextStep;
 			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
-			String longName = defineInPkg+"."+key;
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), evalExpr);
 			fn.provideCaseName(0);
-			scope.define(key, longName, fn);
+			scope.define(key, fn);
 		}
 		{
 			String key = "value" + nextStep;
 			FunctionName fnName = FunctionName.function(evalPos, new PackageName(defineInPkg), key);
-			String longName = defineInPkg+"."+key;
 			FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), valueExpr);
 			fn.provideCaseName(0);
-			scope.define(key, longName, fn);
+			scope.define(key, fn);
 		}
 		nextStep++;
 		currentSteps.add(as);

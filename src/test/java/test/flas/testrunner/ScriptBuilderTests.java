@@ -163,7 +163,7 @@ public class ScriptBuilderTests {
 		context.checking(new Expectations() {{
 			oneOf(priorScope).get(cardName); will(createCard(cardName));
 			oneOf(stepRunner).createCardAs(pkg + "." + cardName, cardVar);
-			oneOf(priorScope).define(with(any(String.class)), with(any(String.class)), with(any(Object.class)));
+			oneOf(priorScope).define(with(any(String.class)), with(any(Object.class)));
 		}});
 
 		script.addCreate(posn, cardVar, cardName);

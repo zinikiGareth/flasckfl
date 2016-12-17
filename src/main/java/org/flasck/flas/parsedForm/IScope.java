@@ -7,5 +7,5 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 // consider also what should be where and what we should pass around
 public interface IScope extends Iterable<Scope.ScopeEntry> {
 	ScopeEntry get(String cardType);
-	void define(String simpleName, String jsName, Object defn);
+	void define(String simpleName, Object defn);
 }

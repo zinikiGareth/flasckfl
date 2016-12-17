@@ -3,9 +3,9 @@ package org.flasck.flas.parsedForm;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
@@ -57,7 +57,7 @@ public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 	}
 
 	private final List<ScopeEntry> defns = new ArrayList<ScopeEntry>();
-	private final Map<String, String> fullNames = new TreeMap<String, String>();
+	private final Set<String> index = new TreeSet<String>();
 	private final NameOfThing scopeName;
 
 	public Scope(NameOfThing name) {
@@ -69,11 +69,11 @@ public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 	}
 	
 	public boolean contains(String key) {
-		return fullNames.containsKey(key);
+		return index.contains(key);
 	}
 
 	public String fullName(String key) {
-		return fullNames.get(key);
+		return scopeName.jsName() + "." + key;
 	}
 
 	@Override
@@ -88,12 +88,12 @@ public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 	}
 
 	@Override
-	public void define(String key, String name, Object defn) {
+	public void define(String key, Object defn) {
 		if (key.contains("."))
 			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);
-		ScopeEntry ret = new ScopeEntry(key, name, defn);
+		ScopeEntry ret = new ScopeEntry(key, scopeName.jsName()+"."+key, defn);
 		defns.add(ret);
-		fullNames.put(key, name);
+		index.add(key);
 	}
 
 	public int size() {
