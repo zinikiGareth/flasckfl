@@ -71,7 +71,7 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	}
 
 	public String uniqueName() {
-		if (inContext == null || inContext.jsName() == null || inContext.jsName().length() == 0)
+		if (inContext == null || inContext.uniqueName() == null || inContext.uniqueName().length() == 0)
 			return name;
 		else
 			return inContext.uniqueName() + "." + name;

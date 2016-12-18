@@ -17,7 +17,7 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 	}
 
 	public String uniqueName() {
-		if (name == null || name.jsName() == null || name.jsName().length() == 0)
+		if (name == null || name.uniqueName() == null || name.uniqueName().length() == 0)
 			return baseName;
 		else
 			return name.uniqueName() + "." + baseName;
