@@ -1850,7 +1850,7 @@ public class Rewriter {
 		for (RWFunctionDefinition fn : functions.values()) {
 			if (!fn.generate)
 				continue;
-			pw.println("function " + fn.name + (fn.inCard != null?" " + fn.inCard:"") + " " + fn.nargs);
+			pw.println("function " + fn.name + (fn.inCard != null?" " + fn.inCard.uniqueName():"") + " " + fn.nargs);
 			for (ScopedVar sv : fn.scopedVars)
 				pw.indent().println("nested " + sv.id + " " + sv.definedIn);
 			for (RWFunctionCaseDefn c : fn.cases) {

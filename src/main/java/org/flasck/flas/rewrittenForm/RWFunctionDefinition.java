@@ -17,18 +17,17 @@ import org.zinutils.exceptions.UtilException;
 public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDefinition> {
 	public final InputPosition location;
 	public final CodeType mytype;
-	private final FunctionName fnName;
+	public final FunctionName fnName;
 	public final String name;
 	public final int nargs;
-	public final String inCard;
+	public final CardName inCard;
 	public final List<RWFunctionCaseDefn> cases = new ArrayList<>();
 	public final boolean generate;
 	private Type type;
 	public final Set<ScopedVar> scopedVars = new TreeSet<ScopedVar>();
 
 	public RWFunctionDefinition(FunctionName name, int nargs, boolean generate) {
-		CardName card = name.containingCard();
-		this.inCard = card == null ? null : card.jsName();
+		this.inCard = name.containingCard();
 		if (name.location == null)
 			throw new UtilException("Null location");
 		this.location = name.location;

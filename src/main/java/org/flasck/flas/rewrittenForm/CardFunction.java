@@ -29,7 +29,7 @@ public class CardFunction implements ExternalRef {
 	}
 
 	public String uniqueName() {
-		return this.clzName.jsName() + "." + this.function;
+		return this.clzName.uniqueName() + "." + this.function;
 	}
 
 	public boolean fromHandler() {
@@ -38,7 +38,7 @@ public class CardFunction implements ExternalRef {
 	
 	@Override
 	public String toString() {
-		return this.clzName.jsName() + "." + this.function;
+		return this.clzName.uniqueName() + "." + this.function;
 	}
 
 	@Override

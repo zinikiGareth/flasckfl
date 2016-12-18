@@ -73,7 +73,7 @@ public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 	}
 
 	public String fullName(String key) {
-		return scopeName.jsName() + "." + key;
+		return scopeName.uniqueName() + "." + key;
 	}
 
 	@Override

@@ -31,7 +31,7 @@ public class CardMember implements ExternalRef {
 	}
 
 	public String uniqueName() {
-		return card.jsName() +"."+var;
+		return card.uniqueName() +"."+var;
 	}
 	
 	public boolean fromHandler() {

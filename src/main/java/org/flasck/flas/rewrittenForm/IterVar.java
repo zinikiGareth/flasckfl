@@ -6,12 +6,12 @@ import org.flasck.flas.commonBase.names.CardName;
 
 public class IterVar implements Expr {
 	public final InputPosition location;
-	public final String definedBy;
+	public final CardName definedBy;
 	public final String var;
 
 	public IterVar(InputPosition location, CardName definedBy, String var) {
 		this.location = location;
-		this.definedBy = definedBy.jsName();
+		this.definedBy = definedBy;
 		this.var = var;
 	}
 	
@@ -21,7 +21,7 @@ public class IterVar implements Expr {
 	}
 	
 	public String uniqueName() {
-		return definedBy + "." + var;
+		return definedBy.uniqueName() + "." + var;
 	}
 	
 	@Override

@@ -45,6 +45,6 @@ public class ObjectReference implements Locatable, ExternalRef {
 	
 	@Override
 	public String toString() {
-		return this.clzName.jsName() + "." + this.handle;
+		return this.clzName.uniqueName() + "." + this.handle;
 	}
 }
