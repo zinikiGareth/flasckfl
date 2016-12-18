@@ -8,6 +8,7 @@ import static test.flas.testrunner.ExprMatcher.unresolved;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.testrunner.TestScriptBuilder;
 import org.flasck.flas.testrunner.UnitTestConvertor;
+import org.flasck.flas.testrunner.WhatToMatch;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -70,7 +71,7 @@ public class UnitTestConvertorTests {
 	}
 	
 	@Test
-	public void testThanBadStepProducesAnError() {
+	public void testThatAnInvalidStepProducesAnError() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
 			oneOf(script).error(with(aNonNull(InputPosition.class)), with("cannot handle input line: throw"));
@@ -79,5 +80,17 @@ public class UnitTestConvertorTests {
 		
 		UnitTestConvertor ctor = new UnitTestConvertor(script);
 		ctor.convert(CollectionUtils.listOf("\ttest we must have valid input", "\t\tthrow an error"));
+	}
+	
+	@Test
+	public void testThatCommentsInMatchAreIgnored() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		context.checking(new Expectations() {{
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(""));
+			oneOf(script).addTestCase("comments are ignored");
+		}});
+		
+		UnitTestConvertor ctor = new UnitTestConvertor(script);
+		ctor.convert(CollectionUtils.listOf("\ttest comments are ignored", "\t\tmatchClass div", "any comment we choose to make"));
 	}
 }

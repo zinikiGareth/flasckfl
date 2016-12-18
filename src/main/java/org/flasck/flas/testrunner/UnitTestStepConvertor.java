@@ -103,23 +103,25 @@ public class UnitTestStepConvertor {
 			return;
 		}
 		String selectors = line.remainder().trim();
-		String expect = "";
-		if (nested.isEmpty() && what == WhatToMatch.CLASS) {
-			// it's OK for this to be empty, pass the "" string
-			expect = "";
-		} else {
-			if (nested.size() != 1) {
+		String expect = null;
+		for (Block b : nested) {
+			if (!b.isComment()) {
+				if (expect != null) {
+					builder.error(kw.location, "matcher may not have multiple nested blocks");
+					return;
+				}
+				expect = b.line.text().toString().trim();
+			}
+		}
+		if (expect == null) {
+			if (what == WhatToMatch.CLASS) {
+				// it's OK for this to be empty, pass the "" string
+				expect = "";
+			} else {
 				builder.error(kw.location, "match must have exactly one nested block");
 				return;
 			}
-			Block block = nested.get(0);
-			if (!block.nested.isEmpty()) {
-				builder.error(block.line.locationAtText(0), "matching line cannot have nested blocks");
-				return;
-			}
-			expect = block.line.text().toString().trim();
 		}
 		builder.addMatch(kw.location, what, selectors, expect);
 	}
-
 }
