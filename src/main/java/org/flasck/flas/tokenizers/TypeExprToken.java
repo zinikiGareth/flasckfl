@@ -31,7 +31,7 @@ public class TypeExprToken {
 		char c = line.nextChar();
 		int pos;
 		if (Character.isLetter(c)) {
-			TypeNameToken tmp = QualifiedTypeNameToken.from(line);
+			TypeNameToken tmp = TypeNameToken.qualified(line);
 			if (tmp != null)
 				return new TypeExprToken(loc, NAME, tmp.text, line.at());
 			else

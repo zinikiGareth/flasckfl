@@ -7,7 +7,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parser.Expression;
 import org.flasck.flas.tokenizers.KeywordToken;
-import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -86,7 +85,7 @@ public class UnitTestStepConvertor {
 			builder.error(line.realinfo(), "create needs a var as first argument: '" + line +"'");
 			return;
 		}
-		TypeNameToken card = TypeNameToken.from(line);
+		TypeNameToken card = TypeNameToken.unqualified(line);
 		if (card == null) {
 			builder.error(line.realinfo(), "create needs a type as second argument: '" + line +"'");
 			return;
@@ -105,7 +104,7 @@ public class UnitTestStepConvertor {
 			builder.error(line.realinfo(), "send needs a card var as first argument: '" + line +"'");
 			return;
 		}
-		TypeNameToken card = QualifiedTypeNameToken.from(line);
+		TypeNameToken card = TypeNameToken.qualified(line);
 		if (card == null) {
 			builder.error(line.realinfo(), "send needs a contract as second argument: '" + line +"'");
 			return;

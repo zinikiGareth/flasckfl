@@ -17,7 +17,7 @@ public class TypeNameToken {
 		text = proto;
 	}
 
-	public static TypeNameToken from(Tokenizable line) {
+	public static TypeNameToken unqualified(Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore())
 			return null;
@@ -36,5 +36,24 @@ public class TypeNameToken {
 			return null;
 		}
 		return new TypeNameToken(tok);
+	}
+
+	public static TypeNameToken qualified(Tokenizable line) {
+		line.skipWS();
+		if (!line.hasMore() || !Character.isJavaIdentifierStart(line.nextChar()))
+			return null;
+	
+		InputPosition loc = line.realinfo();
+		int mark = line.at();
+		line.advance();
+		while (line.hasMore() && (Character.isJavaIdentifierPart(line.nextChar()) || line.nextChar() == '.'))
+			line.advance();
+		String proto = line.fromMark(mark);
+		int pos = proto.lastIndexOf('.')+1;
+		if (!Character.isUpperCase(proto.charAt(pos))) {
+			line.reset(mark);
+			return null; // doesn't qualify
+		}
+		return new TypeNameToken(loc, proto, line.at());
 	}
 }

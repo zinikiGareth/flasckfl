@@ -22,7 +22,6 @@ import org.flasck.flas.parsedForm.TemplateReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
-import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
@@ -170,7 +169,7 @@ public class TemplateLineParser implements TryParsing{
 				ValidIdentifierToken yoyo;
 				String cardName = null;
 				String yoyoVar = null;
-				TypeNameToken cardNameTok = QualifiedTypeNameToken.from(line);
+				TypeNameToken cardNameTok = TypeNameToken.qualified(line);
 				if (cardNameTok != null) {
 					loc = cardNameTok.location;
 					cardName = cardNameTok.text;

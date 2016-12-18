@@ -19,7 +19,7 @@ public class TypeDefnParser implements TryParsing {
 		KeywordToken kw = KeywordToken.from(line);
 		if (!"type".equals(kw.text))
 			return null;
-		TypeNameToken tn = TypeNameToken.from(line);
+		TypeNameToken tn = TypeNameToken.unqualified(line);
 		if (tn == null)
 			return null; // invalid type name
 

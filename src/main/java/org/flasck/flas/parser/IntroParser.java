@@ -30,7 +30,6 @@ import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
-import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -54,7 +53,7 @@ public class IntroParser implements TryParsing {
 		
 		switch (kw.text) {
 		case "struct": {
-			TypeNameToken tn = TypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.unqualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
@@ -72,7 +71,7 @@ public class IntroParser implements TryParsing {
 			return new StructDefn(kw.location, tn.location, new StructName(state.pkgName, tn.text), true, args);
 		}
 		case "object": {
-			TypeNameToken tn = TypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.unqualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid type name");
 			ErrorResult er = new ErrorResult();
@@ -90,13 +89,13 @@ public class IntroParser implements TryParsing {
 			return new ObjectDefn(tn.location, state.scope, state.structName(tn.text), true, args);
 		}
 		case "contract": {
-			TypeNameToken tn = TypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.unqualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract name");
 			return new ContractDecl(kw.location, tn.location, state.structName(tn.text));
 		}
 		case "card": {
-			TypeNameToken tn = TypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.unqualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid card name");
 			return new CardDefinition(kw.location, tn.location, state.scope, new CardName((PackageName)state.pkgName, tn.text));
@@ -145,7 +144,7 @@ public class IntroParser implements TryParsing {
 			return new D3Intro(kw.location, tok.location, tok.text, expr, var.location, new VarName(var.location, state.pkgName, var.text));
 		}
 		case "implements": {
-			TypeNameToken tn = QualifiedTypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.qualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract reference");
 			if (!line.hasMore())
@@ -158,7 +157,7 @@ public class IntroParser implements TryParsing {
 			return new ContractImplements(kw.location, tn.location, tn.text, var.location, var.text);
 		}
 		case "service": {
-			TypeNameToken tn = QualifiedTypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.qualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract reference");
 			if (!line.hasMore())
@@ -173,12 +172,12 @@ public class IntroParser implements TryParsing {
 		case "handler": {
 			if (!line.hasMore())
 				return ErrorResult.oneMessage(line, "missing contract reference");
-			TypeNameToken tn = QualifiedTypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.qualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract reference");
 			if (!line.hasMore())
 				return ErrorResult.oneMessage(line, "missing handler name");
-			TypeNameToken named = TypeNameToken.from(line);
+			TypeNameToken named = TypeNameToken.unqualified(line);
 			if (named == null)
 				return ErrorResult.oneMessage(line, "invalid handler name");
 			ArrayList<Object> lambdas = new ArrayList<Object>();

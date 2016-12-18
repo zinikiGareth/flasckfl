@@ -13,7 +13,6 @@ import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.tokenizers.PattToken;
-import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
@@ -34,7 +33,7 @@ public class PatternParser implements TryParsing {
 			List<Object> retArr = new ArrayList<Object>();
 			while (true) {
 				// The next symbol can be any valid pattern token
-				TypeNameToken next = QualifiedTypeNameToken.from(line);
+				TypeNameToken next = TypeNameToken.qualified(line);
 				// Main case is "(Type var)" - and we know types have initial caps
 				if (next != null) {
 					PattToken after = PattToken.from(line);
@@ -121,7 +120,7 @@ public class PatternParser implements TryParsing {
 		List<TypeReference> ret = new ArrayList<TypeReference>();
 		while (true) {
 			PattToken after;
-			TypeNameToken tn = QualifiedTypeNameToken.from(line);
+			TypeNameToken tn = TypeNameToken.qualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "type name expected");
 			after = PattToken.from(line);
