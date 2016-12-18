@@ -201,6 +201,19 @@ public class ScriptBuilderTests {
 		wrapUp();
 	}
 
+	@Test
+	public void testThatWeCaptureSendCommands() throws Exception {
+		String card = "q";
+		String contract = "org.flasck.Init";
+		String method = "init";
+		context.checking(new Expectations() {{
+			oneOf(stepRunner).send();
+		}});
+		script.addSend(posn, card, contract, method);
+		script.addTestCase(TEST_CASE_NAME);
+		wrapUp();
+	}
+
 	protected void wrapUp() throws Exception {
 		script.runAllTests(new TestCaseRunner() {
 			@Override

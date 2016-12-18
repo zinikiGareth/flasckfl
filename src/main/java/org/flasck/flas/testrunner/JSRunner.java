@@ -155,6 +155,12 @@ public class JSRunner implements TestRunner {
 	}
 
 	@Override
+	public void send() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
 		what.match(selector, contents, page.getDocument().queryAll(selector).stream().map(e -> new JSWrapperElement(e)).collect(Collectors.toList()));
 	}
