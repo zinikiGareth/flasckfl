@@ -990,7 +990,7 @@ public class TypeChecker2 {
 			return getTypeOf(cmd.location, form.inCard);
 		} else if (cmd instanceof PushFunc) {
 			FunctionLiteral func = ((PushFunc)cmd).func;
-			return getTypeOf(func.location, func.name);
+			return getTypeOf(func.location, func.name.uniqueName());
 		} else
 			throw new UtilException("Need to determine type of " + cmd.getClass());
 	}

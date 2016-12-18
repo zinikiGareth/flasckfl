@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
@@ -400,11 +401,8 @@ public class JSForm {
 
 			@Override
 			public Object visit(PushFunc pf) {
-				int x = pf.func.name.lastIndexOf('.');
-				if (x == -1)
-					throw new UtilException("Invalid function name: " + pf.func.name);
-				else
-					sb.append(pf.func.name.substring(0, x+1) + "prototype" + pf.func.name.substring(x));
+				FunctionName name = pf.func.name;
+				sb.append(name.inContext.jsName() + ".prototype." + name.name);
 				return null;
 			}
 		});

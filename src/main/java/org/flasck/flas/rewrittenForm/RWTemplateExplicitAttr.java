@@ -8,14 +8,14 @@ public class RWTemplateExplicitAttr {
 	public final String attr;
 	public final int type;
 	public final Object value;
-	public final String fnName;
+	public final FunctionName fnName;
 
 	public RWTemplateExplicitAttr(InputPosition loc, String attr, int type, Object value, FunctionName fnName) {
 		this.location = loc;
 		this.attr = attr;
 		this.type = type;
 		this.value = value;
-		this.fnName = fnName.jsName();
+		this.fnName = fnName;
 	}
 	
 	@Override

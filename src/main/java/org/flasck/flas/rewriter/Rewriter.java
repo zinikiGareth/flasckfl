@@ -1088,7 +1088,7 @@ public class Rewriter {
 		return expr;
 	}
 	
-	public String makeFn(TemplateContext cx, TemplateFormat tf, AreaName areaName, Object expr) {
+	public FunctionName makeFn(TemplateContext cx, TemplateFormat tf, AreaName areaName, Object expr) {
 		if (expr == null)
 			return null;
 		FunctionName fnName = cx.nextFunction(tf.kw, areaName, "formats", CodeType.AREA);
@@ -1097,7 +1097,7 @@ public class Rewriter {
 		fn.addCase(fcd0);
 		fn.gatherScopedVars();
 		functions.put(fnName.jsName(), fn);
-		return fnName.jsName();
+		return fnName;
 	}
 
 	private RWTemplateLine rewriteEventHandlers(TemplateContext cx, AreaName areaName, RWTemplateFormatEvents ret, List<EventHandler> handlers) {
@@ -1414,7 +1414,7 @@ public class Rewriter {
 					method.cases.add(mcd);
 					method.gatherScopedVars();
 					this.methods.put(method.name().jsName(), method);
-					byKey.add(s.name, new FunctionLiteral(fi.location, fi.fnName.jsName()));
+					byKey.add(s.name, new FunctionLiteral(fi.location, fi.fnName));
 				} else { // something like layout, that is just a set of definitions
 					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
 				}
@@ -1460,7 +1460,7 @@ public class Rewriter {
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, expr));
 		functions.put(d3f.fnName.jsName(), func);
 
-		return new FunctionLiteral(d3f.location, d3f.fnName.jsName());
+		return new FunctionLiteral(d3f.location, d3f.fnName);
 	}
 
 	public Object rewritePattern(NamingContext cx, NameOfThing name, Object o) {

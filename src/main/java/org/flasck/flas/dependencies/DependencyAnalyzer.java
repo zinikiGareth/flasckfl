@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -19,7 +18,6 @@ import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
-import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -30,8 +28,9 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.SendExpr;
+import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.DirectedCyclicGraph;
 
@@ -42,10 +41,10 @@ public class DependencyAnalyzer {
 	}
 
 	public List<Set<RWFunctionDefinition>> analyze(Map<String, RWFunctionDefinition> functions) {
-		for (Entry<String, RWFunctionDefinition> x : functions.entrySet())
-			addFunctionToDCG(x.getKey(), x.getValue());
-		for (Entry<String, RWFunctionDefinition> x : functions.entrySet())
-			addLinksToDCG(x.getKey(), x.getValue());
+		for (RWFunctionDefinition x : functions.values())
+			addFunctionToDCG(x.fnName.jsName(), x);
+		for (RWFunctionDefinition x : functions.values())
+			addLinksToDCG(x.fnName.jsName(), x);
 		return group(functions);
 	}
 
@@ -84,7 +83,7 @@ public class DependencyAnalyzer {
 		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof BooleanLiteral)
 			;
 		else if (expr instanceof FunctionLiteral) {
-			String un = ((FunctionLiteral)expr).name;
+			String un = ((FunctionLiteral)expr).name.jsName();
 			dcg.ensure(un);
 			dcg.ensureLink(name, un);
 		} else if (expr instanceof CardStateRef)

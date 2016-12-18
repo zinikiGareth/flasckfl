@@ -206,7 +206,7 @@ public class TemplateGenerator {
 					RWTemplateExplicitAttr tea = (RWTemplateExplicitAttr) a;
 					String saf = areaName.jsName() + ".prototype._setAttr_" + an;
 					JSForm sak = JSForm.flex(saf + " = function()").needBlock();
-					String tfn = simpleName(tea.fnName);
+					String tfn = tea.fnName.name;
 					sak.add(JSForm.flex("var attr = FLEval.full(this." + tfn + "())"));
 					JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
 					sak.add(ifassign);
@@ -378,7 +378,7 @@ public class TemplateGenerator {
 				expr = new ApplyExpr(first, cx.cons, new StringLiteral(first, simple.substring(1)), expr);
 			String scf = areaName.jsName() + ".prototype._setVariableFormats";
 			JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
-			String tfn = simpleName(tl.dynamicFunction);
+			String tfn = tl.dynamicFunction.name;
 			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this."+tfn+"()), ' '))"));
 			cx.target.add(scvs);
 			dg.setVarFormats(cgrx, tfn);
@@ -510,6 +510,7 @@ public class TemplateGenerator {
 		return topBlock.substring(0, idx+1) + topBlock.substring(idx+2);
 	}
 
+	@Deprecated
 	public String simpleName(String name) {
 		int idx = name.lastIndexOf(".");
 		if (idx == -1)
