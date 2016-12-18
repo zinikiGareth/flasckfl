@@ -45,7 +45,7 @@ public class HSIE {
 		VarFactory vf = new VarFactory();
 		GatherExternals ge = new GatherExternals();
 		for (RWFunctionDefinition fn : d) {
-			HSIEForm hf = new HSIEForm(fn.location, fn.name(), fn.nargs(), fn.mytype, (fn.inCard != null ? fn.inCard.jsName() : null), vf);
+			HSIEForm hf = new HSIEForm(fn.location, fn.fnName, fn.nargs(), fn.mytype, fn.inCard, vf);
 			for (ScopedVar sv : fn.scopedVars) {
 				if (sv.definedIn.equals(fn.name()))
 					hf.scopedDefinitions.add(sv);

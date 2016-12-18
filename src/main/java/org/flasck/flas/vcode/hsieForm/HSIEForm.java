@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -52,8 +54,12 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		}
 	}
 
+	@Deprecated
 	public final String inCard;
+	@Deprecated
 	public final String fnName;
+	public final CardName inCardName;
+	public final FunctionName funcName;
 	public final int nformal;
 	public final CodeType mytype;
 	private final VarFactory vf;
@@ -70,13 +76,15 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public final Set<ScopedVar> scoped = new TreeSet<ScopedVar>();
 	public final SetMap<VarInSource, Type> varConstraints = new SetMap<>();
 
-	public HSIEForm(InputPosition nameLoc, String name, int nformal, CodeType mytype, String inCard, VarFactory vf) {
+	public HSIEForm(InputPosition nameLoc, FunctionName name, int nformal, CodeType mytype, CardName inCard, VarFactory vf) {
 		super(nameLoc);
-		this.inCard = inCard;
+		this.inCardName = inCard;
+		this.inCard = inCard == null ? null : inCard.jsName();
 		this.vf = vf;
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
-		this.fnName = name;
+		this.funcName = name;
+		this.fnName = name.jsName();
 		this.nformal = nformal;
 	}
 

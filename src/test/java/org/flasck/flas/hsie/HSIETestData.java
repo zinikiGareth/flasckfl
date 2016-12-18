@@ -460,7 +460,7 @@ public class HSIETestData {
 	}
 	
 	private static HSIEForm thingy(int offset, String name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
-		HSIEForm ret = new HSIEForm(new InputPosition("thingy", 1, 1, null), name, nformal, CodeType.FUNCTION, null, new VarFactory());
+		HSIEForm ret = new HSIEForm(new InputPosition("thingy", 1, 1, null), FunctionName.function(posn, null, name), nformal, CodeType.FUNCTION, null, new VarFactory());
 		for (int i=0;i<nformal;i++)
 			ret.vars.add(new Var(offset + i));
 		for (int i=0;i<nbound;i++)

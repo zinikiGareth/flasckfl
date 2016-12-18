@@ -48,7 +48,7 @@ public class Expressions {
 	}
 	
 	private void writeIfExpr(Map<String, VarInSource> substs, Object expr, HSIEBlock writeTo) {
-		logger.info("Handling " + form.fnName + "; expr = " + expr + "; substs = " + substs);
+		logger.info("Handling " + form.funcName.uniqueName() + "; expr = " + expr + "; substs = " + substs);
 		// First handle the explicit "if" cases
 		if (expr instanceof IfExpr) {
 			IfExpr ie = (IfExpr) expr;
