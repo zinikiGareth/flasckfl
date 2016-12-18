@@ -6,7 +6,6 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.HandlerName;
 
 public class HandlerImplements extends Implements {
-	public final String hiName;
 	public final String baseName;
 	public final List<Object> boundVars;
 	public final boolean inCard;
@@ -17,7 +16,6 @@ public class HandlerImplements extends Implements {
 		super(kw, location, type);
 		this.typeLocation = typeLocation;
 		this.handlerName = handlerName;
-		this.hiName = handlerName.jsName();
 		this.baseName = handlerName.baseName;
 		this.inCard = inCard;
 		this.boundVars = lambdas;

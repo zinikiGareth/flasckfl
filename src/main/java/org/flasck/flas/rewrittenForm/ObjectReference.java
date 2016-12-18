@@ -1,6 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.CardName;
 
@@ -9,20 +10,20 @@ import org.flasck.flas.commonBase.names.CardName;
 public class ObjectReference implements Locatable, ExternalRef {
 	public final InputPosition location;
 	public final CardName clzName;
-	public final String handle;
+	public final HandlerName handler;
 	public final boolean fromHandler;
 
-	public ObjectReference(InputPosition location, CardName clzName, String handle) {
+	public ObjectReference(InputPosition location, CardName clzName, HandlerName handler) {
 		this.location = location;
 		this.clzName = clzName;
-		this.handle = handle;
+		this.handler = handler;
 		this.fromHandler = false;
 	}
 	
 	public ObjectReference(InputPosition location, ObjectReference inner, boolean fromHandler) {
 		this.location = location;
 		this.clzName = inner.clzName;
-		this.handle = inner.handle;
+		this.handler = inner.handler;
 		this.fromHandler = fromHandler;
 	}
 
@@ -31,12 +32,12 @@ public class ObjectReference implements Locatable, ExternalRef {
 	}
 
 	public String uniqueName() {
-		return this.handle;
+		return this.handler.uniqueName();
 	}
 	
 	@Override
 	public int compareTo(Object o) {
-		return this.handle.compareTo(((ExternalRef)o).uniqueName());
+		return this.uniqueName().compareTo(((ExternalRef)o).uniqueName());
 	}
 
 	public boolean fromHandler() {
@@ -45,6 +46,6 @@ public class ObjectReference implements Locatable, ExternalRef {
 	
 	@Override
 	public String toString() {
-		return this.clzName.uniqueName() + "." + this.handle;
+		return this.clzName.uniqueName() + "." + this.handler.uniqueName();
 	}
 }

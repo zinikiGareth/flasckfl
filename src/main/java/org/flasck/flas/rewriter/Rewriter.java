@@ -329,7 +329,7 @@ public class Rewriter {
 				}
 			}
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(hi.baseName, new ObjectReference(hi.location(), cardName, hi.hiName));
+				statics.put(hi.baseName, new ObjectReference(hi.location(), cardName, hi.handlerName));
 			}
 		}
 
@@ -1203,7 +1203,7 @@ public class Rewriter {
 			return null;
 		}
 		PackageVar ctr = (PackageVar) av;
-		final String rwname = hi.hiName;
+		final String rwname = hi.handlerName.uniqueName();
 		List<HandlerLambda> bvs = new ArrayList<HandlerLambda>();
 		for (Object o : hi.boundVars) {
 			HandlerLambda hl;
@@ -1218,19 +1218,19 @@ public class Rewriter {
 			bvs.add(hl);
 		}
 		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), hi.handlerName, ctr.id, hi.inCard, bvs);
-		callbackHandlers.put(hi.hiName, rw);
+		callbackHandlers.put(hi.handlerName.uniqueName(), rw);
 		return rw;
 	}
 
 	private void pass2HI(NamingContext cx, HandlerImplements hi) {
-		RWHandlerImplements ret = callbackHandlers.get(hi.hiName);
+		RWHandlerImplements ret = callbackHandlers.get(hi.handlerName.uniqueName());
 		if (ret == null)
 			return; // presumably it failed in pass1
 	}
 
 	private void rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
 		try {
-			RWHandlerImplements ret = callbackHandlers.get(hi.hiName);
+			RWHandlerImplements ret = callbackHandlers.get(hi.handlerName.uniqueName());
 			if (ret == null)
 				return; // presumably it failed in pass1
 			HandlerContext hc = new HandlerContext(cx, ret);
