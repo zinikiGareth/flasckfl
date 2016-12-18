@@ -58,7 +58,7 @@ public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 
 	private final List<ScopeEntry> defns = new ArrayList<ScopeEntry>();
 	private final Set<String> index = new TreeSet<String>();
-	private final NameOfThing scopeName;
+	public final NameOfThing scopeName;
 
 	public Scope(NameOfThing name) {
 		this.scopeName = name;

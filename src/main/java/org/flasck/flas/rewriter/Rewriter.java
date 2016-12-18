@@ -533,7 +533,8 @@ public class Rewriter {
 			if (bound.containsKey(name))
 				return bound.get(name); // a local var
 			if (inner.contains(name)) {
-				String full = inner.fullName(name);
+				VarName vn = new VarName(location, inner.scopeName, name);
+				String full = vn.jsName(); // inner.fullName(name);
 				Locatable defn = functions.get(full);
 				if (defn == null)
 					defn = standalone.get(full);
@@ -541,7 +542,7 @@ public class Rewriter {
 					defn = callbackHandlers.get(full);
 				if (defn == null)
 					throw new UtilException("Scope has definition of " + name + " as " + full + " but it is not a function, method or handler");
-				return new ScopedVar(defn.location(), full, defn, funcName);
+				return new ScopedVar(defn.location(), vn, defn, funcName);
 			}
 			Object res = nested.resolve(location, name);
 			if (res instanceof ObjectReference)
@@ -563,7 +564,7 @@ public class Rewriter {
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof LocalVar) {
 				LocalVar lv = (LocalVar) ret;
-				return new ScopedVar(lv.location(), lv.uniqueName(), lv, lv.fnName);
+				return new ScopedVar(lv.location(), lv.var, lv, lv.fnName);
 			} else
 				return ret;
 		}

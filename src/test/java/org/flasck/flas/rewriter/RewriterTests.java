@@ -82,7 +82,7 @@ public class RewriterTests {
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
 		assertEquals("ME.f", rfn.name());
 		assertTrue(rfn.cases.get(0).expr instanceof LocalVar);
-		assertEquals("x", ((LocalVar)rfn.cases.get(0).expr).var);
+		assertEquals("x", ((LocalVar)rfn.cases.get(0).expr).var.var);
 	}
 
 	@Test
@@ -152,7 +152,7 @@ public class RewriterTests {
 		assertTrue(sv instanceof ScopedVar);
 		Object lv = ((ScopedVar)sv).defn;
 		assertTrue(lv instanceof LocalVar);
-		assertEquals("x", ((LocalVar)lv).var);
+		assertEquals("x", ((LocalVar)lv).var.var);
 	}
 	
 	@Test

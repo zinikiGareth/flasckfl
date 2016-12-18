@@ -103,7 +103,7 @@ public final class DroidAppendPush implements PushVisitor {
 			}
 		} else if (pe.fn instanceof ScopedVar) {
 			ScopedVar sv = (ScopedVar) pe.fn;
-			if (sv.definedIn.equals(form.fnName)) {
+			if (sv.definedBy.equals(form.funcName)) {
 				// TODO: I'm not quite sure what should happen here, or even what this case represents, but I know it should be something to do with the *actual* function definition
 				return meth.stringConst(pe.fn.uniqueName());
 			}
