@@ -8,10 +8,7 @@ public interface TestScriptBuilder {
 	void addAssert(InputPosition evalPos, Object eval, InputPosition pos, Object valueExpr);
 	void addCreate(InputPosition at, String bindVar, String cardType);
 	void addMatch(InputPosition posn, WhatToMatch what, String selector, String contents);
-	// TODO: send
+	void addSend(InputPosition posn, String card, String contract, String method);
 
 	void addTestCase(String message);
-
-
-
 }

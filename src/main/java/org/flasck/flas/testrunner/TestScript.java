@@ -71,6 +71,11 @@ public class TestScript implements TestScriptBuilder {
 	}
 	
 	@Override
+	public void addSend(InputPosition posn, String card, String contract, String method) {
+		
+	}
+
+	@Override
 	public void addMatch(InputPosition posn, WhatToMatch what, String selector, String contents) {
 		MatchStep ms = new MatchStep(posn, what, selector, contents);
 		currentSteps.add(ms);

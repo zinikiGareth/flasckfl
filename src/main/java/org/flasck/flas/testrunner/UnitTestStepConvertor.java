@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.parser.Expression;
 import org.flasck.flas.tokenizers.KeywordToken;
+import org.flasck.flas.tokenizers.QualifiedTypeNameToken;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
@@ -28,6 +29,8 @@ public class UnitTestStepConvertor {
 			handleAssert(line, nested);
 		else if (kw.text.equals("create"))
 			handleCreate(kw, line, nested);
+		else if (kw.text.equals("send"))
+			handleSend(kw, line, nested);
 		else if (kw.text.equals("matchElement"))
 			handleMatch(kw, WhatToMatch.ELEMENT, line, nested);
 		else if (kw.text.equals("matchContents"))
@@ -85,7 +88,7 @@ public class UnitTestStepConvertor {
 		}
 		TypeNameToken card = TypeNameToken.from(line);
 		if (card == null) {
-			builder.error(line.realinfo(), "create needs a type as first argument: '" + line +"'");
+			builder.error(line.realinfo(), "create needs a type as second argument: '" + line +"'");
 			return;
 		}
 		line.skipWS();
@@ -94,6 +97,27 @@ public class UnitTestStepConvertor {
 			return;
 		}
 		builder.addCreate(kw.location, var.text, card.text);
+	}
+
+	private void handleSend(KeywordToken kw, Tokenizable line, List<Block> nested) {
+		ValidIdentifierToken var = ValidIdentifierToken.from(line);
+		if (var == null) {
+			builder.error(line.realinfo(), "send needs a card var as first argument: '" + line +"'");
+			return;
+		}
+		TypeNameToken card = QualifiedTypeNameToken.from(line);
+		if (card == null) {
+			builder.error(line.realinfo(), "send needs a contract as second argument: '" + line +"'");
+			return;
+		}
+		ValidIdentifierToken method = ValidIdentifierToken.from(line);
+		if (method == null) {
+			builder.error(line.realinfo(), "send needs a method as third argument: '" + line +"'");
+			return;
+		}
+		// TODO: handle expression arguments
+		// TODO: handle nested expectations
+		builder.addSend(kw.location, var.text, card.text, method.text);
 	}
 
 	private void handleMatch(KeywordToken kw, WhatToMatch what, Tokenizable line, List<Block> nested) {

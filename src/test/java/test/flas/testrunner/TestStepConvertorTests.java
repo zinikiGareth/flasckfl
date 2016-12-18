@@ -146,4 +146,15 @@ public class TestStepConvertorTests {
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
 		ctor.handle(new Tokenizable("matchCount div"), Arrays.asList(new Block(3, matchingText)));
 	}
+
+	@Test
+	public void testWeCanConvertSendWithNoExpressionsOrExpectations() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		context.checking(new Expectations() {{
+			oneOf(script).addSend(with(aNonNull(InputPosition.class)), with("q"), with("org.flasck.Init"), with("init"));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("send q org.flasck.Init init"), Arrays.asList());
+	}
 }

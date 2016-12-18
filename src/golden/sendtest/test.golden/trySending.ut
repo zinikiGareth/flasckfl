@@ -1,4 +1,4 @@
 	test that the card initially does not have a show tag
 		create s ControlledCard
 		matchClass div>span
-.		send s SetState setOn
+		send s SetState setOn
