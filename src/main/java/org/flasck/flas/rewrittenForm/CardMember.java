@@ -1,16 +1,17 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 
 public class CardMember implements ExternalRef {
 	public final InputPosition location;
-	public final String card;
+	public final CardName card;
 	public final String var;
 	public final Type type;
 
-	public CardMember(InputPosition location, String card, String var, Type type) {
+	public CardMember(InputPosition location, CardName card, String var, Type type) {
 		this.location = location;
 		this.card = card;
 		this.var = var;
@@ -30,7 +31,7 @@ public class CardMember implements ExternalRef {
 	}
 
 	public String uniqueName() {
-		return card +"."+var;
+		return card.jsName() +"."+var;
 	}
 	
 	public boolean fromHandler() {

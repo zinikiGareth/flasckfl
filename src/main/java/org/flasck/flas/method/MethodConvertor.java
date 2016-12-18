@@ -17,7 +17,6 @@ import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
-import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -39,12 +38,13 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
-import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.rewrittenForm.SendExpr;
+import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.types.Type;
+import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.TypedObject;
-import org.flasck.flas.types.Type.WhatAmI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
@@ -52,12 +52,10 @@ import org.zinutils.exceptions.UtilException;
 public class MethodConvertor {
 	public static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private final ErrorResult errors;
-	private final Map<String, RWContractDecl> contracts;
 	private final Type messageList;
 
 	public MethodConvertor(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
-		this.contracts = rw.contracts;
 		InputPosition posn = new InputPosition("builtin", 0, 0, "");
 		this.messageList = ((Type)rw.getMe(posn, "List").defn).instance(posn, (Type) rw.getMe(posn, "Message").defn);
 	}
@@ -70,7 +68,7 @@ public class MethodConvertor {
 
 	public void convertEventHandlers(Rewriter rw, Map<String, RWFunctionDefinition> functions, Map<String, RWEventHandlerDefinition> eventHandlers) {
 		for (RWEventHandlerDefinition x : eventHandlers.values())
-			addFunction(functions, convertEventHandler(rw, x.name().containingCard().jsName(), x));
+			addFunction(functions, convertEventHandler(rw, x));
 	}
 
 	public void convertStandaloneMethods(Rewriter rw, Map<String, RWFunctionDefinition> functions, Collection<RWMethodDefinition> methods) {
@@ -142,7 +140,7 @@ public class MethodConvertor {
 		return ret;
 	}
 
-	public RWFunctionDefinition convertEventHandler(Rewriter rw, String card, RWEventHandlerDefinition eh) {
+	public RWFunctionDefinition convertEventHandler(Rewriter rw, RWEventHandlerDefinition eh) {
 		List<Type> types = new ArrayList<Type>();
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
@@ -328,7 +326,7 @@ public class MethodConvertor {
 		if (slot instanceof CardMember) {
 			CardMember cm = (CardMember) slot;
 			intoObj = new CardStateRef(cm.location(), fromHandler);
-			CardGrouping grp = rw.cards.get(cm.card);
+			CardGrouping grp = rw.cards.get(cm.card.jsName());
 			RWStructDefn sd = grp.struct;
 			RWStructField sf = sd.findField(cm.var);
 			if (sf == null) {

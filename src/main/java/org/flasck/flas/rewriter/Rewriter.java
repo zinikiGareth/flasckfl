@@ -329,18 +329,18 @@ public class Rewriter {
 				}
 			}
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(hi.baseName, new ObjectReference(hi.location(), cardName.jsName(), hi.hiName));
+				statics.put(hi.baseName, new ObjectReference(hi.location(), cardName, hi.hiName));
 			}
 		}
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (members.containsKey(name))
-				return new CardMember(location, cardName.jsName(), name, members.get(name));
+				return new CardMember(location, cardName, name, members.get(name));
 			if (statics.containsKey(name))
 				return statics.get(name);
 			if (innerScope.contains(name))
-				return new CardFunction(location, cardName.jsName(), name);
+				return new CardFunction(location, cardName, name);
 			return nested.resolve(location, name);
 		}
 

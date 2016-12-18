@@ -14,7 +14,6 @@ public class CardDefinition implements ContainsScope, Locatable {
 	public final InputPosition kw;
 	public final InputPosition location;
 	public final String simpleName;
-	public final String name;
 	public StateDefinition state;
 	public final List<Template> templates = new ArrayList<Template>();
 	// Used during the collection process, but eliminated by detox
@@ -32,7 +31,6 @@ public class CardDefinition implements ContainsScope, Locatable {
 		this.simpleName = name.cardName;
 		outer.define(simpleName, this);
 		this.cardName = name;
-		this.name = name.jsName();
 		this.fnScope = new Scope(name);
 	}
 

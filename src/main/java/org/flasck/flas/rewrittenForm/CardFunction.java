@@ -1,14 +1,15 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.CardName;
 
 public class CardFunction implements ExternalRef {
 	public final InputPosition location;
-	public final String clzName;
+	public final CardName clzName;
 	public final String function;
 	public final boolean fromHandler;
 
-	public CardFunction(InputPosition location, String clzName, String function) {
+	public CardFunction(InputPosition location, CardName clzName, String function) {
 		this.location = location;
 		this.clzName = clzName;
 		this.function = function;
@@ -28,7 +29,7 @@ public class CardFunction implements ExternalRef {
 	}
 
 	public String uniqueName() {
-		return this.clzName + "." + this.function;
+		return this.clzName.jsName() + "." + this.function;
 	}
 
 	public boolean fromHandler() {
@@ -37,7 +38,7 @@ public class CardFunction implements ExternalRef {
 	
 	@Override
 	public String toString() {
-		return this.clzName + "." + this.function;
+		return this.clzName.jsName() + "." + this.function;
 	}
 
 	@Override
