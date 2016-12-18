@@ -20,6 +20,13 @@ public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 		return name;
 	}
 	
+	public String uniqueName() {
+		if (name == null)
+			return cardName.uniqueName();
+		else
+			return cardName.uniqueName() + "." + name;
+	}
+	
 	@Override
 	public String jsName() {
 		String cn = cardName.jsName();

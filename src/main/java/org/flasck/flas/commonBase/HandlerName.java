@@ -16,6 +16,13 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 		return name.containingCard();
 	}
 
+	public String uniqueName() {
+		if (name == null || name.jsName() == null || name.jsName().length() == 0)
+			return baseName;
+		else
+			return name.uniqueName() + "." + baseName;
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(HandlerName o) {

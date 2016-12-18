@@ -12,6 +12,10 @@ public class AreaName implements NameOfThing, Comparable<AreaName> {
 		this.simple = areaName;
 	}
 	
+	public String uniqueName() {
+		return cardName.uniqueName() + "." + simple;
+	}
+	
 	public String jsName() {
 		return cardName.jsUName() + "." + simple;
 	}

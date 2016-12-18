@@ -15,6 +15,13 @@ public class StructName implements NameOfThing, Comparable<StructName> {
 		return name;
 	}
 	
+	public String uniqueName() {
+		if (container == null || container.jsName() == null || container.jsName().length() == 0)
+			return name;
+		else
+			return container.uniqueName() + "." + name;
+	}
+	
 	@Override
 	public String jsName() {
 		if (container == null || container.jsName() == null || container.jsName().length() == 0)

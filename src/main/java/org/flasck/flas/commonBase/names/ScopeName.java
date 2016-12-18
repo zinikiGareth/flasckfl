@@ -16,6 +16,13 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 		return inside.containingCard();
 	}
 
+	public String uniqueName() {
+		if (inside == null)
+			return myname;
+		else
+			return inside.uniqueName() + "." + myname;
+	}
+	
 	@Override
 	public String jsName() {
 		return (inside == null?myname:inside.jsName()+"."+myname);

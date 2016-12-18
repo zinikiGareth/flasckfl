@@ -15,6 +15,10 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 		return card;
 	}
 	
+	public String uniqueName() {
+		return card.uniqueName() + "." + cname;
+	}
+	
 	@Override
 	public String jsName() {
 		return card.jsName() + "." + cname;

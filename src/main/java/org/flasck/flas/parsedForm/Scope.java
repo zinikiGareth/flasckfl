@@ -91,7 +91,7 @@ public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 	public void define(String key, Object defn) {
 		if (key.contains("."))
 			throw new ScopeDefineException("Cannot define an entry in a scope with a compound key: " + key);
-		ScopeEntry ret = new ScopeEntry(key, scopeName.jsName()+"."+key, defn);
+		ScopeEntry ret = new ScopeEntry(key, scopeName.uniqueName()+"."+key, defn);
 		defns.add(ret);
 		index.add(key);
 	}

@@ -14,6 +14,10 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 		return null;
 	}
 	
+	public String uniqueName() {
+		return name;
+	}
+	
 	@Override
 	public String jsName() {
 		return name;

@@ -650,7 +650,7 @@ public class Rewriter {
 				pass1(new CardContext((PackageContext) cx, cg.name(), cd, false), cd.fnScope);
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
-				String fn = c.functionName().jsName();
+				String fn = c.functionName().uniqueName();
 				if (functions.containsKey(fn)) {
 					RWFunctionDefinition ret = functions.get(fn);
 					if (prev != null && !prev.equals(name))
@@ -666,7 +666,7 @@ public class Rewriter {
 				pass1(new Pass1ScopeContext(cx), c.innerScope());
 			} else if (val instanceof MethodCaseDefn) {
 				MethodCaseDefn m = (MethodCaseDefn) val;
-				String mn = m.methodName().jsName();
+				String mn = m.methodName().uniqueName();
 				if (methods.containsKey(mn)) {
 					RWMethodDefinition ret = methods.get(mn);
 					if (prev != null && !prev.equals(name))
@@ -675,12 +675,12 @@ public class Rewriter {
 						errors.message(m.location(), "inconsistent argument counts in function " + mn);
 				} else {
 					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
-					standalone.put(rw.name().jsName(), rw);
+					standalone.put(rw.name().uniqueName(), rw);
 				}
 				pass1(cx, m.innerScope());
 			} else if (val instanceof EventCaseDefn) {
 				EventCaseDefn ehd = (EventCaseDefn) val;
-				String mn = ehd.methodName().jsName();
+				String mn = ehd.methodName().uniqueName();
 				if (eventHandlers.containsKey(mn)) {
 					RWEventHandlerDefinition rw = eventHandlers.get(mn);
 					if (prev != null && !prev.equals(name))
@@ -691,7 +691,7 @@ public class Rewriter {
 						errors.message(ehd.location(), "inconsistent argument counts in function " + mn);
 				} else {
 					RWEventHandlerDefinition rw = new RWEventHandlerDefinition(ehd.intro.name(), ehd.intro.args.size());
-					eventHandlers.put(rw.name().jsName(), rw);
+					eventHandlers.put(rw.name().uniqueName(), rw);
 				}
 				pass1(cx, ehd.innerScope());
 			} else if (val instanceof StructDefn) {
@@ -790,12 +790,12 @@ public class Rewriter {
 	private CardGrouping createCard(PackageContext cx, CardDefinition cd) {
 		RWStructDefn sd = new RWStructDefn(cd.location, new StructName(cd.cardName.pkg, cd.cardName.cardName), false);
 		CardGrouping grp = new CardGrouping(cd.cardName, sd);
-		cards.put(cd.cardName.jsName(), grp);
+		cards.put(cd.cardName.uniqueName(), grp);
 		return grp;
 	}
 	
 	private CardGrouping pass2Card(NamingContext cx, CardDefinition cd) {
-		CardGrouping grp = cards.get(cd.cardName.jsName());
+		CardGrouping grp = cards.get(cd.cardName.uniqueName());
 		for (ContractImplements ci : cd.contracts) {
 			RWContractImplements rw = rewriteCI(cx, ci);
 			if (rw == null)
@@ -821,7 +821,7 @@ public class Rewriter {
 	private void rewriteCard(NamingContext cx, CardDefinition cd) {
 		if (!(cx instanceof PackageContext))
 			throw new UtilException("Cannot have card in nested scope: " + cx.getClass());
-		CardGrouping grp = cards.get(cd.cardName.jsName());
+		CardGrouping grp = cards.get(cd.cardName.uniqueName());
 		RWStructDefn sd = grp.struct;
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
@@ -1732,9 +1732,9 @@ public class Rewriter {
 			for (Entry<String, CardGrouping> x : cards.entrySet())
 				System.out.println("Card " + x.getKey());
 			for (Entry<CSName, RWContractImplements> x : cardImplements.entrySet())
-				System.out.println("Impl " + x.getKey().jsName());
+				System.out.println("Impl " + x.getKey().uniqueName());
 			for (Entry<CSName, RWContractService> x : cardServices.entrySet())
-				System.out.println("Service " + x.getKey().jsName());
+				System.out.println("Service " + x.getKey().uniqueName());
 			for (Entry<String, RWHandlerImplements> x : callbackHandlers.entrySet())
 				System.out.println("Handler " + x.getKey());
 			for (Entry<String, RWFunctionDefinition> x : functions.entrySet()) {
@@ -1817,7 +1817,7 @@ public class Rewriter {
 	}
 
 	private void writeMethod(Indenter pw, RWMethodDefinition m) {
-		pw.println("method " + m.name().jsName());
+		pw.println("method " + m.name().uniqueName());
 		for (ScopedVar sv : m.scopedVars)
 			pw.indent().println("nested " + sv.id + " " + sv.definedIn);
 		for (RWMethodCaseDefn c : m.cases)
@@ -1825,7 +1825,7 @@ public class Rewriter {
 	}
 
 	private void writeMethodCase(Indenter pw, RWMethodCaseDefn c) {
-		pw.println("case " + c.intro.fnName.jsName());
+		pw.println("case " + c.intro.fnName.uniqueName());
 		for (Object a : c.intro.args)
 			writeArgumentTo(pw.indent(), a);
 		pw.println("=");
@@ -1866,7 +1866,7 @@ public class Rewriter {
 
 	private void writeArgumentTo(Indenter pw, Object a) {
 		if (a instanceof RWVarPattern) {
-			pw.println("var " + ((RWVarPattern)a).var.jsName());
+			pw.println("var " + ((RWVarPattern)a).var.uniqueName());
 		} else if (a instanceof RWTypedPattern) {
 			RWTypedPattern tp = (RWTypedPattern)a;
 			pw.println("typed " + tp.type + " " + tp.var);

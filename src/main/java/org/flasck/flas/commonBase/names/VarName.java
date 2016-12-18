@@ -19,6 +19,10 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 		return scope.containingCard();
 	}
 
+	public String uniqueName() {
+		return scope.uniqueName() + "." + var;
+	}
+	
 	@Override
 	public String jsName() {
 		return scope.jsName() + "." + var;

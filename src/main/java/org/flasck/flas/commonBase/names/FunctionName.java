@@ -70,6 +70,13 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return inContext.containingCard();
 	}
 
+	public String uniqueName() {
+		if (inContext == null || inContext.jsName() == null || inContext.jsName().length() == 0)
+			return name;
+		else
+			return inContext.uniqueName() + "." + name;
+	}
+	
 	public String jsName() {
 		if (inContext == null || inContext.jsName() == null || inContext.jsName().length() == 0)
 			return name;
