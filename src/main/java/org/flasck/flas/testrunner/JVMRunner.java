@@ -16,7 +16,11 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.jdk.post.JDKPostbox;
 import org.flasck.jvm.post.Postbox;
 import org.jsoup.Jsoup;
@@ -28,14 +32,18 @@ import org.zinutils.reflection.Reflection;
 
 public class JVMRunner implements TestRunner {
 	private final CompileResult prior;
+	private final String testPkg;
 	private final String scriptPkg;
 	private final BCEClassLoader loader;
 	private final Document document;
 	private final Map<String, FlasckActivity> cards = new TreeMap<String, FlasckActivity>();
+	private final Map<String, CardDefinition> cdefns = new TreeMap<>();
+	private final Postbox postbox = new JDKPostbox();
 
 	public JVMRunner(CompileResult prior) {
 		this.prior = prior;
-		scriptPkg = prior.getPackage()+".script";
+		testPkg = prior.getPackage();
+		scriptPkg = testPkg+".script";
 		loader = new BCEClassLoader(prior.bce);
 		document = Jsoup.parse("<html><head></head><body></body></html>");
 	}
@@ -93,12 +101,16 @@ public class JVMRunner implements TestRunner {
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 
+		ScopeEntry se = prior.getScope().get(cardType.cardName);
+		if (se == null)
+			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
+		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
+			throw new UtilException(cardType.cardName + " is not a card");
+		CardDefinition cd = (CardDefinition) se.getValue();
 		try {
 			@SuppressWarnings("unchecked")
 			Class<? extends FlasckActivity> clz = (Class<? extends FlasckActivity>) loader.loadClass(cardType.javaName());
-			Postbox postbox = new JDKPostbox();
 			List<Object> services = new ArrayList<>();
-			System.out.println(document);
 			Element body = document.select("body").get(0);
 			Element div = document.createElement("div");
 			body.appendChild(div);
@@ -108,7 +120,7 @@ public class JVMRunner implements TestRunner {
 			FlasckActivity card = Reflection.create(clz);
 			card.init(postbox, div, clz, services);
 			card.render("body");
-			System.out.println(div);
+			cdefns.put(bindVar, cd);
 			cards.put(bindVar, card);
 		} catch (Exception ex) {
 			throw UtilException.wrap(ex);
@@ -116,9 +128,30 @@ public class JVMRunner implements TestRunner {
 	}
 
 	@Override
-	public void send() {
-		// TODO Auto-generated method stub
+	public void send(String cardVar, String contractName, String methodName) {
+		if (!cdefns.containsKey(cardVar))
+			throw new UtilException("there is no card '" + cardVar + "'");
+
+		CardDefinition cd = cdefns.get(cardVar);
 		
+		String fullName = contractName;
+		if (!contractName.contains("."))
+			fullName = testPkg + "." + contractName;
+		ContractImplements ctr = null;
+		for (ContractImplements x : cd.contracts)
+			if (x.name().equals(contractName) || x.name().equals(fullName))
+				ctr = x;
+		if (ctr == null)
+			throw new UtilException("the card '" + cardVar + "' does not have the contract '" + contractName +"'");
+
+		MethodCaseDefn meth = null;
+		for (MethodCaseDefn q : ctr.methods) {
+			if (q.methodName().name.equals(methodName))
+				meth = q;
+		}
+		if (meth == null)
+			throw new UtilException("the contract '" + contractName + "' does not have the method '" + methodName +"'");
+		FlasckActivity card = cards.get(cardVar);
 	}
 
 	@Override

@@ -15,13 +15,19 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
+import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContractImplements;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
+
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
 import com.ui4j.api.browser.Page;
+
 import javafx.application.Platform;
 import netscape.javascript.JSObject;
 
@@ -61,15 +67,17 @@ public class JSRunner implements TestRunner {
 	private final CompileResult prior;
 	private final BrowserEngine browser;
 	private Page page;
+	private final String testPkg;
 	private String spkg;
 	private Map<String, JSObject> cards = new TreeMap<String, JSObject>();
+	private final Map<String, CardDefinition> cdefns = new TreeMap<>();
 	
 	public JSRunner(CompileResult cr) {
         this.prior = cr;
+		testPkg = prior.getPackage();
 		browser = BrowserFactory.getWebKit();
 	}
 
-	 // This is feeling more and more like a characterization test
 	@Override
 	public void prepareScript(ScriptCompiler compiler, Scope scope) {
 		CompileResult tcr = null;
@@ -136,6 +144,13 @@ public class JSRunner implements TestRunner {
 		if (cards.containsKey(bindVar))
 			throw new UtilException("Duplicate card assignment to '" + bindVar + "'");
 		
+		ScopeEntry se = prior.getScope().get(cardType.cardName);
+		if (se == null)
+			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
+		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
+			throw new UtilException(cardType.cardName + " is not a card");
+		CardDefinition cd = (CardDefinition) se.getValue();
+
 		// this first line probably should be earlier
 		String l0 = "_tmp_postbox = new Postbox('main', window);";
 
@@ -151,13 +166,35 @@ public class JSRunner implements TestRunner {
 		if (err != null)
 			throw new UtilException("Error processing javascript: " + err);
 		JSObject card = (JSObject) page.executeScript("_tmp_handle");
+		cdefns.put(bindVar, cd);
 		cards.put(bindVar, card);
 	}
 
 	@Override
-	public void send() {
-		// TODO Auto-generated method stub
+	public void send(String cardVar, String contractName, String methodName) {
+		if (!cdefns.containsKey(cardVar))
+			throw new UtilException("there is no card '" + cardVar + "'");
+
+		CardDefinition cd = cdefns.get(cardVar);
 		
+		String fullName = contractName;
+		if (!contractName.contains("."))
+			fullName = testPkg + "." + contractName;
+		ContractImplements ctr = null;
+		for (ContractImplements x : cd.contracts)
+			if (x.name().equals(contractName) || x.name().equals(fullName))
+				ctr = x;
+		if (ctr == null)
+			throw new UtilException("the card '" + cardVar + "' does not have the contract '" + contractName +"'");
+
+		MethodCaseDefn meth = null;
+		for (MethodCaseDefn q : ctr.methods) {
+			if (q.methodName().name.equals(methodName))
+				meth = q;
+		}
+		if (meth == null)
+			throw new UtilException("the contract '" + contractName + "' does not have the method '" + methodName +"'");
+		JSObject card = cards.get(cardVar);
 	}
 
 	@Override

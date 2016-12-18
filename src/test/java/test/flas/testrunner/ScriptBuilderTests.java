@@ -207,7 +207,7 @@ public class ScriptBuilderTests {
 		String contract = "org.flasck.Init";
 		String method = "init";
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).send();
+			oneOf(stepRunner).send(card, contract, method);
 		}});
 		script.addSend(posn, card, contract, method);
 		script.addTestCase(TEST_CASE_NAME);
