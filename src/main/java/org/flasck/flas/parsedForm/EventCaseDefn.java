@@ -35,10 +35,6 @@ public class EventCaseDefn implements Locatable, MessagesHandler, ContainsScope 
 		this.scope = new Scope(this.caseName);
 	}
 
-	public String caseNameAsString() {
-		return caseName.jsName();
-	}
-	
 	public ScopeName caseName() {
 		return caseName;
 	}
@@ -51,7 +47,7 @@ public class EventCaseDefn implements Locatable, MessagesHandler, ContainsScope 
 	
 	@Override
 	public String toString() {
-		return "ECD[" + intro.name + "/" + intro.args.size() + "]";
+		return "ECD[" + intro.name().uniqueName() + "/" + intro.args.size() + "]";
 	}
 
 	public Scope innerScope() {

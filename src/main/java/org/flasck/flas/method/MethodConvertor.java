@@ -84,7 +84,7 @@ public class MethodConvertor {
 
 	// 2. Convert An individual element
 	protected RWFunctionDefinition convertMethod(Rewriter rw, RWMethodDefinition m) {
-		logger.info("Converting " + (m.dir == RWMethodDefinition.DOWN?"down":"up") + " " + m.name().jsName());
+		logger.info("Converting " + (m.dir == RWMethodDefinition.DOWN?"down":"up") + " " + m.name().uniqueName());
 		// Get the contract and from that find the method and thus the argument types
 		List<Type> types;
 		if (m.fromContract == null) {
@@ -107,7 +107,7 @@ public class MethodConvertor {
 			if (mcd.intro.args.size() != types.size()) {
 				if (!mcd.intro.args.isEmpty())
 					loc = ((Locatable)mcd.intro.args.get(0)).location();
-				errors.message(loc, "incorrect number of formal parameters to contract method '" + mcd.intro.fnName.jsName() +"': expected " + types.size() + " but was " + mcd.intro.args.size());
+				errors.message(loc, "incorrect number of formal parameters to contract method '" + mcd.intro.fnName.uniqueName() +"': expected " + types.size() + " but was " + mcd.intro.args.size());
 				continue;
 			}
 			
@@ -155,7 +155,7 @@ public class MethodConvertor {
 	}
 
 	public RWFunctionDefinition convertStandalone(Rewriter rw, RWMethodDefinition method) {
-		logger.info("Converting standalone " + method.name().jsName());
+		logger.info("Converting standalone " + method.name().uniqueName());
 		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
 		// This seems likely to fail quite often :-)
 		margs.addAll(method.cases.get(0).intro.args);
@@ -166,7 +166,7 @@ public class MethodConvertor {
 		if (method.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
-		logger.info("Converting standalone " + method.name().jsName());
+		logger.info("Converting standalone " + method.name().uniqueName());
 		List<RWFunctionCaseDefn> cases = new ArrayList<RWFunctionCaseDefn>();
 		for (RWMethodCaseDefn c : method.cases) {
 			TypedObject typedObject = convertMessagesToActionList(rw, method.location(), margs, types, c.messages, method.type.isHandler());
@@ -184,8 +184,7 @@ public class MethodConvertor {
 			return null;
 		}
 		RWContractMethodDecl cmd = null;
-		int idx = m.name().jsName().lastIndexOf(".");
-		String mn = m.name().jsName().substring(idx+1);
+		String mn = m.name().name;
 		for (RWContractMethodDecl md : m.fromContract.methods) {
 			if (mn.equals(md.name)) {
 				if (m.dir == RWMethodDefinition.DOWN && md.dir.equals("up")) {
@@ -257,7 +256,7 @@ public class MethodConvertor {
 					for (int i=0;t == null && i<margs.size();i++) {
 						if (margs.get(i) instanceof RWTypedPattern && ((RWTypedPattern)margs.get(i)).var.equals(m))
 							t = ((RWTypedPattern)margs.get(i)).type;
-						else if (margs.get(i) instanceof RWVarPattern && ((RWVarPattern)margs.get(i)).var.jsName().equals(m))
+						else if (margs.get(i) instanceof RWVarPattern && ((RWVarPattern)margs.get(i)).var.uniqueName().equals(m))
 							t = types.get(i);
 					}
 					if (t == null)

@@ -8,14 +8,12 @@ import org.zinutils.exceptions.UtilException;
 
 public class FunctionIntro {
 	public final InputPosition location;
-	public final String name;
 	public final List<Object> args;
 	private FunctionName fname;
 
 	public FunctionIntro(FunctionName fname, List<Object> args) {
 		this.location = fname.location;
 		this.fname = fname;
-		this.name = fname.jsName();
 		this.args = args;
 	}
 
@@ -27,6 +25,6 @@ public class FunctionIntro {
 
 	@Override
 	public String toString() {
-		return "FI[" + name + "/" + args.size() + "]";
+		return "FI[" + name().uniqueName() + "/" + args.size() + "]";
 	}
 }

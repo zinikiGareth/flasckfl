@@ -392,7 +392,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pw.indent(), ce.expr);
 		} else if (obj instanceof FunctionCaseDefn) {
 			FunctionCaseDefn fcd = (FunctionCaseDefn) obj;
-			pw.print(fcd.intro.name);
+			pw.print(fcd.intro.name().jsName());
 			dumpLocation(pw, fcd);
 			dumpList(pw, fcd.intro.args);
 			pw.println(" =");

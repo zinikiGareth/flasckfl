@@ -36,6 +36,6 @@ public class ContractDecl implements Locatable {
 	
 	@Override
 	public String toString() {
-		return "contract " + contractName.jsName();
+		return "contract " + contractName.uniqueName();
 	}
 }

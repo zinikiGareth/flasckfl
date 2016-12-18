@@ -834,11 +834,11 @@ public class Rewriter {
 			RWContractImplements rw = cardImplements.get(ci.getRealName());
 
 			for (MethodCaseDefn c : ci.methods) {
-				if (methods.containsKey(c.intro.name))
+				if (methods.containsKey(c.intro.name().uniqueName()))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
 				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.name()), HSIEForm.CodeType.CONTRACT, RWMethodDefinition.DOWN, c.location(), c.intro.name(), c.intro.args.size());
 				rewriteCase(c2, rwm, c, true, false);
-				methods.put(c.intro.name, rwm);
+				methods.put(c.intro.name().uniqueName(), rwm);
 				rw.methods.add(rwm);
 				rwm.gatherScopedVars();
 			}
@@ -848,11 +848,11 @@ public class Rewriter {
 			RWContractService rw = cardServices.get(cs.getRealName());
 
 			for (MethodCaseDefn c : cs.methods) {
-				if (methods.containsKey(c.intro.name))
+				if (methods.containsKey(c.intro.name().uniqueName()))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
 				RWMethodDefinition rwm = new RWMethodDefinition(rw.location(), contracts.get(rw.name()), HSIEForm.CodeType.SERVICE, RWMethodDefinition.UP, c.intro.location, c.intro.name(), c.intro.args.size());
 				rewriteCase(c2, rwm, c, true, false);
-				methods.put(c.intro.name, rwm);
+				methods.put(c.intro.name().uniqueName(), rwm);
 				rwm.gatherScopedVars();
 			}
 		}
@@ -1235,13 +1235,13 @@ public class Rewriter {
 				return; // presumably it failed in pass1
 			HandlerContext hc = new HandlerContext(cx, ret);
 			for (MethodCaseDefn c : hi.methods) {
-				if (methods.containsKey(c.intro.name))
+				if (methods.containsKey(c.intro.name().uniqueName()))
 					throw new UtilException("Error or exception?  I think this is two methods with the same name");
 				RWMethodDefinition rm = new RWMethodDefinition(ret.location(), contracts.get(ret.name()), HSIEForm.CodeType.HANDLER, RWMethodDefinition.DOWN, c.intro.location, c.intro.name(), c.intro.args.size());
 				rewriteCase(hc, rm, c, true, false);
 				ret.methods.add(rm);
 				rm.gatherScopedVars();
-				methods.put(c.intro.name, rm);
+				methods.put(c.intro.name().uniqueName(), rm);
 			}
 
 			// Create a struct to store the state.  It feels weird creating a struct in pass3, but we don't creating the bound vars for scoped/lambdas
@@ -1281,7 +1281,7 @@ public class Rewriter {
 	}
 
 	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodCaseDefn c, HSIEForm.CodeType codeType) {
-		RWMethodDefinition rm = standalone.get(c.intro.name);
+		RWMethodDefinition rm = standalone.get(c.intro.name().uniqueName());
 		rewriteCase(cx, rm, c, false, true);
 		rm.gatherScopedVars();
 	}
@@ -1294,7 +1294,7 @@ public class Rewriter {
 	}
 
 	private void rewrite(NamingContext cx, EventCaseDefn c) {
-		RWEventHandlerDefinition rw = eventHandlers.get(c.intro.name);
+		RWEventHandlerDefinition rw = eventHandlers.get(c.intro.name().uniqueName());
 		Map<String, LocalVar> vars = new HashMap<>();
 		gatherVars(errors, this, cx, rw.name(), rw.name(), vars, c.intro);
 		rw.cases.add(rewrite(new FunctionCaseContext(cx, c.methodName(), c.caseName(), vars, c.innerScope(), false), c, vars));

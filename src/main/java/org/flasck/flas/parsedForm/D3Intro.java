@@ -22,6 +22,6 @@ public class D3Intro {
 
 	@Override
 	public String toString() {
-		return "D3[" + name +","+ expr +"," + iterVar.jsName() +"]";
+		return "D3[" + name +","+ expr +"," + iterVar.uniqueName() +"]";
 	}
 }

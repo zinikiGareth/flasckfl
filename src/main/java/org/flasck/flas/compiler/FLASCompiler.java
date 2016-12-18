@@ -320,12 +320,12 @@ public class FLASCompiler implements ScriptCompiler {
 				dg.generateContractDecl(c.getKey(), c.getValue());
 			}
 			for (Entry<CSName, RWContractImplements> ci : rewriter.cardImplements.entrySet()) {
-				gen.generateContract(ci.getKey().jsName(), ci.getValue());
-				dg.generateContractImpl(ci.getKey().jsName(), ci.getValue());
+				gen.generateContract(ci.getKey().uniqueName(), ci.getValue());
+				dg.generateContractImpl(ci.getKey().uniqueName(), ci.getValue());
 			}
 			for (Entry<CSName, RWContractService> cs : rewriter.cardServices.entrySet()) {
-				gen.generateService(cs.getKey().jsName(), cs.getValue());
-				dg.generateService(cs.getKey().jsName(), cs.getValue());
+				gen.generateService(cs.getKey().uniqueName(), cs.getValue());
+				dg.generateService(cs.getKey().uniqueName(), cs.getValue());
 			}
 			for (Entry<String, RWHandlerImplements> hi : rewriter.callbackHandlers.entrySet()) {
 				gen.generateHandler(hi.getKey(), hi.getValue());

@@ -190,7 +190,7 @@ public class FLASStory {
 			try {
 				if (o instanceof FunctionCaseDefn) {
 					FunctionCaseDefn fcd = (FunctionCaseDefn)o;
-					int caseName = ret.caseName(fcd.intro.name);
+					int caseName = ret.caseName(fcd.intro.name().uniqueName());
 					fcd.provideCaseName(caseName);
 					ret.define(fcd.functionName().name, fcd);
 					if (!b.nested.isEmpty()) {
@@ -198,7 +198,7 @@ public class FLASStory {
 					}
 				} else if (o instanceof FunctionIntro) {
 					FunctionIntro fi = (FunctionIntro) o;
-					int caseName = ret.caseName(fi.name);
+					int caseName = ret.caseName(fi.name().uniqueName());
 					Object[] arr = doCompoundFunction(er, b, fi);
 					if (arr == null)
 						continue;
@@ -355,7 +355,7 @@ public class FLASStory {
 						throw new UtilException("Should work, but not implemented: see other FunctionIntro cases in FLASStory and doCompoundFunction, but I think everything is broken");
 					else if (omm.what instanceof FunctionCaseDefn) {
 						FunctionCaseDefn fcd = (FunctionCaseDefn) omm.what;
-						int caseName = sd.innerScope().caseName(fcd.intro.name);
+						int caseName = sd.innerScope().caseName(fcd.intro.name().uniqueName());
 						fcd.provideCaseName(caseName);
 						sd.innerScope().define(fcd.functionName().name, fcd);
 						if (!b.nested.isEmpty()) {
@@ -492,7 +492,7 @@ public class FLASStory {
 			} else if (o instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fcd = (FunctionCaseDefn) o;
 				inner.define(fcd.functionName().name, fcd);
-				int caseName = inner.caseName(fcd.intro.name);
+				int caseName = inner.caseName(fcd.intro.name().uniqueName());
 				fcd.provideCaseName(caseName);
 			} else if (o instanceof FunctionIntro) {
 				// TODO: this code has never been tested in anger
@@ -504,7 +504,7 @@ public class FLASStory {
 					continue;
 				Block lastBlock = (Block) arr[1];
 				FunctionCaseDefn fcd = new FunctionCaseDefn(fi.name(), fi.args, arr[0]);
-				int caseName = inner.caseName(fcd.intro.name);
+				int caseName = inner.caseName(fcd.intro.name().uniqueName());
 				fcd.provideCaseName(caseName);
 				inner.define(fcd.functionName().name, fcd);
 				if (!lastBlock.nested.isEmpty()) {

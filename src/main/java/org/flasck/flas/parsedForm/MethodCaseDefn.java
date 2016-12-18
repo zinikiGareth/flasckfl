@@ -59,6 +59,6 @@ public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope
 	
 	@Override
 	public String toString() {
-		return "MCD[" + intro.name + "/" + intro.args.size() + "]";
+		return "MCD[" + intro.name().uniqueName() + "/" + intro.args.size() + "]";
 	}
 }

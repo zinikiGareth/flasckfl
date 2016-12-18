@@ -70,6 +70,6 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 	
 	@Override
 	public String toString() {
-		return "FCD[" + intro.name + "/" + intro.args.size() + "]";
+		return "FCD[" + intro.name().uniqueName() + "/" + intro.args.size() + "]";
 	}
 }
