@@ -349,7 +349,7 @@ public class JSForm {
 				} else if (pe.fn instanceof ScopedVar) {
 					int j = 0;
 					ScopedVar sv = (ScopedVar) pe.fn;
-					if (sv.definedIn.equals(form.fnName)) {
+					if (sv.definedBy.equals(form.funcName)) {
 						return null;
 					}
 					for (ScopedVar s : form.scoped)
@@ -358,7 +358,7 @@ public class JSForm {
 							return null;
 						} else
 							j++;
-					throw new UtilException("ScopedVar not in scope: " + pe.fn + " in " + form.fnName + ": we have " + form.scoped);
+					throw new UtilException("ScopedVar not in scope: " + pe.fn + " in " + form.funcName.uniqueName() + ": we have " + form.scoped);
 				} else if (pe.fn instanceof ObjectReference) {
 					sb.append(pe.fn.uniqueName());
 				} else if (pe.fn instanceof CardFunction) {

@@ -11,13 +11,10 @@ public class ScopedVar implements ExternalRef {
 	@Deprecated
 	public final String id;
 	public final Object defn;
-	@Deprecated
-	public String definedIn; // TODO: should be passed-in FunctionName; need to check usages carefully because there's a lot of equals()
 	public FunctionName definedBy;
 
 	public ScopedVar(InputPosition location, VarName id, Object defn, FunctionName definedBy) {
 		this.definedBy = definedBy;
-		definedIn = definedBy.jsName();
 		if (defn == null)
 			throw new NullPointerException("NestedVar cannot be in a null function");
 		if (location == null)

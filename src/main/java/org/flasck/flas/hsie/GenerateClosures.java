@@ -65,7 +65,7 @@ public class GenerateClosures {
 		allScoped.addAll(form.scopedDefinitions);
 		Map<String, ClosureCmd> map = new HashMap<>();
 		for (ScopedVar sv : allScoped) {
-			if (!sv.definedIn.equals(form.fnName))
+			if (!sv.definedBy.equals(form.funcName))
 				continue;
 			if (sv.defn instanceof LocalVar)
 				continue;
@@ -196,12 +196,12 @@ public class GenerateClosures {
 
 	public LocatedObject process(ScopedVar sv) {
 		String var = sv.id;
-		if (!sv.definedIn.equals(form.fnName)) {
+		if (!sv.definedBy.equals(form.funcName)) {
 			return new LocatedObject(sv.location, sv);
 		}
 		if (substs.containsKey(var))
 			return new LocatedObject(sv.location, substs.get(var));
-		throw new UtilException("Scoped var " + var + " not in " + substs + " for " + form.fnName);
+		throw new UtilException("Scoped var " + var + " not in " + substs + " for " + form.funcName);
 	}
 
 	public LocatedObject process(IterVar expr) {
