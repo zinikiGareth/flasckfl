@@ -60,6 +60,10 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			}
 		}
 		{
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "org.flasck.jvm.ActivityDelegate").dontGenerate();
+			bcc.defineField(true, Access.PUBLIC, "org.flasck.jvm.Wrapper", "wrapper");
+		}
+		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.SetState");
 			bcc.superclass("org.flasck.jvm.ContractImpl");
 			{
@@ -97,7 +101,8 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		}
 		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card");
-			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jvm.Wrapper"), "_wrapper");
+			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jvm.ActivityDelegate"), "_delegate");
+//			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jvm.Wrapper"), "_wrapper");
 			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jdk.display.JDKDisplay"), "_display");
 			bcc.superclass("org.flasck.android.FlasckActivity");
 			{
@@ -122,7 +127,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				PendingVar into = ann.argument("java.lang.String", "into");
 				ann.returns(JavaType.void_);
 				NewMethodDefiner meth = ann.done();
-				meth.makeNewVoid("test.runner.Card$B1", meth.myThis(), meth.makeNew("org.flasck.jvm.areas.CardArea", meth.getField("_wrapper"), meth.as(meth.getField("_display"), "org.flasck.jvm.display.DisplayEngine"), into.getVar())).flush();
+				meth.makeNewVoid("test.runner.Card$B1", meth.myThis(), meth.makeNew("org.flasck.jvm.areas.CardArea", meth.getField(meth.getField("_delegate"), "wrapper"), meth.as(meth.getField("_display"), "org.flasck.jvm.display.DisplayEngine"), into.getVar())).flush();
 				meth.returnVoid().flush();
 			}
 		}

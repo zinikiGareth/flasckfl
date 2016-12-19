@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 public abstract class CommonTestRunner implements TestRunner {
-	protected static Logger logger = LoggerFactory.getLogger("JSRunner");
+	protected static Logger logger = LoggerFactory.getLogger("TestRunner");
 	protected final CompileResult prior;
 	protected final String testPkg;
 	protected String spkg;
