@@ -260,7 +260,7 @@ public class FLASCompiler implements ScriptCompiler {
 			rewriter.importPackage1(rootPkg);
 			
 			for (CompileResult cr : priors) {
-				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage(), cr.exports());
+				PackageImporter.importInto(rewriter.pkgFinder, errors, rewriter, cr.getPackage().uniqueName(), cr.exports());
 			}
 			
 			rewriter.rewritePackageScope(prior, inPkg, scope);
@@ -435,7 +435,7 @@ public class FLASCompiler implements ScriptCompiler {
 			}
 			abortIfErrors(errors);
 
-			return new CompileResult(inPkg, scope, bce, tc2).addJS(writeTo);
+			return new CompileResult(scope, bce, tc2).addJS(writeTo);
 		} finally {
 			try { if (wjs != null) wjs.close(); } catch (IOException ex) {}
 			try { if (wex != null) wex.close(); } catch (IOException ex) {}

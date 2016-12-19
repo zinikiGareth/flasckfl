@@ -29,7 +29,7 @@ public class UnitTestRunner {
 	}
 	
 	public void run(File f, TestRunner runner) throws ClassNotFoundException, IOException, ErrorResultException {
-		String scriptPkg = prior.getPackage() + ".script";
+		String scriptPkg = prior.getPackage().uniqueName() + ".script";
 		TestScript script = convertScript(prior.getScope(), scriptPkg, f);
 		if (errors.hasErrors())
 			throw new ErrorResultException(errors);

@@ -17,11 +17,8 @@ import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zinutils.exceptions.UtilException;
 
 import com.ui4j.api.browser.BrowserEngine;
@@ -31,8 +28,7 @@ import com.ui4j.api.browser.Page;
 import javafx.application.Platform;
 import netscape.javascript.JSObject;
 
-public class JSRunner implements TestRunner {
-	private static Logger logger = LoggerFactory.getLogger("JSRunner");
+public class JSRunner extends CommonTestRunner {
 	public class MyLogger {
 		public void log(String s) {
 			logger.info(s);
@@ -64,17 +60,12 @@ public class JSRunner implements TestRunner {
 	
 	private final MyLogger ml = new MyLogger();
 	private final SetTimeout st = new SetTimeout();
-	private final CompileResult prior;
 	private final BrowserEngine browser;
 	private Page page;
-	private final String testPkg;
-	private String spkg;
 	private Map<String, JSObject> cards = new TreeMap<String, JSObject>();
-	private final Map<String, CardDefinition> cdefns = new TreeMap<>();
 	
 	public JSRunner(CompileResult cr) {
-        this.prior = cr;
-		testPkg = prior.getPackage();
+		super(cr);
 		browser = BrowserFactory.getWebKit();
 	}
 
@@ -87,7 +78,7 @@ public class JSRunner implements TestRunner {
 			scriptDir.deleteOnExit();
 			try {
 				compiler.writeJSTo(scriptDir);
-				tcr = compiler.createJS(prior.getPackage() + ".script", prior, scope);
+				tcr = compiler.createJS(prior.getPackage().uniqueName() + ".script", prior, scope);
 			} catch (ErrorResultException ex) {
 				ex.errors.showTo(new PrintWriter(System.err), 0);
 				fail("Errors compiling test script");
@@ -113,7 +104,7 @@ public class JSRunner implements TestRunner {
 			JSObject win = (JSObject)page.executeScript("window");
 			win.setMember("console", ml);
 			win.setMember("callJava", st);
-			spkg = tcr.getPackage();
+			spkg = tcr.getPackage().uniqueName();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new UtilException("Failed", ex);
@@ -178,25 +169,7 @@ public class JSRunner implements TestRunner {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
-		CardDefinition cd = cdefns.get(cardVar);
-		
-		String fullName = contractName;
-		if (!contractName.contains("."))
-			fullName = testPkg + "." + contractName;
-		ContractImplements ctr = null;
-		for (ContractImplements x : cd.contracts)
-			if (x.name().equals(contractName) || x.name().equals(fullName))
-				ctr = x;
-		if (ctr == null)
-			throw new UtilException("the card '" + cardVar + "' does not have the contract '" + contractName +"'");
-
-		MethodCaseDefn meth = null;
-		for (MethodCaseDefn q : ctr.methods) {
-			if (q.methodName().name.equals(methodName))
-				meth = q;
-		}
-		if (meth == null)
-			throw new UtilException("the contract '" + contractName + "' does not have the method '" + methodName +"'");
+		String fullName = getFullContractNameForCard(cardVar, contractName, methodName);
 		JSObject card = cards.get(cardVar);
 		card.call("send", fullName, methodName); // TODO: should also allow args
 	}
@@ -214,11 +187,5 @@ public class JSRunner implements TestRunner {
 		JSObject err = (JSObject)page.executeScript("_tmp_error = null; try { " + instr + " } catch (err) { _tmp_error = err; }; _tmp_error;");
 		if (err != null)
 			throw new UtilException("Error processing javascript: " + err);
-	}
-
-	private String fullName(String name) {
-		if (name.contains("."))
-			return name;
-		return testPkg+"."+name;
 	}
 }

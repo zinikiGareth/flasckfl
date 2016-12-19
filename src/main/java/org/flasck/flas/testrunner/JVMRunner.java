@@ -17,8 +17,6 @@ import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
-import org.flasck.flas.parsedForm.ContractImplements;
-import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.jdk.post.JDKPostbox;
@@ -30,20 +28,14 @@ import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
 
-public class JVMRunner implements TestRunner {
-	private final CompileResult prior;
-	private final String testPkg;
-	private final String scriptPkg;
+public class JVMRunner extends CommonTestRunner {
 	private final BCEClassLoader loader;
 	private final Document document;
 	private final Map<String, FlasckActivity> cards = new TreeMap<String, FlasckActivity>();
-	private final Map<String, CardDefinition> cdefns = new TreeMap<>();
 	private final Postbox postbox = new JDKPostbox();
 
 	public JVMRunner(CompileResult prior) {
-		this.prior = prior;
-		testPkg = prior.getPackage();
-		scriptPkg = testPkg+".script";
+		super(prior);
 		loader = new BCEClassLoader(prior.bce);
 		document = Jsoup.parse("<html><head></head><body></body></html>");
 	}
@@ -59,7 +51,8 @@ public class JVMRunner implements TestRunner {
 		CompileResult tcr = null;
 		try {
 			try {
-				tcr = compiler.createJVM(scriptPkg, prior, scope);
+				tcr = compiler.createJVM(spkg, prior, scope);
+				spkg = tcr.getPackage().uniqueName();
 			} catch (ErrorResultException ex) {
 				ex.errors.showTo(new PrintWriter(System.err), 0);
 				fail("Errors compiling test script");
@@ -75,8 +68,8 @@ public class JVMRunner implements TestRunner {
 	@Override
 	public void assertCorrectValue(int exprId) throws Exception {
 		List<Class<?>> toRun = new ArrayList<>();
-		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
-		toRun.add(Class.forName(scriptPkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
+		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
+		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
 
 		Class<?> fleval = Class.forName("org.flasck.jvm.FLEval", false, loader);
 		Map<String, Object> evals = new TreeMap<String, Object>();
@@ -132,25 +125,7 @@ public class JVMRunner implements TestRunner {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
-		CardDefinition cd = cdefns.get(cardVar);
-		
-		String fullName = contractName;
-		if (!contractName.contains("."))
-			fullName = testPkg + "." + contractName;
-		ContractImplements ctr = null;
-		for (ContractImplements x : cd.contracts)
-			if (x.name().equals(contractName) || x.name().equals(fullName))
-				ctr = x;
-		if (ctr == null)
-			throw new UtilException("the card '" + cardVar + "' does not have the contract '" + contractName +"'");
-
-		MethodCaseDefn meth = null;
-		for (MethodCaseDefn q : ctr.methods) {
-			if (q.methodName().name.equals(methodName))
-				meth = q;
-		}
-		if (meth == null)
-			throw new UtilException("the contract '" + contractName + "' does not have the method '" + methodName +"'");
+		String fullName = getFullContractNameForCard(cardVar, contractName, methodName);
 		FlasckActivity card = cards.get(cardVar);
 	}
 

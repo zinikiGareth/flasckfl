@@ -46,7 +46,7 @@ public class SimpleUnitTestRunnerTests {
 	}
 
 	private void go(Setup setup) {
-		prior = new CompileResult("test.golden", setup.scope, bce, tc);
+		prior = new CompileResult(setup.scope, bce, tc);
 		sc.includePrior(prior);
 	}
 	

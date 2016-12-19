@@ -62,7 +62,7 @@ public abstract class BaseRunnerTests {
 		cd.contracts.add(ctr);
 		mainScope.define("Card", cd);
 		tc.define("test.runner.x", Type.function(loc, Type.builtin(loc, "Number")));
-		prior = new CompileResult("test.runner", mainScope, bce, tc);
+		prior = new CompileResult(mainScope, bce, tc);
 		testScope = Scope.topScope("test.runner.script");
 	}
 	

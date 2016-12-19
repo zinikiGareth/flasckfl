@@ -628,7 +628,7 @@ public class Rewriter {
 	public void rewritePackageScope(CompileResult prior, String inPkg, final Scope scope) {
 		NamingContext rc = new RootContext();
 		if (prior != null)
-			rc = new PackageContext(rc, new PackageName(prior.getPackage()), prior.getScope());
+			rc = new PackageContext(rc, new PackageName(prior.getPackage().uniqueName()), prior.getScope());
 		PackageContext cx = new PackageContext(rc, new PackageName(inPkg), scope);
 		pass1(cx, scope);
 		if (errors.hasErrors())
