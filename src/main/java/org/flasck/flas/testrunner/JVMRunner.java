@@ -20,6 +20,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.jdk.post.JDKPostbox;
+import org.flasck.jvm.Despatcher;
 import org.flasck.jvm.post.Postbox;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -33,11 +34,14 @@ public class JVMRunner extends CommonTestRunner {
 	private final Document document;
 	private final Map<String, FlasckActivity> cards = new TreeMap<String, FlasckActivity>();
 	private final Postbox postbox = new JDKPostbox();
+	private final Despatcher despatcher;
 
 	public JVMRunner(CompileResult prior) {
 		super(prior);
 		loader = new BCEClassLoader(prior.bce);
 		document = Jsoup.parse("<html><head></head><body></body></html>");
+		despatcher = new Despatcher(false);
+		despatcher.bindPostbox(postbox);
 	}
 
 	public void considerResource(File file) {
@@ -107,8 +111,6 @@ public class JVMRunner extends CommonTestRunner {
 			Element body = document.select("body").get(0);
 			Element div = document.createElement("div");
 			body.appendChild(div);
-			System.out.println(document);
-			System.out.println(div);
 			
 			FlasckActivity card = Reflection.create(clz);
 			card.init(postbox, div, clz, services);
@@ -127,6 +129,7 @@ public class JVMRunner extends CommonTestRunner {
 
 		String fullName = getFullContractNameForCard(cardVar, contractName, methodName);
 		FlasckActivity card = cards.get(cardVar);
+//		card.call("send", fullName, methodName); // TODO: should also allow args
 	}
 
 	@Override

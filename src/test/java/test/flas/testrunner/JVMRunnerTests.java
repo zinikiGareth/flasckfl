@@ -60,6 +60,29 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			}
 		}
 		{
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.SetState");
+			bcc.superclass("org.flasck.jvm.ContractImpl");
+			{
+				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+				MethodDefiner ctor = ann.done();
+				ctor.callSuper("void", "org.flasck.jvm.ContractImpl", "<init>").flush();
+				ctor.returnVoid().flush();
+			}
+		}
+		{
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card$_C0");
+			bcc.superclass("test.runner.SetState");
+			bcc.defineField(true, Access.PROTECTED, "test.runner.Card", "_card");
+			{
+				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+				PendingVar card = ann.argument("test.runner.Card", "card");
+				MethodDefiner ctor = ann.done();
+				ctor.callSuper("void", "test.runner.SetState", "<init>").flush();
+				ctor.assign(ctor.getField("_card"), card.getVar()).flush();
+				ctor.returnVoid().flush();
+			}
+		}
+		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card$B1");
 			bcc.superclass("org.flasck.jvm.areas.TextArea");
 			{
@@ -84,6 +107,17 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ctor.returnVoid().flush();
 			}
 			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "onCreate");
+				// TODO: should this have preserved state?
+//				PendingVar into = ann.argument("java.lang.String", "into");
+				ann.returns(JavaType.void_);
+				NewMethodDefiner meth = ann.done();
+				meth.callSuper("void", "org.flasck.android.FlasckActivity", "onCreate").flush();
+				meth.callVirtual("void", meth.myThis(), "registerContract", meth.stringConst("test.runner.SetState"), meth.as(meth.makeNew("test.runner.Card$_C0", meth.myThis()), "org.flasck.jvm.ContractImpl")).flush();
+				meth.callSuper("void", "org.flasck.android.FlasckActivity", "ready").flush();
+				meth.returnVoid().flush();
+			}
+			{
 				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "render");
 				PendingVar into = ann.argument("java.lang.String", "into");
 				ann.returns(JavaType.void_);
@@ -92,6 +126,5 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				meth.returnVoid().flush();
 			}
 		}
-		System.out.println(bce.all());
 	}
 }
