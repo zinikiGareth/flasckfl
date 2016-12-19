@@ -419,7 +419,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructDefn) {
 			StructDefn sd = (StructDefn) obj;
-			pw.print("struct " + sd.name() + polys(sd));
+			pw.print("struct " + sd.name().uniqueName() + polys(sd));
 			dumpPosition(pw, sd.kw, false);
 			dumpPosition(pw, sd.location(), false);
 			for (PolyType p : sd.polys())

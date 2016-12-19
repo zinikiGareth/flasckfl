@@ -29,6 +29,6 @@ public class Template implements Locatable {
 
 	@Override
 	public String toString() {
-		return "Template[" + name.jsName() + "]";
+		return "Template[" + name.uniqueName() + "]";
 	}
 }

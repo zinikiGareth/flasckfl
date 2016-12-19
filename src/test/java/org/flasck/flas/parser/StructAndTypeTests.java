@@ -19,7 +19,7 @@ public class StructAndTypeTests {
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);
 		StructDefn sd = (StructDefn)o;
-		assertEquals("Nil", sd.name());
+		assertEquals("Nil", sd.name().baseName());
 		assertEquals(0, sd.polys().size());
 	}
 
@@ -30,7 +30,7 @@ public class StructAndTypeTests {
 		assertNotNull(o);
 		assertTrue(o instanceof StructDefn);
 		StructDefn sd = (StructDefn)o;
-		assertEquals("Cons", sd.name());
+		assertEquals("Cons", sd.name().baseName());
 		assertEquals(1, sd.polys().size());
 		assertEquals("A", sd.polys().get(0).name());
 	}

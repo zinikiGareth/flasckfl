@@ -1302,9 +1302,9 @@ public class Rewriter {
 	}
 
 	private void rewrite(NamingContext cx, StructDefn sd) {
-		RWStructDefn ret = structs.get(sd.name());
+		RWStructDefn ret = structs.get(sd.name().uniqueName());
 		if (ret == null)
-			throw new UtilException("Struct " + sd.name() + " was not created in pass1");
+			throw new UtilException("Struct " + sd.name().uniqueName() + " was not created in pass1");
 		for (StructField sf : sd.fields) {
 			// TODO: it's not clear that the expression needs this rewritten context
 			StructDefnContext sx = new StructDefnContext(cx, ret.polys());

@@ -15,7 +15,6 @@ public class StructDefn implements AsString, Locatable {
 	public final transient boolean generate;
 	public final InputPosition kw;
 	private final InputPosition location;
-	private String name;
 	private List<PolyType> polys;
 	public final StructName structName;
 
@@ -29,13 +28,12 @@ public class StructDefn implements AsString, Locatable {
 		this.kw = kw;
 		this.location = location;
 		this.structName = tn;
-		this.name = tn.jsName();
 		this.generate = generate;
 		this.polys = polys;
 	}
 
-	public String name() {
-		return name;
+	public StructName name() {
+		return structName;
 	}
 
 	public StructDefn addField(StructField sf) {
@@ -73,7 +71,7 @@ public class StructDefn implements AsString, Locatable {
 	}
 
 	public String asString() {
-		StringBuilder sb = new StringBuilder(name());
+		StringBuilder sb = new StringBuilder(name().uniqueName());
 		if (!polys().isEmpty()) {
 			sb.append(polys());
 		}
