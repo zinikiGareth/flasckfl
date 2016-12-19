@@ -7,9 +7,7 @@ import org.zinutils.exceptions.UtilException;
 
 public class ScopedVar implements ExternalRef {
 	public final InputPosition location;
-	public final VarName myId;// Is this a particular kind of name of thing?
-	@Deprecated
-	public final String id;
+	public final VarName myId;
 	public final Object defn;
 	public FunctionName definedBy;
 
@@ -21,7 +19,6 @@ public class ScopedVar implements ExternalRef {
 			throw new UtilException("null location sv1");
 		this.location = location;
 		this.myId = id; // but should be passed in
-		this.id = id.jsName();
 		this.defn = defn;
 	}
 
@@ -31,12 +28,12 @@ public class ScopedVar implements ExternalRef {
 
 	@Override
 	public String uniqueName() {
-		return id;
+		return myId.uniqueName();
 	}
 	
 	@Override
 	public int compareTo(Object o) {
-		return this.id.compareTo(((ScopedVar)o).id);
+		return this.myId.uniqueName().compareTo(((ScopedVar)o).myId.uniqueName());
 	}
 	
 	@Override
@@ -46,7 +43,7 @@ public class ScopedVar implements ExternalRef {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof ScopedVar && this.id.equals(((ScopedVar)obj).id);
+		return obj instanceof ScopedVar && this.myId.equals(((ScopedVar)obj).myId);
 	}
 
 	public boolean fromHandler() {
@@ -55,6 +52,6 @@ public class ScopedVar implements ExternalRef {
 
 	@Override
 	public String toString() {
-		return "Scoped[" + id + "]";
+		return "Scoped[" + myId.uniqueName() + "]";
 	}
 }

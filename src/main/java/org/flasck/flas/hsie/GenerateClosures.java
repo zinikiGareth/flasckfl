@@ -80,17 +80,19 @@ public class GenerateClosures {
 			}
 			ClosureCmd clos = form.createClosure(sv.location);
 			clos.justScoping = true;
-			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
-			cf.mapVar(sv.id, new VarInSource(clos.var, sv.location, sv.id));
-			map.put(sv.id, clos);
+			String id = sv.myId.uniqueName();
+			clos.push(sv.location, new PackageVar(sv.location, id, null));
+			cf.mapVar(id, new VarInSource(clos.var, sv.location, id));
+			map.put(id, clos);
 		}
 		for (ScopedVar sv : allScoped) {
 			if (sv.defn instanceof LocalVar)
 				continue;
-			ClosureCmd clos = map.get(sv.id);
+			String id = sv.myId.uniqueName();
+			ClosureCmd clos = map.get(id);
 			if (clos == null)
 				continue;
-			HSIEForm fn = forms.get(sv.id);
+			HSIEForm fn = forms.get(id);
 			if (fn != null /* && fn.scoped.isEmpty() */)  {// The case where there are no scoped vars is degenerate, but easier to deal with like this
 				for (ScopedVar i : fn.scoped) {
 					pushThing(ms, form, map, clos, i);
@@ -113,8 +115,9 @@ public class GenerateClosures {
 	}
 
 	private void pushThing(Expressions ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, ScopedVar i) {
-		if (map.containsKey(i.id)) {
-			VarInSource cov = new VarInSource(map.get(i.id).var, i.location, i.id);
+		String id = i.myId.uniqueName();
+		if (map.containsKey(id)) {
+			VarInSource cov = new VarInSource(map.get(id).var, i.location, id);
 			clos.push(i.location, cov);
 			clos.depends.add(cov);
 			return;
@@ -124,10 +127,10 @@ public class GenerateClosures {
 				clos.push(i.location, cf.getSubst(((LocalVar)i.defn).uniqueName()));
 			} else if (i.defn instanceof RWHandlerImplements) {
 				// if it needs args, it will have been added to "map"
-				clos.push(i.location, new PackageVar(i.location, i.id, null));
+				clos.push(i.location, new PackageVar(i.location, id, null));
 			}
 			else if (i.defn instanceof RWFunctionDefinition)
-				clos.push(i.location, new PackageVar(i.location, i.id, null));
+				clos.push(i.location, new PackageVar(i.location, id, null));
 			else
 				throw new UtilException("Cannot handle " + i.defn + " of class " + i.defn.getClass());
 		} else
@@ -195,10 +198,10 @@ public class GenerateClosures {
 	}
 
 	public LocatedObject process(ScopedVar sv) {
-		String var = sv.id;
 		if (!sv.definedBy.equals(form.funcName)) {
 			return new LocatedObject(sv.location, sv);
 		}
+		String var = sv.myId.uniqueName();
 		if (substs.containsKey(var))
 			return new LocatedObject(sv.location, substs.get(var));
 		throw new UtilException("Scoped var " + var + " not in " + substs + " for " + form.funcName);
