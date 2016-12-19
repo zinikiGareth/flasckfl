@@ -157,14 +157,17 @@ public class JSRunner implements TestRunner {
 		String l1 = "_tmp_body = document.getElementsByTagName('body')[0];";
 		String l2 = "_tmp_div = document.createElement('div');";
 		String l3 = "_tmp_body.appendChild(_tmp_div);";
-		String l4 = "_tmp_services = {};"; // surely we need something better
+		String l4 = "_tmp_services = {};";
+		execute(l0+l1+l2+l3+l4);
+		for (ContractImplements ctr : cd.contracts) {
+			String fullName = fullName(ctr.name());
+			execute("_tmp_svc = {} ; _tmp_services['" + fullName+"'] = _tmp_svc;");
+//			JSObject svc = getVar("_tmp_svc");
+			// TODO: we need to capture this object and make it ready for receiving messages later
+		}
 		String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType.jsName() + ", mode: 'local' }, _tmp_services)";
-
-		String instr = l0+l1+l2+l3+l4+l5;
-		// TODO: refactor this to be standard error handling
-		JSObject err = (JSObject)page.executeScript("_tmp_error = null; try { " + instr + " } catch (err) { _tmp_error = err; }; _tmp_error;");
-		if (err != null)
-			throw new UtilException("Error processing javascript: " + err);
+		execute(l5);
+		
 		JSObject card = (JSObject) page.executeScript("_tmp_handle");
 		cdefns.put(bindVar, cd);
 		cards.put(bindVar, card);
@@ -195,10 +198,27 @@ public class JSRunner implements TestRunner {
 		if (meth == null)
 			throw new UtilException("the contract '" + contractName + "' does not have the method '" + methodName +"'");
 		JSObject card = cards.get(cardVar);
+		card.call("send", fullName, methodName); // TODO: should also allow args
 	}
 
 	@Override
 	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
 		what.match(selector, contents, page.getDocument().queryAll(selector).stream().map(e -> new JSWrapperElement(e)).collect(Collectors.toList()));
+	}
+
+	protected JSObject getVar(String var) {
+		return (JSObject)page.executeScript(var);
+	}
+
+	protected void execute(String instr) {
+		JSObject err = (JSObject)page.executeScript("_tmp_error = null; try { " + instr + " } catch (err) { _tmp_error = err; }; _tmp_error;");
+		if (err != null)
+			throw new UtilException("Error processing javascript: " + err);
+	}
+
+	private String fullName(String name) {
+		if (name.contains("."))
+			return name;
+		return testPkg+"."+name;
 	}
 }
