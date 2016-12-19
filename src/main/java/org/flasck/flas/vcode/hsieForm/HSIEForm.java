@@ -55,8 +55,6 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	}
 
 	@Deprecated
-	public final String inCard;
-	@Deprecated
 	public final String fnName;
 	public final CardName inCardName;
 	public final FunctionName funcName;
@@ -79,7 +77,6 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public HSIEForm(InputPosition nameLoc, FunctionName name, int nformal, CodeType mytype, CardName inCard, VarFactory vf) {
 		super(nameLoc);
 		this.inCardName = inCard;
-		this.inCard = inCard == null ? null : inCard.jsName();
 		this.vf = vf;
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;

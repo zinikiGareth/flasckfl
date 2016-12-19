@@ -218,10 +218,10 @@ public class TypeChecker2 {
 		// 1b. define all the vars that are already in the HSIE, trapping the max value for future reference
 		Map<String, VarInSource> knownScoped = new HashMap<>();
 		for (HSIEForm f : forms) {
-			logger.info("Checking type of " + f.fnName);
+			logger.info("Checking type of " + f.funcName.uniqueName());
 			f.dump(logger);
-			if (globalKnowledge.containsKey(f.fnName))
-				errors.message(f.location, "duplicate entry for " + f.fnName + " in type checking");
+			if (globalKnowledge.containsKey(f.funcName.uniqueName()))
+				errors.message(f.location, "duplicate entry for " + f.funcName.uniqueName() + " in type checking");
 			for (Var v : f.vars) {
 				if (constraints.contains(v))
 					throw new UtilException("Duplicate var definition " + v);
@@ -241,14 +241,14 @@ public class TypeChecker2 {
 
 		// 1c. Now allocate FRESH vars for the return types
 		for (HSIEForm f : forms) {
-			logger.info("Allocating function/return vars for " + f.fnName);
+			logger.info("Allocating function/return vars for " + f.funcName.uniqueName());
 			Var rv = new Var(nextVar++);
-			localKnowledge.put(f.fnName, new TypeFunc(f.location, f.vars, f.nformal, new TypeVar(f.location, rv)));
-			logger.info("Allocating " + rv + " as return type of " + f.fnName);
+			localKnowledge.put(f.funcName.uniqueName(), new TypeFunc(f.location, f.vars, f.nformal, new TypeVar(f.location, rv)));
+			logger.info("Allocating " + rv + " as return type of " + f.funcName.uniqueName());
 			if (constraints.contains(rv))
 				throw new UtilException("Duplicate var definition " + rv);
 			constraints.ensure(rv);
-			returns.put(f.fnName, rv);
+			returns.put(f.funcName.uniqueName(), rv);
 		}
 		
 		// 1d. Now allocate FRESH vars for any scoped variables that still haven't been defined
@@ -428,15 +428,15 @@ public class TypeChecker2 {
 		// 6. Deduce actual function types
 		for (HSIEForm f : forms) {
 			TypeInfo nt = deduceType(renames, merged, f);
-			logger.info("Concluded that " + f.fnName + " has type " + nt);
-			gk(f.fnName, nt);
+			logger.info("Concluded that " + f.funcName.uniqueName() + " has type " + nt);
+			gk(f.funcName.uniqueName(), nt);
 			Type ty = asType(nt);
-			export.put(f.fnName, ty);
+			export.put(f.funcName.uniqueName(), ty);
 			if (trackTo != null) {
 				Type t1 = ty;
 				if (t1.arity() == 0)
 					t1 = t1.arg(0);
-				trackTo.println(f.fnName + " :: " + t1);
+				trackTo.println(f.funcName.jsName() + " :: " + t1);
 			}
 		}
 	}
@@ -467,7 +467,7 @@ public class TypeChecker2 {
 		}
 		if (c.downcastType != null)
 			constraints.add(c.var, convertType(c.downcastType));
-		logger.info("Need to check " + f.fnName + " " + c.var);
+		logger.info("Need to check " + f.funcName.uniqueName() + " " + c.var);
 		List<TypeInfo> argtypes = new ArrayList<TypeInfo>();
 		List<String> isScoped = new ArrayList<String>();
 		for (int i=1;i<cmds.size();i++) {
@@ -651,7 +651,7 @@ public class TypeChecker2 {
 			processHSI(f, ic);
 		} else if (c instanceof PushReturn) {
 			PushReturn pr = (PushReturn) c;
-			Var rv = returns.get(f.fnName);
+			Var rv = returns.get(f.funcName.uniqueName());
 			if (pr instanceof PushVar) {
 				VarInSource val = ((PushVar)pr).var;
 				logger.info("Need to add a constraint to " + rv + " of " + val);
@@ -815,7 +815,7 @@ public class TypeChecker2 {
 		for (int i=0;i<f.nformal;i++) {
 			args.add(merged.get(rename(renames, f.vars.get(i))));
 		}
-		args.add(merged.get(rename(renames, this.returns.get(f.fnName))));
+		args.add(merged.get(rename(renames, this.returns.get(f.funcName.uniqueName()))));
 		for (int i=0;i<args.size();i++)
 			args.set(i, poly(renames, merged, install, args.get(i)));
 		return new TypeFunc(f.location, args);
@@ -969,7 +969,7 @@ public class TypeChecker2 {
 			}
 		} else if (cmd instanceof PushTLV) {
 			PushTLV pt = (PushTLV) cmd;
-			return freshPolys(deList(getTypeOf(cmd.location, pt.tlv.dataFunc.jsName())), new HashMap<>());
+			return freshPolys(deList(getTypeOf(cmd.location, pt.tlv.dataFunc.uniqueName())), new HashMap<>());
 		} else if (cmd instanceof PushVar) {
 			VarInSource cov = ((PushVar)cmd).var;
 			Var var = cov.var;
@@ -983,11 +983,11 @@ public class TypeChecker2 {
 		} else if (cmd instanceof PushBool) {
 			return getTypeOf(cmd.location, "Boolean");
 		} else if (cmd instanceof PushCSR) {
-			if (form.inCard == null) {
+			if (form.inCardName == null) {
 				form.dump(new PrintWriter(System.err));
 				throw new UtilException("Cannot get type of CSR if no card");
 			}
-			return getTypeOf(cmd.location, form.inCard);
+			return getTypeOf(cmd.location, form.inCardName.uniqueName());
 		} else if (cmd instanceof PushFunc) {
 			FunctionLiteral func = ((PushFunc)cmd).func;
 			return getTypeOf(func.location, func.name.uniqueName());
