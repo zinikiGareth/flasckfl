@@ -80,7 +80,7 @@ public class GenerateClosures {
 			}
 			ClosureCmd clos = form.createClosure(sv.location);
 			clos.justScoping = true;
-			String id = sv.myId.uniqueName();
+			String id = sv.id.uniqueName();
 			clos.push(sv.location, new PackageVar(sv.location, id, null));
 			cf.mapVar(id, new VarInSource(clos.var, sv.location, id));
 			map.put(id, clos);
@@ -88,7 +88,7 @@ public class GenerateClosures {
 		for (ScopedVar sv : allScoped) {
 			if (sv.defn instanceof LocalVar)
 				continue;
-			String id = sv.myId.uniqueName();
+			String id = sv.id.uniqueName();
 			ClosureCmd clos = map.get(id);
 			if (clos == null)
 				continue;
@@ -115,7 +115,7 @@ public class GenerateClosures {
 	}
 
 	private void pushThing(Expressions ms, HSIEForm form, Map<String, ClosureCmd> map, ClosureCmd clos, ScopedVar i) {
-		String id = i.myId.uniqueName();
+		String id = i.id.uniqueName();
 		if (map.containsKey(id)) {
 			VarInSource cov = new VarInSource(map.get(id).var, i.location, id);
 			clos.push(i.location, cov);
@@ -201,7 +201,7 @@ public class GenerateClosures {
 		if (!sv.definedBy.equals(form.funcName)) {
 			return new LocatedObject(sv.location, sv);
 		}
-		String var = sv.myId.uniqueName();
+		String var = sv.id.uniqueName();
 		if (substs.containsKey(var))
 			return new LocatedObject(sv.location, substs.get(var));
 		throw new UtilException("Scoped var " + var + " not in " + substs + " for " + form.funcName);

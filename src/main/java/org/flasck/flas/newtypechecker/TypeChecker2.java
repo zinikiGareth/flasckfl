@@ -255,7 +255,7 @@ public class TypeChecker2 {
 		// 1d. Now allocate FRESH vars for any scoped variables that still haven't been defined
 		for (HSIEForm f : forms) {
 			for (ScopedVar vn : f.scoped) {
-				String name = vn.myId.uniqueName();
+				String name = vn.id.uniqueName();
 				if (globalKnowledge.containsKey(name) || localKnowledge.containsKey(name)) {
 					logger.debug("Have definition for " + name);
 					continue;
@@ -590,7 +590,7 @@ public class TypeChecker2 {
 
 	private VarName isPushScope(HSIEBlock cmd) {
 		if (cmd instanceof PushExternal && ((PushExternal)cmd).fn instanceof ScopedVar)
-			return ((ScopedVar)((PushExternal)cmd).fn).myId;
+			return ((ScopedVar)((PushExternal)cmd).fn).id;
 		return null;
 	}
 
@@ -984,11 +984,11 @@ public class TypeChecker2 {
 		} else if (cmd instanceof PushBool) {
 			return getTypeOf(cmd.location, "Boolean");
 		} else if (cmd instanceof PushCSR) {
-			if (form.inCardName == null) {
+			if (form.inCard == null) {
 				form.dump(new PrintWriter(System.err));
 				throw new UtilException("Cannot get type of CSR if no card");
 			}
-			return getTypeOf(cmd.location, form.inCardName.uniqueName());
+			return getTypeOf(cmd.location, form.inCard.uniqueName());
 		} else if (cmd instanceof PushFunc) {
 			FunctionLiteral func = ((PushFunc)cmd).func;
 			return getTypeOf(func.location, func.name.uniqueName());

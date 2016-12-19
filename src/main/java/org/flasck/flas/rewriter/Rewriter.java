@@ -382,7 +382,7 @@ public class Rewriter {
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof ScopedVar) {
 				InputPosition loc = ((ScopedVar) ret).location();
-				Type type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).myId);
+				Type type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
 				HandlerLambda hl = new HandlerLambda(loc, hi.hiName, type, name);
 				hi.addScoped(hl, (ScopedVar) ret);
 				return hl;
@@ -1820,7 +1820,7 @@ public class Rewriter {
 	private void writeMethod(Indenter pw, RWMethodDefinition m) {
 		pw.println("method " + m.name().uniqueName());
 		for (ScopedVar sv : m.scopedVars)
-			pw.indent().println("nested " + sv.myId.uniqueName() + " " + sv.definedBy.uniqueName());
+			pw.indent().println("nested " + sv.id.uniqueName() + " " + sv.definedBy.uniqueName());
 		for (RWMethodCaseDefn c : m.cases)
 			writeMethodCase(pw.indent(), c);
 	}
@@ -1853,7 +1853,7 @@ public class Rewriter {
 				continue;
 			pw.println("function " + fn.name + (fn.inCard != null?" " + fn.inCard.uniqueName():"") + " " + fn.nargs);
 			for (ScopedVar sv : fn.scopedVars)
-				pw.indent().println("nested " + sv.myId.uniqueName() + " " + sv.definedBy.uniqueName());
+				pw.indent().println("nested " + sv.id.uniqueName() + " " + sv.definedBy.uniqueName());
 			for (RWFunctionCaseDefn c : fn.cases) {
 				Indenter p2 = pw.indent();
 				p2.println("case " + c.caseName());

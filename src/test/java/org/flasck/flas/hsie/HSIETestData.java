@@ -537,7 +537,7 @@ public class HSIETestData {
 				for (Object o : dependsOn) {
 					if (o instanceof String && s.equals(o))
 						toPush = new PackageVar(posn, s, null);
-					else if (o instanceof ScopedVar && ((ScopedVar)o).myId.uniqueName().equals(s))
+					else if (o instanceof ScopedVar && ((ScopedVar)o).id.uniqueName().equals(s))
 						toPush = o;
 				}
 				if (toPush == null) {

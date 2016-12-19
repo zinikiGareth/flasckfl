@@ -109,8 +109,8 @@ public class DependencyAnalyzer {
 			// I think because this is synthetic, it's not needed here ...
 			; // dcg.ensureLink(name, "_iter_" + ((IterVar)expr).uniqueName());
 		} else if (expr instanceof ScopedVar) {
-			dcg.ensure(((ScopedVar) expr).myId.uniqueName());
-			dcg.ensureLink(name, ((ScopedVar) expr).myId.uniqueName());
+			dcg.ensure(((ScopedVar) expr).id.uniqueName());
+			dcg.ensureLink(name, ((ScopedVar) expr).id.uniqueName());
 		} else if (expr instanceof ObjectReference || expr instanceof CardFunction || expr instanceof PackageVar) {
 			String orname = ((ExternalRef)expr).uniqueName();
 			dcg.ensure(orname);

@@ -54,7 +54,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		}
 	}
 
-	public final CardName inCardName;
+	public final CardName inCard;
 	public final FunctionName funcName;
 	public final int nformal;
 	public final CodeType mytype;
@@ -74,7 +74,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	public HSIEForm(InputPosition nameLoc, FunctionName name, int nformal, CodeType mytype, CardName inCard, VarFactory vf) {
 		super(nameLoc);
-		this.inCardName = inCard;
+		this.inCard = inCard;
 		this.vf = vf;
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
