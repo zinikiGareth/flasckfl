@@ -54,8 +54,6 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		}
 	}
 
-	@Deprecated
-	public final String fnName;
 	public final CardName inCardName;
 	public final FunctionName funcName;
 	public final int nformal;
@@ -81,7 +79,6 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		if (mytype == null) throw new UtilException("Null mytype");
 		this.mytype = mytype;
 		this.funcName = name;
-		this.fnName = name.jsName();
 		this.nformal = nformal;
 	}
 
@@ -163,7 +160,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			name = ((ExternalRef)ref).uniqueName();
 		else
 			throw new UtilException("Cannot pass in: " + ref + " " + (ref!=null?ref.getClass():""));
-		if (name.equals(this.fnName))
+		if (name.equals(this.funcName.uniqueName()))
 			return false; // we don't reference ourselves and this is not new
 
 		if (ref instanceof ScopedVar) {
@@ -182,13 +179,13 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		if (vn.defn instanceof LocalVar) {
 			LocalVar lv = (LocalVar) vn.defn;
 			int idx = lv.caseName.jsName().lastIndexOf("_"); // TODO: refactor this ...
-			if (fnName.indexOf(".", idx) == -1)
+			if (funcName.jsName().indexOf(".", idx) == -1)
 				return true;
 		} else if (vn.defn instanceof RWFunctionDefinition) {
 		} else if (vn.defn instanceof RWHandlerImplements) {
 			RWHandlerImplements hi = (RWHandlerImplements) vn.defn;
 			int idx = hi.hiName.lastIndexOf("_");
-			if (fnName.indexOf(".", idx) == -1)
+			if (funcName.jsName().indexOf(".", idx) == -1)
 				return true;
 		} else if (vn.defn instanceof RWMethodDefinition) {
 		} else { // if (vn.defn instanceof HandlerLambda) {
@@ -204,7 +201,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	@Override
 	public String toString() {
-		return "HSIE for " + fnName + "/" + nformal;
+		return "HSIE for " + funcName.jsName() + "/" + nformal;
 	}
 
 	public boolean isMethod() {
@@ -213,6 +210,6 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	@Override
 	public int compareTo(HSIEForm o) {
-		return this.fnName.compareTo(o.fnName);
+		return this.funcName.jsName().compareTo(o.funcName.jsName());
 	}
 }

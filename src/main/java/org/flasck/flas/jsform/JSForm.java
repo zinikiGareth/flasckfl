@@ -240,8 +240,8 @@ public class JSForm {
 		return ret;
 	}
 
-	public static JSForm error(String fnName) {
-		return new JSForm("return FLEval.error(\""+fnName +": case not handled\")");
+	public static JSForm error(FunctionName fnName) {
+		return new JSForm("return FLEval.error(\""+fnName.jsName() +": case not handled\")");
 	}
 
 	public static List<JSForm> ret(HSIEForm form, PushReturn r) {

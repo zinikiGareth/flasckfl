@@ -48,33 +48,35 @@ public class FormGenerator {
 	}
 
 	public void generate() {
-		int idx = form.fnName.lastIndexOf(".");
+		// TODO: this needs a lot of decrypting with funcNames
+		String fnName = form.funcName.jsName();
+		int idx = fnName.lastIndexOf(".");
 		String inClz;
-		String fn = form.fnName.substring(idx+1);
+		String fn = form.funcName.name;
 		boolean needTrampolineClass;
 		boolean wantThis = false;
 		if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.SERVICE) {
-			int idx2 = form.fnName.lastIndexOf(".", idx-1);
-			String clz = form.fnName.substring(0, idx2);
-			String sub = form.fnName.substring(idx2+1, idx);
+			int idx2 = fnName.lastIndexOf(".", idx-1);
+			String clz = fnName.substring(0, idx2);
+			String sub = fnName.substring(idx2+1, idx);
 			inClz = clz +"$"+sub;
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.AREA) {
-			int idx2 = form.fnName.lastIndexOf(".", idx-1);
-			int idx3 = form.fnName.lastIndexOf(".", idx2-1);
-			String clz = form.fnName.substring(0, idx3+1) + form.fnName.substring(idx3+2, idx2);
-			String sub = form.fnName.substring(idx2+1, idx);
+			int idx2 = fnName.lastIndexOf(".", idx-1);
+			int idx3 = fnName.lastIndexOf(".", idx2-1);
+			String clz = fnName.substring(0, idx3+1) + fnName.substring(idx3+2, idx2);
+			String sub = fnName.substring(idx2+1, idx);
 			inClz = clz +"$"+sub;
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.CARD || form.mytype == CodeType.EVENTHANDLER) {
-			inClz = form.fnName.substring(0, idx);
+			inClz = fnName.substring(0, idx);
 			if (form.mytype == CodeType.CARD) {
 				needTrampolineClass = true;
 				wantThis = true;
 			} else
 				needTrampolineClass = false;  // or maybe true; I don't think we've worked with EVENTHANDLERs enough to know; I just know CARD functions need a trampoline
 		} else if (form.mytype == CodeType.FUNCTION || form.mytype == CodeType.STANDALONE) {
-			String pkg = form.fnName.substring(0, idx);
+			String pkg = fnName.substring(0, idx);
 			inClz = pkg +".PACKAGEFUNCTIONS";
 			if (!bce.hasClass(inClz)) {
 				ByteCodeCreator bcc = new ByteCodeCreator(bce, inClz);
@@ -82,7 +84,7 @@ public class FormGenerator {
 			}
 			needTrampolineClass = true;
 		} else
-			throw new UtilException("Can't handle " + form.fnName + " of code type " + form.mytype);
+			throw new UtilException("Can't handle " + fnName + " of code type " + form.mytype);
 		
 		// This here is a hack because we have random underscores in some classes and not others
 		// I actually think what we currently do is inconsistent (compare Simple.prototype.f to Simple.inits_hello, to the way we treat D3 functions)

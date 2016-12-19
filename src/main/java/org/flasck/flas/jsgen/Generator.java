@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -39,8 +40,8 @@ public class Generator {
 	
 	public void generate(HSIEForm input) {
 		input.dump(LoggerFactory.getLogger("Generator"));
-		String jsname = input.fnName;
-		if (input.isMethod()) {
+		String jsname = input.funcName.jsName();
+		if (input.isMethod()) { // TODO: we should have jsPName() or something ...
 			int idx = jsname.lastIndexOf(".");
 			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
 			if (input.mytype == CodeType.HANDLER) {
@@ -54,7 +55,7 @@ public class Generator {
 			if (idx != -1) jsname = jsname.substring(0, idx+1) + "_" + jsname.substring(idx+1);
 		}
 		JSForm ret = JSForm.function(jsname, input.vars, input.scoped, input.nformal);
-		generateBlock(input.fnName, input, ret, input);
+		generateBlock(input.funcName, input, ret, input);
 		target.add(ret);
 	}
 
@@ -195,7 +196,7 @@ public class Generator {
 		target.add(ctor);
 	}
 
-	private void generateBlock(String fn, HSIEForm form, JSForm into, HSIEBlock input) {
+	private void generateBlock(FunctionName fn, HSIEForm form, JSForm into, HSIEBlock input) {
 		for (HSIEBlock h : input.nestedCommands()) {
 			if (h instanceof Head) {
 				into.addAll(JSForm.head(((Head)h).v));
