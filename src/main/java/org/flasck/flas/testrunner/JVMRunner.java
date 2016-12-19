@@ -33,7 +33,7 @@ public class JVMRunner extends CommonTestRunner {
 	private final BCEClassLoader loader;
 	private final Document document;
 	private final Map<String, FlasckActivity> cards = new TreeMap<String, FlasckActivity>();
-	private final Postbox postbox = new JDKPostbox();
+	private final Postbox postbox = new JDKPostbox("container", null, -1);
 	private final Despatcher despatcher;
 
 	public JVMRunner(CompileResult prior) {
@@ -108,12 +108,15 @@ public class JVMRunner extends CommonTestRunner {
 			@SuppressWarnings("unchecked")
 			Class<? extends FlasckActivity> clz = (Class<? extends FlasckActivity>) loader.loadClass(cardType.javaName());
 			List<Object> services = new ArrayList<>();
+			
+			// TODO: create and cache init service somewhere
+			int initSvc = 0; // should be result of registerService
 			Element body = document.select("body").get(0);
 			Element div = document.createElement("div");
 			body.appendChild(div);
 			
 			FlasckActivity card = Reflection.create(clz);
-			card.init(postbox, div, clz, services);
+			card.init(postbox, despatcher, initSvc, div, clz, services);
 			card.render("body");
 			cdefns.put(bindVar, cd);
 			cards.put(bindVar, card);
