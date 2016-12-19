@@ -14,6 +14,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.TypeWithMethods;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.KnowledgeWriter;
 import org.flasck.flas.rewriter.Rewriter;
@@ -254,7 +255,7 @@ public class TypeChecker2 {
 		// 1d. Now allocate FRESH vars for any scoped variables that still haven't been defined
 		for (HSIEForm f : forms) {
 			for (ScopedVar vn : f.scoped) {
-				String name = vn.id;
+				String name = vn.myId.uniqueName();
 				if (globalKnowledge.containsKey(name) || localKnowledge.containsKey(name)) {
 					logger.debug("Have definition for " + name);
 					continue;
@@ -469,7 +470,7 @@ public class TypeChecker2 {
 			constraints.add(c.var, convertType(c.downcastType));
 		logger.info("Need to check " + f.funcName.uniqueName() + " " + c.var);
 		List<TypeInfo> argtypes = new ArrayList<TypeInfo>();
-		List<String> isScoped = new ArrayList<String>();
+		List<VarName> isScoped = new ArrayList<>();
 		for (int i=1;i<cmds.size();i++) {
 			HSIEBlock cmd = cmds.get(i);
 			argtypes.add(getTypeOf(f, cmd));
@@ -554,14 +555,14 @@ public class TypeChecker2 {
 					throw new UtilException("Error about applying a non-function to arg " + i + " in " + c.var);
 				TypeInfo tai = called.args.get(i);
 				checkArgType(tai, argtypes.get(i));
-				String si = isScoped.get(i);
+				VarName si = isScoped.get(i);
 				if (si != null) {
-					TypeInfo foo = globalKnowledge.get(si);
+					TypeInfo foo = globalKnowledge.get(si.uniqueName());
 					if (foo == null || ((foo instanceof NamedType) && ((NamedType)foo).name.equals("Any"))) {
 						if (!(tai instanceof TypeVar))
-							gk(si, tai);
+							gk(si.uniqueName(), tai);
 					} else if ((tai instanceof NamedType) && ((NamedType)tai).name.equals("Any"))
-						gk(si, foo);
+						gk(si.uniqueName(), foo);
 					else if (foo instanceof TypeVar)
 						constraints.add(((TypeVar)foo).var, tai);
 					else if (tai instanceof TypeVar)
@@ -587,9 +588,9 @@ public class TypeChecker2 {
 		}
 	}
 
-	private String isPushScope(HSIEBlock cmd) {
+	private VarName isPushScope(HSIEBlock cmd) {
 		if (cmd instanceof PushExternal && ((PushExternal)cmd).fn instanceof ScopedVar)
-			return ((ScopedVar)((PushExternal)cmd).fn).id;
+			return ((ScopedVar)((PushExternal)cmd).fn).myId;
 		return null;
 	}
 

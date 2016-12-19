@@ -24,7 +24,7 @@ public class RWHandlerImplements extends RWImplements {
 			HandlerLambda ohl = (HandlerLambda)o;
 			if (ohl.scopedFrom == null)
 				break;
-			else if (ohl.scopedFrom.id.compareTo(ret.id) > 0)
+			else if (ohl.scopedFrom.myId.compareTo(ret.myId) > 0)
 				break;
 			else
 				pos++;
