@@ -703,7 +703,7 @@ public class Rewriter {
 				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.name(), rewritePolys(ud.polys())));
 			} else if (val instanceof ContractDecl) {
 				ContractDecl ctr = (ContractDecl)val;
-				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.nameAsName().jsName(), true);
+				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.nameAsName(), true);
 				contracts.put(name, ret);
 			} else if (val instanceof ObjectDefn) {
 				ObjectDefn od = (ObjectDefn)val;
@@ -1114,7 +1114,7 @@ public class Rewriter {
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
 			functions.put(fnName.jsName(), fn);
-			ret.handlers.add(new RWEventHandler(h.action, rwexpr, fnName.jsName()));
+			ret.handlers.add(new RWEventHandler(h.action, rwexpr, fnName));
 		}
 		return ret;
 	}

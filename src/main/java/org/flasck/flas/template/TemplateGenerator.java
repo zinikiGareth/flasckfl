@@ -396,7 +396,7 @@ public class TemplateGenerator {
 				cx.target.add(ahf);
 				boolean isFirst = true;
 				for (RWEventHandler eh : tfe.handlers) {
-					String tfn = simpleName(eh.handlerFn);
+					String tfn = eh.handlerFn.name;
 
 					// add a hack to allow us to NOT overwrite events that we want to intercept first
 					String distinguish = "";

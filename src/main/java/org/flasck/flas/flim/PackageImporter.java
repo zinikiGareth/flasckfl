@@ -73,7 +73,9 @@ public class PackageImporter {
 				pkg.define(sd.name(), sd);
 				todos.add(new Pass2(sd, xe));
 			} else if (xe.hasTag("Contract")) {
-				RWContractDecl cd = new RWContractDecl(null, location(xe), xe.required("name"), false);
+				String fullName = xe.required("name");
+				int idx = fullName.lastIndexOf(".");
+				RWContractDecl cd = new RWContractDecl(null, location(xe), new StructName(packageName, fullName.substring(idx+1)), false);
 				xe.attributesDone();
 				pkg.define(cd.name(), cd);
 				todos.add(new Pass2(cd, xe));

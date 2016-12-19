@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.TypeWithMethods;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 
@@ -12,8 +13,8 @@ public class RWContractDecl extends TypeWithMethods {
 	public final List<RWContractMethodDecl> methods = new ArrayList<RWContractMethodDecl>();
 	public final transient boolean generate;
 
-	public RWContractDecl(InputPosition kw, InputPosition location, String contractName, boolean g) {
-		super(kw, location, WhatAmI.CONTRACT, contractName, null);
+	public RWContractDecl(InputPosition kw, InputPosition location, StructName name, boolean g) {
+		super(kw, location, WhatAmI.CONTRACT, name.jsName(), null);
 		this.generate = g;
 	}
 
