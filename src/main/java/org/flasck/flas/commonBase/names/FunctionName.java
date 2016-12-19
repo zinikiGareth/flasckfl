@@ -83,6 +83,13 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		else
 			return inContext.jsName() + "." + name;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof FunctionName))
+			return false;
+		return compareTo((FunctionName) obj) == 0;
+	}
 	
 	public int compareTo(FunctionName other) {
 		int cs = 0;

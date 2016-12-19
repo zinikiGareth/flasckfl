@@ -537,7 +537,7 @@ public class HSIETestData {
 				for (Object o : dependsOn) {
 					if (o instanceof String && s.equals(o))
 						toPush = new PackageVar(posn, s, null);
-					else if (o instanceof ScopedVar && ((ScopedVar)o).id.equals(s))
+					else if (o instanceof ScopedVar && ((ScopedVar)o).myId.uniqueName().equals(s))
 						toPush = o;
 				}
 				if (toPush == null) {
@@ -577,7 +577,7 @@ public class HSIETestData {
 		System.out.println("---------- actual:");
 		actual.dump((Logger)null);
 		System.out.println("----------");
-		assertEquals("incorrect name", expected.fnName, actual.fnName);
+		assertEquals("incorrect name", expected.funcName.uniqueName(), actual.funcName.uniqueName());
 		assertEquals("incorrect # of formals", expected.nformal, actual.nformal);
 		assertEquals("incorrect # of total vars", expected.vars.size(), actual.vars.size());
 		assertEquals("incorrect # of externals", expected.externals.size(), actual.externals.size());

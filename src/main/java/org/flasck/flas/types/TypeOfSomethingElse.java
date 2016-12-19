@@ -1,6 +1,7 @@
 package org.flasck.flas.types;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.VarName;
 
 /** The idea here is that during the early stages of compilation (i.e. before typechecking)
  * you may not know WHAT the type is, but you have an algorithm for finding out, i.e.
@@ -16,8 +17,8 @@ import org.flasck.flas.blockForm.InputPosition;
  */
 public class TypeOfSomethingElse extends Type {
 
-	public TypeOfSomethingElse(InputPosition loc, String name) {
-		super(null, loc, WhatAmI.SOMETHINGELSE, name, null);
+	public TypeOfSomethingElse(InputPosition loc, VarName name) {
+		super(null, loc, WhatAmI.SOMETHINGELSE, name.jsName(), null);
 	}
 	
 	public String other() {

@@ -47,7 +47,7 @@ public class HSIE {
 		for (RWFunctionDefinition fn : d) {
 			HSIEForm hf = new HSIEForm(fn.location, fn.fnName, fn.nargs(), fn.mytype, fn.inCard, vf);
 			for (ScopedVar sv : fn.scopedVars) {
-				if (sv.definedIn.equals(fn.name()))
+				if (sv.definedBy.equals(fn.fnName))
 					hf.scopedDefinitions.add(sv);
 				else
 					hf.scoped.add(sv);
@@ -68,8 +68,8 @@ public class HSIE {
 	public void liftLambdas() {
 		for (HSIEForm h : forms.values()) {
 			for (ScopedVar sv : h.scoped) {
-				if (!sv.definedIn.equals(h.fnName))
-					forms.get(sv.definedIn).scopedDefinitions.add(sv);
+				if (!sv.definedBy.equals(h.funcName))
+					forms.get(sv.definedBy.uniqueName()).scopedDefinitions.add(sv);
 			}
 		}
 	}

@@ -93,7 +93,7 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		Type ty = tc.getExportedType(fn.fnName);
+		Type ty = tc.getExportedType(fn.funcName.uniqueName());
 		assertNotNull(ty);
 		assertEquals("A->Number", ty.toString());
 	}
@@ -104,7 +104,7 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		Type ty = tc.getExportedType(fn.fnName);
+		Type ty = tc.getExportedType(fn.funcName.uniqueName());
 		assertNotNull(ty);
 		assertEquals("A->A", ty.toString());
 	}
@@ -115,7 +115,7 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		Type ty = tc.getExportedType(fn.fnName);
+		Type ty = tc.getExportedType(fn.funcName.uniqueName());
 		assertNotNull(ty);
 		assertEquals("->(Number->Number)", ty.toString());
 	}
@@ -126,7 +126,7 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		Type ty = tc.getExportedType(fn.fnName);
+		Type ty = tc.getExportedType(fn.funcName.uniqueName());
 		assertNotNull(ty);
 		assertEquals("->Number", ty.toString());
 	}
@@ -137,7 +137,7 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		Type ty = tc.getExportedType(fn.fnName);
+		Type ty = tc.getExportedType(fn.funcName.uniqueName());
 		assertNotNull(ty);
 		assertEquals("->Number", ty.toString());
 	}
@@ -148,7 +148,7 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		Type ty = tc.getExportedType(fn.fnName);
+		Type ty = tc.getExportedType(fn.funcName.uniqueName());
 		assertNotNull(ty);
 		assertEquals("->Char", ty.toString());
 	}
@@ -179,7 +179,7 @@ public class TestBasicTypeChecking {
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
-		Type ty = tc.getExportedType(fn.fnName);
+		Type ty = tc.getExportedType(fn.funcName.uniqueName());
 		assertNotNull(ty);
 		assertEquals("Number->Number", ty.toString());
 	}
