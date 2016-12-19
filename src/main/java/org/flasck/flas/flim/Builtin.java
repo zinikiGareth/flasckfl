@@ -94,7 +94,7 @@ public class Builtin {
 			d3.addField(new RWStructField(posn, false, number, "idx"));
 		}
 		{
-			RWObjectDefn card = new RWObjectDefn(posn, "Card", false);
+			RWObjectDefn card = new RWObjectDefn(posn, new StructName(null, "Card"), false);
 			root.define("Card", card);
 			card.constructorArg(posn, string, "explicit");
 			card.constructorArg(posn, string, "loadId");
@@ -161,7 +161,7 @@ public class Builtin {
 			crokeys.addField(new RWStructField(posn, false, string, "keytype"));
 			crokeys.addField(new RWStructField(posn, false, list.instance(posn,  crokey), "keys"));
 
-			RWObjectDefn croset = new RWObjectDefn(posn, "Croset", false, varA);
+			RWObjectDefn croset = new RWObjectDefn(posn, new StructName(null, "Croset"), false, varA);
 			root.define("Croset", croset);
 			croset.constructorArg(posn, crokeys, "init");
 			

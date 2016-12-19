@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.TypeWithMethods;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.types.Type;
 import org.zinutils.collections.CollectionUtils;
 
@@ -16,12 +17,12 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();
 	public final transient boolean generate;
 
-	public RWObjectDefn(InputPosition location, String tn, boolean generate, Type... polys) {
+	public RWObjectDefn(InputPosition location, StructName tn, boolean generate, Type... polys) {
 		this(location, tn, generate, CollectionUtils.listOf(polys));
 	}
 	
-	public RWObjectDefn(InputPosition location, String tn, boolean generate, List<Type> polys) {
-		super(null, location, WhatAmI.OBJECT, tn, polys);
+	public RWObjectDefn(InputPosition location, StructName tn, boolean generate, List<Type> polys) {
+		super(null, location, WhatAmI.OBJECT, tn.uniqueName(), polys);
 		this.generate = generate;
 	}
 

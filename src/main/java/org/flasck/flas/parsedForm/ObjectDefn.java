@@ -15,12 +15,12 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	public final transient boolean generate;
 	private final Scope innerScope;
 	private final InputPosition location;
-	private final String name;
+	private final StructName name;
 	private final List<PolyType> polys;
 
 	public ObjectDefn(InputPosition location, Scope outer, StructName tn, boolean generate, List<PolyType> polys) {
 		this.location = location;
-		this.name = tn.jsName();
+		this.name = tn;
 		this.generate = generate;
 		this.polys = polys;
 		outer.define(tn.baseName(), this);
@@ -36,7 +36,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 		ctorArgs.add(new StructField(pos, false, type, name));
 	}
 	
-	public String name() {
+	public StructName name() {
 		return name;
 	}
 
@@ -55,7 +55,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	}
 	
 	public String asString() {
-		StringBuilder sb = new StringBuilder(name());
+		StringBuilder sb = new StringBuilder(name().uniqueName());
 		if (hasPolys()) {
 			sb.append("[");
 			String sep = "";
