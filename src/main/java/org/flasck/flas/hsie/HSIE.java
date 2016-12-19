@@ -140,7 +140,7 @@ public class HSIE {
 			Object arg = args.get(i);
 			if (arg instanceof RWVarPattern) {
 				RWVarPattern vp = (RWVarPattern) arg;
-				String called = vp.var.jsName();
+				String called = vp.var.uniqueName();
 				cf.subst(called, new VarInSource(formals.get(i), vp.varLoc, called));
 			} else if (arg instanceof RWConstructorMatch)
 				ctorSub(cf, (RWConstructorMatch) arg, formals.get(i), expr);
@@ -160,7 +160,7 @@ public class HSIE {
 			Var v = cf.branching.varFor(from, x.field);
 			if (x.patt instanceof RWVarPattern) {
 				RWVarPattern vp = (RWVarPattern)x.patt;
-				String called = vp.var.jsName();
+				String called = vp.var.uniqueName();
 				cf.subst(called, new VarInSource(v, vp.varLoc, called));
 			} else if (x.patt instanceof RWConstructorMatch)
 				ctorSub(cf, (RWConstructorMatch)x.patt, v, expr);
