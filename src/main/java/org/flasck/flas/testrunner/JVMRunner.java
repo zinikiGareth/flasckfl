@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -17,11 +18,14 @@ import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.jdk.post.JDKPostbox;
 import org.flasck.jvm.Despatcher;
-import org.flasck.jvm.post.Postbox;
+import org.flasck.jvm.FlasckService;
+import org.flasck.jvm.post.DeliveryAddress;
+import org.flasck.jvm.post.SendOver;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,11 +34,30 @@ import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
 
 public class JVMRunner extends CommonTestRunner {
+	public class InitService extends FlasckService {
+		public void ready(DeliveryAddress from, Map<String, DeliveryAddress> contracts) {
+			DeliveryAddress myaddr = postbox.addressOf(initSvc);
+			Map<String, DeliveryAddress> servicesForCard = new TreeMap<String, DeliveryAddress>();
+			for (Entry<String, DeliveryAddress> s : contracts.entrySet()) {
+				if (s.getKey().equals("org.ziniki.Init"))
+					continue;
+				// I suspect I want to stash the value somewhere so that I know how to contact this card
+				// But which card?  Do I need that from the "from" address
+				servicesForCard.put(s.getKey(), postbox.addressOf(cacheSvc(s.getKey()).chan));
+			}
+			// need to find da's for all the contracts named in contracts and wire things up
+			postbox.send(myaddr, from, "services", servicesForCard);
+			postbox.send(myaddr, from, "state");
+		}
+	}
+
 	private final BCEClassLoader loader;
 	private final Document document;
 	private final Map<String, FlasckActivity> cards = new TreeMap<String, FlasckActivity>();
-	private final Postbox postbox = new JDKPostbox("container", null, -1);
+	private final JDKPostbox postbox = new JDKPostbox("container", null, -1);
 	private final Despatcher despatcher;
+	private final Map<String, CachedService> services = new TreeMap<>();
+	private final int initSvc;
 
 	public JVMRunner(CompileResult prior) {
 		super(prior);
@@ -42,6 +65,8 @@ public class JVMRunner extends CommonTestRunner {
 		document = Jsoup.parse("<html><head></head><body></body></html>");
 		despatcher = new Despatcher(false);
 		despatcher.bindPostbox(postbox);
+		postbox.bindDespatcher(null, despatcher);
+		initSvc = cacheSvc("org.ziniki.Init", new InitService()).chan;
 	}
 
 	public void considerResource(File file) {
@@ -109,20 +134,38 @@ public class JVMRunner extends CommonTestRunner {
 			Class<? extends FlasckActivity> clz = (Class<? extends FlasckActivity>) loader.loadClass(cardType.javaName());
 			List<Object> services = new ArrayList<>();
 			
-			// TODO: create and cache init service somewhere
-			int initSvc = 0; // should be result of registerService
+			for (ContractImplements ctr : cd.contracts) {
+				String fullName = fullName(ctr.name());
+				if (!fullName.equals("org.ziniki.Init"))
+					cacheSvc(fullName);
+			}
+			
 			Element body = document.select("body").get(0);
 			Element div = document.createElement("div");
 			body.appendChild(div);
 			
 			FlasckActivity card = Reflection.create(clz);
-			card.init(postbox, despatcher, initSvc, div, clz, services);
-			card.render("body");
+			card.init(postbox, initSvc, despatcher.nextChan(), div, clz);
+			processQueues();
 			cdefns.put(bindVar, cd);
 			cards.put(bindVar, card);
 		} catch (Exception ex) {
 			throw UtilException.wrap(ex);
 		}
+	}
+
+	protected CachedService cacheSvc(String name) {
+		if (services.containsKey(name))
+			return services.get(name);
+		MockService service = new MockService(name);
+		return cacheSvc(name, service);
+	}
+
+	protected CachedService cacheSvc(String name, FlasckService service) {
+		int chan = despatcher.registerService(name, service);
+		CachedService ret = new CachedService(chan, service);
+		services.put(name, ret);
+		return ret;
 	}
 
 	@Override
@@ -137,6 +180,31 @@ public class JVMRunner extends CommonTestRunner {
 
 	@Override
 	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
+		System.out.println(document.outerHtml());
 		what.match(selector, contents, document.select(selector).stream().map(e -> new JVMWrapperElement(e)).collect(Collectors.toList()));
+	}
+
+	// Because everything is single-threaded in this environment,
+	// we can just keep calling the execute methods on all the outstanding
+	// items in all the queues in all the postboxes, until we're done
+	private void processQueues() {
+		boolean done = false;
+		while (!done) {
+			done = true;
+			done &= !dispatch(postbox);
+			for (JDKPostbox pb : postbox.connectedTo.values())
+				done &= !dispatch(pb);
+		}
+	}
+
+	private boolean dispatch(JDKPostbox pb) {
+		SendOver next = pb.next(1);
+		if (next == null)
+			return false;
+		
+		Object ret = pb.despatch(next);
+		if (ret != null)
+			throw new UtilException("We need to do something with this");
+		return true;
 	}
 }
