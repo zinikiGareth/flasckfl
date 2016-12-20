@@ -131,9 +131,10 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
-		String fullName = getFullContractNameForCard(cardVar, contractName, methodName);
+		String ctrName = getFullContractNameForCard(cardVar, contractName, methodName);
 		FlasckHandle card = cards.get(cardVar);
-//		card.call("send", fullName, methodName); // TODO: should also allow args
+		card.send(ctrName, methodName); // TODO: should also allow args
+		controller.processPostboxes();
 	}
 
 	@Override
