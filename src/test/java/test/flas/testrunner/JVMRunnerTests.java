@@ -2,6 +2,8 @@ package test.flas.testrunner;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.testrunner.JVMRunner;
@@ -13,6 +15,7 @@ import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 
 public class JVMRunnerTests extends BaseRunnerTests {
 	
@@ -85,6 +88,20 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ctor.assign(ctor.getField("_card"), card.getVar()).flush();
 				ctor.returnVoid().flush();
 			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "setOn");
+				ann.argument("org.flasck.jvm.post.DeliveryAddress", "from");
+				ann.returns(JavaType.object_);
+				NewMethodDefiner meth = ann.done();
+				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
+				meth.assign(clos1, meth.makeNew("org.flasck.jvm.FLClosure",
+										meth.classConst("org.flasck.jvm.builtin.Assign"),
+										meth.arrayOf("java.lang.Object", Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(true)), "java.lang.Object"))))).flush();
+				meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
+										meth.classConst("org.flasck.jvm.builtin.Cons"),
+										meth.arrayOf("java.lang.Object", Arrays.asList(clos1, meth.callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>())))))).flush();
+			}
+			bcc.writeTo(new File("/Users/gareth/bcc.class"));
 		}
 		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card$B1");
@@ -102,8 +119,8 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card");
 			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jvm.ActivityDelegate"), "_delegate");
-//			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jvm.Wrapper"), "_wrapper");
 			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jdk.display.JDKDisplay"), "_display");
+			bcc.defineField(false, Access.PROTECTED, JavaType.boolean_, "sayHello");
 			bcc.superclass("org.flasck.android.FlasckActivity");
 			{
 				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
