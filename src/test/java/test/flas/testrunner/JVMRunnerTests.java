@@ -7,6 +7,11 @@ import java.util.Arrays;
 
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.testrunner.JVMRunner;
+import org.flasck.jvm.ContractImpl;
+import org.flasck.jvm.Wrapper;
+import org.flasck.jvm.cards.CardDespatcher;
+import org.flasck.jvm.cards.FlasckCard;
+import org.flasck.jvm.display.DisplayEngine;
 import org.junit.Before;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.GenericAnnotator;
@@ -65,10 +70,6 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			}
 		}
 		{
-			ByteCodeCreator bcc = new ByteCodeCreator(bce, "org.flasck.jvm.ActivityDelegate").dontGenerate();
-			bcc.defineField(true, Access.PUBLIC, "org.flasck.jvm.Wrapper", "wrapper");
-		}
-		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.SetState");
 			bcc.superclass("org.flasck.jvm.ContractImpl");
 			{
@@ -119,33 +120,27 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		}
 		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card");
-			bcc.superclass("org.flasck.android.FlasckActivity");
-			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jvm.ActivityDelegate"), "_delegate");
-			bcc.inheritsField(true, Access.PROTECTED, new JavaType("org.flasck.jdk.display.JDKDisplay"), "_display");
+			String sup = FlasckCard.class.getName();
+			bcc.superclass(sup);
+			bcc.inheritsField(true, Access.PROTECTED, new JavaType(Wrapper.class.getName()), "_wrapper");
+			bcc.inheritsField(true, Access.PROTECTED, new JavaType(DisplayEngine.class.getName()), "_display");
 			bcc.defineField(false, Access.PROTECTED, JavaType.boolean_, "sayHello");
 			{
 				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+				PendingVar despatcher = ann.argument(CardDespatcher.class.getName(), "despatcher");
+				PendingVar display = ann.argument(DisplayEngine.class.getName(), "display");
 				MethodDefiner ctor = ann.done();
-				ctor.callSuper("void", "org.flasck.android.FlasckActivity", "<init>").flush();
-				ctor.returnVoid().flush();
-			}
-			{
-				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "onCreate");
-				// TODO: should this have preserved state?
-//				PendingVar into = ann.argument("java.lang.String", "into");
-				ann.returns(JavaType.void_);
-				NewMethodDefiner meth = ann.done();
-				meth.callSuper("void", "org.flasck.android.FlasckActivity", "onCreate").flush();
-				meth.callVirtual("void", meth.myThis(), "registerContract", meth.stringConst("test.runner.SetState"), meth.as(meth.makeNew("test.runner.Card$_C0", meth.myThis()), "org.flasck.jvm.ContractImpl")).flush();
-				meth.callSuper("void", "org.flasck.android.FlasckActivity", "ready").flush();
-				meth.returnVoid().flush();
+				ctor.callSuper("void", sup, "<init>", despatcher.getVar(), display.getVar()).flush();
+                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.SetState"), ctor.as(ctor.makeNew("test.runner.Card$_C0", ctor.myThis()), ContractImpl.class.getName())).flush();
+                ctor.callSuper("void", sup, "ready").flush();
+                ctor.returnVoid().flush();
 			}
 			{
 				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "render");
 				PendingVar into = ann.argument("java.lang.String", "into");
 				ann.returns(JavaType.void_);
 				NewMethodDefiner meth = ann.done();
-				meth.makeNewVoid("test.runner.Card$B1", meth.myThis(), meth.makeNew("org.flasck.jvm.areas.CardArea", meth.getField(meth.getField("_delegate"), "wrapper"), meth.as(meth.getField("_display"), "org.flasck.jvm.display.DisplayEngine"), into.getVar())).flush();
+				meth.makeNewVoid("test.runner.Card$B1", meth.myThis(), meth.makeNew("org.flasck.jvm.areas.CardArea", meth.getField("_wrapper"), meth.getField("_display"), into.getVar())).flush();
 				meth.returnVoid().flush();
 			}
 			{

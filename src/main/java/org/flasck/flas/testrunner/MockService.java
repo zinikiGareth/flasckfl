@@ -1,7 +1,7 @@
 package org.flasck.flas.testrunner;
 
-import org.flasck.jvm.FlasckService;
 import org.flasck.jvm.HandleDirectly;
+import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.post.DeliveryAddress;
 
 public class MockService extends FlasckService implements HandleDirectly {

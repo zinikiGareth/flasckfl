@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.flasck.android.FlasckActivity;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.ScriptCompiler;
@@ -22,7 +21,8 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.jdk.FlasckHandle;
 import org.flasck.jdk.JDKFlasckController;
 import org.flasck.jdk.ServiceProvider;
-import org.flasck.jvm.FlasckService;
+import org.flasck.jvm.cards.FlasckCard;
+import org.flasck.jvm.container.FlasckService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -109,8 +109,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			body.appendChild(div);
 			
 			@SuppressWarnings("unchecked")
-			Class<? extends FlasckActivity> clz = (Class<? extends FlasckActivity>) loader.loadClass(cardType.javaName());
-			FlasckHandle handle = controller.createActivity(clz, div);
+			Class<? extends FlasckCard> clz = (Class<? extends FlasckCard>) loader.loadClass(cardType.javaName());
+			FlasckHandle handle = controller.createCard(clz, div);
 //			List<Object> services = new ArrayList<>();
 //			
 //			for (ContractImplements ctr : cd.contracts) {
