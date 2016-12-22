@@ -71,12 +71,27 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		}
 		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.SetState");
+			bcc.makeAbstract();
 			bcc.superclass("org.flasck.jvm.ContractImpl");
 			{
 				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
 				MethodDefiner ctor = ann.done();
 				ctor.callSuper("void", "org.flasck.jvm.ContractImpl", "<init>").flush();
 				ctor.returnVoid().flush();
+			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "setOff");
+				ann.argument("org.flasck.jvm.post.DeliveryAddress", "from");
+				ann.returns(JavaType.object_);
+				MethodDefiner meth = ann.done();
+				meth.setAccess(Access.PUBLICABSTRACT);
+			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "setOn");
+				ann.argument("org.flasck.jvm.post.DeliveryAddress", "from");
+				ann.returns(JavaType.object_);
+				MethodDefiner meth = ann.done();
+				meth.setAccess(Access.PUBLICABSTRACT);
 			}
 		}
 		{
