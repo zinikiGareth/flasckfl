@@ -76,10 +76,11 @@ public class UnitTestStepConvertor {
 	}
 
 	private void handleCreate(KeywordToken kw, Tokenizable line, List<Block> nested) {
-		if (!nested.isEmpty()) {
-			builder.error(kw.location, "create may not have nested instructions");
-			return;
-		}
+		for (Block b : nested)
+			if (!b.isComment()) {
+				builder.error(kw.location, "create may not have nested instructions");
+				return;
+			}
 		ValidIdentifierToken var = ValidIdentifierToken.from(line);
 		if (var == null) {
 			builder.error(line.realinfo(), "create needs a var as first argument: '" + line +"'");

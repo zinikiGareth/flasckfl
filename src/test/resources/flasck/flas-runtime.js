@@ -597,6 +597,8 @@ function getPackagedItem(name) {
 function FLError(s) {
 	this.message = s;
 	console.log("FLAS Error encountered:", s);
+	if (window.callJava)
+		window.callJava.error(s);
 }
 
 FLError.prototype.toString = function() {

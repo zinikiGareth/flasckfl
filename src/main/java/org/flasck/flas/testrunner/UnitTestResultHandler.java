@@ -8,4 +8,6 @@ public interface UnitTestResultHandler {
 
 	void testError(String description, Exception ex);
 
+	void testError(String description, String msg);
+
 }

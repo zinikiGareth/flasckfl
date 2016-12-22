@@ -43,6 +43,10 @@ public class UnitTestRunner {
 				} catch (AssertFailed ex) {
 					for (UnitTestResultHandler h : handlers)
 						h.testFailed(tc.getDescription(), ex.expected, ex.actual);
+				} catch (MultiException ex) {
+					for (String s : ex.allErrors())
+						for (UnitTestResultHandler h : handlers)
+							h.testError(tc.getDescription(), s);
 				} catch (Exception ex) {
 					for (UnitTestResultHandler h : handlers)
 						h.testError(tc.getDescription(), ex);

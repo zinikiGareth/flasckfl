@@ -7,6 +7,8 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -20,6 +22,7 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.sync.SyncUtils;
 
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
@@ -29,25 +32,14 @@ import javafx.application.Platform;
 import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner {
-	public class MyLogger {
+	public class SetTimeout {
+		public void error(String s) {
+			errors.add(s);
+		}
 		public void log(String s) {
 			logger.info(s);
 		}
-		/*
-		public void log(Object... msgs) {
-			StringBuilder sb = new StringBuilder();
-			String sep = "";
-			for (Object o : msgs) {
-				sb.append(sep);
-				sep = " ";
-				sb.append(o);
-			}
-			logger.info(sb.toString());
-		}
-		*/
-	}
 
-	public class SetTimeout {
 		public void callAsync(final JSObject fn) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -58,12 +50,12 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 	
-	private final MyLogger ml = new MyLogger();
 	private final SetTimeout st = new SetTimeout();
 	private final BrowserEngine browser;
 	private Page page;
 	private Map<String, JSObject> cards = new TreeMap<String, JSObject>();
 	private File html;
+	private final List<String> errors = new ArrayList<>();
 	
 	public JSRunner(CompileResult cr) {
 		super(cr);
@@ -118,13 +110,15 @@ public class JSRunner extends CommonTestRunner {
 	@Override
 	public void prepareCase() {
 		page = browser.navigate("file:" + html.getPath());
+		page.executeScript("window.console = {};");
+		page.executeScript("window.console.log = function() { var ret = ''; var sep = ''; for (var i=0;i<arguments.length;i++) { ret += sep + arguments[i]; sep = ' '; } callJava.log(ret); };");
 		JSObject win = (JSObject)page.executeScript("window");
-		win.setMember("console", ml);
 		win.setMember("callJava", st);
 		
 		// Do I need to do more cleanup than this?
 		// Also, should there be an "endCase" to do cleanup?
 		cards.clear();
+		errors.clear();
 	}
 
 	@Override
@@ -172,6 +166,7 @@ public class JSRunner extends CommonTestRunner {
 		JSObject card = (JSObject) page.executeScript("_tmp_handle");
 		cdefns.put(bindVar, cd);
 		cards.put(bindVar, card);
+		assertNoErrors();
 	}
 
 	@Override
@@ -182,12 +177,21 @@ public class JSRunner extends CommonTestRunner {
 		String fullName = getFullContractNameForCard(cardVar, contractName, methodName);
 		JSObject card = cards.get(cardVar);
 		card.call("send", fullName, methodName); // TODO: should also allow args
+		// Q: how do we ensure that we wait for the method to actually execute?
+		SyncUtils.sleep(50);
+		assertNoErrors();
 	}
 
 	@Override
 	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
-		System.out.println(page.getDocument().getBody().getOuterHTML());
+//		System.out.println(page.getDocument().getBody().getOuterHTML());
 		what.match(selector, contents, page.getDocument().queryAll(selector).stream().map(e -> new JSWrapperElement(e)).collect(Collectors.toList()));
+		assertNoErrors();
+	}
+
+	private void assertNoErrors() {
+		if (!errors.isEmpty()) 
+			throw new MultiException(errors);
 	}
 
 	protected JSObject getVar(String var) {

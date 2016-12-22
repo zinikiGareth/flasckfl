@@ -24,4 +24,10 @@ public class FileUnitTestResultHandler implements UnitTestResultHandler {
 		results.println("ERROR:  " + caseName);
 		results.showException(ex);
 	}
+
+	@Override
+	public void testError(String caseName, String s) {
+		results.println("ERROR:  " + caseName);
+		results.println("  " + s);
+	}
 }
