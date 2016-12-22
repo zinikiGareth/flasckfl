@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Contract file="card.fl" line="5" name="test.golden.Echo" off="9">
+        <Method dir="down" file="card.fl" line="6" name="saySomething"
+            off="5" required="true">
+            <Typed file="card.fl" line="6" off="19"
+                var="test.golden.Echo.saySomething.msg" vfile="card.fl"
+                vline="6" voff="26">
+                <Builtin name="String"/>
+            </Typed>
+        </Method>
+        <Method dir="up" file="card.fl" line="7" name="echoIt" off="5" required="true">
+            <Typed file="card.fl" line="7" off="13"
+                var="test.golden.Echo.echoIt.msg" vfile="card.fl"
+                vline="7" voff="20">
+                <Builtin name="String"/>
+            </Typed>
+        </Method>
+    </Contract>
     <Contract file="card.fl" line="1" name="test.golden.SetState" off="9">
         <Method dir="down" file="card.fl" line="2" name="setOn" off="5" required="true"/>
         <Method dir="down" file="card.fl" line="3" name="setOff" off="5" required="true"/>
     </Contract>
-    <Card file="card.fl" line="5" name="test.golden.ControlledCard" off="5">
+    <Card file="card.fl" line="9" name="test.golden.ControlledCard" off="5">
+        <Implements contract="test.golden.Echo"/>
         <Implements contract="test.golden.SetState"/>
     </Card>
 </FLIM>

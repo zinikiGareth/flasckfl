@@ -183,7 +183,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ctor.callSuper("void", "org.flasck.jvm.areas.TextArea", "<init>", ctor.as(parent.getVar(), "org.flasck.jvm.areas.Area"), ctor.as(ctor.aNull(), "java.lang.String")).flush();
 				ctor.assign(ctor.getField("_card"), card.getVar()).flush();
 				ctor.callVirtual("void", ctor.myThis(), "_setText", ctor.stringConst("hello, world")).flush();
-				ctor.callVirtual("void", ctor.getField("_wrapper"), "onAssign", ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst("sayHello"), ctor.as(ctor.myThis(), "org.flasck.jvm.areas.Area"), ctor.stringConst("_setVariableFormats")).flush();
+				ctor.callVirtual("void", ctor.getField("_wrapper"), "onAssign", ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst("sayHello"), ctor.as(ctor.myThis(), "org.flasck.jvm.areas.IArea"), ctor.stringConst("_setVariableFormats")).flush();
 				ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), "_setVariableFormats")).flush();
 				ctor.returnVoid().flush();
 			}

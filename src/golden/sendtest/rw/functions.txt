@@ -20,6 +20,17 @@ function test.golden.ControlledCard._C0.setOn test.golden.ControlledCard 0
         "sayHello"
         ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Boolean true)
       PackageVar.Nil
+function test.golden.ControlledCard._C1.saySomething test.golden.ControlledCard 1
+  case test.golden.ControlledCard._C1.saySomething_0
+    typed String test.golden.ControlledCard._C1.saySomething.msg
+  =
+    @
+      PackageVar.Cons
+      <-
+        CardMember.CardMember[test.golden.ControlledCard.e]
+        "echoIt"
+        LocalVar.test.golden.ControlledCard._C1.saySomething.msg
+      PackageVar.Nil
 function test.golden.ControlledCard.styleIf test.golden.ControlledCard 2
   case test.golden.ControlledCard.styleIf_0
     var test.golden.ControlledCard.styleIf_0.style

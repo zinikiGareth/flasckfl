@@ -1,6 +1,10 @@
 	contract SetState
 		down setOn
 		down setOff
+		
+	contract Echo
+		down saySomething (String msg)
+		up   echoIt (String msg)
 
 	card ControlledCard
 		state
@@ -14,6 +18,10 @@
 				sayHello <- true 
 			setOff
 				sayHello <- false 
+
+		implements Echo e
+			saySomething msg
+				<- e.echoIt msg
 
 		styleIf style b
 			if (b) = style

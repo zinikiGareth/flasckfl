@@ -17,6 +17,8 @@ test.golden._ControlledCard = function(v0) {
   this._services = {};
   this._contracts = {};
   this._contracts['test.golden.SetState'] = test.golden.ControlledCard._C0.apply(this);
+  this._contracts['test.golden.Echo'] = test.golden.ControlledCard._C1.apply(this);
+  this.e = this._contracts['test.golden.Echo'];
 }
 
 test.golden.ControlledCard = function(v0) {
@@ -35,6 +37,19 @@ test.golden.ControlledCard.__C0 = function(v0) {
 test.golden.ControlledCard._C0 = function() {
   "use strict";
   return new test.golden.ControlledCard.__C0(this);
+}
+
+test.golden.ControlledCard.__C1 = function(v0) {
+  "use strict";
+  this._ctor = 'test.golden.ControlledCard._C1';
+  this._card = v0;
+  this._special = 'contract';
+  this._contract = 'test.golden.Echo';
+}
+
+test.golden.ControlledCard._C1 = function() {
+  "use strict";
+  return new test.golden.ControlledCard.__C1(this);
 }
 
 test.golden._ControlledCard.prototype._render = function(doc, wrapper, parent) {
@@ -68,6 +83,20 @@ test.golden.ControlledCard.__C0.prototype.setOn = function() {
   "use strict";
   var v0 = FLEval.closure(Assign, this._card, 'sayHello', true);
   return FLEval.closure(Cons, v0, Nil);
+}
+
+test.golden.ControlledCard.__C1.prototype.saySomething = function(v0) {
+  "use strict";
+  v0 = FLEval.head(v0);
+  if (v0 instanceof FLError) {
+    return v0;
+  }
+  if (typeof v0 === 'string') {
+    var v1 = FLEval.closure(Cons, v0, Nil);
+    var v2 = FLEval.closure(Send, this._card.e, 'echoIt', v1);
+    return FLEval.closure(Cons, v2, Nil);
+  }
+  return FLEval.error("test.golden.ControlledCard._C1.saySomething: case not handled");
 }
 
 test.golden.ControlledCard.prototype.styleIf = function(v0, v1) {
