@@ -8,3 +8,7 @@
 		send s SetState setOn
 		matchClass div>span
 			show
+			
+	test that the card can echo a simple string
+		create s ControlledCard
+		send s Echo saySomething "hello"
