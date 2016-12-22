@@ -1,1 +1,2 @@
 PASSED: that the card initially does not have a show tag
+PASSED: that the card has a show tag after sending

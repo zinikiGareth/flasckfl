@@ -38,6 +38,7 @@ public class UnitTestRunner {
 			@Override
 			public void run(SingleTestCase tc) {
 				try {
+					runner.prepareCase();
 					runCase(runner, tc);
 				} catch (AssertFailed ex) {
 					for (UnitTestResultHandler h : handlers)

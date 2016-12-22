@@ -69,6 +69,11 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	}
 
 	@Override
+	public void prepareCase() {
+		
+	}
+
+	@Override
 	public void assertCorrectValue(int exprId) throws Exception {
 		List<Class<?>> toRun = new ArrayList<>();
 		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));

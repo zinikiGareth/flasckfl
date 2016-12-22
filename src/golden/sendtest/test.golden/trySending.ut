@@ -2,3 +2,9 @@
 		create s ControlledCard
 		matchClass div>span
 		send s SetState setOn
+		
+	test that the card has a show tag after sending
+		create s ControlledCard
+		send s SetState setOn
+		matchClass div>span
+			show

@@ -32,6 +32,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		JVMRunner jr = new JVMRunner(prior);
 		jr.considerResource(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
 		jr.prepareScript(sc, testScope);
+		jr.prepareCase();
 		runner = jr;
 	}
 	

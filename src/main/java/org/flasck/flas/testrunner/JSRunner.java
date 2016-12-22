@@ -63,6 +63,7 @@ public class JSRunner extends CommonTestRunner {
 	private final BrowserEngine browser;
 	private Page page;
 	private Map<String, JSObject> cards = new TreeMap<String, JSObject>();
+	private File html;
 	
 	public JSRunner(CompileResult cr) {
 		super(cr);
@@ -83,7 +84,7 @@ public class JSRunner extends CommonTestRunner {
 				ex.errors.showTo(new PrintWriter(System.err), 0);
 				fail("Errors compiling test script");
 			}
-			File html = File.createTempFile("testScript", ".html");
+			html = File.createTempFile("testScript", ".html");
 			html.deleteOnExit();
 			PrintWriter pw = new PrintWriter(html);
 			pw.println("<!DOCTYPE html>");
@@ -100,10 +101,6 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("</body>");
 			pw.println("</html>");
 			pw.close();
-			page = browser.navigate("file:" + html.getPath());
-			JSObject win = (JSObject)page.executeScript("window");
-			win.setMember("console", ml);
-			win.setMember("callJava", st);
 			spkg = tcr.getPackage().uniqueName();
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -115,6 +112,19 @@ public class JSRunner extends CommonTestRunner {
 		if (!f.isAbsolute())
 			f = new File(new File(System.getProperty("user.dir")), f.getPath());
 		pw.println("<script src='file:" + f.getPath() + "' type='text/javascript'></script>");
+	}
+
+	
+	@Override
+	public void prepareCase() {
+		page = browser.navigate("file:" + html.getPath());
+		JSObject win = (JSObject)page.executeScript("window");
+		win.setMember("console", ml);
+		win.setMember("callJava", st);
+		
+		// Do I need to do more cleanup than this?
+		// Also, should there be an "endCase" to do cleanup?
+		cards.clear();
 	}
 
 	@Override
@@ -176,6 +186,7 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
+		System.out.println(page.getDocument().getBody().getOuterHTML());
 		what.match(selector, contents, page.getDocument().queryAll(selector).stream().map(e -> new JSWrapperElement(e)).collect(Collectors.toList()));
 	}
 

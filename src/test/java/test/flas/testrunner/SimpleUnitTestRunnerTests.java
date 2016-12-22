@@ -58,6 +58,7 @@ public class SimpleUnitTestRunnerTests {
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(resultHandler).testPassed("a simple test");
 		}});
@@ -74,6 +75,7 @@ public class SimpleUnitTestRunnerTests {
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(resultHandler).testPassed("a test of id");
 		}});
@@ -90,6 +92,7 @@ public class SimpleUnitTestRunnerTests {
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			exactly(2).of(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(runner).assertCorrectValue(2);
 			oneOf(resultHandler).testPassed("test id with a string");
@@ -110,6 +113,7 @@ public class SimpleUnitTestRunnerTests {
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			oneOf(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1); will(throwException(new AssertFailed(420, 32)));
 			oneOf(resultHandler).testFailed("a simple test", 420, 32);
 		}});
@@ -126,6 +130,7 @@ public class SimpleUnitTestRunnerTests {
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
+			exactly(2).of(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(runner).assertCorrectValue(2); will(throwException(new AssertFailed(420, 32)));
 			oneOf(resultHandler).testPassed("test id with a string");
