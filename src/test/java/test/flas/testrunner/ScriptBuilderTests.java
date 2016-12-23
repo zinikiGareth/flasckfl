@@ -209,7 +209,7 @@ public class ScriptBuilderTests {
 		context.checking(new Expectations() {{
 			oneOf(stepRunner).send(card, contract, method);
 		}});
-		script.addSend(posn, card, contract, method);
+		script.addSend(posn, card, contract, method, new ArrayList<>());
 		script.addTestCase(TEST_CASE_NAME);
 		wrapUp();
 	}

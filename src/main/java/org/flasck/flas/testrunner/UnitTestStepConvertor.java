@@ -1,5 +1,6 @@
 package org.flasck.flas.testrunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
@@ -115,9 +116,21 @@ public class UnitTestStepConvertor {
 			builder.error(line.realinfo(), "send needs a method as third argument: '" + line +"'");
 			return;
 		}
-		// TODO: handle expression arguments
+		ArrayList<Object> args = new ArrayList<>();
+		while (line.hasMore()) {
+			Object arg = expr.tryParsing(line);
+			if (arg instanceof ErrorResult)
+				throw new NotImplementedException();
+			else if (arg == null)
+				throw new NotImplementedException();
+			else
+				args.add(arg);
+		}
 		// TODO: handle nested expectations
-		builder.addSend(kw.location, var.text, card.text, method.text);
+		for (Block b : nested)
+			if (!b.isComment())
+				throw new NotImplementedException("expectations");
+		builder.addSend(kw.location, var.text, card.text, method.text, args);
 	}
 
 	private void handleMatch(KeywordToken kw, WhatToMatch what, Tokenizable line, List<Block> nested) {

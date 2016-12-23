@@ -5,13 +5,16 @@ import static test.flas.testrunner.ExprMatcher.unresolved;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.testrunner.TestScriptBuilder;
 import org.flasck.flas.testrunner.UnitTestStepConvertor;
 import org.flasck.flas.testrunner.WhatToMatch;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -147,14 +150,27 @@ public class TestStepConvertorTests {
 		ctor.handle(new Tokenizable("matchCount div"), Arrays.asList(new Block(3, matchingText)));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testWeCanConvertSendWithNoExpressionsOrExpectations() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
-			oneOf(script).addSend(with(aNonNull(InputPosition.class)), with("q"), with("org.flasck.Init"), with("init"));
+			oneOf(script).addSend(with(aNonNull(InputPosition.class)), with("q"), with("org.flasck.Init"), with("init"), (List<Object>) with(Matchers.empty()));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
 		ctor.handle(new Tokenizable("send q org.flasck.Init init"), Arrays.asList());
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testWeCanConvertSendWithASingleExpressionAndNoExpectations() {
+		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
+		context.checking(new Expectations() {{
+			oneOf(script).addSend(with(aNonNull(InputPosition.class)), with("q"), with("org.flasck.Init"), with("init"), (List) with(Matchers.contains(new StringLiteralMatcher("hello"))));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("send q org.flasck.Init init 'hello'"), Arrays.asList());
 	}
 }
