@@ -8,12 +8,21 @@ import java.util.Arrays;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.testrunner.JVMRunner;
 import org.flasck.jvm.ContractImpl;
+import org.flasck.jvm.FLClosure;
+import org.flasck.jvm.FLError;
+import org.flasck.jvm.FLEval;
 import org.flasck.jvm.Wrapper;
+import org.flasck.jvm.builtin.Cons;
+import org.flasck.jvm.builtin.Nil;
+import org.flasck.jvm.builtin.Send;
 import org.flasck.jvm.cards.CardDespatcher;
 import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.display.DisplayEngine;
+import org.flasck.jvm.post.DeliveryAddress;
 import org.junit.Before;
 import org.zinutils.bytecode.ByteCodeCreator;
+import org.zinutils.bytecode.Expr;
+import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.JavaInfo.Access;
@@ -38,6 +47,15 @@ public class JVMRunnerTests extends BaseRunnerTests {
 	
 	@Before
 	public void defineSupportingFunctions() {
+		ByteCodeCreator cardBcc = new ByteCodeCreator(bce, "test.runner.Card");
+		{
+			String sup = FlasckCard.class.getName();
+			cardBcc.superclass(sup);
+			cardBcc.inheritsField(true, Access.PROTECTED, new JavaType(Wrapper.class.getName()), "_wrapper");
+			cardBcc.inheritsField(true, Access.PROTECTED, new JavaType(DisplayEngine.class.getName()), "_display");
+			cardBcc.defineField(false, Access.PROTECTED, JavaType.boolean_, "sayHello");
+			cardBcc.defineField(false, Access.PROTECTED, "test.runner.Card$_C1", "e");
+		}
 		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.PACKAGEFUNCTIONS$x");
 			GenericAnnotator ga = GenericAnnotator.newMethod(bcc, true, "eval");
@@ -96,6 +114,25 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			}
 		}
 		{
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Echo");
+			bcc.makeAbstract();
+			bcc.superclass("org.flasck.jvm.ContractImpl");
+			{
+				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+				MethodDefiner ctor = ann.done();
+				ctor.callSuper("void", "org.flasck.jvm.ContractImpl", "<init>").flush();
+				ctor.returnVoid().flush();
+			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "saySomething");
+				ann.argument(DeliveryAddress.class.getName(), "from");
+				ann.argument(Object.class.getName(), "msg");
+				ann.returns(JavaType.object_);
+				MethodDefiner meth = ann.done();
+				meth.setAccess(Access.PUBLICABSTRACT);
+			}
+		}
+		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card$_C0");
 			bcc.superclass("test.runner.SetState");
 			bcc.defineField(true, Access.PROTECTED, "test.runner.Card", "_card");
@@ -135,24 +172,65 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			}
 		}
 		{
-			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card");
-			String sup = FlasckCard.class.getName();
-			bcc.superclass(sup);
-			bcc.inheritsField(true, Access.PROTECTED, new JavaType(Wrapper.class.getName()), "_wrapper");
-			bcc.inheritsField(true, Access.PROTECTED, new JavaType(DisplayEngine.class.getName()), "_display");
-			bcc.defineField(false, Access.PROTECTED, JavaType.boolean_, "sayHello");
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card$_C1");
+			bcc.superclass("test.runner.Echo");
+			bcc.defineField(true, Access.PROTECTED, "test.runner.Card", "_card");
 			{
 				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+				PendingVar card = ann.argument("test.runner.Card", "card");
+				MethodDefiner ctor = ann.done();
+				ctor.callSuper("void", "test.runner.Echo", "<init>").flush();
+				ctor.assign(ctor.getField("_card"), card.getVar()).flush();
+				ctor.returnVoid().flush();
+			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "saySomething");
+				ann.argument("org.flasck.jvm.post.DeliveryAddress", "from");
+				PendingVar pv = ann.argument("java.lang.Object", "msg");
+				ann.returns(JavaType.object_);
+				NewMethodDefiner meth = ann.done();
+				Var msg = pv.getVar();
+				meth.assign(msg, meth.callStatic(FLEval.class.getName(), Object.class.getName(), "head", msg)).flush();
+				meth.ifBoolean(meth.instanceOf(msg, FLError.class.getName()), meth.returnObject(msg), null).flush();
+				Expr nil = meth.callStatic(Nil.class.getName(), Object.class.getName(), "eval", meth.arrayOf(Object.class.getName(), new ArrayList<>()));
+				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
+				Var clos2 = meth.avar("org.flasck.jvm.FLClosure", "clos2");
+				meth.ifBoolean(meth.instanceOf(msg, String.class.getName()),
+					meth.block(
+						meth.assign(clos1, 
+							meth.makeNew(FLClosure.class.getName(), meth.classConst(Cons.class.getName()), meth.arrayOf(Object.class.getName(), Arrays.asList( 
+									msg,
+									nil)))),
+						meth.assign(clos2, 
+								meth.makeNew(FLClosure.class.getName(), meth.classConst(Send.class.getName()), meth.arrayOf(Object.class.getName(), Arrays.asList( 
+									meth.getField(meth.getField("_card"), "e"),
+									meth.stringConst("echoIt"),
+									clos1)))),
+						meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
+								meth.classConst("org.flasck.jvm.builtin.Cons"),
+								meth.arrayOf("java.lang.Object", Arrays.asList(clos2, meth.callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>()))))))
+					),
+					meth.returnObject(meth.makeNew(FLError.class.getName(), meth.stringConst("saySomething: case not handled")))).flush();
+			}
+			bcc.writeTo(new File("/Users/gareth/c1.class"));
+		}
+		{
+			String sup = FlasckCard.class.getName();
+			{
+				GenericAnnotator ann = GenericAnnotator.newConstructor(cardBcc, false);
 				PendingVar despatcher = ann.argument(CardDespatcher.class.getName(), "despatcher");
 				PendingVar display = ann.argument(DisplayEngine.class.getName(), "display");
 				MethodDefiner ctor = ann.done();
 				ctor.callSuper("void", sup, "<init>", despatcher.getVar(), display.getVar()).flush();
                 ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.SetState"), ctor.as(ctor.makeNew("test.runner.Card$_C0", ctor.myThis()), ContractImpl.class.getName())).flush();
+                FieldExpr e = ctor.getField("e");
+                ctor.assign(e, ctor.makeNew("test.runner.Card$_C1", ctor.myThis())).flush();
+                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.Echo"), ctor.as(e, ContractImpl.class.getName())).flush();
                 ctor.callSuper("void", sup, "ready").flush();
                 ctor.returnVoid().flush();
 			}
 			{
-				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "render");
+				GenericAnnotator ann = GenericAnnotator.newMethod(cardBcc, false, "render");
 				PendingVar into = ann.argument("java.lang.String", "into");
 				ann.returns(JavaType.void_);
 				NewMethodDefiner meth = ann.done();
@@ -160,7 +238,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				meth.returnVoid().flush();
 			}
 			{
-				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "styleIf");
+				GenericAnnotator ann = GenericAnnotator.newMethod(cardBcc, false, "styleIf");
 				PendingVar str = ann.argument("java.lang.Object", "str");
 				PendingVar bool = ann.argument("java.lang.Object", "bool");
 				ann.returns("java.lang.Object");
@@ -169,7 +247,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				meth.ifBoolean(meth.unbox(meth.castTo(bool.getVar(), "java.lang.Boolean"), false), meth.returnObject(str.getVar()), meth.block(meth.markHere(m1), meth.returnObject(meth.stringConst("")))).flush();
 				meth.addStackMapFrame(StackMapFrame.SAME_FRAME, m1.getMarker());
 			}
-			bcc.writeTo(new File("/Users/gareth/bcc.class"));
+			cardBcc.writeTo(new File("/Users/gareth/card.class"));
 		}
 		{
 			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card$B1");
