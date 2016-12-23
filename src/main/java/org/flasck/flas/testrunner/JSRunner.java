@@ -51,10 +51,27 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	public class MockService {
+		private final String ctr;
 		public String _myAddr;
 
+		public MockService(String fullName) {
+			this.ctr = fullName;
+		}
+
 		public void process(final JSObject msg) {
-			System.out.println("Hello");
+			try {
+				String method = (String) msg.getMember("method");
+				JSObject args = (JSObject) msg.getMember("args");
+				int alen = (int)args.getMember("length");
+				List<Object> ao = new ArrayList<>();
+				for (int i=0;i<alen;i++)
+					ao.add(args.getSlot(i)); // TODO: we probably also need to do further JS -> Java conversion
+				invocations.add(new Invocation(ctr, method, ao));
+				// TODO: check that this matches one of the (outstanding) expectations
+			} catch (Throwable t) {
+				t.printStackTrace();
+				errors.add(t.getMessage());
+			}
 		}
 	}
 	
@@ -63,6 +80,7 @@ public class JSRunner extends CommonTestRunner {
 	private Page page;
 	private Map<String, JSObject> cards = new TreeMap<String, JSObject>();
 	private File html;
+	private final List<Invocation> invocations = new ArrayList<>();
 	private final List<String> errors = new ArrayList<>();
 	
 	public JSRunner(CompileResult cr) {
@@ -166,7 +184,7 @@ public class JSRunner extends CommonTestRunner {
 		for (ContractImplements ctr : cd.contracts) {
 			String fullName = fullName(ctr.name());
 			JSObject win = (JSObject)page.executeScript("window");
-			MockService ms = new MockService();
+			MockService ms = new MockService(fullName);
 			// TODO: need to wire ms up in some way to have expectations ...
 			win.setMember("_tmp_svc", ms);
 			execute("Flasck.provideService(_tmp_postbox, _tmp_services, '" + fullName + "', _tmp_svc)");
@@ -198,8 +216,11 @@ public class JSRunner extends CommonTestRunner {
 			}
 		card.call("send", args.toArray());
 		// Q: how do we ensure that we wait for the method to actually execute?
-		SyncUtils.sleep(50);
+		SyncUtils.sleep(300);
 		assertNoErrors();
+		for (Invocation ii : invocations)
+			System.out.println("Should have expected: " + ii);
+		invocations.clear();
 	}
 
 	@Override
