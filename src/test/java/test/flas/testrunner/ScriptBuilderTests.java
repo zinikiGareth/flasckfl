@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorReporter;
@@ -206,10 +207,26 @@ public class ScriptBuilderTests {
 		String card = "q";
 		String contract = "org.flasck.Init";
 		String method = "init";
+		ArrayList<Object> args = new ArrayList<>();
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).send(card, contract, method);
+			oneOf(stepRunner).send(card, contract, method, args);
 		}});
-		script.addSend(posn, card, contract, method, new ArrayList<>());
+		script.addSend(posn, card, contract, method, args);
+		script.addTestCase(TEST_CASE_NAME);
+		wrapUp();
+	}
+
+	@Test
+	public void testThatWeCaptureSendCommandsWithArguments() throws Exception {
+		String card = "q";
+		String contract = "org.flasck.Init";
+		String method = "init";
+		ArrayList<Object> args = new ArrayList<>();
+		args.add(new StringLiteral(posn, "hello"));
+		context.checking(new Expectations() {{
+			oneOf(stepRunner).send(card, contract, method, args);
+		}});
+		script.addSend(posn, card, contract, method, args);
 		script.addTestCase(TEST_CASE_NAME);
 		wrapUp();
 	}

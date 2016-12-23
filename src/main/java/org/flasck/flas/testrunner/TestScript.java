@@ -72,7 +72,7 @@ public class TestScript implements TestScriptBuilder {
 	
 	@Override
 	public void addSend(InputPosition posn, String card, String contract, String method, List<Object> args) {
-		SendStep step = new SendStep(card, contract, method);
+		SendStep step = new SendStep(card, contract, method, args);
 		currentSteps.add(step);
 	}
 

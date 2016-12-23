@@ -135,7 +135,7 @@ public abstract class BaseRunnerTests {
 		String contractName = "SetState";
 		String methodName = "setOn";
 		runner.createCardAs(cn, cardVar);
-		runner.send(cardVar, contractName, methodName); // should be send init, etc.  TDD that
+		runner.send(cardVar, contractName, methodName, null);
 		runner.match(WhatToMatch.CLASS, "div>span", "show");
 	}
 

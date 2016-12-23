@@ -170,7 +170,7 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	@Override
-	public void send(String cardVar, String contractName, String methodName) {
+	public void send(String cardVar, String contractName, String methodName, List<Object> args) {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 

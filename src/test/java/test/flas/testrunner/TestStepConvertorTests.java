@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.testrunner.TestScriptBuilder;
 import org.flasck.flas.testrunner.UnitTestStepConvertor;
 import org.flasck.flas.testrunner.WhatToMatch;
