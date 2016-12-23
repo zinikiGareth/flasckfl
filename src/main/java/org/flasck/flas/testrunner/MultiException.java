@@ -14,4 +14,13 @@ public class MultiException extends RuntimeException {
 		return errors;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder ret = new StringBuilder();
+		for (String e : errors) {
+			ret.append(e);
+			ret.append("\n");
+		}
+		return ret.toString();
+	}
 }

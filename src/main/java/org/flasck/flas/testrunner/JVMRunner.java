@@ -132,7 +132,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	}
 
 	@Override
-	public void send(String cardVar, String contractName, String methodName, List<Object> args) {
+	public void send(String cardVar, String contractName, String methodName, List<Integer> args) {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 

@@ -72,7 +72,19 @@ public class TestScript implements TestScriptBuilder {
 	
 	@Override
 	public void addSend(InputPosition posn, String card, String contract, String method, List<Object> args) {
-		SendStep step = new SendStep(card, contract, method, args);
+		List<Integer> posns = new ArrayList<>();
+		for (Object o : args) {
+			{
+				String key = "arg" + nextStep;
+				FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
+				FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
+				fn.provideCaseName(0);
+				scope.define(key, fn);
+			}
+			posns.add(nextStep);
+			nextStep++;
+		}
+		SendStep step = new SendStep(card, contract, method, posns);
 		currentSteps.add(step);
 	}
 

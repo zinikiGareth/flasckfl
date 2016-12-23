@@ -542,7 +542,7 @@ Postbox.prototype.remove = function(address) {
 Postbox.prototype.deliver = function(address, message) {
 	"use strict"
 	if (!address)
-		throw new Error("cannot deliver without a valid address");
+		throw new FLError("cannot deliver without a valid address");
 	if (!message.from || !message.method || !message.args)
 		throw new Error("invalid message - must contain from, method and args" + JSON.stringify(message));
 //	console.log("deliver", message, "to", address);
@@ -552,17 +552,16 @@ Postbox.prototype.deliver = function(address, message) {
 	if (this.name !== pb) {
 		var rpb = this.postboxes[pb];
 		if (!rpb || !rpb.window)
-			throw new Error("I think this should now put things in a queue"); 
+			throw new FLError("I think this should now put things in a queue"); 
 		rpb.window.postMessage({action:'data', from: this.name, to: address, message: message}, "*");
 		return;
 	}
 	var recip = this.recipients[addr];
 	if (!recip) {
-		console.log("There is no registered recipient for ", address);
-		return;
+		return new FLError("There is no registered recipient for " + address);
 	}
 	if (!recip.process)
-		throw new Error("There is no process method on" + recip);
+		throw new FLError("There is no process method on" + recip);
 
 	// deliver it directly to the recipient; just not yet.
 	var fn = function() {
@@ -1859,8 +1858,7 @@ FlasckWrapper.prototype.processOne = function(msg, todo) {
 	if (msg._ctor === 'Send') {
 		var target = msg.target;
 		if (target === null || target === undefined) {
-			console.log("cannot have undefined target");
-			return;
+			return new FLError("cannot have undefined target");
 		}
 		if (typeof target === 'string') {
 			target = this.card[target];
@@ -1870,9 +1868,7 @@ FlasckWrapper.prototype.processOne = function(msg, todo) {
 			}
 		}
 		if (!target._special) {
-			console.log("Target for send is not 'special'", msg.target);
-			debugger;
-			return;
+			return new FLError("Target for send is not 'special'" + msg.target);
 		}
 		var meth = msg.method;
 		if (target._special === 'contract') {
@@ -1884,22 +1880,18 @@ FlasckWrapper.prototype.processOne = function(msg, todo) {
 			}
 			var addr = target._addr;
 			if (!addr) {
-				console.log("No service was provided for " + target._contract);
-				return;
+				return new FLError("No service was provided for " + target._contract);
 			}
 			this.postbox.deliver(addr, {from: target._myaddr, method: meth, args: args });
 		} else if (target._special === 'object') {
 			var args = FLEval.flattenList(msg.args);
 			var actM = target[meth];
 			if (!actM) {
-				console.log("There is no method " + meth + " on ", target);
-				debugger;
-				return;
+				return new FLError("There is no method " + meth + " on ", target);
 			}
 			return actM.apply(target, args);
 		} else {
-			console.log("Cannot handle special case:", target._special);
-			return;
+			return new FLError("Cannot handle special case: " + target._special);
 		}
 	} else if (msg._ctor === 'Assign') {
 		var into = msg.target;
@@ -1934,8 +1926,7 @@ FlasckWrapper.prototype.processOne = function(msg, todo) {
 			// This is just a change to the actual object, which should be separately recorded; the Croset does not change
 			break;
 		default:
-			console.log("don't handle", msg);
-			debugger;
+			return new FLError("don't handle" + msg);
 		}
 		if (meth)
 			this.postbox.deliver(this.services['org.ziniki.CrosetContract'], {from: this.contractInfo['org.ziniki.CrosetContract'].service._myaddr, method: meth, args: args });
@@ -1963,7 +1954,7 @@ FlasckWrapper.prototype.processOne = function(msg, todo) {
 		var val = FLEval.full(msg.value);
 		console.log("Debug:", val);
 	} else
-		throw new Error("The method message " + msg._ctor + " is not supported");
+		return new FLError("The method message " + msg._ctor + " is not supported");
 }
 
 FlasckWrapper.prototype.convertSpecial = function(obj) {

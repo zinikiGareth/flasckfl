@@ -49,6 +49,14 @@ public class JSRunner extends CommonTestRunner {
 			});
 		}
 	}
+
+	public class MockService {
+		public String _myAddr;
+
+		public void process(final JSObject msg) {
+			System.out.println("Hello");
+		}
+	}
 	
 	private final SetTimeout st = new SetTimeout();
 	private final BrowserEngine browser;
@@ -123,9 +131,9 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void assertCorrectValue(int exprId) throws ClassNotFoundException, Exception {
-		Object actual = page.executeScript("FLEval.full(" + spkg + ".expr1())");
+		Object actual = page.executeScript("FLEval.full(" + spkg + ".expr" + exprId + "())");
 		assertNotNull("There was no actual", actual);
-		Object expected = page.executeScript("FLEval.full(" + spkg + ".value1())");
+		Object expected = page.executeScript("FLEval.full(" + spkg + ".value" + exprId + "())");
 		assertNotNull("There was no value1", expected);
 		try {
 			assertEquals(expected, actual);
@@ -152,13 +160,17 @@ public class JSRunner extends CommonTestRunner {
 		String l1 = "_tmp_body = document.getElementsByTagName('body')[0];";
 		String l2 = "_tmp_div = document.createElement('div');";
 		String l3 = "_tmp_body.appendChild(_tmp_div);";
+		// _tmp_services needs to be a map of service name to port to listen on
 		String l4 = "_tmp_services = {};";
 		execute(l0+l1+l2+l3+l4);
 		for (ContractImplements ctr : cd.contracts) {
 			String fullName = fullName(ctr.name());
-			execute("_tmp_svc = {} ; _tmp_services['" + fullName+"'] = _tmp_svc;");
-//			JSObject svc = getVar("_tmp_svc");
-			// TODO: we need to capture this object and make it ready for receiving messages later
+			JSObject win = (JSObject)page.executeScript("window");
+			MockService ms = new MockService();
+			// TODO: need to wire ms up in some way to have expectations ...
+			win.setMember("_tmp_svc", ms);
+			execute("Flasck.provideService(_tmp_postbox, _tmp_services, '" + fullName + "', _tmp_svc)");
+//			System.out.println("Binding " + fullName + " to " + ms._myAddr);
 		}
 		String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType.jsName() + ", mode: 'local' }, _tmp_services)";
 		execute(l5);
@@ -170,13 +182,21 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	@Override
-	public void send(String cardVar, String contractName, String methodName, List<Object> args) {
+	public void send(String cardVar, String contractName, String methodName, List<Integer> posns) {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
 		String fullName = getFullContractNameForCard(cardVar, contractName, methodName);
 		JSObject card = cards.get(cardVar);
-		card.call("send", fullName, methodName); // TODO: should also allow args
+		
+		List<Object> args = new ArrayList<Object>();
+		args.add(fullName);
+		args.add(methodName);
+		if (posns != null)
+			for (int i : posns) {
+				args.add(page.executeScript("FLEval.full(" + spkg + ".arg" + i + "())"));
+			}
+		card.call("send", args.toArray());
 		// Q: how do we ensure that we wait for the method to actually execute?
 		SyncUtils.sleep(50);
 		assertNoErrors();

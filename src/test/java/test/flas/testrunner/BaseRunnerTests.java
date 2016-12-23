@@ -2,10 +2,13 @@ package test.flas.testrunner;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NumericLiteral;
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -21,6 +24,8 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.Scope;
+import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.testrunner.AssertFailed;
@@ -37,6 +42,7 @@ import org.zinutils.bytecode.ByteCodeEnvironment;
 public abstract class BaseRunnerTests {
 	static final int X_VALUE = 420;
 	static final int X_OTHER_VALUE = 520;
+	private static final String HELLO_STRING = "hello, world";
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ErrorResult errors = new ErrorResult();
@@ -57,9 +63,16 @@ public abstract class BaseRunnerTests {
 		Main.setLogLevels();
 		mainScope.define("x", null);
 		CardDefinition cd = new CardDefinition(loc, loc, mainScope, cn);
-		ContractImplements ctr = new ContractImplements(loc, loc, "SetState", null, null);
-		ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C0"), "setOn"), new ArrayList<>())));
-		cd.contracts.add(ctr);
+		{
+			ContractImplements ctr = new ContractImplements(loc, loc, "SetState", null, null);
+			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C0"), "setOn"), new ArrayList<>())));
+			cd.contracts.add(ctr);
+		}
+		{
+			ContractImplements ctr = new ContractImplements(loc, loc, "Echo", null, null);
+			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C1"), "saySomething"), Arrays.asList(new TypedPattern(loc, new TypeReference(loc, "String"), loc, "s")))));
+			cd.contracts.add(ctr);
+		}
 		mainScope.define("Card", cd);
 		tc.define("test.runner.x", Type.function(loc, Type.builtin(loc, "Number")));
 		prior = new CompileResult(mainScope, bce, tc);
@@ -137,6 +150,20 @@ public abstract class BaseRunnerTests {
 		runner.createCardAs(cn, cardVar);
 		runner.send(cardVar, contractName, methodName, null);
 		runner.match(WhatToMatch.CLASS, "div>span", "show");
+	}
+
+	@Test
+	public void testSendCanCauseAMessageToComeBack() throws Exception {
+		testScope.define("arg1", function("arg1", new StringLiteral(loc, HELLO_STRING)));
+		prepareRunner();
+		String cardVar = "q";
+		String contractName = "Echo";
+		String methodName = "saySomething";
+		List<Integer> args = new ArrayList<Integer>();
+		args.add(1);
+		runner.createCardAs(cn, cardVar);
+		runner.send(cardVar, contractName, methodName, args);
+//		runner.match(WhatToMatch.CLASS, "div>span", "show");
 	}
 
 	protected abstract void prepareRunner() throws IOException, ErrorResultException;

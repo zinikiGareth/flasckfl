@@ -208,8 +208,9 @@ public class ScriptBuilderTests {
 		String contract = "org.flasck.Init";
 		String method = "init";
 		ArrayList<Object> args = new ArrayList<>();
+		List<Integer> expect = new ArrayList<>();
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).send(card, contract, method, args);
+			oneOf(stepRunner).send(card, contract, method, expect);
 		}});
 		script.addSend(posn, card, contract, method, args);
 		script.addTestCase(TEST_CASE_NAME);
@@ -223,8 +224,10 @@ public class ScriptBuilderTests {
 		String method = "init";
 		ArrayList<Object> args = new ArrayList<>();
 		args.add(new StringLiteral(posn, "hello"));
+		List<Integer> expect = new ArrayList<>();
+		expect.add(1);
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).send(card, contract, method, args);
+			oneOf(stepRunner).send(card, contract, method, expect);
 		}});
 		script.addSend(posn, card, contract, method, args);
 		script.addTestCase(TEST_CASE_NAME);

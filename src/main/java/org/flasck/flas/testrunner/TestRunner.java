@@ -11,6 +11,6 @@ public interface TestRunner {
 	void prepareCase();
 	void assertCorrectValue(int exprId) throws ClassNotFoundException, Exception;
 	void createCardAs(CardName cardType, String bindVar);
-	void send(String cardVar, String contractName, String methodName, List<Object> args);
+	void send(String cardVar, String contractName, String methodName, List<Integer> args);
 	void match(WhatToMatch what, String selector, String contents) throws NotMatched;
 }
