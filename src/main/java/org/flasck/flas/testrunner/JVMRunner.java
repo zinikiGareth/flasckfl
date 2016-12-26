@@ -132,13 +132,27 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	}
 
 	@Override
-	public void send(String cardVar, String contractName, String methodName, List<Integer> args) {
+	public void send(String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
 		String ctrName = getFullContractNameForCard(cardVar, contractName, methodName);
 		FlasckHandle card = cards.get(cardVar);
-		card.send(ctrName, methodName); // TODO: should also allow args
+		Object[] argVals;
+		if (args == null || args.isEmpty())
+			argVals = new Object[0];
+		else {
+			argVals = new Object[args.size()];
+			Class<?> fleval = Class.forName("org.flasck.jvm.FLEval", false, loader);
+			int cnt = 0;
+			for (int i : args) {
+				Class<?> clz = Class.forName(spkg + ".PACKAGEFUNCTIONS$arg" + i, false, loader);
+				Object o = Reflection.callStatic(clz, "eval", new Object[] { new Object[] {} });
+				o = Reflection.callStatic(fleval, "full", o);
+				argVals[cnt++] = o;
+			}
+		}
+		card.send(ctrName, methodName, argVals);
 		controller.processPostboxes();
 	}
 
