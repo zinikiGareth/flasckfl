@@ -54,9 +54,11 @@ public abstract class BaseRunnerTests {
 	CompileResult prior;
 	FLASCompiler sc = new FLASCompiler();
 	TestRunner runner;
-	Scope mainScope = Scope.topScope("test.runner");
+	String pkg = "test.runner";
+	Scope mainScope = Scope.topScope(pkg);
 	Scope testScope;
 	CardName cn = new CardName(new PackageName("test.runner"), "Card");
+	String spkg = pkg + ".script";
 	
 	@Before
 	public void setup() {
@@ -76,7 +78,7 @@ public abstract class BaseRunnerTests {
 		mainScope.define("Card", cd);
 		tc.define("test.runner.x", Type.function(loc, Type.builtin(loc, "Number")));
 		prior = new CompileResult(mainScope, bce, tc);
-		testScope = Scope.topScope("test.runner.script");
+		testScope = Scope.topScope(spkg);
 	}
 	
 	@Test
@@ -161,9 +163,11 @@ public abstract class BaseRunnerTests {
 		String methodName = "saySomething";
 		List<Integer> args = new ArrayList<Integer>();
 		args.add(1);
+		List<Integer> eargs = new ArrayList<Integer>();
+		eargs.add(2);
 		runner.createCardAs(cn, cardVar);
+		runner.expect(pkg+"."+contractName, "echoIt", eargs);
 		runner.send(cardVar, contractName, methodName, args);
-//		runner.match(WhatToMatch.CLASS, "div>span", "show");
 	}
 
 	protected abstract void prepareRunner() throws IOException, ErrorResultException;

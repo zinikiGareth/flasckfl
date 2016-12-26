@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.flasck.flas.commonBase.names.CardName;
@@ -32,6 +33,8 @@ import javafx.application.Platform;
 import netscape.javascript.JSObject;
 
 public class JSRunner extends CommonTestRunner {
+	AtomicInteger pendingAsyncs = new AtomicInteger(0);
+
 	public class SetTimeout {
 		public void error(String s) {
 			errors.add(s);
@@ -41,37 +44,38 @@ public class JSRunner extends CommonTestRunner {
 		}
 
 		public void callAsync(final JSObject fn) {
+			pendingAsyncs.incrementAndGet();
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {
-					fn.eval("this.f()");
+					try {
+						fn.eval("this.f()");
+						if (pendingAsyncs.decrementAndGet() == 0) {
+							synchronized(pendingAsyncs) {
+								pendingAsyncs.notifyAll();
+							}
+						}
+					} catch (Throwable t) {
+						errors.add(t.getMessage());
+					}
 				}
 			});
 		}
 	}
 
-	public class MockService {
-		private final String ctr;
-		public String _myAddr;
+	// Because of a bug in JDK8 (https://bugs.openjdk.java.net/browse/JDK-8088751), it's not possible
+	// to have the MockService directly implement both process methods and share that with JS/Webkit
+	// Thus we have a wrapper here to deal with the impedance mismatch
+	public class MockServiceWrapper {
+		public String _myAddr; // JSRunner depends on this; JVMRunner probably should need it as well :-)
+		private MockService wraps;
 
-		public MockService(String fullName) {
-			this.ctr = fullName;
+		public MockServiceWrapper(String name) {
+			wraps = new MockService(name, errors, invocations, expectations);
 		}
-
+		
 		public void process(final JSObject msg) {
-			try {
-				String method = (String) msg.getMember("method");
-				JSObject args = (JSObject) msg.getMember("args");
-				int alen = (int)args.getMember("length");
-				List<Object> ao = new ArrayList<>();
-				for (int i=0;i<alen;i++)
-					ao.add(args.getSlot(i)); // TODO: we probably also need to do further JS -> Java conversion
-				invocations.add(new Invocation(ctr, method, ao));
-				// TODO: check that this matches one of the (outstanding) expectations
-			} catch (Throwable t) {
-				t.printStackTrace();
-				errors.add(t.getMessage());
-			}
+			wraps.process(msg);
 		}
 	}
 	
@@ -80,8 +84,6 @@ public class JSRunner extends CommonTestRunner {
 	private Page page;
 	private Map<String, JSObject> cards = new TreeMap<String, JSObject>();
 	private File html;
-	private final List<Invocation> invocations = new ArrayList<>();
-	private final List<String> errors = new ArrayList<>();
 	
 	public JSRunner(CompileResult cr) {
 		super(cr);
@@ -184,11 +186,11 @@ public class JSRunner extends CommonTestRunner {
 		for (ContractImplements ctr : cd.contracts) {
 			String fullName = fullName(ctr.name());
 			JSObject win = (JSObject)page.executeScript("window");
-			MockService ms = new MockService(fullName);
+			MockServiceWrapper ms = new MockServiceWrapper(fullName);
 			// TODO: need to wire ms up in some way to have expectations ...
 			win.setMember("_tmp_svc", ms);
 			execute("Flasck.provideService(_tmp_postbox, _tmp_services, '" + fullName + "', _tmp_svc)");
-//			System.out.println("Binding " + fullName + " to " + ms._myAddr);
+			System.out.println("Binding " + fullName + " to " + ms._myAddr);
 		}
 		String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType.jsName() + ", mode: 'local' }, _tmp_services)";
 		execute(l5);
@@ -215,8 +217,8 @@ public class JSRunner extends CommonTestRunner {
 				args.add(page.executeScript("FLEval.full(" + spkg + ".arg" + i + "())"));
 			}
 		card.call("send", args.toArray());
-		// Q: how do we ensure that we wait for the method to actually execute?
-		SyncUtils.sleep(300);
+		while (pendingAsyncs.get() != 0)
+			SyncUtils.waitFor(pendingAsyncs, 1000);
 		assertNoErrors();
 		for (Invocation ii : invocations)
 			System.out.println("Should have expected: " + ii);

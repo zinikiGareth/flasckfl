@@ -1,5 +1,7 @@
 package org.flasck.flas.testrunner;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -17,6 +19,9 @@ public abstract class CommonTestRunner implements TestRunner {
 	protected final String testPkg;
 	protected String spkg;
 	protected final Map<String, CardDefinition> cdefns = new TreeMap<>();
+	protected final List<Invocation> expectations = new ArrayList<>();
+	protected final List<Invocation> invocations = new ArrayList<>();
+	protected final List<String> errors = new ArrayList<>();
 
 	public CommonTestRunner(CompileResult cr) {
         this.prior = cr;
@@ -45,5 +50,10 @@ public abstract class CommonTestRunner implements TestRunner {
 		if (meth == null)
 			throw new UtilException("the contract '" + contractName + "' does not have the method '" + methodName +"'");
 		return fullName;
+	}
+	
+	@Override
+	public void expect(String ctr, String method, List<Integer> chkargs) {
+		expectations.add(new Invocation(ctr, method, (List)chkargs));
 	}
 }

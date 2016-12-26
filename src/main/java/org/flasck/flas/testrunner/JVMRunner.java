@@ -158,12 +158,11 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
-		System.out.println(document.outerHtml());
 		what.match(selector, contents, document.select(selector).stream().map(e -> new JVMWrapperElement(e)).collect(Collectors.toList()));
 	}
 
 	@Override
 	public FlasckService getService(String name) {
-		return new MockService(name);
+		return new MockService(name, errors, invocations, expectations);
 	}
 }
