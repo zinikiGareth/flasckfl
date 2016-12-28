@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.ScopeName;
@@ -41,10 +42,10 @@ public class HSIETestData {
 
 	static Map<String, PackageVar> ctorTypes = new HashMap<>();
 	static {
-		ctorTypes.put("Number", new PackageVar(posn, "Number", org.flasck.flas.types.Type.builtin(posn, "Number")));
-		PackageVar nil = new PackageVar(posn, "Nil", new RWStructDefn(posn, new StructName(null, "Nil"), false));
-		PackageVar cons = new PackageVar(posn, "Cons", new RWStructDefn(posn, new StructName(null, "Cons"), false));
-		PackageVar list = new PackageVar(posn, "List", new RWUnionTypeDefn(posn, false, "List", null));
+		ctorTypes.put("Number", new PackageVar(posn, new StructName(null, "Number"), org.flasck.flas.types.Type.builtin(posn, "Number")));
+		PackageVar nil = new PackageVar(posn, new StructName(null, "Nil"), new RWStructDefn(posn, new StructName(null, "Nil"), false));
+		PackageVar cons = new PackageVar(posn, new StructName(null, "Cons"), new RWStructDefn(posn, new StructName(null, "Cons"), false));
+		PackageVar list = new PackageVar(posn, new StructName(null, "List"), new RWUnionTypeDefn(posn, false, "List", null));
 		ctorTypes.put("Cons", cons);
 		ctorTypes.put("Nil", nil);
 		ctorTypes.put("List", list);
@@ -535,16 +536,28 @@ public class HSIETestData {
 				String s = ps[0];
 				Object toPush = null;
 				for (Object o : dependsOn) {
-					if (o instanceof String && s.equals(o))
-						toPush = new PackageVar(posn, s, null);
-					else if (o instanceof ScopedVar && ((ScopedVar)o).id.uniqueName().equals(s))
+					if (o instanceof String && s.equals(o)) {
+						int k = s.indexOf(".");
+						NameOfThing n;
+						if (k != -1)
+							n = FunctionName.function(posn, new PackageName(s.substring(0, k)), s.substring(k+1));
+						else
+							n = FunctionName.function(posn, null, s);
+						toPush = new PackageVar(posn, n, null);
+					} else if (o instanceof ScopedVar && ((ScopedVar)o).id.uniqueName().equals(s))
 						toPush = o;
 				}
 				if (toPush == null) {
 					// This appears to be a valid case, but I'm dubious ...
 					System.out.println("No external/scoped defn for " + s);
 //					throw new UtilException("No external/scoped defn for " + s);
-					toPush = new PackageVar(posn, s, null);
+					int k = s.indexOf(".");
+					NameOfThing n;
+					if (k != -1)
+						n = FunctionName.function(posn, new PackageName(s.substring(0, k)), s.substring(k+1));
+					else
+						n = FunctionName.function(posn, null, s);
+					toPush = new PackageVar(posn, n, null);
 				}
 				prev = b.push(posn, toPush);
 			}

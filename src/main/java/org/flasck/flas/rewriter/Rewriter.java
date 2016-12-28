@@ -214,11 +214,13 @@ public class Rewriter {
 		public Object resolve(InputPosition location, String name) {
 			// TODO: I think these should possibly just keep on having their "simple" names and let JSOUT handle the rename
 			if (name.equals("."))
-				return new PackageVar(location, "FLEval.field", null);
+				return new PackageVar(location, FunctionName.function(location, new PackageName("FLEval"), "field"), null);
 			if (name.equals("()"))
-				return new PackageVar(location, "FLEval.tuple", null);
-			if (name.equals("let"))
-				return new PackageVar(location, "let", null);
+				return new PackageVar(location, FunctionName.function(location, new PackageName("FLEval"), "tuple"), null);
+			if (name.equals("let")) {
+				throw new UtilException("I don't think let is something I really support");
+//				return new PackageVar(location, "let", null);
+			}
 			Object val = getMe(location, name);
 			if (val != null) {
 				if (val instanceof PackageVar && ((PackageVar)val).defn instanceof BooleanLiteral) // possibly other cases - group with an appropriate interface

@@ -1,6 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.NameOfThing;
 import org.zinutils.exceptions.UtilException;
 
 public class PackageVar implements ExternalRef {
@@ -13,6 +14,14 @@ public class PackageVar implements ExternalRef {
 			throw new UtilException("null location pv1");
 		this.location = location;
 		this.id = id;
+		this.defn = defn;
+	}
+
+	public PackageVar(InputPosition location, NameOfThing name, Object defn) {
+		if (defn != null && location == null)
+			throw new UtilException("null location pv1");
+		this.location = location;
+		this.id = name.jsName();
 		this.defn = defn;
 	}
 

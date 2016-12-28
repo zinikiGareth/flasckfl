@@ -11,6 +11,8 @@ import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.TypeWithMethods;
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
@@ -383,7 +385,7 @@ public class MethodConvertor {
 				}
 				slotType = sf.type;
 				if (slotName != null)
-					intoObj = new ApplyExpr(si.location, new PackageVar(si.location, "FLEval.field", null), intoObj, slotName);
+					intoObj = new ApplyExpr(si.location, new PackageVar(si.location, FunctionName.function(si.location, new PackageName("FLEval"), "field"), null), intoObj, slotName);
 				slotName = new StringLiteral(si.location, si.text);
 			}
 		} else if (slotName == null) {

@@ -81,7 +81,7 @@ public class GenerateClosures {
 			ClosureCmd clos = form.createClosure(sv.location);
 			clos.justScoping = true;
 			String id = sv.id.uniqueName();
-			clos.push(sv.location, new PackageVar(sv.location, id, null));
+			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
 			cf.mapVar(id, new VarInSource(clos.var, sv.location, id));
 			map.put(id, clos);
 		}
@@ -127,10 +127,10 @@ public class GenerateClosures {
 				clos.push(i.location, cf.getSubst(((LocalVar)i.defn).uniqueName()));
 			} else if (i.defn instanceof RWHandlerImplements) {
 				// if it needs args, it will have been added to "map"
-				clos.push(i.location, new PackageVar(i.location, id, null));
+				clos.push(i.location, new PackageVar(i.location, i.id, null));
 			}
 			else if (i.defn instanceof RWFunctionDefinition)
-				clos.push(i.location, new PackageVar(i.location, id, null));
+				clos.push(i.location, new PackageVar(i.location, i.id, null));
 			else
 				throw new UtilException("Cannot handle " + i.defn + " of class " + i.defn.getClass());
 		} else

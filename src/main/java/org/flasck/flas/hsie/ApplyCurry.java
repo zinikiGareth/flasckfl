@@ -3,6 +3,8 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -70,9 +72,9 @@ public class ApplyCurry {
 								RWObjectDefn od = (RWObjectDefn) cm.type;
 								if (od.hasMethod(fld.sval.text)) {
 									Type t = od.getMethodType(fld.sval.text);
-									c.pushAt(pc.location, 0, new PackageVar(pc.location, "FLEval.curry", null));
+									c.pushAt(pc.location, 0, new PackageVar(pc.location, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
 									c.removeAt(1);
-									c.pushAt(pc.location, 1, new PackageVar(pc.location, "FLEval.method", null));
+									c.pushAt(pc.location, 1, new PackageVar(pc.location, FunctionName.function(pc.location, new PackageName("FLEval"), "method"), null));
 									c.pushAt(pc.location, 2, t.arity()+2);
 								}
 							}
@@ -85,12 +87,12 @@ public class ApplyCurry {
 				if (t.iam == WhatAmI.FUNCTION) {
 					logger.debug("Considering applying curry to: " + ex + ": " + t.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
 					if (t.arity() > c.nestedCommands().size()-1) {
-						c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
+						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
 						c.pushAt(pc.location, 2, t.arity());
 						lookFrom  = 2;
 					} else if (t.arity() > 0 && scoping) {
 						int expected = t.arity() + c.nestedCommands().size()-1;
-						c.pushAt(pc.location, 0, new PackageVar(null, "FLEval.curry", null));
+						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
 						c.pushAt(pc.location, 2, expected);
 						lookFrom = 2;
 					} else if (t.arity() < c.nestedCommands().size()-1 && !scoping) {
@@ -124,7 +126,7 @@ public class ApplyCurry {
 			Type t = tc.getTypeAsCtor(pc.location, pc.fn.uniqueName());
 			if (t.iam == WhatAmI.FUNCTION && t.arity() > 0) {
 //				System.out.println("need to curry block for type = " + t);
-				oclos.push(pc.location, new PackageVar(null, "FLEval.curry", null));
+				oclos.push(pc.location, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
 				oclos.push(pc.location, pc.fn);
 				oclos.push(pc.location, t.arity());
 			} else
