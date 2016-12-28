@@ -93,6 +93,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	static boolean checkEverything = checkEverythingS == null || !checkEverythingS.equalsIgnoreCase("false");
 	static String stripNumbersS = System.getProperty("org.flasck.golden.strip"); 
 	static boolean stripNumbers = stripNumbersS != null && stripNumbersS.equalsIgnoreCase("true");
+	static String useRunner = System.getProperty("org.flasck.golden.runner");
+	// Note that not specifying defaults to "JS"; but "neither" or "none" (or almost anything else, in fact) does not run either0
+	static boolean useJSRunner = useRunner == null || useRunner.equals("js") || useRunner.equals("both");
+	static boolean useJVMRunner = useRunner != null && (useRunner.equals("jvm") || useRunner.equals("both"));
 	
 	public GoldenCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException {
 		super(builder, figureClasses());
@@ -154,6 +158,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		Main.setLogLevels();
 		FLASCompiler compiler = new FLASCompiler();
 		compiler.unitTestPath(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
+		compiler.unitjs(useJSRunner);
+		compiler.unitjvm(useJVMRunner);
 		File dir = new File(s, "test.golden");
 		ErrorResult er = new ErrorResult();
 		for (File input : FileUtils.findFilesMatching(dir, "*.fl")) {

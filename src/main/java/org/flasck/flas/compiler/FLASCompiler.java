@@ -53,6 +53,7 @@ import org.flasck.flas.sugardetox.SugarDetox;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.testrunner.FileUnitTestResultHandler;
 import org.flasck.flas.testrunner.JSRunner;
+import org.flasck.flas.testrunner.JVMRunner;
 import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
@@ -65,6 +66,8 @@ import org.zinutils.utils.MultiTextEmitter;
 public class FLASCompiler implements ScriptCompiler {
 	static final Logger logger = LoggerFactory.getLogger("Compiler");
 	private boolean dumpTypes = false;
+	private boolean unitjs;
+	private boolean unitjvm;
 	private final List<File> pkgdirs = new ArrayList<File>();
 	private File writeRW;
 	private DroidBuilder builder;
@@ -221,11 +224,16 @@ public class FLASCompiler implements ScriptCompiler {
 				
 				// We presumably needs some set of options to say which runners
 				// we want to execute - could be more than one
-//				JVMRunner runner = new JVMRunner(cr);
-//				for (File p : utpaths)
-//					runner.considerResource(p);
-				JSRunner runner = new JSRunner(cr);
-				utr.run(f, runner);
+				if (unitjvm) {
+					JVMRunner jvmRunner = new JVMRunner(cr);
+					for (File p : utpaths)
+						jvmRunner.considerResource(p);
+					utr.run(f, jvmRunner);
+				}
+				if (unitjs) {
+					JSRunner jsRunner = new JSRunner(cr);
+					utr.run(f, jsRunner);
+				}
 			} finally {
 			if (close)
 				results.close();
@@ -559,5 +567,13 @@ public class FLASCompiler implements ScriptCompiler {
 
 	public DroidBuilder getBuilder() {
 		return builder;
+	}
+
+	public void unitjs(boolean b) {
+		this.unitjs = b;
+	}
+
+	public void unitjvm(boolean b) {
+		this.unitjvm = b;
 	}
 }

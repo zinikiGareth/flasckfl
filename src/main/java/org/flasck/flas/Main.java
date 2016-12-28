@@ -20,6 +20,7 @@ public class Main {
 		FLASCompiler compiler = new FLASCompiler();
 		List<File> inputs = new ArrayList<File>();
 		boolean argError = false;
+		boolean unitjvm = false, unitjs = false;
 		try {
 			for (int i=0;i<args.length;i++) {
 				String arg = args[i];
@@ -45,6 +46,10 @@ public class Main {
 							System.exit(1);
 						}
 						compiler.writeJSTo(new File(args[++i]));
+					} else if (arg.equals("--unitjs")) {
+						unitjs = true;
+					} else if (arg.equals("--unitjvm")) {
+						unitjvm = true;
 					} else if (arg.equals("--android")) {
 						if (hasMore == 0) {
 							System.out.println("--android <build-dir>");
@@ -120,6 +125,10 @@ public class Main {
 		if (argError) {
 			System.exit(1);
 		}
+		if (unitjs || !unitjvm)
+			compiler.unitjs(true);
+		if (unitjvm)
+			compiler.unitjvm(true);
 		boolean failed = false;
 		for (File input : inputs) {
 			try {
