@@ -537,27 +537,14 @@ public class HSIETestData {
 				Object toPush = null;
 				for (Object o : dependsOn) {
 					if (o instanceof String && s.equals(o)) {
-						int k = s.indexOf(".");
-						NameOfThing n;
-						if (k != -1)
-							n = FunctionName.function(posn, new PackageName(s.substring(0, k)), s.substring(k+1));
-						else
-							n = FunctionName.function(posn, null, s);
-						toPush = new PackageVar(posn, n, null);
+						toPush = new PackageVar(posn, figureName(s), null);
 					} else if (o instanceof ScopedVar && ((ScopedVar)o).id.uniqueName().equals(s))
 						toPush = o;
 				}
 				if (toPush == null) {
 					// This appears to be a valid case, but I'm dubious ...
 					System.out.println("No external/scoped defn for " + s);
-//					throw new UtilException("No external/scoped defn for " + s);
-					int k = s.indexOf(".");
-					NameOfThing n;
-					if (k != -1)
-						n = FunctionName.function(posn, new PackageName(s.substring(0, k)), s.substring(k+1));
-					else
-						n = FunctionName.function(posn, null, s);
-					toPush = new PackageVar(posn, n, null);
+					toPush = new PackageVar(posn, figureName(s), null);
 				}
 				prev = b.push(posn, toPush);
 			}
@@ -567,12 +554,14 @@ public class HSIETestData {
 	}
 
 	private static Object analyze(HSIEForm ret, String[] ps, int from) {
-		if (ps[from].equals("var"))
+		String s = ps[from];
+		if (s.equals("var"))
 			return new VarInSource(ret.var(Integer.parseInt(ps[from+1])), posn, ps[from+2]);
-		else if (Character.isDigit(ps[from].charAt(0)))
-			return Integer.parseInt(ps[from]);
-		else
-			return new PackageVar(posn, ps[from], null);
+		else if (Character.isDigit(s.charAt(0)))
+			return Integer.parseInt(s);
+		else {
+			return new PackageVar(posn, figureName(s), null);
+		}
 	}
 
 	protected static HSIEForm doHSIE(ErrorResult errors, Rewriter rw, RWFunctionDefinition fn) {
@@ -634,5 +623,15 @@ public class HSIETestData {
 		if (acs != null && acs.indexOf("#") != -1)
 			acs = acs.substring(0, acs.indexOf("#")).trim();
 		assertEquals(exs, acs);
+	}
+
+	protected static NameOfThing figureName(String s) {
+		int k = s.indexOf(".");
+		NameOfThing n;
+		if (k != -1)
+			n = FunctionName.function(posn, new PackageName(s.substring(0, k)), s.substring(k+1));
+		else
+			n = FunctionName.function(posn, null, s);
+		return n;
 	}
 }
