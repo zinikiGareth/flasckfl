@@ -19,7 +19,7 @@ public abstract class CommonTestRunner implements TestRunner {
 	protected final String testPkg;
 	protected String spkg;
 	protected final Map<String, CardDefinition> cdefns = new TreeMap<>();
-	protected final List<Invocation> expectations = new ArrayList<>();
+	protected final List<Expectation> expectations = new ArrayList<>();
 	protected final List<Invocation> invocations = new ArrayList<>();
 	protected final List<String> errors = new ArrayList<>();
 
@@ -28,8 +28,10 @@ public abstract class CommonTestRunner implements TestRunner {
 		testPkg = prior.getPackage().uniqueName();
 	}
 
-	protected String fullName(String name) {
-		return prior.getScope().fullName(name);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void expect(String cardVar, String ctr, String method, List<Integer> chkargs) {
+		expectations.add(new Expectation(fullName(ctr), method, (List)chkargs));
 	}
 
 	protected String getFullContractNameForCard(String cardVar, String contractName, String methodName) {
@@ -51,9 +53,8 @@ public abstract class CommonTestRunner implements TestRunner {
 			throw new UtilException("the contract '" + contractName + "' does not have the method '" + methodName +"'");
 		return fullName;
 	}
-	
-	@Override
-	public void expect(String ctr, String method, List<Integer> chkargs) {
-		expectations.add(new Invocation(ctr, method, (List)chkargs));
+
+	protected String fullName(String name) {
+		return prior.getScope().fullName(name);
 	}
 }

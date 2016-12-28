@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.testrunner.Expectation;
 import org.flasck.flas.testrunner.TestScriptBuilder;
 import org.flasck.flas.testrunner.UnitTestStepConvertor;
 import org.flasck.flas.testrunner.WhatToMatch;
@@ -16,16 +18,23 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
 public class TestStepConvertorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 
+	@Before
+	public void setup() {
+		context.checking(new Expectations() {{
+			allowing(script).hasErrors();
+		}});
+	}
 	@Test
 	public void testWeCanConvertAScriptStepIntoAnAssertionTest() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
 			oneOf(script).addAssert(with(aNonNull(InputPosition.class)), with(unresolved("x")), with(aNonNull(InputPosition.class)), with(number(32)));
 		}});
@@ -36,7 +45,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testThanBadStepProducesAnError() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
 			oneOf(script).error(with(aNonNull(InputPosition.class)), with("cannot handle input line: throw"));
 		}});
@@ -47,7 +55,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testWeCanConvertACreateStep() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
 			oneOf(script).addCreate(with(aNonNull(InputPosition.class)), with("q"), with("CardName"));
 		}});
@@ -58,7 +65,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testThatCreateWillNotAllowJunkAtTheEndOfTheCommand() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
 			oneOf(script).error(with(aNonNull(InputPosition.class)), with("extra characters at end of command: 'xx'"));
 		}});
@@ -69,7 +75,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testThatCreateDoesNotHaveNestedBlocks() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
 			oneOf(script).error(with(aNonNull(InputPosition.class)), with("create may not have nested instructions"));
 		}});
@@ -80,7 +85,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testWeCanConvertMatchElement() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		String matchingText = "<div>hello</div>";
 		context.checking(new Expectations() {{
 			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.ELEMENT), with("div"), with(matchingText));
@@ -92,7 +96,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testWeCanConvertMatchContent() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		String matchingText = "hello";
 		context.checking(new Expectations() {{
 			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CONTENTS), with("div"), with(matchingText));
@@ -104,7 +107,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testWeCanConvertMatchNoClasses() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
 			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(""));
 		}});
@@ -115,7 +117,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testWeCanConvertMatchOneClass() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		String matchingText = "show";
 		context.checking(new Expectations() {{
 			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(matchingText));
@@ -127,7 +128,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testWeCanConvertMatchTwoClass() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		String matchingText = "show bright";
 		context.checking(new Expectations() {{
 			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(matchingText));
@@ -139,7 +139,6 @@ public class TestStepConvertorTests {
 
 	@Test
 	public void testWeCanConvertMatchCount() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		String matchingText = "0";
 		context.checking(new Expectations() {{
 			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.COUNT), with("div"), with(matchingText));
@@ -152,9 +151,8 @@ public class TestStepConvertorTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testWeCanConvertSendWithNoExpressionsOrExpectations() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
-			oneOf(script).addSend(with(aNonNull(InputPosition.class)), with("q"), with("org.flasck.Init"), with("init"), (List<Object>) with(Matchers.empty()));
+			oneOf(script).addSend(with(aNonNull(InputPosition.class)), with("q"), with("org.flasck.Init"), with("init"), (List<Object>) with(Matchers.empty()), (List<Expectation>) with(Matchers.empty()));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
@@ -164,12 +162,22 @@ public class TestStepConvertorTests {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testWeCanConvertSendWithASingleExpressionAndNoExpectations() {
-		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
-			oneOf(script).addSend(with(aNonNull(InputPosition.class)), with("q"), with("org.flasck.Init"), with("init"), (List) with(Matchers.contains(new StringLiteralMatcher("hello"))));
+			oneOf(script).addSend(with(aNonNull(InputPosition.class)), with("q"), with("org.flasck.Init"), with("init"), (List) with(Matchers.contains(new StringLiteral(null, "hello"))), with(any(List.class)));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
 		ctor.handle(new Tokenizable("send q org.flasck.Init init 'hello'"), Arrays.asList());
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void testWeCanConvertSendWithNoExpressionsAndASingleExpectation() {
+		context.checking(new Expectations() {{
+			oneOf(script).addSend(with(aNonNull(InputPosition.class)), with("q"), with("org.flasck.Init"), with("init"), (List<Object>) with(Matchers.empty()), (List) with(Matchers.contains(new Expectation("Echo", "echoIt", Arrays.asList(new StringLiteral(null, "hello"))))));
+		}});
+
+		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
+		ctor.handle(new Tokenizable("send q org.flasck.Init init"), Arrays.asList(new Block(2, "Echo echoIt 'hello'")));
 	}
 }

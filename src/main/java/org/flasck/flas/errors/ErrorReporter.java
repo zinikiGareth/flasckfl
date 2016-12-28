@@ -6,4 +6,6 @@ public interface ErrorReporter {
 
 	ErrorResult message(InputPosition pos, String msg);
 
+	boolean hasErrors();
+
 }

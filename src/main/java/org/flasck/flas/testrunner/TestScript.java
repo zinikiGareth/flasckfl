@@ -35,7 +35,11 @@ public class TestScript implements TestScriptBuilder {
 		reporter.message(posn, msg);
 	}
 	
-
+	@Override
+	public boolean hasErrors() {
+		return reporter.hasErrors();
+	}
+	
 	@Override
 	public void addAssert(InputPosition evalPos, Object evalExpr, InputPosition valuePos, Object valueExpr) {
 		AssertTestStep as = new AssertTestStep(nextStep, evalPos, evalExpr, valuePos, valueExpr);
@@ -70,8 +74,9 @@ public class TestScript implements TestScriptBuilder {
 		currentSteps.add(cs);
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void addSend(InputPosition posn, String card, String contract, String method, List<Object> args) {
+	public void addSend(InputPosition posn, String card, String contract, String method, List<Object> args, List<Expectation> expecting) {
 		List<Integer> posns = new ArrayList<>();
 		for (Object o : args) {
 			{
@@ -84,7 +89,23 @@ public class TestScript implements TestScriptBuilder {
 			posns.add(nextStep);
 			nextStep++;
 		}
-		SendStep step = new SendStep(card, contract, method, posns);
+		List<Expectation> expects = new ArrayList<>();
+		for (Expectation e : expecting) {
+			List<Integer> eargs = new ArrayList<>();
+			for (Object o : e.args) {
+				{
+					String key = "earg" + nextStep;
+					FunctionName fnName = FunctionName.function(posn, new PackageName(defineInPkg), key);
+					FunctionCaseDefn fn = new FunctionCaseDefn(fnName, new ArrayList<>(), o);
+					fn.provideCaseName(0);
+					scope.define(key, fn);
+				}
+				eargs.add(nextStep);
+				nextStep++;
+			}
+			expects.add(new Expectation(e.contract, e.method, (List)eargs));
+		}
+		SendStep step = new SendStep(card, contract, method, posns, expects);
 		currentSteps.add(step);
 	}
 

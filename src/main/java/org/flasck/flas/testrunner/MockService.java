@@ -14,10 +14,10 @@ import netscape.javascript.JSObject;
 public class MockService extends FlasckService implements HandleDirectly {
 	private final String ctr;
 	private final List<String> errors;
-	private final List<Invocation> expectations;
+	private final List<Expectation> expectations;
 	private final List<Invocation> invocations;
 
-	public MockService(String called, List<String> errors, List<Invocation> invocations, List<Invocation> allExpected) {
+	public MockService(String called, List<String> errors, List<Invocation> invocations, List<Expectation> allExpected) {
 		this.ctr = called;
 		this.errors = errors;
 		this.invocations = invocations;
@@ -50,8 +50,8 @@ public class MockService extends FlasckService implements HandleDirectly {
 
 	protected void checkInvocation(String method, List<Object> ao) {
 		invocations.add(new Invocation(ctr, method, ao));
-		for (Invocation e : expectations) {
-			if (e.ctr.equals(ctr) && e.method.equals(method)) {
+		for (Expectation e : expectations) {
+			if (e.contract.equals(ctr) && e.method.equals(method)) {
 				expectations.remove(e);
 				return;
 			}

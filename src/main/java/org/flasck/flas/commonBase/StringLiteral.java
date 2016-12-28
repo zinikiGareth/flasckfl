@@ -15,6 +15,13 @@ public class StringLiteral implements Expr {
 	public InputPosition location() {
 		return location;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof StringLiteral))
+			return false;
+		return text.equals(((StringLiteral)obj).text);
+	}
 	
 	@Override
 	public String toString() {

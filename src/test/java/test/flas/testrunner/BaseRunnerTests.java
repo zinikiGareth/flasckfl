@@ -166,7 +166,7 @@ public abstract class BaseRunnerTests {
 		List<Integer> eargs = new ArrayList<Integer>();
 		eargs.add(2);
 		runner.createCardAs(cn, cardVar);
-		runner.expect(pkg+"."+contractName, "echoIt", eargs);
+		runner.expect(cardVar, pkg+"."+contractName, "echoIt", eargs);
 		runner.send(cardVar, contractName, methodName, args);
 	}
 

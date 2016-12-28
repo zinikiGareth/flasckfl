@@ -126,11 +126,43 @@ public class UnitTestStepConvertor {
 			else
 				args.add(arg);
 		}
-		// TODO: handle nested expectations
+		List<Expectation> expecting = new ArrayList<Expectation>(); 
 		for (Block b : nested)
-			if (!b.isComment())
-				throw new NotImplementedException("expectations");
-		builder.addSend(kw.location, var.text, card.text, method.text, args);
+			if (!b.isComment()) {
+				expecting.add(parseExpectation(new Tokenizable(b.line), b.nested));
+			}
+		if (builder.hasErrors())
+			return;
+		builder.addSend(kw.location, var.text, card.text, method.text, args, expecting);
+	}
+
+	private Expectation parseExpectation(Tokenizable line, List<Block> nested) {
+		for (Block b : nested)
+			if (!b.isComment()) {
+				builder.error(line.realinfo(), "create may not have nested instructions");
+				return null;
+			}
+		TypeNameToken ctr = TypeNameToken.qualified(line);
+		if (ctr == null) {
+			builder.error(line.realinfo(), "send needs a contract as second argument: '" + line +"'");
+			return null;
+		}
+		ValidIdentifierToken method = ValidIdentifierToken.from(line);
+		if (method == null) {
+			builder.error(line.realinfo(), "send needs a method as third argument: '" + line +"'");
+			return null;
+		}
+		ArrayList<Object> args = new ArrayList<>();
+		while (line.hasMore()) {
+			Object arg = expr.tryParsing(line);
+			if (arg instanceof ErrorResult)
+				throw new NotImplementedException();
+			else if (arg == null)
+				throw new NotImplementedException();
+			else
+				args.add(arg);
+		}
+		return new Expectation(ctr.text, method.text, args);
 	}
 
 	private void handleMatch(KeywordToken kw, WhatToMatch what, Tokenizable line, List<Block> nested) {

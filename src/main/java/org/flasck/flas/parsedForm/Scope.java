@@ -72,8 +72,10 @@ public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 		return index.contains(key);
 	}
 
-	public String fullName(String key) {
-		return scopeName.uniqueName() + "." + key;
+	public String fullName(String name) {
+		if (name.contains("."))
+			return name;
+		return scopeName.uniqueName() + "." + name;
 	}
 
 	@Override

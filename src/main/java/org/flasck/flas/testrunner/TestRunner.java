@@ -13,5 +13,5 @@ public interface TestRunner {
 	void createCardAs(CardName cardType, String bindVar) throws Exception;
 	void send(String cardVar, String contractName, String methodName, List<Integer> args) throws Exception;
 	void match(WhatToMatch what, String selector, String contents) throws NotMatched;
-	void expect(String ctr, String method, List<Integer> chkargs);
+	void expect(String cardVar, String ctr, String method, List<Integer> chkargs);
 }

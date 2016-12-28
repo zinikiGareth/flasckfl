@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -22,6 +23,7 @@ import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.UnresolvedVar;
+import org.flasck.flas.testrunner.Expectation;
 import org.flasck.flas.testrunner.SingleTestCase;
 import org.flasck.flas.testrunner.TestCaseRunner;
 import org.flasck.flas.testrunner.TestRunner;
@@ -208,11 +210,11 @@ public class ScriptBuilderTests {
 		String contract = "org.flasck.Init";
 		String method = "init";
 		ArrayList<Object> args = new ArrayList<>();
-		List<Integer> expect = new ArrayList<>();
+		List<Integer> expectArgs = new ArrayList<>();
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).send(card, contract, method, expect);
+			oneOf(stepRunner).send(card, contract, method, expectArgs);
 		}});
-		script.addSend(posn, card, contract, method, args);
+		script.addSend(posn, card, contract, method, args, new ArrayList<>());
 		script.addTestCase(TEST_CASE_NAME);
 		wrapUp();
 	}
@@ -224,12 +226,32 @@ public class ScriptBuilderTests {
 		String method = "init";
 		ArrayList<Object> args = new ArrayList<>();
 		args.add(new StringLiteral(posn, "hello"));
-		List<Integer> expect = new ArrayList<>();
-		expect.add(1);
+		List<Integer> expectArgs = new ArrayList<>();
+		expectArgs.add(1);
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).send(card, contract, method, expect);
+			oneOf(stepRunner).send(card, contract, method, expectArgs);
 		}});
-		script.addSend(posn, card, contract, method, args);
+		script.addSend(posn, card, contract, method, args, new ArrayList<>());
+		script.addTestCase(TEST_CASE_NAME);
+		wrapUp();
+	}
+
+	@Test
+	public void testThatWeCaptureSendCommandsWithExpectations() throws Exception {
+		String card = "q";
+		String contract = "org.flasck.Init";
+		String method = "init";
+		ArrayList<Object> args = new ArrayList<>();
+		List<Integer> expectArgs = new ArrayList<>();
+		ArrayList<Expectation> exps = new ArrayList<>();
+		exps.add(new Expectation("Echo", "echoIt", Arrays.asList(new StringLiteral(null, "hello"))));
+		List<Integer> expectExps = new ArrayList<>();
+		expectExps.add(1);
+		context.checking(new Expectations() {{
+			oneOf(stepRunner).expect(card, "Echo", "echoIt", expectExps);
+			oneOf(stepRunner).send(card, contract, method, expectArgs);
+		}});
+		script.addSend(posn, card, contract, method, args, exps);
 		script.addTestCase(TEST_CASE_NAME);
 		wrapUp();
 	}
