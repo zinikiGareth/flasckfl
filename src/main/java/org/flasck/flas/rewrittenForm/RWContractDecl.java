@@ -14,7 +14,7 @@ public class RWContractDecl extends TypeWithMethods {
 	public final transient boolean generate;
 
 	public RWContractDecl(InputPosition kw, InputPosition location, StructName name, boolean g) {
-		super(kw, location, WhatAmI.CONTRACT, name.jsName(), null);
+		super(kw, location, WhatAmI.CONTRACT, name, null);
 		this.generate = g;
 	}
 

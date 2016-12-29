@@ -1177,7 +1177,8 @@ public class Rewriter {
 				errors.message(ci.location(), "cannot find a valid definition of contract " + ci.name());
 				return null;
 			}
-			return new RWContractImplements(ci.kw, ci.location(), ((PackageVar)av).id, ci.varLocation, ci.referAsVar);
+			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
+			return new RWContractImplements(ci.kw, ci.location(), cd.getTypeName(), ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;

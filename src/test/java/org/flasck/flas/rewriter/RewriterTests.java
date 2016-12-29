@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
@@ -34,6 +35,7 @@ import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
@@ -55,7 +57,7 @@ public class RewriterTests {
 	@Before
 	public void setup() {
 		ImportPackage builtins = Builtin.builtins();
-		builtins.define("Timer", Type.builtin(posn, "Timer"));
+		builtins.define("Timer", new RWContractDecl(posn, posn, new StructName(null, "Timer"), false));
 		rw = new Rewriter(errors, null, builtins);
 	}
 
