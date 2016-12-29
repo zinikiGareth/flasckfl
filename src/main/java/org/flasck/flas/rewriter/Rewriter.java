@@ -1178,7 +1178,7 @@ public class Rewriter {
 				return null;
 			}
 			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
-			return new RWContractImplements(ci.kw, ci.location(), cd.getTypeName(), ci.varLocation, ci.referAsVar);
+			return new RWContractImplements(ci.kw, ci.location(), (StructName) cd.getTypeName(), ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -1193,7 +1193,7 @@ public class Rewriter {
 				return null;
 			}
 			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
-			return new RWContractService(cs.kw, cs.location(), cd.getTypeName(), cs.vlocation, cs.referAsVar);
+			return new RWContractService(cs.kw, cs.location(), (StructName) cd.getTypeName(), cs.vlocation, cs.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;

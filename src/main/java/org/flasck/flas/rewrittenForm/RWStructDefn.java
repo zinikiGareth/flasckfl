@@ -20,7 +20,7 @@ public class RWStructDefn extends Type implements AsString, ExternalRef {
 	}
 	
 	public RWStructDefn(InputPosition location, StructName tn, boolean generate, List<Type> polys) {
-		super(null, location, WhatAmI.STRUCT, tn.jsName(), polys);
+		super(null, location, WhatAmI.STRUCT, tn, polys);
 		this.structName = tn;
 		this.generate = generate;
 	}

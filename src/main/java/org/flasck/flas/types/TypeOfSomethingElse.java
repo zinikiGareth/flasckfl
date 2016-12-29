@@ -18,7 +18,7 @@ import org.flasck.flas.commonBase.names.VarName;
 public class TypeOfSomethingElse extends Type {
 
 	public TypeOfSomethingElse(InputPosition loc, VarName name) {
-		super(null, loc, WhatAmI.SOMETHINGELSE, name.jsName(), null);
+		super(null, loc, WhatAmI.SOMETHINGELSE, name, null);
 	}
 	
 	public String other() {

@@ -3,11 +3,10 @@ package org.flasck.flas.commonBase;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.types.Type;
 
 public abstract class TypeWithMethods extends Type {
-	public TypeWithMethods(InputPosition kw, InputPosition location, WhatAmI iam, StructName type, List<Type> polys) {
+	public TypeWithMethods(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing type, List<Type> polys) {
 		super(kw, location, iam, type, polys);
 	}
 

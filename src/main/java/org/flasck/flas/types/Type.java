@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.NameOfThing;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
@@ -17,9 +17,9 @@ public class Type implements Locatable {
 	private final Type type;
 	private final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
 	private final List<Type> fnargs; // arguments to function or tuple
-	private StructName typeName;
+	private NameOfThing typeName;
 
-	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, StructName name, List<Type> polys) {
+	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing name, List<Type> polys) {
 		this.kw = kw;
 		if (location == null && iam != WhatAmI.POLYVAR)
 			throw new UtilException("Type without input location 1");
@@ -102,7 +102,7 @@ public class Type implements Locatable {
 			throw new UtilException("Cannot ask for the name of a " + iam);
 	}
 	
-	public StructName getTypeName() {
+	public NameOfThing getTypeName() {
 		if (typeName == null)
 			throw new UtilException("typename is null");
 		return typeName;
