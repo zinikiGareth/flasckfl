@@ -8,12 +8,14 @@ public class PackageVar implements ExternalRef {
 	public final InputPosition location;
 	public final String id;
 	public final Object defn;
+	public final NameOfThing name;
 
 	@Deprecated
 	public PackageVar(InputPosition location, String id, Object defn) {
 		if (defn != null && location == null)
 			throw new UtilException("null location pv1");
 		this.location = location;
+		this.name = null;
 		this.id = id;
 		this.defn = defn;
 	}
@@ -22,7 +24,8 @@ public class PackageVar implements ExternalRef {
 		if (defn != null && location == null)
 			throw new UtilException("null location pv1");
 		this.location = location;
-		this.id = name.jsName();
+		this.name = name;
+		this.id = name.uniqueName();
 		this.defn = defn;
 	}
 
