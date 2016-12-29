@@ -5,13 +5,14 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.TypeWithMethods;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class RWImplements extends TypeWithMethods {
 	public final List<RWMethodDefinition> methods = new ArrayList<RWMethodDefinition>();
 
-	public RWImplements(InputPosition kw, InputPosition location, WhatAmI iam, String type) {
+	public RWImplements(InputPosition kw, InputPosition location, WhatAmI iam, StructName type) {
 		super(kw, location, iam, type, null);
 	}
 

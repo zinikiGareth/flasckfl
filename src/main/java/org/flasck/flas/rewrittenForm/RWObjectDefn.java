@@ -22,7 +22,7 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	}
 	
 	public RWObjectDefn(InputPosition location, StructName tn, boolean generate, List<Type> polys) {
-		super(null, location, WhatAmI.OBJECT, tn.uniqueName(), polys);
+		super(null, location, WhatAmI.OBJECT, tn, polys);
 		this.generate = generate;
 	}
 

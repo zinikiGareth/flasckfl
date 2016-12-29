@@ -42,7 +42,6 @@ import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.ScopedVar;
-import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.junit.Before;
 import org.junit.Test;

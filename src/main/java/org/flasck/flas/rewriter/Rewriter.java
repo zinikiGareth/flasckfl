@@ -1192,7 +1192,8 @@ public class Rewriter {
 				errors.message(cs.location(), "cannot find a valid definition of contract " + cs.name());
 				return null;
 			}
-			return new RWContractService(cs.kw, cs.location(), ((PackageVar)av).id, cs.vlocation, cs.referAsVar);
+			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
+			return new RWContractService(cs.kw, cs.location(), cd.getTypeName(), cs.vlocation, cs.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -1206,7 +1207,6 @@ public class Rewriter {
 			errors.message(hi.location(), "cannot find a valid definition of contract " + hi.name());
 			return null;
 		}
-		PackageVar ctr = (PackageVar) av;
 		final String rwname = hi.handlerName.uniqueName();
 		List<HandlerLambda> bvs = new ArrayList<HandlerLambda>();
 		for (Object o : hi.boundVars) {
@@ -1221,7 +1221,8 @@ public class Rewriter {
 				throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 			bvs.add(hl);
 		}
-		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), hi.handlerName, ctr.id, hi.inCard, bvs);
+		RWContractDecl cd = (RWContractDecl) ((PackageVar) av).defn;
+		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), hi.handlerName, cd.getTypeName(), hi.inCard, bvs);
 		callbackHandlers.put(hi.handlerName.uniqueName(), rw);
 		return rw;
 	}

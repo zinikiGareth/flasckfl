@@ -15,11 +15,6 @@ public abstract class TypeWithMethods extends Type {
 		this.typeName = type;
 	}
 
-	@Deprecated
-	public TypeWithMethods(InputPosition kw, InputPosition location, WhatAmI iam, String type, List<Type> polys) {
-		super(kw, location, iam, type, polys);
-	}
-
 	public abstract boolean hasMethod(String named);
 
 	public abstract Type getMethodType(String named);
