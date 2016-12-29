@@ -1586,7 +1586,11 @@ public class Rewriter {
 						try {
 							cx.resolve(uv0.location, uv0.var);
 						} catch (ResolutionException ex) {
-							return new PackageVar(uv0.location, uv0.var + "." + fname, null);
+							try {
+								return cx.resolve(uv0.location, uv0.var + "." + fname);
+							} catch (ResolutionException ex2) {
+								return new UnresolvedVar(uv0.location, uv0.var + "." + fname);
+							}
 						}
 					} 
 					
