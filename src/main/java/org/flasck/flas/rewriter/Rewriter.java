@@ -1780,6 +1780,15 @@ public class Rewriter {
 			return null;
 	}
 	
+	public PackageVar getMe(InputPosition location, NameOfThing name) {
+		Object val = doIhave(location, name.uniqueName());
+		if (val == null) {
+			return null;
+		}
+		return new PackageVar(location, name, val);
+	}
+
+	@Deprecated
 	public PackageVar getMe(InputPosition location, String id) {
 		Object val = doIhave(location, id);
 		if (val == null) {

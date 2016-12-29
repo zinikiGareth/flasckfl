@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.droidgen.CGRContext;
 import org.flasck.flas.droidgen.DroidGenerator;
@@ -69,8 +70,8 @@ public class TemplateGenerator {
 			this.javaName = cg.prefix;
 			InputPosition posn = new InputPosition("template", 1, 1, "");
 			this.protoName = Generator.lname(cg.prefix, true);
-			this.nil = rw.getMe(posn, "Nil");
-			this.cons = rw.getMe(posn, "Cons");
+			this.nil = rw.getMe(posn, new StructName(null, "Nil"));
+			this.cons = rw.getMe(posn, new StructName(null, "Cons"));
 		}
 		
 		public void varToCopy(String s, String inClz) {

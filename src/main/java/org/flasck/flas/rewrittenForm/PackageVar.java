@@ -9,6 +9,7 @@ public class PackageVar implements ExternalRef {
 	public final String id;
 	public final Object defn;
 
+	@Deprecated
 	public PackageVar(InputPosition location, String id, Object defn) {
 		if (defn != null && location == null)
 			throw new UtilException("null location pv1");

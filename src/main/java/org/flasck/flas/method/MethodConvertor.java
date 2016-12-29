@@ -13,6 +13,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
@@ -59,7 +60,7 @@ public class MethodConvertor {
 	public MethodConvertor(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
 		InputPosition posn = new InputPosition("builtin", 0, 0, "");
-		this.messageList = ((Type)rw.getMe(posn, "List").defn).instance(posn, (Type) rw.getMe(posn, "Message").defn);
+		this.messageList = ((Type)rw.getMe(posn, new StructName(null, "List")).defn).instance(posn, (Type) rw.getMe(posn, new StructName(null, "Message")).defn);
 	}
 
 	// 1. Main entry points to convert different kinds of things
@@ -221,8 +222,8 @@ public class MethodConvertor {
 	}
 
 	private TypedObject convertMessagesToActionList(Rewriter rw, InputPosition location, List<Object> args, List<Type> types, List<RWMethodMessage> messages, boolean fromHandler) {
-		Object ret = rw.getMe(location, "Nil");
-		PackageVar cons = rw.getMe(location, "Cons");
+		Object ret = rw.getMe(location, new StructName(null, "Nil"));
+		PackageVar cons = rw.getMe(location, new StructName(null, "Cons"));
 		for (int n = messages.size()-1;n>=0;n--) {
 			RWMethodMessage mm = messages.get(n);
 			Object me = convertMessageToAction(rw, args, types, mm, fromHandler);
@@ -268,8 +269,7 @@ public class MethodConvertor {
 				}
 				else if (sender instanceof ScopedVar) {
 					ScopedVar vn = (ScopedVar) sender;
-					String other = vn.uniqueName();
-					PackageVar me = rw.getMe(vn.location, other);
+					PackageVar me = rw.getMe(vn.location, vn.id);
 					if (me.defn instanceof TypeWithMethods)
 						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) me.defn, vn, method, args);
 					else
@@ -392,7 +392,7 @@ public class MethodConvertor {
 			errors.message(slot.location(), "cannot assign directly to an object");
 			return null;
 		}
-		return new ApplyExpr(slot.location(), rw.getMe(slot.location(), "Assign"), intoObj, slotName, new AssertTypeExpr(location, slotType, mm.expr));
+		return new ApplyExpr(slot.location(), rw.getMe(slot.location(), new StructName(null, "Assign")), intoObj, slotName, new AssertTypeExpr(location, slotType, mm.expr));
 	}
 
 	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<Type> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
