@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.StructName;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
@@ -16,7 +17,28 @@ public class Type implements Locatable {
 	private final Type type;
 	private final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
 	private final List<Type> fnargs; // arguments to function or tuple
-	
+	private StructName typeName;
+
+	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, StructName name, List<Type> polys) {
+		this.kw = kw;
+		if (location == null && iam != WhatAmI.POLYVAR)
+			throw new UtilException("Type without input location 1");
+		this.location = location;
+		this.iam = iam;
+		this.name = name.uniqueName();
+		this.typeName = name;
+		this.type = null;
+		this.polys = polys;
+		this.fnargs = null;
+		
+		// for anything which is not an instance, all the args MUST be polymorphic vars
+		if (polys != null && iam != WhatAmI.INSTANCE)
+			for (Type t : polys)
+				if (t.iam != WhatAmI.POLYVAR)
+					throw new UtilException("All arguments to type defn must be poly vars");
+	}
+
+	@Deprecated
 	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, String name, List<Type> polys) {
 		this.kw = kw;
 		if (location == null && iam != WhatAmI.POLYVAR)
@@ -78,6 +100,12 @@ public class Type implements Locatable {
 			return "typeOf(" + name + ")";
 		else
 			throw new UtilException("Cannot ask for the name of a " + iam);
+	}
+	
+	public StructName getTypeName() {
+		if (typeName == null)
+			throw new UtilException("typename is null");
+		return typeName;
 	}
 
 	public Type innerType() {
