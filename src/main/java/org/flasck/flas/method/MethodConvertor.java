@@ -281,7 +281,7 @@ public class MethodConvertor {
 					if (l.type instanceof TypeWithMethods)
 						return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) l.type, l, method, args);
 					else if (l.type instanceof TypeOfSomethingElse) {
-						String other = ((TypeOfSomethingElse) l.type).other();
+						NameOfThing other = ((TypeOfSomethingElse) l.type).getTypeName();
 						PackageVar me = rw.getMe(l.location, other);
 						if (me.defn instanceof TypeWithMethods)
 							return handleMethodCase(rw, root.location, margs, types, (TypeWithMethods) me.defn, l, method, args);
@@ -405,7 +405,7 @@ public class MethodConvertor {
 			if (proto.hasMethod(method.text))
 				methodType = cd.getMethodType(method.text);
 		} else if (senderType instanceof RWContractService || senderType instanceof RWContractImplements) {
-			proto = cd = (RWContractDecl) rw.getMe(senderType.location(), senderType.name()).defn;
+			proto = cd = (RWContractDecl) rw.getMe(senderType.location(), senderType.getTypeName()).defn;
 			if (proto.hasMethod(method.text))
 				methodType = cd.getMethodType(method.text);
 		} else if (senderType instanceof RWObjectDefn) {

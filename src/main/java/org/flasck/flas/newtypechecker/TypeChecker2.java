@@ -14,6 +14,7 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.TypeWithMethods;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.KnowledgeWriter;
@@ -100,7 +101,7 @@ public class TypeChecker2 {
 	private void pass1() {
 		for (Type bi : rw.primitives.values()) {
 			export.put(bi.name(), bi);
-			gk(bi.name(), new NamedType(bi.location(), bi.name()));
+			gk(bi.name(), new NamedType(bi.location(), bi.getTypeName()));
 		}
 		for (RWUnionTypeDefn ud : rw.types.values()) {
 			List<TypeInfo> polys = new ArrayList<>();
@@ -108,7 +109,7 @@ public class TypeChecker2 {
 				for (Type t : ud.polys())
 					polys.add(convertType(t));
 			}
-			NamedType uty = new NamedType(ud.location(), ud.name(), polys);
+			NamedType uty = new NamedType(ud.location(), ud.getTypeName(), polys);
 			gk(ud.name(), uty);
 			
 			unions.add(ud);
@@ -120,7 +121,7 @@ public class TypeChecker2 {
 				for (Type t : od.polys())
 					polys.add(convertType(t));
 			}
-			gk(od.name(), new NamedType(od.location(), od.name(), polys));
+			gk(od.name(), new NamedType(od.location(), od.getTypeName(), polys));
 			if (od.ctorArgs != null) {
 				List<Type> args = new ArrayList<>();
 				for (RWStructField sf : od.ctorArgs)
@@ -130,7 +131,7 @@ public class TypeChecker2 {
 			}
 		}
 		for (RWContractDecl cd : rw.contracts.values()) {
-			gk(cd.name(), new NamedType(cd.location(), cd.name()));
+			gk(cd.name(), new NamedType(cd.location(), cd.getTypeName()));
 //			export.put(cd.name(), cd);
 		}
 		for (RWStructDefn sd : rw.structs.values()) {
@@ -140,11 +141,12 @@ public class TypeChecker2 {
 				for (Type t : sd.polys())
 					polys.add(convertType(t));
 			}
-			structTypes.put(sd.uniqueName(), new NamedType(sd.location(), sd.uniqueName(), polys));
+			structTypes.put(sd.uniqueName(), new NamedType(sd.location(), sd.getTypeName(), polys));
 		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
-			structs.put(d.getKey(), d.getValue().struct);
-			gk(d.getKey(), new NamedType(d.getValue().struct.location(), d.getKey()));
+			RWStructDefn str = d.getValue().struct;
+			structs.put(d.getKey(), str);
+			gk(d.getKey(), new NamedType(str.location(), str.getTypeName()));
 		}
 	}
 	
@@ -180,7 +182,7 @@ public class TypeChecker2 {
 		for (Entry<String, Type> e : rw.fnArgs.entrySet()) {
 			if (e.getValue() instanceof RWStructDefn) {
 				RWStructDefn val = (RWStructDefn)e.getValue();
-				gk(e.getKey(), new NamedType(val.location(), val.name()));
+				gk(e.getKey(), new NamedType(val.location(), val.getTypeName()));
 			} else {
 				TypeInfo ty = convertType(e.getValue());
 				gk(e.getKey(), ty);
@@ -192,7 +194,7 @@ public class TypeChecker2 {
 			for (HandlerLambda f : hi.boundVars)
 				if (f.scopedFrom == null)
 					fs.add(convertType(f.type));
-			TypeFunc tf = new TypeFunc(hi.location(), fs, new NamedType(hi.location(), hi.hiName));
+			TypeFunc tf = new TypeFunc(hi.location(), fs, new NamedType(hi.location(), hi.handlerName));
 			gk(hi.hiName, tf);
 //			export.put(hi.hiName, asType(tf));
 			ctors.put(hi.hiName, asType(tf));
@@ -641,7 +643,7 @@ public class TypeChecker2 {
 						processOne(f, sc);
 				}
 			} else {
-				constraints.add(sw.var, new NamedType(sw.location, sw.ctor));
+				constraints.add(sw.var, getTypeOf(sw.location, sw.ctor));
 				processHSI(f, sw);
 			}
 		} else if (c instanceof BindCmd) {

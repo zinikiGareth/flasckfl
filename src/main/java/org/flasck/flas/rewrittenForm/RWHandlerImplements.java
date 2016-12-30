@@ -7,12 +7,14 @@ import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.NameOfThing;
 
 public class RWHandlerImplements extends RWImplements {
+	public final HandlerName handlerName;
 	public final String hiName;
 	public final List<HandlerLambda> boundVars;
 	public final boolean inCard;
 
 	public RWHandlerImplements(InputPosition kw, InputPosition location, HandlerName handlerName, NameOfThing type, boolean inCard, List<HandlerLambda> lambdas) {
 		super(kw, location, WhatAmI.HANDLERIMPLEMENTS, type);
+		this.handlerName = handlerName;
 		this.hiName = handlerName.jsName();
 		this.inCard = inCard;
 		this.boundVars = lambdas;
