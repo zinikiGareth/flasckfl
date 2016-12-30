@@ -607,7 +607,7 @@ public class Rewriter {
 //					System.out.println("Cannot add type for " + x.getValue().getKey() + " as it is null");
 			} else if (val instanceof Type) {
 				Type ty = (Type) val;
-				if (ty.iam == WhatAmI.BUILTIN)
+				if (ty.iam == WhatAmI.PRIMITIVE)
 					primitives.put(name, ty);
 				else
 					throw new UtilException("Cannot handle type of kind " + ty.iam);

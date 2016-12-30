@@ -20,10 +20,10 @@ public class Builtin {
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
 		Type varA = Type.polyvar(posn, "A");
 		Type varB = Type.polyvar(posn, "B");
-		Type bool = Type.builtin(posn, "Boolean");
-		Type number = Type.builtin(posn, "Number");
-		Type string = Type.builtin(posn, "String");
 		RWUnionTypeDefn any = new RWUnionTypeDefn(posn, false, "Any", null);
+		Type bool = Type.primitive(posn, new StructName(null, "Boolean"));
+		Type number = Type.primitive(posn, new StructName(null, "Number"));
+		Type string = Type.primitive(posn, new StructName(null, "String"));
 		{ // core
 			root.define("if", fnhelper("if", varA, varA, varA));
 //			root.define("let", "let", 			null);

@@ -96,7 +96,7 @@ public class RewriterTests {
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("f", sf.name);
 		assertEquals("String", sf.type.name());
-		assertEquals(WhatAmI.BUILTIN, sf.type.iam);
+		assertEquals(WhatAmI.PRIMITIVE, sf.type.iam);
 	}
 	
 	@Test
@@ -113,7 +113,7 @@ public class RewriterTests {
 		assertTrue(sf.type.hasPolys());
 		assertEquals(1, sf.type.polys().size());
 		assertEquals("String", sf.type.poly(0).name());
-		assertEquals(WhatAmI.BUILTIN, sf.type.poly(0).iam);
+		assertEquals(WhatAmI.PRIMITIVE, sf.type.poly(0).iam);
 	}
 	
 	@Test

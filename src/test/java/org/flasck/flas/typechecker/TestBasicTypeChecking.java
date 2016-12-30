@@ -41,9 +41,9 @@ import org.zinutils.collections.CollectionUtils;
 public class TestBasicTypeChecking {
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
 	ErrorResult errors = new ErrorResult();
-	Type number = Type.builtin(posn, "Number");
-	Type charT = Type.builtin(posn, "Char");
-	Type booleanT = Type.builtin(posn, "Boolean");
+	Type number = Type.primitive(posn, new StructName(null, "Number"));
+	Type charT = Type.primitive(posn, new StructName(null, "Char"));
+	Type booleanT = Type.primitive(posn, new StructName(null, "Boolean"));
 	Rewriter rw;
 	TypeChecker2 tc;
 

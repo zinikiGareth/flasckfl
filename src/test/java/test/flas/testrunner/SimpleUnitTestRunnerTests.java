@@ -54,7 +54,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testItCanTestASimpleValue() throws Exception {
 		go(new Setup() {{
 			scope.define("x", null);
-			tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
+			tc.define("test.golden.x", Type.function(loc, Type.primitive(loc, new StructName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
@@ -109,7 +109,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testItFailsWhenGivenTheWrongValue() throws Exception {
 		go(new Setup() {{
 			scope.define("x", null);
-			tc.define("test.golden.x", Type.function(loc, Type.builtin(loc, "Number")));
+			tc.define("test.golden.x", Type.function(loc, Type.primitive(loc, new StructName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));

@@ -185,7 +185,7 @@ public class KnowledgeWriter {
 	// It gives fully-qualified names, but only deals with "references" to types
 	private void writeTypeUsage(XMLElement xe, Type type) {
 		switch (type.iam) {
-		case BUILTIN:
+		case PRIMITIVE:
 		{
 			XMLElement ty = xe.addElement("Builtin");
 			ty.setAttribute("name", type.name());

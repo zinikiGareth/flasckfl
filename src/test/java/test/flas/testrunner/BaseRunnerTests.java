@@ -76,7 +76,7 @@ public abstract class BaseRunnerTests {
 			cd.contracts.add(ctr);
 		}
 		mainScope.define("Card", cd);
-		tc.define("test.runner.x", Type.function(loc, Type.builtin(loc, "Number")));
+		tc.define("test.runner.x", Type.function(loc, Type.primitive(loc, new StructName(null, "Number"))));
 		prior = new CompileResult(mainScope, bce, tc);
 		testScope = Scope.topScope(spkg);
 	}

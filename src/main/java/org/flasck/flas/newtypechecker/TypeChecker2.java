@@ -920,7 +920,7 @@ public class TypeChecker2 {
 			return new PolyInfo(type.location(), type.name());
 		else if (type instanceof RWStructDefn)
 			return structTypes.get(type.name());
-		else if (type.iam == WhatAmI.BUILTIN ||
+		else if (type.iam == WhatAmI.PRIMITIVE ||
 				type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn ||
 				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWContractService ||
 				type instanceof RWHandlerImplements)
@@ -1110,7 +1110,7 @@ public class TypeChecker2 {
 		} else if (ti instanceof TypeIndirect) {
 			// This shouldn't happen in types we care about, but in HandlerLambdas
 			// I don't think we actually test this ever
-			return Type.builtin(((TypeIndirect) ti).location(), "Any");
+			return Type.primitive(((TypeIndirect) ti).location(), new StructName(null, "Any"));
 		} else
 			throw new UtilException("Have computed type " + ti.getClass() + " but can't convert back to real Type");
 	}

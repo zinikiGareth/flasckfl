@@ -84,7 +84,7 @@ public class DroidGenerator {
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
 		for (RWStructField sf : grp.struct.fields) {
 			JavaType jt;
-			if (sf.type.iam == WhatAmI.BUILTIN) {
+			if (sf.type.iam == WhatAmI.PRIMITIVE) {
 				if (((Type)sf.type).name().equals("Number"))
 					jt = JavaType.int_; // what about floats?
 				else if (((Type)sf.type).name().equals("String"))

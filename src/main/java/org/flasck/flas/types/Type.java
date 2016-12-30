@@ -11,7 +11,7 @@ import org.zinutils.exceptions.UtilException;
 public class Type implements Locatable {
 	public final InputPosition kw;
 	private final InputPosition location;
-	public enum WhatAmI { /* REFERENCE, */BUILTIN, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
+	public enum WhatAmI { /* REFERENCE, */PRIMITIVE, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
 	public final WhatAmI iam;
 	protected final String name;
 	private final Type type;
@@ -93,7 +93,7 @@ public class Type implements Locatable {
 	public String name() {
 		if (iam == WhatAmI.INSTANCE)
 			return type.name();
-		else if (iam == WhatAmI.BUILTIN || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
+		else if (iam == WhatAmI.PRIMITIVE || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
 				 iam == WhatAmI.CONTRACT || iam == WhatAmI.CONTRACTIMPL || iam == WhatAmI.CONTRACTSERVICE || iam == WhatAmI.HANDLERIMPLEMENTS)
 			return name;
 		else if (iam == WhatAmI.SOMETHINGELSE)
@@ -163,8 +163,8 @@ public class Type implements Locatable {
 
 	// a "builtin" is something very simple - "number" and "string" are the only obvious examples that come to mind
 	// this should ONLY be called from Builtin
-	public static Type builtin(InputPosition loc, String name) {
-		return new Type(loc, loc, WhatAmI.BUILTIN, name, null);
+	public static Type primitive(InputPosition loc, NameOfThing name) {
+		return new Type(loc, loc, WhatAmI.PRIMITIVE, name, null);
 	}
 	
 	public static Type polyvar(InputPosition loc, String name) {
@@ -198,7 +198,7 @@ public class Type implements Locatable {
 		case STRUCT:
 		case UNION:
 		case OBJECT:
-		case BUILTIN:
+		case PRIMITIVE:
 		case CONTRACTIMPL:
 		case CONTRACT:
 		case HANDLERIMPLEMENTS:
