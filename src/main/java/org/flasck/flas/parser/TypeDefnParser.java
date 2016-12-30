@@ -3,9 +3,11 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
+import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.PeekToken;
 import org.flasck.flas.tokenizers.PolyTypeToken;
@@ -13,7 +15,12 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 
 public class TypeDefnParser implements TryParsing {
+	private final State state;
 
+	public TypeDefnParser(State state) {
+		this.state = state;
+	}
+	
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		KeywordToken kw = KeywordToken.from(line);
@@ -32,7 +39,7 @@ public class TypeDefnParser implements TryParsing {
 		}
 		if (!PeekToken.accept(line, "="))
 			return null;
-		UnionTypeDefn ret = new UnionTypeDefn(line.realinfo(), true, tn.text, args);
+		UnionTypeDefn ret = new UnionTypeDefn(line.realinfo(), true, new StructName(state.pkgName, tn.text), args);
 		while (line.hasMore()) {
 			Object tr = new TypeExprParser().tryOneExpr(line);
 			if (tr == null)

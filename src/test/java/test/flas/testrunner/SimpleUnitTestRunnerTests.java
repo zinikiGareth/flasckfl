@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;

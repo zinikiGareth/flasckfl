@@ -20,16 +20,16 @@ public class Builtin {
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
 		Type varA = Type.polyvar(posn, "A");
 		Type varB = Type.polyvar(posn, "B");
-		RWUnionTypeDefn any = new RWUnionTypeDefn(posn, false, "Any", null);
 		Type bool = Type.primitive(posn, new StructName(null, "Boolean"));
 		Type number = Type.primitive(posn, new StructName(null, "Number"));
 		Type string = Type.primitive(posn, new StructName(null, "String"));
+		RWUnionTypeDefn any = new RWUnionTypeDefn(posn, false, new StructName(null, "Any"), null);
 		{ // core
 			root.define("if", fnhelper("if", varA, varA, varA));
 //			root.define("let", "let", 			null);
 			root.define("Any", any);
 		}
-		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, "List", CollectionUtils.listOf(Type.polyvar(posn, "A")));
+		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new StructName(null, "List"), CollectionUtils.listOf(Type.polyvar(posn, "A")));
 		{ // text
 			root.define("String", string);
 			root.define("concat", fnhelper("concat", list.instance(posn, string), string));
@@ -64,7 +64,7 @@ public class Builtin {
 			root.define("map", fnhelper("map", Type.function(posn, varA, varB), list.instance(posn, varA), list.instance(posn, varB)));
 		}
 		{ // stacks
-			RWUnionTypeDefn stack = new RWUnionTypeDefn(posn, false, "Stack", CollectionUtils.listOf(Type.polyvar(posn, "A")));
+			RWUnionTypeDefn stack = new RWUnionTypeDefn(posn, false, new StructName(null, "Stack"), CollectionUtils.listOf(Type.polyvar(posn, "A")));
 			RWStructDefn push = new RWStructDefn(posn, new StructName(null, "StackPush"), false, varA);
 			push.addField(new RWStructField(posn, false, varA, "head"));
 			push.addField(new RWStructField(posn, false, stack, "tail"));
@@ -73,7 +73,7 @@ public class Builtin {
 			root.define("Stack", stack);
 			root.define("StackPush", push);
 		}
-		RWUnionTypeDefn map = new RWUnionTypeDefn(posn, false, "Map", CollectionUtils.listOf(varA));
+		RWUnionTypeDefn map = new RWUnionTypeDefn(posn, false, new StructName(null, "Map"), CollectionUtils.listOf(varA));
 		{ // maps
 			RWStructDefn nilMap = new RWStructDefn(posn, new StructName(null, "NilMap"), false);
 			RWStructDefn assoc = new RWStructDefn(posn, new StructName(null, "Assoc"), false, varA);
@@ -101,7 +101,7 @@ public class Builtin {
 		}
 		RWStructDefn send = new RWStructDefn(posn, new StructName(null, "Send"), false);
 		{ // messaging
-			RWUnionTypeDefn message = new RWUnionTypeDefn(posn, false, "Message", null);
+			RWUnionTypeDefn message = new RWUnionTypeDefn(posn, false, new StructName(null, "Message"), null);
 			RWStructDefn assign = new RWStructDefn(posn, new StructName(null, "Assign"), false);
 			RWStructDefn crCard = new RWStructDefn(posn, new StructName(null, "CreateCard"), false);
 			RWStructDefn d3 = new RWStructDefn(posn, new StructName(null, "D3Action"), false);

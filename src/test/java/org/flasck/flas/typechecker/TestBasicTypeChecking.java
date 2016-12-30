@@ -68,7 +68,7 @@ public class TestBasicTypeChecking {
 		cons.addField(new RWStructField(posn, false, varA, "head"));
 		cons.addField(new RWStructField(posn, false, cons, "tail"));
 		pkg.define("Cons", cons);
-		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, "List", CollectionUtils.listOf(varA));
+		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new StructName(null, "List"), CollectionUtils.listOf(varA));
 		list.addCase(nil);
 		list.addCase(cons);
 		pkg.define("List", list);

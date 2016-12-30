@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 
@@ -11,7 +12,7 @@ public class RWUnionTypeDefn extends Type implements Comparable<RWUnionTypeDefn>
 	public final transient boolean generate;
 	public final List<Type> cases = new ArrayList<Type>();
 
-	public RWUnionTypeDefn(InputPosition location, boolean generate, String defining, List<Type> polyvars) {
+	public RWUnionTypeDefn(InputPosition location, boolean generate, NameOfThing defining, List<Type> polyvars) {
 		super(null, location, WhatAmI.UNION, defining, polyvars);
 		this.generate = generate;
 	}

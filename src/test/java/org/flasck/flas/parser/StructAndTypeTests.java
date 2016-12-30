@@ -63,7 +63,7 @@ public class StructAndTypeTests {
 
 	@Test
 	public void testDefiningTypeListA() {
-		TypeDefnParser p = new TypeDefnParser();
+		TypeDefnParser p = new TypeDefnParser(new State(null, null));
 		Object o = p.tryParsing(new Tokenizable("type List A = Nil | Cons A"));
 		assertNotNull(o);
 		assertTrue(o instanceof UnionTypeDefn);

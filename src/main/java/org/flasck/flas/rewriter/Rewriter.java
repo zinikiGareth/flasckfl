@@ -702,7 +702,7 @@ public class Rewriter {
 				structs.put(name, new RWStructDefn(sd.location(), sd.structName, sd.generate, rewritePolys(sd.polys())));
 			} else if (val instanceof UnionTypeDefn) {
 				UnionTypeDefn ud = (UnionTypeDefn) val;
-				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.name(), rewritePolys(ud.polys())));
+				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.myName(), rewritePolys(ud.polys())));
 			} else if (val instanceof ContractDecl) {
 				ContractDecl ctr = (ContractDecl)val;
 				RWContractDecl ret = new RWContractDecl(ctr.kw, ctr.location(), ctr.nameAsName(), true);

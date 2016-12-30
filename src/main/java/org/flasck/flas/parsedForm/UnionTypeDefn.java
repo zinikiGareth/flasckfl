@@ -5,28 +5,33 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.StructName;
 import org.zinutils.collections.CollectionUtils;
 
 public class UnionTypeDefn implements Locatable {
 	public final transient boolean generate;
 	private final InputPosition location;
-	private final String name;
+	private final StructName name;
 	public final List<TypeReference> cases = new ArrayList<TypeReference>();
 	private List<PolyType> polyvars;
 
-	public UnionTypeDefn(InputPosition location, boolean generate, String defining, PolyType... polyvars) {
+	public UnionTypeDefn(InputPosition location, boolean generate, StructName defining, PolyType... polyvars) {
 		this(location, generate, defining, CollectionUtils.listOf(polyvars));
 	}
 	
-	public UnionTypeDefn(InputPosition location, boolean generate, String defining, List<PolyType> polyvars) {
+	public UnionTypeDefn(InputPosition location, boolean generate, StructName defining, List<PolyType> polyvars) {
 		this.generate = generate;
 		this.location = location;
 		this.name = defining;
 		this.polyvars = polyvars;
 	}
 	
-	public String name() {
+	public StructName myName() {
 		return name;
+	}
+	
+	public String name() {
+		return name.uniqueName();
 	}
 	
 	public UnionTypeDefn addCase(TypeReference tr) {
