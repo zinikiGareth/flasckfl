@@ -1,6 +1,7 @@
 package test.droidgen;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
@@ -88,6 +89,18 @@ public class GenTestsForStructs {
 		checkDefnOfField(dfe, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
 		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
+		gen.visitStructDefn(sd);
+	}
+
+	@Test
+	// DROID-TODO: This should generate a call to the "init_f1" function
+	public void testVisitingAStructDefnWithOneInitializedMemberGeneratesASlotWithTheValue() {
+		checkCreationOfStruct();
+		checkCreationOfStructCtor();
+		checkCreationOfStructDFE();
+		checkDefnOfField(dfe, "f1");
+		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
+		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		gen.visitStructDefn(sd);
 	}
 
