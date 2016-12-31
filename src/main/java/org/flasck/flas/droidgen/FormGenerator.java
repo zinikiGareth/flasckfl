@@ -28,13 +28,14 @@ import org.zinutils.bytecode.BlockExpr;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
-import org.zinutils.bytecode.FieldInfo;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.exceptions.UtilException;
 
@@ -125,7 +126,7 @@ public class FormGenerator {
 			ByteCodeSink inner = bce.newClass(inClz + "$" + fn);
 			inner.superclass("java.lang.Object");
 			if (wantThis) {
-				FieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");
+				IFieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");
 				GenericAnnotator ctor = GenericAnnotator.newConstructor(inner, false);
 				PendingVar arg = ctor.argument(bcc.getCreatedName(), "card");
 				MethodDefiner c = ctor.done();
@@ -141,7 +142,7 @@ public class FormGenerator {
 			for (int i=0;i<tmp.size();i++) {
 				fnArgs[i] = m2.arrayElt(args.getVar(), m2.intConst(i));
 			}
-			Expr doCall;
+			IExpr doCall;
 			if (wantThis)
 				doCall = m2.callVirtual("java.lang.Object", m2.getField("_card"), fn, fnArgs);
 			else

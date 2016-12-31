@@ -33,10 +33,11 @@ import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;
-import org.zinutils.bytecode.FieldInfo;
 import org.zinutils.bytecode.FieldObject;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
@@ -63,9 +64,9 @@ public class DroidGenerator implements RepoVisitor {
 		if (!doBuild || !value.generate)
 			return;
 		ByteCodeSink bcc = bce.newClass(value.name());
-		Map<String, FieldInfo> fields = new TreeMap<String,FieldInfo>();
+		Map<String, IFieldInfo> fields = new TreeMap<>();
 		for (RWStructField sf : value.fields) {
-			FieldInfo fi = bcc.defineField(false, Access.PUBLIC, J.OBJECT, sf.name);
+			IFieldInfo fi = bcc.defineField(false, Access.PUBLIC, J.OBJECT, sf.name);
 			fields.put(sf.name, fi);
 		}
 		bcc.superclass(J.FLAS_OBJECT);
@@ -79,7 +80,8 @@ public class DroidGenerator implements RepoVisitor {
 		gen.returns("void");
 		NewMethodDefiner dfe = gen.done();
 		for (RWStructField sf : value.fields) {
-			dfe.assign(fields.get(sf.name).asExpr(dfe), dfe.callVirtual(J.OBJECT, dfe.myThis(), "_fullOf", fields.get(sf.name).asExpr(dfe))).flush();
+			FieldExpr fe = fields.get(sf.name).asExpr(dfe);
+			dfe.assign(fe, dfe.callVirtual(J.OBJECT, dfe.myThis(), "_fullOf", fe)).flush();
 		}
 		dfe.returnVoid().flush();
 	}
@@ -196,7 +198,7 @@ public class DroidGenerator implements RepoVisitor {
 			return;
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
 		bcc.superclass(ci.name());
-		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
+		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(name), DroidUtils.javaNestedSimpleName(name));
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
@@ -214,7 +216,7 @@ public class DroidGenerator implements RepoVisitor {
 			return;
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
 		bcc.superclass(cs.name());
-		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
+		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(name), DroidUtils.javaNestedSimpleName(name));
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
@@ -231,13 +233,13 @@ public class DroidGenerator implements RepoVisitor {
 			return;
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
 		bcc.superclass(hi.name());
-		FieldInfo fi = null;
+		IFieldInfo fi = null;
 		if (hi.inCard)
 			fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
-		Map<String, FieldInfo> fs = new TreeMap<String, FieldInfo>();
+		Map<String, IFieldInfo> fs = new TreeMap<>();
 		for (Object o : hi.boundVars) {
 			String var = ((HandlerLambda)o).var;
-			FieldInfo hli = bcc.defineField(false, Access.PRIVATE, new JavaType("java.lang.Object"), var);
+			IFieldInfo hli = bcc.defineField(false, Access.PRIVATE, new JavaType("java.lang.Object"), var);
 			fs.put(var, hli);
 		}
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(name), DroidUtils.javaNestedSimpleName(name));
@@ -322,7 +324,7 @@ public class DroidGenerator implements RepoVisitor {
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.areas.Area"), "_parent");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(clz), DroidUtils.javaNestedSimpleName(clz));
-		FieldInfo card = bcc.defineField(true, Access.PRIVATE, DroidUtils.javaBaseName(clz), "_card");
+		IFieldInfo card = bcc.defineField(true, Access.PRIVATE, DroidUtils.javaBaseName(clz), "_card");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cardArg = gen.argument(DroidUtils.javaBaseName(clz), "cardArg");
@@ -337,7 +339,7 @@ public class DroidGenerator implements RepoVisitor {
 	public void newVar(CGRContext cgrx, String newVar) {
 		if (cgrx == null)
 			return;
-		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, cgrx.bcc.getCreatedName(), "_src_"+newVar);
+		IFieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, cgrx.bcc.getCreatedName(), "_src_"+newVar);
 		cgrx.bcc.defineField(false, Access.PUBLIC, "java.lang.Object", newVar);
 		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.myThis()).flush();
 	}
@@ -345,7 +347,7 @@ public class DroidGenerator implements RepoVisitor {
 	public void copyVar(CGRContext cgrx, String parentClass, String definedInType, String s) {
 		if (cgrx == null)
 			return;
-		FieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, DroidUtils.javaNestedName(definedInType), "_src_"+s);
+		IFieldInfo src = cgrx.bcc.defineField(true, Access.PUBLIC, DroidUtils.javaNestedName(definedInType), "_src_"+s);
 		cgrx.ctor.assign(src.asExpr(cgrx.ctor), cgrx.ctor.getField(cgrx.ctor.castTo(cgrx.parent, DroidUtils.javaNestedName(parentClass)), "_src_"+s)).flush();
 	}
 
@@ -400,7 +402,7 @@ public class DroidGenerator implements RepoVisitor {
 		
 //		The rest of this code is basically correct, it's just that we used to have an HSIE block here
 		// that we converted into a Var.  Now we have a function to call, so we need to replace "str" with "tfn()"
-		Expr str = meth.callVirtual(JavaType.string.getActual(), meth.myThis(), tfn);
+		IExpr str = meth.callVirtual(JavaType.string.getActual(), meth.myThis(), tfn);
 		if (rawHTML)
 			meth.callSuper("void", "org.flasck.android.TextArea", "_insertHTML", str).flush();
 		else
@@ -430,7 +432,7 @@ public class DroidGenerator implements RepoVisitor {
 		// TODO: HSIE: most of this was commented out when I got here (see 27a2f6cfdd5d90b9f9cfc6abaa193edee57b0904)
 		NewMethodDefiner meth = gen.done();
 //		Var str = meth.avar("java.lang.String", "str");
-		Expr blk = meth.callVirtual("java.lang.String", meth.myThis(), tfn);
+		IExpr blk = meth.callVirtual("java.lang.String", meth.myThis(), tfn);
 		// TODO: if "blk" is null, that reflects the possibility of the method returning before we get here ... Huh?
 		if (blk == null) return;
 //		meth.assign(str, blk).flush();
