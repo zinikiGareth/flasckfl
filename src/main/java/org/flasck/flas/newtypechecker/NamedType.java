@@ -10,15 +10,18 @@ public class NamedType extends TypeInfo {
 	private final InputPosition location;
 	public final String name;
 	public final List<TypeInfo> polyArgs;
+	public final NameOfThing myName;
 
 	public NamedType(InputPosition location, NameOfThing name) {
 		this.location = location;
+		this.myName = name;
 		this.name = name.uniqueName();
 		this.polyArgs = new ArrayList<TypeInfo>(); // it is not polymorphic
 	}
 
 	public NamedType(InputPosition location, NameOfThing name, List<TypeInfo> polyArgs) {
 		this.location = location;
+		this.myName = name;
 		this.name = name.uniqueName();
 		this.polyArgs = polyArgs;
 	}
@@ -26,6 +29,7 @@ public class NamedType extends TypeInfo {
 	@Deprecated
 	public NamedType(InputPosition location, String name, List<TypeInfo> polyArgs) {
 		this.location = location;
+		this.myName = null;
 		this.name = name;
 		this.polyArgs = polyArgs;
 	}

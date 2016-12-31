@@ -11,7 +11,7 @@ import org.flasck.flas.commonBase.android.AndroidLabel;
 import org.flasck.flas.commonBase.android.AndroidLaunch;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.rewriter.CodeGenRegistry;
-import org.flasck.flas.rewriter.CodeGenerator;
+import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
@@ -44,7 +44,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
-public class DroidGenerator implements CodeGenerator {
+public class DroidGenerator implements RepoVisitor {
 	private final boolean doBuild;
 	private ByteCodeEnvironment bce;
 
@@ -59,7 +59,7 @@ public class DroidGenerator implements CodeGenerator {
 	}
 	
 	@Override
-	public void generateStructDefn(RWStructDefn value) {
+	public void visitStructDefn(RWStructDefn value) {
 		if (!doBuild || !value.generate)
 			return;
 		ByteCodeCreator bcc = new ByteCodeCreator(bce, value.name());

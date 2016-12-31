@@ -163,7 +163,7 @@ public class Rewriter implements CodeGenRegistry {
 	public final PackageFinder pkgFinder;
 	public final Map<String, Type> primitives = new TreeMap<String, Type>();
 	private final Map<String, Expr> constants = new TreeMap<>();
-	public final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
+	final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	public final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
 	public final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
 	public final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
@@ -180,7 +180,7 @@ public class Rewriter implements CodeGenRegistry {
 	public final Map<String, RWMethodDefinition> standalone = new TreeMap<String, RWMethodDefinition>();
 	public final Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>();
 	public final Map<String, Type> fnArgs = new TreeMap<String, Type>();
-	private final List<CodeGenerator> generators = new ArrayList<>();
+	private final List<RepoVisitor> generators = new ArrayList<>();
 
 	public abstract class NamingContext {
 		protected final NamingContext nested;
@@ -1934,16 +1934,20 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	@Override
-	public void registerCodeGenerator(CodeGenerator gen) {
+	public void registerCodeGenerator(RepoVisitor gen) {
 		generators.add(gen);
 	}
 
-	public void visitGenerators() {
+	public void visit(RepoVisitor v, boolean visitAll) {
 		for (RWStructDefn sd : structs.values()) {
-			if (sd.generate) {
-				for (CodeGenerator gen : generators)
-					gen.generateStructDefn(sd);
+			if (sd.generate || visitAll) {
+				v.visitStructDefn(sd);
 			}
 		}
+	}
+
+	public void visitGenerators() {
+		for (RepoVisitor gen : generators)
+			visit(gen, false);
 	}
 }

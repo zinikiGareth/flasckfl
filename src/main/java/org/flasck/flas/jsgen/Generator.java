@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
-import org.flasck.flas.rewriter.CodeGenerator;
+import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.collections.CollectionUtils;
 
-public class Generator implements CodeGenerator {
+public class Generator implements RepoVisitor {
 	private final JSTarget target;
 
 	public Generator(JSTarget target) {
@@ -61,7 +61,7 @@ public class Generator implements CodeGenerator {
 	}
 
 	@Override
-	public void generateStructDefn(RWStructDefn sd) {
+	public void visitStructDefn(RWStructDefn sd) {
 		if (!sd.generate)
 			return;
 		int idx = sd.name().lastIndexOf(".");

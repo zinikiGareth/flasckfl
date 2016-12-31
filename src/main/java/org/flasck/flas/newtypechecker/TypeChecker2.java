@@ -34,8 +34,8 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.Type.WhatAmI;
+import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
@@ -67,11 +67,11 @@ public class TypeChecker2 {
 	public final static Logger logger = LoggerFactory.getLogger("TypeChecker");
 	private final ErrorResult errors;
 	private final Rewriter rw;
-	private final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
+	final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
 	private final Map<String, RWObjectDefn> objects = new HashMap<String, RWObjectDefn>();
-	private final Map<String, TypeInfo> structTypes = new HashMap<String, TypeInfo>();
+	final Map<String, TypeInfo> structTypes = new HashMap<String, TypeInfo>();
 	private final Map<String, Type> export = new TreeMap<>();
-	private final Map<String, Type> ctors = new TreeMap<>();
+	final Map<String, Type> ctors = new TreeMap<>();
 	private final Set<RWUnionTypeDefn> unions = new TreeSet<>();
 	private PrintWriter trackTo;
 
@@ -99,6 +99,7 @@ public class TypeChecker2 {
 	}
 
 	private void pass1() {
+		rw.visit(new Pass1Visitor(this), true);
 		for (Type bi : rw.primitives.values()) {
 			export.put(bi.name(), bi);
 			gk(bi.name(), new NamedType(bi.location(), bi.getTypeName()));
@@ -134,15 +135,6 @@ public class TypeChecker2 {
 			gk(cd.name(), new NamedType(cd.location(), cd.getTypeName()));
 //			export.put(cd.name(), cd);
 		}
-		for (RWStructDefn sd : rw.structs.values()) {
-			structs.put(sd.uniqueName(), sd);
-			List<TypeInfo> polys = new ArrayList<>();
-			if (sd.hasPolys()) {
-				for (Type t : sd.polys())
-					polys.add(convertType(t));
-			}
-			structTypes.put(sd.uniqueName(), new NamedType(sd.location(), sd.getTypeName(), polys));
-		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
 			RWStructDefn str = d.getValue().struct;
 			structs.put(d.getKey(), str);
@@ -151,16 +143,7 @@ public class TypeChecker2 {
 	}
 	
 	private void pass2() {
-		for (RWStructDefn sd : rw.structs.values()) {
-			TypeInfo sty = structTypes.get(sd.uniqueName());
-			List<TypeInfo> fs = new ArrayList<>();
-			for (RWStructField f : sd.fields)
-				fs.add(convertType(f.type));
-			TypeFunc ti = new TypeFunc(sd.location(), fs, sty);
-			gk(sd.uniqueName(), ti);
-//			export.put(sd.name(), asType(ti));
-			ctors.put(sd.name(), asType(ti));
-		}
+		rw.visit(new Pass2Visitor(this), true);
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
 			// The elements of the card struct can appear directly as CardMembers
 			// push their types into the knowledge
@@ -201,7 +184,7 @@ public class TypeChecker2 {
 		}
 	}
 
-	private void gk(String name, TypeInfo ty) {
+	void gk(String name, TypeInfo ty) {
 		if (ty instanceof TypeVar)
 			throw new UtilException("That's not really a type now, is it ... binding " + name + " to " + ty);
 		globalKnowledge.put(name, ty);
@@ -834,11 +817,7 @@ public class TypeChecker2 {
 	public XML buildXML(String inPkg, boolean dumpTypes) {
 		KnowledgeWriter kw = new KnowledgeWriter(inPkg, dumpTypes);
 
-		for (RWStructDefn sd : rw.structs.values()) {
-			if (sd.generate) {
-				kw.add(sd);
-			}
-		}
+		rw.visit(kw, false);
 
 		for (RWUnionTypeDefn td : rw.types.values()) {
 			if (td.generate) {
@@ -917,7 +896,7 @@ public class TypeChecker2 {
 			throw new NotImplementedException(ti + " " +(ti == null ? "<null>": ti.getClass().getName()));
 	}
 
-	private TypeInfo convertType(Type type) {
+	TypeInfo convertType(Type type) {
 		if (type.iam == WhatAmI.POLYVAR)
 			return new PolyInfo(type.location(), type.name());
 		else if (type instanceof RWStructDefn)
@@ -1066,14 +1045,14 @@ public class TypeChecker2 {
 			throw new UtilException("Cannot handle subst being " + subst + " " + subst.getClass());
 	}
 
-	private Type asType(TypeInfo ti) {
+	Type asType(TypeInfo ti) {
 		if (ti instanceof NamedType) {
 			NamedType nt = (NamedType) ti;
 			Type ret;
 			if (rw.primitives.containsKey(nt.name))
 				ret = rw.primitives.get(nt.name);
-			else if (rw.structs.containsKey(nt.name))
-				ret = rw.structs.get(nt.name);
+			else if (structTypes.containsKey(nt.name))
+				ret = (Type) rw.getMe(nt.location(), nt.name).defn;
 			else if (rw.types.containsKey(nt.name))
 				ret = rw.types.get(nt.name);
 			else if (rw.objects.containsKey(nt.name))

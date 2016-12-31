@@ -2,8 +2,8 @@ package org.flasck.flas.rewriter;
 
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 
-public interface CodeGenerator {
+public interface RepoVisitor {
 
-	void generateStructDefn(RWStructDefn sd);
+	void visitStructDefn(RWStructDefn sd);
 
 }

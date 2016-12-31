@@ -105,7 +105,8 @@ public class PackageImporter {
 			} else if (p.parent instanceof RWContractDecl) {
 				RWContractDecl cd = (RWContractDecl) p.parent;
 				for (XMLElement cme : p.children) {
-					FunctionName fn = FunctionName.functionInCardContext(location(cme), new CardName(packageName, cd.name()), cme.required("name"));
+					InputPosition loc = location(cme);
+					FunctionName fn = FunctionName.functionInCardContext(loc, new CardName(packageName, cd.name()), cme.required("name"));
 					List<Object> args = new ArrayList<Object>();
 					List<Type> types = new ArrayList<Type>();
 					for (XMLElement pe : cme.elementChildren()) {
@@ -116,9 +117,9 @@ public class PackageImporter {
 						} else
 							System.out.println("Handle pattern " + pe);
 					}
-					types.add(rw.structs.get("Send"));
-					Type type = Type.function(location(cme), types);
-					RWContractMethodDecl cmd = new RWContractMethodDecl(location(cme), cme.requiredBoolean("required"), cme.required("dir"), fn, args, type);
+					types.add((Type) rw.getMe(loc, "Send").defn);
+					Type type = Type.function(loc, types);
+					RWContractMethodDecl cmd = new RWContractMethodDecl(loc, cme.requiredBoolean("required"), cme.required("dir"), fn, args, type);
 					cme.attributesDone();
 					cd.methods.add(cmd);
 				}
@@ -213,7 +214,7 @@ public class PackageImporter {
 				t = rw.primitives.get(name);
 				te.assertNoSubContents();
 			} else if (te.hasTag("Struct")) {
-				t = rw.structs.get(name);
+				t = (Type)rw.getMe(loc, name).defn;
 				te.assertNoSubContents();
 			} else if (te.hasTag("Union")) {
 				t = rw.types.get(name);

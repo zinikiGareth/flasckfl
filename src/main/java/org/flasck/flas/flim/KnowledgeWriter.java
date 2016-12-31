@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
@@ -25,7 +26,7 @@ import org.zinutils.utils.Justification;
 import org.zinutils.xml.XML;
 import org.zinutils.xml.XMLElement;
 
-public class KnowledgeWriter {
+public class KnowledgeWriter implements RepoVisitor {
 	private final String pkg; 
 	private final XML xml;
 	private final XMLElement top;
@@ -40,7 +41,8 @@ public class KnowledgeWriter {
 		this.copyToScreen = copyToScreen;
 	}
 
-	public void add(RWStructDefn sd) {
+	@Override
+	public void visitStructDefn(RWStructDefn sd) {
 		XMLElement xe = top.addElement("Struct");
 		writeLocation(xe, sd);
 		xe.setAttribute("name", sd.uniqueName());

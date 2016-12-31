@@ -25,7 +25,7 @@ public class TestGeneratingStructs {
 		RWStructDefn sd = new RWStructDefn(posn, new StructName(null, "ME.Hello"), true);
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(target);
-		gen.generateStructDefn(sd);
+		gen.visitStructDefn(sd);
 		target.writeTo(new PrintWriter(System.out, true));
 		assertEquals(3, target.forms.size());
 		JSForm f = target.forms.get(1);
@@ -47,7 +47,7 @@ public class TestGeneratingStructs {
 		sd.addField(new RWStructField(posn, false, nbr, "quant"));
 		JSTarget target = new JSTarget("ME");
 		Generator gen = new Generator(target);
-		gen.generateStructDefn(sd);
+		gen.visitStructDefn(sd);
 		target.writeTo(new PrintWriter(System.out, true));
 		assertEquals(3, target.forms.size());
 		JSForm f = target.forms.get(1);
