@@ -40,7 +40,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		{
 			String sup = J.FLASCK_CARD;
 			cardBcc.superclass(sup);
-			cardBcc.inheritsField(true, Access.PROTECTED, new JavaType(J.WRAPPER), "_wrapper");
+			cardBcc.inheritsField(true, Access.PROTECTED, new JavaType(J.NEW_WRAPPER), "_wrapper");
 			cardBcc.inheritsField(true, Access.PROTECTED, new JavaType(J.DISPLAY_ENGINE), "_display");
 			cardBcc.defineField(false, Access.PROTECTED, JavaType.boolean_, "sayHello");
 			cardBcc.defineField(false, Access.PROTECTED, "test.runner.Card$_C1", "e");

@@ -14,20 +14,29 @@ import org.flasck.jvm.display.DisplayEngine;
 import org.flasck.jvm.post.DeliveryAddress;
 
 public class J {
-
-	public static final String CONTRACT_IMPL = ContractImpl.class.getName();
-	public static final String CARD_DESPATCHER = CardDespatcher.class.getName();
+	// Basic Java Things
+	public static final String OBJECT = Object.class.getName();
 	public static final String STRING = String.class.getName();
+
+	// Essential FLAS Things
+	public static final String CONTRACT_IMPL = ContractImpl.class.getName();
 	public static final String SEND = Send.class.getName();
 	public static final String CONS = Cons.class.getName();
 	public static final String FLCLOSURE = FLClosure.class.getName();
 	public static final String NIL = Nil.class.getName();
 	public static final String FLERROR = FLError.class.getName();
 	public static final String FLEVAL = FLEval.class.getName();
-	public static final String OBJECT = Object.class.getName();
+
+	// JVM defined things
+	public static final String CARD_DESPATCHER = CardDespatcher.class.getName();
 	public static final String DELIVERY_ADDRESS = DeliveryAddress.class.getName();
 	public static final String DISPLAY_ENGINE = DisplayEngine.class.getName();
-	public static final String WRAPPER = Wrapper.class.getName();
+	public static final String WRAPPER = "org.flasck.android.Wrapper"; // Wrapper.class.getName();
+	public static final String NEW_WRAPPER = Wrapper.class.getName();
+
+	// JVM object things we inherit from or something
 	public static final String FLASCK_CARD = FlasckCard.class.getName();
+	public static final String FLASCK_ACTIVITY = "org.flasck.android.FlasckActivity";
+	public static final String FLAS_OBJECT = "org.flasck.android.FLASObject";
 
 }

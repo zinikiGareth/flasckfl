@@ -25,8 +25,8 @@ import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.zinutils.bytecode.BlockExpr;
-import org.zinutils.bytecode.ByteCodeCreator;
-import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.bytecode.ByteCodeSink;
+import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldInfo;
 import org.zinutils.bytecode.GenericAnnotator;
@@ -39,10 +39,10 @@ import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.exceptions.UtilException;
 
 public class FormGenerator {
-	private final ByteCodeEnvironment bce;
+	private final ByteCodeStorage bce;
 	private final HSIEForm form;
 
-	public FormGenerator(ByteCodeEnvironment bce, HSIEForm f) {
+	public FormGenerator(ByteCodeStorage bce, HSIEForm f) {
 		this.bce = bce;
 		this.form = f;
 	}
@@ -79,7 +79,7 @@ public class FormGenerator {
 			String pkg = fnName.substring(0, idx);
 			inClz = pkg +".PACKAGEFUNCTIONS";
 			if (!bce.hasClass(inClz)) {
-				ByteCodeCreator bcc = new ByteCodeCreator(bce, inClz);
+				ByteCodeSink bcc = bce.newClass(inClz);
 				bcc.superclass("java.lang.Object");
 			}
 			needTrampolineClass = true;
@@ -94,7 +94,7 @@ public class FormGenerator {
 			if (inClz.charAt(idx2+1) == '_')
 				inClz = inClz.substring(0, idx2+1) + inClz.substring(idx2+2);
 		}
-		ByteCodeCreator bcc = bce.get(inClz);
+		ByteCodeSink bcc = bce.get(inClz);
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, needTrampolineClass && !wantThis, fn);
 		gen.returns("java.lang.Object");
 		List<PendingVar> tmp = new ArrayList<PendingVar>();
@@ -122,7 +122,7 @@ public class FormGenerator {
 		
 		// for package-level methods (i.e. regular floating functions in a functional language), generate a nested class
 		if (needTrampolineClass) {
-			ByteCodeCreator inner = new ByteCodeCreator(bce, inClz + "$" + fn);
+			ByteCodeSink inner = bce.newClass(inClz + "$" + fn);
 			inner.superclass("java.lang.Object");
 			if (wantThis) {
 				FieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");

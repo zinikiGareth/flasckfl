@@ -29,8 +29,8 @@ import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.bytecode.Annotation;
-import org.zinutils.bytecode.ByteCodeCreator;
-import org.zinutils.bytecode.ByteCodeEnvironment;
+import org.zinutils.bytecode.ByteCodeSink;
+import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.FieldInfo;
@@ -46,9 +46,9 @@ import org.zinutils.exceptions.UtilException;
 
 public class DroidGenerator implements RepoVisitor {
 	private final boolean doBuild;
-	private ByteCodeEnvironment bce;
+	private ByteCodeStorage bce;
 
-	public DroidGenerator(HSIE hsie, boolean doBuild, ByteCodeEnvironment bce) {
+	public DroidGenerator(HSIE hsie, boolean doBuild, ByteCodeStorage bce) {
 		this.doBuild = doBuild;
 		this.bce = bce;
 	}
@@ -62,24 +62,24 @@ public class DroidGenerator implements RepoVisitor {
 	public void visitStructDefn(RWStructDefn value) {
 		if (!doBuild || !value.generate)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, value.name());
+		ByteCodeSink bcc = bce.newClass(value.name());
 		Map<String, FieldInfo> fields = new TreeMap<String,FieldInfo>();
 		for (RWStructField sf : value.fields) {
-			FieldInfo fi = bcc.defineField(false, Access.PUBLIC, new JavaType("java.lang.Object"), sf.name);
+			FieldInfo fi = bcc.defineField(false, Access.PUBLIC, J.OBJECT, sf.name);
 			fields.put(sf.name, fi);
 		}
-		bcc.superclass("org.flasck.android.FLASObject");
+		bcc.superclass(J.FLAS_OBJECT);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", "org/flasck/android/FLASObject", "<init>").flush();
+			ctor.callSuper("void", J.FLAS_OBJECT, "<init>").flush();
 			ctor.returnVoid().flush();
 		}
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
 		gen.returns("void");
 		NewMethodDefiner dfe = gen.done();
 		for (RWStructField sf : value.fields) {
-			dfe.assign(fields.get(sf.name).asExpr(dfe), dfe.callVirtual("java.lang.Object", dfe.myThis(), "_fullOf", fields.get(sf.name).asExpr(dfe))).flush();
+			dfe.assign(fields.get(sf.name).asExpr(dfe), dfe.callVirtual(J.OBJECT, dfe.myThis(), "_fullOf", fields.get(sf.name).asExpr(dfe))).flush();
 		}
 		dfe.returnVoid().flush();
 	}
@@ -87,9 +87,9 @@ public class DroidGenerator implements RepoVisitor {
 	public void generate(String key, CardGrouping grp) {
 		if (!doBuild)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, grp.struct.name());
-		bcc.superclass("org.flasck.android.FlasckActivity");
-		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
+		ByteCodeSink bcc = bce.newClass(grp.struct.name());
+		bcc.superclass(J.FLASCK_ACTIVITY);
+		bcc.inheritsField(false, Access.PUBLIC, J.WRAPPER, "_wrapper");
 		for (RWStructField sf : grp.struct.fields) {
 			JavaType jt;
 			if (sf.type.iam == WhatAmI.PRIMITIVE) {
@@ -125,7 +125,7 @@ public class DroidGenerator implements RepoVisitor {
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", "org.flasck.android.FlasckActivity", "<init>").flush();
+			ctor.callSuper("void", J.FLASCK_ACTIVITY, "<init>").flush();
 			ctor.returnVoid().flush();
 		}
 		{
@@ -134,7 +134,7 @@ public class DroidGenerator implements RepoVisitor {
 			gen.returns("void");
 			NewMethodDefiner oc = gen.done();
 			oc.setAccess(Access.PROTECTED);
-			oc.callSuper("void", "org.flasck.android.FlasckActivity", "onCreate", sis.getVar()).flush();
+			oc.callSuper("void", J.FLASCK_ACTIVITY, "onCreate", sis.getVar()).flush();
 			for (ContractGrouping x : grp.contracts) {
 				Expr impl = oc.makeNew(DroidUtils.javaNestedName(x.implName.jsName()), oc.myThis());
 				if (x.referAsVar != null) {
@@ -143,7 +143,7 @@ public class DroidGenerator implements RepoVisitor {
 				}
 				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.type), oc.as(impl, "org.flasck.android.ContractImpl")).flush();
 			}
-			oc.callSuper("void", "org.flasck.android.FlasckActivity", "ready").flush();
+			oc.callSuper("void", J.FLASCK_ACTIVITY, "ready").flush();
 			oc.returnVoid().flush();
 		}
 		if (grp.platforms.containsKey("android")) {
@@ -169,7 +169,7 @@ public class DroidGenerator implements RepoVisitor {
 	public void generateContractDecl(String name, RWContractDecl cd) {
 		if (!doBuild)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, name);
+		ByteCodeSink bcc = bce.newClass(name);
 		bcc.superclass("org.flasck.android.ContractImpl");
 		bcc.makeAbstract();
 		{
@@ -194,7 +194,7 @@ public class DroidGenerator implements RepoVisitor {
 	public void generateContractImpl(String name, RWContractImplements ci) {
 		if (!doBuild)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, DroidUtils.javaNestedName(name));
+		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
 		bcc.superclass(ci.name());
 		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(name), DroidUtils.javaNestedSimpleName(name));
@@ -212,7 +212,7 @@ public class DroidGenerator implements RepoVisitor {
 	public void generateService(String name, RWContractService cs) {
 		if (!doBuild)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, DroidUtils.javaNestedName(name));
+		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
 		bcc.superclass(cs.name());
 		FieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(name), DroidUtils.javaNestedSimpleName(name));
@@ -229,7 +229,7 @@ public class DroidGenerator implements RepoVisitor {
 	public void generateHandler(String name, RWHandlerImplements hi) {
 		if (!doBuild)
 			return;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, DroidUtils.javaNestedName(name));
+		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
 		bcc.superclass(hi.name());
 		FieldInfo fi = null;
 		if (hi.inCard)
@@ -302,12 +302,12 @@ public class DroidGenerator implements RepoVisitor {
 	public NewMethodDefiner generateRender(String clz, String topBlock) {
 		if (!doBuild)
 			return null;
-		ByteCodeCreator bcc = bce.get(clz);
+		ByteCodeSink bcc = bce.get(clz);
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
 		PendingVar into = gen.argument("java.lang.String", "into");
 		gen.returns("void");
 		NewMethodDefiner render = gen.done();
-		render.makeNewVoid(DroidUtils.javaNestedName(topBlock), render.myThis(), render.as(render.makeNew("org.flasck.android.areas.CardArea", render.getField(render.myThis(), "_wrapper"), render.as(render.myThis(), "org.flasck.android.FlasckActivity"), into.getVar()), "org.flasck.android.areas.Area")).flush();
+		render.makeNewVoid(DroidUtils.javaNestedName(topBlock), render.myThis(), render.as(render.makeNew("org.flasck.android.areas.CardArea", render.getField(render.myThis(), "_wrapper"), render.as(render.myThis(), J.FLASCK_ACTIVITY), into.getVar()), "org.flasck.android.areas.Area")).flush();
 		render.returnVoid().flush();
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(topBlock), DroidUtils.javaNestedSimpleName(topBlock));
 		return render;
@@ -316,7 +316,7 @@ public class DroidGenerator implements RepoVisitor {
 	public CGRContext area(String clz, String base, String customTag) {
 		if (!doBuild)
 			return null;
-		ByteCodeCreator bcc = new ByteCodeCreator(bce, DroidUtils.javaNestedName(clz));
+		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(clz));
 		String baseClz = "org.flasck.android.areas." + base;
 		bcc.superclass(baseClz);
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
