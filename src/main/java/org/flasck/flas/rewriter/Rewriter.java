@@ -157,7 +157,7 @@ import org.zinutils.utils.Indenter;
  *
  */
 // and ultimately pull these two together
-public class Rewriter {
+public class Rewriter implements CodeGenRegistry {
 	static final Logger logger = LoggerFactory.getLogger("Rewriter");
 	private final ErrorResult errors;
 	public final PackageFinder pkgFinder;
@@ -180,6 +180,7 @@ public class Rewriter {
 	public final Map<String, RWMethodDefinition> standalone = new TreeMap<String, RWMethodDefinition>();
 	public final Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>();
 	public final Map<String, Type> fnArgs = new TreeMap<String, Type>();
+	private final List<CodeGenerator> generators = new ArrayList<>();
 
 	public abstract class NamingContext {
 		protected final NamingContext nested;
@@ -1930,5 +1931,19 @@ public class Rewriter {
 		}
 		else
 			pw.println("?? " + expr.getClass() + ":" + expr);
+	}
+
+	@Override
+	public void registerCodeGenerator(CodeGenerator gen) {
+		generators.add(gen);
+	}
+
+	public void visitGenerators() {
+		for (RWStructDefn sd : structs.values()) {
+			if (sd.generate) {
+				for (CodeGenerator gen : generators)
+					gen.generateStructDefn(sd);
+			}
+		}
 	}
 }

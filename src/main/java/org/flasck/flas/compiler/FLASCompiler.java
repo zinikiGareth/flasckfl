@@ -46,7 +46,6 @@ import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
-import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
@@ -263,7 +262,6 @@ public class FLASCompiler implements ScriptCompiler {
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter);
 			final ByteCodeEnvironment bce = new ByteCodeEnvironment();
-			final DroidGenerator dg = new DroidGenerator(hsie, builder != null, bce);
 
 			rewriter.importPackage1(rootPkg);
 			
@@ -283,11 +281,12 @@ public class FLASCompiler implements ScriptCompiler {
 			// 5. Generate Class Definitions
 			JSTarget target = new JSTarget(inPkg);
 			Generator gen = new Generator(target);
+			rewriter.registerCodeGenerator(gen);
+			final DroidGenerator dg = new DroidGenerator(hsie, builder != null, bce);
+			dg.registerWith(rewriter);
 
-			for (Entry<String, RWStructDefn> sd : rewriter.structs.entrySet()) {
-				gen.generate(sd.getValue());
-				dg.generate(sd.getValue());
-			}
+			rewriter.visitGenerators();
+			
 			for (Entry<String, CardGrouping> kv : rewriter.cards.entrySet()) {
 				CardGrouping grp = kv.getValue();
 				gen.generate(kv.getKey(), grp);

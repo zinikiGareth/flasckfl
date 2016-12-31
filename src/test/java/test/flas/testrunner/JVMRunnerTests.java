@@ -5,20 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.flasck.flas.droidgen.J;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.testrunner.JVMRunner;
-import org.flasck.jvm.ContractImpl;
-import org.flasck.jvm.FLClosure;
-import org.flasck.jvm.FLError;
-import org.flasck.jvm.FLEval;
-import org.flasck.jvm.Wrapper;
-import org.flasck.jvm.builtin.Cons;
-import org.flasck.jvm.builtin.Nil;
-import org.flasck.jvm.builtin.Send;
-import org.flasck.jvm.cards.CardDespatcher;
-import org.flasck.jvm.cards.FlasckCard;
-import org.flasck.jvm.display.DisplayEngine;
-import org.flasck.jvm.post.DeliveryAddress;
 import org.junit.Before;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.Expr;
@@ -49,10 +38,10 @@ public class JVMRunnerTests extends BaseRunnerTests {
 	public void defineSupportingFunctions() {
 		ByteCodeCreator cardBcc = new ByteCodeCreator(bce, "test.runner.Card");
 		{
-			String sup = FlasckCard.class.getName();
+			String sup = J.FLASCK_CARD;
 			cardBcc.superclass(sup);
-			cardBcc.inheritsField(true, Access.PROTECTED, new JavaType(Wrapper.class.getName()), "_wrapper");
-			cardBcc.inheritsField(true, Access.PROTECTED, new JavaType(DisplayEngine.class.getName()), "_display");
+			cardBcc.inheritsField(true, Access.PROTECTED, new JavaType(J.WRAPPER), "_wrapper");
+			cardBcc.inheritsField(true, Access.PROTECTED, new JavaType(J.DISPLAY_ENGINE), "_display");
 			cardBcc.defineField(false, Access.PROTECTED, JavaType.boolean_, "sayHello");
 			cardBcc.defineField(false, Access.PROTECTED, "test.runner.Card$_C1", "e");
 		}
@@ -125,8 +114,8 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			}
 			{
 				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "saySomething");
-				ann.argument(DeliveryAddress.class.getName(), "from");
-				ann.argument(Object.class.getName(), "msg");
+				ann.argument(J.DELIVERY_ADDRESS, "from");
+				ann.argument(J.OBJECT, "msg");
 				ann.returns(JavaType.object_);
 				MethodDefiner meth = ann.done();
 				meth.setAccess(Access.PUBLICABSTRACT);
@@ -190,19 +179,19 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
 				Var msg = pv.getVar();
-				meth.assign(msg, meth.callStatic(FLEval.class.getName(), Object.class.getName(), "head", msg)).flush();
-				meth.ifBoolean(meth.instanceOf(msg, FLError.class.getName()), meth.returnObject(msg), null).flush();
-				Expr nil = meth.callStatic(Nil.class.getName(), Object.class.getName(), "eval", meth.arrayOf(Object.class.getName(), new ArrayList<>()));
+				meth.assign(msg, meth.callStatic(J.FLEVAL, J.OBJECT, "head", msg)).flush();
+				meth.ifBoolean(meth.instanceOf(msg, J.FLERROR), meth.returnObject(msg), null).flush();
+				Expr nil = meth.callStatic(J.NIL, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>()));
 				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
 				Var clos2 = meth.avar("org.flasck.jvm.FLClosure", "clos2");
-				meth.ifBoolean(meth.instanceOf(msg, String.class.getName()),
+				meth.ifBoolean(meth.instanceOf(msg, J.STRING),
 					meth.block(
 						meth.assign(clos1, 
-							meth.makeNew(FLClosure.class.getName(), meth.classConst(Cons.class.getName()), meth.arrayOf(Object.class.getName(), Arrays.asList( 
+							meth.makeNew(J.FLCLOSURE, meth.classConst(J.CONS), meth.arrayOf(J.OBJECT, Arrays.asList( 
 									msg,
 									nil)))),
 						meth.assign(clos2, 
-								meth.makeNew(FLClosure.class.getName(), meth.classConst(Send.class.getName()), meth.arrayOf(Object.class.getName(), Arrays.asList( 
+								meth.makeNew(J.FLCLOSURE, meth.classConst(J.SEND), meth.arrayOf(J.OBJECT, Arrays.asList( 
 									meth.getField(meth.getField("_card"), "e"),
 									meth.stringConst("echoIt"),
 									clos1)))),
@@ -210,22 +199,22 @@ public class JVMRunnerTests extends BaseRunnerTests {
 								meth.classConst("org.flasck.jvm.builtin.Cons"),
 								meth.arrayOf("java.lang.Object", Arrays.asList(clos2, meth.callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>()))))))
 					),
-					meth.returnObject(meth.makeNew(FLError.class.getName(), meth.stringConst("saySomething: case not handled")))).flush();
+					meth.returnObject(meth.makeNew(J.FLERROR, meth.stringConst("saySomething: case not handled")))).flush();
 			}
 			bcc.writeTo(new File("/Users/gareth/c1.class"));
 		}
 		{
-			String sup = FlasckCard.class.getName();
+			String sup = J.FLASCK_CARD;
 			{
 				GenericAnnotator ann = GenericAnnotator.newConstructor(cardBcc, false);
-				PendingVar despatcher = ann.argument(CardDespatcher.class.getName(), "despatcher");
-				PendingVar display = ann.argument(DisplayEngine.class.getName(), "display");
+				PendingVar despatcher = ann.argument(J.CARD_DESPATCHER, "despatcher");
+				PendingVar display = ann.argument(J.DISPLAY_ENGINE, "display");
 				MethodDefiner ctor = ann.done();
 				ctor.callSuper("void", sup, "<init>", despatcher.getVar(), display.getVar()).flush();
-                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.SetState"), ctor.as(ctor.makeNew("test.runner.Card$_C0", ctor.myThis()), ContractImpl.class.getName())).flush();
+                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.SetState"), ctor.as(ctor.makeNew("test.runner.Card$_C0", ctor.myThis()), J.CONTRACT_IMPL)).flush();
                 FieldExpr e = ctor.getField("e");
                 ctor.assign(e, ctor.makeNew("test.runner.Card$_C1", ctor.myThis())).flush();
-                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.Echo"), ctor.as(e, ContractImpl.class.getName())).flush();
+                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.Echo"), ctor.as(e, J.CONTRACT_IMPL)).flush();
                 ctor.callSuper("void", sup, "ready").flush();
                 ctor.returnVoid().flush();
 			}
