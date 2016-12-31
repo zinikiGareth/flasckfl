@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.rewriter.RepoVisitor;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 
@@ -25,4 +26,6 @@ public class Pass2Visitor implements RepoVisitor {
 		tc.ctors.put(sd.name(), tc.asType(ti));
 	}
 
+	public void visitContractDecl(RWContractDecl cd) {
+	}
 }

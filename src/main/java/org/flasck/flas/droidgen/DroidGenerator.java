@@ -86,6 +86,32 @@ public class DroidGenerator implements RepoVisitor {
 		dfe.returnVoid().flush();
 	}
 
+	@Override
+	public void visitContractDecl(RWContractDecl cd) {
+		if (!doBuild)
+			return;
+		ByteCodeSink bcc = bce.newClass(cd.name());
+		bcc.superclass("org.flasck.android.ContractImpl");
+		bcc.makeAbstract();
+		{
+			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			NewMethodDefiner ctor = gen.done();
+			ctor.callSuper("void", cd.name(), "<init>").flush();
+			ctor.returnVoid().flush();
+		}
+		
+		for (RWContractMethodDecl m : cd.methods) {
+			if (m.dir.equals("down")) {
+				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
+				gm.returns("java.lang.Object");
+				int k = 0;
+				for (@SuppressWarnings("unused") Object a : m.args)
+					gm.argument("java.lang.Object", "arg"+(k++));
+				gm.done();
+			}
+		}
+	}
+
 	public void generate(String key, CardGrouping grp) {
 		if (!doBuild)
 			return;
@@ -166,31 +192,6 @@ public class DroidGenerator implements RepoVisitor {
 		if (name.indexOf(".") == -1)
 			name = "org.flasck.android.builtin." + name;
 		return new JavaType(name);
-	}
-
-	public void generateContractDecl(String name, RWContractDecl cd) {
-		if (!doBuild)
-			return;
-		ByteCodeSink bcc = bce.newClass(name);
-		bcc.superclass("org.flasck.android.ContractImpl");
-		bcc.makeAbstract();
-		{
-			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", cd.name(), "<init>").flush();
-			ctor.returnVoid().flush();
-		}
-		
-		for (RWContractMethodDecl m : cd.methods) {
-			if (m.dir.equals("down")) {
-				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
-				gm.returns("java.lang.Object");
-				int k = 0;
-				for (@SuppressWarnings("unused") Object a : m.args)
-					gm.argument("java.lang.Object", "arg"+(k++));
-				gm.done();
-			}
-		}
 	}
 
 	public void generateContractImpl(String name, RWContractImplements ci) {

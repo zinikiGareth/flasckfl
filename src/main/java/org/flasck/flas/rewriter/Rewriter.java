@@ -1944,6 +1944,11 @@ public class Rewriter implements CodeGenRegistry {
 				v.visitStructDefn(sd);
 			}
 		}
+		for (RWContractDecl c : contracts.values()) {
+			if (c.generate || visitAll)
+				v.visitContractDecl(c);
+		}
+
 	}
 
 	public void visitGenerators() {

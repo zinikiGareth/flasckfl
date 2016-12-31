@@ -77,7 +77,8 @@ public class KnowledgeWriter implements RepoVisitor {
 			System.out.println("  type " + td.name());
 	}
 
-	public void add(RWContractDecl cd) {
+
+	public void visitContractDecl(RWContractDecl cd) {
 		XMLElement xe = top.addElement("Contract");
 		writeLocation(xe, cd);
 		xe.setAttribute("name", cd.name());

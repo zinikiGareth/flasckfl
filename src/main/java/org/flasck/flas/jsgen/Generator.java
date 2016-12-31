@@ -12,6 +12,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
@@ -105,6 +106,10 @@ public class Generator implements RepoVisitor {
 			defass.add(new JSForm("this."+ field + " = undefined"));
 		else
 			defass.add(JSForm.flex("this." + field + " = FLEval.full(" + tfn + "())"));
+	}
+
+	@Override
+	public void visitContractDecl(RWContractDecl cd) {
 	}
 
 	public void generate(String name, CardGrouping card) {

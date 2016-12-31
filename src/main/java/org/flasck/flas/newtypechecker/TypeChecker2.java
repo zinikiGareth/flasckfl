@@ -131,10 +131,6 @@ public class TypeChecker2 {
 				ctors.put(od.name(), Type.function(od.location(), args));
 			}
 		}
-		for (RWContractDecl cd : rw.contracts.values()) {
-			gk(cd.name(), new NamedType(cd.location(), cd.getTypeName()));
-//			export.put(cd.name(), cd);
-		}
 		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
 			RWStructDefn str = d.getValue().struct;
 			structs.put(d.getKey(), str);
@@ -825,12 +821,6 @@ public class TypeChecker2 {
 			}
 		}
 
-		for (RWContractDecl cd : rw.contracts.values()) {
-			if (cd.generate) {
-				kw.add(cd);
-			}
-		}
-		
 		for (CardGrouping cg : rw.cards.values()) {
 			if (cg.struct != null)
 				kw.add(cg);

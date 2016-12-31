@@ -323,9 +323,6 @@ public class FLASCompiler implements ScriptCompiler {
 					}
 				}
 			}
-			for (Entry<String, RWContractDecl> c : rewriter.contracts.entrySet()) {
-				dg.generateContractDecl(c.getKey(), c.getValue());
-			}
 			for (Entry<CSName, RWContractImplements> ci : rewriter.cardImplements.entrySet()) {
 				gen.generateContract(ci.getKey().uniqueName(), ci.getValue());
 				dg.generateContractImpl(ci.getKey().uniqueName(), ci.getValue());
