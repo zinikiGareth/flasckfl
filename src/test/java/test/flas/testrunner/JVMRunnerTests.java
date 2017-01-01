@@ -211,10 +211,10 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				PendingVar display = ann.argument(J.DISPLAY_ENGINE, "display");
 				MethodDefiner ctor = ann.done();
 				ctor.callSuper("void", sup, "<init>", despatcher.getVar(), display.getVar()).flush();
-                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.SetState"), ctor.as(ctor.makeNew("test.runner.Card$_C0", ctor.myThis()), J.CONTRACT_IMPL)).flush();
+                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.SetState"), ctor.as(ctor.makeNew("test.runner.Card$_C0", ctor.myThis()), J.NEW_CONTRACT_IMPL)).flush();
                 FieldExpr e = ctor.getField("e");
                 ctor.assign(e, ctor.makeNew("test.runner.Card$_C1", ctor.myThis())).flush();
-                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.Echo"), ctor.as(e, J.CONTRACT_IMPL)).flush();
+                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.Echo"), ctor.as(e, J.NEW_CONTRACT_IMPL)).flush();
                 ctor.callSuper("void", sup, "ready").flush();
                 ctor.returnVoid().flush();
 			}

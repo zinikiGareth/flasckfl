@@ -91,12 +91,12 @@ public class DroidGenerator implements RepoVisitor {
 		if (!doBuild)
 			return;
 		ByteCodeSink bcc = bce.newClass(cd.name());
-		bcc.superclass("org.flasck.android.ContractImpl");
+		bcc.superclass(J.CONTRACT_IMPL);
 		bcc.makeAbstract();
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", cd.name(), "<init>").flush();
+			ctor.callSuper("void", J.CONTRACT_IMPL, "<init>").flush();
 			ctor.returnVoid().flush();
 		}
 		
@@ -169,7 +169,7 @@ public class DroidGenerator implements RepoVisitor {
 					oc.assign(oc.getField(x.referAsVar), impl).flush();
 					impl = oc.getField(x.referAsVar);
 				}
-				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.type), oc.as(impl, "org.flasck.android.ContractImpl")).flush();
+				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.type), oc.as(impl, J.CONTRACT_IMPL)).flush();
 			}
 			oc.callSuper("void", J.FLASCK_ACTIVITY, "ready").flush();
 			oc.returnVoid().flush();

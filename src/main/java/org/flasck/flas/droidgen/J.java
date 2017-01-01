@@ -19,7 +19,8 @@ public class J {
 	public static final String STRING = String.class.getName();
 
 	// Essential FLAS Things
-	public static final String CONTRACT_IMPL = ContractImpl.class.getName();
+	public static final String NEW_CONTRACT_IMPL = ContractImpl.class.getName();
+	public static final String CONTRACT_IMPL = "org.flasck.android.ContractImpl";
 	public static final String SEND = Send.class.getName();
 	public static final String CONS = Cons.class.getName();
 	public static final String FLCLOSURE = FLClosure.class.getName();
