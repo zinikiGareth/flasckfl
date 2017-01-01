@@ -79,6 +79,7 @@ public class DroidGenerator implements RepoVisitor {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
 		gen.returns("void");
 		NewMethodDefiner dfe = gen.done();
+		// TODO: merge this with code below and move to separate class
 		for (RWStructField sf : value.fields) {
 			FieldExpr fe = fields.get(sf.name).asExpr(dfe);
 			dfe.assign(fe, dfe.callVirtual(J.OBJECT, dfe.myThis(), "_fullOf", fe)).flush();
@@ -112,13 +113,14 @@ public class DroidGenerator implements RepoVisitor {
 		}
 	}
 
-	public void generate(String key, CardGrouping grp) {
+	public void visitCardGrouping(CardGrouping grp) {
 		if (!doBuild)
 			return;
 		ByteCodeSink bcc = bce.newClass(grp.struct.name());
 		bcc.superclass(J.FLASCK_ACTIVITY);
 		bcc.inheritsField(false, Access.PUBLIC, J.WRAPPER, "_wrapper");
 		for (RWStructField sf : grp.struct.fields) {
+			// TODO: move all this to a separate class and remove (incorrect) duplication with structs above
 			JavaType jt;
 			if (sf.type.iam == WhatAmI.PRIMITIVE) {
 				if (((Type)sf.type).name().equals("Number"))
@@ -174,6 +176,7 @@ public class DroidGenerator implements RepoVisitor {
 			oc.callSuper("void", J.FLASCK_ACTIVITY, "ready").flush();
 			oc.returnVoid().flush();
 		}
+		// TODO: I feel this should come from the "app" definition file, NOT the "platform" spec ...
 		if (grp.platforms.containsKey("android")) {
 			PlatformSpec spec = grp.platforms.get("android");
 			for (Object d : spec.defns) {

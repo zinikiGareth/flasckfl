@@ -206,7 +206,7 @@ public class PackageImporter {
 		} else {
 			name = te.required("name");
 			if (te.hasTag("Builtin")) {
-				t = rw.primitives.get(name);
+				t = (Type) rw.getMe(loc, name).defn;
 				te.assertNoSubContents();
 			} else if (te.hasTag("Struct")) {
 				t = (Type)rw.getMe(loc, name).defn;

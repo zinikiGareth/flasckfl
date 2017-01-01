@@ -495,9 +495,6 @@ public class FLASStory {
 				int caseName = inner.caseName(fcd.intro.name().uniqueName());
 				fcd.provideCaseName(caseName);
 			} else if (o instanceof FunctionIntro) {
-				// TODO: this code has never been tested in anger
-				// It was cut-and-paste from the Scope version
-				// It may not quite "fit" here
 				FunctionIntro fi = (FunctionIntro) o;
 				Object[] arr = doCompoundFunction(er, b, fi);
 				if (arr == null)

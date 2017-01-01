@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.flasck.builder.jvm.DroidBuilder;
 import org.flasck.flas.blockForm.Block;
@@ -37,15 +36,10 @@ import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewrittenForm.CardGrouping;
-import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
-import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
-import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
@@ -58,7 +52,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zinutils.bytecode.ByteCodeEnvironment;
-import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.MultiTextEmitter;
 
@@ -276,6 +269,7 @@ public class FLASCompiler implements ScriptCompiler {
 				rewriter.writeGeneratableTo(new File(writeRW, "analysis.txt"));
 			}
 
+			rewriter.checkCardContractUsage();
 			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
 
 			// 5. Generate Class Definitions
@@ -287,42 +281,6 @@ public class FLASCompiler implements ScriptCompiler {
 
 			rewriter.visitGenerators();
 			
-			for (Entry<String, CardGrouping> kv : rewriter.cards.entrySet()) {
-				CardGrouping grp = kv.getValue();
-				gen.generate(kv.getKey(), grp);
-				dg.generate(kv.getKey(), grp);
-				for (ContractGrouping ctr : grp.contracts) {
-					RWContractImplements ci = rewriter.cardImplements.get(ctr.implName);
-					if (ci == null)
-						throw new UtilException("Could not find contract implements for " + ctr.implName);
-					RWContractDecl cd = rewriter.contracts.get(ci.name());
-					if (cd == null)
-						throw new UtilException("Could not find contract decl for " + ci.name());
-					Set<RWContractMethodDecl> requireds = new TreeSet<RWContractMethodDecl>(); 
-					for (RWContractMethodDecl m : cd.methods) {
-						if (m.dir.equals("down") && m.required)
-							requireds.add(m);
-					}
-					for (RWMethodDefinition m : ci.methods) {
-						boolean haveMethod = false;
-						for (RWContractMethodDecl dc : cd.methods) {
-							if (dc.dir.equals("down") && (ctr.implName.uniqueName() +"." + dc.name).equals(m.name().uniqueName())) {
-								if (dc.args.size() != m.nargs())
-									errors.message(m.location(), "incorrect number of arguments in declaration, expected " + dc.args.size());
-								requireds.remove(dc);
-								haveMethod = true;
-								break;
-							}
-						}
-						if (!haveMethod)
-							errors.message(m.location(), "cannot implement down method " + m.name().uniqueName() + " because it is not in the contract declaration");
-					}
-					if (!requireds.isEmpty()) {
-						for (RWContractMethodDecl d : requireds)
-							errors.message(ci.location(), ci.name() + " does not implement " + d);
-					}
-				}
-			}
 			for (Entry<CSName, RWContractImplements> ci : rewriter.cardImplements.entrySet()) {
 				gen.generateContract(ci.getKey().uniqueName(), ci.getValue());
 				dg.generateContractImpl(ci.getKey().uniqueName(), ci.getValue());

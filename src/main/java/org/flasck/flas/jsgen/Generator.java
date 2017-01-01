@@ -112,7 +112,8 @@ public class Generator implements RepoVisitor {
 	public void visitContractDecl(RWContractDecl cd) {
 	}
 
-	public void generate(String name, CardGrouping card) {
+	public void visitCardGrouping(CardGrouping card) {
+		String name = card.name().jsName();
 		String lname = lname(name, false);
 		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		cf.add(new JSForm("var _self = this"));

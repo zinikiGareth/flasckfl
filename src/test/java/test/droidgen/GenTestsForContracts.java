@@ -8,7 +8,6 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
-import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -23,13 +22,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
-import org.zinutils.bytecode.Expr;
-import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.IExpr;
-import org.zinutils.bytecode.IFieldInfo;
-import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 
 public class GenTestsForContracts {

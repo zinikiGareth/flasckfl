@@ -131,24 +131,10 @@ public class TypeChecker2 {
 				ctors.put(od.name(), Type.function(od.location(), args));
 			}
 		}
-		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
-			RWStructDefn str = d.getValue().struct;
-			structs.put(d.getKey(), str);
-			gk(d.getKey(), new NamedType(str.location(), str.getTypeName()));
-		}
 	}
 	
 	private void pass2() {
 		rw.visit(new Pass2Visitor(this), true);
-		for (Entry<String, CardGrouping> d : rw.cards.entrySet()) {
-			// The elements of the card struct can appear directly as CardMembers
-			// push their types into the knowledge
-			for (RWStructField f : d.getValue().struct.fields) {
-				// TODO: right now, I feel that renaming this is really a rewriter responsibility, but I'm not clear on the consequences
-				TypeInfo ct = convertType(f.type);
-				gk(d.getKey()+"."+f.name, ct);
-			}
-		}
 		for (RWFunctionDefinition fn : rw.functions.values()) {
 			if (fn.getType() != null) { // a function has already been typechecked
 				TypeInfo ct = convertType(fn.getType());
@@ -821,11 +807,6 @@ public class TypeChecker2 {
 			}
 		}
 
-		for (CardGrouping cg : rw.cards.values()) {
-			if (cg.struct != null)
-				kw.add(cg);
-		}
-		
 		for (Entry<String, Type> x : this.export.entrySet()) {
 			// Only save things in our package
 			if (!x.getKey().startsWith(inPkg + "."))
@@ -1038,22 +1019,11 @@ public class TypeChecker2 {
 	Type asType(TypeInfo ti) {
 		if (ti instanceof NamedType) {
 			NamedType nt = (NamedType) ti;
-			Type ret;
-			if (rw.primitives.containsKey(nt.name))
-				ret = rw.primitives.get(nt.name);
-			else if (structTypes.containsKey(nt.name))
-				ret = (Type) rw.getMe(nt.location(), nt.name).defn;
-			else if (rw.types.containsKey(nt.name))
-				ret = rw.types.get(nt.name);
-			else if (rw.objects.containsKey(nt.name))
-				ret = rw.objects.get(nt.name);
-			else if (rw.contracts.containsKey(nt.name))
-				ret = rw.contracts.get(nt.name);
-			else if (rw.cards.containsKey(nt.name))
-				ret = rw.cards.get(nt.name).struct;
-			else if (rw.callbackHandlers.containsKey(nt.name))
-				ret = rw.callbackHandlers.get(nt.name);
-			else
+			Object obj = rw.getMe(nt.location(), nt.name).defn;
+			if (obj instanceof CardGrouping)
+				obj = ((CardGrouping)obj).struct;
+			Type ret = (Type) obj;
+			if (ret == null)
 				throw new UtilException("Could not find type " + nt.name);
 			if (nt.polyArgs.isEmpty())
 				return ret;

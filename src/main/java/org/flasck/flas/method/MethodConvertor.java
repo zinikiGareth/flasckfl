@@ -328,7 +328,7 @@ public class MethodConvertor {
 		if (slot instanceof CardMember) {
 			CardMember cm = (CardMember) slot;
 			intoObj = new CardStateRef(cm.location(), fromHandler);
-			CardGrouping grp = rw.cards.get(cm.card.uniqueName());
+			CardGrouping grp = (CardGrouping) rw.getMe(cm.location(), cm.card.uniqueName()).defn;
 			RWStructDefn sd = grp.struct;
 			RWStructField sf = sd.findField(cm.var);
 			if (sf == null) {

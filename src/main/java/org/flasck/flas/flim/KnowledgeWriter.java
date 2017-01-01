@@ -136,7 +136,9 @@ public class KnowledgeWriter implements RepoVisitor {
 		return var.substring(var.lastIndexOf(".")+1);
 	}
 
-	public void add(CardGrouping cg) {
+	public void visitCardGrouping(CardGrouping cg) {
+		if (cg.struct == null)
+			return;
 		XMLElement xe = top.addElement("Card");
 		// TODO: I think we should get the location of the first case ...
 		writeLocation(xe, cg.struct);

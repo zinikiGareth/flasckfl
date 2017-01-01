@@ -8,8 +8,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
@@ -163,13 +165,13 @@ public class Rewriter implements CodeGenRegistry {
 	public final PackageFinder pkgFinder;
 	public final Map<String, Type> primitives = new TreeMap<String, Type>();
 	private final Map<String, Expr> constants = new TreeMap<>();
-	final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
+	private final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	public final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
 	public final Map<String, RWUnionTypeDefn> types = new TreeMap<String, RWUnionTypeDefn>();
 	public final Map<String, RWContractDecl> contracts = new TreeMap<String, RWContractDecl>();
 	// I'm not 100% sure we need both of these, but it seems we need more info for "generating" cards than we do for "referencing" cards on import ...
-	public final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
-	public final Map<String, ImportedCard> ctis = new TreeMap<String, ImportedCard>();
+	private final Map<String, CardGrouping> cards = new TreeMap<String, CardGrouping>();
+	private final Map<String, ImportedCard> ctis = new TreeMap<String, ImportedCard>();
 	public final List<RWTemplate> templates = new ArrayList<RWTemplate>();
 	public final List<RWD3Thing> d3s = new ArrayList<RWD3Thing>();
 	public final Map<CSName, RWContractImplements> cardImplements = new TreeMap<CSName, RWContractImplements>();
@@ -1944,15 +1946,56 @@ public class Rewriter implements CodeGenRegistry {
 				v.visitStructDefn(sd);
 			}
 		}
+		
 		for (RWContractDecl c : contracts.values()) {
 			if (c.generate || visitAll)
 				v.visitContractDecl(c);
 		}
 
+		for (CardGrouping c : cards.values()) {
+			v.visitCardGrouping(c);
+		}
 	}
 
 	public void visitGenerators() {
 		for (RepoVisitor gen : generators)
 			visit(gen, false);
+	}
+
+	public void checkCardContractUsage() {
+		for (Entry<String, CardGrouping> kv : cards.entrySet()) {
+			CardGrouping grp = kv.getValue();
+			for (ContractGrouping ctr : grp.contracts) {
+				RWContractImplements ci = cardImplements.get(ctr.implName);
+				if (ci == null)
+					throw new UtilException("Could not find contract implements for " + ctr.implName);
+				RWContractDecl cd = contracts.get(ci.name());
+				if (cd == null)
+					throw new UtilException("Could not find contract decl for " + ci.name());
+				Set<RWContractMethodDecl> requireds = new TreeSet<RWContractMethodDecl>(); 
+				for (RWContractMethodDecl m : cd.methods) {
+					if (m.dir.equals("down") && m.required)
+						requireds.add(m);
+				}
+				for (RWMethodDefinition m : ci.methods) {
+					boolean haveMethod = false;
+					for (RWContractMethodDecl dc : cd.methods) {
+						if (dc.dir.equals("down") && (ctr.implName.uniqueName() +"." + dc.name).equals(m.name().uniqueName())) {
+							if (dc.args.size() != m.nargs())
+								errors.message(m.location(), "incorrect number of arguments in declaration, expected " + dc.args.size());
+							requireds.remove(dc);
+							haveMethod = true;
+							break;
+						}
+					}
+					if (!haveMethod)
+						errors.message(m.location(), "cannot implement down method " + m.name().uniqueName() + " because it is not in the contract declaration");
+				}
+				if (!requireds.isEmpty()) {
+					for (RWContractMethodDecl d : requireds)
+						errors.message(ci.location(), ci.name() + " does not implement " + d);
+				}
+			}
+		}
 	}
 }
