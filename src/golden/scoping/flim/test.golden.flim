@@ -1,42 +1,38 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Contract file="scoping.fl" line="26" name="test.golden.NoArg" off="9">
+    <Contract file="scoping.fl" line="26" name="NoArg" off="9">
         <Method dir="up" file="scoping.fl" line="27" name="get" off="3" required="true">
             <Ctor ctor="Number" file="scoping.fl" line="27" off="7"/>
         </Method>
     </Contract>
-    <Contract file="scoping.fl" line="3" name="test.golden.Reply" off="9">
+    <Contract file="scoping.fl" line="3" name="Reply" off="9">
         <Method dir="down" file="scoping.fl" line="4" name="reply"
             off="5" required="true">
-            <Typed file="scoping.fl" line="4" off="12"
-                var="test.golden.Reply.reply.k" vfile="scoping.fl"
-                vline="4" voff="19">
+            <Typed file="scoping.fl" line="4" off="12" var="k"
+                vfile="scoping.fl" vline="4" voff="19">
                 <Builtin name="Number"/>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="scoping.fl" line="6" name="test.golden.Server" off="9">
+    <Contract file="scoping.fl" line="6" name="Server" off="9">
         <Method dir="up" file="scoping.fl" line="7" name="get" off="3" required="true">
-            <Typed file="scoping.fl" line="7" off="8"
-                var="test.golden.Server.get.k" vfile="scoping.fl"
-                vline="7" voff="15">
+            <Typed file="scoping.fl" line="7" off="8" var="k"
+                vfile="scoping.fl" vline="7" voff="15">
                 <Builtin name="Number"/>
             </Typed>
-            <Typed file="scoping.fl" line="7" off="19"
-                var="test.golden.Server.get.r" vfile="scoping.fl"
-                vline="7" voff="25">
+            <Typed file="scoping.fl" line="7" off="19" var="r"
+                vfile="scoping.fl" vline="7" voff="25">
                 <Contract name="test.golden.Reply"/>
             </Typed>
         </Method>
         <Method dir="up" file="scoping.fl" line="8" name="put" off="3" required="true">
-            <Typed file="scoping.fl" line="8" off="8"
-                var="test.golden.Server.put.k" vfile="scoping.fl"
-                vline="8" voff="15">
+            <Typed file="scoping.fl" line="8" off="8" var="k"
+                vfile="scoping.fl" vline="8" voff="15">
                 <Builtin name="Number"/>
             </Typed>
         </Method>
     </Contract>
-    <Function file="scoping.fl" line="29" name="test.golden.cna" off="7">
+    <Function file="scoping.fl" line="29" name="cna" off="7">
         <Function>
             <Arg>
                 <Contract name="test.golden.NoArg"/>
@@ -49,7 +45,7 @@
             </Return>
         </Function>
     </Function>
-    <Function file="scoping.fl" line="16" name="test.golden.f" off="0">
+    <Function file="scoping.fl" line="16" name="f" off="0">
         <Function>
             <Arg>
                 <Contract name="test.golden.Server"/>

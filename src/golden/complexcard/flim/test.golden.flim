@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Struct file="complexcard.fl" line="3" name="test.golden.ClickIt" off="7"/>
-    <Struct file="complexcard.fl" line="8" name="test.golden.Polyed" off="7">
+    <Struct file="complexcard.fl" line="3" name="ClickIt" off="7"/>
+    <Struct file="complexcard.fl" line="8" name="Polyed" off="7">
         <Poly called="T1"/>
         <Poly called="T2"/>
         <Field accessor="false" file="complexcard.fl" line="9" name="x" off="7">
@@ -17,70 +17,63 @@
             </Instance>
         </Field>
     </Struct>
-    <Struct file="complexcard.fl" line="5" name="test.golden.Thing" off="7">
+    <Struct file="complexcard.fl" line="5" name="Thing" off="7">
         <Field accessor="false" file="complexcard.fl" line="6" name="x" off="7">
             <Builtin name="String"/>
         </Field>
     </Struct>
-    <Struct file="complexcard.fl" line="13" name="test.golden.WithInit" off="7">
+    <Struct file="complexcard.fl" line="13" name="WithInit" off="7">
         <Field accessor="false" file="complexcard.fl" line="14" name="x" off="7">
             <Builtin name="String"/>
         </Field>
     </Struct>
-    <Contract file="complexcard.fl" line="24"
-        name="test.golden.DataStore" off="9">
+    <Contract file="complexcard.fl" line="24" name="DataStore" off="9">
         <Method dir="up" file="complexcard.fl" line="25" name="get"
             off="3" required="true">
-            <Typed file="complexcard.fl" line="25" off="8"
-                var="test.golden.DataStore.get.x" vfile="complexcard.fl"
-                vline="25" voff="15">
+            <Typed file="complexcard.fl" line="25" off="8" var="x"
+                vfile="complexcard.fl" vline="25" voff="15">
                 <Builtin name="String"/>
             </Typed>
-            <Typed file="complexcard.fl" line="25" off="19"
-                var="test.golden.DataStore.get.h" vfile="complexcard.fl"
-                vline="25" voff="27">
+            <Typed file="complexcard.fl" line="25" off="19" var="h"
+                vfile="complexcard.fl" vline="25" voff="27">
                 <Contract name="test.golden.Handler"/>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="complexcard.fl" line="21" name="test.golden.Handler" off="9">
+    <Contract file="complexcard.fl" line="21" name="Handler" off="9">
         <Method dir="down" file="complexcard.fl" line="22" name="reply"
             off="5" required="true">
-            <Typed file="complexcard.fl" line="22" off="12"
-                var="test.golden.Handler.reply.s" vfile="complexcard.fl"
-                vline="22" voff="19">
+            <Typed file="complexcard.fl" line="22" off="12" var="s"
+                vfile="complexcard.fl" vline="22" voff="19">
                 <Builtin name="String"/>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="complexcard.fl" line="18" name="test.golden.Init" off="9">
+    <Contract file="complexcard.fl" line="18" name="Init" off="9">
         <Method dir="down" file="complexcard.fl" line="19" name="ready"
             off="5" required="true">
-            <Typed file="complexcard.fl" line="19" off="12"
-                var="test.golden.Init.ready.obj" vfile="complexcard.fl"
-                vline="19" voff="16">
+            <Typed file="complexcard.fl" line="19" off="12" var="obj"
+                vfile="complexcard.fl" vline="19" voff="16">
                 <Union name="Any"/>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="complexcard.fl" line="27" name="test.golden.Offer" off="9">
+    <Contract file="complexcard.fl" line="27" name="Offer" off="9">
         <Method dir="up" file="complexcard.fl" line="28" name="get"
             off="3" required="true">
-            <Typed file="complexcard.fl" line="28" off="8"
-                var="test.golden.Offer.get.x" vfile="complexcard.fl"
-                vline="28" voff="15">
+            <Typed file="complexcard.fl" line="28" off="8" var="x"
+                vfile="complexcard.fl" vline="28" voff="15">
                 <Builtin name="String"/>
             </Typed>
-            <Typed file="complexcard.fl" line="28" off="19"
-                var="test.golden.Offer.get.h" vfile="complexcard.fl"
-                vline="28" voff="27">
+            <Typed file="complexcard.fl" line="28" off="19" var="h"
+                vfile="complexcard.fl" vline="28" voff="27">
                 <Contract name="test.golden.Handler"/>
             </Typed>
         </Method>
     </Contract>
-    <Card file="complexcard.fl" line="32" name="test.golden.Complex" off="5">
+    <Card file="complexcard.fl" line="32" name="Complex" off="5">
         <Implements contract="test.golden.DataStore"/>
         <Implements contract="test.golden.Init"/>
     </Card>
-    <Card file="complexcard.fl" line="30" name="test.golden.SubCard" off="5"/>
+    <Card file="complexcard.fl" line="30" name="SubCard" off="5"/>
 </FLIM>

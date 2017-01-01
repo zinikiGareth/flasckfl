@@ -5,8 +5,10 @@ import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 
+// Why does this extend Contract?
 public class ImportedCard extends ImportedContract implements Locatable {
 	private final InputPosition location;
 	public final RWStructDefn struct;
@@ -21,8 +23,8 @@ public class ImportedCard extends ImportedContract implements Locatable {
 	}
 
 	// External view loaded back in from FLIM
-	public ImportedCard(InputPosition location, String name) {
-		super(name);
+	public ImportedCard(InputPosition location, CardName cardName) {
+		super(cardName.uniqueName());
 		this.location = location;
 		this.struct = null;
 	}

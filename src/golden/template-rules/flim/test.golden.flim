@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Struct file="rules.fl" line="1" name="test.golden.Container" off="7">
+    <Struct file="rules.fl" line="1" name="Container" off="7">
         <Field accessor="false" file="rules.fl" line="2" name="title" off="7">
             <Builtin name="String"/>
         </Field>
     </Struct>
-    <Card file="rules.fl" line="4" name="test.golden.MyCard" off="5"/>
+    <Card file="rules.fl" line="4" name="MyCard" off="5"/>
 </FLIM>

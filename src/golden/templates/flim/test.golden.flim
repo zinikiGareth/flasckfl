@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Struct file="templates.fl" line="3" name="test.golden.Item" off="7">
+    <Struct file="templates.fl" line="3" name="Item" off="7">
         <Field accessor="false" file="templates.fl" line="4"
             name="title" off="7">
             <Builtin name="String"/>
@@ -10,5 +10,5 @@
             <Builtin name="String"/>
         </Field>
     </Struct>
-    <Card file="templates.fl" line="7" name="test.golden.Templates" off="5"/>
+    <Card file="templates.fl" line="7" name="Templates" off="5"/>
 </FLIM>

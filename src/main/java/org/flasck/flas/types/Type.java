@@ -5,6 +5,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NameOfThing;
+import org.flasck.flas.commonBase.names.PolyName;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
@@ -170,7 +171,7 @@ public class Type implements Locatable {
 	public static Type polyvar(InputPosition loc, String name) {
 		if (loc == null)
 			throw new UtilException("Type without input location 4");
-		return new Type(loc, loc, WhatAmI.POLYVAR, name, null);
+		return new Type(loc, loc, WhatAmI.POLYVAR, new PolyName(name), null);
 	}
 	
 	public static Type function(InputPosition loc, List<Type> args) {

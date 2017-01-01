@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Card file="events.fl" line="1" name="test.golden.Events" off="5"/>
+    <Card file="events.fl" line="1" name="Events" off="5"/>
 </FLIM>

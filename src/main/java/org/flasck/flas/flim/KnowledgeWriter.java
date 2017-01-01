@@ -7,6 +7,10 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.PolyName;
+import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -45,7 +49,7 @@ public class KnowledgeWriter implements RepoVisitor {
 	public void visitStructDefn(RWStructDefn sd) {
 		XMLElement xe = top.addElement("Struct");
 		writeLocation(xe, sd);
-		xe.setAttribute("name", sd.uniqueName());
+		xe.setAttribute("name", sd.structName().baseName());
 		writePolys(xe, sd.polys());
 		writeStructFields(xe, sd.fields);
 		if (copyToScreen)
@@ -68,7 +72,7 @@ public class KnowledgeWriter implements RepoVisitor {
 	public void add(RWUnionTypeDefn td) {
 		XMLElement xe = top.addElement("Union");
 		writeLocation(xe, td);
-		xe.setAttribute("name", td.name());
+		xe.setAttribute("name", ((StructName)td.getTypeName()).baseName());
 		writePolys(xe, td.polys());
 		for (Type f : td.cases) {
 			writeTypeUsage(xe, f);
@@ -81,7 +85,7 @@ public class KnowledgeWriter implements RepoVisitor {
 	public void visitContractDecl(RWContractDecl cd) {
 		XMLElement xe = top.addElement("Contract");
 		writeLocation(xe, cd);
-		xe.setAttribute("name", cd.name());
+		xe.setAttribute("name", ((StructName)cd.getTypeName()).baseName());
 		for (RWContractMethodDecl meth : cd.methods) {
 			XMLElement xm = xe.addElement("Method");
 			writeLocation(xm, meth);
@@ -114,7 +118,7 @@ public class KnowledgeWriter implements RepoVisitor {
 			RWTypedPattern tp = (RWTypedPattern) arg;
 			XMLElement ae = xm.addElement("Typed");
 			writeLocation(ae, tp);
-			ae.setAttribute("var", tp.var);
+			ae.setAttribute("var", getBaseName(tp.var)); // tp.var should be a VarName
 			writeLocation(ae, tp.varLocation, "v");
 			writeTypeUsage(ae, tp.type);
 		} else if (arg instanceof RWConstructorMatch) {
@@ -128,15 +132,15 @@ public class KnowledgeWriter implements RepoVisitor {
 			throw new UtilException("Cannot handle " + arg.getClass());
 	}
 
+	private String getBaseName(String var) {
+		return var.substring(var.lastIndexOf(".")+1);
+	}
+
 	public void add(CardGrouping cg) {
 		XMLElement xe = top.addElement("Card");
 		// TODO: I think we should get the location of the first case ...
 		writeLocation(xe, cg.struct);
-		xe.setAttribute("name", cg.struct.name());
-		/* I don't think this is relevant to outsiders ...
-		XMLElement fs = xe.addElement("Fields");
-		writeStructFields(fs, cti.struct.fields);
-		*/
+		xe.setAttribute("name", cg.struct.structName().baseName());
 		TreeSet<String> impls = new TreeSet<>();
 		for (ContractGrouping x : cg.contracts) {
 			impls.add(x.type);
@@ -146,28 +150,22 @@ public class KnowledgeWriter implements RepoVisitor {
 			xh.setAttribute("contract", it);
 			requirePackageFor(it);
 		}
-		/* I don't think these are relevant to outsiders ...
-		for (TypeHolder x : cti.handlers) {
-			XMLElement xh = xe.addElement("Handler");
-			xh.setAttribute("name", x.name);
-		}
-		*/
 		if (copyToScreen) {
 			System.out.println("  card " + cg.struct.name());
 			for (ContractGrouping x : cg.contracts) {
 				System.out.println("    contract " + x.type);
-//				x.dump(6);
 			}
 			for (HandlerGrouping x : cg.handlers) {
 				System.out.println("    handler " + x.type);
-//				x.dump(6);
 			}
-//			cg.dump(4);
 		}
 	}
 
 	// I believe this is *just* functions, but that includes functions of 0 args, which don't *look* like functions to the naked eye ...
+	// I would like this "name" to actually be a function name, but hack for now ...
 	public void add(String name, Type type) {
+		int idx = name.lastIndexOf(".");
+		name = name.substring(idx+1);
 		XMLElement xe = top.addElement("Function");
 		if (type.iam != WhatAmI.FUNCTION)
 			throw new UtilException("Not a function");
@@ -283,6 +281,17 @@ public class KnowledgeWriter implements RepoVisitor {
 			ty.setAttribute("name", type.name());
 		}
 		}
+	}
+
+	private String getBaseName(NameOfThing typeName) {
+		if (typeName instanceof StructName)
+			return ((StructName)typeName).baseName();
+		else if (typeName instanceof PackageName)
+			return ((PackageName)typeName).simpleName();
+		else if (typeName instanceof PolyName)
+			return ((PolyName)typeName).simpleName();
+		else
+			throw new UtilException("Cannot find base name of " + typeName);
 	}
 
 	private void requirePackageFor(String name) {

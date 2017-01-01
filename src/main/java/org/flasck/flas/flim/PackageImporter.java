@@ -66,16 +66,14 @@ public class PackageImporter {
 				; // handled in pass 0
 			else if (xe.hasTag("Struct")) {
 				List<Type> polys = new ArrayList<>();
-				String fullName = xe.required("name");
-				int idx = fullName.lastIndexOf(".");
-				RWStructDefn sd = new RWStructDefn(location(xe), new StructName(packageName, fullName.substring(idx+1)), false, polys);
+				String baseName = xe.required("name");
+				RWStructDefn sd = new RWStructDefn(location(xe), new StructName(packageName, baseName), false, polys);
 				xe.attributesDone();
 				pkg.define(sd.name(), sd);
 				todos.add(new Pass2(sd, xe));
 			} else if (xe.hasTag("Contract")) {
-				String fullName = xe.required("name");
-				int idx = fullName.lastIndexOf(".");
-				RWContractDecl cd = new RWContractDecl(null, location(xe), new StructName(packageName, fullName.substring(idx+1)), false);
+				String baseName = xe.required("name");
+				RWContractDecl cd = new RWContractDecl(null, location(xe), new StructName(packageName, baseName), false);
 				xe.attributesDone();
 				pkg.define(cd.name(), cd);
 				todos.add(new Pass2(cd, xe));
@@ -83,7 +81,7 @@ public class PackageImporter {
 				// we don't have anything to create right now ...
 				todos.add(new Pass2(xe, xe));
 			} else if (xe.hasTag("Card")) {
-				ImportedCard cti = new ImportedCard(location(xe), xe.required("name"));
+				ImportedCard cti = new ImportedCard(location(xe), new CardName(packageName, xe.required("name")));
 				xe.attributesDone();
 				pkg.define(cti.name, cti);
 				todos.add(new Pass2(cti, xe));
@@ -155,10 +153,7 @@ public class PackageImporter {
 						inCard = inCard.substring(icx+1);
 						inside = new CardName(packageName, inCard);
 					}
-					String fullName = xe.required("name");
-					int idx = fullName.lastIndexOf(".");
-					
-					RWFunctionDefinition ret = new RWFunctionDefinition(FunctionName.function(location(xe), inside, fullName.substring(idx+1)), args.size()-1, false);
+					RWFunctionDefinition ret = new RWFunctionDefinition(FunctionName.function(location(xe), inside, xe.required("name")), args.size()-1, false);
 					Type fntype;
 					if (args.size() == 1)
 						fntype = args.get(0);

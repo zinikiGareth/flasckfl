@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Struct file="downcast.fl" line="1" name="test.golden.Role" off="7">
+    <Struct file="downcast.fl" line="1" name="Role" off="7">
         <Field accessor="false" file="downcast.fl" line="2" name="id" off="7">
             <Builtin name="String"/>
         </Field>
     </Struct>
-    <Function file="downcast.fl" line="4" name="test.golden.f" off="0">
+    <Function file="downcast.fl" line="4" name="f" off="0">
         <Function>
             <Arg>
                 <Union name="Any"/>
