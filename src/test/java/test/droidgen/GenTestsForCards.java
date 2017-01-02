@@ -1,6 +1,9 @@
 package test.droidgen;
 
+import java.util.ArrayList;
+
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -9,6 +12,8 @@ import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.Type;
@@ -120,7 +125,23 @@ public class GenTestsForCards {
 		gen.visitCardGrouping(card);
 	}
 
-	// testCorrectGenerationOfHandler
+	@Test
+	public void testCorrectGenerationOfHandler() {
+		checkCreationOfCard();
+		checkCreationOfCardCtor();
+		checkCreationOfCardOnCreate();
+		checkDefnOfContract("ActualHandler", null);
+//		checkRegisterOfContract("_C0", "ce");
+//		checkDefnOfField(J.BOOLEANP, "f1");
+		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
+//		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
+		CardName cdName = new CardName(null, "Card");
+		CardGrouping card = new CardGrouping(cdName, sd);
+		HandlerName hn = new HandlerName(cdName, "ActualHandler");
+		card.handlers.add(new HandlerGrouping("ActualHandler", new RWHandlerImplements(loc, loc, hn, new StructName(null, "HandlerDecl"), true, new ArrayList<>())));
+		gen.visitCardGrouping(card);
+	}
+
 	
 	public void checkCreationOfCard() {
 		context.checking(new Expectations() {{
