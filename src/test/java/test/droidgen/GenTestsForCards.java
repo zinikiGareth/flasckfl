@@ -116,9 +116,7 @@ public class GenTestsForCards {
 		checkCreationOfCardOnCreate();
 		checkDefnOfContract("_C0", "ce");
 		checkRegisterOfContract("_C0", "ce");
-//		checkDefnOfField(J.BOOLEANP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
-//		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
 		CardName cdName = new CardName(null, "Card");
 		CardGrouping card = new CardGrouping(cdName, sd);
 		card.contracts.add(new ContractGrouping("CtrDecl", new CSName(cdName, "_C0"), "ce"));
@@ -131,10 +129,7 @@ public class GenTestsForCards {
 		checkCreationOfCardCtor();
 		checkCreationOfCardOnCreate();
 		checkDefnOfContract("ActualHandler", null);
-//		checkRegisterOfContract("_C0", "ce");
-//		checkDefnOfField(J.BOOLEANP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
-//		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
 		CardName cdName = new CardName(null, "Card");
 		CardGrouping card = new CardGrouping(cdName, sd);
 		HandlerName hn = new HandlerName(cdName, "ActualHandler");
@@ -173,33 +168,20 @@ public class GenTestsForCards {
 	private void checkDefnOfField(JavaType type, String name) {
 		// I expect this will eventually need to be more public, eg. stored in a map or something
 		IFieldInfo ret = context.mock(IFieldInfo.class, name);
-//		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
 		context.checking(new Expectations() {{
 			oneOf(bccCard).defineField(false, Access.PROTECTED, type, name); will(returnValue(ret));
-//			oneOf(ret).asExpr(meth); will(returnValue(fe));
-//			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
-//			oneOf(meth).assign(fe, expr); will(returnValue(expr));
 		}});
 	}
 
 	private void checkDefnOfContract(String ctrName, String called) {
-		// I expect this will eventually need to be more public, eg. stored in a map or something
-//		IFieldInfo ret = context.mock(IFieldInfo.class, name);
-//		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
 		context.checking(new Expectations() {{
 			oneOf(bccCard).addInnerClassReference(Access.PUBLICSTATIC, "Card", ctrName);
 			if (called != null)
 				oneOf(bccCard).defineField(false, Access.PROTECTED, new JavaType("Card$" + ctrName), called);
-//			oneOf(ret).asExpr(meth); will(returnValue(fe));
-//			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
-//			oneOf(meth).assign(fe, expr); will(returnValue(expr));
 		}});
 	}
 
 	private void checkRegisterOfContract(String ctrName, String called) {
-		// I expect this will eventually need to be more public, eg. stored in a map or something
-//		IFieldInfo ret = context.mock(IFieldInfo.class, name);
-//		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
 		context.checking(new Expectations() {{
 			oneOf(onCreate).makeNew(with("Card$_C0"), with(aNonNull(Expr.class))); will(returnValue(expr));
 			oneOf(onCreate).stringConst("CtrDecl");
@@ -210,9 +192,6 @@ public class GenTestsForCards {
 			} else
 				oneOf(onCreate).as(expr, J.CONTRACT_IMPL);
 			oneOf(onCreate).callVirtual(with("void"), with(aNonNull(IExpr.class)), with("registerContract"), with(aNonNull(IExpr[].class)));
-//			oneOf(ret).asExpr(meth); will(returnValue(fe));
-//			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
-//			oneOf(meth).assign(fe, expr); will(returnValue(expr));
 		}});
 	}
 }

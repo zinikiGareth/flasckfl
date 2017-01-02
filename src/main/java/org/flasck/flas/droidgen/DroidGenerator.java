@@ -253,9 +253,6 @@ public class DroidGenerator implements RepoVisitor {
 					eval.returnObject(eval.makeNew("org.flasck.jvm.FLCurry", objArg, eval.classConst(DroidUtils.javaNestedName(name)), argsArg.getVar())), 
 					eval.returnObject(eval.makeNew(DroidUtils.javaNestedName(name), newArgs))).flush();
 		}
-		{
-			
-		}
 	}
 
 	public void generate(Collection<HSIEForm> forms) {
