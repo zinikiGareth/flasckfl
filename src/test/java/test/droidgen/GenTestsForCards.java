@@ -10,7 +10,6 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.vcode.hsieForm.Var;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -18,13 +17,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
-import org.zinutils.bytecode.Expr;
-import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
-import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.MethodDefiner;
 
 public class GenTestsForCards {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -34,7 +31,6 @@ public class GenTestsForCards {
 	ByteCodeSink bccCard = context.mock(ByteCodeSink.class);
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner onCreate = context.mock(MethodDefiner.class, "onCreate");
-	MethodDefiner dfe = context.mock(MethodDefiner.class, "dfe");
 	
 	IExpr expr = context.mock(IExpr.class);
 
@@ -42,8 +38,6 @@ public class GenTestsForCards {
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
 			allowing(expr);
-			allowing(dfe).myThis(); will(new ReturnNewVar(dfe, "MyClass", "this"));
-			allowing(dfe).nextLocal(); will(returnValue(1));
 			allowing(onCreate).nextLocal(); will(returnValue(1));
 		}});
 	}
@@ -60,32 +54,33 @@ public class GenTestsForCards {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
 		checkCreationOfCardOnCreate();
-//		checkCreationOfStructDFE();
 		CardGrouping sd = new CardGrouping(new CardName(null, "Card"), new RWStructDefn(loc, new StructName(null, "Card"), true));
 		gen.visitCardGrouping(sd);
 	}
 
-//	@Test
+	@Test
 	public void testVisitingAStructDefnWithOneMemberAndNoInitGeneratesAnEmptySlot() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkCreationOfStructDFE();
-		checkDefnOfField(dfe, "f1");
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
+		checkCreationOfCardOnCreate();
+		checkDefnOfField(J.BOOLEANP, "f1");
+		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
-		gen.visitStructDefn(sd);
+		CardGrouping card = new CardGrouping(new CardName(null, "Card"), sd);
+		gen.visitCardGrouping(card);
 	}
 
-//	@Test
+	@Test
 	// DROID-TODO: This should generate a call to the "init_f1" function
 	public void testVisitingAStructDefnWithOneInitializedMemberGeneratesASlotWithTheValue() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkCreationOfStructDFE();
-		checkDefnOfField(dfe, "f1");
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
+		checkCreationOfCardOnCreate();
+		checkDefnOfField(J.INTP, "f1");
+		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
-		gen.visitStructDefn(sd);
+		CardGrouping card = new CardGrouping(new CardName(null, "Card"), sd);
+		gen.visitCardGrouping(card);
 	}
 
 	public void checkCreationOfCard() {
@@ -115,22 +110,15 @@ public class GenTestsForCards {
 		}});
 	}
 
-	public void checkCreationOfStructDFE() {
-		context.checking(new Expectations() {{
-			oneOf(bccCard).createMethod(false, "void", "_doFullEval"); will(returnValue(dfe));
-			oneOf(dfe).returnVoid(); will(returnValue(expr));
-		}});
-	}
-
-	private void checkDefnOfField(NewMethodDefiner meth, String name) {
+	private void checkDefnOfField(JavaType type, String name) {
 		// I expect this will eventually need to be more public, eg. stored in a map or something
 		IFieldInfo ret = context.mock(IFieldInfo.class, name);
-		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
+//		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
 		context.checking(new Expectations() {{
-			oneOf(bccCard).defineField(false, Access.PUBLIC, J.OBJECT, name); will(returnValue(ret));
-			oneOf(ret).asExpr(meth); will(returnValue(fe));
-			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
-			oneOf(meth).assign(fe, expr); will(returnValue(expr));
+			oneOf(bccCard).defineField(false, Access.PROTECTED, type, name); will(returnValue(ret));
+//			oneOf(ret).asExpr(meth); will(returnValue(fe));
+//			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
+//			oneOf(meth).assign(fe, expr); will(returnValue(expr));
 		}});
 	}
 }

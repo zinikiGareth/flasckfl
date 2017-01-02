@@ -12,10 +12,16 @@ import org.flasck.jvm.cards.CardDespatcher;
 import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.display.DisplayEngine;
 import org.flasck.jvm.post.DeliveryAddress;
+import org.zinutils.bytecode.JavaType;
 
 public class J {
-	// Basic Java Things
+	// Java Primitives
+	public static final JavaType BOOLEANP = JavaType.boolean_;
+	public static final JavaType INTP = JavaType.int_;
+
+	// Java Objects
 	public static final String OBJECT = Object.class.getName();
+	public static final String BOOLEAN = Boolean.class.getName();
 	public static final String STRING = String.class.getName();
 
 	// Essential FLAS Things
