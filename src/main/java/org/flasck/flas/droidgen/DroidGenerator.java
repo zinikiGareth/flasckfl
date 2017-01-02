@@ -132,12 +132,12 @@ public class DroidGenerator implements RepoVisitor {
 			oc.setAccess(Access.PROTECTED);
 			oc.callSuper("void", J.FLASCK_ACTIVITY, "onCreate", sis.getVar()).flush();
 			for (ContractGrouping x : grp.contracts) {
-				Expr impl = oc.makeNew(DroidUtils.javaNestedName(x.implName.jsName()), oc.myThis());
+				IExpr impl = oc.makeNew(DroidUtils.javaNestedName(x.implName.jsName()), oc.myThis());
 				if (x.referAsVar != null) {
 					oc.assign(oc.getField(x.referAsVar), impl).flush();
 					impl = oc.getField(x.referAsVar);
 				}
-				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.type), (Expr)oc.as(impl, J.CONTRACT_IMPL)).flush();
+				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.type), oc.as(impl, J.CONTRACT_IMPL)).flush();
 			}
 			oc.callSuper("void", J.FLASCK_ACTIVITY, "ready").flush();
 			oc.returnVoid().flush();
@@ -325,7 +325,7 @@ public class DroidGenerator implements RepoVisitor {
 		if (cgrx == null)
 			return;
 		Var storeAs = cgrx.ctor.avar(cn, v);
-		cgrx.ctor.assign(storeAs, cgrx.ctor.makeNew(DroidUtils.javaNestedName(cn), cgrx.card, (Expr)cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"))).flush();
+		cgrx.ctor.assign(storeAs, (Expr) cgrx.ctor.makeNew(DroidUtils.javaNestedName(cn), cgrx.card, (Expr)cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"))).flush();
 	}
 
 	public void needAddHandlers(CGRContext cgrx) {
@@ -382,7 +382,7 @@ public class DroidGenerator implements RepoVisitor {
 		gen.returns("org.flasck.android.areas.Area");
 		NewMethodDefiner meth = gen.done();
 		Var ret = meth.avar("org.flasck.android.areas.Area", "ret");
-		meth.assign(ret, meth.makeNew(DroidUtils.javaNestedName(child), meth.getField("_card"), (Expr)meth.as(meth.myThis(), "org.flasck.android.areas.Area"))).flush();
+		meth.assign(ret, (Expr) meth.makeNew(DroidUtils.javaNestedName(child), meth.getField("_card"), (Expr)meth.as(meth.myThis(), "org.flasck.android.areas.Area"))).flush();
 		FieldExpr crokeyid = new FieldObject(false, "org.flasck.android.builtin.Crokey", new JavaType("java.lang.Object"), "id").useOn(meth, ck.getVar());
 		meth.callVirtual("void", ret, "bindVar", meth.stringConst("_crokey"), crokeyid).flush();
 		meth.returnObject(ret).flush();

@@ -1,12 +1,14 @@
 package test.droidgen;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.Type;
@@ -17,6 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
+import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
@@ -28,7 +31,7 @@ public class GenTestsForCards {
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 	DroidGenerator gen = new DroidGenerator(null, true, bce);
-	ByteCodeSink bccCard = context.mock(ByteCodeSink.class);
+	ByteCodeSink bccCard = context.mock(ByteCodeSink.class, "cardClass");
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner onCreate = context.mock(MethodDefiner.class, "onCreate");
 	
@@ -37,6 +40,8 @@ public class GenTestsForCards {
 	@Before
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
+			allowing(bccCard).getCreatedName(); will(returnValue("Card"));
+			allowing(onCreate).myThis(); will(new ReturnNewVar(onCreate, "Card", "this"));
 			allowing(expr);
 			allowing(onCreate).nextLocal(); will(returnValue(1));
 		}});
@@ -83,6 +88,25 @@ public class GenTestsForCards {
 		gen.visitCardGrouping(card);
 	}
 
+	@Test
+	public void testCorrectGenerationOfContractWithNoVar() {
+		checkCreationOfCard();
+		checkCreationOfCardCtor();
+		checkCreationOfCardOnCreate();
+		checkDefnOfContract("_C0");
+		checkRegisterOfContract("_C0");
+//		checkDefnOfField(J.BOOLEANP, "f1");
+		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
+//		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
+		CardName cdName = new CardName(null, "Card");
+		CardGrouping card = new CardGrouping(cdName, sd);
+		card.contracts.add(new ContractGrouping("CtrDecl", new CSName(cdName, "_C0"), null));
+		gen.visitCardGrouping(card);
+	}
+
+	// testCorrectGenerationOfContractWithVar
+	// testCorrectGenerationOfHandler
+	
 	public void checkCreationOfCard() {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("Card"); will(returnValue(bccCard));
@@ -116,6 +140,33 @@ public class GenTestsForCards {
 //		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
 		context.checking(new Expectations() {{
 			oneOf(bccCard).defineField(false, Access.PROTECTED, type, name); will(returnValue(ret));
+//			oneOf(ret).asExpr(meth); will(returnValue(fe));
+//			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
+//			oneOf(meth).assign(fe, expr); will(returnValue(expr));
+		}});
+	}
+
+	private void checkDefnOfContract(String ctrName) {
+		// I expect this will eventually need to be more public, eg. stored in a map or something
+//		IFieldInfo ret = context.mock(IFieldInfo.class, name);
+//		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
+		context.checking(new Expectations() {{
+			oneOf(bccCard).addInnerClassReference(Access.PUBLICSTATIC, "Card", ctrName);
+//			oneOf(ret).asExpr(meth); will(returnValue(fe));
+//			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
+//			oneOf(meth).assign(fe, expr); will(returnValue(expr));
+		}});
+	}
+
+	private void checkRegisterOfContract(String ctrName) {
+		// I expect this will eventually need to be more public, eg. stored in a map or something
+//		IFieldInfo ret = context.mock(IFieldInfo.class, name);
+//		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
+		context.checking(new Expectations() {{
+			oneOf(onCreate).makeNew(with("Card$_C0"), with(aNonNull(Expr.class))); will(returnValue(expr));
+			oneOf(onCreate).stringConst("CtrDecl");
+			oneOf(onCreate).as(expr, J.CONTRACT_IMPL);
+			oneOf(onCreate).callVirtual(with("void"), with(aNonNull(IExpr.class)), with("registerContract"), with(aNonNull(IExpr[].class)));
 //			oneOf(ret).asExpr(meth); will(returnValue(fe));
 //			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
 //			oneOf(meth).assign(fe, expr); will(returnValue(expr));

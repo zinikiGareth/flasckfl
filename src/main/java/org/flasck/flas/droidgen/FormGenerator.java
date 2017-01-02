@@ -173,7 +173,7 @@ public class FormGenerator {
 				if (hv == null) {
 					hv = meth.avar("java.lang.Object", c.var.var.toString());
 					vars.put(c.var.var, hv);
-					Expr cl = closure(form, meth, svars, vars, form.mytype, form.getClosure(c.var.var));
+					Expr cl = (Expr) closure(form, meth, svars, vars, form.mytype, form.getClosure(c.var.var));
 					stmts.add(meth.assign(hv, cl));
 				}
 
@@ -207,11 +207,11 @@ public class FormGenerator {
 									v = meth.avar("java.lang.Object", cov.var.toString());
 									vars.put(cov.var, v);
 								}
-								Expr cl = closure(form, meth, svars, vars, form.mytype, form.getClosure(cov.var));
+								Expr cl = (Expr) closure(form, meth, svars, vars, form.mytype, form.getClosure(cov.var));
 								stmts.add(meth.assign(v, cl));
 							}
 						}
-						Expr cl = closure(form, meth, svars, vars, form.mytype, form.getClosure(pv.var.var));
+						Expr cl = (Expr) closure(form, meth, svars, vars, form.mytype, form.getClosure(pv.var.var));
 						if (assignReturnTo != null) {
 							ensureString(stmts, meth, hv);
 							stmts.add(meth.assign(assignReturnTo, cl));
@@ -237,7 +237,7 @@ public class FormGenerator {
 			return new BlockExpr(meth, stmts);
 	}
 
-	private Expr closure(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
+	private IExpr closure(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, HSIEBlock closure) {
 		// Loop over everything in the closure pushing it onto the stack (in al)
 		HSIEBlock c0 = closure.nestedCommands().get(0);
 		if (c0 instanceof PushExternal) {
@@ -288,7 +288,7 @@ public class FormGenerator {
 	//			clz = meth.castTo(clz, "java.lang.Class");
 			}
 			if (needsObject != null)
-				return meth.makeNew("org.flasck.jvm.FLClosure", (Expr)meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
+				return meth.makeNew("org.flasck.jvm.FLClosure", meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
 			else
 				return meth.makeNew("org.flasck.jvm.FLClosure", clz, meth.arrayOf("java.lang.Object", al));
 		} else if (c0 instanceof PushVar) {

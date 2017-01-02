@@ -139,7 +139,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
 				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
-				meth.assign(clos1, meth.makeNew("org.flasck.jvm.FLClosure",
+				meth.assign(clos1, (Expr)meth.makeNew("org.flasck.jvm.FLClosure",
 										meth.classConst("org.flasck.jvm.builtin.Assign"),
 										meth.arrayOf("java.lang.Object", Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), (Expr)meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(false)), "java.lang.Object"))))).flush();
 				meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
@@ -152,7 +152,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
 				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
-				meth.assign(clos1, meth.makeNew("org.flasck.jvm.FLClosure",
+				meth.assign(clos1, (Expr)meth.makeNew("org.flasck.jvm.FLClosure",
 										meth.classConst("org.flasck.jvm.builtin.Assign"),
 										meth.arrayOf("java.lang.Object", Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), (Expr)meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(true)), "java.lang.Object"))))).flush();
 				meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
@@ -187,11 +187,11 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				meth.ifBoolean(meth.instanceOf(msg, J.STRING),
 					meth.block(
 						meth.assign(clos1, 
-							meth.makeNew(J.FLCLOSURE, meth.classConst(J.CONS), meth.arrayOf(J.OBJECT, Arrays.asList( 
+								(Expr)meth.makeNew(J.FLCLOSURE, meth.classConst(J.CONS), meth.arrayOf(J.OBJECT, Arrays.asList( 
 									msg,
 									nil)))),
 						meth.assign(clos2, 
-								meth.makeNew(J.FLCLOSURE, meth.classConst(J.SEND), meth.arrayOf(J.OBJECT, Arrays.asList( 
+								(Expr)meth.makeNew(J.FLCLOSURE, meth.classConst(J.SEND), meth.arrayOf(J.OBJECT, Arrays.asList( 
 									meth.getField(meth.getField("_card"), "e"),
 									meth.stringConst("echoIt"),
 									clos1)))),
@@ -267,7 +267,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
 				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
-				meth.assign(clos1, meth.makeNew("org.flasck.jvm.FLClosure",
+				meth.assign(clos1, (Expr)meth.makeNew("org.flasck.jvm.FLClosure",
 										(Expr)meth.as(meth.getField("_card"), "java.lang.Object"),
 										meth.classConst("test.runner.Card$styleIf"),
 										meth.arrayOf("java.lang.Object", Arrays.asList(meth.stringConst("show"), meth.callStatic("java.lang.Boolean", "java.lang.Boolean", "valueOf", meth.getField(meth.getField("_card"), "sayHello")))))).flush();
