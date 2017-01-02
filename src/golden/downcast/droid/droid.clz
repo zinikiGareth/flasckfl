@@ -45,7 +45,7 @@ public class test.golden.PACKAGEFUNCTIONS {
       55: areturn       
 }
 public class test.golden.Role extends org.flasck.android.FLASObject {
-  public java.lang.Object id;
+  public java.lang.String id;
 
   public test.golden.Role();
     Code:
@@ -58,8 +58,8 @@ public class test.golden.Role extends org.flasck.android.FLASObject {
        0: aload_0       
        1: aload_0       
        2: aload_0       
-       3: getfield      #13                 // Field id:Ljava/lang/Object;
+       3: getfield      #13                 // Field id:Ljava/lang/String;
        6: invokevirtual #17                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
-       9: putfield      #13                 // Field id:Ljava/lang/Object;
+       9: putfield      #13                 // Field id:Ljava/lang/String;
       12: return        
 }

@@ -141,7 +141,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
 				meth.assign(clos1, meth.makeNew("org.flasck.jvm.FLClosure",
 										meth.classConst("org.flasck.jvm.builtin.Assign"),
-										meth.arrayOf("java.lang.Object", Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(false)), "java.lang.Object"))))).flush();
+										meth.arrayOf("java.lang.Object", Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), (Expr)meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(false)), "java.lang.Object"))))).flush();
 				meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
 										meth.classConst("org.flasck.jvm.builtin.Cons"),
 										meth.arrayOf("java.lang.Object", Arrays.asList(clos1, meth.callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>())))))).flush();
@@ -154,7 +154,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
 				meth.assign(clos1, meth.makeNew("org.flasck.jvm.FLClosure",
 										meth.classConst("org.flasck.jvm.builtin.Assign"),
-										meth.arrayOf("java.lang.Object", Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(true)), "java.lang.Object"))))).flush();
+										meth.arrayOf("java.lang.Object", Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), (Expr)meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(true)), "java.lang.Object"))))).flush();
 				meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
 										meth.classConst("org.flasck.jvm.builtin.Cons"),
 										meth.arrayOf("java.lang.Object", Arrays.asList(clos1, meth.callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>())))))).flush();
@@ -211,10 +211,10 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				PendingVar display = ann.argument(J.DISPLAY_ENGINE, "display");
 				MethodDefiner ctor = ann.done();
 				ctor.callSuper("void", sup, "<init>", despatcher.getVar(), display.getVar()).flush();
-                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.SetState"), ctor.as(ctor.makeNew("test.runner.Card$_C0", ctor.myThis()), J.NEW_CONTRACT_IMPL)).flush();
+                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.SetState"), (Expr)ctor.as(ctor.makeNew("test.runner.Card$_C0", ctor.myThis()), J.NEW_CONTRACT_IMPL)).flush();
                 FieldExpr e = ctor.getField("e");
                 ctor.assign(e, ctor.makeNew("test.runner.Card$_C1", ctor.myThis())).flush();
-                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.Echo"), ctor.as(e, J.NEW_CONTRACT_IMPL)).flush();
+                ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.Echo"), (Expr)ctor.as(e, J.NEW_CONTRACT_IMPL)).flush();
                 ctor.callSuper("void", sup, "ready").flush();
                 ctor.returnVoid().flush();
 			}
@@ -251,7 +251,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ctor.callSuper("void", "org.flasck.jvm.areas.TextArea", "<init>", ctor.as(parent.getVar(), "org.flasck.jvm.areas.Area"), ctor.as(ctor.aNull(), "java.lang.String")).flush();
 				ctor.assign(ctor.getField("_card"), card.getVar()).flush();
 				ctor.callVirtual("void", ctor.myThis(), "_setText", ctor.stringConst("hello, world")).flush();
-				ctor.callVirtual("void", ctor.getField("_wrapper"), "onAssign", ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst("sayHello"), ctor.as(ctor.myThis(), "org.flasck.jvm.areas.IArea"), ctor.stringConst("_setVariableFormats")).flush();
+				ctor.callVirtual("void", ctor.getField("_wrapper"), "onAssign", (Expr)ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst("sayHello"), (Expr)ctor.as(ctor.myThis(), "org.flasck.jvm.areas.IArea"), ctor.stringConst("_setVariableFormats")).flush();
 				ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), "_setVariableFormats")).flush();
 				ctor.returnVoid().flush();
 			}
@@ -268,7 +268,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				NewMethodDefiner meth = ann.done();
 				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
 				meth.assign(clos1, meth.makeNew("org.flasck.jvm.FLClosure",
-										meth.as(meth.getField("_card"), "java.lang.Object"),
+										(Expr)meth.as(meth.getField("_card"), "java.lang.Object"),
 										meth.classConst("test.runner.Card$styleIf"),
 										meth.arrayOf("java.lang.Object", Arrays.asList(meth.stringConst("show"), meth.callStatic("java.lang.Boolean", "java.lang.Boolean", "valueOf", meth.getField(meth.getField("_card"), "sayHello")))))).flush();
 				meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 

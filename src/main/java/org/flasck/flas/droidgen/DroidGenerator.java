@@ -22,11 +22,7 @@ import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
-import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.types.Type;
-import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -60,15 +56,12 @@ public class DroidGenerator implements RepoVisitor {
 	}
 	
 	@Override
-	public void visitStructDefn(RWStructDefn value) {
-		if (!doBuild || !value.generate)
+	public void visitStructDefn(RWStructDefn sd) {
+		if (!doBuild || !sd.generate)
 			return;
-		ByteCodeSink bcc = bce.newClass(value.name());
-		Map<String, IFieldInfo> fields = new TreeMap<>();
-		for (RWStructField sf : value.fields) {
-			IFieldInfo fi = bcc.defineField(false, Access.PUBLIC, J.OBJECT, sf.name);
-			fields.put(sf.name, fi);
-		}
+		ByteCodeSink bcc = bce.newClass(sd.name());
+		DroidStructFieldGenerator fg = new DroidStructFieldGenerator(bcc, Access.PUBLIC);
+		sd.visitFields(fg);
 		bcc.superclass(J.FLAS_OBJECT);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
@@ -79,11 +72,8 @@ public class DroidGenerator implements RepoVisitor {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
 		gen.returns("void");
 		NewMethodDefiner dfe = gen.done();
-		// TODO: merge this with code below and move to separate class
-		for (RWStructField sf : value.fields) {
-			FieldExpr fe = fields.get(sf.name).asExpr(dfe);
-			dfe.assign(fe, dfe.callVirtual(J.OBJECT, dfe.myThis(), "_fullOf", fe)).flush();
-		}
+		DroidStructFieldInitializer fi = new DroidStructFieldInitializer(dfe, fg.fields);
+		sd.visitFields(fi);
 		dfe.returnVoid().flush();
 	}
 
@@ -119,31 +109,7 @@ public class DroidGenerator implements RepoVisitor {
 		ByteCodeSink bcc = bce.newClass(grp.struct.name());
 		bcc.superclass(J.FLASCK_ACTIVITY);
 		bcc.inheritsField(false, Access.PUBLIC, J.WRAPPER, "_wrapper");
-		for (RWStructField sf : grp.struct.fields) {
-			// TODO: move all this to a separate class and remove (incorrect) duplication with structs above
-			JavaType jt;
-			if (sf.type.iam == WhatAmI.PRIMITIVE) {
-				if (((Type)sf.type).name().equals("Number"))
-					jt = JavaType.int_; // what about floats?
-				else if (((Type)sf.type).name().equals("String"))
-					jt = JavaType.string;
-				else if (((Type)sf.type).name().equals("Boolean"))
-					jt = JavaType.boolean_;
-				else
-					throw new UtilException("Not handled " + sf.type);
-			} else if (sf.type instanceof RWContractImplements || sf.type instanceof RWContractDecl) {
-				jt = javaType(sf.type.name());
-			} else if (sf.type instanceof RWObjectDefn) {
-				jt = javaType(sf.type.name());
-			} else if (sf.type instanceof Type) {
-				if (sf.type.iam == WhatAmI.FUNCTION)
-					jt = JavaType.object_;
-				else
-					jt = javaType(sf.type.name());
-			} else
-				throw new UtilException("Not handled " + sf.type + " " + sf.type.getClass());
-			bcc.defineField(false, Access.PROTECTED, jt, sf.name);
-		}
+		grp.struct.visitFields(new DroidStructFieldGenerator(bcc, Access.PROTECTED));
 		for (ContractGrouping x : grp.contracts) {
 			if (x.referAsVar != null)
 				bcc.defineField(false, Access.PROTECTED, new JavaType(DroidUtils.javaNestedName(x.implName.jsName())), x.referAsVar);
@@ -171,7 +137,7 @@ public class DroidGenerator implements RepoVisitor {
 					oc.assign(oc.getField(x.referAsVar), impl).flush();
 					impl = oc.getField(x.referAsVar);
 				}
-				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.type), oc.as(impl, J.CONTRACT_IMPL)).flush();
+				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.type), (Expr)oc.as(impl, J.CONTRACT_IMPL)).flush();
 			}
 			oc.callSuper("void", J.FLASCK_ACTIVITY, "ready").flush();
 			oc.returnVoid().flush();
@@ -189,12 +155,6 @@ public class DroidGenerator implements RepoVisitor {
 					throw new UtilException("Cannot handle android platform spec of type " + d.getClass());
 			}
 		}
-	}
-
-	private JavaType javaType(String name) {
-		if (name.indexOf(".") == -1)
-			name = "org.flasck.android.builtin." + name;
-		return new JavaType(name);
 	}
 
 	public void generateContractImpl(String name, RWContractImplements ci) {
@@ -313,7 +273,7 @@ public class DroidGenerator implements RepoVisitor {
 		PendingVar into = gen.argument("java.lang.String", "into");
 		gen.returns("void");
 		NewMethodDefiner render = gen.done();
-		render.makeNewVoid(DroidUtils.javaNestedName(topBlock), render.myThis(), render.as(render.makeNew("org.flasck.android.areas.CardArea", render.getField(render.myThis(), "_wrapper"), render.as(render.myThis(), J.FLASCK_ACTIVITY), into.getVar()), "org.flasck.android.areas.Area")).flush();
+		render.makeNewVoid(DroidUtils.javaNestedName(topBlock), render.myThis(), (Expr)render.as(render.makeNew("org.flasck.android.areas.CardArea", render.getField(render.myThis(), "_wrapper"), (Expr)render.as(render.myThis(), J.FLASCK_ACTIVITY), into.getVar()), "org.flasck.android.areas.Area")).flush();
 		render.returnVoid().flush();
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(topBlock), DroidUtils.javaNestedSimpleName(topBlock));
 		return render;
@@ -365,7 +325,7 @@ public class DroidGenerator implements RepoVisitor {
 		if (cgrx == null)
 			return;
 		Var storeAs = cgrx.ctor.avar(cn, v);
-		cgrx.ctor.assign(storeAs, cgrx.ctor.makeNew(DroidUtils.javaNestedName(cn), cgrx.card, cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"))).flush();
+		cgrx.ctor.assign(storeAs, cgrx.ctor.makeNew(DroidUtils.javaNestedName(cn), cgrx.card, (Expr)cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"))).flush();
 	}
 
 	public void needAddHandlers(CGRContext cgrx) {
@@ -422,7 +382,7 @@ public class DroidGenerator implements RepoVisitor {
 		gen.returns("org.flasck.android.areas.Area");
 		NewMethodDefiner meth = gen.done();
 		Var ret = meth.avar("org.flasck.android.areas.Area", "ret");
-		meth.assign(ret, meth.makeNew(DroidUtils.javaNestedName(child), meth.getField("_card"), meth.as(meth.myThis(), "org.flasck.android.areas.Area"))).flush();
+		meth.assign(ret, meth.makeNew(DroidUtils.javaNestedName(child), meth.getField("_card"), (Expr)meth.as(meth.myThis(), "org.flasck.android.areas.Area"))).flush();
 		FieldExpr crokeyid = new FieldObject(false, "org.flasck.android.builtin.Crokey", new JavaType("java.lang.Object"), "id").useOn(meth, ck.getVar());
 		meth.callVirtual("void", ret, "bindVar", meth.stringConst("_crokey"), crokeyid).flush();
 		meth.returnObject(ret).flush();
@@ -456,7 +416,7 @@ public class DroidGenerator implements RepoVisitor {
 		int idx = call.lastIndexOf(".");
 		if (idx != -1)
 			call = call.substring(idx+1);
-		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.as(cgrx.ctor.getField("_card"), "java.lang.Object"), cgrx.ctor.stringConst(valExpr.var), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst(call)).flush();
+		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)cgrx.ctor.as(cgrx.ctor.getField("_card"), "java.lang.Object"), cgrx.ctor.stringConst(valExpr.var), (Expr)cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst(call)).flush();
 	}
 
 	public void onAssign(CGRContext cgrx, Expr expr, String field, String call) {
@@ -465,7 +425,7 @@ public class DroidGenerator implements RepoVisitor {
 		int idx = call.lastIndexOf(".");
 		if (idx != -1)
 			call = call.substring(idx+1);
-		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", cgrx.ctor.as(expr, "java.lang.Object"), cgrx.ctor.stringConst(field), cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst(call)).flush();
+		cgrx.ctor.callVirtual("void", cgrx.ctor.getField(cgrx.ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)cgrx.ctor.as(expr, "java.lang.Object"), cgrx.ctor.stringConst(field), (Expr)cgrx.ctor.as(cgrx.ctor.myThis(), "org.flasck.android.areas.Area"), cgrx.ctor.stringConst(call)).flush();
 	}
 
 	public void interested(CGRContext cgrx, String var, String call) {
@@ -475,7 +435,7 @@ public class DroidGenerator implements RepoVisitor {
 		if (idx != -1)
 			call = call.substring(idx+1);
 		NewMethodDefiner meth = cgrx.ctor;
-		meth.callVirtual("void", meth.getField("_src_"+var), "_interested", meth.as(meth.myThis(), "org.flasck.android.areas.Area"), meth.stringConst(call)).flush();
+		meth.callVirtual("void", meth.getField("_src_"+var), "_interested", (Expr)meth.as(meth.myThis(), "org.flasck.android.areas.Area"), meth.stringConst(call)).flush();
 	}
 
 	public void addAssign(CGRContext cgrx, String call) {
@@ -503,9 +463,9 @@ public class DroidGenerator implements RepoVisitor {
 		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", obj))).flush();
 		meth.ifOp(0xa6, curr, obj, meth.returnObject(meth.aNull()), null).flush();
 		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("survived first test"))).flush();
-		meth.callVirtual("void", wrapper, "removeOnCrosetReplace", croset, meth.as(meth.myThis(), "org.flasck.android.areas.Area"), curr).flush();
+		meth.callVirtual("void", wrapper, "removeOnCrosetReplace", croset, (Expr)meth.as(meth.myThis(), "org.flasck.android.areas.Area"), curr).flush();
 		meth.assign(curr, obj).flush();
-		meth.callVirtual("void", wrapper, "onCrosetReplace", croset, meth.as(meth.myThis(), "org.flasck.android.areas.Area"), curr).flush();
+		meth.callVirtual("void", wrapper, "onCrosetReplace", croset, (Expr)meth.as(meth.myThis(), "org.flasck.android.areas.Area"), curr).flush();
 		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("calling _fireInterests"))).flush();
 		meth.callVirtual("void", meth.myThis(), "_fireInterests").flush();
 		meth.returnObject(meth.aNull()).flush();

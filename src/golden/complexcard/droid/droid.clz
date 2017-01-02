@@ -1040,16 +1040,16 @@ public abstract class test.golden.Offer extends org.flasck.android.ContractImpl 
        4: return        
 }
 public class test.golden.Polyed extends org.flasck.android.FLASObject {
-  public java.lang.Object x;
+  public java.lang.String x;
 
-  public java.lang.Object y;
+  public org.flasck.android.builtin.T1 y;
 
-  public java.lang.Object z;
+  public org.flasck.android.builtin.List z;
 
   public test.golden.Polyed();
     Code:
        0: aload_0       
-       1: invokespecial #12                 // Method org/flasck/android/FLASObject."<init>":()V
+       1: invokespecial #14                 // Method org/flasck/android/FLASObject."<init>":()V
        4: return        
 
   public void _doFullEval();
@@ -1057,21 +1057,21 @@ public class test.golden.Polyed extends org.flasck.android.FLASObject {
        0: aload_0       
        1: aload_0       
        2: aload_0       
-       3: getfield      #15                 // Field x:Ljava/lang/Object;
-       6: invokevirtual #19                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
-       9: putfield      #15                 // Field x:Ljava/lang/Object;
+       3: getfield      #17                 // Field x:Ljava/lang/String;
+       6: invokevirtual #21                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
+       9: putfield      #17                 // Field x:Ljava/lang/String;
       12: aload_0       
       13: aload_0       
       14: aload_0       
-      15: getfield      #21                 // Field y:Ljava/lang/Object;
-      18: invokevirtual #19                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
-      21: putfield      #21                 // Field y:Ljava/lang/Object;
+      15: getfield      #23                 // Field y:Lorg/flasck/android/builtin/T1;
+      18: invokevirtual #21                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
+      21: putfield      #23                 // Field y:Lorg/flasck/android/builtin/T1;
       24: aload_0       
       25: aload_0       
       26: aload_0       
-      27: getfield      #23                 // Field z:Ljava/lang/Object;
-      30: invokevirtual #19                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
-      33: putfield      #23                 // Field z:Ljava/lang/Object;
+      27: getfield      #25                 // Field z:Lorg/flasck/android/builtin/List;
+      30: invokevirtual #21                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
+      33: putfield      #25                 // Field z:Lorg/flasck/android/builtin/List;
       36: return        
 }
 public class test.golden.SubCard extends org.flasck.android.FlasckActivity {
@@ -1091,7 +1091,7 @@ public class test.golden.SubCard extends org.flasck.android.FlasckActivity {
        9: return        
 }
 public class test.golden.Thing extends org.flasck.android.FLASObject {
-  public java.lang.Object x;
+  public java.lang.String x;
 
   public test.golden.Thing();
     Code:
@@ -1104,13 +1104,13 @@ public class test.golden.Thing extends org.flasck.android.FLASObject {
        0: aload_0       
        1: aload_0       
        2: aload_0       
-       3: getfield      #13                 // Field x:Ljava/lang/Object;
+       3: getfield      #13                 // Field x:Ljava/lang/String;
        6: invokevirtual #17                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
-       9: putfield      #13                 // Field x:Ljava/lang/Object;
+       9: putfield      #13                 // Field x:Ljava/lang/String;
       12: return        
 }
 public class test.golden.WithInit extends org.flasck.android.FLASObject {
-  public java.lang.Object x;
+  public java.lang.String x;
 
   public test.golden.WithInit();
     Code:
@@ -1123,9 +1123,9 @@ public class test.golden.WithInit extends org.flasck.android.FLASObject {
        0: aload_0       
        1: aload_0       
        2: aload_0       
-       3: getfield      #13                 // Field x:Ljava/lang/Object;
+       3: getfield      #13                 // Field x:Ljava/lang/String;
        6: invokevirtual #17                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
-       9: putfield      #13                 // Field x:Ljava/lang/Object;
+       9: putfield      #13                 // Field x:Ljava/lang/String;
       12: return        
 }
 public class test.golden.Complex.PACKAGEFUNCTIONS$inits_format {

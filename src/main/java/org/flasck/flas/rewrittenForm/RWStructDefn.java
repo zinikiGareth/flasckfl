@@ -85,4 +85,9 @@ public class RWStructDefn extends Type implements AsString, ExternalRef {
 	public boolean fromHandler() {
 		throw new UtilException("How would I know?");
 	}
+
+	public void visitFields(FieldVisitor visitor) {
+		for (RWStructField sf : fields)
+			visitor.visit(sf);
+	}
 }

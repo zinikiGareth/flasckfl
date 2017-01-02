@@ -71,7 +71,7 @@ public class test.golden.Card extends org.flasck.android.FlasckActivity {
       78: areturn       
 }
 public class test.golden.Container extends org.flasck.android.FLASObject {
-  public java.lang.Object value;
+  public java.lang.String value;
 
   public test.golden.Container();
     Code:
@@ -84,8 +84,8 @@ public class test.golden.Container extends org.flasck.android.FLASObject {
        0: aload_0       
        1: aload_0       
        2: aload_0       
-       3: getfield      #13                 // Field value:Ljava/lang/Object;
+       3: getfield      #13                 // Field value:Ljava/lang/String;
        6: invokevirtual #17                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
-       9: putfield      #13                 // Field value:Ljava/lang/Object;
+       9: putfield      #13                 // Field value:Ljava/lang/String;
       12: return        
 }
