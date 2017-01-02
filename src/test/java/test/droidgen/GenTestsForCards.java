@@ -20,11 +20,13 @@ import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
+import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var;
 
 public class GenTestsForCards {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -93,18 +95,31 @@ public class GenTestsForCards {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
 		checkCreationOfCardOnCreate();
-		checkDefnOfContract("_C0");
-		checkRegisterOfContract("_C0");
-//		checkDefnOfField(J.BOOLEANP, "f1");
+		checkDefnOfContract("_C0", null);
+		checkRegisterOfContract("_C0", null);
 		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
-//		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
 		CardName cdName = new CardName(null, "Card");
 		CardGrouping card = new CardGrouping(cdName, sd);
 		card.contracts.add(new ContractGrouping("CtrDecl", new CSName(cdName, "_C0"), null));
 		gen.visitCardGrouping(card);
 	}
 
-	// testCorrectGenerationOfContractWithVar
+	@Test
+	public void testCorrectGenerationOfContractWithVar() {
+		checkCreationOfCard();
+		checkCreationOfCardCtor();
+		checkCreationOfCardOnCreate();
+		checkDefnOfContract("_C0", "ce");
+		checkRegisterOfContract("_C0", "ce");
+//		checkDefnOfField(J.BOOLEANP, "f1");
+		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
+//		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
+		CardName cdName = new CardName(null, "Card");
+		CardGrouping card = new CardGrouping(cdName, sd);
+		card.contracts.add(new ContractGrouping("CtrDecl", new CSName(cdName, "_C0"), "ce"));
+		gen.visitCardGrouping(card);
+	}
+
 	// testCorrectGenerationOfHandler
 	
 	public void checkCreationOfCard() {
@@ -146,26 +161,33 @@ public class GenTestsForCards {
 		}});
 	}
 
-	private void checkDefnOfContract(String ctrName) {
+	private void checkDefnOfContract(String ctrName, String called) {
 		// I expect this will eventually need to be more public, eg. stored in a map or something
 //		IFieldInfo ret = context.mock(IFieldInfo.class, name);
 //		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
 		context.checking(new Expectations() {{
 			oneOf(bccCard).addInnerClassReference(Access.PUBLICSTATIC, "Card", ctrName);
+			if (called != null)
+				oneOf(bccCard).defineField(false, Access.PROTECTED, new JavaType("Card$" + ctrName), called);
 //			oneOf(ret).asExpr(meth); will(returnValue(fe));
 //			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
 //			oneOf(meth).assign(fe, expr); will(returnValue(expr));
 		}});
 	}
 
-	private void checkRegisterOfContract(String ctrName) {
+	private void checkRegisterOfContract(String ctrName, String called) {
 		// I expect this will eventually need to be more public, eg. stored in a map or something
 //		IFieldInfo ret = context.mock(IFieldInfo.class, name);
 //		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
 		context.checking(new Expectations() {{
 			oneOf(onCreate).makeNew(with("Card$_C0"), with(aNonNull(Expr.class))); will(returnValue(expr));
 			oneOf(onCreate).stringConst("CtrDecl");
-			oneOf(onCreate).as(expr, J.CONTRACT_IMPL);
+			if (called != null) {
+				oneOf(onCreate).getField(called);
+				oneOf(onCreate).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
+				oneOf(onCreate).as(null, J.CONTRACT_IMPL);
+			} else
+				oneOf(onCreate).as(expr, J.CONTRACT_IMPL);
 			oneOf(onCreate).callVirtual(with("void"), with(aNonNull(IExpr.class)), with("registerContract"), with(aNonNull(IExpr[].class)));
 //			oneOf(ret).asExpr(meth); will(returnValue(fe));
 //			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));

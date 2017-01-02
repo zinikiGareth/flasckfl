@@ -134,8 +134,9 @@ public class DroidGenerator implements RepoVisitor {
 			for (ContractGrouping x : grp.contracts) {
 				IExpr impl = oc.makeNew(DroidUtils.javaNestedName(x.implName.jsName()), oc.myThis());
 				if (x.referAsVar != null) {
-					oc.assign(oc.getField(x.referAsVar), impl).flush();
-					impl = oc.getField(x.referAsVar);
+					FieldExpr fe = oc.getField(x.referAsVar);
+					oc.assign(fe, impl).flush();
+					impl = fe;
 				}
 				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.type), oc.as(impl, J.CONTRACT_IMPL)).flush();
 			}
