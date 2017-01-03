@@ -167,19 +167,19 @@ public class TemplateTraversor {
 		} else {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
 		}
-		AreaGenerator cgrx = dg.area(areaName.javaName(), base, customTag);
+		AreaGenerator area = dg.area(areaName.javaName(), base, customTag);
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
 		fn.add(JSForm.flex("if (!parent) return"));
 		for (DefinedVar vc : cx.varsToCopy) {
 			String s = vc.name;
 			fn.add(JSForm.flex("this._src_" + s + " = parent._src_" + s));
-			cgrx.copyVar(parentArea.javaName(), javaName(vc.definedIn), s);
+			area.copyVar(parentArea.javaName(), javaName(vc.definedIn), s);
 		}
 		String newVar = cx.extractNewVar();
 		if (newVar != null) {
 			fn.add(JSForm.flex("this._src_"+newVar+ " = this"));
 			cx.varToCopy(newVar, areaName.jsName());
-			cgrx.newVar(newVar);
+			area.newVar(newVar);
 		}
 		cx.target.add(JSForm.flex(areaName.jsName() +".prototype = new " + base + "()"));
 		cx.target.add(JSForm.flex(areaName.jsName() +".prototype.constructor = " + areaName.jsName()));
@@ -197,7 +197,7 @@ public class TemplateTraversor {
 			nda.add(ifload);
 			nda.add(JSForm.flex("this._fireInterests()"));
 			cx.target.add(nda);
-			cgrx.assignToVar(newVar);
+			area.assignToVar(newVar);
 		}
 		if (tl instanceof RWTemplateDiv) {
 			RWTemplateDiv td = (RWTemplateDiv) tl;
@@ -213,7 +213,7 @@ public class TemplateTraversor {
 					sak.add(ifassign);
 					ifassign.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr +"', attr)"));
 					cx.target.add(sak);
-					callOnAssign(fn, tea.value, cgrx, saf, true, null);
+					callOnAssign(fn, tea.value, area, saf, true, null);
 					an++;
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
@@ -229,7 +229,7 @@ public class TemplateTraversor {
 				int idx = cn.jsName().lastIndexOf(".B")+2;
 				String v = 'b'+cn.jsName().substring(idx);
 				fn.add(JSForm.flex("var " + v + " = new " + cn.jsName() + "(this)"));
-				cgrx.createNested(v, cn.javaName());
+				area.createNested(v, cn.javaName());
 				recurse(cx, cn, c, areaName);
 			}
 		} else if (tl instanceof RWTemplateList) {
@@ -244,7 +244,7 @@ public class TemplateTraversor {
 				nc.add(JSForm.flex("return new " + item.jsName() + "(this)"));
 				cx.target.add(nc);
 			}
-			cgrx.newListChild(item.javaName());
+			area.newListChild(item.javaName());
 			if (tlv != null)
 				cx.newVar(tlv);
 			JSForm cfn = recurse(cx, item, l.template, areaName);
@@ -253,18 +253,18 @@ public class TemplateTraversor {
 			JSForm atv = JSForm.flex(areaName.jsName() + ".prototype._assignToVar = function()").needBlock();
 			String tfn = simpleName(l.listFn);
 			atv.add(JSForm.flex("var lv = FLEval.full(this." + tfn + "())"));
-			callOnAssign(fn, l.listVar, cgrx, areaName.jsName() + ".prototype._assignToVar", false, "lv");
+			callOnAssign(fn, l.listVar, area, areaName.jsName() + ".prototype._assignToVar", false, "lv");
 			fn.add(JSForm.flex(areaName.jsName() + ".prototype._assignToVar.call(this)"));
 			atv.add(JSForm.flex("ListArea.prototype._assignToVar.call(this, lv)"));
 			cx.target.add(atv);
 		} else if (tl instanceof RWContentString) {
 			RWContentString cs = (RWContentString) tl;
 			fn.add(JSForm.flex("this._setText('" + cs.text + "')"));
-			cgrx.setText(cs.text);
+			area.setText(cs.text);
 		} else if (tl instanceof RWContentExpr) {
 			RWContentExpr ce = (RWContentExpr)tl;
 			Object valExpr = ce.expr;
-			callOnAssign(fn, valExpr, cgrx, areaName.jsName() + ".prototype._contentExpr", true, null);
+			callOnAssign(fn, valExpr, area, areaName.jsName() + ".prototype._contentExpr", true, null);
 
 			JSForm cexpr = JSForm.flex(areaName.jsName() +".prototype._contentExpr = function()").needBlock();
 			String tfn = simpleName(ce.fnName);
@@ -274,7 +274,7 @@ public class TemplateTraversor {
 				cexpr.add(JSForm.flex("this._assignToText(this." + tfn +"())"));
 			cx.target.add(cexpr);
 
-			cgrx.contentExpr(tfn, ce.rawHTML);
+			area.contentExpr(tfn, ce.rawHTML);
 			
 			if (isEditable) {
 				// for it to be editable, it must be a clear field of a clear object
@@ -297,14 +297,14 @@ public class TemplateTraversor {
 				; // fully handled above
 			else if (cr.yoyoVar != null) {
 				Object valExpr = cr.yoyoVar;
-				callOnAssign(fn, valExpr, cgrx, areaName.jsName() + ".prototype._yoyoExpr", true, null);
+				callOnAssign(fn, valExpr, area, areaName.jsName() + ".prototype._yoyoExpr", true, null);
 	
 				JSForm cexpr = JSForm.flex(areaName.jsName() +".prototype._yoyoExpr = function()").needBlock();
 				String tfn = simpleName(cr.fnName);
 				cexpr.add(JSForm.flex("this._updateToCard(this." + tfn + "())"));
 				cx.target.add(cexpr);
 
-				cgrx.yoyoExpr(tfn);
+				area.yoyoExpr(tfn);
 			} else
 				throw new UtilException("handle this case");
 		} else if (tl instanceof RWTemplateCases) {
@@ -313,7 +313,7 @@ public class TemplateTraversor {
 			JSForm sw = JSForm.flex(sn +" = function(parent)").needBlock();
 			sw.add(JSForm.flex("\"use strict\""));
 			cx.target.add(sw);
-			callOnAssign(fn, tc.switchOn, cgrx, sn, true, null);
+			callOnAssign(fn, tc.switchOn, area, sn, true, null);
 
 			for (RWTemplateOr oc : tc.cases) {
 				AreaName cn = oc.areaName();
@@ -331,25 +331,25 @@ public class TemplateTraversor {
 				doit.add(JSForm.flex("return"));
 				recurse(cx, cn, oc.template, areaName);
 				if (oc.cond != null)
-					callOnAssign(fn, oc.cond, cgrx, sn, false, null);
+					callOnAssign(fn, oc.cond, area, sn, false, null);
 			}
 		} else if (tl instanceof RWD3Thing) {
 			RWD3Thing d3 = (RWD3Thing) tl;
-			callOnAssign(fn, d3.data, cgrx, "D3Area.prototype._onUpdate", false, null);
+			callOnAssign(fn, d3.data, area, "D3Area.prototype._onUpdate", false, null);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
 		if (tl instanceof RWTemplateFormat) {
-			handleFormatsAndEvents(cx, cgrx, areaName, fn, isEditable, (RWTemplateFormat)tl);
+			handleFormatsAndEvents(cx, area, areaName, fn, isEditable, (RWTemplateFormat)tl);
 		}
 		if (newVar != null) {
 			cx.removeLastCopyVar();
 		}
-		cgrx.done();
+		area.done();
 		return fn;
 	}
 
-	protected void handleFormatsAndEvents(GeneratorContext cx, AreaGenerator cgrx, AreaName areaName, JSForm fn, boolean isEditable, RWTemplateFormat tl) {
+	protected void handleFormatsAndEvents(GeneratorContext cx, AreaGenerator area, AreaName areaName, JSForm fn, boolean isEditable, RWTemplateFormat tl) {
 		StringBuilder simple = new StringBuilder();
 		if (isEditable)
 			simple.append(" flasck-editable");
@@ -382,18 +382,18 @@ public class TemplateTraversor {
 			String tfn = tl.dynamicFunction.name;
 			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this."+tfn+"()), ' '))"));
 			cx.target.add(scvs);
-			cgrx.setVarFormats(tfn);
-			callOnAssign(fn, expr, cgrx, scf, true, null);
+			area.setVarFormats(tfn);
+			callOnAssign(fn, expr, area, scf, true, null);
 		}
 		else if (expr == null && simple.length() > 0) {
 			fn.add(JSForm.flex("this._mydiv.className = '" + simple.substring(1) + "'"));
-			cgrx.setSimpleClass(simple.substring(1));
+			area.setSimpleClass(simple.substring(1));
 		}
 		if (tl instanceof RWTemplateFormatEvents) {
 			RWTemplateFormatEvents tfe = (RWTemplateFormatEvents) tl;
 			if (!tfe.handlers.isEmpty()) {
 				JSForm ahf = JSForm.flex(areaName.jsName() +".prototype._add_handlers = function()").needBlock();
-				cgrx.needAddHandlers();
+				area.needAddHandlers();
 				cx.target.add(ahf);
 				boolean isFirst = true;
 				for (RWEventHandler eh : tfe.handlers) {
@@ -407,7 +407,7 @@ public class TemplateTraversor {
 					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(this._area." + tfn + "(), event)"));
 					ahf.add(cev);
 	
-					callOnAssign(fn, eh.expr, cgrx, areaName.jsName() + ".prototype._add_handlers", isFirst, null);
+					callOnAssign(fn, eh.expr, area, areaName.jsName() + ".prototype._add_handlers", isFirst, null);
 					isFirst = false;
 				}
 			}
@@ -434,14 +434,14 @@ public class TemplateTraversor {
 		cx.target.add(rules);
 	}
 
-	protected void callOnAssign(JSForm addToFunc, Object valExpr, AreaGenerator cgrx, String call, boolean addAssign, String moreArgs) {
+	protected void callOnAssign(JSForm addToFunc, Object valExpr, AreaGenerator area, String call, boolean addAssign, String moreArgs) {
 		if (valExpr instanceof CardMember) {
 			addToFunc.add(JSForm.flex("this._onAssign(this._card, '" + ((CardMember)valExpr).var + "', " + call + ")"));
-			cgrx.onAssign((CardMember)valExpr, call);
+			area.onAssign((CardMember)valExpr, call);
 		} else if (valExpr instanceof TemplateListVar) {
 			String var = ((TemplateListVar)valExpr).simpleName;
 			addToFunc.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));
-			cgrx.interested(var, call);
+			area.interested(var, call);
 		} else if (valExpr instanceof CardFunction) {
 			// we need to track down the function (if it's not in the object already) and callOnAssign it's definition
 			CardFunction cf = (CardFunction) valExpr;
@@ -449,7 +449,7 @@ public class TemplateTraversor {
 			RWFunctionDefinition fd = rewriter.functions.get(fullName);
 			if (fd != null)
 				for (RWFunctionCaseDefn fcd : fd.cases)
-					callOnAssign(addToFunc, fcd.expr, cgrx, call, false, moreArgs);
+					callOnAssign(addToFunc, fcd.expr, area, call, false, moreArgs);
 		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof NumericLiteral || valExpr instanceof PackageVar || valExpr instanceof RWStructDefn) {
 			// nothing to do here, not variable
 		} else if (valExpr instanceof ApplyExpr) {
@@ -458,17 +458,17 @@ public class TemplateTraversor {
 				Object expr = ae.args.get(0);
 				Expr dge = null;
 				if (expr instanceof TemplateListVar) {
-					callOnAssign(addToFunc, expr, cgrx, call, false, moreArgs);
+					callOnAssign(addToFunc, expr, area, call, false, moreArgs);
 					String name = ((TemplateListVar)expr).simpleName;
 					expr = "this._src_" + name + "." + name;
-					if (cgrx != null)
-						dge = cgrx.sourceFor(name);
+					if (area != null)
+						dge = area.sourceFor(name);
 				} else if (expr instanceof CardMember) {
 					// need to handle if the whole member gets assigned
-					callOnAssign(addToFunc, expr, cgrx, call, false, moreArgs);
+					callOnAssign(addToFunc, expr, area, call, false, moreArgs);
 					// also handle if this field gets assigned
-					if (cgrx != null)
-						dge = cgrx.cardField((CardMember)expr);
+					if (area != null)
+						dge = area.cardField((CardMember)expr);
 					expr = "this._card." + ((CardMember)expr).var;
 				} else {
 					// This includes the case where we have delegated knowledge of our state to some other function.
@@ -487,22 +487,22 @@ public class TemplateTraversor {
 				}
 				String field = ((StringLiteral)ae.args.get(1)).text;
 				addToFunc.add(JSForm.flex("this._onAssign(" + expr +", '" + field + "', " + call + ")"));
-				cgrx.onAssign(dge, field, call);
+				area.onAssign(dge, field, call);
 			} else {
-				callOnAssign(addToFunc, ae.fn, cgrx, call, false, moreArgs);
+				callOnAssign(addToFunc, ae.fn, area, call, false, moreArgs);
 				for (Object o : ae.args)
-					callOnAssign(addToFunc, o, cgrx, call, false, moreArgs);
+					callOnAssign(addToFunc, o, area, call, false, moreArgs);
 			}
 		} else if (valExpr instanceof IfExpr) {
 			IfExpr ie = (IfExpr) valExpr;
-			callOnAssign(addToFunc, ie.guard, cgrx, call, false, moreArgs);
-			callOnAssign(addToFunc, ie.ifExpr, cgrx, call, false, moreArgs);
-			callOnAssign(addToFunc, ie.elseExpr, cgrx, call, false, moreArgs);
+			callOnAssign(addToFunc, ie.guard, area, call, false, moreArgs);
+			callOnAssign(addToFunc, ie.ifExpr, area, call, false, moreArgs);
+			callOnAssign(addToFunc, ie.elseExpr, area, call, false, moreArgs);
 		} else
 			throw new UtilException("Not handled: " + valExpr.getClass());
 		if (addAssign) {
 			addToFunc.add(JSForm.flex(call + ".call(this" + (moreArgs != null ? ", " + moreArgs : "") + ")"));
-			cgrx.addAssign(call);
+			area.addAssign(call);
 		}
 	}
 
