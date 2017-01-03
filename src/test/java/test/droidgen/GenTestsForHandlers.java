@@ -4,14 +4,12 @@ import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.HandlerName;
-import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
-import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.jmock.Expectations;
@@ -34,7 +32,7 @@ public class GenTestsForHandlers {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	DroidGenerator gen = new DroidGenerator(null, true, bce);
+	DroidGenerator gen = new DroidGenerator(true, bce);
 	ByteCodeSink bccHandler = context.mock(ByteCodeSink.class, "handler");
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner eval = context.mock(MethodDefiner.class, "eval");
@@ -54,7 +52,7 @@ public class GenTestsForHandlers {
 
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
-		DroidGenerator gen = new DroidGenerator(null, false, bce);
+		DroidGenerator gen = new DroidGenerator(false, bce);
 		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new CardName(null, "Card"), "MyHandler"), new StructName(null, "Callback"), true, new ArrayList<>());
 		gen.visitHandlerImpl(hi);
 	}

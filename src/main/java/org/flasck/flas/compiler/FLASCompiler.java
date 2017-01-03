@@ -39,7 +39,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
-import org.flasck.flas.template.TemplateGenerator;
+import org.flasck.flas.template.TemplateTraversor;
 import org.flasck.flas.testrunner.FileUnitTestResultHandler;
 import org.flasck.flas.testrunner.JSRunner;
 import org.flasck.flas.testrunner.JVMRunner;
@@ -272,7 +272,7 @@ public class FLASCompiler implements ScriptCompiler {
 			JSTarget target = new JSTarget(inPkg);
 			Generator gen = new Generator(target);
 			rewriter.registerCodeGenerator(gen);
-			final DroidGenerator dg = new DroidGenerator(hsie, builder != null, bce);
+			final DroidGenerator dg = new DroidGenerator(builder != null, bce);
 			dg.registerWith(rewriter);
 
 			rewriter.visitGenerators();
@@ -338,8 +338,7 @@ public class FLASCompiler implements ScriptCompiler {
 				hsiePW.close();
 
 			// 9. Generate code from templates
-			final TemplateGenerator tgen = new TemplateGenerator(rewriter, dg);
-			tgen.generate(rewriter, target);
+			new TemplateTraversor(rewriter, Arrays.asList(dg.templateGenerator())).generate(rewriter, target);
 			
 			// 10. Check whether functions are curried and add in the appropriate indications if so
 			handleCurrying(curry, tc2, hsie.allForms());

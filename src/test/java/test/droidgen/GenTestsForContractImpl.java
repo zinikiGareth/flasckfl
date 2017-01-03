@@ -23,7 +23,7 @@ public class GenTestsForContractImpl {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	DroidGenerator gen = new DroidGenerator(null, true, bce);
+	DroidGenerator gen = new DroidGenerator(true, bce);
 	ByteCodeSink bccImpl = context.mock(ByteCodeSink.class, "implClass");
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	
@@ -40,7 +40,7 @@ public class GenTestsForContractImpl {
 
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
-		DroidGenerator gen = new DroidGenerator(null, false, bce);
+		DroidGenerator gen = new DroidGenerator(false, bce);
 		RWContractImplements ci = new RWContractImplements(loc, loc, new CSName(new CardName(null, "Card"), "_C0"), new StructName(null, "CtrDecl"), null, null);
 		gen.visitContractImpl(ci);
 	}

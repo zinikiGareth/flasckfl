@@ -19,6 +19,7 @@ import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.zinutils.collections.CollectionUtils;
@@ -30,6 +31,12 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 		this.target = target;
 	}
 	
+	@Override
+	public TemplateGenerator templateGenerator() {
+		return new JSTemplateGenerator(target);
+	}
+
+
 	@Override
 	public void visitStructDefn(RWStructDefn sd) {
 		if (!sd.generate)

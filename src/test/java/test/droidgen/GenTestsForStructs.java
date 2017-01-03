@@ -32,7 +32,7 @@ public class GenTestsForStructs {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	DroidGenerator gen = new DroidGenerator(null, true, bce);
+	DroidGenerator gen = new DroidGenerator(true, bce);
 	ByteCodeSink bccStruct = context.mock(ByteCodeSink.class);
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner dfe = context.mock(MethodDefiner.class, "dfe");
@@ -61,7 +61,7 @@ public class GenTestsForStructs {
 
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
-		DroidGenerator gen = new DroidGenerator(null, false, bce);
+		DroidGenerator gen = new DroidGenerator(false, bce);
 		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
 		gen.visitStructDefn(sd);
 	}

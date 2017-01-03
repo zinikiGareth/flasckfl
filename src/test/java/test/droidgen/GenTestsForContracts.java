@@ -30,7 +30,7 @@ public class GenTestsForContracts {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	DroidGenerator gen = new DroidGenerator(null, true, bce);
+	DroidGenerator gen = new DroidGenerator(true, bce);
 	ByteCodeSink bccContract = context.mock(ByteCodeSink.class);
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner dfe = context.mock(MethodDefiner.class, "dfe");
@@ -59,7 +59,7 @@ public class GenTestsForContracts {
 
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
-		DroidGenerator gen = new DroidGenerator(null, false, bce);
+		DroidGenerator gen = new DroidGenerator(false, bce);
 		RWContractDecl cd = new RWContractDecl(loc, loc, new StructName(null, "ContDecl"), true);
 		gen.visitContractDecl(cd);
 	}

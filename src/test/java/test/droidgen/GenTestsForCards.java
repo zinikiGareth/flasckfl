@@ -36,7 +36,7 @@ public class GenTestsForCards {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	DroidGenerator gen = new DroidGenerator(null, true, bce);
+	DroidGenerator gen = new DroidGenerator(true, bce);
 	ByteCodeSink bccCard = context.mock(ByteCodeSink.class, "cardClass");
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner onCreate = context.mock(MethodDefiner.class, "onCreate");
@@ -55,7 +55,7 @@ public class GenTestsForCards {
 
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
-		DroidGenerator gen = new DroidGenerator(null, false, bce);
+		DroidGenerator gen = new DroidGenerator(false, bce);
 		CardGrouping sd = new CardGrouping(new CardName(null, "Card"), new RWStructDefn(loc, new StructName(null, "Card"), true));
 		gen.visitCardGrouping(sd);
 	}
