@@ -2,12 +2,13 @@ package org.flasck.flas.newtypechecker;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 
@@ -30,6 +31,7 @@ public class Pass2Visitor implements RepoVisitor {
 	}
 
 	public void visitContractDecl(RWContractDecl cd) {
+		// nothing to do here
 	}
 
 	@Override
@@ -52,5 +54,17 @@ public class Pass2Visitor implements RepoVisitor {
 	@Override
 	public void visitServiceImpl(RWContractService cs) {
 		// nothing to do here
+	}
+
+	@Override
+	public void visitHandlerImpl(RWHandlerImplements hi) {
+		tc.export.put(hi.hiName, hi);
+		List<TypeInfo> fs = new ArrayList<>();
+		for (HandlerLambda f : hi.boundVars)
+			if (f.scopedFrom == null)
+				fs.add(tc.convertType(f.type));
+		TypeFunc tf = new TypeFunc(hi.location(), fs, new NamedType(hi.location(), hi.handlerName));
+		tc.gk(hi.hiName, tf);
+		tc.ctors.put(hi.hiName, tc.asType(tf));
 	}
 }

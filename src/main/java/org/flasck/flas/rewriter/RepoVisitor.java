@@ -4,6 +4,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 
 public interface RepoVisitor {
@@ -17,4 +18,6 @@ public interface RepoVisitor {
 	void visitContractImpl(RWContractImplements ci);
 
 	void visitServiceImpl(RWContractService cs);
+
+	void visitHandlerImpl(RWHandlerImplements hi);
 }

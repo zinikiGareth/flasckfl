@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -36,7 +35,6 @@ import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.stories.StoryRet;
 import org.flasck.flas.sugardetox.SugarDetox;
@@ -278,11 +276,6 @@ public class FLASCompiler implements ScriptCompiler {
 
 			rewriter.visitGenerators();
 			
-			for (Entry<String, RWHandlerImplements> hi : rewriter.callbackHandlers.entrySet()) {
-				gen.generateHandler(hi.getKey(), hi.getValue());
-				dg.generateHandler(hi.getKey(), hi.getValue());
-			}
-
 //			System.out.println("defns = " + rewriter.functions.keySet());
 			
 			// 6. Convert methods to functions

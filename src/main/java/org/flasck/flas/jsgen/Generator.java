@@ -173,7 +173,8 @@ public class Generator implements RepoVisitor {
 		target.add(ctor);
 	}
 
-	public void generateHandler(String ctorName, RWHandlerImplements hi) {
+	public void visitHandlerImpl(RWHandlerImplements hi) {
+		String ctorName = hi.handlerName.uniqueName();
 		target.ensurePackagesFor(ctorName);
 		String clzname = lname(ctorName, false);
 		List<Var> vars = new ArrayList<Var>();

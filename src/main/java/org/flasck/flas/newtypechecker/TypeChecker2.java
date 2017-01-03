@@ -70,7 +70,7 @@ public class TypeChecker2 {
 	final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
 	private final Map<String, RWObjectDefn> objects = new HashMap<String, RWObjectDefn>();
 	final Map<String, TypeInfo> structTypes = new HashMap<String, TypeInfo>();
-	private final Map<String, Type> export = new TreeMap<>();
+	final Map<String, Type> export = new TreeMap<>();
 	final Map<String, Type> ctors = new TreeMap<>();
 	private final Set<RWUnionTypeDefn> unions = new TreeSet<>();
 	private PrintWriter trackTo;
@@ -152,17 +152,6 @@ public class TypeChecker2 {
 				TypeInfo ty = convertType(e.getValue());
 				gk(e.getKey(), ty);
 			}
-		}
-		for (RWHandlerImplements hi : rw.callbackHandlers.values()) {
-			export.put(hi.hiName, hi);
-			List<TypeInfo> fs = new ArrayList<>();
-			for (HandlerLambda f : hi.boundVars)
-				if (f.scopedFrom == null)
-					fs.add(convertType(f.type));
-			TypeFunc tf = new TypeFunc(hi.location(), fs, new NamedType(hi.location(), hi.handlerName));
-			gk(hi.hiName, tf);
-//			export.put(hi.hiName, asType(tf));
-			ctors.put(hi.hiName, asType(tf));
 		}
 	}
 

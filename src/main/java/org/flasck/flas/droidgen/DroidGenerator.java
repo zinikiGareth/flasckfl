@@ -198,9 +198,10 @@ public class DroidGenerator implements RepoVisitor {
 		}
 	}
 
-	public void generateHandler(String name, RWHandlerImplements hi) {
+	public void visitHandlerImpl(RWHandlerImplements hi) {
 		if (!doBuild)
 			return;
+		String name = hi.handlerName.uniqueName();
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
 		bcc.superclass(hi.name());
 		IFieldInfo fi = null;

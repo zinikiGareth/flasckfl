@@ -1963,6 +1963,10 @@ public class Rewriter implements CodeGenRegistry {
 		for (RWContractService cs : cardServices.values()) {
 			v.visitServiceImpl(cs);
 		}
+		
+		for (RWHandlerImplements hi : callbackHandlers.values()) {
+			v.visitHandlerImpl(hi);
+		}
 	}
 
 	public void visitGenerators() {
