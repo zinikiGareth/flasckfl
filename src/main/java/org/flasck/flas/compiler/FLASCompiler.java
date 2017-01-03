@@ -36,7 +36,6 @@ import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
@@ -281,10 +280,6 @@ public class FLASCompiler implements ScriptCompiler {
 
 			rewriter.visitGenerators();
 			
-			for (Entry<CSName, RWContractImplements> ci : rewriter.cardImplements.entrySet()) {
-				gen.generateContract(ci.getKey().uniqueName(), ci.getValue());
-				dg.generateContractImpl(ci.getKey().uniqueName(), ci.getValue());
-			}
 			for (Entry<CSName, RWContractService> cs : rewriter.cardServices.entrySet()) {
 				gen.generateService(cs.getKey().uniqueName(), cs.getValue());
 				dg.generateService(cs.getKey().uniqueName(), cs.getValue());

@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.types.Type;
 
@@ -37,5 +38,10 @@ public class Pass1Visitor implements RepoVisitor {
 		RWStructDefn str = c.struct;
 		tc.structs.put(name, str);
 		tc.gk(name, new NamedType(str.location(), str.getTypeName()));
+	}
+
+	@Override
+	public void visitContractImpl(RWContractImplements ci) {
+		// nothing to do here
 	}
 }

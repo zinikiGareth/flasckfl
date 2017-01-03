@@ -163,6 +163,12 @@ public class KnowledgeWriter implements RepoVisitor {
 		}
 	}
 
+	
+	@Override
+	public void visitContractImpl(RWContractImplements ci) {
+		// nothing to do here
+	}
+
 	// I believe this is *just* functions, but that includes functions of 0 args, which don't *look* like functions to the naked eye ...
 	// I would like this "name" to actually be a function name, but hack for now ...
 	public void add(String name, Type type) {

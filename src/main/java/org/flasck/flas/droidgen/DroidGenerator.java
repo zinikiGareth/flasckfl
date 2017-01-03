@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.android.AndroidLabel;
 import org.flasck.flas.commonBase.android.AndroidLaunch;
+import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.rewriter.CodeGenRegistry;
 import org.flasck.flas.rewriter.RepoVisitor;
@@ -158,16 +160,19 @@ public class DroidGenerator implements RepoVisitor {
 		}
 	}
 
-	public void generateContractImpl(String name, RWContractImplements ci) {
+	@Override
+	public void visitContractImpl(RWContractImplements ci) {
 		if (!doBuild)
 			return;
-		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
+		CSName name = (CSName) ci.realName;
+		String un = name.uniqueName();
+		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(un));
 		bcc.superclass(ci.name());
-		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
-		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(name), DroidUtils.javaNestedSimpleName(name));
+		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(un)), "_card");
+		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(un), DroidUtils.javaNestedSimpleName(un));
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cardArg = gen.argument(DroidUtils.javaBaseName(name), "card");
+			PendingVar cardArg = gen.argument(DroidUtils.javaBaseName(un), "card");
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", ci.name(), "<init>").flush();
 			ctor.assign(fi.asExpr(ctor), cardArg.getVar()).flush();

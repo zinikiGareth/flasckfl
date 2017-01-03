@@ -13,7 +13,7 @@ public class RWHandlerImplements extends RWImplements {
 	public final boolean inCard;
 
 	public RWHandlerImplements(InputPosition kw, InputPosition location, HandlerName handlerName, NameOfThing type, boolean inCard, List<HandlerLambda> lambdas) {
-		super(kw, location, WhatAmI.HANDLERIMPLEMENTS, type);
+		super(kw, location, WhatAmI.HANDLERIMPLEMENTS, null, type);
 		this.handlerName = handlerName;
 		this.hiName = handlerName.jsName();
 		this.inCard = inCard;

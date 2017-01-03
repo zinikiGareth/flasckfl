@@ -142,7 +142,9 @@ public class Generator implements RepoVisitor {
 		target.add(ci);
 	}
 
-	public void generateContract(String ctorName, RWContractImplements ci) {
+	@Override
+	public void visitContractImpl(RWContractImplements ci) {
+		String ctorName = ci.realName.jsName();
 		String clzname = ctorName.replace("._C", ".__C");
 		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));

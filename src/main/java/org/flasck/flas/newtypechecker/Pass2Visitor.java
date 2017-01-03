@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 
@@ -40,5 +41,10 @@ public class Pass2Visitor implements RepoVisitor {
 			TypeInfo ct = tc.convertType(f.type);
 			tc.gk(name+"."+f.name, ct);
 		}
+	}
+
+	@Override
+	public void visitContractImpl(RWContractImplements ci) {
+		// nothing to do here
 	}
 }

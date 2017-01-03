@@ -1181,7 +1181,7 @@ public class Rewriter implements CodeGenRegistry {
 				return null;
 			}
 			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
-			return new RWContractImplements(ci.kw, ci.location(), (StructName) cd.getTypeName(), ci.varLocation, ci.referAsVar);
+			return new RWContractImplements(ci.kw, ci.location(), ci.getRealName(), (StructName) cd.getTypeName(), ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -1954,6 +1954,10 @@ public class Rewriter implements CodeGenRegistry {
 
 		for (CardGrouping c : cards.values()) {
 			v.visitCardGrouping(c);
+		}
+		
+		for (RWContractImplements ci : cardImplements.values()) {
+			v.visitContractImpl(ci);
 		}
 	}
 
