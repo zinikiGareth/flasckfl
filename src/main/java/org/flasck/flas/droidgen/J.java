@@ -2,6 +2,7 @@ package org.flasck.flas.droidgen;
 
 import org.flasck.jvm.ContractImpl;
 import org.flasck.jvm.FLClosure;
+import org.flasck.jvm.FLCurry;
 import org.flasck.jvm.FLError;
 import org.flasck.jvm.FLEval;
 import org.flasck.jvm.Wrapper;
@@ -33,6 +34,7 @@ public class J {
 	public static final String NIL = Nil.class.getName();
 	public static final String FLERROR = FLError.class.getName();
 	public static final String FLEVAL = FLEval.class.getName();
+	public static final String FLCURRY = FLCurry.class.getName();
 
 	// JVM defined things
 	public static final String CARD_DESPATCHER = CardDespatcher.class.getName();
