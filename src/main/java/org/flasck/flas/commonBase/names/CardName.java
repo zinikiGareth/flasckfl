@@ -17,6 +17,8 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	}
 
 	public String uniqueName() {
+		if (pkg == null)
+			return cardName;
 		return pkg.uniqueName() + "." + cardName;
 	}
 	
