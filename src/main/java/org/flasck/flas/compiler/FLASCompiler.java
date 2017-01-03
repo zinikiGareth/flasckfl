@@ -338,7 +338,7 @@ public class FLASCompiler implements ScriptCompiler {
 				hsiePW.close();
 
 			// 9. Generate code from templates
-			new TemplateTraversor(rewriter, Arrays.asList(dg.templateGenerator())).generate(rewriter, target);
+			new TemplateTraversor(rewriter, Arrays.asList(dg.templateGenerator(), gen.templateGenerator())).generate(rewriter, target);
 			
 			// 10. Check whether functions are curried and add in the appropriate indications if so
 			handleCurrying(curry, tc2, hsie.allForms());

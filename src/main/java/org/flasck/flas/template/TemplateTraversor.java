@@ -93,12 +93,14 @@ public class TemplateTraversor {
 
 	private final Rewriter rewriter;
 	private final TemplateGenerator dg;
+	private final TemplateGenerator jsg;
 	private List<TemplateGenerator> tgs;
 
 	public TemplateTraversor(Rewriter rewriter, List<TemplateGenerator> tgs) {
 		this.rewriter = rewriter;
 		this.tgs = tgs;
 		dg = tgs.get(0);
+		jsg = tgs.get(1);
 	}
 
 	public void generate(Rewriter rw, JSTarget target) {
@@ -108,15 +110,11 @@ public class TemplateTraversor {
 
 	private void generateTemplate(Rewriter rw, JSTarget target, RWTemplate cg) {
 		GeneratorContext cx = new GeneratorContext(target, rw, cg);
-		JSForm ir = JSForm.flexFn(cx.protoName + "_render", CollectionUtils.listOf("doc", "wrapper", "parent"));
-		target.add(ir);
-		if (cg == null || cg.content == null)
-			return;
-		AreaName areaName = cg.areaName();
-		ir.add(JSForm.flex("new " + areaName.jsName() + "(new CardArea(parent, wrapper, this))"));
-		
-		dg.generateRender(cx.javaName, areaName.javaName());
-		
+		AreaName areaName = null;
+		if (cg != null && cg.content != null)
+			areaName = cg.areaName();
+		jsg.generateRender(cx.protoName, areaName);
+		dg.generateRender(cx.javaName, areaName);
 		recurse(cx, areaName, cg.content, null);
 	}
 

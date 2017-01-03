@@ -36,7 +36,6 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 		return new JSTemplateGenerator(target);
 	}
 
-
 	@Override
 	public void visitStructDefn(RWStructDefn sd) {
 		if (!sd.generate)
