@@ -1,0 +1,75 @@
+package test.droidgen;
+
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.droidgen.DroidGenerator;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractService;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.zinutils.bytecode.ByteCodeSink;
+import org.zinutils.bytecode.ByteCodeStorage;
+import org.zinutils.bytecode.FieldExpr;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.MethodDefiner;
+
+public class GenTestsForService {
+	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+	InputPosition loc = new InputPosition("-", 1, 0, null);
+	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
+	DroidGenerator gen = new DroidGenerator(null, true, bce);
+	ByteCodeSink bccImpl = context.mock(ByteCodeSink.class, "implClass");
+	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
+	
+	IExpr expr = context.mock(IExpr.class);
+
+	@Before
+	public void allowAnythingToHappenToExprsWeDontCareAbout() {
+		context.checking(new Expectations() {{
+			allowing(bccImpl).getCreatedName(); will(returnValue("Card"));
+			allowing(expr);
+			allowing(ctor).nextLocal(); will(returnValue(1));
+		}});
+	}
+
+	@Test
+	public void testNothingHappensIfWeDontTurnOnGeneration() {
+		DroidGenerator gen = new DroidGenerator(null, false, bce);
+		RWContractService ci = new RWContractService(loc, loc, new CSName(new CardName(null, "Card"), "_S0"), new StructName(null, "CtrDecl"), null, null);
+		gen.visitServiceImpl(ci);
+	}
+
+	@Test
+	public void testVisitingAnEmptyStructDefnGeneratesTheCorrectMinimumCode() {
+		checkCreationOfNestedClass();
+		checkCreationOfImplCtor();
+		RWContractService ci = new RWContractService(loc, loc, new CSName(new CardName(null, "Card"), "_S0"), new StructName(null, "CtrDecl"), null, null);
+		gen.visitServiceImpl(ci);
+	}
+
+	public void checkCreationOfNestedClass() {
+		context.checking(new Expectations() {{
+			oneOf(bce).newClass("Card$_S0"); will(returnValue(bccImpl));
+			oneOf(bccImpl).superclass("CtrDecl");
+			oneOf(bccImpl).defineField(false, Access.PRIVATE, new JavaType("Card"), "_card");
+			oneOf(bccImpl).addInnerClassReference(Access.PUBLICSTATIC, "Card", "_S0");
+		}});
+	}
+
+	public void checkCreationOfImplCtor() {
+		context.checking(new Expectations() {{
+			oneOf(bccImpl).createMethod(false, "void", "<init>"); will(returnValue(ctor));
+			oneOf(ctor).argument("Card", "card"); will(new ReturnNewVar(ctor, "Card", "card"));
+			oneOf(ctor).callSuper("void", "CtrDecl", "<init>"); will(returnValue(expr));
+			oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
+			oneOf(ctor).returnVoid(); will(returnValue(expr));
+		}});
+	}
+}
