@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
@@ -41,10 +42,11 @@ public class GenTestsForHandlers {
 	@Before
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
-			allowing(bccHandler).getCreatedName(); will(returnValue("Card"));
+//			allowing(bccHandler).getCreatedName(); will(returnValue("Card"));
 			allowing(expr);
 			allowing(ctor).nextLocal(); will(returnValue(1));
 			allowing(eval).nextLocal(); will(returnValue(1));
+			allowing(eval).aNull(); will(returnValue(expr));
 		}});
 	}
 
@@ -57,45 +59,65 @@ public class GenTestsForHandlers {
 
 	@Test
 	public void testVisitingAMinimalInCardHandlerDefnGeneratesTheCorrectMinimumCode() {
-		checkCreationOfNestedClass();
-		checkCreationOfImplCtor();
-		checkCreationOfEvalMethod();
-		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new CardName(null, "Card"), "MyHandler"), new StructName(null, "Callback"), true, new ArrayList<>());
+		String container = "Card";
+		checkCreationOfNestedClass(container, true);
+		checkCreationOfImplCtor(true);
+		checkCreationOfEvalMethod(container, true);
+		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new CardName(null, container), "MyHandler"), new StructName(null, "Callback"), true, new ArrayList<>());
 		gen.visitHandlerImpl(hi);
 	}
 
-	public void checkCreationOfNestedClass() {
+	@Test
+	public void testVisitingAMinimalNotInCardHandlerDefnGeneratesTheCorrectMinimumCode() {
+		String container = "test.foo";
+		checkCreationOfNestedClass(container, false);
+		checkCreationOfImplCtor(false);
+		checkCreationOfEvalMethod(container, false);
+		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new PackageName(container), "MyHandler"), new StructName(null, "Callback"), false, new ArrayList<>());
+		gen.visitHandlerImpl(hi);
+	}
+
+	public void checkCreationOfNestedClass(String container, boolean insideCard) {
 		context.checking(new Expectations() {{
-			oneOf(bce).newClass("Card$MyHandler"); will(returnValue(bccHandler));
+			oneOf(bce).newClass(container + "$MyHandler"); will(returnValue(bccHandler));
 			oneOf(bccHandler).superclass("Callback");
-			oneOf(bccHandler).defineField(false, Access.PRIVATE, new JavaType("Card"), "_card");
-			oneOf(bccHandler).addInnerClassReference(Access.PUBLICSTATIC, "Card", "MyHandler");
+			if (insideCard) {
+				oneOf(bccHandler).defineField(false, Access.PRIVATE, new JavaType("Card"), "_card");
+			}
+			// It seems a little odd that this is generated at all, but if we're not in a card?
+			oneOf(bccHandler).addInnerClassReference(Access.PUBLICSTATIC, container, "MyHandler");
 		}});
 	}
 
-	public void checkCreationOfImplCtor() {
+	public void checkCreationOfImplCtor(boolean inCard) {
 		context.checking(new Expectations() {{
 			oneOf(bccHandler).createMethod(false, "void", "<init>"); will(returnValue(ctor));
-			oneOf(ctor).argument(J.OBJECT, "card"); will(new ReturnNewVar(ctor, J.OBJECT, "card"));
+			if (inCard) {
+				oneOf(ctor).argument(J.OBJECT, "card"); will(new ReturnNewVar(ctor, J.OBJECT, "card"));
+			}
 			oneOf(ctor).callSuper("void", "Callback", "<init>"); will(returnValue(expr));
-			oneOf(ctor).callStatic(with("org.flasck.android.FLEval"), with(J.OBJECT), with("full"), with(any(Expr[].class)));
-			oneOf(ctor).castTo(null, "Card");
-			oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(aNull(IExpr.class)));
+			if (inCard) {
+				oneOf(ctor).callStatic(with("org.flasck.android.FLEval"), with(J.OBJECT), with("full"), with(any(Expr[].class)));
+				oneOf(ctor).castTo(null, "Card");
+				oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(aNull(IExpr.class)));
+			}
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
 	}
 
-	public void checkCreationOfEvalMethod() {
+	public void checkCreationOfEvalMethod(String container, boolean inCard) {
 		context.checking(new Expectations() {{
 			oneOf(bccHandler).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
-			oneOf(eval).argument(J.OBJECT, "card"); will(new ReturnNewVar(ctor, J.OBJECT, "card"));
+			if (inCard) {
+				oneOf(eval).argument(J.OBJECT, "card"); will(new ReturnNewVar(ctor, J.OBJECT, "card"));
+			}
 			oneOf(eval).argument("[" + J.OBJECT, "args"); will(new ReturnNewVar(eval, "[" + J.OBJECT, "args"));
 			oneOf(eval).arraylen(with(any(Expr.class)));
 			oneOf(eval).intConst(0); will(returnValue(new IntConstExpr(eval, 0)));
-			oneOf(eval).classConst("Card$MyHandler"); will(returnValue(new ClassConstExpr(eval, "Card$MyHandler")));
+			oneOf(eval).classConst(container + "$MyHandler"); will(returnValue(new ClassConstExpr(eval, container + "$MyHandler")));
 			oneOf(eval).makeNew(with(J.FLCURRY), with(any(IExpr[].class)));
 			oneOf(eval).returnObject(with(any(IExpr.class)));
-			oneOf(eval).makeNew(with("Card$MyHandler"), with(any(IExpr[].class)));
+			oneOf(eval).makeNew(with(container + "$MyHandler"), with(any(IExpr[].class)));
 			oneOf(eval).returnObject(with(any(IExpr.class)));
 			oneOf(eval).ifOp(with(162), with(aNull(Expr.class)), with(any(Expr.class)), with(aNull(Expr.class)), with(aNull(Expr.class))); will(returnValue(expr));
 		}});

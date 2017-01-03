@@ -250,7 +250,7 @@ public class DroidGenerator implements RepoVisitor {
 				naList.add(eval.arrayElt(argsArg.getVar(), eval.intConst(k)));
 			Expr[] newArgs = new Expr[naList.size()];
 			naList.toArray(newArgs);
-			Expr objArg;
+			IExpr objArg;
 			if (hi.inCard)
 				objArg = cardArg.getVar();
 			else

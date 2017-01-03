@@ -47,6 +47,8 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 
 	@Override
 	public String jsName() {
+		if (name == null)
+			return baseName;
 		return name.jsName() + "." + baseName;
 	}
 
