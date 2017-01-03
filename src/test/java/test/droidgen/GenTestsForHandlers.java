@@ -10,8 +10,10 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -77,6 +79,20 @@ public class GenTestsForHandlers {
 		gen.visitHandlerImpl(hi);
 	}
 
+	@Test
+	public void testInCardLambdasInHandlerGeneratesSuitableVars() {
+		String container = "Card";
+		checkCreationOfNestedClass(container, true);
+		checkCreationOfImplCtor(true);
+		checkCreationOfEvalMethod(container, true);
+		checkProcessingOfLambda("x");
+		HandlerName hn = new HandlerName(new CardName(null, container), "MyHandler");
+		ArrayList<HandlerLambda> lambdas = new ArrayList<>();
+		lambdas.add(new HandlerLambda(loc, hn.uniqueName(), new RWStructDefn(loc, new StructName(null, "Foo"), true), "x"));
+		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, hn, new StructName(null, "Callback"), true, lambdas);
+		gen.visitHandlerImpl(hi);
+	}
+
 	public void checkCreationOfNestedClass(String container, boolean insideCard) {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass(container + "$MyHandler"); will(returnValue(bccHandler));
@@ -120,6 +136,17 @@ public class GenTestsForHandlers {
 			oneOf(eval).makeNew(with(container + "$MyHandler"), with(any(IExpr[].class)));
 			oneOf(eval).returnObject(with(any(IExpr.class)));
 			oneOf(eval).ifOp(with(162), with(aNull(Expr.class)), with(any(Expr.class)), with(aNull(Expr.class)), with(aNull(Expr.class))); will(returnValue(expr));
+		}});
+	}
+
+	public void checkProcessingOfLambda(String called) {
+		context.checking(new Expectations() {{
+			oneOf(bccHandler).defineField(false, Access.PRIVATE, JavaType.object_, called);
+			oneOf(ctor).argument(J.OBJECT, called); will(new ReturnNewVar(ctor, J.OBJECT, called));
+			oneOf(ctor).callStatic(with("org.flasck.android.FLEval"), with(J.OBJECT), with("head"), with(any(Expr[].class)));
+			oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(aNull(IExpr.class)));
+			oneOf(eval).arrayElt(with(aNonNull(Expr.class)), with(aNonNull(IntConstExpr.class)));
+			oneOf(eval).intConst(1); will(returnValue(new IntConstExpr(eval, 1)));
 		}});
 	}
 }
