@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.android.AndroidLabel;
 import org.flasck.flas.commonBase.android.AndroidLaunch;
@@ -181,9 +180,10 @@ public class DroidGenerator implements RepoVisitor {
 		
 	}
 
-	public void generateService(String name, RWContractService cs) {
+	public void visitServiceImpl(RWContractService cs) {
 		if (!doBuild)
 			return;
+		String name = cs.realName.uniqueName();
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
 		bcc.superclass(cs.name());
 		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");

@@ -158,7 +158,8 @@ public class Generator implements RepoVisitor {
 		target.add(ctor);
 	}
 
-	public void generateService(String ctorName, RWContractService cs) {
+	public void visitServiceImpl(RWContractService cs) {
+		String ctorName = cs.realName.uniqueName();
 		String clzname = ctorName.replace("._S", ".__S");
 		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));

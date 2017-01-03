@@ -20,7 +20,6 @@ import org.flasck.builder.jvm.DroidBuilder;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
-import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.dependencies.DependencyAnalyzer;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.errors.ErrorResult;
@@ -36,7 +35,6 @@ import org.flasck.flas.method.MethodConvertor;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.rewriter.Rewriter;
-import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.stories.FLASStory;
@@ -280,10 +278,6 @@ public class FLASCompiler implements ScriptCompiler {
 
 			rewriter.visitGenerators();
 			
-			for (Entry<CSName, RWContractService> cs : rewriter.cardServices.entrySet()) {
-				gen.generateService(cs.getKey().uniqueName(), cs.getValue());
-				dg.generateService(cs.getKey().uniqueName(), cs.getValue());
-			}
 			for (Entry<String, RWHandlerImplements> hi : rewriter.callbackHandlers.entrySet()) {
 				gen.generateHandler(hi.getKey(), hi.getValue());
 				dg.generateHandler(hi.getKey(), hi.getValue());

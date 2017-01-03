@@ -19,6 +19,7 @@ import org.flasck.flas.rewrittenForm.RWConstructorMatch;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
+import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -166,6 +167,11 @@ public class KnowledgeWriter implements RepoVisitor {
 	
 	@Override
 	public void visitContractImpl(RWContractImplements ci) {
+		// nothing to do here
+	}
+
+	@Override
+	public void visitServiceImpl(RWContractService ci) {
 		// nothing to do here
 	}
 

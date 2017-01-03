@@ -7,6 +7,7 @@ import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.types.Type;
 
@@ -42,6 +43,11 @@ public class Pass1Visitor implements RepoVisitor {
 
 	@Override
 	public void visitContractImpl(RWContractImplements ci) {
+		// nothing to do here
+	}
+
+	@Override
+	public void visitServiceImpl(RWContractService cs) {
 		// nothing to do here
 	}
 }
