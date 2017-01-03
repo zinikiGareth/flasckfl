@@ -1,7 +1,6 @@
 package org.flasck.flas.droidgen;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,6 +9,7 @@ import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.android.AndroidLabel;
 import org.flasck.flas.commonBase.android.AndroidLaunch;
 import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.compiler.HSIEFormGenerator;
 import org.flasck.flas.hsie.HSIE;
 import org.flasck.flas.rewriter.CodeGenRegistry;
 import org.flasck.flas.rewriter.RepoVisitor;
@@ -42,7 +42,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
-public class DroidGenerator implements RepoVisitor {
+public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	private final boolean doBuild;
 	private ByteCodeStorage bce;
 
@@ -261,12 +261,11 @@ public class DroidGenerator implements RepoVisitor {
 		}
 	}
 
-	public void generate(Collection<HSIEForm> forms) {
+	@Override
+	public void generate(HSIEForm form) {
 		if (!doBuild)
 			return;
-		for (HSIEForm f : forms) {
-			new FormGenerator(bce, f).generate();
-		}
+		new DroidFormGenerator(bce, form).generate();
 	}
 
 	public NewMethodDefiner generateRender(String clz, String topBlock) {

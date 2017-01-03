@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -349,8 +350,7 @@ public class FLASCompiler implements ScriptCompiler {
 				tc2.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
 
 			// 12. generation of JSForms
-			generateForms(gen, hsie.allForms());
-			dg.generate(hsie.allForms());
+			generateForms(Arrays.asList(gen, dg), hsie.allForms());
 			abortIfErrors(errors);
 
 			// 13. Write final outputs
@@ -495,10 +495,10 @@ public class FLASCompiler implements ScriptCompiler {
 			curry.rewrite(tc, h);
 	}
 
-	private void generateForms(Generator gen, Collection<HSIEForm> collection) {
-		for (HSIEForm h : collection) {
-			gen.generate(h);
-		}
+	private void generateForms(List<HSIEFormGenerator> gens, Collection<HSIEForm> collection) {
+		for (HSIEFormGenerator g : gens)
+			for (HSIEForm h : collection)
+				g.generate(h);
 	}
 
 	public DroidBuilder getBuilder() {

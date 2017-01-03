@@ -15,6 +15,7 @@ import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
@@ -22,28 +23,27 @@ import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.zinutils.bytecode.BlockExpr;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.GenericAnnotator;
-import org.zinutils.bytecode.JavaType;
-import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.NewMethodDefiner;
-import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
-public class FormGenerator {
+public class DroidFormGenerator {
 	private final ByteCodeStorage bce;
 	private final HSIEForm form;
 
-	public FormGenerator(ByteCodeStorage bce, HSIEForm f) {
+	public DroidFormGenerator(ByteCodeStorage bce, HSIEForm f) {
 		this.bce = bce;
 		this.form = f;
 	}
