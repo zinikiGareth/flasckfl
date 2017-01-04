@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NameOfThing;
 import org.zinutils.collections.CollectionUtils;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
 public abstract class Type implements Locatable {
@@ -49,34 +50,12 @@ public abstract class Type implements Locatable {
 		return location;
 	}
 
-	public String name() {
-		if (iam == WhatAmI.SOMETHINGELSE)
-			return "typeOf(" + name + ")";
-		else
-			throw new UtilException("Cannot ask for the name of a " + iam);
-	}
-	
-	public NameOfThing getTypeName() {
-		if (typeName == null)
-			throw new UtilException("typename is null");
-		return typeName;
-	}
+	public String name() { throw new NotImplementedException(); }
+	public NameOfThing getTypeName() { throw new NotImplementedException(); }
 
-	public boolean hasPolys() {
-		return polys != null && !polys.isEmpty();
-	}
-	
-	public List<Type> polys() {
-		if (polys == null)
-			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
-		return polys;
-	}
-
-	public Type poly(int i) {
-		if (polys == null)
-			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
-		return polys.get(i);
-	}
+	public boolean hasPolys() { return false; }
+	public List<Type> polys() { throw new NotImplementedException(); }
+	public Type poly(int i) { throw new NotImplementedException(); }
 
 	// This one is DELIBERATELY not static - you need a type that you would otherwise have to pass in as "base"
 	public Type instance(InputPosition loc, Type... with) {
