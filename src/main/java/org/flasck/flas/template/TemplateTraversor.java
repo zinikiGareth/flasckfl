@@ -12,10 +12,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
-import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
-import org.flasck.flas.jsgen.Generator;
-import org.flasck.flas.jsgen.JSAreaGenerator;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -39,7 +36,6 @@ import org.flasck.flas.rewrittenForm.RWTemplateLine;
 import org.flasck.flas.rewrittenForm.RWTemplateList;
 import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.tokenizers.TemplateToken;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.exceptions.UtilException;
 
 public class TemplateTraversor {
@@ -54,22 +50,10 @@ public class TemplateTraversor {
 	}
 
 	public class GeneratorContext {
-
-		private final JSTarget target;
-		private final String protoName;
 		private String introduceVarHere;
 		private final List<DefinedVar> varsToCopy = new ArrayList<DefinedVar>();
-		private final Object nil;
-		private final Object cons;
-		private final String javaName;
 
-		public GeneratorContext(JSTarget target, Rewriter rw, RWTemplate cg) {
-			this.target = target;
-			this.javaName = cg.prefix;
-			InputPosition posn = new InputPosition("template", 1, 1, "");
-			this.protoName = Generator.lname(cg.prefix, true);
-			this.nil = rw.getMe(posn, new StructName(null, "Nil"));
-			this.cons = rw.getMe(posn, new StructName(null, "Cons"));
+		public GeneratorContext() {
 		}
 		
 		public void varToCopy(String s, AreaName area) {
@@ -92,29 +76,30 @@ public class TemplateTraversor {
 	}
 
 	private final Rewriter rewriter;
-	private final TemplateGenerator dg;
-	private final TemplateGenerator jsg;
 	private List<TemplateGenerator> tgs;
+	InputPosition posn = new InputPosition("template", 1, 1, "");
+	private final Object nil;
+	private final Object cons;
 
 	public TemplateTraversor(Rewriter rewriter, List<TemplateGenerator> tgs) {
 		this.rewriter = rewriter;
 		this.tgs = tgs;
-		dg = tgs.get(0);
-		jsg = tgs.get(1);
+		this.nil = rewriter.getMe(posn, new StructName(null, "Nil"));
+		this.cons = rewriter.getMe(posn, new StructName(null, "Cons"));
 	}
 
 	public void generate(Rewriter rw, JSTarget target) {
 		for (RWTemplate cg : rewriter.templates)
-			generateTemplate(rw, target, cg);
+			generateTemplate(rw, cg);
 	}
 
-	private void generateTemplate(Rewriter rw, JSTarget target, RWTemplate cg) {
-		GeneratorContext cx = new GeneratorContext(target, rw, cg);
+	private void generateTemplate(Rewriter rw, RWTemplate cg) {
+		GeneratorContext cx = new GeneratorContext();
 		AreaName areaName = null;
 		if (cg != null && cg.content != null)
 			areaName = cg.areaName();
 		for (TemplateGenerator tg : tgs)
-			tg.generateRender(cx.javaName, areaName);
+			tg.generateRender(cg.prefix, areaName);
 		recurse(cx, areaName, cg.content, null);
 	}
 
@@ -165,10 +150,8 @@ public class TemplateTraversor {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
 		}
 		List<AreaGenerator> areas = new ArrayList<AreaGenerator>();
-		AreaGenerator drArea = dg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
-		JSAreaGenerator jsArea = (JSAreaGenerator) jsg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
-		areas.add(drArea);
-		areas.add(jsArea);
+		for (TemplateGenerator tg : tgs)
+			areas.add(tg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo));
 		for (DefinedVar vc : cx.varsToCopy) {
 			String s = vc.name;
 			for (AreaGenerator area : areas)
@@ -301,7 +284,7 @@ public class TemplateTraversor {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
 		if (tl instanceof RWTemplateFormat) {
-			handleFormatsAndEvents(cx, areas, jsArea, drArea, areaName, isEditable, (RWTemplateFormat)tl);
+			handleFormatsAndEvents(cx, areas, areaName, isEditable, (RWTemplateFormat)tl);
 		}
 		if (newVar != null) {
 			cx.removeLastCopyVar();
@@ -311,7 +294,7 @@ public class TemplateTraversor {
 		return areas;
 	}
 
-	protected void handleFormatsAndEvents(GeneratorContext cx, List<AreaGenerator> areas, JSAreaGenerator jsArea, AreaGenerator dgArea, AreaName areaName, boolean isEditable, RWTemplateFormat tl) {
+	protected void handleFormatsAndEvents(GeneratorContext cx, List<AreaGenerator> areas, AreaName areaName, boolean isEditable, RWTemplateFormat tl) {
 		StringBuilder simple = new StringBuilder();
 		if (isEditable)
 			simple.append(" flasck-editable");
@@ -331,14 +314,14 @@ public class TemplateTraversor {
 			} else if (o instanceof ApplyExpr || o instanceof CardMember) {
 				// TODO: need to collect object/field pairs that we depend on
 				if (expr == null)
-					expr = cx.nil;
-				expr = new ApplyExpr(((Locatable)o).location(), cx.cons, o, expr);
+					expr = nil;
+				expr = new ApplyExpr(((Locatable)o).location(), cons, o, expr);
 			} else
 				throw new UtilException("Cannot handle format of type " + o.getClass());
 		}
 		if (expr != null) {
 			if (simple.length() > 0)
-				expr = new ApplyExpr(first, cx.cons, new StringLiteral(first, simple.substring(1)), expr);
+				expr = new ApplyExpr(first, cons, new StringLiteral(first, simple.substring(1)), expr);
 			String scf = areaName.jsName() + ".prototype._setVariableFormats";
 			String tfn = tl.dynamicFunction.name;
 			for (AreaGenerator area : areas)

@@ -6,7 +6,6 @@ import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
-import org.zinutils.bytecode.Expr;
 
 public interface AreaGenerator {
 	void done();
