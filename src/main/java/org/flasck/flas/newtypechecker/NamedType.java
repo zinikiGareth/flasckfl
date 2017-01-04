@@ -26,14 +26,6 @@ public class NamedType extends TypeInfo {
 		this.polyArgs = polyArgs;
 	}
 
-	@Deprecated
-	public NamedType(InputPosition location, String name, List<TypeInfo> polyArgs) {
-		this.location = location;
-		this.myName = null;
-		this.name = name;
-		this.polyArgs = polyArgs;
-	}
-
 	public boolean equals(Object other) {
 		return other instanceof NamedType && name.equals(((NamedType)other).name);
 	}

@@ -56,7 +56,7 @@ public class Eliminator {
 			List<TypeInfo> polys = new ArrayList<TypeInfo>();
 			for (TypeInfo pi : nt.polyArgs)
 				polys.add(substType(k, v, pi));
-			return new NamedType(nt.location(), nt.name, polys);
+			return new NamedType(nt.location(), nt.myName, polys);
 		} else if (ti instanceof TypeFunc) {
 			TypeFunc tf = (TypeFunc) ti;
 			List<TypeInfo> args = new ArrayList<>();

@@ -766,7 +766,7 @@ public class TypeChecker2 {
 					}
 				}
 			}
-			return new NamedType(chosen.location(), chosen.name(), polyArgs);
+			return new NamedType(chosen.location(), chosen.getTypeName(), polyArgs);
 		} else
 			throw new NotImplementedException("Other cases");
 	}
@@ -854,7 +854,7 @@ public class TypeChecker2 {
 				for (TypeInfo i : nt.polyArgs)
 					args.add(poly(renames, merged, install, i));
 			}
-			return new NamedType(nt.location(), nt.name, args);
+			return new NamedType(nt.location(), nt.myName, args);
 		} else if (ti instanceof PolyInfo) {
 			return ti;
 		} else
@@ -875,7 +875,7 @@ public class TypeChecker2 {
 			List<TypeInfo> args = new ArrayList<>();
 			for (Type t : ((InstanceType)type).polys())
 				args.add(convertType(t));
-			return new NamedType(type.location(), ((InstanceType) type).name(), args);
+			return new NamedType(type.location(), ((InstanceType) type).getTypeName(), args);
 		} else if (type instanceof FunctionType) {
 			FunctionType ft = (FunctionType) type;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
@@ -974,7 +974,7 @@ public class TypeChecker2 {
 				for (TypeInfo t : nt.polyArgs) {
 					polyArgs.add(freshPolys(t, curr));
 				}
-				return new NamedType(nt.location(), nt.name, polyArgs);
+				return new NamedType(nt.location(), nt.myName, polyArgs);
 			}
 		} else if (ti instanceof TypeFunc) {
 			TypeFunc tf = (TypeFunc) ti;
