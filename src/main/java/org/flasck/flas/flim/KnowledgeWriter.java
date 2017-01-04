@@ -26,6 +26,7 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.types.FunctionType;
+import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.TupleType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
@@ -270,11 +271,12 @@ public class KnowledgeWriter implements RepoVisitor {
 			break;
 		}
 		case INSTANCE: {
+			InstanceType it = (InstanceType) type;
 			XMLElement ty = xe.addElement("Instance");
-			requirePackageFor(type.name());
-			writeLocation(ty, type);
-			writeTypeUsage(ty, type.innerType());
-			for (Type t : type.polys())
+			requirePackageFor(it.name());
+			writeLocation(ty, it);
+			writeTypeUsage(ty, it.innerType());
+			for (Type t : it.polys())
 				writeTypeUsage(ty, t);
 			break;
 		}

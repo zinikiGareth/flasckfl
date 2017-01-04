@@ -46,8 +46,8 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
 import org.flasck.flas.types.FunctionType;
+import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.TypedObject;
 import org.slf4j.Logger;
@@ -299,8 +299,8 @@ public class MethodConvertor {
 				} else if (sender instanceof CardMember) {
 					CardMember cm = (CardMember) sender;
 					Type ot = cm.type;
-					while (ot.iam == WhatAmI.INSTANCE)
-						ot = ot.innerType();
+					while (ot instanceof InstanceType) 
+						ot = ((InstanceType)ot).innerType();
 					if (ot instanceof RWObjectDefn)
 						return new SendExpr(((ApplyExpr)mm.expr).location(), sender, method, args);
 					else

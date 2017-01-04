@@ -15,8 +15,7 @@ public class Type implements Locatable {
 	public enum WhatAmI { /* REFERENCE, */PRIMITIVE, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
 	public final WhatAmI iam;
 	protected final String name;
-	private final Type type;
-	private final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
+	protected final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
 	private NameOfThing typeName;
 
 	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing name, List<Type> polys) {
@@ -27,7 +26,6 @@ public class Type implements Locatable {
 		this.iam = iam;
 		this.name = name.uniqueName();
 		this.typeName = name;
-		this.type = null;
 		this.polys = polys;
 		
 		// for anything which is not an instance, all the args MUST be polymorphic vars
@@ -37,27 +35,15 @@ public class Type implements Locatable {
 					throw new UtilException("All arguments to type defn must be poly vars");
 	}
 
-	protected Type(InputPosition location, WhatAmI iam, Type type, List<Type> args) {
-		this.kw = null;
-		if (location == null && iam != WhatAmI.POLYVAR)
-			throw new UtilException("Type without input location 2");
-		this.location = location;
-		this.iam = iam;
-		this.name = null;
-		this.type = type;
-		this.polys = args;
-	}
-
 	protected Type(InputPosition location, WhatAmI iam) {
 		this.kw = null;
 		if (location == null)
 			throw new UtilException("Type without input location 3");
-		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE)
-			throw new UtilException("Only applicable to FUNCTION and TUPLE");
+		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE && iam != WhatAmI.INSTANCE)
+			throw new UtilException("Only applicable to FUNCTION and TUPLE and INSTANCE");
 		this.location = location;
 		this.iam = iam;
 		this.name = null;
-		this.type = null;
 		this.polys = null;
 	}
 
@@ -67,9 +53,7 @@ public class Type implements Locatable {
 	}
 
 	public String name() {
-		if (iam == WhatAmI.INSTANCE)
-			return type.name();
-		else if (iam == WhatAmI.PRIMITIVE || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
+		if (iam == WhatAmI.PRIMITIVE || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
 				 iam == WhatAmI.CONTRACT || iam == WhatAmI.CONTRACTIMPL || iam == WhatAmI.CONTRACTSERVICE || iam == WhatAmI.HANDLERIMPLEMENTS)
 			return name;
 		else if (iam == WhatAmI.SOMETHINGELSE)
@@ -82,10 +66,6 @@ public class Type implements Locatable {
 		if (typeName == null)
 			throw new UtilException("typename is null");
 		return typeName;
-	}
-
-	public Type innerType() {
-		return type;
 	}
 
 	public boolean hasPolys() {
@@ -106,18 +86,14 @@ public class Type implements Locatable {
 
 	// This one is DELIBERATELY not static - you need a type that you would otherwise have to pass in as "base"
 	public Type instance(InputPosition loc, Type... with) {
-		if (this.iam == WhatAmI.INSTANCE)
-			throw new UtilException("Instance of an instance?  Huh?");
-		return new Type(loc, WhatAmI.INSTANCE, this, CollectionUtils.listOf(with));
+		return new InstanceType(loc, this, CollectionUtils.listOf(with));
 	}
 
 	public Type instance(InputPosition loc, List<Type> with) {
-		if (this.iam == WhatAmI.INSTANCE)
-			throw new UtilException("Instance of an instance?  Huh?");
-		return new Type(loc, WhatAmI.INSTANCE, this, with);
+		return new InstanceType(loc, this, with);
 	}
 
-	// a "builtin" is something very simple - "number" and "string" are the only obvious examples that come to mind
+	// a "primitive" is something very simple - "number" and "string" are the only obvious examples that come to mind
 	// this should ONLY be called from Builtin
 	public static Type primitive(InputPosition loc, NameOfThing name) {
 		return new Type(loc, loc, WhatAmI.PRIMITIVE, name, null);
@@ -165,10 +141,6 @@ public class Type implements Locatable {
 		case POLYVAR:
 			sb.append(name);
 			break;
-		case INSTANCE:
-			sb.append(type.name());
-			showPolys(sb);
-			break;
 		case SOMETHINGELSE:
 			sb.append("copyType(" + name + ")");
 			break;
@@ -177,7 +149,7 @@ public class Type implements Locatable {
 		}
 	}
 
-	private void showPolys(StringBuilder sb) {
+	protected void showPolys(StringBuilder sb) {
 		if (polys != null && !polys.isEmpty()) {
 			sb.append(polys);
 		}
@@ -187,6 +159,7 @@ public class Type implements Locatable {
 		return instance(location, existing.polys);
 	}
 	
+	// This should be overriden a lot more
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)
@@ -198,6 +171,6 @@ public class Type implements Locatable {
 		if (name != null)
 			return name.equals(other.name);
 		else
-			return type.equals(other.type);
+			return true;
 	}
 }
