@@ -9,6 +9,7 @@ import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
+import org.flasck.flas.template.EventHandlerGenerator;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;
@@ -157,13 +158,14 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void needAddHandlers() {
+	public EventHandlerGenerator needAddHandlers() {
 		GenericAnnotator ah = GenericAnnotator.newMethod(bcc, false, "_add_handlers");
 		ah.returns("java.lang.Object");
 		MethodDefiner ahMeth = ah.done();
 		currentMethod = ahMeth;
 		ahMeth.voidExpr(ahMeth.callStatic("android.util.Log", "int", "e", ahMeth.stringConst("FlasckLib"), ahMeth.stringConst("Need to add the handlers"))).flush();
 		ahMeth.returnObject(ahMeth.aNull()).flush();
+		return new DroidEventHandlerGenerator(ah);
 	}
 
 	@Override

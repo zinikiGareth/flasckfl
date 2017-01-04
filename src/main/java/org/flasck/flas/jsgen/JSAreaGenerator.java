@@ -12,6 +12,7 @@ import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
+import org.flasck.flas.template.EventHandlerGenerator;
 import org.flasck.flas.template.TemplateTraversor;
 import org.zinutils.exceptions.NotImplementedException;
 
@@ -124,9 +125,10 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void needAddHandlers() {
-		// TODO Auto-generated method stub
-
+	public EventHandlerGenerator needAddHandlers() {
+		JSForm ahf = JSForm.flex(areaName.jsName() +".prototype._add_handlers = function()").needBlock();
+		target.add(ahf);
+		return new JSEventHandlerGenerator(ahf);
 	}
 
 	@Override

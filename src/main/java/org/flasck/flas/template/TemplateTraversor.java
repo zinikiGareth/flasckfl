@@ -341,32 +341,30 @@ public class TemplateTraversor {
 				expr = new ApplyExpr(first, cx.cons, new StringLiteral(first, simple.substring(1)), expr);
 			String scf = areaName.jsName() + ".prototype._setVariableFormats";
 			String tfn = tl.dynamicFunction.name;
-			jsArea.setVarFormats(tfn);
-			dgArea.setVarFormats(tfn);
+			for (AreaGenerator area : areas)
+				area.setVarFormats(tfn);
 			callOnAssign(areas, expr, scf, true, null);
 		}
 		else if (expr == null && simple.length() > 0) {
-			jsArea.setSimpleClass(simple.substring(1));
-			dgArea.setSimpleClass(simple.substring(1));
+			for (AreaGenerator area : areas)
+				area.setSimpleClass(simple.substring(1));
 		}
 		if (tl instanceof RWTemplateFormatEvents) {
 			RWTemplateFormatEvents tfe = (RWTemplateFormatEvents) tl;
 			if (!tfe.handlers.isEmpty()) {
-				JSForm ahf = JSForm.flex(areaName.jsName() +".prototype._add_handlers = function()").needBlock();
-				dgArea.needAddHandlers();
-				cx.target.add(ahf);
+				List<EventHandlerGenerator> ehgs = new ArrayList<>();
+				for (AreaGenerator area : areas)
+					ehgs.add(area.needAddHandlers());
 				boolean isFirst = true;
 				for (RWEventHandler eh : tfe.handlers) {
 					String tfn = eh.handlerFn.name;
 
 					// add a hack to allow us to NOT overwrite events that we want to intercept first
-					String distinguish = "";
+					boolean distinguish = false;
 					if (eh.action.equals("drop"))
-						distinguish = "_";
-					JSForm cev = JSForm.flex("this._mydiv['on" + distinguish + eh.action + "'] = function(event)").needBlock();
-					cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(this._area." + tfn + "(), event)"));
-					ahf.add(cev);
-	
+						distinguish = true;
+					for (EventHandlerGenerator ehg : ehgs)
+						ehg.handle(distinguish, eh.action, tfn);
 					callOnAssign(areas, eh.expr, areaName.jsName() + ".prototype._add_handlers", isFirst, null);
 					isFirst = false;
 				}

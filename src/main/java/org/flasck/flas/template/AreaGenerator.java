@@ -27,7 +27,7 @@ public interface AreaGenerator {
 
 	void contentExpr(String tfn, boolean rawHTML);
 
-	void needAddHandlers();
+	EventHandlerGenerator needAddHandlers();
 
 	void createNested(String v, AreaName nestedArea);
 
