@@ -7,10 +7,11 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.types.Type;
+import org.flasck.flas.types.TypeWithNameAndPolys;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
-public class RWStructDefn extends Type implements AsString, ExternalRef {
+public class RWStructDefn extends TypeWithNameAndPolys implements AsString, ExternalRef {
 	public final List<RWStructField> fields = new ArrayList<RWStructField>();
 	public final transient boolean generate;
 	private final StructName structName;

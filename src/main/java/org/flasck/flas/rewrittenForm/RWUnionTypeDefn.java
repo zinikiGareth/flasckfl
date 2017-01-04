@@ -6,9 +6,10 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.types.Type;
+import org.flasck.flas.types.TypeWithNameAndPolys;
 import org.zinutils.exceptions.UtilException;
 
-public class RWUnionTypeDefn extends Type implements Comparable<RWUnionTypeDefn> {
+public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<RWUnionTypeDefn> {
 	public final transient boolean generate;
 	public final List<Type> cases = new ArrayList<Type>();
 

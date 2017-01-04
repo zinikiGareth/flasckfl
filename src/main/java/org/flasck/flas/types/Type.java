@@ -50,10 +50,7 @@ public abstract class Type implements Locatable {
 	}
 
 	public String name() {
-		if (iam == WhatAmI.PRIMITIVE || iam == WhatAmI.POLYVAR || iam == WhatAmI.STRUCT || iam == WhatAmI.UNION || iam == WhatAmI.OBJECT ||
-				 iam == WhatAmI.CONTRACT || iam == WhatAmI.CONTRACTIMPL || iam == WhatAmI.CONTRACTSERVICE || iam == WhatAmI.HANDLERIMPLEMENTS)
-			return name;
-		else if (iam == WhatAmI.SOMETHINGELSE)
+		if (iam == WhatAmI.SOMETHINGELSE)
 			return "typeOf(" + name + ")";
 		else
 			throw new UtilException("Cannot ask for the name of a " + iam);
