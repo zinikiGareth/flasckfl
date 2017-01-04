@@ -1,5 +1,6 @@
 package org.flasck.flas.droidgen;
 
+import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.template.AreaGenerator;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -36,9 +37,9 @@ public class CGRContext implements AreaGenerator {
 	}
 
 	@Override
-	public void copyVar(String parentClass, String definedInType, String s) {
-		IFieldInfo src = bcc.defineField(true, Access.PUBLIC, DroidUtils.javaNestedName(definedInType), "_src_"+s);
-		ctor.assign(src.asExpr(ctor), ctor.getField(ctor.castTo(parent, DroidUtils.javaNestedName(parentClass)), "_src_"+s)).flush();
+	public void copyVar(AreaName parentClass, AreaName definedInType, String s) {
+		IFieldInfo src = bcc.defineField(true, Access.PUBLIC, DroidUtils.javaNestedName(definedInType.javaName()), "_src_"+s);
+		ctor.assign(src.asExpr(ctor), ctor.getField(ctor.castTo(parent, DroidUtils.javaNestedName(parentClass.javaName())), "_src_"+s)).flush();
 	}
 
 	@Override

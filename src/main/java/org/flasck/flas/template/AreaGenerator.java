@@ -1,12 +1,13 @@
 package org.flasck.flas.template;
 
+import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.zinutils.bytecode.Expr;
 
 public interface AreaGenerator {
 	void done();
 
-	void copyVar(String parentClass, String definedInType, String s);
+	void copyVar(AreaName parentArea, AreaName definedIn, String s);
 	
 	void assignToVar(String varName);
 

@@ -45,11 +45,11 @@ import org.zinutils.exceptions.UtilException;
 public class TemplateTraversor {
 	public class DefinedVar {
 		final String name;
-		final String definedIn;
+		final AreaName definedIn;
 		
-		public DefinedVar(String name, String definedIn) {
+		public DefinedVar(String name, AreaName area) {
 			this.name = name;
-			this.definedIn = definedIn;
+			this.definedIn = area;
 		}
 	}
 
@@ -72,8 +72,8 @@ public class TemplateTraversor {
 			this.cons = rw.getMe(posn, new StructName(null, "Cons"));
 		}
 		
-		public void varToCopy(String s, String inClz) {
-			varsToCopy.add(new DefinedVar(s, inClz));
+		public void varToCopy(String s, AreaName area) {
+			varsToCopy.add(new DefinedVar(s, area));
 		}
 		
 		public void removeLastCopyVar() {
@@ -169,13 +169,13 @@ public class TemplateTraversor {
 		JSForm fn = jsArea.fn;
 		for (DefinedVar vc : cx.varsToCopy) {
 			String s = vc.name;
-			fn.add(JSForm.flex("this._src_" + s + " = parent._src_" + s));
-			area.copyVar(parentArea.javaName(), javaName(vc.definedIn), s);
+			jsArea.copyVar(parentArea, vc.definedIn, s);
+			area.copyVar(parentArea, vc.definedIn, s);
 		}
 		String newVar = cx.extractNewVar();
 		if (newVar != null) {
 			fn.add(JSForm.flex("this._src_"+newVar+ " = this"));
-			cx.varToCopy(newVar, areaName.jsName());
+			cx.varToCopy(newVar, areaName);
 			area.newVar(newVar);
 		}
 		cx.target.add(JSForm.flex(areaName.jsName() +".prototype = new " + base + "()"));

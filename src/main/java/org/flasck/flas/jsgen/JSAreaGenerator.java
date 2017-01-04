@@ -1,5 +1,6 @@
 package org.flasck.flas.jsgen;
 
+import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.template.AreaGenerator;
@@ -21,9 +22,8 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void copyVar(String parentClass, String definedInType, String s) {
-		// TODO Auto-generated method stub
-
+	public void copyVar(AreaName parentArea, AreaName definedIn, String s) {
+		fn.add(JSForm.flex("this._src_" + s + " = parent._src_" + s));
 	}
 
 	@Override
