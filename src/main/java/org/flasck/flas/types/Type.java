@@ -20,16 +20,14 @@ public class Type implements Locatable {
 
 	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing name, List<Type> polys) {
 		this.kw = kw;
-		if (location == null && iam != WhatAmI.POLYVAR)
-			throw new UtilException("Type without input location 1");
 		this.location = location;
 		this.iam = iam;
 		this.name = name.uniqueName();
 		this.typeName = name;
 		this.polys = polys;
 		
-		// for anything which is not an instance, all the args MUST be polymorphic vars
-		if (polys != null && iam != WhatAmI.INSTANCE)
+		// all the args MUST be polymorphic vars
+		if (polys != null)
 			for (Type t : polys)
 				if (t.iam != WhatAmI.POLYVAR)
 					throw new UtilException("All arguments to type defn must be poly vars");
@@ -95,14 +93,16 @@ public class Type implements Locatable {
 
 	// a "primitive" is something very simple - "number" and "string" are the only obvious examples that come to mind
 	// this should ONLY be called from Builtin
+	@Deprecated
 	public static Type primitive(InputPosition loc, NameOfThing name) {
 		return new Type(loc, loc, WhatAmI.PRIMITIVE, name, null);
 	}
 	
+	@Deprecated
 	public static Type polyvar(InputPosition loc, String name) {
 		if (loc == null)
 			throw new UtilException("Type without input location 4");
-		return new Type(loc, loc, WhatAmI.POLYVAR, new PolyName(name), null);
+		return new PolyVar(loc, name);
 	}
 	
 	@Deprecated

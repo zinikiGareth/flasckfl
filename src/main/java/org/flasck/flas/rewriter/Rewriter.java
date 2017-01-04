@@ -136,6 +136,7 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
+import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.types.TypeOfSomethingElse;
@@ -1664,7 +1665,7 @@ public class Rewriter implements CodeGenRegistry {
 					List<Type> rwp = new ArrayList<Type>();
 					for (TypeReference p : type.polys())
 						rwp.add(rewrite(cx, p, true));
-					if (ret.iam != WhatAmI.INSTANCE)
+					if (!(ret instanceof InstanceType))
 						ret = ret.instance(type.location(), rwp);
 				}
 			}

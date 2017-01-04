@@ -34,6 +34,7 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.FunctionType;
+import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.types.TypeOfSomethingElse;
@@ -867,7 +868,7 @@ public class TypeChecker2 {
 				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWContractService ||
 				type instanceof RWHandlerImplements)
 			return getTypeOf(type.location(), type.name());
-		else if (type.iam == WhatAmI.INSTANCE) {
+		else if (type instanceof InstanceType) {
 			List<TypeInfo> args = new ArrayList<>();
 			for (Type t : type.polys())
 				args.add(convertType(t));

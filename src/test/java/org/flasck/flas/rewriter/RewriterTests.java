@@ -42,6 +42,7 @@ import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,7 +110,7 @@ public class RewriterTests {
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("list", sf.name);
 		assertEquals("List", sf.type.name());
-		assertEquals(WhatAmI.INSTANCE, sf.type.iam);
+		assertTrue(sf.type instanceof InstanceType);
 		assertTrue(sf.type.hasPolys());
 		assertEquals(1, sf.type.polys().size());
 		assertEquals("String", sf.type.poly(0).name());
