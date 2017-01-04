@@ -34,6 +34,7 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.InstanceType;
+import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
@@ -860,7 +861,7 @@ public class TypeChecker2 {
 	}
 
 	TypeInfo convertType(Type type) {
-		if (type.iam == WhatAmI.POLYVAR)
+		if (type instanceof PolyVar)
 			return new PolyInfo(type.location(), type.name());
 		else if (type instanceof RWStructDefn)
 			return structTypes.get(type.name());

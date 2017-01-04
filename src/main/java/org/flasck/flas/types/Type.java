@@ -124,18 +124,6 @@ public abstract class Type implements Locatable {
 
 	protected void show(StringBuilder sb) {
 		switch (iam) {
-		case STRUCT:
-		case UNION:
-		case OBJECT:
-		case CONTRACTIMPL:
-		case CONTRACT:
-		case HANDLERIMPLEMENTS:
-			sb.append(name);
-			showPolys(sb);
-			break;
-		case POLYVAR:
-			sb.append(name);
-			break;
 		case SOMETHINGELSE:
 			sb.append("copyType(" + name + ")");
 			break;
