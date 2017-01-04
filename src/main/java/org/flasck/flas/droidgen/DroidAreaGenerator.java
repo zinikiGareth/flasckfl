@@ -17,14 +17,14 @@ import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.JavaInfo.Access;
 
-public class CGRContext implements AreaGenerator {
+public class DroidAreaGenerator implements AreaGenerator {
 	final ByteCodeSink bcc;
 	public final NewMethodDefiner ctor;
 	final Var card;
 	final Var parent;
 	MethodDefiner currentMethod;
 
-	public CGRContext(ByteCodeSink bcc, NewMethodDefiner ctor, Var card, Var parent) {
+	public DroidAreaGenerator(ByteCodeSink bcc, NewMethodDefiner ctor, Var card, Var parent) {
 		this.bcc = bcc;
 		this.ctor = ctor;
 		this.card = card;
@@ -44,6 +44,9 @@ public class CGRContext implements AreaGenerator {
 
 	@Override
 	public void assignToVar(String varName) {
+		IFieldInfo src = bcc.defineField(true, Access.PUBLIC, bcc.getCreatedName(), "_src_"+varName);
+		bcc.defineField(false, Access.PUBLIC, "java.lang.Object", varName);
+		ctor.assign(src.asExpr(ctor), ctor.myThis()).flush();
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_assignToVar");
 		PendingVar arg = gen.argument("java.lang.Object", "obj");
 		gen.returns("java.lang.Object");
@@ -182,13 +185,6 @@ public class CGRContext implements AreaGenerator {
 	@Override
 	public void setSimpleClass(String css) {
 		ctor.callVirtual("void", ctor.myThis(), "setCSS", ctor.stringConst(css)).flush();
-	}
-
-	@Override
-	public void newVar(String newVar) {
-		IFieldInfo src = bcc.defineField(true, Access.PUBLIC, bcc.getCreatedName(), "_src_"+newVar);
-		bcc.defineField(false, Access.PUBLIC, "java.lang.Object", newVar);
-		ctor.assign(src.asExpr(ctor), ctor.myThis()).flush();
 	}
 
 	@Override

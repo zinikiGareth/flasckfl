@@ -174,26 +174,8 @@ public class TemplateTraversor {
 		}
 		String newVar = cx.extractNewVar();
 		if (newVar != null) {
-			fn.add(JSForm.flex("this._src_"+newVar+ " = this"));
 			cx.varToCopy(newVar, areaName);
-			area.newVar(newVar);
-		}
-		cx.target.add(JSForm.flex(areaName.jsName() +".prototype = new " + base + "()"));
-		cx.target.add(JSForm.flex(areaName.jsName() +".prototype.constructor = " + areaName.jsName()));
-		if (newVar != null) {
-			JSForm nda = JSForm.flex(areaName.jsName() +".prototype._assignToVar = function(obj)").needBlock();
-			nda.add(JSForm.flex("if (this. " + newVar + " == obj) return"));
-			JSForm ifremove = JSForm.flex("if (this." + newVar+ ")");
-			// TODO: I claim this should be this.newVar, not obj
-			ifremove.add(JSForm.flex(" this._wrapper.removeOnUpdate('crorepl', this._parent._croset, obj.id, this)"));
-			nda.add(ifremove);
-			nda.add(JSForm.flex("this." + newVar + " = obj"));
-			JSForm ifload = JSForm.flex("if (this." + newVar+ ")").needBlock();
-			// TODO: I claim this should also be this.newVar, not obj for consistency, but at least they are the same here ...
-			ifload.add(JSForm.flex("this._wrapper.onUpdate('crorepl', this._parent._croset, obj.id, this)"));
-			nda.add(ifload);
-			nda.add(JSForm.flex("this._fireInterests()"));
-			cx.target.add(nda);
+			jsArea.assignToVar(newVar);
 			area.assignToVar(newVar);
 		}
 		if (tl instanceof RWTemplateDiv) {

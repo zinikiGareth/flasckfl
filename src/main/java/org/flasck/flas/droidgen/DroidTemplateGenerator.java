@@ -42,7 +42,7 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public CGRContext area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo) {
+	public DroidAreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo) {
 		if (!doBuild)
 			return null;
 		String clz = areaName.javaName();
@@ -60,7 +60,7 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", baseClz, "<init>", parent.getVar(), customTag == null ? ctor.as(ctor.aNull(), "java.lang.String") : ctor.stringConst(customTag)).flush();
 			ctor.assign(card.asExpr(ctor), cardArg.getVar()).flush();
-			return new CGRContext(bcc, ctor, cardArg.getVar(), parent.getVar());
+			return new DroidAreaGenerator(bcc, ctor, cardArg.getVar(), parent.getVar());
 		}
 	}
 }

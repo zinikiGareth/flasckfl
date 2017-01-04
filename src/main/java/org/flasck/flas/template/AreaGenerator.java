@@ -35,8 +35,6 @@ public interface AreaGenerator {
 
 	void setSimpleClass(String css);
 
-	void newVar(String newVar);
-
 	Expr sourceFor(String name);
 
 	Expr cardField(CardMember expr);

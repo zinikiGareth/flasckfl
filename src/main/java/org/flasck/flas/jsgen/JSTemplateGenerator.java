@@ -27,6 +27,8 @@ public class JSTemplateGenerator implements TemplateGenerator {
 	public AreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo) {
 		JSForm fn = JSForm.flex(areaName.jsName() +" = function(parent)").needBlock();
 		target.add(fn);
+		target.add(JSForm.flex(areaName.jsName() +".prototype = new " + base + "()"));
+		target.add(JSForm.flex(areaName.jsName() +".prototype.constructor = " + areaName.jsName()));
 		String moreArgs = "";
 		if (wantYoyo != null)
 			moreArgs = ", undefined"; // explicitly say the card is undefined until yoyoVar evaluates
@@ -39,7 +41,7 @@ public class JSTemplateGenerator implements TemplateGenerator {
 		}
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
 		fn.add(JSForm.flex("if (!parent) return"));
-		return new JSAreaGenerator(fn);
+		return new JSAreaGenerator(target, fn, areaName);
 	}
 
 }
