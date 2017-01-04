@@ -169,7 +169,6 @@ public class TemplateTraversor {
 		JSAreaGenerator jsArea = (JSAreaGenerator) jsg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
 		areas.add(drArea);
 		areas.add(jsArea);
-		JSForm fn = jsArea.fn;
 		for (DefinedVar vc : cx.varsToCopy) {
 			String s = vc.name;
 			for (AreaGenerator area : areas)
@@ -302,7 +301,7 @@ public class TemplateTraversor {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
 		if (tl instanceof RWTemplateFormat) {
-			handleFormatsAndEvents(cx, areas, jsArea, drArea, fn, areaName, isEditable, (RWTemplateFormat)tl);
+			handleFormatsAndEvents(cx, areas, jsArea, drArea, areaName, isEditable, (RWTemplateFormat)tl);
 		}
 		if (newVar != null) {
 			cx.removeLastCopyVar();
@@ -312,7 +311,7 @@ public class TemplateTraversor {
 		return areas;
 	}
 
-	protected void handleFormatsAndEvents(GeneratorContext cx, List<AreaGenerator> areas, JSAreaGenerator jsArea, AreaGenerator area, JSForm fn, AreaName areaName, boolean isEditable, RWTemplateFormat tl) {
+	protected void handleFormatsAndEvents(GeneratorContext cx, List<AreaGenerator> areas, JSAreaGenerator jsArea, AreaGenerator dgArea, AreaName areaName, boolean isEditable, RWTemplateFormat tl) {
 		StringBuilder simple = new StringBuilder();
 		if (isEditable)
 			simple.append(" flasck-editable");
@@ -341,22 +340,20 @@ public class TemplateTraversor {
 			if (simple.length() > 0)
 				expr = new ApplyExpr(first, cx.cons, new StringLiteral(first, simple.substring(1)), expr);
 			String scf = areaName.jsName() + ".prototype._setVariableFormats";
-			JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
 			String tfn = tl.dynamicFunction.name;
-			scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this."+tfn+"()), ' '))"));
-			cx.target.add(scvs);
-			area.setVarFormats(tfn);
+			jsArea.setVarFormats(tfn);
+			dgArea.setVarFormats(tfn);
 			callOnAssign(areas, expr, scf, true, null);
 		}
 		else if (expr == null && simple.length() > 0) {
-			fn.add(JSForm.flex("this._mydiv.className = '" + simple.substring(1) + "'"));
-			area.setSimpleClass(simple.substring(1));
+			jsArea.setSimpleClass(simple.substring(1));
+			dgArea.setSimpleClass(simple.substring(1));
 		}
 		if (tl instanceof RWTemplateFormatEvents) {
 			RWTemplateFormatEvents tfe = (RWTemplateFormatEvents) tl;
 			if (!tfe.handlers.isEmpty()) {
 				JSForm ahf = JSForm.flex(areaName.jsName() +".prototype._add_handlers = function()").needBlock();
-				area.needAddHandlers();
+				dgArea.needAddHandlers();
 				cx.target.add(ahf);
 				boolean isFirst = true;
 				for (RWEventHandler eh : tfe.handlers) {

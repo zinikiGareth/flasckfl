@@ -13,14 +13,11 @@ import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
 import org.flasck.flas.template.TemplateTraversor;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSAreaGenerator implements AreaGenerator {
-
 	private JSTarget target;
-	// TODO: make this private and only used locally
-	public final JSForm fn;
+	private final JSForm fn;
 	private final AreaName areaName;
 
 	public JSAreaGenerator(JSTarget target, JSForm fn, AreaName areaName) {
@@ -151,14 +148,15 @@ public class JSAreaGenerator implements AreaGenerator {
 
 	@Override
 	public void setVarFormats(String tfn) {
-		// TODO Auto-generated method stub
-
+		String scf = areaName.jsName() + ".prototype._setVariableFormats";
+		JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
+		scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this."+tfn+"()), ' '))"));
+		target.add(scvs);
 	}
 
 	@Override
 	public void setSimpleClass(String css) {
-		// TODO Auto-generated method stub
-
+		fn.add(JSForm.flex("this._mydiv.className = '" + css + "'"));
 	}
 
 	@Override
