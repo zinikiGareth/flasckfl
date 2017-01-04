@@ -1,5 +1,7 @@
 package org.flasck.flas.droidgen;
 
+import java.util.List;
+
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
@@ -104,7 +106,8 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void newListChild(String child) {
+	public void newListChild(AreaName childArea) {
+		String child = childArea.javaName();
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_newChild");
 		PendingVar ck = gen.argument("org.flasck.android.builtin.Crokey", "crokey");
 		gen.returns("org.flasck.android.areas.Area");
@@ -201,6 +204,24 @@ public class DroidAreaGenerator implements AreaGenerator {
 
 	@Override
 	public void handleTEA(RWTemplateExplicitAttr tea, int an) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void supportDragging() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void makeItemDraggable() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dropZone(List<String> droppables) {
 		// TODO Auto-generated method stub
 		
 	}

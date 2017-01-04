@@ -22,7 +22,7 @@ public interface AreaGenerator {
 
 	void onAssign(CardMember valExpr, String call);
 
-	void newListChild(String child);
+	void newListChild(AreaName child);
 
 	void contentExpr(String tfn, boolean rawHTML);
 
@@ -45,4 +45,8 @@ public interface AreaGenerator {
 	void handleTEA(RWTemplateExplicitAttr tea, int an);
 
 	void dropZone(List<String> droppables);
+
+	void supportDragging();
+
+	void makeItemDraggable();
 }

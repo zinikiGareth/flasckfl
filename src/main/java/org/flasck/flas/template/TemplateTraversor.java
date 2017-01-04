@@ -118,7 +118,7 @@ public class TemplateTraversor {
 		recurse(cx, areaName, cg.content, null);
 	}
 
-	private JSForm recurse(GeneratorContext cx, AreaName areaName, RWTemplateLine tl, AreaName parentArea) {
+	private List<AreaGenerator> recurse(GeneratorContext cx, AreaName areaName, RWTemplateLine tl, AreaName parentArea) {
 		if (tl == null)
 			return null;
 		String base;
@@ -164,8 +164,11 @@ public class TemplateTraversor {
 		} else {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
 		}
+		List<AreaGenerator> ret = new ArrayList<AreaGenerator>();
 		AreaGenerator area = dg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
 		JSAreaGenerator jsArea = (JSAreaGenerator) jsg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
+		ret.add(area);
+		ret.add(jsArea);
 		JSForm fn = jsArea.fn;
 		for (DefinedVar vc : cx.varsToCopy) {
 			String s = vc.name;
@@ -208,20 +211,20 @@ public class TemplateTraversor {
 			RWTemplateList l = (RWTemplateList) tl;
 			TemplateListVar lv = (TemplateListVar)l.iterVar;
 			String tlv = lv == null ? null : lv.simpleName;
-			if (l.supportDragOrdering)
-				fn.add(JSForm.flex("this._supportDragging()"));
-			AreaName item = l.template.areaName();
-			{
-				JSForm nc = JSForm.flex(areaName.jsName() +".prototype._newChild = function()").needBlock();
-				nc.add(JSForm.flex("return new " + item.jsName() + "(this)"));
-				cx.target.add(nc);
+			if (l.supportDragOrdering) {
+				area.supportDragging();
+				jsArea.supportDragging();
 			}
-			area.newListChild(item.javaName());
+			AreaName item = l.template.areaName();
+			jsArea.newListChild(item);
+			area.newListChild(item);
 			if (tlv != null)
 				cx.newVar(tlv);
-			JSForm cfn = recurse(cx, item, l.template, areaName);
-			if (l.supportDragOrdering)
-				cfn.add(JSForm.flex("this._makeDraggable()"));
+			List<AreaGenerator> cfn = recurse(cx, item, l.template, areaName);
+			if (l.supportDragOrdering) {
+				for (AreaGenerator ag : cfn)
+					ag.makeItemDraggable();
+			}
 			JSForm atv = JSForm.flex(areaName.jsName() + ".prototype._assignToVar = function()").needBlock();
 			String tfn = simpleName(l.listFn);
 			atv.add(JSForm.flex("var lv = FLEval.full(this." + tfn + "())"));
@@ -318,7 +321,7 @@ public class TemplateTraversor {
 			cx.removeLastCopyVar();
 		}
 		area.done();
-		return fn;
+		return ret;
 	}
 
 	protected void handleFormatsAndEvents(GeneratorContext cx, AreaGenerator area, AreaName areaName, JSForm fn, boolean isEditable, RWTemplateFormat tl) {

@@ -9,7 +9,6 @@ import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
-import org.flasck.flas.template.TemplateTraversor.GeneratorContext;
 import org.zinutils.bytecode.Expr;
 
 public class JSAreaGenerator implements AreaGenerator {
@@ -91,9 +90,10 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void newListChild(String child) {
-		// TODO Auto-generated method stub
-
+	public void newListChild(AreaName item) {
+		JSForm nc = JSForm.flex(areaName.jsName() +".prototype._newChild = function()").needBlock();
+		nc.add(JSForm.flex("return new " + item.jsName() + "(this)"));
+		target.add(nc);
 	}
 
 	@Override
@@ -147,6 +147,16 @@ public class JSAreaGenerator implements AreaGenerator {
 	public Expr cardField(CardMember expr) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void supportDragging() {
+		fn.add(JSForm.flex("this._supportDragging()"));
+	}
+
+	@Override
+	public void makeItemDraggable() {
+		fn.add(JSForm.flex("this._makeDraggable()"));
 	}
 
 	@Override
