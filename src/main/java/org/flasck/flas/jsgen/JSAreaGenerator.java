@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -13,6 +14,7 @@ import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
 import org.flasck.flas.template.TemplateTraversor;
 import org.zinutils.bytecode.Expr;
+import org.zinutils.exceptions.NotImplementedException;
 
 public class JSAreaGenerator implements AreaGenerator {
 
@@ -79,27 +81,32 @@ public class JSAreaGenerator implements AreaGenerator {
 
 
 	@Override
-	public void addAssign(String call) {
-		// TODO Auto-generated method stub
-
+	public void addAssign(String call, String passVar) {
+		fn.add(JSForm.flex(call + ".call(this" + (passVar != null ? ", " + passVar : "") + ")"));
 	}
 
 	@Override
 	public void interested(String var, String call) {
-		// TODO Auto-generated method stub
-
+		fn.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));
 	}
 
 	@Override
-	public void onAssign(Expr expr, String field, String call) {
-		// TODO Auto-generated method stub
-
+	public void onFieldAssign(Object expr, String field, String call) {
+		String jsexpr;
+		if (expr instanceof TemplateListVar) {
+			String name = ((TemplateListVar)expr).simpleName;
+			jsexpr = "this._src_" + name + "." + name;
+		} else if (expr instanceof CardMember) {
+			jsexpr = "this._card." + ((CardMember)expr).var;
+		} else
+			throw new NotImplementedException();
+		
+		fn.add(JSForm.flex("this._onAssign(" + jsexpr +", '" + field + "', " + call + ")"));
 	}
 
 	@Override
-	public void onAssign(CardMember valExpr, String call) {
-		// TODO Auto-generated method stub
-
+	public void onAssign(CardMember cm, String call) {
+		fn.add(JSForm.flex("this._onAssign(this._card, '" + cm.var + "', " + call + ")"));
 	}
 
 	@Override
@@ -152,18 +159,6 @@ public class JSAreaGenerator implements AreaGenerator {
 	public void setSimpleClass(String css) {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public Expr sourceFor(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expr cardField(CardMember expr) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

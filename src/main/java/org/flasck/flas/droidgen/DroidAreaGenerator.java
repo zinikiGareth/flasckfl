@@ -3,6 +3,7 @@ package org.flasck.flas.droidgen;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
@@ -19,6 +20,7 @@ import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.JavaInfo.Access;
 
@@ -81,7 +83,9 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void addAssign(String call) {
+	public void addAssign(String call, String passVar) {
+		if (passVar != null)
+			throw new NotImplementedException("Passed var: " + passVar);
 		int idx = call.lastIndexOf(".prototype");
 		call = call.substring(idx+11);
 		ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), call)).flush();
@@ -96,11 +100,20 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void onAssign(Expr expr, String field, String call) {
+	public void onFieldAssign(Object expr, String field, String call) {
+		Expr dge = null;
+		if (expr instanceof TemplateListVar) {
+			String name = ((TemplateListVar)expr).simpleName;
+			dge = ctor.getField(ctor.getField(ctor.myThis(), "_src_" + name), name);
+		} else if (expr instanceof CardMember) {
+			dge = ctor.getField(ctor.getField(ctor.myThis(), "_card"), ((CardMember)expr).var);
+		} else
+			throw new NotImplementedException();
+
 		int idx = call.lastIndexOf(".");
 		if (idx != -1)
 			call = call.substring(idx+1);
-		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)ctor.as(expr, "java.lang.Object"), ctor.stringConst(field), (Expr)ctor.as(ctor.myThis(), "org.flasck.android.areas.Area"), ctor.stringConst(call)).flush();
+		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)ctor.as(dge, "java.lang.Object"), ctor.stringConst(field), (Expr)ctor.as(ctor.myThis(), "org.flasck.android.areas.Area"), ctor.stringConst(call)).flush();
 	}
 
 	@Override
@@ -198,16 +211,6 @@ public class DroidAreaGenerator implements AreaGenerator {
 	@Override
 	public void setSimpleClass(String css) {
 		ctor.callVirtual("void", ctor.myThis(), "setCSS", ctor.stringConst(css)).flush();
-	}
-
-	@Override
-	public Expr sourceFor(String name) {
-		return ctor.getField(ctor.getField(ctor.myThis(), "_src_" + name), name);
-	}
-
-	@Override
-	public Expr cardField(CardMember expr) {
-		return ctor.getField(ctor.getField(ctor.myThis(), "_card"), ((CardMember)expr).var);
 	}
 
 	@Override

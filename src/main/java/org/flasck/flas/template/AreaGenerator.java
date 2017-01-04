@@ -15,11 +15,11 @@ public interface AreaGenerator {
 	
 	void assignToVar(String varName);
 
-	void addAssign(String call);
+	void addAssign(String call, String passVar);
 
 	void interested(String var, String call);
 
-	void onAssign(Expr expr, String field, String call);
+	void onFieldAssign(Object expr, String field, String call);
 
 	void onAssign(CardMember valExpr, String call);
 
@@ -38,10 +38,6 @@ public interface AreaGenerator {
 	void setVarFormats(String tfn);
 
 	void setSimpleClass(String css);
-
-	Expr sourceFor(String name);
-
-	Expr cardField(CardMember expr);
 
 	void handleTEA(RWTemplateExplicitAttr tea, int an);
 
