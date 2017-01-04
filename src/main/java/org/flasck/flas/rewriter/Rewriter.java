@@ -137,12 +137,12 @@ import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.types.FunctionType;
-import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.TypeWithName;
+import org.flasck.flas.types.TypeWithNameAndPolys;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
@@ -273,9 +273,9 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	public class StructDefnContext extends NamingContext {
-		private final List<Type> polys;
+		private final List<PolyVar> polys;
 
-		public StructDefnContext(NamingContext cx, List<Type> polys) {
+		public StructDefnContext(NamingContext cx, List<PolyVar> polys) {
 			super(cx);
 			this.polys = polys;
 		}
@@ -1348,8 +1348,8 @@ public class Rewriter implements CodeGenRegistry {
 		}
 	}
 
-	protected List<Type> rewritePolys(List<PolyType> polys) {
-		List<Type> pts = new ArrayList<Type>(); // poly vars
+	protected List<PolyVar> rewritePolys(List<PolyType> polys) {
+		List<PolyVar> pts = new ArrayList<>();
 		if (polys != null)
 			for (PolyType r : polys)
 				pts.add(new PolyVar(r.location(), r.name()));
@@ -1653,32 +1653,27 @@ public class Rewriter implements CodeGenRegistry {
 					return new PolyVar(type.location(), type.name());
 				throw ex;
 			}
-			if (ret.hasPolys() && !type.hasPolys()) {
-				errors.message(type.location(), "cannot use " + ret.name() + " without specifying polymorphic arguments");
-				return null;
-			} else if (!ret.hasPolys() && type.hasPolys()) {
-				errors.message(type.location(), "cannot use polymorphic arguments to type " + ret.name());
-				return null;
-			} else if (ret.hasPolys() && type.hasPolys()) {
-				// check and instantiate
-				if (type.polys().size() != ret.polys().size()) {
-					errors.message(type.location(), "incorrect number of polymorphic arguments to type " + ret.name());
+			if (ret instanceof TypeWithNameAndPolys) {
+				TypeWithNameAndPolys tnp = (TypeWithNameAndPolys) ret;
+				if (tnp.hasPolys() && !type.hasPolys()) {
+					errors.message(type.location(), "cannot use " + tnp.name() + " without specifying polymorphic arguments");
 					return null;
-				} else {
-					List<Type> rwp = new ArrayList<Type>();
-					for (TypeReference p : type.polys())
-						rwp.add(rewrite(cx, p, true));
-					if (!(ret instanceof InstanceType))
-						ret = ((TypeWithName)ret).instance(type.location(), rwp);
+				} else if (!tnp.hasPolys() && type.hasPolys()) {
+					errors.message(type.location(), "cannot use polymorphic arguments to type " + tnp.name());
+					return null;
+				} else if (tnp.hasPolys() && type.hasPolys()) {
+					// check and instantiate
+					if (type.polys().size() != tnp.polys().size()) {
+						errors.message(type.location(), "incorrect number of polymorphic arguments to type " + tnp.name());
+						return null;
+					} else {
+						List<Type> rwp = new ArrayList<Type>();
+						for (TypeReference p : type.polys())
+							rwp.add(rewrite(cx, p, true));
+						ret = tnp.instance(type.location(), rwp);
+					}
 				}
 			}
-//			List<Type> fnargs = new ArrayList<Type>();
-//			// There seems something very wrong here to me ... if we ever get here :-)  Shouldn't fnargs be filled with something?
-//			if (ret.iam == WhatAmI.TUPLE)
-//				return Type.tuple(ret.location(), fnargs);
-//			if (ret.iam == WhatAmI.FUNCTION)
-//				return Type.function(ret.location(), fnargs);
-//			else
 			return ret;
 		} catch (ResolutionException ex) {
 			errors.message(type.location(), ex.getMessage());

@@ -68,7 +68,7 @@ public class PackageImporter {
 			if (xe.hasTag("Import"))
 				; // handled in pass 0
 			else if (xe.hasTag("Struct")) {
-				List<Type> polys = new ArrayList<>();
+				List<PolyVar> polys = new ArrayList<>();
 				String baseName = xe.required("name");
 				RWStructDefn sd = new RWStructDefn(location(xe), new StructName(packageName, baseName), false, polys);
 				xe.attributesDone();

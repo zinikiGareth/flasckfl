@@ -6,7 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NameOfThing;
 
 public abstract class TypeWithMethods extends TypeWithNameAndPolys {
-	public TypeWithMethods(InputPosition kw, InputPosition location, NameOfThing type, List<Type> polys) {
+	public TypeWithMethods(InputPosition kw, InputPosition location, NameOfThing type, List<PolyVar> polys) {
 		super(kw, location, type, polys);
 	}
 

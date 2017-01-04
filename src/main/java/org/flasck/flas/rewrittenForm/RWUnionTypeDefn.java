@@ -5,15 +5,16 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NameOfThing;
+import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeWithNameAndPolys;
 import org.zinutils.exceptions.UtilException;
 
 public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<RWUnionTypeDefn> {
 	public final transient boolean generate;
-	public final List<Type> cases = new ArrayList<Type>();
+	public final List<Type> cases = new ArrayList<>();
 
-	public RWUnionTypeDefn(InputPosition location, boolean generate, NameOfThing defining, List<Type> polyvars) {
+	public RWUnionTypeDefn(InputPosition location, boolean generate, NameOfThing defining, List<PolyVar> polyvars) {
 		super(null, location, defining, polyvars);
 		this.generate = generate;
 	}
@@ -39,8 +40,8 @@ public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<
 		for (Type cs : cases) {
 			if (cs.name().equals(name)) {
 				List<Integer> ret = new ArrayList<>();
-				if (cs.hasPolys()) {
-					for (Type t : cs.polys()) {
+				if (cs instanceof TypeWithNameAndPolys && ((TypeWithNameAndPolys)cs).hasPolys()) {
+					for (Type t : ((TypeWithNameAndPolys)cs).polys()) {
 						int k = -1;
 						for (int i=0;i<polys().size();i++) {
 							if (polys().get(i).equals(t))

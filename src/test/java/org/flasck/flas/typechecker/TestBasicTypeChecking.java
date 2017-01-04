@@ -52,7 +52,7 @@ public class TestBasicTypeChecking {
 	@Before
 	public void setup() {
 		LogManager.getLogger("TypeChecker").setLevel(Level.DEBUG);
-		Type varA = new PolyVar(posn, "A");
+		PolyVar varA = new PolyVar(posn, "A");
 		ImportPackage pkg = new ImportPackage("");
 		pkg.define("Number", number);
 		pkg.define("Char", charT);

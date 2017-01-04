@@ -1,7 +1,5 @@
 package org.flasck.flas.types;
 
-import java.util.List;
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NameOfThing;
@@ -27,10 +25,6 @@ public abstract class Type implements Locatable {
 
 	public String name() { throw new NotImplementedException(); }
 	public NameOfThing getTypeName() { throw new NotImplementedException(); }
-
-	public boolean hasPolys() { return false; }
-	public List<Type> polys() { throw new NotImplementedException(); }
-	public Type poly(int i) { throw new NotImplementedException(); }
 
 	public static FunctionType function(InputPosition loc, Type... args) {
 		return new FunctionType(loc, CollectionUtils.listOf(args));

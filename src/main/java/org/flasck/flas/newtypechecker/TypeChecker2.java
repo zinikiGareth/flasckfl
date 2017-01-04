@@ -873,7 +873,7 @@ public class TypeChecker2 {
 			return getTypeOf(type.location(), type.name());
 		else if (type instanceof InstanceType) {
 			List<TypeInfo> args = new ArrayList<>();
-			for (Type t : type.polys())
+			for (Type t : ((InstanceType)type).polys())
 				args.add(convertType(t));
 			return new NamedType(type.location(), type.name(), args);
 		} else if (type instanceof FunctionType) {
@@ -988,7 +988,7 @@ public class TypeChecker2 {
 			throw new UtilException("Do what now? " + ti);
 	}
 	
-	private TypeInfo instantiate(TypeInfo subst, NamedType nt, Type od) {
+	private TypeInfo instantiate(TypeInfo subst, NamedType nt, RWObjectDefn od) {
 		if (subst instanceof TypeFunc) {
 			TypeFunc work = (TypeFunc) subst;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();

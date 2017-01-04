@@ -111,10 +111,11 @@ public class RewriterTests {
 		assertEquals("list", sf.name);
 		assertEquals("List", sf.type.name());
 		assertTrue(sf.type instanceof InstanceType);
-		assertTrue(sf.type.hasPolys());
-		assertEquals(1, sf.type.polys().size());
-		assertEquals("String", sf.type.poly(0).name());
-		assertTrue(sf.type.poly(0) instanceof PrimitiveType);
+		InstanceType st = (InstanceType)sf.type;
+		assertTrue(st.hasPolys());
+		assertEquals(1, st.polys().size());
+		assertEquals("String", st.poly(0).name());
+		assertTrue(st.poly(0) instanceof PrimitiveType);
 	}
 	
 	@Test

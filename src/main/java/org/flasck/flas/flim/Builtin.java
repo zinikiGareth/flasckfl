@@ -21,11 +21,11 @@ public class Builtin {
 	public static ImportPackage builtins() {
 		ImportPackage root = new ImportPackage(null);
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
-		Type varA = new PolyVar(posn, "A");
-		Type varB = new PolyVar(posn, "B");
-		Type bool = new PrimitiveType(posn, new StructName(null, "Boolean"));
-		Type number = new PrimitiveType(posn, new StructName(null, "Number"));
-		Type string = new PrimitiveType(posn, new StructName(null, "String"));
+		PolyVar varA = new PolyVar(posn, "A");
+		PolyVar varB = new PolyVar(posn, "B");
+		PrimitiveType bool = new PrimitiveType(posn, new StructName(null, "Boolean"));
+		PrimitiveType number = new PrimitiveType(posn, new StructName(null, "Number"));
+		PrimitiveType string = new PrimitiveType(posn, new StructName(null, "String"));
 		RWUnionTypeDefn any = new RWUnionTypeDefn(posn, false, new StructName(null, "Any"), null);
 		{ // core
 			root.define("if", fnhelper("if", varA, varA, varA));
@@ -137,7 +137,7 @@ public class Builtin {
 			root.define("Message", message);
 //			root.define("JSNI", "JSNI", null);
 			
-			Type polyT = new PolyVar(posn, "T");
+			PolyVar polyT = new PolyVar(posn, "T");
 			RWStructDefn mw = new RWStructDefn(posn, new StructName(null, "MessageWrapper"), false, polyT);
 			mw.addField(new RWStructField(posn, false, polyT, "value"));
 			mw.addField(new RWStructField(posn, false, list.instance(posn, message), "msgs"));
@@ -193,8 +193,8 @@ public class Builtin {
 	public ImportPackage domScope(ImportPackage root) {
 		ImportPackage ret = new ImportPackage("DOM");
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
-		Type varA = new PolyVar(posn, "A");
-		Type varB = new PolyVar(posn, "B");
+		PolyVar varA = new PolyVar(posn, "A");
+		PolyVar varB = new PolyVar(posn, "B");
 		Type string = (Type) root.get("String");
 		TypeWithName list = (TypeWithName) root.get("List");
 		{ // DOM
