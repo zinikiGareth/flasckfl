@@ -164,22 +164,22 @@ public class TemplateTraversor {
 		} else {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
 		}
-		List<AreaGenerator> ret = new ArrayList<AreaGenerator>();
-		AreaGenerator area = dg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
+		List<AreaGenerator> areas = new ArrayList<AreaGenerator>();
+		AreaGenerator drArea = dg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
 		JSAreaGenerator jsArea = (JSAreaGenerator) jsg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
-		ret.add(area);
-		ret.add(jsArea);
+		areas.add(drArea);
+		areas.add(jsArea);
 		JSForm fn = jsArea.fn;
 		for (DefinedVar vc : cx.varsToCopy) {
 			String s = vc.name;
-			jsArea.copyVar(parentArea, vc.definedIn, s);
-			area.copyVar(parentArea, vc.definedIn, s);
+			for (AreaGenerator area : areas)
+				area.copyVar(parentArea, vc.definedIn, s);
 		}
 		String newVar = cx.extractNewVar();
 		if (newVar != null) {
 			cx.varToCopy(newVar, areaName);
-			jsArea.assignToVar(newVar);
-			area.assignToVar(newVar);
+			for (AreaGenerator area : areas)
+				area.assignToVar(newVar);
 		}
 		if (tl instanceof RWTemplateDiv) {
 			RWTemplateDiv td = (RWTemplateDiv) tl;
@@ -187,24 +187,24 @@ public class TemplateTraversor {
 			for (Object a : td.attrs) {
 				if (a instanceof RWTemplateExplicitAttr) {
 					RWTemplateExplicitAttr tea = (RWTemplateExplicitAttr) a;
-					area.handleTEA(tea, an);
-					jsArea.handleTEA(tea, an);
+					for (AreaGenerator area : areas)
+						area.handleTEA(tea, an);
 					String saf = areaName.jsName() + ".prototype._setAttr_" + an;
-					callOnAssign(fn, tea.value, area, saf, true, null);
+					callOnAssign(fn, tea.value, drArea, saf, true, null);
 					an++;
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
 			}
 			if (td.droppables != null) {
-				area.dropZone(td.droppables);
-				jsArea.dropZone(td.droppables);
+				for (AreaGenerator area : areas)
+					area.dropZone(td.droppables);
 			}
 			for (RWTemplateLine c : td.nested) {
 				AreaName cn = c.areaName();
 				int idx = cn.jsName().lastIndexOf(".B")+2;
 				String v = 'b'+cn.jsName().substring(idx);
-				jsArea.createNested(v, cn);
-				area.createNested(v, cn);
+				for (AreaGenerator area : areas)
+					area.createNested(v, cn);
 				recurse(cx, cn, c, areaName);
 			}
 		} else if (tl instanceof RWTemplateList) {
@@ -212,47 +212,47 @@ public class TemplateTraversor {
 			TemplateListVar lv = (TemplateListVar)l.iterVar;
 			String tlv = lv == null ? null : lv.simpleName;
 			if (l.supportDragOrdering) {
-				area.supportDragging();
-				jsArea.supportDragging();
+				for (AreaGenerator area : areas)
+					area.supportDragging();
 			}
 			AreaName item = l.template.areaName();
-			jsArea.newListChild(item);
-			area.newListChild(item);
+			for (AreaGenerator area : areas)
+				area.newListChild(item);
 			if (tlv != null)
 				cx.newVar(tlv);
 			List<AreaGenerator> cfn = recurse(cx, item, l.template, areaName);
 			if (l.supportDragOrdering) {
-				for (AreaGenerator ag : cfn)
-					ag.makeItemDraggable();
+				for (AreaGenerator area : cfn)
+					area.makeItemDraggable();
 			}
-			area.assignToList(l.listFn);
-			jsArea.assignToList(l.listFn);
-			callOnAssign(fn, l.listVar, area, areaName.jsName() + ".prototype._assignToVar", false, "lv");
+			for (AreaGenerator area : areas)
+				area.assignToList(l.listFn);
+			callOnAssign(fn, l.listVar, drArea, areaName.jsName() + ".prototype._assignToVar", false, "lv");
 		} else if (tl instanceof RWContentString) {
 			RWContentString cs = (RWContentString) tl;
-			jsArea.setText(cs.text);
-			area.setText(cs.text);
+			for (AreaGenerator area : areas)
+				area.setText(cs.text);
 		} else if (tl instanceof RWContentExpr) {
 			RWContentExpr ce = (RWContentExpr)tl;
 			Object valExpr = ce.expr;
-			callOnAssign(fn, valExpr, area, areaName.jsName() + ".prototype._contentExpr", true, null);
+			callOnAssign(fn, valExpr, drArea, areaName.jsName() + ".prototype._contentExpr", true, null);
 
 			String tfn = simpleName(ce.fnName);
-			jsArea.contentExpr(tfn, ce.rawHTML);
-			area.contentExpr(tfn, ce.rawHTML);
+			for (AreaGenerator area : areas)
+				area.contentExpr(tfn, ce.rawHTML);
 			
 			if (isEditable) {
 				// for it to be editable, it must be a clear field of a clear object
 				if (valExpr instanceof CardMember) {
 					CardMember cm = (CardMember) valExpr;
-					area.makeEditable(ce, cm.var);
-					jsArea.makeEditable(ce, cm.var);
+					for (AreaGenerator area : areas)
+						area.makeEditable(ce, cm.var);
 				} else if (valExpr instanceof ApplyExpr) {
 					ApplyExpr ae = (ApplyExpr) valExpr;
 					if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
 						throw new UtilException("Cannot edit: " + ae);
-					area.makeEditable(ce, ((StringLiteral)ae.args.get(1)).text);
-					jsArea.makeEditable(ce, ((StringLiteral)ae.args.get(1)).text);
+					for (AreaGenerator area : areas)
+						area.makeEditable(ce, ((StringLiteral)ae.args.get(1)).text);
 				} else 
 					throw new UtilException("Cannot edit: " + valExpr);
 			}
@@ -262,19 +262,19 @@ public class TemplateTraversor {
 				; // fully handled above
 			else if (cr.yoyoVar != null) {
 				Object valExpr = cr.yoyoVar;
-				callOnAssign(fn, valExpr, area, areaName.jsName() + ".prototype._yoyoExpr", true, null);
+				callOnAssign(fn, valExpr, drArea, areaName.jsName() + ".prototype._yoyoExpr", true, null);
 	
 				String tfn = simpleName(cr.fnName);
-				jsArea.yoyoExpr(tfn);
-				area.yoyoExpr(tfn);
+				for (AreaGenerator area : areas)
+					area.yoyoExpr(tfn);
 			} else
 				throw new UtilException("handle this case");
 		} else if (tl instanceof RWTemplateCases) {
 			RWTemplateCases tc = (RWTemplateCases) tl;
 			String sn = areaName.jsName() + ".prototype._chooseCase";
 			CaseChooser cc = jsArea.chooseCase(sn);
-			CaseChooser dcc = area.chooseCase(sn);
-			callOnAssign(fn, tc.switchOn, area, sn, true, null);
+			CaseChooser dcc = drArea.chooseCase(sn);
+			callOnAssign(fn, tc.switchOn, drArea, sn, true, null);
 
 			for (RWTemplateOr oc : tc.cases) {
 				AreaName cn = oc.areaName();
@@ -293,23 +293,23 @@ public class TemplateTraversor {
 				branch.code(cn);
 				recurse(cx, cn, oc.template, areaName);
 				if (oc.cond != null)
-					callOnAssign(fn, oc.cond, area, sn, false, null);
+					callOnAssign(fn, oc.cond, drArea, sn, false, null);
 			}
 		} else if (tl instanceof RWD3Thing) {
 			RWD3Thing d3 = (RWD3Thing) tl;
-			callOnAssign(fn, d3.data, area, "D3Area.prototype._onUpdate", false, null);
+			callOnAssign(fn, d3.data, drArea, "D3Area.prototype._onUpdate", false, null);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
 		if (tl instanceof RWTemplateFormat) {
-			handleFormatsAndEvents(cx, area, areaName, fn, isEditable, (RWTemplateFormat)tl);
+			handleFormatsAndEvents(cx, drArea, areaName, fn, isEditable, (RWTemplateFormat)tl);
 		}
 		if (newVar != null) {
 			cx.removeLastCopyVar();
 		}
-		area.done();
-		jsArea.done();
-		return ret;
+		for (AreaGenerator area : areas)
+			area.done();
+		return areas;
 	}
 
 	protected void handleFormatsAndEvents(GeneratorContext cx, AreaGenerator area, AreaName areaName, JSForm fn, boolean isEditable, RWTemplateFormat tl) {
