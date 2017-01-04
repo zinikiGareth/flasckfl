@@ -17,7 +17,7 @@ public class Type implements Locatable {
 	protected final String name;
 	private final Type type;
 	private final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
-	private final List<Type> fnargs; // arguments to function or tuple
+	protected final List<Type> fnargs; // arguments to function or tuple
 	private NameOfThing typeName;
 
 	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing name, List<Type> polys) {
@@ -28,25 +28,6 @@ public class Type implements Locatable {
 		this.iam = iam;
 		this.name = name.uniqueName();
 		this.typeName = name;
-		this.type = null;
-		this.polys = polys;
-		this.fnargs = null;
-		
-		// for anything which is not an instance, all the args MUST be polymorphic vars
-		if (polys != null && iam != WhatAmI.INSTANCE)
-			for (Type t : polys)
-				if (t.iam != WhatAmI.POLYVAR)
-					throw new UtilException("All arguments to type defn must be poly vars");
-	}
-
-	@Deprecated
-	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, String name, List<Type> polys) {
-		this.kw = kw;
-		if (location == null && iam != WhatAmI.POLYVAR)
-			throw new UtilException("Type without input location 1");
-		this.location = location;
-		this.iam = iam;
-		this.name = name;
 		this.type = null;
 		this.polys = polys;
 		this.fnargs = null;
@@ -174,18 +155,19 @@ public class Type implements Locatable {
 		return new Type(loc, loc, WhatAmI.POLYVAR, new PolyName(name), null);
 	}
 	
+	@Deprecated
 	public static Type function(InputPosition loc, List<Type> args) {
-		if (args.size() < 1)
-			throw new UtilException("Can you have a function/method type with less than 1 arg? (the result)  Really?");
-		return new Type(loc, WhatAmI.FUNCTION, args);
+		return new FunctionType(loc, args);
 	}
 
+	@Deprecated
 	public static Type function(InputPosition loc, Type... args) {
-		return Type.function(loc, CollectionUtils.listOf(args));
+		return new FunctionType(loc, CollectionUtils.listOf(args));
 	}
 	
+	@Deprecated
 	public static Type tuple(InputPosition loc, List<Type> args) {
-		return new Type(loc, WhatAmI.TUPLE, args);
+		return new TupleType(loc, args);
 	}
 	
 	public String toString() {
@@ -209,16 +191,6 @@ public class Type implements Locatable {
 		case POLYVAR:
 			sb.append(name);
 			break;
-		case FUNCTION:
-			if (fnargs.size() == 1)
-				sb.append("->");
-			showArgs(sb, "->");
-			break;
-		case TUPLE:
-			sb.append("(");
-			showArgs(sb, ",");
-			sb.append(")");
-			break;
 		case INSTANCE:
 			sb.append(type.name());
 			showPolys(sb);
@@ -237,7 +209,7 @@ public class Type implements Locatable {
 		}
 	}
 
-	private void showArgs(StringBuilder sb, String withSep) {
+	protected void showArgs(StringBuilder sb, String withSep) {
 		String sep = "";
 		for (Type t : fnargs) {
 			if (t == null) {
