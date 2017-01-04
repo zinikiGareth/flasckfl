@@ -225,13 +225,9 @@ public class TemplateTraversor {
 				for (AreaGenerator ag : cfn)
 					ag.makeItemDraggable();
 			}
-			JSForm atv = JSForm.flex(areaName.jsName() + ".prototype._assignToVar = function()").needBlock();
-			String tfn = simpleName(l.listFn);
-			atv.add(JSForm.flex("var lv = FLEval.full(this." + tfn + "())"));
+			area.assignToList(l.listFn);
+			jsArea.assignToList(l.listFn);
 			callOnAssign(fn, l.listVar, area, areaName.jsName() + ".prototype._assignToVar", false, "lv");
-			fn.add(JSForm.flex(areaName.jsName() + ".prototype._assignToVar.call(this)"));
-			atv.add(JSForm.flex("ListArea.prototype._assignToVar.call(this, lv)"));
-			cx.target.add(atv);
 		} else if (tl instanceof RWContentString) {
 			RWContentString cs = (RWContentString) tl;
 			fn.add(JSForm.flex("this._setText('" + cs.text + "')"));
@@ -481,13 +477,8 @@ public class TemplateTraversor {
 		}
 	}
 
-	private String javaName(String topBlock) {
-		int idx = topBlock.lastIndexOf("._");
-		return topBlock.substring(0, idx+1) + topBlock.substring(idx+2);
-	}
-
 	@Deprecated
-	public String simpleName(String name) {
+	public static String simpleName(String name) {
 		int idx = name.lastIndexOf(".");
 		if (idx == -1)
 			throw new UtilException("No . in " + name);

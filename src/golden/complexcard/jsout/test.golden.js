@@ -233,8 +233,8 @@ test.golden._Complex.B2.prototype._setVariableFormats = function() {
 test.golden._Complex.B3 = function(parent) {
   ListArea.call(this, parent);
   if (!parent) return;
-  this._onAssign(this._card, 'list', test.golden._Complex.B3.prototype._assignToVar);
   test.golden._Complex.B3.prototype._assignToVar.call(this);
+  this._onAssign(this._card, 'list', test.golden._Complex.B3.prototype._assignToVar);
 }
 
 test.golden._Complex.B3.prototype = new ListArea();
@@ -292,8 +292,8 @@ test.golden._Complex.B3.prototype._assignToVar = function() {
 test.golden._Complex.B6 = function(parent) {
   ListArea.call(this, parent);
   if (!parent) return;
-  this._onAssign(this._card, 'list', test.golden._Complex.B6.prototype._assignToVar);
   test.golden._Complex.B6.prototype._assignToVar.call(this);
+  this._onAssign(this._card, 'list', test.golden._Complex.B6.prototype._assignToVar);
 }
 
 test.golden._Complex.B6.prototype = new ListArea();

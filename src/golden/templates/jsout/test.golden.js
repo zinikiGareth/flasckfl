@@ -61,8 +61,8 @@ test.golden._Templates.B1.prototype.constructor = test.golden._Templates.B1;
 test.golden._Templates.B2 = function(parent) {
   ListArea.call(this, parent);
   if (!parent) return;
-  this._onAssign(this._card, 'data', test.golden._Templates.B2.prototype._assignToVar);
   test.golden._Templates.B2.prototype._assignToVar.call(this);
+  this._onAssign(this._card, 'data', test.golden._Templates.B2.prototype._assignToVar);
 }
 
 test.golden._Templates.B2.prototype = new ListArea();

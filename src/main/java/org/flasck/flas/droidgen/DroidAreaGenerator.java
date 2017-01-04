@@ -73,6 +73,12 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
+	public void assignToList(String listFn) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void addAssign(String call) {
 		int idx = call.lastIndexOf(".prototype");
 		call = call.substring(idx+11);

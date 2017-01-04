@@ -49,4 +49,6 @@ public interface AreaGenerator {
 	void supportDragging();
 
 	void makeItemDraggable();
+
+	void assignToList(String listFn);
 }

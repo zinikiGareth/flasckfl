@@ -9,6 +9,7 @@ import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
+import org.flasck.flas.template.TemplateTraversor;
 import org.zinutils.bytecode.Expr;
 
 public class JSAreaGenerator implements AreaGenerator {
@@ -51,6 +52,16 @@ public class JSAreaGenerator implements AreaGenerator {
 		nda.add(ifload);
 		nda.add(JSForm.flex("this._fireInterests()"));
 		target.add(nda);
+	}
+
+	@Override
+	public void assignToList(String listFn) {
+		JSForm atv = JSForm.flex(areaName.jsName() + ".prototype._assignToVar = function()").needBlock();
+		String tfn = TemplateTraversor.simpleName(listFn);
+		atv.add(JSForm.flex("var lv = FLEval.full(this." + tfn + "())"));
+		fn.add(JSForm.flex(areaName.jsName() + ".prototype._assignToVar.call(this)"));
+		atv.add(JSForm.flex("ListArea.prototype._assignToVar.call(this, lv)"));
+		target.add(atv);
 	}
 
 	public void handleTEA(RWTemplateExplicitAttr tea, int an) {
