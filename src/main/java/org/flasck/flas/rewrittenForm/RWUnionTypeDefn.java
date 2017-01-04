@@ -7,25 +7,26 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.Type;
+import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.types.TypeWithNameAndPolys;
 import org.zinutils.exceptions.UtilException;
 
 public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<RWUnionTypeDefn> {
 	public final transient boolean generate;
-	public final List<Type> cases = new ArrayList<>();
+	public final List<TypeWithName> cases = new ArrayList<>();
 
 	public RWUnionTypeDefn(InputPosition location, boolean generate, NameOfThing defining, List<PolyVar> polyvars) {
 		super(null, location, defining, polyvars);
 		this.generate = generate;
 	}
 	
-	public RWUnionTypeDefn addCase(Type tr) {
+	public RWUnionTypeDefn addCase(TypeWithName tr) {
 		this.cases.add(tr);
 		return this;
 	}
 	
 	public boolean hasCtor(String s) {
-		for (Type cs : cases)
+		for (TypeWithName cs : cases)
 			if (cs.name().equals(s))
 				return true;
 		return false;
@@ -37,7 +38,7 @@ public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<
 	public List<Integer> getCtorPolyArgPosns(String name) {
 		if (!hasPolys())
 			return new ArrayList<Integer>();
-		for (Type cs : cases) {
+		for (TypeWithName cs : cases) {
 			if (cs.name().equals(name)) {
 				List<Integer> ret = new ArrayList<>();
 				if (cs instanceof TypeWithNameAndPolys && ((TypeWithNameAndPolys)cs).hasPolys()) {

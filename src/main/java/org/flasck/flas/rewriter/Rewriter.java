@@ -1344,7 +1344,7 @@ public class Rewriter implements CodeGenRegistry {
 	private void rewrite(NamingContext cx, UnionTypeDefn u) {
 		RWUnionTypeDefn ret = types.get(u.name());
 		for (TypeReference c : u.cases) {
-			ret.addCase(rewrite(cx, c, true));
+			ret.addCase((TypeWithName) rewrite(cx, c, true));
 		}
 	}
 

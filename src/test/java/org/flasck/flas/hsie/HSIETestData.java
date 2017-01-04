@@ -27,7 +27,6 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.PrimitiveType;
-import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -50,8 +49,8 @@ public class HSIETestData {
 		ctorTypes.put("Cons", cons);
 		ctorTypes.put("Nil", nil);
 		ctorTypes.put("List", list);
-		((RWUnionTypeDefn)list.defn).addCase((Type)nil.defn);
-		((RWUnionTypeDefn)list.defn).addCase((Type)cons.defn);
+		((RWUnionTypeDefn)list.defn).addCase((RWStructDefn)nil.defn);
+		((RWUnionTypeDefn)list.defn).addCase((RWStructDefn)cons.defn);
 	}
 	
 	public static HSIEForm testPrimes() {

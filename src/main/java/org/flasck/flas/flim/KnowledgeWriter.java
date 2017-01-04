@@ -283,9 +283,9 @@ public class KnowledgeWriter implements RepoVisitor {
 	}
 
 	private void writePolys(XMLElement xe, List<PolyVar> list) {
-		for (Type t : list) {
+		for (PolyVar t : list) {
 			XMLElement pe = xe.addElement("Poly");
-			pe.setAttribute("called", t.name());
+			pe.setAttribute("called", t.getTypeName().uniqueName());
 		}
 	}
 

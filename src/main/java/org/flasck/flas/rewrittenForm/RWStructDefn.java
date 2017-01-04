@@ -7,6 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.types.PolyVar;
+import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.types.TypeWithNameAndPolys;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
@@ -55,7 +56,7 @@ public class RWStructDefn extends TypeWithNameAndPolys implements AsString, Exte
 			for (RWStructField f : fields) {
 				sb.append(sep);
 				sep = ",";
-				sb.append(f.type.name());
+				sb.append(((TypeWithName)f.type).name());
 				sb.append(" ");
 				sb.append(f.name);
 			}
