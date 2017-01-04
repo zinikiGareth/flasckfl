@@ -10,6 +10,10 @@ public class TupleType extends ArgsType {
 		super(loc, WhatAmI.TUPLE, args);
 	}
 
+	public int width() {
+		return args.size();
+	}
+
 	protected void show(StringBuilder sb) {
 		sb.append("(");
 		showArgs(sb, ",");

@@ -45,6 +45,7 @@ import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
+import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.types.TypeOfSomethingElse;
@@ -399,7 +400,7 @@ public class MethodConvertor {
 	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<Type> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
 		RWContractDecl cd = null;
 		TypeWithMethods proto = senderType;
-		Type methodType = null;
+		FunctionType methodType = null;
 		if (senderType instanceof RWContractDecl) {
 			proto = cd = (RWContractDecl) senderType;
 			if (proto.hasMethod(method.text))

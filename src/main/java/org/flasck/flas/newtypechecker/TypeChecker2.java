@@ -393,7 +393,7 @@ public class TypeChecker2 {
 			if (trackTo != null) {
 				Type t1 = ty;
 				if (ty.arity() == 0)
-					t1 = t1.arg(0);
+					t1 = ty.arg(0);
 				trackTo.println(f.funcName.jsName() + " :: " + t1);
 			}
 		}

@@ -17,7 +17,6 @@ public class Type implements Locatable {
 	protected final String name;
 	private final Type type;
 	private final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
-	protected final List<Type> fnargs; // arguments to function or tuple
 	private NameOfThing typeName;
 
 	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing name, List<Type> polys) {
@@ -30,7 +29,6 @@ public class Type implements Locatable {
 		this.typeName = name;
 		this.type = null;
 		this.polys = polys;
-		this.fnargs = null;
 		
 		// for anything which is not an instance, all the args MUST be polymorphic vars
 		if (polys != null && iam != WhatAmI.INSTANCE)
@@ -48,10 +46,9 @@ public class Type implements Locatable {
 		this.name = null;
 		this.type = type;
 		this.polys = args;
-		this.fnargs = null;
 	}
 
-	protected Type(InputPosition location, WhatAmI iam, List<Type> subtypes) {
+	protected Type(InputPosition location, WhatAmI iam) {
 		this.kw = null;
 		if (location == null)
 			throw new UtilException("Type without input location 3");
@@ -62,9 +59,6 @@ public class Type implements Locatable {
 		this.name = null;
 		this.type = null;
 		this.polys = null;
-		if (subtypes != null && subtypes.size() == 3 && subtypes.get(2) == null)
-			System.out.println("yo");
-		this.fnargs = subtypes;
 	}
 
 	@Override
@@ -110,26 +104,6 @@ public class Type implements Locatable {
 		return polys.get(i);
 	}
 
-	public int arity() {
-		if (iam == WhatAmI.FUNCTION)
-			return fnargs.size() - 1;
-		else
-			throw new UtilException("Can only ask for the arity of a function");
-	}
-	
-	public int width() {
-		if (iam == WhatAmI.TUPLE)
-			return fnargs.size();
-		else
-			throw new UtilException("Can only ask for the width of a tuple");
-	}
-	
-	public Type arg(int i) {
-		if (iam != WhatAmI.FUNCTION && iam != WhatAmI.TUPLE)
-			throw new UtilException("Can only ask for the argument of a function or tuple");
-		return fnargs.get(i);
-	}
-	
 	// This one is DELIBERATELY not static - you need a type that you would otherwise have to pass in as "base"
 	public Type instance(InputPosition loc, Type... with) {
 		if (this.iam == WhatAmI.INSTANCE)
@@ -206,24 +180,6 @@ public class Type implements Locatable {
 	private void showPolys(StringBuilder sb) {
 		if (polys != null && !polys.isEmpty()) {
 			sb.append(polys);
-		}
-	}
-
-	protected void showArgs(StringBuilder sb, String withSep) {
-		String sep = "";
-		for (Type t : fnargs) {
-			if (t == null) {
-				sb.append("--NULL--");
-				return;
-			}
-			sb.append(sep);
-			sep = withSep;
-			if (iam == WhatAmI.FUNCTION && t.iam == WhatAmI.FUNCTION) {
-				sb.append("(");
-				t.show(sb);
-				sb.append(")");
-			} else
-				t.show(sb);
 		}
 	}
 
