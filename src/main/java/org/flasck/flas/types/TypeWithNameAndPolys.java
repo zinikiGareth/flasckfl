@@ -9,8 +9,8 @@ import org.zinutils.exceptions.UtilException;
 public class TypeWithNameAndPolys extends TypeWithName {
 	protected final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
 
-	public TypeWithNameAndPolys(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing type, List<Type> polys) {
-		super(kw, location, iam, type);
+	public TypeWithNameAndPolys(InputPosition kw, InputPosition location, NameOfThing type, List<Type> polys) {
+		super(kw, location, type);
 		this.polys = polys;
 		if (polys != null)
 			for (Type t : polys)

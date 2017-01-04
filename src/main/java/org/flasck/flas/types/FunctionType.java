@@ -8,7 +8,7 @@ import org.zinutils.exceptions.UtilException;
 public class FunctionType extends ArgsType {
 
 	public FunctionType(InputPosition loc, List<Type> args) {
-		super(loc, WhatAmI.FUNCTION, args);
+		super(loc, args);
 		if (args.size() < 1)
 			throw new UtilException("Can you have a function/method type with less than 1 arg? (the result)  Really?");
 	}

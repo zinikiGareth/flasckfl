@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 public abstract class ArgsType extends Type {
 	protected final List<Type> args;
 
-	public ArgsType(InputPosition loc, WhatAmI wai, List<Type> args) {
+	public ArgsType(InputPosition loc, List<Type> args) {
 		super(loc);
 		this.args = args;
 	}

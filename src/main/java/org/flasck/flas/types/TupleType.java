@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 public class TupleType extends ArgsType {
 
 	public TupleType(InputPosition loc, List<Type> args) {
-		super(loc, WhatAmI.TUPLE, args);
+		super(loc, args);
 	}
 
 	public int width() {

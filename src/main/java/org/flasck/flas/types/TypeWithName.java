@@ -7,7 +7,7 @@ public class TypeWithName extends Type {
 	protected final String name;
 	protected final NameOfThing typeName;
 
-	public TypeWithName(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing type) {
+	public TypeWithName(InputPosition kw, InputPosition location, NameOfThing type) {
 		super(location);
 		this.name = type.uniqueName();
 		this.typeName = type;

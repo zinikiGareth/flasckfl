@@ -12,7 +12,6 @@ import org.zinutils.exceptions.UtilException;
 public abstract class Type implements Locatable {
 	public final InputPosition kw;
 	private final InputPosition location;
-	public enum WhatAmI { /* REFERENCE, */PRIMITIVE, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
 
 	protected Type(InputPosition location) {
 		this.kw = null;

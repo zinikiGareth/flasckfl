@@ -9,7 +9,7 @@ public class RWContractService extends RWImplements {
 	public final InputPosition vlocation;
 
 	public RWContractService(InputPosition kw, InputPosition location, CSName csName, StructName type, InputPosition vlocation, String referAsVar) {
-		super(kw, location, WhatAmI.CONTRACTSERVICE, csName, type);
+		super(kw, location, csName, type);
 		this.vlocation = vlocation;
 		this.referAsVar = referAsVar;
 	}

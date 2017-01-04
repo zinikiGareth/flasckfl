@@ -21,7 +21,7 @@ public class RWStructDefn extends TypeWithNameAndPolys implements AsString, Exte
 	}
 	
 	public RWStructDefn(InputPosition location, StructName tn, boolean generate, List<Type> polys) {
-		super(null, location, WhatAmI.STRUCT, tn, polys);
+		super(null, location, tn, polys);
 		this.structName = tn;
 		this.generate = generate;
 	}

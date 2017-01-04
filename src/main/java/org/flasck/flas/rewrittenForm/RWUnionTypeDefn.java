@@ -14,7 +14,7 @@ public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<
 	public final List<Type> cases = new ArrayList<Type>();
 
 	public RWUnionTypeDefn(InputPosition location, boolean generate, NameOfThing defining, List<Type> polyvars) {
-		super(null, location, WhatAmI.UNION, defining, polyvars);
+		super(null, location, defining, polyvars);
 		this.generate = generate;
 	}
 	

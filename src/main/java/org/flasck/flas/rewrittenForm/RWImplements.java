@@ -14,8 +14,8 @@ public class RWImplements extends TypeWithMethods {
 	public final List<RWMethodDefinition> methods = new ArrayList<RWMethodDefinition>();
 	public final CSName realName;
 
-	public RWImplements(InputPosition kw, InputPosition location, WhatAmI iam, CSName realName, NameOfThing type) {
-		super(kw, location, iam, type, null);
+	public RWImplements(InputPosition kw, InputPosition location, CSName realName, NameOfThing type) {
+		super(kw, location, type, null);
 		this.realName = realName;
 	}
 
