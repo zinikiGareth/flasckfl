@@ -167,7 +167,7 @@ public class Rewriter implements CodeGenRegistry {
 	static final Logger logger = LoggerFactory.getLogger("Rewriter");
 	private final ErrorResult errors;
 	public final PackageFinder pkgFinder;
-	public final Map<String, Type> primitives = new TreeMap<String, Type>();
+	public final Map<String, PrimitiveType> primitives = new TreeMap<>();
 	private final Map<String, Expr> constants = new TreeMap<>();
 	private final Map<String, RWStructDefn> structs = new TreeMap<String, RWStructDefn>();
 	public final Map<String, RWObjectDefn> objects = new TreeMap<String, RWObjectDefn>();
@@ -615,7 +615,7 @@ public class Rewriter implements CodeGenRegistry {
 			} else if (val instanceof Type) {
 				Type ty = (Type) val;
 				if (ty instanceof PrimitiveType)
-					primitives.put(name, ty);
+					primitives.put(name, (PrimitiveType) ty);
 				else
 					throw new UtilException("Cannot handle type of " + ty.getClass());
 			} else if (val instanceof BooleanLiteral) {

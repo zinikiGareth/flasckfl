@@ -105,7 +105,7 @@ public class TypeChecker2 {
 
 	private void pass1() {
 		rw.visit(new Pass1Visitor(this), true);
-		for (Type bi : rw.primitives.values()) {
+		for (PrimitiveType bi : rw.primitives.values()) {
 			export.put(bi.name(), bi);
 			gk(bi.name(), new NamedType(bi.location(), bi.getTypeName()));
 		}

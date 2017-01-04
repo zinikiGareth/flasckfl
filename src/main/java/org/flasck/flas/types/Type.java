@@ -2,7 +2,6 @@ package org.flasck.flas.types;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.NameOfThing;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
@@ -24,7 +23,6 @@ public abstract class Type implements Locatable {
 	}
 
 	public String name() { throw new NotImplementedException(); }
-	public NameOfThing getTypeName() { throw new NotImplementedException(); }
 
 	public static FunctionType function(InputPosition loc, Type... args) {
 		return new FunctionType(loc, CollectionUtils.listOf(args));
