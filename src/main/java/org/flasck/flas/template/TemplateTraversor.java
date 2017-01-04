@@ -39,7 +39,6 @@ import org.flasck.flas.rewrittenForm.RWTemplateList;
 import org.flasck.flas.rewrittenForm.RWTemplateOr;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.zinutils.bytecode.Expr;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class TemplateTraversor {

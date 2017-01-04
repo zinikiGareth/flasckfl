@@ -22,12 +22,12 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public NewMethodDefiner generateRender(String clz, AreaName areaName) {
+	public void generateRender(String clz, AreaName areaName) {
 		if (!doBuild)
-			return null;
+			return;
 		// TODO: I think we actually want the render function, but not sure :-)
 		if (areaName == null)
-			return null;
+			return;
 		ByteCodeSink bcc = bce.get(clz);
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
 		PendingVar into = gen.argument("java.lang.String", "into");
@@ -39,7 +39,6 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 			bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(topBlock), DroidUtils.javaNestedSimpleName(topBlock));
 		}
 		render.returnVoid().flush();
-		return render;
 	}
 
 	@Override
