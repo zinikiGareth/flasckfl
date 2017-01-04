@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NameOfThing;
-import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.types.FunctionType;
+import org.flasck.flas.types.TypeWithMethods;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class RWImplements extends TypeWithMethods {

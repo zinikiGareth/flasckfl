@@ -13,7 +13,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
@@ -38,6 +37,7 @@ import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.types.TypeOfSomethingElse;
+import org.flasck.flas.types.TypeWithMethods;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;

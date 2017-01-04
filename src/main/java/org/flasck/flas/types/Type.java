@@ -5,7 +5,6 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NameOfThing;
-import org.flasck.flas.commonBase.names.PolyName;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
@@ -95,7 +94,7 @@ public class Type implements Locatable {
 	// this should ONLY be called from Builtin
 	@Deprecated
 	public static Type primitive(InputPosition loc, NameOfThing name) {
-		return new Type(loc, loc, WhatAmI.PRIMITIVE, name, null);
+		return new PrimitiveType(loc, name);
 	}
 	
 	@Deprecated
