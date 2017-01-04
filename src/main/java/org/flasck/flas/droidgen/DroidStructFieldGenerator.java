@@ -8,6 +8,7 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -29,7 +30,7 @@ public class DroidStructFieldGenerator implements FieldVisitor {
 	@Override
 	public void visit(RWStructField sf) {
 		JavaType jt;
-		if (sf.type.iam == WhatAmI.PRIMITIVE) {
+		if (sf.type instanceof PrimitiveType) {
 			if (((Type)sf.type).name().equals("Number"))
 				jt = JavaType.int_; // what about floats?
 			else if (((Type)sf.type).name().equals("String"))

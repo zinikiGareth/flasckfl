@@ -137,8 +137,8 @@ import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.types.InstanceType;
+import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -611,7 +611,7 @@ public class Rewriter implements CodeGenRegistry {
 //					System.out.println("Cannot add type for " + x.getValue().getKey() + " as it is null");
 			} else if (val instanceof Type) {
 				Type ty = (Type) val;
-				if (ty.iam == WhatAmI.PRIMITIVE)
+				if (ty instanceof PrimitiveType)
 					primitives.put(name, ty);
 				else
 					throw new UtilException("Cannot handle type of kind " + ty.iam);

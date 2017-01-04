@@ -8,14 +8,14 @@ import org.flasck.flas.commonBase.NameOfThing;
 import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
-public class Type implements Locatable {
+public abstract class Type implements Locatable {
 	public final InputPosition kw;
 	private final InputPosition location;
 	public enum WhatAmI { /* REFERENCE, */PRIMITIVE, POLYVAR, FUNCTION, TUPLE, STRUCT, UNION, INSTANCE, OBJECT, CONTRACT, CONTRACTIMPL, CONTRACTSERVICE, HANDLERIMPLEMENTS, SOMETHINGELSE };
 	public final WhatAmI iam;
 	protected final String name;
 	protected final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
-	private NameOfThing typeName;
+	protected NameOfThing typeName;
 
 	protected Type(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing name, List<Type> polys) {
 		this.kw = kw;
@@ -130,7 +130,6 @@ public class Type implements Locatable {
 		case STRUCT:
 		case UNION:
 		case OBJECT:
-		case PRIMITIVE:
 		case CONTRACTIMPL:
 		case CONTRACT:
 		case HANDLERIMPLEMENTS:

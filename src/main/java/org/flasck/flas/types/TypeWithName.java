@@ -11,4 +11,15 @@ public class TypeWithName extends Type {
 		super(kw, location, iam, type, polys);
 	}
 
+	public String name() {
+		return name;
+	}
+	
+	public NameOfThing getTypeName() {
+		return typeName;
+	}
+	
+	protected void show(StringBuilder sb) {
+		sb.append(name);
+	}
 }
