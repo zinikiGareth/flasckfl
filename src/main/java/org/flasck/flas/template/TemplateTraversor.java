@@ -272,25 +272,25 @@ public class TemplateTraversor {
 		} else if (tl instanceof RWTemplateCases) {
 			RWTemplateCases tc = (RWTemplateCases) tl;
 			String sn = areaName.jsName() + ".prototype._chooseCase";
-			CaseChooser cc = jsArea.chooseCase(sn);
-			CaseChooser dcc = drArea.chooseCase(sn);
+			List<CaseChooser> ccs = new ArrayList<CaseChooser>();
+			for (AreaGenerator area : areas)
+				ccs.add(area.chooseCase(sn));
 			callOnAssign(fn, tc.switchOn, drArea, sn, true, null);
 
 			for (RWTemplateOr oc : tc.cases) {
 				AreaName cn = oc.areaName();
 
-				CaseChooser branch;
-				CaseChooser dbranch;
+				List<CaseChooser> branches = new ArrayList<CaseChooser>();
+
 				if (oc.cond == null) {
-					branch = cc;
-					dbranch = dcc;
+					branches.addAll(ccs);
 				} else {
 					String tfn = simpleName(oc.fnName);
-					dbranch = dcc.handleCase(tfn);
-					branch = cc.handleCase(tfn);
+					for (CaseChooser cc : ccs)
+						branches.add(cc.handleCase(tfn));
 				}
-				dbranch.code(cn);
-				branch.code(cn);
+				for (CaseChooser cc : branches)
+					cc.code(cn);
 				recurse(cx, cn, oc.template, areaName);
 				if (oc.cond != null)
 					callOnAssign(fn, oc.cond, drArea, sn, false, null);
