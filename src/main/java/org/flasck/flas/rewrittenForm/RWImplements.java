@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.commonBase.names.CSName;
-import org.flasck.flas.types.Type;
+import org.flasck.flas.types.FunctionType;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class RWImplements extends TypeWithMethods {
@@ -33,7 +33,7 @@ public class RWImplements extends TypeWithMethods {
 	}
 	
 	@Override
-	public Type getMethodType(String named) {
+	public FunctionType getMethodType(String named) {
 		throw new NotImplementedException("This cannot be implemented because RWMethodDefinition does not (yet?) have a type");
 //		for (RWMethodDefinition md : methods)
 //			if (md.name().equals(named))

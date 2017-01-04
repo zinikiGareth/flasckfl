@@ -3,6 +3,7 @@ package org.flasck.flas.commonBase;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.Type;
 
 public abstract class TypeWithMethods extends Type {
@@ -12,5 +13,5 @@ public abstract class TypeWithMethods extends Type {
 
 	public abstract boolean hasMethod(String named);
 
-	public abstract Type getMethodType(String named);
+	public abstract FunctionType getMethodType(String named);
 }

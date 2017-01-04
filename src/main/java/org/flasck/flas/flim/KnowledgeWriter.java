@@ -25,6 +25,8 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.types.FunctionType;
+import org.flasck.flas.types.TupleType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.zinutils.exceptions.UtilException;
@@ -183,7 +185,7 @@ public class KnowledgeWriter implements RepoVisitor {
 
 	// I believe this is *just* functions, but that includes functions of 0 args, which don't *look* like functions to the naked eye ...
 	// I would like this "name" to actually be a function name, but hack for now ...
-	public void add(String name, Type type) {
+	public void add(String name, FunctionType type) {
 		int idx = name.lastIndexOf(".");
 		name = name.substring(idx+1);
 		XMLElement xe = top.addElement("Function");
@@ -195,7 +197,7 @@ public class KnowledgeWriter implements RepoVisitor {
 		writeTypeUsage(xe, type);
 		if (copyToScreen) {
 			Type ty = type;
-			if (ty.arity() == 0)
+			if (type.arity() == 0)
 				ty = type.arg(0);
 			System.out.println("  function " + name + " :: " + ty + " => " + type.location());
 		}
@@ -277,20 +279,22 @@ public class KnowledgeWriter implements RepoVisitor {
 			break;
 		}
 		case FUNCTION: {
+			FunctionType ft = (FunctionType) type;
 			XMLElement ty = xe.addElement("Function");
-			for (int i=0;i<type.arity();i++) {
+			for (int i=0;i<ft.arity();i++) {
 				XMLElement ae = ty.addElement("Arg");
-				writeTypeUsage(ae, type.arg(i));
+				writeTypeUsage(ae, ft.arg(i));
 			}
 			XMLElement re = ty.addElement("Return");
-			writeTypeUsage(re, type.arg(type.arity()));
+			writeTypeUsage(re, ft.arg(ft.arity()));
 			break;
 		}
 		case TUPLE: {
+			TupleType tt = (TupleType) type;
 			XMLElement ty = xe.addElement("Tuple");
-			for (int i=0;i<type.width();i++) {
+			for (int i=0;i<tt.width();i++) {
 				XMLElement ae = ty.addElement("Arg");
-				writeTypeUsage(ae, type.arg(i));
+				writeTypeUsage(ae, tt.arg(i));
 			}
 			break;
 		}

@@ -156,17 +156,17 @@ public class Type implements Locatable {
 	}
 	
 	@Deprecated
-	public static Type function(InputPosition loc, List<Type> args) {
+	public static FunctionType function(InputPosition loc, List<Type> args) {
 		return new FunctionType(loc, args);
 	}
 
 	@Deprecated
-	public static Type function(InputPosition loc, Type... args) {
+	public static FunctionType function(InputPosition loc, Type... args) {
 		return new FunctionType(loc, CollectionUtils.listOf(args));
 	}
 	
 	@Deprecated
-	public static Type tuple(InputPosition loc, List<Type> args) {
+	public static TupleType tuple(InputPosition loc, List<Type> args) {
 		return new TupleType(loc, args);
 	}
 	

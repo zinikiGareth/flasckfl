@@ -33,6 +33,7 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
+import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.types.TypeOfSomethingElse;
@@ -387,11 +388,11 @@ public class TypeChecker2 {
 			TypeInfo nt = deduceType(renames, merged, f);
 			logger.info("Concluded that " + f.funcName.uniqueName() + " has type " + nt);
 			gk(f.funcName.uniqueName(), nt);
-			Type ty = asType(nt);
+			FunctionType ty = (FunctionType) asType(nt);
 			export.put(f.funcName.uniqueName(), ty);
 			if (trackTo != null) {
 				Type t1 = ty;
-				if (t1.arity() == 0)
+				if (ty.arity() == 0)
 					t1 = t1.arg(0);
 				trackTo.println(f.funcName.jsName() + " :: " + t1);
 			}
@@ -655,13 +656,13 @@ public class TypeChecker2 {
 		Type t = (Type) rw.getMe(loc, tn).defn;
 		if (t instanceof TypeWithMethods) {
 			TypeWithMethods cd = (TypeWithMethods) t;
-			Type mt = cd.getMethodType(ps.sval.text);
+			FunctionType mt = cd.getMethodType(ps.sval.text);
 			checkCallArgs(f, mt, 0, ncs.get(3));
 		} else
 			throw new UtilException("Cannot handle t = " + t +  " " + t.getClass());
 	}
 
-	private void checkCallArgs(HSIEForm f, Type mt, int pos, HSIEBlock cmd) {
+	private void checkCallArgs(HSIEForm f, FunctionType mt, int pos, HSIEBlock cmd) {
 		boolean isNil = cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("Nil");
 		if (pos >= mt.arity()) {
 			// we have run out of args to call
@@ -805,7 +806,7 @@ public class TypeChecker2 {
 			if (x.getKey().substring(inPkg.length()+1).indexOf(".") != -1)
 				continue;
 
-			kw.add(x.getKey(), x.getValue());
+			kw.add(x.getKey(), (FunctionType) x.getValue());
 		}
 		return kw.commit();
 	}
@@ -871,11 +872,12 @@ public class TypeChecker2 {
 			for (Type t : type.polys())
 				args.add(convertType(t));
 			return new NamedType(type.location(), type.name(), args);
-		} else if (type.iam == WhatAmI.FUNCTION) {
+		} else if (type instanceof FunctionType) {
+			FunctionType ft = (FunctionType) type;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
-			for (int i=0;i<type.arity()+1;i++)
-				args.add(convertType(type.arg(i)));
-			return new TypeFunc(type.location(), args);
+			for (int i=0;i<ft.arity()+1;i++)
+				args.add(convertType(ft.arg(i)));
+			return new TypeFunc(ft.location(), args);
 		} else if (type.iam == WhatAmI.SOMETHINGELSE) {
 			String other = ((TypeOfSomethingElse)type).other();
 			try {
@@ -1046,9 +1048,10 @@ public class TypeChecker2 {
 	}
 
 	private Type nonFunction(Type asType) {
-		if (asType.iam == WhatAmI.FUNCTION) {
-			if (asType.arity() == 0)
-				return asType.arg(0);
+		if (asType instanceof FunctionType) {
+			FunctionType ft = (FunctionType) asType;
+			if (ft.arity() == 0)
+				return ft.arg(0);
 		}
 		return asType;
 	}

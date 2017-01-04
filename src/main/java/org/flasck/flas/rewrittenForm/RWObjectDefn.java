@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.Type;
 import org.zinutils.collections.CollectionUtils;
 
@@ -47,7 +48,7 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 		return this;
 	}
 
-	public Type getMethodType(String named) {
+	public FunctionType getMethodType(String named) {
 		for (RWObjectMethod m : methods)
 			if (m.name.equals(named))
 				return m.type;

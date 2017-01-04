@@ -1,12 +1,12 @@
 package org.flasck.flas.rewrittenForm;
 
-import org.flasck.flas.types.Type;
+import org.flasck.flas.types.FunctionType;
 
 public class RWObjectMethod {
 	public final String name;
-	public final Type type;
+	public final FunctionType type;
 
-	public RWObjectMethod(Type type, String name) {
+	public RWObjectMethod(FunctionType type, String name) {
 		this.name = name;
 		this.type = type;
 	}

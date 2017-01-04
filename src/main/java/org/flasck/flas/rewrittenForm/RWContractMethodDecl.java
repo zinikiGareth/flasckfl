@@ -6,7 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.types.Type;
+import org.flasck.flas.types.FunctionType;
 
 public class RWContractMethodDecl implements Locatable, Comparable<RWContractMethodDecl> {
 	private final InputPosition pos;
@@ -14,9 +14,9 @@ public class RWContractMethodDecl implements Locatable, Comparable<RWContractMet
 	public final String dir;
 	public final String name;
 	public final List<Object> args;
-	public final Type type;
+	public final FunctionType type;
 
-	public RWContractMethodDecl(InputPosition pos, boolean required, String dir, FunctionName name, List<Object> args, Type type) {
+	public RWContractMethodDecl(InputPosition pos, boolean required, String dir, FunctionName name, List<Object> args, FunctionType type) {
 		this.pos = pos;
 		this.required = required;
 		this.dir = dir;
@@ -32,7 +32,7 @@ public class RWContractMethodDecl implements Locatable, Comparable<RWContractMet
 		return name.compareTo(o.name);
 	}
 	
-	public Type getType() {
+	public FunctionType getType() {
 		return type;
 	}
 

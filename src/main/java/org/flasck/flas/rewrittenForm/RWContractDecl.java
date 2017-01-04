@@ -6,7 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.TypeWithMethods;
 import org.flasck.flas.commonBase.names.StructName;
-import org.flasck.flas.types.Type;
+import org.flasck.flas.types.FunctionType;
 import org.zinutils.exceptions.UtilException;
 
 public class RWContractDecl extends TypeWithMethods {
@@ -37,7 +37,7 @@ public class RWContractDecl extends TypeWithMethods {
 		return false;
 	}
 	
-	public Type getMethodType(String named) {
+	public FunctionType getMethodType(String named) {
 		for (RWContractMethodDecl m : methods)
 			if (m.name.equals(named)) {
 				return m.getType();
