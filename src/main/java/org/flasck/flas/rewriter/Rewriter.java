@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -142,6 +142,7 @@ import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
+import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
@@ -390,7 +391,7 @@ public class Rewriter implements CodeGenRegistry {
 			Object ret = nested.resolve(location, name);
 			if (ret instanceof ScopedVar) {
 				InputPosition loc = ((ScopedVar) ret).location();
-				Type type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
+				TypeOfSomethingElse type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
 				HandlerLambda hl = new HandlerLambda(loc, hi.hiName, type, name);
 				hi.addScoped(hl, (ScopedVar) ret);
 				return hl;
@@ -1207,7 +1208,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private RWHandlerImplements pass1HI(NamingContext cx, HandlerImplements hi) {
-		Type any = (Type) getObject(cx.nested.resolve(hi.location(), "Any"));
+		TypeWithName any = (TypeWithName) getObject(cx.nested.resolve(hi.location(), "Any"));
 		Object av = cx.resolve(hi.location(), hi.name());
 		if (av == null || !(av instanceof PackageVar)) {
 			errors.message(hi.location(), "cannot find a valid definition of contract " + hi.name());
@@ -1222,7 +1223,7 @@ public class Rewriter implements CodeGenRegistry {
 				hl = new HandlerLambda(vp.varLoc, rwname, any, vp.var);
 			} else if (o instanceof TypedPattern) {
 				TypedPattern vp = (TypedPattern) o;
-				hl = new HandlerLambda(vp.varLocation, rwname, rewrite(cx, vp.type, false), vp.var);
+				hl = new HandlerLambda(vp.varLocation, rwname, (TypeWithName) rewrite(cx, vp.type, false), vp.var);
 			} else
 				throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 			bvs.add(hl);
@@ -1328,7 +1329,7 @@ public class Rewriter implements CodeGenRegistry {
 		if (sf.init != null) {
 			Object rw = rewriteExpr(sx, sf.init);
 			InputPosition loc = ((Locatable)rw).location();
-			Object expr = new AssertTypeExpr(loc, st, rw);
+			Object expr = new AssertTypeExpr(loc, (TypeWithName) st, rw);
 			fnName = FunctionName.function(loc, sd.structName(), "inits_" + sf.name);
 			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
@@ -1479,7 +1480,7 @@ public class Rewriter implements CodeGenRegistry {
 			if (o instanceof TypedPattern) {
 				TypedPattern tp = (TypedPattern) o;
 				VarName vn = new VarName(tp.varLocation, name, tp.var);
-				Type rt = rewrite(cx, tp.type, false);
+				TypeWithName rt = (TypeWithName) rewrite(cx, tp.type, false);
 				fnArgs.put(vn.jsName(), rt);
 				return new RWTypedPattern(tp.typeLocation, rt, tp.varLocation, vn);
 			} else if (o instanceof VarPattern) {
@@ -1668,7 +1669,7 @@ public class Rewriter implements CodeGenRegistry {
 					for (TypeReference p : type.polys())
 						rwp.add(rewrite(cx, p, true));
 					if (!(ret instanceof InstanceType))
-						ret = ret.instance(type.location(), rwp);
+						ret = ((TypeWithName)ret).instance(type.location(), rwp);
 				}
 			}
 //			List<Type> fnargs = new ArrayList<Type>();

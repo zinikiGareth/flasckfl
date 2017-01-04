@@ -40,6 +40,7 @@ import org.flasck.flas.types.TupleType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.TypeWithMethods;
+import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
@@ -1026,7 +1027,7 @@ public class TypeChecker2 {
 			List<Type> polys = new ArrayList<Type>();
 			for (TypeInfo t : nt.polyArgs)
 				polys.add(nonFunction(asType(t)));
-			return ret.instance(nt.location(), polys);
+			return ((TypeWithName)ret).instance(nt.location(), polys);
 		} else if (ti instanceof TypeFunc) {
 			TypeFunc tf = (TypeFunc) ti; 
 			List<Type> args = new ArrayList<Type>();

@@ -4,13 +4,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.rewrittenForm.FieldVisitor;
-import org.flasck.flas.rewrittenForm.RWContractDecl;
-import org.flasck.flas.rewrittenForm.RWContractImplements;
-import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PrimitiveType;
-import org.flasck.flas.types.Type;
+import org.flasck.flas.types.TypeWithName;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaType;
@@ -31,23 +28,19 @@ public class DroidStructFieldGenerator implements FieldVisitor {
 	public void visit(RWStructField sf) {
 		JavaType jt;
 		if (sf.type instanceof PrimitiveType) {
-			if (((Type)sf.type).name().equals("Number"))
+			PrimitiveType pt = (PrimitiveType)sf.type;
+			if (pt.name().equals("Number"))
 				jt = JavaType.int_; // what about floats?
-			else if (((Type)sf.type).name().equals("String"))
+			else if (pt.name().equals("String"))
 				jt = JavaType.string;
-			else if (((Type)sf.type).name().equals("Boolean"))
+			else if (pt.name().equals("Boolean"))
 				jt = JavaType.boolean_;
 			else
 				throw new UtilException("Not handled " + sf.type);
-		} else if (sf.type instanceof RWContractImplements || sf.type instanceof RWContractDecl) {
-			jt = javaType(sf.type.name());
-		} else if (sf.type instanceof RWObjectDefn) {
-			jt = javaType(sf.type.name());
-		} else if (sf.type instanceof Type) {
-			if (sf.type instanceof FunctionType)
-				jt = JavaType.object_;
-			else
-				jt = javaType(sf.type.name());
+		} else if (sf.type instanceof FunctionType) {
+			jt = JavaType.object_;
+		} else if (sf.type instanceof TypeWithName) {
+			jt = javaType(((TypeWithName)sf.type).name());
 		} else
 			throw new UtilException("Not handled " + sf.type + " " + sf.type.getClass());
 		IFieldInfo fi = bcc.defineField(false, access, jt, sf.name);

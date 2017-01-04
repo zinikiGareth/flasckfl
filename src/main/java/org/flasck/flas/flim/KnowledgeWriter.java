@@ -30,6 +30,7 @@ import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.TupleType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
+import org.flasck.flas.types.TypeWithName;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Justification;
 import org.zinutils.xml.XML;
@@ -210,39 +211,39 @@ public class KnowledgeWriter implements RepoVisitor {
 	private void writeTypeUsage(XMLElement xe, Type type) {
 		if (type instanceof PrimitiveType) {
 			XMLElement ty = xe.addElement("Builtin");
-			ty.setAttribute("name", type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
 		} else if (type instanceof RWContractDecl) {
 			XMLElement ty = xe.addElement("Contract");
-			ty.setAttribute("name", type.name());
-			requirePackageFor(type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
+			requirePackageFor(((TypeWithName)type).name());
 		} else if (type instanceof RWContractImplements) {
 			XMLElement ty = xe.addElement("Implements");
-			ty.setAttribute("name", type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
 			writeLocation(ty, ((RWContractImplements)type).varLocation, "v");
-			requirePackageFor(type.name());
+			requirePackageFor(((TypeWithName)type).name());
 		} else if (type instanceof RWContractService) {
 			XMLElement ty = xe.addElement("Service");
-			ty.setAttribute("name", type.name());
-			requirePackageFor(type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
+			requirePackageFor(((TypeWithName)type).name());
 		} else if (type instanceof RWHandlerImplements) {
 			XMLElement ty = xe.addElement("Handler");
-			ty.setAttribute("name", type.name());
-			requirePackageFor(type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
+			requirePackageFor(((TypeWithName)type).name());
 		} else if (type instanceof RWStructDefn) {
 			XMLElement ty = xe.addElement("Struct");
-			ty.setAttribute("name", type.name());
-			requirePackageFor(type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
+			requirePackageFor(((TypeWithName)type).name());
 		} else if (type instanceof RWUnionTypeDefn) {
 			XMLElement ty = xe.addElement("Union");
-			ty.setAttribute("name", type.name());
-			requirePackageFor(type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
+			requirePackageFor(((TypeWithName)type).name());
 		} else if (type instanceof RWObjectDefn) {
 			XMLElement ty = xe.addElement("Object");
-			ty.setAttribute("name", type.name());
-			requirePackageFor(type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
+			requirePackageFor(((TypeWithName)type).name());
 		} else if (type instanceof PolyVar) {
 			XMLElement ty = xe.addElement("Poly");
-			ty.setAttribute("name", type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
 		} else if (type instanceof InstanceType) {
 			InstanceType it = (InstanceType) type;
 			XMLElement ty = xe.addElement("Instance");
@@ -270,7 +271,7 @@ public class KnowledgeWriter implements RepoVisitor {
 		} else if (type instanceof TypeOfSomethingElse) {
 			XMLElement ty = xe.addElement("DEAL_WITH_THIS");
 			ty.setAttribute("whatAmI", type.getClass().getName());
-			ty.setAttribute("name", type.name());
+			ty.setAttribute("name", ((TypeWithName)type).name());
 		} else
 			throw new UtilException("Cannot write " + type.getClass());
 	}

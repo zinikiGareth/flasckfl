@@ -32,14 +32,6 @@ public abstract class Type implements Locatable {
 	public List<Type> polys() { throw new NotImplementedException(); }
 	public Type poly(int i) { throw new NotImplementedException(); }
 
-	public Type instance(InputPosition loc, Type... with) {
-		return new InstanceType(loc, this, CollectionUtils.listOf(with));
-	}
-
-	public Type instance(InputPosition loc, List<Type> with) {
-		return new InstanceType(loc, this, with);
-	}
-
 	public static FunctionType function(InputPosition loc, Type... args) {
 		return new FunctionType(loc, CollectionUtils.listOf(args));
 	}

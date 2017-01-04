@@ -5,12 +5,12 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.zinutils.exceptions.UtilException;
 
-public class InstanceType extends Type {
-	protected final Type type;
+public class InstanceType extends TypeWithName {
+	protected final TypeWithName type;
 	private List<Type> types;
 
-	public InstanceType(InputPosition loc, Type type, List<Type> types) {
-		super(loc);
+	public InstanceType(InputPosition loc, TypeWithName type, List<Type> types) {
+		super(loc, loc, type.getTypeName());
 		if (type instanceof InstanceType)
 			throw new UtilException("Instance of an instance?  Huh?");
 		this.type = type;

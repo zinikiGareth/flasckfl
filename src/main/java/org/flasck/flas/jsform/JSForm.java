@@ -17,7 +17,7 @@ import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.ScopedVar;
-import org.flasck.flas.types.Type;
+import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
@@ -344,8 +344,8 @@ public class JSForm {
 			public Object visit(PushExternal pe) {
 				if (pe.fn instanceof PackageVar) {
 					sb.append(rename(pe.fn.uniqueName()));
-				} else if (pe.fn instanceof Type) {
-					sb.append(((Type)pe.fn).name());
+				} else if (pe.fn instanceof TypeWithName) {
+					sb.append(((TypeWithName)pe.fn).name());
 				} else if (pe.fn instanceof ScopedVar) {
 					int j = 0;
 					ScopedVar sv = (ScopedVar) pe.fn;

@@ -13,6 +13,7 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
+import org.flasck.flas.types.TypeWithName;
 import org.zinutils.collections.CollectionUtils;
 
 public class Builtin {
@@ -195,7 +196,7 @@ public class Builtin {
 		Type varA = new PolyVar(posn, "A");
 		Type varB = new PolyVar(posn, "B");
 		Type string = (Type) root.get("String");
-		Type list = (Type) root.get("List");
+		TypeWithName list = (TypeWithName) root.get("List");
 		{ // DOM
 //			PackageDefn domPkg = new PackageDefn(posn, ret, "DOM");
 			RWStructDefn elt = new RWStructDefn(posn, new StructName(null, "DOM.Element"), false, varA, varB);

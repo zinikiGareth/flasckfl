@@ -1,7 +1,10 @@
 package org.flasck.flas.types;
 
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.NameOfThing;
+import org.zinutils.collections.CollectionUtils;
 
 public class TypeWithName extends Type {
 	protected final String name;
@@ -17,6 +20,14 @@ public class TypeWithName extends Type {
 		return name;
 	}
 	
+	public Type instance(InputPosition loc, Type... with) {
+		return new InstanceType(loc, this, CollectionUtils.listOf(with));
+	}
+
+	public Type instance(InputPosition loc, List<Type> with) {
+		return new InstanceType(loc, this, with);
+	}
+
 	public NameOfThing getTypeName() {
 		return typeName;
 	}

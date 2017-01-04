@@ -49,6 +49,7 @@ import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.TypeWithMethods;
+import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.types.TypedObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class MethodConvertor {
 	public MethodConvertor(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
 		InputPosition posn = new InputPosition("builtin", 0, 0, "");
-		this.messageList = ((Type)rw.getMe(posn, new StructName(null, "List")).defn).instance(posn, (Type) rw.getMe(posn, new StructName(null, "Message")).defn);
+		this.messageList = ((TypeWithName)rw.getMe(posn, new StructName(null, "List")).defn).instance(posn, (Type) rw.getMe(posn, new StructName(null, "Message")).defn);
 	}
 
 	// 1. Main entry points to convert different kinds of things
@@ -91,9 +92,9 @@ public class MethodConvertor {
 	protected RWFunctionDefinition convertMethod(Rewriter rw, RWMethodDefinition m) {
 		logger.info("Converting " + (m.dir == RWMethodDefinition.DOWN?"down":"up") + " " + m.name().uniqueName());
 		// Get the contract and from that find the method and thus the argument types
-		List<Type> types;
+		List<TypeWithName> types;
 		if (m.fromContract == null) {
-			types = new ArrayList<Type>();
+			types = new ArrayList<>();
 		} else {
 			types = figureCMD(m);
 			if (types == null)
@@ -119,7 +120,7 @@ public class MethodConvertor {
 			List<Object> rwargs = new ArrayList<>();
 			for (int i=0;i<mcd.intro.args.size();i++) {
 				Object patt = mcd.intro.args.get(i);
-				Type ti = types.get(i);
+				TypeWithName ti = types.get(i);
 				if (patt instanceof RWVarPattern) {
 					RWVarPattern vp = (RWVarPattern) patt;
 					InputPosition ploc = vp.location();
@@ -146,7 +147,7 @@ public class MethodConvertor {
 	}
 
 	public RWFunctionDefinition convertEventHandler(Rewriter rw, RWEventHandlerDefinition eh) {
-		List<Type> types = new ArrayList<Type>();
+		List<TypeWithName> types = new ArrayList<>();
 		if (eh.cases.isEmpty())
 			throw new UtilException("Method without any cases - valid or not valid?");
 
@@ -164,7 +165,7 @@ public class MethodConvertor {
 		List<Object> margs = new ArrayList<Object>(/*mic.enclosingPatterns*/);
 		// This seems likely to fail quite often :-)
 		margs.addAll(method.cases.get(0).intro.args);
-		List<Type> types = new ArrayList<Type>();
+		List<TypeWithName> types = new ArrayList<>();
 		for (@SuppressWarnings("unused") Object o : margs) {
 			types.add(null);
 		}
@@ -183,7 +184,7 @@ public class MethodConvertor {
 		return ret;
 	}
 
-	protected List<Type> figureCMD(RWMethodDefinition m) {
+	protected List<TypeWithName> figureCMD(RWMethodDefinition m) {
 		if (m.fromContract == null) {
 			errors.message(m.contractLocation, "cannot find contract " + m.fromContract);
 			return null;
@@ -209,7 +210,7 @@ public class MethodConvertor {
 			return null;
 		}
 		
-		List<Type> types = new ArrayList<Type>();
+		List<TypeWithName> types = new ArrayList<>();
 		boolean fail = false;
 		for (Object o : cmd.args) {
 			if (o instanceof RWTypedPattern) {
@@ -223,7 +224,7 @@ public class MethodConvertor {
 		return types;
 	}
 
-	private TypedObject convertMessagesToActionList(Rewriter rw, InputPosition location, List<Object> args, List<Type> types, List<RWMethodMessage> messages, boolean fromHandler) {
+	private TypedObject convertMessagesToActionList(Rewriter rw, InputPosition location, List<Object> args, List<TypeWithName> types, List<RWMethodMessage> messages, boolean fromHandler) {
 		Object ret = rw.getMe(location, new StructName(null, "Nil"));
 		PackageVar cons = rw.getMe(location, new StructName(null, "Cons"));
 		for (int n = messages.size()-1;n>=0;n--) {
@@ -238,7 +239,7 @@ public class MethodConvertor {
 		return new TypedObject(new FunctionType(location, fnargs), ret);
 	}
 
-	private Object convertMessageToAction(Rewriter rw, List<Object> margs, List<Type> types, RWMethodMessage mm, boolean fromHandler) {
+	private Object convertMessageToAction(Rewriter rw, List<Object> margs, List<TypeWithName> types, RWMethodMessage mm, boolean fromHandler) {
 		if (mm.slot != null) {
 			return convertAssignMessage(rw, margs, types, mm, fromHandler);
 		} else if (mm.expr instanceof ApplyExpr) {
@@ -320,12 +321,12 @@ public class MethodConvertor {
 		return null;
 	}
 
-	protected Object convertAssignMessage(Rewriter rw, List<Object> margs, List<Type> types, RWMethodMessage mm, boolean fromHandler) {
+	protected Object convertAssignMessage(Rewriter rw, List<Object> margs, List<TypeWithName> types, RWMethodMessage mm, boolean fromHandler) {
 		Locatable slot = (Locatable) mm.slot.get(0);
 		InputPosition location = slot.location();
 		Object intoObj;
 		StringLiteral slotName;
-		Type slotType;
+		TypeWithName slotType;
 		if (slot instanceof CardMember) {
 			CardMember cm = (CardMember) slot;
 			intoObj = new CardStateRef(cm.location(), fromHandler);
@@ -345,7 +346,7 @@ public class MethodConvertor {
 				return null;
 			}
 			slotName = new StringLiteral(cm.location(), cm.var);
-			slotType = sf.type;
+			slotType = (TypeWithName) sf.type;
 		} else if (slot instanceof HandlerLambda) {
 			HandlerLambda hl = (HandlerLambda) slot;
 			if (hl.type == null || hl.type.name().equals("Any")) {
@@ -363,7 +364,7 @@ public class MethodConvertor {
 			}
 			intoObj = lv;
 			slotName = null;
-			slotType = lv.type;
+			slotType = (TypeWithName) lv.type;
 		} else if (slot instanceof ExternalRef) {
 			errors.message(slot.location(), "cannot assign to non-state member: " + ((ExternalRef)slot).uniqueName());
 			return null;
@@ -385,7 +386,7 @@ public class MethodConvertor {
 					errors.message(si.location, "there is no field '" + si.text + "' in type " + sd);
 					return null;
 				}
-				slotType = sf.type;
+				slotType = (TypeWithName) sf.type;
 				if (slotName != null)
 					intoObj = new ApplyExpr(si.location, new PackageVar(si.location, FunctionName.function(si.location, new PackageName("FLEval"), "field"), null), intoObj, slotName);
 				slotName = new StringLiteral(si.location, si.text);
@@ -397,7 +398,7 @@ public class MethodConvertor {
 		return new ApplyExpr(slot.location(), rw.getMe(slot.location(), new StructName(null, "Assign")), intoObj, slotName, new AssertTypeExpr(location, slotType, mm.expr));
 	}
 
-	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<Type> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
+	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<TypeWithName> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {
 		RWContractDecl cd = null;
 		TypeWithMethods proto = senderType;
 		FunctionType methodType = null;

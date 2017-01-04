@@ -22,6 +22,7 @@ import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.Type;
+import org.flasck.flas.types.TypeWithName;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XML;
 import org.zinutils.xml.XMLElement;
@@ -111,7 +112,7 @@ public class PackageImporter {
 					List<Type> types = new ArrayList<Type>();
 					for (XMLElement pe : cme.elementChildren()) {
 						if (pe.hasTag("Typed")) {
-							RWTypedPattern tp = new RWTypedPattern(location(pe), getUniqueNestedType(rw, location(pe, "v"), pe), location(pe, "v"), new VarName(location(pe, "v"), fn, pe.required("var")));
+							RWTypedPattern tp = new RWTypedPattern(location(pe), (TypeWithName) getUniqueNestedType(rw, location(pe, "v"), pe), location(pe, "v"), new VarName(location(pe, "v"), fn, pe.required("var")));
 							args.add(tp);
 							types.add(tp.type);
 						} else
@@ -203,7 +204,7 @@ public class PackageImporter {
 			for (XMLElement ct : te.elementChildren()) {
 				types.add(extractType(rw, loc, ct));
 			}
-			Type base = types.remove(0);
+			TypeWithName base = (TypeWithName) types.remove(0);
 			t = base.instance(location(te), types);
 		} else {
 			name = te.required("name");
