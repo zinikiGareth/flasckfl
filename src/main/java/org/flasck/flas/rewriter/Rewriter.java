@@ -136,7 +136,9 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
+import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.InstanceType;
+import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
@@ -1160,7 +1162,7 @@ public class Rewriter implements CodeGenRegistry {
 				throw new UtilException("Unexpected pattern " + o.getClass());
 		}
 		targs.add(typeFrom(cx.resolve(cmd.location(), "Send")));
-		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, args, Type.function(cmd.location(), targs));
+		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, args, new FunctionType(cmd.location(), targs));
 	}
 
 	private Type typeFrom(Object resolve) {
@@ -1349,7 +1351,7 @@ public class Rewriter implements CodeGenRegistry {
 		List<Type> pts = new ArrayList<Type>(); // poly vars
 		if (polys != null)
 			for (PolyType r : polys)
-				pts.add(Type.polyvar(r.location(), r.name()));
+				pts.add(new PolyVar(r.location(), r.name()));
 		return pts;
 	}
 
@@ -1647,7 +1649,7 @@ public class Rewriter implements CodeGenRegistry {
 				}
 			} catch (ResolutionException ex) {
 				if (allowPolys)
-					return Type.polyvar(type.location(), type.name());
+					return new PolyVar(type.location(), type.name());
 				throw ex;
 			}
 			if (ret.hasPolys() && !type.hasPolys()) {
@@ -1809,7 +1811,7 @@ public class Rewriter implements CodeGenRegistry {
 			List<Type> list = new ArrayList<>();
 			for (TypeReference tr : ftr.args)
 				list.add(resolveType(cx, tr));
-			return Type.function(type.location(), list);
+			return new FunctionType(type.location(), list);
 		}
 		return (Type)getObject(cx.resolve(type.location(), type.name()));
 	}

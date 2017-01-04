@@ -10,6 +10,8 @@ import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
+import org.flasck.flas.types.PolyVar;
+import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.zinutils.collections.CollectionUtils;
 
@@ -18,18 +20,18 @@ public class Builtin {
 	public static ImportPackage builtins() {
 		ImportPackage root = new ImportPackage(null);
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
-		Type varA = Type.polyvar(posn, "A");
-		Type varB = Type.polyvar(posn, "B");
-		Type bool = Type.primitive(posn, new StructName(null, "Boolean"));
-		Type number = Type.primitive(posn, new StructName(null, "Number"));
-		Type string = Type.primitive(posn, new StructName(null, "String"));
+		Type varA = new PolyVar(posn, "A");
+		Type varB = new PolyVar(posn, "B");
+		Type bool = new PrimitiveType(posn, new StructName(null, "Boolean"));
+		Type number = new PrimitiveType(posn, new StructName(null, "Number"));
+		Type string = new PrimitiveType(posn, new StructName(null, "String"));
 		RWUnionTypeDefn any = new RWUnionTypeDefn(posn, false, new StructName(null, "Any"), null);
 		{ // core
 			root.define("if", fnhelper("if", varA, varA, varA));
 //			root.define("let", "let", 			null);
 			root.define("Any", any);
 		}
-		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new StructName(null, "List"), CollectionUtils.listOf(Type.polyvar(posn, "A")));
+		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new StructName(null, "List"), CollectionUtils.listOf(new PolyVar(posn, "A")));
 		{ // text
 			root.define("String", string);
 			root.define("concat", fnhelper("concat", list.instance(posn, string), string));
@@ -39,7 +41,7 @@ public class Builtin {
 		}
 		{ // boolean logic
 			root.define("Boolean", bool);
-			root.define("==", fnhelper("==", Type.polyvar(posn, "A"), Type.polyvar(posn, "A"), bool)); // Any -> Any -> Boolean
+			root.define("==", fnhelper("==", new PolyVar(posn, "A"), new PolyVar(posn, "A"), bool)); // Any -> Any -> Boolean
 			root.define("true", new BooleanLiteral(posn, true));
 			root.define("false", new BooleanLiteral(posn, false));
 		}
@@ -64,7 +66,7 @@ public class Builtin {
 			root.define("map", fnhelper("map", Type.function(posn, varA, varB), list.instance(posn, varA), list.instance(posn, varB)));
 		}
 		{ // stacks
-			RWUnionTypeDefn stack = new RWUnionTypeDefn(posn, false, new StructName(null, "Stack"), CollectionUtils.listOf(Type.polyvar(posn, "A")));
+			RWUnionTypeDefn stack = new RWUnionTypeDefn(posn, false, new StructName(null, "Stack"), CollectionUtils.listOf(new PolyVar(posn, "A")));
 			RWStructDefn push = new RWStructDefn(posn, new StructName(null, "StackPush"), false, varA);
 			push.addField(new RWStructField(posn, false, varA, "head"));
 			push.addField(new RWStructField(posn, false, stack, "tail"));
@@ -134,7 +136,7 @@ public class Builtin {
 			root.define("Message", message);
 //			root.define("JSNI", "JSNI", null);
 			
-			Type polyT = Type.polyvar(posn, "T");
+			Type polyT = new PolyVar(posn, "T");
 			RWStructDefn mw = new RWStructDefn(posn, new StructName(null, "MessageWrapper"), false, polyT);
 			mw.addField(new RWStructField(posn, false, polyT, "value"));
 			mw.addField(new RWStructField(posn, false, list.instance(posn, message), "msgs"));
@@ -190,8 +192,8 @@ public class Builtin {
 	public ImportPackage domScope(ImportPackage root) {
 		ImportPackage ret = new ImportPackage("DOM");
 		InputPosition posn = new InputPosition("builtin", 0, 0, "builtin");
-		Type varA = Type.polyvar(posn, "A");
-		Type varB = Type.polyvar(posn, "B");
+		Type varA = new PolyVar(posn, "A");
+		Type varB = new PolyVar(posn, "B");
 		Type string = (Type) root.get("String");
 		Type list = (Type) root.get("List");
 		{ // DOM

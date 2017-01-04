@@ -20,6 +20,7 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.types.FunctionType;
+import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XML;
@@ -117,7 +118,7 @@ public class PackageImporter {
 							System.out.println("Handle pattern " + pe);
 					}
 					types.add((Type) rw.getMe(loc, "Send").defn);
-					FunctionType type = Type.function(loc, types);
+					FunctionType type = new FunctionType(loc, types);
 					RWContractMethodDecl cmd = new RWContractMethodDecl(loc, cme.requiredBoolean("required"), cme.required("dir"), fn, args, type);
 					cme.attributesDone();
 					cd.methods.add(cmd);
@@ -159,7 +160,7 @@ public class PackageImporter {
 					if (args.size() == 1)
 						fntype = args.get(0);
 					else
-						fntype = Type.function(location(xe), args);
+						fntype = new FunctionType(location(xe), args);
 					ret.setType(fntype);
 					xe.attributesDone();
 					pkg.define(ret.name(), ret);
@@ -222,7 +223,7 @@ public class PackageImporter {
 				t = rw.objects.get(name);
 				te.assertNoSubContents();
 			} else if (te.hasTag("Poly")) {
-				t = Type.polyvar(loc, te.required("name"));
+				t = new PolyVar(loc, te.required("name"));
 				te.attributesDone();
 				te.assertNoSubContents();
 			} else 

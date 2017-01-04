@@ -7,7 +7,7 @@ import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.types.Type;
+import org.flasck.flas.types.PrimitiveType;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.api.Action;
@@ -89,7 +89,7 @@ public class GenTestsForStructs {
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.BOOLEANP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
-		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new StructName(null, "Boolean")), "f1"));
 		gen.visitStructDefn(sd);
 	}
 
@@ -101,7 +101,7 @@ public class GenTestsForStructs {
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.INTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
-		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new StructName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		gen.visitStructDefn(sd);
 	}
 

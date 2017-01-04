@@ -235,7 +235,7 @@ public class MethodConvertor {
 		}
 		List<Type> fnargs = new ArrayList<Type>(types);
 		fnargs.add(messageList);
-		return new TypedObject(Type.function(location, fnargs), ret);
+		return new TypedObject(new FunctionType(location, fnargs), ret);
 	}
 
 	private Object convertMessageToAction(Rewriter rw, List<Object> margs, List<Type> types, RWMethodMessage mm, boolean fromHandler) {

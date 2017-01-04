@@ -16,7 +16,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.flasck.flas.types.Type;
+import org.flasck.flas.types.PrimitiveType;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -76,7 +76,7 @@ public class GenTestsForCards {
 		checkCreationOfCardOnCreate();
 		checkDefnOfField(J.BOOLEANP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
-		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Boolean")), "f1"));
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new StructName(null, "Boolean")), "f1"));
 		CardGrouping card = new CardGrouping(new CardName(null, "Card"), sd);
 		gen.visitCardGrouping(card);
 	}
@@ -89,7 +89,7 @@ public class GenTestsForCards {
 		checkCreationOfCardOnCreate();
 		checkDefnOfField(J.INTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
-		sd.addField(new RWStructField(loc, false, Type.primitive(loc, new StructName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new StructName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		CardGrouping card = new CardGrouping(new CardName(null, "Card"), sd);
 		gen.visitCardGrouping(card);
 	}

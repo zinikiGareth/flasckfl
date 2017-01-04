@@ -36,6 +36,7 @@ import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
+import org.flasck.flas.types.TupleType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.TypeWithMethods;
@@ -131,7 +132,7 @@ public class TypeChecker2 {
 				for (RWStructField sf : od.ctorArgs)
 					args.add(sf.type);
 				args.add(od);
-				ctors.put(od.name(), Type.function(od.location(), args));
+				ctors.put(od.name(), new FunctionType(od.location(), args));
 			}
 		}
 	}
@@ -1031,20 +1032,20 @@ public class TypeChecker2 {
 			List<Type> args = new ArrayList<Type>();
 			for (TypeInfo t : tf.args)
 				args.add(asType(t));
-			return Type.function(tf.location(), args);
+			return new FunctionType(tf.location(), args);
 		} else if (ti instanceof TupleInfo) {
 			TupleInfo tf = (TupleInfo) ti; 
 			List<Type> args = new ArrayList<Type>();
 			for (TypeInfo t : tf.args)
 				args.add(asType(t));
-			return Type.tuple(tf.location(), args);
+			return new TupleType(tf.location(), args);
 		} else if (ti instanceof PolyInfo) {
 			PolyInfo pi = (PolyInfo) ti;
-			return Type.polyvar(pi.location(), pi.name);
+			return new PolyVar(pi.location(), pi.name);
 		} else if (ti instanceof TypeIndirect) {
 			// This shouldn't happen in types we care about, but in HandlerLambdas
 			// I don't think we actually test this ever
-			return Type.primitive(((TypeIndirect) ti).location(), new StructName(null, "Any"));
+			return new PrimitiveType(((TypeIndirect) ti).location(), new StructName(null, "Any"));
 		} else
 			throw new UtilException("Have computed type " + ti.getClass() + " but can't convert back to real Type");
 	}

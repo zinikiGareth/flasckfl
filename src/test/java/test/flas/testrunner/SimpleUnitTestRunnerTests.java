@@ -17,6 +17,8 @@ import org.flasck.flas.testrunner.AssertFailed;
 import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.UnitTestResultHandler;
 import org.flasck.flas.testrunner.UnitTestRunner;
+import org.flasck.flas.types.PolyVar;
+import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -55,7 +57,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testItCanTestASimpleValue() throws Exception {
 		go(new Setup() {{
 			scope.define("x", null);
-			tc.define("test.golden.x", Type.function(loc, Type.primitive(loc, new StructName(null, "Number"))));
+			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new StructName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
@@ -71,7 +73,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testItCanTestATrivialFunctionCall() throws Exception {
 		go(new Setup() {{
 			scope.define("id", null);
-			Type varA = Type.polyvar(loc, "A");
+			Type varA = new PolyVar(loc, "A");
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{
@@ -88,7 +90,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testItCanTestTwoCases() throws Exception {
 		go(new Setup() {{
 			scope.define("id", null);
-			Type varA = Type.polyvar(loc, "A");
+			Type varA = new PolyVar(loc, "A");
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{
@@ -110,7 +112,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testItFailsWhenGivenTheWrongValue() throws Exception {
 		go(new Setup() {{
 			scope.define("x", null);
-			tc.define("test.golden.x", Type.function(loc, Type.primitive(loc, new StructName(null, "Number"))));
+			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new StructName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
@@ -126,7 +128,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testIfRunningTwoCasesOneCanPassWhileTheOtherFails() throws Exception {
 		go(new Setup() {{
 			scope.define("id", null);
-			Type varA = Type.polyvar(loc, "A");
+			Type varA = new PolyVar(loc, "A");
 			tc.define("test.golden.id", Type.function(loc, varA, varA));
 		}});
 		context.checking(new Expectations() {{

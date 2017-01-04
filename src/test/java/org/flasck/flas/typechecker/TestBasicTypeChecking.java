@@ -31,6 +31,8 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.types.PolyVar;
+import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.junit.Before;
@@ -41,16 +43,16 @@ import org.zinutils.collections.CollectionUtils;
 public class TestBasicTypeChecking {
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
 	ErrorResult errors = new ErrorResult();
-	Type number = Type.primitive(posn, new StructName(null, "Number"));
-	Type charT = Type.primitive(posn, new StructName(null, "Char"));
-	Type booleanT = Type.primitive(posn, new StructName(null, "Boolean"));
+	Type number = new PrimitiveType(posn, new StructName(null, "Number"));
+	Type charT = new PrimitiveType(posn, new StructName(null, "Char"));
+	Type booleanT = new PrimitiveType(posn, new StructName(null, "Boolean"));
 	Rewriter rw;
 	TypeChecker2 tc;
 
 	@Before
 	public void setup() {
 		LogManager.getLogger("TypeChecker").setLevel(Level.DEBUG);
-		Type varA = Type.polyvar(posn, "A");
+		Type varA = new PolyVar(posn, "A");
 		ImportPackage pkg = new ImportPackage("");
 		pkg.define("Number", number);
 		pkg.define("Char", charT);

@@ -33,6 +33,7 @@ import org.flasck.flas.testrunner.AssertFailed;
 import org.flasck.flas.testrunner.NotMatched;
 import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.WhatToMatch;
+import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -77,7 +78,7 @@ public abstract class BaseRunnerTests {
 			cd.contracts.add(ctr);
 		}
 		mainScope.define("Card", cd);
-		tc.define("test.runner.x", Type.function(loc, Type.primitive(loc, new StructName(null, "Number"))));
+		tc.define("test.runner.x", Type.function(loc, new PrimitiveType(loc, new StructName(null, "Number"))));
 		prior = new CompileResult(mainScope, bce, tc);
 		testScope = Scope.topScope(spkg);
 	}
