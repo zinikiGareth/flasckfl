@@ -15,7 +15,8 @@ public class JSTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public void generateRender(String clz, AreaName areaName) {
+	public void generateRender(String javaName, AreaName areaName) {
+		String clz = Generator.lname(javaName, true);
 		JSForm ir = JSForm.flexFn(clz + "_render", CollectionUtils.listOf("doc", "wrapper", "parent"));
 		target.add(ir);
 		if (areaName != null)

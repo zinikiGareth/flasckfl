@@ -112,8 +112,8 @@ public class TemplateTraversor {
 		AreaName areaName = null;
 		if (cg != null && cg.content != null)
 			areaName = cg.areaName();
-		jsg.generateRender(cx.protoName, areaName);
-		dg.generateRender(cx.javaName, areaName);
+		for (TemplateGenerator tg : tgs)
+			tg.generateRender(cx.javaName, areaName);
 		recurse(cx, areaName, cg.content, null);
 	}
 
