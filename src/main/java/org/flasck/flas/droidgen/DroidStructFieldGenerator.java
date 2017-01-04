@@ -8,9 +8,9 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.types.Type.WhatAmI;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaType;
@@ -44,7 +44,7 @@ public class DroidStructFieldGenerator implements FieldVisitor {
 		} else if (sf.type instanceof RWObjectDefn) {
 			jt = javaType(sf.type.name());
 		} else if (sf.type instanceof Type) {
-			if (sf.type.iam == WhatAmI.FUNCTION)
+			if (sf.type instanceof FunctionType)
 				jt = JavaType.object_;
 			else
 				jt = javaType(sf.type.name());

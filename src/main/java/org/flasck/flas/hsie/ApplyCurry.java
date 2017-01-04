@@ -15,7 +15,6 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -85,7 +84,7 @@ public class ApplyCurry {
 				}
 				boolean scoping = (c instanceof ClosureCmd) && ((ClosureCmd)c).justScoping;
 				Type t = tc.getTypeAsCtor(pc.location, ex.uniqueName());
-				if (t.iam == WhatAmI.FUNCTION) {
+				if (t instanceof FunctionType) {
 					FunctionType ft = (FunctionType) t;
 					logger.debug("Considering applying curry to: " + ex + ": " + ft.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
 					if (ft.arity() > c.nestedCommands().size()-1) {

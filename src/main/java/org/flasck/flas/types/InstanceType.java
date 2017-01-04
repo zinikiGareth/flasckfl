@@ -10,7 +10,7 @@ public class InstanceType extends Type {
 	private List<Type> types;
 
 	public InstanceType(InputPosition loc, Type type, List<Type> types) {
-		super(loc, WhatAmI.INSTANCE);
+		super(loc);
 		if (type instanceof InstanceType)
 			throw new UtilException("Instance of an instance?  Huh?");
 		this.type = type;
@@ -31,13 +31,13 @@ public class InstanceType extends Type {
 	
 	public List<Type> polys() {
 		if (types == null)
-			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
+			throw new UtilException("Cannot obtain poly vars of " + name());
 		return types;
 	}
 
 	public Type poly(int i) {
 		if (types == null)
-			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
+			throw new UtilException("Cannot obtain poly vars of " + name());
 		return types.get(i);
 	}
 

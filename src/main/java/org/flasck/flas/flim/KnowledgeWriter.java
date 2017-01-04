@@ -29,7 +29,7 @@ import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.TupleType;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.types.Type.WhatAmI;
+import org.flasck.flas.types.TypeOfSomethingElse;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.Justification;
 import org.zinutils.xml.XML;
@@ -190,7 +190,7 @@ public class KnowledgeWriter implements RepoVisitor {
 		int idx = name.lastIndexOf(".");
 		name = name.substring(idx+1);
 		XMLElement xe = top.addElement("Function");
-		if (type.iam != WhatAmI.FUNCTION)
+		if (!(type instanceof FunctionType))
 			throw new UtilException("Not a function");
 		// TODO: I think we should get the location of the first case ...
 		writeLocation(xe, type);
@@ -267,9 +267,9 @@ public class KnowledgeWriter implements RepoVisitor {
 				XMLElement ae = ty.addElement("Arg");
 				writeTypeUsage(ae, tt.arg(i));
 			}
-		} else if (type.iam == WhatAmI.SOMETHINGELSE) {
+		} else if (type instanceof TypeOfSomethingElse) {
 			XMLElement ty = xe.addElement("DEAL_WITH_THIS");
-			ty.setAttribute("whatAmI", type.iam.name());
+			ty.setAttribute("whatAmI", type.getClass().getName());
 			ty.setAttribute("name", type.name());
 		} else
 			throw new UtilException("Cannot write " + type.getClass());

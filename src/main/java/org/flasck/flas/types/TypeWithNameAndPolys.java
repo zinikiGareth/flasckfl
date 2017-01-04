@@ -7,9 +7,15 @@ import org.flasck.flas.commonBase.NameOfThing;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeWithNameAndPolys extends TypeWithName {
+	protected final List<Type> polys; // polymorphic arguments to REF, STRUCT, UNION, OBJECT or INSTANCE
 
 	public TypeWithNameAndPolys(InputPosition kw, InputPosition location, WhatAmI iam, NameOfThing type, List<Type> polys) {
-		super(kw, location, iam, type, polys);
+		super(kw, location, iam, type);
+		this.polys = polys;
+		if (polys != null)
+			for (Type t : polys)
+				if (!(t instanceof PolyVar))
+					throw new UtilException("All arguments to type defn must be poly vars");
 	}
 
 	public boolean hasPolys() {
@@ -18,18 +24,19 @@ public class TypeWithNameAndPolys extends TypeWithName {
 	
 	public List<Type> polys() {
 		if (polys == null)
-			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
+			throw new UtilException("Cannot obtain poly vars of " + name());
 		return polys;
 	}
 
 	public Type poly(int i) {
 		if (polys == null)
-			throw new UtilException("Cannot obtain poly vars of " + name() + " of type " + iam);
+			throw new UtilException("Cannot obtain poly vars of " + name());
 		return polys.get(i);
 	}
 
 	protected void show(StringBuilder sb) {
 		sb.append(name);
-		showPolys(sb);
+        if (polys != null && !polys.isEmpty())
+        	sb.append(polys);
 	}
 }

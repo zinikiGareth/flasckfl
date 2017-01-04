@@ -2,8 +2,6 @@ package org.flasck.flas.types;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.types.Type.WhatAmI;
-import org.zinutils.exceptions.UtilException;
 
 /** The idea here is that during the early stages of compilation (i.e. before typechecking)
  * you may not know WHAT the type is, but you have an algorithm for finding out, i.e.
@@ -20,7 +18,7 @@ import org.zinutils.exceptions.UtilException;
 public class TypeOfSomethingElse extends TypeWithName {
 
 	public TypeOfSomethingElse(InputPosition loc, VarName name) {
-		super(null, loc, WhatAmI.SOMETHINGELSE, name, null);
+		super(null, loc, WhatAmI.SOMETHINGELSE, name);
 	}
 	
 	public String other() {
@@ -30,4 +28,9 @@ public class TypeOfSomethingElse extends TypeWithName {
 	public String name() {
 		return "typeOf(" + name + ")";
 	}
+
+	protected void show(StringBuilder sb) {
+		sb.append("copyType(" + name + ")");
+	}
+
 }

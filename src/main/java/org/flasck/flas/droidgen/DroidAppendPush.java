@@ -12,8 +12,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
-import org.flasck.flas.types.Type;
-import org.flasck.flas.types.Type.WhatAmI;
+import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
@@ -87,7 +86,7 @@ public final class DroidAppendPush implements PushVisitor {
 				dot = "$";
 			}
 			String clz;
-			if (defn instanceof RWFunctionDefinition || defn instanceof RWMethodDefinition || (defn instanceof Type && ((Type)defn).iam == WhatAmI.FUNCTION)) {
+			if (defn instanceof RWFunctionDefinition || defn instanceof RWMethodDefinition || defn instanceof FunctionType) {
 				if (inside.equals("org.flasck.android.FLEval"))
 					clz = inside + "$" + member;
 				else

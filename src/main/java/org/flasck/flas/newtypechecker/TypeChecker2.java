@@ -37,7 +37,6 @@ import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.types.Type.WhatAmI;
 import org.flasck.flas.types.TypeOfSomethingElse;
 import org.flasck.flas.types.TypeWithMethods;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
@@ -881,7 +880,7 @@ public class TypeChecker2 {
 			for (int i=0;i<ft.arity()+1;i++)
 				args.add(convertType(ft.arg(i)));
 			return new TypeFunc(ft.location(), args);
-		} else if (type.iam == WhatAmI.SOMETHINGELSE) {
+		} else if (type instanceof TypeOfSomethingElse) {
 			String other = ((TypeOfSomethingElse)type).other();
 			try {
 				return getTypeOf(type.location(), other);
@@ -889,7 +888,7 @@ public class TypeChecker2 {
 				return new TypeIndirect(type.location(), other);
 			}
 		} else
-			throw new UtilException("Cannot convert " + type.getClass() + " " + type.iam + ": " + type.name());
+			throw new UtilException("Cannot convert " + type.getClass() + ": " + type.name());
 	}
 
 	private TypeInfo getTypeOf(HSIEForm form, HSIEBlock cmd) {

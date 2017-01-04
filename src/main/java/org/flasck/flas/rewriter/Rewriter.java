@@ -614,7 +614,7 @@ public class Rewriter implements CodeGenRegistry {
 				if (ty instanceof PrimitiveType)
 					primitives.put(name, ty);
 				else
-					throw new UtilException("Cannot handle type of kind " + ty.iam);
+					throw new UtilException("Cannot handle type of " + ty.getClass());
 			} else if (val instanceof BooleanLiteral) {
 				constants.put(name, (Expr) val);
 			}

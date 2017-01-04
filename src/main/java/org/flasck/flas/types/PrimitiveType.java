@@ -6,7 +6,7 @@ import org.flasck.flas.commonBase.NameOfThing;
 public class PrimitiveType extends TypeWithName {
 
 	public PrimitiveType(InputPosition loc, NameOfThing name) {
-		super(loc, loc, WhatAmI.PRIMITIVE, name, null);
+		super(loc, loc, WhatAmI.PRIMITIVE, name);
 	}
 
 }
