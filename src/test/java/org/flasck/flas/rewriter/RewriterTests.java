@@ -44,6 +44,7 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.PrimitiveType;
+import org.flasck.flas.types.TypeWithName;
 import org.junit.Before;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
@@ -96,7 +97,7 @@ public class RewriterTests {
 		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, "ME.Container").defn;
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("f", sf.name);
-		assertEquals("String", sf.type.name());
+		assertEquals("String", ((TypeWithName) sf.type).name());
 		assertTrue(sf.type instanceof PrimitiveType);
 	}
 	
@@ -109,12 +110,12 @@ public class RewriterTests {
 		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, "ME.Container").defn;
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("list", sf.name);
-		assertEquals("List", sf.type.name());
+		assertEquals("List", ((TypeWithName) sf.type).name());
 		assertTrue(sf.type instanceof InstanceType);
 		InstanceType st = (InstanceType)sf.type;
 		assertTrue(st.hasPolys());
 		assertEquals(1, st.polys().size());
-		assertEquals("String", st.poly(0).name());
+		assertEquals("String", ((TypeWithName) st.poly(0)).name());
 		assertTrue(st.poly(0) instanceof PrimitiveType);
 	}
 	

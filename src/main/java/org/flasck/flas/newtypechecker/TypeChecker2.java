@@ -718,7 +718,7 @@ public class TypeChecker2 {
 			for (RWUnionTypeDefn ud : unions) {
 				if (!ctors.contains(ud.name())) {
 					// Make sure all the cases are actually used
-					for (Type cs : ud.cases)
+					for (TypeWithName cs : ud.cases)
 						if (!ctors.contains(cs.name()))
 							continue nextUnion;
 				}
@@ -863,19 +863,19 @@ public class TypeChecker2 {
 
 	TypeInfo convertType(Type type) {
 		if (type instanceof PolyVar)
-			return new PolyInfo(type.location(), type.name());
+			return new PolyInfo(type.location(), ((PolyVar) type).name());
 		else if (type instanceof RWStructDefn)
-			return structTypes.get(type.name());
+			return structTypes.get(((RWStructDefn) type).name());
 		else if (type instanceof PrimitiveType ||
 				type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn ||
 				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWContractService ||
 				type instanceof RWHandlerImplements)
-			return getTypeOf(type.location(), type.name());
+			return getTypeOf(type.location(), ((TypeWithName) type).name());
 		else if (type instanceof InstanceType) {
 			List<TypeInfo> args = new ArrayList<>();
 			for (Type t : ((InstanceType)type).polys())
 				args.add(convertType(t));
-			return new NamedType(type.location(), type.name(), args);
+			return new NamedType(type.location(), ((InstanceType) type).name(), args);
 		} else if (type instanceof FunctionType) {
 			FunctionType ft = (FunctionType) type;
 			List<TypeInfo> args = new ArrayList<TypeInfo>();
@@ -890,7 +890,7 @@ public class TypeChecker2 {
 				return new TypeIndirect(type.location(), other);
 			}
 		} else
-			throw new UtilException("Cannot convert " + type.getClass() + ": " + type.name());
+			throw new UtilException("Cannot convert " + type.getClass());
 	}
 
 	private TypeInfo getTypeOf(HSIEForm form, HSIEBlock cmd) {

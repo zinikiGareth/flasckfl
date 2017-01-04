@@ -282,7 +282,7 @@ public class Rewriter implements CodeGenRegistry {
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			for (Type t : polys) {
+			for (PolyVar t : polys) {
 				if (t.name().equals(name))
 					return t;
 			}
