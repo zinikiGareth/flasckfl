@@ -53,4 +53,6 @@ public interface AreaGenerator {
 	void assignToList(String listFn);
 
 	void makeEditable();
+
+	CaseChooser chooseCase(String sn);
 }

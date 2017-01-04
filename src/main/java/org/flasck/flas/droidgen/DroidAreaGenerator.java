@@ -6,6 +6,7 @@ import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
+import org.flasck.flas.template.CaseChooser;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;
@@ -236,5 +237,10 @@ public class DroidAreaGenerator implements AreaGenerator {
 	public void dropZone(List<String> droppables) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public CaseChooser chooseCase(String sn) {
+		return new DroidCaseChooser(sn);
 	}
 }

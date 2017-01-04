@@ -9,6 +9,7 @@ import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
+import org.flasck.flas.template.CaseChooser;
 import org.flasck.flas.template.TemplateTraversor;
 import org.zinutils.bytecode.Expr;
 
@@ -185,6 +186,13 @@ public class JSAreaGenerator implements AreaGenerator {
 		for (String s : droppables)
 			asRegexps.add("/" + s + "/");
 		fn.add(JSForm.flex("this._dropSomethingHere(" + asRegexps + ")"));
+	}
+
+	public CaseChooser chooseCase(String sn) {
+		JSForm sw = JSForm.flex(sn +" = function(parent)").needBlock();
+		sw.add(JSForm.flex("\"use strict\""));
+		target.add(sw);
+		return new JSCaseChooser(sw);
 	}
 	
 	

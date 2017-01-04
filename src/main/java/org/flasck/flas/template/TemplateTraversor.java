@@ -274,25 +274,25 @@ public class TemplateTraversor {
 		} else if (tl instanceof RWTemplateCases) {
 			RWTemplateCases tc = (RWTemplateCases) tl;
 			String sn = areaName.jsName() + ".prototype._chooseCase";
-			JSForm sw = JSForm.flex(sn +" = function(parent)").needBlock();
-			sw.add(JSForm.flex("\"use strict\""));
-			cx.target.add(sw);
+			CaseChooser cc = jsArea.chooseCase(sn);
+			CaseChooser dcc = area.chooseCase(sn);
 			callOnAssign(fn, tc.switchOn, area, sn, true, null);
 
 			for (RWTemplateOr oc : tc.cases) {
 				AreaName cn = oc.areaName();
 
-				JSForm doit;
-				if (oc.cond == null)
-					doit = sw;
-				else {
+				CaseChooser branch;
+				CaseChooser dbranch;
+				if (oc.cond == null) {
+					branch = cc;
+					dbranch = dcc;
+				} else {
 					String tfn = simpleName(oc.fnName);
-					doit = JSForm.flex("if (FLEval.full(this." + tfn + "()))").needBlock();
-					sw.add(doit);
+					dbranch = dcc.handleCase(tfn);
+					branch = cc.handleCase(tfn);
 				}
-				doit.add(JSForm.flex("this._setTo(" + cn.jsName() +")"));
-//				doit.add(JSForm.flex("var v = new " + cn.jsName() + "(this)"));
-				doit.add(JSForm.flex("return"));
+				dbranch.code(cn);
+				branch.code(cn);
 				recurse(cx, cn, oc.template, areaName);
 				if (oc.cond != null)
 					callOnAssign(fn, oc.cond, area, sn, false, null);
