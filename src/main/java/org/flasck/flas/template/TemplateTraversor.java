@@ -245,16 +245,14 @@ public class TemplateTraversor {
 				// for it to be editable, it must be a clear field of a clear object
 				if (valExpr instanceof CardMember) {
 					CardMember cm = (CardMember) valExpr;
-					area.makeEditable();
-					jsArea.makeEditable();
-					createRules(cx, ce, areaName, null, cm.var);
+					area.makeEditable(ce, cm.var);
+					jsArea.makeEditable(ce, cm.var);
 				} else if (valExpr instanceof ApplyExpr) {
 					ApplyExpr ae = (ApplyExpr) valExpr;
 					if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
 						throw new UtilException("Cannot edit: " + ae);
-					area.makeEditable();
-					jsArea.makeEditable();
-					createRules(cx, ce, areaName, ae.args.get(0), ((StringLiteral)ae.args.get(1)).text);
+					area.makeEditable(ce, ((StringLiteral)ae.args.get(1)).text);
+					jsArea.makeEditable(ce, ((StringLiteral)ae.args.get(1)).text);
 				} else 
 					throw new UtilException("Cannot edit: " + valExpr);
 			}
@@ -310,6 +308,7 @@ public class TemplateTraversor {
 			cx.removeLastCopyVar();
 		}
 		area.done();
+		jsArea.done();
 		return ret;
 	}
 
@@ -378,26 +377,6 @@ public class TemplateTraversor {
 		}
 	}
 	
-	private void createRules(GeneratorContext cx, RWContentExpr ce, AreaName areaName, Object container, String field) {
-		JSForm rules = JSForm.flex(areaName.jsName() + "._rules =").needBlock();
-		JSForm save = JSForm.flex("save: function(wrapper, text)").needBlock();
-		if (ce.editFn != null) {
-			save.add(JSForm.flex("var containingObject = " + ce.editFn + "()"));
-		} else
-			save.add(JSForm.flex("var containingObject = this._card"));
-		// TODO: we may need to convert the text field to a more complex object type (e.g. integer) as specified in the rules we are given
-		save.add(JSForm.flex("containingObject." + field + " = text"));
-		// TODO: we need to consider which of the four types of change was just made (based on something put on atn)
-		// 1. Transient local state (do nothing more)
-		// 2. Persistent local state (save state object)
-		// 3. Main object field or 4. Loaded object field (save data object using the appropriate contract)
-		save.add(JSForm.flex("wrapper.saveObject(containingObject)"));
-//		save.add(JSForm.flex("console.log('saved to:', containingObject)"));
-		rules.add(save);
-		// if we add another block, need "save.comma();"
-		cx.target.add(rules);
-	}
-
 	protected void callOnAssign(JSForm addToFunc, Object valExpr, AreaGenerator area, String call, boolean addAssign, String moreArgs) {
 		if (valExpr instanceof CardMember) {
 			addToFunc.add(JSForm.flex("this._onAssign(this._card, '" + ((CardMember)valExpr).var + "', " + call + ")"));

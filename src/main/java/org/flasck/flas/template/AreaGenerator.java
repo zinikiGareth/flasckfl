@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.zinutils.bytecode.Expr;
 
@@ -52,7 +53,7 @@ public interface AreaGenerator {
 
 	void assignToList(String listFn);
 
-	void makeEditable();
+	void makeEditable(RWContentExpr ce, String field);
 
 	CaseChooser chooseCase(String sn);
 }

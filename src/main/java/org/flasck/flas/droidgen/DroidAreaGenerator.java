@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
@@ -216,7 +217,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 	
 	@Override
-	public void makeEditable() {
+	public void makeEditable(RWContentExpr ce, String field) {
 		// TODO Auto-generated method stub
 		
 	}

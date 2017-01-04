@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
@@ -166,8 +167,25 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void makeEditable() {
+	public void makeEditable(RWContentExpr ce, String field) {
 		fn.add(JSForm.flex("this._editable(" + areaName.jsName() + "._rules)"));
+		JSForm rules = JSForm.flex(areaName.jsName() + "._rules =").needBlock();
+		JSForm save = JSForm.flex("save: function(wrapper, text)").needBlock();
+		if (ce.editFn != null) {
+			save.add(JSForm.flex("var containingObject = " + ce.editFn + "()"));
+		} else
+			save.add(JSForm.flex("var containingObject = this._card"));
+		// TODO: we may need to convert the text field to a more complex object type (e.g. integer) as specified in the rules we are given
+		save.add(JSForm.flex("containingObject." + field + " = text"));
+		// TODO: we need to consider which of the four types of change was just made (based on something put on atn)
+		// 1. Transient local state (do nothing more)
+		// 2. Persistent local state (save state object)
+		// 3. Main object field or 4. Loaded object field (save data object using the appropriate contract)
+		save.add(JSForm.flex("wrapper.saveObject(containingObject)"));
+//		save.add(JSForm.flex("console.log('saved to:', containingObject)"));
+		rules.add(save);
+		// if we add another block, need "save.comma();"
+		target.add(rules);
 	}
 
 	@Override
