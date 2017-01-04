@@ -42,9 +42,10 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public CGRContext area(String clz, String base, String customTag) {
+	public CGRContext area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo) {
 		if (!doBuild)
 			return null;
+		String clz = areaName.javaName();
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(clz));
 		String baseClz = "org.flasck.android.areas." + base;
 		bcc.superclass(baseClz);

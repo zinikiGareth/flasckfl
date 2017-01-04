@@ -15,6 +15,7 @@ import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
+import org.flasck.flas.jsgen.JSAreaGenerator;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -120,29 +121,28 @@ public class TemplateTraversor {
 	private JSForm recurse(GeneratorContext cx, AreaName areaName, RWTemplateLine tl, AreaName parentArea) {
 		if (tl == null)
 			return null;
-		JSForm fn = JSForm.flex(areaName.jsName() +" = function(parent)").needBlock();
-		cx.target.add(fn);
 		String base;
-		String moreArgs = "";
 		boolean isEditable = false;
 		String customTag = null;
+		String nsTag = null;
+		Object wantCard = null;
+		Object wantYoyo = null;
 		if (tl instanceof RWTemplateDiv) {
 			RWTemplateDiv td = (RWTemplateDiv) tl;
 			base = "DivArea";
 			if (td.customTag != null) {
 				customTag = td.customTag;
-				moreArgs = ", '" + td.customTag + "'";
 				if (td.customTag.equals("svg"))
-					moreArgs = moreArgs + ", 'http://www.w3.org/2000/svg'";
+					nsTag = "'http://www.w3.org/2000/svg'";
 			}
 			// TODO: a variable custom tag is hard & needs "assign" logic
 		} else if (tl instanceof RWTemplateList) {
 			RWTemplateList ul = (RWTemplateList) tl;
 			base = "ListArea";
 			if (ul.customTag != null) {
-				moreArgs = ", '" + ul.customTag + "'";
+				customTag = ul.customTag;
 				if (ul.customTag.equals("svg"))
-					moreArgs = moreArgs + ", 'http://www.w3.org/2000/svg'";
+					nsTag = "'http://www.w3.org/2000/svg'";
 			}
 			// TODO: a variable custom tag is hard & needs "assign" logic
 		} else if (tl instanceof RWContentString || tl instanceof RWContentExpr) {
@@ -152,9 +152,9 @@ public class TemplateTraversor {
 			RWTemplateCardReference cr = (RWTemplateCardReference) tl;
 			base = "CardSlotArea";
 			if (cr.explicitCard != null)
-				moreArgs = ", { explicit: " + cr.explicitCard + "}";
+				wantCard = cr.explicitCard;
 			else if (cr.yoyoVar != null) {
-				moreArgs = ", undefined"; // explicitly say the card is undefined until yoyoVar evaluates
+				wantYoyo = cr.yoyoVar;
 			} else
 				throw new UtilException("Can't handle this case");
 		} else if (tl instanceof RWTemplateCases) {
@@ -164,9 +164,9 @@ public class TemplateTraversor {
 		} else {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
 		}
-		AreaGenerator area = dg.area(areaName.javaName(), base, customTag);
-		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
-		fn.add(JSForm.flex("if (!parent) return"));
+		AreaGenerator area = dg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
+		JSAreaGenerator jsArea = (JSAreaGenerator) jsg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
+		JSForm fn = jsArea.fn;
 		for (DefinedVar vc : cx.varsToCopy) {
 			String s = vc.name;
 			fn.add(JSForm.flex("this._src_" + s + " = parent._src_" + s));

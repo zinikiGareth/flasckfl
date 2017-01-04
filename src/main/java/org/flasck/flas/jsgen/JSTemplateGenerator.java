@@ -24,9 +24,22 @@ public class JSTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public AreaGenerator area(String clz, String base, String customTag) {
-		// TODO Auto-generated method stub
-		return null;
+	public AreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo) {
+		JSForm fn = JSForm.flex(areaName.jsName() +" = function(parent)").needBlock();
+		target.add(fn);
+		String moreArgs = "";
+		if (wantYoyo != null)
+			moreArgs = ", undefined"; // explicitly say the card is undefined until yoyoVar evaluates
+		else if (wantCard != null)
+			moreArgs = ", { explicit: " + wantCard + "}";
+		else if (customTag != null) {
+			moreArgs = ", '" + customTag + "'";
+			if (nsTag != null)
+				moreArgs = moreArgs + ", " + nsTag;
+		}
+		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
+		fn.add(JSForm.flex("if (!parent) return"));
+		return new JSAreaGenerator(fn);
 	}
 
 }

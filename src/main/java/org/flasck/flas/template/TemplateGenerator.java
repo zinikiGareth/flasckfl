@@ -6,6 +6,6 @@ public interface TemplateGenerator {
 
 	void generateRender(String clz, AreaName areaName);
 
-	AreaGenerator area(String clz, String base, String customTag);
+	AreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo);
 
 }
