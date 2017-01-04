@@ -230,34 +230,30 @@ public class TemplateTraversor {
 			callOnAssign(fn, l.listVar, area, areaName.jsName() + ".prototype._assignToVar", false, "lv");
 		} else if (tl instanceof RWContentString) {
 			RWContentString cs = (RWContentString) tl;
-			fn.add(JSForm.flex("this._setText('" + cs.text + "')"));
+			jsArea.setText(cs.text);
 			area.setText(cs.text);
 		} else if (tl instanceof RWContentExpr) {
 			RWContentExpr ce = (RWContentExpr)tl;
 			Object valExpr = ce.expr;
 			callOnAssign(fn, valExpr, area, areaName.jsName() + ".prototype._contentExpr", true, null);
 
-			JSForm cexpr = JSForm.flex(areaName.jsName() +".prototype._contentExpr = function()").needBlock();
 			String tfn = simpleName(ce.fnName);
-			if (ce.rawHTML)
-				cexpr.add(JSForm.flex("this._insertHTML(this." + tfn +"())"));
-			else
-				cexpr.add(JSForm.flex("this._assignToText(this." + tfn +"())"));
-			cx.target.add(cexpr);
-
+			jsArea.contentExpr(tfn, ce.rawHTML);
 			area.contentExpr(tfn, ce.rawHTML);
 			
 			if (isEditable) {
 				// for it to be editable, it must be a clear field of a clear object
 				if (valExpr instanceof CardMember) {
 					CardMember cm = (CardMember) valExpr;
-					fn.add(JSForm.flex("this._editable(" + areaName.jsName() + "._rules)"));
+					area.makeEditable();
+					jsArea.makeEditable();
 					createRules(cx, ce, areaName, null, cm.var);
 				} else if (valExpr instanceof ApplyExpr) {
 					ApplyExpr ae = (ApplyExpr) valExpr;
 					if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
 						throw new UtilException("Cannot edit: " + ae);
-					fn.add(JSForm.flex("this._editable(" + areaName.jsName() + "._rules)"));
+					area.makeEditable();
+					jsArea.makeEditable();
 					createRules(cx, ce, areaName, ae.args.get(0), ((StringLiteral)ae.args.get(1)).text);
 				} else 
 					throw new UtilException("Cannot edit: " + valExpr);
@@ -270,11 +266,8 @@ public class TemplateTraversor {
 				Object valExpr = cr.yoyoVar;
 				callOnAssign(fn, valExpr, area, areaName.jsName() + ".prototype._yoyoExpr", true, null);
 	
-				JSForm cexpr = JSForm.flex(areaName.jsName() +".prototype._yoyoExpr = function()").needBlock();
 				String tfn = simpleName(cr.fnName);
-				cexpr.add(JSForm.flex("this._updateToCard(this." + tfn + "())"));
-				cx.target.add(cexpr);
-
+				jsArea.yoyoExpr(tfn);
 				area.yoyoExpr(tfn);
 			} else
 				throw new UtilException("handle this case");

@@ -51,4 +51,6 @@ public interface AreaGenerator {
 	void makeItemDraggable();
 
 	void assignToList(String listFn);
+
+	void makeEditable();
 }

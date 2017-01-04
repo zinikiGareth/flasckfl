@@ -109,8 +109,12 @@ public class JSAreaGenerator implements AreaGenerator {
 
 	@Override
 	public void contentExpr(String tfn, boolean rawHTML) {
-		// TODO Auto-generated method stub
-
+		JSForm cexpr = JSForm.flex(areaName.jsName() +".prototype._contentExpr = function()").needBlock();
+		if (rawHTML)
+			cexpr.add(JSForm.flex("this._insertHTML(this." + tfn +"())"));
+		else
+			cexpr.add(JSForm.flex("this._assignToText(this." + tfn +"())"));
+		target.add(cexpr);
 	}
 
 	@Override
@@ -126,14 +130,14 @@ public class JSAreaGenerator implements AreaGenerator {
 
 	@Override
 	public void yoyoExpr(String tfn) {
-		// TODO Auto-generated method stub
-
+		JSForm cexpr = JSForm.flex(areaName.jsName() +".prototype._yoyoExpr = function()").needBlock();
+		cexpr.add(JSForm.flex("this._updateToCard(this." + tfn + "())"));
+		target.add(cexpr);
 	}
 
 	@Override
 	public void setText(String text) {
-		// TODO Auto-generated method stub
-
+		fn.add(JSForm.flex("this._setText('" + text + "')"));
 	}
 
 	@Override
@@ -161,6 +165,11 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
+	public void makeEditable() {
+		fn.add(JSForm.flex("this._editable(" + areaName.jsName() + "._rules)"));
+	}
+
+	@Override
 	public void supportDragging() {
 		fn.add(JSForm.flex("this._supportDragging()"));
 	}
@@ -177,4 +186,6 @@ public class JSAreaGenerator implements AreaGenerator {
 			asRegexps.add("/" + s + "/");
 		fn.add(JSForm.flex("this._dropSomethingHere(" + asRegexps + ")"));
 	}
+	
+	
 }

@@ -215,6 +215,12 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 	
 	@Override
+	public void makeEditable() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void supportDragging() {
 		// TODO Auto-generated method stub
 		
