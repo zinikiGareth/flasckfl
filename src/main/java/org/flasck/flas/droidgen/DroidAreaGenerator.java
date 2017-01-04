@@ -2,6 +2,7 @@ package org.flasck.flas.droidgen;
 
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.Expr;
@@ -142,7 +143,8 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void createNested(String v, String cn) {
+	public void createNested(String v, AreaName nested) {
+		String cn = nested.javaName();
 		Var storeAs = ctor.avar(cn, v);
 		ctor.assign(storeAs, (Expr) ctor.makeNew(DroidUtils.javaNestedName(cn), card, (Expr)ctor.as(ctor.myThis(), "org.flasck.android.areas.Area"))).flush();
 	}
@@ -195,5 +197,11 @@ public class DroidAreaGenerator implements AreaGenerator {
 	@Override
 	public Expr cardField(CardMember expr) {
 		return ctor.getField(ctor.getField(ctor.myThis(), "_card"), ((CardMember)expr).var);
+	}
+
+	@Override
+	public void handleTEA(RWTemplateExplicitAttr tea, int an) {
+		// TODO Auto-generated method stub
+		
 	}
 }

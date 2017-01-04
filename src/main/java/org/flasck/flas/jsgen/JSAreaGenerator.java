@@ -1,10 +1,15 @@
 package org.flasck.flas.jsgen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
+import org.flasck.flas.template.TemplateTraversor.GeneratorContext;
 import org.zinutils.bytecode.Expr;
 
 public class JSAreaGenerator implements AreaGenerator {
@@ -49,6 +54,18 @@ public class JSAreaGenerator implements AreaGenerator {
 		target.add(nda);
 	}
 
+	public void handleTEA(RWTemplateExplicitAttr tea, int an) {
+		String saf = areaName.jsName() + ".prototype._setAttr_" + an;
+		JSForm sak = JSForm.flex(saf + " = function()").needBlock();
+		String tfn = tea.fnName.name;
+		sak.add(JSForm.flex("var attr = FLEval.full(this." + tfn + "())"));
+		JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
+		sak.add(ifassign);
+		ifassign.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr +"', attr)"));
+		target.add(sak);
+	}
+
+
 	@Override
 	public void addAssign(String call) {
 		// TODO Auto-generated method stub
@@ -92,9 +109,8 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void createNested(String v, String cn) {
-		// TODO Auto-generated method stub
-
+	public void createNested(String v, AreaName nested) {
+		fn.add(JSForm.flex("var " + v + " = new " + nested.jsName() + "(this)"));
 	}
 
 	@Override
@@ -133,4 +149,11 @@ public class JSAreaGenerator implements AreaGenerator {
 		return null;
 	}
 
+	@Override
+	public void dropZone(List<String> droppables) {
+		List<String> asRegexps = new ArrayList<String>();
+		for (String s : droppables)
+			asRegexps.add("/" + s + "/");
+		fn.add(JSForm.flex("this._dropSomethingHere(" + asRegexps + ")"));
+	}
 }

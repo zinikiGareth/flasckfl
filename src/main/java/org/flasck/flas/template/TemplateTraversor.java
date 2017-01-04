@@ -184,31 +184,24 @@ public class TemplateTraversor {
 			for (Object a : td.attrs) {
 				if (a instanceof RWTemplateExplicitAttr) {
 					RWTemplateExplicitAttr tea = (RWTemplateExplicitAttr) a;
+					area.handleTEA(tea, an);
+					jsArea.handleTEA(tea, an);
 					String saf = areaName.jsName() + ".prototype._setAttr_" + an;
-					JSForm sak = JSForm.flex(saf + " = function()").needBlock();
-					String tfn = tea.fnName.name;
-					sak.add(JSForm.flex("var attr = FLEval.full(this." + tfn + "())"));
-					JSForm ifassign = JSForm.flex("if (attr && !(attr instanceof FLError))").needBlock();
-					sak.add(ifassign);
-					ifassign.add(JSForm.flex("this._mydiv.setAttribute('" + tea.attr +"', attr)"));
-					cx.target.add(sak);
 					callOnAssign(fn, tea.value, area, saf, true, null);
 					an++;
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
 			}
 			if (td.droppables != null) {
-				List<String> asRegexps = new ArrayList<String>();
-				for (String s : td.droppables)
-					asRegexps.add("/" + s + "/");
-				fn.add(JSForm.flex("this._dropSomethingHere(" + asRegexps + ")"));
+				area.dropZone(td.droppables);
+				jsArea.dropZone(td.droppables);
 			}
 			for (RWTemplateLine c : td.nested) {
 				AreaName cn = c.areaName();
 				int idx = cn.jsName().lastIndexOf(".B")+2;
 				String v = 'b'+cn.jsName().substring(idx);
-				fn.add(JSForm.flex("var " + v + " = new " + cn.jsName() + "(this)"));
-				area.createNested(v, cn.javaName());
+				jsArea.createNested(v, cn);
+				area.createNested(v, cn);
 				recurse(cx, cn, c, areaName);
 			}
 		} else if (tl instanceof RWTemplateList) {

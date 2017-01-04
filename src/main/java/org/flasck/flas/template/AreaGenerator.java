@@ -1,7 +1,10 @@
 package org.flasck.flas.template;
 
+import java.util.List;
+
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.zinutils.bytecode.Expr;
 
 public interface AreaGenerator {
@@ -25,7 +28,7 @@ public interface AreaGenerator {
 
 	void needAddHandlers();
 
-	void createNested(String v, String cn);
+	void createNested(String v, AreaName nestedArea);
 
 	void yoyoExpr(String tfn);
 
@@ -38,4 +41,8 @@ public interface AreaGenerator {
 	Expr sourceFor(String name);
 
 	Expr cardField(CardMember expr);
+
+	void handleTEA(RWTemplateExplicitAttr tea, int an);
+
+	void dropZone(List<String> droppables);
 }
