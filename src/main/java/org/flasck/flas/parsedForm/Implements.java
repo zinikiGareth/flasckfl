@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.NameOfThing;
+import org.flasck.flas.commonBase.names.NameOfThing;
 
 public class Implements implements Locatable {
 	public final List<MethodCaseDefn> methods = new ArrayList<MethodCaseDefn>();

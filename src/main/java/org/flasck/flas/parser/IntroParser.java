@@ -10,7 +10,7 @@ import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
@@ -68,7 +68,7 @@ public class IntroParser implements TryParsing {
 			}
 			if (er.hasErrors())
 				return er;
-			return new StructDefn(kw.location, tn.location, new StructName(state.pkgName, tn.text), true, args);
+			return new StructDefn(kw.location, tn.location, new SolidName(state.pkgName, tn.text), true, args);
 		}
 		case "object": {
 			TypeNameToken tn = TypeNameToken.unqualified(line);
@@ -86,13 +86,13 @@ public class IntroParser implements TryParsing {
 			}
 			if (er.hasErrors())
 				return er;
-			return new ObjectDefn(tn.location, state.scope, state.structName(tn.text), true, args);
+			return new ObjectDefn(tn.location, state.scope, state.solidName(tn.text), true, args);
 		}
 		case "contract": {
 			TypeNameToken tn = TypeNameToken.unqualified(line);
 			if (tn == null)
 				return ErrorResult.oneMessage(line, "invalid contract name");
-			return new ContractDecl(kw.location, tn.location, state.structName(tn.text));
+			return new ContractDecl(kw.location, tn.location, state.solidName(tn.text));
 		}
 		case "card": {
 			TypeNameToken tn = TypeNameToken.unqualified(line);

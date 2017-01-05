@@ -1,7 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.flasck.flas.commonBase.NameOfThing;
-
 public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 	private final NameOfThing inside;
 	private final String myname;

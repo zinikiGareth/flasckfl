@@ -5,16 +5,16 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 
 public class ContractDecl implements Locatable {
 	public final List<ContractMethodDecl> methods = new ArrayList<ContractMethodDecl>();
 	public final transient boolean generate;
 	public final InputPosition kw;
 	private final InputPosition loc;
-	private StructName contractName;
+	private SolidName contractName;
 
-	public ContractDecl(InputPosition kw, InputPosition location, StructName structName) {
+	public ContractDecl(InputPosition kw, InputPosition location, SolidName structName) {
 		this.kw = kw;
 		this.loc = location;
 		this.contractName = structName;
@@ -26,7 +26,7 @@ public class ContractDecl implements Locatable {
 		return loc;
 	}
 	
-	public StructName nameAsName() {
+	public SolidName nameAsName() {
 		return contractName;
 	}
 

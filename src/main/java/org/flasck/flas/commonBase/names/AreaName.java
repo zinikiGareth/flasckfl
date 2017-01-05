@@ -1,6 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.flasck.flas.commonBase.NameOfThing;
 import org.zinutils.exceptions.UtilException;
 
 public class AreaName implements NameOfThing, Comparable<AreaName> {

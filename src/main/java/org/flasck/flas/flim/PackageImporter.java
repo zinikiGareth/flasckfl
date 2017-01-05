@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
@@ -70,13 +70,13 @@ public class PackageImporter {
 			else if (xe.hasTag("Struct")) {
 				List<PolyVar> polys = new ArrayList<>();
 				String baseName = xe.required("name");
-				RWStructDefn sd = new RWStructDefn(location(xe), new StructName(packageName, baseName), false, polys);
+				RWStructDefn sd = new RWStructDefn(location(xe), new SolidName(packageName, baseName), false, polys);
 				xe.attributesDone();
 				pkg.define(sd.name(), sd);
 				todos.add(new Pass2(sd, xe));
 			} else if (xe.hasTag("Contract")) {
 				String baseName = xe.required("name");
-				RWContractDecl cd = new RWContractDecl(null, location(xe), new StructName(packageName, baseName), false);
+				RWContractDecl cd = new RWContractDecl(null, location(xe), new SolidName(packageName, baseName), false);
 				xe.attributesDone();
 				pkg.define(cd.name(), cd);
 				todos.add(new Pass2(cd, xe));
@@ -118,7 +118,7 @@ public class PackageImporter {
 						} else
 							System.out.println("Handle pattern " + pe);
 					}
-					types.add((Type) rw.getMe(loc, new StructName(null, "Send")).defn);
+					types.add((Type) rw.getMe(loc, new SolidName(null, "Send")).defn);
 					FunctionType type = new FunctionType(loc, types);
 					RWContractMethodDecl cmd = new RWContractMethodDecl(loc, cme.requiredBoolean("required"), cme.required("dir"), fn, args, type);
 					cme.attributesDone();

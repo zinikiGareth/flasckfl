@@ -13,7 +13,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
@@ -78,7 +78,7 @@ public abstract class BaseRunnerTests {
 			cd.contracts.add(ctr);
 		}
 		mainScope.define("Card", cd);
-		tc.define("test.runner.x", Type.function(loc, new PrimitiveType(loc, new StructName(null, "Number"))));
+		tc.define("test.runner.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		prior = new CompileResult(mainScope, bce, tc);
 		testScope = Scope.topScope(spkg);
 	}

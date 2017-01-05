@@ -1,7 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.flasck.flas.commonBase.NameOfThing;
-
 public class PackageName implements NameOfThing, Comparable<PackageName> {
 	private final String name;
 

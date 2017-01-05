@@ -7,7 +7,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.zinutils.collections.CollectionUtils;
 
 public class StructDefn implements AsString, Locatable {
@@ -16,15 +16,15 @@ public class StructDefn implements AsString, Locatable {
 	public final InputPosition kw;
 	private final InputPosition location;
 	private List<PolyType> polys;
-	public final StructName structName;
+	public final SolidName structName;
 
 	// for tests
 	public StructDefn(InputPosition location, String pkg, String tn, boolean generate, PolyType... polys) {
-		this(null, location, new StructName(new PackageName(pkg), tn), generate, CollectionUtils.listOf(polys));
+		this(null, location, new SolidName(new PackageName(pkg), tn), generate, CollectionUtils.listOf(polys));
 	}
 	
 	// The real constructor
-	public StructDefn(InputPosition kw, InputPosition location, StructName tn, boolean generate, List<PolyType> polys) {
+	public StructDefn(InputPosition kw, InputPosition location, SolidName tn, boolean generate, List<PolyType> polys) {
 		this.kw = kw;
 		this.location = location;
 		this.structName = tn;
@@ -32,7 +32,7 @@ public class StructDefn implements AsString, Locatable {
 		this.polys = polys;
 	}
 
-	public StructName name() {
+	public SolidName name() {
 		return structName;
 	}
 

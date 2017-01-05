@@ -14,7 +14,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
@@ -43,9 +43,9 @@ import org.zinutils.collections.CollectionUtils;
 public class TestBasicTypeChecking {
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
 	ErrorResult errors = new ErrorResult();
-	Type number = new PrimitiveType(posn, new StructName(null, "Number"));
-	Type charT = new PrimitiveType(posn, new StructName(null, "Char"));
-	Type booleanT = new PrimitiveType(posn, new StructName(null, "Boolean"));
+	Type number = new PrimitiveType(posn, new SolidName(null, "Number"));
+	Type charT = new PrimitiveType(posn, new SolidName(null, "Char"));
+	Type booleanT = new PrimitiveType(posn, new SolidName(null, "Boolean"));
 	Rewriter rw;
 	TypeChecker2 tc;
 
@@ -64,13 +64,13 @@ public class TestBasicTypeChecking {
 		fntype(pkg, "plus1", number, number);
 		fntype(pkg, "decode", number, charT);
 		fntype(pkg, "id1", varA, varA);
-		RWStructDefn nil = new RWStructDefn(posn, new StructName(null, "Nil"), false);
+		RWStructDefn nil = new RWStructDefn(posn, new SolidName(null, "Nil"), false);
 		pkg.define("Nil", nil);
-		RWStructDefn cons = new RWStructDefn(posn, new StructName(null, "Cons"), false, varA); 
+		RWStructDefn cons = new RWStructDefn(posn, new SolidName(null, "Cons"), false, varA); 
 		cons.addField(new RWStructField(posn, false, varA, "head"));
 		cons.addField(new RWStructField(posn, false, cons, "tail"));
 		pkg.define("Cons", cons);
-		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new StructName(null, "List"), CollectionUtils.listOf(varA));
+		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new SolidName(null, "List"), CollectionUtils.listOf(varA));
 		list.addCase(nil);
 		list.addCase(cons);
 		pkg.define("List", list);

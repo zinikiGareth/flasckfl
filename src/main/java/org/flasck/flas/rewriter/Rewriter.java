@@ -21,7 +21,6 @@ import org.flasck.flas.commonBase.ConstPattern;
 import org.flasck.flas.commonBase.Expr;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.SpecialFormat;
 import org.flasck.flas.commonBase.StringLiteral;
@@ -29,9 +28,10 @@ import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.ScopeName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.compiler.CompileResult;
@@ -798,7 +798,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private CardGrouping createCard(PackageContext cx, CardDefinition cd) {
-		RWStructDefn sd = new RWStructDefn(cd.location, new StructName(cd.cardName.pkg, cd.cardName.cardName), false);
+		RWStructDefn sd = new RWStructDefn(cd.location, new SolidName(cd.cardName.pkg, cd.cardName.cardName), false);
 		CardGrouping grp = new CardGrouping(cd.cardName, sd);
 		cards.put(cd.cardName.uniqueName(), grp);
 		return grp;
@@ -1149,7 +1149,7 @@ public class Rewriter implements CodeGenRegistry {
 		}
 	}
 
-	private RWContractMethodDecl rewriteCMD(NamingContext cx, StructName name, ContractMethodDecl cmd) {
+	private RWContractMethodDecl rewriteCMD(NamingContext cx, SolidName name, ContractMethodDecl cmd) {
 		List<Object> args = new ArrayList<Object>();
 		List<Type> targs = new ArrayList<Type>(); 
 		for (Object o : cmd.args) {
@@ -1185,7 +1185,7 @@ public class Rewriter implements CodeGenRegistry {
 				return null;
 			}
 			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
-			return new RWContractImplements(ci.kw, ci.location(), ci.getRealName(), (StructName) cd.getTypeName(), ci.varLocation, ci.referAsVar);
+			return new RWContractImplements(ci.kw, ci.location(), ci.getRealName(), (SolidName) cd.getTypeName(), ci.varLocation, ci.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -1200,7 +1200,7 @@ public class Rewriter implements CodeGenRegistry {
 				return null;
 			}
 			RWContractDecl cd = (RWContractDecl) ((PackageVar)av).defn;
-			return new RWContractService(cs.kw, cs.location(), cs.getRealName(), (StructName) cd.getTypeName(), cs.vlocation, cs.referAsVar);
+			return new RWContractService(cs.kw, cs.location(), cs.getRealName(), (SolidName) cd.getTypeName(), cs.vlocation, cs.referAsVar);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return null;
@@ -1260,7 +1260,7 @@ public class Rewriter implements CodeGenRegistry {
 			// until just above, so we have to wait ...
 			
 			// I don't want to have two arrays with the same named entry, so add a random thing to the end of the struct
-			StructName sdname = new StructName(hi.handlerName.name, hi.handlerName.baseName+"$struct");
+			SolidName sdname = new SolidName(hi.handlerName.name, hi.handlerName.baseName+"$struct");
 			RWStructDefn hsd = new RWStructDefn(hi.location(), sdname, false);
 			for (Object s : ret.boundVars) {
 				HandlerLambda hl = (HandlerLambda) s;

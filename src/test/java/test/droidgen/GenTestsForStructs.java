@@ -2,7 +2,7 @@ package test.droidgen;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -62,13 +62,13 @@ public class GenTestsForStructs {
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
 		DroidGenerator gen = new DroidGenerator(false, bce);
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
 		gen.visitStructDefn(sd);
 	}
 
 	@Test
 	public void testNothingHappensIfWeDontWantToGenerateTheStruct() {
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), false);
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), false);
 		gen.visitStructDefn(sd);
 	}
 
@@ -78,7 +78,7 @@ public class GenTestsForStructs {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
 		checkCreationOfStructDFE();
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
 		gen.visitStructDefn(sd);
 	}
 
@@ -88,8 +88,8 @@ public class GenTestsForStructs {
 		checkCreationOfStructCtor();
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.BOOLEANP, "f1");
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
-		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new StructName(null, "Boolean")), "f1"));
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
 		gen.visitStructDefn(sd);
 	}
 
@@ -100,8 +100,8 @@ public class GenTestsForStructs {
 		checkCreationOfStructCtor();
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.INTP, "f1");
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Struct"), true);
-		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new StructName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		gen.visitStructDefn(sd);
 	}
 

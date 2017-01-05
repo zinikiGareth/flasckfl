@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResult;
@@ -57,7 +57,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testItCanTestASimpleValue() throws Exception {
 		go(new Setup() {{
 			scope.define("x", null);
-			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new StructName(null, "Number"))));
+			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
@@ -112,7 +112,7 @@ public class SimpleUnitTestRunnerTests {
 	public void testItFailsWhenGivenTheWrongValue() throws Exception {
 		go(new Setup() {{
 			scope.define("x", null);
-			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new StructName(null, "Number"))));
+			tc.define("test.golden.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		}});
 		context.checking(new Expectations() {{
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));

@@ -1,7 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.flasck.flas.commonBase.NameOfThing;
-
 public class PolyName implements NameOfThing, Comparable<PolyName> {
 	private final String name;
 

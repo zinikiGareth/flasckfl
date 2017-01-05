@@ -10,7 +10,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.AreaName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewriter.Rewriter;
@@ -84,8 +84,8 @@ public class TemplateTraversor {
 	public TemplateTraversor(Rewriter rewriter, List<TemplateGenerator> tgs) {
 		this.rewriter = rewriter;
 		this.tgs = tgs;
-		this.nil = rewriter.getMe(posn, new StructName(null, "Nil"));
-		this.cons = rewriter.getMe(posn, new StructName(null, "Cons"));
+		this.nil = rewriter.getMe(posn, new SolidName(null, "Nil"));
+		this.cons = rewriter.getMe(posn, new SolidName(null, "Cons"));
 	}
 
 	public void generate(Rewriter rw, JSTarget target) {

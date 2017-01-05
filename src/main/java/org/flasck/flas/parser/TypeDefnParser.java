@@ -3,7 +3,7 @@ package org.flasck.flas.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -39,7 +39,7 @@ public class TypeDefnParser implements TryParsing {
 		}
 		if (!PeekToken.accept(line, "="))
 			return null;
-		UnionTypeDefn ret = new UnionTypeDefn(line.realinfo(), true, new StructName(state.pkgName, tn.text), args);
+		UnionTypeDefn ret = new UnionTypeDefn(line.realinfo(), true, new SolidName(state.pkgName, tn.text), args);
 		while (line.hasMore()) {
 			Object tr = new TypeExprParser().tryOneExpr(line);
 			if (tr == null)

@@ -11,13 +11,13 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
 import org.flasck.flas.errors.ErrorResult;
@@ -135,8 +135,8 @@ public class FLASStory {
 			return new State(scope, pkgName, newKind);
 		}
 		
-		public StructName structName(String text) {
-			return new StructName(pkgName, text);
+		public SolidName solidName(String text) {
+			return new SolidName(pkgName, text);
 		}
 		
 		public HandlerName handlerName(String text) {
@@ -149,7 +149,7 @@ public class FLASStory {
 			else if (kind == CodeType.CARD)
 				return FunctionName.functionInCardContext(vit.location, (CardName) pkgName, vit.text);
 			else if (kind == CodeType.DECL)
-				return FunctionName.contractDecl(vit.location, (StructName) pkgName, vit.text);
+				return FunctionName.contractDecl(vit.location, (SolidName) pkgName, vit.text);
 			else if (kind == CodeType.CONTRACT)
 				return FunctionName.contractMethod(vit.location, (CSName) pkgName, vit.text);
 			else if (kind == CodeType.SERVICE)
@@ -231,7 +231,7 @@ public class FLASStory {
 					doObjectMembers(er, s, od, b.nested);
 				} else if (o instanceof ContractDecl) {
 					ContractDecl cd = (ContractDecl) o;
-					StructName name = cd.nameAsName();
+					SolidName name = cd.nameAsName();
 					if (ret.contains(name.baseName()))
 						er.message(b, "duplicate definition for name " + name.baseName());
 					else

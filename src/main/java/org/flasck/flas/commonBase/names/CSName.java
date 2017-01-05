@@ -1,7 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.flasck.flas.commonBase.NameOfThing;
-
 public class CSName implements NameOfThing, Comparable<CSName> {
 	private final CardName card;
 	private final String cname;

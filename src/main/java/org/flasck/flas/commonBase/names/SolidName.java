@@ -1,12 +1,10 @@
 package org.flasck.flas.commonBase.names;
 
-import org.flasck.flas.commonBase.NameOfThing;
-
-public class StructName implements NameOfThing, Comparable<StructName> {
+public class SolidName implements NameOfThing, Comparable<SolidName> {
 	private final NameOfThing container;
 	private final String name;
 
-	public StructName(NameOfThing container, String name) {
+	public SolidName(NameOfThing container, String name) {
 		this.container = container;
 		this.name = name;
 	}
@@ -34,7 +32,7 @@ public class StructName implements NameOfThing, Comparable<StructName> {
 		return container.containingCard();
 	}
 
-	public int compareTo(StructName other) {
+	public int compareTo(SolidName other) {
 		int cs = 0;
 		if (container != null && other.container == null)
 			return -1;
@@ -49,9 +47,9 @@ public class StructName implements NameOfThing, Comparable<StructName> {
 
 	@Override
 	public <T extends NameOfThing> int compareTo(T other) {
-		if (!(other instanceof StructName))
+		if (!(other instanceof SolidName))
 			return other.getClass().getName().compareTo(this.getClass().getName());
-		return this.compareTo((StructName)other);
+		return this.compareTo((SolidName)other);
 	}
 
 }

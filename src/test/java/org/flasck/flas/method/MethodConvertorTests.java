@@ -17,7 +17,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
@@ -75,7 +75,7 @@ public class MethodConvertorTests {
 		orgFooScope = Scope.topScope("org.foo");
 //		orgFooScope.define("doSend", "org.foo.doSend", new FunctionCaseDefn(posn, CodeType.FUNCTION, "org.foo.doSend", args, expr));
 		{
-			StructName cn = new StructName(new PackageName("org.foo"), "Contract1");
+			SolidName cn = new SolidName(new PackageName("org.foo"), "Contract1");
 			ContractDecl contract1 = new ContractDecl(posn, posn, cn);
 			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "bar"), new ArrayList<>());
 			contract1.methods.add(m1);
@@ -86,7 +86,7 @@ public class MethodConvertorTests {
 			orgFooScope.define("Contract1", contract1);
 		}
 		{
-			StructName cn = new StructName(new PackageName("org.foo"), "Service1");
+			SolidName cn = new SolidName(new PackageName("org.foo"), "Service1");
 			ContractDecl service1 = new ContractDecl(posn, posn, cn);
 			ContractMethodDecl m0 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "go"), new ArrayList<>());
 			service1.methods.add(m0);
@@ -97,7 +97,7 @@ public class MethodConvertorTests {
 			orgFooScope.define("Service1", service1);
 		}
 		{
-			StructName cn = new StructName(new PackageName("org.foo"), "Handler1");
+			SolidName cn = new SolidName(new PackageName("org.foo"), "Handler1");
 			ContractDecl handler1 = new ContractDecl(posn, posn, cn);
 			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "handle"), new ArrayList<>());
 			handler1.methods.add(m1);

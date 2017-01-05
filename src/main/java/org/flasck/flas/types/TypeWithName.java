@@ -3,7 +3,7 @@ package org.flasck.flas.types;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.NameOfThing;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.collections.CollectionUtils;
 
 public class TypeWithName extends Type {

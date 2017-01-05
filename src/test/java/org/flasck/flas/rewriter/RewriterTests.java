@@ -14,7 +14,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
@@ -58,7 +58,7 @@ public class RewriterTests {
 	@Before
 	public void setup() {
 		ImportPackage builtins = Builtin.builtins();
-		builtins.define("Timer", new RWContractDecl(posn, posn, new StructName(null, "Timer"), false));
+		builtins.define("Timer", new RWContractDecl(posn, posn, new SolidName(null, "Timer"), false));
 		rw = new Rewriter(errors, null, builtins);
 	}
 
@@ -94,7 +94,7 @@ public class RewriterTests {
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "String"), "f"));
 		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);
-		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, new StructName(new PackageName("ME"), "Container")).defn;
+		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, new SolidName(new PackageName("ME"), "Container")).defn;
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("f", sf.name);
 		assertEquals("String", ((TypeWithName) sf.type).name());
@@ -107,7 +107,7 @@ public class RewriterTests {
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "List", new TypeReference(posn, "String")), "list"));
 		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);
-		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, new StructName(new PackageName("ME"), "Container")).defn;
+		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, new SolidName(new PackageName("ME"), "Container")).defn;
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("list", sf.name);
 		assertEquals("List", ((TypeWithName) sf.type).name());

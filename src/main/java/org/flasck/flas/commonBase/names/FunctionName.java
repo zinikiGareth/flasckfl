@@ -3,7 +3,6 @@ package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.HandlerName;
-import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
@@ -44,7 +43,7 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.EVENTHANDLER, cardName, name);
 	}
 
-	public static FunctionName contractDecl(InputPosition location, StructName contractName, String name) {
+	public static FunctionName contractDecl(InputPosition location, SolidName contractName, String name) {
 		return new FunctionName(location, CodeType.DECL, contractName, name);
 	}
 

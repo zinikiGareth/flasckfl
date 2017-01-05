@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.NameOfThing;
+import org.flasck.flas.commonBase.names.NameOfThing;
 
 public class NamedType extends TypeInfo {
 	private final InputPosition location;

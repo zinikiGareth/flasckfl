@@ -2,8 +2,8 @@ package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Expr;
-import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.types.Type;
 

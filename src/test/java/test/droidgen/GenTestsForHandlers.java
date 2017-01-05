@@ -6,7 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -53,7 +53,7 @@ public class GenTestsForHandlers {
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
 		DroidGenerator gen = new DroidGenerator(false, bce);
-		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new CardName(null, "Card"), "MyHandler"), new StructName(null, "Callback"), true, new ArrayList<>());
+		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new CardName(null, "Card"), "MyHandler"), new SolidName(null, "Callback"), true, new ArrayList<>());
 		gen.visitHandlerImpl(hi);
 	}
 
@@ -63,7 +63,7 @@ public class GenTestsForHandlers {
 		checkCreationOfNestedClass(container, true);
 		checkCreationOfImplCtor(true);
 		checkCreationOfEvalMethod(container, true);
-		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new CardName(null, container), "MyHandler"), new StructName(null, "Callback"), true, new ArrayList<>());
+		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new CardName(null, container), "MyHandler"), new SolidName(null, "Callback"), true, new ArrayList<>());
 		gen.visitHandlerImpl(hi);
 	}
 
@@ -73,7 +73,7 @@ public class GenTestsForHandlers {
 		checkCreationOfNestedClass(container, false);
 		checkCreationOfImplCtor(false);
 		checkCreationOfEvalMethod(container, false);
-		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new PackageName(container), "MyHandler"), new StructName(null, "Callback"), false, new ArrayList<>());
+		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, new HandlerName(new PackageName(container), "MyHandler"), new SolidName(null, "Callback"), false, new ArrayList<>());
 		gen.visitHandlerImpl(hi);
 	}
 
@@ -86,8 +86,8 @@ public class GenTestsForHandlers {
 		checkProcessingOfLambda("x");
 		HandlerName hn = new HandlerName(new CardName(null, container), "MyHandler");
 		ArrayList<HandlerLambda> lambdas = new ArrayList<>();
-		lambdas.add(new HandlerLambda(loc, hn.uniqueName(), new RWStructDefn(loc, new StructName(null, "Foo"), true), "x"));
-		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, hn, new StructName(null, "Callback"), true, lambdas);
+		lambdas.add(new HandlerLambda(loc, hn.uniqueName(), new RWStructDefn(loc, new SolidName(null, "Foo"), true), "x"));
+		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, hn, new SolidName(null, "Callback"), true, lambdas);
 		gen.visitHandlerImpl(hi);
 	}
 

@@ -7,7 +7,7 @@ import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -56,7 +56,7 @@ public class GenTestsForCards {
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
 		DroidGenerator gen = new DroidGenerator(false, bce);
-		CardGrouping sd = new CardGrouping(new CardName(null, "Card"), new RWStructDefn(loc, new StructName(null, "Card"), true));
+		CardGrouping sd = new CardGrouping(new CardName(null, "Card"), new RWStructDefn(loc, new SolidName(null, "Card"), true));
 		gen.visitCardGrouping(sd);
 	}
 
@@ -65,7 +65,7 @@ public class GenTestsForCards {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
 		checkCreationOfCardOnCreate();
-		CardGrouping sd = new CardGrouping(new CardName(null, "Card"), new RWStructDefn(loc, new StructName(null, "Card"), true));
+		CardGrouping sd = new CardGrouping(new CardName(null, "Card"), new RWStructDefn(loc, new SolidName(null, "Card"), true));
 		gen.visitCardGrouping(sd);
 	}
 
@@ -75,8 +75,8 @@ public class GenTestsForCards {
 		checkCreationOfCardCtor();
 		checkCreationOfCardOnCreate();
 		checkDefnOfField(J.BOOLEANP, "f1");
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
-		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new StructName(null, "Boolean")), "f1"));
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
 		CardGrouping card = new CardGrouping(new CardName(null, "Card"), sd);
 		gen.visitCardGrouping(card);
 	}
@@ -88,8 +88,8 @@ public class GenTestsForCards {
 		checkCreationOfCardCtor();
 		checkCreationOfCardOnCreate();
 		checkDefnOfField(J.INTP, "f1");
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
-		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new StructName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		CardGrouping card = new CardGrouping(new CardName(null, "Card"), sd);
 		gen.visitCardGrouping(card);
 	}
@@ -101,7 +101,7 @@ public class GenTestsForCards {
 		checkCreationOfCardOnCreate();
 		checkDefnOfContract("_C0", null);
 		checkRegisterOfContract("_C0", null);
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		CardName cdName = new CardName(null, "Card");
 		CardGrouping card = new CardGrouping(cdName, sd);
 		card.contracts.add(new ContractGrouping("CtrDecl", new CSName(cdName, "_C0"), null));
@@ -115,7 +115,7 @@ public class GenTestsForCards {
 		checkCreationOfCardOnCreate();
 		checkDefnOfContract("_C0", "ce");
 		checkRegisterOfContract("_C0", "ce");
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		CardName cdName = new CardName(null, "Card");
 		CardGrouping card = new CardGrouping(cdName, sd);
 		card.contracts.add(new ContractGrouping("CtrDecl", new CSName(cdName, "_C0"), "ce"));
@@ -128,11 +128,11 @@ public class GenTestsForCards {
 		checkCreationOfCardCtor();
 		checkCreationOfCardOnCreate();
 		checkDefnOfContract("ActualHandler", null);
-		RWStructDefn sd = new RWStructDefn(loc, new StructName(null, "Card"), true);
+		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		CardName cdName = new CardName(null, "Card");
 		CardGrouping card = new CardGrouping(cdName, sd);
 		HandlerName hn = new HandlerName(cdName, "ActualHandler");
-		card.handlers.add(new HandlerGrouping("ActualHandler", new RWHandlerImplements(loc, loc, hn, new StructName(null, "HandlerDecl"), true, new ArrayList<>())));
+		card.handlers.add(new HandlerGrouping("ActualHandler", new RWHandlerImplements(loc, loc, hn, new SolidName(null, "HandlerDecl"), true, new ArrayList<>())));
 		gen.visitCardGrouping(card);
 	}
 

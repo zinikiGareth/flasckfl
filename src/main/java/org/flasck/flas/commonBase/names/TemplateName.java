@@ -1,7 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.flasck.flas.commonBase.NameOfThing;
-
 public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 	private final CardName cardName;
 	private String name;

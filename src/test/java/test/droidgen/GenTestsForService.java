@@ -3,7 +3,7 @@ package test.droidgen;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.jmock.Expectations;
@@ -41,7 +41,7 @@ public class GenTestsForService {
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
 		DroidGenerator gen = new DroidGenerator(false, bce);
-		RWContractService ci = new RWContractService(loc, loc, new CSName(new CardName(null, "Card"), "_S0"), new StructName(null, "CtrDecl"), null, null);
+		RWContractService ci = new RWContractService(loc, loc, new CSName(new CardName(null, "Card"), "_S0"), new SolidName(null, "CtrDecl"), null, null);
 		gen.visitServiceImpl(ci);
 	}
 
@@ -49,7 +49,7 @@ public class GenTestsForService {
 	public void testVisitingAnEmptyStructDefnGeneratesTheCorrectMinimumCode() {
 		checkCreationOfNestedClass();
 		checkCreationOfImplCtor();
-		RWContractService ci = new RWContractService(loc, loc, new CSName(new CardName(null, "Card"), "_S0"), new StructName(null, "CtrDecl"), null, null);
+		RWContractService ci = new RWContractService(loc, loc, new CSName(new CardName(null, "Card"), "_S0"), new SolidName(null, "CtrDecl"), null, null);
 		gen.visitServiceImpl(ci);
 	}
 

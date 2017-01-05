@@ -1,6 +1,7 @@
 package org.flasck.flas.commonBase;
 
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 
 public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 	public final NameOfThing name;

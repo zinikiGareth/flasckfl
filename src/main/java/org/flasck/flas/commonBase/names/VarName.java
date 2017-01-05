@@ -1,7 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.NameOfThing;
 
 public class VarName implements NameOfThing, Comparable<VarName> {
 	public final InputPosition loc;

@@ -6,7 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.Type;
@@ -19,11 +19,11 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();
 	public final transient boolean generate;
 
-	public RWObjectDefn(InputPosition location, StructName tn, boolean generate, PolyVar... polys) {
+	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, PolyVar... polys) {
 		this(location, tn, generate, CollectionUtils.listOf(polys));
 	}
 	
-	public RWObjectDefn(InputPosition location, StructName tn, boolean generate, List<PolyVar> polys) {
+	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, List<PolyVar> polys) {
 		super(null, location, tn, polys);
 		this.generate = generate;
 	}

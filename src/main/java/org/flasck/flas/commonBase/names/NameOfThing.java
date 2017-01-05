@@ -1,6 +1,4 @@
-package org.flasck.flas.commonBase;
-
-import org.flasck.flas.commonBase.names.CardName;
+package org.flasck.flas.commonBase.names;
 
 public interface NameOfThing {
 

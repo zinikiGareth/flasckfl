@@ -1,7 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.NameOfThing;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.exceptions.UtilException;
 
 public class PackageVar implements ExternalRef {

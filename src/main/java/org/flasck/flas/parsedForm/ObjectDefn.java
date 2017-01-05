@@ -6,7 +6,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 
 public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	public StateDefinition state;
@@ -15,10 +15,10 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	public final transient boolean generate;
 	private final Scope innerScope;
 	private final InputPosition location;
-	private final StructName name;
+	private final SolidName name;
 	private final List<PolyType> polys;
 
-	public ObjectDefn(InputPosition location, Scope outer, StructName tn, boolean generate, List<PolyType> polys) {
+	public ObjectDefn(InputPosition location, Scope outer, SolidName tn, boolean generate, List<PolyType> polys) {
 		this.location = location;
 		this.name = tn;
 		this.generate = generate;
@@ -36,7 +36,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 		ctorArgs.add(new StructField(pos, false, type, name));
 	}
 	
-	public StructName name() {
+	public SolidName name() {
 		return name;
 	}
 

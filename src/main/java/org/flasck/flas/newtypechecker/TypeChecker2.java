@@ -13,8 +13,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.NameOfThing;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.KnowledgeWriter;
@@ -1047,7 +1047,7 @@ public class TypeChecker2 {
 		} else if (ti instanceof TypeIndirect) {
 			// This shouldn't happen in types we care about, but in HandlerLambdas
 			// I don't think we actually test this ever
-			return new PrimitiveType(((TypeIndirect) ti).location(), new StructName(null, "Any"));
+			return new PrimitiveType(((TypeIndirect) ti).location(), new SolidName(null, "Any"));
 		} else
 			throw new UtilException("Have computed type " + ti.getClass() + " but can't convert back to real Type");
 	}

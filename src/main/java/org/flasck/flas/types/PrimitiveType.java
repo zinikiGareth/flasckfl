@@ -1,7 +1,7 @@
 package org.flasck.flas.types;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.NameOfThing;
+import org.flasck.flas.commonBase.names.NameOfThing;
 
 public class PrimitiveType extends TypeWithName {
 

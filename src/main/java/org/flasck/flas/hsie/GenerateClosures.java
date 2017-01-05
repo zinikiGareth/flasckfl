@@ -15,7 +15,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.LocatedObject;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
@@ -302,7 +302,7 @@ public class GenerateClosures {
 	}
 
 	public LocatedObject process(SendExpr dse) {
-		PackageVar send = rw.getMe(dse.location(), new StructName(null, "Send"));
+		PackageVar send = rw.getMe(dse.location(), new SolidName(null, "Send"));
 		form.dependsOn(send);
 		ApplyExpr expr = new ApplyExpr(dse.location(), send, dse.sender, dse.method, asList(dse.location(), dse.args));
 		LocatedObject conv = dispatch(expr);
@@ -314,10 +314,10 @@ public class GenerateClosures {
 	
 
 	private Object asList(InputPosition loc, List<Object> args) {
-		Object ret = rw.getMe(loc, new StructName(null, "Nil"));
+		Object ret = rw.getMe(loc, new SolidName(null, "Nil"));
 		for (int n = args.size()-1;n>=0;n--) {
 			Locatable arg = (Locatable) args.get(n);
-			ret = new ApplyExpr(arg.location(), rw.getMe(loc, new StructName(null, "Cons")), arg, ret);
+			ret = new ApplyExpr(arg.location(), rw.getMe(loc, new SolidName(null, "Cons")), arg, ret);
 		}
 		return ret;
 	}

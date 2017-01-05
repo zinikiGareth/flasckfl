@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
@@ -60,7 +60,7 @@ public class GenTestsForContracts {
 	@Test
 	public void testNothingHappensIfWeDontTurnOnGeneration() {
 		DroidGenerator gen = new DroidGenerator(false, bce);
-		RWContractDecl cd = new RWContractDecl(loc, loc, new StructName(null, "ContDecl"), true);
+		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		gen.visitContractDecl(cd);
 	}
 
@@ -68,7 +68,7 @@ public class GenTestsForContracts {
 	public void testVisitingAnEmptyContractDefnGeneratesTheCorrectMinimumCode() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
-		RWContractDecl cd = new RWContractDecl(loc, loc, new StructName(null, "ContDecl"), true);
+		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		gen.visitContractDecl(cd);
 	}
 
@@ -77,8 +77,8 @@ public class GenTestsForContracts {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
 		checkDeclOfMethod("fred");
-		RWContractDecl cd = new RWContractDecl(loc, loc, new StructName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), new ArrayList<>(), Type.function(loc, new RWStructDefn(loc, new StructName(null, "Send"), false))));
+		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
+		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), new ArrayList<>(), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
 		gen.visitContractDecl(cd);
 	}
 
@@ -87,8 +87,8 @@ public class GenTestsForContracts {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
 		checkDeclOfMethod("fred");
-		RWContractDecl cd = new RWContractDecl(loc, loc, new StructName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), Arrays.asList((Object)null), Type.function(loc, new RWStructDefn(loc, new StructName(null, "Send"), false))));
+		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
+		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), Arrays.asList((Object)null), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
 		gen.visitContractDecl(cd);
 	}
 
@@ -96,8 +96,8 @@ public class GenTestsForContracts {
 	public void testAnUpMethodInAContractDefnIsIgnored() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
-		RWContractDecl cd = new RWContractDecl(loc, loc, new StructName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "fred"), new ArrayList<>(), Type.function(loc, new RWStructDefn(loc, new StructName(null, "Send"), false))));
+		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
+		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "fred"), new ArrayList<>(), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
 		gen.visitContractDecl(cd);
 	}
 

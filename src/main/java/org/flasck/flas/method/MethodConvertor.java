@@ -9,11 +9,11 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
@@ -63,7 +63,7 @@ public class MethodConvertor {
 	public MethodConvertor(ErrorResult errors, Rewriter rw) {
 		this.errors = errors;
 		InputPosition posn = new InputPosition("builtin", 0, 0, "");
-		this.messageList = ((TypeWithName)rw.getMe(posn, new StructName(null, "List")).defn).instance(posn, (Type) rw.getMe(posn, new StructName(null, "Message")).defn);
+		this.messageList = ((TypeWithName)rw.getMe(posn, new SolidName(null, "List")).defn).instance(posn, (Type) rw.getMe(posn, new SolidName(null, "Message")).defn);
 	}
 
 	// 1. Main entry points to convert different kinds of things
@@ -225,8 +225,8 @@ public class MethodConvertor {
 	}
 
 	private TypedObject convertMessagesToActionList(Rewriter rw, InputPosition location, List<Object> args, List<TypeWithName> types, List<RWMethodMessage> messages, boolean fromHandler) {
-		Object ret = rw.getMe(location, new StructName(null, "Nil"));
-		PackageVar cons = rw.getMe(location, new StructName(null, "Cons"));
+		Object ret = rw.getMe(location, new SolidName(null, "Nil"));
+		PackageVar cons = rw.getMe(location, new SolidName(null, "Cons"));
 		for (int n = messages.size()-1;n>=0;n--) {
 			RWMethodMessage mm = messages.get(n);
 			Object me = convertMessageToAction(rw, args, types, mm, fromHandler);
@@ -395,7 +395,7 @@ public class MethodConvertor {
 			errors.message(slot.location(), "cannot assign directly to an object");
 			return null;
 		}
-		return new ApplyExpr(slot.location(), rw.getMe(slot.location(), new StructName(null, "Assign")), intoObj, slotName, new AssertTypeExpr(location, slotType, mm.expr));
+		return new ApplyExpr(slot.location(), rw.getMe(slot.location(), new SolidName(null, "Assign")), intoObj, slotName, new AssertTypeExpr(location, slotType, mm.expr));
 	}
 
 	private Object handleMethodCase(Rewriter rw, InputPosition location, List<Object> margs, List<TypeWithName> types, TypeWithMethods senderType, Locatable sender, StringLiteral method, List<Object> args) {

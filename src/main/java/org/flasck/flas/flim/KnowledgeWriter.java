@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
-import org.flasck.flas.commonBase.names.StructName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -78,7 +78,7 @@ public class KnowledgeWriter implements RepoVisitor {
 	public void add(RWUnionTypeDefn td) {
 		XMLElement xe = top.addElement("Union");
 		writeLocation(xe, td);
-		xe.setAttribute("name", ((StructName)td.getTypeName()).baseName());
+		xe.setAttribute("name", ((SolidName)td.getTypeName()).baseName());
 		writePolys(xe, td.polys());
 		for (Type f : td.cases) {
 			writeTypeUsage(xe, f);
@@ -91,7 +91,7 @@ public class KnowledgeWriter implements RepoVisitor {
 	public void visitContractDecl(RWContractDecl cd) {
 		XMLElement xe = top.addElement("Contract");
 		writeLocation(xe, cd);
-		xe.setAttribute("name", ((StructName)cd.getTypeName()).baseName());
+		xe.setAttribute("name", ((SolidName)cd.getTypeName()).baseName());
 		for (RWContractMethodDecl meth : cd.methods) {
 			XMLElement xm = xe.addElement("Method");
 			writeLocation(xm, meth);
