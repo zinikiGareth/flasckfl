@@ -146,8 +146,8 @@ public class TypeChecker2 {
 				TypeInfo ct = convertType(fn.getType());
 				if (ct instanceof TypeVar)
 					throw new UtilException("That's not really a type now, is it ... " + ct);
-				gk(fn.name(), ct);
-				export.put(fn.name(), fn.getType());
+				gk(fn.uniqueName(), ct);
+				export.put(fn.uniqueName(), fn.getType());
 			}
 		}
 		for (Entry<String, Type> e : rw.fnArgs.entrySet()) {

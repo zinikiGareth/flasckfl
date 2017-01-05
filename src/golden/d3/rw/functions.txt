@@ -1,12 +1,12 @@
-function test.golden._TestCard.B3.handlers_0 test.golden.TestCard 0
+function test.golden.TestCard.B3.handlers_0 test.golden.TestCard 0
   case test.golden.TestCard.B3.handlers_0_0
   =
     CardFunction.test.golden.TestCard.rejig
-function test.golden._TestCard.B6.teas_1 test.golden.TestCard 0
+function test.golden.TestCard.B6.teas_1 test.golden.TestCard 0
   case test.golden.TestCard.B6.teas_1_0
   =
     "400"
-function test.golden._TestCard.B6.teas_2 test.golden.TestCard 0
+function test.golden.TestCard.B6.teas_2 test.golden.TestCard 0
   case test.golden.TestCard.B6.teas_2_0
   =
     "250"

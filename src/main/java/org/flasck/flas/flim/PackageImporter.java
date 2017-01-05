@@ -163,7 +163,7 @@ public class PackageImporter {
 						fntype = new FunctionType(location(xe), args);
 					ret.setType(fntype);
 					xe.attributesDone();
-					pkg.define(ret.name(), ret);
+					pkg.define(ret.uniqueName(), ret);
 				} else
 					throw new UtilException("Unrecognized XML tag " + xe.tag());
 			} else

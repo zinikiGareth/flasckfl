@@ -3,42 +3,42 @@ HSIE for test.golden.f_0.m/0                                 #pushback.fl:  8.7
     externals: [Cons, Nil, Send]
     scoped = [test.golden.f_0.d, test.golden.f_0.size]
     scopedDefns = []
-    all vars = [v5, v6, v7]
-RETURN v7:clos7 [v5:clos5, v6:clos6]                         #pushback.fl:  9.3
-CLOSURE v5                                                   #pushback.fl:  6.11
-  PUSH PackageVar.Cons                                       #pushback.fl:  9.3
-  PUSH Scoped[test.golden.f_0.size]                          #pushback.fl:  6.11
-  PUSH PackageVar.Nil                                        #pushback.fl:  9.3
-CLOSURE v6 S                                                 #pushback.fl:  9.3
+    all vars = [v0, v1, v2]
+RETURN v2:clos2 [v0:clos0, v1:clos1]                         #pushback.fl:  9.3
+CLOSURE v1 S                                                 #pushback.fl:  9.3
   PUSH PackageVar.Send                                       #pushback.fl:  9.3
   PUSH Scoped[test.golden.f_0.d]                             #pushback.fl:  6.8
   PUSH "calc"                                                #pushback.fl:  9.5
-  PUSH v5:clos5                                              #pushback.fl:  6.11
-CLOSURE v7                                                   #pushback.fl:  9.3
+  PUSH v0:clos0                                              #pushback.fl:  6.11
+CLOSURE v2                                                   #pushback.fl:  9.3
   PUSH PackageVar.Cons                                       #pushback.fl:  8.7
-  PUSH v6:clos6                                              #pushback.fl:  9.3
+  PUSH v1:clos1                                              #pushback.fl:  9.3
   PUSH PackageVar.Nil                                        #pushback.fl:  8.7
+CLOSURE v0                                                   #pushback.fl:  6.11
+  PUSH PackageVar.Cons                                       #pushback.fl:  9.3
+  PUSH Scoped[test.golden.f_0.size]                          #pushback.fl:  6.11
+  PUSH PackageVar.Nil                                        #pushback.fl:  9.3
 -------
 HSIE for test.golden.f/2                                     #pushback.fl:  6.0
 #Args: 2 #bound: 3
     externals: [Cons, MessageWrapper, Nil, test.golden.DoIt]
     scoped = []
     scopedDefns = [test.golden.f_0.d, test.golden.f_0.m, test.golden.f_0.size]
-    all vars = [v0, v1, v2, v3, v4]
-HEAD v0                                                      #pushback.fl:  6.3
-SWITCH v0 test.golden.DoIt                                   #pushback.fl:  6.3
-  RETURN v4:clos4 [v2:test.golden.f_0.m, v3:clos3]           #pushback.fl:  6.18
+    all vars = [v3, v4, v5, v6, v7]
+HEAD v3                                                      #pushback.fl:  6.3
+SWITCH v3 test.golden.DoIt                                   #pushback.fl:  6.3
+  RETURN v7:clos7 [v5:test.golden.f_0.m, v6:clos6]           #pushback.fl:  6.18
 ERROR                                                        #pushback.fl:  6.0
-CLOSURE v2 !                                                 #pushback.fl:  8.7
+CLOSURE v5 !                                                 #pushback.fl:  8.7
   PUSH PackageVar.test.golden.f_0.m                          #pushback.fl:  8.7
-  PUSH v0:test.golden.f_0.d                                  #pushback.fl:  6.8
-  PUSH v1:test.golden.f_0.size                               #pushback.fl:  6.11
-CLOSURE v3                                                   #pushback.fl:  6.36
+  PUSH v3:test.golden.f_0.d                                  #pushback.fl:  6.8
+  PUSH v4:test.golden.f_0.size                               #pushback.fl:  6.11
+CLOSURE v6                                                   #pushback.fl:  6.36
   PUSH PackageVar.Cons                                       #pushback.fl:  6.36
-  PUSH v2:test.golden.f_0.m                                  #pushback.fl:  8.7
+  PUSH v5:test.golden.f_0.m                                  #pushback.fl:  8.7
   PUSH PackageVar.Nil                                        #pushback.fl:  6.36
-CLOSURE v4                                                   #pushback.fl:  6.18
+CLOSURE v7                                                   #pushback.fl:  6.18
   PUSH PackageVar.MessageWrapper                             #pushback.fl:  6.18
   PUSH 0                                                     #pushback.fl:  6.33
-  PUSH v3:clos3                                              #pushback.fl:  6.36
+  PUSH v6:clos6                                              #pushback.fl:  6.36
 =======

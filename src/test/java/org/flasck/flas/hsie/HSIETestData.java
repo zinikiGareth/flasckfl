@@ -582,7 +582,7 @@ public class HSIETestData {
 		o1.add(fn);
 		hsie.createForms(o1);
 		hsie.orchard(o1);
-		return hsie.getForm(fn.name);
+		return hsie.getForm(fn.fnName.uniqueName());
 	}
 
 	public static void assertHSIE(HSIEForm expected, HSIEForm actual) {

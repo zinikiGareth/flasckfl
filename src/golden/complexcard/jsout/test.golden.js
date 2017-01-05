@@ -381,6 +381,51 @@ test.golden._Complex.B11.prototype._yoyoExpr = function() {
   this._updateToCard(this.yoyos_8());
 }
 
+test.golden._Complex.B1.prototype.teas_0 = function() {
+  "use strict";
+  return this._card.hello;
+}
+
+test.golden._Complex.B11.prototype.yoyos_8 = function() {
+  "use strict";
+  return this._card.yoyo;
+}
+
+test.golden._Complex.B2.prototype.contents_1 = function() {
+  "use strict";
+  return this._card.hello;
+}
+
+test.golden._Complex.B2.prototype.formats_2 = function() {
+  "use strict";
+  return FLEval.closure(Cons, this._card.format, Nil);
+}
+
+test.golden._Complex.B3.prototype.lvs_3 = function() {
+  "use strict";
+  return this._card.list;
+}
+
+test.golden._Complex.B5.prototype.contents_4 = function() {
+  "use strict";
+  return this._src_lv.lv;
+}
+
+test.golden._Complex.B6.prototype.lvs_5 = function() {
+  "use strict";
+  return this._card.list;
+}
+
+test.golden._Complex.B8.prototype.handlers_6 = function() {
+  "use strict";
+  return test.golden.Complex.prototype.sayHello;
+}
+
+test.golden._Complex.B9.prototype.ors_7 = function() {
+  "use strict";
+  return FLEval.closure(FLEval.compeq, this._card.hello, 'hello');
+}
+
 test.golden.Complex._FooHandler.prototype.reply = function(v0) {
   "use strict";
   v0 = FLEval.head(v0);
@@ -466,51 +511,6 @@ test.golden.Complex.prototype.styleIf = function(v0, v1) {
 test.golden.WithInit.inits_x = function() {
   "use strict";
   return 'hello';
-}
-
-test.golden._Complex.B1.prototype.teas_0 = function() {
-  "use strict";
-  return this._card.hello;
-}
-
-test.golden._Complex.B11.prototype.yoyos_8 = function() {
-  "use strict";
-  return this._card.yoyo;
-}
-
-test.golden._Complex.B2.prototype.contents_1 = function() {
-  "use strict";
-  return this._card.hello;
-}
-
-test.golden._Complex.B2.prototype.formats_2 = function() {
-  "use strict";
-  return FLEval.closure(Cons, this._card.format, Nil);
-}
-
-test.golden._Complex.B3.prototype.lvs_3 = function() {
-  "use strict";
-  return this._card.list;
-}
-
-test.golden._Complex.B5.prototype.contents_4 = function() {
-  "use strict";
-  return this._src_lv.lv;
-}
-
-test.golden._Complex.B6.prototype.lvs_5 = function() {
-  "use strict";
-  return this._card.list;
-}
-
-test.golden._Complex.B8.prototype.handlers_6 = function() {
-  "use strict";
-  return test.golden.Complex.prototype.sayHello;
-}
-
-test.golden._Complex.B9.prototype.ors_7 = function() {
-  "use strict";
-  return FLEval.closure(FLEval.compeq, this._card.hello, 'hello');
 }
 
 test.golden;

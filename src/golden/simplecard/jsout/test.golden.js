@@ -54,6 +54,11 @@ test.golden._Simple.B2.prototype._contentExpr = function() {
   this._assignToText(this.contents_0());
 }
 
+test.golden._Simple.B2.prototype.contents_0 = function() {
+  "use strict";
+  return this._card.hello;
+}
+
 test.golden.Simple.prototype.f = function() {
   "use strict";
   return 3;
@@ -62,11 +67,6 @@ test.golden.Simple.prototype.f = function() {
 test.golden.Simple.inits_hello = function() {
   "use strict";
   return 'hello, world';
-}
-
-test.golden._Simple.B2.prototype.contents_0 = function() {
-  "use strict";
-  return this._card.hello;
 }
 
 test.golden;

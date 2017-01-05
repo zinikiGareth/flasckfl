@@ -84,7 +84,7 @@ public class MethodConvertor {
 
 	public void addFunction(Map<String, RWFunctionDefinition> functions, RWFunctionDefinition fd) {
 		if (fd != null) {
-			functions.put(fd.name(), fd);
+			functions.put(fd.uniqueName(), fd);
 		}
 	}
 

@@ -1870,7 +1870,7 @@ public class Rewriter implements CodeGenRegistry {
 		for (RWFunctionDefinition fn : functions.values()) {
 			if (!fn.generate)
 				continue;
-			pw.println("function " + fn.name + (fn.inCard != null?" " + fn.inCard.uniqueName():"") + " " + fn.nargs);
+			pw.println("function " + fn.uniqueName() + (fn.inCard != null?" " + fn.inCard.uniqueName():"") + " " + fn.nargs);
 			for (ScopedVar sv : fn.scopedVars)
 				pw.indent().println("nested " + sv.id.uniqueName() + " " + sv.definedBy.uniqueName());
 			for (RWFunctionCaseDefn c : fn.cases) {

@@ -31,6 +31,6 @@ Node test.golden.f_0.m depends on:
 Node test.golden.f_0.size depends on:
   test.golden.f
 ========
-test.golden.f
 test.golden.f_0.m
+test.golden.f
 -----

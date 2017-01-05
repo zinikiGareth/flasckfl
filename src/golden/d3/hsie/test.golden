@@ -1,3 +1,19 @@
+HSIE for test.golden.TestCard.B6.teas_1/0                    #d3.fl:       13.12
+#Args: 0 #bound: 0
+    externals: []
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN "400"                                                 #d3.fl:       13.12
+=======
+HSIE for test.golden.TestCard.B6.teas_2/0                    #d3.fl:       13.26
+#Args: 0 #bound: 0
+    externals: []
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN "250"                                                 #d3.fl:       13.26
+=======
 HSIE for test.golden.TestCard._d3_chart_enter_rect/0         #d3.fl:       25.0
 #Args: 0 #bound: 3
     externals: [Cons, D3Action, Nil]
@@ -324,22 +340,6 @@ CLOSURE v6                                                   #d3.fl:       44.9
   PUSH PackageVar.Cons                                       #d3.fl:       43.6
   PUSH v5:clos5                                              #d3.fl:       44.0
   PUSH PackageVar.Nil                                        #d3.fl:       43.6
-=======
-HSIE for test.golden.TestCard.B6.teas_1/0                    #d3.fl:       13.12
-#Args: 0 #bound: 0
-    externals: []
-    scoped = []
-    scopedDefns = []
-    all vars = []
-RETURN "400"                                                 #d3.fl:       13.12
-=======
-HSIE for test.golden.TestCard.B6.teas_2/0                    #d3.fl:       13.26
-#Args: 0 #bound: 0
-    externals: []
-    scoped = []
-    scopedDefns = []
-    all vars = []
-RETURN "250"                                                 #d3.fl:       13.26
 =======
 HSIE for test.golden.TestCard.B3.handlers_0/0                #d3.fl:       11.9
 #Args: 0 #bound: 0

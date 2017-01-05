@@ -1,15 +1,15 @@
-function test.golden._Templates.B2.lvs_0 test.golden.Templates 0
+function test.golden.Templates.B2.lvs_0 test.golden.Templates 0
   case test.golden.Templates.B2.lvs_0_0
   =
     CardMember.CardMember[test.golden.Templates.data]
-function test.golden._Templates.B4.contents_1 test.golden.Templates 0
+function test.golden.Templates.B4.contents_1 test.golden.Templates 0
   case test.golden.Templates.B4.contents_1_0
   =
     @
       PackageVar.FLEval.field
       ?? class org.flasck.flas.commonBase.template.TemplateListVar:TLV[test.golden.Templates.e<-test.golden.Templates.B2.lvs_0]
       "title"
-function test.golden._Templates.B4.formats_2 test.golden.Templates 0
+function test.golden.Templates.B4.formats_2 test.golden.Templates 0
   case test.golden.Templates.B4.formats_2_0
   =
     @

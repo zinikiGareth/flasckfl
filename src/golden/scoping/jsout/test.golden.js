@@ -47,18 +47,18 @@ test.golden.cna = function(v0) {
   return FLEval.error("test.golden.cna: case not handled");
 }
 
-test.golden.f = function(v0, v1) {
+test.golden.f = function(v5, v6) {
   "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
+  v5 = FLEval.head(v5);
+  if (v5 instanceof FLError) {
+    return v5;
   }
-  if (FLEval.isA(v0, 'test.golden.Server')) {
-    var v4 = FLEval.closure(test.golden.f_0.var);
-    var v2 = FLEval.closure(FLEval.curry, test.golden.f_0.HandleReply, 3, v0, v4);
-    var v3 = FLEval.closure(test.golden.f_0.q, v2, v0, v4);
-    var v5 = FLEval.closure(Cons, v3, Nil);
-    return FLEval.closure(MessageWrapper, v4, v5);
+  if (FLEval.isA(v5, 'test.golden.Server')) {
+    var v9 = FLEval.closure(test.golden.f_0.var);
+    var v7 = FLEval.closure(FLEval.curry, test.golden.f_0.HandleReply, 3, v5, v9);
+    var v8 = FLEval.closure(test.golden.f_0.q, v7, v5, v9);
+    var v10 = FLEval.closure(Cons, v8, Nil);
+    return FLEval.closure(MessageWrapper, v9, v10);
   }
   return FLEval.error("test.golden.f: case not handled");
 }
@@ -80,11 +80,11 @@ test.golden.f_0._HandleReply.prototype.reply = function(v0) {
 
 test.golden.f_0.q = function(s0, s1, s2) {
   "use strict";
-  var v7 = FLEval.closure(s0, s2);
-  var v8 = FLEval.closure(Cons, v7, Nil);
-  var v9 = FLEval.closure(Cons, s2, v8);
-  var v10 = FLEval.closure(Send, s1, 'get', v9);
-  return FLEval.closure(Cons, v10, Nil);
+  var v0 = FLEval.closure(s0, s2);
+  var v1 = FLEval.closure(Cons, v0, Nil);
+  var v2 = FLEval.closure(Cons, s2, v1);
+  var v3 = FLEval.closure(Send, s1, 'get', v2);
+  return FLEval.closure(Cons, v3, Nil);
 }
 
 test.golden.f_0.var = function() {

@@ -73,6 +73,13 @@ test.golden._ControlledCard.B1.prototype._setVariableFormats = function() {
   this._mydiv.setAttribute('class', join(FLEval.full(this.formats_0()), ' '));
 }
 
+test.golden._ControlledCard.B1.prototype.formats_0 = function() {
+  "use strict";
+  var v2 = FLEval.oclosure(this._card, FLEval.curry, test.golden.ControlledCard.prototype.styleIf, 2);
+  var v0 = FLEval.closure(v2, 'show', this._card.sayHello);
+  return FLEval.closure(Cons, v0, Nil);
+}
+
 test.golden.ControlledCard.__C0.prototype.setOff = function() {
   "use strict";
   var v0 = FLEval.closure(Assign, this._card, 'sayHello', false);
@@ -105,13 +112,6 @@ test.golden.ControlledCard.prototype.styleIf = function(v0, v1) {
     return v0;
   }
   return '';
-}
-
-test.golden._ControlledCard.B1.prototype.formats_0 = function() {
-  "use strict";
-  var v2 = FLEval.oclosure(this._card, FLEval.curry, test.golden.ControlledCard.prototype.styleIf, 2);
-  var v0 = FLEval.closure(v2, 'show', this._card.sayHello);
-  return FLEval.closure(Cons, v0, Nil);
 }
 
 test.golden;

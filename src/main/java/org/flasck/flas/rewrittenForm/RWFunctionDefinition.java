@@ -18,7 +18,6 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	public final InputPosition location;
 	public final CodeType mytype;
 	public final FunctionName fnName;
-	public final String name;
 	public final int nargs;
 	public final CardName inCard;
 	public final List<RWFunctionCaseDefn> cases = new ArrayList<>();
@@ -33,7 +32,6 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 		this.location = name.location;
 		this.mytype = name.codeType;
 		this.fnName = name;
-		this.name = name.jsName();
 		this.nargs = nargs;
 		this.generate = generate;
 		if (mytype == null)
@@ -49,8 +47,8 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 		return fnName.containingCard();
 	}
 	
-	public String name() {
-		return name;
+	public String uniqueName() {
+		return fnName.uniqueName();
 	}
 	
 	public int nargs() {
@@ -78,7 +76,7 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	}
 
 	public void dumpTo(Writer pw) throws Exception {
-		pw.append(mytype + " " + name + "/" + nargs + " {\n");
+		pw.append(mytype + " " + uniqueName() + "/" + nargs + " {\n");
 		for (RWFunctionCaseDefn fcd : cases)
 			fcd.dumpTo(pw);
 		pw.append("}\n");
@@ -87,12 +85,12 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 	
 	@Override
 	public int compareTo(RWFunctionDefinition o) {
-		return name.compareTo(o.name);
+		return fnName.compareTo(o.fnName);
 	}
 	
 	@Override
 	public String toString() {
-		return name +"/" + nargs+"["+cases.size()+"]";
+		return uniqueName() +"/" + nargs+"["+cases.size()+"]";
 	}
 
 	public void setType(Type ty) {

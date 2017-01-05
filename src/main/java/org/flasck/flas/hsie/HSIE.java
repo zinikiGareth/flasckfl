@@ -53,7 +53,7 @@ public class HSIE {
 					hf.scoped.add(sv);
 			}
 			ge.process(hf, fn);
-			forms.put(fn.name, hf);
+			forms.put(fn.fnName.uniqueName(), hf);
 		}
 	}
 
@@ -77,7 +77,7 @@ public class HSIE {
 	public Set<HSIEForm> orchard(Set<RWFunctionDefinition> d) {
 		TreeMap<String, HSIEForm> ret = new TreeMap<String, HSIEForm>();
 		for (RWFunctionDefinition fn : d) {
-			ret.put(fn.name, forms.get(fn.name));
+			ret.put(fn.fnName.uniqueName(), forms.get(fn.fnName.uniqueName()));
 		}
 //		GatherExternals.transitiveClosure(forms, ret.values());
 		logger.info("HSIE transforming orchard in parallel: " + d);
@@ -88,9 +88,9 @@ public class HSIE {
 	}
 
 	private void handle(RWFunctionDefinition defn) {
-		HSIEForm ret = forms.get(defn.name);
+		HSIEForm ret = forms.get(defn.fnName.uniqueName());
 		if (ret == null)
-			throw new UtilException("There is no form for " + defn.name);
+			throw new UtilException("There is no form for " + defn.fnName.uniqueName());
 		CurrentFunction cf = new CurrentFunction(ret);
 		GenerateClosures gc = new GenerateClosures(errors, rw, cf, forms, ret);
 		if (defn.nargs() == 0) {

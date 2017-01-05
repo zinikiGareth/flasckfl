@@ -31,17 +31,17 @@ test.golden.scoped_0.MyHc = function(v0) {
   return new test.golden.scoped_0._MyHc(v0);
 }
 
-test.golden.scoped = function(v0) {
+test.golden.scoped = function(v4) {
   "use strict";
-  v0 = FLEval.head(v0);
-  if (v0 instanceof FLError) {
-    return v0;
+  v4 = FLEval.head(v4);
+  if (v4 instanceof FLError) {
+    return v4;
   }
-  if (FLEval.isA(v0, 'test.golden.UpC')) {
-    var v1 = FLEval.closure(test.golden.scoped_0.MyHc, );
-    var v2 = FLEval.closure(test.golden.scoped_0.request, v1, v0);
-    var v3 = FLEval.closure(Cons, v2, Nil);
-    return FLEval.closure(MessageWrapper, 32, v3);
+  if (FLEval.isA(v4, 'test.golden.UpC')) {
+    var v5 = FLEval.closure(test.golden.scoped_0.MyHc, );
+    var v6 = FLEval.closure(test.golden.scoped_0.request, v5, v4);
+    var v7 = FLEval.closure(Cons, v6, Nil);
+    return FLEval.closure(MessageWrapper, 32, v7);
   }
   return FLEval.error("test.golden.scoped: case not handled");
 }
@@ -54,10 +54,10 @@ test.golden.scoped_0._MyHc.prototype.reply = function() {
 
 test.golden.scoped_0.request = function(s0, s1) {
   "use strict";
-  var v5 = FLEval.closure(s0);
-  var v6 = FLEval.closure(Cons, v5, Nil);
-  var v7 = FLEval.closure(Send, s1, 'call', v6);
-  return FLEval.closure(Cons, v7, Nil);
+  var v0 = FLEval.closure(s0);
+  var v1 = FLEval.closure(Cons, v0, Nil);
+  var v2 = FLEval.closure(Send, s1, 'call', v1);
+  return FLEval.closure(Cons, v2, Nil);
 }
 
 test.golden.scoped_0.requestObj = function() {

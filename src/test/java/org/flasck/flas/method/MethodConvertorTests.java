@@ -191,7 +191,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
 		System.out.println(func);
-		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals("org.foo.Card._C0.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("Nil", c1.expr.toString());
@@ -206,7 +206,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
 		System.out.println(func);
-		assertEquals("org.foo.Card.bar", func.name);
+		assertEquals("org.foo.Card.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("Nil", c1.expr.toString());
@@ -230,7 +230,7 @@ public class MethodConvertorTests {
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
-		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals("org.foo.Card._C0.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("(Cons (#tcMessages (join Nil)) Nil)", c1.expr.toString());
@@ -253,7 +253,7 @@ public class MethodConvertorTests {
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
-		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals("org.foo.Card._C0.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("(Cons (Assign this._card \"str\" (#assertType String 36)) Nil)", c1.expr.toString());
@@ -267,7 +267,7 @@ public class MethodConvertorTests {
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
-		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals("org.foo.Card._C0.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("(Cons (Assign this._card \"str\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
@@ -281,7 +281,7 @@ public class MethodConvertorTests {
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
-		assertEquals("org.foo.Card.bar", func.name);
+		assertEquals("org.foo.Card.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("(Cons (Assign this \"str\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
@@ -358,7 +358,7 @@ public class MethodConvertorTests {
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
-		assertEquals("org.foo.Card._C0.handle", func.name);
+		assertEquals("org.foo.Card._C0.handle", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("(Cons (Assign HL[org.foo.Card.MyHandler.stateArg] \"x\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
@@ -372,7 +372,7 @@ public class MethodConvertorTests {
 		assertFalse(errors.singleString(), errors.hasErrors());
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
-		assertEquals("org.foo.Card.futz", func.name);
+		assertEquals("org.foo.Card.futz", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("(Cons (Assign org.foo.Card.futz.t \"x\" (#assertType String \"hello\")) Nil)", c1.expr.toString());
@@ -408,7 +408,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
 		System.out.println(func);
-		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals("org.foo.Card._C0.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("(Cons (#send CardMember[org.foo.Card.ce].\"start\"[]) Nil)", c1.expr.toString());
@@ -423,7 +423,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
 		System.out.println(func);
-		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals("org.foo.Card._C0.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("(Cons (#send CardMember[org.foo.Card.ce].\"request\"[\"hello\"]) Nil)", c1.expr.toString());
@@ -491,7 +491,7 @@ public class MethodConvertorTests {
 		assertEquals(1, functions.size());
 		RWFunctionDefinition func = CollectionUtils.any(functions.values());
 		System.out.println(func);
-		assertEquals("org.foo.Card._C0.bar", func.name);
+		assertEquals("org.foo.Card._C0.bar", func.uniqueName());
 		assertEquals(1, func.cases.size());
 		RWFunctionCaseDefn c1 = func.cases.get(0);
 		assertEquals("(Cons (#tcMessages (map doSend Nil)) Nil)", c1.expr.toString());

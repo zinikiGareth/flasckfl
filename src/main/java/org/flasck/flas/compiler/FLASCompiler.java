@@ -421,7 +421,7 @@ public class FLASCompiler implements ScriptCompiler {
 		da.dump(pw);
 		for (Set<RWFunctionDefinition> s : defns) {
 			for (RWFunctionDefinition d : s) {
-				pw.println(d.name());
+				pw.println(d.uniqueName());
 			}
 			pw.println("-----");
 		}
@@ -430,7 +430,7 @@ public class FLASCompiler implements ScriptCompiler {
 
 	private void showDefns(Set<RWFunctionDefinition> defns) {
 		for (RWFunctionDefinition d : defns)
-			logger.info("  " + d.name());
+			logger.info("  " + d.uniqueName());
 	}
 
 	private void dumpForms(PrintWriter hsiePW, Set<HSIEForm> hs) {

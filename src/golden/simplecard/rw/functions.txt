@@ -1,4 +1,4 @@
-function test.golden._Simple.B2.contents_0 test.golden.Simple 0
+function test.golden.Simple.B2.contents_0 test.golden.Simple 0
   case test.golden.Simple.B2.contents_0_0
   =
     CardMember.CardMember[test.golden.Simple.hello]

@@ -69,7 +69,7 @@ public class RewriterTests {
 		scope.define("f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
-		assertEquals("ME.f", rfn.name());
+		assertEquals("ME.f", rfn.uniqueName());
 		assertTrue(rfn.cases.get(0).expr instanceof PackageVar);
 		assertEquals("Nil", ((PackageVar)rfn.cases.get(0).expr).id);
 	}
@@ -83,7 +83,7 @@ public class RewriterTests {
 		scope.define("f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
 		RWFunctionDefinition rfn = rw.functions.get("ME.f");
-		assertEquals("ME.f", rfn.name());
+		assertEquals("ME.f", rfn.uniqueName());
 		assertTrue(rfn.cases.get(0).expr instanceof LocalVar);
 		assertEquals("x", ((LocalVar)rfn.cases.get(0).expr).var.var);
 	}
@@ -151,7 +151,7 @@ public class RewriterTests {
 		rw.rewritePackageScope(null, "ME", scope);
 		RWFunctionDefinition g = rw.functions.get("ME.f_0.g");
 		System.out.println(rw.functions);
-		assertEquals("ME.f_0.g", g.name());
+		assertEquals("ME.f_0.g", g.uniqueName());
 		Object sv = g.cases.get(0).expr;
 		assertTrue(sv instanceof ScopedVar);
 		Object lv = ((ScopedVar)sv).defn;
@@ -172,7 +172,7 @@ public class RewriterTests {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		RWFunctionDefinition rfn = rw.functions.get("ME.MyCard.f");
-		assertEquals("ME.MyCard.f", rfn.name());
+		assertEquals("ME.MyCard.f", rfn.uniqueName());
 		assertTrue(rfn.cases.get(0).expr instanceof CardMember);
 		assertEquals("counter", ((CardMember)rfn.cases.get(0).expr).var);
 	}
@@ -193,7 +193,7 @@ public class RewriterTests {
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		RWFunctionDefinition rfn = rw.functions.get("ME.MyCard.f");
-		assertEquals("ME.MyCard.f", rfn.name());
+		assertEquals("ME.MyCard.f", rfn.uniqueName());
 		assertTrue(rfn.cases.get(0).expr instanceof CardMember);
 		assertEquals("timer", ((CardMember)rfn.cases.get(0).expr).var);
 	}

@@ -50,5 +50,5 @@ test.golden.ControlledCard._C1.saySomething
 -----
 test.golden.ControlledCard.styleIf
 -----
-test.golden._ControlledCard.B1.formats_0
+test.golden.ControlledCard.B1.formats_0
 -----

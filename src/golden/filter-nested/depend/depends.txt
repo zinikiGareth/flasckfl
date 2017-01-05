@@ -35,6 +35,6 @@ Node test.golden.filter_1.g depends on:
 Node test.golden.filter_1.l depends on:
   test.golden.filter
 ========
-test.golden.filter
 test.golden.filter_1.g
+test.golden.filter
 -----

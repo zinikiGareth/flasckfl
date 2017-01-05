@@ -75,6 +75,16 @@ test.golden._Events.B3.prototype._add_handlers = function() {
   }
 }
 
+test.golden._Events.B2.prototype.handlers_0 = function() {
+  "use strict";
+  return test.golden.Events.prototype.okThen;
+}
+
+test.golden._Events.B3.prototype.handlers_1 = function() {
+  "use strict";
+  return FLEval.oclosure(this._card, FLEval.curry, test.golden.Events.prototype.setTo, 2, 13);
+}
+
 test.golden.Events.prototype.okThen = function(v0) {
   "use strict";
   var v1 = FLEval.closure(Debug, v0);
@@ -85,16 +95,6 @@ test.golden.Events.prototype.setTo = function(v0, v1) {
   "use strict";
   var v2 = FLEval.closure(Debug, v1);
   return FLEval.closure(Cons, v2, Nil);
-}
-
-test.golden._Events.B2.prototype.handlers_0 = function() {
-  "use strict";
-  return test.golden.Events.prototype.okThen;
-}
-
-test.golden._Events.B3.prototype.handlers_1 = function() {
-  "use strict";
-  return FLEval.oclosure(this._card, FLEval.curry, test.golden.Events.prototype.setTo, 2, 13);
 }
 
 test.golden;

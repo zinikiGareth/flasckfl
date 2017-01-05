@@ -1,3 +1,5 @@
+test.golden.TestCard.B6.teas_1 :: String
+test.golden.TestCard.B6.teas_2 :: String
 test.golden.TestCard._d3_chart_enter_rect :: Cons[D3Action]
 test.golden.TestCard._d3_chart_enter_text :: Cons[D3Action]
 test.golden.TestCard._gen_1 :: D3Element[A]->String
@@ -17,7 +19,5 @@ test.golden.TestCard._gen_8 :: D3Element[A]->String
 test.golden.TestCard._gen_9 :: D3Element[A]->Number
 test.golden.TestCard.inits_data :: Cons[Number]
 test.golden.TestCard.rejig :: A->Cons[Assign]
-test.golden.TestCard.B6.teas_1 :: String
-test.golden.TestCard.B6.teas_2 :: String
 test.golden.TestCard.B3.handlers_0 :: A->Cons[Assign]
 test.golden.TestCard._d3init_chart :: Assoc[Cons[Number]]

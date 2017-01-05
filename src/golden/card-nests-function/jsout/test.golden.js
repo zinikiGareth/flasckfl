@@ -44,19 +44,19 @@ test.golden._NestFunction.B1.prototype._setVariableFormats = function() {
   this._mydiv.setAttribute('class', join(FLEval.full(this.formats_0()), ' '));
 }
 
+test.golden._NestFunction.B1.prototype.formats_0 = function() {
+  "use strict";
+  var v2 = FLEval.oclosure(this._card, FLEval.curry, test.golden.NestFunction.prototype.styleIf, 2);
+  var v0 = FLEval.closure(v2, 'show', this._card.sayHello);
+  return FLEval.closure(Cons, v0, Nil);
+}
+
 test.golden.NestFunction.prototype.styleIf = function(v0, v1) {
   "use strict";
   if (v1) {
     return v0;
   }
   return '';
-}
-
-test.golden._NestFunction.B1.prototype.formats_0 = function() {
-  "use strict";
-  var v2 = FLEval.oclosure(this._card, FLEval.curry, test.golden.NestFunction.prototype.styleIf, 2);
-  var v0 = FLEval.closure(v2, 'show', this._card.sayHello);
-  return FLEval.closure(Cons, v0, Nil);
 }
 
 test.golden;
