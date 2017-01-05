@@ -118,7 +118,7 @@ public class PackageImporter {
 						} else
 							System.out.println("Handle pattern " + pe);
 					}
-					types.add((Type) rw.getMe(loc, "Send").defn);
+					types.add((Type) rw.getMe(loc, new StructName(null, "Send")).defn);
 					FunctionType type = new FunctionType(loc, types);
 					RWContractMethodDecl cmd = new RWContractMethodDecl(loc, cme.requiredBoolean("required"), cme.required("dir"), fn, args, type);
 					cme.attributesDone();

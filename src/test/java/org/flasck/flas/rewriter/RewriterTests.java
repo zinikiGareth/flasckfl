@@ -94,7 +94,7 @@ public class RewriterTests {
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "String"), "f"));
 		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);
-		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, "ME.Container").defn;
+		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, new StructName(new PackageName("ME"), "Container")).defn;
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("f", sf.name);
 		assertEquals("String", ((TypeWithName) sf.type).name());
@@ -107,7 +107,7 @@ public class RewriterTests {
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "List", new TypeReference(posn, "String")), "list"));
 		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);
-		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, "ME.Container").defn;
+		RWStructDefn rsd = (RWStructDefn) rw.getMe(posn, new StructName(new PackageName("ME"), "Container")).defn;
 		RWStructField sf = rsd.fields.get(0);
 		assertEquals("list", sf.name);
 		assertEquals("List", ((TypeWithName) sf.type).name());

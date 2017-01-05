@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.NameOfThing;
 import org.flasck.flas.commonBase.names.StructName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
@@ -634,15 +635,15 @@ public class TypeChecker2 {
 		PushString ps = (PushString) ncs.get(2);
 		if (ot instanceof NamedType) {
 			NamedType tot = (NamedType) ot;
-			checkMethodCall(tot.location(), f, ncs, ps, tot.name);
+			checkMethodCall(tot.location(), f, ncs, ps, tot.myName);
 		} else if (ot instanceof TypeVar) {
 			TypeVar tv = (TypeVar) ot;
 			Var v = tv.var;
 			Set<TypeInfo> cs = constraints.get(v);
-			Set<String> nts = new HashSet<String>();
+			Set<NameOfThing> nts = new HashSet<NameOfThing>();
 			for (TypeInfo t : cs) {
 				if (t instanceof NamedType)
-					nts.add(((NamedType)t).name);
+					nts.add(((NamedType)t).myName);
 			}
 			if (nts.size() != 1)
 				throw new UtilException("Cannot handle " + v + " with constraints " + cs + " leading to " + nts);
@@ -651,12 +652,12 @@ public class TypeChecker2 {
 			TypeFunc tf = (TypeFunc) ot;
 			if (tf.args.size() != 1)
 				throw new UtilException("Should have just 1 arg");
-			checkMethodCall(tf.location(), f, ncs, ps, ((NamedType)tf.args.get(0)).name);
+			checkMethodCall(tf.location(), f, ncs, ps, ((NamedType)tf.args.get(0)).myName);
 		} else
 			throw new UtilException("Cannot handle ot = " + ot + " " + ot.getClass());
 	}
 
-	private void checkMethodCall(InputPosition loc, HSIEForm f, List<HSIEBlock> ncs, PushString ps, String tn) {
+	private void checkMethodCall(InputPosition loc, HSIEForm f, List<HSIEBlock> ncs, PushString ps, NameOfThing tn) {
 		Type t = (Type) rw.getMe(loc, tn).defn;
 		if (t instanceof TypeWithMethods) {
 			TypeWithMethods cd = (TypeWithMethods) t;
@@ -1014,7 +1015,7 @@ public class TypeChecker2 {
 	Type asType(TypeInfo ti) {
 		if (ti instanceof NamedType) {
 			NamedType nt = (NamedType) ti;
-			Object obj = rw.getMe(nt.location(), nt.name).defn;
+			Object obj = rw.getMe(nt.location(), nt.myName).defn;
 			if (obj instanceof CardGrouping)
 				obj = ((CardGrouping)obj).struct;
 			Type ret = (Type) obj;
