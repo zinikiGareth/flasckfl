@@ -3,7 +3,7 @@ package org.flasck.flas.parsedForm;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.HandlerName;
+import org.flasck.flas.commonBase.names.HandlerName;
 
 public class HandlerImplements extends Implements {
 	public final String baseName;

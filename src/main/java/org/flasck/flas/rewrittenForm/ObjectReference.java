@@ -1,9 +1,9 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.HandlerName;
 
 // This should possibly be called "ClassReference"
 // It is intended to be a holder for the "name" of a class (Card, Handler, etc) that can then be used in expressions later 

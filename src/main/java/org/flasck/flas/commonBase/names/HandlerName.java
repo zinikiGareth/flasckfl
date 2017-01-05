@@ -1,7 +1,5 @@
-package org.flasck.flas.commonBase;
+package org.flasck.flas.commonBase.names;
 
-import org.flasck.flas.commonBase.names.CardName;
-import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.xml.XMLElement;
 
 public class HandlerName implements NameOfThing, Comparable<HandlerName> {

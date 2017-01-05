@@ -3,8 +3,8 @@ package test.droidgen;
 import java.util.ArrayList;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;

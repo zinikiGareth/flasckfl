@@ -3,7 +3,7 @@ package org.flasck.flas.rewrittenForm;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.HandlerName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 
 public class RWHandlerImplements extends RWImplements {
