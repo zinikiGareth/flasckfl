@@ -66,7 +66,7 @@ IF v1:test.golden.ControlledCard.styleIf_0.b                 #card.fl:     26.14
   RETURN v0:test.golden.ControlledCard.styleIf_0.style []    #card.fl:     26.8
 RETURN ""                                                    #card.fl:     28.7
 =======
-HSIE for test.golden._ControlledCard.B1.formats_0/0          #card.fl:     14.0
+HSIE for test.golden.ControlledCard.B1.formats_0/0           #card.fl:     14.0
 #Args: 0 #bound: 2
     externals: [Cons, Nil, test.golden.ControlledCard.sayHello, test.golden.ControlledCard.styleIf]
     scoped = []

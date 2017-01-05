@@ -1,4 +1,4 @@
-HSIE for test.golden._Templates.B2.lvs_0/0                   #templates.fl 16.2
+HSIE for test.golden.Templates.B2.lvs_0/0                    #templates.fl 16.2
 #Args: 0 #bound: 0
     externals: [test.golden.Templates.data]
     scoped = []
@@ -6,7 +6,7 @@ HSIE for test.golden._Templates.B2.lvs_0/0                   #templates.fl 16.2
     all vars = []
 RETURN CardMember.CardMember[test.golden.Templates.data]     #templates.fl 16.2
 =======
-HSIE for test.golden._Templates.B4.contents_1/0              #templates.fl 18.2
+HSIE for test.golden.Templates.B4.contents_1/0               #templates.fl 18.2
 #Args: 0 #bound: 1
     externals: [FLEval.field]
     scoped = []
@@ -18,7 +18,7 @@ CLOSURE v0                                                   #templates.fl 18.2
   PUSH TLV[test.golden.Templates.e<-test.golden._Templates.B #templates.fl 16.7
   PUSH "title"                                               #templates.fl 18.2
 =======
-HSIE for test.golden._Templates.B4.formats_2/0               #templates.fl 18.2
+HSIE for test.golden.Templates.B4.formats_2/0                #templates.fl 18.2
 #Args: 0 #bound: 2
     externals: [Cons, FLEval.field, Nil]
     scoped = []

@@ -28,7 +28,7 @@ CLOSURE v3                                                   #events.fl:   13.3
   PUSH v2:clos2                                              #events.fl:   13.3
   PUSH PackageVar.Nil                                        #events.fl:   12.6
 =======
-HSIE for test.golden._Events.B2.handlers_0/0                 #events.fl:    5.9
+HSIE for test.golden.Events.B2.handlers_0/0                  #events.fl:    5.9
 #Args: 0 #bound: 0
     externals: [test.golden.Events.okThen]
     scoped = []
@@ -36,7 +36,7 @@ HSIE for test.golden._Events.B2.handlers_0/0                 #events.fl:    5.9
     all vars = []
 RETURN CardFunction.test.golden.Events.okThen                #events.fl:    5.9
 =======
-HSIE for test.golden._Events.B3.handlers_1/0                 #events.fl:    7.9
+HSIE for test.golden.Events.B3.handlers_1/0                  #events.fl:    7.9
 #Args: 0 #bound: 1
     externals: [test.golden.Events.setTo]
     scoped = []

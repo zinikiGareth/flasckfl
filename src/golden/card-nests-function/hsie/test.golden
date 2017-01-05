@@ -8,7 +8,7 @@ IF v1:test.golden.NestFunction.styleIf_0.b                   #nestedfn.fl:  8.14
   RETURN v0:test.golden.NestFunction.styleIf_0.style []      #nestedfn.fl:  8.8
 RETURN ""                                                    #nestedfn.fl: 10.7
 =======
-HSIE for test.golden._NestFunction.B1.formats_0/0            #nestedfn.fl:  6.0
+HSIE for test.golden.NestFunction.B1.formats_0/0             #nestedfn.fl:  6.0
 #Args: 0 #bound: 2
     externals: [Cons, Nil, test.golden.NestFunction.sayHello, test.golden.NestFunction.styleIf]
     scoped = []

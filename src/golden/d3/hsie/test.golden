@@ -325,7 +325,7 @@ CLOSURE v6                                                   #d3.fl:       44.9
   PUSH v5:clos5                                              #d3.fl:       44.0
   PUSH PackageVar.Nil                                        #d3.fl:       43.6
 =======
-HSIE for test.golden._TestCard.B6.teas_1/0                   #d3.fl:       13.12
+HSIE for test.golden.TestCard.B6.teas_1/0                    #d3.fl:       13.12
 #Args: 0 #bound: 0
     externals: []
     scoped = []
@@ -333,7 +333,7 @@ HSIE for test.golden._TestCard.B6.teas_1/0                   #d3.fl:       13.12
     all vars = []
 RETURN "400"                                                 #d3.fl:       13.12
 =======
-HSIE for test.golden._TestCard.B6.teas_2/0                   #d3.fl:       13.26
+HSIE for test.golden.TestCard.B6.teas_2/0                    #d3.fl:       13.26
 #Args: 0 #bound: 0
     externals: []
     scoped = []
@@ -341,7 +341,7 @@ HSIE for test.golden._TestCard.B6.teas_2/0                   #d3.fl:       13.26
     all vars = []
 RETURN "250"                                                 #d3.fl:       13.26
 =======
-HSIE for test.golden._TestCard.B3.handlers_0/0               #d3.fl:       11.9
+HSIE for test.golden.TestCard.B3.handlers_0/0                #d3.fl:       11.9
 #Args: 0 #bound: 0
     externals: [test.golden.TestCard.rejig]
     scoped = []

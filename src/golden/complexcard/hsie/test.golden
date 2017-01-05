@@ -137,7 +137,7 @@ HSIE for test.golden.WithInit.inits_x/0                      #complexcard. 14.12
     all vars = []
 RETURN "hello"                                               #complexcard. 14.12
 =======
-HSIE for test.golden._Complex.B1.teas_0/0                    #complexcard. 41.9
+HSIE for test.golden.Complex.B1.teas_0/0                     #complexcard. 41.9
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.hello]
     scoped = []
@@ -145,7 +145,7 @@ HSIE for test.golden._Complex.B1.teas_0/0                    #complexcard. 41.9
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.hello]      #complexcard. 41.9
 =======
-HSIE for test.golden._Complex.B11.yoyos_8/0                  #complexcard. 54.2
+HSIE for test.golden.Complex.B11.yoyos_8/0                   #complexcard. 54.2
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.yoyo]
     scoped = []
@@ -153,7 +153,7 @@ HSIE for test.golden._Complex.B11.yoyos_8/0                  #complexcard. 54.2
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.yoyo]       #complexcard. 54.2
 =======
-HSIE for test.golden._Complex.B2.contents_1/0                #complexcard. 42.0
+HSIE for test.golden.Complex.B2.contents_1/0                 #complexcard. 42.0
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.hello]
     scoped = []
@@ -161,7 +161,7 @@ HSIE for test.golden._Complex.B2.contents_1/0                #complexcard. 42.0
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.hello]      #complexcard. 42.0
 =======
-HSIE for test.golden._Complex.B2.formats_2/0                 #complexcard. 42.0
+HSIE for test.golden.Complex.B2.formats_2/0                  #complexcard. 42.0
 #Args: 0 #bound: 1
     externals: [Cons, Nil, test.golden.Complex.format]
     scoped = []
@@ -173,7 +173,7 @@ CLOSURE v0                                                   #complexcard. 42.8
   PUSH CardMember.CardMember[test.golden.Complex.format]     #complexcard. 42.8
   PUSH PackageVar.Nil                                        #complexcard. 42.0
 =======
-HSIE for test.golden._Complex.B3.lvs_3/0                     #complexcard. 43.2
+HSIE for test.golden.Complex.B3.lvs_3/0                      #complexcard. 43.2
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.list]
     scoped = []
@@ -181,7 +181,7 @@ HSIE for test.golden._Complex.B3.lvs_3/0                     #complexcard. 43.2
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.list]       #complexcard. 43.2
 =======
-HSIE for test.golden._Complex.B5.contents_4/0                #complexcard. 45.0
+HSIE for test.golden.Complex.B5.contents_4/0                 #complexcard. 45.0
 #Args: 0 #bound: 0
     externals: []
     scoped = []
@@ -189,7 +189,7 @@ HSIE for test.golden._Complex.B5.contents_4/0                #complexcard. 45.0
     all vars = []
 RETURN TLV[test.golden.Complex.lv<-test.golden._Complex.B3.l #complexcard. 43.7
 =======
-HSIE for test.golden._Complex.B6.lvs_5/0                     #complexcard. 46.2
+HSIE for test.golden.Complex.B6.lvs_5/0                      #complexcard. 46.2
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.list]
     scoped = []
@@ -197,7 +197,7 @@ HSIE for test.golden._Complex.B6.lvs_5/0                     #complexcard. 46.2
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.list]       #complexcard. 46.2
 =======
-HSIE for test.golden._Complex.B9.ors_7/0                     #complexcard. 51.0
+HSIE for test.golden.Complex.B9.ors_7/0                      #complexcard. 51.0
 #Args: 0 #bound: 1
     externals: [==, test.golden.Complex.hello]
     scoped = []
@@ -209,7 +209,7 @@ CLOSURE v0                                                   #complexcard. 51.0
   PUSH CardMember.CardMember[test.golden.Complex.hello]      #complexcard. 50.3
   PUSH "hello"                                               #complexcard. 51.2
 =======
-HSIE for test.golden._Complex.B8.handlers_6/0                #complexcard. 49.9
+HSIE for test.golden.Complex.B8.handlers_6/0                 #complexcard. 49.9
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.sayHello]
     scoped = []

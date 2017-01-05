@@ -1,29 +1,3 @@
-HSIE for test.golden.filter/2                                #filter.fl:    2.0
-#Args: 2 #bound: 5
-    externals: [Cons, Nil]
-    scoped = []
-    scopedDefns = [test.golden.filter_1.a, test.golden.filter_1.f, test.golden.filter_1.g, test.golden.filter_1.l]
-    all vars = [v0, v1, v2, v3, v4, v5, v6]
-HEAD v1                                                      #filter.fl:    2.9
-SWITCH v1 Cons                                               #filter.fl:    3.9
-  BIND v2 v1.head                                            #filter.fl:    3.10
-  BIND v3 v1.tail                                            #filter.fl:    3.12
-  RETURN v6:clos6 [v4:test.golden.filter_1.g, v5:clos5]      #filter.fl:    3.17
-SWITCH v1 Nil                                                #filter.fl:    2.9
-  RETURN PackageVar.Nil                                      #filter.fl:    2.14
-ERROR                                                        #filter.fl:    2.0
-CLOSURE v4 !                                                 #filter.fl:    4.0
-  PUSH PackageVar.test.golden.filter_1.g                     #filter.fl:    4.0
-  PUSH v2:test.golden.filter_1.a                             #filter.fl:    3.10
-  PUSH v0:test.golden.filter_1.f                             #filter.fl:    3.7
-  PUSH v3:test.golden.filter_1.l                             #filter.fl:    3.12
-CLOSURE v5                                                   #filter.fl:    3.19
-  PUSH v0:test.golden.filter_1.f                             #filter.fl:    3.7
-  PUSH v2:test.golden.filter_1.a                             #filter.fl:    3.10
-CLOSURE v6                                                   #filter.fl:    3.17
-  PUSH v4:test.golden.filter_1.g                             #filter.fl:    4.0
-  PUSH v5:clos5                                              #filter.fl:    3.19
--------
 HSIE for test.golden.filter_1.g/1                            #filter.fl:    4.0
 #Args: 1 #bound: 3
     externals: [Boolean, Cons, test.golden.filter]
@@ -49,4 +23,30 @@ CLOSURE v10                                                  #filter.fl:    5.10
   PUSH PackageVar.test.golden.filter                         #filter.fl:    5.11
   PUSH Scoped[test.golden.filter_1.f]                        #filter.fl:    3.7
   PUSH Scoped[test.golden.filter_1.l]                        #filter.fl:    3.12
+-------
+HSIE for test.golden.filter/2                                #filter.fl:    2.0
+#Args: 2 #bound: 5
+    externals: [Cons, Nil]
+    scoped = []
+    scopedDefns = [test.golden.filter_1.a, test.golden.filter_1.f, test.golden.filter_1.g, test.golden.filter_1.l]
+    all vars = [v0, v1, v2, v3, v4, v5, v6]
+HEAD v1                                                      #filter.fl:    2.9
+SWITCH v1 Cons                                               #filter.fl:    3.9
+  BIND v2 v1.head                                            #filter.fl:    3.10
+  BIND v3 v1.tail                                            #filter.fl:    3.12
+  RETURN v6:clos6 [v4:test.golden.filter_1.g, v5:clos5]      #filter.fl:    3.17
+SWITCH v1 Nil                                                #filter.fl:    2.9
+  RETURN PackageVar.Nil                                      #filter.fl:    2.14
+ERROR                                                        #filter.fl:    2.0
+CLOSURE v4 !                                                 #filter.fl:    4.0
+  PUSH PackageVar.test.golden.filter_1.g                     #filter.fl:    4.0
+  PUSH v2:test.golden.filter_1.a                             #filter.fl:    3.10
+  PUSH v0:test.golden.filter_1.f                             #filter.fl:    3.7
+  PUSH v3:test.golden.filter_1.l                             #filter.fl:    3.12
+CLOSURE v5                                                   #filter.fl:    3.19
+  PUSH v0:test.golden.filter_1.f                             #filter.fl:    3.7
+  PUSH v2:test.golden.filter_1.a                             #filter.fl:    3.10
+CLOSURE v6                                                   #filter.fl:    3.17
+  PUSH v4:test.golden.filter_1.g                             #filter.fl:    4.0
+  PUSH v5:clos5                                              #filter.fl:    3.19
 =======

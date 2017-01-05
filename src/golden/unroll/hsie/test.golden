@@ -1,4 +1,4 @@
-HSIE for test.golden._Unroll.B2.teas_0/0                     #unroll.fl:    9.10
+HSIE for test.golden.Unroll.B2.teas_0/0                      #unroll.fl:    9.10
 #Args: 0 #bound: 0
     externals: []
     scoped = []
@@ -6,7 +6,7 @@ HSIE for test.golden._Unroll.B2.teas_0/0                     #unroll.fl:    9.10
     all vars = []
 RETURN "hello"                                               #unroll.fl:    5.8
 =======
-HSIE for test.golden._Unroll.B4.teas_1/0                     #unroll.fl:    9.10
+HSIE for test.golden.Unroll.B4.teas_1/0                      #unroll.fl:    9.10
 #Args: 0 #bound: 0
     externals: []
     scoped = []

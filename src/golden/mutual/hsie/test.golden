@@ -1,3 +1,15 @@
+HSIE for test.golden.f_0.g/1                                 #mutual.fl:    3.0
+#Args: 1 #bound: 1
+    externals: [*]
+    scoped = [test.golden.f_0.x]
+    scopedDefns = []
+    all vars = [v3, v4]
+RETURN v4:clos4 []                                           #mutual.fl:    3.6
+CLOSURE v4                                                   #mutual.fl:    3.6
+  PUSH PackageVar.*                                          #mutual.fl:    3.8
+  PUSH Scoped[test.golden.f_0.x]                             #mutual.fl:    2.2
+  PUSH v3:test.golden.f_0.g_0.y                              #mutual.fl:    3.2
+-------
 HSIE for test.golden.f/1                                     #mutual.fl:    2.0
 #Args: 1 #bound: 2
     externals: []
@@ -11,16 +23,4 @@ CLOSURE v1 !                                                 #mutual.fl:    3.0
 CLOSURE v2                                                   #mutual.fl:    2.6
   PUSH v1:test.golden.f_0.g                                  #mutual.fl:    3.0
   PUSH 2                                                     #mutual.fl:    2.8
--------
-HSIE for test.golden.f_0.g/1                                 #mutual.fl:    3.0
-#Args: 1 #bound: 1
-    externals: [*]
-    scoped = [test.golden.f_0.x]
-    scopedDefns = []
-    all vars = [v3, v4]
-RETURN v4:clos4 []                                           #mutual.fl:    3.6
-CLOSURE v4                                                   #mutual.fl:    3.6
-  PUSH PackageVar.*                                          #mutual.fl:    3.8
-  PUSH Scoped[test.golden.f_0.x]                             #mutual.fl:    2.2
-  PUSH v3:test.golden.f_0.g_0.y                              #mutual.fl:    3.2
 =======

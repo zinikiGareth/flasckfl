@@ -201,7 +201,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	@Override
 	public String toString() {
-		return "HSIE for " + funcName.jsName() + "/" + nformal;
+		return "HSIE for " + funcName.uniqueName() + "/" + nformal;
 	}
 
 	public boolean isMethod() {
@@ -210,6 +210,6 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	@Override
 	public int compareTo(HSIEForm o) {
-		return this.funcName.jsName().compareTo(o.funcName.jsName());
+		return this.funcName.compareTo(o.funcName);
 	}
 }
