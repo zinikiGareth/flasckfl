@@ -57,7 +57,7 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("Cons");
 		externals.add("Nil");
-		return thingy("ME.primes", 0, 3, externals,
+		return thingy(me("primes"), 0, 3, externals,
 			null,
 			"RETURN var 2 clos2 0 clos0 1 clos1",
 			"CLOSURE 0", "{",
@@ -74,21 +74,21 @@ public class HSIETestData {
 
 	public static HSIEForm simpleFn() {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy("simple", 1, 0, externals,
+		return thingy(s("simple"), 1, 0, externals,
 			null, "RETURN 1"
 		);
 	}
 
 	public static HSIEForm idFn() {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy("id", 1, 0, externals,
+		return thingy(s("id"), 1, 0, externals,
 			ctorTypes, "RETURN var 0 x"
 		);
 	}
 
 	public static HSIEForm numberIdFn() {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy("numberId", 1, 0, externals,
+		return thingy(s("numberId"), 1, 0, externals,
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 Number", "{",
@@ -103,7 +103,7 @@ public class HSIETestData {
 		externals.add("-");
 		externals.add("+");
 		externals.add("Number");
-		return thingy("ME.fib", 1, 5, externals,
+		return thingy(me("fib"), 1, 5, externals,
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 Number", "{",
@@ -139,7 +139,7 @@ public class HSIETestData {
 		externals.add("-");
 		externals.add("Nil");
 		externals.add("Number");
-		return thingy("ME.take", 2, 5, externals,
+		return thingy(me("take"), 2, 5, externals,
 			ctorTypes,
 			"HEAD 1",
 			"SWITCH 1 Cons", "{",
@@ -175,7 +175,7 @@ public class HSIETestData {
 		externals.add("Cons");
 		externals.add("Nil");
 		externals.add("-");
-		return thingy("take", 2, 5, externals,
+		return thingy(s("take"), 2, 5, externals,
 			ctorTypes,
 			"HEAD 1",
 			"SWITCH 1 Cons",
@@ -206,7 +206,7 @@ public class HSIETestData {
 	public static HSIEForm mutualF() {
 		ArrayList<String> externals = new ArrayList<String>();
 //		externals.add("ME.f_0.g");
-		return thingy("ME.f", 1, 2, externals,
+		return thingy(me("f"), 1, 2, externals,
 			null,
 			"RETURN var 2 clos2 1 ME.f_0.g",
 			"CLOSURE 1",
@@ -222,7 +222,7 @@ public class HSIETestData {
 		FunctionName fn = FunctionName.function(posn, new PackageName("ME"), "f");
 		ScopeName sn = new ScopeName(fn.inContext, "f_0");
 		externals.add(new ScopedVar(posn, new VarName(posn, sn, "x"), new LocalVar(fn, sn, posn, "x", null, null), fn));
-		return thingy("ME.f_0.g", 1, 1, externals,
+		return thingy(scope("ME", "f_0", "g"), 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
 			"CLOSURE 1",
@@ -233,7 +233,7 @@ public class HSIETestData {
 	public static HSIEForm simpleF() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("ME.f_0.g");
-		return thingy("ME.f", 1, 1, externals,
+		return thingy(me("f"), 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
 			"CLOSURE 1",
@@ -245,7 +245,7 @@ public class HSIETestData {
 	public static HSIEForm simpleG() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("*");
-		return thingy("ME.f_0.g", 1, 1, externals,
+		return thingy(scope("ME", "f_0", "g"), 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
 			"CLOSURE 1",
@@ -260,7 +260,7 @@ public class HSIETestData {
 		externals.add("ME.f_1.g");
 		externals.add("Cons");
 		externals.add("Nil");
-		return thingy("ME.f", 2, 4, externals,
+		return thingy(me("f"), 2, 4, externals,
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 Cons",
@@ -285,7 +285,7 @@ public class HSIETestData {
 		FunctionName fn = FunctionName.function(posn, new PackageName("ME"), "f");
 		ScopeName caseName = new ScopeName(fn.inContext, "f_0");
 		externals.add(new ScopedVar(posn, new VarName(posn, caseName, "q"), new LocalVar(fn, caseName, posn, "q", null, null), fn));
-		return thingy("ME.f_0.g", 1, 1, externals,
+		return thingy(scope("ME", "f_0", "g"), 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
 			"CLOSURE 1", "{", "*", "var 0 x", "ME.f_0.q", "}"
@@ -295,7 +295,7 @@ public class HSIETestData {
 	public static HSIEForm splitF_G2() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("+");
-		return thingy("ME.f_1.g", 2, 1, externals,
+		return thingy(scope("ME", "f_1", "g"), 2, 1, externals,
 			null,
 			"RETURN var 2 clos2",
 			"CLOSURE 2", "{",
@@ -307,7 +307,7 @@ public class HSIETestData {
 	public static HSIEForm returnPlus1() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("plus1");
-		return thingy("f", 0, 1, externals, null,
+		return thingy(s("f"), 0, 1, externals, null,
 			"RETURN plus1"
 		);
 	}
@@ -315,7 +315,7 @@ public class HSIETestData {
 	public static HSIEForm plus1Of1() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("plus1");
-		return thingy("ME.f", 0, 1, externals, null,
+		return thingy(me("f"), 0, 1, externals, null,
 			"RETURN var 0 clos0",
 			"CLOSURE 0", "{",
 				"plus1", "1",
@@ -326,7 +326,7 @@ public class HSIETestData {
 	public static HSIEForm plus2And2() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("+");
-		return thingy("f", 0, 1, externals,
+		return thingy(s("f"), 0, 1, externals,
 			null,
 			"RETURN var 0 clos0",
 			"CLOSURE 0", "{",
@@ -339,7 +339,7 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("id1");
 		externals.add("decode");
-		return thingy("ME.f", 0, 3, externals,
+		return thingy(me("f"), 0, 3, externals,
 			null,
 			"RETURN var 2 clos2 0 clos0 1 clos1",
 			"CLOSURE 0", "{",
@@ -357,7 +357,7 @@ public class HSIETestData {
 	public static HSIEForm unionType() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("List");
-		return thingy("ME.f", 1, 0, externals,
+		return thingy(me("f"), 1, 0, externals,
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 List",
@@ -372,7 +372,7 @@ public class HSIETestData {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("-");
 		externals.add("ME.g");
-		return thingy("ME.f", 1, 2, externals,
+		return thingy(me("f"), 1, 2, externals,
 			null,
 			"RETURN var 2 clos2 1 clos1",
 			"CLOSURE 1", "{",
@@ -391,7 +391,7 @@ public class HSIETestData {
 		String v0 = "" + (offset + 0);
 		String v1 = "" + (offset + 1);
 		String v2 = "" + (offset + 2);
-		return thingy(offset, "ME.g", 1, 2, externals,
+		return thingy(offset, me("g"), 1, 2, externals,
 			null,
 			"RETURN var " + v2 +" clos"+v2 + " " + v1 + " clos"+v1,
 			"CLOSURE " + v1, "{",
@@ -406,7 +406,7 @@ public class HSIETestData {
 	public static HSIEForm simpleIf() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("==");
-		return thingy("ME.fact", 1, 1, externals,
+		return thingy(me("fact"), 1, 1, externals,
 			null,
 			"IF 1 clos1", "{",
 				"RETURN 1 clos1",
@@ -423,7 +423,7 @@ public class HSIETestData {
 		externals.add("==");
 		externals.add("*");
 		externals.add("-");
-		return thingy("ME.fact", 1, 4, externals,
+		return thingy(me("fact"), 1, 4, externals,
 			null,
 			"IF 1 clos1", "{",
 				"RETURN 1",
@@ -447,7 +447,7 @@ public class HSIETestData {
 	public static HSIEForm directLet() {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("FLEval.plus");
-		return thingy("ME.f", 0, 2, externals,
+		return thingy(me("f"), 0, 2, externals,
 			null,
 			"RETURN var 1 clos1 0 ME.f._x",
 			"CLOSURE 1", "{",
@@ -459,12 +459,24 @@ public class HSIETestData {
 		);
 	}
 
-	private static HSIEForm thingy(String name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
+	private static FunctionName s(String n) {
+		return FunctionName.function(posn, null, n);
+	}
+
+	private static FunctionName me(String n) {
+		return FunctionName.function(posn, new PackageName("ME"), n);
+	}
+
+	private static FunctionName scope(String pkg, String fn, String n) {
+		return FunctionName.function(posn, new ScopeName(new PackageName(pkg), fn), n);
+	}
+	
+	private static HSIEForm thingy(FunctionName name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
 		return thingy(0, name, nformal, nbound, dependsOn, ctorTypes, commands);
 	}
 	
-	private static HSIEForm thingy(int offset, String name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
-		HSIEForm ret = new HSIEForm(new InputPosition("thingy", 1, 1, null), FunctionName.function(posn, null, name), nformal, CodeType.FUNCTION, null, new VarFactory());
+	private static HSIEForm thingy(int offset, FunctionName name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
+		HSIEForm ret = new HSIEForm(new InputPosition("thingy", 1, 1, null), name, nformal, CodeType.FUNCTION, null, new VarFactory());
 		for (int i=0;i<nformal;i++)
 			ret.vars.add(new Var(offset + i));
 		for (int i=0;i<nbound;i++)
