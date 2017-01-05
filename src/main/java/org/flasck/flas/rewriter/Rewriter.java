@@ -1143,7 +1143,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private void rewrite(NamingContext cx, ContractDecl ctr) {
-		RWContractDecl ret = contracts.get(ctr.nameAsName().jsName());
+		RWContractDecl ret = contracts.get(ctr.nameAsName().uniqueName());
 		for (ContractMethodDecl cmd : ctr.methods) {
 			ret.addMethod(rewriteCMD(cx, ctr.nameAsName(), cmd));
 		}
@@ -1266,7 +1266,7 @@ public class Rewriter implements CodeGenRegistry {
 				HandlerLambda hl = (HandlerLambda) s;
 				hsd.fields.add(new RWStructField(hl.location, false, hl.type, hl.var));
 			}
-			structs.put(sdname.jsName(), hsd);
+			structs.put(sdname.uniqueName(), hsd);
 		} catch (ResolutionException ex) {
 			errors.message(ex.location, ex.getMessage());
 			return;
@@ -1425,7 +1425,7 @@ public class Rewriter implements CodeGenRegistry {
 					RWMethodDefinition method = new RWMethodDefinition(null, null, HSIEForm.CodeType.CARD, RWMethodDefinition.EVENT, fi.location, fi.fnName, fi.args.size());
 					method.cases.add(mcd);
 					method.gatherScopedVars();
-					this.methods.put(method.name().jsName(), method);
+					this.methods.put(method.name().uniqueName(), method);
 					byKey.add(s.name, new FunctionLiteral(fi.location, fi.fnName));
 				} else { // something like layout, that is just a set of definitions
 					// This function is generated over in DomFunctionGenerator, because it "fits" better there ...
@@ -1481,7 +1481,7 @@ public class Rewriter implements CodeGenRegistry {
 				TypedPattern tp = (TypedPattern) o;
 				VarName vn = new VarName(tp.varLocation, name, tp.var);
 				TypeWithName rt = (TypeWithName) rewrite(cx, tp.type, false);
-				fnArgs.put(vn.jsName(), rt);
+				fnArgs.put(vn.uniqueName(), rt);
 				return new RWTypedPattern(tp.typeLocation, rt, tp.varLocation, vn);
 			} else if (o instanceof VarPattern) {
 				VarPattern vp = (VarPattern) o;
