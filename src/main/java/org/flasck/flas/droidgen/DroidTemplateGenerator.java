@@ -1,6 +1,7 @@
 package org.flasck.flas.droidgen;
 
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.template.TemplateGenerator;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
@@ -22,13 +23,13 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public void generateRender(String clz, AreaName areaName) {
+	public void generateRender(TemplateName tname, AreaName areaName) {
 		if (!doBuild)
 			return;
 		// TODO: I think we actually want the render function, but not sure :-)
 		if (areaName == null)
 			return;
-		ByteCodeSink bcc = bce.get(clz);
+		ByteCodeSink bcc = bce.get(tname.uniqueName());
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "render");
 		PendingVar into = gen.argument("java.lang.String", "into");
 		gen.returns("void");

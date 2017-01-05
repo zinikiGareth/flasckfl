@@ -1,6 +1,7 @@
 package org.flasck.flas.jsgen;
 
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.template.AreaGenerator;
@@ -15,8 +16,8 @@ public class JSTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public void generateRender(String javaName, AreaName areaName) {
-		String clz = Generator.lname(javaName, true);
+	public void generateRender(TemplateName tname, AreaName areaName) {
+		String clz = Generator.lname(tname.uniqueName(), true);
 		JSForm ir = JSForm.flexFn(clz + "_render", CollectionUtils.listOf("doc", "wrapper", "parent"));
 		target.add(ir);
 		if (areaName != null)
