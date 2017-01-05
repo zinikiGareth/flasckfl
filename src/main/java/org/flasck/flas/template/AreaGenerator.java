@@ -3,6 +3,7 @@ package org.flasck.flas.template;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
@@ -46,7 +47,7 @@ public interface AreaGenerator {
 
 	void makeItemDraggable();
 
-	void assignToList(String listFn);
+	void assignToList(FunctionName listFn);
 
 	void makeEditable(RWContentExpr ce, String field);
 

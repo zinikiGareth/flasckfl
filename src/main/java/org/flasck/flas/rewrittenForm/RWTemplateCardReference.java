@@ -9,14 +9,14 @@ public class RWTemplateCardReference implements RWTemplateLine {
 	public final Object explicitCard;
 	public final Object yoyoVar;
 	private final AreaName areaName;
-	public final String fnName;
+	public final FunctionName fnName;
 
 	public RWTemplateCardReference(InputPosition location, Object cardVar, Object yoyoVar, AreaName areaName, FunctionName fnName) {
 		this.location = location;
 		this.explicitCard = cardVar;
 		this.yoyoVar = yoyoVar;
 		this.areaName = areaName;
-		this.fnName = fnName == null?null:fnName.jsName();
+		this.fnName = fnName;
 	}
 
 	@Override

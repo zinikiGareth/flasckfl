@@ -3,6 +3,7 @@ package org.flasck.flas.droidgen;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWContentExpr;
@@ -78,7 +79,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void assignToList(String listFn) {
+	public void assignToList(FunctionName listFn) {
 		// TODO Auto-generated method stub
 		
 	}

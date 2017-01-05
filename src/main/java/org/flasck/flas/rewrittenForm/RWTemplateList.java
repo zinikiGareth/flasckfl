@@ -17,7 +17,7 @@ public class RWTemplateList extends RWTemplateFormat {
 	public final String customTagVar;
 	public final boolean supportDragOrdering;
 	public RWTemplateLine template;
-	public final String listFn;
+	public final FunctionName listFn;
 
 	public RWTemplateList(InputPosition kw, InputPosition listLoc, Object listVar, InputPosition iterLoc, Object iterVar, InputPosition ctLoc, String customTag, InputPosition ctvLoc, String customTagVar, List<Object> formats, boolean supportDragOrdering, AreaName areaName, FunctionName fnName, FunctionName dynamicFn) {
 		super(kw, areaName, formats, dynamicFn);
@@ -30,6 +30,6 @@ public class RWTemplateList extends RWTemplateFormat {
 		this.customTagVarLoc = ctvLoc;
 		this.customTagVar = customTagVar;
 		this.supportDragOrdering = supportDragOrdering;
-		this.listFn = fnName.jsName();
+		this.listFn = fnName;
 	}
 }

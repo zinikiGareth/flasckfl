@@ -246,7 +246,7 @@ public class TemplateTraversor {
 				Object valExpr = cr.yoyoVar;
 				callOnAssign(areas, valExpr, areaName.jsName() + ".prototype._yoyoExpr", true, null);
 	
-				String tfn = simpleName(cr.fnName);
+				String tfn = cr.fnName.name;
 				for (AreaGenerator area : areas)
 					area.yoyoExpr(tfn);
 			} else

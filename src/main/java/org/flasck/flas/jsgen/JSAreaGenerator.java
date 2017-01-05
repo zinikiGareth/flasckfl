@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
@@ -13,7 +14,6 @@ import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
 import org.flasck.flas.template.EventHandlerGenerator;
-import org.flasck.flas.template.TemplateTraversor;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSAreaGenerator implements AreaGenerator {
@@ -57,9 +57,9 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void assignToList(String listFn) {
+	public void assignToList(FunctionName listFn) {
 		JSForm atv = JSForm.flex(areaName.jsName() + ".prototype._assignToVar = function()").needBlock();
-		String tfn = TemplateTraversor.simpleName(listFn);
+		String tfn = listFn.name;
 		atv.add(JSForm.flex("var lv = FLEval.full(this." + tfn + "())"));
 		fn.add(JSForm.flex(areaName.jsName() + ".prototype._assignToVar.call(this)"));
 		atv.add(JSForm.flex("ListArea.prototype._assignToVar.call(this, lv)"));
