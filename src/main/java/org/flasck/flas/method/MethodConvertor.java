@@ -260,7 +260,7 @@ public class MethodConvertor {
 					String m = lv.uniqueName();
 					Type t = null;
 					for (int i=0;t == null && i<margs.size();i++) {
-						if (margs.get(i) instanceof RWTypedPattern && ((RWTypedPattern)margs.get(i)).var.equals(m))
+						if (margs.get(i) instanceof RWTypedPattern && ((RWTypedPattern)margs.get(i)).var.uniqueName().equals(m))
 							t = ((RWTypedPattern)margs.get(i)).type;
 						else if (margs.get(i) instanceof RWVarPattern && ((RWVarPattern)margs.get(i)).var.uniqueName().equals(m))
 							t = types.get(i);

@@ -148,7 +148,7 @@ public class HSIE {
 				;
 			else if (arg instanceof RWTypedPattern) {
 				RWTypedPattern tp = (RWTypedPattern) arg;
-				String called = tp.var;
+				String called = tp.var.uniqueName();
 				cf.subst(called, new VarInSource(formals.get(i), tp.varLocation, called));
 			} else
 				throw new UtilException("Not substituting into " + arg.getClass());

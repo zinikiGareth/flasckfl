@@ -123,7 +123,7 @@ public class KnowledgeWriter implements RepoVisitor {
 			RWTypedPattern tp = (RWTypedPattern) arg;
 			XMLElement ae = xm.addElement("Typed");
 			writeLocation(ae, tp);
-			ae.setAttribute("var", getBaseName(tp.var)); // tp.var should be a VarName
+			ae.setAttribute("var", tp.var.var);
 			writeLocation(ae, tp.varLocation, "v");
 			writeTypeUsage(ae, tp.type);
 		} else if (arg instanceof RWConstructorMatch) {
@@ -135,10 +135,6 @@ public class KnowledgeWriter implements RepoVisitor {
 				addPatternArg(cme, obj);
 		} else
 			throw new UtilException("Cannot handle " + arg.getClass());
-	}
-
-	private String getBaseName(String var) {
-		return var.substring(var.lastIndexOf(".")+1);
 	}
 
 	public void visitCardGrouping(CardGrouping cg) {

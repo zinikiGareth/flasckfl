@@ -9,13 +9,13 @@ public class RWTemplateOr implements RWTemplateLine, Locatable {
 	private final InputPosition location;
 	public final Object cond;
 	public final RWTemplateLine template;
-	public final String fnName;
+	public final FunctionName fnName;
 
 	public RWTemplateOr(InputPosition loc, Object expr, RWTemplateLine template, FunctionName fnName) {
 		this.location = loc;
 		this.cond = expr;
 		this.template = template;
-		this.fnName = fnName == null?null:fnName.jsName();
+		this.fnName = fnName;
 	}
 	
 	@Override

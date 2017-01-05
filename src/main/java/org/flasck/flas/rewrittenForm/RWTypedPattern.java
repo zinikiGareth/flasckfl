@@ -11,7 +11,7 @@ public class RWTypedPattern implements Locatable, AsString {
 	public final transient InputPosition typeLocation;
 	public final TypeWithName type;
 	public final transient InputPosition varLocation;
-	public final String var;
+	public final VarName var;
 
 	public RWTypedPattern(InputPosition location, TypeWithName type, InputPosition vlocation, VarName var) {
 		if (location == null || vlocation == null)
@@ -19,7 +19,7 @@ public class RWTypedPattern implements Locatable, AsString {
 		this.typeLocation = location;
 		this.type = type;
 		this.varLocation = vlocation;
-		this.var = var.jsName();
+		this.var = var;
 	}
 	
 	@Override
@@ -29,11 +29,11 @@ public class RWTypedPattern implements Locatable, AsString {
 	
 	@Override
 	public String toString() {
-		return "TypedPattern[" + type + ":" + var +"]";
+		return "TypedPattern[" + type + ":" + var.uniqueName() +"]";
 	}
 
 	@Override
 	public String asString() {
-		return "(" + type + " " + var + ")";
+		return "(" + type + " " + var.uniqueName() + ")";
 	}
 }

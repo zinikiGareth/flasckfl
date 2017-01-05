@@ -267,7 +267,7 @@ public class TemplateTraversor {
 				if (oc.cond == null) {
 					branches.addAll(ccs);
 				} else {
-					String tfn = simpleName(oc.fnName);
+					String tfn = oc.fnName.name;
 					for (CaseChooser cc : ccs)
 						branches.add(cc.handleCase(tfn));
 				}

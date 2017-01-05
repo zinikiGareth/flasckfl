@@ -1888,7 +1888,7 @@ public class Rewriter implements CodeGenRegistry {
 			pw.println("var " + ((RWVarPattern)a).var.uniqueName());
 		} else if (a instanceof RWTypedPattern) {
 			RWTypedPattern tp = (RWTypedPattern)a;
-			pw.println("typed " + tp.type + " " + tp.var);
+			pw.println("typed " + tp.type + " " + tp.var.uniqueName());
 		} else if (a instanceof RWConstructorMatch) {
 			RWConstructorMatch cm = (RWConstructorMatch)a;
 			pw.println("ctor " + cm.ref);
