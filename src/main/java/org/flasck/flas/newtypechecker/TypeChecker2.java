@@ -884,7 +884,7 @@ public class TypeChecker2 {
 				args.add(convertType(ft.arg(i)));
 			return new TypeFunc(ft.location(), args);
 		} else if (type instanceof TypeOfSomethingElse) {
-			String other = ((TypeOfSomethingElse)type).other();
+			String other = ((TypeOfSomethingElse)type).other().uniqueName();
 			try {
 				return getTypeOf(type.location(), other);
 			} catch (UtilException ex) {

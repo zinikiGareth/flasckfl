@@ -1,6 +1,7 @@
 package org.flasck.flas.types;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
 
 /** The idea here is that during the early stages of compilation (i.e. before typechecking)
@@ -21,16 +22,16 @@ public class TypeOfSomethingElse extends TypeWithName {
 		super(null, loc, name);
 	}
 	
-	public String other() {
-		return name;
+	public NameOfThing other() {
+		return typeName;
 	}
 
 	public String name() {
-		return "typeOf(" + name + ")";
+		return "typeOf(" + typeName.uniqueName() + ")";
 	}
 
 	protected void show(StringBuilder sb) {
-		sb.append("copyType(" + name + ")");
+		sb.append("copyType(" + typeName.uniqueName() + ")");
 	}
 
 }

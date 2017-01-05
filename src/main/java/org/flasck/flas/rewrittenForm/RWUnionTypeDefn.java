@@ -61,7 +61,7 @@ public class RWUnionTypeDefn extends TypeWithNameAndPolys implements Comparable<
 
 	@Override
 	public int compareTo(RWUnionTypeDefn o) {
-		return name.compareTo(o.name);
+		return name().compareTo(o.name());
 	}
 	
 	@Override

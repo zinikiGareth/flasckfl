@@ -26,6 +26,8 @@ public class PackageFinder {
 	}
 
 	public void loadFlim(ErrorResult errors, String pkgName) {
+		if (dirs == null)
+			return;
 		if (imported.containsKey(pkgName))
 			return;
 		for (File d : dirs) {

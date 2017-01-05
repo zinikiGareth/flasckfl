@@ -7,17 +7,15 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.zinutils.collections.CollectionUtils;
 
 public class TypeWithName extends Type {
-	protected final String name;
 	protected final NameOfThing typeName;
 
 	public TypeWithName(InputPosition kw, InputPosition location, NameOfThing type) {
 		super(location);
-		this.name = type.uniqueName();
 		this.typeName = type;
 	}
 
 	public String name() {
-		return name;
+		return typeName.uniqueName();
 	}
 	
 	public Type instance(InputPosition loc, Type... with) {
@@ -33,7 +31,7 @@ public class TypeWithName extends Type {
 	}
 	
 	protected void show(StringBuilder sb) {
-		sb.append(name);
+		sb.append(name());
 	}
 	
 	@Override
@@ -43,11 +41,7 @@ public class TypeWithName extends Type {
 		if (!(obj instanceof TypeWithName))
 			return false;
 		TypeWithName other = (TypeWithName)obj;
-		// TODO: for completeness, we should check any polymorphic args
-		if (name != null)
-			return name.equals(other.name);
-		else
-			return true;
+		return typeName.equals(other.typeName);
 	}
 
 }

@@ -228,20 +228,21 @@ public class Rewriter implements CodeGenRegistry {
 				throw new UtilException("I don't think let is something I really support");
 //				return new PackageVar(location, "let", null);
 			}
-			Object val = getMe(location, name);
-			if (val != null) {
-				if (val instanceof PackageVar && ((PackageVar)val).defn instanceof BooleanLiteral) // possibly other cases - group with an appropriate interface
-					return ((PackageVar)val).defn;
-				else
-					return val;
-			}
 			if (name.contains(".")) {
 				int idx = name.lastIndexOf(".");
 				String pkgName = name.substring(0, idx);
 				pkgFinder.loadFlim(errors, pkgName);
-				val = getMe(location, name);
+				Object val = getMe(location, new SolidName(new PackageName(pkgName), name.substring(idx+1)));
 				if (val != null)
 					return val;
+			} else {
+				Object val = getMe(location, new SolidName(null, name));
+				if (val != null) {
+					if (val instanceof PackageVar && ((PackageVar)val).defn instanceof BooleanLiteral) // possibly other cases - group with an appropriate interface
+						return ((PackageVar)val).defn;
+					else
+						return val;
+				}
 			}
 			throw new ResolutionException(location, name);
 		}
@@ -262,7 +263,7 @@ public class Rewriter implements CodeGenRegistry {
 		@Override
 		public Object resolve(InputPosition location, String name) {
 			if (scope.contains(name)) {
-				return getMe(location, pkgName.simpleName() + "." + name);
+				return getMe(location, new SolidName(pkgName, name));
 			}
 			return nested.resolve(location, name);
 		}
@@ -1070,7 +1071,7 @@ public class Rewriter implements CodeGenRegistry {
 		if (tf instanceof ContentExpr && ((ContentExpr)tf).editable())
 			simple.append(" flasck-editable");
 		Object expr = null;
-		PackageVar cons = getMe(tf.location(), "Cons");
+		PackageVar cons = getMe(tf.location(), new SolidName(null, "Cons"));
 		InputPosition first = null;
 		for (Object o : formats) {
 			if (o instanceof TemplateToken) {
@@ -1086,7 +1087,7 @@ public class Rewriter implements CodeGenRegistry {
 			} else if (o instanceof ApplyExpr || o instanceof CardMember) {
 				// TODO: need to collect object/field pairs that we depend on
 				if (expr == null)
-					expr = getMe(tf.location(), "Nil");
+					expr = getMe(tf.location(), new SolidName(null, "Nil"));
 				expr = new ApplyExpr(((Locatable)o).location(), cons, o, expr);
 			} else
 				throw new UtilException("Cannot handle format of type " + o.getClass());
@@ -1133,7 +1134,7 @@ public class Rewriter implements CodeGenRegistry {
 		if (tor.cond != null) {
 			fnName = cx.nextFunction(tor.location(), cs.areaName(), "ors", CodeType.AREA);
 			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
-			ApplyExpr expr = new ApplyExpr(tor.location(), getMe(tor.location(), "=="), cs.switchOn, tor.cond);
+			ApplyExpr expr = new ApplyExpr(tor.location(), getMe(tor.location(), new SolidName(null, "==")), cs.switchOn, tor.cond);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tor.location(), fnName, new ArrayList<>(), null), 0, expr);
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
@@ -1789,15 +1790,6 @@ public class Rewriter implements CodeGenRegistry {
 			return null;
 		}
 		return new PackageVar(location, name, val);
-	}
-
-	@Deprecated
-	public PackageVar getMe(InputPosition location, String id) {
-		Object val = doIhave(location, id);
-		if (val == null) {
-			return null;
-		}
-		return new PackageVar(location, id, val);
 	}
 
 	private Type resolveType(NamingContext cx, TypeReference type) {

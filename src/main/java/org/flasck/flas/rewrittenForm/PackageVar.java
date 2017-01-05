@@ -10,16 +10,6 @@ public class PackageVar implements ExternalRef {
 	public final Object defn;
 	public final NameOfThing name;
 
-	@Deprecated
-	public PackageVar(InputPosition location, String id, Object defn) {
-		if (defn != null && location == null)
-			throw new UtilException("null location pv1");
-		this.location = location;
-		this.name = null;
-		this.id = id;
-		this.defn = defn;
-	}
-
 	public PackageVar(InputPosition location, NameOfThing name, Object defn) {
 		if (defn != null && location == null)
 			throw new UtilException("null location pv1");

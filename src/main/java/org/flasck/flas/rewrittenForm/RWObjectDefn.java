@@ -29,7 +29,7 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	}
 
 	public String uniqueName() {
-		return name;
+		return name();
 	}
 
 	public void constructorArg(InputPosition pos, Type type, String name) {

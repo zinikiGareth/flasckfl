@@ -31,7 +31,7 @@ public class TypeWithNameAndPolys extends TypeWithName {
 	}
 
 	protected void show(StringBuilder sb) {
-		sb.append(name);
+		sb.append(name());
         if (polys != null && !polys.isEmpty())
         	sb.append(polys);
 	}

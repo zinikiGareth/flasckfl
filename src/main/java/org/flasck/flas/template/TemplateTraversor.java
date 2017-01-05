@@ -420,12 +420,4 @@ public class TemplateTraversor {
 				area.addAssign(call, passVar);
 		}
 	}
-
-	@Deprecated
-	public static String simpleName(String name) {
-		int idx = name.lastIndexOf(".");
-		if (idx == -1)
-			throw new UtilException("No . in " + name);
-		return name.substring(idx+1);
-	}
 }
