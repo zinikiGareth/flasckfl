@@ -53,6 +53,13 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 	}
 
 	@Override
+	public String jsUName() {
+		if (name == null)
+			return baseName;
+		return name.jsName() + "._" + baseName;
+	}
+
+	@Override
 	public String writeToXML(XMLElement xe) {
 		// TODO Auto-generated method stub
 		return null;

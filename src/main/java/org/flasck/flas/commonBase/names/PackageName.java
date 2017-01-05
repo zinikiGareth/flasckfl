@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XMLElement;
 
 public class PackageName implements NameOfThing, Comparable<PackageName> {
@@ -21,6 +22,11 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	@Override
 	public String jsName() {
 		return name;
+	}
+
+	@Override
+	public String jsUName() {
+		throw new UtilException("I don't think so");
 	}
 
 	public String simpleName() {

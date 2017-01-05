@@ -15,17 +15,17 @@ public interface AreaGenerator {
 	
 	void assignToVar(String varName);
 
-	void addAssign(String call, String passVar);
+	void addAssign(FunctionName call, String passVar);
 
-	void interested(String var, String call);
+	void interested(String var, FunctionName call);
 
-	void onFieldAssign(Object expr, String field, String call);
+	void onFieldAssign(Object expr, String field, FunctionName call);
 
-	void onAssign(CardMember valExpr, String call);
+	void onAssign(CardMember valExpr, FunctionName call);
 
 	void newListChild(AreaName child);
 
-	void contentExpr(String tfn, boolean rawHTML);
+	void contentExpr(FunctionName tfn, boolean rawHTML);
 
 	EventHandlerGenerator needAddHandlers();
 
@@ -35,7 +35,7 @@ public interface AreaGenerator {
 
 	void setText(String text);
 
-	void setVarFormats(String tfn);
+	void setVarFormats(FunctionName tfn);
 
 	void setSimpleClass(String css);
 
@@ -51,5 +51,5 @@ public interface AreaGenerator {
 
 	void makeEditable(RWContentExpr ce, String field);
 
-	CaseChooser chooseCase(String sn);
+	CaseChooser chooseCase(FunctionName sn);
 }

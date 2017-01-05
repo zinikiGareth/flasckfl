@@ -84,6 +84,15 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	}
 
 	@Override
+	public String jsUName() {
+		throw new UtilException("I don't think so");
+	}
+
+	public String jsPName() {
+		return inContext.jsUName() + ".prototype." + name;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof FunctionName))
 			return false;

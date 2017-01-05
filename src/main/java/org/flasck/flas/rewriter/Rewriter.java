@@ -1058,7 +1058,7 @@ public class Rewriter implements CodeGenRegistry {
 		} else if (tl instanceof D3Thing) {
 			D3Thing d3 = (D3Thing) tl;
 			D3Context c2 = new D3Context(cx, d3.d3.varLoc, d3.d3.iterVar);
-			RWD3Thing rwD3 = new RWD3Thing(c2.nextArea(), rewriteExpr(c2, d3.d3.expr));
+			RWD3Thing rwD3 = new RWD3Thing(d3.d3.nameLoc, c2.nextArea(), rewriteExpr(c2, d3.d3.expr));
 			createD3Methods(c2, cx.cardName(), d3);
 			d3s.add(rwD3);
 			return rwD3;
@@ -1124,7 +1124,7 @@ public class Rewriter implements CodeGenRegistry {
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
 			functions.put(fnName.uniqueName(), fn);
-			ret.handlers.add(new RWEventHandler(h.action, rwexpr, fnName));
+			ret.handlers.add(new RWEventHandler(loc, h.action, rwexpr, fnName));
 		}
 		return ret;
 	}

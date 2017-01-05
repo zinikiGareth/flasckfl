@@ -23,6 +23,11 @@ public class SolidName implements NameOfThing, Comparable<SolidName> {
 	}
 	
 	@Override
+	public String jsUName() {
+		return container.jsName() + "._" + name;
+	}
+	
+	@Override
 	public String jsName() {
 		if (container == null || container.jsName() == null || container.jsName().length() == 0)
 			return name;

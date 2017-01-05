@@ -79,17 +79,17 @@ public class JSAreaGenerator implements AreaGenerator {
 
 
 	@Override
-	public void addAssign(String call, String passVar) {
-		fn.add(JSForm.flex(call + ".call(this" + (passVar != null ? ", " + passVar : "") + ")"));
+	public void addAssign(FunctionName call, String passVar) {
+		fn.add(JSForm.flex(call.jsPName() + ".call(this" + (passVar != null ? ", " + passVar : "") + ")"));
 	}
 
 	@Override
-	public void interested(String var, String call) {
-		fn.add(JSForm.flex("this._src_" + var + "._interested(this, " + call + ")"));
+	public void interested(String var, FunctionName call) {
+		fn.add(JSForm.flex("this._src_" + var + "._interested(this, " + call.jsPName() + ")"));
 	}
 
 	@Override
-	public void onFieldAssign(Object expr, String field, String call) {
+	public void onFieldAssign(Object expr, String field, FunctionName call) {
 		String jsexpr;
 		if (expr instanceof TemplateListVar) {
 			String name = ((TemplateListVar)expr).simpleName;
@@ -99,12 +99,12 @@ public class JSAreaGenerator implements AreaGenerator {
 		} else
 			throw new NotImplementedException();
 		
-		fn.add(JSForm.flex("this._onAssign(" + jsexpr +", '" + field + "', " + call + ")"));
+		fn.add(JSForm.flex("this._onAssign(" + jsexpr +", '" + field + "', " + call.jsPName() + ")"));
 	}
 
 	@Override
-	public void onAssign(CardMember cm, String call) {
-		fn.add(JSForm.flex("this._onAssign(this._card, '" + cm.var + "', " + call + ")"));
+	public void onAssign(CardMember cm, FunctionName call) {
+		fn.add(JSForm.flex("this._onAssign(this._card, '" + cm.var + "', " + call.jsPName() + ")"));
 	}
 
 	@Override
@@ -115,12 +115,12 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void contentExpr(String tfn, boolean rawHTML) {
+	public void contentExpr(FunctionName tfn, boolean rawHTML) {
 		JSForm cexpr = JSForm.flex(areaName.jsName() +".prototype._contentExpr = function()").needBlock();
 		if (rawHTML)
-			cexpr.add(JSForm.flex("this._insertHTML(this." + tfn +"())"));
+			cexpr.add(JSForm.flex("this._insertHTML(this." + tfn.name +"())"));
 		else
-			cexpr.add(JSForm.flex("this._assignToText(this." + tfn +"())"));
+			cexpr.add(JSForm.flex("this._assignToText(this." + tfn.name +"())"));
 		target.add(cexpr);
 	}
 
@@ -149,10 +149,10 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void setVarFormats(String tfn) {
+	public void setVarFormats(FunctionName tfn) {
 		String scf = areaName.jsName() + ".prototype._setVariableFormats";
 		JSForm scvs = JSForm.flex(scf + " = function()").needBlock();
-		scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this."+tfn+"()), ' '))"));
+		scvs.add(JSForm.flex("this._mydiv.setAttribute('class', join(FLEval.full(this."+tfn.name+"()), ' '))"));
 		target.add(scvs);
 	}
 
@@ -201,8 +201,8 @@ public class JSAreaGenerator implements AreaGenerator {
 		fn.add(JSForm.flex("this._dropSomethingHere(" + asRegexps + ")"));
 	}
 
-	public CaseChooser chooseCase(String sn) {
-		JSForm sw = JSForm.flex(sn +" = function(parent)").needBlock();
+	public CaseChooser chooseCase(FunctionName sn) {
+		JSForm sw = JSForm.flex(sn.jsPName() +" = function(parent)").needBlock();
 		sw.add(JSForm.flex("\"use strict\""));
 		target.add(sw);
 		return new JSCaseChooser(sw);

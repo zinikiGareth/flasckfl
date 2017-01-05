@@ -85,24 +85,19 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void addAssign(String call, String passVar) {
+	public void addAssign(FunctionName call, String passVar) {
 		if (passVar != null)
 			throw new NotImplementedException("Passed var: " + passVar);
-		int idx = call.lastIndexOf(".prototype");
-		call = call.substring(idx+11);
-		ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), call)).flush();
+		ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), call.name)).flush();
 	}
 
 	@Override
-	public void interested(String var, String call) {
-		int idx = call.lastIndexOf(".");
-		if (idx != -1)
-			call = call.substring(idx+1);
-		ctor.callVirtual("void", ctor.getField("_src_"+var), "_interested", (Expr)ctor.as(ctor.myThis(), "org.flasck.android.areas.Area"), ctor.stringConst(call)).flush();
+	public void interested(String var, FunctionName call) {
+		ctor.callVirtual("void", ctor.getField("_src_"+var), "_interested", (Expr)ctor.as(ctor.myThis(), "org.flasck.android.areas.Area"), ctor.stringConst(call.name)).flush();
 	}
 
 	@Override
-	public void onFieldAssign(Object expr, String field, String call) {
+	public void onFieldAssign(Object expr, String field, FunctionName call) {
 		Expr dge = null;
 		if (expr instanceof TemplateListVar) {
 			String name = ((TemplateListVar)expr).simpleName;
@@ -112,20 +107,12 @@ public class DroidAreaGenerator implements AreaGenerator {
 		} else
 			throw new NotImplementedException();
 
-		int idx = call.lastIndexOf(".");
-		if (idx != -1)
-			call = call.substring(idx+1);
-		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)ctor.as(dge, "java.lang.Object"), ctor.stringConst(field), (Expr)ctor.as(ctor.myThis(), "org.flasck.android.areas.Area"), ctor.stringConst(call)).flush();
+		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)ctor.as(dge, "java.lang.Object"), ctor.stringConst(field), (Expr)ctor.as(ctor.myThis(), "org.flasck.android.areas.Area"), ctor.stringConst(call.name)).flush();
 	}
 
 	@Override
-	public void onAssign(CardMember valExpr, String call) {
-		// I think this is removing the "prototype" ... at some point, rationalize all this
-		// so that we pass around a struct with "package" "class", "area", "method" or whatever we need ...
-		int idx = call.lastIndexOf(".");
-		if (idx != -1)
-			call = call.substring(idx+1);
-		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst(valExpr.var), (Expr)ctor.as(ctor.myThis(), "org.flasck.android.areas.Area"), ctor.stringConst(call)).flush();
+	public void onAssign(CardMember valExpr, FunctionName call) {
+		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst(valExpr.var), (Expr)ctor.as(ctor.myThis(), "org.flasck.android.areas.Area"), ctor.stringConst(call.name)).flush();
 	}
 
 	@Override
@@ -143,14 +130,14 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void contentExpr(String tfn, boolean rawHTML) {
+	public void contentExpr(FunctionName tfn, boolean rawHTML) {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_contentExpr");
 		gen.returns("java.lang.Object");
 		NewMethodDefiner meth = gen.done();
 		
 //		The rest of this code is basically correct, it's just that we used to have an HSIE block here
 		// that we converted into a Var.  Now we have a function to call, so we need to replace "str" with "tfn()"
-		IExpr str = meth.callVirtual(JavaType.string.getActual(), meth.myThis(), tfn);
+		IExpr str = meth.callVirtual(JavaType.string.getActual(), meth.myThis(), tfn.name);
 		if (rawHTML)
 			meth.callSuper("void", "org.flasck.android.TextArea", "_insertHTML", str).flush();
 		else
@@ -201,13 +188,13 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void setVarFormats(String tfn) {
+	public void setVarFormats(FunctionName tfn) {
 		GenericAnnotator svf = GenericAnnotator.newMethod(bcc, false, "_setVariableFormats");
 		svf.returns("java.lang.Object");
 		MethodDefiner meth = svf.done();
 		currentMethod = meth;
 		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to set variable formats"))).flush();
-		meth.callSuper("void", "org.flasck.android.Area", "_setCSSObj", meth.callVirtual("java.lang.String", meth.myThis(), tfn)).flush();
+		meth.callSuper("void", "org.flasck.android.Area", "_setCSSObj", meth.callVirtual("java.lang.String", meth.myThis(), tfn.name)).flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
 
@@ -247,7 +234,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public CaseChooser chooseCase(String sn) {
+	public CaseChooser chooseCase(FunctionName sn) {
 		return new DroidCaseChooser(sn);
 	}
 }

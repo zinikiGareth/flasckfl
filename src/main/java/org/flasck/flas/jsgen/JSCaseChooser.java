@@ -1,6 +1,7 @@
 package org.flasck.flas.jsgen;
 
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.template.CaseChooser;
 
@@ -12,8 +13,8 @@ public class JSCaseChooser implements CaseChooser {
 	}
 
 	@Override
-	public CaseChooser handleCase(String tfn) {
-		JSForm doit = JSForm.flex("if (FLEval.full(this." + tfn + "()))").needBlock();
+	public CaseChooser handleCase(FunctionName tfn) {
+		JSForm doit = JSForm.flex("if (FLEval.full(this." + tfn.name + "()))").needBlock();
 		sw.add(doit);
 		return new JSCaseChooser(doit);
 	}

@@ -10,6 +10,7 @@ import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.jsform.JSTarget;
@@ -171,8 +172,7 @@ public class TemplateTraversor {
 					RWTemplateExplicitAttr tea = (RWTemplateExplicitAttr) a;
 					for (AreaGenerator area : areas)
 						area.handleTEA(tea, an);
-					String saf = areaName.jsName() + ".prototype._setAttr_" + an;
-					callOnAssign(areas, tea.value, saf, true, null);
+					callOnAssign(areas, tea.value, FunctionName.areaMethod(tea.location, areaName, "_setAttr_" + an), true, null);
 					an++;
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
@@ -209,7 +209,7 @@ public class TemplateTraversor {
 			}
 			for (AreaGenerator area : areas)
 				area.assignToList(l.listFn);
-			callOnAssign(areas, l.listVar, areaName.jsName() + ".prototype._assignToVar", false, "lv");
+			callOnAssign(areas, l.listVar, FunctionName.areaMethod(l.iterLoc, areaName, "_assignToVar"), false, "lv");
 		} else if (tl instanceof RWContentString) {
 			RWContentString cs = (RWContentString) tl;
 			for (AreaGenerator area : areas)
@@ -217,11 +217,10 @@ public class TemplateTraversor {
 		} else if (tl instanceof RWContentExpr) {
 			RWContentExpr ce = (RWContentExpr)tl;
 			Object valExpr = ce.expr;
-			callOnAssign(areas, valExpr, areaName.jsName() + ".prototype._contentExpr", true, null);
+			callOnAssign(areas, valExpr, FunctionName.areaMethod(ce.location(), areaName,"_contentExpr"), true, null);
 
-			String tfn = ce.fnName.name;
 			for (AreaGenerator area : areas)
-				area.contentExpr(tfn, ce.rawHTML);
+				area.contentExpr(ce.fnName, ce.rawHTML);
 			
 			if (isEditable) {
 				// for it to be editable, it must be a clear field of a clear object
@@ -244,7 +243,7 @@ public class TemplateTraversor {
 				; // fully handled above
 			else if (cr.yoyoVar != null) {
 				Object valExpr = cr.yoyoVar;
-				callOnAssign(areas, valExpr, areaName.jsName() + ".prototype._yoyoExpr", true, null);
+				callOnAssign(areas, valExpr, FunctionName.areaMethod(cr.location, areaName, "_yoyoExpr"), true, null);
 	
 				String tfn = cr.fnName.name;
 				for (AreaGenerator area : areas)
@@ -253,7 +252,7 @@ public class TemplateTraversor {
 				throw new UtilException("handle this case");
 		} else if (tl instanceof RWTemplateCases) {
 			RWTemplateCases tc = (RWTemplateCases) tl;
-			String sn = areaName.jsName() + ".prototype._chooseCase";
+			FunctionName sn = FunctionName.areaMethod(tc.location(), areaName, "_chooseCase");
 			List<CaseChooser> ccs = new ArrayList<CaseChooser>();
 			for (AreaGenerator area : areas)
 				ccs.add(area.chooseCase(sn));
@@ -267,9 +266,8 @@ public class TemplateTraversor {
 				if (oc.cond == null) {
 					branches.addAll(ccs);
 				} else {
-					String tfn = oc.fnName.name;
 					for (CaseChooser cc : ccs)
-						branches.add(cc.handleCase(tfn));
+						branches.add(cc.handleCase(oc.fnName));
 				}
 				for (CaseChooser cc : branches)
 					cc.code(cn);
@@ -279,7 +277,7 @@ public class TemplateTraversor {
 			}
 		} else if (tl instanceof RWD3Thing) {
 			RWD3Thing d3 = (RWD3Thing) tl;
-			callOnAssign(areas, d3.data, "D3Area.prototype._onUpdate", false, null);
+			callOnAssign(areas, d3.data, FunctionName.areaMethod(d3.location(), new AreaName(null, "D3Area"), "_onUpdate"), false, null);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
@@ -322,8 +320,8 @@ public class TemplateTraversor {
 		if (expr != null) {
 			if (simple.length() > 0)
 				expr = new ApplyExpr(first, cons, new StringLiteral(first, simple.substring(1)), expr);
-			String scf = areaName.jsName() + ".prototype._setVariableFormats";
-			String tfn = tl.dynamicFunction.name;
+			FunctionName scf = FunctionName.areaMethod(tl.location(), areaName, "_setVariableFormats");
+			FunctionName tfn = tl.dynamicFunction;
 			for (AreaGenerator area : areas)
 				area.setVarFormats(tfn);
 			callOnAssign(areas, expr, scf, true, null);
@@ -348,14 +346,14 @@ public class TemplateTraversor {
 						distinguish = true;
 					for (EventHandlerGenerator ehg : ehgs)
 						ehg.handle(distinguish, eh.action, tfn);
-					callOnAssign(areas, eh.expr, areaName.jsName() + ".prototype._add_handlers", isFirst, null);
+					callOnAssign(areas, eh.expr, FunctionName.areaMethod(eh.location(), areaName, "_add_handlers"), isFirst, null);
 					isFirst = false;
 				}
 			}
 		}
 	}
 	
-	protected void callOnAssign(List<AreaGenerator> areas, Object valExpr, String call, boolean addAssign, String passVar) {
+	protected void callOnAssign(List<AreaGenerator> areas, Object valExpr, FunctionName call, boolean addAssign, String passVar) {
 		if (valExpr instanceof CardMember) {
 			for (AreaGenerator area : areas)
 				area.onAssign((CardMember)valExpr, call);

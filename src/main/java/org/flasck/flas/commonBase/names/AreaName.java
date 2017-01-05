@@ -20,6 +20,12 @@ public class AreaName implements NameOfThing, Comparable<AreaName> {
 		return cardName.jsUName() + "." + simple;
 	}
 
+	public String jsUName() {
+		if (cardName == null)
+			return simple;
+		return cardName.jsUName() + "." + simple;
+	}
+
 	public String javaName() {
 		return cardName.javaName() + "." + simple;
 	}

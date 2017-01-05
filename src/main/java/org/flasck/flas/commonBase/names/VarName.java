@@ -1,6 +1,7 @@
 package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XMLElement;
 
 public class VarName implements NameOfThing, Comparable<VarName> {
@@ -26,6 +27,11 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 	@Override
 	public String jsName() {
 		return scope.jsName() + "." + var;
+	}
+
+	@Override
+	public String jsUName() {
+		throw new UtilException("I don't think so");
 	}
 	
 	public int compareTo(VarName other) {

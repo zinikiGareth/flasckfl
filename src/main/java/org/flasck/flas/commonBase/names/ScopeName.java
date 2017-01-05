@@ -28,6 +28,11 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 		return (inside == null?myname:inside.jsName()+"."+myname);
 	}
 
+	@Override
+	public String jsUName() {
+		return inside.jsName() + "._" + myname;
+	}
+	
 	public int compareTo(ScopeName other) {
 		int cs = 0;
 		if (inside != null && other.inside == null)

@@ -25,6 +25,11 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 	}
 
 	@Override
+	public String jsUName() {
+		return card.jsName() + "._" + cname;
+	}
+
+	@Override
 	public int compareTo(CSName o) {
 		int cc = card.compareTo(o.card);
 		if (cc != 0) return cc;
