@@ -178,14 +178,12 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			return true;
 		if (vn.defn instanceof LocalVar) {
 			LocalVar lv = (LocalVar) vn.defn;
-			int idx = lv.caseName.jsName().lastIndexOf("_"); // TODO: refactor this ...
-			if (funcName.jsName().indexOf(".", idx) == -1)
+			if (lv.fnName.equals(funcName))
 				return true;
 		} else if (vn.defn instanceof RWFunctionDefinition) {
 		} else if (vn.defn instanceof RWHandlerImplements) {
 			RWHandlerImplements hi = (RWHandlerImplements) vn.defn;
-			int idx = hi.hiName.lastIndexOf("_");
-			if (funcName.jsName().indexOf(".", idx) == -1)
+			if (hi.handlerName.name.equals(funcName))
 				return true;
 		} else if (vn.defn instanceof RWMethodDefinition) {
 		} else { // if (vn.defn instanceof HandlerLambda) {
