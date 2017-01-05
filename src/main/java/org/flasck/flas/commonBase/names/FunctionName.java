@@ -5,6 +5,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.HandlerName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.xml.XMLElement;
 
 // This wants to grow to take over the responsibility of knowing:
 //  * The package
@@ -112,5 +113,11 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 
 	public String toString() {
 		throw new UtilException("Do not call toString() on a FunctionName; call jsName(), javaName() or other appropriate method");
+	}
+
+	@Override
+	public String writeToXML(XMLElement xe) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

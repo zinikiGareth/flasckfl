@@ -1,5 +1,7 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.xml.XMLElement;
+
 public class PackageName implements NameOfThing, Comparable<PackageName> {
 	private final String name;
 
@@ -22,6 +24,13 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	}
 
 	public String simpleName() {
+		return name;
+	}
+
+	@Override
+	public String writeToXML(XMLElement xe) {
+		XMLElement ty = xe.addElement("Package");
+		ty.setAttribute("name", name);
 		return name;
 	}
 

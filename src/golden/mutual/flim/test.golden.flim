@@ -3,10 +3,10 @@
     <Function file="mutual.fl" line="2" name="f" off="0">
         <Function>
             <Arg>
-                <Builtin name="Number"/>
+                <SolidName name="Number"/>
             </Arg>
             <Return>
-                <Builtin name="Number"/>
+                <SolidName name="Number"/>
             </Return>
         </Function>
     </Function>

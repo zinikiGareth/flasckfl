@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Import package="test"/>
     <Contract file="standalone.fl" line="2" name="Bar" off="9">
         <Method dir="down" file="standalone.fl" line="3" name="go"
             off="5" required="true"/>
@@ -11,7 +12,15 @@
             off="3" required="true"/>
     </Contract>
     <Card file="standalone.fl" line="9" name="Foo" off="5">
-        <Implements contract="test.golden.Bar"/>
-        <Implements contract="test.golden.KeyValue"/>
+        <Implements>
+            <SolidName name="KeyValue">
+                <Package name="test.golden"/>
+            </SolidName>
+        </Implements>
+        <Implements>
+            <SolidName name="Bar">
+                <Package name="test.golden"/>
+            </SolidName>
+        </Implements>
     </Card>
 </FLIM>

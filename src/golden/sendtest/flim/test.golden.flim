@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Import package="test"/>
     <Contract file="card.fl" line="5" name="Echo" off="9">
         <Method dir="down" file="card.fl" line="6" name="saySomething"
             off="5" required="true">
             <Typed file="card.fl" line="6" off="19" var="msg"
                 vfile="card.fl" vline="6" voff="26">
-                <Builtin name="String"/>
+                <SolidName name="String"/>
             </Typed>
         </Method>
         <Method dir="up" file="card.fl" line="7" name="echoIt" off="5" required="true">
             <Typed file="card.fl" line="7" off="13" var="msg"
                 vfile="card.fl" vline="7" voff="20">
-                <Builtin name="String"/>
+                <SolidName name="String"/>
             </Typed>
         </Method>
     </Contract>
@@ -20,7 +21,15 @@
         <Method dir="down" file="card.fl" line="3" name="setOff" off="5" required="true"/>
     </Contract>
     <Card file="card.fl" line="9" name="ControlledCard" off="5">
-        <Implements contract="test.golden.Echo"/>
-        <Implements contract="test.golden.SetState"/>
+        <Implements>
+            <SolidName name="SetState">
+                <Package name="test.golden"/>
+            </SolidName>
+        </Implements>
+        <Implements>
+            <SolidName name="Echo">
+                <Package name="test.golden"/>
+            </SolidName>
+        </Implements>
     </Card>
 </FLIM>

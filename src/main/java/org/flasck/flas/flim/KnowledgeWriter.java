@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -18,7 +19,6 @@ import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
-import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -26,7 +26,6 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.PolyVar;
-import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.TupleType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeOfSomethingElse;
@@ -149,19 +148,14 @@ public class KnowledgeWriter implements RepoVisitor {
 		// TODO: I think we should get the location of the first case ...
 		writeLocation(xe, cg.struct);
 		xe.setAttribute("name", cg.struct.structName().baseName());
-		TreeSet<String> impls = new TreeSet<>();
 		for (ContractGrouping x : cg.contracts) {
-			impls.add(x.type);
-		}
-		for (String it : impls) {
 			XMLElement xh = xe.addElement("Implements");
-			xh.setAttribute("contract", it);
-			requirePackageFor(it);
+			writeSolidName(xh, x.contractName);
 		}
 		if (copyToScreen) {
 			System.out.println("  card " + cg.struct.name());
 			for (ContractGrouping x : cg.contracts) {
-				System.out.println("    contract " + x.type);
+				System.out.println("    contract " + x.contractName.uniqueName());
 			}
 			for (HandlerGrouping x : cg.handlers) {
 				System.out.println("    handler " + x.type);
@@ -169,7 +163,6 @@ public class KnowledgeWriter implements RepoVisitor {
 		}
 	}
 
-	
 	@Override
 	public void visitContractImpl(RWContractImplements ci) {
 		// nothing to do here
@@ -209,39 +202,7 @@ public class KnowledgeWriter implements RepoVisitor {
 	// definition, such as Struct or Union).
 	// It gives fully-qualified names, but only deals with "references" to types
 	private void writeTypeUsage(XMLElement xe, Type type) {
-		if (type instanceof PrimitiveType) {
-			XMLElement ty = xe.addElement("Builtin");
-			ty.setAttribute("name", ((TypeWithName)type).name());
-		} else if (type instanceof RWContractDecl) {
-			XMLElement ty = xe.addElement("Contract");
-			ty.setAttribute("name", ((TypeWithName)type).name());
-			requirePackageFor(((TypeWithName)type).name());
-		} else if (type instanceof RWContractImplements) {
-			XMLElement ty = xe.addElement("Implements");
-			ty.setAttribute("name", ((TypeWithName)type).name());
-			writeLocation(ty, ((RWContractImplements)type).varLocation, "v");
-			requirePackageFor(((TypeWithName)type).name());
-		} else if (type instanceof RWContractService) {
-			XMLElement ty = xe.addElement("Service");
-			ty.setAttribute("name", ((TypeWithName)type).name());
-			requirePackageFor(((TypeWithName)type).name());
-		} else if (type instanceof RWHandlerImplements) {
-			XMLElement ty = xe.addElement("Handler");
-			ty.setAttribute("name", ((TypeWithName)type).name());
-			requirePackageFor(((TypeWithName)type).name());
-		} else if (type instanceof RWStructDefn) {
-			XMLElement ty = xe.addElement("Struct");
-			ty.setAttribute("name", ((TypeWithName)type).name());
-			requirePackageFor(((TypeWithName)type).name());
-		} else if (type instanceof RWUnionTypeDefn) {
-			XMLElement ty = xe.addElement("Union");
-			ty.setAttribute("name", ((TypeWithName)type).name());
-			requirePackageFor(((TypeWithName)type).name());
-		} else if (type instanceof RWObjectDefn) {
-			XMLElement ty = xe.addElement("Object");
-			ty.setAttribute("name", ((TypeWithName)type).name());
-			requirePackageFor(((TypeWithName)type).name());
-		} else if (type instanceof PolyVar) {
+		if (type instanceof PolyVar) {
 			XMLElement ty = xe.addElement("Poly");
 			ty.setAttribute("name", ((TypeWithName)type).name());
 		} else if (type instanceof InstanceType) {
@@ -272,8 +233,17 @@ public class KnowledgeWriter implements RepoVisitor {
 			XMLElement ty = xe.addElement("DEAL_WITH_THIS");
 			ty.setAttribute("whatAmI", type.getClass().getName());
 			ty.setAttribute("name", ((TypeWithName)type).name());
+		} else if (type instanceof TypeWithName) {
+			NameOfThing solidName = ((TypeWithName)type).getTypeName();
+			writeSolidName(xe, solidName);
 		} else
 			throw new UtilException("Cannot write " + type.getClass());
+	}
+
+	protected void writeSolidName(XMLElement xe, NameOfThing solidName) {
+		String usePkg = solidName.writeToXML(xe);
+		if (usePkg != null)
+			requirePackageFor(usePkg);
 	}
 
 	private void requirePackageFor(String name) {

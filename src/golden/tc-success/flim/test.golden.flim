@@ -5,10 +5,10 @@
             <Return>
                 <Tuple>
                     <Arg>
-                        <Builtin name="Number"/>
+                        <SolidName name="Number"/>
                     </Arg>
                     <Arg>
-                        <Builtin name="String"/>
+                        <SolidName name="String"/>
                     </Arg>
                 </Tuple>
             </Return>
@@ -20,7 +20,7 @@
                 <Poly name="A"/>
             </Arg>
             <Return>
-                <Builtin name="Number"/>
+                <SolidName name="Number"/>
             </Return>
         </Function>
     </Function>
@@ -28,8 +28,8 @@
         <Function>
             <Return>
                 <Instance file="builtin" line="0" off="0">
-                    <Union name="List"/>
-                    <Builtin name="Number"/>
+                    <SolidName name="List"/>
+                    <SolidName name="Number"/>
                 </Instance>
             </Return>
         </Function>
@@ -38,8 +38,8 @@
         <Function>
             <Return>
                 <Instance file="builtin" line="0" off="0">
-                    <Union name="List"/>
-                    <Builtin name="Number"/>
+                    <SolidName name="List"/>
+                    <SolidName name="Number"/>
                 </Instance>
             </Return>
         </Function>

@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Import package="test"/>
     <Contract file="objects.fl" line="1" name="Ctr" off="9">
         <Method dir="down" file="objects.fl" line="2" name="go" off="5" required="true"/>
     </Contract>
     <Card file="objects.fl" line="4" name="Card" off="5">
-        <Implements contract="test.golden.Ctr"/>
+        <Implements>
+            <SolidName name="Ctr">
+                <Package name="test.golden"/>
+            </SolidName>
+        </Implements>
     </Card>
 </FLIM>

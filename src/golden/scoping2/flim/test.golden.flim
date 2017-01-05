@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Import package="test"/>
     <Contract file="scoping2.fl" line="4" name="Hc" off="9">
         <Method dir="down" file="scoping2.fl" line="5" name="reply"
             off="5" required="true"/>
@@ -8,19 +9,23 @@
         <Method dir="up" file="scoping2.fl" line="2" name="call" off="4" required="true">
             <Typed file="scoping2.fl" line="2" off="10" var="handler"
                 vfile="scoping2.fl" vline="2" voff="13">
-                <Contract name="test.golden.Hc"/>
+                <SolidName name="Hc">
+                    <Package name="test.golden"/>
+                </SolidName>
             </Typed>
         </Method>
     </Contract>
     <Function file="scoping2.fl" line="7" name="scoped" off="0">
         <Function>
             <Arg>
-                <Contract name="test.golden.UpC"/>
+                <SolidName name="UpC">
+                    <Package name="test.golden"/>
+                </SolidName>
             </Arg>
             <Return>
                 <Instance file="builtin" line="0" off="0">
-                    <Struct name="MessageWrapper"/>
-                    <Builtin name="Number"/>
+                    <SolidName name="MessageWrapper"/>
+                    <SolidName name="Number"/>
                 </Instance>
             </Return>
         </Function>

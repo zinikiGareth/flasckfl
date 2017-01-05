@@ -1,5 +1,7 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.xml.XMLElement;
+
 public class SolidName implements NameOfThing, Comparable<SolidName> {
 	private final NameOfThing container;
 	private final String name;
@@ -30,6 +32,15 @@ public class SolidName implements NameOfThing, Comparable<SolidName> {
 	@Override
 	public CardName containingCard() {
 		return container.containingCard();
+	}
+
+	@Override
+	public String writeToXML(XMLElement xe) {
+		XMLElement ty = xe.addElement("SolidName");
+		ty.setAttribute("name", name);
+		if (container == null)
+			return null;
+		return container.writeToXML(ty);
 	}
 
 	public int compareTo(SolidName other) {

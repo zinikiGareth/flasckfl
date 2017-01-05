@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Import package="test"/>
     <Contract file="contracts.fl" line="1" name="Foo" off="9">
         <Method dir="up" file="contracts.fl" line="2" name="hello"
             off="3" required="true">
             <Typed file="contracts.fl" line="2" off="10" var="x"
                 vfile="contracts.fl" vline="2" voff="17">
-                <Builtin name="String"/>
+                <SolidName name="String"/>
             </Typed>
         </Method>
         <Method dir="down" file="contracts.fl" line="3" name="goodbye"
             off="14" required="false">
             <Typed file="contracts.fl" line="3" off="23" var="y"
                 vfile="contracts.fl" vline="3" voff="30">
-                <Builtin name="Number"/>
+                <SolidName name="Number"/>
             </Typed>
         </Method>
     </Contract>
@@ -21,7 +22,7 @@
             off="5" required="true">
             <Typed file="contracts.fl" line="6" off="15" var="answer"
                 vfile="contracts.fl" vline="6" voff="22">
-                <Builtin name="String"/>
+                <SolidName name="String"/>
             </Typed>
         </Method>
     </Contract>
@@ -29,7 +30,9 @@
         <Method dir="up" file="contracts.fl" line="9" name="ask" off="3" required="true">
             <Typed file="contracts.fl" line="9" off="8" var="answer"
                 vfile="contracts.fl" vline="9" voff="16">
-                <Contract name="test.golden.Handler"/>
+                <SolidName name="Handler">
+                    <Package name="test.golden"/>
+                </SolidName>
             </Typed>
         </Method>
     </Contract>
@@ -39,8 +42,8 @@
             <Typed file="contracts.fl" line="12" off="15" var="l"
                 vfile="contracts.fl" vline="12" voff="28">
                 <Instance file="contracts.fl" line="12" off="15">
-                    <Union name="List"/>
-                    <Builtin name="String"/>
+                    <SolidName name="List"/>
+                    <SolidName name="String"/>
                 </Instance>
             </Typed>
         </Method>

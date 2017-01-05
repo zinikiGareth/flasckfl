@@ -86,7 +86,7 @@ public class PackageImporter {
 			} else if (xe.hasTag("Card")) {
 				ImportedCard cti = new ImportedCard(location(xe), new CardName(packageName, xe.required("name")));
 				xe.attributesDone();
-				pkg.define(cti.name, cti);
+				pkg.define(cti.name.uniqueName(), cti);
 				todos.add(new Pass2(cti, xe));
 			} else
 				System.out.println("Need to import a " + xe.tag() + (xe.hasAttribute("name")?" called "  +xe.get("name") : ""));
@@ -127,9 +127,8 @@ public class PackageImporter {
 			} else if (p.parent instanceof ImportedCard) {
 				ImportedCard cti = (ImportedCard) p.parent;
 				for (XMLElement ie : p.children) {
-					cti.contracts.add(new ImportedContract(ie.required("contract")));
 					ie.attributesDone();
-					ie.assertNoSubContents();
+					cti.contracts.add(new ImportedContract(assembleName(ie.elementChildren())));
 				}
 			} else if (p.parent instanceof XMLElement) {
 				// We decided not to create anything in pass1; do all the work here ...
@@ -196,43 +195,43 @@ public class PackageImporter {
 	}
 
 	protected static Type extractType(Rewriter rw, InputPosition loc, XMLElement te) {
-		Type t = null;
 		// Need to consider function first
-		String name = "";
 		if (te.hasTag("Instance")) {
 			List<Type> types = new ArrayList<Type>();
 			for (XMLElement ct : te.elementChildren()) {
 				types.add(extractType(rw, loc, ct));
 			}
 			TypeWithName base = (TypeWithName) types.remove(0);
-			t = base.instance(location(te), types);
+			return base.instance(location(te), types);
+		} else if (te.hasTag("Poly")) {
+			String name = te.required("name");
+			te.attributesDone();
+			te.assertNoSubContents();
+			return new PolyVar(loc, name);
 		} else {
-			name = te.required("name");
-			if (te.hasTag("Builtin")) {
-				t = (Type) rw.getMe(loc, name).defn;
-				te.assertNoSubContents();
-			} else if (te.hasTag("Struct")) {
-				t = (Type)rw.getMe(loc, name).defn;
-				te.assertNoSubContents();
-			} else if (te.hasTag("Union")) {
-				t = rw.types.get(name);
-				te.assertNoSubContents();
-			} else if (te.hasTag("Contract")) {
-				t = rw.contracts.get(name);
-				te.assertNoSubContents();
-			} else if (te.hasTag("Object")) {
-				t = rw.objects.get(name);
-				te.assertNoSubContents();
-			} else if (te.hasTag("Poly")) {
-				t = new PolyVar(loc, te.required("name"));
-				te.attributesDone();
-				te.assertNoSubContents();
-			} else 
-				throw new UtilException("What is " + te.tag() + " " + name + " in " + te + "?");
+			NameOfThing name = assembleName(te);
+			return (Type)rw.getMe(loc, name).defn;
 		}
-		if (t == null)
-			throw new UtilException("Failed to find " + te.tag() + " " + name);
-		return t;
+	}
+
+	private static NameOfThing assembleName(XMLElement te) {
+		if (te.hasTag("Package")) {
+			te.assertNoSubContents();
+			return new PackageName(te.get("name"));
+		} else if (te.hasTag("SolidName")) {
+			NameOfThing inside = assembleName(te.elementChildren());
+			return new SolidName(inside, te.get("name"));
+		} else 
+			throw new UtilException("What is " + te.tag() + " " + te + "?");
+	}
+
+	private static NameOfThing assembleName(List<XMLElement> elementChildren) {
+		if (elementChildren.isEmpty())
+			return null;
+		else if (elementChildren.size() > 1)
+			throw new UtilException("Cannot have multiple nodes when assembling a name");
+		
+		return assembleName(elementChildren.get(0));
 	}
 }
 

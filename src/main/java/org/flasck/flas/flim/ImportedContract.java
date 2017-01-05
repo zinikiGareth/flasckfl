@@ -4,16 +4,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.types.Type;
 import org.zinutils.utils.Justification;
 import org.zinutils.utils.StringComparator;
 
 public class ImportedContract implements Comparable<ImportedContract> {
 	private transient final StringComparator comp = new StringComparator();
-	public final String name;
+	public final NameOfThing name;
 	public final Map<String, Type> fns = new TreeMap<String, Type>(comp);
 
-	public ImportedContract(String name) {
+	public ImportedContract(NameOfThing name) {
 		this.name = name;
 	}
 	
@@ -31,6 +32,6 @@ public class ImportedContract implements Comparable<ImportedContract> {
 
 	@Override
 	public int compareTo(ImportedContract o) {
-		return comp.compare(this.name, o.name);
+		return this.name.compareTo(o.name);
 	}
 }

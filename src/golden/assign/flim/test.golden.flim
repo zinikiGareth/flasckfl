@@ -2,7 +2,7 @@
 <FLIM package="test.golden">
     <Struct file="assign.fl" line="1" name="Container" off="7">
         <Field accessor="false" file="assign.fl" line="2" name="value" off="7">
-            <Builtin name="String"/>
+            <SolidName name="String"/>
         </Field>
     </Struct>
     <Card file="assign.fl" line="4" name="Card" off="5"/>

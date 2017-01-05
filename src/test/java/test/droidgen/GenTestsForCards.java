@@ -104,7 +104,7 @@ public class GenTestsForCards {
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		CardName cdName = new CardName(null, "Card");
 		CardGrouping card = new CardGrouping(cdName, sd);
-		card.contracts.add(new ContractGrouping("CtrDecl", new CSName(cdName, "_C0"), null));
+		card.contracts.add(new ContractGrouping(new SolidName(null, "CtrDecl"), new CSName(cdName, "_C0"), null));
 		gen.visitCardGrouping(card);
 	}
 
@@ -118,7 +118,7 @@ public class GenTestsForCards {
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		CardName cdName = new CardName(null, "Card");
 		CardGrouping card = new CardGrouping(cdName, sd);
-		card.contracts.add(new ContractGrouping("CtrDecl", new CSName(cdName, "_C0"), "ce"));
+		card.contracts.add(new ContractGrouping(new SolidName(null, "CtrDecl"), new CSName(cdName, "_C0"), "ce"));
 		gen.visitCardGrouping(card);
 	}
 

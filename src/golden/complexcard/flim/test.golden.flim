@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Import package="test"/>
     <Struct file="complexcard.fl" line="3" name="ClickIt" off="7"/>
     <Struct file="complexcard.fl" line="8" name="Polyed" off="7">
         <Poly called="T1"/>
         <Poly called="T2"/>
         <Field accessor="false" file="complexcard.fl" line="9" name="x" off="7">
-            <Builtin name="String"/>
+            <SolidName name="String"/>
         </Field>
         <Field accessor="false" file="complexcard.fl" line="10" name="y" off="3">
             <Poly name="T1"/>
         </Field>
         <Field accessor="false" file="complexcard.fl" line="11" name="z" off="9">
             <Instance file="complexcard.fl" line="11" off="0">
-                <Union name="List"/>
+                <SolidName name="List"/>
                 <Poly name="T2"/>
             </Instance>
         </Field>
     </Struct>
     <Struct file="complexcard.fl" line="5" name="Thing" off="7">
         <Field accessor="false" file="complexcard.fl" line="6" name="x" off="7">
-            <Builtin name="String"/>
+            <SolidName name="String"/>
         </Field>
     </Struct>
     <Struct file="complexcard.fl" line="13" name="WithInit" off="7">
         <Field accessor="false" file="complexcard.fl" line="14" name="x" off="7">
-            <Builtin name="String"/>
+            <SolidName name="String"/>
         </Field>
     </Struct>
     <Contract file="complexcard.fl" line="24" name="DataStore" off="9">
@@ -32,11 +33,13 @@
             off="3" required="true">
             <Typed file="complexcard.fl" line="25" off="8" var="x"
                 vfile="complexcard.fl" vline="25" voff="15">
-                <Builtin name="String"/>
+                <SolidName name="String"/>
             </Typed>
             <Typed file="complexcard.fl" line="25" off="19" var="h"
                 vfile="complexcard.fl" vline="25" voff="27">
-                <Contract name="test.golden.Handler"/>
+                <SolidName name="Handler">
+                    <Package name="test.golden"/>
+                </SolidName>
             </Typed>
         </Method>
     </Contract>
@@ -45,7 +48,7 @@
             off="5" required="true">
             <Typed file="complexcard.fl" line="22" off="12" var="s"
                 vfile="complexcard.fl" vline="22" voff="19">
-                <Builtin name="String"/>
+                <SolidName name="String"/>
             </Typed>
         </Method>
     </Contract>
@@ -54,7 +57,7 @@
             off="5" required="true">
             <Typed file="complexcard.fl" line="19" off="12" var="obj"
                 vfile="complexcard.fl" vline="19" voff="16">
-                <Union name="Any"/>
+                <SolidName name="Any"/>
             </Typed>
         </Method>
     </Contract>
@@ -63,17 +66,27 @@
             off="3" required="true">
             <Typed file="complexcard.fl" line="28" off="8" var="x"
                 vfile="complexcard.fl" vline="28" voff="15">
-                <Builtin name="String"/>
+                <SolidName name="String"/>
             </Typed>
             <Typed file="complexcard.fl" line="28" off="19" var="h"
                 vfile="complexcard.fl" vline="28" voff="27">
-                <Contract name="test.golden.Handler"/>
+                <SolidName name="Handler">
+                    <Package name="test.golden"/>
+                </SolidName>
             </Typed>
         </Method>
     </Contract>
     <Card file="complexcard.fl" line="32" name="Complex" off="5">
-        <Implements contract="test.golden.DataStore"/>
-        <Implements contract="test.golden.Init"/>
+        <Implements>
+            <SolidName name="Init">
+                <Package name="test.golden"/>
+            </SolidName>
+        </Implements>
+        <Implements>
+            <SolidName name="DataStore">
+                <Package name="test.golden"/>
+            </SolidName>
+        </Implements>
     </Card>
     <Card file="complexcard.fl" line="30" name="SubCard" off="5"/>
 </FLIM>

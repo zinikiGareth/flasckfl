@@ -3,7 +3,7 @@
     <Function file="const.fl" line="1" name="x" off="0">
         <Function>
             <Return>
-                <Builtin name="Number"/>
+                <SolidName name="Number"/>
             </Return>
         </Function>
     </Function>

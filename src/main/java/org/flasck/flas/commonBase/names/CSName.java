@@ -1,5 +1,7 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.xml.XMLElement;
+
 public class CSName implements NameOfThing, Comparable<CSName> {
 	private final CardName card;
 	private final String cname;
@@ -34,6 +36,12 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 		if (!(other instanceof CSName))
 			return other.getClass().getName().compareTo(this.getClass().getName());
 		return this.compareTo((CSName)other);
+	}
+
+	@Override
+	public String writeToXML(XMLElement xe) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

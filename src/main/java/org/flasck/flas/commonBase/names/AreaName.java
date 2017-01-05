@@ -1,6 +1,7 @@
 package org.flasck.flas.commonBase.names;
 
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.xml.XMLElement;
 
 public class AreaName implements NameOfThing, Comparable<AreaName> {
 	private final String simple;
@@ -52,5 +53,11 @@ public class AreaName implements NameOfThing, Comparable<AreaName> {
 	@Override
 	public CardName containingCard() {
 		return cardName;
+	}
+
+	@Override
+	public String writeToXML(XMLElement xe) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

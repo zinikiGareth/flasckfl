@@ -810,7 +810,7 @@ public class Rewriter implements CodeGenRegistry {
 			RWContractImplements rw = rewriteCI(cx, ci);
 			if (rw == null)
 				continue;
-			grp.contracts.add(new ContractGrouping(rw.name(), ci.getRealName(), rw.referAsVar));
+			grp.contracts.add(new ContractGrouping((SolidName) rw.getTypeName(), ci.getRealName(), rw.referAsVar));
 			cardImplements.put(ci.getRealName(), rw);
 			if (rw.referAsVar != null)
 				grp.struct.addField(new RWStructField(rw.location(), false, rw, rw.referAsVar));

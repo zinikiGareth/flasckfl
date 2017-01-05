@@ -2,6 +2,7 @@ package org.flasck.flas.commonBase;
 
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.zinutils.xml.XMLElement;
 
 public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 	public final NameOfThing name;
@@ -51,6 +52,12 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 		if (name == null)
 			return baseName;
 		return name.jsName() + "." + baseName;
+	}
+
+	@Override
+	public String writeToXML(XMLElement xe) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -5,7 +5,7 @@
             off="5" required="true">
             <Typed file="methods.fl" line="3" off="13" var="crokeys"
                 vfile="methods.fl" vline="3" voff="21">
-                <Struct name="Crokeys"/>
+                <SolidName name="Crokeys"/>
             </Typed>
         </Method>
     </Contract>
@@ -14,7 +14,7 @@
             <Return>
                 <Function>
                     <Return>
-                        <Struct name="Nil"/>
+                        <SolidName name="Nil"/>
                     </Return>
                 </Function>
             </Return>

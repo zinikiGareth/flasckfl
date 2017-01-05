@@ -17,14 +17,14 @@ public class ImportedCard extends ImportedContract implements Locatable {
 
 	// Used when parsing and generating
 	public ImportedCard(RWStructDefn struct) {
-		super(struct.name());
+		super(struct.getTypeName());
 		this.struct = struct;
 		this.location = struct.location();
 	}
 
 	// External view loaded back in from FLIM
 	public ImportedCard(InputPosition location, CardName cardName) {
-		super(cardName.uniqueName());
+		super(cardName);
 		this.location = location;
 		this.struct = null;
 	}

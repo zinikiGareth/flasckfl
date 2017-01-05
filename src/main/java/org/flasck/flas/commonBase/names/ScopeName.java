@@ -1,5 +1,7 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.xml.XMLElement;
+
 public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 	private final NameOfThing inside;
 	private final String myname;
@@ -49,6 +51,12 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 		if (!(other instanceof ScopeName))
 			return other.getClass().getName().compareTo(this.getClass().getName());
 		return this.compareTo((ScopeName)other);
+	}
+
+	@Override
+	public String writeToXML(XMLElement xe) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

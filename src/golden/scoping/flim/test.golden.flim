@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Import package="test"/>
     <Contract file="scoping.fl" line="26" name="NoArg" off="9">
         <Method dir="up" file="scoping.fl" line="27" name="get" off="3" required="true">
             <Ctor ctor="Number" file="scoping.fl" line="27" off="7"/>
@@ -10,7 +11,7 @@
             off="5" required="true">
             <Typed file="scoping.fl" line="4" off="12" var="k"
                 vfile="scoping.fl" vline="4" voff="19">
-                <Builtin name="Number"/>
+                <SolidName name="Number"/>
             </Typed>
         </Method>
     </Contract>
@@ -18,29 +19,33 @@
         <Method dir="up" file="scoping.fl" line="7" name="get" off="3" required="true">
             <Typed file="scoping.fl" line="7" off="8" var="k"
                 vfile="scoping.fl" vline="7" voff="15">
-                <Builtin name="Number"/>
+                <SolidName name="Number"/>
             </Typed>
             <Typed file="scoping.fl" line="7" off="19" var="r"
                 vfile="scoping.fl" vline="7" voff="25">
-                <Contract name="test.golden.Reply"/>
+                <SolidName name="Reply">
+                    <Package name="test.golden"/>
+                </SolidName>
             </Typed>
         </Method>
         <Method dir="up" file="scoping.fl" line="8" name="put" off="3" required="true">
             <Typed file="scoping.fl" line="8" off="8" var="k"
                 vfile="scoping.fl" vline="8" voff="15">
-                <Builtin name="Number"/>
+                <SolidName name="Number"/>
             </Typed>
         </Method>
     </Contract>
     <Function file="scoping.fl" line="29" name="cna" off="7">
         <Function>
             <Arg>
-                <Contract name="test.golden.NoArg"/>
+                <SolidName name="NoArg">
+                    <Package name="test.golden"/>
+                </SolidName>
             </Arg>
             <Return>
                 <Instance file="builtin" line="0" off="0">
-                    <Struct name="Cons"/>
-                    <Struct name="Send"/>
+                    <SolidName name="Cons"/>
+                    <SolidName name="Send"/>
                 </Instance>
             </Return>
         </Function>
@@ -48,15 +53,17 @@
     <Function file="scoping.fl" line="16" name="f" off="0">
         <Function>
             <Arg>
-                <Contract name="test.golden.Server"/>
+                <SolidName name="Server">
+                    <Package name="test.golden"/>
+                </SolidName>
             </Arg>
             <Arg>
                 <Poly name="A"/>
             </Arg>
             <Return>
                 <Instance file="builtin" line="0" off="0">
-                    <Struct name="MessageWrapper"/>
-                    <Builtin name="Number"/>
+                    <SolidName name="MessageWrapper"/>
+                    <SolidName name="Number"/>
                 </Instance>
             </Return>
         </Function>

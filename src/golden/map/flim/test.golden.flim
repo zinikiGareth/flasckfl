@@ -14,13 +14,13 @@
             </Arg>
             <Arg>
                 <Instance file="builtin" line="0" off="0">
-                    <Union name="List"/>
+                    <SolidName name="List"/>
                     <Poly name="A"/>
                 </Instance>
             </Arg>
             <Return>
                 <Instance file="builtin" line="0" off="0">
-                    <Union name="List"/>
+                    <SolidName name="List"/>
                     <Poly name="B"/>
                 </Instance>
             </Return>

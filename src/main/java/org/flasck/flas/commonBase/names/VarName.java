@@ -1,6 +1,7 @@
 package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.zinutils.xml.XMLElement;
 
 public class VarName implements NameOfThing, Comparable<VarName> {
 	public final InputPosition loc;
@@ -45,5 +46,11 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 		if (!(other instanceof VarName))
 			return other.getClass().getName().compareTo(this.getClass().getName());
 		return this.compareTo((VarName)other);
+	}
+
+	@Override
+	public String writeToXML(XMLElement xe) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
