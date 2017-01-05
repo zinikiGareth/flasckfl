@@ -1,6 +1,7 @@
 package org.flasck.flas.jsgen;
 
 import org.flasck.flas.commonBase.names.AreaName;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
@@ -17,8 +18,8 @@ public class JSTemplateGenerator implements TemplateGenerator {
 
 	@Override
 	public void generateRender(TemplateName tname, AreaName areaName) {
-		String clz = Generator.lname(tname.uniqueName(), true);
-		JSForm ir = JSForm.flexFn(clz + "_render", CollectionUtils.listOf("doc", "wrapper", "parent"));
+		FunctionName render = FunctionName.functionInCardContext(null, tname.containingCard(), "_render");
+		JSForm ir = JSForm.flexFn(render.jsPName(), CollectionUtils.listOf("doc", "wrapper", "parent"));
 		target.add(ir);
 		if (areaName != null)
 			ir.add(JSForm.flex("new " + areaName.jsName() + "(new CardArea(parent, wrapper, this))"));

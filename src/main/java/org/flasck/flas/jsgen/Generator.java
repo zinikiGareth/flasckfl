@@ -89,7 +89,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 
 	public void visitCardGrouping(CardGrouping card) {
 		String name = card.name().jsName();
-		String lname = lname(name, false);
+		String lname = card.name().jsUName();
 		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
@@ -151,7 +151,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	public void visitHandlerImpl(RWHandlerImplements hi) {
 		String ctorName = hi.handlerName.uniqueName();
 		target.ensurePackagesFor(ctorName);
-		String clzname = lname(ctorName, false);
+		String clzname = hi.handlerName.jsUName();
 		List<Var> vars = new ArrayList<Var>();
 		for (int i=0;i<=hi.boundVars.size();i++)
 			vars.add(new Var(i));
@@ -186,13 +186,5 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	@Override
 	public void generate(HSIEForm form) {
 		new JSFormGenerator(target, form).generate();
-	}
-
-	public static String lname(String name, boolean appendProto) {
-		int idx = name.lastIndexOf('.');
-		String lname = name.substring(0, idx+1) + "_" + name.substring(idx+1);
-		if (appendProto)
-			return lname + ".prototype.";
-		return lname;
 	}
 }
