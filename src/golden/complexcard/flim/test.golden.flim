@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Import package="test"/>
     <Struct file="complexcard.fl" line="3" name="ClickIt" off="7"/>
     <Struct file="complexcard.fl" line="8" name="Polyed" off="7">
         <Poly called="T1"/>

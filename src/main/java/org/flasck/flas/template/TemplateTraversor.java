@@ -151,8 +151,11 @@ public class TemplateTraversor {
 			throw new UtilException("Template of type " + (tl == null ? "null":tl.getClass()) + " not supported");
 		}
 		List<AreaGenerator> areas = new ArrayList<AreaGenerator>();
-		for (TemplateGenerator tg : tgs)
-			areas.add(tg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo));
+		for (TemplateGenerator tg : tgs) {
+			AreaGenerator area = tg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
+			if (area != null)
+				areas.add(area);
+		}
 		for (DefinedVar vc : cx.varsToCopy) {
 			String s = vc.name;
 			for (AreaGenerator area : areas)

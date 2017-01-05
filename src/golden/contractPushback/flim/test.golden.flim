@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Import package="test"/>
     <Contract file="pushback.fl" line="2" name="DoIt" off="9">
         <Method dir="up" file="pushback.fl" line="3" name="calc" off="3" required="true">
             <Typed file="pushback.fl" line="3" off="9" var="n"

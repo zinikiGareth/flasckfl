@@ -204,7 +204,7 @@ public class KnowledgeWriter implements RepoVisitor {
 		} else if (type instanceof InstanceType) {
 			InstanceType it = (InstanceType) type;
 			XMLElement ty = xe.addElement("Instance");
-			requirePackageFor(it.name());
+//			requirePackageFor(it.name());
 			writeLocation(ty, it);
 			writeTypeUsage(ty, it.innerType());
 			for (Type t : it.polys())
@@ -243,9 +243,7 @@ public class KnowledgeWriter implements RepoVisitor {
 	}
 
 	private void requirePackageFor(String name) {
-		int idx = name.lastIndexOf(".");
-		if (idx != -1)
-			imports.add(name.substring(0, idx));
+		imports.add(name);
 	}
 
 	private void writePolys(XMLElement xe, List<PolyVar> list) {
