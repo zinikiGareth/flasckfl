@@ -543,7 +543,7 @@ public class Rewriter implements CodeGenRegistry {
 				return bound.get(name); // a local var
 			if (inner.contains(name)) {
 				VarName vn = new VarName(location, inner.scopeName, name);
-				String full = vn.jsName(); // inner.fullName(name);
+				String full = vn.uniqueName(); // inner.fullName(name);
 				Locatable defn = functions.get(full);
 				if (defn == null)
 					defn = standalone.get(full);
@@ -948,7 +948,7 @@ public class Rewriter implements CodeGenRegistry {
 			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.addCase(fcd0);
-			functions.put(fnName.jsName(), fn);
+			functions.put(fnName.uniqueName(), fn);
 			FunctionName editFn = null;
 			if (ce.editable() && rwexpr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) rwexpr;
@@ -958,7 +958,7 @@ public class Rewriter implements CodeGenRegistry {
 				RWFunctionDefinition efn = new RWFunctionDefinition(editFn, 0, true);
 				RWFunctionCaseDefn efcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, editFn, new ArrayList<>(), null), 0, ae.args.get(0));
 				efn.addCase(efcd0);
-				functions.put(editFn.jsName(), efn);
+				functions.put(editFn.uniqueName(), efn);
 				efn.gatherScopedVars();
 			}
 			fn.gatherScopedVars();
@@ -974,7 +974,7 @@ public class Rewriter implements CodeGenRegistry {
 				RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 				RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(cr.location, fnName, new ArrayList<>(), null), 0, yoyoVar);
 				fn.addCase(fcd0);
-				functions.put(fnName.jsName(), fn);
+				functions.put(fnName.uniqueName(), fn);
 				fn.gatherScopedVars();
 			}
 			return new RWTemplateCardReference(cr.location, cardVar, yoyoVar, areaName, fnName);
@@ -996,7 +996,7 @@ public class Rewriter implements CodeGenRegistry {
 					RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 					RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tea.location, fnName, new ArrayList<>(), null), 0, value);
 					fn.cases.add(fcd0);
-					functions.put(fnName.jsName(), fn);
+					functions.put(fnName.uniqueName(), fn);
 					fn.gatherScopedVars();
 
 					attrs.add(new RWTemplateExplicitAttr(tea.location, tea.attr, tea.type, value, fnName));
@@ -1040,7 +1040,7 @@ public class Rewriter implements CodeGenRegistry {
 			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ul.listLoc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.cases.add(fcd0);
-			functions.put(fnName.jsName(), fn);
+			functions.put(fnName.uniqueName(), fn);
 			fn.gatherScopedVars();
 
 			TemplateListVar rwv = ul.iterVar == null ? null : new TemplateListVar(ul.iterLoc, fnName, new IterVar(ul.iterLoc, cx.cardName(), (String) ul.iterVar));
@@ -1106,7 +1106,7 @@ public class Rewriter implements CodeGenRegistry {
 		RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tf.kw, fnName, new ArrayList<>(), null), 0, expr);
 		fn.addCase(fcd0);
 		fn.gatherScopedVars();
-		functions.put(fnName.jsName(), fn);
+		functions.put(fnName.uniqueName(), fn);
 		return fnName;
 	}
 
@@ -1122,7 +1122,7 @@ public class Rewriter implements CodeGenRegistry {
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, rwexpr);
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
-			functions.put(fnName.jsName(), fn);
+			functions.put(fnName.uniqueName(), fn);
 			ret.handlers.add(new RWEventHandler(h.action, rwexpr, fnName));
 		}
 		return ret;
@@ -1137,7 +1137,7 @@ public class Rewriter implements CodeGenRegistry {
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(tor.location(), fnName, new ArrayList<>(), null), 0, expr);
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
-			functions.put(fnName.jsName(), fn);
+			functions.put(fnName.uniqueName(), fn);
 		}
 		return new RWTemplateOr(tor.location(), rewriteExpr(cx, tor.cond), rewrite(cx, tor.template), fnName);
 	}
@@ -1281,7 +1281,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	public void rewrite(NamingContext cx, FunctionCaseDefn c) {
-		RWFunctionDefinition ret = functions.get(c.functionName().jsName());
+		RWFunctionDefinition ret = functions.get(c.functionName().uniqueName());
 		final Map<String, LocalVar> vars = new HashMap<>();
 		gatherVars(errors, this, cx, c.functionName(), c.caseName(), vars, c.intro);
 		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);
@@ -1335,7 +1335,7 @@ public class Rewriter implements CodeGenRegistry {
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
-			functions.put(fnName.jsName(), fn);
+			functions.put(fnName.uniqueName(), fn);
 		}
 		RWStructField rsf = new RWStructField(sf.loc, false, st, sf.name, fnName);
 		sd.addField(rsf);
@@ -1452,7 +1452,7 @@ public class Rewriter implements CodeGenRegistry {
 		RWFunctionDefinition func = new RWFunctionDefinition(name, 0, true);
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, init));
 		func.gatherScopedVars();
-		functions.put(name.jsName(), func);
+		functions.put(name.uniqueName(), func);
 	}
 
 	private <T extends Comparable<T>> List<T> sortAlphabetically(List<T> items) {
@@ -1470,7 +1470,7 @@ public class Rewriter implements CodeGenRegistry {
 		RWFunctionIntro d3f = new RWFunctionIntro(loc, fn, args, null);
 		RWFunctionDefinition func = new RWFunctionDefinition(fn, args.size(), true);
 		func.addCase(new RWFunctionCaseDefn(d3f, 0, expr));
-		functions.put(d3f.fnName.jsName(), func);
+		functions.put(d3f.fnName.uniqueName(), func);
 
 		return new FunctionLiteral(d3f.location, d3f.fnName);
 	}

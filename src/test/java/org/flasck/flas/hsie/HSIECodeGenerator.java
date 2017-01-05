@@ -37,7 +37,6 @@ public class HSIECodeGenerator {
 		rw.rewritePackageScope(null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
-		System.out.println(rw.functions);
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.plus1Of1(), form);
@@ -57,7 +56,6 @@ public class HSIECodeGenerator {
 		rw.rewritePackageScope(null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
-		System.out.println(rw.functions);
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
 		assertNotNull(form);
 		HSIETestData.assertHSIE(HSIETestData.idDecode(), form);
@@ -75,7 +73,6 @@ public class HSIECodeGenerator {
 		rw.rewritePackageScope(null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
-		System.out.println(rw.functions);
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.push"));
 		assertNotNull(form);
 		form.dump(new PrintWriter(System.out));
@@ -93,7 +90,6 @@ public class HSIECodeGenerator {
 		rw.rewritePackageScope(null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
-		System.out.println(rw.functions);
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
 		assertNotNull(form);
 		form.dump(new PrintWriter(System.out));
@@ -114,10 +110,8 @@ public class HSIECodeGenerator {
 		rw.rewritePackageScope(null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
-		System.out.println(rw.functions);
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
 		assertNotNull(form);
-		form.dump(new PrintWriter(System.out));
 		HSIETestData.assertHSIE(HSIETestData.rdf1(), form);
 	}
 
@@ -135,10 +129,8 @@ public class HSIECodeGenerator {
 		rw.rewritePackageScope(null, "ME", s);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(errors.singleString(), 0, errors.count());
-		System.out.println(rw.functions);
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.g"));
 		assertNotNull(form);
-		form.dump(new PrintWriter(System.out));
 		HSIETestData.assertHSIE(HSIETestData.rdf2(0), form);
 	}
 }

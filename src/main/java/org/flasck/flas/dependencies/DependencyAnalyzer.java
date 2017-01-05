@@ -42,9 +42,9 @@ public class DependencyAnalyzer {
 
 	public List<Set<RWFunctionDefinition>> analyze(Map<String, RWFunctionDefinition> functions) {
 		for (RWFunctionDefinition x : functions.values())
-			addFunctionToDCG(x.fnName.jsName(), x);
+			addFunctionToDCG(x.fnName.uniqueName(), x);
 		for (RWFunctionDefinition x : functions.values())
-			addLinksToDCG(x.fnName.jsName(), x);
+			addLinksToDCG(x.fnName.uniqueName(), x);
 		return group(functions);
 	}
 
@@ -83,7 +83,7 @@ public class DependencyAnalyzer {
 		if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof BooleanLiteral)
 			;
 		else if (expr instanceof FunctionLiteral) {
-			String un = ((FunctionLiteral)expr).name.jsName();
+			String un = ((FunctionLiteral)expr).name.uniqueName();
 			dcg.ensure(un);
 			dcg.ensureLink(name, un);
 		} else if (expr instanceof CardStateRef)
@@ -151,7 +151,7 @@ public class DependencyAnalyzer {
 		for (RWFunctionDefinition s : functions.values()) {
 			if (!s.generate)
 				continue;
-			Set<String> span = dcg.spanOf(s.name());
+			Set<String> span = dcg.spanOf(s.fnName.uniqueName());
 			Set<RWFunctionDefinition> mine = functionsIn(functions, span);
 			order.add(mine);
 		}
@@ -162,10 +162,10 @@ public class DependencyAnalyzer {
 		for (Set<RWFunctionDefinition> s : order) {
 			Set<RWFunctionDefinition> r = new TreeSet<>();
 			for (RWFunctionDefinition f : s) {
-				if (done.contains(f.name()))
+				if (done.contains(f.fnName.uniqueName()))
 					continue;
 				r.add(f);
-				done.add(f.name());
+				done.add(f.fnName.uniqueName());
 			}
 			ret.add(r);
 		}

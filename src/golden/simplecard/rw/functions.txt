@@ -1,3 +1,7 @@
+function test.golden._Simple.B2.contents_0 test.golden.Simple 0
+  case test.golden._Simple.B2.contents_0_0
+  =
+    CardMember.CardMember[test.golden.Simple.hello]
 function test.golden.Simple.f test.golden.Simple 0
   case test.golden.Simple.f_0
   =
@@ -6,7 +10,3 @@ function test.golden.Simple.inits_hello 0
   case test.golden.Simple.inits_hello_0
   =
     ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello, world")
-function test.golden._Simple.B2.contents_0 test.golden.Simple 0
-  case test.golden._Simple.B2.contents_0_0
-  =
-    CardMember.CardMember[test.golden.Simple.hello]

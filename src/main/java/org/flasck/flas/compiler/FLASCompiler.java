@@ -266,7 +266,6 @@ public class FLASCompiler implements ScriptCompiler {
 			}
 
 			rewriter.checkCardContractUsage();
-			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
 
 			// 5. Generate Class Definitions
 			JSTarget target = new JSTarget(inPkg);
@@ -280,6 +279,7 @@ public class FLASCompiler implements ScriptCompiler {
 //			System.out.println("defns = " + rewriter.functions.keySet());
 			
 			// 6. Convert methods to functions
+			Map<String, RWFunctionDefinition> functions = new TreeMap<String, RWFunctionDefinition>(rewriter.functions);
 			MethodConvertor mc = new MethodConvertor(errors, rewriter);
 			mc.convertContractMethods(rewriter, functions, rewriter.methods);
 			mc.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);

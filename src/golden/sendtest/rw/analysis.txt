@@ -1,3 +1,13 @@
+function test.golden._ControlledCard.B1.formats_0 test.golden.ControlledCard 0
+  case test.golden._ControlledCard.B1.formats_0_0
+  =
+    @
+      PackageVar.Cons
+      @
+        CardFunction.test.golden.ControlledCard.styleIf
+        "show"
+        CardMember.CardMember[test.golden.ControlledCard.sayHello]
+      PackageVar.Nil
 function test.golden.ControlledCard.styleIf test.golden.ControlledCard 2
   case test.golden.ControlledCard.styleIf_0
     var test.golden.ControlledCard.styleIf_0.style
@@ -9,13 +19,3 @@ function test.golden.ControlledCard.styleIf test.golden.ControlledCard 2
       LocalVar.test.golden.ControlledCard.styleIf_0.style
     else
       ""
-function test.golden._ControlledCard.B1.formats_0 test.golden.ControlledCard 0
-  case test.golden._ControlledCard.B1.formats_0_0
-  =
-    @
-      PackageVar.Cons
-      @
-        CardFunction.test.golden.ControlledCard.styleIf
-        "show"
-        CardMember.CardMember[test.golden.ControlledCard.sayHello]
-      PackageVar.Nil

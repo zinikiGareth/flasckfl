@@ -10,29 +10,6 @@ handler test.golden.Complex.FooHandler *card*
           PackageVar.++
           HandlerLambda.HL[test.golden.Complex.FooHandler.k]
           LocalVar.test.golden.Complex.FooHandler.reply.x
-function test.golden.Complex.inits_format 0
-  case test.golden.Complex.inits_format_0
-  =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "basic")
-function test.golden.Complex.inits_hello 0
-  case test.golden.Complex.inits_hello_0
-  =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello, world")
-function test.golden.Complex.styleIf test.golden.Complex 2
-  case test.golden.Complex.styleIf_0
-    var test.golden.Complex.styleIf_0.style
-    var test.golden.Complex.styleIf_0.b
-  =
-    if
-      LocalVar.test.golden.Complex.styleIf_0.b
-    then
-      LocalVar.test.golden.Complex.styleIf_0.style
-    else
-      ""
-function test.golden.WithInit.inits_x 0
-  case test.golden.WithInit.inits_x_0
-  =
-    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello")
 function test.golden._Complex.B1.teas_0 test.golden.Complex 0
   case test.golden._Complex.B1.teas_0_0
   =
@@ -75,3 +52,26 @@ function test.golden._Complex.B9.ors_7 test.golden.Complex 0
       PackageVar.==
       CardMember.CardMember[test.golden.Complex.hello]
       "hello"
+function test.golden.Complex.inits_format 0
+  case test.golden.Complex.inits_format_0
+  =
+    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "basic")
+function test.golden.Complex.inits_hello 0
+  case test.golden.Complex.inits_hello_0
+  =
+    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello, world")
+function test.golden.Complex.styleIf test.golden.Complex 2
+  case test.golden.Complex.styleIf_0
+    var test.golden.Complex.styleIf_0.style
+    var test.golden.Complex.styleIf_0.b
+  =
+    if
+      LocalVar.test.golden.Complex.styleIf_0.b
+    then
+      LocalVar.test.golden.Complex.styleIf_0.style
+    else
+      ""
+function test.golden.WithInit.inits_x 0
+  case test.golden.WithInit.inits_x_0
+  =
+    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "hello")

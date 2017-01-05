@@ -1,0 +1,54 @@
+Node * depends on:
+Node + depends on:
+Node ++ depends on:
+Node - depends on:
+Node / depends on:
+Node == depends on:
+Node Assign depends on:
+Node Cons depends on:
+Node Nil depends on:
+Node ^ depends on:
+Node assoc depends on:
+Node concat depends on:
+Node if depends on:
+Node join depends on:
+Node map depends on:
+Node string depends on:
+Node test.golden.ControlledCard.B1.formats_0 depends on:
+  Cons
+  Nil
+  test.golden.ControlledCard.styleIf
+Node test.golden.ControlledCard._C0.setOff depends on:
+  Assign
+  Cons
+  Nil
+Node test.golden.ControlledCard._C0.setOn depends on:
+  Assign
+  Cons
+  Nil
+Node test.golden.ControlledCard._C1.saySomething depends on:
+  Cons
+  Nil
+  test.golden.ControlledCard._C1.saySomething.msg
+Node test.golden.ControlledCard._C1.saySomething.msg depends on:
+  test.golden.ControlledCard._C1.saySomething
+Node test.golden.ControlledCard.e depends on:
+Node test.golden.ControlledCard.sayHello depends on:
+Node test.golden.ControlledCard.styleIf depends on:
+  test.golden.ControlledCard.styleIf_0.b
+  test.golden.ControlledCard.styleIf_0.style
+Node test.golden.ControlledCard.styleIf_0.b depends on:
+  test.golden.ControlledCard.styleIf
+Node test.golden.ControlledCard.styleIf_0.style depends on:
+  test.golden.ControlledCard.styleIf
+========
+test.golden.ControlledCard._C0.setOff
+-----
+test.golden.ControlledCard._C0.setOn
+-----
+test.golden.ControlledCard._C1.saySomething
+-----
+test.golden.ControlledCard.styleIf
+-----
+test.golden._ControlledCard.B1.formats_0
+-----
