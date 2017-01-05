@@ -118,7 +118,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), DroidUtils.javaNestedSimpleName(x.implName.jsName()));
 		}
 		for (HandlerGrouping h : grp.handlers) {
-			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), DroidUtils.javaNestedSimpleName(h.impl.hiName));
+			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), DroidUtils.javaNestedSimpleName(h.impl.handlerName.uniqueName()));
 		}
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
@@ -140,7 +140,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 					oc.assign(fe, impl).flush();
 					impl = fe;
 				}
-				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.type), oc.as(impl, J.CONTRACT_IMPL)).flush();
+				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.contractName.uniqueName()), oc.as(impl, J.CONTRACT_IMPL)).flush();
 			}
 			oc.callSuper("void", J.FLASCK_ACTIVITY, "ready").flush();
 			oc.returnVoid().flush();

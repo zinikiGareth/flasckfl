@@ -1,17 +1,18 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.types.TypeWithName;
 import org.zinutils.exceptions.UtilException;
 
 public class HandlerLambda implements ExternalRef {
 	public final InputPosition location;
-	public final String clzName;
+	public final HandlerName clzName;
 	public final String var;
 	public final TypeWithName type;
 	public ScopedVar scopedFrom;
 
-	public HandlerLambda(InputPosition location, String clzName, TypeWithName type, String var) {
+	public HandlerLambda(InputPosition location, HandlerName clzName, TypeWithName type, String var) {
 		this.location = location;
 		this.clzName = clzName;
 		this.type = type;
@@ -24,7 +25,7 @@ public class HandlerLambda implements ExternalRef {
 	}
 
 	public String uniqueName() {
-		return clzName + "." + var;
+		return clzName.uniqueName() + "." + var;
 	}
 	
 	@Override

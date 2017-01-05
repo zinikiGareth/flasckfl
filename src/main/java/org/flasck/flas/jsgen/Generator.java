@@ -107,9 +107,9 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 		}
 		cf.add(new JSForm("this._contracts = {}"));
 		for (ContractGrouping ci : card.contracts) {
-			cf.add(new JSForm("this._contracts['" + ci.type +"'] = "+ ci.implName.jsName() + ".apply(this)"));
+			cf.add(new JSForm("this._contracts['" + ci.contractName.uniqueName() +"'] = "+ ci.implName.jsName() + ".apply(this)"));
 			if (ci.referAsVar != null)
-				cf.add(new JSForm("this." + ci.referAsVar + " = this._contracts['" + ci.type + "']"));
+				cf.add(new JSForm("this." + ci.referAsVar + " = this._contracts['" + ci.contractName.uniqueName() + "']"));
 		}
 		target.add(cf);
 		JSForm ci = JSForm.function(name, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);

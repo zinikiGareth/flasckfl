@@ -132,7 +132,7 @@ public class GenTestsForCards {
 		CardName cdName = new CardName(null, "Card");
 		CardGrouping card = new CardGrouping(cdName, sd);
 		HandlerName hn = new HandlerName(cdName, "ActualHandler");
-		card.handlers.add(new HandlerGrouping("ActualHandler", new RWHandlerImplements(loc, loc, hn, new SolidName(null, "HandlerDecl"), true, new ArrayList<>())));
+		card.handlers.add(new HandlerGrouping(new HandlerName(null, "ActualHandler"), new RWHandlerImplements(loc, loc, hn, new SolidName(null, "HandlerDecl"), true, new ArrayList<>())));
 		gen.visitCardGrouping(card);
 	}
 

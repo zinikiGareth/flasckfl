@@ -58,13 +58,13 @@ public class Pass2Visitor implements RepoVisitor {
 
 	@Override
 	public void visitHandlerImpl(RWHandlerImplements hi) {
-		tc.export.put(hi.hiName, hi);
+		tc.export.put(hi.handlerName.uniqueName(), hi);
 		List<TypeInfo> fs = new ArrayList<>();
 		for (HandlerLambda f : hi.boundVars)
 			if (f.scopedFrom == null)
 				fs.add(tc.convertType(f.type));
 		TypeFunc tf = new TypeFunc(hi.location(), fs, new NamedType(hi.location(), hi.handlerName));
-		tc.gk(hi.hiName, tf);
-		tc.ctors.put(hi.hiName, tc.asType(tf));
+		tc.gk(hi.handlerName.uniqueName(), tf);
+		tc.ctors.put(hi.handlerName.uniqueName(), tc.asType(tf));
 	}
 }

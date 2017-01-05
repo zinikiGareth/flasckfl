@@ -86,7 +86,7 @@ public class GenTestsForHandlers {
 		checkProcessingOfLambda("x");
 		HandlerName hn = new HandlerName(new CardName(null, container), "MyHandler");
 		ArrayList<HandlerLambda> lambdas = new ArrayList<>();
-		lambdas.add(new HandlerLambda(loc, hn.uniqueName(), new RWStructDefn(loc, new SolidName(null, "Foo"), true), "x"));
+		lambdas.add(new HandlerLambda(loc, hn, new RWStructDefn(loc, new SolidName(null, "Foo"), true), "x"));
 		RWHandlerImplements hi = new RWHandlerImplements(loc, loc, hn, new SolidName(null, "Callback"), true, lambdas);
 		gen.visitHandlerImpl(hi);
 	}

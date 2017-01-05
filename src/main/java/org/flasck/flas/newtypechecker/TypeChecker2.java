@@ -903,14 +903,14 @@ public class TypeChecker2 {
 				return freshPolys(convertType(cm.type), new HashMap<>());
 			} else if (pe.fn instanceof HandlerLambda) {
 				HandlerLambda hl = (HandlerLambda) pe.fn;
-				String structName = hl.clzName+"$struct";
-				RWStructDefn sd = structs.get(structName);
+				SolidName sdname = new SolidName(hl.clzName.name, hl.clzName.baseName+"$struct");
+				RWStructDefn sd = structs.get(sdname.uniqueName());
 				for (RWStructField sf : sd.fields) {
 					if (sf.name.equals(hl.var)) {
 						return freshPolys(convertType(sf.type), new HashMap<>());
 					}
 				}
-				throw new UtilException("Could not find field " + hl.var + " in handler " + structName);
+				throw new UtilException("Could not find field " + hl.var + " in handler " + sdname.uniqueName());
 			} else {
 				if (ctors.containsKey(name))
 					return freshPolys(convertType(ctors.get(name)), new HashMap<>());

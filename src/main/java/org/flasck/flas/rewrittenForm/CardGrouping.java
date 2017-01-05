@@ -8,19 +8,17 @@ import java.util.TreeMap;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.SolidName;
 
 public class CardGrouping {
 	public static class ContractGrouping {
-		@Deprecated
-		public final String type;
 		public final CSName implName;
 		public final String referAsVar;
 		public final SolidName contractName;
 
 		public ContractGrouping(SolidName type, CSName implName, String referAsVar) {
 			this.contractName = type;
-			this.type = type.uniqueName();
 			this.implName = implName;
 			this.referAsVar = referAsVar;
 		}
@@ -39,10 +37,10 @@ public class CardGrouping {
 	}
 	
 	public static class HandlerGrouping {
-		public final String type;
+		public final HandlerName type;
 		public final RWHandlerImplements impl;
 
-		public HandlerGrouping(String type, RWHandlerImplements impl) {
+		public HandlerGrouping(HandlerName type, RWHandlerImplements impl) {
 			this.type = type;
 			this.impl = impl;
 		}

@@ -392,7 +392,7 @@ public class Rewriter implements CodeGenRegistry {
 			if (ret instanceof ScopedVar) {
 				InputPosition loc = ((ScopedVar) ret).location();
 				TypeOfSomethingElse type = new TypeOfSomethingElse(loc, ((ScopedVar)ret).id);
-				HandlerLambda hl = new HandlerLambda(loc, hi.hiName, type, name);
+				HandlerLambda hl = new HandlerLambda(loc, hi.handlerName, type, name);
 				hi.addScoped(hl, (ScopedVar) ret);
 				return hl;
 			}
@@ -874,7 +874,7 @@ public class Rewriter implements CodeGenRegistry {
 			RWHandlerImplements rw = pass1HI(c2, hi);
 			if (rw != null) {
 				rewriteHI(c2, hi, cd.innerScope());
-				grp.handlers.add(new HandlerGrouping(rw.hiName, rw));
+				grp.handlers.add(new HandlerGrouping(rw.handlerName, rw));
 			}
 		}
 		
@@ -1214,16 +1214,15 @@ public class Rewriter implements CodeGenRegistry {
 			errors.message(hi.location(), "cannot find a valid definition of contract " + hi.name());
 			return null;
 		}
-		final String rwname = hi.handlerName.uniqueName();
 		List<HandlerLambda> bvs = new ArrayList<HandlerLambda>();
 		for (Object o : hi.boundVars) {
 			HandlerLambda hl;
 			if (o instanceof VarPattern) {
 				VarPattern vp = (VarPattern) o;
-				hl = new HandlerLambda(vp.varLoc, rwname, any, vp.var);
+				hl = new HandlerLambda(vp.varLoc, hi.handlerName, any, vp.var);
 			} else if (o instanceof TypedPattern) {
 				TypedPattern vp = (TypedPattern) o;
-				hl = new HandlerLambda(vp.varLocation, rwname, (TypeWithName) rewrite(cx, vp.type, false), vp.var);
+				hl = new HandlerLambda(vp.varLocation, hi.handlerName, (TypeWithName) rewrite(cx, vp.type, false), vp.var);
 			} else
 				throw new UtilException("Can't handle pattern " + o + " as a handler lambda");
 			bvs.add(hl);
@@ -1825,7 +1824,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private void writeHandler(Indenter pw, RWHandlerImplements h) {
-		pw.println("handler " + h.hiName + " " + (h.inCard?"*card*":"*function*"));
+		pw.println("handler " + h.handlerName.uniqueName() + " " + (h.inCard?"*card*":"*function*"));
 		for (HandlerLambda v : h.boundVars)
 			writeLambda(pw.indent(), v);
 		for (RWMethodDefinition m : h.methods)
@@ -1833,7 +1832,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private void writeLambda(Indenter pw, HandlerLambda v) {
-		pw.println("lambda " + v.clzName + " " + v.var);
+		pw.println("lambda " + v.clzName.uniqueName() + " " + v.var);
 	}
 
 	private void writeMethod(Indenter pw, RWMethodDefinition m) {
