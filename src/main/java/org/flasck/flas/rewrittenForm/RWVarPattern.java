@@ -15,7 +15,7 @@ public class RWVarPattern implements Locatable {
 	
 	@Override
 	public String toString() {
-		return "RWV[" + var.jsName() + "]";
+		return "RWV[" + var.uniqueName() + "]";
 	}
 
 	@Override

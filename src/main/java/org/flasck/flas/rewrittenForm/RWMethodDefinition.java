@@ -57,6 +57,6 @@ public class RWMethodDefinition implements Locatable {
 	
 	@Override
 	public String toString() {
-		return fnName.jsName() + "/" + nargs;
+		return fnName.uniqueName() + "/" + nargs;
 	}
 }

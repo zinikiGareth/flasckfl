@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.rewriter.GatherScopedVars;
 
 public class RWFunctionCaseDefn {
@@ -18,8 +19,8 @@ public class RWFunctionCaseDefn {
 		this.expr = expr;
 	}
 	
-	public String caseName() {
-		return intro.fnName.jsName() + "_" + csNo;
+	public ScopeName caseName() {
+		return new ScopeName(intro.fnName.inContext, intro.fnName.name +"_"+csNo);
 	}
 	
 	public void gatherScopedVars(Set<ScopedVar> scopedVars) {
@@ -52,6 +53,6 @@ public class RWFunctionCaseDefn {
 	
 	@Override
 	public String toString() {
-		return "FCD[" + intro.fnName.jsName() + "/" + intro.args.size() + "]";
+		return "FCD[" + intro.fnName.uniqueName() + "/" + intro.args.size() + "]";
 	}
 }

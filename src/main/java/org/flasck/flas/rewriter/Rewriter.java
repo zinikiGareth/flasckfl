@@ -1875,7 +1875,7 @@ public class Rewriter implements CodeGenRegistry {
 				pw.indent().println("nested " + sv.id.uniqueName() + " " + sv.definedBy.uniqueName());
 			for (RWFunctionCaseDefn c : fn.cases) {
 				Indenter p2 = pw.indent();
-				p2.println("case " + c.caseName());
+				p2.println("case " + c.caseName().uniqueName());
 				for (Object a : c.args())
 					writeArgumentTo(p2.indent(), a);
 				p2.println("=");

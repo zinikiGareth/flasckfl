@@ -323,7 +323,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.println("String: " + (String) obj);
 		} else if (obj instanceof ContractDecl) {
 			ContractDecl cd = (ContractDecl) obj;
-			pw.print("cdecl " + cd.nameAsName().jsName());
+			pw.print("cdecl " + cd.nameAsName().uniqueName());
 			dumpPosition(pw, cd.kw, false);
 			dumpLocation(pw, cd);
 			dumpList(pw, cd.methods);
@@ -398,7 +398,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pw.indent(), ce.expr);
 		} else if (obj instanceof FunctionCaseDefn) {
 			FunctionCaseDefn fcd = (FunctionCaseDefn) obj;
-			pw.print(fcd.intro.name().jsName());
+			pw.print(fcd.intro.name().uniqueName());
 			dumpLocation(pw, fcd);
 			dumpList(pw, fcd.intro.args);
 			pw.println(" =");
@@ -406,7 +406,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpScope(pw, fcd.innerScope());
 		} else if (obj instanceof CardDefinition) {
 			CardDefinition cd = (CardDefinition) obj;
-			pw.print("card " + cd.cardName.jsName());
+			pw.print("card " + cd.cardName.uniqueName());
 			dumpPosition(pw, cd.kw, false);
 			dumpLocation(pw, cd);
 			if (cd.state != null)
@@ -468,14 +468,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpList(pw, hi.methods);
 		} else if (obj instanceof MethodCaseDefn) {
 			MethodCaseDefn mcd = (MethodCaseDefn) obj;
-			pw.print("method " + mcd.caseName().jsName());
+			pw.print("method " + mcd.caseName().uniqueName());
 			dumpLocation(pw, mcd);
 			dumpList(pw, mcd.intro.args);
 			dumpList(pw, mcd.messages);
 			dumpScope(pw, mcd.innerScope());
 		} else if (obj instanceof EventCaseDefn) {
 			EventCaseDefn ecd = (EventCaseDefn) obj;
-			pw.print("event " + ecd.caseName().jsName());
+			pw.print("event " + ecd.caseName().uniqueName());
 			dumpPosition(pw, ecd.kw, false);
 			dumpLocation(pw, ecd);
 			dumpList(pw, ecd.intro.args);

@@ -1,8 +1,8 @@
 function test.golden._Unroll.B2.teas_0 test.golden.Unroll 0
-  case test.golden._Unroll.B2.teas_0_0
+  case test.golden.Unroll.B2.teas_0_0
   =
     "hello"
 function test.golden._Unroll.B4.teas_1 test.golden.Unroll 0
-  case test.golden._Unroll.B4.teas_1_0
+  case test.golden.Unroll.B4.teas_1_0
   =
     "goodbye"

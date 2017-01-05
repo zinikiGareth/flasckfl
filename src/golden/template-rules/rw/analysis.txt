@@ -1,11 +1,11 @@
 function test.golden._MyCard.B1.contents_0 test.golden.MyCard 0
-  case test.golden._MyCard.B1.contents_0_0
+  case test.golden.MyCard.B1.contents_0_0
   =
     @
       PackageVar.FLEval.field
       CardMember.CardMember[test.golden.MyCard.c]
       "title"
 function test.golden._MyCard.B1.editcontainer_1 test.golden.MyCard 0
-  case test.golden._MyCard.B1.editcontainer_1_0
+  case test.golden.MyCard.B1.editcontainer_1_0
   =
     CardMember.CardMember[test.golden.MyCard.c]

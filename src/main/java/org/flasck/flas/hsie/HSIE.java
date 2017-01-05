@@ -123,7 +123,7 @@ public class HSIE {
 			formals.add(ms.allocateVar());
 		Map<Object, Integer> exprs = new HashMap<Object, Integer>();
 		for (RWFunctionCaseDefn c : defn.cases) {
-			createSubsts(ms, c.caseName(), c.args(), formals, c.expr);
+			createSubsts(ms, c.args(), formals, c.expr);
 			exprs.put(c, ms.expressions.exprs().size());
 			ms.expressions.addExpr(c.expr);
 		}
@@ -135,7 +135,7 @@ public class HSIE {
 		return s;
 	}
 
-	private void createSubsts(CurrentFunction cf, String methName, List<Object> args, List<Var> formals, Object expr) {
+	private void createSubsts(CurrentFunction cf, List<Object> args, List<Var> formals, Object expr) {
 		for (int i=0;i<args.size();i++) {
 			Object arg = args.get(i);
 			if (arg instanceof RWVarPattern) {

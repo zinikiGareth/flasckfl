@@ -27,6 +27,6 @@ public class RWFunctionIntro {
 
 	@Override
 	public String toString() {
-		return "FI[" + fnName.jsName() + "/" + args.size() + "]";
+		return "FI[" + fnName.uniqueName() + "/" + args.size() + "]";
 	}
 }

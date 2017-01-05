@@ -167,7 +167,7 @@ public class JSAreaGenerator implements AreaGenerator {
 		JSForm rules = JSForm.flex(areaName.jsName() + "._rules =").needBlock();
 		JSForm save = JSForm.flex("save: function(wrapper, text)").needBlock();
 		if (ce.editFn != null) {
-			save.add(JSForm.flex("var containingObject = " + ce.editFn + "()"));
+			save.add(JSForm.flex("var containingObject = " + ce.editFn.jsName() + "()"));
 		} else
 			save.add(JSForm.flex("var containingObject = this._card"));
 		// TODO: we may need to convert the text field to a more complex object type (e.g. integer) as specified in the rules we are given

@@ -24,6 +24,6 @@ public class RWMethodCaseDefn {
 	
 	@Override
 	public String toString() {
-		return "MCD[" + intro.fnName.jsName() + "/" + intro.args.size() + "]";
+		return "MCD[" + intro.fnName.uniqueName() + "/" + intro.args.size() + "]";
 	}
 }

@@ -219,7 +219,7 @@ public class TemplateTraversor {
 			Object valExpr = ce.expr;
 			callOnAssign(areas, valExpr, areaName.jsName() + ".prototype._contentExpr", true, null);
 
-			String tfn = simpleName(ce.fnName);
+			String tfn = ce.fnName.name;
 			for (AreaGenerator area : areas)
 				area.contentExpr(tfn, ce.rawHTML);
 			

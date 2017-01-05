@@ -1,5 +1,5 @@
 function test.golden._NestFunction.B1.formats_0 test.golden.NestFunction 0
-  case test.golden._NestFunction.B1.formats_0_0
+  case test.golden.NestFunction.B1.formats_0_0
   =
     @
       PackageVar.Cons

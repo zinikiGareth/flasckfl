@@ -1,5 +1,5 @@
 function test.golden._ControlledCard.B1.formats_0 test.golden.ControlledCard 0
-  case test.golden._ControlledCard.B1.formats_0_0
+  case test.golden.ControlledCard.B1.formats_0_0
   =
     @
       PackageVar.Cons

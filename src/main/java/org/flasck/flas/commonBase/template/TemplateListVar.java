@@ -25,6 +25,6 @@ public class TemplateListVar implements Locatable {
 
 	@Override
 	public String toString() {
-		return "TLV[" + realName + "<-" + dataFunc.jsName() + "]";
+		return "TLV[" + realName + "<-" + dataFunc.uniqueName() + "]";
 	}
 }

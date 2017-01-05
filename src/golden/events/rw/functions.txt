@@ -1,9 +1,9 @@
 function test.golden._Events.B2.handlers_0 test.golden.Events 0
-  case test.golden._Events.B2.handlers_0_0
+  case test.golden.Events.B2.handlers_0_0
   =
     CardFunction.test.golden.Events.okThen
 function test.golden._Events.B3.handlers_1 test.golden.Events 0
-  case test.golden._Events.B3.handlers_1_0
+  case test.golden.Events.B3.handlers_1_0
   =
     @
       CardFunction.test.golden.Events.setTo

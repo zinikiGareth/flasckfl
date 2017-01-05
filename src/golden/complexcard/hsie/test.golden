@@ -187,7 +187,7 @@ HSIE for test.golden.Complex.B5.contents_4/0                 #complexcard. 45.0
     scoped = []
     scopedDefns = []
     all vars = []
-RETURN TLV[test.golden.Complex.lv<-test.golden._Complex.B3.l #complexcard. 43.7
+RETURN TLV[test.golden.Complex.lv<-test.golden.Complex.B3.lv #complexcard. 43.7
 =======
 HSIE for test.golden.Complex.B6.lvs_5/0                      #complexcard. 46.2
 #Args: 0 #bound: 0

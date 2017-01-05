@@ -1,13 +1,13 @@
 function test.golden._TestCard.B3.handlers_0 test.golden.TestCard 0
-  case test.golden._TestCard.B3.handlers_0_0
+  case test.golden.TestCard.B3.handlers_0_0
   =
     CardFunction.test.golden.TestCard.rejig
 function test.golden._TestCard.B6.teas_1 test.golden.TestCard 0
-  case test.golden._TestCard.B6.teas_1_0
+  case test.golden.TestCard.B6.teas_1_0
   =
     "400"
 function test.golden._TestCard.B6.teas_2 test.golden.TestCard 0
-  case test.golden._TestCard.B6.teas_2_0
+  case test.golden.TestCard.B6.teas_2_0
   =
     "250"
 function test.golden.TestCard._d3init_chart test.golden.TestCard 0
