@@ -367,8 +367,7 @@ public class TemplateTraversor {
 		} else if (valExpr instanceof CardFunction) {
 			// we need to track down the function (if it's not in the object already) and callOnAssign it's definition
 			CardFunction cf = (CardFunction) valExpr;
-			String fullName = cf.clzName + "." + cf.function;
-			RWFunctionDefinition fd = rewriter.functions.get(fullName);
+			RWFunctionDefinition fd = rewriter.functions.get(cf.uniqueName());
 			if (fd != null)
 				for (RWFunctionCaseDefn fcd : fd.cases)
 					callOnAssign(areas, fcd.expr, call, false, passVar);
