@@ -223,7 +223,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				PendingVar into = ann.argument("java.lang.String", "into");
 				ann.returns(JavaType.void_);
 				NewMethodDefiner meth = ann.done();
-				meth.makeNewVoid("test.runner.Card$B1", meth.myThis(), meth.makeNew(J.CARD_AREA, meth.getField("_wrapper"), meth.getField("_display"), into.getVar())).flush();
+				meth.makeNewVoid("test.runner.Card$B1", meth.myThis(), meth.as(meth.makeNew(J.CARD_AREA, meth.getField("_wrapper"), meth.getField("_display"), into.getVar()), J.AREA)).flush();
 				meth.returnVoid().flush();
 			}
 			{
@@ -246,12 +246,12 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			{
 				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
 				PendingVar card = ann.argument("test.runner.Card", "card");
-				PendingVar parent = ann.argument(J.CARD_AREA, "parent");
+				PendingVar parent = ann.argument(J.AREA, "parent");
 				MethodDefiner ctor = ann.done();
 				ctor.callSuper("void", J.TEXT_AREA, "<init>", ctor.as(parent.getVar(), J.AREA), ctor.as(ctor.aNull(), "java.lang.String")).flush();
 				ctor.assign(ctor.getField("_card"), card.getVar()).flush();
 				ctor.callVirtual("void", ctor.myThis(), "_setText", ctor.stringConst("hello, world")).flush();
-				ctor.callVirtual("void", ctor.getField("_wrapper"), "onAssign", (Expr)ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst("sayHello"), (Expr)ctor.as(ctor.myThis(), J.IAREA), ctor.stringConst("_setVariableFormats")).flush();
+				ctor.callVirtual("void", ctor.getField("_wrapper"), "onAssign", ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst("sayHello"), ctor.as(ctor.myThis(), J.IAREA), ctor.stringConst("_setVariableFormats")).flush();
 				ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), "_setVariableFormats")).flush();
 				ctor.returnVoid().flush();
 			}

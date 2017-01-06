@@ -70,7 +70,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void prepareCase() {
-		
+		cards.clear();
+		errors.clear();
 	}
 
 	@Override

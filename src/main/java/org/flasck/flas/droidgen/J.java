@@ -13,6 +13,7 @@ import org.flasck.jvm.areas.IArea;
 import org.flasck.jvm.areas.ListArea;
 import org.flasck.jvm.areas.TextArea;
 import org.flasck.jvm.builtin.Cons;
+import org.flasck.jvm.builtin.Crokey;
 import org.flasck.jvm.builtin.Croset;
 import org.flasck.jvm.builtin.Nil;
 import org.flasck.jvm.builtin.Send;
@@ -33,17 +34,20 @@ public class J {
 	public static final String STRING = String.class.getName();
 
 	// Essential FLAS Things
-	public static final String CONTRACT_IMPL = ContractImpl.class.getName();
-	public static final String SEND = Send.class.getName();
-	public static final String CONS = Cons.class.getName();
 	public static final String FLCLOSURE = FLClosure.class.getName();
-	public static final String NIL = Nil.class.getName();
 	public static final String FLERROR = FLError.class.getName();
 	public static final String FLEVAL = FLEval.class.getName();
 	public static final String FLCURRY = FLCurry.class.getName();
+	public static final String CONTRACT_IMPL = ContractImpl.class.getName();
 
 	// Other FLAS builtins
+	public static final String BUILTINPKG = "org.flasck.jvm.builtin";
+	public static final String CROKEY = Crokey.class.getName();
 	public static final String CROSET = Croset.class.getName();
+	public static final String CONS = Cons.class.getName();
+	public static final String NIL = Nil.class.getName();
+
+	public static final String SEND = Send.class.getName();
 
 	// JVM defined things
 	public static final String CARD_DESPATCHER = CardDespatcher.class.getName();
@@ -54,7 +58,9 @@ public class J {
 	// JVM object things we inherit from or something
 	public static final String FLASCK_CARD = FlasckCard.class.getName();
 	public static final String FLAS_OBJECT = FLASObject.class.getName();
-	
+
+	// Areas
+	public static final String AREAPKG = "org.flasck.jvm.areas.";
 	public static final String IAREA = IArea.class.getName();
 	public static final String AREA = Area.class.getName();
 	public static final String TEXT_AREA = TextArea.class.getName();

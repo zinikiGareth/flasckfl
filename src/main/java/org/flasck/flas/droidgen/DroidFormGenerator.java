@@ -100,7 +100,7 @@ public class DroidFormGenerator {
 		gen.returns("java.lang.Object");
 		List<PendingVar> tmp = new ArrayList<PendingVar>();
 		if (form.mytype == CodeType.HANDLER) // and others?
-			gen.argument("org.flasck.android.post.DeliveryAddress", "_fromDA");
+			gen.argument(J.DELIVERY_ADDRESS, "_fromDA");
 		int j = 0;
 		for (@SuppressWarnings("unused") ScopedVar s : form.scoped)
 			tmp.add(gen.argument("java.lang.Object", "_s"+(j++)));
@@ -158,14 +158,14 @@ public class DroidFormGenerator {
 			if (h instanceof Head) {
 				Head hh = (Head) h;
 				Var hv = vars.get(hh.v);
-				stmts.add(meth.assign(hv, meth.callStatic("org.flasck.android.FLEval", "java.lang.Object", "head", hv)));
-				stmts.add(meth.ifBoolean(meth.instanceOf(hv, "org.flasck.android.FLError"), meth.returnObject(hv), null));
+				stmts.add(meth.assign(hv, meth.callStatic(J.FLEVAL, "java.lang.Object", "head", hv)));
+				stmts.add(meth.ifBoolean(meth.instanceOf(hv, J.FLERROR), meth.returnObject(hv), null));
 			} else if (h instanceof Switch) {
 				Switch s = (Switch)h;
 				Var hv = vars.get(s.var);
 				String ctor = s.ctor;
 				if (ctor.indexOf(".") == -1)
-					ctor = "org.flasck.android.builtin." + ctor;
+					ctor = J.BUILTINPKG +"." + ctor;
 				stmts.add(meth.ifBoolean(meth.instanceOf(hv, ctor), generateBlock(meth, svars, vars, s, assignReturnTo), null));
 			} else if (h instanceof IFCmd) {
 				IFCmd c = (IFCmd)h;
@@ -223,7 +223,7 @@ public class DroidFormGenerator {
 					stmts.add(meth.returnObject(expr));
 				}
 			} else if (h instanceof ErrorCmd) {
-				stmts.add(meth.returnObject(meth.makeNew("org.flasck.android.FLError", meth.stringConst(meth.getName() + ": case not handled"))));
+				stmts.add(meth.returnObject(meth.makeNew(J.FLERROR, meth.stringConst(meth.getName() + ": case not handled"))));
 			} else {
 				System.out.println("Cannot generate block:");
 				h.dumpOne((Logger)null, 0);

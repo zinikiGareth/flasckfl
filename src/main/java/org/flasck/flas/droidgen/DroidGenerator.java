@@ -111,6 +111,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		ByteCodeSink bcc = bce.newClass(grp.struct.name());
 		bcc.superclass(J.FLASCK_CARD);
 		bcc.inheritsField(true, Access.PUBLIC, J.WRAPPER, "_wrapper");
+		bcc.inheritsField(true, Access.PUBLIC, J.DISPLAY_ENGINE, "_display");
 		grp.struct.visitFields(new DroidStructFieldGenerator(bcc, Access.PROTECTED));
 		for (ContractGrouping x : grp.contracts) {
 			if (x.referAsVar != null)
@@ -134,6 +135,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 					impl = fe;
 				}
 				ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst(x.contractName.uniqueName()), ctor.as(impl, J.CONTRACT_IMPL)).flush();
+				ctor.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			}
 			ctor.returnVoid().flush();
 		}
@@ -145,7 +147,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			NewMethodDefiner oc = gen.done();
 			oc.setAccess(Access.PROTECTED);
 			oc.callSuper("void", J.FLASCK_CARD, "onCreate", sis.getVar()).flush();
-			oc.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			oc.returnVoid().flush();
 		}
 		*/
@@ -227,16 +228,16 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			Map<String, PendingVar> vm = new TreeMap<String, PendingVar>();
 			for (Object o : hi.boundVars) {
 				String var = ((HandlerLambda)o).var;
-				PendingVar pvi = gen.argument("java.lang.Object", var);
+				PendingVar pvi = gen.argument(J.OBJECT, var);
 				vm.put(var, pvi);
 			}
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", hi.name(), "<init>").flush();
 			if (hi.inCard)
-				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic("org.flasck.android.FLEval", "java.lang.Object", "full", cardArg.getVar()), DroidUtils.javaBaseName(name))).flush();
+				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic(J.FLEVAL, J.OBJECT, "full", cardArg.getVar()), DroidUtils.javaBaseName(name))).flush();
 			for (Object o : hi.boundVars) {
 				String var = ((HandlerLambda)o).var;
-				ctor.assign(fs.get(var).asExpr(ctor), ctor.callStatic("org.flasck.android.FLEval", "java.lang.Object", "head", vm.get(var).getVar())).flush();
+				ctor.assign(fs.get(var).asExpr(ctor), ctor.callStatic(J.FLEVAL, J.OBJECT, "head", vm.get(var).getVar())).flush();
 			}
 			ctor.returnVoid().flush();
 		}
@@ -244,9 +245,9 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
 			PendingVar cardArg = null;
 			if (hi.inCard)
-				cardArg = gen.argument("java.lang.Object", "card");
-			PendingVar argsArg = gen.argument("[java.lang.Object", "args");
-			gen.returns("java.lang.Object");
+				cardArg = gen.argument(J.OBJECT, "card");
+			PendingVar argsArg = gen.argument("[" + J.OBJECT, "args");
+			gen.returns(J.OBJECT);
 			NewMethodDefiner eval = gen.done();
 			List<Expr> naList = new ArrayList<Expr>();
 			if (hi.inCard)

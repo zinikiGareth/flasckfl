@@ -14,7 +14,7 @@ public class test.golden.ControlledCard$_C0 extends test.golden.SetState {
     Code:
        0: new           #28                 // class org/flasck/jvm/FLClosure
        3: dup           
-       4: ldc           #30                 // class org/flasck/android/builtin/Assign
+       4: ldc           #30                 // class org/flasck/jvm/builtin/Assign
        6: iconst_3      
        7: anewarray     #32                 // class java/lang/Object
       10: dup           
@@ -35,7 +35,7 @@ public class test.golden.ControlledCard$_C0 extends test.golden.SetState {
       32: astore_1      
       33: new           #28                 // class org/flasck/jvm/FLClosure
       36: dup           
-      37: ldc           #45                 // class org/flasck/android/builtin/Cons
+      37: ldc           #45                 // class org/flasck/jvm/builtin/Cons
       39: iconst_2      
       40: anewarray     #32                 // class java/lang/Object
       43: dup           
@@ -46,7 +46,7 @@ public class test.golden.ControlledCard$_C0 extends test.golden.SetState {
       48: iconst_1      
       49: iconst_0      
       50: anewarray     #32                 // class java/lang/Object
-      53: invokestatic  #52                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      53: invokestatic  #52                 // Method org/flasck/jvm/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       56: aastore       
       57: invokespecial #44                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       60: areturn       
@@ -55,7 +55,7 @@ public class test.golden.ControlledCard$_C0 extends test.golden.SetState {
     Code:
        0: new           #28                 // class org/flasck/jvm/FLClosure
        3: dup           
-       4: ldc           #30                 // class org/flasck/android/builtin/Assign
+       4: ldc           #30                 // class org/flasck/jvm/builtin/Assign
        6: iconst_3      
        7: anewarray     #32                 // class java/lang/Object
       10: dup           
@@ -76,7 +76,7 @@ public class test.golden.ControlledCard$_C0 extends test.golden.SetState {
       32: astore_1      
       33: new           #28                 // class org/flasck/jvm/FLClosure
       36: dup           
-      37: ldc           #45                 // class org/flasck/android/builtin/Cons
+      37: ldc           #45                 // class org/flasck/jvm/builtin/Cons
       39: iconst_2      
       40: anewarray     #32                 // class java/lang/Object
       43: dup           
@@ -87,7 +87,7 @@ public class test.golden.ControlledCard$_C0 extends test.golden.SetState {
       48: iconst_1      
       49: iconst_0      
       50: anewarray     #32                 // class java/lang/Object
-      53: invokestatic  #52                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      53: invokestatic  #52                 // Method org/flasck/jvm/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       56: aastore       
       57: invokespecial #44                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       60: areturn       
@@ -107,19 +107,19 @@ public class test.golden.ControlledCard$_C1 extends test.golden.Echo {
   public java.lang.Object saySomething(java.lang.Object);
     Code:
        0: aload_1       
-       1: invokestatic  #33                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
+       1: invokestatic  #33                 // Method org/flasck/jvm/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
        4: astore_1      
        5: aload_1       
-       6: instanceof    #34                 // class org/flasck/android/FLError
+       6: instanceof    #34                 // class org/flasck/jvm/FLError
        9: ifeq          14
       12: aload_1       
       13: areturn       
       14: aload_1       
-      15: instanceof    #36                 // class org/flasck/android/builtin/String
+      15: instanceof    #36                 // class org/flasck/jvm/builtin/String
       18: ifeq          110
       21: new           #38                 // class org/flasck/jvm/FLClosure
       24: dup           
-      25: ldc           #40                 // class org/flasck/android/builtin/Cons
+      25: ldc           #40                 // class org/flasck/jvm/builtin/Cons
       27: iconst_2      
       28: anewarray     #42                 // class java/lang/Object
       31: dup           
@@ -130,13 +130,13 @@ public class test.golden.ControlledCard$_C1 extends test.golden.Echo {
       36: iconst_1      
       37: iconst_0      
       38: anewarray     #42                 // class java/lang/Object
-      41: invokestatic  #49                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      41: invokestatic  #49                 // Method org/flasck/jvm/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       44: aastore       
       45: invokespecial #52                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       48: astore_2      
       49: new           #38                 // class org/flasck/jvm/FLClosure
       52: dup           
-      53: ldc           #53                 // class org/flasck/android/builtin/Send
+      53: ldc           #53                 // class org/flasck/jvm/builtin/Send
       55: iconst_3      
       56: anewarray     #42                 // class java/lang/Object
       59: dup           
@@ -157,7 +157,7 @@ public class test.golden.ControlledCard$_C1 extends test.golden.Echo {
       81: astore_3      
       82: new           #38                 // class org/flasck/jvm/FLClosure
       85: dup           
-      86: ldc           #40                 // class org/flasck/android/builtin/Cons
+      86: ldc           #40                 // class org/flasck/jvm/builtin/Cons
       88: iconst_2      
       89: anewarray     #42                 // class java/lang/Object
       92: dup           
@@ -168,17 +168,17 @@ public class test.golden.ControlledCard$_C1 extends test.golden.Echo {
       97: iconst_1      
       98: iconst_0      
       99: anewarray     #42                 // class java/lang/Object
-     102: invokestatic  #49                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+     102: invokestatic  #49                 // Method org/flasck/jvm/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
      105: aastore       
      106: invokespecial #52                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      109: areturn       
-     110: new           #34                 // class org/flasck/android/FLError
+     110: new           #34                 // class org/flasck/jvm/FLError
      113: dup           
      114: ldc           #61                 // String saySomething: case not handled
-     116: invokespecial #65                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
+     116: invokespecial #65                 // Method org/flasck/jvm/FLError."<init>":(Ljava/lang/String;)V
      119: areturn       
 }
-public class test.golden.ControlledCard$B1 extends org.flasck.android.areas.TextArea {
+public class test.golden.ControlledCard$B1 extends org.flasck.jvm.areas.TextArea {
   private final test.golden.ControlledCard _card;
 
   public test.golden.ControlledCard$B1(test.golden.ControlledCard, org.flasck.jvm.areas.Area);
@@ -186,7 +186,7 @@ public class test.golden.ControlledCard$B1 extends org.flasck.android.areas.Text
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/jvm/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/ControlledCard;
@@ -195,73 +195,66 @@ public class test.golden.ControlledCard$B1 extends org.flasck.android.areas.Text
       14: invokevirtual #21                 // Method _setText:(Ljava/lang/String;)V
       17: aload_0       
       18: getfield      #15                 // Field _card:Ltest/golden/ControlledCard;
-      21: getfield      #43                 // Field test/golden/ControlledCard._wrapper:Lorg/flasck/jvm/Wrapper;
+      21: getfield      #34                 // Field test/golden/ControlledCard._wrapper:Lorg/flasck/jvm/Wrapper;
       24: aload_0       
       25: getfield      #15                 // Field _card:Ltest/golden/ControlledCard;
-      28: ldc           #44                 // String sayHello
+      28: ldc           #35                 // String sayHello
       30: aload_0       
-      31: ldc           #46                 // String _setVariableFormats
-      33: invokevirtual #53                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
+      31: ldc           #37                 // String _setVariableFormats
+      33: invokevirtual #44                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/IArea;Ljava/lang/String;)V
       36: aload_0       
-      37: invokevirtual #56                 // Method _setVariableFormats:()Ljava/lang/Object;
+      37: invokevirtual #46                 // Method _setVariableFormats:()Ljava/lang/Object;
       40: pop           
       41: return        
 
   public java.lang.Object _setVariableFormats();
     Code:
-       0: ldc           #23                 // String FlasckLib
-       2: ldc           #25                 // String Need to set variable formats
-       4: invokestatic  #32                 // Method android/util/Log.e:(Ljava/lang/String;Ljava/lang/String;)I
-       7: pop           
-       8: aload_0       
-       9: aload_0       
-      10: invokevirtual #36                 // Method formats_0:()Ljava/lang/String;
-      13: invokespecial #39                 // Method org/flasck/android/areas/TextArea._setCSSObj:(Ljava/lang/String;)V
-      16: aconst_null   
-      17: areturn       
+       0: aload_0       
+       1: aload_0       
+       2: invokevirtual #26                 // Method formats_0:()Ljava/lang/Object;
+       5: invokespecial #30                 // Method org/flasck/jvm/areas/TextArea._setCSSObj:(Ljava/lang/Object;)V
+       8: aconst_null   
+       9: areturn       
 
   public java.lang.Object formats_0();
     Code:
-       0: new           #70                 // class org/flasck/jvm/FLClosure
+       0: new           #60                 // class org/flasck/jvm/FLClosure
        3: dup           
        4: aload_0       
        5: getfield      #15                 // Field _card:Ltest/golden/ControlledCard;
-       8: ldc           #57                 // class org/flasck/android/FLEval$Curry
+       8: ldc           #47                 // class org/flasck/jvm/FLEval$Curry
       10: iconst_2      
-      11: anewarray     #72                 // class java/lang/Object
+      11: anewarray     #62                 // class java/lang/Object
       14: dup           
       15: iconst_0      
-      16: new           #74                 // class test/golden/ControlledCard$styleIf
+      16: ldc           #64                 // class test/golden/ControlledCard$styleIf
+      18: aastore       
       19: dup           
-      20: aload_0       
-      21: invokespecial #78                 // Method test/golden/ControlledCard$styleIf."<init>":(Ltest/golden/ControlledCard$B1;)V
-      24: aastore       
-      25: dup           
-      26: iconst_1      
-      27: iconst_2      
-      28: invokestatic  #84                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
-      31: aastore       
-      32: invokespecial #87                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Object;)V
-      35: astore_1      
-      36: aload_1       
-      37: astore_2      
-      38: new           #70                 // class org/flasck/jvm/FLClosure
-      41: dup           
-      42: ldc           #88                 // class org/flasck/android/builtin/Cons
-      44: iconst_2      
-      45: anewarray     #72                 // class java/lang/Object
-      48: dup           
-      49: iconst_0      
-      50: aload_2       
-      51: aastore       
-      52: dup           
-      53: iconst_1      
-      54: iconst_0      
-      55: anewarray     #72                 // class java/lang/Object
-      58: invokestatic  #95                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
-      61: aastore       
-      62: invokespecial #98                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      65: areturn       
+      20: iconst_1      
+      21: iconst_2      
+      22: invokestatic  #71                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+      25: aastore       
+      26: invokespecial #74                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Object;)V
+      29: astore_1      
+      30: aload_1       
+      31: astore_2      
+      32: new           #60                 // class org/flasck/jvm/FLClosure
+      35: dup           
+      36: ldc           #75                 // class org/flasck/jvm/builtin/Cons
+      38: iconst_2      
+      39: anewarray     #62                 // class java/lang/Object
+      42: dup           
+      43: iconst_0      
+      44: aload_2       
+      45: aastore       
+      46: dup           
+      47: iconst_1      
+      48: iconst_0      
+      49: anewarray     #62                 // class java/lang/Object
+      52: invokestatic  #82                 // Method org/flasck/jvm/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      55: aastore       
+      56: invokespecial #85                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      59: areturn       
 }
 public class test.golden.ControlledCard$styleIf {
   private final test.golden.ControlledCard _card;
@@ -309,40 +302,45 @@ public class test.golden.ControlledCard extends org.flasck.jvm.cards.FlasckCard 
       14: invokespecial #24                 // Method test/golden/ControlledCard$_C0."<init>":(Ltest/golden/ControlledCard;)V
       17: invokevirtual #28                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/jvm/ContractImpl;)V
       20: aload_0       
-      21: new           #13                 // class test/golden/ControlledCard$_C1
-      24: dup           
-      25: aload_0       
-      26: invokespecial #29                 // Method test/golden/ControlledCard$_C1."<init>":(Ltest/golden/ControlledCard;)V
-      29: putfield      #31                 // Field e:Ltest/golden/ControlledCard$_C1;
-      32: aload_0       
-      33: ldc           #32                 // String test.golden.Echo
-      35: aload_0       
-      36: getfield      #31                 // Field e:Ltest/golden/ControlledCard$_C1;
-      39: invokevirtual #28                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/jvm/ContractImpl;)V
-      42: return        
+      21: invokespecial #32                 // Method org/flasck/jvm/cards/FlasckCard.ready:()V
+      24: aload_0       
+      25: new           #13                 // class test/golden/ControlledCard$_C1
+      28: dup           
+      29: aload_0       
+      30: invokespecial #33                 // Method test/golden/ControlledCard$_C1."<init>":(Ltest/golden/ControlledCard;)V
+      33: putfield      #35                 // Field e:Ltest/golden/ControlledCard$_C1;
+      36: aload_0       
+      37: ldc           #36                 // String test.golden.Echo
+      39: aload_0       
+      40: getfield      #35                 // Field e:Ltest/golden/ControlledCard$_C1;
+      43: invokevirtual #28                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/jvm/ContractImpl;)V
+      46: aload_0       
+      47: invokespecial #32                 // Method org/flasck/jvm/cards/FlasckCard.ready:()V
+      50: return        
 
   public void render(java.lang.String);
     Code:
-       0: new           #35                 // class test/golden/ControlledCard$B1
+       0: new           #39                 // class test/golden/ControlledCard$B1
        3: aload_0       
-       4: new           #37                 // class org/flasck/jvm/areas/CardArea
+       4: new           #41                 // class org/flasck/jvm/areas/CardArea
        7: dup           
        8: aload_0       
-       9: getfield      #42                 // Field _wrapper:Lorg/flasck/jvm/Wrapper;
+       9: getfield      #46                 // Field _wrapper:Lorg/flasck/jvm/Wrapper;
       12: aload_0       
-      13: aload_1       
-      14: invokespecial #45                 // Method org/flasck/jvm/areas/CardArea."<init>":(Lorg/flasck/jvm/Wrapper;Lorg/flasck/jvm/cards/FlasckCard;Ljava/lang/String;)V
-      17: invokespecial #48                 // Method test/golden/ControlledCard$B1."<init>":(Ltest/golden/ControlledCard;Lorg/flasck/jvm/areas/Area;)V
-      20: return        
+      13: getfield      #50                 // Field _display:Lorg/flasck/jvm/display/DisplayEngine;
+      16: aload_1       
+      17: invokespecial #53                 // Method org/flasck/jvm/areas/CardArea."<init>":(Lorg/flasck/jvm/Wrapper;Lorg/flasck/jvm/display/DisplayEngine;Ljava/lang/String;)V
+      20: invokespecial #56                 // Method test/golden/ControlledCard$B1."<init>":(Ltest/golden/ControlledCard;Lorg/flasck/jvm/areas/Area;)V
+      23: return        
 
   public java.lang.Object styleIf(java.lang.Object, java.lang.Object);
     Code:
        0: aload_2       
-       1: invokestatic  #56                 // Method FLEval.isTruthy:(Ljava/lang/Object;)Z
+       1: invokestatic  #64                 // Method FLEval.isTruthy:(Ljava/lang/Object;)Z
        4: ifeq          9
        7: aload_1       
        8: areturn       
-       9: ldc           #57                 // String 
+       9: ldc           #65                 // String 
       11: areturn       
 }
 public abstract class test.golden.Echo extends org.flasck.jvm.ContractImpl {

@@ -8,6 +8,7 @@ import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
@@ -36,7 +37,8 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 		NewMethodDefiner render = gen.done();
 		if (areaName != null) {
 			String topBlock = areaName.javaName();
-			render.makeNewVoid(DroidUtils.javaNestedName(topBlock), render.myThis(), (Expr)render.as(render.makeNew(J.CARD_AREA, render.getField(render.myThis(), "_wrapper"), (Expr)render.as(render.myThis(), J.FLASCK_CARD), into.getVar()), J.AREA)).flush();
+			IExpr cardArea = render.makeNew(J.CARD_AREA, render.getField(render.myThis(), "_wrapper"), render.getField(render.myThis(), "_display"), into.getVar());
+			render.makeNewVoid(DroidUtils.javaNestedName(topBlock), render.myThis(), render.as(cardArea, J.AREA)).flush();
 			bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(topBlock), DroidUtils.javaNestedSimpleName(topBlock));
 		}
 		render.returnVoid().flush();
@@ -48,7 +50,7 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 			return null;
 		String clz = areaName.javaName();
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(clz));
-		String baseClz = "org.flasck.android.areas." + base;
+		String baseClz = J.AREAPKG + base;
 		bcc.superclass(baseClz);
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType(J.WRAPPER), "_wrapper");
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType(J.AREA), "_parent");

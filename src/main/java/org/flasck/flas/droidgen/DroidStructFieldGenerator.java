@@ -50,7 +50,7 @@ public class DroidStructFieldGenerator implements FieldVisitor {
 	@Deprecated
 	private JavaType javaType(String name) {
 		if (name.indexOf(".") == -1)
-			name = "org.flasck.android.builtin." + name;
+			name = J.BUILTINPKG + "." + name;
 		return new JavaType(name);
 	}
 }

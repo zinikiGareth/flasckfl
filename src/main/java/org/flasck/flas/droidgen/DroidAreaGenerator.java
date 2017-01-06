@@ -65,15 +65,15 @@ public class DroidAreaGenerator implements AreaGenerator {
 		FieldExpr wrapper = meth.getField("_wrapper");
 		Expr parent = meth.castTo(meth.getField("_parent"), J.LIST_AREA);
 		FieldExpr croset = new FieldObject(false, J.LIST_AREA, new JavaType(J.CROSET), "_current").useOn(meth, parent);
-		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("In _assignToVar"))).flush();
-		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", curr))).flush();
-		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", obj))).flush();
+//		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("In _assignToVar"))).flush();
+//		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", curr))).flush();
+//		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", obj))).flush();
 		meth.ifOp(0xa6, curr, obj, meth.returnObject(meth.aNull()), null).flush();
-		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("survived first test"))).flush();
+//		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("survived first test"))).flush();
 		meth.callVirtual("void", wrapper, "removeOnCrosetReplace", croset, (Expr)meth.as(meth.myThis(), J.AREA), curr).flush();
 		meth.assign(curr, obj).flush();
 		meth.callVirtual("void", wrapper, "onCrosetReplace", croset, (Expr)meth.as(meth.myThis(), J.AREA), curr).flush();
-		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("calling _fireInterests"))).flush();
+//		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("calling _fireInterests"))).flush();
 		meth.callVirtual("void", meth.myThis(), "_fireInterests").flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
@@ -107,24 +107,24 @@ public class DroidAreaGenerator implements AreaGenerator {
 		} else
 			throw new NotImplementedException();
 
-		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)ctor.as(dge, "java.lang.Object"), ctor.stringConst(field), (Expr)ctor.as(ctor.myThis(), J.AREA), ctor.stringConst(call.name)).flush();
+		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", ctor.as(dge, J.OBJECT), ctor.stringConst(field), ctor.as(ctor.myThis(), J.IAREA), ctor.stringConst(call.name)).flush();
 	}
 
 	@Override
 	public void onAssign(CardMember valExpr, FunctionName call) {
-		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", (Expr)ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst(valExpr.var), (Expr)ctor.as(ctor.myThis(), J.AREA), ctor.stringConst(call.name)).flush();
+		ctor.callVirtual("void", ctor.getField(ctor.getField("_card"), "_wrapper"), "onAssign", ctor.as(ctor.getField("_card"), J.OBJECT), ctor.stringConst(valExpr.var), ctor.as(ctor.myThis(), J.IAREA), ctor.stringConst(call.name)).flush();
 	}
 
 	@Override
 	public void newListChild(AreaName childArea) {
 		String child = childArea.javaName();
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_newChild");
-		PendingVar ck = gen.argument("org.flasck.android.builtin.Crokey", "crokey");
+		PendingVar ck = gen.argument(J.CROKEY, "crokey");
 		gen.returns(J.AREA);
 		NewMethodDefiner meth = gen.done();
 		Var ret = meth.avar(J.AREA, "ret");
 		meth.assign(ret, (Expr) meth.makeNew(DroidUtils.javaNestedName(child), meth.getField("_card"), (Expr)meth.as(meth.myThis(), J.AREA))).flush();
-		FieldExpr crokeyid = new FieldObject(false, "org.flasck.android.builtin.Crokey", new JavaType("java.lang.Object"), "id").useOn(meth, ck.getVar());
+		FieldExpr crokeyid = new FieldObject(false, J.CROKEY, new JavaType(J.OBJECT), "id").useOn(meth, ck.getVar());
 		meth.callVirtual("void", ret, "bindVar", meth.stringConst("_crokey"), crokeyid).flush();
 		meth.returnObject(ret).flush();
 	}
@@ -151,7 +151,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 		ah.returns("java.lang.Object");
 		MethodDefiner ahMeth = ah.done();
 		currentMethod = ahMeth;
-		ahMeth.voidExpr(ahMeth.callStatic("android.util.Log", "int", "e", ahMeth.stringConst("FlasckLib"), ahMeth.stringConst("Need to add the handlers"))).flush();
+//		ahMeth.voidExpr(ahMeth.callStatic("android.util.Log", "int", "e", ahMeth.stringConst("FlasckLib"), ahMeth.stringConst("Need to add the handlers"))).flush();
 		ahMeth.returnObject(ahMeth.aNull()).flush();
 		return new DroidEventHandlerGenerator(ah);
 	}
@@ -178,7 +178,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 //		JSForm.assign(cexpr, "var card", form);
 //		cexpr.add(JSForm.flex("this._updateToCard(card)"));
 
-		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to implement yoyo card"))).flush();
+//		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to implement yoyo card"))).flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
 
@@ -193,8 +193,8 @@ public class DroidAreaGenerator implements AreaGenerator {
 		svf.returns("java.lang.Object");
 		MethodDefiner meth = svf.done();
 		currentMethod = meth;
-		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to set variable formats"))).flush();
-		meth.callSuper("void", J.AREA, "_setCSSObj", meth.callVirtual("java.lang.String", meth.myThis(), tfn.name)).flush();
+//		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to set variable formats"))).flush();
+		meth.callSuper("void", J.AREA, "_setCSSObj", meth.callVirtual(J.OBJECT, meth.myThis(), tfn.name)).flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
 

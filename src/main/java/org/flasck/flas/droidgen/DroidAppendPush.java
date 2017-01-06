@@ -25,6 +25,7 @@ import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.zinutils.bytecode.Expr;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.JavaInfo.Access;
@@ -71,13 +72,13 @@ public final class DroidAppendPush implements PushVisitor {
 			String dot;
 			String member;
 			if (idx == -1) {
-				inside = "org.flasck.android.builtin";
+				inside = J.BUILTINPKG;
 				dot = ".";
 				member = pe.fn.uniqueName();
 			} else {
 				String first = pe.fn.uniqueName().substring(0, idx);
 				if ("FLEval".equals(first)) {
-					inside = "org.flasck.android.FLEval";
+					inside = J.FLEVAL;
 					member = StringUtil.capitalize(pe.fn.uniqueName().substring(idx+1));
 				} else {
 					inside = pe.fn.uniqueName().substring(0, idx);
@@ -87,7 +88,7 @@ public final class DroidAppendPush implements PushVisitor {
 			}
 			String clz;
 			if (defn instanceof RWFunctionDefinition || defn instanceof RWMethodDefinition || defn instanceof FunctionType) {
-				if (inside.equals("org.flasck.android.FLEval"))
+				if (inside.equals(J.FLEVAL))
 					clz = inside + "$" + member;
 				else
 					clz = inside + ".PACKAGEFUNCTIONS$" + member;
@@ -111,7 +112,13 @@ public final class DroidAppendPush implements PushVisitor {
 			return svars.get(pe.fn.uniqueName());
 		} else if (pe.fn instanceof CardFunction) {
 			String jnn = DroidUtils.javaNestedName(pe.fn.uniqueName());
-			return meth.makeNew(jnn, meth.myThis());
+			return meth.classConst(jnn);
+//			IExpr cardObj;
+//			if (fromHandler())
+//				cardObj = meth.getField("_card");
+//			else
+//				cardObj = meth.myThis();
+//			return meth.makeNew(jnn, cardObj);
 		} else if (pe.fn instanceof CardMember) {
 			if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
 				return meth.myThis();
@@ -128,6 +135,10 @@ public final class DroidAppendPush implements PushVisitor {
 				throw new UtilException("Can't handle " + fntype + " with handler lambda");
 		} else
 			throw new UtilException("Can't handle " + pe.fn + " of type " + pe.fn.getClass());
+	}
+
+	private boolean fromHandler() {
+		return form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.AREA;
 	}
 
 	@Override

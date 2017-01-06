@@ -111,7 +111,7 @@ public class GenTestsForHandlers {
 			}
 			oneOf(ctor).callSuper("void", "Callback", "<init>"); will(returnValue(expr));
 			if (inCard) {
-				oneOf(ctor).callStatic(with("org.flasck.android.FLEval"), with(J.OBJECT), with("full"), with(any(Expr[].class)));
+				oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("full"), with(any(Expr[].class)));
 				oneOf(ctor).castTo(null, "Card");
 				oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(aNull(IExpr.class)));
 			}
