@@ -282,15 +282,18 @@ public class DroidFormGenerator {
 			}
 			Expr clz = al.remove(0);
 			String t = clz.getType();
-			if (!t.equals("java.lang.Class") && (needsObject != null || !t.equals("java.lang.Object"))) {
+			if (!t.equals("java.lang.Class") && (needsObject != null || !t.equals(J.OBJECT))) {
 				return meth.aNull();
 	//			throw new UtilException("Type of " + clz + " is not a Class but " + t);
 	//			clz = meth.castTo(clz, "java.lang.Class");
 			}
+			for (int i=0;i<al.size();i++) {
+				al.set(i, meth.box(al.get(i)));
+			}
 			if (needsObject != null)
-				return meth.makeNew("org.flasck.jvm.FLClosure", meth.as(needsObject, "java.lang.Object"), clz, meth.arrayOf("java.lang.Object", al));
+				return meth.makeNew(J.FLCLOSURE, meth.as(needsObject, J.OBJECT), clz, meth.arrayOf(J.OBJECT, al));
 			else
-				return meth.makeNew("org.flasck.jvm.FLClosure", clz, meth.arrayOf("java.lang.Object", al));
+				return meth.makeNew(J.FLCLOSURE, clz, meth.arrayOf(J.OBJECT, al));
 		} else if (c0 instanceof PushVar) {
 			return vars.get(((PushVar)c0).var.var);
 		} else
