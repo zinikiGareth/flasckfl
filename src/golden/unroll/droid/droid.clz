@@ -1,4 +1,6 @@
 public class test.golden.Unroll$B1 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Unroll _card;
+
   public test.golden.Unroll$B1(test.golden.Unroll, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -23,6 +25,8 @@ public class test.golden.Unroll$B1 extends org.flasck.android.areas.DivArea {
       32: return        
 }
 public class test.golden.Unroll$B2 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Unroll _card;
+
   public test.golden.Unroll$B2(test.golden.Unroll, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -52,6 +56,8 @@ public class test.golden.Unroll$B2 extends org.flasck.android.areas.DivArea {
        2: areturn       
 }
 public class test.golden.Unroll$B3 extends org.flasck.android.areas.TextArea {
+  private final test.golden.Unroll _card;
+
   public test.golden.Unroll$B3(test.golden.Unroll, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -67,6 +73,8 @@ public class test.golden.Unroll$B3 extends org.flasck.android.areas.TextArea {
       17: return        
 }
 public class test.golden.Unroll$B4 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Unroll _card;
+
   public test.golden.Unroll$B4(test.golden.Unroll, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -96,6 +104,8 @@ public class test.golden.Unroll$B4 extends org.flasck.android.areas.DivArea {
        2: areturn       
 }
 public class test.golden.Unroll$B5 extends org.flasck.android.areas.TextArea {
+  private final test.golden.Unroll _card;
+
   public test.golden.Unroll$B5(test.golden.Unroll, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       

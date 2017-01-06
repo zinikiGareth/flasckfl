@@ -1,4 +1,6 @@
 public class test.golden.Foo$_C0 extends test.import.Fred {
+  private test.golden.Foo _card;
+
   public test.golden.Foo$_C0(test.golden.Foo);
     Code:
        0: aload_0       

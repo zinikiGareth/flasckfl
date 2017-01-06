@@ -229,6 +229,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 
 		if (new File(droidTo, "qbout/classes/test/golden").isDirectory()) {
 			RunProcess proc = new RunProcess("javap");
+			proc.arg("-p");
 			proc.arg("-c");
 			for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.class")) {
 				proc.arg(f.getPath());

@@ -1,4 +1,6 @@
 public class test.golden.NestFunction$B1 extends org.flasck.android.areas.TextArea {
+  private final test.golden.NestFunction _card;
+
   public test.golden.NestFunction$B1(test.golden.NestFunction, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -82,6 +84,8 @@ public class test.golden.NestFunction$B1 extends org.flasck.android.areas.TextAr
       65: areturn       
 }
 public class test.golden.NestFunction$styleIf {
+  private final test.golden.NestFunction _card;
+
   public test.golden.NestFunction$styleIf(test.golden.NestFunction);
     Code:
        0: aload_0       

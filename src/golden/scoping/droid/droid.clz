@@ -1,4 +1,10 @@
 public class test.golden.f_0$HandleReply extends test.golden.Reply {
+  private java.lang.Object server;
+
+  private java.lang.Object var;
+
+  private java.lang.Object v;
+
   public test.golden.f_0$HandleReply(java.lang.Object, java.lang.Object, java.lang.Object);
     Code:
        0: aload_0       

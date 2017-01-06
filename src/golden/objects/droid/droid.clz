@@ -1,4 +1,6 @@
 public class test.golden.Card$_C0 extends test.golden.Ctr {
+  private test.golden.Card _card;
+
   public test.golden.Card$_C0(test.golden.Card);
     Code:
        0: aload_0       

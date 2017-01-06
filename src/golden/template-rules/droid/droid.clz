@@ -18,6 +18,8 @@ public class test.golden.Container extends org.flasck.jvm.FLASObject {
       12: return        
 }
 public class test.golden.MyCard$B1 extends org.flasck.android.areas.TextArea {
+  private final test.golden.MyCard _card;
+
   public test.golden.MyCard$B1(test.golden.MyCard, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       

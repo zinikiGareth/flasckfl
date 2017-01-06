@@ -1,4 +1,6 @@
 public class test.golden.f_0$KVHImpl extends test.golden.KVH {
+  private java.lang.Object s;
+
   public test.golden.f_0$KVHImpl(java.lang.Object);
     Code:
        0: aload_0       

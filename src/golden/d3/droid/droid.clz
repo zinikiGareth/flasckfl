@@ -1,4 +1,6 @@
 public class test.golden.TestCard$_d3_chart_enter_rect {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_d3_chart_enter_rect(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -16,6 +18,8 @@ public class test.golden.TestCard$_d3_chart_enter_rect {
        7: areturn       
 }
 public class test.golden.TestCard$_d3_chart_enter_text {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_d3_chart_enter_text(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -33,6 +37,8 @@ public class test.golden.TestCard$_d3_chart_enter_text {
        7: areturn       
 }
 public class test.golden.TestCard$_d3init_chart {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_d3init_chart(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -50,6 +56,8 @@ public class test.golden.TestCard$_d3init_chart {
        7: areturn       
 }
 public class test.golden.TestCard$_gen_1 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_1(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -70,6 +78,8 @@ public class test.golden.TestCard$_gen_1 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_10 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_10(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -90,6 +100,8 @@ public class test.golden.TestCard$_gen_10 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_11 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_11(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -110,6 +122,8 @@ public class test.golden.TestCard$_gen_11 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_12 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_12(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -130,6 +144,8 @@ public class test.golden.TestCard$_gen_12 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_13 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_13(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -150,6 +166,8 @@ public class test.golden.TestCard$_gen_13 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_14 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_14(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -170,6 +188,8 @@ public class test.golden.TestCard$_gen_14 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_15 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_15(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -187,6 +207,8 @@ public class test.golden.TestCard$_gen_15 {
        7: areturn       
 }
 public class test.golden.TestCard$_gen_2 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_2(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -207,6 +229,8 @@ public class test.golden.TestCard$_gen_2 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_3 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_3(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -227,6 +251,8 @@ public class test.golden.TestCard$_gen_3 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_4 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_4(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -247,6 +273,8 @@ public class test.golden.TestCard$_gen_4 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_5 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_5(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -267,6 +295,8 @@ public class test.golden.TestCard$_gen_5 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_6 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_6(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -287,6 +317,8 @@ public class test.golden.TestCard$_gen_6 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_7 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_7(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -307,6 +339,8 @@ public class test.golden.TestCard$_gen_7 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_8 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_8(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -327,6 +361,8 @@ public class test.golden.TestCard$_gen_8 {
       10: areturn       
 }
 public class test.golden.TestCard$_gen_9 {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$_gen_9(test.golden.TestCard);
     Code:
        0: aload_0       
@@ -347,6 +383,8 @@ public class test.golden.TestCard$_gen_9 {
       10: areturn       
 }
 public class test.golden.TestCard$B1 extends org.flasck.android.areas.DivArea {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$B1(test.golden.TestCard, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -371,6 +409,8 @@ public class test.golden.TestCard$B1 extends org.flasck.android.areas.DivArea {
       32: return        
 }
 public class test.golden.TestCard$B2 extends org.flasck.android.areas.DivArea {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$B2(test.golden.TestCard, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -389,6 +429,8 @@ public class test.golden.TestCard$B2 extends org.flasck.android.areas.DivArea {
       21: return        
 }
 public class test.golden.TestCard$B3 extends org.flasck.android.areas.DivArea {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$B3(test.golden.TestCard, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -427,6 +469,8 @@ public class test.golden.TestCard$B3 extends org.flasck.android.areas.DivArea {
        8: areturn       
 }
 public class test.golden.TestCard$B4 extends org.flasck.android.areas.TextArea {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$B4(test.golden.TestCard, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -442,6 +486,8 @@ public class test.golden.TestCard$B4 extends org.flasck.android.areas.TextArea {
       17: return        
 }
 public class test.golden.TestCard$B5 extends org.flasck.android.areas.DivArea {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$B5(test.golden.TestCard, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -460,6 +506,8 @@ public class test.golden.TestCard$B5 extends org.flasck.android.areas.DivArea {
       21: return        
 }
 public class test.golden.TestCard$B6 extends org.flasck.android.areas.DivArea {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$B6(test.golden.TestCard, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -494,6 +542,8 @@ public class test.golden.TestCard$B6 extends org.flasck.android.areas.DivArea {
        2: areturn       
 }
 public class test.golden.TestCard$B7 extends org.flasck.android.areas.D3Area {
+  private final test.golden.TestCard _card;
+
   public test.golden.TestCard$B7(test.golden.TestCard, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       

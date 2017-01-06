@@ -1,4 +1,6 @@
 public class test.golden.Events$B1 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Events _card;
+
   public test.golden.Events$B1(test.golden.Events, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -23,6 +25,8 @@ public class test.golden.Events$B1 extends org.flasck.android.areas.DivArea {
       32: return        
 }
 public class test.golden.Events$B2 extends org.flasck.android.areas.TextArea {
+  private final test.golden.Events _card;
+
   public test.golden.Events$B2(test.golden.Events, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -61,6 +65,8 @@ public class test.golden.Events$B2 extends org.flasck.android.areas.TextArea {
        8: areturn       
 }
 public class test.golden.Events$B3 extends org.flasck.android.areas.TextArea {
+  private final test.golden.Events _card;
+
   public test.golden.Events$B3(test.golden.Events, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       

@@ -1,4 +1,6 @@
 public class test.golden.ControlledCard$_C0 extends test.golden.SetState {
+  private test.golden.ControlledCard _card;
+
   public test.golden.ControlledCard$_C0(test.golden.ControlledCard);
     Code:
        0: aload_0       
@@ -89,6 +91,8 @@ public class test.golden.ControlledCard$_C0 extends test.golden.SetState {
       57: areturn       
 }
 public class test.golden.ControlledCard$_C1 extends test.golden.Echo {
+  private test.golden.ControlledCard _card;
+
   public test.golden.ControlledCard$_C1(test.golden.ControlledCard);
     Code:
        0: aload_0       
@@ -173,6 +177,8 @@ public class test.golden.ControlledCard$_C1 extends test.golden.Echo {
      119: areturn       
 }
 public class test.golden.ControlledCard$B1 extends org.flasck.android.areas.TextArea {
+  private final test.golden.ControlledCard _card;
+
   public test.golden.ControlledCard$B1(test.golden.ControlledCard, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -256,6 +262,8 @@ public class test.golden.ControlledCard$B1 extends org.flasck.android.areas.Text
       65: areturn       
 }
 public class test.golden.ControlledCard$styleIf {
+  private final test.golden.ControlledCard _card;
+
   public test.golden.ControlledCard$styleIf(test.golden.ControlledCard);
     Code:
        0: aload_0       

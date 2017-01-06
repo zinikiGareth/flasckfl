@@ -96,6 +96,8 @@ public class test.golden.PACKAGEFUNCTIONS {
      125: areturn       
 }
 public class test.golden.scoped_0$MyHc extends test.golden.Hc {
+  private java.lang.Object requestObj;
+
   public test.golden.scoped_0$MyHc(java.lang.Object);
     Code:
        0: aload_0       

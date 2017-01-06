@@ -1,4 +1,8 @@
 public class test.golden.f_0$ItemHandler extends test.golden.KVUpdate {
+  private java.lang.Object set;
+
+  private java.lang.Object ck;
+
   public test.golden.f_0$ItemHandler(java.lang.Object, java.lang.Object);
     Code:
        0: aload_0       

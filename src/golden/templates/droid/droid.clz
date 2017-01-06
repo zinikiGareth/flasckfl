@@ -26,6 +26,8 @@ public class test.golden.Item extends org.flasck.jvm.FLASObject {
       24: return        
 }
 public class test.golden.Templates$B1 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Templates _card;
+
   public test.golden.Templates$B1(test.golden.Templates, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -44,6 +46,8 @@ public class test.golden.Templates$B1 extends org.flasck.android.areas.DivArea {
       21: return        
 }
 public class test.golden.Templates$B2 extends org.flasck.android.areas.ListArea {
+  private final test.golden.Templates _card;
+
   public test.golden.Templates$B2(test.golden.Templates, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -89,6 +93,8 @@ public class test.golden.Templates$B2 extends org.flasck.android.areas.ListArea 
        7: areturn       
 }
 public class test.golden.Templates$B3 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Templates _card;
+
   public final test.golden.Templates$B3 _src_e;
 
   public java.lang.Object e;
@@ -173,6 +179,8 @@ public class test.golden.Templates$B3 extends org.flasck.android.areas.DivArea {
      111: areturn       
 }
 public class test.golden.Templates$B4 extends org.flasck.android.areas.TextArea {
+  private final test.golden.Templates _card;
+
   public final test.golden.Templates$B3 _src_e;
 
   public test.golden.Templates$B4(test.golden.Templates, org.flasck.jvm.areas.Area);

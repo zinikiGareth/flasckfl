@@ -1,4 +1,6 @@
 public class test.golden.Simple$B1 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Simple _card;
+
   public test.golden.Simple$B1(test.golden.Simple, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -17,6 +19,8 @@ public class test.golden.Simple$B1 extends org.flasck.android.areas.DivArea {
       21: return        
 }
 public class test.golden.Simple$B2 extends org.flasck.android.areas.TextArea {
+  private final test.golden.Simple _card;
+
   public test.golden.Simple$B2(test.golden.Simple, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -57,6 +61,8 @@ public class test.golden.Simple$B2 extends org.flasck.android.areas.TextArea {
        7: areturn       
 }
 public class test.golden.Simple$f {
+  private final test.golden.Simple _card;
+
   public test.golden.Simple$f(test.golden.Simple);
     Code:
        0: aload_0       

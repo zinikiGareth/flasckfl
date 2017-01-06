@@ -10,6 +10,8 @@ public class test.golden.ClickIt extends org.flasck.jvm.FLASObject {
        0: return        
 }
 public class test.golden.Complex$_C0 extends test.golden.Init {
+  private test.golden.Complex _card;
+
   public test.golden.Complex$_C0(test.golden.Complex);
     Code:
        0: aload_0       
@@ -137,6 +139,8 @@ public class test.golden.Complex$_C0 extends test.golden.Init {
      193: areturn       
 }
 public class test.golden.Complex$_C1 extends test.golden.DataStore {
+  private test.golden.Complex _card;
+
   public test.golden.Complex$_C1(test.golden.Complex);
     Code:
        0: aload_0       
@@ -147,6 +151,8 @@ public class test.golden.Complex$_C1 extends test.golden.DataStore {
        9: return        
 }
 public class test.golden.Complex$_S0 extends test.golden.Offer {
+  private test.golden.Complex _card;
+
   public test.golden.Complex$_S0(test.golden.Complex);
     Code:
        0: aload_0       
@@ -240,6 +246,8 @@ public class test.golden.Complex$_S0 extends test.golden.Offer {
      136: areturn       
 }
 public class test.golden.Complex$B1 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$B1(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -295,6 +303,8 @@ public class test.golden.Complex$B1 extends org.flasck.android.areas.DivArea {
        7: areturn       
 }
 public class test.golden.Complex$B10 extends org.flasck.android.areas.CardSlotArea {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$B10(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -307,6 +317,8 @@ public class test.golden.Complex$B10 extends org.flasck.android.areas.CardSlotAr
       11: return        
 }
 public class test.golden.Complex$B11 extends org.flasck.android.areas.CardSlotArea {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$B11(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -347,6 +359,8 @@ public class test.golden.Complex$B11 extends org.flasck.android.areas.CardSlotAr
        7: areturn       
 }
 public class test.golden.Complex$B2 extends org.flasck.android.areas.TextArea {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$B2(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -434,6 +448,8 @@ public class test.golden.Complex$B2 extends org.flasck.android.areas.TextArea {
       33: areturn       
 }
 public class test.golden.Complex$B3 extends org.flasck.android.areas.ListArea {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$B3(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -479,6 +495,8 @@ public class test.golden.Complex$B3 extends org.flasck.android.areas.ListArea {
        7: areturn       
 }
 public class test.golden.Complex$B4 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Complex _card;
+
   public final test.golden.Complex$B4 _src_lv;
 
   public java.lang.Object lv;
@@ -563,6 +581,8 @@ public class test.golden.Complex$B4 extends org.flasck.android.areas.DivArea {
      111: areturn       
 }
 public class test.golden.Complex$B5 extends org.flasck.android.areas.TextArea {
+  private final test.golden.Complex _card;
+
   public final test.golden.Complex$B4 _src_lv;
 
   public test.golden.Complex$B5(test.golden.Complex, org.flasck.jvm.areas.Area);
@@ -606,6 +626,8 @@ public class test.golden.Complex$B5 extends org.flasck.android.areas.TextArea {
        7: areturn       
 }
 public class test.golden.Complex$B6 extends org.flasck.android.areas.ListArea {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$B6(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -651,6 +673,8 @@ public class test.golden.Complex$B6 extends org.flasck.android.areas.ListArea {
        7: areturn       
 }
 public class test.golden.Complex$B7 extends org.flasck.android.areas.DivArea {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$B7(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -669,6 +693,8 @@ public class test.golden.Complex$B7 extends org.flasck.android.areas.DivArea {
       22: return        
 }
 public class test.golden.Complex$B8 extends org.flasck.android.areas.TextArea {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$B8(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -704,6 +730,8 @@ public class test.golden.Complex$B8 extends org.flasck.android.areas.TextArea {
        8: areturn       
 }
 public class test.golden.Complex$B9 extends org.flasck.android.areas.CasesArea {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$B9(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
@@ -748,6 +776,10 @@ public class test.golden.Complex$B9 extends org.flasck.android.areas.CasesArea {
       28: areturn       
 }
 public class test.golden.Complex$FooHandler extends test.golden.Handler {
+  private test.golden.Complex _card;
+
+  private java.lang.Object k;
+
   public test.golden.Complex$FooHandler(java.lang.Object, java.lang.Object);
     Code:
        0: aload_0       
@@ -858,6 +890,8 @@ public class test.golden.Complex$FooHandler extends test.golden.Handler {
      115: areturn       
 }
 public class test.golden.Complex$styleIf {
+  private final test.golden.Complex _card;
+
   public test.golden.Complex$styleIf(test.golden.Complex);
     Code:
        0: aload_0       
