@@ -1,8 +1,8 @@
-public abstract class test.golden.Hc extends org.flasck.android.ContractImpl {
+public abstract class test.golden.Hc extends org.flasck.jvm.ContractImpl {
   public test.golden.Hc();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 
   public abstract java.lang.Object reply();
@@ -155,11 +155,11 @@ public class test.golden.scoped_0$MyHc extends test.golden.Hc {
       40: invokespecial #56                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: areturn       
 }
-public abstract class test.golden.UpC extends org.flasck.android.ContractImpl {
+public abstract class test.golden.UpC extends org.flasck.jvm.ContractImpl {
   public test.golden.UpC();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 }
 public class test.golden.scoped_0.PACKAGEFUNCTIONS$request {

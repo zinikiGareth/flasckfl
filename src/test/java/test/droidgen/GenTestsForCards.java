@@ -17,6 +17,7 @@ import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.PrimitiveType;
+import org.flasck.jvm.cards.CardDespatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -31,6 +32,7 @@ import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var.AVar;
 
 public class GenTestsForCards {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -39,7 +41,6 @@ public class GenTestsForCards {
 	DroidGenerator gen = new DroidGenerator(true, bce);
 	ByteCodeSink bccCard = context.mock(ByteCodeSink.class, "cardClass");
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
-	MethodDefiner onCreate = context.mock(MethodDefiner.class, "onCreate");
 	
 	IExpr expr = context.mock(IExpr.class);
 
@@ -47,9 +48,9 @@ public class GenTestsForCards {
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
 			allowing(bccCard).getCreatedName(); will(returnValue("Card"));
-			allowing(onCreate).myThis(); will(new ReturnNewVar(onCreate, "Card", "this"));
+			allowing(ctor).nextLocal(); will(returnValue(1));
+			allowing(ctor).myThis(); will(new ReturnNewVar(ctor, "Card", "this"));
 			allowing(expr);
-			allowing(onCreate).nextLocal(); will(returnValue(1));
 		}});
 	}
 
@@ -61,19 +62,17 @@ public class GenTestsForCards {
 	}
 
 	@Test
-	public void testVisitingAnEmptyStructDefnGeneratesTheCorrectMinimumCode() {
+	public void testVisitingAnEmptyCardGeneratesTheCorrectMinimumCode() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkCreationOfCardOnCreate();
 		CardGrouping sd = new CardGrouping(new CardName(null, "Card"), new RWStructDefn(loc, new SolidName(null, "Card"), true));
 		gen.visitCardGrouping(sd);
 	}
 
 	@Test
-	public void testVisitingAStructDefnWithOneMemberAndNoInitGeneratesAnEmptySlot() {
+	public void testVisitingACardWithOneDataMemberAndNoInitGeneratesAnEmptySlot() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkCreationOfCardOnCreate();
 		checkDefnOfField(J.BOOLEANP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
@@ -83,10 +82,9 @@ public class GenTestsForCards {
 
 	@Test
 	// DROID-TODO: This should generate a call to the "init_f1" function
-	public void testVisitingAStructDefnWithOneInitializedMemberGeneratesASlotWithTheValue() {
+	public void testVisitingACardWithOneInitializedMemberGeneratesASlotWithTheValue() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkCreationOfCardOnCreate();
 		checkDefnOfField(J.INTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
@@ -98,7 +96,6 @@ public class GenTestsForCards {
 	public void testCorrectGenerationOfContractWithNoVar() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkCreationOfCardOnCreate();
 		checkDefnOfContract("_C0", null);
 		checkRegisterOfContract("_C0", null);
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
@@ -112,7 +109,6 @@ public class GenTestsForCards {
 	public void testCorrectGenerationOfContractWithVar() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkCreationOfCardOnCreate();
 		checkDefnOfContract("_C0", "ce");
 		checkRegisterOfContract("_C0", "ce");
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
@@ -126,7 +122,6 @@ public class GenTestsForCards {
 	public void testCorrectGenerationOfHandler() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkCreationOfCardOnCreate();
 		checkDefnOfContract("ActualHandler", null);
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		CardName cdName = new CardName(null, "Card");
@@ -140,27 +135,18 @@ public class GenTestsForCards {
 	public void checkCreationOfCard() {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("Card"); will(returnValue(bccCard));
-			oneOf(bccCard).superclass(J.FLASCK_ACTIVITY);
-			oneOf(bccCard).inheritsField(false, Access.PUBLIC, J.WRAPPER, "_wrapper");
+			oneOf(bccCard).superclass(J.FLASCK_CARD);
+			oneOf(bccCard).inheritsField(true, Access.PUBLIC, J.WRAPPER, "_wrapper");
 		}});
 	}
 
 	public void checkCreationOfCardCtor() {
 		context.checking(new Expectations() {{
 			oneOf(bccCard).createMethod(false, "void", "<init>"); will(returnValue(ctor));
-			oneOf(ctor).callSuper("void", J.FLASCK_ACTIVITY, "<init>"); will(returnValue(expr));
+			oneOf(ctor).argument(J.CARD_DESPATCHER, "despatcher"); will(new ReturnNewVar(ctor, J.CARD_DESPATCHER, "despatcher"));
+			oneOf(ctor).argument(J.DISPLAY_ENGINE, "display"); will(new ReturnNewVar(ctor, J.DISPLAY_ENGINE, "display"));
+			oneOf(ctor).callSuper(with("void"), with(J.FLASCK_CARD), with("<init>"), with(aNonNull(IExpr[].class))); will(returnValue(expr));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
-		}});
-	}
-
-	public void checkCreationOfCardOnCreate() {
-		context.checking(new Expectations() {{
-			oneOf(bccCard).createMethod(false, "void", "onCreate"); will(returnValue(onCreate));
-			oneOf(onCreate).argument("android.os.Bundle", "savedState"); will(new ReturnNewVar(onCreate, "Bundle", "savedState"));
-			oneOf(onCreate).setAccess(Access.PROTECTED);
-			oneOf(onCreate).callSuper(with("void"), with(J.FLASCK_ACTIVITY), with("onCreate"), with(any(IExpr[].class))); will(returnValue(expr));
-			oneOf(onCreate).callSuper("void", J.FLASCK_ACTIVITY, "ready"); will(returnValue(expr));
-			oneOf(onCreate).returnVoid(); will(returnValue(expr));
 		}});
 	}
 
@@ -182,15 +168,15 @@ public class GenTestsForCards {
 
 	private void checkRegisterOfContract(String ctrName, String called) {
 		context.checking(new Expectations() {{
-			oneOf(onCreate).makeNew(with("Card$_C0"), with(aNonNull(Expr.class))); will(returnValue(expr));
-			oneOf(onCreate).stringConst("CtrDecl");
+			oneOf(ctor).makeNew(with("Card$_C0"), with(aNonNull(Expr.class))); will(returnValue(expr));
+			oneOf(ctor).stringConst("CtrDecl");
 			if (called != null) {
-				oneOf(onCreate).getField(called);
-				oneOf(onCreate).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
-				oneOf(onCreate).as(null, J.CONTRACT_IMPL);
+				oneOf(ctor).getField(called);
+				oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
+				oneOf(ctor).as(null, J.CONTRACT_IMPL);
 			} else
-				oneOf(onCreate).as(expr, J.CONTRACT_IMPL);
-			oneOf(onCreate).callVirtual(with("void"), with(aNonNull(IExpr.class)), with("registerContract"), with(aNonNull(IExpr[].class)));
+				oneOf(ctor).as(expr, J.CONTRACT_IMPL);
+			oneOf(ctor).callVirtual(with("void"), with(aNonNull(IExpr.class)), with("registerContract"), with(aNonNull(IExpr[].class)));
 		}});
 	}
 }

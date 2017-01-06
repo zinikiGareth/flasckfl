@@ -134,11 +134,11 @@ public class test.golden.f_0$HandleReply extends test.golden.Reply {
      145: invokespecial #80                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
      148: areturn       
 }
-public abstract class test.golden.NoArg extends org.flasck.android.ContractImpl {
+public abstract class test.golden.NoArg extends org.flasck.jvm.ContractImpl {
   public test.golden.NoArg();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 }
 public class test.golden.PACKAGEFUNCTIONS$cna {
@@ -337,20 +337,20 @@ public class test.golden.PACKAGEFUNCTIONS {
      155: invokespecial #55                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
      158: areturn       
 }
-public abstract class test.golden.Reply extends org.flasck.android.ContractImpl {
+public abstract class test.golden.Reply extends org.flasck.jvm.ContractImpl {
   public test.golden.Reply();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 
   public abstract java.lang.Object reply(java.lang.Object);
 }
-public abstract class test.golden.Server extends org.flasck.android.ContractImpl {
+public abstract class test.golden.Server extends org.flasck.jvm.ContractImpl {
   public test.golden.Server();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 }
 public class test.golden.f_0.PACKAGEFUNCTIONS$q {

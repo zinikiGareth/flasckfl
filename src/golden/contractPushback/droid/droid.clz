@@ -1,8 +1,8 @@
-public abstract class test.golden.DoIt extends org.flasck.android.ContractImpl {
+public abstract class test.golden.DoIt extends org.flasck.jvm.ContractImpl {
   public test.golden.DoIt();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 }
 public class test.golden.PACKAGEFUNCTIONS$f {

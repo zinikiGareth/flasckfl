@@ -1,18 +1,11 @@
-public class test.golden.MyCard extends org.flasck.android.FlasckActivity {
-  public test.golden.MyCard();
-    Code:
-       0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/FlasckActivity."<init>":()V
-       4: return        
-
-  protected void onCreate(android.os.Bundle);
+public class test.golden.MyCard extends org.flasck.jvm.cards.FlasckCard {
+  public test.golden.MyCard(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
     Code:
        0: aload_0       
        1: aload_1       
-       2: invokespecial #12                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
-       5: aload_0       
-       6: invokespecial #15                 // Method org/flasck/android/FlasckActivity.ready:()V
-       9: return        
+       2: aload_2       
+       3: invokespecial #8                  // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
+       6: return        
 }
 public class test.golden.PACKAGEFUNCTIONS$x {
   public static java.lang.Object eval(java.lang.Object[]);

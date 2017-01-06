@@ -1,77 +1,70 @@
-public class test.golden.Getter extends org.flasck.android.FlasckActivity {
+public class test.golden.Getter extends org.flasck.jvm.cards.FlasckCard {
   protected java.lang.String curr;
 
   protected org.flasck.android.builtin.Croset strings;
 
-  public test.golden.Getter();
-    Code:
-       0: aload_0       
-       1: invokespecial #12                 // Method org/flasck/android/FlasckActivity."<init>":()V
-       4: return        
-
-  protected void onCreate(android.os.Bundle);
+  public test.golden.Getter(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
     Code:
        0: aload_0       
        1: aload_1       
-       2: invokespecial #16                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
-       5: aload_0       
-       6: invokespecial #19                 // Method org/flasck/android/FlasckActivity.ready:()V
-       9: return        
+       2: aload_2       
+       3: invokespecial #12                 // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
+       6: return        
 
   public java.lang.Object choose(java.lang.Object);
     Code:
        0: aload_1       
-       1: invokestatic  #40                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
+       1: invokestatic  #33                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
        4: astore_1      
        5: aload_1       
-       6: instanceof    #41                 // class org/flasck/android/FLError
+       6: instanceof    #34                 // class org/flasck/android/FLError
        9: ifeq          14
       12: aload_1       
       13: areturn       
       14: aload_1       
-      15: instanceof    #43                 // class org/flasck/android/builtin/String
+      15: instanceof    #36                 // class org/flasck/android/builtin/String
       18: ifeq          103
-      21: new           #45                 // class org/flasck/jvm/FLClosure
+      21: new           #38                 // class org/flasck/jvm/FLClosure
       24: dup           
-      25: ldc           #21                 // class org/flasck/android/FLEval$Field
+      25: ldc           #14                 // class org/flasck/android/FLEval$Field
       27: iconst_2      
-      28: anewarray     #47                 // class java/lang/Object
+      28: anewarray     #40                 // class java/lang/Object
       31: dup           
       32: iconst_0      
       33: aload_0       
       34: aastore       
       35: dup           
       36: iconst_1      
-      37: ldc           #49                 // String item
+      37: ldc           #42                 // String item
       39: aastore       
-      40: invokespecial #53                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      40: invokespecial #46                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       43: astore_2      
       44: aload_2       
       45: astore_3      
-      46: new           #45                 // class org/flasck/jvm/FLClosure
+      46: new           #38                 // class org/flasck/jvm/FLClosure
       49: dup           
-      50: ldc           #54                 // class org/flasck/android/builtin/Assign
+      50: ldc           #47                 // class org/flasck/android/builtin/Assign
       52: iconst_3      
-      53: anewarray     #47                 // class java/lang/Object
+      53: anewarray     #40                 // class java/lang/Object
       56: dup           
       57: iconst_0      
       58: aload_0       
       59: aastore       
       60: dup           
       61: iconst_1      
-      62: ldc           #56                 // String curr
+      62: ldc           #49                 // String curr
       64: aastore       
       65: dup           
       66: iconst_2      
       67: aload_3       
       68: aastore       
-      69: invokespecial #53                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      69: invokespecial #46                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       72: astore        4
-      74: new           #45                 // class org/flasck/jvm/FLClosure
+      74: new           #38                 // class org/flasck/jvm/FLClosure
       77: dup           
-      78: ldc           #58                 // class org/flasck/android/builtin/Cons
+      78: ldc           #51                 // class org/flasck/android/builtin/Cons
       80: iconst_2      
-      81: anewarray     #47                 // class java/lang/Object
+      81: anewarray     #40                 // class java/lang/Object
       84: dup           
       85: iconst_0      
       86: aload         4
@@ -79,14 +72,14 @@ public class test.golden.Getter extends org.flasck.android.FlasckActivity {
       89: dup           
       90: iconst_1      
       91: iconst_0      
-      92: anewarray     #47                 // class java/lang/Object
-      95: invokestatic  #65                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      92: anewarray     #40                 // class java/lang/Object
+      95: invokestatic  #58                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       98: aastore       
-      99: invokespecial #53                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      99: invokespecial #46                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
      102: areturn       
-     103: new           #41                 // class org/flasck/android/FLError
+     103: new           #34                 // class org/flasck/android/FLError
      106: dup           
-     107: ldc           #66                 // String choose: case not handled
-     109: invokespecial #70                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
+     107: ldc           #59                 // String choose: case not handled
+     109: invokespecial #63                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
      112: areturn       
 }

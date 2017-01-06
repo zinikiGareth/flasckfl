@@ -36,7 +36,7 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 		NewMethodDefiner render = gen.done();
 		if (areaName != null) {
 			String topBlock = areaName.javaName();
-			render.makeNewVoid(DroidUtils.javaNestedName(topBlock), render.myThis(), (Expr)render.as(render.makeNew("org.flasck.android.areas.CardArea", render.getField(render.myThis(), "_wrapper"), (Expr)render.as(render.myThis(), J.FLASCK_ACTIVITY), into.getVar()), "org.flasck.android.areas.Area")).flush();
+			render.makeNewVoid(DroidUtils.javaNestedName(topBlock), render.myThis(), (Expr)render.as(render.makeNew(J.CARD_AREA, render.getField(render.myThis(), "_wrapper"), (Expr)render.as(render.myThis(), J.FLASCK_CARD), into.getVar()), J.AREA)).flush();
 			bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(topBlock), DroidUtils.javaNestedSimpleName(topBlock));
 		}
 		render.returnVoid().flush();
@@ -50,14 +50,14 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(clz));
 		String baseClz = "org.flasck.android.areas." + base;
 		bcc.superclass(baseClz);
-		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.Wrapper"), "_wrapper");
-		bcc.inheritsField(false, Access.PUBLIC, new JavaType("org.flasck.android.areas.Area"), "_parent");
+		bcc.inheritsField(false, Access.PUBLIC, new JavaType(J.WRAPPER), "_wrapper");
+		bcc.inheritsField(false, Access.PUBLIC, new JavaType(J.AREA), "_parent");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(clz), DroidUtils.javaNestedSimpleName(clz));
 		IFieldInfo card = bcc.defineField(true, Access.PRIVATE, DroidUtils.javaBaseName(clz), "_card");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cardArg = gen.argument(DroidUtils.javaBaseName(clz), "cardArg");
-			PendingVar parent = gen.argument("org/flasck/android/areas/Area", "parent");
+			PendingVar parent = gen.argument(J.AREA, "parent");
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", baseClz, "<init>", parent.getVar(), customTag == null ? ctor.as(ctor.aNull(), "java.lang.String") : ctor.stringConst(customTag)).flush();
 			ctor.assign(card.asExpr(ctor), cardArg.getVar()).flush();

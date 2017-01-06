@@ -1,8 +1,8 @@
-public class test.golden.ClickIt extends org.flasck.android.FLASObject {
+public class test.golden.ClickIt extends org.flasck.jvm.FLASObject {
   public test.golden.ClickIt();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/FLASObject."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/FLASObject."<init>":()V
        4: return        
 
   public void _doFullEval();
@@ -240,24 +240,24 @@ public class test.golden.Complex$_S0 extends test.golden.Offer {
      136: areturn       
 }
 public class test.golden.Complex$B1 extends org.flasck.android.areas.DivArea {
-  public test.golden.Complex$B1(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B1(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/Complex;
       11: aload_0       
       12: getfield      #15                 // Field _card:Ltest/golden/Complex;
-      15: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/android/Wrapper;
+      15: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/jvm/Wrapper;
       18: aload_0       
       19: getfield      #15                 // Field _card:Ltest/golden/Complex;
       22: ldc           #20                 // String hello
       24: aload_0       
       25: ldc           #22                 // String _setAttr_1
-      27: invokevirtual #29                 // Method org/flasck/android/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+      27: invokevirtual #29                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
       30: aload_0       
       31: invokevirtual #32                 // Method _setAttr_1:()Ljava/lang/Object;
       34: pop           
@@ -265,25 +265,25 @@ public class test.golden.Complex$B1 extends org.flasck.android.areas.DivArea {
       38: dup           
       39: aload_1       
       40: aload_0       
-      41: invokespecial #37                 // Method test/golden/Complex$B2."<init>":(Ltest/golden/Complex;Lorg/flasck/android/areas/Area;)V
+      41: invokespecial #37                 // Method test/golden/Complex$B2."<init>":(Ltest/golden/Complex;Lorg/flasck/jvm/areas/Area;)V
       44: astore_3      
       45: new           #38                 // class test/golden/Complex$B3
       48: dup           
       49: aload_1       
       50: aload_0       
-      51: invokespecial #40                 // Method test/golden/Complex$B3."<init>":(Ltest/golden/Complex;Lorg/flasck/android/areas/Area;)V
+      51: invokespecial #40                 // Method test/golden/Complex$B3."<init>":(Ltest/golden/Complex;Lorg/flasck/jvm/areas/Area;)V
       54: astore        4
       56: new           #41                 // class test/golden/Complex$B6
       59: dup           
       60: aload_1       
       61: aload_0       
-      62: invokespecial #43                 // Method test/golden/Complex$B6."<init>":(Ltest/golden/Complex;Lorg/flasck/android/areas/Area;)V
+      62: invokespecial #43                 // Method test/golden/Complex$B6."<init>":(Ltest/golden/Complex;Lorg/flasck/jvm/areas/Area;)V
       65: astore        5
       67: new           #44                 // class test/golden/Complex$B9
       70: dup           
       71: aload_1       
       72: aload_0       
-      73: invokespecial #46                 // Method test/golden/Complex$B9."<init>":(Ltest/golden/Complex;Lorg/flasck/android/areas/Area;)V
+      73: invokespecial #46                 // Method test/golden/Complex$B9."<init>":(Ltest/golden/Complex;Lorg/flasck/jvm/areas/Area;)V
       76: astore        6
       78: return        
 
@@ -295,36 +295,36 @@ public class test.golden.Complex$B1 extends org.flasck.android.areas.DivArea {
        7: areturn       
 }
 public class test.golden.Complex$B10 extends org.flasck.android.areas.CardSlotArea {
-  public test.golden.Complex$B10(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B10(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/CardSlotArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/CardSlotArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/Complex;
       11: return        
 }
 public class test.golden.Complex$B11 extends org.flasck.android.areas.CardSlotArea {
-  public test.golden.Complex$B11(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B11(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/CardSlotArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/CardSlotArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/Complex;
       11: aload_0       
       12: getfield      #15                 // Field _card:Ltest/golden/Complex;
-      15: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/android/Wrapper;
+      15: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/jvm/Wrapper;
       18: aload_0       
       19: getfield      #15                 // Field _card:Ltest/golden/Complex;
       22: ldc           #20                 // String yoyo
       24: aload_0       
       25: ldc           #22                 // String _yoyoExpr
-      27: invokevirtual #29                 // Method org/flasck/android/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+      27: invokevirtual #29                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
       30: aload_0       
       31: invokevirtual #32                 // Method _yoyoExpr:()Ljava/lang/Object;
       34: pop           
@@ -347,36 +347,36 @@ public class test.golden.Complex$B11 extends org.flasck.android.areas.CardSlotAr
        7: areturn       
 }
 public class test.golden.Complex$B2 extends org.flasck.android.areas.TextArea {
-  public test.golden.Complex$B2(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B2(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/Complex;
       11: aload_0       
       12: getfield      #15                 // Field _card:Ltest/golden/Complex;
-      15: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/android/Wrapper;
+      15: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/jvm/Wrapper;
       18: aload_0       
       19: getfield      #15                 // Field _card:Ltest/golden/Complex;
       22: ldc           #20                 // String hello
       24: aload_0       
       25: ldc           #22                 // String _contentExpr
-      27: invokevirtual #29                 // Method org/flasck/android/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+      27: invokevirtual #29                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
       30: aload_0       
       31: invokevirtual #32                 // Method _contentExpr:()Ljava/lang/Object;
       34: pop           
       35: aload_0       
       36: getfield      #15                 // Field _card:Ltest/golden/Complex;
-      39: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/android/Wrapper;
+      39: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/jvm/Wrapper;
       42: aload_0       
       43: getfield      #15                 // Field _card:Ltest/golden/Complex;
       46: ldc           #58                 // String format
       48: aload_0       
       49: ldc           #60                 // String _setVariableFormats
-      51: invokevirtual #29                 // Method org/flasck/android/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+      51: invokevirtual #29                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
       54: aload_0       
       55: invokevirtual #63                 // Method _setVariableFormats:()Ljava/lang/Object;
       58: pop           
@@ -434,40 +434,40 @@ public class test.golden.Complex$B2 extends org.flasck.android.areas.TextArea {
       33: areturn       
 }
 public class test.golden.Complex$B3 extends org.flasck.android.areas.ListArea {
-  public test.golden.Complex$B3(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B3(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/ListArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/ListArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/Complex;
       11: aload_0       
       12: getfield      #15                 // Field _card:Ltest/golden/Complex;
-      15: getfield      #39                 // Field test/golden/Complex._wrapper:Lorg/flasck/android/Wrapper;
+      15: getfield      #39                 // Field test/golden/Complex._wrapper:Lorg/flasck/jvm/Wrapper;
       18: aload_0       
       19: getfield      #15                 // Field _card:Ltest/golden/Complex;
       22: ldc           #40                 // String list
       24: aload_0       
       25: ldc           #42                 // String _assignToVar
-      27: invokevirtual #49                 // Method org/flasck/android/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+      27: invokevirtual #49                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
       30: return        
 
-  public org.flasck.android.areas.Area _newChild(org.flasck.android.builtin.Crokey);
+  public org.flasck.jvm.areas.Area _newChild(org.flasck.android.builtin.Crokey);
     Code:
        0: new           #17                 // class test/golden/Complex$B4
        3: dup           
        4: aload_0       
        5: getfield      #15                 // Field _card:Ltest/golden/Complex;
        8: aload_0       
-       9: invokespecial #21                 // Method test/golden/Complex$B4."<init>":(Ltest/golden/Complex;Lorg/flasck/android/areas/Area;)V
+       9: invokespecial #21                 // Method test/golden/Complex$B4."<init>":(Ltest/golden/Complex;Lorg/flasck/jvm/areas/Area;)V
       12: astore_2      
       13: aload_2       
       14: ldc           #22                 // String _crokey
       16: aload_1       
       17: getfield      #29                 // Field org/flasck/android/builtin/Crokey.id:Ljava/lang/Object;
-      20: invokevirtual #35                 // Method org/flasck/android/areas/Area.bindVar:(Ljava/lang/String;Ljava/lang/Object;)V
+      20: invokevirtual #35                 // Method org/flasck/jvm/areas/Area.bindVar:(Ljava/lang/String;Ljava/lang/Object;)V
       23: aload_2       
       24: areturn       
 
@@ -483,12 +483,12 @@ public class test.golden.Complex$B4 extends org.flasck.android.areas.DivArea {
 
   public java.lang.Object lv;
 
-  public test.golden.Complex$B4(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B4(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: ldc           #11                 // String li
-       4: invokespecial #15                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       4: invokespecial #15                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        7: aload_0       
        8: aload_1       
        9: putfield      #17                 // Field _card:Ltest/golden/Complex;
@@ -499,7 +499,7 @@ public class test.golden.Complex$B4 extends org.flasck.android.areas.DivArea {
       20: dup           
       21: aload_1       
       22: aload_0       
-      23: invokespecial #78                 // Method test/golden/Complex$B5."<init>":(Ltest/golden/Complex;Lorg/flasck/android/areas/Area;)V
+      23: invokespecial #78                 // Method test/golden/Complex$B5."<init>":(Ltest/golden/Complex;Lorg/flasck/jvm/areas/Area;)V
       26: astore_3      
       27: return        
 
@@ -531,28 +531,28 @@ public class test.golden.Complex$B4 extends org.flasck.android.areas.DivArea {
       45: invokestatic  #34                 // Method android/util/Log.e:(Ljava/lang/String;Ljava/lang/String;)I
       48: pop           
       49: aload_0       
-      50: getfield      #48                 // Field _wrapper:Lorg/flasck/android/Wrapper;
+      50: getfield      #48                 // Field _wrapper:Lorg/flasck/jvm/Wrapper;
       53: aload_0       
-      54: getfield      #52                 // Field _parent:Lorg/flasck/android/areas/Area;
-      57: checkcast     #53                 // class org/flasck/android/areas/ListArea
-      60: getfield      #58                 // Field org/flasck/android/areas/ListArea._current:Lorg/flasck/android/builtin/Croset;
+      54: getfield      #52                 // Field _parent:Lorg/flasck/jvm/areas/Area;
+      57: checkcast     #53                 // class org/flasck/jvm/areas/ListArea
+      60: getfield      #58                 // Field org/flasck/jvm/areas/ListArea._current:Lorg/flasck/jvm/builtin/Croset;
       63: aload_0       
       64: aload_0       
       65: getfield      #36                 // Field lv:Ljava/lang/Object;
-      68: invokevirtual #64                 // Method org/flasck/android/Wrapper.removeOnCrosetReplace:(Lorg/flasck/android/builtin/Croset;Lorg/flasck/android/areas/Area;Ljava/lang/Object;)V
+      68: invokevirtual #64                 // Method org/flasck/jvm/Wrapper.removeOnCrosetReplace:(Lorg/flasck/jvm/builtin/Croset;Lorg/flasck/jvm/areas/Area;Ljava/lang/Object;)V
       71: aload_0       
       72: aload_1       
       73: putfield      #36                 // Field lv:Ljava/lang/Object;
       76: aload_0       
-      77: getfield      #48                 // Field _wrapper:Lorg/flasck/android/Wrapper;
+      77: getfield      #48                 // Field _wrapper:Lorg/flasck/jvm/Wrapper;
       80: aload_0       
-      81: getfield      #52                 // Field _parent:Lorg/flasck/android/areas/Area;
-      84: checkcast     #53                 // class org/flasck/android/areas/ListArea
-      87: getfield      #58                 // Field org/flasck/android/areas/ListArea._current:Lorg/flasck/android/builtin/Croset;
+      81: getfield      #52                 // Field _parent:Lorg/flasck/jvm/areas/Area;
+      84: checkcast     #53                 // class org/flasck/jvm/areas/ListArea
+      87: getfield      #58                 // Field org/flasck/jvm/areas/ListArea._current:Lorg/flasck/jvm/builtin/Croset;
       90: aload_0       
       91: aload_0       
       92: getfield      #36                 // Field lv:Ljava/lang/Object;
-      95: invokevirtual #67                 // Method org/flasck/android/Wrapper.onCrosetReplace:(Lorg/flasck/android/builtin/Croset;Lorg/flasck/android/areas/Area;Ljava/lang/Object;)V
+      95: invokevirtual #67                 // Method org/flasck/jvm/Wrapper.onCrosetReplace:(Lorg/flasck/jvm/builtin/Croset;Lorg/flasck/jvm/areas/Area;Ljava/lang/Object;)V
       98: ldc           #25                 // String FlasckLib
      100: ldc           #68                 // String calling _fireInterests
      102: invokestatic  #34                 // Method android/util/Log.e:(Ljava/lang/String;Ljava/lang/String;)I
@@ -565,12 +565,12 @@ public class test.golden.Complex$B4 extends org.flasck.android.areas.DivArea {
 public class test.golden.Complex$B5 extends org.flasck.android.areas.TextArea {
   public final test.golden.Complex$B4 _src_lv;
 
-  public test.golden.Complex$B5(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B5(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/Complex;
@@ -583,7 +583,7 @@ public class test.golden.Complex$B5 extends org.flasck.android.areas.TextArea {
       23: getfield      #22                 // Field _src_lv:Ltest/golden/Complex$B4;
       26: aload_0       
       27: ldc           #23                 // String _contentExpr
-      29: invokevirtual #27                 // Method test/golden/Complex$B4._interested:(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+      29: invokevirtual #27                 // Method test/golden/Complex$B4._interested:(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
       32: aload_0       
       33: invokevirtual #30                 // Method _contentExpr:()Ljava/lang/Object;
       36: pop           
@@ -606,40 +606,40 @@ public class test.golden.Complex$B5 extends org.flasck.android.areas.TextArea {
        7: areturn       
 }
 public class test.golden.Complex$B6 extends org.flasck.android.areas.ListArea {
-  public test.golden.Complex$B6(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B6(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/ListArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/ListArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/Complex;
       11: aload_0       
       12: getfield      #15                 // Field _card:Ltest/golden/Complex;
-      15: getfield      #39                 // Field test/golden/Complex._wrapper:Lorg/flasck/android/Wrapper;
+      15: getfield      #39                 // Field test/golden/Complex._wrapper:Lorg/flasck/jvm/Wrapper;
       18: aload_0       
       19: getfield      #15                 // Field _card:Ltest/golden/Complex;
       22: ldc           #40                 // String list
       24: aload_0       
       25: ldc           #42                 // String _assignToVar
-      27: invokevirtual #49                 // Method org/flasck/android/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+      27: invokevirtual #49                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
       30: return        
 
-  public org.flasck.android.areas.Area _newChild(org.flasck.android.builtin.Crokey);
+  public org.flasck.jvm.areas.Area _newChild(org.flasck.android.builtin.Crokey);
     Code:
        0: new           #17                 // class test/golden/Complex$B7
        3: dup           
        4: aload_0       
        5: getfield      #15                 // Field _card:Ltest/golden/Complex;
        8: aload_0       
-       9: invokespecial #21                 // Method test/golden/Complex$B7."<init>":(Ltest/golden/Complex;Lorg/flasck/android/areas/Area;)V
+       9: invokespecial #21                 // Method test/golden/Complex$B7."<init>":(Ltest/golden/Complex;Lorg/flasck/jvm/areas/Area;)V
       12: astore_2      
       13: aload_2       
       14: ldc           #22                 // String _crokey
       16: aload_1       
       17: getfield      #29                 // Field org/flasck/android/builtin/Crokey.id:Ljava/lang/Object;
-      20: invokevirtual #35                 // Method org/flasck/android/areas/Area.bindVar:(Ljava/lang/String;Ljava/lang/Object;)V
+      20: invokevirtual #35                 // Method org/flasck/jvm/areas/Area.bindVar:(Ljava/lang/String;Ljava/lang/Object;)V
       23: aload_2       
       24: areturn       
 
@@ -651,12 +651,12 @@ public class test.golden.Complex$B6 extends org.flasck.android.areas.ListArea {
        7: areturn       
 }
 public class test.golden.Complex$B7 extends org.flasck.android.areas.DivArea {
-  public test.golden.Complex$B7(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B7(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: ldc           #11                 // String li
-       4: invokespecial #15                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       4: invokespecial #15                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        7: aload_0       
        8: aload_1       
        9: putfield      #17                 // Field _card:Ltest/golden/Complex;
@@ -664,17 +664,17 @@ public class test.golden.Complex$B7 extends org.flasck.android.areas.DivArea {
       15: dup           
       16: aload_1       
       17: aload_0       
-      18: invokespecial #22                 // Method test/golden/Complex$B8."<init>":(Ltest/golden/Complex;Lorg/flasck/android/areas/Area;)V
+      18: invokespecial #22                 // Method test/golden/Complex$B8."<init>":(Ltest/golden/Complex;Lorg/flasck/jvm/areas/Area;)V
       21: astore_3      
       22: return        
 }
 public class test.golden.Complex$B8 extends org.flasck.android.areas.TextArea {
-  public test.golden.Complex$B8(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B8(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/Complex;
@@ -704,24 +704,24 @@ public class test.golden.Complex$B8 extends org.flasck.android.areas.TextArea {
        8: areturn       
 }
 public class test.golden.Complex$B9 extends org.flasck.android.areas.CasesArea {
-  public test.golden.Complex$B9(test.golden.Complex, org.flasck.android.areas.Area);
+  public test.golden.Complex$B9(test.golden.Complex, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/CasesArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/CasesArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/Complex;
       11: aload_0       
       12: getfield      #15                 // Field _card:Ltest/golden/Complex;
-      15: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/android/Wrapper;
+      15: getfield      #19                 // Field test/golden/Complex._wrapper:Lorg/flasck/jvm/Wrapper;
       18: aload_0       
       19: getfield      #15                 // Field _card:Ltest/golden/Complex;
       22: ldc           #20                 // String hello
       24: aload_0       
       25: ldc           #22                 // String _chooseCase
-      27: invokevirtual #29                 // Method org/flasck/android/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+      27: invokevirtual #29                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
       30: aload_0       
       31: invokevirtual #32                 // Method _chooseCase:()Ljava/lang/Object;
       34: pop           
@@ -880,7 +880,7 @@ public class test.golden.Complex$styleIf {
       10: invokevirtual #19                 // Method test/golden/Complex.styleIf:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
       13: areturn       
 }
-public class test.golden.Complex extends org.flasck.android.FlasckActivity {
+public class test.golden.Complex extends org.flasck.jvm.cards.FlasckCard {
   protected test.golden.DataStore ds;
 
   protected java.lang.String hello;
@@ -895,90 +895,83 @@ public class test.golden.Complex extends org.flasck.android.FlasckActivity {
 
   protected test.golden.Complex$_C1 ds;
 
-  public test.golden.Complex();
-    Code:
-       0: aload_0       
-       1: invokespecial #29                 // Method org/flasck/android/FlasckActivity."<init>":()V
-       4: return        
-
-  protected void onCreate(android.os.Bundle);
+  public test.golden.Complex(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
     Code:
        0: aload_0       
        1: aload_1       
-       2: invokespecial #33                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
-       5: aload_0       
-       6: ldc           #34                 // String test.golden.Init
-       8: new           #16                 // class test/golden/Complex$_C0
-      11: dup           
-      12: aload_0       
-      13: invokespecial #38                 // Method test/golden/Complex$_C0."<init>":(Ltest/golden/Complex;)V
-      16: invokevirtual #42                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/android/ContractImpl;)V
-      19: aload_0       
-      20: new           #20                 // class test/golden/Complex$_C1
-      23: dup           
-      24: aload_0       
-      25: invokespecial #43                 // Method test/golden/Complex$_C1."<init>":(Ltest/golden/Complex;)V
-      28: putfield      #45                 // Field ds:Ltest/golden/Complex$_C1;
-      31: aload_0       
-      32: ldc           #46                 // String test.golden.DataStore
-      34: aload_0       
-      35: getfield      #45                 // Field ds:Ltest/golden/Complex$_C1;
-      38: invokevirtual #42                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/android/ContractImpl;)V
-      41: aload_0       
-      42: invokespecial #50                 // Method org/flasck/android/FlasckActivity.ready:()V
-      45: return        
+       2: aload_2       
+       3: invokespecial #29                 // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
+       6: aload_0       
+       7: ldc           #30                 // String test.golden.Init
+       9: new           #16                 // class test/golden/Complex$_C0
+      12: dup           
+      13: aload_0       
+      14: invokespecial #34                 // Method test/golden/Complex$_C0."<init>":(Ltest/golden/Complex;)V
+      17: invokevirtual #38                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/jvm/ContractImpl;)V
+      20: aload_0       
+      21: new           #20                 // class test/golden/Complex$_C1
+      24: dup           
+      25: aload_0       
+      26: invokespecial #39                 // Method test/golden/Complex$_C1."<init>":(Ltest/golden/Complex;)V
+      29: putfield      #41                 // Field ds:Ltest/golden/Complex$_C1;
+      32: aload_0       
+      33: ldc           #42                 // String test.golden.DataStore
+      35: aload_0       
+      36: getfield      #41                 // Field ds:Ltest/golden/Complex$_C1;
+      39: invokevirtual #38                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/jvm/ContractImpl;)V
+      42: return        
 
   public void render(java.lang.String);
     Code:
-       0: new           #52                 // class test/golden/Complex$B1
+       0: new           #45                 // class test/golden/Complex$B1
        3: aload_0       
-       4: new           #54                 // class org/flasck/android/areas/CardArea
+       4: new           #47                 // class org/flasck/jvm/areas/CardArea
        7: dup           
        8: aload_0       
-       9: getfield      #59                 // Field _wrapper:Lorg/flasck/android/Wrapper;
+       9: getfield      #52                 // Field _wrapper:Lorg/flasck/jvm/Wrapper;
       12: aload_0       
       13: aload_1       
-      14: invokespecial #62                 // Method org/flasck/android/areas/CardArea."<init>":(Lorg/flasck/android/Wrapper;Lorg/flasck/android/FlasckActivity;Ljava/lang/String;)V
-      17: invokespecial #65                 // Method test/golden/Complex$B1."<init>":(Ltest/golden/Complex;Lorg/flasck/android/areas/Area;)V
+      14: invokespecial #55                 // Method org/flasck/jvm/areas/CardArea."<init>":(Lorg/flasck/jvm/Wrapper;Lorg/flasck/jvm/cards/FlasckCard;Ljava/lang/String;)V
+      17: invokespecial #58                 // Method test/golden/Complex$B1."<init>":(Ltest/golden/Complex;Lorg/flasck/jvm/areas/Area;)V
       20: return        
 
   public java.lang.Object sayHello(java.lang.Object);
     Code:
        0: aload_1       
-       1: invokestatic  #84                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
+       1: invokestatic  #77                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
        4: astore_1      
        5: aload_1       
-       6: instanceof    #85                 // class org/flasck/android/FLError
+       6: instanceof    #78                 // class org/flasck/android/FLError
        9: ifeq          14
       12: aload_1       
       13: areturn       
       14: aload_1       
-      15: instanceof    #87                 // class test/golden/ClickIt
+      15: instanceof    #80                 // class test/golden/ClickIt
       18: ifeq          77
-      21: new           #89                 // class org/flasck/jvm/FLClosure
+      21: new           #82                 // class org/flasck/jvm/FLClosure
       24: dup           
-      25: ldc           #91                 // class org/flasck/android/builtin/Assign
+      25: ldc           #84                 // class org/flasck/android/builtin/Assign
       27: iconst_3      
-      28: anewarray     #93                 // class java/lang/Object
+      28: anewarray     #86                 // class java/lang/Object
       31: dup           
       32: iconst_0      
       33: aload_0       
       34: aastore       
       35: dup           
       36: iconst_1      
-      37: ldc           #95                 // String hello
+      37: ldc           #88                 // String hello
       39: aastore       
       40: dup           
       41: iconst_2      
-      42: ldc           #97                 // String goodbye
+      42: ldc           #90                 // String goodbye
       44: aastore       
-      45: invokespecial #101                // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      45: invokespecial #94                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       48: astore_2      
-      49: new           #89                 // class org/flasck/jvm/FLClosure
+      49: new           #82                 // class org/flasck/jvm/FLClosure
       52: dup           
-      53: ldc           #102                // class org/flasck/android/builtin/Cons
+      53: ldc           #95                 // class org/flasck/android/builtin/Cons
       55: iconst_2      
-      56: anewarray     #93                 // class java/lang/Object
+      56: anewarray     #86                 // class java/lang/Object
       59: dup           
       60: iconst_0      
       61: aload_2       
@@ -986,60 +979,60 @@ public class test.golden.Complex extends org.flasck.android.FlasckActivity {
       63: dup           
       64: iconst_1      
       65: iconst_0      
-      66: anewarray     #93                 // class java/lang/Object
-      69: invokestatic  #109                // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
+      66: anewarray     #86                 // class java/lang/Object
+      69: invokestatic  #102                // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
       72: aastore       
-      73: invokespecial #101                // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
+      73: invokespecial #94                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
       76: areturn       
-      77: new           #85                 // class org/flasck/android/FLError
+      77: new           #78                 // class org/flasck/android/FLError
       80: dup           
-      81: ldc           #110                // String sayHello: case not handled
-      83: invokespecial #114                // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
+      81: ldc           #103                // String sayHello: case not handled
+      83: invokespecial #107                // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
       86: areturn       
 
   public java.lang.Object styleIf(java.lang.Object, java.lang.Object);
     Code:
        0: aload_2       
-       1: invokestatic  #121                // Method FLEval.isTruthy:(Ljava/lang/Object;)Z
+       1: invokestatic  #114                // Method FLEval.isTruthy:(Ljava/lang/Object;)Z
        4: ifeq          9
        7: aload_1       
        8: areturn       
-       9: ldc           #122                // String 
+       9: ldc           #115                // String 
       11: areturn       
 }
-public abstract class test.golden.DataStore extends org.flasck.android.ContractImpl {
+public abstract class test.golden.DataStore extends org.flasck.jvm.ContractImpl {
   public test.golden.DataStore();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 }
-public abstract class test.golden.Handler extends org.flasck.android.ContractImpl {
+public abstract class test.golden.Handler extends org.flasck.jvm.ContractImpl {
   public test.golden.Handler();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 
   public abstract java.lang.Object reply(java.lang.Object);
 }
-public abstract class test.golden.Init extends org.flasck.android.ContractImpl {
+public abstract class test.golden.Init extends org.flasck.jvm.ContractImpl {
   public test.golden.Init();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 
   public abstract java.lang.Object ready(java.lang.Object);
 }
-public abstract class test.golden.Offer extends org.flasck.android.ContractImpl {
+public abstract class test.golden.Offer extends org.flasck.jvm.ContractImpl {
   public test.golden.Offer();
     Code:
        0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/ContractImpl."<init>":()V
+       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
        4: return        
 }
-public class test.golden.Polyed extends org.flasck.android.FLASObject {
+public class test.golden.Polyed extends org.flasck.jvm.FLASObject {
   public java.lang.String x;
 
   public org.flasck.android.builtin.T1 y;
@@ -1049,7 +1042,7 @@ public class test.golden.Polyed extends org.flasck.android.FLASObject {
   public test.golden.Polyed();
     Code:
        0: aload_0       
-       1: invokespecial #14                 // Method org/flasck/android/FLASObject."<init>":()V
+       1: invokespecial #14                 // Method org/flasck/jvm/FLASObject."<init>":()V
        4: return        
 
   public void _doFullEval();
@@ -1074,29 +1067,22 @@ public class test.golden.Polyed extends org.flasck.android.FLASObject {
       33: putfield      #25                 // Field z:Lorg/flasck/android/builtin/List;
       36: return        
 }
-public class test.golden.SubCard extends org.flasck.android.FlasckActivity {
-  public test.golden.SubCard();
-    Code:
-       0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/android/FlasckActivity."<init>":()V
-       4: return        
-
-  protected void onCreate(android.os.Bundle);
+public class test.golden.SubCard extends org.flasck.jvm.cards.FlasckCard {
+  public test.golden.SubCard(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
     Code:
        0: aload_0       
        1: aload_1       
-       2: invokespecial #12                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
-       5: aload_0       
-       6: invokespecial #15                 // Method org/flasck/android/FlasckActivity.ready:()V
-       9: return        
+       2: aload_2       
+       3: invokespecial #8                  // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
+       6: return        
 }
-public class test.golden.Thing extends org.flasck.android.FLASObject {
+public class test.golden.Thing extends org.flasck.jvm.FLASObject {
   public java.lang.String x;
 
   public test.golden.Thing();
     Code:
        0: aload_0       
-       1: invokespecial #10                 // Method org/flasck/android/FLASObject."<init>":()V
+       1: invokespecial #10                 // Method org/flasck/jvm/FLASObject."<init>":()V
        4: return        
 
   public void _doFullEval();
@@ -1109,13 +1095,13 @@ public class test.golden.Thing extends org.flasck.android.FLASObject {
        9: putfield      #13                 // Field x:Ljava/lang/String;
       12: return        
 }
-public class test.golden.WithInit extends org.flasck.android.FLASObject {
+public class test.golden.WithInit extends org.flasck.jvm.FLASObject {
   public java.lang.String x;
 
   public test.golden.WithInit();
     Code:
        0: aload_0       
-       1: invokespecial #10                 // Method org/flasck/android/FLASObject."<init>":()V
+       1: invokespecial #10                 // Method org/flasck/jvm/FLASObject."<init>":()V
        4: return        
 
   public void _doFullEval();

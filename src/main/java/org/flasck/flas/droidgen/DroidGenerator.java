@@ -109,8 +109,8 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		if (!doBuild)
 			return;
 		ByteCodeSink bcc = bce.newClass(grp.struct.name());
-		bcc.superclass(J.FLASCK_ACTIVITY);
-		bcc.inheritsField(false, Access.PUBLIC, J.WRAPPER, "_wrapper");
+		bcc.superclass(J.FLASCK_CARD);
+		bcc.inheritsField(true, Access.PUBLIC, J.WRAPPER, "_wrapper");
 		grp.struct.visitFields(new DroidStructFieldGenerator(bcc, Access.PROTECTED));
 		for (ContractGrouping x : grp.contracts) {
 			if (x.referAsVar != null)
@@ -122,29 +122,33 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		}
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar despatcher = gen.argument(J.CARD_DESPATCHER, "despatcher");
+			PendingVar engine = gen.argument(J.DISPLAY_ENGINE, "display");
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", J.FLASCK_ACTIVITY, "<init>").flush();
+			ctor.callSuper("void", J.FLASCK_CARD, "<init>", despatcher.getVar(), engine.getVar()).flush();
+			for (ContractGrouping x : grp.contracts) {
+				IExpr impl = ctor.makeNew(DroidUtils.javaNestedName(x.implName.jsName()), ctor.myThis());
+				if (x.referAsVar != null) {
+					FieldExpr fe = ctor.getField(x.referAsVar);
+					ctor.assign(fe, impl).flush();
+					impl = fe;
+				}
+				ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst(x.contractName.uniqueName()), ctor.as(impl, J.CONTRACT_IMPL)).flush();
+			}
 			ctor.returnVoid().flush();
 		}
+		/*
 		{
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "onCreate");
 			PendingVar sis = gen.argument("android.os.Bundle", "savedState");
 			gen.returns("void");
 			NewMethodDefiner oc = gen.done();
 			oc.setAccess(Access.PROTECTED);
-			oc.callSuper("void", J.FLASCK_ACTIVITY, "onCreate", sis.getVar()).flush();
-			for (ContractGrouping x : grp.contracts) {
-				IExpr impl = oc.makeNew(DroidUtils.javaNestedName(x.implName.jsName()), oc.myThis());
-				if (x.referAsVar != null) {
-					FieldExpr fe = oc.getField(x.referAsVar);
-					oc.assign(fe, impl).flush();
-					impl = fe;
-				}
-				oc.callVirtual("void", oc.myThis(), "registerContract", oc.stringConst(x.contractName.uniqueName()), oc.as(impl, J.CONTRACT_IMPL)).flush();
-			}
-			oc.callSuper("void", J.FLASCK_ACTIVITY, "ready").flush();
+			oc.callSuper("void", J.FLASCK_CARD, "onCreate", sis.getVar()).flush();
+			oc.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			oc.returnVoid().flush();
 		}
+		*/
 		// TODO: I feel this should come from the "app" definition file, NOT the "platform" spec ...
 		if (grp.platforms.containsKey("android")) {
 			PlatformSpec spec = grp.platforms.get("android");

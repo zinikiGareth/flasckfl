@@ -1,12 +1,19 @@
 package org.flasck.flas.droidgen;
 
 import org.flasck.jvm.ContractImpl;
+import org.flasck.jvm.FLASObject;
 import org.flasck.jvm.FLClosure;
 import org.flasck.jvm.FLCurry;
 import org.flasck.jvm.FLError;
 import org.flasck.jvm.FLEval;
 import org.flasck.jvm.Wrapper;
+import org.flasck.jvm.areas.Area;
+import org.flasck.jvm.areas.CardArea;
+import org.flasck.jvm.areas.IArea;
+import org.flasck.jvm.areas.ListArea;
+import org.flasck.jvm.areas.TextArea;
 import org.flasck.jvm.builtin.Cons;
+import org.flasck.jvm.builtin.Croset;
 import org.flasck.jvm.builtin.Nil;
 import org.flasck.jvm.builtin.Send;
 import org.flasck.jvm.cards.CardDespatcher;
@@ -26,8 +33,7 @@ public class J {
 	public static final String STRING = String.class.getName();
 
 	// Essential FLAS Things
-	public static final String NEW_CONTRACT_IMPL = ContractImpl.class.getName();
-	public static final String CONTRACT_IMPL = "org.flasck.android.ContractImpl";
+	public static final String CONTRACT_IMPL = ContractImpl.class.getName();
 	public static final String SEND = Send.class.getName();
 	public static final String CONS = Cons.class.getName();
 	public static final String FLCLOSURE = FLClosure.class.getName();
@@ -36,16 +42,23 @@ public class J {
 	public static final String FLEVAL = FLEval.class.getName();
 	public static final String FLCURRY = FLCurry.class.getName();
 
+	// Other FLAS builtins
+	public static final String CROSET = Croset.class.getName();
+
 	// JVM defined things
 	public static final String CARD_DESPATCHER = CardDespatcher.class.getName();
 	public static final String DELIVERY_ADDRESS = DeliveryAddress.class.getName();
 	public static final String DISPLAY_ENGINE = DisplayEngine.class.getName();
-	public static final String WRAPPER = "org.flasck.android.Wrapper"; // Wrapper.class.getName();
-	public static final String NEW_WRAPPER = Wrapper.class.getName();
+	public static final String WRAPPER = Wrapper.class.getName();
 
 	// JVM object things we inherit from or something
 	public static final String FLASCK_CARD = FlasckCard.class.getName();
-	public static final String FLASCK_ACTIVITY = "org.flasck.android.FlasckActivity";
-	public static final String FLAS_OBJECT = "org.flasck.android.FLASObject";
+	public static final String FLAS_OBJECT = FLASObject.class.getName();
+	
+	public static final String IAREA = IArea.class.getName();
+	public static final String AREA = Area.class.getName();
+	public static final String TEXT_AREA = TextArea.class.getName();
+	public static final String LIST_AREA = ListArea.class.getName();
+	public static final String CARD_AREA = CardArea.class.getName();
 
 }

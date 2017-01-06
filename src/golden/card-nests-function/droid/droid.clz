@@ -1,10 +1,10 @@
 public class test.golden.NestFunction$B1 extends org.flasck.android.areas.TextArea {
-  public test.golden.NestFunction$B1(test.golden.NestFunction, org.flasck.android.areas.Area);
+  public test.golden.NestFunction$B1(test.golden.NestFunction, org.flasck.jvm.areas.Area);
     Code:
        0: aload_0       
        1: aload_2       
        2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
        6: aload_0       
        7: aload_1       
        8: putfield      #15                 // Field _card:Ltest/golden/NestFunction;
@@ -13,13 +13,13 @@ public class test.golden.NestFunction$B1 extends org.flasck.android.areas.TextAr
       14: invokevirtual #21                 // Method _setText:(Ljava/lang/String;)V
       17: aload_0       
       18: getfield      #15                 // Field _card:Ltest/golden/NestFunction;
-      21: getfield      #43                 // Field test/golden/NestFunction._wrapper:Lorg/flasck/android/Wrapper;
+      21: getfield      #43                 // Field test/golden/NestFunction._wrapper:Lorg/flasck/jvm/Wrapper;
       24: aload_0       
       25: getfield      #15                 // Field _card:Ltest/golden/NestFunction;
       28: ldc           #44                 // String sayHello
       30: aload_0       
       31: ldc           #46                 // String _setVariableFormats
-      33: invokevirtual #53                 // Method org/flasck/android/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/android/areas/Area;Ljava/lang/String;)V
+      33: invokevirtual #53                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
       36: aload_0       
       37: invokevirtual #56                 // Method _setVariableFormats:()Ljava/lang/Object;
       40: pop           
@@ -104,45 +104,38 @@ public class test.golden.NestFunction$styleIf {
       10: invokevirtual #19                 // Method test/golden/NestFunction.styleIf:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
       13: areturn       
 }
-public class test.golden.NestFunction extends org.flasck.android.FlasckActivity {
+public class test.golden.NestFunction extends org.flasck.jvm.cards.FlasckCard {
   protected boolean sayHello;
 
-  public test.golden.NestFunction();
-    Code:
-       0: aload_0       
-       1: invokespecial #10                 // Method org/flasck/android/FlasckActivity."<init>":()V
-       4: return        
-
-  protected void onCreate(android.os.Bundle);
+  public test.golden.NestFunction(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
     Code:
        0: aload_0       
        1: aload_1       
-       2: invokespecial #14                 // Method org/flasck/android/FlasckActivity.onCreate:(Landroid/os/Bundle;)V
-       5: aload_0       
-       6: invokespecial #17                 // Method org/flasck/android/FlasckActivity.ready:()V
-       9: return        
+       2: aload_2       
+       3: invokespecial #10                 // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
+       6: return        
 
   public void render(java.lang.String);
     Code:
-       0: new           #19                 // class test/golden/NestFunction$B1
+       0: new           #12                 // class test/golden/NestFunction$B1
        3: aload_0       
-       4: new           #21                 // class org/flasck/android/areas/CardArea
+       4: new           #14                 // class org/flasck/jvm/areas/CardArea
        7: dup           
        8: aload_0       
-       9: getfield      #26                 // Field _wrapper:Lorg/flasck/android/Wrapper;
+       9: getfield      #19                 // Field _wrapper:Lorg/flasck/jvm/Wrapper;
       12: aload_0       
       13: aload_1       
-      14: invokespecial #29                 // Method org/flasck/android/areas/CardArea."<init>":(Lorg/flasck/android/Wrapper;Lorg/flasck/android/FlasckActivity;Ljava/lang/String;)V
-      17: invokespecial #32                 // Method test/golden/NestFunction$B1."<init>":(Ltest/golden/NestFunction;Lorg/flasck/android/areas/Area;)V
+      14: invokespecial #22                 // Method org/flasck/jvm/areas/CardArea."<init>":(Lorg/flasck/jvm/Wrapper;Lorg/flasck/jvm/cards/FlasckCard;Ljava/lang/String;)V
+      17: invokespecial #25                 // Method test/golden/NestFunction$B1."<init>":(Ltest/golden/NestFunction;Lorg/flasck/jvm/areas/Area;)V
       20: return        
 
   public java.lang.Object styleIf(java.lang.Object, java.lang.Object);
     Code:
        0: aload_2       
-       1: invokestatic  #40                 // Method FLEval.isTruthy:(Ljava/lang/Object;)Z
+       1: invokestatic  #33                 // Method FLEval.isTruthy:(Ljava/lang/Object;)Z
        4: ifeq          9
        7: aload_1       
        8: areturn       
-       9: ldc           #41                 // String 
+       9: ldc           #34                 // String 
       11: areturn       
 }

@@ -44,13 +44,13 @@ public class test.golden.PACKAGEFUNCTIONS {
       52: invokespecial #31                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
       55: areturn       
 }
-public class test.golden.Role extends org.flasck.android.FLASObject {
+public class test.golden.Role extends org.flasck.jvm.FLASObject {
   public java.lang.String id;
 
   public test.golden.Role();
     Code:
        0: aload_0       
-       1: invokespecial #10                 // Method org/flasck/android/FLASObject."<init>":()V
+       1: invokespecial #10                 // Method org/flasck/jvm/FLASObject."<init>":()V
        4: return        
 
   public void _doFullEval();
