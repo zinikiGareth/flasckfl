@@ -13,7 +13,7 @@ class Events$B2.java extends org.flasck.jvm.areas.TextArea {
     this._card = cardArg
     this._setText("OK")
     this.setCSS("button")
-    this._add_handlers()
+    (void)this._add_handlers()
     return
   }
   java.lang.Object _add_handlers() {
@@ -29,7 +29,7 @@ class Events$B3.java extends org.flasck.jvm.areas.TextArea {
     this._card = cardArg
     this._setText("Set13")
     this.setCSS("button")
-    this._add_handlers()
+    (void)this._add_handlers()
     return
   }
   java.lang.Object _add_handlers() {
@@ -37,12 +37,10 @@ class Events$B3.java extends org.flasck.jvm.areas.TextArea {
   }
   java.lang.Object handlers_1() {
     return new org.flasck.jvm.FLClosure(this._card,org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[3] {
-  autobox[test.golden.Events$setTo.class]
-  autobox[  java.lang.Integer.valueOf(2)
-]
-  autobox[  java.lang.Integer.valueOf(13)
-]
-})
+        autobox[test.golden.Events$setTo.class]
+        autobox[java.lang.Integer.valueOf(2)]
+        autobox[java.lang.Integer.valueOf(13)]
+      })
   }
 }
 class Events.java extends org.flasck.jvm.cards.FlasckCard {
@@ -52,32 +50,29 @@ class Events.java extends org.flasck.jvm.cards.FlasckCard {
     return
   }
   void render(java.lang.String into) {
-new test.golden.Events$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))    return
+    (void)new test.golden.Events$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+    return
   }
   java.lang.Object okThen(java.lang.Object _0) {
     {
       v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
-autobox[_0]
-})
+          autobox[_0]
+        })
       return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v1]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+          autobox[v1]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
     }
   }
   java.lang.Object setTo(java.lang.Object _0, java.lang.Object _1) {
     {
       v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
-autobox[_1]
-})
+          autobox[_1]
+        })
       return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v2]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+          autobox[v2]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
     }
   }
 }

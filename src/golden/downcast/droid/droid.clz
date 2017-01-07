@@ -14,11 +14,11 @@ class PACKAGEFUNCTIONS.java {
         {
           v1 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[1] {
 _0
-})
+            })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
-  autobox[v1]
-  autobox["id"]
-})
+              autobox[v1]
+              autobox["id"]
+            })
         }
       }
       return new org.flasck.jvm.FLError("f: case not handled")

@@ -12,7 +12,7 @@ class Complex$B1.java extends org.flasck.jvm.areas.DivArea {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_setAttr_1")
-    this._setAttr_1()
+    (void)this._setAttr_1()
     b2 = new test.golden.Complex$B2(cardArg,this)
     b3 = new test.golden.Complex$B3(cardArg,this)
     b6 = new test.golden.Complex$B6(cardArg,this)
@@ -35,7 +35,7 @@ class Complex$B11.java extends org.flasck.jvm.areas.CardSlotArea {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "yoyo", this, "_yoyoExpr")
-    this._yoyoExpr()
+    (void)this._yoyoExpr()
     return
   }
   java.lang.Object _yoyoExpr() {
@@ -50,9 +50,9 @@ class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_contentExpr")
-    this._contentExpr()
+    (void)this._contentExpr()
     this._card._wrapper.onAssign(this._card, "format", this, "_setVariableFormats")
-    this._setVariableFormats()
+    (void)this._setVariableFormats()
     return
   }
   java.lang.Object _contentExpr() {
@@ -68,11 +68,9 @@ class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
   }
   java.lang.Object formats_2() {
     return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[this._card.format]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+        autobox[this._card.format]
+        autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+      })
   }
 }
 class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
@@ -101,7 +99,8 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
     return
   }
   void render(java.lang.String into) {
-new test.golden.Complex$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))    return
+    (void)new test.golden.Complex$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+    return
   }
   java.lang.Object sayHello(java.lang.Object _0) {
     {
@@ -112,16 +111,14 @@ new test.golden.Complex$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,
       if (_0 instanceof test.golden.ClickIt) {
         {
           v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
-autobox[this]
-autobox["hello"]
-autobox["goodbye"]
-})
+              autobox[this]
+              autobox["hello"]
+              autobox["goodbye"]
+            })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v1]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+              autobox[v1]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
         }
       }
       return new org.flasck.jvm.FLError("sayHello: case not handled")

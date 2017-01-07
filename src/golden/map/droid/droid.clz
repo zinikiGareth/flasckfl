@@ -14,16 +14,16 @@ class PACKAGEFUNCTIONS.java {
         {
           v4 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[2] {
 _0
-autobox[v1.head]
-})
+              autobox[v1.head]
+            })
           v5 = new org.flasck.jvm.FLClosure(test.golden.PACKAGEFUNCTIONS$map1.class,new java.lang.Object[2] {
-autobox[_0]
-autobox[v1.tail]
-})
+              autobox[_0]
+              autobox[v1.tail]
+            })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v4]
-  autobox[v5]
-})
+              autobox[v4]
+              autobox[v5]
+            })
         }
       }
       if (_1 instanceof org.flasck.jvm.builtin.Nil) {

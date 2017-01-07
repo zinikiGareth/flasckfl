@@ -7,31 +7,27 @@ class ControlledCard$_C0.java extends test.golden.SetState {
   java.lang.Object setOff() {
     {
       v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
-autobox[this._card]
-autobox["sayHello"]
-autobox[false]
-})
+          autobox[this._card]
+          autobox["sayHello"]
+          autobox[false]
+        })
       return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v0]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+          autobox[v0]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
     }
   }
   java.lang.Object setOn() {
     {
       v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
-autobox[this._card]
-autobox["sayHello"]
-autobox[true]
-})
+          autobox[this._card]
+          autobox["sayHello"]
+          autobox[true]
+        })
       return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v0]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+          autobox[v0]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
     }
   }
 }
@@ -50,21 +46,18 @@ class ControlledCard$_C1.java extends test.golden.Echo {
       if (_0 instanceof org.flasck.jvm.builtin.String) {
         {
           v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-autobox[_0]
-autobox[org.flasck.jvm.builtin.Nil.eval(        new java.lang.Object[0] {
-        })]
-})
+              autobox[_0]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
           v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
-autobox[this._card.e]
-autobox["echoIt"]
-autobox[v1]
-})
+              autobox[this._card.e]
+              autobox["echoIt"]
+              autobox[v1]
+            })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v2]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+              autobox[v2]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
         }
       }
       return new org.flasck.jvm.FLError("saySomething: case not handled")
@@ -77,7 +70,7 @@ class ControlledCard$B1.java extends org.flasck.jvm.areas.TextArea {
     this._card = cardArg
     this._setText("hello")
     this._card._wrapper.onAssign(this._card, "sayHello", this, "_setVariableFormats")
-    this._setVariableFormats()
+    (void)this._setVariableFormats()
     return
   }
   java.lang.Object _setVariableFormats() {
@@ -87,20 +80,18 @@ class ControlledCard$B1.java extends org.flasck.jvm.areas.TextArea {
   java.lang.Object formats_0() {
     {
       v2 = new org.flasck.jvm.FLClosure(this._card,org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[2] {
-autobox[test.golden.ControlledCard$styleIf.class]
-autobox[java.lang.Integer.valueOf(2)]
-})
+          autobox[test.golden.ControlledCard$styleIf.class]
+          autobox[java.lang.Integer.valueOf(2)]
+        })
       v0 = new org.flasck.jvm.FLClosure(v2,new java.lang.Object[3] {
 v2
-autobox["show"]
-autobox[this._card.sayHello]
-})
+          autobox["show"]
+          autobox[this._card.sayHello]
+        })
       return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v0]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+          autobox[v0]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
     }
   }
 }
@@ -124,7 +115,8 @@ class ControlledCard.java extends org.flasck.jvm.cards.FlasckCard {
     return
   }
   void render(java.lang.String into) {
-new test.golden.ControlledCard$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))    return
+    (void)new test.golden.ControlledCard$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+    return
   }
   java.lang.Object styleIf(java.lang.Object _0, java.lang.Object _1) {
     {

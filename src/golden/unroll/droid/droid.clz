@@ -11,7 +11,7 @@ class Unroll$B2.java extends org.flasck.jvm.areas.DivArea {
   void <init>(test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "p")
     this._card = cardArg
-    this._setAttr_1()
+    (void)this._setAttr_1()
     b3 = new test.golden.Unroll$B3(cardArg,this)
     this.setCSS("styled hello")
     return
@@ -32,7 +32,7 @@ class Unroll$B4.java extends org.flasck.jvm.areas.DivArea {
   void <init>(test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "p")
     this._card = cardArg
-    this._setAttr_1()
+    (void)this._setAttr_1()
     b5 = new test.golden.Unroll$B5(cardArg,this)
     this.setCSS("styled goodbye")
     return
@@ -56,6 +56,7 @@ class Unroll.java extends org.flasck.jvm.cards.FlasckCard {
     return
   }
   void render(java.lang.String into) {
-new test.golden.Unroll$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))    return
+    (void)new test.golden.Unroll$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+    return
   }
 }

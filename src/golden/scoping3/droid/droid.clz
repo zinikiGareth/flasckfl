@@ -12,7 +12,6 @@ class PACKAGEFUNCTIONS$f.java {
 }
 class PACKAGEFUNCTIONS.java {
   java.lang.Object f() {
-    return new org.flasck.jvm.FLClosure(test.golden.f_0$set.class,new java.lang.Object[0] {
-})
+    return new org.flasck.jvm.FLClosure(test.golden.f_0$set.class,new java.lang.Object[0] {})
   }
 }

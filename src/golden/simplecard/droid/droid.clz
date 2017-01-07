@@ -11,7 +11,7 @@ class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_contentExpr")
-    this._contentExpr()
+    (void)this._contentExpr()
     return
   }
   java.lang.Object _contentExpr() {
@@ -39,7 +39,8 @@ class Simple.java extends org.flasck.jvm.cards.FlasckCard {
     return
   }
   void render(java.lang.String into) {
-new test.golden.Simple$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))    return
+    (void)new test.golden.Simple$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+    return
   }
   java.lang.Object f() {
     return java.lang.Integer.valueOf(3)

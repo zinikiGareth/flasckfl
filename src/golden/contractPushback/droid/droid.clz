@@ -19,19 +19,17 @@ class PACKAGEFUNCTIONS.java {
       if (_0 instanceof test.golden.DoIt) {
         {
           v5 = new org.flasck.jvm.FLClosure(test.golden.f_0$m.class,new java.lang.Object[2] {
-autobox[_0]
-autobox[_1]
-})
+              autobox[_0]
+              autobox[_1]
+            })
           v6 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-autobox[v5]
-autobox[org.flasck.jvm.builtin.Nil.eval(        new java.lang.Object[0] {
-        })]
-})
+              autobox[v5]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.MessageWrapper.class,new java.lang.Object[2] {
-  autobox[  java.lang.Integer.valueOf(0)
-]
-  autobox[v6]
-})
+              autobox[java.lang.Integer.valueOf(0)]
+              autobox[v6]
+            })
         }
       }
       return new org.flasck.jvm.FLError("f: case not handled")
@@ -47,21 +45,18 @@ class PACKAGEFUNCTIONS.java {
   java.lang.Object m(java.lang.Object _s0, java.lang.Object _s1) {
     {
       v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-autobox[_s1]
-autobox[org.flasck.jvm.builtin.Nil.eval(    new java.lang.Object[0] {
-    })]
-})
+          autobox[_s1]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
       v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
-autobox[_s0]
-autobox["calc"]
-autobox[v0]
-})
+          autobox[_s0]
+          autobox["calc"]
+          autobox[v0]
+        })
       return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v1]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+          autobox[v1]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
     }
   }
 }

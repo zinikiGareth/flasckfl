@@ -13,24 +13,22 @@ class Getter.java extends org.flasck.jvm.cards.FlasckCard {
       if (_0 instanceof org.flasck.jvm.builtin.String) {
         {
           v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
-autobox[this]
-autobox["item"]
-})
+              autobox[this]
+              autobox["item"]
+            })
           v2 = new org.flasck.jvm.FLClosure(v1,new java.lang.Object[2] {
 v1
-autobox[_0]
-})
+              autobox[_0]
+            })
           v3 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
-autobox[this]
-autobox["curr"]
-autobox[v2]
-})
+              autobox[this]
+              autobox["curr"]
+              autobox[v2]
+            })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v3]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+              autobox[v3]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
         }
       }
       return new org.flasck.jvm.FLError("choose: case not handled")

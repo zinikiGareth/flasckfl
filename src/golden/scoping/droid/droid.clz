@@ -24,21 +24,18 @@ class PACKAGEFUNCTIONS.java {
       if (_0 instanceof test.golden.NoArg) {
         {
           v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-autobox[java.lang.Integer.valueOf(42)]
-autobox[org.flasck.jvm.builtin.Nil.eval(        new java.lang.Object[0] {
-        })]
-})
+              autobox[java.lang.Integer.valueOf(42)]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
           v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
-autobox[_0]
-autobox["get"]
-autobox[v1]
-})
+              autobox[_0]
+              autobox["get"]
+              autobox[v1]
+            })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-  autobox[v2]
-  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
-})
-]
-})
+              autobox[v2]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
         }
       }
       return new org.flasck.jvm.FLError("cna: case not handled")
@@ -52,28 +49,26 @@ autobox[v1]
       }
       if (_0 instanceof test.golden.Server) {
         {
-          v9 = new org.flasck.jvm.FLClosure(test.golden.f_0$var.class,new java.lang.Object[0] {
-})
+          v9 = new org.flasck.jvm.FLClosure(test.golden.f_0$var.class,new java.lang.Object[0] {})
           v7 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[4] {
-autobox[test.golden.f_0$HandleReply.class]
-autobox[java.lang.Integer.valueOf(3)]
-autobox[_0]
-autobox[v9]
-})
+              autobox[test.golden.f_0$HandleReply.class]
+              autobox[java.lang.Integer.valueOf(3)]
+              autobox[_0]
+              autobox[v9]
+            })
           v8 = new org.flasck.jvm.FLClosure(test.golden.f_0$q.class,new java.lang.Object[3] {
-autobox[v7]
-autobox[_0]
-autobox[v9]
-})
+              autobox[v7]
+              autobox[_0]
+              autobox[v9]
+            })
           v10 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-autobox[v8]
-autobox[org.flasck.jvm.builtin.Nil.eval(        new java.lang.Object[0] {
-        })]
-})
+              autobox[v8]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.MessageWrapper.class,new java.lang.Object[2] {
-  autobox[v9]
-  autobox[v10]
-})
+              autobox[v9]
+              autobox[v10]
+            })
         }
       }
       return new org.flasck.jvm.FLError("f: case not handled")

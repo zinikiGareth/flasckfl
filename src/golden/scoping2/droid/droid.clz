@@ -20,22 +20,20 @@ class PACKAGEFUNCTIONS.java {
       if (_0 instanceof test.golden.UpC) {
         {
           v5 = new org.flasck.jvm.FLClosure(test.golden.scoped_0$MyHc.class,new java.lang.Object[1] {
-autobox["test.golden.scoped_0.requestObj"]
-})
+              autobox["test.golden.scoped_0.requestObj"]
+            })
           v6 = new org.flasck.jvm.FLClosure(test.golden.scoped_0$request.class,new java.lang.Object[2] {
-autobox[v5]
-autobox[_0]
-})
+              autobox[v5]
+              autobox[_0]
+            })
           v7 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-autobox[v6]
-autobox[org.flasck.jvm.builtin.Nil.eval(        new java.lang.Object[0] {
-        })]
-})
+              autobox[v6]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.MessageWrapper.class,new java.lang.Object[2] {
-  autobox[  java.lang.Integer.valueOf(32)
-]
-  autobox[v7]
-})
+              autobox[java.lang.Integer.valueOf(32)]
+              autobox[v7]
+            })
         }
       }
       return new org.flasck.jvm.FLError("scoped: case not handled")

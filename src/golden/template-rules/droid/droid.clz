@@ -14,7 +14,7 @@ class MyCard$B1.java extends org.flasck.jvm.areas.TextArea {
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "c", this, "_contentExpr")
     this._card._wrapper.onAssign(this._card.c, "title", this, "_contentExpr")
-    this._contentExpr()
+    (void)this._contentExpr()
     this.setCSS("flasck-editable")
     return
   }
@@ -24,9 +24,9 @@ class MyCard$B1.java extends org.flasck.jvm.areas.TextArea {
   }
   java.lang.Object contents_0() {
     return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
-  autobox[this._card.c]
-  autobox["title"]
-})
+        autobox[this._card.c]
+        autobox["title"]
+      })
   }
   java.lang.Object editcontainer_1() {
     return this._card.c
@@ -39,6 +39,7 @@ class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
     return
   }
   void render(java.lang.String into) {
-new test.golden.MyCard$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))    return
+    (void)new test.golden.MyCard$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+    return
   }
 }

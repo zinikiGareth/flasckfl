@@ -46,44 +46,38 @@ public class DroidClosureGenerator {
 				al.set(i, meth.box(al.get(i)));
 			}
 		
-		Expr needsObject = null;
-		Expr fnToCall;
-		if (c0 instanceof PushExternal) {
-			ExternalRef fn = ((PushExternal)c0).fn;
-			boolean fromHandler = form.needsCardMember();
-			Object defn = fn;
-			if (fn != null) {
-				while (defn instanceof PackageVar)
-					defn = ((PackageVar)defn).defn;
-				if (defn instanceof ObjectReference || defn instanceof CardFunction) {
-					needsObject = meth.myThis();
-					fromHandler |= fn.fromHandler();
-				} else if (defn instanceof RWHandlerImplements) {
-					RWHandlerImplements hi = (RWHandlerImplements) defn;
-					if (hi.inCard)
+			Expr needsObject = null;
+			Expr fnToCall;
+			if (c0 instanceof PushExternal) {
+				ExternalRef fn = ((PushExternal)c0).fn;
+				boolean fromHandler = form.needsCardMember();
+				Object defn = fn;
+				if (fn != null) {
+					while (defn instanceof PackageVar)
+						defn = ((PackageVar)defn).defn;
+					if (defn instanceof ObjectReference || defn instanceof CardFunction) {
 						needsObject = meth.myThis();
-					System.out.println("Creating handler " + fn + " in block " + closure);
-				} else if (fn.toString().equals("FLEval.curry")) {
-					ExternalRef f2 = ((PushExternal)closure.nestedCommands().get(1)).fn;
-					if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
-						needsObject = meth.myThis();
-						fromHandler |= f2.fromHandler();
+						fromHandler |= fn.fromHandler();
+					} else if (defn instanceof RWHandlerImplements) {
+						RWHandlerImplements hi = (RWHandlerImplements) defn;
+						if (hi.inCard)
+							needsObject = meth.myThis();
+						System.out.println("Creating handler " + fn + " in block " + closure);
+					} else if (fn.toString().equals("FLEval.curry")) {
+						ExternalRef f2 = ((PushExternal)closure.nestedCommands().get(1)).fn;
+						if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
+							needsObject = meth.myThis();
+							fromHandler |= f2.fromHandler();
+						}
 					}
 				}
-			}
-			if (needsObject != null && fromHandler)
-				needsObject = meth.getField("_card");
-			fnToCall = al.remove(0);
-			String t = fnToCall.getType();
-			if (!t.equals("java.lang.Class") && (needsObject != null || !t.equals(J.OBJECT))) {
-				return meth.aNull();
-	//			throw new UtilException("Type of " + clz + " is not a Class but " + t);
-	//			clz = meth.castTo(clz, "java.lang.Class");
-			}
-		} else if (c0 instanceof PushVar) {
-			fnToCall = vh.get(((PushVar)c0).var.var);
-		} else
-			throw new UtilException("Can't handle " + c0);
+				if (needsObject != null && fromHandler)
+					needsObject = meth.getField("_card");
+				fnToCall = al.remove(0);
+			} else if (c0 instanceof PushVar) {
+				fnToCall = vh.get(((PushVar)c0).var.var);
+			} else
+				throw new UtilException("Can't handle " + c0);
 			if (needsObject != null)
 				return meth.makeNew(J.FLCLOSURE, meth.as(needsObject, J.OBJECT), fnToCall, meth.arrayOf(J.OBJECT, al));
 			else
