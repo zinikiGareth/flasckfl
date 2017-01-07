@@ -42,11 +42,14 @@ public class DroidClosureGenerator {
 				al.add(upcast(appendValue(c, isFirst)));
 				isFirst = false;
 			}
+			for (int i=1;i<al.size();i++) {
+				al.set(i, meth.box(al.get(i)));
+			}
 		
-		// Loop over everything in the closure pushing it onto the stack (in al)
+		Expr needsObject = null;
+		Expr fnToCall;
 		if (c0 instanceof PushExternal) {
 			ExternalRef fn = ((PushExternal)c0).fn;
-			Expr needsObject = null;
 			boolean fromHandler = form.needsCardMember();
 			Object defn = fn;
 			if (fn != null) {
@@ -70,24 +73,21 @@ public class DroidClosureGenerator {
 			}
 			if (needsObject != null && fromHandler)
 				needsObject = meth.getField("_card");
-			Expr clz = al.remove(0);
-			String t = clz.getType();
+			fnToCall = al.remove(0);
+			String t = fnToCall.getType();
 			if (!t.equals("java.lang.Class") && (needsObject != null || !t.equals(J.OBJECT))) {
 				return meth.aNull();
 	//			throw new UtilException("Type of " + clz + " is not a Class but " + t);
 	//			clz = meth.castTo(clz, "java.lang.Class");
 			}
-			for (int i=0;i<al.size();i++) {
-				al.set(i, meth.box(al.get(i)));
-			}
-			if (needsObject != null)
-				return meth.makeNew(J.FLCLOSURE, meth.as(needsObject, J.OBJECT), clz, meth.arrayOf(J.OBJECT, al));
-			else
-				return meth.makeNew(J.FLCLOSURE, clz, meth.arrayOf(J.OBJECT, al));
 		} else if (c0 instanceof PushVar) {
 			return vh.get(((PushVar)c0).var.var);
 		} else
 			throw new UtilException("Can't handle " + c0);
+			if (needsObject != null)
+				return meth.makeNew(J.FLCLOSURE, meth.as(needsObject, J.OBJECT), fnToCall, meth.arrayOf(J.OBJECT, al));
+			else
+				return meth.makeNew(J.FLCLOSURE, fnToCall, meth.arrayOf(J.OBJECT, al));
 		}
 	}
 
