@@ -39,11 +39,11 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
-public class DroidFormGenerator {
+public class DroidHSIEFormGenerator {
 	private final ByteCodeStorage bce;
 	private final HSIEForm form;
 
-	public DroidFormGenerator(ByteCodeStorage bce, HSIEForm f) {
+	public DroidHSIEFormGenerator(ByteCodeStorage bce, HSIEForm f) {
 		this.bce = bce;
 		this.form = f;
 	}

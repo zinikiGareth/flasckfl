@@ -5,4 +5,3 @@ HSIE for test.golden.x/0                                     #const.fl:     1.0
     scopedDefns = []
     all vars = []
 RETURN 32                                                    #const.fl:     1.4
-=======

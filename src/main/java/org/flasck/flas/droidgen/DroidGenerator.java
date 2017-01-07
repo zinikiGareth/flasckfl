@@ -266,6 +266,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	public void generate(HSIEForm form) {
 		if (!doBuild)
 			return;
-		new DroidFormGenerator(bce, form).generate();
+		new DroidHSIEFormGenerator(bce, form).generate();
 	}
 }

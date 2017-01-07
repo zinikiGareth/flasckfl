@@ -20,4 +20,3 @@ CLOSURE v3                                                   #import2.fl:   7.5
   PUSH PackageVar.Cons                                       #import2.fl:   6.0
   PUSH v2:clos2                                              #import2.fl:   7.0
   PUSH PackageVar.Nil                                        #import2.fl:   6.0
-=======

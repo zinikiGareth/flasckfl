@@ -5,18 +5,7 @@ HSIE for test.golden.f/0                                     #methods.fl:   5.0
     scopedDefns = []
     all vars = []
 RETURN PackageVar.Nil                                        #methods.fl:   5.4
-=======
-HSIE for test.golden.f_0.s/0                                 #methods.fl:   6.0
-#Args: 0 #bound: 1
-    externals: [Croset, Nil]
-    scoped = []
-    scopedDefns = []
-    all vars = [v0]
-RETURN v0:clos0 []                                           #methods.fl:   6.4
-CLOSURE v0                                                   #methods.fl:   6.4
-  PUSH PackageVar.Croset                                     #methods.fl:   6.4
-  PUSH PackageVar.Nil                                        #methods.fl:   6.11
-=======
+-------
 HSIE for test.golden.f_0.KVHImpl.update/1                    #methods.fl:   9.0
 #Args: 1 #bound: 3
     externals: [Cons, Crokeys, Nil, Send, test.golden.f_0.KVHImpl.s]
@@ -40,4 +29,14 @@ CLOSURE v3                                                   #methods.fl:  10.3
   PUSH PackageVar.Cons                                       #methods.fl:   9.0
   PUSH v2:clos2                                              #methods.fl:   6.0
   PUSH PackageVar.Nil                                        #methods.fl:   9.0
-=======
+-------
+HSIE for test.golden.f_0.s/0                                 #methods.fl:   6.0
+#Args: 0 #bound: 1
+    externals: [Croset, Nil]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0]
+RETURN v0:clos0 []                                           #methods.fl:   6.4
+CLOSURE v0                                                   #methods.fl:   6.4
+  PUSH PackageVar.Croset                                     #methods.fl:   6.4
+  PUSH PackageVar.Nil                                        #methods.fl:   6.11

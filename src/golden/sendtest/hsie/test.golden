@@ -1,3 +1,23 @@
+HSIE for test.golden.ControlledCard.B1.formats_0/0           #card.fl:     14.0
+#Args: 0 #bound: 3
+    externals: [Cons, Nil, test.golden.ControlledCard.sayHello, test.golden.ControlledCard.styleIf]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0, v1, v2]
+RETURN v1:clos1 [v2:null, v0:clos0]                          #card.fl:     14.11
+CLOSURE v1                                                   #card.fl:     14.11
+  PUSH PackageVar.Cons                                       #card.fl:     14.0
+  PUSH v0:clos0                                              #card.fl:     14.11
+  PUSH PackageVar.Nil                                        #card.fl:     14.0
+CLOSURE v2                                                   #card.fl:     14.11
+  PUSH PackageVar.FLEval.curry                               #card.fl:     14.11
+  PUSH CardFunction.test.golden.ControlledCard.styleIf       #card.fl:     14.11
+  PUSH 2                                                     #card.fl:     14.11
+CLOSURE v0                                                   #card.fl:     14.11
+  PUSH v2:null                                               #card.fl:     14.11
+  PUSH "show"                                                #card.fl:     14.19
+  PUSH CardMember.CardMember[test.golden.ControlledCard.sayH #card.fl:     14.26
+-------
 HSIE for test.golden.ControlledCard._C0.setOff/0             #card.fl:     19.0
 #Args: 0 #bound: 2
     externals: [Assign, Cons, Nil]
@@ -14,7 +34,7 @@ CLOSURE v0                                                   #card.fl:     20.0
   PUSH this._card                                            #card.fl:     20.0
   PUSH "sayHello"                                            #card.fl:     20.0
   PUSH false                                                 #builtin:      0.0
-=======
+-------
 HSIE for test.golden.ControlledCard._C0.setOn/0              #card.fl:     17.0
 #Args: 0 #bound: 2
     externals: [Assign, Cons, Nil]
@@ -31,7 +51,7 @@ CLOSURE v0                                                   #card.fl:     18.0
   PUSH this._card                                            #card.fl:     18.0
   PUSH "sayHello"                                            #card.fl:     18.0
   PUSH true                                                  #builtin:      0.0
-=======
+-------
 HSIE for test.golden.ControlledCard._C1.saySomething/1       #card.fl:     23.0
 #Args: 1 #bound: 3
     externals: [Cons, Nil, Send, String, test.golden.ControlledCard.e]
@@ -55,7 +75,7 @@ CLOSURE v3                                                   #card.fl:     24.3
   PUSH PackageVar.Cons                                       #card.fl:     23.0
   PUSH v2:clos2                                              #card.fl:     24.3
   PUSH PackageVar.Nil                                        #card.fl:     23.0
-=======
+-------
 HSIE for test.golden.ControlledCard.styleIf/2                #card.fl:     26.0
 #Args: 2 #bound: 0
     externals: []
@@ -65,20 +85,3 @@ HSIE for test.golden.ControlledCard.styleIf/2                #card.fl:     26.0
 IF v1:test.golden.ControlledCard.styleIf_0.b                 #card.fl:     26.14
   RETURN v0:test.golden.ControlledCard.styleIf_0.style []    #card.fl:     26.8
 RETURN ""                                                    #card.fl:     28.7
-=======
-HSIE for test.golden.ControlledCard.B1.formats_0/0           #card.fl:     14.0
-#Args: 0 #bound: 2
-    externals: [Cons, Nil, test.golden.ControlledCard.sayHello, test.golden.ControlledCard.styleIf]
-    scoped = []
-    scopedDefns = []
-    all vars = [v0, v1]
-RETURN v1:clos1 [v0:clos0]                                   #card.fl:     14.11
-CLOSURE v1                                                   #card.fl:     14.11
-  PUSH PackageVar.Cons                                       #card.fl:     14.0
-  PUSH v0:clos0                                              #card.fl:     14.11
-  PUSH PackageVar.Nil                                        #card.fl:     14.0
-CLOSURE v0                                                   #card.fl:     14.11
-  PUSH CardFunction.test.golden.ControlledCard.styleIf       #card.fl:     14.11
-  PUSH "show"                                                #card.fl:     14.19
-  PUSH CardMember.CardMember[test.golden.ControlledCard.sayH #card.fl:     14.26
-=======

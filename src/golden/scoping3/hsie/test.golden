@@ -1,14 +1,3 @@
-HSIE for test.golden.f_0.set/0                               #scoping3.fl:  5.0
-#Args: 0 #bound: 1
-    externals: [Croset, Nil]
-    scoped = []
-    scopedDefns = []
-    all vars = [v0]
-RETURN v0:clos0 []                                           #scoping3.fl:  5.6
-CLOSURE v0                                                   #scoping3.fl:  5.6
-  PUSH PackageVar.Croset                                     #scoping3.fl:  5.6
-  PUSH PackageVar.Nil                                        #scoping3.fl:  5.13
-=======
 HSIE for test.golden.f/0                                     #scoping3.fl:  4.0
 #Args: 0 #bound: 1
     externals: []
@@ -18,7 +7,7 @@ HSIE for test.golden.f/0                                     #scoping3.fl:  4.0
 RETURN v0:test.golden.f_0.set []                             #scoping3.fl:  5.0
 CLOSURE v0 !                                                 #scoping3.fl:  5.0
   PUSH PackageVar.test.golden.f_0.set                        #scoping3.fl:  5.0
-=======
+-------
 HSIE for test.golden.f_0.ItemHandler.update/1                #scoping3.fl:  8.0
 #Args: 1 #bound: 4
     externals: [Any, Cons, Nil, Send, test.golden.f_0.ItemHandler.ck, test.golden.f_0.ItemHandler.set]
@@ -46,4 +35,14 @@ CLOSURE v4                                                   #scoping3.fl:  9.3
   PUSH PackageVar.Cons                                       #scoping3.fl:  8.0
   PUSH v3:clos3                                              #scoping3.fl:  5.0
   PUSH PackageVar.Nil                                        #scoping3.fl:  8.0
-=======
+-------
+HSIE for test.golden.f_0.set/0                               #scoping3.fl:  5.0
+#Args: 0 #bound: 1
+    externals: [Croset, Nil]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0]
+RETURN v0:clos0 []                                           #scoping3.fl:  5.6
+CLOSURE v0                                                   #scoping3.fl:  5.6
+  PUSH PackageVar.Croset                                     #scoping3.fl:  5.6
+  PUSH PackageVar.Nil                                        #scoping3.fl:  5.13

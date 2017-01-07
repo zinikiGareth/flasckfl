@@ -21,4 +21,3 @@ CLOSURE v6                                                   #fold.fl:      3.19
   PUSH v0:test.golden.fold_1.f                               #fold.fl:      3.5
   PUSH v5:clos5                                              #fold.fl:      3.26
   PUSH v4:test.golden.fold_1.l                               #fold.fl:      3.14
-=======

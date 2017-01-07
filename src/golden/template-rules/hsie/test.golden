@@ -9,7 +9,7 @@ CLOSURE v0                                                   #rules.fl:     9.2
   PUSH PackageVar.FLEval.field                               #rules.fl:     9.2
   PUSH CardMember.CardMember[test.golden.MyCard.c]           #rules.fl:     9.0
   PUSH "title"                                               #rules.fl:     9.2
-=======
+-------
 HSIE for test.golden.MyCard.B1.editcontainer_1/0             #rules.fl:     9.2
 #Args: 0 #bound: 0
     externals: [test.golden.MyCard.c]
@@ -17,4 +17,3 @@ HSIE for test.golden.MyCard.B1.editcontainer_1/0             #rules.fl:     9.2
     scopedDefns = []
     all vars = []
 RETURN CardMember.CardMember[test.golden.MyCard.c]           #rules.fl:     9.0
-=======

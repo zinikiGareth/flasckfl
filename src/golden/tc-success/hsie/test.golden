@@ -9,7 +9,7 @@ CLOSURE v0                                                   #checktypes.f  7.10
   PUSH PackageVar.FLEval.tuple                               #checktypes.f  7.10
   PUSH 2                                                     #checktypes.f  7.8
   PUSH "hello"                                               #checktypes.f  7.11
-=======
+-------
 HSIE for test.golden.fred/1                                  #checktypes.f  2.0
 #Args: 1 #bound: 0
     externals: []
@@ -17,7 +17,7 @@ HSIE for test.golden.fred/1                                  #checktypes.f  2.0
     scopedDefns = []
     all vars = [v0]
 RETURN 32                                                    #checktypes.f  2.9
-=======
+-------
 HSIE for test.golden.t1/0                                    #checktypes.f  4.0
 #Args: 0 #bound: 1
     externals: [Nil, map, test.golden.fred]
@@ -29,7 +29,7 @@ CLOSURE v0                                                   #checktypes.f  4.5
   PUSH PackageVar.map                                        #checktypes.f  4.5
   PUSH PackageVar.test.golden.fred                           #checktypes.f  4.9
   PUSH PackageVar.Nil                                        #checktypes.f  4.14
-=======
+-------
 HSIE for test.golden.t2/0                                    #checktypes.f  5.0
 #Args: 0 #bound: 2
     externals: [Cons, Nil, map, test.golden.fred]
@@ -45,4 +45,3 @@ CLOSURE v0                                                   #checktypes.f  5.15
   PUSH PackageVar.Cons                                       #checktypes.f  5.15
   PUSH 3                                                     #checktypes.f  5.15
   PUSH PackageVar.Nil                                        #checktypes.f  5.15
-=======

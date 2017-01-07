@@ -27,4 +27,3 @@ CLOSURE v0                                                   #objects.fl:  10.9
   PUSH PackageVar.Cons                                       #objects.fl:  10.3
   PUSH 42                                                    #objects.fl:  10.9
   PUSH PackageVar.Nil                                        #objects.fl:  10.3
-=======

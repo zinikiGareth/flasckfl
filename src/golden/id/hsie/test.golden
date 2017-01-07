@@ -5,4 +5,3 @@ HSIE for test.golden.id/1                                    #id.fl:        1.0
     scopedDefns = []
     all vars = [v0]
 RETURN v0:test.golden.id_0.x []                              #id.fl:        1.3
-=======

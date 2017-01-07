@@ -28,4 +28,3 @@ CLOSURE v6                                                   #take.fl:      3.15
   PUSH PackageVar.Cons                                       #take.fl:      3.16
   PUSH v2:test.golden.take_2.a                               #take.fl:      3.8
   PUSH v5:clos5                                              #take.fl:      3.17
-=======

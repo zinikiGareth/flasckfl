@@ -313,11 +313,6 @@ public class FLASCompiler implements ScriptCompiler {
 			tc2.populateTypes();
 			abortIfErrors(errors);
 
-			PrintWriter hsiePW = null;
-			if (writeHSIE != null) {
-				hsiePW = new PrintWriter(new File(writeHSIE, inPkg));
-			}
-
 			for (Set<RWFunctionDefinition> d : defns) {
 				hsie.createForms(d);
 			}
@@ -328,22 +323,25 @@ public class FLASCompiler implements ScriptCompiler {
 				// 8a. Convert each orchard to HSIE
 				Set<HSIEForm> forms = hsie.orchard(d);
 				abortIfErrors(errors);
-				dumpForms(hsiePW, forms);
 				
 				// 8b. Typecheck all the methods together
 				tc2.typecheck(forms);
 				abortIfErrors(errors);
 			}
-			if (hsiePW != null)
-				hsiePW.close();
-
-			// 9. Generate code from templates
-			new TemplateTraversor(rewriter, Arrays.asList(dg.templateGenerator(), gen.templateGenerator())).generate(rewriter, target);
-			
-			// 10. Check whether functions are curried and add in the appropriate indications if so
+			// 9. Check whether functions are curried and add in the appropriate indications if so
 			handleCurrying(curry, tc2, hsie.allForms());
 			abortIfErrors(errors);
+			
+			if (writeHSIE != null) {
+				PrintWriter hsiePW = new PrintWriter(new File(writeHSIE, inPkg));
+				dumpForms(hsiePW, hsie.allForms());
+				hsiePW.close();
+			}
 
+
+			// 10. Generate code from templates
+			new TemplateTraversor(rewriter, Arrays.asList(dg.templateGenerator(), gen.templateGenerator())).generate(rewriter, target);
+			
 			// 11. Save learned state for export
 			if (exportTo != null)
 				tc2.writeLearnedKnowledge(exportTo, inPkg, dumpTypes);
@@ -433,7 +431,7 @@ public class FLASCompiler implements ScriptCompiler {
 			logger.info("  " + d.uniqueName());
 	}
 
-	private void dumpForms(PrintWriter hsiePW, Set<HSIEForm> hs) {
+	private void dumpForms(PrintWriter hsiePW, Collection<HSIEForm> hs) {
 		if (hsiePW == null)
 			return;
 		
@@ -445,7 +443,6 @@ public class FLASCompiler implements ScriptCompiler {
 				hsiePW.println("-------");
 			h.dump(hsiePW);
 		}
-		hsiePW.println("=======");
 	}
 
 	// Just obtain a parse tree 
