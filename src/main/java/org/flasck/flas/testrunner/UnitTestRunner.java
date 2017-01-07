@@ -10,9 +10,12 @@ import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.parsedForm.Scope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.utils.FileUtils;
 
 public class UnitTestRunner {
+	public final static Logger logger = LoggerFactory.getLogger("UnitTests");
 	private final ErrorResult errors;
 	private final ScriptCompiler compiler;
 	private final CompileResult prior;
@@ -41,13 +44,16 @@ public class UnitTestRunner {
 					runner.prepareCase();
 					runCase(runner, tc);
 				} catch (AssertFailed ex) {
+					logger.error("AssertFailed: " + ex.getMessage());
 					for (UnitTestResultHandler h : handlers)
 						h.testFailed(tc.getDescription(), ex.expected, ex.actual);
 				} catch (MultiException ex) {
+					logger.error("Exceptions raised: " + ex.getMessage());
 					for (String s : ex.allErrors())
 						for (UnitTestResultHandler h : handlers)
 							h.testError(tc.getDescription(), s);
 				} catch (Exception ex) {
+					logger.error("Exceptions thrown: " + ex.getMessage());
 					for (UnitTestResultHandler h : handlers)
 						h.testError(tc.getDescription(), ex);
 				}
@@ -56,6 +62,7 @@ public class UnitTestRunner {
 	}
 
 	protected void runCase(TestRunner runner, SingleTestCase tc) throws Exception {
+		logger.info("Running case " + tc.getDescription());
 		tc.run(runner);
 		for (UnitTestResultHandler h : handlers) {
 			h.testPassed(tc.getDescription());

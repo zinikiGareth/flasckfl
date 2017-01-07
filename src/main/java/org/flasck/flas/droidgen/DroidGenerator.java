@@ -135,21 +135,10 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 					impl = fe;
 				}
 				ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst(x.contractName.uniqueName()), ctor.as(impl, J.CONTRACT_IMPL)).flush();
-				ctor.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			}
+			ctor.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			ctor.returnVoid().flush();
 		}
-		/*
-		{
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "onCreate");
-			PendingVar sis = gen.argument("android.os.Bundle", "savedState");
-			gen.returns("void");
-			NewMethodDefiner oc = gen.done();
-			oc.setAccess(Access.PROTECTED);
-			oc.callSuper("void", J.FLASCK_CARD, "onCreate", sis.getVar()).flush();
-			oc.returnVoid().flush();
-		}
-		*/
 		// TODO: I feel this should come from the "app" definition file, NOT the "platform" spec ...
 		if (grp.platforms.containsKey("android")) {
 			PlatformSpec spec = grp.platforms.get("android");
