@@ -12,7 +12,10 @@ class PACKAGEFUNCTIONS.java {
       }
       if (_1 instanceof org.flasck.jvm.builtin.Cons) {
         {
-          v4 = _0
+          v4 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[2] {
+_0
+autobox[v1.head]
+})
           v5 = new org.flasck.jvm.FLClosure(test.golden.PACKAGEFUNCTIONS$map1.class,new java.lang.Object[2] {
 autobox[_0]
 autobox[v1.tail]

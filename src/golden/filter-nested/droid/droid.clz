@@ -19,8 +19,14 @@ autobox[v5.head]
 autobox[_0]
 autobox[v5.tail]
 })
-          v9 = _0
-          return v8
+          v9 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[2] {
+_0
+autobox[v5.head]
+})
+          return new org.flasck.jvm.FLClosure(v8,new java.lang.Object[2] {
+v8
+  autobox[v9]
+})
         }
       }
       if (_1 instanceof org.flasck.jvm.builtin.Nil) {

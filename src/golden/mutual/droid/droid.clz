@@ -11,7 +11,11 @@ autobox[test.golden.f_0$g.class]
 autobox[java.lang.Integer.valueOf(2)]
 autobox[_0]
 })
-      return v3
+      return new org.flasck.jvm.FLClosure(v3,new java.lang.Object[2] {
+v3
+  autobox[  java.lang.Integer.valueOf(2)
+]
+})
     }
   }
 }

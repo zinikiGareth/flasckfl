@@ -81,7 +81,7 @@ public class DroidClosureGenerator {
 	//			clz = meth.castTo(clz, "java.lang.Class");
 			}
 		} else if (c0 instanceof PushVar) {
-			return vh.get(((PushVar)c0).var.var);
+			fnToCall = vh.get(((PushVar)c0).var.var);
 		} else
 			throw new UtilException("Can't handle " + c0);
 			if (needsObject != null)

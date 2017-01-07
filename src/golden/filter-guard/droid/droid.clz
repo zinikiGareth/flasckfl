@@ -12,7 +12,10 @@ class PACKAGEFUNCTIONS.java {
       }
       if (_1 instanceof org.flasck.jvm.builtin.Cons) {
         {
-          v4 = _0
+          v4 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[2] {
+_0
+autobox[v1.head]
+})
           if (FLEval.isTruthy(v4)) {
             {
               v5 = new org.flasck.jvm.FLClosure(test.golden.PACKAGEFUNCTIONS$filter.class,new java.lang.Object[2] {
