@@ -17,7 +17,6 @@ import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.PrimitiveType;
-import org.flasck.jvm.cards.CardDespatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -32,7 +31,6 @@ import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.Var.AVar;
 
 public class GenTestsForCards {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

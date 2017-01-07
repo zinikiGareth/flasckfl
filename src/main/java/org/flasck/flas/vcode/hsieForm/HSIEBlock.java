@@ -128,6 +128,25 @@ public class HSIEBlock {
 		return commands;
 	}
 
+	public void visit(HSIEVisitor v) {
+		for (HSIEBlock n : commands) {
+			if (n instanceof Head)
+				v.visit((Head)n);
+			else if (n instanceof Switch)
+				v.visit((Switch)n);
+			else if (n instanceof BindCmd)
+				v.visit((BindCmd)n);
+			else if (n instanceof IFCmd)
+				v.visit((IFCmd)n);
+			else if (n instanceof PushReturn)
+				v.visit((PushReturn)n);
+			else if (n instanceof ErrorCmd)
+				v.visit((ErrorCmd)n);
+			else
+				throw new UtilException("Cannot handle " + n.getClass());
+		}
+	}
+
 	protected void dump(Logger logTo, int ind) {
 		for (HSIEBlock c : commands)
 			c.dumpOne(logTo, ind);

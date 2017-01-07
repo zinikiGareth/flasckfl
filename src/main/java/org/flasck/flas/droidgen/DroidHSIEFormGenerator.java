@@ -85,7 +85,7 @@ public class DroidHSIEFormGenerator {
 			pendingVars.add(gen.argument("java.lang.Object", "_"+i));
 		MethodDefiner meth = gen.done();
 		VarHolder vh = new VarHolder(form, pendingVars);
-		Expr blk = new DroidHSIGenerator(new DroidClosureGenerator(form, meth, vh), form, meth, vh).generateBlock(form, null);
+		Expr blk = new DroidHSIGenerator(new DroidClosureGenerator(form, meth, vh), form, meth, vh).generateHSI(form, null);
 		if (blk != null)
 			blk.flush();
 //		meth.returnObject(meth.myThis()).flush();

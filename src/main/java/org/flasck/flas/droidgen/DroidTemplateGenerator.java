@@ -5,7 +5,6 @@ import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.template.TemplateGenerator;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
