@@ -1,124 +1,57 @@
-public class test.golden.Simple$B1 extends org.flasck.android.areas.DivArea {
-  private final test.golden.Simple _card;
-
-  public test.golden.Simple$B1(test.golden.Simple, org.flasck.jvm.areas.Area);
-    Code:
-       0: aload_0       
-       1: aload_2       
-       2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
-       6: aload_0       
-       7: aload_1       
-       8: putfield      #15                 // Field _card:Ltest/golden/Simple;
-      11: new           #16                 // class test/golden/Simple$B2
-      14: dup           
-      15: aload_1       
-      16: aload_0       
-      17: invokespecial #20                 // Method test/golden/Simple$B2."<init>":(Ltest/golden/Simple;Lorg/flasck/jvm/areas/Area;)V
-      20: astore_3      
-      21: return        
+class Simple$B1.java extends org.flasck.jvm.areas.DivArea {
+  void <init>(test.golden.Simple cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    b2 = new test.golden.Simple$B2(cardArg,this)
+    return
+  }
 }
-public class test.golden.Simple$B2 extends org.flasck.android.areas.TextArea {
-  private final test.golden.Simple _card;
-
-  public test.golden.Simple$B2(test.golden.Simple, org.flasck.jvm.areas.Area);
-    Code:
-       0: aload_0       
-       1: aload_2       
-       2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
-       6: aload_0       
-       7: aload_1       
-       8: putfield      #15                 // Field _card:Ltest/golden/Simple;
-      11: aload_0       
-      12: getfield      #15                 // Field _card:Ltest/golden/Simple;
-      15: getfield      #19                 // Field test/golden/Simple._wrapper:Lorg/flasck/jvm/Wrapper;
-      18: aload_0       
-      19: getfield      #15                 // Field _card:Ltest/golden/Simple;
-      22: ldc           #20                 // String hello
-      24: aload_0       
-      25: ldc           #22                 // String _contentExpr
-      27: invokevirtual #29                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
-      30: aload_0       
-      31: invokevirtual #32                 // Method _contentExpr:()Ljava/lang/Object;
-      34: pop           
-      35: return        
-
-  public java.lang.Object _contentExpr();
-    Code:
-       0: aload_0       
-       1: aload_0       
-       2: invokevirtual #36                 // Method contents_0:()Ljava/lang/String;
-       5: invokespecial #40                 // Method org/flasck/android/areas/TextArea._assignToText:(Ljava/lang/String;)V
-       8: aconst_null   
-       9: areturn       
-
-  public java.lang.Object contents_0();
-    Code:
-       0: aload_0       
-       1: getfield      #15                 // Field _card:Ltest/golden/Simple;
-       4: getfield      #43                 // Field test/golden/Simple.hello:Ljava/lang/String;
-       7: areturn       
+class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
+  void <init>(test.golden.Simple cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._card._wrapper.onAssign(this._card, "hello", this, "_contentExpr")
+    this._contentExpr()
+    return
+  }
+  java.lang.Object _contentExpr() {
+    super._assignToText(this.contents_0())
+    return null
+  }
+  java.lang.Object contents_0() {
+    return this._card.hello
+  }
 }
-public class test.golden.Simple$f {
-  private final test.golden.Simple _card;
-
-  public test.golden.Simple$f(test.golden.Simple);
-    Code:
-       0: aload_0       
-       1: invokespecial #10                 // Method java/lang/Object."<init>":()V
-       4: aload_0       
-       5: aload_1       
-       6: putfield      #12                 // Field _card:Ltest/golden/Simple;
-       9: return        
-
-  public java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: aload_0       
-       1: getfield      #12                 // Field _card:Ltest/golden/Simple;
-       4: invokevirtual #19                 // Method test/golden/Simple.f:()Ljava/lang/Object;
-       7: areturn       
+class Simple$f.java {
+  void <init>(test.golden.Simple card) {
+    super.<init>()
+    this._card = card
+    return
+  }
+  java.lang.Object eval([java.lang.Object args) {
+    return this._card.f()
+  }
 }
-public class test.golden.Simple extends org.flasck.jvm.cards.FlasckCard {
-  protected java.lang.String hello;
-
-  public test.golden.Simple(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
-    Code:
-       0: aload_0       
-       1: aload_1       
-       2: aload_2       
-       3: invokespecial #10                 // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
-       6: return        
-
-  public void render(java.lang.String);
-    Code:
-       0: new           #12                 // class test/golden/Simple$B1
-       3: aload_0       
-       4: new           #14                 // class org/flasck/jvm/areas/CardArea
-       7: dup           
-       8: aload_0       
-       9: getfield      #19                 // Field _wrapper:Lorg/flasck/jvm/Wrapper;
-      12: aload_0       
-      13: aload_1       
-      14: invokespecial #22                 // Method org/flasck/jvm/areas/CardArea."<init>":(Lorg/flasck/jvm/Wrapper;Lorg/flasck/jvm/cards/FlasckCard;Ljava/lang/String;)V
-      17: invokespecial #25                 // Method test/golden/Simple$B1."<init>":(Ltest/golden/Simple;Lorg/flasck/jvm/areas/Area;)V
-      20: return        
-
-  public java.lang.Object f();
-    Code:
-       0: iconst_3      
-       1: invokestatic  #33                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
-       4: areturn       
+class Simple.java extends org.flasck.jvm.cards.FlasckCard {
+  void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
+    super.<init>(despatcher, display)
+    super.ready()
+    return
+  }
+  void render(java.lang.String into) {
+new test.golden.Simple$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))    return
+  }
+  java.lang.Object f() {
+    return java.lang.Integer.valueOf(3)
+  }
 }
-public class test.golden.Simple.PACKAGEFUNCTIONS$inits_hello {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: invokestatic  #11                 // Method test/golden/Simple/PACKAGEFUNCTIONS.inits_hello:()Ljava/lang/Object;
-       3: areturn       
+class PACKAGEFUNCTIONS$inits_hello.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.Simple.PACKAGEFUNCTIONS.inits_hello()
+  }
 }
-public class test.golden.Simple.PACKAGEFUNCTIONS {
-  public static java.lang.Object inits_hello();
-    Code:
-       0: ldc           #6                  // String hello, world
-       2: areturn       
+class PACKAGEFUNCTIONS.java {
+  java.lang.Object inits_hello() {
+    return "hello, world"
+  }
 }

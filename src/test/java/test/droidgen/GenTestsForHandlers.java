@@ -42,6 +42,7 @@ public class GenTestsForHandlers {
 	@Before
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
+			allowing(bccHandler).generateAssociatedSourceFile();
 //			allowing(bccHandler).getCreatedName(); will(returnValue("Card"));
 			allowing(expr);
 			allowing(ctor).nextLocal(); will(returnValue(1));
@@ -141,7 +142,7 @@ public class GenTestsForHandlers {
 		context.checking(new Expectations() {{
 			oneOf(bccHandler).defineField(false, Access.PRIVATE, JavaType.object_, called);
 			oneOf(ctor).argument(J.OBJECT, called); will(new ReturnNewVar(ctor, J.OBJECT, called));
-			oneOf(ctor).callStatic(with("org.flasck.android.FLEval"), with(J.OBJECT), with("head"), with(any(Expr[].class)));
+			oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("head"), with(any(Expr[].class)));
 			oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(aNull(IExpr.class)));
 			oneOf(eval).arrayElt(with(aNonNull(Expr.class)), with(aNonNull(IntConstExpr.class)));
 			oneOf(eval).intConst(1); will(returnValue(new IntConstExpr(eval, 1)));

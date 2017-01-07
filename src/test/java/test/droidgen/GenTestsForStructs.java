@@ -42,6 +42,7 @@ public class GenTestsForStructs {
 	@Before
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
+			allowing(bccStruct).generateAssociatedSourceFile();
 			allowing(expr);
 			allowing(dfe).myThis(); will(new Action() {
 				@Override

@@ -1,32 +1,25 @@
-public class test.golden.MyCard extends org.flasck.jvm.cards.FlasckCard {
-  public test.golden.MyCard(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
-    Code:
-       0: aload_0       
-       1: aload_1       
-       2: aload_2       
-       3: invokespecial #8                  // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
-       6: return        
+class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
+  void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
+    super.<init>(despatcher, display)
+    super.ready()
+    return
+  }
 }
-public class test.golden.PACKAGEFUNCTIONS$x {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.x:()Ljava/lang/Object;
-       3: areturn       
+class PACKAGEFUNCTIONS$x.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.x()
+  }
 }
-public class test.golden.PACKAGEFUNCTIONS$y {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.y:()Ljava/lang/Object;
-       3: areturn       
+class PACKAGEFUNCTIONS$y.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.y()
+  }
 }
-public class test.golden.PACKAGEFUNCTIONS {
-  public static java.lang.Object x();
-    Code:
-       0: ldc           #11                 // class org/flasck/android/builtin/Number
-       2: areturn       
-
-  public static java.lang.Object y();
-    Code:
-       0: ldc           #14                 // class test/golden$MyCard
-       2: areturn       
+class PACKAGEFUNCTIONS.java {
+  java.lang.Object x() {
+    return org.flasck.jvm.builtin.Number.class
+  }
+  java.lang.Object y() {
+    return test.golden$MyCard.class
+  }
 }

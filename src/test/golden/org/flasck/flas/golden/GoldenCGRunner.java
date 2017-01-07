@@ -228,16 +228,13 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		assertGolden(new File(s, "flim"), flim);
 
 		if (new File(droidTo, "qbout/classes/test/golden").isDirectory()) {
-			RunProcess proc = new RunProcess("javap");
-			proc.arg("-p");
-			proc.arg("-c");
-			for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.class")) {
-				proc.arg(f.getPath());
-			}
+//			RunProcess proc = new RunProcess("javap");
+//			proc.arg("-p");
+//			proc.arg("-c");
 			FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
-			proc.redirectStdout(fos);
-			proc.redirectStderr(fos);
-			proc.execute();
+			for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.java")) {
+				FileUtils.copyFileToStream(f, fos);
+			}
 			fos.close();
 			
 			assertGolden(new File(s, "droid"), droid);

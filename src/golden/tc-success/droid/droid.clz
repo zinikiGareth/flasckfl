@@ -1,109 +1,53 @@
-public class test.golden.PACKAGEFUNCTIONS$bert {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.bert:()Ljava/lang/Object;
-       3: areturn       
+class PACKAGEFUNCTIONS$bert.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.bert()
+  }
 }
-public class test.golden.PACKAGEFUNCTIONS$fred {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: aload_0       
-       1: iconst_0      
-       2: aaload        
-       3: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.fred:(Ljava/lang/Object;)Ljava/lang/Object;
-       6: areturn       
+class PACKAGEFUNCTIONS$fred.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.fred(args[0])
+  }
 }
-public class test.golden.PACKAGEFUNCTIONS$t1 {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.t1:()Ljava/lang/Object;
-       3: areturn       
+class PACKAGEFUNCTIONS$t1.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.t1()
+  }
 }
-public class test.golden.PACKAGEFUNCTIONS$t2 {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.t2:()Ljava/lang/Object;
-       3: areturn       
+class PACKAGEFUNCTIONS$t2.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.t2()
+  }
 }
-public class test.golden.PACKAGEFUNCTIONS {
-  public static java.lang.Object bert();
-    Code:
-       0: new           #11                 // class org/flasck/jvm/FLClosure
-       3: dup           
-       4: ldc           #6                  // class org/flasck/android/FLEval$Tuple
-       6: iconst_2      
-       7: anewarray     #3                  // class java/lang/Object
-      10: dup           
-      11: iconst_0      
-      12: iconst_2      
-      13: invokestatic  #18                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
-      16: aastore       
-      17: dup           
-      18: iconst_1      
-      19: ldc           #19                 // String hello
-      21: aastore       
-      22: invokespecial #24                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      25: areturn       
-
-  public static java.lang.Object fred(java.lang.Object);
-    Code:
-       0: bipush        32
-       2: invokestatic  #18                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
-       5: areturn       
-
-  public static java.lang.Object t1();
-    Code:
-       0: new           #11                 // class org/flasck/jvm/FLClosure
-       3: dup           
-       4: ldc           #39                 // class org/flasck/android/builtin/PACKAGEFUNCTIONS$map
-       6: iconst_2      
-       7: anewarray     #3                  // class java/lang/Object
-      10: dup           
-      11: iconst_0      
-      12: ldc           #41                 // class test/golden/PACKAGEFUNCTIONS$fred
-      14: aastore       
-      15: dup           
-      16: iconst_1      
-      17: iconst_0      
-      18: anewarray     #3                  // class java/lang/Object
-      21: invokestatic  #48                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
-      24: aastore       
-      25: invokespecial #24                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      28: areturn       
-
-  public static java.lang.Object t2();
-    Code:
-       0: new           #11                 // class org/flasck/jvm/FLClosure
-       3: dup           
-       4: ldc           #53                 // class org/flasck/android/builtin/Cons
-       6: iconst_2      
-       7: anewarray     #3                  // class java/lang/Object
-      10: dup           
-      11: iconst_0      
-      12: iconst_3      
-      13: invokestatic  #18                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
-      16: aastore       
-      17: dup           
-      18: iconst_1      
-      19: iconst_0      
-      20: anewarray     #3                  // class java/lang/Object
-      23: invokestatic  #48                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
-      26: aastore       
-      27: invokespecial #24                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      30: astore_0      
-      31: new           #11                 // class org/flasck/jvm/FLClosure
-      34: dup           
-      35: ldc           #39                 // class org/flasck/android/builtin/PACKAGEFUNCTIONS$map
-      37: iconst_2      
-      38: anewarray     #3                  // class java/lang/Object
-      41: dup           
-      42: iconst_0      
-      43: ldc           #41                 // class test/golden/PACKAGEFUNCTIONS$fred
-      45: aastore       
-      46: dup           
-      47: iconst_1      
-      48: aload_0       
-      49: aastore       
-      50: invokespecial #24                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      53: areturn       
+class PACKAGEFUNCTIONS.java {
+  java.lang.Object bert() {
+    return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Tuple.class,new java.lang.Object[2] {
+  autobox[  java.lang.Integer.valueOf(2)
+]
+  autobox["hello"]
+})
+  }
+  java.lang.Object fred(java.lang.Object _0) {
+    return java.lang.Integer.valueOf(32)
+  }
+  java.lang.Object t1() {
+    return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
+  autobox[test.golden.PACKAGEFUNCTIONS$fred.class]
+  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
+})
+]
+})
+  }
+  java.lang.Object t2() {
+    {
+      v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+autobox[java.lang.Integer.valueOf(3)]
+autobox[org.flasck.jvm.builtin.Nil.eval(    new java.lang.Object[0] {
+    })]
+})
+      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
+  autobox[test.golden.PACKAGEFUNCTIONS$fred.class]
+  autobox[v0]
+})
+    }
+  }
 }

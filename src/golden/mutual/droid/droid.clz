@@ -1,66 +1,30 @@
-public class test.golden.PACKAGEFUNCTIONS$f {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: aload_0       
-       1: iconst_0      
-       2: aaload        
-       3: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.f:(Ljava/lang/Object;)Ljava/lang/Object;
-       6: areturn       
+class PACKAGEFUNCTIONS$f.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.f(args[0])
+  }
 }
-public class test.golden.PACKAGEFUNCTIONS {
-  public static java.lang.Object f(java.lang.Object);
-    Code:
-       0: new           #16                 // class org/flasck/jvm/FLClosure
-       3: dup           
-       4: ldc           #6                  // class org/flasck/android/FLEval$Curry
-       6: iconst_3      
-       7: anewarray     #3                  // class java/lang/Object
-      10: dup           
-      11: iconst_0      
-      12: ldc           #11                 // class test/golden/f_0$g
-      14: aastore       
-      15: dup           
-      16: iconst_1      
-      17: iconst_2      
-      18: invokestatic  #23                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
-      21: aastore       
-      22: dup           
-      23: iconst_2      
-      24: aload_0       
-      25: aastore       
-      26: invokespecial #27                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      29: astore_1      
-      30: aload_1       
-      31: areturn       
+class PACKAGEFUNCTIONS.java {
+  java.lang.Object f(java.lang.Object _0) {
+    {
+      v3 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[3] {
+autobox[test.golden.f_0$g.class]
+autobox[java.lang.Integer.valueOf(2)]
+autobox[_0]
+})
+      return v3
+    }
+  }
 }
-public class test.golden.f_0.PACKAGEFUNCTIONS$g {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: aload_0       
-       1: iconst_0      
-       2: aaload        
-       3: aload_0       
-       4: iconst_1      
-       5: aaload        
-       6: invokestatic  #11                 // Method test/golden/f_0/PACKAGEFUNCTIONS.g:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-       9: areturn       
+class PACKAGEFUNCTIONS$g.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.f_0.PACKAGEFUNCTIONS.g(args[0], args[1])
+  }
 }
-public class test.golden.f_0.PACKAGEFUNCTIONS {
-  public static java.lang.Object g(java.lang.Object, java.lang.Object);
-    Code:
-       0: new           #11                 // class org/flasck/jvm/FLClosure
-       3: dup           
-       4: ldc           #13                 // class "org/flasck/android/builtin/PACKAGEFUNCTIONS$*"
-       6: iconst_2      
-       7: anewarray     #3                  // class java/lang/Object
-      10: dup           
-      11: iconst_0      
-      12: aload_0       
-      13: aastore       
-      14: dup           
-      15: iconst_1      
-      16: aload_1       
-      17: aastore       
-      18: invokespecial #18                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      21: areturn       
+class PACKAGEFUNCTIONS.java {
+  java.lang.Object g(java.lang.Object _s0, java.lang.Object _0) {
+    return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
+  autobox[_s0]
+  autobox[_0]
+})
+  }
 }

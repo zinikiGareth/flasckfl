@@ -62,6 +62,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		if (!doBuild || !sd.generate)
 			return;
 		ByteCodeSink bcc = bce.newClass(sd.name());
+		bcc.generateAssociatedSourceFile();
 		DroidStructFieldGenerator fg = new DroidStructFieldGenerator(bcc, Access.PUBLIC);
 		sd.visitFields(fg);
 		bcc.superclass(J.FLAS_OBJECT);
@@ -84,6 +85,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		if (!doBuild)
 			return;
 		ByteCodeSink bcc = bce.newClass(cd.name());
+		bcc.generateAssociatedSourceFile();
 		bcc.superclass(J.CONTRACT_IMPL);
 		bcc.makeAbstract();
 		{
@@ -109,6 +111,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		if (!doBuild)
 			return;
 		ByteCodeSink bcc = bce.newClass(grp.struct.name());
+		bcc.generateAssociatedSourceFile();
 		bcc.superclass(J.FLASCK_CARD);
 		bcc.inheritsField(true, Access.PUBLIC, J.WRAPPER, "_wrapper");
 		bcc.inheritsField(true, Access.PUBLIC, J.DISPLAY_ENGINE, "_display");
@@ -161,6 +164,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		CSName name = (CSName) ci.realName;
 		String un = name.uniqueName();
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(un));
+		bcc.generateAssociatedSourceFile();
 		bcc.superclass(ci.name());
 		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(un)), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(un), DroidUtils.javaNestedSimpleName(un));
@@ -180,6 +184,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			return;
 		String name = cs.realName.uniqueName();
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
+		bcc.generateAssociatedSourceFile();
 		bcc.superclass(cs.name());
 		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(name), DroidUtils.javaNestedSimpleName(name));
@@ -198,6 +203,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			return;
 		String name = hi.handlerName.uniqueName();
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
+		bcc.generateAssociatedSourceFile();
 		bcc.superclass(hi.name());
 		IFieldInfo fi = null;
 		if (hi.inCard)

@@ -1,15 +1,10 @@
-public class test.golden.PACKAGEFUNCTIONS$id {
-  public static java.lang.Object eval(java.lang.Object[]);
-    Code:
-       0: aload_0       
-       1: iconst_0      
-       2: aaload        
-       3: invokestatic  #11                 // Method test/golden/PACKAGEFUNCTIONS.id:(Ljava/lang/Object;)Ljava/lang/Object;
-       6: areturn       
+class PACKAGEFUNCTIONS$id.java {
+  java.lang.Object eval([java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.id(args[0])
+  }
 }
-public class test.golden.PACKAGEFUNCTIONS {
-  public static java.lang.Object id(java.lang.Object);
-    Code:
-       0: aload_0       
-       1: areturn       
+class PACKAGEFUNCTIONS.java {
+  java.lang.Object id(java.lang.Object _0) {
+    return _0
+  }
 }

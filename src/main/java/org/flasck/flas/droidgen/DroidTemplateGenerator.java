@@ -50,6 +50,7 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 			return null;
 		String clz = areaName.javaName();
 		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(clz));
+		bcc.generateAssociatedSourceFile();
 		String baseClz = J.AREAPKG + base;
 		bcc.superclass(baseClz);
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType(J.WRAPPER), "_wrapper");

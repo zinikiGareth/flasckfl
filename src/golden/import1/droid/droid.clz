@@ -1,97 +1,42 @@
-public class test.golden.Foo$_C0 extends test.import.Fred {
-  private test.golden.Foo _card;
-
-  public test.golden.Foo$_C0(test.golden.Foo);
-    Code:
-       0: aload_0       
-       1: invokespecial #13                 // Method test/import/Fred."<init>":()V
-       4: aload_0       
-       5: aload_1       
-       6: putfield      #15                 // Field _card:Ltest/golden/Foo;
-       9: return        
-
-  public java.lang.Object go(java.lang.Object);
-    Code:
-       0: aload_1       
-       1: invokestatic  #38                 // Method org/flasck/android/FLEval.head:(Ljava/lang/Object;)Ljava/lang/Object;
-       4: astore_1      
-       5: aload_1       
-       6: instanceof    #39                 // class org/flasck/android/FLError
-       9: ifeq          14
-      12: aload_1       
-      13: areturn       
-      14: aload_1       
-      15: instanceof    #41                 // class org/flasck/android/builtin/Number
-      18: ifeq          97
-      21: new           #43                 // class org/flasck/jvm/FLClosure
-      24: dup           
-      25: ldc           #45                 // class test/import/PACKAGEFUNCTIONS$f
-      27: iconst_1      
-      28: anewarray     #47                 // class java/lang/Object
-      31: dup           
-      32: iconst_0      
-      33: aload_1       
-      34: aastore       
-      35: invokespecial #51                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      38: astore_2      
-      39: new           #43                 // class org/flasck/jvm/FLClosure
-      42: dup           
-      43: ldc           #52                 // class org/flasck/android/builtin/Assign
-      45: iconst_3      
-      46: anewarray     #47                 // class java/lang/Object
-      49: dup           
-      50: iconst_0      
-      51: aload_0       
-      52: getfield      #15                 // Field _card:Ltest/golden/Foo;
-      55: aastore       
-      56: dup           
-      57: iconst_1      
-      58: ldc           #54                 // String a
-      60: aastore       
-      61: dup           
-      62: iconst_2      
-      63: aload_2       
-      64: aastore       
-      65: invokespecial #51                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      68: astore_3      
-      69: new           #43                 // class org/flasck/jvm/FLClosure
-      72: dup           
-      73: ldc           #56                 // class org/flasck/android/builtin/Cons
-      75: iconst_2      
-      76: anewarray     #47                 // class java/lang/Object
-      79: dup           
-      80: iconst_0      
-      81: aload_3       
-      82: aastore       
-      83: dup           
-      84: iconst_1      
-      85: iconst_0      
-      86: anewarray     #47                 // class java/lang/Object
-      89: invokestatic  #63                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
-      92: aastore       
-      93: invokespecial #51                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      96: areturn       
-      97: new           #39                 // class org/flasck/android/FLError
-     100: dup           
-     101: ldc           #64                 // String go: case not handled
-     103: invokespecial #68                 // Method org/flasck/android/FLError."<init>":(Ljava/lang/String;)V
-     106: areturn       
+class Foo$_C0.java extends test.import.Fred {
+  void <init>(test.golden.Foo card) {
+    super.<init>()
+    this._card = card
+    return
+  }
+  java.lang.Object go(java.lang.Object _0) {
+    {
+      _0 = org.flasck.jvm.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.FLError) {
+        return _0
+      }
+      if (_0 instanceof org.flasck.jvm.builtin.Number) {
+        {
+          v1 = new org.flasck.jvm.FLClosure(test.import.PACKAGEFUNCTIONS$f.class,new java.lang.Object[1] {
+autobox[_0]
+})
+          v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
+autobox[this._card]
+autobox["a"]
+autobox[v1]
+})
+          return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+  autobox[v2]
+  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
+})
+]
+})
+        }
+      }
+      return new org.flasck.jvm.FLError("go: case not handled")
+    }
+  }
 }
-public class test.golden.Foo extends org.flasck.jvm.cards.FlasckCard {
-  protected int a;
-
-  public test.golden.Foo(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
-    Code:
-       0: aload_0       
-       1: aload_1       
-       2: aload_2       
-       3: invokespecial #13                 // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
-       6: aload_0       
-       7: ldc           #14                 // String test.import.Fred
-       9: new           #7                  // class test/golden/Foo$_C0
-      12: dup           
-      13: aload_0       
-      14: invokespecial #18                 // Method test/golden/Foo$_C0."<init>":(Ltest/golden/Foo;)V
-      17: invokevirtual #22                 // Method registerContract:(Ljava/lang/String;Lorg/flasck/jvm/ContractImpl;)V
-      20: return        
+class Foo.java extends org.flasck.jvm.cards.FlasckCard {
+  void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
+    super.<init>(despatcher, display)
+    this.registerContract("test.import.Fred", new test.golden.Foo$_C0(this))
+    super.ready()
+    return
+  }
 }

@@ -1,34 +1,27 @@
-public abstract class test.golden.Foo extends org.flasck.jvm.ContractImpl {
-  public test.golden.Foo();
-    Code:
-       0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
-       4: return        
-
-  public abstract java.lang.Object goodbye(java.lang.Object);
+class Foo.java extends org.flasck.jvm.ContractImpl {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  abstract java.lang.Object goodbye(java.lang.Object arg0);
 }
-public abstract class test.golden.Handler extends org.flasck.jvm.ContractImpl {
-  public test.golden.Handler();
-    Code:
-       0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
-       4: return        
-
-  public abstract java.lang.Object feedback(java.lang.Object);
+class Handler.java extends org.flasck.jvm.ContractImpl {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  abstract java.lang.Object feedback(java.lang.Object arg0);
 }
-public abstract class test.golden.Request extends org.flasck.jvm.ContractImpl {
-  public test.golden.Request();
-    Code:
-       0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
-       4: return        
+class Request.java extends org.flasck.jvm.ContractImpl {
+  void <init>() {
+    super.<init>()
+    return
+  }
 }
-public abstract class test.golden.UsePolyInstance extends org.flasck.jvm.ContractImpl {
-  public test.golden.UsePolyInstance();
-    Code:
-       0: aload_0       
-       1: invokespecial #8                  // Method org/flasck/jvm/ContractImpl."<init>":()V
-       4: return        
-
-  public abstract java.lang.Object giveList(java.lang.Object);
+class UsePolyInstance.java extends org.flasck.jvm.ContractImpl {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  abstract java.lang.Object giveList(java.lang.Object arg0);
 }

@@ -40,6 +40,7 @@ public class GenTestsForContracts {
 	@Before
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
+			allowing(bccContract).generateAssociatedSourceFile();
 			allowing(expr);
 			allowing(dfe).myThis(); will(new Action() {
 				@Override

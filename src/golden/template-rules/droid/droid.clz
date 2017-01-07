@@ -1,119 +1,44 @@
-public class test.golden.Container extends org.flasck.jvm.FLASObject {
-  public java.lang.String title;
-
-  public test.golden.Container();
-    Code:
-       0: aload_0       
-       1: invokespecial #10                 // Method org/flasck/jvm/FLASObject."<init>":()V
-       4: return        
-
-  public void _doFullEval();
-    Code:
-       0: aload_0       
-       1: aload_0       
-       2: aload_0       
-       3: getfield      #13                 // Field title:Ljava/lang/String;
-       6: invokevirtual #17                 // Method _fullOf:(Ljava/lang/Object;)Ljava/lang/Object;
-       9: putfield      #13                 // Field title:Ljava/lang/String;
-      12: return        
+class Container.java extends org.flasck.jvm.FLASObject {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  void _doFullEval() {
+    this.title = this._fullOf(this.title)
+    return
+  }
 }
-public class test.golden.MyCard$B1 extends org.flasck.android.areas.TextArea {
-  private final test.golden.MyCard _card;
-
-  public test.golden.MyCard$B1(test.golden.MyCard, org.flasck.jvm.areas.Area);
-    Code:
-       0: aload_0       
-       1: aload_2       
-       2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
-       6: aload_0       
-       7: aload_1       
-       8: putfield      #15                 // Field _card:Ltest/golden/MyCard;
-      11: aload_0       
-      12: getfield      #15                 // Field _card:Ltest/golden/MyCard;
-      15: getfield      #19                 // Field test/golden/MyCard._wrapper:Lorg/flasck/jvm/Wrapper;
-      18: aload_0       
-      19: getfield      #15                 // Field _card:Ltest/golden/MyCard;
-      22: ldc           #20                 // String c
-      24: aload_0       
-      25: ldc           #22                 // String _contentExpr
-      27: invokevirtual #29                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
-      30: aload_0       
-      31: getfield      #15                 // Field _card:Ltest/golden/MyCard;
-      34: getfield      #19                 // Field test/golden/MyCard._wrapper:Lorg/flasck/jvm/Wrapper;
-      37: aload_0       
-      38: getfield      #15                 // Field _card:Ltest/golden/MyCard;
-      41: getfield      #32                 // Field test/golden/MyCard.c:Ltest/golden/Container;
-      44: ldc           #33                 // String title
-      46: aload_0       
-      47: ldc           #22                 // String _contentExpr
-      49: invokevirtual #29                 // Method org/flasck/jvm/Wrapper.onAssign:(Ljava/lang/Object;Ljava/lang/String;Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
-      52: aload_0       
-      53: invokevirtual #37                 // Method _contentExpr:()Ljava/lang/Object;
-      56: pop           
-      57: aload_0       
-      58: ldc           #46                 // String flasck-editable
-      60: invokevirtual #50                 // Method setCSS:(Ljava/lang/String;)V
-      63: return        
-
-  public java.lang.Object _contentExpr();
-    Code:
-       0: aload_0       
-       1: aload_0       
-       2: invokevirtual #41                 // Method contents_0:()Ljava/lang/String;
-       5: invokespecial #45                 // Method org/flasck/android/areas/TextArea._assignToText:(Ljava/lang/String;)V
-       8: aconst_null   
-       9: areturn       
-
-  public java.lang.Object contents_0();
-    Code:
-       0: new           #56                 // class org/flasck/jvm/FLClosure
-       3: dup           
-       4: ldc           #51                 // class org/flasck/android/FLEval$Field
-       6: iconst_2      
-       7: anewarray     #58                 // class java/lang/Object
-      10: dup           
-      11: iconst_0      
-      12: aload_0       
-      13: getfield      #15                 // Field _card:Ltest/golden/MyCard;
-      16: getfield      #32                 // Field test/golden/MyCard.c:Ltest/golden/Container;
-      19: aastore       
-      20: dup           
-      21: iconst_1      
-      22: ldc           #33                 // String title
-      24: aastore       
-      25: invokespecial #62                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      28: areturn       
-
-  public java.lang.Object editcontainer_1();
-    Code:
-       0: aload_0       
-       1: getfield      #15                 // Field _card:Ltest/golden/MyCard;
-       4: getfield      #32                 // Field test/golden/MyCard.c:Ltest/golden/Container;
-       7: areturn       
+class MyCard$B1.java extends org.flasck.jvm.areas.TextArea {
+  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._card._wrapper.onAssign(this._card, "c", this, "_contentExpr")
+    this._card._wrapper.onAssign(this._card.c, "title", this, "_contentExpr")
+    this._contentExpr()
+    this.setCSS("flasck-editable")
+    return
+  }
+  java.lang.Object _contentExpr() {
+    super._assignToText(this.contents_0())
+    return null
+  }
+  java.lang.Object contents_0() {
+    return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
+  autobox[this._card.c]
+  autobox["title"]
+})
+  }
+  java.lang.Object editcontainer_1() {
+    return this._card.c
+  }
 }
-public class test.golden.MyCard extends org.flasck.jvm.cards.FlasckCard {
-  protected test.golden.Container c;
-
-  public test.golden.MyCard(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
-    Code:
-       0: aload_0       
-       1: aload_1       
-       2: aload_2       
-       3: invokespecial #10                 // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
-       6: return        
-
-  public void render(java.lang.String);
-    Code:
-       0: new           #12                 // class test/golden/MyCard$B1
-       3: aload_0       
-       4: new           #14                 // class org/flasck/jvm/areas/CardArea
-       7: dup           
-       8: aload_0       
-       9: getfield      #19                 // Field _wrapper:Lorg/flasck/jvm/Wrapper;
-      12: aload_0       
-      13: aload_1       
-      14: invokespecial #22                 // Method org/flasck/jvm/areas/CardArea."<init>":(Lorg/flasck/jvm/Wrapper;Lorg/flasck/jvm/cards/FlasckCard;Ljava/lang/String;)V
-      17: invokespecial #25                 // Method test/golden/MyCard$B1."<init>":(Ltest/golden/MyCard;Lorg/flasck/jvm/areas/Area;)V
-      20: return        
+class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
+  void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
+    super.<init>(despatcher, display)
+    super.ready()
+    return
+  }
+  void render(java.lang.String into) {
+new test.golden.MyCard$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))    return
+  }
 }

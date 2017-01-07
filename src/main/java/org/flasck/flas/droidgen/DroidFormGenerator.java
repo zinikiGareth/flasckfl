@@ -81,6 +81,7 @@ public class DroidFormGenerator {
 			inClz = pkg +".PACKAGEFUNCTIONS";
 			if (!bce.hasClass(inClz)) {
 				ByteCodeSink bcc = bce.newClass(inClz);
+				bcc.generateAssociatedSourceFile();
 				bcc.superclass("java.lang.Object");
 			}
 			needTrampolineClass = true;
@@ -124,6 +125,7 @@ public class DroidFormGenerator {
 		// for package-level methods (i.e. regular floating functions in a functional language), generate a nested class
 		if (needTrampolineClass) {
 			ByteCodeSink inner = bce.newClass(inClz + "$" + fn);
+			inner.generateAssociatedSourceFile();
 			inner.superclass("java.lang.Object");
 			if (wantThis) {
 				IFieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");

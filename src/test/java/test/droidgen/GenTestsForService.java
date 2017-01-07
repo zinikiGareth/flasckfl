@@ -32,6 +32,7 @@ public class GenTestsForService {
 	@Before
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
+			allowing(bccImpl).generateAssociatedSourceFile();
 			allowing(bccImpl).getCreatedName(); will(returnValue("Card"));
 			allowing(expr);
 			allowing(ctor).nextLocal(); will(returnValue(1));

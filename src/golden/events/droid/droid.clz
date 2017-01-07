@@ -1,212 +1,83 @@
-public class test.golden.Events$B1 extends org.flasck.android.areas.DivArea {
-  private final test.golden.Events _card;
-
-  public test.golden.Events$B1(test.golden.Events, org.flasck.jvm.areas.Area);
-    Code:
-       0: aload_0       
-       1: aload_2       
-       2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/DivArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
-       6: aload_0       
-       7: aload_1       
-       8: putfield      #15                 // Field _card:Ltest/golden/Events;
-      11: new           #16                 // class test/golden/Events$B2
-      14: dup           
-      15: aload_1       
-      16: aload_0       
-      17: invokespecial #20                 // Method test/golden/Events$B2."<init>":(Ltest/golden/Events;Lorg/flasck/jvm/areas/Area;)V
-      20: astore_3      
-      21: new           #21                 // class test/golden/Events$B3
-      24: dup           
-      25: aload_1       
-      26: aload_0       
-      27: invokespecial #23                 // Method test/golden/Events$B3."<init>":(Ltest/golden/Events;Lorg/flasck/jvm/areas/Area;)V
-      30: astore        4
-      32: return        
+class Events$B1.java extends org.flasck.jvm.areas.DivArea {
+  void <init>(test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    b2 = new test.golden.Events$B2(cardArg,this)
+    b3 = new test.golden.Events$B3(cardArg,this)
+    return
+  }
 }
-public class test.golden.Events$B2 extends org.flasck.android.areas.TextArea {
-  private final test.golden.Events _card;
-
-  public test.golden.Events$B2(test.golden.Events, org.flasck.jvm.areas.Area);
-    Code:
-       0: aload_0       
-       1: aload_2       
-       2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
-       6: aload_0       
-       7: aload_1       
-       8: putfield      #15                 // Field _card:Ltest/golden/Events;
-      11: aload_0       
-      12: ldc           #16                 // String OK
-      14: invokevirtual #21                 // Method _setText:(Ljava/lang/String;)V
-      17: aload_0       
-      18: ldc           #22                 // String button
-      20: invokevirtual #26                 // Method setCSS:(Ljava/lang/String;)V
-      23: aload_0       
-      24: invokevirtual #40                 // Method _add_handlers:()Ljava/lang/Object;
-      27: pop           
-      28: return        
-
-  public java.lang.Object _add_handlers();
-    Code:
-       0: ldc           #28                 // String FlasckLib
-       2: ldc           #30                 // String Need to add the handlers
-       4: invokestatic  #37                 // Method android/util/Log.e:(Ljava/lang/String;Ljava/lang/String;)I
-       7: pop           
-       8: aconst_null   
-       9: areturn       
-
-  public java.lang.Object handlers_0();
-    Code:
-       0: new           #42                 // class test/golden/Events$okThen
-       3: dup           
-       4: aload_0       
-       5: invokespecial #46                 // Method test/golden/Events$okThen."<init>":(Ltest/golden/Events$B2;)V
-       8: areturn       
+class Events$B2.java extends org.flasck.jvm.areas.TextArea {
+  void <init>(test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._setText("OK")
+    this.setCSS("button")
+    this._add_handlers()
+    return
+  }
+  java.lang.Object _add_handlers() {
+    return null
+  }
+  java.lang.Object handlers_0() {
+    return test.golden.Events$okThen.class
+  }
 }
-public class test.golden.Events$B3 extends org.flasck.android.areas.TextArea {
-  private final test.golden.Events _card;
-
-  public test.golden.Events$B3(test.golden.Events, org.flasck.jvm.areas.Area);
-    Code:
-       0: aload_0       
-       1: aload_2       
-       2: aconst_null   
-       3: invokespecial #13                 // Method org/flasck/android/areas/TextArea."<init>":(Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
-       6: aload_0       
-       7: aload_1       
-       8: putfield      #15                 // Field _card:Ltest/golden/Events;
-      11: aload_0       
-      12: ldc           #16                 // String Set13
-      14: invokevirtual #21                 // Method _setText:(Ljava/lang/String;)V
-      17: aload_0       
-      18: ldc           #22                 // String button
-      20: invokevirtual #26                 // Method setCSS:(Ljava/lang/String;)V
-      23: aload_0       
-      24: invokevirtual #40                 // Method _add_handlers:()Ljava/lang/Object;
-      27: pop           
-      28: return        
-
-  public java.lang.Object _add_handlers();
-    Code:
-       0: ldc           #28                 // String FlasckLib
-       2: ldc           #30                 // String Need to add the handlers
-       4: invokestatic  #37                 // Method android/util/Log.e:(Ljava/lang/String;Ljava/lang/String;)I
-       7: pop           
-       8: aconst_null   
-       9: areturn       
-
-  public java.lang.Object handlers_1();
-    Code:
-       0: new           #47                 // class org/flasck/jvm/FLClosure
-       3: dup           
-       4: aload_0       
-       5: getfield      #15                 // Field _card:Ltest/golden/Events;
-       8: ldc           #42                 // class org/flasck/android/FLEval$Curry
-      10: iconst_3      
-      11: anewarray     #49                 // class java/lang/Object
-      14: dup           
-      15: iconst_0      
-      16: new           #51                 // class test/golden/Events$setTo
-      19: dup           
-      20: aload_0       
-      21: invokespecial #55                 // Method test/golden/Events$setTo."<init>":(Ltest/golden/Events$B3;)V
-      24: aastore       
-      25: dup           
-      26: iconst_1      
-      27: iconst_2      
-      28: invokestatic  #61                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
-      31: aastore       
-      32: dup           
-      33: iconst_2      
-      34: bipush        13
-      36: invokestatic  #61                 // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
-      39: aastore       
-      40: invokespecial #64                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Object;)V
-      43: areturn       
+class Events$B3.java extends org.flasck.jvm.areas.TextArea {
+  void <init>(test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._setText("Set13")
+    this.setCSS("button")
+    this._add_handlers()
+    return
+  }
+  java.lang.Object _add_handlers() {
+    return null
+  }
+  java.lang.Object handlers_1() {
+    return new org.flasck.jvm.FLClosure(this._card,org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[3] {
+  autobox[test.golden.Events$setTo.class]
+  autobox[  java.lang.Integer.valueOf(2)
+]
+  autobox[  java.lang.Integer.valueOf(13)
+]
+})
+  }
 }
-public class test.golden.Events extends org.flasck.jvm.cards.FlasckCard {
-  public test.golden.Events(org.flasck.jvm.cards.CardDespatcher, org.flasck.jvm.display.DisplayEngine);
-    Code:
-       0: aload_0       
-       1: aload_1       
-       2: aload_2       
-       3: invokespecial #8                  // Method org/flasck/jvm/cards/FlasckCard."<init>":(Lorg/flasck/jvm/cards/CardDespatcher;Lorg/flasck/jvm/display/DisplayEngine;)V
-       6: return        
-
-  public void render(java.lang.String);
-    Code:
-       0: new           #10                 // class test/golden/Events$B1
-       3: aload_0       
-       4: new           #12                 // class org/flasck/jvm/areas/CardArea
-       7: dup           
-       8: aload_0       
-       9: getfield      #17                 // Field _wrapper:Lorg/flasck/jvm/Wrapper;
-      12: aload_0       
-      13: aload_1       
-      14: invokespecial #20                 // Method org/flasck/jvm/areas/CardArea."<init>":(Lorg/flasck/jvm/Wrapper;Lorg/flasck/jvm/cards/FlasckCard;Ljava/lang/String;)V
-      17: invokespecial #23                 // Method test/golden/Events$B1."<init>":(Ltest/golden/Events;Lorg/flasck/jvm/areas/Area;)V
-      20: return        
-
-  public java.lang.Object okThen(java.lang.Object);
-    Code:
-       0: new           #37                 // class org/flasck/jvm/FLClosure
-       3: dup           
-       4: ldc           #39                 // class org/flasck/android/builtin/Debug
-       6: iconst_1      
-       7: anewarray     #41                 // class java/lang/Object
-      10: dup           
-      11: iconst_0      
-      12: aload_1       
-      13: aastore       
-      14: invokespecial #45                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      17: astore_2      
-      18: new           #37                 // class org/flasck/jvm/FLClosure
-      21: dup           
-      22: ldc           #46                 // class org/flasck/android/builtin/Cons
-      24: iconst_2      
-      25: anewarray     #41                 // class java/lang/Object
-      28: dup           
-      29: iconst_0      
-      30: aload_2       
-      31: aastore       
-      32: dup           
-      33: iconst_1      
-      34: iconst_0      
-      35: anewarray     #41                 // class java/lang/Object
-      38: invokestatic  #53                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
-      41: aastore       
-      42: invokespecial #45                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      45: areturn       
-
-  public java.lang.Object setTo(java.lang.Object, java.lang.Object);
-    Code:
-       0: new           #37                 // class org/flasck/jvm/FLClosure
-       3: dup           
-       4: ldc           #39                 // class org/flasck/android/builtin/Debug
-       6: iconst_1      
-       7: anewarray     #41                 // class java/lang/Object
-      10: dup           
-      11: iconst_0      
-      12: aload_2       
-      13: aastore       
-      14: invokespecial #45                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      17: astore_3      
-      18: new           #37                 // class org/flasck/jvm/FLClosure
-      21: dup           
-      22: ldc           #46                 // class org/flasck/android/builtin/Cons
-      24: iconst_2      
-      25: anewarray     #41                 // class java/lang/Object
-      28: dup           
-      29: iconst_0      
-      30: aload_3       
-      31: aastore       
-      32: dup           
-      33: iconst_1      
-      34: iconst_0      
-      35: anewarray     #41                 // class java/lang/Object
-      38: invokestatic  #53                 // Method org/flasck/android/builtin/Nil.eval:([Ljava/lang/Object;)Ljava/lang/Object;
-      41: aastore       
-      42: invokespecial #45                 // Method org/flasck/jvm/FLClosure."<init>":(Ljava/lang/Class;[Ljava/lang/Object;)V
-      45: areturn       
+class Events.java extends org.flasck.jvm.cards.FlasckCard {
+  void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
+    super.<init>(despatcher, display)
+    super.ready()
+    return
+  }
+  void render(java.lang.String into) {
+new test.golden.Events$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))    return
+  }
+  java.lang.Object okThen(java.lang.Object _0) {
+    {
+      v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
+autobox[_0]
+})
+      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+  autobox[v1]
+  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
+})
+]
+})
+    }
+  }
+  java.lang.Object setTo(java.lang.Object _0, java.lang.Object _1) {
+    {
+      v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
+autobox[_1]
+})
+      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+  autobox[v2]
+  autobox[  org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {
+})
+]
+})
+    }
+  }
 }

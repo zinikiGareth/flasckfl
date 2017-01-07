@@ -47,6 +47,7 @@ public class GenTestsForCards {
 	@Before
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
+			allowing(bccCard).generateAssociatedSourceFile();
 			allowing(bccCard).getCreatedName(); will(returnValue("Card"));
 			allowing(ctor).nextLocal(); will(returnValue(1));
 			allowing(ctor).myThis(); will(new ReturnNewVar(ctor, "Card", "this"));
@@ -137,6 +138,7 @@ public class GenTestsForCards {
 			oneOf(bce).newClass("Card"); will(returnValue(bccCard));
 			oneOf(bccCard).superclass(J.FLASCK_CARD);
 			oneOf(bccCard).inheritsField(true, Access.PUBLIC, J.WRAPPER, "_wrapper");
+			oneOf(bccCard).inheritsField(true, Access.PUBLIC, J.DISPLAY_ENGINE, "_display");
 		}});
 	}
 
@@ -146,6 +148,7 @@ public class GenTestsForCards {
 			oneOf(ctor).argument(J.CARD_DESPATCHER, "despatcher"); will(new ReturnNewVar(ctor, J.CARD_DESPATCHER, "despatcher"));
 			oneOf(ctor).argument(J.DISPLAY_ENGINE, "display"); will(new ReturnNewVar(ctor, J.DISPLAY_ENGINE, "display"));
 			oneOf(ctor).callSuper(with("void"), with(J.FLASCK_CARD), with("<init>"), with(aNonNull(IExpr[].class))); will(returnValue(expr));
+			oneOf(ctor).callSuper("void", J.FLASCK_CARD, "ready"); will(returnValue(expr));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
 	}
