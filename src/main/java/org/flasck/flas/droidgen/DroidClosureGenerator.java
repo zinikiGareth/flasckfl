@@ -35,6 +35,13 @@ public class DroidClosureGenerator {
 			return handleField(closure);
 		} else {
 		// Process all the arguments
+			int pos = 0;
+			List<Expr> al = new ArrayList<Expr>();
+			for (HSIEBlock b : closure.nestedCommands()) {
+				PushReturn c = (PushReturn) b;
+				al.add(upcast(appendValue(c, pos)));
+				pos++;
+			}
 		
 		
 		
@@ -65,20 +72,6 @@ public class DroidClosureGenerator {
 			}
 			if (needsObject != null && fromHandler)
 				needsObject = meth.getField("_card");
-			int pos = 0;
-			boolean isField = false;
-			List<Expr> al = new ArrayList<Expr>();
-			for (HSIEBlock b : closure.nestedCommands()) {
-				PushReturn c = (PushReturn) b;
-				if (c instanceof PushExternal && pos == 0) {
-					isField = "FLEval.field".equals(((PushExternal)c).fn);
-				}
-				if (c instanceof PushExternal && isField && pos == 2)
-					System.out.println("c.fn = " + ((PushExternal)c).fn);
-				else
-					al.add(upcast(appendValue(c, pos)));
-				pos++;
-			}
 			Expr clz = al.remove(0);
 			String t = clz.getType();
 			if (!t.equals("java.lang.Class") && (needsObject != null || !t.equals(J.OBJECT))) {
