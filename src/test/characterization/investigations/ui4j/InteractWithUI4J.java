@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ui4j.api.browser.BrowserEngine;
@@ -38,6 +39,7 @@ public class InteractWithUI4J {
 	}
 	
 	@Test
+	@Ignore // this test, while a potentially interesting investigation, takes over a second to run and I don't care about the result 
 	public void testWeCanReadFromHackerNewsAsIsSaysInTheDocco() throws Exception {
 		Page page = BrowserFactory.getWebKit().navigate("https://news.ycombinator.com");
 		AtomicInteger count = new AtomicInteger();

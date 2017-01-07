@@ -1,7 +1,6 @@
 package org.flasck.flas.droidgen;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -14,6 +13,8 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushFunc;
@@ -22,29 +23,23 @@ import org.flasck.flas.vcode.hsieForm.PushString;
 import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.PushVisitor;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
-import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.zinutils.bytecode.Expr;
-import org.zinutils.bytecode.IExpr;
-import org.zinutils.bytecode.NewMethodDefiner;
-import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringUtil;
 
 public final class DroidAppendPush implements PushVisitor {
-	private HSIEForm form;
-	private NewMethodDefiner meth;
-	private Map<String, Var> svars;
-	private Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars;
+	private final HSIEForm form;
+	private final NewMethodDefiner meth;
+	private final VarHolder vh;
 	private CodeType fntype;
 	private int pos;
 
-	public DroidAppendPush(HSIEForm form, NewMethodDefiner meth, Map<String, Var> svars, Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars, CodeType fntype, int pos) {
+	public DroidAppendPush(HSIEForm form, NewMethodDefiner meth, VarHolder vh, CodeType fntype, int pos) {
 		this.form = form;
 		this.meth = meth;
-		this.svars = svars;
-		this.vars = vars;
+		this.vh = vh;
 		this.fntype = fntype;
 		this.pos = pos;
 	}
@@ -107,9 +102,7 @@ public final class DroidAppendPush implements PushVisitor {
 				// TODO: I'm not quite sure what should happen here, or even what this case represents, but I know it should be something to do with the *actual* function definition
 				return meth.stringConst(pe.fn.uniqueName());
 			}
-			if (!svars.containsKey(pe.fn.uniqueName()))
-				throw new UtilException("ScopedVar not in scope: " + pe.fn);
-			return svars.get(pe.fn.uniqueName());
+			return vh.getScoped(pe.fn.uniqueName());
 		} else if (pe.fn instanceof CardFunction) {
 			String jnn = DroidUtils.javaNestedName(pe.fn.uniqueName());
 			return meth.classConst(jnn);
@@ -137,15 +130,14 @@ public final class DroidAppendPush implements PushVisitor {
 			throw new UtilException("Can't handle " + pe.fn + " of type " + pe.fn.getClass());
 	}
 
-	private boolean fromHandler() {
-		return form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.AREA;
-	}
+	// if this function does make a comeback, it should probably be a method on FORM
+//	private boolean fromHandler() {
+//		return form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.AREA;
+//	}
 
 	@Override
 	public Object visit(PushVar pv) {
-		if (!vars.containsKey(pv.var.var))
-			throw new UtilException("Do not have the variable " + pv.var);
-		return vars.get(pv.var.var);
+		return vh.get(pv.var.var);
 	}
 
 	@Override

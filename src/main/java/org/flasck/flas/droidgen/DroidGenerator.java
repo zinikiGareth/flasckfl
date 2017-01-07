@@ -40,11 +40,13 @@ import org.zinutils.exceptions.UtilException;
 
 public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	private final boolean doBuild;
-	private ByteCodeStorage bce;
+	private final ByteCodeStorage bce;
+	private final DroidHSIEFormGenerator formGen;
 
 	public DroidGenerator(boolean doBuild, ByteCodeStorage bce) {
 		this.doBuild = doBuild;
 		this.bce = bce;
+		this.formGen = new DroidHSIEFormGenerator(bce);
 	}
 
 	public void registerWith(CodeGenRegistry rewriter) {
@@ -266,6 +268,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	public void generate(HSIEForm form) {
 		if (!doBuild)
 			return;
-		new DroidHSIEFormGenerator(bce, form).generate();
+		formGen.generate(form);
 	}
 }

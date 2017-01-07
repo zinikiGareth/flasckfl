@@ -2,8 +2,6 @@ package test.droidgen;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.BooleanLiteral;
@@ -13,6 +11,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.droidgen.DroidAppendPush;
+import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -43,10 +42,9 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	MethodDefiner meth = context.mock(MethodDefiner.class);
 	private HSIEForm form = null;
-	private Map<String, org.zinutils.bytecode.Var> svars = null;
-	private Map<Var, org.zinutils.bytecode.Var> vars = new HashMap<>();
+	private VarHolder vh = new VarHolder();
 	private CodeType fntype = CodeType.FUNCTION;
-	DroidAppendPush dap = new DroidAppendPush(form, meth, svars, vars, fntype, 0);
+	DroidAppendPush dap = new DroidAppendPush(form, meth, vh, fntype, 0);
 	private FunctionName funcName = FunctionName.function(loc, null, "func");
 
 	@Test
@@ -88,7 +86,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 			allowing(meth).nextLocal();
 		}});
 		AVar av = new AVar(meth, "12", "x");
-		vars.put(var, av);
+		vh.put(var, av);
 		Object ret = dap.visit(new PushVar(loc, new VarInSource(var, loc, "x")));
 		assertEquals(av, ret);
 	}
