@@ -13,7 +13,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushVar;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
@@ -30,13 +29,20 @@ public class DroidClosureGenerator {
 		this.vh = vh;
 	}
 
-	public IExpr closure(CodeType fntype, HSIEBlock closure) {
-		// Loop over everything in the closure pushing it onto the stack (in al)
+	public IExpr closure(HSIEBlock closure) {
 		HSIEBlock c0 = closure.nestedCommands().get(0);
+		if (c0 instanceof PushExternal && ((PushExternal)c0).fn.uniqueName().equals("FLEval.field")) {
+			return handleField(closure);
+		} else {
+		// Process all the arguments
+		
+		
+		
+		// Loop over everything in the closure pushing it onto the stack (in al)
 		if (c0 instanceof PushExternal) {
 			ExternalRef fn = ((PushExternal)c0).fn;
 			Expr needsObject = null;
-			boolean fromHandler = fntype == CodeType.AREA;
+			boolean fromHandler = form.needsCardMember();
 			Object defn = fn;
 			if (fn != null) {
 				while (defn instanceof PackageVar)
@@ -70,7 +76,7 @@ public class DroidClosureGenerator {
 				if (c instanceof PushExternal && isField && pos == 2)
 					System.out.println("c.fn = " + ((PushExternal)c).fn);
 				else
-					al.add(upcast(appendValue(fntype, c, pos)));
+					al.add(upcast(appendValue(c, pos)));
 				pos++;
 			}
 			Expr clz = al.remove(0);
@@ -91,13 +97,23 @@ public class DroidClosureGenerator {
 			return vh.get(((PushVar)c0).var.var);
 		} else
 			throw new UtilException("Can't handle " + c0);
+		}
 	}
 
-	Expr appendValue(CodeType fntype, PushReturn c, int pos) {
-		return (Expr) c.visit(new DroidAppendPush(form, meth, vh, fntype, pos));
+	private IExpr handleField(HSIEBlock closure) {
+		List<Expr> al = new ArrayList<>();
+		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(1), 1)));
+		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(2), 2)));
+		return meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al));
 	}
 
+	Expr appendValue(PushReturn c, int pos) {
+		return (Expr) c.visit(new DroidAppendPush(form, meth, vh, pos));
+	}
+
+	// TODO: I think this wants to go away and we just want to autobox stuff
 	Expr upcast(Expr expr) {
+//		return meth.box(expr);
 		if (expr.getType().equals("int"))
 			return meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", expr);
 		return expr;

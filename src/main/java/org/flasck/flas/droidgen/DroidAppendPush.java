@@ -33,14 +33,12 @@ public final class DroidAppendPush implements PushVisitor {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private final VarHolder vh;
-	private CodeType fntype;
 	private int pos;
 
-	public DroidAppendPush(HSIEForm form, NewMethodDefiner meth, VarHolder vh, CodeType fntype, int pos) {
+	public DroidAppendPush(HSIEForm form, NewMethodDefiner meth, VarHolder vh, int pos) {
 		this.form = form;
 		this.meth = meth;
 		this.vh = vh;
-		this.fntype = fntype;
 		this.pos = pos;
 	}
 
@@ -113,19 +111,19 @@ public final class DroidAppendPush implements PushVisitor {
 //				cardObj = meth.myThis();
 //			return meth.makeNew(jnn, cardObj);
 		} else if (pe.fn instanceof CardMember) {
-			if (fntype == CodeType.CARD || fntype == CodeType.EVENTHANDLER)
+			if (form.isCardMethod())
 				return meth.myThis();
-			else if (fntype == CodeType.HANDLER || fntype == CodeType.CONTRACT || fntype == CodeType.AREA) {
+			else if (form.needsCardMember()) {
 				CardMember cm = (CardMember)pe.fn;
 				Expr field = meth.getField(meth.getField("_card"), cm.var);
 				return field;
 			} else
-				throw new UtilException("Can't handle " + fntype + " for card member");
+				throw new UtilException("Can't handle card member with " + form.mytype);
 		} else if (pe.fn instanceof HandlerLambda) {
-			if (fntype == CodeType.HANDLER)
+			if (form.mytype == CodeType.HANDLER)
 				return meth.getField(((HandlerLambda)pe.fn).var);
 			else
-				throw new UtilException("Can't handle " + fntype + " with handler lambda");
+				throw new UtilException("Can't handle handler lambda with " + form.mytype);
 		} else
 			throw new UtilException("Can't handle " + pe.fn + " of type " + pe.fn.getClass());
 	}

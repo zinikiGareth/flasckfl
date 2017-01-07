@@ -60,7 +60,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 		else {
 			hv = meth.avar("java.lang.Object", c.var.var.toString());
 			vh.put(c.var.var, hv);
-			Expr cl = (Expr) closGen.closure(form.mytype, form.getClosure(c.var.var));
+			Expr cl = (Expr) closGen.closure(form.getClosure(c.var.var));
 			coll.add(meth.assign(hv, cl));
 		}
 
@@ -100,11 +100,11 @@ public class DroidHSIProcessor implements HSIEVisitor {
 							v = meth.avar("java.lang.Object", cov.var.toString());
 							vh.put(cov.var, v);
 						}
-						Expr cl = (Expr) closGen.closure(form.mytype, form.getClosure(cov.var));
+						Expr cl = (Expr) closGen.closure(form.getClosure(cov.var));
 						coll.add(meth.assign(v, cl));
 					}
 				}
-				Expr cl = (Expr) closGen.closure(form.mytype, form.getClosure(pv.var.var));
+				Expr cl = (Expr) closGen.closure(form.getClosure(pv.var.var));
 				if (assignReturnTo != null) {
 					makeArgBeString(vh.get(pv.var.var));
 					coll.add(meth.assign(assignReturnTo, cl));
@@ -112,7 +112,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 					coll.add(meth.returnObject(cl));
 			}
 		} else {
-			Expr expr = closGen.appendValue(form.mytype, r, 0);
+			Expr expr = closGen.appendValue(r, 0);
 			coll.add(meth.returnObject(expr));
 		}
 	}

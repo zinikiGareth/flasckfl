@@ -44,7 +44,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 	private HSIEForm form = null;
 	private VarHolder vh = new VarHolder();
 	private CodeType fntype = CodeType.FUNCTION;
-	DroidAppendPush dap = new DroidAppendPush(form, meth, vh, fntype, 0);
+	DroidAppendPush dap = new DroidAppendPush(form, meth, vh, 0);
 	private FunctionName funcName = FunctionName.function(loc, null, "func");
 
 	@Test

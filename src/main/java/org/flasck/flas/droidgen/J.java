@@ -37,6 +37,7 @@ public class J {
 	public static final String FLCLOSURE = FLClosure.class.getName();
 	public static final String FLERROR = FLError.class.getName();
 	public static final String FLEVAL = FLEval.class.getName();
+	public static final String FLFIELD = FLEVAL + "$Field";
 	public static final String FLCURRY = FLCurry.class.getName();
 	public static final String CONTRACT_IMPL = ContractImpl.class.getName();
 

@@ -197,17 +197,27 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		return closures.values();
 	}
 
-	@Override
-	public String toString() {
-		return "HSIE for " + funcName.uniqueName() + "/" + nformal;
+	// This is supposed to determine if the card is found by using "this"
+	public boolean isCardMethod() {
+		return mytype == CodeType.CARD || mytype == CodeType.EVENTHANDLER;
+	}
+	
+	// This is supposed to determine if the card is found by using "this._card"
+	public boolean needsCardMember() {
+		return mytype == CodeType.CONTRACT || mytype == CodeType.SERVICE || mytype == CodeType.HANDLER || mytype == CodeType.AREA;
 	}
 
 	public boolean isMethod() {
-		return mytype == CodeType.CARD || mytype == CodeType.CONTRACT || mytype == CodeType.SERVICE || mytype == CodeType.HANDLER || mytype == CodeType.EVENTHANDLER || mytype == CodeType.AREA;
+		return isCardMethod() || needsCardMember();
 	}
 
 	@Override
 	public int compareTo(HSIEForm o) {
 		return this.funcName.compareTo(o.funcName);
+	}
+	
+	@Override
+	public String toString() {
+		return "HSIE for " + funcName.uniqueName() + "/" + nformal;
 	}
 }
