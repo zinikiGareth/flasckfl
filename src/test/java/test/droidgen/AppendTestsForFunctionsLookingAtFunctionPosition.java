@@ -15,7 +15,6 @@ import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushInt;
@@ -43,8 +42,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 	MethodDefiner meth = context.mock(MethodDefiner.class);
 	private HSIEForm form = null;
 	private VarHolder vh = new VarHolder();
-	private CodeType fntype = CodeType.FUNCTION;
-	DroidAppendPush dap = new DroidAppendPush(form, meth, vh, 0);
+	DroidAppendPush dap = new DroidAppendPush(form, meth, vh, true);
 	private FunctionName funcName = FunctionName.function(loc, null, "func");
 
 	@Test

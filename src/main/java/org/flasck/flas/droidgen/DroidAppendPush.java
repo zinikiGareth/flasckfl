@@ -33,13 +33,13 @@ public final class DroidAppendPush implements PushVisitor {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private final VarHolder vh;
-	private int pos;
+	private boolean isFirstArg;
 
-	public DroidAppendPush(HSIEForm form, NewMethodDefiner meth, VarHolder vh, int pos) {
+	public DroidAppendPush(HSIEForm form, NewMethodDefiner meth, VarHolder vh, boolean isFirstArg) {
 		this.form = form;
 		this.meth = meth;
 		this.vh = vh;
-		this.pos = pos;
+		this.isFirstArg = isFirstArg;
 	}
 
 	@Override
@@ -51,10 +51,10 @@ public final class DroidAppendPush implements PushVisitor {
 				defn = pe.fn;
 				while (defn instanceof PackageVar)
 					defn = ((PackageVar)defn).defn;
-				if (pos != 0) {
+				if (!isFirstArg) {
 					if (defn instanceof RWStructDefn && ((RWStructDefn)defn).fields.isEmpty())
 						needToCallEvalMethod = true;
-				} else if (pos == 0 && defn instanceof RWFunctionDefinition) {
+				} else if (isFirstArg && defn instanceof RWFunctionDefinition) {
 					RWFunctionDefinition fn = (RWFunctionDefinition) defn;
 					if (fn.nargs == 0)
 						needToCallEvalMethod = true;

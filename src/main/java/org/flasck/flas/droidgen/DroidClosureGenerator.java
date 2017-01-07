@@ -34,16 +34,14 @@ public class DroidClosureGenerator {
 		if (c0 instanceof PushExternal && ((PushExternal)c0).fn.uniqueName().equals("FLEval.field")) {
 			return handleField(closure);
 		} else {
-		// Process all the arguments
-			int pos = 0;
+			// Process all the arguments
+			boolean isFirst = true;
 			List<Expr> al = new ArrayList<Expr>();
 			for (HSIEBlock b : closure.nestedCommands()) {
 				PushReturn c = (PushReturn) b;
-				al.add(upcast(appendValue(c, pos)));
-				pos++;
+				al.add(upcast(appendValue(c, isFirst)));
+				isFirst = false;
 			}
-		
-		
 		
 		// Loop over everything in the closure pushing it onto the stack (in al)
 		if (c0 instanceof PushExternal) {
@@ -95,13 +93,13 @@ public class DroidClosureGenerator {
 
 	private IExpr handleField(HSIEBlock closure) {
 		List<Expr> al = new ArrayList<>();
-		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(1), 1)));
-		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(2), 2)));
+		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(1), false)));
+		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(2), false)));
 		return meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al));
 	}
 
-	Expr appendValue(PushReturn c, int pos) {
-		return (Expr) c.visit(new DroidAppendPush(form, meth, vh, pos));
+	Expr appendValue(PushReturn c, boolean isFirst) {
+		return (Expr) c.visit(new DroidAppendPush(form, meth, vh, isFirst));
 	}
 
 	// TODO: I think this wants to go away and we just want to autobox stuff

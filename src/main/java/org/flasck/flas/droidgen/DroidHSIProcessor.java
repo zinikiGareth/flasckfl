@@ -112,7 +112,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 					coll.add(meth.returnObject(cl));
 			}
 		} else {
-			Expr expr = closGen.appendValue(r, 0);
+			Expr expr = closGen.appendValue(r, true);
 			coll.add(meth.returnObject(expr));
 		}
 	}
