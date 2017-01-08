@@ -83,8 +83,7 @@ class ControlledCard$B1.java extends org.flasck.jvm.areas.TextArea {
           autobox[test.golden.ControlledCard$styleIf.class]
           autobox[java.lang.Integer.valueOf(2)]
         })
-      v0 = new org.flasck.jvm.FLClosure(v2,new java.lang.Object[3] {
-v2
+      v0 = new org.flasck.jvm.FLClosure(v2,new java.lang.Object[2] {
           autobox["show"]
           autobox[this._card.sayHello]
         })

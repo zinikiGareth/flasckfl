@@ -30,22 +30,19 @@ public class DroidClosureGenerator {
 	}
 
 	public IExpr closure(HSIEBlock closure) {
-		HSIEBlock c0 = closure.nestedCommands().get(0);
+		PushReturn c0 = (PushReturn) closure.nestedCommands().get(0);
 		if (c0 instanceof PushExternal && ((PushExternal)c0).fn.uniqueName().equals("FLEval.field")) {
 			return handleField(closure);
+//		} else if (c0 instanceof PushExternal && ((PushExternal)c0).fn.uniqueName().equals("FLEval.curry")) {
+//			return handleCurry(closure);
 		} else {
 			// Process all the arguments
-			boolean isFirst = true;
 			List<Expr> al = new ArrayList<Expr>();
-			for (HSIEBlock b : closure.nestedCommands()) {
-				PushReturn c = (PushReturn) b;
-				al.add(upcast(appendValue(c, isFirst)));
-				isFirst = false;
+			for (int i=1;i<closure.nestedCommands().size();i++) {
+				PushReturn c = (PushReturn) closure.nestedCommands().get(i);
+				al.add(meth.box(upcast(appendValue(c, false))));
 			}
-			for (int i=1;i<al.size();i++) {
-				al.set(i, meth.box(al.get(i)));
-			}
-		
+
 			Expr needsObject = null;
 			Expr fnToCall;
 			if (c0 instanceof PushExternal) {
@@ -73,7 +70,7 @@ public class DroidClosureGenerator {
 				}
 				if (needsObject != null && fromHandler)
 					needsObject = meth.getField("_card");
-				fnToCall = al.remove(0);
+				fnToCall = appendValue(c0, true);
 			} else if (c0 instanceof PushVar) {
 				fnToCall = vh.get(((PushVar)c0).var.var);
 			} else
@@ -90,6 +87,14 @@ public class DroidClosureGenerator {
 		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(1), false)));
 		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(2), false)));
 		return meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al));
+	}
+
+	private IExpr handleCurry(HSIEBlock closure) {
+//		List<Expr> al = new ArrayList<>();
+//		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(1), false)));
+//		al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(2), false)));
+//		return meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al));
+		throw new UtilException("Handle curry");
 	}
 
 	Expr appendValue(PushReturn c, boolean isFirst) {
