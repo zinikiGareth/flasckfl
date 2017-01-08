@@ -101,8 +101,8 @@ class ControlledCard$styleIf.java {
     this._card = card
     return
   }
-  java.lang.Object eval([java.lang.Object args) {
-    return this._card.styleIf(args[0], args[1])
+  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.ControlledCard)self).styleIf(args[0], args[1])
   }
 }
 class ControlledCard.java extends org.flasck.jvm.cards.FlasckCard {
@@ -120,7 +120,7 @@ class ControlledCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object styleIf(java.lang.Object _0, java.lang.Object _1) {
     {
-      if (FLEval.isTruthy(_1)) {
+      if (org.flasck.jvm.FLEval.isTruthy(_1)) {
         return _0
       }
       return ""

@@ -123,7 +123,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 	}
 
 	private Expr isTruthy(NewMethodDefiner meth, Var hv) {
-		return meth.callStatic("FLEval", "boolean", "isTruthy", hv);
+		return meth.callStatic(J.FLEVAL, J.BOOLEANP.getActual(), "isTruthy", hv);
 	}
 
 	private void makeArgBeString(Var v) {

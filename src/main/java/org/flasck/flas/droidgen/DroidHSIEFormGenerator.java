@@ -104,9 +104,12 @@ public class DroidHSIEFormGenerator {
 				c.assign(fi.asExpr(c), arg.getVar()).flush();
 				c.returnVoid().flush();
 			}
-			GenericAnnotator g2 = GenericAnnotator.newMethod(inner, !wantThis, "eval");
-			g2.returns("java.lang.Object");
-			PendingVar args = g2.argument("[java.lang.Object", "args");
+			GenericAnnotator g2 = GenericAnnotator.newMethod(inner, true, "eval");
+			g2.returns(J.OBJECT);
+			PendingVar forThis = null;
+			if (wantThis)
+				forThis = g2.argument(J.OBJECT,  "self");
+			PendingVar args = g2.argument("[" + J.OBJECT, "args");
 			MethodDefiner m2 = g2.done();
 			Expr[] fnArgs = new Expr[pendingVars.size()];
 			for (int i=0;i<pendingVars.size();i++) {
@@ -114,9 +117,9 @@ public class DroidHSIEFormGenerator {
 			}
 			IExpr doCall;
 			if (wantThis)
-				doCall = m2.callVirtual("java.lang.Object", m2.getField("_card"), fn, fnArgs);
+				doCall = m2.callVirtual(J.OBJECT, m2.castTo(forThis.getVar(), inClz), fn, fnArgs);
 			else
-				doCall = m2.callStatic(inClz, "java.lang.Object", fn, fnArgs);
+				doCall = m2.callStatic(inClz, J.OBJECT, fn, fnArgs);
 			
 			m2.returnObject(doCall).flush();
 		}
