@@ -71,7 +71,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 		Expr testVal;
 		Expr ifblk = droidHSIGenerator.generateHSI(c, assignReturnTo);
 		if (c.value != null) {
-			testVal = closGen.upcast(exprValue(meth, c.value));
+			testVal = meth.box(exprValue(meth, c.value));
 			coll.add(meth.ifEquals(hv, testVal, ifblk, null));
 		} else {
 			coll.add(meth.ifBoolean(isTruthy(meth, hv), ifblk, null));

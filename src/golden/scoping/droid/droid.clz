@@ -50,9 +50,7 @@ class PACKAGEFUNCTIONS.java {
       if (_0 instanceof test.golden.Server) {
         {
           v9 = new org.flasck.jvm.FLClosure(test.golden.f_0$var.class,new java.lang.Object[0] {})
-          v7 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[4] {
-              autobox[test.golden.f_0$HandleReply.class]
-              autobox[java.lang.Integer.valueOf(3)]
+          v7 = new org.flasck.jvm.FLCurry(test.golden.f_0$HandleReply.class,3,new java.lang.Object[2] {
               autobox[_0]
               autobox[v9]
             })

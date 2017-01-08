@@ -17,8 +17,7 @@ class PACKAGEFUNCTIONS.java {
             return _0
           }
           if (_0 instanceof org.flasck.jvm.builtin.Number) {
-            if (equals(_0,            java.lang.Integer.valueOf(0)
-)) {
+            if (equals(_0,            autobox[0])) {
               return org.flasck.jvm.builtin.Nil.class
             }
           }

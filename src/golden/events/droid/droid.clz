@@ -36,9 +36,7 @@ class Events$B3.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
   java.lang.Object handlers_1() {
-    return new org.flasck.jvm.FLClosure(this._card,org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[3] {
-        autobox[test.golden.Events$setTo.class]
-        autobox[java.lang.Integer.valueOf(2)]
+    return new org.flasck.jvm.FLCurry(this._card,test.golden.Events$setTo.class,2,new java.lang.Object[1] {
         autobox[java.lang.Integer.valueOf(13)]
       })
   }

@@ -20,18 +20,12 @@ class Foo$_C1.java extends test.golden.Bar {
   }
   java.lang.Object go(org.flasck.jvm.post.DeliveryAddress _fromDA) {
     {
-      v5 = new org.flasck.jvm.FLClosure(this._card,org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[2] {
-          autobox[test.golden.Foo$request.class]
-          autobox[java.lang.Integer.valueOf(1)]
-        })
+      v5 = new org.flasck.jvm.FLCurry(this._card,test.golden.Foo$request.class,1,new java.lang.Object[0] {})
       v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
           autobox[v5]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v4 = new org.flasck.jvm.FLClosure(this._card,org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[2] {
-          autobox[test.golden.Foo$request2.class]
-          autobox[java.lang.Integer.valueOf(1)]
-        })
+      v4 = new org.flasck.jvm.FLCurry(this._card,test.golden.Foo$request2.class,1,new java.lang.Object[0] {})
       v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
           autobox[v4]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]

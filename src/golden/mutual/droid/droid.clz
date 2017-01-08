@@ -6,9 +6,7 @@ class PACKAGEFUNCTIONS$f.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object f(java.lang.Object _0) {
     {
-      v3 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[3] {
-          autobox[test.golden.f_0$g.class]
-          autobox[java.lang.Integer.valueOf(2)]
+      v3 = new org.flasck.jvm.FLCurry(test.golden.f_0$g.class,2,new java.lang.Object[1] {
           autobox[_0]
         })
       return new org.flasck.jvm.FLClosure(v3,new java.lang.Object[1] {
