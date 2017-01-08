@@ -31,6 +31,7 @@ public class J {
 	// Java Objects
 	public static final String OBJECT = Object.class.getName();
 	public static final String BOOLEAN = Boolean.class.getName();
+	public static final String INTEGER = Integer.class.getName();
 	public static final String STRING = String.class.getName();
 
 	// Essential FLAS Things

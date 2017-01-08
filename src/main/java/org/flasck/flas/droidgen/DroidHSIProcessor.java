@@ -129,10 +129,10 @@ public class DroidHSIProcessor implements HSIEVisitor {
 	private void makeArgBeString(Var v) {
 		if (v == null)
 			return;
-		else if (v.getType().equals("java.lang.String")) {
+		else if (v.getType().equals(J.STRING)) {
 			// nothing to do ...
-		} else if (v.getType().equals("java.lang.Integer") || v.getType().equals("int")) {
-			coll.add(meth.callStatic("java.lang.Integer", "java.lang.String", "toString", v));
+		} else if (v.getType().equals(J.INTEGER) || v.getType().equals(J.INTP.getActual())) {
+			coll.add(meth.callStatic(J.INTEGER, J.STRING, J.STRING, v));
 		} else
 			throw new UtilException("Cannot handle " + v.getType());
 	}

@@ -92,7 +92,7 @@ public final class DroidAppendPush implements PushVisitor {
 			if (!needToCallEvalMethod) { // handle the simple class case ...
 				return meth.classConst(clz);
 			} else {
-				return meth.callStatic(clz, "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<Expr>()));
+				return meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<Expr>()));
 			}
 		} else if (pe.fn instanceof ScopedVar) {
 			ScopedVar sv = (ScopedVar) pe.fn;

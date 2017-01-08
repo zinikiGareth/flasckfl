@@ -138,26 +138,26 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ann.argument("org.flasck.jvm.post.DeliveryAddress", "from");
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
-				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
-				meth.assign(clos1, (Expr)meth.makeNew("org.flasck.jvm.FLClosure",
+				Var clos1 = meth.avar(J.FLCLOSURE, "clos1");
+				meth.assign(clos1, (Expr)meth.makeNew(J.FLCLOSURE,
 										meth.classConst("org.flasck.jvm.builtin.Assign"),
-										meth.arrayOf("java.lang.Object", Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), (Expr)meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(false)), "java.lang.Object"))))).flush();
-				meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
+										meth.arrayOf(J.OBJECT, Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), (Expr)meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(false)), "java.lang.Object"))))).flush();
+				meth.returnObject(meth.makeNew(J.FLCLOSURE, 
 										meth.classConst("org.flasck.jvm.builtin.Cons"),
-										meth.arrayOf("java.lang.Object", Arrays.asList(clos1, meth.callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>())))))).flush();
+										meth.arrayOf(J.OBJECT, Arrays.asList(clos1, meth.callStatic(J.NIL, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())))))).flush();
 			}
 			{
 				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "setOn");
 				ann.argument("org.flasck.jvm.post.DeliveryAddress", "from");
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
-				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
-				meth.assign(clos1, (Expr)meth.makeNew("org.flasck.jvm.FLClosure",
+				Var clos1 = meth.avar(J.FLCLOSURE, "clos1");
+				meth.assign(clos1, (Expr)meth.makeNew(J.FLCLOSURE,
 										meth.classConst("org.flasck.jvm.builtin.Assign"),
-										meth.arrayOf("java.lang.Object", Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), (Expr)meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(true)), "java.lang.Object"))))).flush();
-				meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
+										meth.arrayOf(J.OBJECT, Arrays.asList(meth.getField("_card"), meth.stringConst("sayHello"), (Expr)meth.as(meth.makeNew("java.lang.Boolean", meth.boolConst(true)), "java.lang.Object"))))).flush();
+				meth.returnObject(meth.makeNew(J.FLCLOSURE, 
 										meth.classConst("org.flasck.jvm.builtin.Cons"),
-										meth.arrayOf("java.lang.Object", Arrays.asList(clos1, meth.callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>())))))).flush();
+										meth.arrayOf(J.OBJECT, Arrays.asList(clos1, meth.callStatic(J.NIL, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())))))).flush();
 			}
 		}
 		{
@@ -197,12 +197,13 @@ public class JVMRunnerTests extends BaseRunnerTests {
 									clos1)))),
 						meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
 								meth.classConst("org.flasck.jvm.builtin.Cons"),
-								meth.arrayOf("java.lang.Object", Arrays.asList(clos2, meth.callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>()))))))
+								meth.arrayOf("java.lang.Object", Arrays.asList(clos2, meth.callStatic(J.NIL, "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>()))))))
 					),
 					meth.returnObject(meth.makeNew(J.FLERROR, meth.stringConst("saySomething: case not handled")))).flush();
 			}
 		}
 		{
+			// Methods on the card (itself created above)
 			String sup = J.FLASCK_CARD;
 			{
 				GenericAnnotator ann = GenericAnnotator.newConstructor(cardBcc, false);
@@ -232,7 +233,8 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ann.returns("java.lang.Object");
 				NewMethodDefiner meth = ann.done();
 				Remarker m1 = new Remarker();
-				meth.ifBoolean(meth.unbox(meth.castTo(bool.getVar(), "java.lang.Boolean"), false), meth.returnObject(str.getVar()), meth.block(meth.markHere(m1), meth.returnObject(meth.stringConst("")))).flush();
+//				meth.ifBoolean(meth.unbox(meth.castTo(bool.getVar(), "java.lang.Boolean"), false), meth.returnObject(str.getVar()), meth.block(meth.markHere(m1), meth.returnObject(meth.stringConst("")))).flush();
+				meth.ifBoolean(meth.callStatic(J.FLEVAL, J.BOOLEANP, "isTruthy", bool.getVar()), meth.returnObject(str.getVar()), meth.block(meth.markHere(m1), meth.returnObject(meth.stringConst("")))).flush();
 				meth.addStackMapFrame(StackMapFrame.SAME_FRAME, m1.getMarker());
 			}
 		}
@@ -264,18 +266,18 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "formats_0");
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
-				Var clos0 = meth.avar(J.FLCLOSURE, "clos0");
 				Var clos2 = meth.avar(J.FLCURRY, "clos2");
 				meth.assign(clos2, (Expr)meth.makeNew(J.FLCURRY,
 						meth.as(meth.getField("_card"), "java.lang.Object"),
 						meth.classConst("test.runner.Card$styleIf"),
 						meth.intConst(2))).flush();
+				Var clos0 = meth.avar(J.FLCLOSURE, "clos0");
 				meth.assign(clos0, (Expr)meth.makeNew(J.FLCLOSURE,
 						meth.as(clos2, J.OBJECT),
-						meth.arrayOf("java.lang.Object", Arrays.asList(meth.stringConst("show"), meth.callStatic("java.lang.Boolean", "java.lang.Boolean", "valueOf", meth.getField(meth.getField("_card"), "sayHello")))))).flush();
+						meth.arrayOf(J.OBJECT, Arrays.asList(meth.stringConst("show"), meth.callStatic("java.lang.Boolean", "java.lang.Boolean", "valueOf", meth.getField(meth.getField("_card"), "sayHello")))))).flush();
 				meth.returnObject(meth.makeNew(J.FLCLOSURE, 
 						meth.classConst("org.flasck.jvm.builtin.Cons"),
-						meth.arrayOf("java.lang.Object", Arrays.asList(clos0, meth.callStatic("org.flasck.jvm.builtin.Nil", "java.lang.Object", "eval", meth.arrayOf("java.lang.Object", new ArrayList<>())))))).flush();
+						meth.arrayOf(J.OBJECT, Arrays.asList(clos0, meth.callStatic(J.NIL, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())))))).flush();
 			}
 		}
 		{
@@ -292,13 +294,13 @@ public class JVMRunnerTests extends BaseRunnerTests {
 			}
 			{
 				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, "eval");
-				PendingVar meP = ann.argument(new JavaType("java.lang.Object"), "me");
-				PendingVar argsP = ann.argument(new JavaType("[java.lang.Object"), "args");
+				PendingVar meP = ann.argument(new JavaType(J.OBJECT), "me");
+				PendingVar argsP = ann.argument(new JavaType("["+J.OBJECT), "args");
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
 				Var me = meP.getVar();
 				Var args = argsP.getVar();
-				meth.returnObject(meth.callVirtual("java.lang.Object", meth.castTo(me, "test.runner.Card"), "styleIf", meth.arrayElt(args, meth.intConst(0)), meth.arrayElt(args, meth.intConst(1)))).flush();
+				meth.returnObject(meth.callVirtual(J.OBJECT, meth.castTo(me, "test.runner.Card"), "styleIf", meth.arrayElt(args, meth.intConst(0)), meth.arrayElt(args, meth.intConst(1)))).flush();
 			}
 		}
 	}
