@@ -32,11 +32,13 @@ public class DroidHSIEFormGenerator {
 		String fn = form.funcName.name;
 		boolean needTrampolineClass;
 		boolean wantThis = false;
+		boolean needDA = false;
 		if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.SERVICE) {
 			int idx2 = fnName.lastIndexOf(".", idx-1);
 			String clz = fnName.substring(0, idx2);
 			String sub = fnName.substring(idx2+1, idx);
 			inClz = clz +"$"+sub;
+			needDA = true;
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.AREA) {
 			int idx2 = fnName.lastIndexOf(".", idx-1);
@@ -76,7 +78,7 @@ public class DroidHSIEFormGenerator {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, needTrampolineClass && !wantThis, fn);
 		gen.returns("java.lang.Object");
 		List<PendingVar> pendingVars = new ArrayList<PendingVar>();
-		if (form.mytype == CodeType.HANDLER) // and others?
+		if (needDA)
 			gen.argument(J.DELIVERY_ADDRESS, "_fromDA");
 		int j = 0;
 		for (@SuppressWarnings("unused") ScopedVar s : form.scoped)

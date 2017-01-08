@@ -46,8 +46,12 @@ public class DroidHSIProcessor implements HSIEVisitor {
 	public void visit(Switch sw) {
 		Var hv = vh.get(sw.var);
 		String ctor = sw.ctor;
-		if (ctor.indexOf(".") == -1)
-			ctor = J.BUILTINPKG +"." + ctor;
+		if (ctor.indexOf(".") == -1) {
+			if (ctor.equals("String"))
+				ctor = J.STRING;
+			else
+				ctor = J.BUILTINPKG +"." + ctor;
+		}
 		coll.add(meth.ifBoolean(meth.instanceOf(hv, ctor), droidHSIGenerator.generateHSI(sw, assignReturnTo), null));
 	}
 
