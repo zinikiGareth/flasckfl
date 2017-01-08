@@ -1,40 +1,40 @@
 class PACKAGEFUNCTIONS$bert.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.bert()
   }
 }
 class PACKAGEFUNCTIONS$fred.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.fred(args[0])
   }
 }
 class PACKAGEFUNCTIONS$t1.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.t1()
   }
 }
 class PACKAGEFUNCTIONS$t2.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.t2()
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object bert() {
+  static java.lang.Object bert() {
     return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Tuple.class,new java.lang.Object[2] {
         autobox[java.lang.Integer.valueOf(2)]
         autobox["hello"]
       })
   }
-  java.lang.Object fred(java.lang.Object _0) {
+  static java.lang.Object fred(java.lang.Object _0) {
     return java.lang.Integer.valueOf(32)
   }
-  java.lang.Object t1() {
+  static java.lang.Object t1() {
     return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
         autobox[test.golden.PACKAGEFUNCTIONS$fred.class]
         autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
       })
   }
-  java.lang.Object t2() {
+  static java.lang.Object t2() {
     {
       v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(3)]

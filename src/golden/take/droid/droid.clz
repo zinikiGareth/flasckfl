@@ -1,10 +1,10 @@
 class PACKAGEFUNCTIONS$take.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.take(args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object take(java.lang.Object _0, java.lang.Object _1) {
+  static java.lang.Object take(java.lang.Object _0, java.lang.Object _1) {
     {
       _1 = org.flasck.jvm.FLEval.head(_1)
       if (_1 instanceof org.flasck.jvm.FLError) {

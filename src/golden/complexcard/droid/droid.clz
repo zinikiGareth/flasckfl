@@ -126,7 +126,7 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object styleIf(java.lang.Object _0, java.lang.Object _1) {
     {
-      if (FLEval.isTruthy(_1)) {
+      if (org.flasck.jvm.FLEval.isTruthy(_1)) {
         return _0
       }
       return ""

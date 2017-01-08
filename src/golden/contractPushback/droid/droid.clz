@@ -5,12 +5,12 @@ class DoIt.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class PACKAGEFUNCTIONS$f.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.f(args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object f(java.lang.Object _0, java.lang.Object _1) {
+  static java.lang.Object f(java.lang.Object _0, java.lang.Object _1) {
     {
       _0 = org.flasck.jvm.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.FLError) {
@@ -37,12 +37,12 @@ class PACKAGEFUNCTIONS.java {
   }
 }
 class PACKAGEFUNCTIONS$m.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.f_0.PACKAGEFUNCTIONS.m(args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object m(java.lang.Object _s0, java.lang.Object _s1) {
+  static java.lang.Object m(java.lang.Object _s0, java.lang.Object _s1) {
     {
       v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[_s1]

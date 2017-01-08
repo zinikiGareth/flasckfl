@@ -16,8 +16,7 @@ class Getter.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[this]
               autobox["item"]
             })
-          v2 = new org.flasck.jvm.FLClosure(v1,new java.lang.Object[2] {
-v1
+          v2 = new org.flasck.jvm.FLClosure(v1,new java.lang.Object[1] {
               autobox[_0]
             })
           v3 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {

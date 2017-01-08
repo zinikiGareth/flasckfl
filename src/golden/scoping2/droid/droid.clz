@@ -6,12 +6,12 @@ class Hc.java extends org.flasck.jvm.ContractImpl {
   abstract java.lang.Object reply();
 }
 class PACKAGEFUNCTIONS$scoped.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.scoped(args[0])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object scoped(java.lang.Object _0) {
+  static java.lang.Object scoped(java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.FLError) {

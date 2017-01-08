@@ -1,10 +1,10 @@
 class PACKAGEFUNCTIONS$f.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.f(args[0])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object f(java.lang.Object _0) {
+  static java.lang.Object f(java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.FLError) {
@@ -12,9 +12,7 @@ class PACKAGEFUNCTIONS.java {
       }
       if (_0 instanceof org.flasck.jvm.builtin.Any) {
         {
-          v1 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[1] {
-_0
-            })
+          v1 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[0] {})
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
               autobox[v1]
               autobox["id"]

@@ -53,8 +53,8 @@ class Foo$request.java {
     this._card = card
     return
   }
-  java.lang.Object eval([java.lang.Object args) {
-    return this._card.request(args[0])
+  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Foo)self).request(args[0])
   }
 }
 class Foo$request2.java {
@@ -63,8 +63,8 @@ class Foo$request2.java {
     this._card = card
     return
   }
-  java.lang.Object eval([java.lang.Object args) {
-    return this._card.request2(args[0])
+  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Foo)self).request2(args[0])
   }
 }
 class Foo.java extends org.flasck.jvm.cards.FlasckCard {

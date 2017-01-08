@@ -6,12 +6,12 @@ class KVUpdate.java extends org.flasck.jvm.ContractImpl {
   abstract java.lang.Object update(java.lang.Object arg0);
 }
 class PACKAGEFUNCTIONS$f.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.f()
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object f() {
+  static java.lang.Object f() {
     return new org.flasck.jvm.FLClosure(test.golden.f_0$set.class,new java.lang.Object[0] {})
   }
 }

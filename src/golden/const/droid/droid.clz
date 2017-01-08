@@ -1,10 +1,10 @@
 class PACKAGEFUNCTIONS$x.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.x()
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object x() {
+  static java.lang.Object x() {
     return java.lang.Integer.valueOf(32)
   }
 }

@@ -5,17 +5,17 @@ class NoArg.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class PACKAGEFUNCTIONS$cna.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.cna(args[0])
   }
 }
 class PACKAGEFUNCTIONS$f.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.f(args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object cna(java.lang.Object _0) {
+  static java.lang.Object cna(java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.FLError) {
@@ -41,7 +41,7 @@ class PACKAGEFUNCTIONS.java {
       return new org.flasck.jvm.FLError("cna: case not handled")
     }
   }
-  java.lang.Object f(java.lang.Object _0, java.lang.Object _1) {
+  static java.lang.Object f(java.lang.Object _0, java.lang.Object _1) {
     {
       _0 = org.flasck.jvm.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.FLError) {

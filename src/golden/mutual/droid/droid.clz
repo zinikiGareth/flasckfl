@@ -1,30 +1,29 @@
 class PACKAGEFUNCTIONS$f.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.f(args[0])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object f(java.lang.Object _0) {
+  static java.lang.Object f(java.lang.Object _0) {
     {
       v3 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[3] {
           autobox[test.golden.f_0$g.class]
           autobox[java.lang.Integer.valueOf(2)]
           autobox[_0]
         })
-      return new org.flasck.jvm.FLClosure(v3,new java.lang.Object[2] {
-v3
+      return new org.flasck.jvm.FLClosure(v3,new java.lang.Object[1] {
           autobox[java.lang.Integer.valueOf(2)]
         })
     }
   }
 }
 class PACKAGEFUNCTIONS$g.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.f_0.PACKAGEFUNCTIONS.g(args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object g(java.lang.Object _s0, java.lang.Object _0) {
+  static java.lang.Object g(java.lang.Object _s0, java.lang.Object _0) {
     return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
         autobox[_s0]
         autobox[_0]

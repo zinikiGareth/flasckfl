@@ -28,8 +28,8 @@ class Simple$f.java {
     this._card = card
     return
   }
-  java.lang.Object eval([java.lang.Object args) {
-    return this._card.f()
+  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Simple)self).f()
   }
 }
 class Simple.java extends org.flasck.jvm.cards.FlasckCard {
@@ -47,12 +47,12 @@ class Simple.java extends org.flasck.jvm.cards.FlasckCard {
   }
 }
 class PACKAGEFUNCTIONS$inits_hello.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.Simple.PACKAGEFUNCTIONS.inits_hello()
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object inits_hello() {
+  static java.lang.Object inits_hello() {
     return "hello, world"
   }
 }

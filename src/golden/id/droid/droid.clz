@@ -1,10 +1,10 @@
 class PACKAGEFUNCTIONS$id.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.id(args[0])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object id(java.lang.Object _0) {
+  static java.lang.Object id(java.lang.Object _0) {
     return _0
   }
 }

@@ -1,10 +1,10 @@
 class PACKAGEFUNCTIONS$filter.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.filter(args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object filter(java.lang.Object _0, java.lang.Object _1) {
+  static java.lang.Object filter(java.lang.Object _0, java.lang.Object _1) {
     {
       _1 = org.flasck.jvm.FLEval.head(_1)
       if (_1 instanceof org.flasck.jvm.FLError) {
@@ -19,12 +19,10 @@ class PACKAGEFUNCTIONS.java {
               autobox[_0]
               autobox[v5.tail]
             })
-          v9 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[2] {
-_0
+          v9 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[1] {
               autobox[v5.head]
             })
-          return new org.flasck.jvm.FLClosure(v8,new java.lang.Object[2] {
-v8
+          return new org.flasck.jvm.FLClosure(v8,new java.lang.Object[1] {
               autobox[v9]
             })
         }
@@ -37,12 +35,12 @@ v8
   }
 }
 class PACKAGEFUNCTIONS$g.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.filter_1.PACKAGEFUNCTIONS.g(args[0], args[1], args[2], args[3])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object g(java.lang.Object _s0, java.lang.Object _s1, java.lang.Object _s2, java.lang.Object _0) {
+  static java.lang.Object g(java.lang.Object _s0, java.lang.Object _s1, java.lang.Object _s2, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.FLError) {

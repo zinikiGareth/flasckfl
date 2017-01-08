@@ -1,10 +1,10 @@
 class PACKAGEFUNCTIONS$map1.java {
-  java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval([java.lang.Object args) {
     return test.golden.PACKAGEFUNCTIONS.map1(args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  java.lang.Object map1(java.lang.Object _0, java.lang.Object _1) {
+  static java.lang.Object map1(java.lang.Object _0, java.lang.Object _1) {
     {
       _1 = org.flasck.jvm.FLEval.head(_1)
       if (_1 instanceof org.flasck.jvm.FLError) {
@@ -12,8 +12,7 @@ class PACKAGEFUNCTIONS.java {
       }
       if (_1 instanceof org.flasck.jvm.builtin.Cons) {
         {
-          v4 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[2] {
-_0
+          v4 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[1] {
               autobox[v1.head]
             })
           v5 = new org.flasck.jvm.FLClosure(test.golden.PACKAGEFUNCTIONS$map1.class,new java.lang.Object[2] {
