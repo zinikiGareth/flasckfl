@@ -4,7 +4,7 @@ class Card$_C0.java extends test.golden.Ctr {
     this._card = card
     return
   }
-  java.lang.Object go() {
+  java.lang.Object go(org.flasck.jvm.post.DeliveryAddress _fromDA) {
     {
       v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(42)]

@@ -18,7 +18,7 @@ class Foo$_C1.java extends test.golden.Bar {
     this._card = card
     return
   }
-  java.lang.Object go() {
+  java.lang.Object go(org.flasck.jvm.post.DeliveryAddress _fromDA) {
     {
       v5 = new org.flasck.jvm.FLClosure(this._card,org.flasck.jvm.FLEval$Curry.class,new java.lang.Object[2] {
           autobox[test.golden.Foo$request.class]

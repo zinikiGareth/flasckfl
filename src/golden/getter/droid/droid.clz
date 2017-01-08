@@ -10,7 +10,7 @@ class Getter.java extends org.flasck.jvm.cards.FlasckCard {
       if (_0 instanceof org.flasck.jvm.FLError) {
         return _0
       }
-      if (_0 instanceof org.flasck.jvm.builtin.String) {
+      if (_0 instanceof java.lang.String) {
         {
           v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
               autobox[this]
