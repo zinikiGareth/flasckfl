@@ -1,7 +1,6 @@
 	test that the card initially does not have a show tag
 		create s ControlledCard
 		matchClass div>span
-		send s SetState setOn
 		
 	test that the card has a show tag after sending
 		create s ControlledCard
