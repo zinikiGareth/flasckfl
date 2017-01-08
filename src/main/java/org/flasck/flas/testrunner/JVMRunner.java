@@ -32,14 +32,13 @@ import org.zinutils.reflection.Reflection;
 
 public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	private final BCEClassLoader loader;
-	private final Document document;
 	private final Map<String, FlasckHandle> cards = new TreeMap<String, FlasckHandle>();
 	private final JDKFlasckController controller;
+	private Document document;
 
 	public JVMRunner(CompileResult prior) {
 		super(prior);
 		loader = new BCEClassLoader(prior.bce);
-		document = Jsoup.parse("<html><head></head><body></body></html>");
 		controller = new JDKFlasckController(this);
 	}
 
@@ -70,6 +69,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void prepareCase() {
+		document = Jsoup.parse("<html><head></head><body></body></html>");
 		cards.clear();
 		errors.clear();
 	}
