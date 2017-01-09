@@ -1,21 +1,22 @@
 package test.droidgen;
 
-import static org.junit.Assert.*;
-
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidClosureGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -24,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IntConstExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
@@ -65,11 +65,40 @@ public class ClosureGenerationTests {
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
 		HSIEBlock closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
-		PushExternal hdc = new PushExternal(loc, hdc1);
 		closure.push(loc, hdc1);
 		closure.push(loc, 42);
 		closure.push(loc, new StringLiteral(loc, "hello"));
-		dcg.pushReturn(hdc, closure);
+		dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 	}
 
+	// NOT CLEAR: if this is a real case - doesn't it need arguments?  Would they be closures, or would it have to be a closure itself
+	@Test
+	public void testReturningATuple() {
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst(J.FLEVAL + "$Tuple"); will(returnValue(expr));
+			oneOf(meth).returnObject(expr); will(returnValue(expr));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
+		PushExternal hdc = new PushExternal(loc, hdc1);
+		dcg.pushReturn(hdc, null);
+	}
+
+	// NOT CLEAR: if this is the correct generated code or not for this case
+	// This is based on the golden test typeof, and the question is "what happens if you return a type, specifically Number"?
+	@Test
+	public void testATypeOfPrimitiveReturnsAClass() {
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst(J.BUILTINPKG + ".Number"); will(returnValue(expr));
+			oneOf(meth).returnObject(expr); will(returnValue(expr));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, null, "Number"), new PrimitiveType(loc, new SolidName(null, "Number")));
+		PushExternal hdc = new PushExternal(loc, hdc1);
+		dcg.pushReturn(hdc, null);
+	}
 }
