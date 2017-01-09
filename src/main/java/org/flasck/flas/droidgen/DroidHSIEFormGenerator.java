@@ -86,6 +86,7 @@ public class DroidHSIEFormGenerator {
 		for (int i=0;i<form.nformal;i++)
 			pendingVars.add(gen.argument("java.lang.Object", "_"+i));
 		MethodDefiner meth = gen.done();
+//		meth.lenientMode(true);
 		VarHolder vh = new VarHolder(form, pendingVars);
 		Expr blk = new DroidHSIGenerator(new DroidClosureGenerator(form, meth, vh), form, meth, vh).generateHSI(form, null);
 		if (blk != null)

@@ -118,7 +118,7 @@ public class DroidClosureGenerator {
 			return doEval(ObjectNeeded.NONE, meth.stringConst(((PushString)pr).sval.text), closure);
 		} else if (pr instanceof PushTLV) {
 			PushTLV pt = (PushTLV) pr;
-			return meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName);
+			return doEval(ObjectNeeded.NONE, meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName), closure);
 		} else
 			throw new UtilException("Can't handle " + pr);
 	}

@@ -178,7 +178,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			ctor.assign(fi.asExpr(ctor), cardArg.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
-		
 	}
 
 	public void visitServiceImpl(RWContractService cs) {
