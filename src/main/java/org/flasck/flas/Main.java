@@ -28,18 +28,24 @@ public class Main {
 				if (arg.startsWith("-")) {
 					if (arg.equals("--dump"))
 						compiler.dumpTypes();
-					else if (arg.equals("--wflim")) {
-						if (hasMore == 0) {
-							System.out.println("--wflim <dir>");
-							System.exit(1);
-						}
-						compiler.writeFlimTo(new File(args[++i]));
-					} else if (arg.equals("--flim")) {
+					else if (arg.equals("--flim")) {
 						if (hasMore == 0) {
 							System.out.println("--flim <dir>");
 							System.exit(1);
 						}
 						compiler.searchIn(new File(args[++i]));
+					} else if (arg.equals("--wflim")) {
+						if (hasMore == 0) {
+							System.out.println("--wflim <dir>");
+							System.exit(1);
+						}
+						compiler.writeFlimTo(new File(args[++i]));
+					} else if (arg.equals("--hsie")) {
+						if (hasMore == 0) {
+							System.out.println("--hsie <dir>");
+							System.exit(1);
+						}
+						compiler.writeHSIETo(new File(args[++i]));
 					} else if (arg.equals("--jsout")) {
 						if (hasMore == 0) {
 							System.out.println("--jsout <dir>");
@@ -56,6 +62,12 @@ public class Main {
 							System.exit(1);
 						}
 						compiler.writeDroidTo(new File(args[++i]), true);
+					} else if (arg.equals("--jvm")) {
+						if (hasMore == 0) {
+							System.out.println("--jvm <build-dir>");
+							System.exit(1);
+						}
+						compiler.writeDroidTo(new File(args[++i]), false);
 					} else {
 						boolean matched = false;
 						DroidBuilder builder = compiler.getBuilder();

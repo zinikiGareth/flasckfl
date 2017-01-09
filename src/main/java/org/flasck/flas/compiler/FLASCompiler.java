@@ -338,7 +338,6 @@ public class FLASCompiler implements ScriptCompiler {
 				hsiePW.close();
 			}
 
-
 			// 10. Generate code from templates
 			new TemplateTraversor(rewriter, Arrays.asList(dg.templateGenerator(), gen.templateGenerator())).generate(rewriter, target);
 			
