@@ -27,13 +27,20 @@ import org.zinutils.exceptions.UtilException;
 public class DroidClosureGenerator {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
-	private VarHolder vh;
+	private final VarHolder vh;
 	enum ObjectNeeded { NONE, THIS, CARD };
+	private final ObjectNeeded myOn;
 	
 	public DroidClosureGenerator(HSIEForm form, NewMethodDefiner meth, VarHolder vh) {
 		this.form = form;
 		this.meth = meth;
 		this.vh = vh;
+		if (form.needsCardMember())
+			myOn = ObjectNeeded.CARD;
+		else if (form.isCardMethod())
+			myOn = ObjectNeeded.THIS;
+		else
+			myOn = ObjectNeeded.NONE;
 	}
 
 	public IExpr closure(HSIEBlock closure) {
@@ -46,34 +53,29 @@ public class DroidClosureGenerator {
 				return handleField(closure);
 			else if (fn.uniqueName().equals("FLEval.curry"))
 				return handleCurry(closure);
-			Object defn = fn;
 			ObjectNeeded on = ObjectNeeded.NONE;
-			if (fn != null) {
-				while (defn instanceof PackageVar)
-					defn = ((PackageVar)defn).defn;
-				if (defn == null)
-					; // This appears to be mainly builtin things - eg. Tuple // throw new UtilException("Didn't find a definition for " + fn);
-				else if (defn instanceof ObjectReference || defn instanceof CardFunction) {
-					if (form.needsCardMember() || fn.fromHandler())
-						on = ObjectNeeded.CARD;
-					else
-						on = ObjectNeeded.THIS;
-				} else if (defn instanceof RWHandlerImplements) {
-					RWHandlerImplements hi = (RWHandlerImplements) defn;
-					if (hi.inCard)
-						on = ObjectNeeded.CARD;
-					System.out.println("Creating handler " + fn + " in block " + closure);
-				} else if (defn instanceof RWFunctionDefinition) {
-					;
-				} else if (defn instanceof RWStructDefn || defn instanceof RWObjectDefn) {
-					;
-				} else if (defn instanceof HandlerLambda) {
-					;
-				} else if (defn instanceof ScopedVar) {
-					;
-				} else
-					throw new UtilException("Didn't do anything with " + defn + " " + (defn != null ? defn.getClass() : ""));
-			}
+			Object defn = fn;
+			while (defn instanceof PackageVar)
+				defn = ((PackageVar)defn).defn;
+			if (defn == null)
+				; // This appears to be mainly builtin things - eg. Tuple // throw new UtilException("Didn't find a definition for " + fn);
+			else if (defn instanceof ObjectReference || defn instanceof CardFunction) {
+				on = myOn;
+			} else if (defn instanceof RWHandlerImplements) {
+				RWHandlerImplements hi = (RWHandlerImplements) defn;
+				if (hi.inCard)
+					on = myOn;
+				System.out.println("Creating handler " + fn + " in block " + closure);
+			} else if (defn instanceof RWFunctionDefinition) {
+				; // a regular function
+			} else if (defn instanceof RWStructDefn || defn instanceof RWObjectDefn) {
+				; // creating a struct or object is just like calling a static function
+			} else if (defn instanceof HandlerLambda) {
+				; // I think these are var cases really
+			} else if (defn instanceof ScopedVar) {
+				; // I think these are var cases really
+			} else
+				throw new UtilException("Didn't do anything with " + defn + " " + (defn != null ? defn.getClass() : ""));
 			return makeClosure(closure, on, appendValue(c0, true));
 		} else if (c0 instanceof PushVar) {
 			return makeClosure(closure, ObjectNeeded.NONE, vh.get(((PushVar)c0).var.var));
