@@ -4,6 +4,11 @@
 	card MyCard
 		state
 			Container c
+			Croset[Container] set
 		
 		template
-			c.title? 
+			.
+				c.title?
+				+ set q
+					.
+						q.title?

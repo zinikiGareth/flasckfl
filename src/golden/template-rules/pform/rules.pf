@@ -6,9 +6,20 @@ package test.golden
     state @{5:0|state}
       c @{6:10|c}
         Container @{6:0|Container}
-    template @{8:0|template} @{null}
-      <cexpr> @{9:2|title}
-        <apply> @{9:2|title}
-          . @{9:2|title}
-          c @{9:0|c}
-          title @{9:2|title}
+      set @{7:18|set}
+        Croset @{7:0|Croset}
+          Container @{7:7|Container}
+    template @{9:0|template} @{null}
+      . @{10:0|.}
+        <cexpr> @{11:2|title}
+          <apply> @{11:2|title}
+            . @{11:2|title}
+            c @{11:0|c}
+            title @{11:2|title}
+        + set q @{12:0|+} @{12:2|set} @{12:6|q}
+          . @{13:0|.}
+            <cexpr> @{14:2|title}
+              <apply> @{14:2|title}
+                . @{14:2|title}
+                q @{14:0|q}
+                title @{14:2|title}

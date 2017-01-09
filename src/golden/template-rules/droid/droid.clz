@@ -8,7 +8,16 @@ class Container.java extends org.flasck.jvm.FLASObject {
     return
   }
 }
-class MyCard$B1.java extends org.flasck.jvm.areas.TextArea {
+class MyCard$B1.java extends org.flasck.jvm.areas.DivArea {
+  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    b2 = new test.golden.MyCard$B2(cardArg,this)
+    b3 = new test.golden.MyCard$B3(cardArg,this)
+    return
+  }
+}
+class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
   void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -30,6 +39,66 @@ class MyCard$B1.java extends org.flasck.jvm.areas.TextArea {
   }
   java.lang.Object editcontainer_1() {
     return this._card.c
+  }
+}
+class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
+  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._card._wrapper.onAssign(this._card, "set", this, "_assignToVar")
+    return
+  }
+  org.flasck.jvm.areas.Area _newChild(org.flasck.jvm.builtin.Crokey crokey) {
+    ret = new test.golden.MyCard$B4(this._card,this)
+    ret.bindVar("_crokey", crokey.id)
+    return ret
+  }
+  java.lang.Object lvs_2() {
+    return this._card.set
+  }
+}
+class MyCard$B4.java extends org.flasck.jvm.areas.DivArea {
+  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, "li")
+    this._card = cardArg
+    this._src_q = this
+    b5 = new test.golden.MyCard$B5(cardArg,this)
+    return
+  }
+  java.lang.Object _assignToVar(java.lang.Object obj) {
+    if (this.q==obj) {
+      return null
+    }
+    this._wrapper.removeOnCrosetReplace(((org.flasck.jvm.areas.ListArea)this._parent)._current, this, this.q)
+    this.q = obj
+    this._wrapper.onCrosetReplace(((org.flasck.jvm.areas.ListArea)this._parent)._current, this, this.q)
+    this._fireInterests()
+    return null
+  }
+}
+class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
+  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._src_q = ((test.golden.MyCard$B4)parent)._src_q
+    this._src_q._interested(this, "_contentExpr")
+    this._card._wrapper.onAssign(this._src_q.q, "title", this, "_contentExpr")
+    (void)this._contentExpr()
+    this.setCSS("flasck-editable")
+    return
+  }
+  java.lang.Object _contentExpr() {
+    super._assignToText(this.contents_3())
+    return null
+  }
+  java.lang.Object contents_3() {
+    return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
+        autobox[this._src_q.q]
+        autobox["title"]
+      })
+  }
+  java.lang.Object editcontainer_4() {
+    return this._src_q.q
   }
 }
 class MyCard.java extends org.flasck.jvm.cards.FlasckCard {

@@ -1,11 +1,26 @@
-function test.golden.MyCard.B1.contents_0 test.golden.MyCard 0
-  case test.golden.MyCard.B1.contents_0_0
+function test.golden.MyCard.B2.contents_0 test.golden.MyCard 0
+  case test.golden.MyCard.B2.contents_0_0
   =
     @
       PackageVar.FLEval.field
       CardMember.CardMember[test.golden.MyCard.c]
       "title"
-function test.golden.MyCard.B1.editcontainer_1 test.golden.MyCard 0
-  case test.golden.MyCard.B1.editcontainer_1_0
+function test.golden.MyCard.B2.editcontainer_1 test.golden.MyCard 0
+  case test.golden.MyCard.B2.editcontainer_1_0
   =
     CardMember.CardMember[test.golden.MyCard.c]
+function test.golden.MyCard.B3.lvs_2 test.golden.MyCard 0
+  case test.golden.MyCard.B3.lvs_2_0
+  =
+    CardMember.CardMember[test.golden.MyCard.set]
+function test.golden.MyCard.B5.contents_3 test.golden.MyCard 0
+  case test.golden.MyCard.B5.contents_3_0
+  =
+    @
+      PackageVar.FLEval.field
+      ?? class org.flasck.flas.commonBase.template.TemplateListVar:TLV[test.golden.MyCard.q<-test.golden.MyCard.B3.lvs_2]
+      "title"
+function test.golden.MyCard.B5.editcontainer_4 test.golden.MyCard 0
+  case test.golden.MyCard.B5.editcontainer_4_0
+  =
+    ?? class org.flasck.flas.commonBase.template.TemplateListVar:TLV[test.golden.MyCard.q<-test.golden.MyCard.B3.lvs_2]

@@ -1,19 +1,47 @@
-HSIE for test.golden.MyCard.B1.contents_0/0                  #rules.fl:     9.2
+HSIE for test.golden.MyCard.B2.contents_0/0                  #rules.fl:    11.2
 #Args: 0 #bound: 1
     externals: [FLEval.field, test.golden.MyCard.c]
     scoped = []
     scopedDefns = []
     all vars = [v0]
-RETURN v0:clos0 []                                           #rules.fl:     9.2
-CLOSURE v0                                                   #rules.fl:     9.2
-  PUSH PackageVar.FLEval.field                               #rules.fl:     9.2
-  PUSH CardMember.CardMember[test.golden.MyCard.c]           #rules.fl:     9.0
-  PUSH "title"                                               #rules.fl:     9.2
+RETURN v0:clos0 []                                           #rules.fl:    11.2
+CLOSURE v0                                                   #rules.fl:    11.2
+  PUSH PackageVar.FLEval.field                               #rules.fl:    11.2
+  PUSH CardMember.CardMember[test.golden.MyCard.c]           #rules.fl:    11.0
+  PUSH "title"                                               #rules.fl:    11.2
 -------
-HSIE for test.golden.MyCard.B1.editcontainer_1/0             #rules.fl:     9.2
+HSIE for test.golden.MyCard.B2.editcontainer_1/0             #rules.fl:    11.2
 #Args: 0 #bound: 0
     externals: [test.golden.MyCard.c]
     scoped = []
     scopedDefns = []
     all vars = []
-RETURN CardMember.CardMember[test.golden.MyCard.c]           #rules.fl:     9.0
+RETURN CardMember.CardMember[test.golden.MyCard.c]           #rules.fl:    11.0
+-------
+HSIE for test.golden.MyCard.B3.lvs_2/0                       #rules.fl:    12.2
+#Args: 0 #bound: 0
+    externals: [test.golden.MyCard.set]
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN CardMember.CardMember[test.golden.MyCard.set]         #rules.fl:    12.2
+-------
+HSIE for test.golden.MyCard.B5.contents_3/0                  #rules.fl:    14.2
+#Args: 0 #bound: 1
+    externals: [FLEval.field]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0]
+RETURN v0:clos0 []                                           #rules.fl:    14.2
+CLOSURE v0                                                   #rules.fl:    14.2
+  PUSH PackageVar.FLEval.field                               #rules.fl:    14.2
+  PUSH TLV[test.golden.MyCard.q<-test.golden.MyCard.B3.lvs_2 #rules.fl:    12.6
+  PUSH "title"                                               #rules.fl:    14.2
+-------
+HSIE for test.golden.MyCard.B5.editcontainer_4/0             #rules.fl:    14.2
+#Args: 0 #bound: 0
+    externals: []
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN TLV[test.golden.MyCard.q<-test.golden.MyCard.B3.lvs_2 #rules.fl:    12.6
