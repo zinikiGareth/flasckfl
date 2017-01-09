@@ -35,13 +35,13 @@ public class DroidClosureGenerator {
 	private final VarHolder vh;
 	enum ObjectNeeded { NONE, THIS, CARD };
 	private final ObjectNeeded myOn;
-	private final DroidAppendPush dap;
+	private final DroidPushArgument dpa;
 	
 	public DroidClosureGenerator(HSIEForm form, NewMethodDefiner meth, VarHolder vh) {
 		this.form = form;
 		this.meth = meth;
 		this.vh = vh;
-		dap = new DroidAppendPush(form, meth, vh);
+		dpa = new DroidPushArgument(form, meth, vh);
 		if (form.needsCardMember())
 			myOn = ObjectNeeded.CARD;
 		else if (form.isCardMethod())
@@ -51,9 +51,7 @@ public class DroidClosureGenerator {
 	}
 
 	public IExpr closure(HSIEBlock closure) {
-		PushReturn c0 = (PushReturn) closure.nestedCommands().get(0);
-
-		return pushReturn(c0, closure);
+		return pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 	}
 
 	protected IExpr pushReturn(PushReturn pr, HSIEBlock closure) {
@@ -147,8 +145,8 @@ public class DroidClosureGenerator {
 
 	private IExpr handleField(HSIEBlock closure) {
 		List<Expr> al = new ArrayList<>();
-		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(1)).visit(dap)));
-		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(2)).visit(dap)));
+		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(1)).visit(dpa)));
+		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(2)).visit(dpa)));
 		return meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al));
 	}
 
@@ -173,7 +171,7 @@ public class DroidClosureGenerator {
 		List<Expr> al = new ArrayList<Expr>();
 		for (int i=from;i<closure.nestedCommands().size();i++) {
 			PushReturn c = (PushReturn) closure.nestedCommands().get(i);
-			al.add(meth.box((Expr) c.visit(dap)));
+			al.add(meth.box((Expr) c.visit(dpa)));
 		}
 		return meth.arrayOf(J.OBJECT, al);
 	}

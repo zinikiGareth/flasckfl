@@ -25,12 +25,12 @@ import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.exceptions.UtilException;
 
-public final class DroidAppendPush implements PushVisitor {
+public final class DroidPushArgument implements PushVisitor {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private final VarHolder vh;
 
-	public DroidAppendPush(HSIEForm form, NewMethodDefiner meth, VarHolder vh) {
+	public DroidPushArgument(HSIEForm form, NewMethodDefiner meth, VarHolder vh) {
 		this.form = form;
 		this.meth = meth;
 		this.vh = vh;

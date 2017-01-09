@@ -10,7 +10,7 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
-import org.flasck.flas.droidgen.DroidAppendPush;
+import org.flasck.flas.droidgen.DroidPushArgument;
 import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.IterVar;
@@ -42,7 +42,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 	MethodDefiner meth = context.mock(MethodDefiner.class);
 	private HSIEForm form = null;
 	private VarHolder vh = new VarHolder();
-	DroidAppendPush dap = new DroidAppendPush(form, meth, vh);
+	DroidPushArgument dap = new DroidPushArgument(form, meth, vh);
 	private FunctionName funcName = FunctionName.function(loc, null, "func");
 
 	@Test
