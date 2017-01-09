@@ -82,7 +82,7 @@ public class GenerateClosures {
 			ClosureCmd clos = form.createClosure(sv.location);
 			clos.justScoping = true;
 			String id = sv.id.uniqueName();
-			clos.push(sv.location, new PackageVar(sv.location, sv.id, null));
+			clos.push(sv.location, new PackageVar(sv.location, sv.id, sv));
 			cf.mapVar(id, new VarInSource(clos.var, sv.location, id));
 			map.put(id, clos);
 		}
