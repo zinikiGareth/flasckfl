@@ -13,6 +13,7 @@ import org.flasck.flas.droidgen.DroidClosureGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.hsie.VarFactory;
+import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
@@ -141,6 +142,35 @@ public class ClosureGenerationTests {
 		HandlerName hn = new HandlerName(cn, "Handler");
 		PackageVar hdc1 = new PackageVar(loc, hn, new ObjectReference(loc, cn, hn));
 		closure.push(loc, hdc1);
+		closure.push(loc, new StringLiteral(loc, "hello"));
+		dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+	}
+
+	// There are probably a lot of cases where we call methods on cards from other methods on cards,
+	// but a typical example is calling an event handling method from an event handler
+	// Because of that, we end up with a curried function call
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testEventHandlersCanCallEventMethods() {
+		IntConstExpr ice = new IntConstExpr(meth, 2);
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst("test.golden.MyCard$eventHandler"); will(returnValue(expr));
+			oneOf(meth).intConst(2); will(returnValue(ice));
+			oneOf(meth).stringConst("hello"); will(returnValue(expr));
+			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
+			oneOf(meth).makeNew(J.FLCURRY, expr, ice, expr); will(returnValue(expr));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		HSIEBlock closure = form.createClosure(loc);
+		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
+		CardFunction cf = new CardFunction(loc, cn, "eventHandler");
+		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "curry"), cf);
+		PackageVar hdc2 = new PackageVar(loc, FunctionName.functionInCardContext(loc, cn, cf.function), cf);
+		closure.push(loc, hdc1);
+		closure.push(loc, hdc2);
+		closure.push(loc, 2);
 		closure.push(loc, new StringLiteral(loc, "hello"));
 		dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 	}

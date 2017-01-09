@@ -79,8 +79,10 @@ public class DroidClosureGenerator {
 				// TODO: figure out if this should really be "ObjectReference" and if that should be renamed
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof ObjectReference) {
+				// This case covers at least handling the construction of Object Handlers to pass to service methods
 				return doEval(myOn, meth.classConst(clz), closure);
 			} else if (defn instanceof CardFunction) {
+				// This case covers at least event handlers
 				return doEval(myOn, meth.classConst(clz), closure);
 			} else if (defn instanceof CardMember) {
 				if (form.isCardMethod())
