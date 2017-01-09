@@ -28,7 +28,8 @@ public class DroidClosureGenerator {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private VarHolder vh;
-
+	enum ObjectNeeded { NONE, THIS, CARD };
+	
 	public DroidClosureGenerator(HSIEForm form, NewMethodDefiner meth, VarHolder vh) {
 		this.form = form;
 		this.meth = meth;
@@ -38,28 +39,29 @@ public class DroidClosureGenerator {
 	public IExpr closure(HSIEBlock closure) {
 		PushReturn c0 = (PushReturn) closure.nestedCommands().get(0);
 
-		Expr needsObject = null;
-		Expr fnToCall;
+		
 		if (c0 instanceof PushExternal) {
 			ExternalRef fn = ((PushExternal)c0).fn;
 			if (fn.uniqueName().equals("FLEval.field"))
 				return handleField(closure);
 			else if (fn.uniqueName().equals("FLEval.curry"))
 				return handleCurry(closure);
-			boolean fromHandler = form.needsCardMember();
 			Object defn = fn;
+			ObjectNeeded on = ObjectNeeded.NONE;
 			if (fn != null) {
 				while (defn instanceof PackageVar)
 					defn = ((PackageVar)defn).defn;
 				if (defn == null)
 					; // This appears to be mainly builtin things - eg. Tuple // throw new UtilException("Didn't find a definition for " + fn);
 				else if (defn instanceof ObjectReference || defn instanceof CardFunction) {
-					needsObject = meth.myThis();
-					fromHandler |= fn.fromHandler();
+					if (form.needsCardMember() || fn.fromHandler())
+						on = ObjectNeeded.CARD;
+					else
+						on = ObjectNeeded.THIS;
 				} else if (defn instanceof RWHandlerImplements) {
 					RWHandlerImplements hi = (RWHandlerImplements) defn;
 					if (hi.inCard)
-						needsObject = meth.myThis();
+						on = ObjectNeeded.CARD;
 					System.out.println("Creating handler " + fn + " in block " + closure);
 				} else if (defn instanceof RWFunctionDefinition) {
 					;
@@ -72,18 +74,24 @@ public class DroidClosureGenerator {
 				} else
 					throw new UtilException("Didn't do anything with " + defn + " " + (defn != null ? defn.getClass() : ""));
 			}
-			if (needsObject != null && fromHandler)
-				needsObject = meth.getField("_card");
-			fnToCall = appendValue(c0, true);
+			return makeClosure(closure, on, appendValue(c0, true));
 		} else if (c0 instanceof PushVar) {
-			fnToCall = vh.get(((PushVar)c0).var.var);
+			return makeClosure(closure, ObjectNeeded.NONE, vh.get(((PushVar)c0).var.var));
 		} else
 			throw new UtilException("Can't handle " + c0);
+	}
 
-		if (needsObject != null)
-			return meth.makeNew(J.FLCLOSURE, meth.as(needsObject, J.OBJECT), fnToCall, arguments(closure, 1));
-		else
+	protected IExpr makeClosure(HSIEBlock closure, ObjectNeeded on, Expr fnToCall) {
+		switch (on) {
+		case NONE:
 			return meth.makeNew(J.FLCLOSURE, fnToCall, arguments(closure, 1));
+		case THIS:
+			return meth.makeNew(J.FLCLOSURE, meth.as(meth.myThis(), J.OBJECT), fnToCall, arguments(closure, 1));
+		case CARD:
+			return meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), fnToCall, arguments(closure, 1));
+		default:
+			throw new UtilException("What is " + on);
+		}
 	}
 
 	private IExpr handleField(HSIEBlock closure) {
