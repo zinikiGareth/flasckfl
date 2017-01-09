@@ -8,7 +8,6 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
-import org.flasck.flas.rewrittenForm.RWFunctionCaseDefn;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
@@ -38,55 +37,53 @@ public class DroidClosureGenerator {
 
 	public IExpr closure(HSIEBlock closure) {
 		PushReturn c0 = (PushReturn) closure.nestedCommands().get(0);
-		if (c0 instanceof PushExternal && ((PushExternal)c0).fn.uniqueName().equals("FLEval.field")) {
-			return handleField(closure);
-		} else if (c0 instanceof PushExternal && ((PushExternal)c0).fn.uniqueName().equals("FLEval.curry")) {
-			return handleCurry(closure);
-		} else {
 
-			Expr needsObject = null;
-			Expr fnToCall;
-			if (c0 instanceof PushExternal) {
-				ExternalRef fn = ((PushExternal)c0).fn;
-				boolean fromHandler = form.needsCardMember();
-				Object defn = fn;
-				if (fn != null) {
-					while (defn instanceof PackageVar)
-						defn = ((PackageVar)defn).defn;
-					if (defn == null)
-						; // This appears to be mainly builtin things - eg. Tuple // throw new UtilException("Didn't find a definition for " + fn);
-					else if (defn instanceof ObjectReference || defn instanceof CardFunction) {
+		Expr needsObject = null;
+		Expr fnToCall;
+		if (c0 instanceof PushExternal) {
+			ExternalRef fn = ((PushExternal)c0).fn;
+			if (fn.uniqueName().equals("FLEval.field"))
+				return handleField(closure);
+			else if (fn.uniqueName().equals("FLEval.curry"))
+				return handleCurry(closure);
+			boolean fromHandler = form.needsCardMember();
+			Object defn = fn;
+			if (fn != null) {
+				while (defn instanceof PackageVar)
+					defn = ((PackageVar)defn).defn;
+				if (defn == null)
+					; // This appears to be mainly builtin things - eg. Tuple // throw new UtilException("Didn't find a definition for " + fn);
+				else if (defn instanceof ObjectReference || defn instanceof CardFunction) {
+					needsObject = meth.myThis();
+					fromHandler |= fn.fromHandler();
+				} else if (defn instanceof RWHandlerImplements) {
+					RWHandlerImplements hi = (RWHandlerImplements) defn;
+					if (hi.inCard)
 						needsObject = meth.myThis();
-						fromHandler |= fn.fromHandler();
-					} else if (defn instanceof RWHandlerImplements) {
-						RWHandlerImplements hi = (RWHandlerImplements) defn;
-						if (hi.inCard)
-							needsObject = meth.myThis();
-						System.out.println("Creating handler " + fn + " in block " + closure);
-					} else if (defn instanceof RWFunctionDefinition) {
-						;
-					} else if (defn instanceof RWStructDefn || defn instanceof RWObjectDefn) {
-						;
-					} else if (defn instanceof HandlerLambda) {
-						;
-					} else if (defn instanceof ScopedVar) {
-						;
-					} else
-						throw new UtilException("Didn't do anything with " + defn + " " + (defn != null ? defn.getClass() : ""));
-				}
-				if (needsObject != null && fromHandler)
-					needsObject = meth.getField("_card");
-				fnToCall = appendValue(c0, true);
-			} else if (c0 instanceof PushVar) {
-				fnToCall = vh.get(((PushVar)c0).var.var);
-			} else
-				throw new UtilException("Can't handle " + c0);
+					System.out.println("Creating handler " + fn + " in block " + closure);
+				} else if (defn instanceof RWFunctionDefinition) {
+					;
+				} else if (defn instanceof RWStructDefn || defn instanceof RWObjectDefn) {
+					;
+				} else if (defn instanceof HandlerLambda) {
+					;
+				} else if (defn instanceof ScopedVar) {
+					;
+				} else
+					throw new UtilException("Didn't do anything with " + defn + " " + (defn != null ? defn.getClass() : ""));
+			}
+			if (needsObject != null && fromHandler)
+				needsObject = meth.getField("_card");
+			fnToCall = appendValue(c0, true);
+		} else if (c0 instanceof PushVar) {
+			fnToCall = vh.get(((PushVar)c0).var.var);
+		} else
+			throw new UtilException("Can't handle " + c0);
 
-			if (needsObject != null)
-				return meth.makeNew(J.FLCLOSURE, meth.as(needsObject, J.OBJECT), fnToCall, arguments(closure, 1));
-			else
-				return meth.makeNew(J.FLCLOSURE, fnToCall, arguments(closure, 1));
-		}
+		if (needsObject != null)
+			return meth.makeNew(J.FLCLOSURE, meth.as(needsObject, J.OBJECT), fnToCall, arguments(closure, 1));
+		else
+			return meth.makeNew(J.FLCLOSURE, fnToCall, arguments(closure, 1));
 	}
 
 	private IExpr handleField(HSIEBlock closure) {
@@ -97,10 +94,6 @@ public class DroidClosureGenerator {
 	}
 
 	private IExpr handleCurry(HSIEBlock closure) {
-		List<Expr> al = new ArrayList<>();
-		for (int i=3;i<closure.nestedCommands().size();i++)
-			al.add(meth.box(appendValue((PushReturn) closure.nestedCommands().get(i), false)));
-		Expr args = meth.arrayOf(J.OBJECT, al);
 		PushExternal curriedFn = (PushExternal)closure.nestedCommands().get(1);
 		PushInt cnt = (PushInt) closure.nestedCommands().get(2);
 		ExternalRef f2 = curriedFn.fn;
