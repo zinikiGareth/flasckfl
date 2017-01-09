@@ -36,6 +36,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.compiler.CompileResult;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.flim.ImportedCard;
 import org.flasck.flas.flim.PackageFinder;
@@ -221,9 +222,9 @@ public class Rewriter implements CodeGenRegistry {
 		public Object resolve(InputPosition location, String name) {
 			// TODO: I think these should possibly just keep on having their "simple" names and let JSOUT handle the rename
 			if (name.equals("."))
-				return new PackageVar(location, FunctionName.function(location, new PackageName("FLEval"), "field"), null);
+				return new PackageVar(location, FunctionName.function(location, new PackageName("FLEval"), "field"), BuiltinOperation.FIELD);
 			if (name.equals("()"))
-				return new PackageVar(location, FunctionName.function(location, new PackageName("FLEval"), "tuple"), null);
+				return new PackageVar(location, FunctionName.function(location, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
 			if (name.equals("let")) {
 				throw new UtilException("I don't think let is something I really support");
 //				return new PackageVar(location, "let", null);

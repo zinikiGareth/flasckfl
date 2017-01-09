@@ -3,6 +3,7 @@ package org.flasck.flas.droidgen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -65,8 +66,8 @@ public class DroidClosureGenerator {
 			else if (fn.uniqueName().equals("FLEval.curry"))
 				return handleCurry(defn, closure);
 			String clz = DroidUtils.getJavaClassForDefn(meth, fn, defn);
-			if (defn == null || defn instanceof PrimitiveType || defn instanceof CardGrouping) {
-				// This appears to be mainly builtin things - eg. Tuple // throw new UtilException("Didn't find a definition for " + fn);
+			if (defn instanceof BuiltinOperation) {
+				// This covers both Field & Tuple, but Field was handled above
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof PrimitiveType) {
 				// This covers Number and String
