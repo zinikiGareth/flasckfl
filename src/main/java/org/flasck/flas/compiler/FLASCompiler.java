@@ -370,7 +370,7 @@ public class FLASCompiler implements ScriptCompiler {
 				} catch (Exception ex) {
 					System.err.println("Cannot write to " + builder.androidDir + ": " + ex.getMessage());
 					ex.printStackTrace();
-					return null;
+					errors.message((InputPosition)null, ex.getMessage());
 				}
 			}
 			abortIfErrors(errors);

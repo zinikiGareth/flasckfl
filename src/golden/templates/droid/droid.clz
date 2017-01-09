@@ -33,6 +33,65 @@ class Templates$B2.java extends org.flasck.jvm.areas.ListArea {
     return this._card.data
   }
 }
+class Templates$B3.java extends org.flasck.jvm.areas.DivArea {
+  void <init>(test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, "li")
+    this._card = cardArg
+    this._src_e = this
+    b4 = new test.golden.Templates$B4(cardArg,this)
+    return
+  }
+  java.lang.Object _assignToVar(java.lang.Object obj) {
+    if (this.e==obj) {
+      return null
+    }
+    this._wrapper.removeOnCrosetReplace(((org.flasck.jvm.areas.ListArea)this._parent)._current, this, this.e)
+    this.e = obj
+    this._wrapper.onCrosetReplace(((org.flasck.jvm.areas.ListArea)this._parent)._current, this, this.e)
+    this._fireInterests()
+    return null
+  }
+}
+class Templates$B4.java extends org.flasck.jvm.areas.TextArea {
+  void <init>(test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._src_e = ((test.golden.Templates$B3)parent)._src_e
+    this._src_e._interested(this, "_contentExpr")
+    this._card._wrapper.onAssign(this._src_e.e, "title", this, "_contentExpr")
+    (void)this._contentExpr()
+    this._src_e._interested(this, "_setVariableFormats")
+    this._card._wrapper.onAssign(this._src_e.e, "format", this, "_setVariableFormats")
+    (void)this._setVariableFormats()
+    return
+  }
+  java.lang.Object _contentExpr() {
+    super._assignToText(this.contents_1())
+    return null
+  }
+  java.lang.Object _setVariableFormats() {
+    super._setCSSObj(this.formats_2())
+    return null
+  }
+  java.lang.Object contents_1() {
+    return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
+        autobox[this._src_e.e]
+        autobox["title"]
+      })
+  }
+  java.lang.Object formats_2() {
+    {
+      v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
+          autobox[this._src_e.e]
+          autobox["format"]
+        })
+      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          autobox[v0]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
+    }
+  }
+}
 class Templates.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
