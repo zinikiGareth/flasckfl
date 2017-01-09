@@ -76,8 +76,11 @@ public class DroidClosureGenerator {
 			} else if (defn instanceof CardGrouping) {
 				// This is for "typeof <cardname>" and returns the "class" corresponding to the type
 				// See typeop.fl for an example
+				// TODO: figure out if this should really be "ObjectReference" and if that should be renamed
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
-			} else if (defn instanceof ObjectReference || defn instanceof CardFunction) {
+			} else if (defn instanceof ObjectReference) {
+				return doEval(myOn, meth.classConst(clz), closure);
+			} else if (defn instanceof CardFunction) {
 				return doEval(myOn, meth.classConst(clz), closure);
 			} else if (defn instanceof CardMember) {
 				if (form.isCardMethod())

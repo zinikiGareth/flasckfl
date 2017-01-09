@@ -6,6 +6,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidClosureGenerator;
@@ -13,6 +14,7 @@ import org.flasck.flas.droidgen.J;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -49,8 +51,6 @@ public class ClosureGenerationTests {
 		}});
 	}
 	
-	// TODO: want to do the same thing using a return, not a closure (assuming that's possible; I think it is)
-//			oneOf(meth).returnObject(expr); will(returnValue(expr));
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testATupleProducesAClosureCallingFLEvalDOTTuple() {
@@ -121,4 +121,28 @@ public class ClosureGenerationTests {
 		PushExternal hdc = new PushExternal(loc, hdc1);
 		dcg.pushReturn(hdc, null);
 	}
+
+	// This case is where we create an instance of a handler within a card to pass to a method
+	// I think (looking at the code for ObjectReference) that there is another case, untested in either golden or unit tests
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testAnObjectReferenceCanFormAClosureForANestedClass() {
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst("hello"); will(returnValue(expr));
+			oneOf(meth).classConst("test.golden.MyCard$Handler"); will(returnValue(expr));
+			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
+			oneOf(meth).makeNew(J.FLCLOSURE, expr, expr); will(returnValue(expr));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		HSIEBlock closure = form.createClosure(loc);
+		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
+		HandlerName hn = new HandlerName(cn, "Handler");
+		PackageVar hdc1 = new PackageVar(loc, hn, new ObjectReference(loc, cn, hn));
+		closure.push(loc, hdc1);
+		closure.push(loc, new StringLiteral(loc, "hello"));
+		dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+	}
+
 }
