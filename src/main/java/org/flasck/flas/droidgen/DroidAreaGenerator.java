@@ -63,7 +63,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 		Var obj = arg.getVar();
 		FieldExpr curr = meth.getField(varName);
 		FieldExpr wrapper = meth.getField("_wrapper");
-		Expr parent = meth.castTo(meth.getField("_parent"), J.LIST_AREA);
+		IExpr parent = meth.castTo(meth.getField("_parent"), J.LIST_AREA);
 		FieldExpr croset = new FieldObject(false, J.LIST_AREA, new JavaType(J.CROSET), "_current").useOn(meth, parent);
 //		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("In _assignToVar"))).flush();
 //		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.callStatic("java.lang.String",  "java.lang.String", "valueOf", curr))).flush();
@@ -98,7 +98,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 
 	@Override
 	public void onFieldAssign(Object expr, String field, FunctionName call) {
-		Expr dge = null;
+		IExpr dge = null;
 		if (expr instanceof TemplateListVar) {
 			String name = ((TemplateListVar)expr).simpleName;
 			dge = ctor.getField(ctor.getField(ctor.myThis(), "_src_" + name), name);

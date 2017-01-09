@@ -11,6 +11,7 @@ import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.zinutils.bytecode.Expr;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
@@ -68,8 +69,8 @@ public class DroidHSIProcessor implements HSIEVisitor {
 			coll.add(meth.assign(hv, cl));
 		}
 
-		Expr testVal;
-		Expr ifblk = droidHSIGenerator.generateHSI(c, assignReturnTo);
+		IExpr testVal;
+		IExpr ifblk = droidHSIGenerator.generateHSI(c, assignReturnTo);
 		if (c.value != null) {
 			testVal = meth.box(exprValue(meth, c.value));
 			coll.add(meth.ifEquals(hv, testVal, ifblk, null));
@@ -125,7 +126,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 		coll.add(meth.returnObject(meth.makeNew(J.FLERROR, meth.stringConst(meth.getName() + ": case not handled"))));
 	}
 
-	private Expr isTruthy(NewMethodDefiner meth, Var hv) {
+	private IExpr isTruthy(NewMethodDefiner meth, Var hv) {
 		return meth.callStatic(J.FLEVAL, J.BOOLEANP.getActual(), "isTruthy", hv);
 	}
 

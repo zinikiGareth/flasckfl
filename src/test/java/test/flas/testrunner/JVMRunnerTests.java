@@ -14,6 +14,7 @@ import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
@@ -181,7 +182,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				Var msg = pv.getVar();
 				meth.assign(msg, meth.callStatic(J.FLEVAL, J.OBJECT, "head", msg)).flush();
 				meth.ifBoolean(meth.instanceOf(msg, J.FLERROR), meth.returnObject(msg), null).flush();
-				Expr nil = meth.callStatic(J.NIL, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>()));
+				IExpr nil = meth.callStatic(J.NIL, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>()));
 				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
 				Var clos2 = meth.avar("org.flasck.jvm.FLClosure", "clos2");
 				meth.ifBoolean(meth.instanceOf(msg, J.STRING),

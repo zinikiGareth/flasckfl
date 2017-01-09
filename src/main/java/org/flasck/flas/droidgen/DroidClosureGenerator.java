@@ -55,7 +55,7 @@ public class DroidClosureGenerator {
 		return pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 	}
 
-	protected IExpr pushReturn(PushReturn pr, HSIEBlock closure) {
+	public IExpr pushReturn(PushReturn pr, HSIEBlock closure) {
 		if (pr instanceof PushExternal) {
 			ExternalRef fn = ((PushExternal)pr).fn;
 			Object defn = fn;
@@ -68,6 +68,7 @@ public class DroidClosureGenerator {
 			String clz = DroidUtils.getJavaClassForDefn(meth, fn, defn);
 			if (defn instanceof BuiltinOperation) {
 				// This covers both Field & Tuple, but Field was handled above
+//				return meth.aNull();
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof PrimitiveType) {
 				// This covers Number and String
@@ -82,7 +83,7 @@ public class DroidClosureGenerator {
 					return doEval(myOn, meth.myThis(), closure); // surely this needs to deference cm.var?
 				else if (form.needsCardMember()) {
 					CardMember cm = (CardMember)defn;
-					Expr field = meth.getField(meth.getField("_card"), cm.var);
+					IExpr field = meth.getField(meth.getField("_card"), cm.var);
 					return doEval(myOn, field, closure);
 				} else
 					throw new UtilException("Can't handle card member with " + form.mytype);
@@ -96,7 +97,7 @@ public class DroidClosureGenerator {
 				RWFunctionDefinition rwfn = (RWFunctionDefinition) defn;
 				// a regular function
 				if (rwfn.nargs == 0) { // invoke it as a function using eval
-					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<Expr>())), closure);
+					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
 				} else {
 					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 				}
@@ -124,14 +125,14 @@ public class DroidClosureGenerator {
 			throw new UtilException("Can't handle " + pr);
 	}
 
-	protected IExpr doEval(ObjectNeeded on, Expr fnToCall, HSIEBlock closure) {
+	protected IExpr doEval(ObjectNeeded on, IExpr fnToCall, HSIEBlock closure) {
 		if (closure == null)
 			return meth.returnObject(fnToCall);
 		else
 			return makeClosure(on, fnToCall, arguments(closure, 1));
 	}
 	
-	protected IExpr makeClosure(ObjectNeeded on, Expr fnToCall, IExpr args) {
+	protected IExpr makeClosure(ObjectNeeded on, IExpr fnToCall, IExpr args) {
 		switch (on) {
 		case NONE:
 			return meth.makeNew(J.FLCLOSURE, fnToCall, args);
@@ -145,7 +146,7 @@ public class DroidClosureGenerator {
 	}
 
 	private IExpr handleField(HSIEBlock closure) {
-		List<Expr> al = new ArrayList<>();
+		List<IExpr> al = new ArrayList<>();
 		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(1)).visit(dpa)));
 		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(2)).visit(dpa)));
 		return meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al));
@@ -167,12 +168,12 @@ public class DroidClosureGenerator {
 			return meth.makeNew(J.FLCURRY, meth.classConst(clz), meth.intConst(cnt.ival), arguments(closure, 3));
 	}
 
-	protected Expr arguments(HSIEBlock closure, int from) {
+	protected IExpr arguments(HSIEBlock closure, int from) {
 		// Process all the arguments
-		List<Expr> al = new ArrayList<Expr>();
+		List<IExpr> al = new ArrayList<>();
 		for (int i=from;i<closure.nestedCommands().size();i++) {
 			PushReturn c = (PushReturn) closure.nestedCommands().get(i);
-			al.add(meth.box((Expr) c.visit(dpa)));
+			al.add(meth.box((IExpr) c.visit(dpa)));
 		}
 		return meth.arrayOf(J.OBJECT, al);
 	}

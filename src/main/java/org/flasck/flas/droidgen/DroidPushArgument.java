@@ -21,7 +21,7 @@ import org.flasck.flas.vcode.hsieForm.PushString;
 import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.PushVisitor;
-import org.zinutils.bytecode.Expr;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.exceptions.UtilException;
 
@@ -53,7 +53,7 @@ public final class DroidPushArgument implements PushVisitor {
 			if (!needToCallEvalMethod) { // handle the simple class case ...
 				return meth.classConst(clz);
 			} else {
-				return meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<Expr>()));
+				return meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>()));
 			}
 		} else if (name instanceof ScopedVar) {
 			ScopedVar sv = (ScopedVar) name;
@@ -76,7 +76,7 @@ public final class DroidPushArgument implements PushVisitor {
 				return meth.myThis(); // surely this needs to deference cm.var?
 			else if (form.needsCardMember()) {
 				CardMember cm = (CardMember)name;
-				Expr field = meth.getField(meth.getField("_card"), cm.var);
+				IExpr field = meth.getField(meth.getField("_card"), cm.var);
 				return field;
 			} else
 				throw new UtilException("Can't handle card member with " + form.mytype);

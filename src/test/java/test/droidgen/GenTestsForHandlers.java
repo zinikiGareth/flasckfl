@@ -112,9 +112,9 @@ public class GenTestsForHandlers {
 			}
 			oneOf(ctor).callSuper("void", "Callback", "<init>"); will(returnValue(expr));
 			if (inCard) {
-				oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("full"), with(any(Expr[].class)));
-				oneOf(ctor).castTo(null, "Card");
-				oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(aNull(IExpr.class)));
+				oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("full"), with(any(IExpr[].class)));
+				oneOf(ctor).castTo(with(any(IExpr.class)), with("Card"));
+				oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
 			}
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
@@ -134,7 +134,7 @@ public class GenTestsForHandlers {
 			oneOf(eval).returnObject(with(any(IExpr.class)));
 			oneOf(eval).makeNew(with(container + "$MyHandler"), with(any(IExpr[].class)));
 			oneOf(eval).returnObject(with(any(IExpr.class)));
-			oneOf(eval).ifOp(with(162), with(aNull(Expr.class)), with(any(Expr.class)), with(aNull(Expr.class)), with(aNull(Expr.class))); will(returnValue(expr));
+			oneOf(eval).ifOp(with(162), with(aNull(IExpr.class)), with(any(Expr.class)), with(any(IExpr.class)), with(any(IExpr.class))); will(returnValue(expr));
 		}});
 	}
 
@@ -142,8 +142,8 @@ public class GenTestsForHandlers {
 		context.checking(new Expectations() {{
 			oneOf(bccHandler).defineField(false, Access.PRIVATE, JavaType.object_, called);
 			oneOf(ctor).argument(J.OBJECT, called); will(new ReturnNewVar(ctor, J.OBJECT, called));
-			oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("head"), with(any(Expr[].class)));
-			oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(aNull(IExpr.class)));
+			oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("head"), with(any(IExpr[].class)));
+			oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
 			oneOf(eval).arrayElt(with(aNonNull(Expr.class)), with(aNonNull(IntConstExpr.class)));
 			oneOf(eval).intConst(1); will(returnValue(new IntConstExpr(eval, 1)));
 		}});
