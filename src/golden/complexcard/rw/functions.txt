@@ -66,7 +66,7 @@ function test.golden.Complex._C0.ready test.golden.Complex 1
           LocalVar.test.golden.Complex._C0.ready.obj
           "x"
         @
-          ObjectReference.test.golden.Complex.test.golden.Complex.FooHandler
+          ObjectReference.test.golden.Complex:test.golden.Complex.FooHandler
           "yo"
       PackageVar.Nil
 function test.golden.Complex._S0.get test.golden.Complex 2

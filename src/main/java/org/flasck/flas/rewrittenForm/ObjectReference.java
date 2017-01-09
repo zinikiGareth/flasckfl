@@ -6,7 +6,8 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.HandlerName;
 
 // This should possibly be called "ClassReference"
-// It is intended to be a holder for the "name" of a class (Card, Handler, etc) that can then be used in expressions later 
+// It is intended to be a holder for the "name" of a class (Card, Handler, etc) that can then be used in expressions later
+// The example I see is in complexcard.fl/ready, and there it refers to a "nested" class?
 public class ObjectReference implements Locatable, ExternalRef {
 	public final InputPosition location;
 	public final CardName clzName;
@@ -46,6 +47,6 @@ public class ObjectReference implements Locatable, ExternalRef {
 	
 	@Override
 	public String toString() {
-		return this.clzName.uniqueName() + "." + this.handler.uniqueName();
+		return this.clzName.uniqueName() + ":" + this.handler.uniqueName();
 	}
 }

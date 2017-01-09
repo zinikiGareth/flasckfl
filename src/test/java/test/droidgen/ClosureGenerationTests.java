@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -11,6 +12,7 @@ import org.flasck.flas.droidgen.DroidClosureGenerator;
 import org.flasck.flas.droidgen.J;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.hsie.VarFactory;
+import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
@@ -89,7 +91,7 @@ public class ClosureGenerationTests {
 	// NOT CLEAR: if this is the correct generated code or not for this case
 	// This is based on the golden test typeof, and the question is "what happens if you return a type, specifically Number"?
 	@Test
-	public void testATypeOfPrimitiveReturnsAClass() {
+	public void testTypeOfPrimitiveReturnsAClass() {
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst(J.BUILTINPKG + ".Number"); will(returnValue(expr));
 			oneOf(meth).returnObject(expr); will(returnValue(expr));
@@ -97,7 +99,25 @@ public class ClosureGenerationTests {
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
-		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, null, "Number"), new PrimitiveType(loc, new SolidName(null, "Number")));
+		SolidName number = new SolidName(null, "Number");
+		PackageVar hdc1 = new PackageVar(loc, number, new PrimitiveType(loc, number));
+		PushExternal hdc = new PushExternal(loc, hdc1);
+		dcg.pushReturn(hdc, null);
+	}
+
+	// NOT CLEAR: if this is the correct generated code or not for this case
+	// This is based on the golden test typeof, and the question is "what happens if you return a type, specifically a Card"?
+	@Test
+	public void testTypeOfACardClassReturnsTheClassCard() {
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst("test.golden$MyCard"); will(returnValue(expr));
+			oneOf(meth).returnObject(expr); will(returnValue(expr));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
+		PackageVar hdc1 = new PackageVar(loc, cn, new CardGrouping(cn, null));
 		PushExternal hdc = new PushExternal(loc, hdc1);
 		dcg.pushReturn(hdc, null);
 	}

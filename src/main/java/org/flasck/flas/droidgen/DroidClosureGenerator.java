@@ -68,13 +68,14 @@ public class DroidClosureGenerator {
 			String clz = DroidUtils.getJavaClassForDefn(meth, fn, defn);
 			if (defn instanceof BuiltinOperation) {
 				// This covers both Field & Tuple, but Field was handled above
-//				return meth.aNull();
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof PrimitiveType) {
-				// This covers Number and String
+				// This is for "typeof Number" or "typeof String" and returns the corresponding class object
+				// See typeop.fl for an example
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof CardGrouping) {
-				// Not quite sure what this case is - calling a Card?
+				// This is for "typeof <cardname>" and returns the "class" corresponding to the type
+				// See typeop.fl for an example
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof ObjectReference || defn instanceof CardFunction) {
 				return doEval(myOn, meth.classConst(clz), closure);
