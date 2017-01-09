@@ -43,12 +43,6 @@ public class DroidClosureGenerator {
 		} else if (c0 instanceof PushExternal && ((PushExternal)c0).fn.uniqueName().equals("FLEval.curry")) {
 			return handleCurry(closure);
 		} else {
-			// Process all the arguments
-			List<Expr> al = new ArrayList<Expr>();
-			for (int i=1;i<closure.nestedCommands().size();i++) {
-				PushReturn c = (PushReturn) closure.nestedCommands().get(i);
-				al.add(meth.box(appendValue(c, false)));
-			}
 
 			Expr needsObject = null;
 			Expr fnToCall;
@@ -87,10 +81,11 @@ public class DroidClosureGenerator {
 				fnToCall = vh.get(((PushVar)c0).var.var);
 			} else
 				throw new UtilException("Can't handle " + c0);
+
 			if (needsObject != null)
-				return meth.makeNew(J.FLCLOSURE, meth.as(needsObject, J.OBJECT), fnToCall, meth.arrayOf(J.OBJECT, al));
+				return meth.makeNew(J.FLCLOSURE, meth.as(needsObject, J.OBJECT), fnToCall, arguments(closure, 1));
 			else
-				return meth.makeNew(J.FLCLOSURE, fnToCall, meth.arrayOf(J.OBJECT, al));
+				return meth.makeNew(J.FLCLOSURE, fnToCall, arguments(closure, 1));
 		}
 	}
 
@@ -115,9 +110,19 @@ public class DroidClosureGenerator {
 				needsObject = meth.getField("_card");
 			else
 				needsObject = meth.myThis();
-			return meth.makeNew(J.FLCURRY, meth.as(needsObject, J.OBJECT), appendValue(curriedFn, true), meth.intConst(cnt.ival), args);
+			return meth.makeNew(J.FLCURRY, meth.as(needsObject, J.OBJECT), appendValue(curriedFn, true), meth.intConst(cnt.ival), arguments(closure, 3));
 		} else
-			return meth.makeNew(J.FLCURRY, appendValue(curriedFn, true), meth.intConst(cnt.ival), args);
+			return meth.makeNew(J.FLCURRY, appendValue(curriedFn, true), meth.intConst(cnt.ival), arguments(closure, 3));
+	}
+
+	protected Expr arguments(HSIEBlock closure, int from) {
+		// Process all the arguments
+		List<Expr> al = new ArrayList<Expr>();
+		for (int i=from;i<closure.nestedCommands().size();i++) {
+			PushReturn c = (PushReturn) closure.nestedCommands().get(i);
+			al.add(meth.box(appendValue(c, false)));
+		}
+		return meth.arrayOf(J.OBJECT, al);
 	}
 
 	Expr appendValue(PushReturn c, boolean isFirst) {
