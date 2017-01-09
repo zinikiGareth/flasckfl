@@ -100,11 +100,15 @@ public class TypeChecker2 {
 	}
 
 	public void populateTypes() {
-		pass1();
-		pass2();
+		try {
+			pass1();
+			pass2();
+		} catch (NeedIndirectionException ex) {
+			throw new UtilException("this should have been dealt with", ex);
+		}
 	}
 
-	private void pass1() {
+	private void pass1() throws NeedIndirectionException {
 		rw.visit(new Pass1Visitor(this), true);
 		for (PrimitiveType bi : rw.primitives.values()) {
 			export.put(bi.name(), bi);
@@ -139,7 +143,7 @@ public class TypeChecker2 {
 		}
 	}
 	
-	private void pass2() {
+	private void pass2() throws NeedIndirectionException {
 		rw.visit(new Pass2Visitor(this), true);
 		for (RWFunctionDefinition fn : rw.functions.values()) {
 			if (fn.getType() != null) { // a function has already been typechecked
@@ -378,7 +382,11 @@ public class TypeChecker2 {
 		for (HSIEForm f : forms) {
 			for (ClosureCmd c : f.closures()) {
 				if (c.checkSend) {
-					checkSendCall(f, c);
+					try {
+						checkSendCall(f, c);
+					} catch (NeedIndirectionException ex) {
+						throw new UtilException("this should have been handled", ex);
+					}
 				}
 			}
 		}
@@ -423,7 +431,7 @@ public class TypeChecker2 {
 		}
 	}
 
-	protected void processClosure(HSIEForm f, ClosureCmd c) {
+	protected void processClosure(HSIEForm f, ClosureCmd c) throws NeedIndirectionException {
 		List<HSIEBlock> cmds = c.nestedCommands();
 		if (c.justScoping) {
 			return;
@@ -556,7 +564,7 @@ public class TypeChecker2 {
 		return null;
 	}
 
-	protected void checkArgType(TypeInfo want, TypeInfo have) {
+	protected void checkArgType(TypeInfo want, TypeInfo have) throws NeedIndirectionException {
 		logger.info("Compare " + want + " to " + have);
 		if (want instanceof NamedType && ((NamedType)want).name.equals("Any"))
 			return; // this is not much of a constraint, but can confuse things
@@ -580,11 +588,15 @@ public class TypeChecker2 {
 
 	private void processHSI(HSIEForm f, HSIEBlock blk) {
 		for (HSIEBlock c : blk.nestedCommands()) {
-			processOne(f, c);
+			try {
+				processOne(f, c);
+			} catch (NeedIndirectionException ex) {
+				throw new UtilException("this should have been handled", ex);
+			}
 		}
 	}
 
-	protected void processOne(HSIEForm f, HSIEBlock c) {
+	protected void processOne(HSIEForm f, HSIEBlock c) throws NeedIndirectionException {
 		if (c instanceof Head || c instanceof ErrorCmd)
 			return;
 		if (c instanceof Switch) {
@@ -628,7 +640,7 @@ public class TypeChecker2 {
 			logger.info("Handle " + c);
 	}
 
-	private void checkSendCall(HSIEForm f, ClosureCmd c) {
+	private void checkSendCall(HSIEForm f, ClosureCmd c) throws NeedIndirectionException {
 		// By definition, the closure must have four fields: Send; the contract var; the method (string literal); a closure pointing to the list of args (or else Nil)
 		List<HSIEBlock> ncs = c.nestedCommands();
 		TypeInfo ot = getTypeOf(f, ncs.get(1));
@@ -657,7 +669,7 @@ public class TypeChecker2 {
 			throw new UtilException("Cannot handle ot = " + ot + " " + ot.getClass());
 	}
 
-	private void checkMethodCall(InputPosition loc, HSIEForm f, List<HSIEBlock> ncs, PushString ps, NameOfThing tn) {
+	private void checkMethodCall(InputPosition loc, HSIEForm f, List<HSIEBlock> ncs, PushString ps, NameOfThing tn) throws NeedIndirectionException {
 		Type t = (Type) rw.getMe(loc, tn).defn;
 		if (t instanceof TypeWithMethods) {
 			TypeWithMethods cd = (TypeWithMethods) t;
@@ -667,7 +679,7 @@ public class TypeChecker2 {
 			throw new UtilException("Cannot handle t = " + t +  " " + t.getClass());
 	}
 
-	private void checkCallArgs(HSIEForm f, FunctionType mt, int pos, HSIEBlock cmd) {
+	private void checkCallArgs(HSIEForm f, FunctionType mt, int pos, HSIEBlock cmd) throws NeedIndirectionException {
 		boolean isNil = cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("Nil");
 		if (pos >= mt.arity()) {
 			// we have run out of args to call
@@ -871,7 +883,11 @@ public class TypeChecker2 {
 				type instanceof RWUnionTypeDefn || type instanceof RWObjectDefn ||
 				type instanceof RWContractDecl || type instanceof RWContractImplements || type instanceof RWContractService ||
 				type instanceof RWHandlerImplements)
-			return getTypeOf(type.location(), ((TypeWithName) type).name());
+			try {
+				return getTypeOf(type.location(), ((TypeWithName) type).name());
+			} catch (NeedIndirectionException ex) {
+				throw new UtilException("this should have been handled", ex);
+			}
 		else if (type instanceof InstanceType) {
 			List<TypeInfo> args = new ArrayList<>();
 			for (Type t : ((InstanceType)type).polys())
@@ -887,14 +903,14 @@ public class TypeChecker2 {
 			String other = ((TypeOfSomethingElse)type).other().uniqueName();
 			try {
 				return getTypeOf(type.location(), other);
-			} catch (UtilException ex) {
+			} catch (NeedIndirectionException ex) {
 				return new TypeIndirect(type.location(), other);
 			}
 		} else
 			throw new UtilException("Cannot convert " + type.getClass());
 	}
 
-	private TypeInfo getTypeOf(HSIEForm form, HSIEBlock cmd) {
+	private TypeInfo getTypeOf(HSIEForm form, HSIEBlock cmd) throws NeedIndirectionException {
 		if (cmd instanceof PushExternal) {
 			PushExternal pe = (PushExternal) cmd;
 			String name = pe.fn.uniqueName();
@@ -944,17 +960,17 @@ public class TypeChecker2 {
 			throw new UtilException("Need to determine type of " + cmd.getClass());
 	}
 
-	private TypeInfo getTypeOf(InputPosition pos, String name) {
+	private TypeInfo getTypeOf(InputPosition pos, String name) throws NeedIndirectionException {
 		TypeInfo ret = localKnowledge.get(name);
 		if (ret != null)
 			return ret;
 		ret = globalKnowledge.get(name);
 		if (ret == null)
-			throw new UtilException("the name '" + name + "' cannot be resolved for typechecking");
+			throw new NeedIndirectionException(name);
 		return ret;
 	}
 	
-	private TypeInfo freshPolys(TypeInfo ti, Map<String, TypeVar> curr) {
+	private TypeInfo freshPolys(TypeInfo ti, Map<String, TypeVar> curr) throws NeedIndirectionException {
 		if (ti instanceof TypeVar) {
 			return ti;
 		} else if (ti instanceof PolyInfo) {
