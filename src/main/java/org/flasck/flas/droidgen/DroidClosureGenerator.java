@@ -85,14 +85,15 @@ public class DroidClosureGenerator {
 				// This case covers at least event handlers
 				return doEval(myOn, meth.classConst(clz), closure);
 			} else if (defn instanceof CardMember) {
+				CardMember cm = (CardMember)defn;
+				IExpr card;
 				if (form.isCardMethod())
-					return doEval(myOn, meth.myThis(), closure); // surely this needs to deference cm.var?
-				else if (form.needsCardMember()) {
-					CardMember cm = (CardMember)defn;
-					IExpr field = meth.getField(meth.getField("_card"), cm.var);
-					return doEval(myOn, field, closure);
-				} else
+					card = meth.myThis();
+				else if (form.needsCardMember())
+					card = meth.getField("_card");
+				else
 					throw new UtilException("Can't handle card member with " + form.mytype);
+				return doEval(myOn, meth.getField(card, cm.var), closure);
 			} else if (defn instanceof RWHandlerImplements) {
 				RWHandlerImplements hi = (RWHandlerImplements) defn;
 				System.out.println("Creating handler " + fn + " in block " + closure);

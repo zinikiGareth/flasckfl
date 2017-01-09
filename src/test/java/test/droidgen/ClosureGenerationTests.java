@@ -15,6 +15,7 @@ import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
+import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.types.PrimitiveType;
@@ -46,9 +47,10 @@ public class ClosureGenerationTests {
 	@Before
 	public void prepareTest() {
 		context.checking(new Expectations() {{
-			allowing(meth).getBCC(); will(returnValue(bcc));
 			allowing(bcc).addInnerClassReference(with(any(Access.class)), with(any(String.class)), with(any(String.class)));
+			allowing(meth).getBCC(); will(returnValue(bcc));
 			allowing(meth).box(with(any(IExpr.class))); will(returnValue(expr));
+			allowing(meth).nextLocal(); will(returnValue(1));
 		}});
 	}
 	
@@ -173,6 +175,23 @@ public class ClosureGenerationTests {
 		closure.push(loc, 2);
 		closure.push(loc, new StringLiteral(loc, "hello"));
 		dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+	}
+
+	// Card function that returns a card member
+	@Test
+	public void testReturningACardMemberFromAMethodOnTheCard() {
+		context.checking(new Expectations() {{
+			oneOf(meth).myThis(); will(new ReturnNewVar(meth, "fred", "bar"));
+			oneOf(meth).getField(with(any(IExpr.class)), with("var")); will(returnValue(expr));
+			oneOf(meth).returnObject(expr); will(returnValue(expr));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.CARD, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
+		PackageVar hdc1 = new PackageVar(loc, cn, new CardMember(loc, cn, "var", new PrimitiveType(loc, new SolidName(null, "String"))));
+		PushExternal hdc = new PushExternal(loc, hdc1);
+		dcg.pushReturn(hdc, null);
 	}
 
 }

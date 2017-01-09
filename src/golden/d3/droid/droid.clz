@@ -553,7 +553,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
     }
   }
   java.lang.Object _gen_15() {
-    return this
+    return this.data
   }
   java.lang.Object _gen_2(java.lang.Object _0) {
     {
