@@ -1,0 +1,7 @@
+class HandlerCtr.java extends org.flasck.jvm.ContractImpl {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  abstract java.lang.Object handle(java.lang.Object arg0);
+}
