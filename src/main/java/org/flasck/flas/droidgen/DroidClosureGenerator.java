@@ -12,7 +12,6 @@ import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
-import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
@@ -102,8 +101,11 @@ public class DroidClosureGenerator {
 				} else {
 					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 				}
-			} else if (defn instanceof RWStructDefn || defn instanceof RWObjectDefn) {
-				// creating a struct or object is just like calling a static function
+			} else if (defn instanceof RWStructDefn) {
+				// creating a struct is just like calling a static function
+				return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
+			} else if (defn instanceof RWObjectDefn) {
+				// creating an object is just like calling a static function
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof HandlerLambda) {
 				// I think these are var cases really
