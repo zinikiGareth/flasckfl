@@ -55,7 +55,7 @@ class scoped_0$MyHc.java extends test.golden.Hc {
   }
   java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress _fromDA) {
     {
-      v0 = new org.flasck.jvm.FLClosure(test.golden.scoped_0.MyHc$requestObj.class,new java.lang.Object[0] {})
+      v0 = new org.flasck.jvm.FLClosure(this.requestObj,new java.lang.Object[0] {})
       return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
