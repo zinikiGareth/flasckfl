@@ -22,6 +22,7 @@ import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -294,6 +295,30 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWStructDefn(loc, fn, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
 		IExpr out = dcg.pushReturn(pr, null);
+		assertEquals(result, out);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanCreateAClosureForAStructCreationWithArgs() {
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst(J.BUILTINPKG + ".Cons"); will(returnValue(expr));
+			oneOf(meth).stringConst("hello"); will(returnValue(expr));
+			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
+			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		SolidName fn = new SolidName(null, "Cons");
+		HSIEBlock closure = form.createClosure(loc);
+		RWStructDefn sd = new RWStructDefn(loc, fn, false);
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "String")), "head"));
+		PackageVar hdc1 = new PackageVar(loc, fn, sd);
+		closure.push(loc, hdc1);
+		closure.push(loc, new StringLiteral(loc, "hello"));
+		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 		assertEquals(result, out);
 	}
 }
