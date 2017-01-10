@@ -82,7 +82,7 @@ class PACKAGEFUNCTIONS$requestObj.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object request(java.lang.Object _s0, java.lang.Object _s1) {
     {
-      v0 = new org.flasck.jvm.FLClosure(test.golden.scoped_0$MyHc.class,new java.lang.Object[0] {})
+      v0 = new org.flasck.jvm.FLClosure(_s0,new java.lang.Object[0] {})
       v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]

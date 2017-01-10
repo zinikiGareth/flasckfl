@@ -3,6 +3,7 @@ package org.flasck.flas.droidgen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.droidgen.DroidClosureGenerator.ObjectNeeded;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -16,6 +17,7 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.PrimitiveType;
+import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
@@ -50,11 +52,11 @@ public class DroidClosureGenerator {
 			myOn = ObjectNeeded.NONE;
 	}
 
-	public IExpr closure(HSIEBlock closure) {
+	public IExpr closure(ClosureCmd closure) {
 		return pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 	}
 
-	public IExpr pushReturn(PushReturn pr, HSIEBlock closure) {
+	public IExpr pushReturn(PushReturn pr, ClosureCmd closure) {
 		if (pr instanceof PushExternal) {
 			ExternalRef fn = ((PushExternal)pr).fn;
 			Object defn = fn;
@@ -120,8 +122,11 @@ public class DroidClosureGenerator {
 				IExpr var = meth.getField(hl.var);
 				return doEval(ObjectNeeded.NONE, var, closure);
 			} else if (defn instanceof ScopedVar) {
-				// I think these are var cases really
-				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+				ScopedVar sv = (ScopedVar) defn;
+				if (closure != null && closure.justScoping)
+					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+				else
+					return doEval(ObjectNeeded.NONE, vh.getScoped(sv.uniqueName()), closure);
 			} else
 				throw new UtilException("Didn't do anything with " + defn + " " + (defn != null ? defn.getClass() : ""));
 		} else if (pr instanceof PushVar) {

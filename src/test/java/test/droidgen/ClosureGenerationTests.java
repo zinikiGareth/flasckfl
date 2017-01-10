@@ -2,6 +2,7 @@ package test.droidgen;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -11,8 +12,10 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.droidgen.DroidClosureGenerator;
 import org.flasck.flas.droidgen.J;
+import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.CardFunction;
@@ -25,9 +28,10 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PrimitiveType;
-import org.flasck.flas.vcode.hsieForm.HSIEBlock;
+import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.hamcrest.Matchers;
@@ -41,10 +45,13 @@ import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.FieldExpr;
+import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IntConstExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var.AVar;
 
 public class ClosureGenerationTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -78,7 +85,7 @@ public class ClosureGenerationTests {
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
-		HSIEBlock closure = form.createClosure(loc);
+		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
 		closure.push(loc, hdc1);
 		closure.push(loc, 42);
@@ -149,7 +156,7 @@ public class ClosureGenerationTests {
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
-		HSIEBlock closure = form.createClosure(loc);
+		ClosureCmd closure = form.createClosure(loc);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		HandlerName hn = new HandlerName(cn, "Handler");
 		PackageVar hdc1 = new PackageVar(loc, hn, new ObjectReference(loc, cn, hn));
@@ -175,7 +182,7 @@ public class ClosureGenerationTests {
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
-		HSIEBlock closure = form.createClosure(loc);
+		ClosureCmd closure = form.createClosure(loc);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		CardFunction cf = new CardFunction(loc, cn, "eventHandler");
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "curry"), cf);
@@ -236,7 +243,7 @@ public class ClosureGenerationTests {
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
-		HSIEBlock closure = form.createClosure(loc);
+		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 1, false));
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
@@ -257,7 +264,7 @@ public class ClosureGenerationTests {
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
-		HSIEBlock closure = form.createClosure(loc);
+		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
 		closure.push(loc, hdc1);
 		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
@@ -316,7 +323,7 @@ public class ClosureGenerationTests {
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
 		SolidName fn = new SolidName(null, "Cons");
-		HSIEBlock closure = form.createClosure(loc);
+		ClosureCmd closure = form.createClosure(loc);
 		RWStructDefn sd = new RWStructDefn(loc, fn, false);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "String")), "head"));
 		PackageVar hdc1 = new PackageVar(loc, fn, sd);
@@ -359,7 +366,7 @@ public class ClosureGenerationTests {
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
 		SolidName fn = new SolidName(null, "Croset");
-		HSIEBlock closure = form.createClosure(loc);
+		ClosureCmd closure = form.createClosure(loc);
 		RWObjectDefn od = new RWObjectDefn(loc, fn, false);
 		od.constructorArg(loc, new PrimitiveType(loc, new SolidName(null, "String")), "init");
 		PackageVar hdc1 = new PackageVar(loc, fn, od);
@@ -388,7 +395,7 @@ public class ClosureGenerationTests {
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
 		HandlerName hn = new HandlerName(new PackageName("test.golden"), "MyHC");
-		HSIEBlock closure = form.createClosure(loc);
+		ClosureCmd closure = form.createClosure(loc);
 		HandlerLambda hl = new HandlerLambda(loc, hn, FunctionType.function(loc, new PrimitiveType(loc, new SolidName(null, "String")), new PrimitiveType(loc, new SolidName(null, "Number"))), "length");
 		PackageVar hdc1 = new PackageVar(loc, hn, hl);
 		closure.push(loc, hdc1);
@@ -411,6 +418,65 @@ public class ClosureGenerationTests {
 		HandlerLambda hl = new HandlerLambda(loc, hn, new PrimitiveType(loc, new SolidName(null, "String")), "str");
 		PackageVar hdc1 = new PackageVar(loc, hn, hl);
 		IExpr out = dcg.pushReturn(new PushExternal(loc, hdc1), null);
+		assertEquals(result, out);
+	}
+
+	// There are a number of cases with regards to scoped vars, and I'm not sure I've covered all of them
+	// Specifically, there are cases where they are used in nested functions, and cases where they're used in the defining function
+	// The defining function also has the ability to use them in setting up "scoping closures" which need special treatment
+	// These cases are the ones that drive the behaviour we currently need for golden tests
+	
+	// In a nested function, check that the use of a scoped var maps to the input pending var
+	@Test
+	public void testAScopedVarResolvesToAVar() {
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			oneOf(meth).argument(J.STRING, "x"); will(new ReturnNewVar(meth, J.STRING, "x"));
+			oneOf(meth).returnObject(with(any(AVar.class))); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		FunctionName fn = FunctionName.function(loc, null, "testfn");
+		HSIEForm form = new HSIEForm(loc, fn, 0, CodeType.FUNCTION, null, vf);
+		VarName hn = new VarName(loc, new PackageName("test.golden"), "x");
+		ScopedVar sv = new ScopedVar(loc, hn, new PrimitiveType(loc, new SolidName(null, "String")), fn);
+		form.scoped.add(sv);
+		List<PendingVar> pvs = new ArrayList<>();
+		pvs.add(new PendingVar(JavaType.string, "x", 0).apply(meth));
+		VarHolder vh = new VarHolder(form, pvs);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, vh);
+		PackageVar hdc1 = new PackageVar(loc, hn, sv);
+		IExpr out = dcg.pushReturn(new PushExternal(loc, hdc1), null);
+		assertEquals(result, out);
+	}
+
+	// When used in defining a scoping closure, make sure that it is just the object itself that's used
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testAScopedVarInAScopingClosureResolvesToTheName() {
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			oneOf(meth).argument(J.STRING, "x"); will(new ReturnNewVar(meth, J.STRING, "x"));
+			oneOf(meth).classConst("test.golden$x"); will(returnValue(expr));
+			oneOf(meth).stringConst("hello"); will(returnValue(expr));
+			exactly(1).of(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(expr))); will(returnValue(expr));
+			oneOf(meth).makeNew(with(J.FLCLOSURE), with(new IExpr[] { expr, expr })); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		FunctionName fn = FunctionName.function(loc, null, "testfn");
+		HSIEForm form = new HSIEForm(loc, fn, 0, CodeType.FUNCTION, null, vf);
+		VarName hn = new VarName(loc, new PackageName("test.golden"), "x");
+		ScopedVar sv = new ScopedVar(loc, hn, new PrimitiveType(loc, new SolidName(null, "String")), fn);
+		form.scopedDefinitions.add(sv);
+		List<PendingVar> pvs = new ArrayList<>();
+		pvs.add(new PendingVar(JavaType.string, "x", 0).apply(meth));
+		VarHolder vh = new VarHolder(form, pvs);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, vh);
+		ClosureCmd closure = form.createClosure(loc);
+		closure.justScoping = true;
+		PackageVar hdc1 = new PackageVar(loc, hn, sv);
+		closure.push(loc, hdc1);
+		closure.push(loc, new StringLiteral(loc, "hello"));
+		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 		assertEquals(result, out);
 	}
 }
