@@ -1,5 +1,7 @@
 package test.droidgen;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -18,12 +20,13 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -211,4 +214,28 @@ public class ClosureGenerationTests {
 		PushExternal hdc = new PushExternal(loc, hdc1);
 		dcg.pushReturn(hdc, null);
 	}
+	
+	// 3 function cases: closure w args/no args  & no closure w/no args
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanReturnAClosureForAFunctionCallWithArgsDirectlyFromAFunction() {
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst("test.golden.PACKAGEFUNCTIONS$callMe"); will(returnValue(expr));
+			oneOf(meth).stringConst("hello"); will(returnValue(expr));
+			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
+			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
+		HSIEBlock closure = form.createClosure(loc);
+		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 1, false));
+		closure.push(loc, hdc1);
+		closure.push(loc, new StringLiteral(loc, "hello"));
+		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		assertEquals(result, out);
+	}
+	
 }
