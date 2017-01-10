@@ -258,4 +258,22 @@ public class ClosureGenerationTests {
 		assertEquals(result, out);
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanReturnAFunctionCallWithNoArgsDirectlyFromAFunction() {
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
+			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", expr); will(returnValue(result));
+			oneOf(meth).returnObject(result); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
+		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
+		PushReturn pr = new PushExternal(loc, hdc1);
+		IExpr out = dcg.pushReturn(pr, null);
+		assertEquals(result, out);
+	}
 }
