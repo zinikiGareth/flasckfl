@@ -68,7 +68,7 @@ public class GenTestsForContractImpl {
 			oneOf(bccImpl).createMethod(false, "void", "<init>"); will(returnValue(ctor));
 			oneOf(ctor).argument("Card", "card"); will(new ReturnNewVar(ctor, "Card", "card"));
 			oneOf(ctor).callSuper("void", "CtrDecl", "<init>"); will(returnValue(expr));
-			oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
+			oneOf(ctor).assign(with(any(IExpr.class)), with(any(IExpr.class)));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
 	}

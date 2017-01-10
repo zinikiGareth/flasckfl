@@ -172,11 +172,12 @@ public class GenTestsForCards {
 			oneOf(ctor).makeNew(with("Card$_C0"), with(aNonNull(Expr.class))); will(returnValue(expr));
 			oneOf(ctor).stringConst("CtrDecl");
 			if (called != null) {
-				oneOf(ctor).getField(called);
-				oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
-				oneOf(ctor).as(null, J.CONTRACT_IMPL);
-			} else
-				oneOf(ctor).as(expr, J.CONTRACT_IMPL);
+				oneOf(ctor).getField(called); will(returnValue(expr));
+				oneOf(ctor).assign(with(any(IExpr.class)), with(any(IExpr.class))); will(returnValue(expr));
+				oneOf(ctor).as(expr, J.CONTRACT_IMPL); will(returnValue(expr));
+			} else {
+				oneOf(ctor).as(expr, J.CONTRACT_IMPL);  will(returnValue(expr));
+			}
 			oneOf(ctor).callVirtual(with("void"), with(aNonNull(IExpr.class)), with("registerContract"), with(aNonNull(IExpr[].class)));
 		}});
 	}

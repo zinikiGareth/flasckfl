@@ -11,7 +11,6 @@ import org.flasck.flas.testrunner.JVMRunner;
 import org.junit.Before;
 import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.Expr;
-import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
@@ -213,7 +212,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				MethodDefiner ctor = ann.done();
 				ctor.callSuper("void", sup, "<init>", despatcher.getVar(), display.getVar()).flush();
                 ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.SetState"), (Expr)ctor.as(ctor.makeNew("test.runner.Card$_C0", ctor.myThis()), J.CONTRACT_IMPL)).flush();
-                FieldExpr e = ctor.getField("e");
+                IExpr e = ctor.getField("e");
                 ctor.assign(e, ctor.makeNew("test.runner.Card$_C1", ctor.myThis())).flush();
                 ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst("test.runner.Echo"), (Expr)ctor.as(e, J.CONTRACT_IMPL)).flush();
                 ctor.callSuper("void", sup, "ready").flush();

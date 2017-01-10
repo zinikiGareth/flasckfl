@@ -61,8 +61,8 @@ public class DroidAreaGenerator implements AreaGenerator {
 		gen.returns("java.lang.Object");
 		NewMethodDefiner meth = gen.done();
 		Var obj = arg.getVar();
-		FieldExpr curr = meth.getField(varName);
-		FieldExpr wrapper = meth.getField("_wrapper");
+		IExpr curr = meth.getField(varName);
+		IExpr wrapper = meth.getField("_wrapper");
 		IExpr parent = meth.castTo(meth.getField("_parent"), J.LIST_AREA);
 		FieldExpr croset = new FieldObject(false, J.LIST_AREA, new JavaType(J.CROSET), "_current").useOn(meth, parent);
 //		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("In _assignToVar"))).flush();

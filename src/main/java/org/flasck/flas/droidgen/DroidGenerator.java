@@ -28,7 +28,6 @@ import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
-import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
@@ -135,7 +134,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			for (ContractGrouping x : grp.contracts) {
 				IExpr impl = ctor.makeNew(DroidUtils.javaNestedName(x.implName.jsName()), ctor.myThis());
 				if (x.referAsVar != null) {
-					FieldExpr fe = ctor.getField(x.referAsVar);
+					IExpr fe = ctor.getField(x.referAsVar);
 					ctor.assign(fe, impl).flush();
 					impl = fe;
 				}

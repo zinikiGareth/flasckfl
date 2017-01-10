@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.flasck.flas.rewrittenForm.FieldVisitor;
 import org.flasck.flas.rewrittenForm.RWStructField;
-import org.zinutils.bytecode.FieldExpr;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.NewMethodDefiner;
 
@@ -19,7 +19,7 @@ public class DroidStructFieldInitializer implements FieldVisitor {
 
 	@Override
 	public void visit(RWStructField sf) {
-		FieldExpr fe = fields.get(sf.name).asExpr(dfe);
+		IExpr fe = fields.get(sf.name).asExpr(dfe);
 		dfe.assign(fe, dfe.callVirtual(J.OBJECT, dfe.myThis(), "_fullOf", dfe.as(fe, J.OBJECT))).flush();
 	}
 }

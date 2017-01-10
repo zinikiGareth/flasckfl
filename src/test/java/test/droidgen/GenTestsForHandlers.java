@@ -114,7 +114,7 @@ public class GenTestsForHandlers {
 			if (inCard) {
 				oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("full"), with(any(IExpr[].class)));
 				oneOf(ctor).castTo(with(any(IExpr.class)), with("Card"));
-				oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
+				oneOf(ctor).assign(with(any(IExpr.class)), with(any(IExpr.class)));
 			}
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
@@ -143,7 +143,7 @@ public class GenTestsForHandlers {
 			oneOf(bccHandler).defineField(false, Access.PRIVATE, JavaType.object_, called);
 			oneOf(ctor).argument(J.OBJECT, called); will(new ReturnNewVar(ctor, J.OBJECT, called));
 			oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("head"), with(any(IExpr[].class)));
-			oneOf(ctor).assign(with(aNull(FieldExpr.class)), with(any(IExpr.class)));
+			oneOf(ctor).assign(with(any(IExpr.class)), with(any(IExpr.class)));
 			oneOf(eval).arrayElt(with(aNonNull(Expr.class)), with(aNonNull(IntConstExpr.class)));
 			oneOf(eval).intConst(1); will(returnValue(new IntConstExpr(eval, 1)));
 		}});

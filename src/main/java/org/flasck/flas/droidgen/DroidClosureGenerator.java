@@ -169,7 +169,7 @@ public class DroidClosureGenerator {
 		ExternalRef f2 = curriedFn.fn;
 		String clz = DroidUtils.getJavaClassForDefn(meth, f2, defn);
 		if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
-			Expr needsObject = null;
+			IExpr needsObject = null;
 			if (form.needsCardMember())
 				needsObject = meth.getField("_card");
 			else
