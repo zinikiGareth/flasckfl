@@ -212,6 +212,14 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			handleErrors(s, ex.errors);
 		}
 		
+		if (new File(droidTo, "qbout/classes/test/golden").isDirectory()) {
+			FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
+			for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.java")) {
+				FileUtils.copyFileToStream(f, fos);
+			}
+			fos.close();
+		}
+
 		// Now assert that we matched things ...
 		if (depend.isDirectory()) {
 			assertGolden(depend, dependTo);
@@ -227,18 +235,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		assertGolden(new File(s, "tc"), tc2);
 		assertGolden(new File(s, "flim"), flim);
 
-		if (new File(droidTo, "qbout/classes/test/golden").isDirectory()) {
-//			RunProcess proc = new RunProcess("javap");
-//			proc.arg("-p");
-//			proc.arg("-c");
-			FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
-			for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.java")) {
-				FileUtils.copyFileToStream(f, fos);
-			}
-			fos.close();
-			
-			assertGolden(new File(s, "droid"), droid);
-		}
+		assertGolden(new File(s, "droid"), droid);
 		
 		if (haveTests(dir) && (useJSRunner || useJVMRunner)) {
 			assertGolden(new File(s, "testReports"), testReportTo);
