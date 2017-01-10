@@ -349,13 +349,22 @@ public class MethodConvertor {
 			slotType = (TypeWithName) sf.type;
 		} else if (slot instanceof HandlerLambda) {
 			HandlerLambda hl = (HandlerLambda) slot;
-			if (hl.type == null || hl.type.name().equals("Any")) {
+			if (hl.type == null) {
+				errors.message(slot.location(), "cannot assign to untyped handler lambda: " + hl.var);
+				return null;
+			}
+			if (!(hl.type instanceof TypeWithName)) {
+				errors.message(slot.location(), "cannot assign to handler lambda '" + hl.var + "' of type " + hl.type);
+				return null;
+			}
+			TypeWithName hlType = (TypeWithName) hl.type;
+			if (hlType.name().equals("Any")) {
 				errors.message(slot.location(), "cannot assign to untyped handler lambda: " + hl.var);
 				return null;
 			}
 			intoObj = hl;
 			slotName = null;
-			slotType = hl.type;
+			slotType = hlType;
 		} else if (slot instanceof LocalVar) {
 			LocalVar lv = (LocalVar) slot;
 			if (lv.type == null) {
