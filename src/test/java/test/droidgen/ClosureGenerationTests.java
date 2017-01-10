@@ -218,7 +218,7 @@ public class ClosureGenerationTests {
 	// 3 function cases: closure w args/no args  & no closure w/no args
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testWeCanReturnAClosureForAFunctionCallWithArgsDirectlyFromAFunction() {
+	public void testWeCanReturnAClosureForAFunctionCallWithArgsInAClosure() {
 		IExpr result = context.mock(IExpr.class, "result");
 		context.checking(new Expectations() {{
 			oneOf(meth).classConst("test.golden.PACKAGEFUNCTIONS$callMe"); will(returnValue(expr));
@@ -234,6 +234,26 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 1, false));
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
+		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		assertEquals(result, out);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanReturnAClosureForAFunctionCallWithNoArgsInAClosure() {
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
+			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", expr); will(returnValue(expr));
+			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
+		HSIEBlock closure = form.createClosure(loc);
+		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
+		closure.push(loc, hdc1);
 		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 		assertEquals(result, out);
 	}
