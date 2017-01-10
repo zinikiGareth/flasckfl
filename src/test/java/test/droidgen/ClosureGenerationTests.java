@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
+import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IntConstExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
@@ -194,4 +195,20 @@ public class ClosureGenerationTests {
 		dcg.pushReturn(hdc, null);
 	}
 
+	// Function on a Card associate that returns a card member
+	@Test
+	public void testReturningACardMemberFromAMethodOnACardAssociate() {
+		context.checking(new Expectations() {{
+			oneOf(meth).getField("_card"); will(returnValue(new FieldExpr(meth, expr, "fred", "bar", "_card")));
+			oneOf(meth).getField(with(any(IExpr.class)), with("var")); will(returnValue(expr));
+			oneOf(meth).returnObject(expr); will(returnValue(expr));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.AREA, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
+		PackageVar hdc1 = new PackageVar(loc, cn, new CardMember(loc, cn, "var", new PrimitiveType(loc, new SolidName(null, "String"))));
+		PushExternal hdc = new PushExternal(loc, hdc1);
+		dcg.pushReturn(hdc, null);
+	}
 }
