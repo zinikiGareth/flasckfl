@@ -94,12 +94,6 @@ public class DroidClosureGenerator {
 				else
 					throw new UtilException("Can't handle card member with " + form.mytype);
 				return doEval(myOn, meth.getField(card, cm.var), closure);
-			} else if (defn instanceof RWHandlerImplements) {
-				RWHandlerImplements hi = (RWHandlerImplements) defn;
-				System.out.println("Creating handler " + fn + " in block " + closure);
-				if (hi.inCard)
-					return doEval(myOn, meth.classConst(clz), closure);
-				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof RWFunctionDefinition) {
 				RWFunctionDefinition rwfn = (RWFunctionDefinition) defn;
 				// a regular function
