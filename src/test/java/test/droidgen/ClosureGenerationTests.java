@@ -21,6 +21,7 @@ import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.PrimitiveType;
@@ -316,6 +317,49 @@ public class ClosureGenerationTests {
 		RWStructDefn sd = new RWStructDefn(loc, fn, false);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "String")), "head"));
 		PackageVar hdc1 = new PackageVar(loc, fn, sd);
+		closure.push(loc, hdc1);
+		closure.push(loc, new StringLiteral(loc, "hello"));
+		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		assertEquals(result, out);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanCreateAnObjectWithoutArgsDirectFromAFunction() {
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
+			oneOf(meth).callStatic(J.BUILTINPKG+".Croset", J.OBJECT, "eval", expr); will(returnValue(result));
+			oneOf(meth).returnObject(result); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		SolidName fn = new SolidName(null, "Croset");
+		PackageVar hdc1 = new PackageVar(loc, fn, new RWObjectDefn(loc, fn, false));
+		PushReturn pr = new PushExternal(loc, hdc1);
+		IExpr out = dcg.pushReturn(pr, null);
+		assertEquals(result, out);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanCreateAnObjectWithArgsUsingAClosure() {
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst(J.BUILTINPKG + ".Croset"); will(returnValue(expr));
+			oneOf(meth).stringConst("hello"); will(returnValue(expr));
+			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
+			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		SolidName fn = new SolidName(null, "Croset");
+		HSIEBlock closure = form.createClosure(loc);
+		RWObjectDefn od = new RWObjectDefn(loc, fn, false);
+		od.constructorArg(loc, new PrimitiveType(loc, new SolidName(null, "String")), "init");
+		PackageVar hdc1 = new PackageVar(loc, fn, od);
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
 		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);

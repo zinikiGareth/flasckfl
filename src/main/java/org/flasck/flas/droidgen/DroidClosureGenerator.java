@@ -102,8 +102,6 @@ public class DroidClosureGenerator {
 					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 				}
 			} else if (defn instanceof RWStructDefn) {
-//				throw new UtilException("You suck!");
-//				return doEval(ObjectNeeded.NONE, meth.aNull(), closure);
 				// creating a struct is just like calling a static function
 				RWStructDefn sd = (RWStructDefn) defn;
 				if (sd.fields.size() == 0)
@@ -111,10 +109,12 @@ public class DroidClosureGenerator {
 				else
 					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof RWObjectDefn) {
-//				throw new UtilException("You suck!");
-//				return doEval(ObjectNeeded.NONE, meth.aNull(), closure);
 				// creating an object is just like calling a static function
-				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+				RWObjectDefn od = (RWObjectDefn) defn;
+				if (od.ctorArgs.isEmpty())
+					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
+				else
+					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof HandlerLambda) {
 				// I think these are var cases really
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
