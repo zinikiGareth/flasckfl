@@ -18,16 +18,19 @@ import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.hamcrest.Matchers;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.jmock.Expectations;
@@ -49,7 +52,7 @@ public class ClosureGenerationTests {
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 	ByteCodeSink bcc = context.mock(ByteCodeSink.class, "bcc");
 	MethodDefiner meth = context.mock(MethodDefiner.class, "meth");
-	IExpr expr = context.mock(IExpr.class);
+	IExpr expr = context.mock(IExpr.class, "expr");
 
 	@Before
 	public void prepareTest() {
@@ -363,6 +366,51 @@ public class ClosureGenerationTests {
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
 		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		assertEquals(result, out);
+	}
+
+
+	// In the context of a handler, it is possible that one of the "lambda arguments" could be a function (or method)
+	// It would then be reasonable to call/invoke this in the process of handling a request
+	// Currently, the parser does not allow lambdas of "function" type to be passed in, but the same effect *can* happen by using a suitable scoped var (which is turned into a lambda during lifting)
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWeCanCallAFunctionWhichWasGivenToUsAsALambda() {
+		IExpr fn = context.mock(IExpr.class, "fn");
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			oneOf(meth).getField("length"); will(returnValue(fn));
+			oneOf(meth).stringConst("hello"); will(returnValue(expr));
+			exactly(1).of(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(expr))); will(returnValue(expr));
+			oneOf(meth).makeNew(with(J.FLCLOSURE), with(new IExpr[] { fn, expr })); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		HandlerName hn = new HandlerName(new PackageName("test.golden"), "MyHC");
+		HSIEBlock closure = form.createClosure(loc);
+		HandlerLambda hl = new HandlerLambda(loc, hn, FunctionType.function(loc, new PrimitiveType(loc, new SolidName(null, "String")), new PrimitiveType(loc, new SolidName(null, "Number"))), "length");
+		PackageVar hdc1 = new PackageVar(loc, hn, hl);
+		closure.push(loc, hdc1);
+		closure.push(loc, new StringLiteral(loc, "hello"));
+		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		assertEquals(result, out);
+	}
+
+	@Test
+	public void testWeCanReturnAValueWhichWasGivenToUsAsALambda() {
+		IExpr result = context.mock(IExpr.class, "result");
+		context.checking(new Expectations() {{
+			oneOf(meth).getField("str"); will(returnValue(expr));
+			oneOf(meth).returnObject(expr); will(returnValue(result));
+		}});
+		VarFactory vf = new VarFactory();
+		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		HandlerName hn = new HandlerName(new PackageName("test.golden"), "MyHC");
+		HandlerLambda hl = new HandlerLambda(loc, hn, new PrimitiveType(loc, new SolidName(null, "String")), "str");
+		PackageVar hdc1 = new PackageVar(loc, hn, hl);
+		IExpr out = dcg.pushReturn(new PushExternal(loc, hdc1), null);
 		assertEquals(result, out);
 	}
 }

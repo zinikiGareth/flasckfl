@@ -116,8 +116,9 @@ public class DroidClosureGenerator {
 				else
 					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof HandlerLambda) {
-				// I think these are var cases really
-				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+				HandlerLambda hl = (HandlerLambda) defn;
+				IExpr var = meth.getField(hl.var);
+				return doEval(ObjectNeeded.NONE, var, closure);
 			} else if (defn instanceof ScopedVar) {
 				// I think these are var cases really
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
