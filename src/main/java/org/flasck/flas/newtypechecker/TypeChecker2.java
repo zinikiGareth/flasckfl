@@ -517,8 +517,11 @@ public class TypeChecker2 {
 				logger.debug(c.var + " has a null first arg");
 				return;
 			}
-			if (!(ti instanceof TypeFunc))
-				throw new UtilException("I guess it's possible we could have a constant by itself or something: " + ti + " " + ti.getClass()); // TODO: is this an error?
+			if (!(ti instanceof TypeFunc)) {
+				// There is a caveat here, in which we could have ti be polymorphic (or "Any") 
+				errors.message(cmd.location, "can only call functions, not " + ti + " for " + cmd);
+				return;
+			}
 			TypeFunc called = (TypeFunc) ti;
 			for (int i=0;i<argtypes.size();i++) {
 				if (called.args.size() < i)
