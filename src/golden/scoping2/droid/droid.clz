@@ -99,6 +99,6 @@ class PACKAGEFUNCTIONS.java {
     }
   }
   static java.lang.Object requestObj() {
-    return org.flasck.jvm.builtin.Nil.class
+    return org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})
   }
 }

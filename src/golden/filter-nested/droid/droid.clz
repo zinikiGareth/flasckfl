@@ -26,7 +26,7 @@ class PACKAGEFUNCTIONS.java {
         }
       }
       if (_1 instanceof org.flasck.jvm.builtin.Nil) {
-        return org.flasck.jvm.builtin.Nil.class
+        return org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})
       }
       return new org.flasck.jvm.FLError("filter: case not handled")
     }

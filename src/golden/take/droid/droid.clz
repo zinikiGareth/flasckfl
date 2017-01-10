@@ -18,7 +18,7 @@ class PACKAGEFUNCTIONS.java {
           }
           if (_0 instanceof org.flasck.jvm.builtin.Number) {
             if (equals(_0,autobox[0])) {
-              return org.flasck.jvm.builtin.Nil.class
+              return org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})
             }
           }
           v4 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$-.class,new java.lang.Object[2] {
@@ -36,7 +36,7 @@ class PACKAGEFUNCTIONS.java {
         }
       }
       if (_1 instanceof org.flasck.jvm.builtin.Nil) {
-        return org.flasck.jvm.builtin.Nil.class
+        return org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})
       }
       return new org.flasck.jvm.FLError("take: case not handled")
     }
