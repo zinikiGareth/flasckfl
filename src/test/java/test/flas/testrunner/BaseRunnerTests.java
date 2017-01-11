@@ -159,6 +159,7 @@ public abstract class BaseRunnerTests {
 	@Test
 	public void testSendCanCauseAMessageToComeBack() throws Exception {
 		testScope.define("arg1", function("arg1", new StringLiteral(loc, HELLO_STRING)));
+		testScope.define("earg2", function("earg2", new StringLiteral(loc, HELLO_STRING)));
 		prepareRunner();
 		String cardVar = "q";
 		String contractName = "Echo";

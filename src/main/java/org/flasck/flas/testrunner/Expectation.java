@@ -25,6 +25,9 @@ public class Expectation {
 		if (args.size() != e.args.size())
 			return false;
 
+		// TODO: this is not right
+		// We need to test that evaluating "args_"a(i) is the same as "eargs_"ea(i)
+		// not that a(i) == ea(i), which is irrelevant
 		for (int i=0; i<args.size(); i++)
 			if (!args.get(i).equals(e.args.get(i)))
 				return false;
