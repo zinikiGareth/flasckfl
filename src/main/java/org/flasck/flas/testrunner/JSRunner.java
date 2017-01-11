@@ -35,10 +35,11 @@ import netscape.javascript.JSObject;
 public class JSRunner extends CommonTestRunner {
 	AtomicInteger pendingAsyncs = new AtomicInteger(0);
 
-	public class SetTimeout {
+	public class JSJavaBridge {
 		public void error(String s) {
 			errors.add(s);
 		}
+		
 		public void log(String s) {
 			logger.info(s);
 		}
@@ -79,7 +80,7 @@ public class JSRunner extends CommonTestRunner {
 		}
 	}
 	
-	private final SetTimeout st = new SetTimeout();
+	private final JSJavaBridge st = new JSJavaBridge();
 	private final BrowserEngine browser;
 	private Page page;
 	private Map<String, JSObject> cards = new TreeMap<String, JSObject>();
