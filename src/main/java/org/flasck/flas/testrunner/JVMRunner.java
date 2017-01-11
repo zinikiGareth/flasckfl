@@ -157,6 +157,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		}
 		card.send(ctrName, methodName, argVals);
 		controller.processPostboxes();
+		assertAllInvocationsCalled();
 	}
 
 	@Override
@@ -184,5 +185,6 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		Object actions = handler.handle(null);
 		this.controller.handleActionsFor(e.attr("onclick"), actions);
 		controller.processPostboxes();
+		assertAllInvocationsCalled();
 	}
 }

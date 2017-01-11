@@ -57,4 +57,10 @@ public abstract class CommonTestRunner implements TestRunner {
 	protected String fullName(String name) {
 		return prior.getScope().fullName(name);
 	}
+
+	protected void assertAllInvocationsCalled() {
+		for (Invocation ii : invocations)
+			System.out.println("Should have expected: " + ii);
+		invocations.clear();
+	}
 }

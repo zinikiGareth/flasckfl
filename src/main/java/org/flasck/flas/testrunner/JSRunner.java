@@ -220,9 +220,7 @@ public class JSRunner extends CommonTestRunner {
 		while (pendingAsyncs.get() != 0)
 			SyncUtils.waitFor(pendingAsyncs, 1000);
 		assertNoErrors();
-		for (Invocation ii : invocations)
-			System.out.println("Should have expected: " + ii);
-		invocations.clear();
+		assertAllInvocationsCalled();
 	}
 
 	@Override
