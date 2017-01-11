@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.zinutils.exceptions.NotImplementedException;
-
 public abstract class HTMLMatcher {
 	public static class Count extends HTMLMatcher {
 		private int matchCount;

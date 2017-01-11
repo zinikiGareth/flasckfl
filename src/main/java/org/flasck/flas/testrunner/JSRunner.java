@@ -259,6 +259,9 @@ public class JSRunner extends CommonTestRunner {
 		if (!e.hasAttribute("onclick"))
 			throw new UtilException("There is no 'onclick' attribute on " + e.getOuterHTML());
 		e.click();
+		while (pendingAsyncs.get() != 0)
+			if (!SyncUtils.waitFor(pendingAsyncs, 1000))
+				throw new UtilException("timed out waiting for pending async");
 		assertAllInvocationsCalled();
 	}
 }
