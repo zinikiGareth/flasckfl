@@ -31,15 +31,27 @@ public class UnitTestStepConvertor {
 			handleCreate(kw, line, nested);
 		else if (kw.text.equals("send"))
 			handleSend(kw, line, nested);
-		else if (kw.text.equals("matchElement"))
-			handleMatch(kw, WhatToMatch.ELEMENT, line, nested);
-		else if (kw.text.equals("matchContents"))
-			handleMatch(kw, WhatToMatch.CONTENTS, line, nested);
-		else if (kw.text.equals("matchCount"))
-			handleMatch(kw, WhatToMatch.COUNT, line, nested);
-		else if (kw.text.equals("matchClass"))
-			handleMatch(kw, WhatToMatch.CLASS, line, nested);
-		else
+		else if (kw.text.equals("matchElement")) {
+			String selectors = getMatchSelectors(kw, line);
+			String value = getMatchExpectation(kw, nested, false);
+			if (selectors != null && value != null)
+				builder.addMatch(kw.location, new HTMLMatcher.Element(value), selectors);
+		} else if (kw.text.equals("matchContents")) {
+			String selectors = getMatchSelectors(kw, line);
+			String value = getMatchExpectation(kw, nested, false);
+			if (selectors != null && value != null)
+				builder.addMatch(kw.location, new HTMLMatcher.Contents(value), selectors);
+		} else if (kw.text.equals("matchCount")) {
+			String selectors = getMatchSelectors(kw, line);
+			String value = getMatchExpectation(kw, nested, false);
+			if (selectors != null && value != null)
+				builder.addMatch(kw.location, new HTMLMatcher.Count(value), selectors);
+		} else if (kw.text.equals("matchClass")) {
+			String selectors = getMatchSelectors(kw, line);
+			String value = getMatchExpectation(kw, nested, true);
+			if (selectors != null)
+				builder.addMatch(kw.location, new HTMLMatcher.Class(value), selectors);
+		} else
 			builder.error(kw.location, "cannot handle input line: " + kw.text);
 	}
 
@@ -165,32 +177,34 @@ public class UnitTestStepConvertor {
 		return new Expectation(ctr.text, method.text, args);
 	}
 
-	private void handleMatch(KeywordToken kw, WhatToMatch what, Tokenizable line, List<Block> nested) {
+	private String getMatchSelectors(KeywordToken kw, Tokenizable line) {
 		line.skipWS();
 		if (!line.hasMore()) {
 			builder.error(line.realinfo(), "no pattern in match");
-			return;
+			return null;
 		}
-		String selectors = line.remainder().trim();
+		return line.remainder().trim();
+	}
+	
+	private String getMatchExpectation(KeywordToken kw, List<Block> nested, boolean allowEmpty) {
 		String expect = null;
 		for (Block b : nested) {
 			if (!b.isComment()) {
 				if (expect != null) {
 					builder.error(kw.location, "matcher may not have multiple nested blocks");
-					return;
+					return null;
 				}
 				expect = b.line.text().toString().trim();
 			}
 		}
-		if (expect == null) {
-			if (what == WhatToMatch.CLASS) {
-				// it's OK for this to be empty, pass the "" string
-				expect = "";
-			} else {
-				builder.error(kw.location, "match must have exactly one nested block");
-				return;
-			}
+		if (expect != null)
+			return expect;
+		else if (allowEmpty) {
+			// it's OK for this to be empty, pass the "" string
+			return "";
+		} else {
+			builder.error(kw.location, "match must have exactly one nested block");
+			return null;
 		}
-		builder.addMatch(kw.location, what, selectors, expect);
 	}
 }

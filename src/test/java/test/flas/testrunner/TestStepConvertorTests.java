@@ -11,9 +11,9 @@ import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.testrunner.Expectation;
+import org.flasck.flas.testrunner.HTMLMatcher;
 import org.flasck.flas.testrunner.TestScriptBuilder;
 import org.flasck.flas.testrunner.UnitTestStepConvertor;
-import org.flasck.flas.testrunner.WhatToMatch;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
@@ -87,7 +87,7 @@ public class TestStepConvertorTests {
 	public void testWeCanConvertMatchElement() {
 		String matchingText = "<div>hello</div>";
 		context.checking(new Expectations() {{
-			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.ELEMENT), with("div"), with(matchingText));
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(any(HTMLMatcher.Element.class)), with("div"));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
@@ -98,7 +98,7 @@ public class TestStepConvertorTests {
 	public void testWeCanConvertMatchContent() {
 		String matchingText = "hello";
 		context.checking(new Expectations() {{
-			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CONTENTS), with("div"), with(matchingText));
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(any(HTMLMatcher.Contents.class)), with("div"));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
@@ -108,7 +108,7 @@ public class TestStepConvertorTests {
 	@Test
 	public void testWeCanConvertMatchNoClasses() {
 		context.checking(new Expectations() {{
-			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(""));
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(any(HTMLMatcher.Class.class)), with("div"));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
@@ -119,7 +119,7 @@ public class TestStepConvertorTests {
 	public void testWeCanConvertMatchOneClass() {
 		String matchingText = "show";
 		context.checking(new Expectations() {{
-			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(matchingText));
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(any(HTMLMatcher.Class.class)), with("div"));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
@@ -130,7 +130,7 @@ public class TestStepConvertorTests {
 	public void testWeCanConvertMatchTwoClass() {
 		String matchingText = "show bright";
 		context.checking(new Expectations() {{
-			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(matchingText));
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(any(HTMLMatcher.Class.class)), with("div"));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
@@ -141,7 +141,7 @@ public class TestStepConvertorTests {
 	public void testWeCanConvertMatchCount() {
 		String matchingText = "0";
 		context.checking(new Expectations() {{
-			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.COUNT), with("div"), with(matchingText));
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(any(HTMLMatcher.Count.class)), with("div"));
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);

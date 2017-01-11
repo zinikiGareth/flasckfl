@@ -30,9 +30,9 @@ import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.testrunner.AssertFailed;
+import org.flasck.flas.testrunner.HTMLMatcher;
 import org.flasck.flas.testrunner.NotMatched;
 import org.flasck.flas.testrunner.TestRunner;
-import org.flasck.flas.testrunner.WhatToMatch;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -104,42 +104,42 @@ public abstract class BaseRunnerTests {
 	public void testRunnerDoesNotThrowIfTheContentsMatches() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(WhatToMatch.CONTENTS, "div>span", "hello, world");
+		runner.match(new HTMLMatcher.Contents("hello, world"), "div>span");
 	}
 
 	@Test
 	public void testRunnerDoesNotThrowIfTheElementMatches() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(WhatToMatch.ELEMENT, "div>span", "<span id=\"card_1_1\" class=\"\" onclick=\"card_1:1\">hello, world</span>");
+		runner.match(new HTMLMatcher.Element("<span id=\"card_1_1\" class=\"\" onclick=\"card_1:1\">hello, world</span>"), "div>span");
 	}
 
 	@Test(expected=NotMatched.class)
 	public void testRunnerThrowsIfTheRequestedElementIsNotThere() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(WhatToMatch.CONTENTS, "div#missing", "irrelevant");
+		runner.match(new HTMLMatcher.Contents("irrelevant"), "div#missing");
 	}
 
 	@Test(expected=NotMatched.class)
 	public void testRunnerThrowsIfTheElementCountExpectsZeroButItIsThere() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(WhatToMatch.COUNT, "div>span", "0");
+		runner.match(new HTMLMatcher.Count("0"), "div>span");
 	}
 
 	@Test(expected=NotMatched.class)
 	public void testRunnerThrowsIfThereAreNoClassesButSomeExpected() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(WhatToMatch.CLASS, "div>span", "bright");
+		runner.match(new HTMLMatcher.Class("bright"), "div>span");
 	}
 
 	@Test
 	public void testRunnerDoesNotThrowIfThereAreNoClassesAndNoneWereExpected() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(WhatToMatch.CLASS, "div>span", "");
+		runner.match(new HTMLMatcher.Class(""), "div>span");
 	}
 	
 	// We cannot "directly" test that "send" happens.  There are two visible effects:
@@ -154,7 +154,7 @@ public abstract class BaseRunnerTests {
 		String methodName = "setOn";
 		runner.createCardAs(cn, cardVar);
 		runner.send(cardVar, contractName, methodName, null);
-		runner.match(WhatToMatch.CLASS, "div>span", "show");
+		runner.match(new HTMLMatcher.Class("show"), "div>span");
 	}
 
 	@Test

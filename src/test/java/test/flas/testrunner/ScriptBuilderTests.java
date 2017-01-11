@@ -24,11 +24,11 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.testrunner.Expectation;
+import org.flasck.flas.testrunner.HTMLMatcher;
 import org.flasck.flas.testrunner.SingleTestCase;
 import org.flasck.flas.testrunner.TestCaseRunner;
 import org.flasck.flas.testrunner.TestRunner;
 import org.flasck.flas.testrunner.TestScript;
-import org.flasck.flas.testrunner.WhatToMatch;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.api.Action;
@@ -197,9 +197,9 @@ public class ScriptBuilderTests {
 		String selector = "div#x";
 		String contents = "<div id='x'>hello</div>";
 		context.checking(new Expectations() {{
-			oneOf(stepRunner).match(WhatToMatch.CONTENTS, selector, contents);
+			oneOf(stepRunner).match(with(any(HTMLMatcher.Contents.class)), with(selector));
 		}});
-		script.addMatch(posn, WhatToMatch.CONTENTS, selector, contents);
+		script.addMatch(posn, new HTMLMatcher.Contents(contents), selector);
 		script.addTestCase(TEST_CASE_NAME);
 		wrapUp();
 	}

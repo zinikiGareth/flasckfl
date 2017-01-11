@@ -161,8 +161,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	}
 
 	@Override
-	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
-		what.match(selector, contents, document.select(selector).stream().map(e -> new JVMWrapperElement(e)).collect(Collectors.toList()));
+	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
+		matcher.match(selector, document.select(selector).stream().map(e -> new JVMWrapperElement(e)).collect(Collectors.toList()));
 	}
 
 	@Override

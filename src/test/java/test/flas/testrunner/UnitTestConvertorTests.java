@@ -6,9 +6,9 @@ import static test.flas.testrunner.ExprMatcher.string;
 import static test.flas.testrunner.ExprMatcher.unresolved;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.testrunner.HTMLMatcher;
 import org.flasck.flas.testrunner.TestScriptBuilder;
 import org.flasck.flas.testrunner.UnitTestConvertor;
-import org.flasck.flas.testrunner.WhatToMatch;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
@@ -86,7 +86,7 @@ public class UnitTestConvertorTests {
 	public void testThatCommentsInMatchAreIgnored() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
 		context.checking(new Expectations() {{
-			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(WhatToMatch.CLASS), with("div"), with(""));
+			oneOf(script).addMatch(with(aNonNull(InputPosition.class)), with(any(HTMLMatcher.Class.class)), with("div"));
 			oneOf(script).addTestCase("comments are ignored");
 		}});
 		

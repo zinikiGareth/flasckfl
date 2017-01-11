@@ -110,8 +110,8 @@ public class TestScript implements TestScriptBuilder {
 	}
 
 	@Override
-	public void addMatch(InputPosition posn, WhatToMatch what, String selector, String contents) {
-		MatchStep ms = new MatchStep(posn, what, selector, contents);
+	public void addMatch(InputPosition posn, HTMLMatcher matcher, String selector) {
+		MatchStep ms = new MatchStep(posn, matcher, selector);
 		currentSteps.add(ms);
 	}
 

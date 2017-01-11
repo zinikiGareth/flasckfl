@@ -227,9 +227,9 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	@Override
-	public void match(WhatToMatch what, String selector, String contents) throws NotMatched {
+	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
 //		System.out.println(page.getDocument().getBody().getOuterHTML());
-		what.match(selector, contents, page.getDocument().queryAll(selector).stream().map(e -> new JSWrapperElement(e)).collect(Collectors.toList()));
+		matcher.match(selector, page.getDocument().queryAll(selector).stream().map(e -> new JSWrapperElement(e)).collect(Collectors.toList()));
 		assertNoErrors();
 	}
 
