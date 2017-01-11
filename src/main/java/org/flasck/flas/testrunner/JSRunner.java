@@ -219,7 +219,8 @@ public class JSRunner extends CommonTestRunner {
 			}
 		card.call("send", args.toArray());
 		while (pendingAsyncs.get() != 0)
-			SyncUtils.waitFor(pendingAsyncs, 1000);
+			if (!SyncUtils.waitFor(pendingAsyncs, 1000))
+				throw new UtilException("timed out waiting for pending async");
 		assertNoErrors();
 		assertAllInvocationsCalled();
 	}
