@@ -71,10 +71,14 @@ class ControlledCard$B1.java extends org.flasck.jvm.areas.TextArea {
     this._setText("hello")
     this._card._wrapper.onAssign(this._card, "sayHello", this, "_setVariableFormats")
     (void)this._setVariableFormats()
+    (void)this._add_handlers()
     return
   }
   java.lang.Object _setVariableFormats() {
     super._setCSSObj(this.formats_0())
+    return null
+  }
+  java.lang.Object _add_handlers() {
     return null
   }
   java.lang.Object formats_0() {
@@ -89,6 +93,9 @@ class ControlledCard$B1.java extends org.flasck.jvm.areas.TextArea {
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
     }
+  }
+  java.lang.Object handlers_1() {
+    return test.golden.ControlledCard$echoHello.class
   }
 }
 class ControlledCard$styleIf.java {
@@ -113,6 +120,23 @@ class ControlledCard.java extends org.flasck.jvm.cards.FlasckCard {
   void render(java.lang.String into) {
     (void)new test.golden.ControlledCard$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
+  }
+  java.lang.Object echoHello(java.lang.Object _0) {
+    {
+      v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          autobox["hello clicked"]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
+      v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+          autobox[this]
+          autobox["echoIt"]
+          autobox[v1]
+        })
+      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          autobox[v2]
+          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
+    }
   }
   java.lang.Object styleIf(java.lang.Object _0, java.lang.Object _1) {
     {

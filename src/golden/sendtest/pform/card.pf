@@ -19,28 +19,40 @@ package test.golden
           styleIf @{14:11|styleIf}
           '' show @{14:19|'show'}
           sayHello @{14:26|sayHello}
-    implements SetState @{16:0|implements} @{16:11|SetState}
-      method test.golden.ControlledCard._C0.setOn @{17:0|setOn}
-        assign sayHello <- @{18:0|sayHello} @{18:9|<-}
-          true @{18:12|true}
-      method test.golden.ControlledCard._C0.setOff @{19:0|setOff}
-        assign sayHello <- @{20:0|sayHello} @{20:9|<-}
-          false @{20:12|false}
-    implements Echo e @{22:0|implements} @{22:11|Echo} @{22:16|e}
-      method test.golden.ControlledCard._C1.saySomething @{23:0|saySomething}
-        [var] msg @{23:13|msg}
-        invoke @{24:0|<-}
-          <apply> @{24:3|e.echoIt msg}
-            <apply> @{24:3|e.echoIt}
-              . @{24:4|.}
-              e @{24:3|e}
-              echoIt @{24:5|echoIt}
-            msg @{24:12|msg}
-    test.golden.ControlledCard.styleIf @{26:0|styleIf}
-      [var] style @{26:8|style}
-      [var] b @{26:14|b}
+        => @{15:6|=>}
+          click @{15:0|click}
+          echoHello @{15:9|echoHello}
+    implements SetState @{17:0|implements} @{17:11|SetState}
+      method test.golden.ControlledCard._C0.setOn @{18:0|setOn}
+        assign sayHello <- @{19:0|sayHello} @{19:9|<-}
+          true @{19:12|true}
+      method test.golden.ControlledCard._C0.setOff @{20:0|setOff}
+        assign sayHello <- @{21:0|sayHello} @{21:9|<-}
+          false @{21:12|false}
+    implements Echo e @{23:0|implements} @{23:11|Echo} @{23:16|e}
+      method test.golden.ControlledCard._C1.saySomething @{24:0|saySomething}
+        [var] msg @{24:13|msg}
+        invoke @{25:0|<-}
+          <apply> @{25:3|e.echoIt msg}
+            <apply> @{25:3|e.echoIt}
+              . @{25:4|.}
+              e @{25:3|e}
+              echoIt @{25:5|echoIt}
+            msg @{25:12|msg}
+    event test.golden.ControlledCard.echoHello_1 @{27:0|event} @{27:6|echoHello}
+      [var] ev @{27:16|ev}
+      invoke @{28:0|<-}
+        <apply> @{28:3|e.echoIt "hello clicked"}
+          <apply> @{28:3|e.echoIt}
+            . @{28:4|.}
+            e @{28:3|e}
+            echoIt @{28:5|echoIt}
+          '' hello clicked @{28:12|"hello clicked"}
+    test.golden.ControlledCard.styleIf @{30:0|styleIf}
+      [var] style @{30:8|style}
+      [var] b @{30:14|b}
      =
       if b
-        style @{27:9|style}
+        style @{31:9|style}
       else
-        ''  @{28:7|''}
+        ''  @{32:7|''}

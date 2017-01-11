@@ -18,7 +18,15 @@ CLOSURE v0                                                   #card.fl:     14.11
   PUSH "show"                                                #card.fl:     14.19
   PUSH CardMember.CardMember[test.golden.ControlledCard.sayH #card.fl:     14.26
 -------
-HSIE for test.golden.ControlledCard._C0.setOff/0             #card.fl:     19.0
+HSIE for test.golden.ControlledCard.B1.handlers_1/0          #card.fl:     15.9
+#Args: 0 #bound: 0
+    externals: [test.golden.ControlledCard.echoHello]
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN CardFunction.test.golden.ControlledCard.echoHello     #card.fl:     15.9
+-------
+HSIE for test.golden.ControlledCard._C0.setOff/0             #card.fl:     20.0
 #Args: 0 #bound: 2
     externals: [Assign, Cons, Nil]
     scoped = []
@@ -26,16 +34,16 @@ HSIE for test.golden.ControlledCard._C0.setOff/0             #card.fl:     19.0
     all vars = [v0, v1]
 RETURN v1:clos1 [v0:clos0]                                   #builtin:      0.0
 CLOSURE v1                                                   #builtin:      0.0
-  PUSH PackageVar.Cons                                       #card.fl:     19.0
-  PUSH v0:clos0                                              #card.fl:     20.0
-  PUSH PackageVar.Nil                                        #card.fl:     19.0
-CLOSURE v0                                                   #card.fl:     20.0
-  PUSH PackageVar.Assign                                     #card.fl:     20.0
-  PUSH this._card                                            #card.fl:     20.0
-  PUSH "sayHello"                                            #card.fl:     20.0
+  PUSH PackageVar.Cons                                       #card.fl:     20.0
+  PUSH v0:clos0                                              #card.fl:     21.0
+  PUSH PackageVar.Nil                                        #card.fl:     20.0
+CLOSURE v0                                                   #card.fl:     21.0
+  PUSH PackageVar.Assign                                     #card.fl:     21.0
+  PUSH this._card                                            #card.fl:     21.0
+  PUSH "sayHello"                                            #card.fl:     21.0
   PUSH false                                                 #builtin:      0.0
 -------
-HSIE for test.golden.ControlledCard._C0.setOn/0              #card.fl:     17.0
+HSIE for test.golden.ControlledCard._C0.setOn/0              #card.fl:     18.0
 #Args: 0 #bound: 2
     externals: [Assign, Cons, Nil]
     scoped = []
@@ -43,45 +51,66 @@ HSIE for test.golden.ControlledCard._C0.setOn/0              #card.fl:     17.0
     all vars = [v0, v1]
 RETURN v1:clos1 [v0:clos0]                                   #builtin:      0.0
 CLOSURE v1                                                   #builtin:      0.0
-  PUSH PackageVar.Cons                                       #card.fl:     17.0
-  PUSH v0:clos0                                              #card.fl:     18.0
-  PUSH PackageVar.Nil                                        #card.fl:     17.0
-CLOSURE v0                                                   #card.fl:     18.0
-  PUSH PackageVar.Assign                                     #card.fl:     18.0
-  PUSH this._card                                            #card.fl:     18.0
-  PUSH "sayHello"                                            #card.fl:     18.0
+  PUSH PackageVar.Cons                                       #card.fl:     18.0
+  PUSH v0:clos0                                              #card.fl:     19.0
+  PUSH PackageVar.Nil                                        #card.fl:     18.0
+CLOSURE v0                                                   #card.fl:     19.0
+  PUSH PackageVar.Assign                                     #card.fl:     19.0
+  PUSH this._card                                            #card.fl:     19.0
+  PUSH "sayHello"                                            #card.fl:     19.0
   PUSH true                                                  #builtin:      0.0
 -------
-HSIE for test.golden.ControlledCard._C1.saySomething/1       #card.fl:     23.0
+HSIE for test.golden.ControlledCard._C1.saySomething/1       #card.fl:     24.0
 #Args: 1 #bound: 3
     externals: [Cons, Nil, Send, String, test.golden.ControlledCard.e]
     scoped = []
     scopedDefns = []
     all vars = [v0, v1, v2, v3]
-HEAD v0                                                      #card.fl:     23.13
-SWITCH v0 String                                             #card.fl:     23.13
-  RETURN v3:clos3 [v1:clos1, v2:clos2]                       #card.fl:     24.3
-ERROR                                                        #card.fl:     23.0
-CLOSURE v1                                                   #card.fl:     23.13
-  PUSH PackageVar.Cons                                       #card.fl:     24.3
-  PUSH v0:test.golden.ControlledCard._C1.saySomething.msg    #card.fl:     23.13
-  PUSH PackageVar.Nil                                        #card.fl:     24.3
-CLOSURE v2 S                                                 #card.fl:     24.3
-  PUSH PackageVar.Send                                       #card.fl:     24.3
-  PUSH CardMember.CardMember[test.golden.ControlledCard.e]   #card.fl:     24.3
-  PUSH "echoIt"                                              #card.fl:     24.5
-  PUSH v1:clos1                                              #card.fl:     23.13
-CLOSURE v3                                                   #card.fl:     24.3
-  PUSH PackageVar.Cons                                       #card.fl:     23.0
-  PUSH v2:clos2                                              #card.fl:     24.3
-  PUSH PackageVar.Nil                                        #card.fl:     23.0
+HEAD v0                                                      #card.fl:     24.13
+SWITCH v0 String                                             #card.fl:     24.13
+  RETURN v3:clos3 [v1:clos1, v2:clos2]                       #card.fl:     25.3
+ERROR                                                        #card.fl:     24.0
+CLOSURE v1                                                   #card.fl:     24.13
+  PUSH PackageVar.Cons                                       #card.fl:     25.3
+  PUSH v0:test.golden.ControlledCard._C1.saySomething.msg    #card.fl:     24.13
+  PUSH PackageVar.Nil                                        #card.fl:     25.3
+CLOSURE v2 S                                                 #card.fl:     25.3
+  PUSH PackageVar.Send                                       #card.fl:     25.3
+  PUSH CardMember.CardMember[test.golden.ControlledCard.e]   #card.fl:     25.3
+  PUSH "echoIt"                                              #card.fl:     25.5
+  PUSH v1:clos1                                              #card.fl:     24.13
+CLOSURE v3                                                   #card.fl:     25.3
+  PUSH PackageVar.Cons                                       #card.fl:     24.0
+  PUSH v2:clos2                                              #card.fl:     25.3
+  PUSH PackageVar.Nil                                        #card.fl:     24.0
 -------
-HSIE for test.golden.ControlledCard.styleIf/2                #card.fl:     26.0
+HSIE for test.golden.ControlledCard.echoHello/1              #card.fl:     27.6
+#Args: 1 #bound: 3
+    externals: [Cons, Nil, Send, test.golden.ControlledCard.e]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0, v1, v2, v3]
+RETURN v3:clos3 [v1:clos1, v2:clos2]                         #card.fl:     28.3
+CLOSURE v1                                                   #card.fl:     28.12
+  PUSH PackageVar.Cons                                       #card.fl:     28.3
+  PUSH "hello clicked"                                       #card.fl:     28.12
+  PUSH PackageVar.Nil                                        #card.fl:     28.3
+CLOSURE v2 S                                                 #card.fl:     28.3
+  PUSH PackageVar.Send                                       #card.fl:     28.3
+  PUSH CardMember.CardMember[test.golden.ControlledCard.e]   #card.fl:     28.3
+  PUSH "echoIt"                                              #card.fl:     28.5
+  PUSH v1:clos1                                              #card.fl:     28.12
+CLOSURE v3                                                   #card.fl:     28.3
+  PUSH PackageVar.Cons                                       #card.fl:     27.6
+  PUSH v2:clos2                                              #card.fl:     28.3
+  PUSH PackageVar.Nil                                        #card.fl:     27.6
+-------
+HSIE for test.golden.ControlledCard.styleIf/2                #card.fl:     30.0
 #Args: 2 #bound: 0
     externals: []
     scoped = []
     scopedDefns = []
     all vars = [v0, v1]
-IF v1:test.golden.ControlledCard.styleIf_0.b                 #card.fl:     26.14
-  RETURN v0:test.golden.ControlledCard.styleIf_0.style []    #card.fl:     26.8
-RETURN ""                                                    #card.fl:     28.7
+IF v1:test.golden.ControlledCard.styleIf_0.b                 #card.fl:     30.14
+  RETURN v0:test.golden.ControlledCard.styleIf_0.style []    #card.fl:     30.8
+RETURN ""                                                    #card.fl:     32.7

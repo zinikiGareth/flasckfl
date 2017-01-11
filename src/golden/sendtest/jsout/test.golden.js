@@ -63,6 +63,7 @@ test.golden._ControlledCard.B1 = function(parent) {
   this._setText('hello');
   this._onAssign(this._card, 'sayHello', test.golden._ControlledCard.B1.prototype._setVariableFormats);
   test.golden._ControlledCard.B1.prototype._setVariableFormats.call(this);
+  test.golden._ControlledCard.B1.prototype._add_handlers.call(this);
 }
 
 test.golden._ControlledCard.B1.prototype = new TextArea();
@@ -73,11 +74,22 @@ test.golden._ControlledCard.B1.prototype._setVariableFormats = function() {
   this._mydiv.setAttribute('class', join(FLEval.full(this.formats_0()), ' '));
 }
 
+test.golden._ControlledCard.B1.prototype._add_handlers = function() {
+  this._mydiv['onclick'] = function(event) {
+    this._area._wrapper.dispatchEvent(this._area.handlers_1(), event);
+  }
+}
+
 test.golden._ControlledCard.B1.prototype.formats_0 = function() {
   "use strict";
   var v2 = FLEval.oclosure(this._card, FLEval.curry, test.golden.ControlledCard.prototype.styleIf, 2);
   var v0 = FLEval.closure(v2, 'show', this._card.sayHello);
   return FLEval.closure(Cons, v0, Nil);
+}
+
+test.golden._ControlledCard.B1.prototype.handlers_1 = function() {
+  "use strict";
+  return test.golden.ControlledCard.prototype.echoHello;
 }
 
 test.golden.ControlledCard.__C0.prototype.setOff = function() {
@@ -104,6 +116,13 @@ test.golden.ControlledCard.__C1.prototype.saySomething = function(v0) {
     return FLEval.closure(Cons, v2, Nil);
   }
   return FLEval.error("test.golden.ControlledCard._C1.saySomething: case not handled");
+}
+
+test.golden.ControlledCard.prototype.echoHello = function(v0) {
+  "use strict";
+  var v1 = FLEval.closure(Cons, 'hello clicked', Nil);
+  var v2 = FLEval.closure(Send, this.e, 'echoIt', v1);
+  return FLEval.closure(Cons, v2, Nil);
 }
 
 test.golden.ControlledCard.prototype.styleIf = function(v0, v1) {

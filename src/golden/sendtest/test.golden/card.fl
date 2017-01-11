@@ -12,6 +12,7 @@
 			
 		template
 			'hello' : (styleIf 'show' sayHello)
+				click => echoHello
 		
 		implements SetState
 			setOn
@@ -23,6 +24,9 @@
 			saySomething msg
 				<- e.echoIt msg
 
+		event echoHello ev
+			<- e.echoIt "hello clicked"
+			
 		styleIf style b
 			if (b) = style
 			else = ''
