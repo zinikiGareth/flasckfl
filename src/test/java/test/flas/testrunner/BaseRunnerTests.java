@@ -111,7 +111,7 @@ public abstract class BaseRunnerTests {
 	public void testRunnerDoesNotThrowIfTheElementMatches() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(WhatToMatch.ELEMENT, "div>span", "<span id=\"uid_1\" class=\"\">hello, world</span>");
+		runner.match(WhatToMatch.ELEMENT, "div>span", "<span id=\"card_1_1\" class=\"\" onclick=\"card_1:1\">hello, world</span>");
 	}
 
 	@Test(expected=NotMatched.class)

@@ -289,6 +289,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "_add_handlers");
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
+				meth.callSuper(JavaType.void_.getActual(), J.AREA, "addEventHandler", meth.stringConst("click"), meth.classConst("test.runner.Card$handlers_1")).flush();
 				meth.returnObject(meth.aNull()).flush();
 			}
 			{
@@ -308,11 +309,26 @@ public class JVMRunnerTests extends BaseRunnerTests {
 						meth.classConst("org.flasck.jvm.builtin.Cons"),
 						meth.arrayOf(J.OBJECT, Arrays.asList(clos0, meth.callStatic(J.NIL, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())))))).flush();
 			}
+		}
+		{
+			ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card$handlers_1");
+			bcc.superclass("java.lang.Object");
+			bcc.implementsInterface(J.HANDLER);
+			bcc.defineField(true, Access.PROTECTED, "test.runner.Card", "_card");
 			{
-				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "handlers_1");
+				GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+				PendingVar card = ann.argument(J.OBJECT, "card");
+				MethodDefiner ctor = ann.done();
+				ctor.callSuper("void", "java.lang.Object", "<init>").flush();
+				ctor.assign(ctor.getField("_card"), ctor.castTo(card.getVar(), "test.runner.Card")).flush();
+				ctor.returnVoid().flush();
+			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "handle");
+				PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
-				meth.returnObject(meth.classConst("test.runner.Card$echoHello")).flush();
+				meth.returnObject(meth.callVirtual(J.OBJECT, meth.getField("_card"), "echoHello", evP.getVar())).flush();
 			}
 		}
 		{

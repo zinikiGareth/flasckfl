@@ -20,6 +20,7 @@ import org.flasck.jvm.builtin.Send;
 import org.flasck.jvm.cards.CardDespatcher;
 import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.display.DisplayEngine;
+import org.flasck.jvm.display.EventHandler;
 import org.flasck.jvm.post.DeliveryAddress;
 import org.zinutils.bytecode.JavaType;
 
@@ -56,6 +57,7 @@ public class J {
 	public static final String DELIVERY_ADDRESS = DeliveryAddress.class.getName();
 	public static final String DISPLAY_ENGINE = DisplayEngine.class.getName();
 	public static final String WRAPPER = Wrapper.class.getName();
+	public static final String HANDLER = EventHandler.class.getName();
 
 	// JVM object things we inherit from or something
 	public static final String FLASCK_CARD = FlasckCard.class.getName();

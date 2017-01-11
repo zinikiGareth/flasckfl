@@ -23,6 +23,7 @@ import org.flasck.jdk.JDKFlasckController;
 import org.flasck.jdk.ServiceProvider;
 import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.container.FlasckService;
+import org.flasck.jvm.display.EventHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -176,10 +177,12 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		else if (elts.size() > 1)
 			throw new UtilException("Multiple elements matched " + selector);
 		Element e = elts.first();
-		System.out.println(e.outerHtml());
 		if (!e.hasAttr("onclick"))
 			throw new UtilException("There is no 'onclick' attribute on " + e.outerHtml());
-		System.out.println(e.attr("onclick"));
-		throw new UtilException("Not implemented: click(" + selector + ")");
+		EventHandler handler = this.controller.getAction(e.attr("onclick"), "click");
+		// TODO: we really should create an event object here ...
+		Object actions = handler.handle(null);
+		this.controller.handleActionsFor(e.attr("onclick"), actions);
+		controller.processPostboxes();
 	}
 }
