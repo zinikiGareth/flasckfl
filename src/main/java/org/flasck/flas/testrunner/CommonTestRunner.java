@@ -62,5 +62,10 @@ public abstract class CommonTestRunner implements TestRunner {
 		for (Invocation ii : invocations)
 			System.out.println("Should have expected: " + ii);
 		invocations.clear();
+		
+		for (Expectation ii : expectations)
+			System.out.println("Expected, not called: " + ii);
+		if (!expectations.isEmpty())
+			throw new UtilException("Not all expectations happened");
 	}
 }
