@@ -45,6 +45,7 @@ public abstract class BaseRunnerTests {
 	static final int X_VALUE = 420;
 	static final int X_OTHER_VALUE = 520;
 	private static final String HELLO_STRING = "hello, world";
+	private static final String HELLO_CLICKED = "hello clicked";
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ErrorResult errors = new ErrorResult();
@@ -171,6 +172,19 @@ public abstract class BaseRunnerTests {
 		runner.createCardAs(cn, cardVar);
 		runner.expect(cardVar, pkg+"."+contractName, "echoIt", eargs);
 		runner.send(cardVar, contractName, methodName, args);
+	}
+
+	@Test
+	public void testWeCanClickOnAnAreaAndCauseAMessageToComeBack() throws Exception {
+		testScope.define("earg1", function("earg1", new StringLiteral(loc, HELLO_CLICKED)));
+		prepareRunner();
+		String cardVar = "q";
+		String contractName = "Echo";
+		List<Integer> eargs = new ArrayList<Integer>();
+		eargs.add(1);
+		runner.createCardAs(cn, cardVar);
+		runner.expect(cardVar, pkg+"."+contractName, "echoIt", eargs);
+		runner.click("div>span");
 	}
 
 	protected abstract void prepareRunner() throws IOException, ErrorResultException;

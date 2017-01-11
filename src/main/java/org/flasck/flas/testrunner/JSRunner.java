@@ -246,4 +246,9 @@ public class JSRunner extends CommonTestRunner {
 		if (err != null)
 			throw new UtilException("Error processing javascript: " + err);
 	}
+
+	@Override
+	public void click(String selector) {
+		throw new UtilException("Not implemented: click(" + selector + ")");
+	}
 }

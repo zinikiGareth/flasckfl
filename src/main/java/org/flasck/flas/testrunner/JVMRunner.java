@@ -26,6 +26,7 @@ import org.flasck.jvm.container.FlasckService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
@@ -165,5 +166,20 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	@Override
 	public FlasckService getService(String name) {
 		return new MockService(name, errors, invocations, expectations);
+	}
+
+	@Override
+	public void click(String selector) {
+		Elements elts = document.select(selector);
+		if (elts.size() == 0)
+			throw new UtilException("No elements matched " + selector);
+		else if (elts.size() > 1)
+			throw new UtilException("Multiple elements matched " + selector);
+		Element e = elts.first();
+		System.out.println(e.outerHtml());
+		if (!e.hasAttr("onclick"))
+			throw new UtilException("There is no 'onclick' attribute on " + e.outerHtml());
+		System.out.println(e.attr("onclick"));
+		throw new UtilException("Not implemented: click(" + selector + ")");
 	}
 }

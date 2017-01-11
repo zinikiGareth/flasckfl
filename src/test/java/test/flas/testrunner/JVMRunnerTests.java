@@ -227,6 +227,28 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				meth.returnVoid().flush();
 			}
 			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(cardBcc, false, "echoHello");
+				ann.argument(J.OBJECT, "ev");
+				ann.returns(JavaType.object_);
+				NewMethodDefiner meth = ann.done();
+				Var clos1 = meth.avar("org.flasck.jvm.FLClosure", "clos1");
+				Var clos2 = meth.avar("org.flasck.jvm.FLClosure", "clos2");
+				IExpr nil = meth.callStatic(J.NIL, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>()));
+				meth.assign(clos1, 
+						(Expr)meth.makeNew(J.FLCLOSURE, meth.classConst(J.CONS), meth.arrayOf(J.OBJECT, Arrays.asList( 
+							meth.stringConst("hello clicked"),
+							nil)))).flush();
+				meth.assign(clos2, 
+						(Expr)meth.makeNew(J.FLCLOSURE, meth.classConst(J.SEND), meth.arrayOf(J.OBJECT, Arrays.asList( 
+							meth.getField(meth.myThis(), "e"),
+							meth.stringConst("echoIt"),
+							clos1)))).flush();
+				meth.returnObject(meth.makeNew("org.flasck.jvm.FLClosure", 
+						meth.classConst("org.flasck.jvm.builtin.Cons"),
+						meth.arrayOf("java.lang.Object", Arrays.asList(clos2, nil)))).flush();
+				meth.returnVoid().flush();
+			}
+			{
 				GenericAnnotator ann = GenericAnnotator.newMethod(cardBcc, false, "styleIf");
 				PendingVar str = ann.argument("java.lang.Object", "str");
 				PendingVar bool = ann.argument("java.lang.Object", "bool");
@@ -253,6 +275,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ctor.callVirtual("void", ctor.myThis(), "_setText", ctor.stringConst("hello, world")).flush();
 				ctor.callVirtual("void", ctor.getField("_wrapper"), "onAssign", ctor.as(ctor.getField("_card"), "java.lang.Object"), ctor.stringConst("sayHello"), ctor.as(ctor.myThis(), J.IAREA), ctor.stringConst("_setVariableFormats")).flush();
 				ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), "_setVariableFormats")).flush();
+				ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), "_add_handlers")).flush();
 				ctor.returnVoid().flush();
 			}
 			{
@@ -260,6 +283,12 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
 				meth.callSuper("void", J.TEXT_AREA, "_setCSSObj", meth.callVirtual("java.lang.Object", meth.myThis(), "formats_0")).flush();
+				meth.returnObject(meth.aNull()).flush();
+			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "_add_handlers");
+				ann.returns(JavaType.object_);
+				NewMethodDefiner meth = ann.done();
 				meth.returnObject(meth.aNull()).flush();
 			}
 			{
@@ -278,6 +307,12 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				meth.returnObject(meth.makeNew(J.FLCLOSURE, 
 						meth.classConst("org.flasck.jvm.builtin.Cons"),
 						meth.arrayOf(J.OBJECT, Arrays.asList(clos0, meth.callStatic(J.NIL, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())))))).flush();
+			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "handlers_1");
+				ann.returns(JavaType.object_);
+				NewMethodDefiner meth = ann.done();
+				meth.returnObject(meth.classConst("test.runner.Card$echoHello")).flush();
 			}
 		}
 		{
