@@ -111,7 +111,8 @@ public abstract class BaseRunnerTests {
 	public void testRunnerDoesNotThrowIfTheElementMatches() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(new HTMLMatcher.Element("<span id=\"card_1_1\" class=\"\" onclick=\"card_1:1\">hello, world</span>"), "div>span");
+		runner.match(new HTMLMatcher.Element("/<span id=\"card_1_1\" class=\"\" onclick=\".*\">hello, world</span>/"), "div>span");
+//		runner.match(new HTMLMatcher.Element("/.*/"), "div>span");
 	}
 
 	@Test(expected=NotMatched.class)
