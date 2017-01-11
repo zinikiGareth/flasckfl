@@ -3,7 +3,6 @@ package org.flasck.flas.droidgen;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.droidgen.DroidClosureGenerator.ObjectNeeded;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
