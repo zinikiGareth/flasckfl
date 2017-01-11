@@ -1416,6 +1416,8 @@ Card = function(explicit, loadId) { return new _Card(explicit, loadId); }
 
 Flasck = {};
 
+Flasck.nextCard = 0;
+
 Flasck.provideService = function(postbox, services, svcName, svc) {
 	var addr = postbox.newAddress();
 	postbox.register(addr, svc);
@@ -1493,7 +1495,7 @@ Flasck.createCard = function(postbox, inside, cardInfo, services) {
 			throw new Error("Must specify a valid card class object in cardInfo.explicit");
 		
 		// Create a wrapper around the card which is its proto-environment to link back up to the real environment
-		var wrapper = new FlasckWrapper(postbox, myAddr, cardClz, inside);
+		var wrapper = new FlasckWrapper(postbox, myAddr, cardClz, inside, "card_" + (++Flasck.nextCard));
 	
 		// Now create the card and tell the wrapper about it
 		var myCard = cardClz({ wrapper: wrapper });
@@ -1571,11 +1573,12 @@ FlasckHandle.prototype.dispose = function() {
 		this.send('org.ziniki.Init', 'dispose');
 	this.postbox.remove(this.myAddr);
 }
-FlasckWrapper = function(postbox, initSvc, cardClz, inside) {
+FlasckWrapper = function(postbox, initSvc, cardClz, inside, cardId) {
 	this._ctor = 'FlasckWrapper';
 	this.postbox = postbox;
 	this.initSvc = initSvc;
 	this.cardClz = cardClz;
+	this.cardId = cardId;
 	this.ctrmap = {};
 	this.nodeCache = {};
 	this.cardCache = {};
@@ -2173,7 +2176,7 @@ var Area = function(parent, tag, ns) {
 				this._mydiv = this._doc.createElementNS(ns, tag);
 			else
 				this._mydiv = this._doc.createElement(tag);
-			this._mydiv.setAttribute('id', 'uid_'+(uniqid++));
+			this._mydiv.setAttribute('id', this._wrapper.cardId+'_'+(uniqid++));
 			this._mydiv._area = this;
 			this._indiv.appendChild(this._mydiv);
 		}
