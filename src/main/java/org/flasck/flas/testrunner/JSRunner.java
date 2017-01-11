@@ -28,6 +28,7 @@ import org.zinutils.sync.SyncUtils;
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
 import com.ui4j.api.browser.Page;
+import com.ui4j.api.dom.Element;
 
 import javafx.application.Platform;
 import netscape.javascript.JSObject;
@@ -249,6 +250,15 @@ public class JSRunner extends CommonTestRunner {
 
 	@Override
 	public void click(String selector) {
-		throw new UtilException("Not implemented: click(" + selector + ")");
+		List<Element> elts = page.getDocument().queryAll(selector);
+		if (elts.isEmpty())
+			throw new UtilException("No elements matched " + selector);
+		else if (elts.size() > 1)
+			throw new UtilException("Multiple elements matched " + selector);
+		Element e = elts.get(0);
+		if (!e.hasAttribute("onclick"))
+			throw new UtilException("There is no 'onclick' attribute on " + e.getOuterHTML());
+		e.click();
+		assertAllInvocationsCalled();
 	}
 }
