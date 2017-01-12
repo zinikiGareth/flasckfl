@@ -340,14 +340,12 @@ public class TemplateTraversor {
 				for (AreaGenerator area : areas)
 					ehgs.add(area.needAddHandlers());
 				for (RWEventHandler eh : tfe.handlers) {
-					String tfn = eh.handlerFn.name;
-
 					// add a hack to allow us to NOT overwrite events that we want to intercept first
 					boolean distinguish = false;
 					if (eh.action.equals("drop"))
 						distinguish = true;
 					for (EventHandlerGenerator ehg : ehgs)
-						ehg.handle(distinguish, eh.action, tfn);
+						ehg.handle(distinguish, eh.action, eh.handlerFn);
 					for (AreaGenerator area : areas)
 						area.addAssign(FunctionName.areaMethod(eh.location(), areaName, "_add_handlers"), null);
 				}

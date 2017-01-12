@@ -92,6 +92,17 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return inContext.jsUName() + ".prototype." + name;
 	}
 
+	public String javaNameAsNestedClass() {
+		String prefix;
+		if (inContext == null)
+			prefix = "PACKAGEFUNCTIONS";
+		else if (inContext.containingCard() != null)
+			prefix = inContext.containingCard().uniqueName();
+		else
+			prefix = inContext.uniqueName();
+		return prefix +"$"+ name;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof FunctionName))

@@ -79,6 +79,7 @@ class ControlledCard$B1.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
   java.lang.Object _add_handlers() {
+    super.addEventHandler(false, "click", test.golden.ControlledCard$handlers_1.class)
     return null
   }
   java.lang.Object formats_0() {
