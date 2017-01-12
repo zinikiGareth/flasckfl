@@ -17,10 +17,8 @@ class Events$B2.java extends org.flasck.jvm.areas.TextArea {
     return
   }
   java.lang.Object _add_handlers() {
+    super.addEventHandler(false, "click", test.golden.Events$handlers_0.class)
     return null
-  }
-  java.lang.Object handlers_0() {
-    return test.golden.Events$okThen.class
   }
 }
 class Events$B3.java extends org.flasck.jvm.areas.TextArea {
@@ -33,12 +31,56 @@ class Events$B3.java extends org.flasck.jvm.areas.TextArea {
     return
   }
   java.lang.Object _add_handlers() {
+    super.addEventHandler(false, "click", test.golden.Events$handlers_1.class)
     return null
   }
-  java.lang.Object handlers_1() {
-    return new org.flasck.jvm.FLCurry(this._card,test.golden.Events$setTo.class,2,new java.lang.Object[1] {
+}
+class Events$handlers_0.java implements org.flasck.jvm.display.EventHandler {
+  void <init>(java.lang.Object card) {
+    super.<init>()
+    this._card = ((test.golden.Events)card)
+    return
+  }
+  java.lang.Object handle(java.lang.Object ev) {
+    return new org.flasck.jvm.FLClosure(this._card,this.getHandler(),ev)
+  }
+  java.lang.Class getHandler() {
+    return test.golden.Events$okThen.class
+  }
+}
+class Events$handlers_1.java implements org.flasck.jvm.display.EventHandler {
+  void <init>(java.lang.Object card) {
+    super.<init>()
+    this._card = ((test.golden.Events)card)
+    return
+  }
+  java.lang.Object handle(java.lang.Object ev) {
+    return new org.flasck.jvm.FLClosure(this._card,this.getHandler(),ev)
+  }
+  java.lang.Class getHandler() {
+    return new org.flasck.jvm.FLCurry(this,test.golden.Events$setTo.class,2,new java.lang.Object[1] {
         autobox[java.lang.Integer.valueOf(13)]
       })
+  }
+}
+class Events$okThen.java {
+  void <init>(test.golden.Events card) {
+    super.<init>()
+    this._card = card
+    return
+  }
+  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Events)self).okThen(args[0])
+  }
+}
+class Events$setTo.java {
+  void <init>(test.golden.Events card) {
+    super.<init>()
+    this._card = card
+    return
+  }
+  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Events)self).setTo(args[0], args[1])
   }
 }
 class Events.java extends org.flasck.jvm.cards.FlasckCard {

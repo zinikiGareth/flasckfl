@@ -58,14 +58,6 @@ HSIE for test.golden.Complex.B6.lvs_5/0                      #complexcard. 46.2
     all vars = []
 RETURN CardMember.CardMember[test.golden.Complex.list]       #complexcard. 46.2
 -------
-HSIE for test.golden.Complex.B8.handlers_6/0                 #complexcard. 49.9
-#Args: 0 #bound: 0
-    externals: [test.golden.Complex.sayHello]
-    scoped = []
-    scopedDefns = []
-    all vars = []
-RETURN CardFunction.test.golden.Complex.sayHello             #complexcard. 49.9
--------
 HSIE for test.golden.Complex.B9.ors_7/0                      #complexcard. 51.0
 #Args: 0 #bound: 1
     externals: [==, test.golden.Complex.hello]
@@ -162,6 +154,14 @@ CLOSURE v4                                                   #complexcard. 71.3
   PUSH PackageVar.Cons                                       #complexcard. 70.0
   PUSH v3:clos3                                              #complexcard. 71.3
   PUSH PackageVar.Nil                                        #complexcard. 70.0
+-------
+HSIE for test.golden.Complex.handlers_6/0                    #complexcard. 49.9
+#Args: 0 #bound: 0
+    externals: [test.golden.Complex.sayHello]
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN CardFunction.test.golden.Complex.sayHello             #complexcard. 49.9
 -------
 HSIE for test.golden.Complex.inits_format/0                  #complexcard. 35.17
 #Args: 0 #bound: 0

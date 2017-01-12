@@ -1,11 +1,3 @@
-HSIE for test.golden.TestCard.B3.handlers_0/0                #d3.fl:       11.9
-#Args: 0 #bound: 0
-    externals: [test.golden.TestCard.rejig]
-    scoped = []
-    scopedDefns = []
-    all vars = []
-RETURN CardFunction.test.golden.TestCard.rejig               #d3.fl:       11.9
--------
 HSIE for test.golden.TestCard.B6.teas_1/0                    #d3.fl:       13.12
 #Args: 0 #bound: 0
     externals: []
@@ -450,6 +442,14 @@ CLOSURE v2                                                   #d3.fl:       35.9
   PUSH PackageVar.*                                          #d3.fl:       35.11
   PUSH 10                                                    #d3.fl:       35.9
   PUSH v1:clos1                                              #d3.fl:       35.12
+-------
+HSIE for test.golden.TestCard.handlers_0/0                   #d3.fl:       11.9
+#Args: 0 #bound: 0
+    externals: [test.golden.TestCard.rejig]
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN CardFunction.test.golden.TestCard.rejig               #d3.fl:       11.9
 -------
 HSIE for test.golden.TestCard.inits_data/0                   #d3.fl:        4.23
 #Args: 0 #bound: 4

@@ -1,7 +1,3 @@
-function test.golden.TestCard.B3.handlers_0 test.golden.TestCard 0
-  case test.golden.TestCard.B3.handlers_0_0
-  =
-    CardFunction.test.golden.TestCard.rejig
 function test.golden.TestCard.B6.teas_1 test.golden.TestCard 0
   case test.golden.TestCard.B6.teas_1_0
   =
@@ -253,6 +249,10 @@ function test.golden.TestCard._gen_9 test.golden.TestCard 1
         PackageVar.FLEval.field
         ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
         "data"
+function test.golden.TestCard.handlers_0 test.golden.TestCard 0
+  case test.golden.TestCard.handlers_0_0
+  =
+    CardFunction.test.golden.TestCard.rejig
 function test.golden.TestCard.inits_data 0
   case test.golden.TestCard.inits_data_0
   =

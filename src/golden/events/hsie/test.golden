@@ -1,4 +1,4 @@
-HSIE for test.golden.Events.B2.handlers_0/0                  #events.fl:    5.9
+HSIE for test.golden.Events.handlers_0/0                     #events.fl:    5.9
 #Args: 0 #bound: 0
     externals: [test.golden.Events.okThen]
     scoped = []
@@ -6,7 +6,7 @@ HSIE for test.golden.Events.B2.handlers_0/0                  #events.fl:    5.9
     all vars = []
 RETURN CardFunction.test.golden.Events.okThen                #events.fl:    5.9
 -------
-HSIE for test.golden.Events.B3.handlers_1/0                  #events.fl:    7.9
+HSIE for test.golden.Events.handlers_1/0                     #events.fl:    7.9
 #Args: 0 #bound: 1
     externals: [test.golden.Events.setTo]
     scoped = []

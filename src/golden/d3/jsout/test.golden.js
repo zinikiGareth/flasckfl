@@ -123,11 +123,6 @@ test.golden._TestCard.B7.prototype = new D3Area();
 
 test.golden._TestCard.B7.prototype.constructor = test.golden._TestCard.B7;
 
-test.golden._TestCard.B3.prototype.handlers_0 = function() {
-  "use strict";
-  return test.golden.TestCard.prototype.rejig;
-}
-
 test.golden._TestCard.B6.prototype.teas_1 = function() {
   "use strict";
   return '400';
@@ -374,6 +369,11 @@ test.golden.TestCard.prototype._gen_9 = function(v0) {
     return FLEval.closure(FLEval.mul, 10, v1);
   }
   return FLEval.error("test.golden.TestCard._gen_9: case not handled");
+}
+
+test.golden.TestCard.handlers_0 = function() {
+  "use strict";
+  return test.golden.TestCard.prototype.rejig;
 }
 
 test.golden.TestCard.inits_data = function() {

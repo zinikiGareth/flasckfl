@@ -1,3 +1,13 @@
+class Card$doit.java {
+  void <init>(test.golden.Card card) {
+    super.<init>()
+    this._card = card
+    return
+  }
+  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Card)self).doit()
+  }
+}
 class Card.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

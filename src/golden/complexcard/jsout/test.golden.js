@@ -416,11 +416,6 @@ test.golden._Complex.B6.prototype.lvs_5 = function() {
   return this._card.list;
 }
 
-test.golden._Complex.B8.prototype.handlers_6 = function() {
-  "use strict";
-  return test.golden.Complex.prototype.sayHello;
-}
-
 test.golden._Complex.B9.prototype.ors_7 = function() {
   "use strict";
   return FLEval.closure(FLEval.compeq, this._card.hello, 'hello');
@@ -475,6 +470,11 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
     }
   }
   return FLEval.error("test.golden.Complex._S0.get: case not handled");
+}
+
+test.golden.Complex.handlers_6 = function() {
+  "use strict";
+  return test.golden.Complex.prototype.sayHello;
 }
 
 test.golden.Complex.inits_format = function() {

@@ -19,5 +19,5 @@ test.golden.TestCard._gen_8 :: D3Element[A]->String
 test.golden.TestCard._gen_9 :: D3Element[A]->Number
 test.golden.TestCard.inits_data :: Cons[Number]
 test.golden.TestCard.rejig :: A->Cons[Assign]
-test.golden.TestCard.B3.handlers_0 :: A->Cons[Assign]
+test.golden.TestCard.handlers_0 :: A->Cons[Assign]
 test.golden.TestCard._d3init_chart :: Assoc[Cons[Number]]

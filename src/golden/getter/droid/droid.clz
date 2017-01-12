@@ -1,3 +1,13 @@
+class Getter$choose.java {
+  void <init>(test.golden.Getter card) {
+    super.<init>()
+    this._card = card
+    return
+  }
+  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Getter)self).choose(args[0])
+  }
+}
 class Getter.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

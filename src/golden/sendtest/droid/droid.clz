@@ -113,9 +113,9 @@ class ControlledCard$handlers_1.java implements org.flasck.jvm.display.EventHand
     return
   }
   java.lang.Object handle(java.lang.Object ev) {
-    return new org.flasck.jvm.FLClosure(this.getHandler(),ev)
+    return new org.flasck.jvm.FLClosure(this._card,this.getHandler(),ev)
   }
-  java.lang.Object getHandler(java.lang.Object ev) {
+  java.lang.Class getHandler() {
     return test.golden.ControlledCard$echoHello.class
   }
 }

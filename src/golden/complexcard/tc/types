@@ -14,4 +14,4 @@ test.golden.Complex.inits_hello :: String
 test.golden.Complex.sayHello :: test.golden.ClickIt->Cons[Assign]
 test.golden.Complex.styleIf :: String->A->String
 test.golden.WithInit.inits_x :: String
-test.golden.Complex.B8.handlers_6 :: test.golden.ClickIt->Cons[Assign]
+test.golden.Complex.handlers_6 :: test.golden.ClickIt->Cons[Assign]
