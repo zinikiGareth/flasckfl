@@ -82,7 +82,7 @@ public class AreaGenerationTests {
 			oneOf(bcc).createMethod(false, J.OBJECT, "_add_handlers"); when(ahGen.is("none")); then (ahGen.is("actions")); will(returnValue(ah));
 			oneOf(ah).boolConst(false);	will(returnValue(bf));
 			oneOf(ah).stringConst("click");	will(returnValue(sc));
-			oneOf(ah).classConst("doEcho");	will(returnValue(cc));
+			oneOf(ah).classConst("test.it.MyCard$doEcho"); will(returnValue(cc));
 			oneOf(ah).callSuper(JavaType.void_.getActual(), J.AREA, "addEventHandler", bf, sc, cc); when(ahGen.is("actions")); will(returnValue(expr));
 			oneOf(ah).aNull(); will(returnValue(expr));
 			oneOf(ah).returnObject(expr); when(ahGen.is("actions")); then (ahGen.is("done")); will(returnValue(expr));
