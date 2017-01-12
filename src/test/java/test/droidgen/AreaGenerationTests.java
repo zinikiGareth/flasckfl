@@ -16,6 +16,7 @@ import org.flasck.flas.rewrittenForm.RWContentString;
 import org.flasck.flas.rewrittenForm.RWEventHandler;
 import org.flasck.flas.template.TemplateTraversor;
 import org.jmock.Expectations;
+import org.jmock.States;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
@@ -77,13 +78,14 @@ public class AreaGenerationTests {
 		StringConstExpr sc = new StringConstExpr(ah, "click");
 		ClassConstExpr cc = new ClassConstExpr(ah, "doEcho");
 		context.checking(new Expectations() {{
-			oneOf(bcc).createMethod(false, J.OBJECT, "_add_handlers"); will(returnValue(ah));
-			oneOf(ah).aNull(); will(returnValue(expr));
-			oneOf(ah).returnObject(expr); will(returnValue(expr));
+			final States ahGen = context.states("ahGen").startsAs("none");
+			oneOf(bcc).createMethod(false, J.OBJECT, "_add_handlers"); when(ahGen.is("none")); then (ahGen.is("actions")); will(returnValue(ah));
 			oneOf(ah).boolConst(false);	will(returnValue(bf));
 			oneOf(ah).stringConst("click");	will(returnValue(sc));
 			oneOf(ah).classConst("doEcho");	will(returnValue(cc));
-			oneOf(ah).callSuper(JavaType.void_.getActual(), J.AREA, "addEventHandler", bf, sc, cc); will(returnValue(expr));
+			oneOf(ah).callSuper(JavaType.void_.getActual(), J.AREA, "addEventHandler", bf, sc, cc); when(ahGen.is("actions")); will(returnValue(expr));
+			oneOf(ah).aNull(); will(returnValue(expr));
+			oneOf(ah).returnObject(expr); when(ahGen.is("actions")); then (ahGen.is("done")); will(returnValue(expr));
 			oneOf(ctor).myThis(); will(new ReturnNewVar(ctor, "B1", "this"));
 			oneOf(ctor).callVirtual(with(J.OBJECT), with(any(AVar.class)), with("_add_handlers"), with(new IExpr[0])); will(returnValue(expr));
 			oneOf(ctor).voidExpr(expr); will(returnValue(expr));

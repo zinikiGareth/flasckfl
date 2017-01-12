@@ -17,4 +17,9 @@ public class JSEventHandlerGenerator implements EventHandlerGenerator {
 		cev.add(JSForm.flex("this._area._wrapper.dispatchEvent(this._area." + callFn + "(), event)"));
 		ahf.add(cev);
 	}
+
+	@Override
+	public void done() {
+		
+	}
 }

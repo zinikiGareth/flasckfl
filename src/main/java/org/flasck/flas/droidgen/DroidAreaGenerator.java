@@ -152,7 +152,6 @@ public class DroidAreaGenerator implements AreaGenerator {
 		MethodDefiner ahMeth = ah.done();
 		currentMethod = ahMeth;
 //		ahMeth.voidExpr(ahMeth.callStatic("android.util.Log", "int", "e", ahMeth.stringConst("FlasckLib"), ahMeth.stringConst("Need to add the handlers"))).flush();
-		ahMeth.returnObject(ahMeth.aNull()).flush();
 		return new DroidEventHandlerGenerator(ahMeth);
 	}
 

@@ -351,6 +351,8 @@ public class TemplateTraversor {
 					for (AreaGenerator area : areas)
 						area.addAssign(FunctionName.areaMethod(eh.location(), areaName, "_add_handlers"), null);
 				}
+				for (EventHandlerGenerator ehg : ehgs)
+					ehg.done();
 			}
 		}
 	}

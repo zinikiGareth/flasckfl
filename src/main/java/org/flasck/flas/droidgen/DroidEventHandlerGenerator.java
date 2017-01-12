@@ -16,4 +16,8 @@ public class DroidEventHandlerGenerator implements EventHandlerGenerator {
 		ahMeth.callSuper(JavaType.void_.getActual(), J.AREA, "addEventHandler", ahMeth.boolConst(giveDistinguishedName), ahMeth.stringConst(action), ahMeth.classConst(callFn)).flush();
 	}
 
+	@Override
+	public void done() {
+		ahMeth.returnObject(ahMeth.aNull()).flush();
+	}
 }
