@@ -153,15 +153,11 @@ public class DroidHSIEFormGenerator {
 			PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
 			ann.returns(JavaType.object_);
 			NewMethodDefiner meth = ann.done();
-			List<PendingVar> pendingVars = new ArrayList<PendingVar>();
-			VarHolder vh = new VarHolder(form, pendingVars);
-			IExpr blk = null;
-			meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.callVirtual(J.CLASS, meth.myThis(), "getHandler"), evP.getVar())).flush();
+			meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.getField("_card"), meth.callVirtual(J.CLASS, meth.myThis(), "getHandler"), evP.getVar())).flush();
 		}
 		{
 			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "getHandler");
-			PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
-			ann.returns(JavaType.object_);
+			ann.returns(J.CLASS);
 			NewMethodDefiner meth = ann.done();
 			List<PendingVar> pendingVars = new ArrayList<PendingVar>();
 			VarHolder vh = new VarHolder(form, pendingVars);

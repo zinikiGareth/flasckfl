@@ -328,7 +328,13 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
-				meth.returnObject(meth.callVirtual(J.OBJECT, meth.getField("_card"), "echoHello", evP.getVar())).flush();
+				meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), meth.callVirtual(J.CLASS, meth.myThis(), "getHandler"), meth.arrayOf(J.OBJECT, Arrays.asList(evP.getVar())))).flush();
+			}
+			{
+				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "getHandler");
+				ann.returns(J.CLASS);
+				NewMethodDefiner meth = ann.done();
+				meth.returnObject(meth.classConst("test.runner.Card$echoHello")).flush();
 			}
 		}
 		{
@@ -353,6 +359,29 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				Var args = argsP.getVar();
 				meth.returnObject(meth.callVirtual(J.OBJECT, meth.castTo(me, "test.runner.Card"), "styleIf", meth.arrayElt(args, meth.intConst(0)), meth.arrayElt(args, meth.intConst(1)))).flush();
 			}
+		}
+	}
+	{
+		ByteCodeCreator bcc = new ByteCodeCreator(bce, "test.runner.Card$echoHello");
+		bcc.superclass("java.lang.Object");
+		bcc.defineField(true, Access.PROTECTED, "test.runner.Card", "_card");
+		{
+			GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar card = ann.argument("test.runner.Card", "card");
+			MethodDefiner ctor = ann.done();
+			ctor.callSuper("void", "java.lang.Object", "<init>").flush();
+			ctor.assign(ctor.getField("_card"), card.getVar()).flush();
+			ctor.returnVoid().flush();
+		}
+		{
+			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, true, "eval");
+			PendingVar meP = ann.argument(new JavaType(J.OBJECT), "me");
+			PendingVar argsP = ann.argument(new JavaType("["+J.OBJECT), "args");
+			ann.returns(JavaType.object_);
+			NewMethodDefiner meth = ann.done();
+			Var me = meP.getVar();
+			Var args = argsP.getVar();
+			meth.returnObject(meth.callVirtual(J.OBJECT, meth.castTo(me, "test.runner.Card"), "echoHello", meth.arrayElt(args, meth.intConst(0)))).flush();
 		}
 	}
 }
