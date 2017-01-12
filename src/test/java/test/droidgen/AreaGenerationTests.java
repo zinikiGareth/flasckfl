@@ -55,6 +55,23 @@ public class AreaGenerationTests {
 	}
 
 	@Test
+	public void testAddHandlersDoesNotGetCreatedOrCalledWithNoEvents() {
+		context.checking(new Expectations() {{
+			oneOf(ctor).returnVoid(); will(returnValue(expr));
+		}});
+		DroidAreaGenerator gen = new DroidAreaGenerator(bcc, ctor, card, parent);
+		Rewriter rewriter = new Rewriter(null, null, null);
+		TemplateTraversor tt = new TemplateTraversor(rewriter, null);
+		CardName cn = new CardName(new PackageName("test.it"), "MyCard");
+		AreaName areaName = new AreaName(cn, "B1");
+		List<Object> formats = new ArrayList<>();
+		FunctionName dynamicFn = null;
+		RWContentString cs = new RWContentString(loc, "hello", areaName, formats, dynamicFn);
+		tt.handleFormatsAndEvents(null, Arrays.asList(gen), areaName, false, cs);
+		gen.done();
+	}
+
+	@Test
 	public void testAnEventHandlerGetsAdded() {
 		BoolConstExpr bf = new BoolConstExpr(ah, false);
 		StringConstExpr sc = new StringConstExpr(ah, "click");

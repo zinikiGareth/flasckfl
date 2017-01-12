@@ -339,7 +339,6 @@ public class TemplateTraversor {
 				List<EventHandlerGenerator> ehgs = new ArrayList<>();
 				for (AreaGenerator area : areas)
 					ehgs.add(area.needAddHandlers());
-				boolean isFirst = true;
 				for (RWEventHandler eh : tfe.handlers) {
 					String tfn = eh.handlerFn.name;
 
@@ -351,7 +350,6 @@ public class TemplateTraversor {
 						ehg.handle(distinguish, eh.action, tfn);
 					for (AreaGenerator area : areas)
 						area.addAssign(FunctionName.areaMethod(eh.location(), areaName, "_add_handlers"), null);
-					isFirst = false;
 				}
 			}
 		}
