@@ -295,7 +295,7 @@ public class TemplateTraversor {
 		return areas;
 	}
 
-	protected void handleFormatsAndEvents(GeneratorContext cx, List<AreaGenerator> areas, AreaName areaName, boolean isEditable, RWTemplateFormat tl) {
+	public void handleFormatsAndEvents(GeneratorContext cx, List<AreaGenerator> areas, AreaName areaName, boolean isEditable, RWTemplateFormat tl) {
 		StringBuilder simple = new StringBuilder();
 		if (isEditable)
 			simple.append(" flasck-editable");
@@ -349,7 +349,8 @@ public class TemplateTraversor {
 						distinguish = true;
 					for (EventHandlerGenerator ehg : ehgs)
 						ehg.handle(distinguish, eh.action, tfn);
-					callOnAssign(areas, eh.expr, FunctionName.areaMethod(eh.location(), areaName, "_add_handlers"), isFirst, null);
+					for (AreaGenerator area : areas)
+						area.addAssign(FunctionName.areaMethod(eh.location(), areaName, "_add_handlers"), null);
 					isFirst = false;
 				}
 			}
@@ -357,7 +358,9 @@ public class TemplateTraversor {
 	}
 	
 	protected void callOnAssign(List<AreaGenerator> areas, Object valExpr, FunctionName call, boolean addAssign, String passVar) {
-		if (valExpr instanceof CardMember) {
+		if (valExpr == null)
+			throw new UtilException("value cannot be null");
+		else if (valExpr instanceof CardMember) {
 			for (AreaGenerator area : areas)
 				area.onAssign((CardMember)valExpr, call);
 		} else if (valExpr instanceof TemplateListVar) {

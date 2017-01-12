@@ -289,7 +289,7 @@ public class JVMRunnerTests extends BaseRunnerTests {
 				GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "_add_handlers");
 				ann.returns(JavaType.object_);
 				NewMethodDefiner meth = ann.done();
-				meth.callSuper(JavaType.void_.getActual(), J.AREA, "addEventHandler", meth.stringConst("click"), meth.classConst("test.runner.Card$handlers_1")).flush();
+				meth.callSuper(JavaType.void_.getActual(), J.AREA, "addEventHandler", meth.boolConst(false), meth.stringConst("click"), meth.classConst("test.runner.Card$handlers_1")).flush();
 				meth.returnObject(meth.aNull()).flush();
 			}
 			{
