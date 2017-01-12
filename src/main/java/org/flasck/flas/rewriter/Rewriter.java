@@ -370,6 +370,8 @@ public class Rewriter implements CodeGenRegistry {
 				return FunctionName.areaMethod(loc, areaName, type +"_"+(fnIdx++));
 			else if (kind == CodeType.CARD) 
 				return FunctionName.functionInCardContext(loc, cardName, type+"_"+(fnIdx++));
+			else if (kind == CodeType.EVENT) 
+				return FunctionName.eventTrampoline(loc, cardName, type+"_"+(fnIdx++));
 			else
 				throw new NotImplementedException("nextFunction of type " + kind);
 		}
@@ -1118,7 +1120,7 @@ public class Rewriter implements CodeGenRegistry {
 		ret.handlers.clear();
 		for (EventHandler h : handlers) {
 			InputPosition loc = ((Locatable)h.expr).location();
-			FunctionName fnName = cx.nextFunction(loc, ret.areaName(), "handlers", CodeType.AREA);
+			FunctionName fnName = cx.nextFunction(loc, ret.areaName(), "handlers", CodeType.EVENT);
 			Object rwexpr = rewriteExpr(cx, h.expr);
 			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, rwexpr);

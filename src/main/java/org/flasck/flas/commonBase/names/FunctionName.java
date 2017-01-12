@@ -39,6 +39,10 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.CARD, card, name);
 	}
 
+	public static FunctionName eventTrampoline(InputPosition location, CardName card, String name) {
+		return new FunctionName(location, CodeType.EVENT, card, name);
+	}
+
 	public static FunctionName eventMethod(InputPosition location, CardName cardName, String name) {
 		return new FunctionName(location, CodeType.EVENTHANDLER, cardName, name);
 	}

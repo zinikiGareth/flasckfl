@@ -18,8 +18,6 @@ Node test.golden.ControlledCard.B1.formats_0 depends on:
   Cons
   Nil
   test.golden.ControlledCard.styleIf
-Node test.golden.ControlledCard.B1.handlers_1 depends on:
-  test.golden.ControlledCard.echoHello
 Node test.golden.ControlledCard._C0.setOff depends on:
   Assign
   Cons
@@ -41,6 +39,8 @@ Node test.golden.ControlledCard.echoHello depends on:
   test.golden.ControlledCard.echoHello.ev
 Node test.golden.ControlledCard.echoHello.ev depends on:
   test.golden.ControlledCard.echoHello
+Node test.golden.ControlledCard.handlers_1 depends on:
+  test.golden.ControlledCard.echoHello
 Node test.golden.ControlledCard.sayHello depends on:
 Node test.golden.ControlledCard.styleIf depends on:
   test.golden.ControlledCard.styleIf_0.b
@@ -60,7 +60,7 @@ test.golden.ControlledCard.echoHello
 -----
 test.golden.ControlledCard.styleIf
 -----
-test.golden.ControlledCard.B1.handlers_1
+test.golden.ControlledCard.handlers_1
 -----
 test.golden.ControlledCard.B1.formats_0
 -----

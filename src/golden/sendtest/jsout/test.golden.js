@@ -87,11 +87,6 @@ test.golden._ControlledCard.B1.prototype.formats_0 = function() {
   return FLEval.closure(Cons, v0, Nil);
 }
 
-test.golden._ControlledCard.B1.prototype.handlers_1 = function() {
-  "use strict";
-  return test.golden.ControlledCard.prototype.echoHello;
-}
-
 test.golden.ControlledCard.__C0.prototype.setOff = function() {
   "use strict";
   var v0 = FLEval.closure(Assign, this._card, 'sayHello', false);
@@ -123,6 +118,11 @@ test.golden.ControlledCard.prototype.echoHello = function(v0) {
   var v1 = FLEval.closure(Cons, 'hello clicked', Nil);
   var v2 = FLEval.closure(Send, this.e, 'echoIt', v1);
   return FLEval.closure(Cons, v2, Nil);
+}
+
+test.golden.ControlledCard.handlers_1 = function() {
+  "use strict";
+  return test.golden.ControlledCard.prototype.echoHello;
 }
 
 test.golden.ControlledCard.prototype.styleIf = function(v0, v1) {

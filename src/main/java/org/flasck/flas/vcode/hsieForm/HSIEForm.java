@@ -46,6 +46,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		SERVICE,	// method on a service impl
 		HANDLER,	// method on a handler impl
 		EVENTHANDLER, // an event handler on a card
+		EVENT,		// a "class" connecting an element to an event handler
 		STANDALONE,	// how does this differ from FUNCTION?
 		AREA;		// a method on an area
 

@@ -13,8 +13,10 @@ import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.exceptions.UtilException;
 
 public class DroidHSIEFormGenerator {
@@ -49,11 +51,8 @@ public class DroidHSIEFormGenerator {
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.CARD || form.mytype == CodeType.EVENTHANDLER) {
 			inClz = fnName.substring(0, idx);
-			if (form.mytype == CodeType.CARD) {
-				needTrampolineClass = true;
-				wantThis = true;
-			} else
-				needTrampolineClass = false;  // or maybe true; I don't think we've worked with EVENTHANDLERs enough to know; I just know CARD functions need a trampoline
+			needTrampolineClass = true;
+			wantThis = true;
 		} else if (form.mytype == CodeType.FUNCTION || form.mytype == CodeType.STANDALONE) {
 			String pkg = fnName.substring(0, idx);
 			inClz = pkg +".PACKAGEFUNCTIONS";
@@ -63,6 +62,12 @@ public class DroidHSIEFormGenerator {
 				bcc.superclass("java.lang.Object");
 			}
 			needTrampolineClass = true;
+		} else if (form.mytype == CodeType.EVENT) {
+			// There may be duplication between what I need here and what I already have,
+			// but everything is in such a mess at the moment I can't deal ...
+			// Refactor later
+			generateEventConnector(form);
+			return;
 		} else
 			throw new UtilException("Can't handle " + fnName + " of code type " + form.mytype);
 		
@@ -91,7 +96,6 @@ public class DroidHSIEFormGenerator {
 		IExpr blk = new DroidHSIGenerator(new DroidClosureGenerator(form, meth, vh), form, meth, vh).generateHSI(form, null);
 		if (blk != null)
 			blk.flush();
-//		meth.returnObject(meth.myThis()).flush();
 		
 		// for package-level methods (i.e. regular floating functions in a functional language), generate a nested class
 		if (needTrampolineClass) {
@@ -128,11 +132,40 @@ public class DroidHSIEFormGenerator {
 		}
 	}
 
-//	protected Var generateFunctionFromForm(NewMethodDefiner meth) {
-//		Map<org.flasck.flas.vcode.hsieForm.Var, Var> vars = new HashMap<org.flasck.flas.vcode.hsieForm.Var, Var>();
-//		Map<String, Var> svars = new HashMap<String, Var>();
-//		Var myvar = meth.avar("java.lang.Object", "tmp");
-//		new DroidHSIGenerator(form).generateBlock(meth, svars, vars, form, myvar).flush();
-//		return myvar;
-//	}
+	private void generateEventConnector(HSIEForm form) {
+		String clzName = form.funcName.javaNameAsNestedClass();
+		ByteCodeSink bcc = bce.newClass(clzName);
+		bcc.generateAssociatedSourceFile();
+		bcc.superclass(J.OBJECT);
+		bcc.implementsInterface(J.HANDLER);
+		String cardClz = form.funcName.containingCard().javaName();
+		bcc.defineField(true, Access.PROTECTED, cardClz, "_card");
+		{
+			GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar card = ann.argument(J.OBJECT, "card");
+			MethodDefiner ctor = ann.done();
+			ctor.callSuper("void", J.OBJECT, "<init>").flush();
+			ctor.assign(ctor.getField("_card"), ctor.castTo(card.getVar(), cardClz)).flush();
+			ctor.returnVoid().flush();
+		}
+		{
+			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "handle");
+			PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
+			ann.returns(JavaType.object_);
+			NewMethodDefiner meth = ann.done();
+			List<PendingVar> pendingVars = new ArrayList<PendingVar>();
+			VarHolder vh = new VarHolder(form, pendingVars);
+			IExpr blk = null;
+			meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.callVirtual(J.CLASS, meth.myThis(), "getHandler"), evP.getVar())).flush();
+		}
+		{
+			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "getHandler");
+			PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
+			ann.returns(JavaType.object_);
+			NewMethodDefiner meth = ann.done();
+			List<PendingVar> pendingVars = new ArrayList<PendingVar>();
+			VarHolder vh = new VarHolder(form, pendingVars);
+			new DroidHSIGenerator(new DroidClosureGenerator(form, meth, vh), form, meth, vh).generateHSI(form, null).flush();
+		}
+	}
 }

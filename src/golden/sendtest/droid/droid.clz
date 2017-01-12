@@ -95,7 +95,27 @@ class ControlledCard$B1.java extends org.flasck.jvm.areas.TextArea {
         })
     }
   }
-  java.lang.Object handlers_1() {
+}
+class ControlledCard$echoHello.java {
+  void <init>(test.golden.ControlledCard card) {
+    super.<init>()
+    this._card = card
+    return
+  }
+  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.ControlledCard)self).echoHello(args[0])
+  }
+}
+class ControlledCard$handlers_1.java implements org.flasck.jvm.display.EventHandler {
+  void <init>(java.lang.Object card) {
+    super.<init>()
+    this._card = ((test.golden.ControlledCard)card)
+    return
+  }
+  java.lang.Object handle(java.lang.Object ev) {
+    return new org.flasck.jvm.FLClosure(this.getHandler(),ev)
+  }
+  java.lang.Object getHandler(java.lang.Object ev) {
     return test.golden.ControlledCard$echoHello.class
   }
 }

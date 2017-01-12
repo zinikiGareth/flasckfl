@@ -30,6 +30,7 @@ public class J {
 	public static final JavaType INTP = JavaType.int_;
 
 	// Java Objects
+	public static final String CLASS = Class.class.getName();
 	public static final String OBJECT = Object.class.getName();
 	public static final String BOOLEAN = Boolean.class.getName();
 	public static final String INTEGER = Integer.class.getName();

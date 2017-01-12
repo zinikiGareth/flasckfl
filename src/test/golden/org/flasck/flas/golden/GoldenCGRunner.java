@@ -219,6 +219,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			}
 			fos.close();
 		}
+		assertGolden(new File(s, "droid"), droid);
 
 		// Now assert that we matched things ...
 		if (depend.isDirectory()) {
