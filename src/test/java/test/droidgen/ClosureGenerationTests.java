@@ -90,7 +90,7 @@ public class ClosureGenerationTests {
 		closure.push(loc, hdc1);
 		closure.push(loc, 42);
 		closure.push(loc, new StringLiteral(loc, "hello"));
-		dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		dcg.closure(closure);
 	}
 
 	// NOT CLEAR: if this is a real case - doesn't it need arguments?  Would they be closures, or would it have to be a closure itself
@@ -162,7 +162,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, hn, new ObjectReference(loc, cn, hn));
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
-		dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		dcg.closure(closure);
 	}
 
 	// There are probably a lot of cases where we call methods on cards from other methods on cards,
@@ -191,7 +191,7 @@ public class ClosureGenerationTests {
 		closure.push(loc, hdc2);
 		closure.push(loc, 2);
 		closure.push(loc, new StringLiteral(loc, "hello"));
-		dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		dcg.closure(closure);
 	}
 
 	// Card function that returns a card member
@@ -247,7 +247,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 1, false));
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
-		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
 	
@@ -267,7 +267,7 @@ public class ClosureGenerationTests {
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
 		closure.push(loc, hdc1);
-		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
 	
@@ -329,7 +329,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, fn, sd);
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
-		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
 	
@@ -372,7 +372,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, fn, od);
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
-		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
 
@@ -400,7 +400,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, hn, hl);
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
-		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
 
@@ -476,7 +476,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, hn, sv);
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
-		IExpr out = dcg.pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
 }
