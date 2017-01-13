@@ -73,10 +73,10 @@ public final class DroidPushArgument implements PushVisitor {
 //				cardObj = meth.myThis();
 //			return meth.makeNew(jnn, cardObj);
 		} else if (name instanceof CardMember) {
+			CardMember cm = (CardMember)name;
 			if (form.isCardMethod())
-				return meth.myThis(); // surely this needs to deference cm.var?
+				return meth.getField(meth.myThis(), cm.var);
 			else if (form.needsCardMember()) {
-				CardMember cm = (CardMember)name;
 				IExpr field = meth.getField(meth.getField("_card"), cm.var);
 				return field;
 			} else

@@ -1,6 +1,7 @@
 package org.flasck.flas.droidgen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.rewrittenForm.ScopedVar;
@@ -154,7 +155,7 @@ public class DroidHSIEFormGenerator {
 			PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
 			ann.returns(JavaType.object_);
 			NewMethodDefiner meth = ann.done();
-			meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.getField("_card"), meth.callVirtual(J.CLASS, meth.myThis(), "getHandler"), evP.getVar())).flush();
+			meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), meth.callVirtual(J.CLASS, meth.myThis(), "getHandler"), meth.arrayOf(J.OBJECT, Arrays.asList(evP.getVar())))).flush();
 		}
 		{
 			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "getHandler");
