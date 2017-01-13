@@ -184,9 +184,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			throw new UtilException("There is no 'onclick' attribute on " + e.outerHtml());
 		EventHandler handler = this.controller.getAction(e.attr("onclick"), "click");
 		// TODO: we really should create an event object here ...
-		Object actions = handler.handle(null);
-		this.controller.handleActionsFor(e.attr("onclick"), actions);
-		controller.processPostboxes();
+		Object ev = null;
+		this.controller.handleActionsFor(e.attr("onclick"), handler, ev);
 		assertAllInvocationsCalled();
 	}
 }
