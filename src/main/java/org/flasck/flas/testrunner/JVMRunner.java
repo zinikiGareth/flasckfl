@@ -182,10 +182,12 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		Element e = elts.first();
 		if (!e.hasAttr("onclick"))
 			throw new UtilException("There is no 'onclick' attribute on " + e.outerHtml());
-		EventHandler handler = this.controller.getAction(e.attr("onclick"), "click");
+		String[] ca = e.attr("onclick").split(":");
+		FlasckCard card = this.controller.getCard(ca[0]);
+		EventHandler handler = card.getAction(ca[1], "click");
 		// TODO: we really should create an event object here ...
 		Object ev = null;
-		this.controller.handleActionsFor(e.attr("onclick"), handler, ev);
+		this.controller.handleEventOn(card, handler, ev);
 		assertAllInvocationsCalled();
 	}
 }
