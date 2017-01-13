@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.flasck.jvm.display.ElementWrapper;
+
 public abstract class HTMLMatcher {
 	public static class Count extends HTMLMatcher {
 		private int matchCount;

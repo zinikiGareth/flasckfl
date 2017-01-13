@@ -25,6 +25,7 @@ import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushString;
 import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;

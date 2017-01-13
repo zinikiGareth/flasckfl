@@ -22,5 +22,7 @@
 	<classpathentry kind="src" path="/flasjdk"/>
 	<classpathentry kind="src" path="/flasjvm"/>
 	<classpathentry kind="lib" path="/Users/gareth/Ziniki/ThirdParty/qb/mvncache/org/jsoup/jsoup/1.10.1/jsoup-1.10.1.jar"/>
+	<classpathentry kind="src" path="/flasui4j"/>
+	<classpathentry kind="src" path="/flasjsoup"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

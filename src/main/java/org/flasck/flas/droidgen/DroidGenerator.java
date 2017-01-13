@@ -24,6 +24,7 @@ import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;

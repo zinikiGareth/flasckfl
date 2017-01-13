@@ -10,6 +10,7 @@ import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaType;

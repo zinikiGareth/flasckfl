@@ -22,6 +22,7 @@ import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.ui4j.UI4JWrapperElement;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.sync.SyncUtils;
 
@@ -229,7 +230,7 @@ public class JSRunner extends CommonTestRunner {
 	@Override
 	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
 //		System.out.println(page.getDocument().getBody().getOuterHTML());
-		matcher.match(selector, page.getDocument().queryAll(selector).stream().map(e -> new JSWrapperElement(e)).collect(Collectors.toList()));
+		matcher.match(selector, page.getDocument().queryAll(selector).stream().map(e -> new UI4JWrapperElement(e)).collect(Collectors.toList()));
 		assertNoErrors();
 	}
 

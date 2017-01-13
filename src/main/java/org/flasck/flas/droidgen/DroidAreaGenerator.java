@@ -11,6 +11,7 @@ import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
 import org.flasck.flas.template.EventHandlerGenerator;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;

@@ -8,6 +8,7 @@ import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.TypeWithName;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaType;

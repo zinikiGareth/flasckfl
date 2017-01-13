@@ -2,6 +2,7 @@ package org.flasck.flas.droidgen;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.template.EventHandlerGenerator;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 

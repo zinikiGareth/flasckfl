@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.flasck.flas.rewrittenForm.FieldVisitor;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.NewMethodDefiner;

@@ -3,6 +3,7 @@ package org.flasck.flas.droidgen;
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.template.TemplateGenerator;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.GenericAnnotator;

@@ -4,6 +4,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.types.FunctionType;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.exceptions.UtilException;

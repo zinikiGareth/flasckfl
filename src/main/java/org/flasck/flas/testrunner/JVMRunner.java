@@ -21,6 +21,8 @@ import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.jdk.FlasckHandle;
 import org.flasck.jdk.JDKFlasckController;
 import org.flasck.jdk.ServiceProvider;
+import org.flasck.jsoup.JSoupDisplayFactory;
+import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.display.EventHandler;
@@ -41,7 +43,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	public JVMRunner(CompileResult prior) {
 		super(prior);
 		loader = new BCEClassLoader(prior.bce);
-		controller = new JDKFlasckController(this);
+		controller = new JDKFlasckController(this, new JSoupDisplayFactory());
 	}
 
 	public void considerResource(File file) {
@@ -118,7 +120,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			
 			@SuppressWarnings("unchecked")
 			Class<? extends FlasckCard> clz = (Class<? extends FlasckCard>) loader.loadClass(cardType.javaName());
-			FlasckHandle handle = controller.createCard(clz, div);
+			FlasckHandle handle = controller.createCard(clz, new JSoupWrapperElement(div));
 //			List<Object> services = new ArrayList<>();
 //			
 //			for (ContractImplements ctr : cd.contracts) {
@@ -162,7 +164,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
-		matcher.match(selector, document.select(selector).stream().map(e -> new JVMWrapperElement(e)).collect(Collectors.toList()));
+		matcher.match(selector, document.select(selector).stream().map(e -> new JSoupWrapperElement(e)).collect(Collectors.toList()));
 	}
 
 	@Override

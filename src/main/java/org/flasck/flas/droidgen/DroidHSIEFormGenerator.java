@@ -6,6 +6,7 @@ import java.util.List;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;

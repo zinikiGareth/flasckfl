@@ -12,6 +12,7 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.jvm.J;
 import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
