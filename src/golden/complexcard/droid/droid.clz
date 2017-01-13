@@ -317,7 +317,9 @@ class Complex$handlers_6.java implements org.flasck.jvm.display.EventHandler {
     return
   }
   java.lang.Object handle(java.lang.Object ev) {
-    return new org.flasck.jvm.FLClosure(this._card,this.getHandler(),ev)
+    return new org.flasck.jvm.FLClosure(this._card,this.getHandler(),new java.lang.Object[1] {
+ev
+      })
   }
   java.lang.Class getHandler() {
     return test.golden.Complex$sayHello.class

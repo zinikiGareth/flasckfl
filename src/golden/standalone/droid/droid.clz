@@ -83,7 +83,7 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
-              autobox[this]
+              autobox[this.kv]
               autobox["typed"]
               autobox[v1]
             })
@@ -105,7 +105,7 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
           return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
-              autobox[this]
+              autobox[this.kv]
               autobox["mine"]
               autobox[v1]
             })
