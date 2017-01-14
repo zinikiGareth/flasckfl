@@ -15,8 +15,8 @@ import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
-import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.exceptions.UtilException;
@@ -31,33 +31,24 @@ public class DroidHSIEFormGenerator {
 	public void generate(HSIEForm form) {
 		// TODO: this needs a lot of decrypting with funcNames
 		String fnName = form.funcName.jsName();
-		int idx = fnName.lastIndexOf(".");
 		String inClz;
 		String fn = form.funcName.name;
 		boolean needTrampolineClass;
 		boolean wantThis = false;
 		boolean needDA = false;
 		if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.SERVICE) {
-			int idx2 = fnName.lastIndexOf(".", idx-1);
-			String clz = fnName.substring(0, idx2);
-			String sub = fnName.substring(idx2+1, idx);
-			inClz = clz +"$"+sub;
+			inClz = form.funcName.inContext.javaClassName();
 			needDA = true;
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.AREA) {
-			int idx2 = fnName.lastIndexOf(".", idx-1);
-			int idx3 = fnName.lastIndexOf(".", idx2-1);
-			String clz = fnName.substring(0, idx3+1) + fnName.substring(idx3+2, idx2);
-			String sub = fnName.substring(idx2+1, idx);
-			inClz = clz +"$"+sub;
+			inClz = form.funcName.inContext.javaClassName();
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.CARD || form.mytype == CodeType.EVENTHANDLER) {
-			inClz = fnName.substring(0, idx);
+			inClz = form.funcName.inContext.uniqueName();
 			needTrampolineClass = true;
 			wantThis = true;
 		} else if (form.mytype == CodeType.FUNCTION || form.mytype == CodeType.STANDALONE) {
-			String pkg = fnName.substring(0, idx);
-			inClz = pkg +".PACKAGEFUNCTIONS";
+			inClz = form.funcName.inContext.uniqueName() + ".PACKAGEFUNCTIONS";
 			if (!bce.hasClass(inClz)) {
 				ByteCodeSink bcc = bce.newClass(inClz);
 				bcc.generateAssociatedSourceFile();
@@ -73,14 +64,6 @@ public class DroidHSIEFormGenerator {
 		} else
 			throw new UtilException("Can't handle " + fnName + " of code type " + form.mytype);
 		
-		// This here is a hack because we have random underscores in some classes and not others
-		// I actually think what we currently do is inconsistent (compare Simple.prototype.f to Simple.inits_hello, to the way we treat D3 functions)
-		// i.e. I don't think it will work on JS even
-		if (form.mytype == CodeType.CARD) {
-			int idx2 = inClz.lastIndexOf(".");
-			if (inClz.charAt(idx2+1) == '_')
-				inClz = inClz.substring(0, idx2+1) + inClz.substring(idx2+2);
-		}
 		ByteCodeSink bcc = bce.get(inClz);
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, needTrampolineClass && !wantThis, fn);
 		gen.returns("java.lang.Object");
