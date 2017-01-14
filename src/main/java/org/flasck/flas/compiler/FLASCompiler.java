@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.flasck.builder.jvm.DroidBuilder;
+import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.blockForm.Block;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blocker.Blocker;
@@ -83,7 +83,6 @@ public class FLASCompiler implements ScriptCompiler {
 		builder = new DroidBuilder(file);
 		if (!andBuild)
 			builder.dontBuild();
-		builder.init();
 	}
 	
 	public void internalBuildJVM() {
@@ -368,7 +367,6 @@ public class FLASCompiler implements ScriptCompiler {
 					builder.generateAppObject(bce);
 					builder.write(bce);
 				} catch (Exception ex) {
-					System.err.println("Cannot write to " + builder.androidDir + ": " + ex.getMessage());
 					ex.printStackTrace();
 					errors.message((InputPosition)null, ex.getMessage());
 				}

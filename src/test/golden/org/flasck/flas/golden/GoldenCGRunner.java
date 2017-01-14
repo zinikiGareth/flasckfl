@@ -97,6 +97,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	// Note that not specifying defaults to "JS"; but "neither" or "none" (or almost anything else, in fact) does not run either
 	static boolean useJSRunner = useRunner == null || useRunner.equals("js") || useRunner.equals("both");
 	static boolean useJVMRunner = useRunner != null && (useRunner.equals("jvm") || useRunner.equals("both"));
+	static String buildDroidOpt = System.getProperty("org.flasck.golden.buildDroid");
+	private static boolean buildDroid = buildDroidOpt != null && buildDroidOpt.equals("true");
 	
 	public GoldenCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException {
 		super(builder, figureClasses());
@@ -195,7 +197,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
-			compiler.writeDroidTo(droidTo, false);
+			compiler.writeDroidTo(droidTo, buildDroid);
 			if (haveTests(dir)) {
 				clean(testReportTo);
 				compiler.writeTestReportsTo(testReportTo);
@@ -212,9 +214,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			handleErrors(s, ex.errors);
 		}
 		
-		if (new File(droidTo, "qbout/classes/test/golden").isDirectory()) {
+		File droidToClasses = new File(droidTo, "classes/test/golden");
+		if (droidToClasses.isDirectory()) {
 			FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
-			for (File f : FileUtils.findFilesMatching(new File(droidTo, "qbout/classes/test/golden"), "*.java")) {
+			for (File f : FileUtils.findFilesMatching(droidToClasses, "*.java")) {
 				FileUtils.copyFileToStream(f, fos);
 			}
 			fos.close();
@@ -240,6 +243,9 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		if (haveTests(dir) && (useJSRunner || useJVMRunner)) {
 			assertGolden(new File(s, "testReports"), testReportTo);
 		}
+		
+		if (buildDroid)
+			compiler.getBuilder().build();
 	}
 
 	private static boolean haveTests(File dir) {

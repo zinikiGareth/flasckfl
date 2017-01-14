@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.flasck.builder.jvm.DroidBuilder;
+import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 
@@ -75,44 +75,6 @@ public class Main {
 							matched = true;
 							if (arg.equals("--clean")) {
 								builder.cleanFirst();
-							} else if (arg.equals("--jack")) {
-								builder.useJack();
-							} else if (arg.equals("--jni")) {
-								if (hasMore == 0) {
-									System.out.println("--jni <arch>");
-									System.exit(1);
-								}
-								builder.restrictJni(args[++i]);
-							} else if (arg.equals("--launch")) {
-								if (hasMore == 0) {
-									System.out.println("--launch <card>");
-									System.exit(1);
-								}
-								builder.setLaunchCard(args[++i]);
-							} else if (arg.equals("--lib")) {
-								if (hasMore == 0) {
-									System.out.println("--lib <file|dir>");
-									System.exit(1);
-								}
-								builder.useLib(args[++i]);
-							} else if (arg.equals("--maven")) {
-								if (hasMore == 0) {
-									System.out.println("--maven <mvn_entry>");
-									System.exit(1);
-								}
-								builder.useMaven(args[++i]);
-							} else if (arg.equals("--css")) {
-								if (hasMore == 0) {
-									System.out.println("--css <file|dir>");
-									System.exit(1);
-								}
-								builder.useCSS(args[++i]);
-							} else if (arg.equals("--package")) {
-								if (hasMore == 0) {
-									System.out.println("--package <local=ziniki:version>");
-									System.exit(1);
-								}
-								builder.usePackage(args[++i]);
 							} else
 								matched = false;
 						}
