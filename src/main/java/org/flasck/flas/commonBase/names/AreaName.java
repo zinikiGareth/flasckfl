@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XMLElement;
 
@@ -30,6 +31,11 @@ public class AreaName implements NameOfThing, Comparable<AreaName> {
 		return cardName.javaName() + "." + simple;
 	}
 	
+	@Override
+	public String javaClassName() {
+		throw new NotImplementedException();
+	}
+
 	public int compareTo(AreaName other) {
 		int cs = 0;
 		if (cardName != null && other.cardName == null)

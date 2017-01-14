@@ -23,6 +23,11 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 			return name.uniqueName() + "." + baseName;
 	}
 	
+	@Override
+	public String javaClassName() {
+		return name.uniqueName() + "$" + baseName;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(HandlerName o) {

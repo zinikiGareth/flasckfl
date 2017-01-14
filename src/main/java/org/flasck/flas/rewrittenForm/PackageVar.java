@@ -28,6 +28,11 @@ public class PackageVar implements ExternalRef {
 	}
 	
 	@Override
+	public NameOfThing myName() {
+		return name;
+	}
+
+	@Override
 	public int hashCode() {
 		return this.toString().hashCode();
 	}

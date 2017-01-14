@@ -159,7 +159,7 @@ public class ClosureGenerationTests {
 		ClosureCmd closure = form.createClosure(loc);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		HandlerName hn = new HandlerName(cn, "Handler");
-		PackageVar hdc1 = new PackageVar(loc, hn, new ObjectReference(loc, cn, hn));
+		PackageVar hdc1 = new PackageVar(loc, hn, new ObjectReference(loc, hn));
 		closure.push(loc, hdc1);
 		closure.push(loc, new StringLiteral(loc, "hello"));
 		dcg.closure(closure);

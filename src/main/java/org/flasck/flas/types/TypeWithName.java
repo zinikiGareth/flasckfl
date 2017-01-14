@@ -4,9 +4,10 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.NamedThing;
 import org.zinutils.collections.CollectionUtils;
 
-public class TypeWithName extends Type {
+public class TypeWithName extends Type implements NamedThing {
 	protected final NameOfThing typeName;
 
 	public TypeWithName(InputPosition kw, InputPosition location, NameOfThing type) {
@@ -24,6 +25,11 @@ public class TypeWithName extends Type {
 
 	public Type instance(InputPosition loc, List<Type> with) {
 		return new InstanceType(loc, this, with);
+	}
+
+	@Override
+	public NameOfThing getName() {
+		return typeName;
 	}
 
 	public NameOfThing getTypeName() {

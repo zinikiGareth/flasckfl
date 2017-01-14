@@ -2,6 +2,8 @@ package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.types.Type;
 import org.zinutils.exceptions.UtilException;
 
@@ -28,6 +30,11 @@ public class HandlerLambda implements ExternalRef {
 		return clzName.uniqueName() + "." + var;
 	}
 	
+	@Override
+	public NameOfThing myName() {
+		return new VarName(location, clzName, var);
+	}
+
 	@Override
 	public int compareTo(Object o) {
 		return this.toString().compareTo(o.toString());

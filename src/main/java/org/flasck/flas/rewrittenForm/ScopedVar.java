@@ -2,6 +2,7 @@ package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
 import org.zinutils.exceptions.UtilException;
 
@@ -31,6 +32,11 @@ public class ScopedVar implements ExternalRef {
 		return id.uniqueName();
 	}
 	
+	@Override
+	public NameOfThing myName() {
+		return id;
+	}
+
 	@Override
 	public int compareTo(Object o) {
 		return this.id.uniqueName().compareTo(((ScopedVar)o).id.uniqueName());

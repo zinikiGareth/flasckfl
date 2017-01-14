@@ -7,14 +7,15 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.zinutils.exceptions.UtilException;
 
-public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDefinition> {
+public class RWFunctionDefinition implements NamedThing, Comparable<RWFunctionDefinition> {
 	public final InputPosition location;
 	public final CodeType mytype;
 	public final FunctionName fnName;
@@ -45,6 +46,11 @@ public class RWFunctionDefinition implements Locatable, Comparable<RWFunctionDef
 
 	public CardName inCard() {
 		return fnName.containingCard();
+	}
+	
+	@Override
+	public NameOfThing getName() {
+		return fnName;
 	}
 	
 	public String uniqueName() {

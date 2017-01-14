@@ -66,7 +66,7 @@ public class DroidClosureGenerator {
 				return handleField(closure);
 			else if (fn.uniqueName().equals("FLEval.curry"))
 				return handleCurry(defn, closure);
-			String clz = DroidUtils.getJavaClassForDefn(meth, fn, defn);
+			String clz = fn.myName().javaClassName();
 			if (defn instanceof BuiltinOperation) {
 				// This covers both Field & Tuple, but Field was handled above
 				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);

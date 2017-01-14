@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.xml.XMLElement;
 
 public class ScopeName implements NameOfThing, Comparable<ScopeName> {
@@ -31,6 +32,11 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 	@Override
 	public String jsUName() {
 		return inside.jsName() + "._" + myname;
+	}
+	
+	@Override
+	public String javaClassName() {
+		throw new NotImplementedException();
 	}
 	
 	public int compareTo(ScopeName other) {

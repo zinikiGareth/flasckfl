@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.flasck.jvm.J;
 import org.zinutils.xml.XMLElement;
 
 public class SolidName implements NameOfThing, Comparable<SolidName> {
@@ -32,6 +33,14 @@ public class SolidName implements NameOfThing, Comparable<SolidName> {
 		if (container == null || container.jsName() == null || container.jsName().length() == 0)
 			return name;
 		return container.jsName() + "." + name;
+	}
+
+	@Override
+	public String javaClassName() {
+		if (container == null)
+			return J.BUILTINPKG + "." + name;
+		else
+			return container.uniqueName() + "$" + name;
 	}
 
 	@Override

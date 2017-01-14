@@ -31,6 +31,10 @@ public class RWStructDefn extends TypeWithNameAndPolys implements AsString, Exte
 		return structName;
 	}
 
+	public SolidName myName() {
+		return structName;
+	}
+
 	public RWStructDefn addField(RWStructField sf) {
 		// TODO: validate that any poly fields here are defined in the provided list of polys
 		fields.add(sf);

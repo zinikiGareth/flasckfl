@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XMLElement;
 
@@ -31,6 +32,11 @@ public class PolyName implements NameOfThing, Comparable<PolyName> {
 
 	public String simpleName() {
 		return name;
+	}
+	
+	@Override
+	public String javaClassName() {
+		throw new NotImplementedException();
 	}
 
 	@Override

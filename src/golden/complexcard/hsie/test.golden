@@ -109,7 +109,7 @@ CLOSURE v1                                                   #complexcard. 58.10
   PUSH v0:test.golden.Complex._C0.ready.obj                  #complexcard. 57.13
   PUSH "x"                                                   #complexcard. 58.14
 CLOSURE v2                                                   #complexcard. 58.16
-  PUSH ObjectReference.test.golden.Complex:test.golden.Compl #complexcard. 58.17
+  PUSH ObjectReference.test.golden.Complex.FooHandler        #complexcard. 58.17
   PUSH "yo"                                                  #complexcard. 58.28
 CLOSURE v3                                                   #complexcard. 58.16
   PUSH PackageVar.Cons                                       #complexcard. 58.3

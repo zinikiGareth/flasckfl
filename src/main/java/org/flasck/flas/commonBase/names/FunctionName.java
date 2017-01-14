@@ -3,7 +3,9 @@ package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.jvm.J;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.utils.StringUtil;
 import org.zinutils.xml.XMLElement;
 
 // This wants to grow to take over the responsibility of knowing:
@@ -71,6 +73,18 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		if (inContext == null)
 			return null;
 		return inContext.containingCard();
+	}
+
+	@Override
+	public String javaClassName() {
+		if (inContext == null)
+			return J.BUILTINPKG+".PACKAGEFUNCTIONS$"+name;
+		else if ("FLEval".equals(inContext.uniqueName()))
+			return J.FLEVAL + "$" + StringUtil.capitalize(name);
+		else if (inContext.containingCard() != null)
+			return inContext.uniqueName()+"$"+name;
+		else
+			return inContext.uniqueName()+".PACKAGEFUNCTIONS$"+name;
 	}
 
 	public String uniqueName() {

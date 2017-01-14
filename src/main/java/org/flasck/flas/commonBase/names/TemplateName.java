@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.xml.XMLElement;
 
 public class TemplateName implements NameOfThing, Comparable<TemplateName> {
@@ -38,6 +39,11 @@ public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 	@Override
 	public String jsUName() {
 		return cardName.jsName() + "._" + name;
+	}
+	
+	@Override
+	public String javaClassName() {
+		throw new NotImplementedException();
 	}
 	
 	@Override

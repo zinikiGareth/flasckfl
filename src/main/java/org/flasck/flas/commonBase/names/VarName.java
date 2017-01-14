@@ -34,6 +34,11 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 		throw new UtilException("I don't think so");
 	}
 	
+	@Override
+	public String javaClassName() {
+		return scope.uniqueName() + "$" + var;
+	}
+
 	public int compareTo(VarName other) {
 		int cs = 0;
 		if (scope != null && other.scope == null)

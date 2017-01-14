@@ -29,6 +29,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -340,7 +341,7 @@ public class Rewriter implements CodeGenRegistry {
 				}
 			}
 			for (HandlerImplements hi : cd.handlers) {
-				statics.put(hi.baseName, new ObjectReference(hi.location(), cardName, hi.handlerName));
+				statics.put(hi.baseName, new ObjectReference(hi.location(), hi.handlerName));
 			}
 		}
 
@@ -1792,6 +1793,10 @@ public class Rewriter implements CodeGenRegistry {
 		if (val == null) {
 			return null;
 		}
+		if (val instanceof NamedThing)
+			name = ((NamedThing)val).getName();
+		else
+			System.out.println(val.getClass() + " is not a NamedThing");
 		return new PackageVar(location, name, val);
 	}
 

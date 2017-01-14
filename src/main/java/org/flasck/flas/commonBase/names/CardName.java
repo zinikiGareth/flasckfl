@@ -40,6 +40,11 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 			return cardName;
 		return pkg.simpleName() + "._" + cardName;
 	}
+	
+	@Override
+	public String javaClassName() {
+		return pkg.uniqueName() + "$" + cardName;
+	}
 
 	@Override
 	public int compareTo(CardName o) {

@@ -12,6 +12,7 @@ import org.zinutils.utils.StringUtil;
 
 public class DroidUtils {
 
+	@Deprecated
 	public static String getJavaClassForDefn(NewMethodDefiner meth, ExternalRef name, Object defn) {
 		int idx = name.uniqueName().lastIndexOf(".");
 		String inside;
@@ -45,11 +46,13 @@ public class DroidUtils {
 		return clz;
 	}
 
+	@Deprecated
 	public static String javaBaseName(String clz) {
 		int idx = clz.lastIndexOf(".");
 		return clz.substring(0, idx);
 	}
 
+	@Deprecated
 	static String javaNestedName(String clz) {
 		if (clz.indexOf("$") != -1)
 			throw new UtilException("Nested of nested?");
@@ -57,6 +60,7 @@ public class DroidUtils {
 		return clz.substring(0, idx) + "$" + clz.substring(idx+1);
 	}
 
+	@Deprecated
 	public static String javaNestedSimpleName(String clz) {
 		int idx = clz.lastIndexOf(".");
 		return clz.substring(idx+1);

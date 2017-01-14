@@ -1,6 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.NameOfThing;
 
 public interface ExternalRef extends Locatable, Comparable<Object>{
 	public class Comparator implements java.util.Comparator<ExternalRef> {
@@ -10,6 +11,8 @@ public interface ExternalRef extends Locatable, Comparable<Object>{
 		}
 	}
 
+	public NameOfThing myName();
+	
 	public String uniqueName();
 
 	public boolean fromHandler();
