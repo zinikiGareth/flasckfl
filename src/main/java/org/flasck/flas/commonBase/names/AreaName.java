@@ -13,6 +13,10 @@ public class AreaName implements NameOfThing, Comparable<AreaName> {
 		this.simple = areaName;
 	}
 	
+	public String getSimple() {
+		return simple;
+	}
+	
 	public String uniqueName() {
 		return cardName.uniqueName() + "." + simple;
 	}
@@ -33,7 +37,7 @@ public class AreaName implements NameOfThing, Comparable<AreaName> {
 	
 	@Override
 	public String javaClassName() {
-		throw new NotImplementedException();
+		return cardName.javaName() + "$" + simple;
 	}
 
 	public int compareTo(AreaName other) {

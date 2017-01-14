@@ -36,10 +36,9 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 		gen.returns("void");
 		NewMethodDefiner render = gen.done();
 		if (areaName != null) {
-			String topBlock = areaName.javaName();
 			IExpr cardArea = render.makeNew(J.CARD_AREA, render.getField(render.myThis(), "_wrapper"), render.getField(render.myThis(), "_display"), into.getVar());
-			render.makeNewVoid(DroidUtils.javaNestedName(topBlock), render.myThis(), render.as(cardArea, J.AREA)).flush();
-			bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(topBlock), DroidUtils.javaNestedSimpleName(topBlock));
+			render.makeNewVoid(areaName.javaClassName(), render.myThis(), render.as(cardArea, J.AREA)).flush();
+			bcc.addInnerClassReference(Access.PUBLICSTATIC, areaName.cardName.javaName(), areaName.getSimple());
 		}
 		render.returnVoid().flush();
 	}
@@ -48,18 +47,17 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 	public DroidAreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo) {
 		if (!doBuild)
 			return null;
-		String clz = areaName.javaName();
-		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(clz));
+		ByteCodeSink bcc = bce.newClass(areaName.javaClassName());
 		bcc.generateAssociatedSourceFile();
 		String baseClz = J.AREAPKG + base;
 		bcc.superclass(baseClz);
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType(J.WRAPPER), "_wrapper");
 		bcc.inheritsField(false, Access.PUBLIC, new JavaType(J.AREA), "_parent");
-		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(clz), DroidUtils.javaNestedSimpleName(clz));
-		IFieldInfo card = bcc.defineField(true, Access.PRIVATE, DroidUtils.javaBaseName(clz), "_card");
+		bcc.addInnerClassReference(Access.PUBLICSTATIC, areaName.cardName.uniqueName(), areaName.getSimple());
+		IFieldInfo card = bcc.defineField(true, Access.PRIVATE, areaName.cardName.uniqueName(), "_card");
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cardArg = gen.argument(DroidUtils.javaBaseName(clz), "cardArg");
+			PendingVar cardArg = gen.argument(areaName.cardName.uniqueName(), "cardArg");
 			PendingVar parent = gen.argument(J.AREA, "parent");
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", baseClz, "<init>", parent.getVar(), customTag == null ? ctor.as(ctor.aNull(), "java.lang.String") : ctor.stringConst(customTag)).flush();
