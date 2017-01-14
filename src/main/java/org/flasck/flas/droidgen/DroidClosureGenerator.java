@@ -173,7 +173,7 @@ public class DroidClosureGenerator {
 		PushExternal curriedFn = (PushExternal)closure.nestedCommands().get(1);
 		PushInt cnt = (PushInt) closure.nestedCommands().get(2);
 		ExternalRef f2 = curriedFn.fn;
-		String clz = DroidUtils.getJavaClassForDefn(meth, f2, defn);
+		String clz = f2.myName().javaClassName();
 		if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
 			IExpr needsObject = null;
 			if (form.needsCardMember())

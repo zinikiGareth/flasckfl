@@ -12,7 +12,6 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
-import org.flasck.jvm.J;
 import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
@@ -22,6 +21,7 @@ import org.flasck.flas.vcode.hsieForm.PushString;
 import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.PushVisitor;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.exceptions.UtilException;
@@ -50,7 +50,7 @@ public final class DroidPushArgument implements PushVisitor {
 				if (defn instanceof RWStructDefn && ((RWStructDefn)defn).fields.isEmpty())
 					needToCallEvalMethod = true;
 			}
-			String clz = DroidUtils.getJavaClassForDefn(meth, name, defn);
+			String clz = name.myName().javaClassName();
 			if (!needToCallEvalMethod) { // handle the simple class case ...
 				return meth.classConst(clz);
 			} else {
