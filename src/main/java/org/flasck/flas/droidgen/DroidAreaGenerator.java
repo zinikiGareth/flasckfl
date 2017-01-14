@@ -48,8 +48,8 @@ public class DroidAreaGenerator implements AreaGenerator {
 
 	@Override
 	public void copyVar(AreaName parentClass, AreaName definedInType, String s) {
-		IFieldInfo src = bcc.defineField(true, Access.PUBLIC, DroidUtils.javaNestedName(definedInType.javaName()), "_src_"+s);
-		ctor.assign(src.asExpr(ctor), ctor.getField(ctor.castTo(parent, DroidUtils.javaNestedName(parentClass.javaName())), "_src_"+s)).flush();
+		IFieldInfo src = bcc.defineField(true, Access.PUBLIC, definedInType.javaClassName(), "_src_"+s);
+		ctor.assign(src.asExpr(ctor), ctor.getField(ctor.castTo(parent, parentClass.javaClassName()), "_src_"+s)).flush();
 	}
 
 	@Override
@@ -118,13 +118,12 @@ public class DroidAreaGenerator implements AreaGenerator {
 
 	@Override
 	public void newListChild(AreaName childArea) {
-		String child = childArea.javaName();
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_newChild");
 		PendingVar ck = gen.argument(J.CROKEY, "crokey");
 		gen.returns(J.AREA);
 		NewMethodDefiner meth = gen.done();
 		Var ret = meth.avar(J.AREA, "ret");
-		meth.assign(ret, (Expr) meth.makeNew(DroidUtils.javaNestedName(child), meth.getField("_card"), (Expr)meth.as(meth.myThis(), J.AREA))).flush();
+		meth.assign(ret, (Expr) meth.makeNew(childArea.javaClassName(), meth.getField("_card"), (Expr)meth.as(meth.myThis(), J.AREA))).flush();
 		FieldExpr crokeyid = new FieldObject(false, J.CROKEY, new JavaType(J.OBJECT), "id").useOn(meth, ck.getVar());
 		meth.callVirtual("void", ret, "bindVar", meth.stringConst("_crokey"), crokeyid).flush();
 		meth.returnObject(ret).flush();
@@ -158,9 +157,8 @@ public class DroidAreaGenerator implements AreaGenerator {
 
 	@Override
 	public void createNested(String v, AreaName nested) {
-		String cn = nested.javaName();
-		Var storeAs = ctor.avar(cn, v);
-		ctor.assign(storeAs, (Expr) ctor.makeNew(DroidUtils.javaNestedName(cn), card, (Expr)ctor.as(ctor.myThis(), J.AREA))).flush();
+		Var storeAs = ctor.avar(nested.javaClassName(), v);
+		ctor.assign(storeAs, (Expr) ctor.makeNew(nested.javaClassName(), card, (Expr)ctor.as(ctor.myThis(), J.AREA))).flush();
 	}
 
 	@Override
