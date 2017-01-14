@@ -1,5 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.xml.XMLElement;
 
 public class HandlerName implements NameOfThing, Comparable<HandlerName> {
@@ -23,6 +24,11 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 			return name.uniqueName() + "." + baseName;
 	}
 	
+	@Override
+	public String javaName() {
+		throw new NotImplementedException();
+	}
+
 	@Override
 	public String javaClassName() {
 		return name.uniqueName() + "$" + baseName;

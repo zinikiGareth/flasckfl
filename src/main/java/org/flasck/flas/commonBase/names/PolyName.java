@@ -35,6 +35,11 @@ public class PolyName implements NameOfThing, Comparable<PolyName> {
 	}
 	
 	@Override
+	public String javaName() {
+		throw new NotImplementedException();
+	}
+
+	@Override
 	public String javaClassName() {
 		throw new NotImplementedException();
 	}

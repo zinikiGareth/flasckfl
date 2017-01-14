@@ -7,6 +7,7 @@ public interface NameOfThing {
 	
 	String jsName();
 	String jsUName();
+	String javaName();
 	String javaClassName();
 
 	CardName containingCard();
@@ -14,4 +15,5 @@ public interface NameOfThing {
 	<T extends NameOfThing> int compareTo(T other);
 
 	String writeToXML(XMLElement xe);
+
 }

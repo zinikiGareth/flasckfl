@@ -1,6 +1,7 @@
 package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XMLElement;
 
@@ -34,6 +35,11 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 		throw new UtilException("I don't think so");
 	}
 	
+	@Override
+	public String javaName() {
+		throw new NotImplementedException();
+	}
+
 	@Override
 	public String javaClassName() {
 		return scope.uniqueName() + "$" + var;

@@ -35,6 +35,11 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 	}
 	
 	@Override
+	public String javaName() {
+		throw new NotImplementedException();
+	}
+
+	@Override
 	public String javaClassName() {
 		throw new NotImplementedException();
 	}

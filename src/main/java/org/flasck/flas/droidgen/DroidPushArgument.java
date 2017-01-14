@@ -124,13 +124,6 @@ public final class DroidPushArgument implements PushVisitor {
 
 	@Override
 	public Object visit(PushFunc pf) {
-//				int x = c.func.name.lastIndexOf('.');
-//				if (x == -1)
-//					throw new UtilException("Invalid function name: " + c.func.name);
-//				else
-//					sb.append(c.func.name.substring(0, x+1) + "prototype" + c.func.name.substring(x));
-//				throw new UtilException("What are you pushing? " + c);
-
 		// this is clearly wrong, but we need to return a "function" object and I don't have one of those right now, I don't think 
 		return meth.myThis();
 	}

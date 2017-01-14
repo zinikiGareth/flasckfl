@@ -4,6 +4,7 @@ package org.flasck.flas.commonBase.names;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.jvm.J;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.utils.StringUtil;
 import org.zinutils.xml.XMLElement;
@@ -73,6 +74,11 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		if (inContext == null)
 			return null;
 		return inContext.containingCard();
+	}
+
+	@Override
+	public String javaName() {
+		throw new NotImplementedException();
 	}
 
 	@Override

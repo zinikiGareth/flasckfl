@@ -31,6 +31,11 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	}
 	
 	@Override
+	public String javaName() {
+		throw new NotImplementedException();
+	}
+
+	@Override
 	public String javaClassName() {
 		throw new NotImplementedException();
 	}

@@ -42,6 +42,11 @@ public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 	}
 	
 	@Override
+	public String javaName() {
+		throw new NotImplementedException();
+	}
+
+	@Override
 	public String javaClassName() {
 		throw new NotImplementedException();
 	}

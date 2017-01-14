@@ -34,6 +34,11 @@ public class SolidName implements NameOfThing, Comparable<SolidName> {
 			return name;
 		return container.jsName() + "." + name;
 	}
+	
+	@Override
+	public String javaName() {
+		return uniqueName();
+	}
 
 	@Override
 	public String javaClassName() {

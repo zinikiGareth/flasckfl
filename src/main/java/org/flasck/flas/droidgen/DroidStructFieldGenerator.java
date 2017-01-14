@@ -6,9 +6,9 @@ import java.util.TreeMap;
 import org.flasck.flas.rewrittenForm.FieldVisitor;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.FunctionType;
+import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.TypeWithName;
-import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaType;
@@ -40,18 +40,13 @@ public class DroidStructFieldGenerator implements FieldVisitor {
 				throw new UtilException("Not handled " + sf.type);
 		} else if (sf.type instanceof FunctionType) {
 			jt = JavaType.object_;
+		} else if (sf.type instanceof PolyVar) {
+			jt = JavaType.object_;
 		} else if (sf.type instanceof TypeWithName) {
-			jt = javaType(((TypeWithName)sf.type).name());
+			jt = new JavaType(((TypeWithName)sf.type).getName().javaName());
 		} else
 			throw new UtilException("Not handled " + sf.type + " " + sf.type.getClass());
 		IFieldInfo fi = bcc.defineField(false, access, jt, sf.name);
 		fields.put(sf.name, fi);
-	}
-	
-	@Deprecated
-	private JavaType javaType(String name) {
-		if (name.indexOf(".") == -1)
-			name = J.BUILTINPKG + "." + name;
-		return new JavaType(name);
 	}
 }
