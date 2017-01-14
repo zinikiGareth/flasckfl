@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.android.AndroidLabel;
 import org.flasck.flas.commonBase.android.AndroidLaunch;
 import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.compiler.HSIEFormGenerator;
 import org.flasck.flas.rewriter.CodeGenRegistry;
 import org.flasck.flas.rewriter.RepoVisitor;
@@ -120,11 +121,11 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		grp.struct.visitFields(new DroidStructFieldGenerator(bcc, Access.PROTECTED));
 		for (ContractGrouping x : grp.contracts) {
 			if (x.referAsVar != null)
-				bcc.defineField(false, Access.PROTECTED, new JavaType(DroidUtils.javaNestedName(x.implName.jsName())), x.referAsVar);
-			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), DroidUtils.javaNestedSimpleName(x.implName.jsName()));
+				bcc.defineField(false, Access.PROTECTED, new JavaType(x.implName.javaClassName()), x.referAsVar);
+			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), x.implName.baseName());
 		}
 		for (HandlerGrouping h : grp.handlers) {
-			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), DroidUtils.javaNestedSimpleName(h.impl.handlerName.uniqueName()));
+			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), h.impl.handlerName.baseName);
 		}
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
@@ -133,7 +134,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", J.FLASCK_CARD, "<init>", despatcher.getVar(), engine.getVar()).flush();
 			for (ContractGrouping x : grp.contracts) {
-				IExpr impl = ctor.makeNew(DroidUtils.javaNestedName(x.implName.jsName()), ctor.myThis());
+				IExpr impl = ctor.makeNew(x.implName.javaClassName(), ctor.myThis());
 				if (x.referAsVar != null) {
 					IExpr fe = ctor.getField(x.referAsVar);
 					ctor.assign(fe, impl).flush();
@@ -164,15 +165,17 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		if (!doBuild)
 			return;
 		CSName name = (CSName) ci.realName;
-		String un = name.uniqueName();
-		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(un));
+		String nn = name.javaClassName(); // nestedName
+		String bn = name.containingCard().javaName(); // baseName
+		String sn = name.baseName(); // nestedSimpleName
+		ByteCodeSink bcc = bce.newClass(nn);
 		bcc.generateAssociatedSourceFile();
 		bcc.superclass(ci.name());
-		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(un)), "_card");
-		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(un), DroidUtils.javaNestedSimpleName(un));
+		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(bn), "_card");
+		bcc.addInnerClassReference(Access.PUBLICSTATIC, bn, sn);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cardArg = gen.argument(DroidUtils.javaBaseName(un), "card");
+			PendingVar cardArg = gen.argument(bn, "card");
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", ci.name(), "<init>").flush();
 			ctor.assign(fi.asExpr(ctor), cardArg.getVar()).flush();
@@ -183,15 +186,18 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	public void visitServiceImpl(RWContractService cs) {
 		if (!doBuild)
 			return;
-		String name = cs.realName.uniqueName();
-		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
+		CSName name = cs.realName;
+		String nn = name.javaClassName(); // nestedName
+		String cn = name.containingCard().javaName(); // baseName
+		String bn = name.baseName(); // nestedSimpleName
+		ByteCodeSink bcc = bce.newClass(nn);
 		bcc.generateAssociatedSourceFile();
 		bcc.superclass(cs.name());
-		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
-		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(name), DroidUtils.javaNestedSimpleName(name));
+		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(cn), "_card");
+		bcc.addInnerClassReference(Access.PUBLICSTATIC, cn, bn);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			PendingVar cardArg = gen.argument(DroidUtils.javaBaseName(name), "card");
+			PendingVar cardArg = gen.argument(cn, "card");
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", cs.name(), "<init>").flush();
 			ctor.assign(fi.asExpr(ctor), cardArg.getVar()).flush();
@@ -202,20 +208,20 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	public void visitHandlerImpl(RWHandlerImplements hi) {
 		if (!doBuild)
 			return;
-		String name = hi.handlerName.uniqueName();
-		ByteCodeSink bcc = bce.newClass(DroidUtils.javaNestedName(name));
+		HandlerName name = hi.handlerName;
+		ByteCodeSink bcc = bce.newClass(name.javaClassName());
 		bcc.generateAssociatedSourceFile();
 		bcc.superclass(hi.name());
 		IFieldInfo fi = null;
 		if (hi.inCard)
-			fi = bcc.defineField(false, Access.PRIVATE, new JavaType(DroidUtils.javaBaseName(name)), "_card");
+			fi = bcc.defineField(false, Access.PRIVATE, new JavaType(name.containingCard().javaName()), "_card");
 		Map<String, IFieldInfo> fs = new TreeMap<>();
 		for (Object o : hi.boundVars) {
 			String var = ((HandlerLambda)o).var;
 			IFieldInfo hli = bcc.defineField(false, Access.PRIVATE, new JavaType("java.lang.Object"), var);
 			fs.put(var, hli);
 		}
-		bcc.addInnerClassReference(Access.PUBLICSTATIC, DroidUtils.javaBaseName(name), DroidUtils.javaNestedSimpleName(name));
+		bcc.addInnerClassReference(Access.PUBLICSTATIC, name.name.uniqueName(), name.baseName);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cardArg = null;
@@ -230,7 +236,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			NewMethodDefiner ctor = gen.done();
 			ctor.callSuper("void", hi.name(), "<init>").flush();
 			if (hi.inCard)
-				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic(J.FLEVAL, J.OBJECT, "full", cardArg.getVar()), DroidUtils.javaBaseName(name))).flush();
+				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic(J.FLEVAL, J.OBJECT, "full", cardArg.getVar()), name.name.uniqueName())).flush();
 			for (Object o : hi.boundVars) {
 				String var = ((HandlerLambda)o).var;
 				ctor.assign(fs.get(var).asExpr(ctor), ctor.callStatic(J.FLEVAL, J.OBJECT, "head", vm.get(var).getVar())).flush();
@@ -258,8 +264,8 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			else
 				objArg = eval.aNull();
 			eval.ifOp(0xa2, eval.arraylen(argsArg.getVar()), eval.intConst(hi.boundVars.size()), 
-					eval.returnObject(eval.makeNew("org.flasck.jvm.FLCurry", objArg, eval.classConst(DroidUtils.javaNestedName(name)), argsArg.getVar())), 
-					eval.returnObject(eval.makeNew(DroidUtils.javaNestedName(name), newArgs))).flush();
+					eval.returnObject(eval.makeNew("org.flasck.jvm.FLCurry", objArg, eval.classConst(name.javaClassName()), argsArg.getVar())), 
+					eval.returnObject(eval.makeNew(name.javaClassName(), newArgs))).flush();
 		}
 	}
 

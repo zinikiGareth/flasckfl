@@ -1,6 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.xml.XMLElement;
 
 public class CSName implements NameOfThing, Comparable<CSName> {
@@ -14,6 +13,10 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 	
 	public CardName containingCard() {
 		return card;
+	}
+
+	public String baseName() {
+		return cname;
 	}
 	
 	public String uniqueName() {
@@ -32,7 +35,7 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 	
 	@Override
 	public String javaClassName() {
-		throw new NotImplementedException();
+		return card.javaName() + "$" + cname;
 	}
 
 	@Override
