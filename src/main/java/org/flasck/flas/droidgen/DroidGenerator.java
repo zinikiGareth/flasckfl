@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.android.AndroidLabel;
 import org.flasck.flas.commonBase.android.AndroidLaunch;
@@ -37,32 +38,30 @@ import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.NewMethodDefiner;
-import org.zinutils.exceptions.UtilException;
 
 public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
-	private final boolean doBuild;
 	private final ByteCodeStorage bce;
 	private final DroidHSIEFormGenerator formGen;
+	private final DroidBuilder builder;
 
-	public DroidGenerator(boolean doBuild, ByteCodeStorage bce) {
-		this.doBuild = doBuild;
+	public DroidGenerator(ByteCodeStorage bce, DroidBuilder builder) {
 		this.bce = bce;
+		this.builder = builder;
 		this.formGen = new DroidHSIEFormGenerator(bce);
 	}
 
 	public void registerWith(CodeGenRegistry rewriter) {
-		if (doBuild)
-			rewriter.registerCodeGenerator(this);
+		rewriter.registerCodeGenerator(this);
 	}
 
 	@Override
 	public TemplateGenerator templateGenerator() {
-		return new DroidTemplateGenerator(doBuild, bce);
+		return new DroidTemplateGenerator(bce);
 	}
 	
 	@Override
 	public void visitStructDefn(RWStructDefn sd) {
-		if (!doBuild || !sd.generate)
+		if (!sd.generate)
 			return;
 		ByteCodeSink bcc = bce.newClass(sd.name());
 		bcc.generateAssociatedSourceFile();
@@ -85,8 +84,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 
 	@Override
 	public void visitContractDecl(RWContractDecl cd) {
-		if (!doBuild)
-			return;
 		ByteCodeSink bcc = bce.newClass(cd.name());
 		bcc.generateAssociatedSourceFile();
 		bcc.superclass(J.CONTRACT_IMPL);
@@ -111,8 +108,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	}
 
 	public void visitCardGrouping(CardGrouping grp) {
-		if (!doBuild)
-			return;
 		ByteCodeSink bcc = bce.newClass(grp.struct.name());
 		bcc.generateAssociatedSourceFile();
 		bcc.superclass(J.FLASCK_CARD);
@@ -162,8 +157,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 
 	@Override
 	public void visitContractImpl(RWContractImplements ci) {
-		if (!doBuild)
-			return;
 		CSName name = (CSName) ci.realName;
 		String nn = name.javaClassName(); // nestedName
 		String bn = name.containingCard().javaName(); // baseName
@@ -184,8 +177,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	}
 
 	public void visitServiceImpl(RWContractService cs) {
-		if (!doBuild)
-			return;
 		CSName name = cs.realName;
 		String nn = name.javaClassName(); // nestedName
 		String cn = name.containingCard().javaName(); // baseName
@@ -206,8 +197,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	}
 
 	public void visitHandlerImpl(RWHandlerImplements hi) {
-		if (!doBuild)
-			return;
 		HandlerName name = hi.handlerName;
 		ByteCodeSink bcc = bce.newClass(name.javaClassName());
 		bcc.generateAssociatedSourceFile();
@@ -271,8 +260,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 
 	@Override
 	public void generate(HSIEForm form) {
-		if (!doBuild)
-			return;
 		formGen.generate(form);
 	}
 }

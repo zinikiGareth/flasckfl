@@ -3,6 +3,7 @@ package test.droidgen;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -30,7 +31,7 @@ public class GenTestsForContracts {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	DroidGenerator gen = new DroidGenerator(true, bce);
+	DroidGenerator gen = new DroidGenerator(bce, new DroidBuilder());
 	ByteCodeSink bccContract = context.mock(ByteCodeSink.class);
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner dfe = context.mock(MethodDefiner.class, "dfe");
@@ -56,13 +57,6 @@ public class GenTestsForContracts {
 			});
 			allowing(dfe).nextLocal(); will(returnValue(1));
 		}});
-	}
-
-	@Test
-	public void testNothingHappensIfWeDontTurnOnGeneration() {
-		DroidGenerator gen = new DroidGenerator(false, bce);
-		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
-		gen.visitContractDecl(cd);
 	}
 
 	@Test

@@ -2,6 +2,7 @@ package test.droidgen;
 
 import java.util.ArrayList;
 
+import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
@@ -35,7 +36,7 @@ public class GenTestsForCards {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	DroidGenerator gen = new DroidGenerator(true, bce);
+	DroidGenerator gen = new DroidGenerator(bce, new DroidBuilder());
 	ByteCodeSink bccCard = context.mock(ByteCodeSink.class, "cardClass");
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	
@@ -50,13 +51,6 @@ public class GenTestsForCards {
 			allowing(ctor).myThis(); will(new ReturnNewVar(ctor, "Card", "this"));
 			allowing(expr);
 		}});
-	}
-
-	@Test
-	public void testNothingHappensIfWeDontTurnOnGeneration() {
-		DroidGenerator gen = new DroidGenerator(false, bce);
-		CardGrouping sd = new CardGrouping(new CardName(null, "Card"), new RWStructDefn(loc, new SolidName(null, "Card"), true));
-		gen.visitCardGrouping(sd);
 	}
 
 	@Test

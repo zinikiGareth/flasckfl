@@ -15,18 +15,14 @@ import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.NewMethodDefiner;
 
 public class DroidTemplateGenerator implements TemplateGenerator {
-	private final boolean doBuild;
 	private ByteCodeStorage bce;
 
-	public DroidTemplateGenerator(boolean doBuild, ByteCodeStorage bce) {
-		this.doBuild = doBuild;
+	public DroidTemplateGenerator(ByteCodeStorage bce) {
 		this.bce = bce;
 	}
 
 	@Override
 	public void generateRender(TemplateName tname, AreaName areaName) {
-		if (!doBuild)
-			return;
 		// TODO: I think we actually want the render function, but not sure :-)
 		if (areaName == null)
 			return;
@@ -45,8 +41,6 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 
 	@Override
 	public DroidAreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo) {
-		if (!doBuild)
-			return null;
 		ByteCodeSink bcc = bce.newClass(areaName.javaClassName());
 		bcc.generateAssociatedSourceFile();
 		String baseClz = J.AREAPKG + base;

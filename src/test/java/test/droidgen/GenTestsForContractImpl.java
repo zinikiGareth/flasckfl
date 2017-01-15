@@ -1,5 +1,6 @@
 package test.droidgen;
 
+import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
@@ -22,7 +23,7 @@ public class GenTestsForContractImpl {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	DroidGenerator gen = new DroidGenerator(true, bce);
+	DroidGenerator gen = new DroidGenerator(bce, new DroidBuilder());
 	ByteCodeSink bccImpl = context.mock(ByteCodeSink.class, "implClass");
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	
@@ -36,13 +37,6 @@ public class GenTestsForContractImpl {
 			allowing(expr);
 			allowing(ctor).nextLocal(); will(returnValue(1));
 		}});
-	}
-
-	@Test
-	public void testNothingHappensIfWeDontTurnOnGeneration() {
-		DroidGenerator gen = new DroidGenerator(false, bce);
-		RWContractImplements ci = new RWContractImplements(loc, loc, new CSName(new CardName(null, "Card"), "_C0"), new SolidName(null, "CtrDecl"), null, null);
-		gen.visitContractImpl(ci);
 	}
 
 	@Test

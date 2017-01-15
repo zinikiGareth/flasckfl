@@ -58,7 +58,7 @@ public class FLASCompiler implements ScriptCompiler {
 	private boolean unitjvm;
 	private final List<File> pkgdirs = new ArrayList<File>();
 	private File writeRW;
-	private DroidBuilder builder;
+	private DroidBuilder builder = new DroidBuilder();
 	private File writeFlim;
 	private File writeDepends;
 	private File writeHSIE;
@@ -266,11 +266,11 @@ public class FLASCompiler implements ScriptCompiler {
 
 			rewriter.checkCardContractUsage();
 
-			// 5. Generate Class Definitions
+			// 5. Register JS and Droid code generators with the visitors
 			JSTarget target = new JSTarget(inPkg);
 			Generator gen = new Generator(target);
 			rewriter.registerCodeGenerator(gen);
-			final DroidGenerator dg = new DroidGenerator(builder != null, bce);
+			final DroidGenerator dg = new DroidGenerator(bce, builder);
 			dg.registerWith(rewriter);
 
 			rewriter.visitGenerators();
@@ -362,14 +362,12 @@ public class FLASCompiler implements ScriptCompiler {
 			}
 
 			// 13b. Issue Droid
-			if (builder != null) {
-				try {
-					builder.generateAppObject(bce);
-					builder.write(bce);
-				} catch (Exception ex) {
-					ex.printStackTrace();
-					errors.message((InputPosition)null, ex.getMessage());
-				}
+			try {
+				builder.generateAppObject(bce, inPkg);
+				builder.write(bce);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				errors.message((InputPosition)null, ex.getMessage());
 			}
 			abortIfErrors(errors);
 

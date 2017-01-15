@@ -1,5 +1,6 @@
 package test.droidgen;
 
+import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
@@ -22,17 +23,17 @@ import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
+import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
-import org.zinutils.bytecode.JavaInfo.Access;
-import org.zinutils.bytecode.JavaType;
 
 public class GenTestsForStructs {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	DroidGenerator gen = new DroidGenerator(true, bce);
+	DroidGenerator gen = new DroidGenerator(bce, new DroidBuilder());
 	ByteCodeSink bccStruct = context.mock(ByteCodeSink.class);
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner dfe = context.mock(MethodDefiner.class, "dfe");
@@ -58,13 +59,6 @@ public class GenTestsForStructs {
 			});
 			allowing(dfe).nextLocal(); will(returnValue(1));
 		}});
-	}
-
-	@Test
-	public void testNothingHappensIfWeDontTurnOnGeneration() {
-		DroidGenerator gen = new DroidGenerator(false, bce);
-		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
-		gen.visitStructDefn(sd);
 	}
 
 	@Test
