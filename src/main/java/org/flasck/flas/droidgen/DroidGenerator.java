@@ -7,9 +7,8 @@ import java.util.TreeMap;
 
 import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.commonBase.PlatformSpec;
-import org.flasck.flas.commonBase.android.AndroidLabel;
-import org.flasck.flas.commonBase.android.AndroidLaunch;
 import org.flasck.flas.commonBase.names.CSName;
+import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.compiler.HSIEFormGenerator;
 import org.flasck.flas.rewriter.CodeGenRegistry;
@@ -27,7 +26,6 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.jvm.J;
-import org.zinutils.bytecode.Annotation;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
@@ -140,19 +138,23 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			ctor.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			ctor.returnVoid().flush();
 		}
-		// TODO: I feel this should come from the "app" definition file, NOT the "platform" spec ...
+		// TODO: we probably want *a* spec here, but the android one probably wants
+		// to "include" an AndroidActivitySpec defined in JVMBuilder that we can pass straight over
+		PlatformSpec spec = null;
 		if (grp.platforms.containsKey("android")) {
-			PlatformSpec spec = grp.platforms.get("android");
-			for (Object d : spec.defns) {
-				if (d instanceof AndroidLaunch)
-					bcc.addRTVAnnotation("com.gmmapowell.quickbuild.annotations.android.MainActivity");
-				else if (d instanceof AndroidLabel) {
-					Annotation label = bcc.addRTVAnnotation("com.gmmapowell.quickbuild.annotations.android.Label");
-					label.addParam("value", ((AndroidLabel)d).label);
-				} else
-					throw new UtilException("Cannot handle android platform spec of type " + d.getClass());
-			}
+			spec = grp.platforms.get("android");
+//			for (Object d : spec.defns) {
+//				if (d instanceof AndroidLaunch)
+//					bcc.addRTVAnnotation("com.gmmapowell.quickbuild.annotations.android.MainActivity");
+//				else if (d instanceof AndroidLabel) {
+//					Annotation label = bcc.addRTVAnnotation("com.gmmapowell.quickbuild.annotations.android.Label");
+//					label.addParam("value", ((AndroidLabel)d).label);
+//				} else
+//					throw new UtilException("Cannot handle android platform spec of type " + d.getClass());
+//			}
 		}
+		CardName cn = grp.name();
+		builder.recordCard(cn.pkg == null ? null : cn.pkg.simpleName(), cn.cardName, spec);
 	}
 
 	@Override
