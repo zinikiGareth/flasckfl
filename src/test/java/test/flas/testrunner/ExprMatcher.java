@@ -51,6 +51,7 @@ public class ExprMatcher {
 		};
 	}
 
+	@SafeVarargs
 	public static Matcher<Object> apply(Matcher<Object> fn, final Matcher<Object>... args) {
 		return new TypeSafeMatcher<Object>() {
 			@Override

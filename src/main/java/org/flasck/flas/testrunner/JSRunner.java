@@ -24,7 +24,6 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.ui4j.UI4JWrapperElement;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.sync.SyncUtils;
 
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
@@ -220,9 +219,11 @@ public class JSRunner extends CommonTestRunner {
 				args.add(page.executeScript("FLEval.full(" + spkg + ".arg" + i + "())"));
 			}
 		card.call("send", args.toArray());
-		while (pendingAsyncs.get() != 0)
-			if (!SyncUtils.waitFor(pendingAsyncs, 1000))
-				throw new UtilException("timed out waiting for pending async");
+		while (pendingAsyncs.get() != 0) {
+			throw new RuntimeException("Do this some other way");
+//			if (!SyncUtils.waitFor(pendingAsyncs, 1000))
+//				throw new UtilException("timed out waiting for pending async");
+		}
 		assertNoErrors();
 		assertAllInvocationsCalled();
 	}
@@ -261,8 +262,9 @@ public class JSRunner extends CommonTestRunner {
 			throw new UtilException("There is no 'onclick' attribute on " + e.getOuterHTML());
 		e.click();
 		while (pendingAsyncs.get() != 0)
-			if (!SyncUtils.waitFor(pendingAsyncs, 1000))
-				throw new UtilException("timed out waiting for pending async");
+			throw new RuntimeException("Do this some other way");
+//			if (!SyncUtils.waitFor(pendingAsyncs, 1000))
+//				throw new UtilException("timed out waiting for pending async");
 		assertAllInvocationsCalled();
 	}
 }
