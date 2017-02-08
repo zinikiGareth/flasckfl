@@ -125,7 +125,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 //			
 //			for (ContractImplements ctr : cd.contracts) {
 //				String fullName = fullName(ctr.name());
-//				if (!fullName.equals("org.ziniki.Init"))
+//				if (!fullName.equals("org.flasck.Init") && !fullName.equals("org.flasck.Render"))
 //					cacheSvc(fullName);
 //			}
 			

@@ -3962,9 +3962,9 @@ FlasckServices.YoyoService.prototype.get = function(id, handler) {
 
 FlasckServices.provideAll = function(document, postbox, services) {
 	"use strict";
-	Flasck.provideService(postbox, services, "org.ziniki.Timer", new FlasckServices.TimerService(postbox));
+	Flasck.provideService(postbox, services, "org.flasck.Timer", new FlasckServices.TimerService(postbox));
 	Flasck.provideService(postbox, services, "org.ziniki.Window", new FlasckServices.WindowService(postbox));
-	Flasck.provideService(postbox, services, "org.ziniki.Render", new FlasckServices.RenderService(postbox));
+	Flasck.provideService(postbox, services, "org.flasck.Render", new FlasckServices.RenderService(postbox));
 	Flasck.provideService(postbox, services, "org.ziniki.Credentials", new FlasckServices.CredentialsService(document, postbox));
 	Flasck.provideService(postbox, services, "org.ziniki.KeyValue", new FlasckServices.KeyValueService(postbox));
 	Flasck.provideService(postbox, services, "org.ziniki.CrosetContract", new FlasckServices.CrosetService(postbox));

@@ -4,7 +4,7 @@
 	card CounterCard
 		state	
 			Number counter <- 0
-			org.ziniki.Timer t
+			org.flasck.Timer t
 
 		template	
 			counter : 'format'
@@ -13,15 +13,15 @@
 			launcher
 			label "Counter"
 
-		implements org.ziniki.Init
+		implements org.flasck.Init
 			update (CounterObj c)
 				<- timer.requestTicks (CountUp c.inc) 1000
 
 .				<- timer.cancel t
 # should be: (capturing handle)				<- timer.requestTicks (CountUp c.inc) 1000 -> t
 
-		implements org.ziniki.Timer timer
+		implements org.flasck.Timer timer
   
-		handler org.ziniki.TimerCallback CountUp inc 
+		handler org.flasck.TimerCallback CountUp inc 
 			onTick
 				counter <- counter + inc
