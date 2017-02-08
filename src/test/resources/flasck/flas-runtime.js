@@ -579,7 +579,6 @@ Postbox.prototype.isLocal = function(addr) {
 	var pb = addr.substr(0, idx);
 	return pb === this.name;	
 }
-
 // Builtin stuff; so core we couldn't do without it
 
 function getPackagedItem(name) {
