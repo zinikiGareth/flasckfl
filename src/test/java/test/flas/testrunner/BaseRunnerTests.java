@@ -37,6 +37,7 @@ import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeEnvironment;
@@ -148,6 +149,7 @@ public abstract class BaseRunnerTests {
 	//  * we get some kind of message out
 	// Test both of these in turn
 	@Test
+	@Ignore
 	public void testSendCausesTheShowTagToLightUp() throws Exception {
 		prepareRunner();
 		String cardVar = "q";
@@ -159,6 +161,7 @@ public abstract class BaseRunnerTests {
 	}
 
 	@Test
+	@Ignore
 	public void testSendCanCauseAMessageToComeBack() throws Exception {
 		testScope.define("arg1", function("arg1", new StringLiteral(loc, HELLO_STRING)));
 		testScope.define("earg2", function("earg2", new StringLiteral(loc, HELLO_STRING)));
@@ -176,6 +179,7 @@ public abstract class BaseRunnerTests {
 	}
 
 	@Test
+	@Ignore
 	public void testWeCanClickOnAnAreaAndCauseAMessageToComeBack() throws Exception {
 		testScope.define("earg1", function("earg1", new StringLiteral(loc, HELLO_CLICKED)));
 		prepareRunner();
