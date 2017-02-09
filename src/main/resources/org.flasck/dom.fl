@@ -1,9 +1,0 @@
-	struct ClickEvent
-
-	struct ChangeEvent
-		Number index
-		String id
-		String value
-
-	struct DropEvent
-		String file
