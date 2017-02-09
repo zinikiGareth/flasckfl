@@ -47,6 +47,7 @@ import org.flasck.flas.testrunner.UnitTestRunner;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zinutils.bytecode.ByteCodeCreator;
 import org.zinutils.bytecode.ByteCodeEnvironment;
 import org.zinutils.utils.FileUtils;
 import org.zinutils.utils.MultiTextEmitter;
@@ -62,6 +63,7 @@ public class FLASCompiler implements ScriptCompiler {
 	private File writeFlim;
 	private File writeDepends;
 	private File writeHSIE;
+	private File writeJVM;
 	private File trackTC;
 	private File writeJS;
 	private File writeTestReports;
@@ -74,6 +76,10 @@ public class FLASCompiler implements ScriptCompiler {
 	
 	public void unitTestPath(File file) {
 		utpaths.add(file);
+	}
+	
+	public void writeJVMTo(File file) {
+		writeJVM = file;
 	}
 	
 	// Simultaneously specify that we *WANT* to generate Android and *WHERE* to put it
@@ -361,7 +367,20 @@ public class FLASCompiler implements ScriptCompiler {
 				target.writeTo(wjs);
 			}
 
-			// 13b. Issue Droid
+			// 13b. Issue JVM bytecodes
+			if (writeJVM != null) {
+				try {
+					for (ByteCodeCreator bcc : bce.all()) {
+						File wto = new File(writeJVM, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
+						bcc.writeTo(wto);
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					errors.message((InputPosition)null, ex.getMessage());
+				}
+			}
+
+			// 13c. Do all that Droid stuff
 			try {
 				builder.generateAppObject(bce, inPkg);
 				builder.write(bce);

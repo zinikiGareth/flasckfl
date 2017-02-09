@@ -197,7 +197,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			compiler.writeJSTo(jsto);
 			compiler.writeHSIETo(hsie);
 			compiler.writeFlimTo(flim);
-			compiler.writeDroidTo(droidTo, buildDroid);
+			compiler.writeJVMTo(droidTo);
 			if (haveTests(dir)) {
 				clean(testReportTo);
 				compiler.writeTestReportsTo(testReportTo);
@@ -214,7 +214,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			handleErrors(s, ex.errors);
 		}
 		
-		File droidToClasses = new File(droidTo, "classes/test/golden");
+		File droidToClasses = new File(droidTo, "test/golden");
 		if (droidToClasses.isDirectory()) {
 			FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
 			for (File f : FileUtils.findFilesMatching(droidToClasses, "*.java")) {

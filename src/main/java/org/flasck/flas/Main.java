@@ -67,7 +67,7 @@ public class Main {
 							System.out.println("--jvm <build-dir>");
 							System.exit(1);
 						}
-						compiler.writeDroidTo(new File(args[++i]), false);
+						compiler.writeJVMTo(new File(args[++i]));
 					} else {
 						boolean matched = false;
 						DroidBuilder builder = compiler.getBuilder();
