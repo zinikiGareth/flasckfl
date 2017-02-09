@@ -44,6 +44,8 @@ public class SolidName implements NameOfThing, Comparable<SolidName> {
 	public String javaClassName() {
 		if (container == null)
 			return J.BUILTINPKG + "." + name;
+		else if (container instanceof PackageName)
+			return container.uniqueName() + "." + name;
 		else
 			return container.uniqueName() + "$" + name;
 	}
