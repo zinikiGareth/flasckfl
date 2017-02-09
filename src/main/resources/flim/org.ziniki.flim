@@ -90,11 +90,11 @@
     <Contract file="contracts.fl" line="4" name="DataStore" off="9">
         <Method dir="up" file="contracts.fl" line="5" name="my" off="3" required="true">
             <Typed file="contracts.fl" line="5" off="7" var="t"
-                vfile="contracts.fl" vline="5" voff="14">
-                <SolidName name="String"/>
+                vfile="contracts.fl" vline="5" voff="12">
+                <SolidName name="Type"/>
             </Typed>
-            <Typed file="contracts.fl" line="5" off="18" var="h"
-                vfile="contracts.fl" vline="5" voff="34">
+            <Typed file="contracts.fl" line="5" off="16" var="h"
+                vfile="contracts.fl" vline="5" voff="32">
                 <SolidName name="MyUpdateHandler">
                     <Package name="org.ziniki"/>
                 </SolidName>

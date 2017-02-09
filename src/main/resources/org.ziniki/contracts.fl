@@ -2,7 +2,7 @@
 		String id
 
 	contract DataStore
-		up my (String t) (MyUpdateHandler h)
+		up my (Type t) (MyUpdateHandler h)
 		
 	contract MyUpdateHandler
 		down missing

@@ -26,6 +26,7 @@ public class Builtin {
 		PrimitiveType bool = new PrimitiveType(posn, new SolidName(null, "Boolean"));
 		PrimitiveType number = new PrimitiveType(posn, new SolidName(null, "Number"));
 		PrimitiveType string = new PrimitiveType(posn, new SolidName(null, "String"));
+		PrimitiveType type = new PrimitiveType(posn, new SolidName(null, "Type"));
 		RWUnionTypeDefn any = new RWUnionTypeDefn(posn, false, new SolidName(null, "Any"), null);
 		{ // core
 			root.define("if", fnhelper("if", varA, varA, varA));
@@ -53,6 +54,9 @@ public class Builtin {
 			root.define("*", fnhelper("*", number, number, number));
 			root.define("/", fnhelper("/", number, number, number));
 			root.define("^", fnhelper("^", number, number, number));
+		}
+		{ // types
+			root.define("Type", type);
 		}
 		RWStructDefn nil = new RWStructDefn(posn, new SolidName(null, "Nil"), false);
 		list.addCase(nil);
