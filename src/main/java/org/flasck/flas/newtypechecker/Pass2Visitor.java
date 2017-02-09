@@ -36,7 +36,7 @@ public class Pass2Visitor implements RepoVisitor {
 
 	@Override
 	public void visitCardGrouping(CardGrouping c) {
-		String name = c.name().uniqueName();
+		String name = c.getName().uniqueName();
 		// The elements of the card struct can appear directly as CardMembers
 		// push their types into the knowledge
 		for (RWStructField f : c.struct.fields) {

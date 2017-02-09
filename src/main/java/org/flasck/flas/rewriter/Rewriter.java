@@ -662,7 +662,7 @@ public class Rewriter implements CodeGenRegistry {
 			if (val instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) val;
 				CardGrouping cg = createCard((PackageContext)cx, cd);
-				pass1(new CardContext((PackageContext) cx, cg.name(), cd, false), cd.fnScope);
+				pass1(new CardContext((PackageContext) cx, cg.getName(), cd, false), cd.fnScope);
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
 				String fn = c.functionName().uniqueName();
@@ -746,7 +746,7 @@ public class Rewriter implements CodeGenRegistry {
 					CardDefinition cd = (CardDefinition) val;
 					CardGrouping cg = pass2Card(cx, cd);
 					if (!errors.hasErrors()) {
-						CardContext c2 = new CardContext((PackageContext) cx, cg.name(), cd, true);
+						CardContext c2 = new CardContext((PackageContext) cx, cg.getName(), cd, true);
 						pass2(c2, cd.innerScope());
 					}
 				} catch (ResolutionException ex) {
@@ -804,7 +804,7 @@ public class Rewriter implements CodeGenRegistry {
 
 	private CardGrouping createCard(PackageContext cx, CardDefinition cd) {
 		RWStructDefn sd = new RWStructDefn(cd.location, new SolidName(cd.cardName.pkg, cd.cardName.cardName), false);
-		CardGrouping grp = new CardGrouping(cd.cardName, sd);
+		CardGrouping grp = new CardGrouping(cd.location, cd.cardName, sd);
 		cards.put(cd.cardName.uniqueName(), grp);
 		return grp;
 	}
@@ -844,7 +844,7 @@ public class Rewriter implements CodeGenRegistry {
 			}
 		}
 		
-		CardContext c2 = new CardContext((PackageContext) cx, grp.name(), cd, true);
+		CardContext c2 = new CardContext((PackageContext) cx, grp.getName(), cd, true);
 		for (ContractImplements ci : cd.contracts) {
 			RWContractImplements rw = cardImplements.get(ci.getRealName());
 

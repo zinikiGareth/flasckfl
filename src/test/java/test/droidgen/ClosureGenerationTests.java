@@ -137,7 +137,7 @@ public class ClosureGenerationTests {
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
-		PackageVar hdc1 = new PackageVar(loc, cn, new CardGrouping(cn, null));
+		PackageVar hdc1 = new PackageVar(loc, cn, new CardGrouping(loc, cn, null));
 		PushExternal hdc = new PushExternal(loc, hdc1);
 		dcg.pushReturn(hdc, null);
 	}

@@ -153,7 +153,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 //					throw new UtilException("Cannot handle android platform spec of type " + d.getClass());
 //			}
 		}
-		CardName cn = grp.name();
+		CardName cn = grp.getName();
 		builder.recordCard(cn.pkg == null ? null : cn.pkg.simpleName(), cn.cardName, spec);
 	}
 

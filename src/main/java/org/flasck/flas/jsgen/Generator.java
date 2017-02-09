@@ -88,8 +88,8 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	}
 
 	public void visitCardGrouping(CardGrouping card) {
-		String name = card.name().jsName();
-		String lname = card.name().jsUName();
+		String name = card.getName().jsName();
+		String lname = card.getName().jsUName();
 		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));

@@ -36,7 +36,7 @@ public class Pass1Visitor implements RepoVisitor {
 
 	@Override
 	public void visitCardGrouping(CardGrouping c) {
-		String name = c.name().uniqueName();
+		String name = c.getName().uniqueName();
 		RWStructDefn str = c.struct;
 		tc.structs.put(name, str);
 		tc.gk(name, new NamedType(str.location(), str.getTypeName()));
