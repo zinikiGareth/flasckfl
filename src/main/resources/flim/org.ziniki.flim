@@ -5,279 +5,266 @@
             <SolidName name="String"/>
         </Field>
     </Struct>
-    <Contract file="contracts.fl" line="56" name="ContentContract" off="9">
-        <Method dir="up" file="contracts.fl" line="57" name="upload"
+    <Contract file="contracts.fl" line="50" name="ContentContract" off="9">
+        <Method dir="up" file="contracts.fl" line="51" name="upload"
             off="4" required="true">
-            <Typed file="contracts.fl" line="57" off="12" var="toURL"
-                vfile="contracts.fl" vline="57" voff="19">
+            <Typed file="contracts.fl" line="51" off="12" var="toURL"
+                vfile="contracts.fl" vline="51" voff="19">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="57" off="27"
-                var="contentURL" vfile="contracts.fl" vline="57" voff="34">
+            <Typed file="contracts.fl" line="51" off="27"
+                var="contentURL" vfile="contracts.fl" vline="51" voff="34">
                 <SolidName name="String"/>
             </Typed>
         </Method>
-        <Method dir="up" file="contracts.fl" line="58" name="readHTML"
+        <Method dir="up" file="contracts.fl" line="52" name="readHTML"
             off="5" required="true">
-            <Typed file="contracts.fl" line="58" off="15"
-                var="contentId" vfile="contracts.fl" vline="58" voff="22">
+            <Typed file="contracts.fl" line="52" off="15"
+                var="contentId" vfile="contracts.fl" vline="52" voff="22">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="58" off="34" var="handler"
-                vfile="contracts.fl" vline="58" voff="49">
+            <Typed file="contracts.fl" line="52" off="34" var="handler"
+                vfile="contracts.fl" vline="52" voff="49">
                 <SolidName name="ContentHandler">
                     <Package name="org.ziniki"/>
                 </SolidName>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="60" name="ContentHandler" off="9">
-        <Method dir="down" file="contracts.fl" line="61" name="load"
+    <Contract file="contracts.fl" line="54" name="ContentHandler" off="9">
+        <Method dir="down" file="contracts.fl" line="55" name="load"
             off="5" required="true">
-            <Typed file="contracts.fl" line="61" off="11" var="type"
-                vfile="contracts.fl" vline="61" voff="18">
+            <Typed file="contracts.fl" line="55" off="11" var="type"
+                vfile="contracts.fl" vline="55" voff="18">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="61" off="25" var="content"
-                vfile="contracts.fl" vline="61" voff="32">
+            <Typed file="contracts.fl" line="55" off="25" var="content"
+                vfile="contracts.fl" vline="55" voff="32">
                 <SolidName name="String"/>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="19" name="Credentials" off="9">
-        <Method dir="up" file="contracts.fl" line="20" name="logout"
+    <Contract file="contracts.fl" line="13" name="Credentials" off="9">
+        <Method dir="up" file="contracts.fl" line="14" name="logout"
             off="3" required="true"/>
     </Contract>
-    <Contract file="contracts.fl" line="46" name="CrosetContract" off="9">
-        <Method dir="up" file="contracts.fl" line="47" name="get"
+    <Contract file="contracts.fl" line="40" name="CrosetContract" off="9">
+        <Method dir="up" file="contracts.fl" line="41" name="get"
             off="4" required="true">
-            <Typed file="contracts.fl" line="47" off="9" var="set"
-                vfile="contracts.fl" vline="47" voff="16">
+            <Typed file="contracts.fl" line="41" off="9" var="set"
+                vfile="contracts.fl" vline="41" voff="16">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="47" off="22" var="after"
-                vfile="contracts.fl" vline="47" voff="29">
+            <Typed file="contracts.fl" line="41" off="22" var="after"
+                vfile="contracts.fl" vline="41" voff="29">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="47" off="37" var="size"
-                vfile="contracts.fl" vline="47" voff="44">
+            <Typed file="contracts.fl" line="41" off="37" var="size"
+                vfile="contracts.fl" vline="41" voff="44">
                 <SolidName name="Number"/>
             </Typed>
-            <Typed file="contracts.fl" line="47" off="51" var="handler"
-                vfile="contracts.fl" vline="47" voff="65">
+            <Typed file="contracts.fl" line="41" off="51" var="handler"
+                vfile="contracts.fl" vline="41" voff="65">
                 <SolidName name="CrosetHandler">
                     <Package name="org.ziniki"/>
                 </SolidName>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="49" name="CrosetHandler" off="9">
-        <Method dir="down" file="contracts.fl" line="50" name="update"
+    <Contract file="contracts.fl" line="43" name="CrosetHandler" off="9">
+        <Method dir="down" file="contracts.fl" line="44" name="update"
             off="5" required="true">
-            <Typed file="contracts.fl" line="50" off="13" var="keys"
-                vfile="contracts.fl" vline="50" voff="21">
+            <Typed file="contracts.fl" line="44" off="13" var="keys"
+                vfile="contracts.fl" vline="44" voff="21">
                 <SolidName name="Crokeys"/>
             </Typed>
         </Method>
-        <Method dir="down" file="contracts.fl" line="51" name="remove"
+        <Method dir="down" file="contracts.fl" line="45" name="remove"
             off="5" required="true">
-            <Typed file="contracts.fl" line="51" off="13" var="keys"
-                vfile="contracts.fl" vline="51" voff="21">
+            <Typed file="contracts.fl" line="45" off="13" var="keys"
+                vfile="contracts.fl" vline="45" voff="21">
                 <SolidName name="Crokeys"/>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="4" name="Init" off="9">
-        <Method dir="down" file="contracts.fl" line="5" name="onready"
-            off="14" required="false"/>
-        <Method dir="down" file="contracts.fl" line="6" name="update"
-            off="14" required="false">
-            <Typed file="contracts.fl" line="6" off="22" var="obj"
-                vfile="contracts.fl" vline="6" voff="26">
-                <SolidName name="Any"/>
-            </Typed>
-        </Method>
-    </Contract>
-    <Contract file="contracts.fl" line="31" name="KVCreated" off="9">
-        <Method dir="down" file="contracts.fl" line="32"
-            name="itemCreated" off="5" required="true">
-            <Typed file="contracts.fl" line="32" off="18" var="obj"
-                vfile="contracts.fl" vline="32" voff="22">
-                <SolidName name="Any"/>
-            </Typed>
-        </Method>
-    </Contract>
-    <Contract file="contracts.fl" line="28" name="KVUpdate" off="9">
-        <Method dir="down" file="contracts.fl" line="29" name="update"
-            off="5" required="true">
-            <Typed file="contracts.fl" line="29" off="13" var="obj"
-                vfile="contracts.fl" vline="29" voff="17">
-                <SolidName name="Any"/>
-            </Typed>
-        </Method>
-    </Contract>
-    <Contract file="contracts.fl" line="22" name="KeyValue" off="9">
-        <Method dir="up" file="contracts.fl" line="23" name="create"
-            off="5" required="true">
-            <Typed file="contracts.fl" line="23" off="13" var="type"
-                vfile="contracts.fl" vline="23" voff="20">
+    <Contract file="contracts.fl" line="4" name="DataStore" off="9">
+        <Method dir="up" file="contracts.fl" line="5" name="my" off="3" required="true">
+            <Typed file="contracts.fl" line="5" off="7" var="t"
+                vfile="contracts.fl" vline="5" voff="14">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="23" off="27" var="handler"
-                vfile="contracts.fl" vline="23" voff="37">
+            <Typed file="contracts.fl" line="5" off="18" var="h"
+                vfile="contracts.fl" vline="5" voff="34">
+                <SolidName name="MyUpdateHandler">
+                    <Package name="org.ziniki"/>
+                </SolidName>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="contracts.fl" line="25" name="KVCreated" off="9">
+        <Method dir="down" file="contracts.fl" line="26"
+            name="itemCreated" off="5" required="true">
+            <Typed file="contracts.fl" line="26" off="18" var="obj"
+                vfile="contracts.fl" vline="26" voff="22">
+                <SolidName name="Any"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="contracts.fl" line="22" name="KVUpdate" off="9">
+        <Method dir="down" file="contracts.fl" line="23" name="update"
+            off="5" required="true">
+            <Typed file="contracts.fl" line="23" off="13" var="obj"
+                vfile="contracts.fl" vline="23" voff="17">
+                <SolidName name="Any"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="contracts.fl" line="16" name="KeyValue" off="9">
+        <Method dir="up" file="contracts.fl" line="17" name="create"
+            off="5" required="true">
+            <Typed file="contracts.fl" line="17" off="13" var="type"
+                vfile="contracts.fl" vline="17" voff="20">
+                <SolidName name="String"/>
+            </Typed>
+            <Typed file="contracts.fl" line="17" off="27" var="handler"
+                vfile="contracts.fl" vline="17" voff="37">
                 <SolidName name="KVCreated">
                     <Package name="org.ziniki"/>
                 </SolidName>
             </Typed>
         </Method>
-        <Method dir="up" file="contracts.fl" line="24" name="typed"
+        <Method dir="up" file="contracts.fl" line="18" name="typed"
             off="5" required="true">
-            <Typed file="contracts.fl" line="24" off="12" var="type"
-                vfile="contracts.fl" vline="24" voff="19">
+            <Typed file="contracts.fl" line="18" off="12" var="type"
+                vfile="contracts.fl" vline="18" voff="19">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="24" off="26" var="id"
-                vfile="contracts.fl" vline="24" voff="33">
+            <Typed file="contracts.fl" line="18" off="26" var="id"
+                vfile="contracts.fl" vline="18" voff="33">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="24" off="38" var="handler"
-                vfile="contracts.fl" vline="24" voff="47">
+            <Typed file="contracts.fl" line="18" off="38" var="handler"
+                vfile="contracts.fl" vline="18" voff="47">
                 <SolidName name="KVUpdate">
                     <Package name="org.ziniki"/>
                 </SolidName>
             </Typed>
         </Method>
-        <Method dir="up" file="contracts.fl" line="25" name="resource"
+        <Method dir="up" file="contracts.fl" line="19" name="resource"
             off="5" required="true">
-            <Typed file="contracts.fl" line="25" off="15" var="resource"
-                vfile="contracts.fl" vline="25" voff="22">
+            <Typed file="contracts.fl" line="19" off="15" var="resource"
+                vfile="contracts.fl" vline="19" voff="22">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="25" off="33" var="handler"
-                vfile="contracts.fl" vline="25" voff="42">
+            <Typed file="contracts.fl" line="19" off="33" var="handler"
+                vfile="contracts.fl" vline="19" voff="42">
                 <SolidName name="KVUpdate">
                     <Package name="org.ziniki"/>
                 </SolidName>
             </Typed>
         </Method>
-        <Method dir="up" file="contracts.fl" line="26" name="save"
+        <Method dir="up" file="contracts.fl" line="20" name="save"
             off="5" required="true">
-            <Typed file="contracts.fl" line="26" off="11" var="obj"
-                vfile="contracts.fl" vline="26" voff="15">
+            <Typed file="contracts.fl" line="20" off="11" var="obj"
+                vfile="contracts.fl" vline="20" voff="15">
                 <SolidName name="Any"/>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="40" name="Persona" off="9">
-        <Method dir="up" file="contracts.fl" line="41"
+    <Contract file="contracts.fl" line="7" name="MyUpdateHandler" off="9">
+        <Method dir="down" file="contracts.fl" line="8" name="missing"
+            off="5" required="true"/>
+        <Method dir="down" file="contracts.fl" line="9" name="update"
+            off="5" required="true">
+            <Typed file="contracts.fl" line="9" off="13" var="value"
+                vfile="contracts.fl" vline="9" voff="17">
+                <SolidName name="Any"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="contracts.fl" line="34" name="Persona" off="9">
+        <Method dir="up" file="contracts.fl" line="35"
             name="forApplication" off="4" required="true">
-            <Typed file="contracts.fl" line="41" off="20" var="appl"
-                vfile="contracts.fl" vline="41" voff="27">
+            <Typed file="contracts.fl" line="35" off="20" var="appl"
+                vfile="contracts.fl" vline="35" voff="27">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="41" off="34" var="type"
-                vfile="contracts.fl" vline="41" voff="41">
+            <Typed file="contracts.fl" line="35" off="34" var="type"
+                vfile="contracts.fl" vline="35" voff="41">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="41" off="48" var="handler"
-                vfile="contracts.fl" vline="41" voff="63">
+            <Typed file="contracts.fl" line="35" off="48" var="handler"
+                vfile="contracts.fl" vline="35" voff="63">
                 <SolidName name="PersonaHandler">
                     <Package name="org.ziniki"/>
                 </SolidName>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="43" name="PersonaHandler" off="9">
-        <Method dir="down" file="contracts.fl" line="44" name="update"
+    <Contract file="contracts.fl" line="37" name="PersonaHandler" off="9">
+        <Method dir="down" file="contracts.fl" line="38" name="update"
             off="5" required="true">
-            <Typed file="contracts.fl" line="44" off="13" var="persona"
-                vfile="contracts.fl" vline="44" voff="17">
+            <Typed file="contracts.fl" line="38" off="13" var="persona"
+                vfile="contracts.fl" vline="38" voff="17">
                 <SolidName name="Any"/>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="34" name="Query" off="9">
-        <Method dir="up" file="contracts.fl" line="35" name="scan"
+    <Contract file="contracts.fl" line="28" name="Query" off="9">
+        <Method dir="up" file="contracts.fl" line="29" name="scan"
             off="4" required="true">
-            <Typed file="contracts.fl" line="35" off="11" var="resource"
-                vfile="contracts.fl" vline="35" voff="18">
+            <Typed file="contracts.fl" line="29" off="11" var="resource"
+                vfile="contracts.fl" vline="29" voff="18">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="35" off="29" var="type"
-                vfile="contracts.fl" vline="35" voff="36">
+            <Typed file="contracts.fl" line="29" off="29" var="type"
+                vfile="contracts.fl" vline="29" voff="36">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="35" off="43" var="options"
-                vfile="contracts.fl" vline="35" voff="55">
-                <Instance file="contracts.fl" line="35" off="43">
+            <Typed file="contracts.fl" line="29" off="43" var="options"
+                vfile="contracts.fl" vline="29" voff="55">
+                <Instance file="contracts.fl" line="29" off="43">
                     <SolidName name="Map"/>
                     <SolidName name="String"/>
                 </Instance>
             </Typed>
-            <Typed file="contracts.fl" line="35" off="65" var="handler"
-                vfile="contracts.fl" vline="35" voff="78">
+            <Typed file="contracts.fl" line="29" off="65" var="handler"
+                vfile="contracts.fl" vline="29" voff="78">
                 <SolidName name="QueryHandler">
                     <Package name="org.ziniki"/>
                 </SolidName>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="37" name="QueryHandler" off="9">
-        <Method dir="down" file="contracts.fl" line="38" name="keys"
+    <Contract file="contracts.fl" line="31" name="QueryHandler" off="9">
+        <Method dir="down" file="contracts.fl" line="32" name="keys"
             off="5" required="true">
-            <Typed file="contracts.fl" line="38" off="11" var="value"
-                vfile="contracts.fl" vline="38" voff="19">
+            <Typed file="contracts.fl" line="32" off="11" var="value"
+                vfile="contracts.fl" vline="32" voff="19">
                 <SolidName name="Crokeys"/>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="8" name="Timer" off="9">
-        <Method dir="up" file="contracts.fl" line="9"
-            name="requestTicks" off="3" required="true">
-            <Typed file="contracts.fl" line="9" off="17" var="h"
-                vfile="contracts.fl" vline="9" voff="31">
-                <SolidName name="TimerCallback">
-                    <Package name="org.ziniki"/>
-                </SolidName>
-            </Typed>
-            <Typed file="contracts.fl" line="9" off="35"
-                var="msInterval" vfile="contracts.fl" vline="9" voff="42">
-                <SolidName name="Number"/>
-            </Typed>
-        </Method>
-    </Contract>
-    <Contract file="contracts.fl" line="11" name="TimerCallback" off="9">
-        <Method dir="down" file="contracts.fl" line="12" name="onTick"
-            off="5" required="true"/>
-    </Contract>
-    <Contract file="contracts.fl" line="14" name="Window" off="9">
-        <Method dir="up" file="contracts.fl" line="15"
-            name="requestFullScreen" off="3" required="true"/>
-        <Method dir="up" file="contracts.fl" line="16"
-            name="leaveFullScreen" off="3" required="true"/>
-        <Method dir="up" file="contracts.fl" line="17" name="closePopup"
-            off="3" required="true"/>
-    </Contract>
-    <Contract file="contracts.fl" line="63" name="Yoyo" off="9">
-        <Method dir="up" file="contracts.fl" line="64" name="get"
+    <Contract file="contracts.fl" line="57" name="Yoyo" off="9">
+        <Method dir="up" file="contracts.fl" line="58" name="get"
             off="4" required="true">
-            <Typed file="contracts.fl" line="64" off="9" var="id"
-                vfile="contracts.fl" vline="64" voff="16">
+            <Typed file="contracts.fl" line="58" off="9" var="id"
+                vfile="contracts.fl" vline="58" voff="16">
                 <SolidName name="String"/>
             </Typed>
-            <Typed file="contracts.fl" line="64" off="21" var="handler"
-                vfile="contracts.fl" vline="64" voff="33">
+            <Typed file="contracts.fl" line="58" off="21" var="handler"
+                vfile="contracts.fl" vline="58" voff="33">
                 <SolidName name="YoyoHandler">
                     <Package name="org.ziniki"/>
                 </SolidName>
             </Typed>
         </Method>
     </Contract>
-    <Contract file="contracts.fl" line="66" name="YoyoHandler" off="9">
-        <Method dir="down" file="contracts.fl" line="67" name="showCard"
+    <Contract file="contracts.fl" line="60" name="YoyoHandler" off="9">
+        <Method dir="down" file="contracts.fl" line="61" name="showCard"
             off="5" required="true">
-            <Typed file="contracts.fl" line="67" off="15" var="card"
-                vfile="contracts.fl" vline="67" voff="20">
+            <Typed file="contracts.fl" line="61" off="15" var="card"
+                vfile="contracts.fl" vline="61" voff="20">
                 <SolidName name="Card"/>
             </Typed>
         </Method>
@@ -336,7 +323,7 @@
                 <SolidName name="String"/>
             </Arg>
             <Arg>
-                <Instance file="contracts.fl" line="35" off="43">
+                <Instance file="contracts.fl" line="29" off="43">
                     <SolidName name="Map"/>
                     <SolidName name="String"/>
                 </Instance>

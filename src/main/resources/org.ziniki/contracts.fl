@@ -1,21 +1,15 @@
 	struct Id
 		String id
 
-	contract Init
-		optional down onready
-		optional down update (Any obj)
+	contract DataStore
+		up my (String t) (MyUpdateHandler h)
+		
+	contract MyUpdateHandler
+		down missing
+		down update (Any value)
+		
+Everything after here is from before and should be considered "dead" ...
 
-	contract Timer
-		up requestTicks (TimerCallback h) (Number msInterval) 
-  
-	contract TimerCallback
-		down onTick 
-
-	contract Window
-		up requestFullScreen
-		up leaveFullScreen
-		up closePopup
-	
 	contract Credentials
 		up logout
 	

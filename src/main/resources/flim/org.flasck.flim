@@ -17,4 +17,42 @@
             <SolidName name="String"/>
         </Field>
     </Struct>
+    <Contract file="basic.fl" line="1" name="Init" off="9">
+        <Method dir="down" file="basic.fl" line="2" name="onready"
+            off="14" required="false"/>
+        <Method dir="down" file="basic.fl" line="3" name="update"
+            off="14" required="false">
+            <Typed file="basic.fl" line="3" off="22" var="obj"
+                vfile="basic.fl" vline="3" voff="26">
+                <SolidName name="Any"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="basic.fl" line="5" name="Timer" off="9">
+        <Method dir="up" file="basic.fl" line="6" name="requestTicks"
+            off="3" required="true">
+            <Typed file="basic.fl" line="6" off="17" var="h"
+                vfile="basic.fl" vline="6" voff="31">
+                <SolidName name="TimerCallback">
+                    <Package name="org.flasck"/>
+                </SolidName>
+            </Typed>
+            <Typed file="basic.fl" line="6" off="35" var="msInterval"
+                vfile="basic.fl" vline="6" voff="42">
+                <SolidName name="Number"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="basic.fl" line="8" name="TimerCallback" off="9">
+        <Method dir="down" file="basic.fl" line="9" name="onTick"
+            off="5" required="true"/>
+    </Contract>
+    <Contract file="basic.fl" line="11" name="Window" off="9">
+        <Method dir="up" file="basic.fl" line="12"
+            name="requestFullScreen" off="3" required="true"/>
+        <Method dir="up" file="basic.fl" line="13"
+            name="leaveFullScreen" off="3" required="true"/>
+        <Method dir="up" file="basic.fl" line="14" name="closePopup"
+            off="3" required="true"/>
+    </Contract>
 </FLIM>
