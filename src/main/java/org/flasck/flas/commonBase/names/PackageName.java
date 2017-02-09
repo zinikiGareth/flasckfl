@@ -1,6 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.xml.XMLElement;
 
@@ -32,12 +31,12 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	
 	@Override
 	public String javaName() {
-		throw new NotImplementedException();
+		return name;
 	}
 
 	@Override
 	public String javaClassName() {
-		throw new NotImplementedException();
+		return name;
 	}
 
 	public String simpleName() {

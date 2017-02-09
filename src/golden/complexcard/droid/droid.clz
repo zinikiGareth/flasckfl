@@ -454,6 +454,16 @@ class WithInit.java extends org.flasck.jvm.FLASObject {
     return
   }
 }
+class DataStore.java {
+  abstract java.lang.Object get(java.lang.Object arg0, java.lang.Object arg1);
+}
+class Handler.java {
+}
+class Init.java {
+}
+class Offer.java {
+  abstract java.lang.Object get(java.lang.Object arg0, java.lang.Object arg1);
+}
 class PACKAGEFUNCTIONS$inits_format.java {
   static java.lang.Object eval([java.lang.Object args) {
     return test.golden.Complex.PACKAGEFUNCTIONS.inits_format()

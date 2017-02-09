@@ -63,14 +63,16 @@ public class GenTestsForContracts {
 	public void testVisitingAnEmptyContractDefnGeneratesTheCorrectMinimumCode() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfServiceIntf();
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		gen.visitContractDecl(cd);
 	}
 
 	@Test
-	public void testVisitingAContractDefnWithADownMethodGeneratesTheCorrectMemberDecl() {
+	public void testVisitingAContractDefnWithADownMethodGeneratesTheCorrectMemberDeclInTheCardImpl() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfServiceIntf();
 		checkDeclOfMethod("fred");
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), new ArrayList<>(), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
@@ -81,6 +83,7 @@ public class GenTestsForContracts {
 	public void testAContractDefnWithADownMethodCanHaveAnArgument() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfServiceIntf();
 		checkDeclOfMethod("fred");
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), Arrays.asList((Object)null), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
@@ -88,11 +91,24 @@ public class GenTestsForContracts {
 	}
 
 	@Test
-	public void testAnUpMethodInAContractDefnIsIgnored() {
+	public void testAnUpMethodInAContractDefnIsIgnoredInTheCardImplButPresentInTheServiceIntf() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfServiceIntf();
+		checkIntfDeclOfMethod("fred");
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "fred"), new ArrayList<>(), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
+		gen.visitContractDecl(cd);
+	}
+
+	@Test
+	public void testAContractDefnWithAnUpMethodCanHaveAnArgument() {
+		checkCreationOfStruct();
+		checkCreationOfStructCtor();
+		checkCreationOfServiceIntf();
+		checkIntfDeclOfMethod("fred");
+		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
+		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "fred"), Arrays.asList((Object)null), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
 		gen.visitContractDecl(cd);
 	}
 
@@ -101,6 +117,13 @@ public class GenTestsForContracts {
 			oneOf(bce).newClass("ContDecl"); will(returnValue(bccContract));
 			oneOf(bccContract).superclass(J.CONTRACT_IMPL);
 			oneOf(bccContract).makeAbstract();
+		}});
+	}
+
+	public void checkCreationOfServiceIntf() {
+		context.checking(new Expectations() {{
+			oneOf(bce).newClass("_up.ContDecl"); will(returnValue(bccContract));
+			oneOf(bccContract).makeInterface();
 		}});
 	}
 
@@ -113,15 +136,14 @@ public class GenTestsForContracts {
 	}
 
 	private void checkDeclOfMethod(String name) {
-		// I expect this will eventually need to be more public, eg. stored in a map or something
-//		IFieldInfo ret = context.mock(IFieldInfo.class, name);
-//		FieldExpr fe = new FieldExpr(meth, null, null, "", name);
 		context.checking(new Expectations() {{
-//			oneOf(bccContract).defineField(false, Access.PUBLIC, J.OBJECT, name); will(returnValue(ret));
 			oneOf(bccContract).createMethod(false, J.OBJECT, name); // will(returnValue(ret));
-//			oneOf(ret).asExpr(meth); will(returnValue(fe));
-//			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
-//			oneOf(meth).assign(fe, expr); will(returnValue(expr));
+		}});
+	}
+
+	private void checkIntfDeclOfMethod(String name) {
+		context.checking(new Expectations() {{
+			oneOf(bccContract).createMethod(false, J.OBJECT, name); // will(returnValue(ret));
 		}});
 	}
 }

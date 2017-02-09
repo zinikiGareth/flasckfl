@@ -5,3 +5,5 @@ class HandlerCtr.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object handle(java.lang.Object arg0);
 }
+class HandlerCtr.java {
+}

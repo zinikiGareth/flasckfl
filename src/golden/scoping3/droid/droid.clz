@@ -60,6 +60,8 @@ class PACKAGEFUNCTIONS.java {
     return new org.flasck.jvm.FLClosure(test.golden.f_0$set.class,new java.lang.Object[0] {})
   }
 }
+class KVUpdate.java {
+}
 class PACKAGEFUNCTIONS$set.java {
   static java.lang.Object eval([java.lang.Object args) {
     return test.golden.f_0.PACKAGEFUNCTIONS.set()

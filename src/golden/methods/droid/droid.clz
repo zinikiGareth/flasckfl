@@ -55,6 +55,8 @@ class PACKAGEFUNCTIONS.java {
     return org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})
   }
 }
+class KVH.java {
+}
 class PACKAGEFUNCTIONS$s.java {
   static java.lang.Object eval([java.lang.Object args) {
     return test.golden.f_0.PACKAGEFUNCTIONS.s()

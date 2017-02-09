@@ -36,6 +36,9 @@ class PACKAGEFUNCTIONS.java {
     }
   }
 }
+class DoIt.java {
+  abstract java.lang.Object calc(java.lang.Object arg0);
+}
 class PACKAGEFUNCTIONS$m.java {
   static java.lang.Object eval([java.lang.Object args) {
     return test.golden.f_0.PACKAGEFUNCTIONS.m(args[0], args[1])

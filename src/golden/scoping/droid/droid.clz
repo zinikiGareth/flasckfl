@@ -132,6 +132,15 @@ class Server.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
+class NoArg.java {
+  abstract java.lang.Object get(java.lang.Object arg0);
+}
+class Reply.java {
+}
+class Server.java {
+  abstract java.lang.Object get(java.lang.Object arg0, java.lang.Object arg1);
+  abstract java.lang.Object put(java.lang.Object arg0);
+}
 class PACKAGEFUNCTIONS$q.java {
   static java.lang.Object eval([java.lang.Object args) {
     return test.golden.f_0.PACKAGEFUNCTIONS.q(args[0], args[1], args[2])

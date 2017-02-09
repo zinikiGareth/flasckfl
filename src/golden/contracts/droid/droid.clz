@@ -25,3 +25,13 @@ class UsePolyInstance.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object giveList(java.lang.Object arg0);
 }
+class Foo.java {
+  abstract java.lang.Object hello(java.lang.Object arg0);
+}
+class Handler.java {
+}
+class Request.java {
+  abstract java.lang.Object ask(java.lang.Object arg0);
+}
+class UsePolyInstance.java {
+}

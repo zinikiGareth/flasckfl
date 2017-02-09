@@ -10,7 +10,10 @@ import org.flasck.flas.commonBase.PlatformSpec;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.HandlerName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.compiler.HSIEFormGenerator;
+import org.flasck.flas.parsedForm.TypedPattern;
+import org.flasck.flas.parsedForm.VarPattern;
 import org.flasck.flas.rewriter.CodeGenRegistry;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -23,7 +26,10 @@ import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.template.TemplateGenerator;
+import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -82,6 +88,11 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 
 	@Override
 	public void visitContractDecl(RWContractDecl cd) {
+		generateContractImplPartForCard(cd);
+		generateContractInterfaceForService(cd);
+	}
+
+	public void generateContractImplPartForCard(RWContractDecl cd) {
 		ByteCodeSink bcc = bce.newClass(cd.name());
 		bcc.generateAssociatedSourceFile();
 		bcc.superclass(J.CONTRACT_IMPL);
@@ -100,6 +111,40 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				int k = 0;
 				for (@SuppressWarnings("unused") Object a : m.args)
 					gm.argument("java.lang.Object", "arg"+(k++));
+				gm.done();
+			}
+		}
+	}
+
+	public void generateContractInterfaceForService(RWContractDecl cd) {
+		SolidName nt = (SolidName) cd.getName();
+		String jpn = nt.javaPackageName();
+		if (jpn == null)
+			jpn = "";
+		else
+			jpn = jpn + ".";
+		ByteCodeSink bcc = bce.newClass(jpn+"_up."+ nt.baseName());
+		bcc.generateAssociatedSourceFile();
+		bcc.makeInterface();
+		
+		for (RWContractMethodDecl m : cd.methods) {
+			if (m.dir.equals("up")) {
+				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
+				gm.returns("java.lang.Object");
+				gm.argument(J.DELIVERY_ADDRESS, "da");
+				int k = 0;
+				for (Object a : m.args) {
+					if (a instanceof RWTypedPattern) {
+						TypeWithName type = ((RWTypedPattern)a).type;
+						if (type instanceof RWContractDecl)
+							gm.argument(J.DELIVERY_ADDRESS, ((RWTypedPattern) a).var.var);
+						else
+							gm.argument(JvmTypeMapper.map(type), ((RWTypedPattern) a).var.var);
+					} else if (a instanceof RWVarPattern) {
+						gm.argument("java.lang.Object", ((RWVarPattern)a).var.var);
+					} else
+						gm.argument("java.lang.Object", "arg"+(k++));
+				}
 				gm.done();
 			}
 		}

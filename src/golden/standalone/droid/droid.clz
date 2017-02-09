@@ -121,3 +121,9 @@ class KeyValue.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
+class Bar.java {
+}
+class KeyValue.java {
+  abstract java.lang.Object typed();
+  abstract java.lang.Object mine();
+}

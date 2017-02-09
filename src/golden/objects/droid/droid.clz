@@ -46,3 +46,5 @@ class Ctr.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object go();
 }
+class Ctr.java {
+}

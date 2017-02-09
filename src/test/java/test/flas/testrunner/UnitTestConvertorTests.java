@@ -30,7 +30,6 @@ public class UnitTestConvertorTests {
 		ctor.convert(CollectionUtils.listOf("\ttest the value of x is 32", "\t\tassert x", "\t\t\t32"));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testSimpleFunction() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);
@@ -44,7 +43,6 @@ public class UnitTestConvertorTests {
 	}
 
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testWeCanConvertAScriptWithTwoCases() {
 		TestScriptBuilder script = context.mock(TestScriptBuilder.class);

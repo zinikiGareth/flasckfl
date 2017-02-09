@@ -69,6 +69,11 @@ class UpC.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
+class Hc.java {
+}
+class UpC.java {
+  abstract java.lang.Object call(java.lang.Object arg0);
+}
 class PACKAGEFUNCTIONS$request.java {
   static java.lang.Object eval([java.lang.Object args) {
     return test.golden.scoped_0.PACKAGEFUNCTIONS.request(args[0], args[1])
