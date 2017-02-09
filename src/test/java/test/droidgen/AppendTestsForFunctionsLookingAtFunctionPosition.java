@@ -2,21 +2,26 @@ package test.droidgen;
 
 import static org.junit.Assert.assertEquals;
 
-
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.droidgen.DroidPushArgument;
 import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.IterVar;
+import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
+import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushString;
 import org.flasck.flas.vcode.hsieForm.PushTLV;
@@ -28,6 +33,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.BoolConstExpr;
+import org.zinutils.bytecode.ClassConstExpr;
 import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.IntConstExpr;
 import org.zinutils.bytecode.MethodDefiner;
@@ -42,7 +48,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 	MethodDefiner meth = context.mock(MethodDefiner.class);
 	private HSIEForm form = null;
 	private VarHolder vh = new VarHolder();
-	DroidPushArgument dap = new DroidPushArgument(form, meth, vh);
+	DroidPushArgument dpa = new DroidPushArgument(form, meth, vh);
 	private FunctionName funcName = FunctionName.function(loc, null, "func");
 
 	@Test
@@ -51,7 +57,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 		context.checking(new Expectations() {{
 			oneOf(meth).boolConst(true); will(returnValue(bce));
 		}});
-		Object ret = dap.visit(new PushBool(loc, new BooleanLiteral(loc, true)));
+		Object ret = dpa.visit(new PushBool(loc, new BooleanLiteral(loc, true)));
 		assertEquals(bce, ret);
 	}
 
@@ -63,7 +69,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 			oneOf(meth).intConst(12); will(returnValue(bce));
 			oneOf(meth).callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", bce); will(returnValue(mi));
 		}});
-		Object ret = dap.visit(new PushInt(loc, 12));
+		Object ret = dpa.visit(new PushInt(loc, 12));
 		assertEquals(mi, ret);
 	}
 
@@ -73,8 +79,21 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 		context.checking(new Expectations() {{
 			oneOf(meth).stringConst("hello"); will(returnValue(sce));
 		}});
-		Object ret = dap.visit(new PushString(loc, new StringLiteral(loc, "hello")));
+		Object ret = dpa.visit(new PushString(loc, new StringLiteral(loc, "hello")));
 		assertEquals(sce, ret);
+	}
+
+	@Test
+	public void testWeCanPushAnExternalRepresentingAType() {
+		ClassConstExpr cce = new ClassConstExpr(meth, "demo.ziniki.Account");
+		context.checking(new Expectations() {{
+			oneOf(meth).classConst("demo.ziniki.Account"); will(returnValue(cce));
+		}});
+		SolidName sn = new SolidName(new PackageName("demo.ziniki"), "Account");
+		RWStructDefn sd = new RWStructDefn(loc, sn, true);
+		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "String")), "id"));
+		Object ret = dpa.visit(new PushExternal(loc, new PackageVar(loc, sn, sd)));
+		assertEquals(cce, ret);
 	}
 
 	@Test
@@ -85,14 +104,14 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 		}});
 		AVar av = new AVar(meth, "12", "x");
 		vh.put(var, av);
-		Object ret = dap.visit(new PushVar(loc, new VarInSource(var, loc, "x")));
+		Object ret = dpa.visit(new PushVar(loc, new VarInSource(var, loc, "x")));
 		assertEquals(av, ret);
 	}
 
 	@Test(expected=UtilException.class)
 	public void testWeCannotPushAVariableWeHaventDefinedYet() {
 		Var var = new Var(1);
-		dap.visit(new PushVar(loc, new VarInSource(var, loc, "x")));
+		dpa.visit(new PushVar(loc, new VarInSource(var, loc, "x")));
 	}
 
 	@Test
@@ -104,7 +123,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 			oneOf(meth).getField(fe1, "my_var"); will(returnValue(fe2));
 		}});
 		IterVar iterVar = new IterVar(loc, new CardName(new PackageName("test"), "Card"), "my_var");
-		Object ret = dap.visit(new PushTLV(loc, new TemplateListVar(loc, funcName , iterVar)));
+		Object ret = dpa.visit(new PushTLV(loc, new TemplateListVar(loc, funcName , iterVar)));
 		assertEquals(fe2, ret);
 	}
 
@@ -117,7 +136,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 		context.checking(new Expectations() {{
 			oneOf(meth).myThis(); will(returnValue(av));
 		}});
-		Object ret = dap.visit(new PushCSR(loc, new CardStateRef(loc, false)));
+		Object ret = dpa.visit(new PushCSR(loc, new CardStateRef(loc, false)));
 		assertEquals(av, ret);
 	}
 
@@ -127,7 +146,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 		context.checking(new Expectations() {{
 			oneOf(meth).getField("_card"); will(returnValue(fe1));
 		}});
-		Object ret = dap.visit(new PushCSR(loc, new CardStateRef(loc, true)));
+		Object ret = dpa.visit(new PushCSR(loc, new CardStateRef(loc, true)));
 		assertEquals(fe1, ret);
 	}
 

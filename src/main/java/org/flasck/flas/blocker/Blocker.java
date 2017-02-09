@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.Block;
@@ -11,7 +12,6 @@ import org.flasck.flas.blockForm.Indent;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.SingleLine;
 import org.flasck.flas.errors.ErrorResult;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class Blocker {
@@ -100,7 +100,7 @@ public class Blocker {
 	}
 	
 	public static List<Block> block(String input) {
-		List<String> lines = CollectionUtils.listOf(input.split("\n"));
+		List<String> lines = Arrays.asList(input.split("\n"));
 		return block(lines);
 	}
 

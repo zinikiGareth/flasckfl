@@ -137,9 +137,9 @@ public class DroidAreaGenerator implements AreaGenerator {
 		
 //		The rest of this code is basically correct, it's just that we used to have an HSIE block here
 		// that we converted into a Var.  Now we have a function to call, so we need to replace "str" with "tfn()"
-		IExpr str = meth.callVirtual(JavaType.string.getActual(), meth.myThis(), tfn.name);
+		IExpr str = meth.callVirtual(J.OBJECT, meth.myThis(), tfn.name);
 		if (rawHTML)
-			meth.callSuper("void", J.TEXT_AREA, "_insertHTML", str).flush();
+			meth.callSuper("void", J.TEXT_AREA, "_assignHTML", str).flush();
 		else
 			meth.callSuper("void", J.TEXT_AREA, "_assignToText", str).flush();
 		meth.returnObject(meth.aNull()).flush();

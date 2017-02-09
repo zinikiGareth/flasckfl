@@ -1,6 +1,6 @@
 bin/
 qbout/
-src/main/resources/android/
+src/main/resources/jvm/
 src/test/resources/**/*.js
 src/test/resources/**/*.flim
 !src/test/resources/flasck/*.js
