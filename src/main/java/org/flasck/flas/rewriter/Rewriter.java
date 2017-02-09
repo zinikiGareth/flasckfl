@@ -855,7 +855,8 @@ public class Rewriter implements CodeGenRegistry {
 				rewriteCase(c2, rwm, c, true, false);
 				methods.put(c.intro.name().uniqueName(), rwm);
 				rw.methods.add(rwm);
-				rwm.gatherScopedVars();
+				if (!errors.hasErrors())
+					rwm.gatherScopedVars();
 			}
 		}
 		
@@ -1214,7 +1215,12 @@ public class Rewriter implements CodeGenRegistry {
 
 	private RWHandlerImplements pass1HI(NamingContext cx, HandlerImplements hi) {
 		TypeWithName any = (TypeWithName) getObject(cx.nested.resolve(hi.location(), "Any"));
-		Object av = cx.resolve(hi.location(), hi.name());
+		Object av = null;
+		try {
+			av = cx.resolve(hi.location(), hi.name());
+		} catch (ResolutionException ex) {
+			// remains null, see below ...
+		}
 		if (av == null || !(av instanceof PackageVar)) {
 			errors.message(hi.location(), "cannot find a valid definition of contract " + hi.name());
 			return null;
@@ -1618,9 +1624,14 @@ public class Rewriter implements CodeGenRegistry {
 					return new ApplyExpr(ae.location, cx.resolve(ae.location, "."), applyFn, new StringLiteral(loc, fname));
 				}
 				List<Object> args = new ArrayList<Object>();
+				Object head = rewriteExpr(cx, ae.fn);
+				if (head instanceof UnresolvedVar) {
+					UnresolvedVar uvh = (UnresolvedVar) head;
+					throw new ResolutionException(uvh.location(), uvh.var);
+				}
 				for (Object o : ae.args)
 					args.add(rewriteExpr(cx, o));
-				return new ApplyExpr(ae.location, rewriteExpr(cx, ae.fn), args);
+				return new ApplyExpr(ae.location, head, args);
 			} else if (expr instanceof CastExpr) {
 				CastExpr ce = (CastExpr) expr;
 				Object resolve = cx.resolve(ce.location, (String) ce.castTo);
