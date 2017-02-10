@@ -26,6 +26,6 @@ public class NotMatched extends Exception {
 		if (failure != null)
 			return "Matcher failed on '" + selector + "': " + failure;
 		else
-			return "Matcher '" + selector + "' failed: expected '" + expected + "' but was '" + actual + "'"; 
+			return "Matcher '" + selector + "' failed: expected <<" + expected + ">> but was '" + actual + "'"; 
 	}
 }

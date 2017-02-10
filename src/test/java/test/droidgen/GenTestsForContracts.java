@@ -159,7 +159,7 @@ public class GenTestsForContracts {
 		checkIntfDeclOfMethod("callMeBack");
 		context.checking(new Expectations() {{
 			oneOf(uMeth).argument("org.flasck.jvm.post.DeliveryAddress", "from");
-			oneOf(uMeth).argument("test.MyHandler$Up", "h");
+			oneOf(uMeth).argument("test.MyHandler$Down", "h");
 		}});
 
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);

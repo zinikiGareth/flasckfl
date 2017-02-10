@@ -135,7 +135,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				gm.argument(J.DELIVERY_ADDRESS, "from");
 				int k = 0;
 				for (Object a : m.args) {
-					generateArgument(gm, a, RWMethodDefinition.UP, k);
+					generateArgument(gm, a, RWMethodDefinition.DOWN, k);
 					k++;
 				}
 				gm.done();
@@ -157,7 +157,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				gm.argument(J.DELIVERY_ADDRESS, "from");
 				int k = 0;
 				for (Object a : m.args) {
-					generateArgument(gm, a, RWMethodDefinition.DOWN, k);
+					generateArgument(gm, a, RWMethodDefinition.UP, k);
 					k++;
 				}
 				gm.done();
