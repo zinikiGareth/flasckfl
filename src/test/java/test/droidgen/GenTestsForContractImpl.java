@@ -50,7 +50,7 @@ public class GenTestsForContractImpl {
 	public void checkCreationOfNestedClass() {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("Card$_C0"); will(returnValue(bccImpl));
-			oneOf(bccImpl).superclass("CtrDecl");
+			oneOf(bccImpl).superclass("CtrDecl$Impl");
 			oneOf(bccImpl).defineField(false, Access.PRIVATE, new JavaType("Card"), "_card");
 			oneOf(bccImpl).addInnerClassReference(Access.PUBLICSTATIC, "Card", "_C0");
 		}});

@@ -29,7 +29,11 @@ public class JvmTypeMapper {
 		} else if (type instanceof PolyVar) {
 			return JavaType.object_;
 		} else if (type instanceof TypeWithName) {
-			return new JavaType(((TypeWithName)type).getName().javaName());
+			String name = ((TypeWithName)type).getName().javaName();
+			if (name.equals("Any"))
+				return JavaType.object_;
+			else
+				return new JavaType(name);
 		} else
 			throw new UtilException("Not handled " + type + " " + type.getClass());
 	}

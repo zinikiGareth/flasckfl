@@ -10,14 +10,14 @@ class Bar$Impl.java extends org.flasck.jvm.ContractImpl {
 }
 class Bar$Up.java {
 }
-class Foo$_C0.java extends test.golden.KeyValue {
+class Foo$_C0.java extends test.golden.KeyValue$Impl {
   void <init>(test.golden.Foo card) {
     super.<init>()
     this._card = card
     return
   }
 }
-class Foo$_C1.java extends test.golden.Bar {
+class Foo$_C1.java extends test.golden.Bar$Impl {
   void <init>(test.golden.Foo card) {
     super.<init>()
     this._card = card

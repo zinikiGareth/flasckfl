@@ -1,4 +1,4 @@
-class f_0$ItemHandler.java extends test.golden.KVUpdate {
+class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
   void <init>(java.lang.Object set, java.lang.Object ck) {
     super.<init>()
     this.set = org.flasck.jvm.FLEval.head(set)
@@ -44,14 +44,14 @@ class f_0$ItemHandler.java extends test.golden.KVUpdate {
   }
 }
 class KVUpdate$Down.java {
-  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, Any obj);
+  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
 }
 class KVUpdate$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, Any obj);
+  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
 }
 class KVUpdate$Up.java {
 }

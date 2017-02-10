@@ -1,4 +1,4 @@
-class Card$_C0.java extends test.golden.Ctr {
+class Card$_C0.java extends test.golden.Ctr$Impl {
   void <init>(test.golden.Card card) {
     super.<init>()
     this._card = card

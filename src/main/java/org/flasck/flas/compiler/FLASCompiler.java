@@ -370,13 +370,15 @@ public class FLASCompiler implements ScriptCompiler {
 			// 13b. Issue JVM bytecodes
 			if (writeJVM != null) {
 				try {
+					// Doing this makes things clean, but stops you putting multiple things in the same directory
+//					FileUtils.cleanDirectory(writeJVM);
 					for (ByteCodeCreator bcc : bce.all()) {
 						File wto = new File(writeJVM, FileUtils.convertDottedToSlashPath(bcc.getCreatedName()) + ".class");
 						bcc.writeTo(wto);
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
-					errors.message((InputPosition)null, ex.getMessage());
+					errors.message((InputPosition)null, ex.toString());
 				}
 			}
 

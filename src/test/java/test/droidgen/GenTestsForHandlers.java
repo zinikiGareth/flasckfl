@@ -88,7 +88,7 @@ public class GenTestsForHandlers {
 	public void checkCreationOfNestedClass(String container, boolean insideCard) {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass(container + "$MyHandler"); will(returnValue(bccHandler));
-			oneOf(bccHandler).superclass("Callback");
+			oneOf(bccHandler).superclass("Callback$Impl");
 			if (insideCard) {
 				oneOf(bccHandler).defineField(false, Access.PRIVATE, new JavaType("Card"), "_card");
 			}

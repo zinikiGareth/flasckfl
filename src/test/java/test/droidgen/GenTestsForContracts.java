@@ -10,15 +10,12 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.droidgen.DroidGenerator;
-import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
-import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
-import org.flasck.flas.types.TypeWithName;
 import org.flasck.jvm.J;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -33,6 +30,7 @@ import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.JavaInfo.Access;
 
 public class GenTestsForContracts {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -55,6 +53,7 @@ public class GenTestsForContracts {
 	@Before
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
+			allowing(bce).newClass("ContDecl");
 			allowing(bccImpl).generateAssociatedSourceFile();
 			allowing(bccHandler).generateAssociatedSourceFile();
 			allowing(bccService).generateAssociatedSourceFile();
@@ -160,7 +159,7 @@ public class GenTestsForContracts {
 		checkIntfDeclOfMethod("callMeBack");
 		context.checking(new Expectations() {{
 			oneOf(uMeth).argument("org.flasck.jvm.post.DeliveryAddress", "from");
-			oneOf(uMeth).argument("test.MyHandler", "h");
+			oneOf(uMeth).argument("test.MyHandler$Up", "h");
 		}});
 
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
@@ -182,6 +181,7 @@ public class GenTestsForContracts {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("ContDecl$Down"); will(returnValue(bccHandler));
 			oneOf(bccHandler).makeInterface();
+			oneOf(bccHandler).addInnerClassReference(Access.PUBLICSTATICINTERFACE, "", "Down");
 		}});
 	}
 
@@ -189,6 +189,7 @@ public class GenTestsForContracts {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("ContDecl$Up"); will(returnValue(bccService));
 			oneOf(bccService).makeInterface();
+			oneOf(bccService).addInnerClassReference(Access.PUBLICSTATICINTERFACE, "", "Up");
 		}});
 	}
 

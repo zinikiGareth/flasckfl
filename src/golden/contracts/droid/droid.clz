@@ -32,7 +32,7 @@ class Request$Impl.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class Request$Up.java {
-  abstract java.lang.Object ask(org.flasck.jvm.post.DeliveryAddress from, test.golden.Handler answer);
+  abstract java.lang.Object ask(org.flasck.jvm.post.DeliveryAddress from, test.golden.Handler$Up answer);
 }
 class UsePolyInstance$Down.java {
   abstract java.lang.Object giveList(org.flasck.jvm.post.DeliveryAddress from, List l);

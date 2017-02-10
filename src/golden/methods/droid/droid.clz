@@ -1,4 +1,4 @@
-class f_0$KVHImpl.java extends test.golden.KVH {
+class f_0$KVHImpl.java extends test.golden.KVH$Impl {
   void <init>(java.lang.Object s) {
     super.<init>()
     this.s = org.flasck.jvm.FLEval.head(s)

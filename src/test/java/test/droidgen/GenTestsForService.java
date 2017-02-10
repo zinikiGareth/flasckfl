@@ -50,7 +50,7 @@ public class GenTestsForService {
 	public void checkCreationOfNestedClass() {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("Card$_S0"); will(returnValue(bccImpl));
-			oneOf(bccImpl).superclass("CtrDecl");
+			oneOf(bccImpl).superclass("CtrDecl$Impl");
 			oneOf(bccImpl).defineField(false, Access.PRIVATE, new JavaType("Card"), "_card");
 			oneOf(bccImpl).addInnerClassReference(Access.PUBLICSTATIC, "Card", "_S0");
 		}});

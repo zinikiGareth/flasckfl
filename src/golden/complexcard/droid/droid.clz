@@ -7,7 +7,7 @@ class ClickIt.java extends org.flasck.jvm.FLASObject {
     return
   }
 }
-class Complex$_C0.java extends test.golden.Init {
+class Complex$_C0.java extends test.golden.Init$Impl {
   void <init>(test.golden.Complex card) {
     super.<init>()
     this._card = card
@@ -51,14 +51,14 @@ class Complex$_C0.java extends test.golden.Init {
     }
   }
 }
-class Complex$_C1.java extends test.golden.DataStore {
+class Complex$_C1.java extends test.golden.DataStore$Impl {
   void <init>(test.golden.Complex card) {
     super.<init>()
     this._card = card
     return
   }
 }
-class Complex$_S0.java extends test.golden.Offer {
+class Complex$_S0.java extends test.golden.Offer$Impl {
   void <init>(test.golden.Complex card) {
     super.<init>()
     this._card = card
@@ -269,7 +269,7 @@ class Complex$B9.java extends org.flasck.jvm.areas.CasesArea {
       })
   }
 }
-class Complex$FooHandler.java extends test.golden.Handler {
+class Complex$FooHandler.java extends test.golden.Handler$Impl {
   void <init>(java.lang.Object card, java.lang.Object k) {
     super.<init>()
     this._card = ((test.golden.Complex)org.flasck.jvm.FLEval.full(card))
@@ -398,7 +398,7 @@ class DataStore$Impl.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class DataStore$Up.java {
-  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler h);
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler$Up h);
 }
 class Handler$Down.java {
   abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, java.lang.String s);
@@ -413,14 +413,14 @@ class Handler$Impl.java extends org.flasck.jvm.ContractImpl {
 class Handler$Up.java {
 }
 class Init$Down.java {
-  abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, Any obj);
+  abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
 }
 class Init$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, Any obj);
+  abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
 }
 class Init$Up.java {
 }
@@ -433,7 +433,7 @@ class Offer$Impl.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class Offer$Up.java {
-  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler h);
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler$Up h);
 }
 class Polyed.java extends org.flasck.jvm.FLASObject {
   void <init>() {

@@ -45,7 +45,7 @@ class PACKAGEFUNCTIONS.java {
     }
   }
 }
-class scoped_0$MyHc.java extends test.golden.Hc {
+class scoped_0$MyHc.java extends test.golden.Hc$Impl {
   void <init>(java.lang.Object requestObj) {
     super.<init>()
     this.requestObj = org.flasck.jvm.FLEval.head(requestObj)
@@ -77,7 +77,7 @@ class UpC$Impl.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class UpC$Up.java {
-  abstract java.lang.Object call(org.flasck.jvm.post.DeliveryAddress from, test.golden.Hc handler);
+  abstract java.lang.Object call(org.flasck.jvm.post.DeliveryAddress from, test.golden.Hc$Up handler);
 }
 class PACKAGEFUNCTIONS$request.java {
   static java.lang.Object eval([java.lang.Object args) {

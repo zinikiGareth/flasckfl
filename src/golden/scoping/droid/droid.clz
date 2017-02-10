@@ -1,4 +1,4 @@
-class f_0$HandleReply.java extends test.golden.Reply {
+class f_0$HandleReply.java extends test.golden.Reply$Impl {
   void <init>(java.lang.Object server, java.lang.Object var, java.lang.Object v) {
     super.<init>()
     this.server = org.flasck.jvm.FLEval.head(server)
@@ -145,7 +145,7 @@ class Server$Impl.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class Server$Up.java {
-  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, int k, test.golden.Reply r);
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, int k, test.golden.Reply$Up r);
   abstract java.lang.Object put(org.flasck.jvm.post.DeliveryAddress from, int k);
 }
 class PACKAGEFUNCTIONS$q.java {

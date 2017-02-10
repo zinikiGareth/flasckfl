@@ -1,4 +1,4 @@
-class Foo$_C0.java extends test.import.Fred {
+class Foo$_C0.java extends test.import.Fred$Impl {
   void <init>(test.golden.Foo card) {
     super.<init>()
     this._card = card

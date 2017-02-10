@@ -86,13 +86,16 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 
 	@Override
 	public void visitContractDecl(RWContractDecl cd) {
-		generateContractImplPartForCard(cd);
-		generateContractInterfaceForHandler(cd);
-		generateContractInterfaceForService(cd);
+		// Create the basic class
+		ByteCodeSink top = bce.newClass(cd.name());
+		generateContractImplPartForCard(cd, top);
+		generateContractInterfaceForHandler(cd, top);
+		generateContractInterfaceForService(cd, top);
 	}
 
-	public void generateContractImplPartForCard(RWContractDecl cd) {
+	public void generateContractImplPartForCard(RWContractDecl cd, ByteCodeSink parent) {
 		ByteCodeSink bcc = bce.newClass(cd.name() + "$Impl");
+		parent.addInnerClassReference(Access.PUBLICABSTRACTSTATIC, parent.getCreatedName(), "Impl");
 		bcc.generateAssociatedSourceFile();
 		bcc.superclass(J.CONTRACT_IMPL);
 		bcc.makeAbstract();
@@ -118,10 +121,12 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		}
 	}
 
-	public void generateContractInterfaceForService(RWContractDecl cd) {
+	public void generateContractInterfaceForService(RWContractDecl cd, ByteCodeSink parent) {
 		ByteCodeSink bcc = bce.newClass(cd.name()+"$Up");
+		parent.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Up");
 		bcc.generateAssociatedSourceFile();
 		bcc.makeInterface();
+		bcc.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Up");
 		
 		for (RWContractMethodDecl m : cd.methods) {
 			if (m.dir.equals("up")) {
@@ -138,10 +143,12 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		}
 	}
 
-	public void generateContractInterfaceForHandler(RWContractDecl cd) {
+	public void generateContractInterfaceForHandler(RWContractDecl cd, ByteCodeSink parent) {
 		ByteCodeSink bcc = bce.newClass(cd.name()+"$Down");
+		parent.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Down");
 		bcc.generateAssociatedSourceFile();
 		bcc.makeInterface();
+		bcc.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Down");
 		
 		for (RWContractMethodDecl m : cd.methods) {
 			if (m.dir.equals("down")) {
@@ -161,7 +168,11 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	public void generateArgument(GenericAnnotator gm, Object a, int dir, int k) {
 		if (a instanceof RWTypedPattern) {
 			TypeWithName type = ((RWTypedPattern)a).type;
-			gm.argument(JvmTypeMapper.map(type), ((RWTypedPattern) a).var.var);
+			JavaType ty = JvmTypeMapper.map(type);
+			if (type instanceof RWContractDecl) {
+				ty = new JavaType(ty.getActual()+"$" + (dir == RWMethodDefinition.DOWN?"Down":"Up"));
+			}
+			gm.argument(ty, ((RWTypedPattern) a).var.var);
 		} else if (a instanceof RWVarPattern) {
 			gm.argument("java.lang.Object", ((RWVarPattern)a).var.var);
 		} else
@@ -228,7 +239,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		String sn = name.baseName(); // nestedSimpleName
 		ByteCodeSink bcc = bce.newClass(nn);
 		bcc.generateAssociatedSourceFile();
-		bcc.superclass(ci.name());
+		bcc.superclass(ci.name() + "$Impl");
 		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(bn), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, bn, sn);
 		{
@@ -248,7 +259,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		String bn = name.baseName(); // nestedSimpleName
 		ByteCodeSink bcc = bce.newClass(nn);
 		bcc.generateAssociatedSourceFile();
-		bcc.superclass(cs.name());
+		bcc.superclass(cs.name() + "$Impl");
 		IFieldInfo fi = bcc.defineField(false, Access.PRIVATE, new JavaType(cn), "_card");
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, cn, bn);
 		{
@@ -265,7 +276,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		HandlerName name = hi.handlerName;
 		ByteCodeSink bcc = bce.newClass(name.javaClassName());
 		bcc.generateAssociatedSourceFile();
-		bcc.superclass(hi.name());
+		bcc.superclass(hi.name() + "$Impl");
 		IFieldInfo fi = null;
 		if (hi.inCard)
 			fi = bcc.defineField(false, Access.PRIVATE, new JavaType(name.containingCard().javaName()), "_card");
