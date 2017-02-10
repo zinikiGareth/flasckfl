@@ -1,9 +1,14 @@
-class Hc.java extends org.flasck.jvm.ContractImpl {
+class Hc$Down.java {
+  abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from);
+}
+class Hc$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object reply();
+  abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from);
+}
+class Hc$Up.java {
 }
 class PACKAGEFUNCTIONS$scoped.java {
   static java.lang.Object eval([java.lang.Object args) {
@@ -63,16 +68,16 @@ class scoped_0$MyHc.java extends test.golden.Hc {
     }
   }
 }
-class UpC.java extends org.flasck.jvm.ContractImpl {
+class UpC$Down.java {
+}
+class UpC$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
 }
-class Hc.java {
-}
-class UpC.java {
-  abstract java.lang.Object call(java.lang.Object arg0);
+class UpC$Up.java {
+  abstract java.lang.Object call(org.flasck.jvm.post.DeliveryAddress from, test.golden.Hc handler);
 }
 class PACKAGEFUNCTIONS$request.java {
   static java.lang.Object eval([java.lang.Object args) {

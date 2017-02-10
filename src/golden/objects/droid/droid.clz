@@ -39,12 +39,15 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
     return
   }
 }
-class Ctr.java extends org.flasck.jvm.ContractImpl {
+class Ctr$Down.java {
+  abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
+}
+class Ctr$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object go();
+  abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
 }
-class Ctr.java {
+class Ctr$Up.java {
 }

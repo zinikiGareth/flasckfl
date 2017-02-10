@@ -44,11 +44,16 @@ class f_0$HandleReply.java extends test.golden.Reply {
     }
   }
 }
-class NoArg.java extends org.flasck.jvm.ContractImpl {
+class NoArg$Down.java {
+}
+class NoArg$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
+}
+class NoArg$Up.java {
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object arg0);
 }
 class PACKAGEFUNCTIONS$cna.java {
   static java.lang.Object eval([java.lang.Object args) {
@@ -119,27 +124,29 @@ class PACKAGEFUNCTIONS.java {
     }
   }
 }
-class Reply.java extends org.flasck.jvm.ContractImpl {
+class Reply$Down.java {
+  abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, int k);
+}
+class Reply$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object reply(java.lang.Object arg0);
+  abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, int k);
 }
-class Server.java extends org.flasck.jvm.ContractImpl {
+class Reply$Up.java {
+}
+class Server$Down.java {
+}
+class Server$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
 }
-class NoArg.java {
-  abstract java.lang.Object get(java.lang.Object arg0);
-}
-class Reply.java {
-}
-class Server.java {
-  abstract java.lang.Object get(java.lang.Object arg0, java.lang.Object arg1);
-  abstract java.lang.Object put(java.lang.Object arg0);
+class Server$Up.java {
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, int k, test.golden.Reply r);
+  abstract java.lang.Object put(org.flasck.jvm.post.DeliveryAddress from, int k);
 }
 class PACKAGEFUNCTIONS$q.java {
   static java.lang.Object eval([java.lang.Object args) {

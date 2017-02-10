@@ -1,37 +1,48 @@
-class Foo.java extends org.flasck.jvm.ContractImpl {
+class Foo$Down.java {
+  abstract java.lang.Object goodbye(org.flasck.jvm.post.DeliveryAddress from, int y);
+}
+class Foo$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object goodbye(java.lang.Object arg0);
+  abstract java.lang.Object goodbye(org.flasck.jvm.post.DeliveryAddress from, int y);
 }
-class Handler.java extends org.flasck.jvm.ContractImpl {
+class Foo$Up.java {
+  abstract java.lang.Object hello(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x);
+}
+class Handler$Down.java {
+  abstract java.lang.Object feedback(org.flasck.jvm.post.DeliveryAddress from, java.lang.String answer);
+}
+class Handler$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object feedback(java.lang.Object arg0);
+  abstract java.lang.Object feedback(org.flasck.jvm.post.DeliveryAddress from, java.lang.String answer);
 }
-class Request.java extends org.flasck.jvm.ContractImpl {
+class Handler$Up.java {
+}
+class Request$Down.java {
+}
+class Request$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
 }
-class UsePolyInstance.java extends org.flasck.jvm.ContractImpl {
+class Request$Up.java {
+  abstract java.lang.Object ask(org.flasck.jvm.post.DeliveryAddress from, test.golden.Handler answer);
+}
+class UsePolyInstance$Down.java {
+  abstract java.lang.Object giveList(org.flasck.jvm.post.DeliveryAddress from, List l);
+}
+class UsePolyInstance$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object giveList(java.lang.Object arg0);
+  abstract java.lang.Object giveList(org.flasck.jvm.post.DeliveryAddress from, List l);
 }
-class Foo.java {
-  abstract java.lang.Object hello(java.lang.Object arg0);
-}
-class Handler.java {
-}
-class Request.java {
-  abstract java.lang.Object ask(java.lang.Object arg0);
-}
-class UsePolyInstance.java {
+class UsePolyInstance$Up.java {
 }

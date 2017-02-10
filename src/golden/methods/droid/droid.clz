@@ -38,12 +38,17 @@ class f_0$KVHImpl.java extends test.golden.KVH {
     }
   }
 }
-class KVH.java extends org.flasck.jvm.ContractImpl {
+class KVH$Down.java {
+  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, Crokeys crokeys);
+}
+class KVH$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object update(java.lang.Object arg0);
+  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, Crokeys crokeys);
+}
+class KVH$Up.java {
 }
 class PACKAGEFUNCTIONS$f.java {
   static java.lang.Object eval([java.lang.Object args) {
@@ -54,8 +59,6 @@ class PACKAGEFUNCTIONS.java {
   static java.lang.Object f() {
     return org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})
   }
-}
-class KVH.java {
 }
 class PACKAGEFUNCTIONS$s.java {
   static java.lang.Object eval([java.lang.Object args) {

@@ -1,9 +1,14 @@
-class Bar.java extends org.flasck.jvm.ContractImpl {
+class Bar$Down.java {
+  abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
+}
+class Bar$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object go();
+  abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
+}
+class Bar$Up.java {
 }
 class Foo$_C0.java extends test.golden.KeyValue {
   void <init>(test.golden.Foo card) {
@@ -115,15 +120,15 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
     }
   }
 }
-class KeyValue.java extends org.flasck.jvm.ContractImpl {
+class KeyValue$Down.java {
+}
+class KeyValue$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
 }
-class Bar.java {
-}
-class KeyValue.java {
-  abstract java.lang.Object typed();
-  abstract java.lang.Object mine();
+class KeyValue$Up.java {
+  abstract java.lang.Object typed(org.flasck.jvm.post.DeliveryAddress from);
+  abstract java.lang.Object mine(org.flasck.jvm.post.DeliveryAddress from);
 }

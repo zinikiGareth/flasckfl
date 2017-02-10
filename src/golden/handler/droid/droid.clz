@@ -1,9 +1,12 @@
-class HandlerCtr.java extends org.flasck.jvm.ContractImpl {
+class HandlerCtr$Down.java {
+  abstract java.lang.Object handle(org.flasck.jvm.post.DeliveryAddress from, int x);
+}
+class HandlerCtr$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object handle(java.lang.Object arg0);
+  abstract java.lang.Object handle(org.flasck.jvm.post.DeliveryAddress from, int x);
 }
-class HandlerCtr.java {
+class HandlerCtr$Up.java {
 }

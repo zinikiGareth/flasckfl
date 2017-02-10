@@ -6,12 +6,19 @@ import java.util.Arrays;
 import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.droidgen.DroidGenerator;
+import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWTypedPattern;
+import org.flasck.flas.types.FunctionType;
+import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
+import org.flasck.flas.types.TypeWithName;
 import org.flasck.jvm.J;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -32,16 +39,25 @@ public class GenTestsForContracts {
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
 	DroidGenerator gen = new DroidGenerator(bce, new DroidBuilder());
-	ByteCodeSink bccContract = context.mock(ByteCodeSink.class);
+	ByteCodeSink bccHandler = context.mock(ByteCodeSink.class, "Handler");
+	ByteCodeSink bccService = context.mock(ByteCodeSink.class, "Service");
+	ByteCodeSink bccImpl = context.mock(ByteCodeSink.class, "Impl");
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner dfe = context.mock(MethodDefiner.class, "dfe");
+	MethodDefiner hMeth = context.mock(MethodDefiner.class, "hMeth");
+	MethodDefiner iMeth = context.mock(MethodDefiner.class, "iMeth");
+	MethodDefiner uMeth = context.mock(MethodDefiner.class, "uMeth");
+	FunctionType sendReturnType = Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Send")));
+	RWTypedPattern stringArg = new RWTypedPattern(loc, new PrimitiveType(loc, new SolidName(null, "String")), loc, new VarName(loc, null, "s"));
 	
 	IExpr expr = context.mock(IExpr.class);
 
 	@Before
 	public void allowAnythingToHappenToExprsWeDontCareAbout() {
 		context.checking(new Expectations() {{
-			allowing(bccContract).generateAssociatedSourceFile();
+			allowing(bccImpl).generateAssociatedSourceFile();
+			allowing(bccHandler).generateAssociatedSourceFile();
+			allowing(bccService).generateAssociatedSourceFile();
 			allowing(expr);
 			allowing(dfe).myThis(); will(new Action() {
 				@Override
@@ -63,6 +79,7 @@ public class GenTestsForContracts {
 	public void testVisitingAnEmptyContractDefnGeneratesTheCorrectMinimumCode() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfHandlerIntf();
 		checkCreationOfServiceIntf();
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
 		gen.visitContractDecl(cd);
@@ -72,10 +89,15 @@ public class GenTestsForContracts {
 	public void testVisitingAContractDefnWithADownMethodGeneratesTheCorrectMemberDeclInTheCardImpl() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfHandlerIntf();
 		checkCreationOfServiceIntf();
 		checkDeclOfMethod("fred");
+		context.checking(new Expectations() {{
+			oneOf(hMeth).argument("org.flasck.jvm.post.DeliveryAddress", "from");
+			oneOf(iMeth).argument("org.flasck.jvm.post.DeliveryAddress", "from");
+		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), new ArrayList<>(), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
+		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType));
 		gen.visitContractDecl(cd);
 	}
 
@@ -83,10 +105,17 @@ public class GenTestsForContracts {
 	public void testAContractDefnWithADownMethodCanHaveAnArgument() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfHandlerIntf();
 		checkCreationOfServiceIntf();
 		checkDeclOfMethod("fred");
+		context.checking(new Expectations() {{
+			oneOf(hMeth).argument("org.flasck.jvm.post.DeliveryAddress", "from");
+			oneOf(hMeth).argument("java.lang.String", "s");
+			oneOf(iMeth).argument("org.flasck.jvm.post.DeliveryAddress", "from");
+			oneOf(iMeth).argument("java.lang.String", "s");
+		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), Arrays.asList((Object)null), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
+		cd.addMethod(new RWContractMethodDecl(loc, true, "down", FunctionName.function(loc, null, "fred"), Arrays.asList(stringArg), sendReturnType));
 		gen.visitContractDecl(cd);
 	}
 
@@ -94,10 +123,14 @@ public class GenTestsForContracts {
 	public void testAnUpMethodInAContractDefnIsIgnoredInTheCardImplButPresentInTheServiceIntf() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfHandlerIntf();
 		checkCreationOfServiceIntf();
 		checkIntfDeclOfMethod("fred");
+		context.checking(new Expectations() {{
+			oneOf(uMeth).argument("org.flasck.jvm.post.DeliveryAddress", "from");
+		}});
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "fred"), new ArrayList<>(), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
+		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "fred"), new ArrayList<>(), sendReturnType));
 		gen.visitContractDecl(cd);
 	}
 
@@ -105,31 +138,63 @@ public class GenTestsForContracts {
 	public void testAContractDefnWithAnUpMethodCanHaveAnArgument() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfHandlerIntf();
 		checkCreationOfServiceIntf();
 		checkIntfDeclOfMethod("fred");
+		context.checking(new Expectations() {{
+			oneOf(uMeth).argument("org.flasck.jvm.post.DeliveryAddress", "from");
+			oneOf(uMeth).argument("java.lang.Object", "arg0");
+		}});
+
 		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
-		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "fred"), Arrays.asList((Object)null), Type.function(loc, new RWStructDefn(loc, new SolidName(null, "Send"), false))));
+		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "fred"), Arrays.asList((Object)null), sendReturnType));
+		gen.visitContractDecl(cd);
+	}
+
+	@Test
+	public void testAServiceInterfaceCanTakeAHandlerAsItsArgumentAndItHasASensibleType() {
+		checkCreationOfStruct();
+		checkCreationOfStructCtor();
+		checkCreationOfHandlerIntf();
+		checkCreationOfServiceIntf();
+		checkIntfDeclOfMethod("callMeBack");
+		context.checking(new Expectations() {{
+			oneOf(uMeth).argument("org.flasck.jvm.post.DeliveryAddress", "from");
+			oneOf(uMeth).argument("test.MyHandler", "h");
+		}});
+
+		RWContractDecl cd = new RWContractDecl(loc, loc, new SolidName(null, "ContDecl"), true);
+		RWContractDecl hdlrType = new RWContractDecl(loc, loc, new SolidName(new PackageName("test"), "MyHandler"), true);
+		RWTypedPattern handlerArg = new RWTypedPattern(loc, hdlrType, loc, new VarName(loc, null, "h"));
+		cd.addMethod(new RWContractMethodDecl(loc, true, "up", FunctionName.function(loc, null, "callMeBack"), Arrays.asList(handlerArg), sendReturnType));
 		gen.visitContractDecl(cd);
 	}
 
 	public void checkCreationOfStruct() {
 		context.checking(new Expectations() {{
-			oneOf(bce).newClass("ContDecl"); will(returnValue(bccContract));
-			oneOf(bccContract).superclass(J.CONTRACT_IMPL);
-			oneOf(bccContract).makeAbstract();
+			oneOf(bce).newClass("ContDecl$Impl"); will(returnValue(bccImpl));
+			oneOf(bccImpl).superclass(J.CONTRACT_IMPL);
+			oneOf(bccImpl).makeAbstract();
+		}});
+	}
+
+	public void checkCreationOfHandlerIntf() {
+		context.checking(new Expectations() {{
+			oneOf(bce).newClass("ContDecl$Down"); will(returnValue(bccHandler));
+			oneOf(bccHandler).makeInterface();
 		}});
 	}
 
 	public void checkCreationOfServiceIntf() {
 		context.checking(new Expectations() {{
-			oneOf(bce).newClass("_up.ContDecl"); will(returnValue(bccContract));
-			oneOf(bccContract).makeInterface();
+			oneOf(bce).newClass("ContDecl$Up"); will(returnValue(bccService));
+			oneOf(bccService).makeInterface();
 		}});
 	}
 
 	public void checkCreationOfStructCtor() {
 		context.checking(new Expectations() {{
-			oneOf(bccContract).createMethod(false, "void", "<init>"); will(returnValue(ctor));
+			oneOf(bccImpl).createMethod(false, "void", "<init>"); will(returnValue(ctor));
 			oneOf(ctor).callSuper("void", J.CONTRACT_IMPL, "<init>"); will(returnValue(expr));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
@@ -137,13 +202,14 @@ public class GenTestsForContracts {
 
 	private void checkDeclOfMethod(String name) {
 		context.checking(new Expectations() {{
-			oneOf(bccContract).createMethod(false, J.OBJECT, name); // will(returnValue(ret));
+			oneOf(bccHandler).createMethod(false, J.OBJECT, name); will(returnValue(hMeth));
+			oneOf(bccImpl).createMethod(false, J.OBJECT, name); will(returnValue(iMeth));
 		}});
 	}
 
 	private void checkIntfDeclOfMethod(String name) {
 		context.checking(new Expectations() {{
-			oneOf(bccContract).createMethod(false, J.OBJECT, name); // will(returnValue(ret));
+			oneOf(bccService).createMethod(false, J.OBJECT, name); will(returnValue(uMeth));
 		}});
 	}
 }

@@ -389,31 +389,51 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
     }
   }
 }
-class DataStore.java extends org.flasck.jvm.ContractImpl {
+class DataStore$Down.java {
+}
+class DataStore$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
 }
-class Handler.java extends org.flasck.jvm.ContractImpl {
-  void <init>() {
-    super.<init>()
-    return
-  }
-  abstract java.lang.Object reply(java.lang.Object arg0);
+class DataStore$Up.java {
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler h);
 }
-class Init.java extends org.flasck.jvm.ContractImpl {
-  void <init>() {
-    super.<init>()
-    return
-  }
-  abstract java.lang.Object ready(java.lang.Object arg0);
+class Handler$Down.java {
+  abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, java.lang.String s);
 }
-class Offer.java extends org.flasck.jvm.ContractImpl {
+class Handler$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
+  abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, java.lang.String s);
+}
+class Handler$Up.java {
+}
+class Init$Down.java {
+  abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, Any obj);
+}
+class Init$Impl.java extends org.flasck.jvm.ContractImpl {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, Any obj);
+}
+class Init$Up.java {
+}
+class Offer$Down.java {
+}
+class Offer$Impl.java extends org.flasck.jvm.ContractImpl {
+  void <init>() {
+    super.<init>()
+    return
+  }
+}
+class Offer$Up.java {
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler h);
 }
 class Polyed.java extends org.flasck.jvm.FLASObject {
   void <init>() {
@@ -453,16 +473,6 @@ class WithInit.java extends org.flasck.jvm.FLASObject {
     this.x = this._fullOf(this.x)
     return
   }
-}
-class DataStore.java {
-  abstract java.lang.Object get(java.lang.Object arg0, java.lang.Object arg1);
-}
-class Handler.java {
-}
-class Init.java {
-}
-class Offer.java {
-  abstract java.lang.Object get(java.lang.Object arg0, java.lang.Object arg1);
 }
 class PACKAGEFUNCTIONS$inits_format.java {
   static java.lang.Object eval([java.lang.Object args) {

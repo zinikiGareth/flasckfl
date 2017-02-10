@@ -43,12 +43,17 @@ class f_0$ItemHandler.java extends test.golden.KVUpdate {
     }
   }
 }
-class KVUpdate.java extends org.flasck.jvm.ContractImpl {
+class KVUpdate$Down.java {
+  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, Any obj);
+}
+class KVUpdate$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object update(java.lang.Object arg0);
+  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, Any obj);
+}
+class KVUpdate$Up.java {
 }
 class PACKAGEFUNCTIONS$f.java {
   static java.lang.Object eval([java.lang.Object args) {
@@ -59,8 +64,6 @@ class PACKAGEFUNCTIONS.java {
   static java.lang.Object f() {
     return new org.flasck.jvm.FLClosure(test.golden.f_0$set.class,new java.lang.Object[0] {})
   }
-}
-class KVUpdate.java {
 }
 class PACKAGEFUNCTIONS$set.java {
   static java.lang.Object eval([java.lang.Object args) {
