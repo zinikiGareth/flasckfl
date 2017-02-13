@@ -1,6 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -11,7 +12,6 @@ import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeWithMethods;
-import org.zinutils.collections.CollectionUtils;
 
 public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable {
 	public RWStateDefinition state;
@@ -20,7 +20,7 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	public final transient boolean generate;
 
 	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, PolyVar... polys) {
-		this(location, tn, generate, CollectionUtils.listOf(polys));
+		this(location, tn, generate, Arrays.asList(polys));
 	}
 	
 	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, List<PolyVar> polys) {

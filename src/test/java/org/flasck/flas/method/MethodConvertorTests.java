@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,7 +82,7 @@ public class MethodConvertorTests {
 			contract1.methods.add(m1);
 			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "start"), new ArrayList<>());
 			contract1.methods.add(m2);
-			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "request"), CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m3 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			contract1.methods.add(m3);
 			orgFooScope.define("Contract1", contract1);
 		}
@@ -90,9 +91,9 @@ public class MethodConvertorTests {
 			ContractDecl service1 = new ContractDecl(posn, posn, cn);
 			ContractMethodDecl m0 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "go"), new ArrayList<>());
 			service1.methods.add(m0);
-			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "request"), CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m1 = new ContractMethodDecl(posn, posn, posn, true, "up", FunctionName.contractDecl(posn, cn, "request"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m1);
-			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "respond"), CollectionUtils.listOf(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
+			ContractMethodDecl m2 = new ContractMethodDecl(posn, posn, posn, true, "down", FunctionName.contractDecl(posn, cn, "respond"), Arrays.asList(new TypedPattern(posn, new TypeReference(posn, "String"), posn, "s")));
 			service1.methods.add(m2);
 			orgFooScope.define("Service1", service1);
 		}
@@ -126,7 +127,7 @@ public class MethodConvertorTests {
 			}
 			{
 				HandlerName hn = new HandlerName(new CardName(new PackageName("org.foo"), "Card"), "MyHandler");
-				he = new HandlerImplements(posn, posn, posn, hn, "org.foo.Handler1", true, CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "stateArg"), (Object)new VarPattern(posn, "freeArg")));
+				he = new HandlerImplements(posn, posn, posn, hn, "org.foo.Handler1", true, Arrays.asList((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "stateArg"), (Object)new VarPattern(posn, "freeArg")));
 				he.setRealName(hn);
 				cd.handlers.add(he);
 			}
@@ -239,7 +240,7 @@ public class MethodConvertorTests {
 	/* ---- Tests of Assignment to a single slot ---- */
 	@Test
 	public void testTheTopLevelSlotInAnAssignmentMustBeResolvable() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "fred")), new NumericLiteral(posn, "36", 2)));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "fred")), new NumericLiteral(posn, "36", 2)));
 		stage2(false);
 		assertEquals(errors.singleString(), 1, errors.count());
 		assertEquals("could not resolve name fred", errors.get(0).msg);
@@ -247,7 +248,7 @@ public class MethodConvertorTests {
 
 	@Test // This doesn't really test the convertor anymore - we assume that TC checks Assign properly
 	public void testWeCanOnlyAssignASlotWithTheRightType() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str")), new NumericLiteral(posn, "36", 2)));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "str")), new NumericLiteral(posn, "36", 2)));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -261,7 +262,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanAssignToACardMember() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str")), new StringLiteral(posn, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "str")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -275,7 +276,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testAnEventHandlerCanAssignToACardMember() throws Exception {
-		defineEHMethod(cd.innerScope(), "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str")), new StringLiteral(posn, "hello")));
+		defineEHMethod(cd.innerScope(), "bar", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "str")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -289,7 +290,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAContractVar() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "ce")), new StringLiteral(posn, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "ce")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -298,7 +299,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAServiceVar() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "se")), new StringLiteral(posn, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "se")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -307,7 +308,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAMethod() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "bar")), new StringLiteral(posn, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "bar")), new StringLiteral(posn, "hello")));
 		stage2(false);
 		assertEquals(errors.singleString(), 1, errors.count());
 		assertEquals("could not resolve name bar", errors.get(0).msg);
@@ -315,7 +316,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAFunction() throws Exception {
-		defineContractMethod(ce, "bar", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "map")), new StringLiteral(posn, "hello")));
+		defineContractMethod(ce, "bar", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "map")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -324,7 +325,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotAssignToAFreeLambda() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "freeArg")), new StringLiteral(posn, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "freeArg")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -333,7 +334,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCannotDirectlyAssignToAStructLambda() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "stateArg")), new StringLiteral(posn, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "stateArg")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -343,7 +344,7 @@ public class MethodConvertorTests {
 	/* ---- Tests of Assignment to a nested slot ---- */
 	@Test
 	public void testWeCannotAssignToAFieldOfAString() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "str"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "str"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -352,7 +353,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testWeCanAssignToAFieldInAStructLambda() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "stateArg"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "stateArg"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -366,7 +367,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testAnEventHandlerCanAssignToAFieldInALocalStatefulVar() throws Exception {
-		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "t"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
+		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "t"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertFalse(errors.singleString(), errors.hasErrors());
@@ -380,7 +381,7 @@ public class MethodConvertorTests {
 
 	@Test
 	public void testAnEventHandlerCannotAssignToAnUntypedVar() throws Exception {
-		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "ev"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
+		defineEHMethod(cd.innerScope(), "futz", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "ev"), new LocatedToken(posn, "x")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertEventHandlers(rewriter, functions, rewriter.eventHandlers);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -391,7 +392,7 @@ public class MethodConvertorTests {
 	
 	@Test
 	public void testWeCannotAssignToANonField() throws Exception {
-		defineContractMethod(he, "handle", new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "stateArg"), new LocatedToken(posn, "y")), new StringLiteral(posn, "hello")));
+		defineContractMethod(he, "handle", new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "stateArg"), new LocatedToken(posn, "y")), new StringLiteral(posn, "hello")));
 		stage2(true);
 		convertor.convertContractMethods(rewriter, functions, rewriter.methods);
 		assertEquals(errors.singleString(), 1, errors.count());
@@ -508,7 +509,7 @@ public class MethodConvertorTests {
 	}
 
 	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
-		FunctionIntro intro = new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("org.foo"), "Card"), name), CollectionUtils.listOf((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, "ev")));
+		FunctionIntro intro = new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("org.foo"), "Card"), name), Arrays.asList((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, "ev")));
 		EventCaseDefn cs = new EventCaseDefn(posn, intro);
 		cs.provideCaseName(-1);
 		for (MethodMessage m : msgs)

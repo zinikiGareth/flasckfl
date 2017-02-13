@@ -1,15 +1,15 @@
 package org.flasck.flas.parsedForm;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.zinutils.collections.CollectionUtils;
 
 public class FunctionTypeReference extends TypeReference {
 	public final List<TypeReference> args;
 
 	public FunctionTypeReference(InputPosition location, TypeReference... args) {
-		this(location, CollectionUtils.listOf(args));
+		this(location, Arrays.asList(args));
 	}
 
 	public FunctionTypeReference(InputPosition location, List<TypeReference> args) {

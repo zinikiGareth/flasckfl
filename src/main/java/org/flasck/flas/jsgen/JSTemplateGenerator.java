@@ -1,5 +1,7 @@
 package org.flasck.flas.jsgen;
 
+import java.util.Arrays;
+
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.TemplateName;
@@ -7,7 +9,6 @@ import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.TemplateGenerator;
-import org.zinutils.collections.CollectionUtils;
 
 public class JSTemplateGenerator implements TemplateGenerator {
 	private final JSTarget target;
@@ -19,7 +20,7 @@ public class JSTemplateGenerator implements TemplateGenerator {
 	@Override
 	public void generateRender(TemplateName tname, AreaName areaName) {
 		FunctionName render = FunctionName.functionInCardContext(null, tname.containingCard(), "_render");
-		JSForm ir = JSForm.flexFn(render.jsPName(), CollectionUtils.listOf("doc", "wrapper", "parent"));
+		JSForm ir = JSForm.flexFn(render.jsPName(), Arrays.asList("doc", "wrapper", "parent"));
 		target.add(ir);
 		if (areaName != null)
 			ir.add(JSForm.flex("new " + areaName.jsName() + "(new CardArea(parent, wrapper, this))"));

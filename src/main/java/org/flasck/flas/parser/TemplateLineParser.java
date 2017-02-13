@@ -1,6 +1,7 @@
 package org.flasck.flas.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -27,7 +28,6 @@ import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.tokenizers.TypeNameToken;
 import org.flasck.flas.tokenizers.ValidIdentifierToken;
 import org.flasck.flas.tokenizers.VarNameToken;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class TemplateLineParser implements TryParsing{
@@ -112,7 +112,7 @@ public class TemplateLineParser implements TryParsing{
 				Object me = ItemExpr.from(new ExprToken(tt.location, ExprToken.IDENTIFIER, tt.text));
 				if (extractField) { // handle the "special" case of a.b
 					ContentExpr tl = (ContentExpr) contents.remove(contents.size()-1);
-					contents.add(new ContentExpr(tt.location, new ApplyExpr(tt.location, ItemExpr.from(new ExprToken(tt.location, ExprToken.PUNC, ".")), CollectionUtils.listOf(tl.expr, me)), new ArrayList<Object>()));
+					contents.add(new ContentExpr(tt.location, new ApplyExpr(tt.location, ItemExpr.from(new ExprToken(tt.location, ExprToken.PUNC, ".")), Arrays.asList(tl.expr, me)), new ArrayList<Object>()));
 					extractField = false;
 				} else
 					contents.add(new ContentExpr(tt.location, me, new ArrayList<Object>()));

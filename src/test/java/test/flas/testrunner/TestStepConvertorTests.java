@@ -21,7 +21,6 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.zinutils.collections.CollectionUtils;
 
 public class TestStepConvertorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -40,7 +39,7 @@ public class TestStepConvertorTests {
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
-		ctor.handle(new Tokenizable("assert x"), CollectionUtils.listOf(new Block(3, "32")));
+		ctor.handle(new Tokenizable("assert x"), Arrays.asList(new Block(3, "32")));
 	}
 
 	@Test
@@ -80,7 +79,7 @@ public class TestStepConvertorTests {
 		}});
 
 		UnitTestStepConvertor ctor = new UnitTestStepConvertor(script);
-		ctor.handle(new Tokenizable("create q CardName"), CollectionUtils.listOf(new Block(3, "property or something")));
+		ctor.handle(new Tokenizable("create q CardName"), Arrays.asList(new Block(3, "property or something")));
 	}
 
 	@Test

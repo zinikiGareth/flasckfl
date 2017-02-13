@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -149,7 +150,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.collections.ListMap;
 import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
@@ -1420,7 +1420,7 @@ public class Rewriter implements CodeGenRegistry {
 						Object expr = rewriteExpr(c2, prop.value);
 						// TODO: only create functions for things that depend on the class
 						// constants can just be used directly
-						FunctionLiteral efn = functionWithArgs(cardName, nextFn++, CollectionUtils.listOf(new RWTypedPattern(d3.d3.varLoc, d3Elt, d3.d3.varLoc, d3.d3.iterVar)), expr);
+						FunctionLiteral efn = functionWithArgs(cardName, nextFn++, Arrays.asList(new RWTypedPattern(d3.d3.varLoc, d3Elt, d3.d3.varLoc, d3.d3.iterVar)), expr);
 						Object pair = new ApplyExpr(prop.location, tuple, new StringLiteral(prop.location, prop.name), efn);
 						pl = new ApplyExpr(prop.location, cons, pair, pl);
 					}

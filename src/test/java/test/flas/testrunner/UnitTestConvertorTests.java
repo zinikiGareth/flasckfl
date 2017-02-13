@@ -5,6 +5,8 @@ import static test.flas.testrunner.ExprMatcher.number;
 import static test.flas.testrunner.ExprMatcher.string;
 import static test.flas.testrunner.ExprMatcher.unresolved;
 
+import java.util.Arrays;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.testrunner.HTMLMatcher;
 import org.flasck.flas.testrunner.TestScriptBuilder;
@@ -13,7 +15,6 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
-import org.zinutils.collections.CollectionUtils;
 
 public class UnitTestConvertorTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -27,7 +28,7 @@ public class UnitTestConvertorTests {
 		}});
 
 		UnitTestConvertor ctor = new UnitTestConvertor(script);
-		ctor.convert(CollectionUtils.listOf("\ttest the value of x is 32", "\t\tassert x", "\t\t\t32"));
+		ctor.convert(Arrays.asList("\ttest the value of x is 32", "\t\tassert x", "\t\t\t32"));
 	}
 
 	@Test
@@ -39,7 +40,7 @@ public class UnitTestConvertorTests {
 		}});
 		
 		UnitTestConvertor ctor = new UnitTestConvertor(script);
-		ctor.convert(CollectionUtils.listOf("\ttest id returns what you pass it", "\t\tassert (id 420)", "\t\t\t420"));
+		ctor.convert(Arrays.asList("\ttest id returns what you pass it", "\t\tassert (id 420)", "\t\t\t420"));
 	}
 
 
@@ -54,7 +55,7 @@ public class UnitTestConvertorTests {
 		}});
 		
 		UnitTestConvertor ctor = new UnitTestConvertor(script);
-		ctor.convert(CollectionUtils.listOf("\ttest id returns what you pass it", "\t\tassert (id 420)", "\t\t\t420", "\ttest id does something else", "\t\tassert (id 'hello')", "\t\t\t'hello'"));
+		ctor.convert(Arrays.asList("\ttest id returns what you pass it", "\t\tassert (id 420)", "\t\t\t420", "\ttest id does something else", "\t\tassert (id 'hello')", "\t\t\t'hello'"));
 	}
 	
 	@Test
@@ -65,7 +66,7 @@ public class UnitTestConvertorTests {
 		}});
 		
 		UnitTestConvertor ctor = new UnitTestConvertor(script);
-		ctor.convert(CollectionUtils.listOf("\tthrow an error"));
+		ctor.convert(Arrays.asList("\tthrow an error"));
 	}
 	
 	@Test
@@ -77,7 +78,7 @@ public class UnitTestConvertorTests {
 		}});
 		
 		UnitTestConvertor ctor = new UnitTestConvertor(script);
-		ctor.convert(CollectionUtils.listOf("\ttest we must have valid input", "\t\tthrow an error"));
+		ctor.convert(Arrays.asList("\ttest we must have valid input", "\t\tthrow an error"));
 	}
 	
 	@Test
@@ -89,6 +90,6 @@ public class UnitTestConvertorTests {
 		}});
 		
 		UnitTestConvertor ctor = new UnitTestConvertor(script);
-		ctor.convert(CollectionUtils.listOf("\ttest comments are ignored", "\t\tmatchClass div", "any comment we choose to make"));
+		ctor.convert(Arrays.asList("\ttest comments are ignored", "\t\tmatchClass div", "any comment we choose to make"));
 	}
 }

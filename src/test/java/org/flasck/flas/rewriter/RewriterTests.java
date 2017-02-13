@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
@@ -47,7 +48,6 @@ import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.TypeWithName;
 import org.junit.Before;
 import org.junit.Test;
-import org.zinutils.collections.CollectionUtils;
 
 public class RewriterTests {
 	private final InputPosition posn = new InputPosition("test", 1, 1, null);
@@ -210,7 +210,7 @@ public class RewriterTests {
 		cd.contracts.add(ci);
 		MethodCaseDefn mcd1 = new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(posn, iName, "m"), new ArrayList<Object>()));
 		mcd1.provideCaseName(-1);
-		mcd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "counter")), new UnresolvedVar(null, "counter")));
+		mcd1.messages.add(new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "counter")), new UnresolvedVar(null, "counter")));
 		ci.methods.add(mcd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope(null, "ME", scope);
@@ -232,7 +232,7 @@ public class RewriterTests {
 		// TODO: I would have expected this to complain that it can't find the referenced contract
 		EventCaseDefn ecd1 = new EventCaseDefn(posn, new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("ME"), "MyCard"), "eh"), new ArrayList<Object>()));
 		ecd1.provideCaseName(-1);
-		ecd1.messages.add(new MethodMessage(posn, CollectionUtils.listOf(new LocatedToken(posn, "counter")), new UnresolvedVar(posn, "counter")));
+		ecd1.messages.add(new MethodMessage(posn, Arrays.asList(new LocatedToken(posn, "counter")), new UnresolvedVar(posn, "counter")));
 		cd.fnScope.define("eh", ecd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope(null, "ME", scope);

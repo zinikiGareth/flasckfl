@@ -1,10 +1,10 @@
 package org.flasck.flas.parsedForm;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class TypeReference implements Locatable {
@@ -13,7 +13,7 @@ public class TypeReference implements Locatable {
 	private List<TypeReference> polys;
 
 	public TypeReference(InputPosition location, String name, TypeReference... polys) {
-		this(location, name, CollectionUtils.listOf(polys));
+		this(location, name, Arrays.asList(polys));
 	}
 
 	public TypeReference(InputPosition location, String name, List<TypeReference> polys) {

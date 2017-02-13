@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -70,7 +71,7 @@ public class TestBasicTypeChecking {
 		cons.addField(new RWStructField(posn, false, varA, "head"));
 		cons.addField(new RWStructField(posn, false, cons, "tail"));
 		pkg.define("Cons", cons);
-		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new SolidName(null, "List"), CollectionUtils.listOf(varA));
+		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new SolidName(null, "List"), Arrays.asList(varA));
 		list.addCase(nil);
 		list.addCase(cons);
 		pkg.define("List", list);

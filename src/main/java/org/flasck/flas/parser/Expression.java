@@ -1,6 +1,7 @@
 package org.flasck.flas.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -14,7 +15,6 @@ import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.Tokenizable;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class Expression implements TryParsing {
@@ -169,7 +169,7 @@ public class Expression implements TryParsing {
 				Object left = args.remove(i);
 				Locatable dot = (Locatable) args.remove(i);
 				Object right = args.remove(i);
-				ApplyExpr ae = new ApplyExpr(range(dot, CollectionUtils.listOf(left, right)), dot, left, right);
+				ApplyExpr ae = new ApplyExpr(range(dot, Arrays.asList(left, right)), dot, left, right);
 				args.add(i, ae);
 			}
 		}
@@ -234,7 +234,7 @@ public class Expression implements TryParsing {
 						o1 = deparen(((Locatable) o1).location(), o1);
 						Object o2 = args.remove(i-2);
 						o2 = deparen(((Locatable) o2).location(), o2);
-						args.add(i-2, new ApplyExpr(range((Locatable)o1, CollectionUtils.listOf(o2)), o1, o2));
+						args.add(i-2, new ApplyExpr(range((Locatable)o1, Arrays.asList(o2)), o1, o2));
 						i--;
 					}
 					else {
@@ -246,7 +246,7 @@ public class Expression implements TryParsing {
 						o2 = (Locatable) deparen(o2.location(), o2);
 						Object o3 = args.remove(i-3);
 						o3 = deparen(((Locatable) o3).location(), o3);
-						InputPosition loc = range(o2, CollectionUtils.listOf(o1, o3));
+						InputPosition loc = range(o2, Arrays.asList(o1, o3));
 						if (isCurryVar(o1) && isCurryVar(o3))
 							return new ParenExpr(loc, o2);
 						else if (isCurryVar(o1))

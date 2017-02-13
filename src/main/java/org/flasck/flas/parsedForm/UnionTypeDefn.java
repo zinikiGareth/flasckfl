@@ -1,12 +1,12 @@
 package org.flasck.flas.parsedForm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.zinutils.collections.CollectionUtils;
 
 public class UnionTypeDefn implements Locatable {
 	public final transient boolean generate;
@@ -16,7 +16,7 @@ public class UnionTypeDefn implements Locatable {
 	private List<PolyType> polyvars;
 
 	public UnionTypeDefn(InputPosition location, boolean generate, SolidName defining, PolyType... polyvars) {
-		this(location, generate, defining, CollectionUtils.listOf(polyvars));
+		this(location, generate, defining, Arrays.asList(polyvars));
 	}
 	
 	public UnionTypeDefn(InputPosition location, boolean generate, SolidName defining, List<PolyType> polyvars) {

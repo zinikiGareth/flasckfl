@@ -1,5 +1,7 @@
 package org.flasck.flas.flim;
 
+import java.util.Arrays;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -14,7 +16,6 @@ import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeWithName;
-import org.zinutils.collections.CollectionUtils;
 
 public class Builtin {
 
@@ -33,7 +34,7 @@ public class Builtin {
 //			root.define("let", "let", 			null);
 			root.define("Any", any);
 		}
-		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new SolidName(null, "List"), CollectionUtils.listOf(new PolyVar(posn, "A")));
+		RWUnionTypeDefn list = new RWUnionTypeDefn(posn, false, new SolidName(null, "List"), Arrays.asList(new PolyVar(posn, "A")));
 		{ // text
 			root.define("String", string);
 			root.define("concat", fnhelper("concat", list.instance(posn, string), string));
@@ -71,7 +72,7 @@ public class Builtin {
 			root.define("map", fnhelper("map", Type.function(posn, varA, varB), list.instance(posn, varA), list.instance(posn, varB)));
 		}
 		{ // stacks
-			RWUnionTypeDefn stack = new RWUnionTypeDefn(posn, false, new SolidName(null, "Stack"), CollectionUtils.listOf(new PolyVar(posn, "A")));
+			RWUnionTypeDefn stack = new RWUnionTypeDefn(posn, false, new SolidName(null, "Stack"), Arrays.asList(new PolyVar(posn, "A")));
 			RWStructDefn push = new RWStructDefn(posn, new SolidName(null, "StackPush"), false, varA);
 			push.addField(new RWStructField(posn, false, varA, "head"));
 			push.addField(new RWStructField(posn, false, stack, "tail"));
@@ -80,7 +81,7 @@ public class Builtin {
 			root.define("Stack", stack);
 			root.define("StackPush", push);
 		}
-		RWUnionTypeDefn map = new RWUnionTypeDefn(posn, false, new SolidName(null, "Map"), CollectionUtils.listOf(varA));
+		RWUnionTypeDefn map = new RWUnionTypeDefn(posn, false, new SolidName(null, "Map"), Arrays.asList(varA));
 		{ // maps
 			RWStructDefn nilMap = new RWStructDefn(posn, new SolidName(null, "NilMap"), false);
 			RWStructDefn assoc = new RWStructDefn(posn, new SolidName(null, "Assoc"), false, varA);

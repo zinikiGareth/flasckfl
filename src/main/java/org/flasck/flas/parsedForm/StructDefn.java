@@ -1,6 +1,7 @@
 package org.flasck.flas.parsedForm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -8,7 +9,6 @@ import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
-import org.zinutils.collections.CollectionUtils;
 
 public class StructDefn implements AsString, Locatable {
 	public final List<StructField> fields = new ArrayList<StructField>();
@@ -20,7 +20,7 @@ public class StructDefn implements AsString, Locatable {
 
 	// for tests
 	public StructDefn(InputPosition location, String pkg, String tn, boolean generate, PolyType... polys) {
-		this(null, location, new SolidName(new PackageName(pkg), tn), generate, CollectionUtils.listOf(polys));
+		this(null, location, new SolidName(new PackageName(pkg), tn), generate, Arrays.asList(polys));
 	}
 	
 	// The real constructor

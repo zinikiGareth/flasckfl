@@ -1,6 +1,7 @@
 package org.flasck.flas.rewrittenForm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
@@ -9,7 +10,6 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.types.TypeWithNameAndPolys;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public class RWStructDefn extends TypeWithNameAndPolys implements AsString, ExternalRef {
@@ -18,7 +18,7 @@ public class RWStructDefn extends TypeWithNameAndPolys implements AsString, Exte
 	private final SolidName structName;
 
 	public RWStructDefn(InputPosition location, SolidName tn, boolean generate, PolyVar... polys) {
-		this(location, tn, generate, CollectionUtils.listOf(polys));
+		this(location, tn, generate, Arrays.asList(polys));
 	}
 	
 	public RWStructDefn(InputPosition location, SolidName tn, boolean generate, List<PolyVar> polys) {

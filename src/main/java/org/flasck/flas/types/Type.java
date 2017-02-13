@@ -1,8 +1,9 @@
 package org.flasck.flas.types;
 
+import java.util.Arrays;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
-import org.zinutils.collections.CollectionUtils;
 import org.zinutils.exceptions.UtilException;
 
 public abstract class Type implements Locatable {
@@ -22,7 +23,7 @@ public abstract class Type implements Locatable {
 	}
 
 	public static FunctionType function(InputPosition loc, Type... args) {
-		return new FunctionType(loc, CollectionUtils.listOf(args));
+		return new FunctionType(loc, Arrays.asList(args));
 	}
 	
 	public String toString() {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,6 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -36,7 +36,7 @@ import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.flas.vcode.hsieForm.Var;
-import org.zinutils.collections.CollectionUtils;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.zinutils.exceptions.UtilException;
 
 public class JSForm {
@@ -201,7 +201,7 @@ public class JSForm {
 	}
 
 	public static List<JSForm> head(Var v) {
-		return CollectionUtils.listOf(
+		return Arrays.asList(
 			new JSForm("v" + v.idx + " = FLEval.head(v" + v.idx+")"),
 			new JSForm("if (v" + v.idx + " instanceof FLError)")
 				.add(new JSForm("return v" + v.idx))

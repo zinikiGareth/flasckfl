@@ -1,6 +1,7 @@
 package org.flasck.flas.jsgen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -22,7 +23,6 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Var;
-import org.zinutils.collections.CollectionUtils;
 
 public class Generator implements RepoVisitor, HSIEFormGenerator {
 	private final JSTarget target;
@@ -42,7 +42,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 			return;
 		int idx = sd.name().lastIndexOf(".");
 		String uname = sd.name().substring(0, idx+1) + "_" + sd.name().substring(idx+1);
-		JSForm ret = JSForm.function(uname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm ret = JSForm.function(uname, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		ret.add(new JSForm("this._ctor = '" + sd.name() + "'"));
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
@@ -90,7 +90,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	public void visitCardGrouping(CardGrouping card) {
 		String name = card.getName().jsName();
 		String lname = card.getName().jsUName();
-		JSForm cf = JSForm.function(lname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm cf = JSForm.function(lname, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
@@ -112,7 +112,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 				cf.add(new JSForm("this." + ci.referAsVar + " = this._contracts['" + ci.contractName.uniqueName() + "']"));
 		}
 		target.add(cf);
-		JSForm ci = JSForm.function(name, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm ci = JSForm.function(name, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		ci.add(new JSForm("return new " + lname + "(v0)"));
 		target.add(ci);
 	}
@@ -121,7 +121,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	public void visitContractImpl(RWContractImplements ci) {
 		String ctorName = ci.realName.jsName();
 		String clzname = ctorName.replace("._C", ".__C");
-		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm clz = JSForm.function(clzname, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'contract'"));
@@ -136,7 +136,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	public void visitServiceImpl(RWContractService cs) {
 		String ctorName = cs.realName.uniqueName();
 		String clzname = ctorName.replace("._S", ".__S");
-		JSForm clz = JSForm.function(clzname, CollectionUtils.listOf(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm clz = JSForm.function(clzname, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'service'"));
