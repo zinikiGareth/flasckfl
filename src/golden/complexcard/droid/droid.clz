@@ -398,29 +398,29 @@ class DataStore$Impl.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class DataStore$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler$Down h);
+  abstract java.lang.Object get(java.lang.Object from, java.lang.String x, test.golden.Handler$Down h);
 }
 class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, java.lang.String s);
+  abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
 }
 class Handler$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, java.lang.String s);
+  abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
 }
 class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 class Init$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
+  abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
 }
 class Init$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
+  abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
 }
 class Init$Up.java implements org.ziniki.ziwsh.UpContract {
 }
@@ -433,7 +433,7 @@ class Offer$Impl.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class Offer$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler$Down h);
+  abstract java.lang.Object get(java.lang.Object from, java.lang.String x, test.golden.Handler$Down h);
 }
 class Polyed.java extends org.flasck.jvm.FLASObject {
   void <init>() {

@@ -44,14 +44,14 @@ class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
   }
 }
 class KVUpdate$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
+  abstract java.lang.Object update(java.lang.Object from, java.lang.Object obj);
 }
 class KVUpdate$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
+  abstract java.lang.Object update(java.lang.Object from, java.lang.Object obj);
 }
 class KVUpdate$Up.java implements org.ziniki.ziwsh.UpContract {
 }

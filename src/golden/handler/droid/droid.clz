@@ -1,12 +1,12 @@
 class HandlerCtr$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object handle(org.flasck.jvm.post.DeliveryAddress from, int x);
+  abstract java.lang.Object handle(java.lang.Object from, int x);
 }
 class HandlerCtr$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object handle(org.flasck.jvm.post.DeliveryAddress from, int x);
+  abstract java.lang.Object handle(java.lang.Object from, int x);
 }
 class HandlerCtr$Up.java implements org.ziniki.ziwsh.UpContract {
 }

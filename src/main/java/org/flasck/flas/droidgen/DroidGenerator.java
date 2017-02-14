@@ -109,8 +109,8 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		for (RWContractMethodDecl m : cd.methods) {
 			if (m.dir.equals("down")) {
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
-				gm.returns("java.lang.Object");
-				gm.argument(J.DELIVERY_ADDRESS, "from");
+				gm.returns(J.OBJECT);
+				gm.argument(J.OBJECT, "from");
 				int k = 0;
 				for (Object a : m.args) {
 					generateArgument(gm, a, RWMethodDefinition.DOWN, k);
@@ -133,7 +133,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			if (m.dir.equals("up")) {
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
 				gm.returns("java.lang.Object");
-				gm.argument(J.DELIVERY_ADDRESS, "from");
+				gm.argument(J.OBJECT, "from");
 				int k = 0;
 				for (Object a : m.args) {
 					generateArgument(gm, a, RWMethodDefinition.DOWN, k);
@@ -156,7 +156,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			if (m.dir.equals("down")) {
 				GenericAnnotator gm = GenericAnnotator.newMethod(bcc, false, m.name);
 				gm.returns("java.lang.Object");
-				gm.argument(J.DELIVERY_ADDRESS, "from");
+				gm.argument(J.OBJECT, "from");
 				int k = 0;
 				for (Object a : m.args) {
 					generateArgument(gm, a, RWMethodDefinition.UP, k);
@@ -176,9 +176,9 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			}
 			gm.argument(ty, ((RWTypedPattern) a).var.var);
 		} else if (a instanceof RWVarPattern) {
-			gm.argument("java.lang.Object", ((RWVarPattern)a).var.var);
+			gm.argument(J.OBJECT, ((RWVarPattern)a).var.var);
 		} else
-			gm.argument("java.lang.Object", "arg"+k);
+			gm.argument(J.OBJECT, "arg"+k);
 	}
 
 	public void visitCardGrouping(CardGrouping grp) {

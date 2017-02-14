@@ -7,7 +7,7 @@ class DoIt$Impl.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class DoIt$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object calc(org.flasck.jvm.post.DeliveryAddress from, int n);
+  abstract java.lang.Object calc(java.lang.Object from, int n);
 }
 class PACKAGEFUNCTIONS$f.java {
   static java.lang.Object eval([java.lang.Object args) {

@@ -1,12 +1,12 @@
 class Bar$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
+  abstract java.lang.Object go(java.lang.Object from);
 }
 class Bar$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
+  abstract java.lang.Object go(java.lang.Object from);
 }
 class Bar$Up.java implements org.ziniki.ziwsh.UpContract {
 }
@@ -129,6 +129,6 @@ class KeyValue$Impl.java extends org.flasck.jvm.ContractImpl {
   }
 }
 class KeyValue$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object typed(org.flasck.jvm.post.DeliveryAddress from);
-  abstract java.lang.Object mine(org.flasck.jvm.post.DeliveryAddress from);
+  abstract java.lang.Object typed(java.lang.Object from);
+  abstract java.lang.Object mine(java.lang.Object from);
 }

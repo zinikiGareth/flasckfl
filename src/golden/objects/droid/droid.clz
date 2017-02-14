@@ -40,14 +40,14 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
   }
 }
 class Ctr$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
+  abstract java.lang.Object go(java.lang.Object from);
 }
 class Ctr$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
     super.<init>()
     return
   }
-  abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
+  abstract java.lang.Object go(java.lang.Object from);
 }
 class Ctr$Up.java implements org.ziniki.ziwsh.UpContract {
 }
