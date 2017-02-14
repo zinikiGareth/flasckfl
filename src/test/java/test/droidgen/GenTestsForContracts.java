@@ -182,6 +182,7 @@ public class GenTestsForContracts {
 			oneOf(bce).newClass("ContDecl$Down"); will(returnValue(bccHandler));
 			oneOf(bccHandler).makeInterface();
 			oneOf(bccHandler).addInnerClassReference(Access.PUBLICSTATICINTERFACE, "", "Down");
+			oneOf(bccHandler).implementsInterface("org.ziniki.ziwsh.DownContract");
 		}});
 	}
 
@@ -190,6 +191,7 @@ public class GenTestsForContracts {
 			oneOf(bce).newClass("ContDecl$Up"); will(returnValue(bccService));
 			oneOf(bccService).makeInterface();
 			oneOf(bccService).addInnerClassReference(Access.PUBLICSTATICINTERFACE, "", "Up");
+			oneOf(bccService).implementsInterface("org.ziniki.ziwsh.UpContract");
 		}});
 	}
 

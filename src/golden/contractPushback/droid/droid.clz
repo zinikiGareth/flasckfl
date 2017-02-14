@@ -1,4 +1,4 @@
-class DoIt$Down.java {
+class DoIt$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class DoIt$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
@@ -6,7 +6,7 @@ class DoIt$Impl.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
-class DoIt$Up.java {
+class DoIt$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object calc(org.flasck.jvm.post.DeliveryAddress from, int n);
 }
 class PACKAGEFUNCTIONS$f.java {

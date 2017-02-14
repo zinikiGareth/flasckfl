@@ -389,7 +389,7 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
     }
   }
 }
-class DataStore$Down.java {
+class DataStore$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class DataStore$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
@@ -397,10 +397,10 @@ class DataStore$Impl.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
-class DataStore$Up.java {
-  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler$Up h);
+class DataStore$Up.java implements org.ziniki.ziwsh.UpContract {
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler$Down h);
 }
-class Handler$Down.java {
+class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, java.lang.String s);
 }
 class Handler$Impl.java extends org.flasck.jvm.ContractImpl {
@@ -410,9 +410,9 @@ class Handler$Impl.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, java.lang.String s);
 }
-class Handler$Up.java {
+class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
 }
-class Init$Down.java {
+class Init$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
 }
 class Init$Impl.java extends org.flasck.jvm.ContractImpl {
@@ -422,9 +422,9 @@ class Init$Impl.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
 }
-class Init$Up.java {
+class Init$Up.java implements org.ziniki.ziwsh.UpContract {
 }
-class Offer$Down.java {
+class Offer$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class Offer$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
@@ -432,8 +432,8 @@ class Offer$Impl.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
-class Offer$Up.java {
-  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler$Up h);
+class Offer$Up.java implements org.ziniki.ziwsh.UpContract {
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x, test.golden.Handler$Down h);
 }
 class Polyed.java extends org.flasck.jvm.FLASObject {
   void <init>() {

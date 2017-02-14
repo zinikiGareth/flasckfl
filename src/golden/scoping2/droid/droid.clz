@@ -1,4 +1,4 @@
-class Hc$Down.java {
+class Hc$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from);
 }
 class Hc$Impl.java extends org.flasck.jvm.ContractImpl {
@@ -8,7 +8,7 @@ class Hc$Impl.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from);
 }
-class Hc$Up.java {
+class Hc$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 class PACKAGEFUNCTIONS$scoped.java {
   static java.lang.Object eval([java.lang.Object args) {
@@ -68,7 +68,7 @@ class scoped_0$MyHc.java extends test.golden.Hc$Impl {
     }
   }
 }
-class UpC$Down.java {
+class UpC$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class UpC$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
@@ -76,8 +76,8 @@ class UpC$Impl.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
-class UpC$Up.java {
-  abstract java.lang.Object call(org.flasck.jvm.post.DeliveryAddress from, test.golden.Hc$Up handler);
+class UpC$Up.java implements org.ziniki.ziwsh.UpContract {
+  abstract java.lang.Object call(org.flasck.jvm.post.DeliveryAddress from, test.golden.Hc$Down handler);
 }
 class PACKAGEFUNCTIONS$request.java {
   static java.lang.Object eval([java.lang.Object args) {

@@ -44,7 +44,7 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
     }
   }
 }
-class NoArg$Down.java {
+class NoArg$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class NoArg$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
@@ -52,7 +52,7 @@ class NoArg$Impl.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
-class NoArg$Up.java {
+class NoArg$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object arg0);
 }
 class PACKAGEFUNCTIONS$cna.java {
@@ -124,7 +124,7 @@ class PACKAGEFUNCTIONS.java {
     }
   }
 }
-class Reply$Down.java {
+class Reply$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, int k);
 }
 class Reply$Impl.java extends org.flasck.jvm.ContractImpl {
@@ -134,9 +134,9 @@ class Reply$Impl.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress from, int k);
 }
-class Reply$Up.java {
+class Reply$Up.java implements org.ziniki.ziwsh.UpContract {
 }
-class Server$Down.java {
+class Server$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class Server$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
@@ -144,8 +144,8 @@ class Server$Impl.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
-class Server$Up.java {
-  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, int k, test.golden.Reply$Up r);
+class Server$Up.java implements org.ziniki.ziwsh.UpContract {
+  abstract java.lang.Object get(org.flasck.jvm.post.DeliveryAddress from, int k, test.golden.Reply$Down r);
   abstract java.lang.Object put(org.flasck.jvm.post.DeliveryAddress from, int k);
 }
 class PACKAGEFUNCTIONS$q.java {

@@ -1,4 +1,4 @@
-class Foo$Down.java {
+class Foo$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object goodbye(org.flasck.jvm.post.DeliveryAddress from, int y);
 }
 class Foo$Impl.java extends org.flasck.jvm.ContractImpl {
@@ -8,10 +8,10 @@ class Foo$Impl.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object goodbye(org.flasck.jvm.post.DeliveryAddress from, int y);
 }
-class Foo$Up.java {
+class Foo$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object hello(org.flasck.jvm.post.DeliveryAddress from, java.lang.String x);
 }
-class Handler$Down.java {
+class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object feedback(org.flasck.jvm.post.DeliveryAddress from, java.lang.String answer);
 }
 class Handler$Impl.java extends org.flasck.jvm.ContractImpl {
@@ -21,9 +21,9 @@ class Handler$Impl.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object feedback(org.flasck.jvm.post.DeliveryAddress from, java.lang.String answer);
 }
-class Handler$Up.java {
+class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
 }
-class Request$Down.java {
+class Request$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class Request$Impl.java extends org.flasck.jvm.ContractImpl {
   void <init>() {
@@ -31,10 +31,10 @@ class Request$Impl.java extends org.flasck.jvm.ContractImpl {
     return
   }
 }
-class Request$Up.java {
-  abstract java.lang.Object ask(org.flasck.jvm.post.DeliveryAddress from, test.golden.Handler$Up answer);
+class Request$Up.java implements org.ziniki.ziwsh.UpContract {
+  abstract java.lang.Object ask(org.flasck.jvm.post.DeliveryAddress from, test.golden.Handler$Down answer);
 }
-class UsePolyInstance$Down.java {
+class UsePolyInstance$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object giveList(org.flasck.jvm.post.DeliveryAddress from, List l);
 }
 class UsePolyInstance$Impl.java extends org.flasck.jvm.ContractImpl {
@@ -44,5 +44,5 @@ class UsePolyInstance$Impl.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object giveList(org.flasck.jvm.post.DeliveryAddress from, List l);
 }
-class UsePolyInstance$Up.java {
+class UsePolyInstance$Up.java implements org.ziniki.ziwsh.UpContract {
 }

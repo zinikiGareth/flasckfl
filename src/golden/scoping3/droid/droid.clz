@@ -43,7 +43,7 @@ class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
     }
   }
 }
-class KVUpdate$Down.java {
+class KVUpdate$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
 }
 class KVUpdate$Impl.java extends org.flasck.jvm.ContractImpl {
@@ -53,7 +53,7 @@ class KVUpdate$Impl.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object update(org.flasck.jvm.post.DeliveryAddress from, java.lang.Object obj);
 }
-class KVUpdate$Up.java {
+class KVUpdate$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 class PACKAGEFUNCTIONS$f.java {
   static java.lang.Object eval([java.lang.Object args) {

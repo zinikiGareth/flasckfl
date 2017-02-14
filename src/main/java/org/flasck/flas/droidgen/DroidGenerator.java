@@ -127,6 +127,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.generateAssociatedSourceFile();
 		bcc.makeInterface();
 		bcc.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Up");
+		bcc.implementsInterface("org.ziniki.ziwsh.UpContract");
 		
 		for (RWContractMethodDecl m : cd.methods) {
 			if (m.dir.equals("up")) {
@@ -148,6 +149,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		parent.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Down");
 		bcc.generateAssociatedSourceFile();
 		bcc.makeInterface();
+		bcc.implementsInterface("org.ziniki.ziwsh.DownContract");
 		bcc.addInnerClassReference(Access.PUBLICSTATICINTERFACE, parent.getCreatedName(), "Down");
 		
 		for (RWContractMethodDecl m : cd.methods) {

@@ -39,7 +39,7 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
     return
   }
 }
-class Ctr$Down.java {
+class Ctr$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
 }
 class Ctr$Impl.java extends org.flasck.jvm.ContractImpl {
@@ -49,5 +49,5 @@ class Ctr$Impl.java extends org.flasck.jvm.ContractImpl {
   }
   abstract java.lang.Object go(org.flasck.jvm.post.DeliveryAddress from);
 }
-class Ctr$Up.java {
+class Ctr$Up.java implements org.ziniki.ziwsh.UpContract {
 }
