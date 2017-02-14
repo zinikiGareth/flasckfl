@@ -175,7 +175,6 @@ public class JSForm {
 	// the one thing would be what do we call the variable?  I think we just want
 	// to use the top level name & then it gives us that package and the others are
 	// nested inside it
-	@Deprecated
 	public static JSForm packageForm(String key) {
 		JSForm ret = JSForm.flex("if (typeof " + key + " === 'undefined')").needBlock();
 		ret.add(new JSForm(key + " = function()").needBlock());

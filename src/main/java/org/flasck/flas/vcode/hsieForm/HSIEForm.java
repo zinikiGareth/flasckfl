@@ -103,8 +103,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		return ret;
 	}
 
-	// This is still annoyingly used by tests, in "thingy()"
-	@Deprecated
+	// This is used by tests, in "thingy()", but should otherwise not be used
 	public ClosureCmd closure(InputPosition loc, Var var) {
 		ClosureCmd ret = new ClosureCmd(loc, var);
 		closures.put(var, ret);
