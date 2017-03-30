@@ -65,7 +65,7 @@ public class GenTestsForCards {
 	public void testVisitingACardWithOneDataMemberAndNoInitGeneratesAnEmptySlot() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkDefnOfField(J.BOOLEANP, "f1");
+		checkDefnOfField(J.OBJECTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
 		CardGrouping card = new CardGrouping(loc, new CardName(null, "Card"), sd);
@@ -77,7 +77,7 @@ public class GenTestsForCards {
 	public void testVisitingACardWithOneInitializedMemberGeneratesASlotWithTheValue() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkDefnOfField(J.INTP, "f1");
+		checkDefnOfField(J.OBJECTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		CardGrouping card = new CardGrouping(loc, new CardName(null, "Card"), sd);

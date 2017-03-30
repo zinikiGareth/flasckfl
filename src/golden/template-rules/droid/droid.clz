@@ -1,5 +1,5 @@
 class Container.java extends org.flasck.jvm.FLASObject {
-  Ljava/lang/String; title
+  Ljava/lang/Object; title
 
   void <init>() {
     super.<init>()
@@ -117,8 +117,8 @@ class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
-  Ltest/golden/Container; c
-  LCroset; set
+  Ljava/lang/Object; c
+  Ljava/lang/Object; set
 
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

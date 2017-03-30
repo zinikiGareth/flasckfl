@@ -386,12 +386,12 @@ class Complex$styleIf.java {
   }
 }
 class Complex.java extends org.flasck.jvm.cards.FlasckCard {
-  Ltest/golden/DataStore; ds
-  Ljava/lang/String; hello
-  Ljava/lang/String; format
-  LCroset; list
+  Ljava/lang/Object; ds
+  Ljava/lang/Object; hello
+  Ljava/lang/Object; format
+  Ljava/lang/Object; list
   Ljava/lang/Object; mapper
-  LCard; yoyo
+  Ljava/lang/Object; yoyo
   Ltest/golden/Complex$_C1; ds
 
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
@@ -484,9 +484,9 @@ class Offer$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object get(java.lang.Object from, java.lang.String x, test.golden.Handler$Down h);
 }
 class Polyed.java extends org.flasck.jvm.FLASObject {
-  Ljava/lang/String; x
+  Ljava/lang/Object; x
   Ljava/lang/Object; y
-  LList; z
+  Ljava/lang/Object; z
 
   void <init>() {
     super.<init>()
@@ -507,7 +507,7 @@ class SubCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
 }
 class Thing.java extends org.flasck.jvm.FLASObject {
-  Ljava/lang/String; x
+  Ljava/lang/Object; x
 
   void <init>() {
     super.<init>()
@@ -519,7 +519,7 @@ class Thing.java extends org.flasck.jvm.FLASObject {
   }
 }
 class WithInit.java extends org.flasck.jvm.FLASObject {
-  Ljava/lang/String; x
+  Ljava/lang/Object; x
 
   void <init>() {
     super.<init>()

@@ -328,7 +328,7 @@ class TestCard$rejig.java {
   }
 }
 class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
-  LCons; data
+  Ljava/lang/Object; data
 
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

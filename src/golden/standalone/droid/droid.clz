@@ -75,7 +75,7 @@ class Foo$request2.java {
   }
 }
 class Foo.java extends org.flasck.jvm.cards.FlasckCard {
-  Ltest/golden/KeyValue; kv
+  Ljava/lang/Object; kv
   Ltest/golden/Foo$_C0; kv
 
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {

@@ -67,7 +67,6 @@ public class GenTestsForStructs {
 		gen.visitStructDefn(sd);
 	}
 
-	// The number of assertions in here suggests that we could break the code into functions that we could test separately
 	@Test
 	public void testVisitingAnEmptyStructDefnGeneratesTheCorrectMinimumCode() {
 		checkCreationOfStruct();
@@ -82,7 +81,7 @@ public class GenTestsForStructs {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
 		checkCreationOfStructDFE();
-		checkDefnOfField(dfe, J.BOOLEANP, "f1");
+		checkDefnOfField(dfe, J.OBJECTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
 		gen.visitStructDefn(sd);
@@ -94,7 +93,7 @@ public class GenTestsForStructs {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
 		checkCreationOfStructDFE();
-		checkDefnOfField(dfe, J.INTP, "f1");
+		checkDefnOfField(dfe, J.OBJECTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		gen.visitStructDefn(sd);

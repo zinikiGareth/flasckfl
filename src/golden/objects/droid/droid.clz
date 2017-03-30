@@ -34,7 +34,7 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
   }
 }
 class Card.java extends org.flasck.jvm.cards.FlasckCard {
-  LCroset; c
+  Ljava/lang/Object; c
 
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

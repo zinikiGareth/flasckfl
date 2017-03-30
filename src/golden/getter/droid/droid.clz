@@ -11,8 +11,8 @@ class Getter$choose.java {
   }
 }
 class Getter.java extends org.flasck.jvm.cards.FlasckCard {
-  Ljava/lang/String; curr
-  LCroset; strings
+  Ljava/lang/Object; curr
+  Ljava/lang/Object; strings
 
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

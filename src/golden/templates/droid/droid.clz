@@ -1,6 +1,6 @@
 class Item.java extends org.flasck.jvm.FLASObject {
-  Ljava/lang/String; title
-  Ljava/lang/String; format
+  Ljava/lang/Object; title
+  Ljava/lang/Object; format
 
   void <init>() {
     super.<init>()
@@ -107,7 +107,7 @@ class Templates$B4.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class Templates.java extends org.flasck.jvm.cards.FlasckCard {
-  LCroset; data
+  Ljava/lang/Object; data
 
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

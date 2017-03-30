@@ -39,7 +39,7 @@ class Simple$f.java {
   }
 }
 class Simple.java extends org.flasck.jvm.cards.FlasckCard {
-  Ljava/lang/String; hello
+  Ljava/lang/Object; hello
 
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
