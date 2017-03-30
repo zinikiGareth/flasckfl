@@ -1,4 +1,6 @@
 class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/NestFunction; _card
+
   void <init>(test.golden.NestFunction cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -26,6 +28,8 @@ class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class NestFunction$styleIf.java {
+  Ltest/golden/NestFunction; _card
+
   void <init>(test.golden.NestFunction card) {
     super.<init>()
     this._card = card
@@ -36,6 +40,8 @@ class NestFunction$styleIf.java {
   }
 }
 class NestFunction.java extends org.flasck.jvm.cards.FlasckCard {
+  Z sayHello
+
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()

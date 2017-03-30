@@ -1,4 +1,6 @@
 class Simple$B1.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Simple; _card
+
   void <init>(test.golden.Simple cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -7,6 +9,8 @@ class Simple$B1.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Simple; _card
+
   void <init>(test.golden.Simple cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -23,6 +27,8 @@ class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class Simple$f.java {
+  Ltest/golden/Simple; _card
+
   void <init>(test.golden.Simple card) {
     super.<init>()
     this._card = card
@@ -33,6 +39,8 @@ class Simple$f.java {
   }
 }
 class Simple.java extends org.flasck.jvm.cards.FlasckCard {
+  Ljava/lang/String; hello
+
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()

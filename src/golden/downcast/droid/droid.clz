@@ -24,6 +24,8 @@ class PACKAGEFUNCTIONS.java {
   }
 }
 class Role.java extends org.flasck.jvm.FLASObject {
+  Ljava/lang/String; id
+
   void <init>() {
     super.<init>()
     return

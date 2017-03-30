@@ -1,4 +1,8 @@
 class f_0$HandleReply.java extends test.golden.Reply$Impl {
+  Ljava/lang/Object; server
+  Ljava/lang/Object; var
+  Ljava/lang/Object; v
+
   void <init>(java.lang.Object server, java.lang.Object var, java.lang.Object v) {
     super.<init>()
     this.server = org.flasck.jvm.FLEval.head(server)

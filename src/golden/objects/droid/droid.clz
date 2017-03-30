@@ -1,4 +1,6 @@
 class Card$_C0.java extends test.golden.Ctr$Impl {
+  Ltest/golden/Card; _card
+
   void <init>(test.golden.Card card) {
     super.<init>()
     this._card = card
@@ -32,6 +34,8 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
   }
 }
 class Card.java extends org.flasck.jvm.cards.FlasckCard {
+  LCroset; c
+
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     this.registerContract("test.golden.Ctr", new test.golden.Card$_C0(this))

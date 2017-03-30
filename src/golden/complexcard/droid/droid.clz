@@ -8,6 +8,8 @@ class ClickIt.java extends org.flasck.jvm.FLASObject {
   }
 }
 class Complex$_C0.java extends test.golden.Init$Impl {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex card) {
     super.<init>()
     this._card = card
@@ -52,6 +54,8 @@ class Complex$_C0.java extends test.golden.Init$Impl {
   }
 }
 class Complex$_C1.java extends test.golden.DataStore$Impl {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex card) {
     super.<init>()
     this._card = card
@@ -59,6 +63,8 @@ class Complex$_C1.java extends test.golden.DataStore$Impl {
   }
 }
 class Complex$_S0.java extends test.golden.Offer$Impl {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex card) {
     super.<init>()
     this._card = card
@@ -100,6 +106,8 @@ class Complex$_S0.java extends test.golden.Offer$Impl {
   }
 }
 class Complex$B1.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -116,6 +124,8 @@ class Complex$B1.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Complex$B10.java extends org.flasck.jvm.areas.CardSlotArea {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -123,6 +133,8 @@ class Complex$B10.java extends org.flasck.jvm.areas.CardSlotArea {
   }
 }
 class Complex$B11.java extends org.flasck.jvm.areas.CardSlotArea {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -138,6 +150,8 @@ class Complex$B11.java extends org.flasck.jvm.areas.CardSlotArea {
   }
 }
 class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -166,6 +180,8 @@ class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -182,6 +198,10 @@ class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
   }
 }
 class Complex$B4.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Complex; _card
+  Ltest/golden/Complex$B4; _src_lv
+  Ljava/lang/Object; lv
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
@@ -201,6 +221,9 @@ class Complex$B4.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Complex$B5.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Complex; _card
+  Ltest/golden/Complex$B4; _src_lv
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -218,6 +241,8 @@ class Complex$B5.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class Complex$B6.java extends org.flasck.jvm.areas.ListArea {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -234,6 +259,8 @@ class Complex$B6.java extends org.flasck.jvm.areas.ListArea {
   }
 }
 class Complex$B7.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
@@ -242,6 +269,8 @@ class Complex$B7.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Complex$B8.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -255,6 +284,8 @@ class Complex$B8.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class Complex$B9.java extends org.flasck.jvm.areas.CasesArea {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -270,6 +301,9 @@ class Complex$B9.java extends org.flasck.jvm.areas.CasesArea {
   }
 }
 class Complex$FooHandler.java extends test.golden.Handler$Impl {
+  Ltest/golden/Complex; _card
+  Ljava/lang/Object; k
+
   void <init>(java.lang.Object card, java.lang.Object k) {
     super.<init>()
     this._card = ((test.golden.Complex)org.flasck.jvm.FLEval.full(card))
@@ -311,6 +345,8 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
   }
 }
 class Complex$handlers_6.java implements org.flasck.jvm.display.EventHandler {
+  Ltest/golden/Complex; _card
+
   void <init>(java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.Complex)card)
@@ -326,6 +362,8 @@ ev
   }
 }
 class Complex$sayHello.java {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex card) {
     super.<init>()
     this._card = card
@@ -336,6 +374,8 @@ class Complex$sayHello.java {
   }
 }
 class Complex$styleIf.java {
+  Ltest/golden/Complex; _card
+
   void <init>(test.golden.Complex card) {
     super.<init>()
     this._card = card
@@ -346,6 +386,14 @@ class Complex$styleIf.java {
   }
 }
 class Complex.java extends org.flasck.jvm.cards.FlasckCard {
+  Ltest/golden/DataStore; ds
+  Ljava/lang/String; hello
+  Ljava/lang/String; format
+  LCroset; list
+  Ljava/lang/Object; mapper
+  LCard; yoyo
+  Ltest/golden/Complex$_C1; ds
+
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     this.registerContract("test.golden.Init", new test.golden.Complex$_C0(this))
@@ -436,6 +484,10 @@ class Offer$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object get(java.lang.Object from, java.lang.String x, test.golden.Handler$Down h);
 }
 class Polyed.java extends org.flasck.jvm.FLASObject {
+  Ljava/lang/String; x
+  Ljava/lang/Object; y
+  LList; z
+
   void <init>() {
     super.<init>()
     return
@@ -455,6 +507,8 @@ class SubCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
 }
 class Thing.java extends org.flasck.jvm.FLASObject {
+  Ljava/lang/String; x
+
   void <init>() {
     super.<init>()
     return
@@ -465,6 +519,8 @@ class Thing.java extends org.flasck.jvm.FLASObject {
   }
 }
 class WithInit.java extends org.flasck.jvm.FLASObject {
+  Ljava/lang/String; x
+
   void <init>() {
     super.<init>()
     return

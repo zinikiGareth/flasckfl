@@ -1,4 +1,6 @@
 class Foo$_C0.java extends test.import.Fred$Impl {
+  Ltest/golden/Foo; _card
+
   void <init>(test.golden.Foo card) {
     super.<init>()
     this._card = card
@@ -31,6 +33,8 @@ class Foo$_C0.java extends test.import.Fred$Impl {
   }
 }
 class Foo.java extends org.flasck.jvm.cards.FlasckCard {
+  I a
+
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     this.registerContract("test.import.Fred", new test.golden.Foo$_C0(this))

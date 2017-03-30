@@ -1,4 +1,6 @@
 class Events$B1.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Events; _card
+
   void <init>(test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -8,6 +10,8 @@ class Events$B1.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Events$B2.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Events; _card
+
   void <init>(test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -22,6 +26,8 @@ class Events$B2.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class Events$B3.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Events; _card
+
   void <init>(test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -36,6 +42,8 @@ class Events$B3.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class Events$handlers_0.java implements org.flasck.jvm.display.EventHandler {
+  Ltest/golden/Events; _card
+
   void <init>(java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.Events)card)
@@ -51,6 +59,8 @@ ev
   }
 }
 class Events$handlers_1.java implements org.flasck.jvm.display.EventHandler {
+  Ltest/golden/Events; _card
+
   void <init>(java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.Events)card)
@@ -68,6 +78,8 @@ ev
   }
 }
 class Events$okThen.java {
+  Ltest/golden/Events; _card
+
   void <init>(test.golden.Events card) {
     super.<init>()
     this._card = card
@@ -78,6 +90,8 @@ class Events$okThen.java {
   }
 }
 class Events$setTo.java {
+  Ltest/golden/Events; _card
+
   void <init>(test.golden.Events card) {
     super.<init>()
     this._card = card

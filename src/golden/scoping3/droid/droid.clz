@@ -1,4 +1,7 @@
 class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
+  Ljava/lang/Object; set
+  Ljava/lang/Object; ck
+
   void <init>(java.lang.Object set, java.lang.Object ck) {
     super.<init>()
     this.set = org.flasck.jvm.FLEval.head(set)

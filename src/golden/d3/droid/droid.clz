@@ -1,4 +1,6 @@
 class TestCard$_d3_chart_enter_rect.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -9,6 +11,8 @@ class TestCard$_d3_chart_enter_rect.java {
   }
 }
 class TestCard$_d3_chart_enter_text.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -19,6 +23,8 @@ class TestCard$_d3_chart_enter_text.java {
   }
 }
 class TestCard$_d3init_chart.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -29,6 +35,8 @@ class TestCard$_d3init_chart.java {
   }
 }
 class TestCard$_gen_1.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -39,6 +47,8 @@ class TestCard$_gen_1.java {
   }
 }
 class TestCard$_gen_10.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -49,6 +59,8 @@ class TestCard$_gen_10.java {
   }
 }
 class TestCard$_gen_11.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -59,6 +71,8 @@ class TestCard$_gen_11.java {
   }
 }
 class TestCard$_gen_12.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -69,6 +83,8 @@ class TestCard$_gen_12.java {
   }
 }
 class TestCard$_gen_13.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -79,6 +95,8 @@ class TestCard$_gen_13.java {
   }
 }
 class TestCard$_gen_14.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -89,6 +107,8 @@ class TestCard$_gen_14.java {
   }
 }
 class TestCard$_gen_15.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -99,6 +119,8 @@ class TestCard$_gen_15.java {
   }
 }
 class TestCard$_gen_2.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -109,6 +131,8 @@ class TestCard$_gen_2.java {
   }
 }
 class TestCard$_gen_3.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -119,6 +143,8 @@ class TestCard$_gen_3.java {
   }
 }
 class TestCard$_gen_4.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -129,6 +155,8 @@ class TestCard$_gen_4.java {
   }
 }
 class TestCard$_gen_5.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -139,6 +167,8 @@ class TestCard$_gen_5.java {
   }
 }
 class TestCard$_gen_6.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -149,6 +179,8 @@ class TestCard$_gen_6.java {
   }
 }
 class TestCard$_gen_7.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -159,6 +191,8 @@ class TestCard$_gen_7.java {
   }
 }
 class TestCard$_gen_8.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -169,6 +203,8 @@ class TestCard$_gen_8.java {
   }
 }
 class TestCard$_gen_9.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -179,6 +215,8 @@ class TestCard$_gen_9.java {
   }
 }
 class TestCard$B1.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -188,6 +226,8 @@ class TestCard$B1.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class TestCard$B2.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -196,6 +236,8 @@ class TestCard$B2.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class TestCard$B3.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "a")
     this._card = cardArg
@@ -209,6 +251,8 @@ class TestCard$B3.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class TestCard$B4.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -217,6 +261,8 @@ class TestCard$B4.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class TestCard$B5.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -225,6 +271,8 @@ class TestCard$B5.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class TestCard$B6.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "svg")
     this._card = cardArg
@@ -241,6 +289,8 @@ class TestCard$B6.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class TestCard$B7.java extends org.flasck.jvm.areas.D3Area {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -249,6 +299,8 @@ class TestCard$B7.java extends org.flasck.jvm.areas.D3Area {
   }
 }
 class TestCard$handlers_0.java implements org.flasck.jvm.display.EventHandler {
+  Ltest/golden/TestCard; _card
+
   void <init>(java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.TestCard)card)
@@ -264,6 +316,8 @@ ev
   }
 }
 class TestCard$rejig.java {
+  Ltest/golden/TestCard; _card
+
   void <init>(test.golden.TestCard card) {
     super.<init>()
     this._card = card
@@ -274,6 +328,8 @@ class TestCard$rejig.java {
   }
 }
 class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
+  LCons; data
+
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()

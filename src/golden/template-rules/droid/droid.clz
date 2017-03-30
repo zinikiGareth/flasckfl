@@ -1,4 +1,6 @@
 class Container.java extends org.flasck.jvm.FLASObject {
+  Ljava/lang/String; title
+
   void <init>() {
     super.<init>()
     return
@@ -9,6 +11,8 @@ class Container.java extends org.flasck.jvm.FLASObject {
   }
 }
 class MyCard$B1.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/MyCard; _card
+
   void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -18,6 +22,8 @@ class MyCard$B1.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/MyCard; _card
+
   void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -42,6 +48,8 @@ class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
+  Ltest/golden/MyCard; _card
+
   void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -58,6 +66,10 @@ class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
   }
 }
 class MyCard$B4.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/MyCard; _card
+  Ltest/golden/MyCard$B4; _src_q
+  Ljava/lang/Object; q
+
   void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
@@ -77,6 +89,9 @@ class MyCard$B4.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/MyCard; _card
+  Ltest/golden/MyCard$B4; _src_q
+
   void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -102,6 +117,9 @@ class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
+  Ltest/golden/Container; c
+  LCroset; set
+
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()

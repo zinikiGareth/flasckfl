@@ -1,4 +1,7 @@
 class Item.java extends org.flasck.jvm.FLASObject {
+  Ljava/lang/String; title
+  Ljava/lang/String; format
+
   void <init>() {
     super.<init>()
     return
@@ -10,6 +13,8 @@ class Item.java extends org.flasck.jvm.FLASObject {
   }
 }
 class Templates$B1.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Templates; _card
+
   void <init>(test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -18,6 +23,8 @@ class Templates$B1.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Templates$B2.java extends org.flasck.jvm.areas.ListArea {
+  Ltest/golden/Templates; _card
+
   void <init>(test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -34,6 +41,10 @@ class Templates$B2.java extends org.flasck.jvm.areas.ListArea {
   }
 }
 class Templates$B3.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Templates; _card
+  Ltest/golden/Templates$B3; _src_e
+  Ljava/lang/Object; e
+
   void <init>(test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
@@ -53,6 +64,9 @@ class Templates$B3.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Templates$B4.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Templates; _card
+  Ltest/golden/Templates$B3; _src_e
+
   void <init>(test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -93,6 +107,8 @@ class Templates$B4.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class Templates.java extends org.flasck.jvm.cards.FlasckCard {
+  LCroset; data
+
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()

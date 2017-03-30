@@ -1,4 +1,6 @@
 class Unroll$B1.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Unroll; _card
+
   void <init>(test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -8,6 +10,8 @@ class Unroll$B1.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Unroll$B2.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Unroll; _card
+
   void <init>(test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "p")
     this._card = cardArg
@@ -21,6 +25,8 @@ class Unroll$B2.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Unroll$B3.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Unroll; _card
+
   void <init>(test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
@@ -29,6 +35,8 @@ class Unroll$B3.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class Unroll$B4.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Unroll; _card
+
   void <init>(test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "p")
     this._card = cardArg
@@ -42,6 +50,8 @@ class Unroll$B4.java extends org.flasck.jvm.areas.DivArea {
   }
 }
 class Unroll$B5.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Unroll; _card
+
   void <init>(test.golden.Unroll cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg

@@ -1,4 +1,6 @@
 class Card$doit.java {
+  Ltest/golden/Card; _card
+
   void <init>(test.golden.Card card) {
     super.<init>()
     this._card = card
@@ -9,6 +11,8 @@ class Card$doit.java {
   }
 }
 class Card.java extends org.flasck.jvm.cards.FlasckCard {
+  Ltest/golden/Container; c
+
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()
@@ -33,6 +37,8 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
   }
 }
 class Container.java extends org.flasck.jvm.FLASObject {
+  Ljava/lang/String; value
+
   void <init>() {
     super.<init>()
     return

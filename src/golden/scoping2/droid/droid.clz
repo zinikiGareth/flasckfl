@@ -46,6 +46,8 @@ class PACKAGEFUNCTIONS.java {
   }
 }
 class scoped_0$MyHc.java extends test.golden.Hc$Impl {
+  Ljava/lang/Object; requestObj
+
   void <init>(java.lang.Object requestObj) {
     super.<init>()
     this.requestObj = org.flasck.jvm.FLEval.head(requestObj)
