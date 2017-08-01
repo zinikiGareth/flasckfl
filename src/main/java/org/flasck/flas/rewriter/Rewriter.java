@@ -950,11 +950,20 @@ public class Rewriter implements CodeGenRegistry {
 			}
 			AreaName areaName = cx.nextArea();
 			Object rwexpr = rewriteExpr(cx, ce.expr);
+			final InputPosition posn = ce.kw;
 			FunctionName fnName = cx.nextFunction(ce.location(), areaName, "contents", CodeType.AREA);
-			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
-			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, fnName, new ArrayList<>(), null), 0, rwexpr);
-			fn.addCase(fcd0);
-			functions.put(fnName.uniqueName(), fn);
+			RWFunctionDefinition fn = generateExprFunction(posn, fnName, rwexpr);
+			Object rec = rwexpr;
+			Map<ApplyExpr, FunctionName> changers = new HashMap<>();
+			while (rec instanceof ApplyExpr) {
+				rec = ((ApplyExpr)rec).args.get(0);
+				if (rec instanceof ApplyExpr) {
+					ApplyExpr ae = (ApplyExpr) rec;
+					final FunctionName fname = cx.nextFunction(ae.location, areaName, "ctsAssign", CodeType.AREA);
+					generateExprFunction(ae.location, fname, rec);
+					changers.put(ae, fname);
+				}
+			}
 			FunctionName editFn = null;
 			if (ce.editable() && rwexpr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) rwexpr;
@@ -962,13 +971,14 @@ public class Rewriter implements CodeGenRegistry {
 					throw new UtilException("Cannot edit: " + ae);
 				editFn = cx.nextFunction(ae.location(), areaName, "editcontainer", CodeType.AREA);
 				RWFunctionDefinition efn = new RWFunctionDefinition(editFn, 0, true);
-				RWFunctionCaseDefn efcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(ce.kw, editFn, new ArrayList<>(), null), 0, ae.args.get(0));
+				RWFunctionCaseDefn efcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(posn, editFn, new ArrayList<>(), null), 0, ae.args.get(0));
 				efn.addCase(efcd0);
 				functions.put(editFn.uniqueName(), efn);
 				efn.gatherScopedVars();
 			}
 			fn.gatherScopedVars();
-			return rewriteEventHandlers(cx, areaName, new RWContentExpr(ce.kw, rwexpr, ce.editable(), rawHTML, areaName, formats, fnName, makeFn(cx, ce, areaName, dynamicExpr), editFn), ((TemplateFormatEvents)tl).handlers);
+			final RWContentExpr rw = new RWContentExpr(posn, rwexpr, ce.editable(), rawHTML, areaName, changers, formats, fnName, makeFn(cx, ce, areaName, dynamicExpr), editFn);
+			return rewriteEventHandlers(cx, areaName, rw, ((TemplateFormatEvents)tl).handlers);
 		} else if (tl instanceof TemplateCardReference) {
 			TemplateCardReference cr = (TemplateCardReference) tl;
 			Object cardVar = cr.explicitCard == null ? null : cx.resolve(cr.location, (String)cr.explicitCard);
@@ -1069,6 +1079,14 @@ public class Rewriter implements CodeGenRegistry {
 			return rwD3;
 		} else 
 			throw new UtilException("Content type not handled: " + (tl == null?"null":tl.getClass()));
+	}
+
+	private RWFunctionDefinition generateExprFunction(final InputPosition posn, FunctionName fnName, Object rwexpr) {
+		RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
+		RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(posn, fnName, new ArrayList<>(), null), 0, rwexpr);
+		fn.addCase(fcd0);
+		functions.put(fnName.uniqueName(), fn);
+		return fn;
 	}
 
 	private Object dynamicFormat(TemplateFormat tf, List<Object> formats) {

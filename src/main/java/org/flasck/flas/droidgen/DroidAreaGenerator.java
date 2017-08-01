@@ -1,7 +1,9 @@
 package org.flasck.flas.droidgen;
 
 import java.util.List;
+import java.util.Map;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
@@ -98,13 +100,15 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void onFieldAssign(Object expr, String field, FunctionName call) {
+	public void onFieldAssign(Map<ApplyExpr, FunctionName> changers, Object expr, String field, FunctionName call) {
 		IExpr dge = null;
 		if (expr instanceof TemplateListVar) {
 			String name = ((TemplateListVar)expr).simpleName;
 			dge = ctor.getField(ctor.getField(ctor.myThis(), "_src_" + name), name);
 		} else if (expr instanceof CardMember) {
 			dge = ctor.getField(ctor.getField(ctor.myThis(), "_card"), ((CardMember)expr).var);
+		} else if (expr instanceof ApplyExpr) {
+			dge = ctor.callVirtual(J.OBJECT, ctor.myThis(), changers.get(expr).name);
 		} else
 			throw new NotImplementedException();
 

@@ -2,7 +2,9 @@ package org.flasck.flas.jsgen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
@@ -89,13 +91,15 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void onFieldAssign(Object expr, String field, FunctionName call) {
+	public void onFieldAssign(Map<ApplyExpr, FunctionName> changers, Object expr, String field, FunctionName call) {
 		String jsexpr;
 		if (expr instanceof TemplateListVar) {
 			String name = ((TemplateListVar)expr).simpleName;
 			jsexpr = "this._src_" + name + "." + name;
 		} else if (expr instanceof CardMember) {
 			jsexpr = "this._card." + ((CardMember)expr).var;
+		} else if (expr instanceof ApplyExpr) {
+			jsexpr = "this." + changers.get(expr).name + "()";
 		} else
 			throw new NotImplementedException();
 		

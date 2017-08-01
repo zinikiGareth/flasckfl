@@ -2,6 +2,7 @@ package org.flasck.flas.template;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.ApplyExpr;
@@ -175,7 +176,7 @@ public class TemplateTraversor {
 					RWTemplateExplicitAttr tea = (RWTemplateExplicitAttr) a;
 					for (AreaGenerator area : areas)
 						area.handleTEA(tea, an);
-					callOnAssign(areas, tea.value, FunctionName.areaMethod(tea.location, areaName, "_setAttr_" + an), true, null);
+					callOnAssign(null, areas, tea.value, FunctionName.areaMethod(tea.location, areaName, "_setAttr_" + an), true, null);
 					an++;
 				} else
 					throw new UtilException("Cannot handle attr " + a.getClass());
@@ -212,7 +213,7 @@ public class TemplateTraversor {
 			}
 			for (AreaGenerator area : areas)
 				area.assignToList(l.listFn);
-			callOnAssign(areas, l.listVar, FunctionName.areaMethod(l.iterLoc, areaName, "_assignToVar"), false, "lv");
+			callOnAssign(null, areas, l.listVar, FunctionName.areaMethod(l.iterLoc, areaName, "_assignToVar"), false, "lv");
 		} else if (tl instanceof RWContentString) {
 			RWContentString cs = (RWContentString) tl;
 			for (AreaGenerator area : areas)
@@ -220,7 +221,7 @@ public class TemplateTraversor {
 		} else if (tl instanceof RWContentExpr) {
 			RWContentExpr ce = (RWContentExpr)tl;
 			Object valExpr = ce.expr;
-			callOnAssign(areas, valExpr, FunctionName.areaMethod(ce.location(), areaName,"_contentExpr"), true, null);
+			callOnAssign(ce.changers, areas, valExpr, FunctionName.areaMethod(ce.location(), areaName,"_contentExpr"), true, null);
 
 			for (AreaGenerator area : areas)
 				area.contentExpr(ce.fnName, ce.rawHTML);
@@ -246,7 +247,7 @@ public class TemplateTraversor {
 				; // fully handled above
 			else if (cr.yoyoVar != null) {
 				Object valExpr = cr.yoyoVar;
-				callOnAssign(areas, valExpr, FunctionName.areaMethod(cr.location, areaName, "_yoyoExpr"), true, null);
+				callOnAssign(null, areas, valExpr, FunctionName.areaMethod(cr.location, areaName, "_yoyoExpr"), true, null);
 	
 				String tfn = cr.fnName.name;
 				for (AreaGenerator area : areas)
@@ -259,7 +260,7 @@ public class TemplateTraversor {
 			List<CaseChooser> ccs = new ArrayList<CaseChooser>();
 			for (AreaGenerator area : areas)
 				ccs.add(area.chooseCase(sn));
-			callOnAssign(areas, tc.switchOn, sn, true, null);
+			callOnAssign(null, areas, tc.switchOn, sn, true, null);
 
 			for (RWTemplateOr oc : tc.cases) {
 				AreaName cn = oc.areaName();
@@ -276,11 +277,11 @@ public class TemplateTraversor {
 					cc.code(cn);
 				recurse(cx, cn, oc.template, areaName);
 				if (oc.cond != null)
-					callOnAssign(areas, oc.cond, sn, false, null);
+					callOnAssign(null, areas, oc.cond, sn, false, null);
 			}
 		} else if (tl instanceof RWD3Thing) {
 			RWD3Thing d3 = (RWD3Thing) tl;
-			callOnAssign(areas, d3.data, FunctionName.areaMethod(d3.location(), new AreaName(null, "D3Area"), "_onUpdate"), false, null);
+			callOnAssign(null, areas, d3.data, FunctionName.areaMethod(d3.location(), new AreaName(null, "D3Area"), "_onUpdate"), false, null);
 		} else {
 			throw new UtilException("Template of type " + tl.getClass() + " not supported");
 		}
@@ -327,7 +328,7 @@ public class TemplateTraversor {
 			FunctionName tfn = tl.dynamicFunction;
 			for (AreaGenerator area : areas)
 				area.setVarFormats(tfn);
-			callOnAssign(areas, expr, scf, true, null);
+			callOnAssign(null, areas, expr, scf, true, null);
 		}
 		else if (expr == null && simple.length() > 0) {
 			for (AreaGenerator area : areas)
@@ -355,7 +356,7 @@ public class TemplateTraversor {
 		}
 	}
 	
-	protected void callOnAssign(List<AreaGenerator> areas, Object valExpr, FunctionName call, boolean addAssign, String passVar) {
+	protected void callOnAssign(Map<ApplyExpr, FunctionName> changers, List<AreaGenerator> areas, Object valExpr, FunctionName call, boolean addAssign, String passVar) {
 		if (valExpr == null)
 			throw new UtilException("value cannot be null");
 		else if (valExpr instanceof CardMember) {
@@ -371,7 +372,7 @@ public class TemplateTraversor {
 			RWFunctionDefinition fd = rewriter.functions.get(cf.uniqueName());
 			if (fd != null)
 				for (RWFunctionCaseDefn fcd : fd.cases)
-					callOnAssign(areas, fcd.expr, call, false, passVar);
+					callOnAssign(changers, areas, fcd.expr, call, false, passVar);
 		} else if (valExpr instanceof LocalVar || valExpr instanceof StringLiteral || valExpr instanceof NumericLiteral || valExpr instanceof PackageVar || valExpr instanceof RWStructDefn) {
 			// nothing to do here, not variable
 		} else if (valExpr instanceof ApplyExpr) {
@@ -380,15 +381,19 @@ public class TemplateTraversor {
 				Object expr = ae.args.get(0);
 				String field = ((StringLiteral)ae.args.get(1)).text;
 				if (expr instanceof TemplateListVar) {
-					callOnAssign(areas, expr, call, false, passVar);
+					callOnAssign(changers, areas, expr, call, false, passVar);
 					for (AreaGenerator area : areas)
-						area.onFieldAssign(expr, field, call);
+						area.onFieldAssign(changers, expr, field, call);
 				} else if (expr instanceof CardMember) {
 					// need to handle if the whole member gets assigned
-					callOnAssign(areas, expr, call, false, passVar);
+					callOnAssign(changers, areas, expr, call, false, passVar);
 					// also handle if this field gets assigned
 					for (AreaGenerator area : areas)
-						area.onFieldAssign(expr, field, call);
+						area.onFieldAssign(changers, expr, field, call);
+				} else if (expr instanceof ApplyExpr) { // this is a nested apply
+					callOnAssign(changers, areas, expr, call, false, passVar);
+					for (AreaGenerator area : areas)
+						area.onFieldAssign(changers, expr, field, call);
 				} else {
 					// This includes the case where we have delegated knowledge of our state to some other function.
 					// It needs to interact with the parent through some kind of dependency analysis to identify
@@ -405,15 +410,15 @@ public class TemplateTraversor {
 					return;
 				}
 			} else {
-				callOnAssign(areas, ae.fn, call, false, passVar);
+				callOnAssign(changers, areas, ae.fn, call, false, passVar);
 				for (Object o : ae.args)
-					callOnAssign(areas, o, call, false, passVar);
+					callOnAssign(changers, areas, o, call, false, passVar);
 			}
 		} else if (valExpr instanceof IfExpr) {
 			IfExpr ie = (IfExpr) valExpr;
-			callOnAssign(areas, ie.guard, call, false, passVar);
-			callOnAssign(areas, ie.ifExpr, call, false, passVar);
-			callOnAssign(areas, ie.elseExpr, call, false, passVar);
+			callOnAssign(changers, areas, ie.guard, call, false, passVar);
+			callOnAssign(changers, areas, ie.ifExpr, call, false, passVar);
+			callOnAssign(changers, areas, ie.elseExpr, call, false, passVar);
 		} else
 			throw new UtilException("Not handled: " + valExpr.getClass());
 		if (addAssign) {

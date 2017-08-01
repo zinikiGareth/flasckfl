@@ -19,7 +19,7 @@ public interface TextMatcher {
 
 		@Override
 		public String getDescription() {
-			return "is '" + str + "'";
+			return "'" + str + "'";
 		}
 
 	}

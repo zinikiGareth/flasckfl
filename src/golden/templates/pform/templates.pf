@@ -14,24 +14,39 @@ package test.golden
       data @{14:13|data}
         Croset @{14:0|Croset}
           Item @{14:7|Item}
-    template @{18:0|template} @{null}
-      . @{19:0|.}
-        + data e @{20:0|+} @{20:2|data} @{20:7|e}
-          . @{21:0|.}
-            <cexpr> @{22:2|title}
-              <apply> @{22:2|title}
-                . @{22:2|title}
-                e @{22:0|e}
-                title @{22:2|title}
-              <apply> @{22:11|e.format}
-                . @{22:12|.}
-                e @{22:11|e}
-                format @{22:13|format}
-            <cexpr> @{23:5|id}
-              <apply> @{23:5|id}
-                . @{23:5|id}
-                <apply> @{23:2|id}
-                  . @{23:2|id}
-                  e @{23:0|e}
-                  id @{23:2|id}
-                id @{23:5|id}
+      header @{15:5|header}
+        Item @{15:0|Item}
+    template @{19:0|template} @{null}
+      . @{20:0|.}
+        + data e @{21:0|+} @{21:2|data} @{21:7|e}
+          . @{22:0|.}
+            <cexpr> @{23:2|title}
+              <apply> @{23:2|title}
+                . @{23:2|title}
+                e @{23:0|e}
+                title @{23:2|title}
+              <apply> @{23:11|e.format}
+                . @{23:12|.}
+                e @{23:11|e}
+                format @{23:13|format}
+            <cexpr> @{24:5|id}
+              <apply> @{24:5|id}
+                . @{24:5|id}
+                <apply> @{24:2|id}
+                  . @{24:2|id}
+                  e @{24:0|e}
+                  id @{24:2|id}
+                id @{24:5|id}
+        <cexpr> @{25:7|title}
+          <apply> @{25:7|title}
+            . @{25:7|title}
+            header @{25:0|header}
+            title @{25:7|title}
+        <cexpr> @{26:10|id}
+          <apply> @{26:10|id}
+            . @{26:10|id}
+            <apply> @{26:7|id}
+              . @{26:7|id}
+              header @{26:0|header}
+              id @{26:7|id}
+            id @{26:10|id}

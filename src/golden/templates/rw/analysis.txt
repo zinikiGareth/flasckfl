@@ -29,3 +29,34 @@ function test.golden.Templates.B5.contents_3 test.golden.Templates 0
         TLV[test.golden.Templates.e<-test.golden.Templates.B2.lvs_0]
         "id"
       "id"
+function test.golden.Templates.B5.ctsAssign_4 test.golden.Templates 0
+  case test.golden.Templates.B5.ctsAssign_4_0
+  =
+    @
+      PackageVar.FLEval.field
+      TLV[test.golden.Templates.e<-test.golden.Templates.B2.lvs_0]
+      "id"
+function test.golden.Templates.B6.contents_5 test.golden.Templates 0
+  case test.golden.Templates.B6.contents_5_0
+  =
+    @
+      PackageVar.FLEval.field
+      CardMember.CardMember[test.golden.Templates.header]
+      "title"
+function test.golden.Templates.B7.contents_6 test.golden.Templates 0
+  case test.golden.Templates.B7.contents_6_0
+  =
+    @
+      PackageVar.FLEval.field
+      @
+        PackageVar.FLEval.field
+        CardMember.CardMember[test.golden.Templates.header]
+        "id"
+      "id"
+function test.golden.Templates.B7.ctsAssign_7 test.golden.Templates 0
+  case test.golden.Templates.B7.ctsAssign_7_0
+  =
+    @
+      PackageVar.FLEval.field
+      CardMember.CardMember[test.golden.Templates.header]
+      "id"

@@ -1,7 +1,9 @@
 package org.flasck.flas.template;
 
 import java.util.List;
+import java.util.Map;
 
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -19,7 +21,7 @@ public interface AreaGenerator {
 
 	void interested(String var, FunctionName call);
 
-	void onFieldAssign(Object expr, String field, FunctionName call);
+	void onFieldAssign(Map<ApplyExpr, FunctionName> changers, Object expr, String field, FunctionName call);
 
 	void onAssign(CardMember valExpr, FunctionName call);
 
