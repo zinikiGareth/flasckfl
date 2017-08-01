@@ -8,10 +8,30 @@ if (typeof test.golden === 'undefined') {
   }
 }
 
+test.golden._Id = function(v0) {
+  "use strict";
+  this._ctor = 'test.golden.Id';
+  if (v0) {
+    if (v0.id) {
+      this.id = v0.id;
+    }
+  }
+  else {
+  }
+}
+
+test.golden.Id = function(v0) {
+  "use strict";
+  return new test.golden._Id({id: v0});
+}
+
 test.golden._Item = function(v0) {
   "use strict";
   this._ctor = 'test.golden.Item';
   if (v0) {
+    if (v0.id) {
+      this.id = v0.id;
+    }
     if (v0.title) {
       this.title = v0.title;
     }
@@ -23,9 +43,9 @@ test.golden._Item = function(v0) {
   }
 }
 
-test.golden.Item = function(v0, v1) {
+test.golden.Item = function(v0, v1, v2) {
   "use strict";
-  return new test.golden._Item({title: v0, format: v1});
+  return new test.golden._Item({id: v0, title: v1, format: v2});
 }
 
 test.golden._Templates = function(v0) {
@@ -78,6 +98,7 @@ test.golden._Templates.B3 = function(parent) {
   if (!parent) return;
   this._src_e = this;
   var b4 = new test.golden._Templates.B4(this);
+  var b5 = new test.golden._Templates.B5(this);
 }
 
 test.golden._Templates.B3.prototype = new DivArea();
@@ -120,6 +141,20 @@ test.golden._Templates.B4.prototype._setVariableFormats = function() {
   this._mydiv.setAttribute('class', join(FLEval.full(this.formats_2()), ' '));
 }
 
+test.golden._Templates.B5 = function(parent) {
+  TextArea.call(this, parent);
+  if (!parent) return;
+  this._src_e = parent._src_e;
+}
+
+test.golden._Templates.B5.prototype = new TextArea();
+
+test.golden._Templates.B5.prototype.constructor = test.golden._Templates.B5;
+
+test.golden._Templates.B5.prototype._contentExpr = function() {
+  this._assignToText(this.contents_3());
+}
+
 test.golden._Templates.B2.prototype._assignToVar = function() {
   var lv = FLEval.full(this.lvs_0());
   ListArea.prototype._assignToVar.call(this, lv);
@@ -139,6 +174,12 @@ test.golden._Templates.B4.prototype.formats_2 = function() {
   "use strict";
   var v0 = FLEval.closure(FLEval.field, this._src_e.e, 'format');
   return FLEval.closure(Cons, v0, Nil);
+}
+
+test.golden._Templates.B5.prototype.contents_3 = function() {
+  "use strict";
+  var v0 = FLEval.closure(FLEval.field, this._src_e.e, 'id');
+  return FLEval.closure(FLEval.field, v0, 'id');
 }
 
 test.golden;

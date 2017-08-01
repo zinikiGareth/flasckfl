@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Struct file="templates.fl" line="3" name="Item" off="7">
-        <Field accessor="false" file="templates.fl" line="4"
+    <Struct file="templates.fl" line="3" name="Id" off="7">
+        <Field accessor="false" file="templates.fl" line="4" name="id" off="7">
+            <SolidName name="String"/>
+        </Field>
+    </Struct>
+    <Struct file="templates.fl" line="6" name="Item" off="7">
+        <Field accessor="false" file="templates.fl" line="7" name="id" off="3">
+            <SolidName name="Id">
+                <Package name="test.golden"/>
+            </SolidName>
+        </Field>
+        <Field accessor="false" file="templates.fl" line="8"
             name="title" off="7">
             <SolidName name="String"/>
         </Field>
-        <Field accessor="false" file="templates.fl" line="5"
+        <Field accessor="false" file="templates.fl" line="9"
             name="format" off="7">
             <SolidName name="String"/>
         </Field>
     </Struct>
-    <Card file="templates.fl" line="7" name="Templates" off="5"/>
+    <Card file="templates.fl" line="11" name="Templates" off="5"/>
 </FLIM>

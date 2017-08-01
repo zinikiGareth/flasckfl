@@ -234,7 +234,7 @@ public class TypeChecker2 {
 				constraints.ensure(sv);
 			}
 		}
-		
+
 		// 2. collect constraints
 		
 		// 2a. from the switching blocks
@@ -260,7 +260,7 @@ public class TypeChecker2 {
 				}
 			}
 		}
-		
+
 		// 2c. look at all the actual closures
 		for (HSIEForm f : forms) {
 			for (ClosureCmd c : f.closures()) {
@@ -270,6 +270,13 @@ public class TypeChecker2 {
 					ex.printStackTrace();
 					errors.message(c.location, ex.toString());
 				}
+			}
+
+			// If we generated additional constraints (such as StructWithField) check those constraints now
+			for (ClosureCmd c : f.closures()) {
+				if (c.justScoping)
+					continue;
+				checkAdditionalConstraints(f, c);
 			}
 		}
 
@@ -459,16 +466,16 @@ public class TypeChecker2 {
 		} else {
 			if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.field")) {
 				TypeInfo ty;
+				String fname = ((PushString)cmds.get(2)).sval.text;
 				if (argtypes.get(0) instanceof TypeVar) {
 					Set<TypeInfo> set = new HashSet<>();
-					for (TypeInfo ti : constraints.get(((TypeVar)argtypes.get(0)).var))
+					final Var structVar = ((TypeVar)argtypes.get(0)).var;
+					for (TypeInfo ti : constraints.get(structVar))
 						if (ti instanceof NamedType)
 							set.add(ti);
 					if (set.isEmpty()) {
-						f.dump(new PrintWriter(System.err));
-						System.err.println("-----; looking at: ");
-						c.dump(new PrintWriter(System.err), 0);
-						throw new UtilException("This is a reasonable case, I think, but one I cannot handle: " + set);
+						constraints.get(structVar).add(new StructWithFieldConstraint(cmd.location, fname));
+						return;
 					}
 					if (set.size() > 1)
 						throw new UtilException("This is a dubious case, I think, and one I cannot handle: "  + set);
@@ -482,7 +489,6 @@ public class TypeChecker2 {
 				if (ty instanceof NamedType) {
 					NamedType nt = (NamedType) ty;
 					String sn = nt.name;
-					String fname = ((PushString)cmds.get(2)).sval.text;
 					RWStructDefn sd = structs.get(sn);
 					RWObjectDefn od = objects.get(sn);
 					if (sd != null) {
@@ -561,6 +567,32 @@ public class TypeChecker2 {
 		}
 	}
 
+	protected void checkAdditionalConstraints(HSIEForm f, ClosureCmd c) {
+		Set<StructWithFieldConstraint> check = new HashSet<>();
+		Set<NamedType> nts = new HashSet<>();
+		final Set<TypeInfo> all = constraints.get(c.var);
+		for (TypeInfo ctr : all) {
+			if (ctr instanceof StructWithFieldConstraint) {
+				check.add((StructWithFieldConstraint) ctr);
+			} else if (ctr instanceof NamedType) {
+				nts.add((NamedType) ctr);
+			}
+		}
+
+		for (StructWithFieldConstraint ctr : check) {
+			if (nts.isEmpty())
+				errors.message(ctr.posn, "there is no valid type to identify the field operator for " + ctr.fname);
+			else {
+				for (NamedType nt : nts) {
+					RWStructDefn ti = structs.get(nt.name);
+					if (ti.findField(ctr.fname) == null)
+						errors.message(ctr.posn, "the type " + ti.name() + " does not have a field " + ctr.fname);
+				}
+			}
+		}
+		all.removeAll(check);
+	}
+	
 	private VarName isPushScope(HSIEBlock cmd) {
 		if (cmd instanceof PushExternal && ((PushExternal)cmd).fn instanceof ScopedVar)
 			return ((ScopedVar)((PushExternal)cmd).fn).id;

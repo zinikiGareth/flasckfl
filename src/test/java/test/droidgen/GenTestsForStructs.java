@@ -23,7 +23,9 @@ import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.FieldExpr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
+import org.zinutils.bytecode.IntConstExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
@@ -80,6 +82,7 @@ public class GenTestsForStructs {
 	public void testVisitingAStructDefnWithOneMemberAndNoInitGeneratesAnEmptySlot() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfStructEval();
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.OBJECTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
@@ -92,6 +95,7 @@ public class GenTestsForStructs {
 	public void testVisitingAStructDefnWithOneInitializedMemberGeneratesASlotWithTheValue() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
+		checkCreationOfStructEval();
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.OBJECTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
@@ -111,6 +115,28 @@ public class GenTestsForStructs {
 			oneOf(bccStruct).createMethod(false, "void", "<init>"); will(returnValue(ctor));
 			oneOf(ctor).callSuper("void", J.FLAS_OBJECT, "<init>"); will(returnValue(expr));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
+		}});
+	}
+
+	public void checkCreationOfStructEval() {
+		context.checking(new Expectations() {{
+			oneOf(ctor).nextLocal(); will(returnValue(3));
+			oneOf(ctor).nextLocal(); will(returnValue(4));
+		}});
+		Var av = new AVar(ctor, "[java.lang.Object", "args");
+		Var ret = new AVar(ctor, "Struct", "ret");
+		final IntConstExpr ice0 = new IntConstExpr(ctor, 0);
+		context.checking(new Expectations() {{
+			oneOf(bccStruct).createMethod(true, "Struct", "eval"); will(returnValue(ctor));
+			oneOf(ctor).argument("[java.lang.Object", "args"); will(returnValue(av));
+			oneOf(ctor).avar("Struct", "ret"); will(returnValue(ret));
+			oneOf(ctor).makeNew("Struct"); will(returnValue(expr));
+			oneOf(ctor).assign(ret, expr);
+			oneOf(ctor).getField(ret, "f1"); will(returnValue(expr));
+			oneOf(ctor).intConst(0); will(returnValue(ice0));
+			oneOf(ctor).arrayElt(av, ice0); will(returnValue(expr));
+			oneOf(ctor).assign(expr, expr); will(returnValue(expr));
+			oneOf(ctor).returnObject(ret); will(returnValue(expr));
 		}});
 	}
 

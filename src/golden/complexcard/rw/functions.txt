@@ -24,7 +24,7 @@ function test.golden.Complex.B3.lvs_3 test.golden.Complex 0
 function test.golden.Complex.B5.contents_4 test.golden.Complex 0
   case test.golden.Complex.B5.contents_4_0
   =
-    ?? class org.flasck.flas.commonBase.template.TemplateListVar:TLV[test.golden.Complex.lv<-test.golden.Complex.B3.lvs_3]
+    TLV[test.golden.Complex.lv<-test.golden.Complex.B3.lvs_3]
 function test.golden.Complex.B6.lvs_5 test.golden.Complex 0
   case test.golden.Complex.B6.lvs_5_0
   =

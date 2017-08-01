@@ -2,6 +2,7 @@ package org.flasck.flas.rewriter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.PrintWriter;
@@ -10,16 +11,20 @@ import java.util.Arrays;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.blockForm.LocatedToken;
+import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.StringLiteral;
+import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.parsedForm.CardDefinition;
+import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
@@ -31,11 +36,18 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
+import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
 import org.flasck.flas.parsedForm.VarPattern;
+import org.flasck.flas.rewriter.Rewriter.CardContext;
+import org.flasck.flas.rewriter.Rewriter.PackageContext;
+import org.flasck.flas.rewriter.Rewriter.RootContext;
+import org.flasck.flas.rewriter.Rewriter.TemplateContext;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWEventHandlerDefinition;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -150,7 +162,6 @@ public class RewriterTests {
 		}
 		rw.rewritePackageScope(null, "ME", scope);
 		RWFunctionDefinition g = rw.functions.get("ME.f_0.g");
-		System.out.println(rw.functions);
 		assertEquals("ME.f_0.g", g.uniqueName());
 		Object sv = g.cases.get(0).expr;
 		assertTrue(sv instanceof ScopedVar);
@@ -169,7 +180,8 @@ public class RewriterTests {
 		fcd0.provideCaseName(0);
 		cd.fnScope.define("f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
-		errors.showTo(new PrintWriter(System.out), 0);
+		if (errors.hasErrors())
+			errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		RWFunctionDefinition rfn = rw.functions.get("ME.MyCard.f");
 		assertEquals("ME.MyCard.f", rfn.uniqueName());
@@ -190,7 +202,8 @@ public class RewriterTests {
 		fcd0.provideCaseName(0);
 		cd.fnScope.define("f", fcd0);
 		rw.rewritePackageScope(null, "ME", scope);
-		errors.showTo(new PrintWriter(System.out), 0);
+		if (errors.hasErrors())
+			errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		RWFunctionDefinition rfn = rw.functions.get("ME.MyCard.f");
 		assertEquals("ME.MyCard.f", rfn.uniqueName());
@@ -214,7 +227,8 @@ public class RewriterTests {
 		ci.methods.add(mcd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope(null, "ME", scope);
-		errors.showTo(new PrintWriter(System.out), 0);
+		if (errors.hasErrors())
+			errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		RWMethodDefinition rmd = rw.methods.get("ME.MyCard._C0.m");
 		assertEquals("ME.MyCard._C0.m", rmd.name().uniqueName());
@@ -236,11 +250,87 @@ public class RewriterTests {
 		cd.fnScope.define("eh", ecd1);
 //		scope.define("MyCard", "ME.MyCard", cd);
 		rw.rewritePackageScope(null, "ME", scope);
-		errors.showTo(new PrintWriter(System.out), 0);
+		if (errors.hasErrors())
+			errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		RWEventHandlerDefinition reh = (RWEventHandlerDefinition) rw.eventHandlers.get("ME.MyCard.eh");
 		assertEquals("ME.MyCard.eh", reh.name().uniqueName());
 		assertTrue(reh.cases.get(0).messages.get(0).expr instanceof CardMember);
 		assertEquals("counter", ((CardMember)reh.cases.get(0).messages.get(0).expr).var);
+	}
+	
+	@Test
+	public void testRewritingATemplateListVar() throws Exception {
+		UnresolvedVar ur = new UnresolvedVar(posn, "e");
+		ContentExpr ce = new ContentExpr(posn, ur, new ArrayList<>());
+		final PackageName pn = new PackageName("foo");
+		final CardName cn = new CardName(pn, "Card");
+		RootContext rc = rw.new RootContext();
+		PackageContext pc = rw.new PackageContext(rc, pn, scope);
+		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
+		CardContext cc = rw.new CardContext(pc, cn, cd, false);
+		final AreaName an = new AreaName(cn, "area1");
+		IterVar iv = new IterVar(posn, cn, "e");
+		final TemplateListVar tlv = new TemplateListVar(posn, FunctionName.areaMethod(posn, an, "tlv_0"), iv);
+		TemplateContext cx = rw.new TemplateContext(rw.new TemplateContext(cc), an, "e", tlv);
+		RWContentExpr rwce = (RWContentExpr) rw.rewrite(cx, ce);
+		if (errors.hasErrors())
+			errors.showTo(new PrintWriter(System.out), 0);
+		assertFalse(errors.hasErrors());
+		assertNotNull(rwce);
+		assertNotNull("expression was null", rwce.expr);
+		assertTrue("expr was " + rwce.expr.getClass(), rwce.expr instanceof TemplateListVar);
+	}
+
+	@Test
+	public void testRewritingATemplateListVarWithOneFieldExtracted() throws Exception {
+		UnresolvedVar ur = new UnresolvedVar(posn, "e");
+		ApplyExpr ae = new ApplyExpr(posn, new UnresolvedOperator(posn, "."), ur, new UnresolvedVar(posn, "id"));
+		ContentExpr ce = new ContentExpr(posn, ae, new ArrayList<>());
+		final PackageName pn = new PackageName("foo");
+		final CardName cn = new CardName(pn, "Card");
+		RootContext rc = rw.new RootContext();
+		PackageContext pc = rw.new PackageContext(rc, pn, scope);
+		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
+		CardContext cc = rw.new CardContext(pc, cn, cd, false);
+		final AreaName an = new AreaName(cn, "area1");
+		IterVar iv = new IterVar(posn, cn, "e");
+		final TemplateListVar tlv = new TemplateListVar(posn, FunctionName.areaMethod(posn, an, "tlv_0"), iv);
+		TemplateContext cx = rw.new TemplateContext(rw.new TemplateContext(cc), an, "e", tlv);
+		RWContentExpr rwce = (RWContentExpr) rw.rewrite(cx, ce);
+		if (errors.hasErrors())
+			errors.showTo(new PrintWriter(System.out), 0);
+		assertFalse(errors.hasErrors());
+		assertNotNull(rwce);
+		assertNotNull("expression was null", rwce.expr);
+		assertTrue("expr was " + rwce.expr.getClass(), rwce.expr instanceof ApplyExpr);
+		assertTrue("inner expr was " + rwce.expr.getClass(), ((ApplyExpr)rwce.expr).args.get(0) instanceof TemplateListVar);
+	}
+
+	@Test
+	public void testRewritingATemplateListVarWithNestedFieldExtracted() throws Exception {
+		UnresolvedVar ur = new UnresolvedVar(posn, "e");
+		ApplyExpr ae = new ApplyExpr(posn, new UnresolvedOperator(posn, "."), ur, new UnresolvedVar(posn, "id"));
+		ApplyExpr ae2 = new ApplyExpr(posn, new UnresolvedOperator(posn, "."), ae, new UnresolvedVar(posn, "id"));
+		ContentExpr ce = new ContentExpr(posn, ae2, new ArrayList<>());
+		final PackageName pn = new PackageName("foo");
+		final CardName cn = new CardName(pn, "Card");
+		RootContext rc = rw.new RootContext();
+		PackageContext pc = rw.new PackageContext(rc, pn, scope);
+		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
+		CardContext cc = rw.new CardContext(pc, cn, cd, false);
+		final AreaName an = new AreaName(cn, "area1");
+		IterVar iv = new IterVar(posn, cn, "e");
+		final TemplateListVar tlv = new TemplateListVar(posn, FunctionName.areaMethod(posn, an, "tlv_0"), iv);
+		TemplateContext cx = rw.new TemplateContext(rw.new TemplateContext(cc), an, "e", tlv);
+		RWContentExpr rwce = (RWContentExpr) rw.rewrite(cx, ce);
+		if (errors.hasErrors())
+			errors.showTo(new PrintWriter(System.out), 0);
+		assertFalse(errors.hasErrors());
+		assertNotNull(rwce);
+		assertNotNull("expression was null", rwce.expr);
+		assertTrue("expr was " + rwce.expr.getClass(), rwce.expr instanceof ApplyExpr);
+		assertTrue("inner expr was " + rwce.expr.getClass(), ((ApplyExpr)rwce.expr).args.get(0) instanceof ApplyExpr);
+		assertTrue("double inner expr was " + rwce.expr.getClass(), ((ApplyExpr)(((ApplyExpr)rwce.expr).args.get(0))).args.get(0) instanceof TemplateListVar);
 	}
 }

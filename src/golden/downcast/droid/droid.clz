@@ -30,6 +30,11 @@ class Role.java extends org.flasck.jvm.FLASObject {
     super.<init>()
     return
   }
+  static test.golden.Role eval([java.lang.Object args) {
+    ret = new test.golden.Role()
+    ret.id = args[0]
+    return ret
+  }
   void _doFullEval() {
     this.id = this._fullOf(this.id)
     return

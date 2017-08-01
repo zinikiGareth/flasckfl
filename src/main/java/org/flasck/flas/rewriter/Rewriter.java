@@ -897,7 +897,7 @@ public class Rewriter implements CodeGenRegistry {
 		}
 	}
 
-	private RWTemplateLine rewrite(TemplateContext cx, TemplateLine tl) {
+	public RWTemplateLine rewrite(TemplateContext cx, TemplateLine tl) {
 		if (tl == null)
 			return null;
 		List<Object> attrs = new ArrayList<Object>();
@@ -1532,7 +1532,7 @@ public class Rewriter implements CodeGenRegistry {
 		return new RWMethodMessage(newSlot, rewriteExpr(cx, mm.expr));
 	}
 
-	private Object rewriteExpr(NamingContext cx, Object expr) {
+	public Object rewriteExpr(NamingContext cx, Object expr) {
 		if (expr == null)
 			return null;
 		try {
@@ -1580,8 +1580,11 @@ public class Rewriter implements CodeGenRegistry {
 					// The case where we have an absolute var by package name
 					// Does this need to be here as well as in RootScope?
 					Object aefn = ae.args.get(0);
-					if (aefn instanceof ApplyExpr)
+					boolean rewritten = false;
+					if (aefn instanceof ApplyExpr) {
 						aefn = rewriteExpr(cx, aefn);
+						rewritten = true;
+					}
 					if (aefn == null)
 						return null;
 					Object castTo = null;
@@ -1617,7 +1620,9 @@ public class Rewriter implements CodeGenRegistry {
 						throw new UtilException("That case is not handled: " + aefn.getClass());
 					
 					// expr . field
-					Object applyFn = rewriteExpr(cx, aefn);
+					Object applyFn = aefn;
+					if (!rewritten)
+						applyFn = rewriteExpr(cx, aefn);
 					if (castTo != null)
 						applyFn = new RWCastExpr(castLoc, castTo, applyFn);
 	
@@ -1939,6 +1944,8 @@ public class Rewriter implements CodeGenRegistry {
 			writeExpr(pw.indent(), ie.ifExpr);
 			pw.println("else");
 			writeExpr(pw.indent(), ie.elseExpr);
+		} else if (expr instanceof TemplateListVar) {
+			pw.println(expr.toString());
 		}
 		else
 			pw.println("?? " + expr.getClass() + ":" + expr);

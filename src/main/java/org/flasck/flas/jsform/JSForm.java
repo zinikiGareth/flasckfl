@@ -293,7 +293,7 @@ public class JSForm {
 			if (pos > 0)
 				sb.append(", ");
 			if (c instanceof PushExternal && pos == 0) {
-				isField = "FLEval.field".equals(((PushExternal)c).fn);
+				isField = "FLEval.field".equals(((PushExternal)c).fn.uniqueName());
 			}
 			if (c instanceof PushExternal && isField && pos == 2)
 				sb.append("'" + ((PushExternal)c).fn + "'");

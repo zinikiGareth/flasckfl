@@ -1,4 +1,22 @@
+class Id.java extends org.flasck.jvm.FLASObject {
+  Ljava/lang/Object; id
+
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static test.golden.Id eval([java.lang.Object args) {
+    ret = new test.golden.Id()
+    ret.id = args[0]
+    return ret
+  }
+  void _doFullEval() {
+    this.id = this._fullOf(this.id)
+    return
+  }
+}
 class Item.java extends org.flasck.jvm.FLASObject {
+  Ljava/lang/Object; id
   Ljava/lang/Object; title
   Ljava/lang/Object; format
 
@@ -6,7 +24,15 @@ class Item.java extends org.flasck.jvm.FLASObject {
     super.<init>()
     return
   }
+  static test.golden.Item eval([java.lang.Object args) {
+    ret = new test.golden.Item()
+    ret.id = args[0]
+    ret.title = args[1]
+    ret.format = args[2]
+    return ret
+  }
   void _doFullEval() {
+    this.id = this._fullOf(this.id)
     this.title = this._fullOf(this.title)
     this.format = this._fullOf(this.format)
     return
@@ -50,6 +76,7 @@ class Templates$B3.java extends org.flasck.jvm.areas.DivArea {
     this._card = cardArg
     this._src_e = this
     b4 = new test.golden.Templates$B4(cardArg,this)
+    b5 = new test.golden.Templates$B5(cardArg,this)
     return
   }
   java.lang.Object _assignToVar(java.lang.Object obj) {
@@ -102,6 +129,33 @@ class Templates$B4.java extends org.flasck.jvm.areas.TextArea {
       return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        })
+    }
+  }
+}
+class Templates$B5.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Templates; _card
+  Ltest/golden/Templates$B3; _src_e
+
+  void <init>(test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._src_e = ((test.golden.Templates$B3)parent)._src_e
+    return
+  }
+  java.lang.Object _contentExpr() {
+    super._assignToText(this.contents_3())
+    return null
+  }
+  java.lang.Object contents_3() {
+    {
+      v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
+          autobox[this._src_e.e]
+          autobox["id"]
+        })
+      return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
+          autobox[v0]
+          autobox["id"]
         })
     }
   }

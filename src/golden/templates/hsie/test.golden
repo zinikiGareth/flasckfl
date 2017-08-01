@@ -1,35 +1,51 @@
-HSIE for test.golden.Templates.B2.lvs_0/0                    #templates.fl 16.2
+HSIE for test.golden.Templates.B2.lvs_0/0                    #templates.fl 20.2
 #Args: 0 #bound: 0
     externals: [test.golden.Templates.data]
     scoped = []
     scopedDefns = []
     all vars = []
-RETURN CardMember.CardMember[test.golden.Templates.data]     #templates.fl 16.2
+RETURN CardMember.CardMember[test.golden.Templates.data]     #templates.fl 20.2
 -------
-HSIE for test.golden.Templates.B4.contents_1/0               #templates.fl 18.2
+HSIE for test.golden.Templates.B4.contents_1/0               #templates.fl 22.2
 #Args: 0 #bound: 1
     externals: [FLEval.field]
     scoped = []
     scopedDefns = []
     all vars = [v0]
-RETURN v0:clos0 []                                           #templates.fl 18.2
-CLOSURE v0                                                   #templates.fl 18.2
-  PUSH PackageVar.FLEval.field                               #templates.fl 18.2
-  PUSH TLV[test.golden.Templates.e<-test.golden.Templates.B2 #templates.fl 16.7
-  PUSH "title"                                               #templates.fl 18.2
+RETURN v0:clos0 []                                           #templates.fl 22.2
+CLOSURE v0                                                   #templates.fl 22.2
+  PUSH PackageVar.FLEval.field                               #templates.fl 22.2
+  PUSH TLV[test.golden.Templates.e<-test.golden.Templates.B2 #templates.fl 20.7
+  PUSH "title"                                               #templates.fl 22.2
 -------
-HSIE for test.golden.Templates.B4.formats_2/0                #templates.fl 18.2
+HSIE for test.golden.Templates.B4.formats_2/0                #templates.fl 22.2
 #Args: 0 #bound: 2
     externals: [Cons, FLEval.field, Nil]
     scoped = []
     scopedDefns = []
     all vars = [v0, v1]
-RETURN v1:clos1 [v0:clos0]                                   #templates.fl 18.11
-CLOSURE v1                                                   #templates.fl 18.11
-  PUSH PackageVar.Cons                                       #templates.fl 18.2
-  PUSH v0:clos0                                              #templates.fl 18.11
-  PUSH PackageVar.Nil                                        #templates.fl 18.2
-CLOSURE v0                                                   #templates.fl 18.11
-  PUSH PackageVar.FLEval.field                               #templates.fl 18.11
-  PUSH TLV[test.golden.Templates.e<-test.golden.Templates.B2 #templates.fl 16.7
-  PUSH "format"                                              #templates.fl 18.13
+RETURN v1:clos1 [v0:clos0]                                   #templates.fl 22.11
+CLOSURE v1                                                   #templates.fl 22.11
+  PUSH PackageVar.Cons                                       #templates.fl 22.2
+  PUSH v0:clos0                                              #templates.fl 22.11
+  PUSH PackageVar.Nil                                        #templates.fl 22.2
+CLOSURE v0                                                   #templates.fl 22.11
+  PUSH PackageVar.FLEval.field                               #templates.fl 22.11
+  PUSH TLV[test.golden.Templates.e<-test.golden.Templates.B2 #templates.fl 20.7
+  PUSH "format"                                              #templates.fl 22.13
+-------
+HSIE for test.golden.Templates.B5.contents_3/0               #templates.fl 23.5
+#Args: 0 #bound: 2
+    externals: [FLEval.field]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0, v1]
+RETURN v1:clos1 [v0:clos0]                                   #templates.fl 23.5
+CLOSURE v1                                                   #templates.fl 23.5
+  PUSH PackageVar.FLEval.field                               #templates.fl 23.5
+  PUSH v0:clos0                                              #templates.fl 23.2
+  PUSH "id"                                                  #templates.fl 23.5
+CLOSURE v0                                                   #templates.fl 23.2
+  PUSH PackageVar.FLEval.field                               #templates.fl 23.2
+  PUSH TLV[test.golden.Templates.e<-test.golden.Templates.B2 #templates.fl 20.7
+  PUSH "id"                                                  #templates.fl 23.2

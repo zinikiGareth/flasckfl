@@ -10,7 +10,6 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
@@ -103,7 +102,7 @@ public class DroidHSIEFormGenerator {
 				forThis = g2.argument(J.OBJECT,  "self");
 			PendingVar args = g2.argument("[" + J.OBJECT, "args");
 			MethodDefiner m2 = g2.done();
-			Expr[] fnArgs = new Expr[pendingVars.size()];
+			IExpr[] fnArgs = new IExpr[pendingVars.size()];
 			for (int i=0;i<pendingVars.size();i++) {
 				fnArgs[i] = m2.arrayElt(args.getVar(), m2.intConst(i));
 			}

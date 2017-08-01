@@ -43,6 +43,11 @@ class Container.java extends org.flasck.jvm.FLASObject {
     super.<init>()
     return
   }
+  static test.golden.Container eval([java.lang.Object args) {
+    ret = new test.golden.Container()
+    ret.value = args[0]
+    return ret
+  }
   void _doFullEval() {
     this.value = this._fullOf(this.value)
     return

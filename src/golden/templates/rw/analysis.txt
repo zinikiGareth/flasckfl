@@ -7,7 +7,7 @@ function test.golden.Templates.B4.contents_1 test.golden.Templates 0
   =
     @
       PackageVar.FLEval.field
-      ?? class org.flasck.flas.commonBase.template.TemplateListVar:TLV[test.golden.Templates.e<-test.golden.Templates.B2.lvs_0]
+      TLV[test.golden.Templates.e<-test.golden.Templates.B2.lvs_0]
       "title"
 function test.golden.Templates.B4.formats_2 test.golden.Templates 0
   case test.golden.Templates.B4.formats_2_0
@@ -16,6 +16,16 @@ function test.golden.Templates.B4.formats_2 test.golden.Templates 0
       PackageVar.Cons
       @
         PackageVar.FLEval.field
-        ?? class org.flasck.flas.commonBase.template.TemplateListVar:TLV[test.golden.Templates.e<-test.golden.Templates.B2.lvs_0]
+        TLV[test.golden.Templates.e<-test.golden.Templates.B2.lvs_0]
         "format"
       PackageVar.Nil
+function test.golden.Templates.B5.contents_3 test.golden.Templates 0
+  case test.golden.Templates.B5.contents_3_0
+  =
+    @
+      PackageVar.FLEval.field
+      @
+        PackageVar.FLEval.field
+        TLV[test.golden.Templates.e<-test.golden.Templates.B2.lvs_0]
+        "id"
+      "id"

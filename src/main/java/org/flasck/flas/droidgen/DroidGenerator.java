@@ -24,6 +24,7 @@ import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
+import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.template.TemplateGenerator;
@@ -32,14 +33,15 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
+import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 
 public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	private final ByteCodeStorage bce;
@@ -76,6 +78,22 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			ctor.callSuper("void", J.FLAS_OBJECT, "<init>").flush();
 			ctor.returnVoid().flush();
 		}
+		
+		if (!sd.fields.isEmpty()) { // generate an arguments constructor
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
+			PendingVar pv = gen.argument("[java.lang.Object", "args");
+			gen.returns(sd.name());
+			MethodDefiner meth = gen.done();
+			Var v = pv.getVar();
+			Var ret = meth.avar(sd.name(), "ret");
+			meth.assign(ret, meth.makeNew(sd.name())).flush();
+			for (int i=0;i<sd.fields.size();i++) {
+				RWStructField fld = sd.fields.get(i);
+				meth.assign(meth.getField(ret, fld.name), meth.arrayElt(v, meth.intConst(i))).flush();
+			}
+			meth.returnObject(ret).flush();
+		}
+		
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
 		gen.returns("void");
 		NewMethodDefiner dfe = gen.done();
@@ -318,12 +336,12 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			PendingVar argsArg = gen.argument("[" + J.OBJECT, "args");
 			gen.returns(J.OBJECT);
 			NewMethodDefiner eval = gen.done();
-			List<Expr> naList = new ArrayList<Expr>();
+			List<IExpr> naList = new ArrayList<>();
 			if (hi.inCard)
 				naList.add(cardArg.getVar());
 			for (int k=0;k<hi.boundVars.size();k++)
 				naList.add(eval.arrayElt(argsArg.getVar(), eval.intConst(k)));
-			Expr[] newArgs = new Expr[naList.size()];
+			IExpr[] newArgs = new IExpr[naList.size()];
 			naList.toArray(newArgs);
 			IExpr objArg;
 			if (hi.inCard)

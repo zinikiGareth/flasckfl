@@ -18,9 +18,9 @@ function test.golden.MyCard.B5.contents_3 test.golden.MyCard 0
   =
     @
       PackageVar.FLEval.field
-      ?? class org.flasck.flas.commonBase.template.TemplateListVar:TLV[test.golden.MyCard.q<-test.golden.MyCard.B3.lvs_2]
+      TLV[test.golden.MyCard.q<-test.golden.MyCard.B3.lvs_2]
       "title"
 function test.golden.MyCard.B5.editcontainer_4 test.golden.MyCard 0
   case test.golden.MyCard.B5.editcontainer_4_0
   =
-    ?? class org.flasck.flas.commonBase.template.TemplateListVar:TLV[test.golden.MyCard.q<-test.golden.MyCard.B3.lvs_2]
+    TLV[test.golden.MyCard.q<-test.golden.MyCard.B3.lvs_2]

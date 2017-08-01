@@ -262,7 +262,8 @@ public class TestBasicTypeChecking {
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
 		{
 			tc.typecheck(CollectionUtils.setOf(HSIETestData.mutualG()));
-			errors.showTo(new PrintWriter(System.out), 0);
+			if (errors.hasErrors())
+				errors.showTo(new PrintWriter(System.out), 0);
 			assertFalse(errors.hasErrors());
 		}
 		{
@@ -273,7 +274,8 @@ public class TestBasicTypeChecking {
 		}
 		{
 			tc.typecheck(CollectionUtils.setOf(HSIETestData.mutualF()));
-			errors.showTo(new PrintWriter(System.out), 0);
+			if (errors.hasErrors())
+				errors.showTo(new PrintWriter(System.out), 0);
 			assertFalse(errors.hasErrors());
 		}
 		{

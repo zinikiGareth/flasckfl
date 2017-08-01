@@ -1,24 +1,37 @@
 package test.golden
-  struct test.golden.Item @{3:0|struct} @{3:7|Item}
-    title @{4:7|title}
+  struct test.golden.Id @{3:0|struct} @{3:7|Id}
+    id @{4:7|id}
       String @{4:0|String}
-    format @{5:7|format}
-      String @{5:0|String}
-  card test.golden.Templates @{7:0|card} @{7:5|Templates}
-    state @{9:0|state}
-      data @{10:13|data}
-        Croset @{10:0|Croset}
-          Item @{10:7|Item}
-    template @{14:0|template} @{null}
-      . @{15:0|.}
-        + data e @{16:0|+} @{16:2|data} @{16:7|e}
-          . @{17:0|.}
-            <cexpr> @{18:2|title}
-              <apply> @{18:2|title}
-                . @{18:2|title}
-                e @{18:0|e}
-                title @{18:2|title}
-              <apply> @{18:11|e.format}
-                . @{18:12|.}
-                e @{18:11|e}
-                format @{18:13|format}
+  struct test.golden.Item @{6:0|struct} @{6:7|Item}
+    id @{7:3|id}
+      Id @{7:0|Id}
+    title @{8:7|title}
+      String @{8:0|String}
+    format @{9:7|format}
+      String @{9:0|String}
+  card test.golden.Templates @{11:0|card} @{11:5|Templates}
+    state @{13:0|state}
+      data @{14:13|data}
+        Croset @{14:0|Croset}
+          Item @{14:7|Item}
+    template @{18:0|template} @{null}
+      . @{19:0|.}
+        + data e @{20:0|+} @{20:2|data} @{20:7|e}
+          . @{21:0|.}
+            <cexpr> @{22:2|title}
+              <apply> @{22:2|title}
+                . @{22:2|title}
+                e @{22:0|e}
+                title @{22:2|title}
+              <apply> @{22:11|e.format}
+                . @{22:12|.}
+                e @{22:11|e}
+                format @{22:13|format}
+            <cexpr> @{23:5|id}
+              <apply> @{23:5|id}
+                . @{23:5|id}
+                <apply> @{23:2|id}
+                  . @{23:2|id}
+                  e @{23:0|e}
+                  id @{23:2|id}
+                id @{23:5|id}
