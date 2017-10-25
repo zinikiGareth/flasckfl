@@ -7,6 +7,7 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
+import org.flasck.jvm.J;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -18,6 +19,8 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.Var.AVar;
 
 public class GenTestsForContractImpl {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -57,10 +60,12 @@ public class GenTestsForContractImpl {
 	}
 
 	public void checkCreationOfImplCtor() {
+		AVar dvar = new Var.AVar(ctor, "Card", "card");
 		context.checking(new Expectations() {{
 			oneOf(bccImpl).createMethod(false, "void", "<init>"); will(returnValue(ctor));
-			oneOf(ctor).argument("Card", "card"); will(new ReturnNewVar(ctor, "Card", "card"));
-			oneOf(ctor).callSuper("void", "CtrDecl", "<init>"); will(returnValue(expr));
+			oneOf(ctor).argument("Card", "card"); will(returnValue(dvar));
+			oneOf(ctor).callVirtual(J.IDESPATCHER, dvar, "getDespatcher"); will(returnValue(expr));
+			oneOf(ctor).callSuper("void", "CtrDecl", "<init>", expr); will(returnValue(expr));
 			oneOf(ctor).assign(with(any(IExpr.class)), with(any(IExpr.class)));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});

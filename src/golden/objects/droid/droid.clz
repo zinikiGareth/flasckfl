@@ -2,7 +2,7 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
   Ltest/golden/Card; _card
 
   void <init>(test.golden.Card card) {
-    super.<init>()
+    super.<init>(card.getDespatcher())
     this._card = card
     return
   }
@@ -47,8 +47,8 @@ class Ctr$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object go(java.lang.Object from);
 }
 class Ctr$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Ctr$Down {
-  void <init>() {
-    super.<init>()
+  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+    super.<init>(despatcher)
     return
   }
   abstract java.lang.Object go(java.lang.Object from);

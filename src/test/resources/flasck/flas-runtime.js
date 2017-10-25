@@ -1964,6 +1964,9 @@ FlasckWrapper.prototype.convertSpecial = function(obj) {
 	if (!obj._onchan) {
 		if (obj._special === 'handler') {
 			var proxy = new FlasckWrapper.Processor(this, obj);
+			// 2017-10-25 It seems to me when looking at this while trying to replicate for JVM,
+			// that we should assign this address on construction, not at send
+			// otherwise we could end up with multiple registrations for the same recipient
 			var ha = this.postbox.newAddress();
 			this.postbox.register(ha, proxy);
 			obj._myaddr = this.postbox.unique(ha);

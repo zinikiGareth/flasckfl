@@ -103,11 +103,14 @@ public class GenTestsForHandlers {
 			if (inCard) {
 				oneOf(ctor).argument(J.OBJECT, "card"); will(new ReturnNewVar(ctor, J.OBJECT, "card"));
 			}
-			oneOf(ctor).callSuper("void", "Callback", "<init>"); will(returnValue(expr));
 			if (inCard) {
-				oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("full"), with(any(IExpr[].class)));
-				oneOf(ctor).castTo(with(any(IExpr.class)), with("Card"));
+				exactly(2).of(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("full"), with(any(IExpr[].class)));
+				exactly(2).of(ctor).castTo(with(any(IExpr.class)), with("Card")); will(returnValue(expr));
+				oneOf(ctor).callVirtual(J.IDESPATCHER, expr, "getDespatcher"); will(returnValue(expr));
 				oneOf(ctor).assign(with(any(IExpr.class)), with(any(IExpr.class)));
+				oneOf(ctor).callSuper("void", "Callback", "<init>", expr); will(returnValue(expr));
+			} else {
+				oneOf(ctor).callSuper("void", "Callback", "<init>"); will(returnValue(expr));
 			}
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});

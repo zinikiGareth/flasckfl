@@ -2,7 +2,7 @@ class Foo$_C0.java extends test.import.Fred$Impl {
   Ltest/golden/Foo; _card
 
   void <init>(test.golden.Foo card) {
-    super.<init>()
+    super.<init>(card.getDespatcher())
     this._card = card
     return
   }

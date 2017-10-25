@@ -11,7 +11,7 @@ class Complex$_C0.java extends test.golden.Init$Impl {
   Ltest/golden/Complex; _card
 
   void <init>(test.golden.Complex card) {
-    super.<init>()
+    super.<init>(card.getDespatcher())
     this._card = card
     return
   }
@@ -57,7 +57,7 @@ class Complex$_C1.java extends test.golden.DataStore$Impl {
   Ltest/golden/Complex; _card
 
   void <init>(test.golden.Complex card) {
-    super.<init>()
+    super.<init>(card.getDespatcher())
     this._card = card
     return
   }
@@ -305,7 +305,7 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
   Ljava/lang/Object; k
 
   void <init>(java.lang.Object card, java.lang.Object k) {
-    super.<init>()
+    super.<init>(((test.golden.Complex)org.flasck.jvm.FLEval.full(card)).getDespatcher())
     this._card = ((test.golden.Complex)org.flasck.jvm.FLEval.full(card))
     this.k = org.flasck.jvm.FLEval.head(k)
     return
@@ -440,8 +440,8 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
 class DataStore$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class DataStore$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.DataStore$Down {
-  void <init>() {
-    super.<init>()
+  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+    super.<init>(despatcher)
     return
   }
 }
@@ -452,8 +452,8 @@ class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
 }
 class Handler$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Handler$Down {
-  void <init>() {
-    super.<init>()
+  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+    super.<init>(despatcher)
     return
   }
   abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
@@ -464,8 +464,8 @@ class Init$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
 }
 class Init$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Init$Down {
-  void <init>() {
-    super.<init>()
+  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+    super.<init>(despatcher)
     return
   }
   abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
@@ -475,8 +475,8 @@ class Init$Up.java implements org.ziniki.ziwsh.UpContract {
 class Offer$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class Offer$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Offer$Down {
-  void <init>() {
-    super.<init>()
+  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+    super.<init>(despatcher)
     return
   }
 }

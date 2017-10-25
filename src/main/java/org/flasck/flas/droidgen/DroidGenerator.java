@@ -120,8 +120,9 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.makeAbstract();
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar des = gen.argument(J.IDESPATCHER, "despatcher");
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", J.CONTRACT_IMPL, "<init>").flush();
+			ctor.callSuper("void", J.CONTRACT_IMPL, "<init>", des.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
 		
@@ -267,7 +268,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar cardArg = gen.argument(bn, "card");
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", ci.name(), "<init>").flush();
+			ctor.callSuper("void", ci.name(), "<init>", ctor.callVirtual(J.IDESPATCHER, cardArg.getVar(), "getDespatcher")).flush();
 			ctor.assign(fi.asExpr(ctor), cardArg.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
@@ -320,9 +321,12 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				vm.put(var, pvi);
 			}
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", hi.name(), "<init>").flush();
-			if (hi.inCard)
+			if (hi.inCard) {
+				ctor.callSuper("void", hi.name(), "<init>", ctor.callVirtual(J.IDESPATCHER, ctor.castTo(ctor.callStatic(J.FLEVAL, J.OBJECT, "full", cardArg.getVar()), name.name.uniqueName()), "getDespatcher")).flush();
 				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic(J.FLEVAL, J.OBJECT, "full", cardArg.getVar()), name.name.uniqueName())).flush();
+			} else {
+				ctor.callSuper("void", hi.name(), "<init>").flush();
+			}
 			for (Object o : hi.boundVars) {
 				String var = ((HandlerLambda)o).var;
 				ctor.assign(fs.get(var).asExpr(ctor), ctor.callStatic(J.FLEVAL, J.OBJECT, "head", vm.get(var).getVar())).flush();

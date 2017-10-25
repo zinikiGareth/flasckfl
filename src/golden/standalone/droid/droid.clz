@@ -2,8 +2,8 @@ class Bar$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object go(java.lang.Object from);
 }
 class Bar$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Bar$Down {
-  void <init>() {
-    super.<init>()
+  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+    super.<init>(despatcher)
     return
   }
   abstract java.lang.Object go(java.lang.Object from);
@@ -14,7 +14,7 @@ class Foo$_C0.java extends test.golden.KeyValue$Impl {
   Ltest/golden/Foo; _card
 
   void <init>(test.golden.Foo card) {
-    super.<init>()
+    super.<init>(card.getDespatcher())
     this._card = card
     return
   }
@@ -23,7 +23,7 @@ class Foo$_C1.java extends test.golden.Bar$Impl {
   Ltest/golden/Foo; _card
 
   void <init>(test.golden.Foo card) {
-    super.<init>()
+    super.<init>(card.getDespatcher())
     this._card = card
     return
   }
@@ -134,8 +134,8 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
 class KeyValue$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class KeyValue$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.KeyValue$Down {
-  void <init>() {
-    super.<init>()
+  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+    super.<init>(despatcher)
     return
   }
 }

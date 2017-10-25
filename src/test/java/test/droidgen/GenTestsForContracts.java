@@ -30,6 +30,7 @@ import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
+import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.bytecode.JavaInfo.Access;
 
 public class GenTestsForContracts {
@@ -70,6 +71,7 @@ public class GenTestsForContracts {
 				}
 				
 			});
+			allowing(ctor).nextLocal(); will(returnValue(1));
 			allowing(dfe).nextLocal(); will(returnValue(1));
 		}});
 	}
@@ -197,9 +199,11 @@ public class GenTestsForContracts {
 	}
 
 	public void checkCreationOfStructCtor() {
+		AVar dvar = new Var.AVar(ctor, J.IDESPATCHER, "despatcher");
 		context.checking(new Expectations() {{
 			oneOf(bccImpl).createMethod(false, "void", "<init>"); will(returnValue(ctor));
-			oneOf(ctor).callSuper("void", J.CONTRACT_IMPL, "<init>"); will(returnValue(expr));
+			oneOf(ctor).argument(J.IDESPATCHER, "despatcher"); will(returnValue(dvar));
+			oneOf(ctor).callSuper("void", J.CONTRACT_IMPL, "<init>", dvar); will(returnValue(expr));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
 	}
