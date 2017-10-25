@@ -116,6 +116,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		parent.addInnerClassReference(Access.PUBLICABSTRACTSTATIC, parent.getCreatedName(), "Impl");
 		bcc.generateAssociatedSourceFile();
 		bcc.superclass(J.CONTRACT_IMPL);
+		bcc.implementsInterface(cd.name() + "$Down");
 		bcc.makeAbstract();
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);

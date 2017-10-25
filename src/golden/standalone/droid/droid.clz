@@ -1,7 +1,7 @@
 class Bar$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object go(java.lang.Object from);
 }
-class Bar$Impl.java extends org.flasck.jvm.ContractImpl {
+class Bar$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Bar$Down {
   void <init>() {
     super.<init>()
     return
@@ -133,7 +133,7 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
 }
 class KeyValue$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class KeyValue$Impl.java extends org.flasck.jvm.ContractImpl {
+class KeyValue$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.KeyValue$Down {
   void <init>() {
     super.<init>()
     return

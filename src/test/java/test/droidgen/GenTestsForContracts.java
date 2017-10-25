@@ -173,6 +173,7 @@ public class GenTestsForContracts {
 		context.checking(new Expectations() {{
 			oneOf(bce).newClass("ContDecl$Impl"); will(returnValue(bccImpl));
 			oneOf(bccImpl).superclass(J.CONTRACT_IMPL);
+			oneOf(bccImpl).implementsInterface("ContDecl$Down");
 			oneOf(bccImpl).makeAbstract();
 		}});
 	}

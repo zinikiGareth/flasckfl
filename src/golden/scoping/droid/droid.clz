@@ -50,7 +50,7 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
 }
 class NoArg$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class NoArg$Impl.java extends org.flasck.jvm.ContractImpl {
+class NoArg$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.NoArg$Down {
   void <init>() {
     super.<init>()
     return
@@ -131,7 +131,7 @@ class PACKAGEFUNCTIONS.java {
 class Reply$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(java.lang.Object from, int k);
 }
-class Reply$Impl.java extends org.flasck.jvm.ContractImpl {
+class Reply$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Reply$Down {
   void <init>() {
     super.<init>()
     return
@@ -142,7 +142,7 @@ class Reply$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 class Server$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class Server$Impl.java extends org.flasck.jvm.ContractImpl {
+class Server$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Server$Down {
   void <init>() {
     super.<init>()
     return

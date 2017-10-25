@@ -1,7 +1,7 @@
 class HandlerCtr$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object handle(java.lang.Object from, int x);
 }
-class HandlerCtr$Impl.java extends org.flasck.jvm.ContractImpl {
+class HandlerCtr$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.HandlerCtr$Down {
   void <init>() {
     super.<init>()
     return

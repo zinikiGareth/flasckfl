@@ -5,7 +5,6 @@ import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeWithName;
-import org.flasck.jvm.post.TypeOf;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.exceptions.UtilException;
 
@@ -21,7 +20,7 @@ public class JvmTypeMapper {
 			else if (pt.name().equals("Boolean"))
 				return JavaType.boolean_;
 			else if (pt.name().equals("Type"))
-				return new JavaType(TypeOf.class.getName());
+				return new JavaType(Object.class.getName());
 			else
 				throw new UtilException("Not handled " + type);
 		} else if (type instanceof FunctionType) {

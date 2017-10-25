@@ -1,7 +1,7 @@
 class Hc$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(java.lang.Object from);
 }
-class Hc$Impl.java extends org.flasck.jvm.ContractImpl {
+class Hc$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Hc$Down {
   void <init>() {
     super.<init>()
     return
@@ -72,7 +72,7 @@ class scoped_0$MyHc.java extends test.golden.Hc$Impl {
 }
 class UpC$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class UpC$Impl.java extends org.flasck.jvm.ContractImpl {
+class UpC$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.UpC$Down {
   void <init>() {
     super.<init>()
     return

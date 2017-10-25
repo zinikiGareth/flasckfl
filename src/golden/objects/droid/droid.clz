@@ -46,7 +46,7 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
 class Ctr$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object go(java.lang.Object from);
 }
-class Ctr$Impl.java extends org.flasck.jvm.ContractImpl {
+class Ctr$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Ctr$Down {
   void <init>() {
     super.<init>()
     return

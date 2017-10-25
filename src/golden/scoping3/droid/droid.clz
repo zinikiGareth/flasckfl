@@ -49,7 +49,7 @@ class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
 class KVUpdate$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object update(java.lang.Object from, java.lang.Object obj);
 }
-class KVUpdate$Impl.java extends org.flasck.jvm.ContractImpl {
+class KVUpdate$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.KVUpdate$Down {
   void <init>() {
     super.<init>()
     return

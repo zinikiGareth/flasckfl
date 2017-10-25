@@ -439,7 +439,7 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
 }
 class DataStore$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class DataStore$Impl.java extends org.flasck.jvm.ContractImpl {
+class DataStore$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.DataStore$Down {
   void <init>() {
     super.<init>()
     return
@@ -451,7 +451,7 @@ class DataStore$Up.java implements org.ziniki.ziwsh.UpContract {
 class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
 }
-class Handler$Impl.java extends org.flasck.jvm.ContractImpl {
+class Handler$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Handler$Down {
   void <init>() {
     super.<init>()
     return
@@ -463,7 +463,7 @@ class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
 class Init$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
 }
-class Init$Impl.java extends org.flasck.jvm.ContractImpl {
+class Init$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Init$Down {
   void <init>() {
     super.<init>()
     return
@@ -474,7 +474,7 @@ class Init$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 class Offer$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class Offer$Impl.java extends org.flasck.jvm.ContractImpl {
+class Offer$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Offer$Down {
   void <init>() {
     super.<init>()
     return
