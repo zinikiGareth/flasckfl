@@ -1,8 +1,8 @@
 class Hc$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(java.lang.Object from);
 }
-class Hc$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Hc$Down {
-  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+class Hc$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Hc$Down {
+  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -18,30 +18,30 @@ class PACKAGEFUNCTIONS$scoped.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object scoped(java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.FLEval.head(_0)
-      if (_0 instanceof org.flasck.jvm.FLError) {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof test.golden.UpC) {
         {
-          v5 = new org.flasck.jvm.FLClosure(test.golden.scoped_0$MyHc.class,new java.lang.Object[1] {
+          v5 = new org.flasck.jvm.fl.FLClosure(test.golden.scoped_0$MyHc.class,new java.lang.Object[1] {
               autobox["test.golden.scoped_0.requestObj"]
             })
-          v6 = new org.flasck.jvm.FLClosure(test.golden.scoped_0$request.class,new java.lang.Object[2] {
+          v6 = new org.flasck.jvm.fl.FLClosure(test.golden.scoped_0$request.class,new java.lang.Object[2] {
               autobox[v5]
               autobox[_0]
             })
-          v7 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v7 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[v6]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.MessageWrapper.class,new java.lang.Object[2] {
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.MessageWrapper.class,new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(32)]
               autobox[v7]
             })
         }
       }
-      return new org.flasck.jvm.FLError("scoped: case not handled")
+      return new org.flasck.jvm.fl.FLError("scoped: case not handled")
     }
   }
 }
@@ -50,20 +50,20 @@ class scoped_0$MyHc.java extends test.golden.Hc$Impl {
 
   void <init>(java.lang.Object requestObj) {
     super.<init>()
-    this.requestObj = org.flasck.jvm.FLEval.head(requestObj)
+    this.requestObj = org.flasck.jvm.fl.FLEval.head(requestObj)
     return
   }
   static java.lang.Object eval([java.lang.Object args) {
     if (args.length<1) {
-      return new org.flasck.jvm.FLCurry(null,test.golden.scoped_0$MyHc.class,args)
+      return new org.flasck.jvm.fl.FLCurry(null,test.golden.scoped_0$MyHc.class,args)
     } else {
       return new test.golden.scoped_0$MyHc(args[0])
     }
   }
   java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress _fromDA) {
     {
-      v0 = new org.flasck.jvm.FLClosure(this.requestObj,new java.lang.Object[0] {})
-      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v0 = new org.flasck.jvm.fl.FLClosure(this.requestObj,new java.lang.Object[0] {})
+      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
@@ -72,8 +72,8 @@ class scoped_0$MyHc.java extends test.golden.Hc$Impl {
 }
 class UpC$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class UpC$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.UpC$Down {
-  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+class UpC$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.UpC$Down {
+  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -94,17 +94,17 @@ class PACKAGEFUNCTIONS$requestObj.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object request(java.lang.Object _s0, java.lang.Object _s1) {
     {
-      v0 = new org.flasck.jvm.FLClosure(_s0,new java.lang.Object[0] {})
-      v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v0 = new org.flasck.jvm.fl.FLClosure(_s0,new java.lang.Object[0] {})
+      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+      v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
           autobox[_s1]
           autobox["call"]
           autobox[v1]
         })
-      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v2]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })

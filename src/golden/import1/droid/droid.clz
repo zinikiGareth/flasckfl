@@ -8,27 +8,27 @@ class Foo$_C0.java extends test.import.Fred$Impl {
   }
   java.lang.Object go(org.flasck.jvm.post.DeliveryAddress _fromDA, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.FLEval.head(_0)
-      if (_0 instanceof org.flasck.jvm.FLError) {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.Number) {
         {
-          v1 = new org.flasck.jvm.FLClosure(test.import.PACKAGEFUNCTIONS$f.class,new java.lang.Object[1] {
+          v1 = new org.flasck.jvm.fl.FLClosure(test.import.PACKAGEFUNCTIONS$f.class,new java.lang.Object[1] {
               autobox[_0]
             })
-          v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
+          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
               autobox[this._card]
               autobox["a"]
               autobox[v1]
             })
-          return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[v2]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
         }
       }
-      return new org.flasck.jvm.FLError("go: case not handled")
+      return new org.flasck.jvm.fl.FLError("go: case not handled")
     }
   }
 }

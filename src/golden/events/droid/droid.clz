@@ -50,7 +50,7 @@ class Events$handlers_0.java implements org.flasck.jvm.display.EventHandler {
     return
   }
   java.lang.Object handle(java.lang.Object ev) {
-    return new org.flasck.jvm.FLClosure(this._card,this.getHandler(),new java.lang.Object[1] {
+    return new org.flasck.jvm.fl.FLClosure(this._card,this.getHandler(),new java.lang.Object[1] {
 ev
       })
   }
@@ -67,12 +67,12 @@ class Events$handlers_1.java implements org.flasck.jvm.display.EventHandler {
     return
   }
   java.lang.Object handle(java.lang.Object ev) {
-    return new org.flasck.jvm.FLClosure(this._card,this.getHandler(),new java.lang.Object[1] {
+    return new org.flasck.jvm.fl.FLClosure(this._card,this.getHandler(),new java.lang.Object[1] {
 ev
       })
   }
   java.lang.Class getHandler() {
-    return new org.flasck.jvm.FLCurry(this,test.golden.Events$setTo.class,2,new java.lang.Object[1] {
+    return new org.flasck.jvm.fl.FLCurry(this,test.golden.Events$setTo.class,2,new java.lang.Object[1] {
         autobox[java.lang.Integer.valueOf(13)]
       })
   }
@@ -113,10 +113,10 @@ class Events.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object okThen(java.lang.Object _0) {
     {
-      v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
+      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
           autobox[_0]
         })
-      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v1]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
@@ -124,10 +124,10 @@ class Events.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object setTo(java.lang.Object _0, java.lang.Object _1) {
     {
-      v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
+      v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
           autobox[_1]
         })
-      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v2]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })

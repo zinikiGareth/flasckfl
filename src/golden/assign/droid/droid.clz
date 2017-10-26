@@ -20,23 +20,23 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object doit() {
     {
-      v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
+      v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
           autobox[this]
           autobox["c"]
         })
-      v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
+      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
           autobox[v0]
           autobox["value"]
           autobox["hello"]
         })
-      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v1]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
     }
   }
 }
-class Container.java extends org.flasck.jvm.FLASObject {
+class Container.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; value
 
   void <init>() {

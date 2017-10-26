@@ -5,53 +5,53 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
 
   void <init>(java.lang.Object server, java.lang.Object var, java.lang.Object v) {
     super.<init>()
-    this.server = org.flasck.jvm.FLEval.head(server)
-    this.var = org.flasck.jvm.FLEval.head(var)
-    this.v = org.flasck.jvm.FLEval.head(v)
+    this.server = org.flasck.jvm.fl.FLEval.head(server)
+    this.var = org.flasck.jvm.fl.FLEval.head(var)
+    this.v = org.flasck.jvm.fl.FLEval.head(v)
     return
   }
   static java.lang.Object eval([java.lang.Object args) {
     if (args.length<3) {
-      return new org.flasck.jvm.FLCurry(null,test.golden.f_0$HandleReply.class,args)
+      return new org.flasck.jvm.fl.FLCurry(null,test.golden.f_0$HandleReply.class,args)
     } else {
       return new test.golden.f_0$HandleReply(args[0],args[1],args[2])
     }
   }
   java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress _fromDA, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.FLEval.head(_0)
-      if (_0 instanceof org.flasck.jvm.FLError) {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.Number) {
         {
-          v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class,new java.lang.Object[2] {
+          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class,new java.lang.Object[2] {
               autobox[this.var]
               autobox[this.v]
             })
-          v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[v1]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          v3 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+          v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
               autobox[this.server]
               autobox["put"]
               autobox[v2]
             })
-          return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[v3]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
         }
       }
-      return new org.flasck.jvm.FLError("reply: case not handled")
+      return new org.flasck.jvm.fl.FLError("reply: case not handled")
     }
   }
 }
 class NoArg$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class NoArg$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.NoArg$Down {
-  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+class NoArg$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.NoArg$Down {
+  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -72,67 +72,67 @@ class PACKAGEFUNCTIONS$f.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object cna(java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.FLEval.head(_0)
-      if (_0 instanceof org.flasck.jvm.FLError) {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof test.golden.NoArg) {
         {
-          v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(42)]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
               autobox[_0]
               autobox["get"]
               autobox[v1]
             })
-          return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[v2]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
         }
       }
-      return new org.flasck.jvm.FLError("cna: case not handled")
+      return new org.flasck.jvm.fl.FLError("cna: case not handled")
     }
   }
   static java.lang.Object f(java.lang.Object _0, java.lang.Object _1) {
     {
-      _0 = org.flasck.jvm.FLEval.head(_0)
-      if (_0 instanceof org.flasck.jvm.FLError) {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof test.golden.Server) {
         {
-          v9 = new org.flasck.jvm.FLClosure(test.golden.f_0$var.class,new java.lang.Object[0] {})
-          v7 = new org.flasck.jvm.FLCurry(test.golden.f_0$HandleReply.class,3,new java.lang.Object[2] {
+          v9 = new org.flasck.jvm.fl.FLClosure(test.golden.f_0$var.class,new java.lang.Object[0] {})
+          v7 = new org.flasck.jvm.fl.FLCurry(test.golden.f_0$HandleReply.class,3,new java.lang.Object[2] {
               autobox[_0]
               autobox[v9]
             })
-          v8 = new org.flasck.jvm.FLClosure(test.golden.f_0$q.class,new java.lang.Object[3] {
+          v8 = new org.flasck.jvm.fl.FLClosure(test.golden.f_0$q.class,new java.lang.Object[3] {
               autobox[v7]
               autobox[_0]
               autobox[v9]
             })
-          v10 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v10 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[v8]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.MessageWrapper.class,new java.lang.Object[2] {
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.MessageWrapper.class,new java.lang.Object[2] {
               autobox[v9]
               autobox[v10]
             })
         }
       }
-      return new org.flasck.jvm.FLError("f: case not handled")
+      return new org.flasck.jvm.fl.FLError("f: case not handled")
     }
   }
 }
 class Reply$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(java.lang.Object from, int k);
 }
-class Reply$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Reply$Down {
-  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+class Reply$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Reply$Down {
+  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -142,8 +142,8 @@ class Reply$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 class Server$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class Server$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Server$Down {
-  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+class Server$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Server$Down {
+  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -165,23 +165,23 @@ class PACKAGEFUNCTIONS$var.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object q(java.lang.Object _s0, java.lang.Object _s1, java.lang.Object _s2) {
     {
-      v0 = new org.flasck.jvm.FLClosure(_s0,new java.lang.Object[1] {
+      v0 = new org.flasck.jvm.fl.FLClosure(_s0,new java.lang.Object[1] {
           autobox[_s2]
         })
-      v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[_s2]
           autobox[v1]
         })
-      v3 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+      v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
           autobox[_s1]
           autobox["get"]
           autobox[v2]
         })
-      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v3]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })

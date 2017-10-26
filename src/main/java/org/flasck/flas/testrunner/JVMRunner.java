@@ -26,6 +26,7 @@ import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.display.EventHandler;
+import org.flasck.jvm.fl.FLEval;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -84,12 +85,11 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
 		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
 
-		Class<?> fleval = Class.forName("org.flasck.jvm.FLEval", false, loader);
 		Map<String, Object> evals = new TreeMap<String, Object>();
 		for (Class<?> clz : toRun) {
 			String key = clz.getSimpleName().replaceFirst(".*\\$", "");
 			Object o = Reflection.callStatic(clz, "eval", new Object[] { new Object[] {} });
-			o = Reflection.callStatic(fleval, "full", o);
+			o = Reflection.callStatic(FLEval.class, "full", o);
 			evals.put(key, o);
 		}
 		

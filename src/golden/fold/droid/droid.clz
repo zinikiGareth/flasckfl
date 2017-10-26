@@ -6,17 +6,17 @@ class PACKAGEFUNCTIONS$fold.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object fold(java.lang.Object _0, java.lang.Object _1, java.lang.Object _2) {
     {
-      _2 = org.flasck.jvm.FLEval.head(_2)
-      if (_2 instanceof org.flasck.jvm.FLError) {
+      _2 = org.flasck.jvm.fl.FLEval.head(_2)
+      if (_2 instanceof org.flasck.jvm.fl.FLError) {
         return _2
       }
       if (_2 instanceof org.flasck.jvm.builtin.Cons) {
         {
-          v5 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[2] {
+          v5 = new org.flasck.jvm.fl.FLClosure(_0,new java.lang.Object[2] {
               autobox[_1]
               autobox[v2.head]
             })
-          return new org.flasck.jvm.FLClosure(test.golden.PACKAGEFUNCTIONS$fold.class,new java.lang.Object[3] {
+          return new org.flasck.jvm.fl.FLClosure(test.golden.PACKAGEFUNCTIONS$fold.class,new java.lang.Object[3] {
               autobox[_0]
               autobox[v5]
               autobox[v2.tail]
@@ -26,7 +26,7 @@ class PACKAGEFUNCTIONS.java {
       if (_2 instanceof org.flasck.jvm.builtin.Nil) {
         return _1
       }
-      return new org.flasck.jvm.FLError("fold: case not handled")
+      return new org.flasck.jvm.fl.FLError("fold: case not handled")
     }
   }
 }

@@ -8,25 +8,25 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
   }
   java.lang.Object go(org.flasck.jvm.post.DeliveryAddress _fromDA) {
     {
-      v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(42)]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
           autobox[this._card.c]
           autobox["put"]
           autobox[v0]
         })
-      v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+      v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
           autobox[this._card.c]
           autobox["clear"]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v3 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v2]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v1]
           autobox[v3]
         })
@@ -46,8 +46,8 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
 class Ctr$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object go(java.lang.Object from);
 }
-class Ctr$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Ctr$Down {
-  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+class Ctr$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Ctr$Down {
+  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }

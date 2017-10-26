@@ -1,4 +1,4 @@
-class Storable.java extends org.flasck.jvm.FLASEntity {
+class Storable.java extends org.flasck.jvm.fl.FLASEntity {
   Ljava/lang/Object; value
 
   void <init>() {

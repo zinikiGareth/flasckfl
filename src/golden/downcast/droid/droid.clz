@@ -6,24 +6,24 @@ class PACKAGEFUNCTIONS$f.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object f(java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.FLEval.head(_0)
-      if (_0 instanceof org.flasck.jvm.FLError) {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.Any) {
         {
-          v1 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[0] {})
-          return new org.flasck.jvm.FLClosure(org.flasck.jvm.FLEval$Field.class,new java.lang.Object[2] {
+          v1 = new org.flasck.jvm.fl.FLClosure(_0,new java.lang.Object[0] {})
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
               autobox[v1]
               autobox["id"]
             })
         }
       }
-      return new org.flasck.jvm.FLError("f: case not handled")
+      return new org.flasck.jvm.fl.FLError("f: case not handled")
     }
   }
 }
-class Role.java extends org.flasck.jvm.FLASObject {
+class Role.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; id
 
   void <init>() {

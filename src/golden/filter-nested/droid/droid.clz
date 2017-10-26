@@ -6,21 +6,21 @@ class PACKAGEFUNCTIONS$filter.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object filter(java.lang.Object _0, java.lang.Object _1) {
     {
-      _1 = org.flasck.jvm.FLEval.head(_1)
-      if (_1 instanceof org.flasck.jvm.FLError) {
+      _1 = org.flasck.jvm.fl.FLEval.head(_1)
+      if (_1 instanceof org.flasck.jvm.fl.FLError) {
         return _1
       }
       if (_1 instanceof org.flasck.jvm.builtin.Cons) {
         {
-          v8 = new org.flasck.jvm.FLCurry(test.golden.filter_1$g.class,4,new java.lang.Object[3] {
+          v8 = new org.flasck.jvm.fl.FLCurry(test.golden.filter_1$g.class,4,new java.lang.Object[3] {
               autobox[v5.head]
               autobox[_0]
               autobox[v5.tail]
             })
-          v9 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[1] {
+          v9 = new org.flasck.jvm.fl.FLClosure(_0,new java.lang.Object[1] {
               autobox[v5.head]
             })
-          return new org.flasck.jvm.FLClosure(v8,new java.lang.Object[1] {
+          return new org.flasck.jvm.fl.FLClosure(v8,new java.lang.Object[1] {
               autobox[v9]
             })
         }
@@ -28,7 +28,7 @@ class PACKAGEFUNCTIONS.java {
       if (_1 instanceof org.flasck.jvm.builtin.Nil) {
         return org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})
       }
-      return new org.flasck.jvm.FLError("filter: case not handled")
+      return new org.flasck.jvm.fl.FLError("filter: case not handled")
     }
   }
 }
@@ -40,25 +40,25 @@ class PACKAGEFUNCTIONS$g.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object g(java.lang.Object _s0, java.lang.Object _s1, java.lang.Object _s2, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.FLEval.head(_0)
-      if (_0 instanceof org.flasck.jvm.FLError) {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.Boolean) {
         {
           if (equals(_0,autobox[0])) {
-            return new org.flasck.jvm.FLClosure(test.golden.PACKAGEFUNCTIONS$filter.class,new java.lang.Object[2] {
+            return new org.flasck.jvm.fl.FLClosure(test.golden.PACKAGEFUNCTIONS$filter.class,new java.lang.Object[2] {
                 autobox[_s1]
                 autobox[_s2]
               })
           }
           if (equals(_0,autobox[1])) {
             {
-              v1 = new org.flasck.jvm.FLClosure(test.golden.PACKAGEFUNCTIONS$filter.class,new java.lang.Object[2] {
+              v1 = new org.flasck.jvm.fl.FLClosure(test.golden.PACKAGEFUNCTIONS$filter.class,new java.lang.Object[2] {
                   autobox[_s1]
                   autobox[_s2]
                 })
-              return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+              return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
                   autobox[_s0]
                   autobox[v1]
                 })
@@ -66,7 +66,7 @@ class PACKAGEFUNCTIONS.java {
           }
         }
       }
-      return new org.flasck.jvm.FLError("g: case not handled")
+      return new org.flasck.jvm.fl.FLError("g: case not handled")
     }
   }
 }

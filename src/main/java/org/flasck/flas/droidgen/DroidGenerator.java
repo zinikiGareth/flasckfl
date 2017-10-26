@@ -32,6 +32,7 @@ import org.flasck.flas.template.TemplateGenerator;
 import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.jvm.J;
+import org.flasck.jvm.fl.FLCurry;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.GenericAnnotator;
@@ -358,7 +359,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			else
 				objArg = eval.aNull();
 			eval.ifOp(0xa2, eval.arraylen(argsArg.getVar()), eval.intConst(hi.boundVars.size()), 
-					eval.returnObject(eval.makeNew("org.flasck.jvm.FLCurry", objArg, eval.classConst(name.javaClassName()), argsArg.getVar())), 
+					eval.returnObject(eval.makeNew(FLCurry.class.getName(), objArg, eval.classConst(name.javaClassName()), argsArg.getVar())), 
 					eval.returnObject(eval.makeNew(name.javaClassName(), newArgs))).flush();
 		}
 	}

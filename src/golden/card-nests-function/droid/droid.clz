@@ -15,12 +15,12 @@ class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
   }
   java.lang.Object formats_0() {
     {
-      v2 = new org.flasck.jvm.FLCurry(this._card,test.golden.NestFunction$styleIf.class,2,new java.lang.Object[0] {})
-      v0 = new org.flasck.jvm.FLClosure(v2,new java.lang.Object[2] {
+      v2 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.NestFunction$styleIf.class,2,new java.lang.Object[0] {})
+      v0 = new org.flasck.jvm.fl.FLClosure(v2,new java.lang.Object[2] {
           autobox["show"]
           autobox[this._card.sayHello]
         })
-      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
@@ -53,7 +53,7 @@ class NestFunction.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object styleIf(java.lang.Object _0, java.lang.Object _1) {
     {
-      if (org.flasck.jvm.FLEval.isTruthy(_1)) {
+      if (org.flasck.jvm.fl.FLEval.isTruthy(_1)) {
         return _0
       }
       return ""

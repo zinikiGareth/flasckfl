@@ -6,20 +6,20 @@ class PACKAGEFUNCTIONS$map1.java {
 class PACKAGEFUNCTIONS.java {
   static java.lang.Object map1(java.lang.Object _0, java.lang.Object _1) {
     {
-      _1 = org.flasck.jvm.FLEval.head(_1)
-      if (_1 instanceof org.flasck.jvm.FLError) {
+      _1 = org.flasck.jvm.fl.FLEval.head(_1)
+      if (_1 instanceof org.flasck.jvm.fl.FLError) {
         return _1
       }
       if (_1 instanceof org.flasck.jvm.builtin.Cons) {
         {
-          v4 = new org.flasck.jvm.FLClosure(_0,new java.lang.Object[1] {
+          v4 = new org.flasck.jvm.fl.FLClosure(_0,new java.lang.Object[1] {
               autobox[v1.head]
             })
-          v5 = new org.flasck.jvm.FLClosure(test.golden.PACKAGEFUNCTIONS$map1.class,new java.lang.Object[2] {
+          v5 = new org.flasck.jvm.fl.FLClosure(test.golden.PACKAGEFUNCTIONS$map1.class,new java.lang.Object[2] {
               autobox[_0]
               autobox[v1.tail]
             })
-          return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[v4]
               autobox[v5]
             })
@@ -28,7 +28,7 @@ class PACKAGEFUNCTIONS.java {
       if (_1 instanceof org.flasck.jvm.builtin.Nil) {
         return org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})
       }
-      return new org.flasck.jvm.FLError("map1: case not handled")
+      return new org.flasck.jvm.fl.FLError("map1: case not handled")
     }
   }
 }

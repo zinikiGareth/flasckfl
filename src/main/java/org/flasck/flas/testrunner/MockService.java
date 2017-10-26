@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.flasck.jvm.HandleDirectly;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.post.DeliveryAddress;
+import org.flasck.jvm.post.HandleDirectly;
 import org.zinutils.exceptions.UtilException;
 
 import netscape.javascript.JSObject;

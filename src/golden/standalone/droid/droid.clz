@@ -1,8 +1,8 @@
 class Bar$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object go(java.lang.Object from);
 }
-class Bar$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.Bar$Down {
-  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+class Bar$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Bar$Down {
+  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -29,21 +29,21 @@ class Foo$_C1.java extends test.golden.Bar$Impl {
   }
   java.lang.Object go(org.flasck.jvm.post.DeliveryAddress _fromDA) {
     {
-      v5 = new org.flasck.jvm.FLCurry(this._card,test.golden.Foo$request.class,1,new java.lang.Object[0] {})
-      v0 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
+      v5 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.Foo$request.class,1,new java.lang.Object[0] {})
+      v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
           autobox[v5]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v4 = new org.flasck.jvm.FLCurry(this._card,test.golden.Foo$request2.class,1,new java.lang.Object[0] {})
-      v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
+      v4 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.Foo$request2.class,1,new java.lang.Object[0] {})
+      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
           autobox[v4]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v2 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v1]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v0]
           autobox[v2]
         })
@@ -88,53 +88,53 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object request(java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.FLEval.head(_0)
-      if (_0 instanceof org.flasck.jvm.FLError) {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.Crokey) {
         {
-          v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[_0]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
               autobox[this.kv]
               autobox["typed"]
               autobox[v1]
             })
         }
       }
-      return new org.flasck.jvm.FLError("request: case not handled")
+      return new org.flasck.jvm.fl.FLError("request: case not handled")
     }
   }
   java.lang.Object request2(java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.FLEval.head(_0)
-      if (_0 instanceof org.flasck.jvm.FLError) {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.Crokey) {
         {
-          v1 = new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
               autobox[_0]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          return new org.flasck.jvm.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
               autobox[this.kv]
               autobox["mine"]
               autobox[v1]
             })
         }
       }
-      return new org.flasck.jvm.FLError("request2: case not handled")
+      return new org.flasck.jvm.fl.FLError("request2: case not handled")
     }
   }
 }
 class KeyValue$Down.java implements org.ziniki.ziwsh.DownContract {
 }
-class KeyValue$Impl.java extends org.flasck.jvm.ContractImpl implements test.golden.KeyValue$Down {
-  void <init>(org.flasck.jvm.IDespatcher despatcher) {
+class KeyValue$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KeyValue$Down {
+  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
