@@ -7,6 +7,7 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.types.TypeWithNameAndPolys;
@@ -16,15 +17,17 @@ public class RWStructDefn extends TypeWithNameAndPolys implements AsString, Exte
 	public final List<RWStructField> fields = new ArrayList<RWStructField>();
 	public final transient boolean generate;
 	private final SolidName structName;
+	public final StructType ty;
 
-	public RWStructDefn(InputPosition location, SolidName tn, boolean generate, PolyVar... polys) {
-		this(location, tn, generate, Arrays.asList(polys));
+	public RWStructDefn(InputPosition location, StructType ty, SolidName tn, boolean generate, PolyVar... polys) {
+		this(location, ty, tn, generate, Arrays.asList(polys));
 	}
 	
-	public RWStructDefn(InputPosition location, SolidName tn, boolean generate, List<PolyVar> polys) {
+	public RWStructDefn(InputPosition location, StructType ty, SolidName tn, boolean generate, List<PolyVar> polys) {
 		super(null, location, tn, polys);
 		this.structName = tn;
 		this.generate = generate;
+		this.ty = ty;
 	}
 
 	public SolidName structName() {

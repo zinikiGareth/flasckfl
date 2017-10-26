@@ -34,6 +34,7 @@ import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
@@ -102,7 +103,7 @@ public class RewriterTests {
 
 	@Test
 	public void testWeRewriteStructFields() {
-		StructDefn sd = new StructDefn(posn, "ME", "Container", true);
+		StructDefn sd = new StructDefn(posn, StructType.STRUCT, "ME", "Container", true);
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "String"), "f"));
 		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);
@@ -115,7 +116,7 @@ public class RewriterTests {
 	
 	@Test
 	public void testAStructReferencingAListFieldGetsARewrittenParameterList() {
-		StructDefn sd = new StructDefn(posn, "ME", "Container", true);
+		StructDefn sd = new StructDefn(posn, StructType.STRUCT, "ME", "Container", true);
 		sd.addField(new StructField(posn, false, new TypeReference(posn, "List", new TypeReference(posn, "String")), "list"));
 		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);
@@ -133,7 +134,7 @@ public class RewriterTests {
 	
 	@Test
 	public void testAStructReferencingAListFieldMustHaveATypeArgument() {
-		StructDefn sd = new StructDefn(posn, "ME", "Container", true);
+		StructDefn sd = new StructDefn(posn, StructType.STRUCT, "ME", "Container", true);
 		sd.addField(new StructField(null, false, new TypeReference(posn, "List"), "list"));
 		scope.define("Container", sd);
 		rw.rewritePackageScope(null, "ME", scope);

@@ -17,6 +17,7 @@ import org.flasck.flas.droidgen.DroidClosureGenerator;
 import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.hsie.VarFactory;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -303,7 +304,7 @@ public class ClosureGenerationTests {
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
 		SolidName fn = new SolidName(null, "Nil");
-		PackageVar hdc1 = new PackageVar(loc, fn, new RWStructDefn(loc, fn, false));
+		PackageVar hdc1 = new PackageVar(loc, fn, new RWStructDefn(loc, StructType.STRUCT, fn, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
 		IExpr out = dcg.pushReturn(pr, null);
 		assertEquals(result, out);
@@ -324,7 +325,7 @@ public class ClosureGenerationTests {
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
 		SolidName fn = new SolidName(null, "Cons");
 		ClosureCmd closure = form.createClosure(loc);
-		RWStructDefn sd = new RWStructDefn(loc, fn, false);
+		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, fn, false);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "String")), "head"));
 		PackageVar hdc1 = new PackageVar(loc, fn, sd);
 		closure.push(loc, hdc1);

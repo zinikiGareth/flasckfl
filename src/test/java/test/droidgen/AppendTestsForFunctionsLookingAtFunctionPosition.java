@@ -12,6 +12,7 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.droidgen.DroidPushArgument;
 import org.flasck.flas.droidgen.VarHolder;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.IterVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
@@ -90,7 +91,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 			oneOf(meth).classConst("demo.ziniki.Account"); will(returnValue(cce));
 		}});
 		SolidName sn = new SolidName(new PackageName("demo.ziniki"), "Account");
-		RWStructDefn sd = new RWStructDefn(loc, sn, true);
+		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, sn, true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "String")), "id"));
 		Object ret = dpa.visit(new PushExternal(loc, new PackageVar(loc, sn, sd)));
 		assertEquals(cce, ret);

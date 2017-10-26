@@ -30,6 +30,7 @@ public class FunctionParser implements TryParsing {
 		// don't allow keywords to start line
 		if ("card".equals(name) ||
 			"contract".equals(name) ||
+			"entity".equals(name) ||
 			"event".equals(name) ||
 			"handler".equals(name) ||
 			"implements".equals(name) ||

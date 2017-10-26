@@ -52,6 +52,7 @@ public class IntroParser implements TryParsing {
 			return null; // in the "nothing doing" sense
 		
 		switch (kw.text) {
+		case "entity":
 		case "struct": {
 			TypeNameToken tn = TypeNameToken.unqualified(line);
 			if (tn == null)
@@ -68,7 +69,7 @@ public class IntroParser implements TryParsing {
 			}
 			if (er.hasErrors())
 				return er;
-			return new StructDefn(kw.location, tn.location, new SolidName(state.pkgName, tn.text), true, args);
+			return new StructDefn(kw.location, tn.location, StructDefn.StructType.valueOf(kw.text.toUpperCase()), new SolidName(state.pkgName, tn.text), true, args);
 		}
 		case "object": {
 			TypeNameToken tn = TypeNameToken.unqualified(line);

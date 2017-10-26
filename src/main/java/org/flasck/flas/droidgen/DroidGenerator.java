@@ -11,6 +11,7 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.compiler.HSIEFormGenerator;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewriter.CodeGenRegistry;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -71,11 +72,14 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.generateAssociatedSourceFile();
 		DroidStructFieldGenerator fg = new DroidStructFieldGenerator(bcc, Access.PUBLIC);
 		sd.visitFields(fg);
-		bcc.superclass(J.FLAS_OBJECT);
+		String base = sd.ty == StructType.STRUCT?J.FLAS_OBJECT:J.FLAS_ENTITY; 
+		bcc.superclass(base);
+		// TODO: I think entity wants two constructors: one to create a new object, and one to populate from a backing document
+		// this is still the right thing for struct
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", J.FLAS_OBJECT, "<init>").flush();
+			ctor.callSuper("void", base, "<init>").flush();
 			ctor.returnVoid().flush();
 		}
 		

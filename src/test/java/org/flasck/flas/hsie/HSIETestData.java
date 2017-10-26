@@ -19,6 +19,7 @@ import org.flasck.flas.commonBase.names.ScopeName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.LocalVar;
 import org.flasck.flas.rewrittenForm.PackageVar;
@@ -43,8 +44,8 @@ public class HSIETestData {
 	static Map<String, PackageVar> ctorTypes = new HashMap<>();
 	static {
 		ctorTypes.put("Number", new PackageVar(posn, new SolidName(null, "Number"), new PrimitiveType(posn, new SolidName(null, "Number"))));
-		PackageVar nil = new PackageVar(posn, new SolidName(null, "Nil"), new RWStructDefn(posn, new SolidName(null, "Nil"), false));
-		PackageVar cons = new PackageVar(posn, new SolidName(null, "Cons"), new RWStructDefn(posn, new SolidName(null, "Cons"), false));
+		PackageVar nil = new PackageVar(posn, new SolidName(null, "Nil"), new RWStructDefn(posn, StructType.STRUCT, new SolidName(null, "Nil"), false));
+		PackageVar cons = new PackageVar(posn, new SolidName(null, "Cons"), new RWStructDefn(posn, StructType.STRUCT, new SolidName(null, "Cons"), false));
 		PackageVar list = new PackageVar(posn, new SolidName(null, "List"), new RWUnionTypeDefn(posn, false, new SolidName(null, "List"), null));
 		ctorTypes.put("Cons", cons);
 		ctorTypes.put("Nil", nil);

@@ -5,6 +5,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidGenerator;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.types.PrimitiveType;
@@ -65,7 +66,7 @@ public class GenTestsForStructs {
 
 	@Test
 	public void testNothingHappensIfWeDontWantToGenerateTheStruct() {
-		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), false);
+		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), false);
 		gen.visitStructDefn(sd);
 	}
 
@@ -74,7 +75,7 @@ public class GenTestsForStructs {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
 		checkCreationOfStructDFE();
-		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
+		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), true);
 		gen.visitStructDefn(sd);
 	}
 
@@ -85,7 +86,7 @@ public class GenTestsForStructs {
 		checkCreationOfStructEval();
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.OBJECTP, "f1");
-		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
+		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
 		gen.visitStructDefn(sd);
 	}
@@ -98,7 +99,7 @@ public class GenTestsForStructs {
 		checkCreationOfStructEval();
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.OBJECTP, "f1");
-		RWStructDefn sd = new RWStructDefn(loc, new SolidName(null, "Struct"), true);
+		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		gen.visitStructDefn(sd);
 	}

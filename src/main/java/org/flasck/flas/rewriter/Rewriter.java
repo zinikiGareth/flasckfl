@@ -68,6 +68,7 @@ import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
@@ -711,7 +712,7 @@ public class Rewriter implements CodeGenRegistry {
 				pass1(cx, ehd.innerScope());
 			} else if (val instanceof StructDefn) {
 				StructDefn sd = (StructDefn) val;
-				structs.put(name, new RWStructDefn(sd.location(), sd.structName, sd.generate, rewritePolys(sd.polys())));
+				structs.put(name, new RWStructDefn(sd.location(), sd.structType, sd.structName, sd.generate, rewritePolys(sd.polys())));
 			} else if (val instanceof UnionTypeDefn) {
 				UnionTypeDefn ud = (UnionTypeDefn) val;
 				types.put(name, new RWUnionTypeDefn(ud.location(), ud.generate, ud.myName(), rewritePolys(ud.polys())));
@@ -803,7 +804,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private CardGrouping createCard(PackageContext cx, CardDefinition cd) {
-		RWStructDefn sd = new RWStructDefn(cd.location, new SolidName(cd.cardName.pkg, cd.cardName.cardName), false);
+		RWStructDefn sd = new RWStructDefn(cd.location, StructType.ENTITY, new SolidName(cd.cardName.pkg, cd.cardName.cardName), false);
 		CardGrouping grp = new CardGrouping(cd.location, cd.cardName, sd);
 		cards.put(cd.cardName.uniqueName(), grp);
 		return grp;
@@ -1289,7 +1290,7 @@ public class Rewriter implements CodeGenRegistry {
 			
 			// I don't want to have two arrays with the same named entry, so add a random thing to the end of the struct
 			SolidName sdname = new SolidName(hi.handlerName.name, hi.handlerName.baseName+"$struct");
-			RWStructDefn hsd = new RWStructDefn(hi.location(), sdname, false);
+			RWStructDefn hsd = new RWStructDefn(hi.location(), StructType.STRUCT, sdname, false);
 			for (Object s : ret.boundVars) {
 				HandlerLambda hl = (HandlerLambda) s;
 				hsd.fields.add(new RWStructField(hl.location, false, hl.type, hl.var));

@@ -11,22 +11,25 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 
 public class StructDefn implements AsString, Locatable {
+	public enum StructType { STRUCT, ENTITY };
 	public final List<StructField> fields = new ArrayList<StructField>();
 	public final transient boolean generate;
 	public final InputPosition kw;
 	private final InputPosition location;
+	public final StructType structType;
 	private List<PolyType> polys;
 	public final SolidName structName;
 
 	// for tests
-	public StructDefn(InputPosition location, String pkg, String tn, boolean generate, PolyType... polys) {
-		this(null, location, new SolidName(new PackageName(pkg), tn), generate, Arrays.asList(polys));
+	public StructDefn(InputPosition location, StructType type, String pkg, String tn, boolean generate, PolyType... polys) {
+		this(null, location, type, new SolidName(new PackageName(pkg), tn), generate, Arrays.asList(polys));
 	}
 	
 	// The real constructor
-	public StructDefn(InputPosition kw, InputPosition location, SolidName tn, boolean generate, List<PolyType> polys) {
+	public StructDefn(InputPosition kw, InputPosition location, StructType structType, SolidName tn, boolean generate, List<PolyType> polys) {
 		this.kw = kw;
 		this.location = location;
+		this.structType = structType;
 		this.structName = tn;
 		this.generate = generate;
 		this.polys = polys;
