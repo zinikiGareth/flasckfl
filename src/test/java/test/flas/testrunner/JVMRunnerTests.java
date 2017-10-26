@@ -5,9 +5,6 @@ import java.io.IOException;
 
 import org.flasck.flas.errors.ErrorResultException;
 import org.flasck.flas.testrunner.JVMRunner;
-import org.junit.Before;
-
-import test.supporting.SupportingFunctions;
 
 public class JVMRunnerTests extends BaseRunnerTests {
 	
@@ -19,10 +16,5 @@ public class JVMRunnerTests extends BaseRunnerTests {
 		jr.prepareScript(sc, testScope);
 		jr.prepareCase();
 		runner = jr;
-	}
-	
-	@Before
-	public void defineSupportingFunctions() {
-		SupportingFunctions.defineSupportingFunctions(bce);
 	}
 }

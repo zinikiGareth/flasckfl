@@ -61,7 +61,7 @@ public abstract class BaseRunnerTests {
 	String pkg = "test.runner";
 	Scope mainScope = Scope.topScope(pkg);
 	Scope testScope;
-	CardName cn = new CardName(new PackageName("test.runner"), "Card");
+	CardName cn = new CardName(new PackageName("test.runner"), "TestCard");
 	String spkg = pkg + ".script";
 	
 	@Before
@@ -79,7 +79,7 @@ public abstract class BaseRunnerTests {
 			ctr.methods.add(new MethodCaseDefn(new FunctionIntro(FunctionName.contractMethod(loc, new CSName(cn, "_C1"), "saySomething"), Arrays.asList(new TypedPattern(loc, new TypeReference(loc, "String"), loc, "s")))));
 			cd.contracts.add(ctr);
 		}
-		mainScope.define("Card", cd);
+		mainScope.define("TestCard", cd);
 		tc.define("test.runner.x", Type.function(loc, new PrimitiveType(loc, new SolidName(null, "Number"))));
 		prior = new CompileResult(mainScope, bce, tc);
 		testScope = Scope.topScope(spkg);
