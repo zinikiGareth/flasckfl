@@ -6,7 +6,7 @@ class Foo$_C0.java extends test.import.Fred$Impl {
     this._card = card
     return
   }
-  java.lang.Object go(org.flasck.jvm.post.DeliveryAddress _fromDA, java.lang.Object _0) {
+  java.lang.Object go(org.ziniki.ziwsh.postbox.DeliveryAddress _fromDA, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {

@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.jvm.container.FlasckService;
-import org.flasck.jvm.post.DeliveryAddress;
-import org.flasck.jvm.post.HandleDirectly;
+import org.ziniki.ziwsh.postbox.DeliveryAddress;
+import org.ziniki.ziwsh.postbox.HandleDirectly;
 import org.zinutils.exceptions.UtilException;
 
 import netscape.javascript.JSObject;
@@ -26,7 +26,7 @@ public class MockService extends FlasckService implements HandleDirectly {
 
 	// This is what processing looks like coming from the JVM world
 	@Override
-	public Object process(DeliveryAddress from, String method, Object[] args) {
+	public Object handleRequest(DeliveryAddress from, String method, Object[] args) {
 		checkInvocation(method, Arrays.asList(args));
 		return null; // it's OK to return null since this is a Mock object - the test will provide any additional actions
 	}

@@ -15,7 +15,7 @@ class Complex$_C0.java extends test.golden.Init$Impl {
     this._card = card
     return
   }
-  java.lang.Object ready(org.flasck.jvm.post.DeliveryAddress _fromDA, java.lang.Object _0) {
+  java.lang.Object ready(org.ziniki.ziwsh.postbox.DeliveryAddress _fromDA, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -70,7 +70,7 @@ class Complex$_S0.java extends test.golden.Offer$Impl {
     this._card = card
     return
   }
-  java.lang.Object get(org.flasck.jvm.post.DeliveryAddress _fromDA, java.lang.Object _0, java.lang.Object _1) {
+  java.lang.Object get(org.ziniki.ziwsh.postbox.DeliveryAddress _fromDA, java.lang.Object _0, java.lang.Object _1) {
     {
       _1 = org.flasck.jvm.fl.FLEval.head(_1)
       if (_1 instanceof org.flasck.jvm.fl.FLError) {
@@ -317,7 +317,7 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
       return new test.golden.Complex$FooHandler(card,args[0])
     }
   }
-  java.lang.Object reply(org.flasck.jvm.post.DeliveryAddress _fromDA, java.lang.Object _0) {
+  java.lang.Object reply(org.ziniki.ziwsh.postbox.DeliveryAddress _fromDA, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -440,7 +440,7 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
 class DataStore$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class DataStore$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.DataStore$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -452,7 +452,7 @@ class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
 }
 class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Handler$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -464,7 +464,7 @@ class Init$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
 }
 class Init$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Init$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -475,7 +475,7 @@ class Init$Up.java implements org.ziniki.ziwsh.UpContract {
 class Offer$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class Offer$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Offer$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }

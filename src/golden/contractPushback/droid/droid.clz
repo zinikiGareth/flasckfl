@@ -1,7 +1,7 @@
 class DoIt$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class DoIt$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.DoIt$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }

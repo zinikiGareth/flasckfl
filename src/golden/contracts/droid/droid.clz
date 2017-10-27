@@ -2,7 +2,7 @@ class Foo$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object goodbye(java.lang.Object from, int y);
 }
 class Foo$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Foo$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -15,7 +15,7 @@ class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object feedback(java.lang.Object from, java.lang.String answer);
 }
 class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Handler$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -26,7 +26,7 @@ class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
 class Request$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class Request$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Request$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
@@ -38,7 +38,7 @@ class UsePolyInstance$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object giveList(java.lang.Object from, List l);
 }
 class UsePolyInstance$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.UsePolyInstance$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }

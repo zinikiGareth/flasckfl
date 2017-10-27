@@ -15,7 +15,7 @@ class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
       return new test.golden.f_0$ItemHandler(args[0],args[1])
     }
   }
-  java.lang.Object update(org.flasck.jvm.post.DeliveryAddress _fromDA, java.lang.Object _0) {
+  java.lang.Object update(org.ziniki.ziwsh.postbox.DeliveryAddress _fromDA, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -50,7 +50,7 @@ class KVUpdate$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object update(java.lang.Object from, java.lang.Object obj);
 }
 class KVUpdate$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KVUpdate$Down {
-  void <init>(org.flasck.jvm.post.IDespatcher despatcher) {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
