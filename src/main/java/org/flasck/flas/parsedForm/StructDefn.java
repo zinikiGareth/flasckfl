@@ -33,6 +33,8 @@ public class StructDefn implements AsString, Locatable {
 		this.structName = tn;
 		this.generate = generate;
 		this.polys = polys;
+		if (structType.equals(StructType.ENTITY))
+			this.fields.add(new StructField(location, true, new TypeReference(location, "Id"), "id"));
 	}
 
 	public SolidName name() {

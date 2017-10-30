@@ -28,8 +28,8 @@ public class JvmTypeMapper {
 		} else if (type instanceof PolyVar) {
 			return JavaType.object_;
 		} else if (type instanceof TypeWithName) {
-			String name = ((TypeWithName)type).getName().javaName();
-			if (name.equals("Any"))
+			String name = ((TypeWithName)type).getName().javaClassName();
+			if (name.equals("org.flasck.jvm.builtin.Any"))
 				return JavaType.object_;
 			else
 				return new JavaType(name);

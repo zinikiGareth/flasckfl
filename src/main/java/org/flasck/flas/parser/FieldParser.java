@@ -36,6 +36,8 @@ public class FieldParser implements TryParsing {
 		ValidIdentifierToken kw = VarNameToken.from(line);
 		if (kw == null)
 			return ErrorResult.oneMessage(line, "invalid variable name");
+		if (kw.text.equals("id"))
+			return ErrorResult.oneMessage(kw.location, "'id' is a reserved field name");
 		if (!line.hasMore())
 			return new StructField(kw.location, accessor, type, kw.text);
 		line.skipWS();

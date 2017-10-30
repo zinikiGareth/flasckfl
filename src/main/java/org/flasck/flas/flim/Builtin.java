@@ -60,6 +60,12 @@ public class Builtin {
 		{ // types
 			root.define("Type", type);
 		}
+		{
+			RWStructDefn id = new RWStructDefn(posn, StructType.STRUCT, new SolidName(null, "Id"), false);
+			id.addField(new RWStructField(posn, true, string, "id"));
+			id.addField(new RWStructField(posn, true, number, "version"));
+			root.define("Id", id);
+		}
 		RWStructDefn nil = new RWStructDefn(posn, StructType.STRUCT, new SolidName(null, "Nil"), false);
 		list.addCase(nil);
 		{ // lists
