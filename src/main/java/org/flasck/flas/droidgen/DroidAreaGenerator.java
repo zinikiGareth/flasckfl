@@ -106,7 +106,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 			String name = ((TemplateListVar)expr).simpleName;
 			dge = ctor.getField(ctor.getField(ctor.myThis(), "_src_" + name), name);
 		} else if (expr instanceof CardMember) {
-			dge = ctor.getField(ctor.getField(ctor.myThis(), "_card"), ((CardMember)expr).var);
+			dge = ctor.callVirtual(J.OBJECT, ctor.getField(ctor.myThis(), "_card"), "getVar", ctor.stringConst(((CardMember)expr).var));
 		} else if (expr instanceof ApplyExpr) {
 			dge = ctor.callVirtual(J.OBJECT, ctor.myThis(), changers.get(expr).name);
 		} else

@@ -11,8 +11,6 @@ class Card$doit.java {
   }
 }
 class Card.java extends org.flasck.jvm.cards.FlasckCard {
-  Ljava/lang/Object; c
-
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()

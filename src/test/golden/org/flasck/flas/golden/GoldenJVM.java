@@ -13,7 +13,6 @@ import org.flasck.flas.Main;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.zinutils.cgharness.CGHarnessTestBase;
 import org.zinutils.utils.FileUtils;
@@ -91,6 +90,21 @@ public class GoldenJVM {
 		compare("TestCard$LocalHandler");
 	}
 
+	@Test
+	public void checkB1() throws Exception {
+		compare("TestCard$B1");
+	}
+	
+	@Test
+	public void checkB2() throws Exception {
+		compare("TestCard$B2");
+	}
+
+	@Test
+	public void checkB3() throws Exception {
+		compare("TestCard$B3");
+	}
+	
 	private void compare(final String file) throws FileNotFoundException, Exception {
 		byte[] hbs = FileUtils.readAllStream(new FileInputStream(new File(handdir, file + ".class")));
 		byte[] gbs = FileUtils.readAllStream(new FileInputStream(new File(droidToClasses, file + ".class")));

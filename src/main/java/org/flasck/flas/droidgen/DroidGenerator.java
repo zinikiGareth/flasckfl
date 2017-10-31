@@ -215,7 +215,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.superclass(J.FLASCK_CARD);
 		bcc.inheritsField(true, Access.PUBLIC, J.WRAPPER, "_wrapper");
 		bcc.inheritsField(true, Access.PUBLIC, J.DISPLAY_ENGINE, "_display");
-		grp.struct.visitFields(new DroidStructFieldGenerator(bcc, Access.PROTECTED));
+//		grp.struct.visitFields(new DroidStructFieldGenerator(bcc, Access.PROTECTED));
 		for (ContractGrouping x : grp.contracts) {
 			if (x.referAsVar != null)
 				bcc.defineField(false, Access.PROTECTED, new JavaType(x.implName.javaClassName()), x.referAsVar);

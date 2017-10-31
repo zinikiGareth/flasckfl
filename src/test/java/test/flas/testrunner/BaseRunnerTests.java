@@ -105,15 +105,15 @@ public abstract class BaseRunnerTests {
 	public void testRunnerDoesNotThrowIfTheContentsMatches() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(new HTMLMatcher.Contents("hello, world"), "div>span");
+		runner.match(new HTMLMatcher.Contents("hello, world"), "div>span:nth-of-type(1)");
 	}
 
 	@Test
 	public void testRunnerDoesNotThrowIfTheElementMatches() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(new HTMLMatcher.Element("/<span id=\"card_1_1\" class=\"\" onclick=\".*\">hello, world</span>/"), "div>span");
-//		runner.match(new HTMLMatcher.Element("/.*/"), "div>span");
+		runner.match(new HTMLMatcher.Element("/<span id=\"card_.*\" class=\"\" onclick=\".*\">hello, world</span>/"), "div>span:nth-of-type(1)");
+//		runner.match(new HTMLMatcher.Element("/.*/"), "div>span:nth-of-type(1)");
 	}
 
 	@Test(expected=NotMatched.class)
@@ -127,21 +127,21 @@ public abstract class BaseRunnerTests {
 	public void testRunnerThrowsIfTheElementCountExpectsZeroButItIsThere() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(new HTMLMatcher.Count("0"), "div>span");
+		runner.match(new HTMLMatcher.Count("0"), "div>span:nth-of-type(1)");
 	}
 
 	@Test(expected=NotMatched.class)
 	public void testRunnerThrowsIfThereAreNoClassesButSomeExpected() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(new HTMLMatcher.Class("bright"), "div>span");
+		runner.match(new HTMLMatcher.Class("bright"), "div>span:nth-of-type(1)");
 	}
 
 	@Test
 	public void testRunnerDoesNotThrowIfThereAreNoClassesAndNoneWereExpected() throws Exception {
 		prepareRunner();
 		runner.createCardAs(cn, "q");
-		runner.match(new HTMLMatcher.Class(""), "div>span");
+		runner.match(new HTMLMatcher.Class(""), "div>span:nth-of-type(1)");
 	}
 	
 	// We cannot "directly" test that "send" happens.  There are two visible effects:
@@ -157,7 +157,7 @@ public abstract class BaseRunnerTests {
 		String methodName = "setOn";
 		runner.createCardAs(cn, cardVar);
 		runner.send(cardVar, contractName, methodName, null);
-		runner.match(new HTMLMatcher.Class("show"), "div>span");
+		runner.match(new HTMLMatcher.Class("show"), "div>span:nth-of-type(1)");
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public abstract class BaseRunnerTests {
 		eargs.add(1);
 		runner.createCardAs(cn, cardVar);
 		runner.expect(cardVar, pkg+"."+contractName, "echoIt", eargs);
-		runner.click("div>span");
+		runner.click("div>span:nth-of-type(1)");
 	}
 
 	protected abstract void prepareRunner() throws IOException, ErrorResultException;

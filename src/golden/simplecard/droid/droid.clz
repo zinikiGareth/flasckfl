@@ -23,7 +23,7 @@ class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
   java.lang.Object contents_0() {
-    return this._card.hello
+    return this._card.getVar("hello")
   }
 }
 class Simple$f.java {
@@ -39,8 +39,6 @@ class Simple$f.java {
   }
 }
 class Simple.java extends org.flasck.jvm.cards.FlasckCard {
-  Ljava/lang/Object; hello
-
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()

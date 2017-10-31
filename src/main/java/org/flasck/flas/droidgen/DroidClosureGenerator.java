@@ -11,6 +11,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -90,11 +91,16 @@ public class DroidClosureGenerator {
 				IExpr card;
 				if (form.isCardMethod())
 					card = meth.myThis();
-				else if (form.needsCardMember())
+				else if (form.needsCardMember()) {
 					card = meth.getField("_card");
-				else
+				} else
 					throw new UtilException("Can't handle card member with " + form.mytype);
-				return doEval(myOn, meth.getField(card, cm.var), closure);
+				IExpr fld;
+				if (cm.type instanceof RWContractImplements)
+					fld = meth.getField(card, cm.var);
+				else
+					fld = meth.callVirtual(J.OBJECT, card, "getVar", meth.stringConst(cm.var));
+				return doEval(myOn, fld, closure);
 			} else if (defn instanceof RWFunctionDefinition) {
 				RWFunctionDefinition rwfn = (RWFunctionDefinition) defn;
 				// a regular function

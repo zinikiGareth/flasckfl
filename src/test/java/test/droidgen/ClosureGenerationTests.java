@@ -200,7 +200,8 @@ public class ClosureGenerationTests {
 	public void testReturningACardMemberFromAMethodOnTheCard() {
 		context.checking(new Expectations() {{
 			oneOf(meth).myThis(); will(new ReturnNewVar(meth, "fred", "bar"));
-			oneOf(meth).getField(with(any(IExpr.class)), with("var")); will(returnValue(expr));
+			oneOf(meth).stringConst("var");
+			oneOf(meth).callVirtual(with(J.OBJECT), with(any(AVar.class)), with("getVar"), (IExpr[]) with(any(Object[].class))); will(returnValue(expr));
 			oneOf(meth).returnObject(expr); will(returnValue(expr));
 		}});
 		VarFactory vf = new VarFactory();
@@ -217,7 +218,8 @@ public class ClosureGenerationTests {
 	public void testReturningACardMemberFromAMethodOnACardAssociate() {
 		context.checking(new Expectations() {{
 			oneOf(meth).getField("_card"); will(returnValue(new FieldExpr(meth, expr, "fred", "bar", "_card")));
-			oneOf(meth).getField(with(any(IExpr.class)), with("var")); will(returnValue(expr));
+			oneOf(meth).stringConst("var");
+			oneOf(meth).callVirtual(with(J.OBJECT), with(any(FieldExpr.class)), with("getVar"), (IExpr[]) with(any(Object[].class))); will(returnValue(expr));
 			oneOf(meth).returnObject(expr); will(returnValue(expr));
 		}});
 		VarFactory vf = new VarFactory();

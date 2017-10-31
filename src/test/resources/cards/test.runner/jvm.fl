@@ -9,17 +9,26 @@
 	entity Account
 		
 	card TestCard
+		state
+			Boolean sayHello
+			Account acct
+
 		implements SetState
 		implements Echo e
 		implements DataStore ds
 		
 		handler MyHandler LocalHandler
 			missing
+				acct <- Account
 				<- ds.pushMy (type Account) Account
+# TODO: we should be able to share the "Account" here by defining it in a nested scope
+#					a = Account
 		
 		template
-			"hello, world"
-				click => echoHello
+			.
+				"hello, world" :  (styleIf 'show' sayHello)
+					click => echoHello
+				acct.id
 			
 		event echoHello ev
 			<- e.echoIt "hello clicked"

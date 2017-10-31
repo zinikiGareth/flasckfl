@@ -28,7 +28,6 @@ import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
-import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
@@ -66,7 +65,7 @@ public class GenTestsForCards {
 	public void testVisitingACardWithOneDataMemberAndNoInitGeneratesAnEmptySlot() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkDefnOfField(J.OBJECTP, "f1");
+//		checkDefnOfField(J.OBJECTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
 		CardGrouping card = new CardGrouping(loc, new CardName(null, "Card"), sd);
@@ -78,7 +77,7 @@ public class GenTestsForCards {
 	public void testVisitingACardWithOneInitializedMemberGeneratesASlotWithTheValue() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-		checkDefnOfField(J.OBJECTP, "f1");
+//		checkDefnOfField(J.OBJECTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		CardGrouping card = new CardGrouping(loc, new CardName(null, "Card"), sd);
@@ -142,14 +141,6 @@ public class GenTestsForCards {
 			oneOf(ctor).callSuper(with("void"), with(J.FLASCK_CARD), with("<init>"), with(aNonNull(IExpr[].class))); will(returnValue(expr));
 			oneOf(ctor).callSuper("void", J.FLASCK_CARD, "ready"); will(returnValue(expr));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
-		}});
-	}
-
-	private void checkDefnOfField(JavaType type, String name) {
-		// I expect this will eventually need to be more public, eg. stored in a map or something
-		IFieldInfo ret = context.mock(IFieldInfo.class, name);
-		context.checking(new Expectations() {{
-			oneOf(bccCard).defineField(false, Access.PROTECTED, type, name); will(returnValue(ret));
 		}});
 	}
 

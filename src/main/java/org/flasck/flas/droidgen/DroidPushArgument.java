@@ -8,6 +8,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -73,13 +74,17 @@ public final class DroidPushArgument implements PushVisitor {
 //			return meth.makeNew(jnn, cardObj);
 		} else if (name instanceof CardMember) {
 			CardMember cm = (CardMember)name;
+			IExpr card;
 			if (form.isCardMethod())
-				return meth.getField(meth.myThis(), cm.var);
-			else if (form.needsCardMember()) {
-				IExpr field = meth.getField(meth.getField("_card"), cm.var);
-				return field;
-			} else
+				card = meth.myThis();
+			else if (form.needsCardMember())
+				card = meth.getField("_card");
+			else
 				throw new UtilException("Can't handle card member with " + form.mytype);
+			if (cm.type instanceof RWContractImplements)
+				return meth.getField(card, cm.var);
+			else
+				return meth.callVirtual(J.OBJECT, card, "getVar", meth.stringConst(cm.var));
 		} else if (name instanceof HandlerLambda) {
 			if (form.mytype == CodeType.HANDLER)
 				return meth.getField(((HandlerLambda)name).var);

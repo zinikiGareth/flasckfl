@@ -13,12 +13,12 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
       v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
-          autobox[this._card.c]
+          autobox[this._card.getVar("c")]
           autobox["put"]
           autobox[v0]
         })
       v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
-          autobox[this._card.c]
+          autobox[this._card.getVar("c")]
           autobox["clear"]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
@@ -34,8 +34,6 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
   }
 }
 class Card.java extends org.flasck.jvm.cards.FlasckCard {
-  Ljava/lang/Object; c
-
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     this.registerContract("test.golden.Ctr", new test.golden.Card$_C0(this))

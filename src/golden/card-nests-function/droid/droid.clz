@@ -18,7 +18,7 @@ class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
       v2 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.NestFunction$styleIf.class,2,new java.lang.Object[0] {})
       v0 = new org.flasck.jvm.fl.FLClosure(v2,new java.lang.Object[2] {
           autobox["show"]
-          autobox[this._card.sayHello]
+          autobox[this._card.getVar("sayHello")]
         })
       return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[v0]
@@ -40,8 +40,6 @@ class NestFunction$styleIf.java {
   }
 }
 class NestFunction.java extends org.flasck.jvm.cards.FlasckCard {
-  Ljava/lang/Object; sayHello
-
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()

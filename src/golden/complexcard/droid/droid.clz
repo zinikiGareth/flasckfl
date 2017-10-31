@@ -120,7 +120,7 @@ class Complex$B1.java extends org.flasck.jvm.areas.DivArea {
     return
   }
   java.lang.Object teas_0() {
-    return this._card.hello
+    return this._card.getVar("hello")
   }
 }
 class Complex$B10.java extends org.flasck.jvm.areas.CardSlotArea {
@@ -146,7 +146,7 @@ class Complex$B11.java extends org.flasck.jvm.areas.CardSlotArea {
     return null
   }
   java.lang.Object yoyos_8() {
-    return this._card.yoyo
+    return this._card.getVar("yoyo")
   }
 }
 class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
@@ -170,11 +170,11 @@ class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
   java.lang.Object contents_1() {
-    return this._card.hello
+    return this._card.getVar("hello")
   }
   java.lang.Object formats_2() {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
-        autobox[this._card.format]
+        autobox[this._card.getVar("format")]
         autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
       })
   }
@@ -194,7 +194,7 @@ class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
     return ret
   }
   java.lang.Object lvs_3() {
-    return this._card.list
+    return this._card.getVar("list")
   }
 }
 class Complex$B4.java extends org.flasck.jvm.areas.DivArea {
@@ -255,7 +255,7 @@ class Complex$B6.java extends org.flasck.jvm.areas.ListArea {
     return ret
   }
   java.lang.Object lvs_5() {
-    return this._card.list
+    return this._card.getVar("list")
   }
 }
 class Complex$B7.java extends org.flasck.jvm.areas.DivArea {
@@ -295,7 +295,7 @@ class Complex$B9.java extends org.flasck.jvm.areas.CasesArea {
   }
   java.lang.Object ors_7() {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$==.class,new java.lang.Object[2] {
-        autobox[this._card.hello]
+        autobox[this._card.getVar("hello")]
         autobox["hello"]
       })
   }
@@ -386,11 +386,6 @@ class Complex$styleIf.java {
   }
 }
 class Complex.java extends org.flasck.jvm.cards.FlasckCard {
-  Ljava/lang/Object; hello
-  Ljava/lang/Object; format
-  Ljava/lang/Object; list
-  Ljava/lang/Object; mapper
-  Ljava/lang/Object; yoyo
   Ltest/golden/Complex$_C1; ds
 
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {

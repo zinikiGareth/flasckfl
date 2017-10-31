@@ -47,7 +47,7 @@ class Templates$B2.java extends org.flasck.jvm.areas.ListArea {
     return ret
   }
   java.lang.Object lvs_0() {
-    return this._card.data
+    return this._card.getVar("data")
   }
 }
 class Templates$B3.java extends org.flasck.jvm.areas.DivArea {
@@ -161,7 +161,7 @@ class Templates$B6.java extends org.flasck.jvm.areas.TextArea {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "header", this, "_contentExpr")
-    this._card._wrapper.onAssign(this._card.header, "title", this, "_contentExpr")
+    this._card._wrapper.onAssign(this._card.getVar("header"), "title", this, "_contentExpr")
     (void)this._contentExpr()
     return
   }
@@ -171,7 +171,7 @@ class Templates$B6.java extends org.flasck.jvm.areas.TextArea {
   }
   java.lang.Object contents_5() {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
-        autobox[this._card.header]
+        autobox[this._card.getVar("header")]
         autobox["title"]
       })
   }
@@ -183,7 +183,7 @@ class Templates$B7.java extends org.flasck.jvm.areas.TextArea {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "header", this, "_contentExpr")
-    this._card._wrapper.onAssign(this._card.header, "id", this, "_contentExpr")
+    this._card._wrapper.onAssign(this._card.getVar("header"), "id", this, "_contentExpr")
     this._card._wrapper.onAssign(this.ctsAssign_7(), "id", this, "_contentExpr")
     (void)this._contentExpr()
     return
@@ -195,7 +195,7 @@ class Templates$B7.java extends org.flasck.jvm.areas.TextArea {
   java.lang.Object contents_6() {
     {
       v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
-          autobox[this._card.header]
+          autobox[this._card.getVar("header")]
           autobox["id"]
         })
       return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
@@ -206,15 +206,12 @@ class Templates$B7.java extends org.flasck.jvm.areas.TextArea {
   }
   java.lang.Object ctsAssign_7() {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
-        autobox[this._card.header]
+        autobox[this._card.getVar("header")]
         autobox["id"]
       })
   }
 }
 class Templates.java extends org.flasck.jvm.cards.FlasckCard {
-  Ljava/lang/Object; data
-  Ljava/lang/Object; header
-
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
     super.ready()
