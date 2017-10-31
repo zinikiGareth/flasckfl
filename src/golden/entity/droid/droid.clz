@@ -8,8 +8,7 @@ class Storable.java extends org.flasck.jvm.fl.FLASEntity {
   }
   static test.golden.Storable eval([java.lang.Object args) {
     ret = new test.golden.Storable()
-    ret.id = args[0]
-    ret.value = args[1]
+    ret.value = args[0]
     return ret
   }
   void _doFullEval() {

@@ -40,7 +40,9 @@ public class MethodParser implements TryParsing {
 		
 		// Read the function name
 		ValidIdentifierToken name = ValidIdentifierToken.from(line);
-		
+		if (name == null || Character.isUpperCase(name.text.charAt(0)))
+			return null;
+
 		// Collect patterns into an argument
 		List<Object> args = new ArrayList<Object>();
 		

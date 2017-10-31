@@ -78,6 +78,7 @@ public class GenTestsForHandlers {
 		checkCreationOfNestedClass(container, true);
 		checkCreationOfImplCtor(true);
 		checkCreationOfEvalMethod(container, true);
+		checkOnLambdaOrCurry(container);
 		checkProcessingOfLambda("x");
 		HandlerName hn = new HandlerName(new CardName(null, container), "MyHandler");
 		ArrayList<HandlerLambda> lambdas = new ArrayList<>();
@@ -124,12 +125,17 @@ public class GenTestsForHandlers {
 				oneOf(eval).argument(J.OBJECT, "card"); will(new ReturnNewVar(ctor, J.OBJECT, "card"));
 			}
 			oneOf(eval).argument("[" + J.OBJECT, "args"); will(new ReturnNewVar(eval, "[" + J.OBJECT, "args"));
+			oneOf(eval).makeNew(with(container + "$MyHandler"), with(any(IExpr[].class)));
+			oneOf(eval).returnObject(with(any(IExpr.class)));
+		}});
+	}
+	
+	public void checkOnLambdaOrCurry(String container) {
+		context.checking(new Expectations() {{
 			oneOf(eval).arraylen(with(any(Expr.class)));
-			oneOf(eval).intConst(0); will(returnValue(new IntConstExpr(eval, 0)));
+			oneOf(eval).intConst(1); will(returnValue(new IntConstExpr(eval, 1)));
 			oneOf(eval).classConst(container + "$MyHandler"); will(returnValue(new ClassConstExpr(eval, container + "$MyHandler")));
 			oneOf(eval).makeNew(with(J.FLCURRY), with(any(IExpr[].class)));
-			oneOf(eval).returnObject(with(any(IExpr.class)));
-			oneOf(eval).makeNew(with(container + "$MyHandler"), with(any(IExpr[].class)));
 			oneOf(eval).returnObject(with(any(IExpr.class)));
 			oneOf(eval).ifOp(with(162), with(aNull(IExpr.class)), with(any(Expr.class)), with(any(IExpr.class)), with(any(IExpr.class))); will(returnValue(expr));
 		}});
@@ -142,7 +148,7 @@ public class GenTestsForHandlers {
 			oneOf(ctor).callStatic(with(J.FLEVAL), with(J.OBJECT), with("head"), with(any(IExpr[].class)));
 			oneOf(ctor).assign(with(any(IExpr.class)), with(any(IExpr.class)));
 			oneOf(eval).arrayElt(with(aNonNull(Expr.class)), with(aNonNull(IntConstExpr.class)));
-			oneOf(eval).intConst(1); will(returnValue(new IntConstExpr(eval, 1)));
+			oneOf(eval).intConst(0); will(returnValue(new IntConstExpr(eval, 0)));
 		}});
 	}
 }

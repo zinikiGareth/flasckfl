@@ -1,8 +1,10 @@
 	contract DataStore
+		up pushMy (Type t) (Any a)
 	contract Echo
 		up echoIt (String s)
 	contract SetState
 	contract MyHandler
+		down missing
 
 	entity Account
 		
@@ -12,6 +14,8 @@
 		implements DataStore ds
 		
 		handler MyHandler LocalHandler
+			missing
+				<- ds.pushMy (type Account) Account
 		
 		template
 			"hello, world"

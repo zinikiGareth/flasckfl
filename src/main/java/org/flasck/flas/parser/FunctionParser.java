@@ -23,7 +23,7 @@ public class FunctionParser implements TryParsing {
 	public Object tryParsing(Tokenizable line) {
 		// Read the function name
 		ValidIdentifierToken vit = ValidIdentifierToken.from(line);
-		if (vit == null)
+		if (vit == null || Character.isUpperCase(vit.text.charAt(0)))
 			return null;
 		
 		String name = vit.text;

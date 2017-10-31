@@ -92,9 +92,12 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			Var v = pv.getVar();
 			Var ret = meth.avar(sd.name(), "ret");
 			meth.assign(ret, meth.makeNew(sd.name())).flush();
+			int ap = 0;
 			for (int i=0;i<sd.fields.size();i++) {
 				RWStructField fld = sd.fields.get(i);
-				meth.assign(meth.getField(ret, fld.name), meth.arrayElt(v, meth.intConst(i))).flush();
+				if (fld.name.equals("id"))
+					continue;
+				meth.assign(meth.getField(ret, fld.name), meth.arrayElt(v, meth.intConst(ap++))).flush();
 			}
 			meth.returnObject(ret).flush();
 		}
@@ -358,9 +361,13 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				objArg = cardArg.getVar();
 			else
 				objArg = eval.aNull();
-			eval.ifOp(0xa2, eval.arraylen(argsArg.getVar()), eval.intConst(hi.boundVars.size()), 
-					eval.returnObject(eval.makeNew(FLCurry.class.getName(), objArg, eval.classConst(name.javaClassName()), argsArg.getVar())), 
-					eval.returnObject(eval.makeNew(name.javaClassName(), newArgs))).flush();
+			final IExpr makeIt = eval.returnObject(eval.makeNew(name.javaClassName(), newArgs));
+			if (hi.boundVars.size() > 0)
+				eval.ifOp(0xa2, eval.arraylen(argsArg.getVar()), eval.intConst(hi.boundVars.size()), 
+						eval.returnObject(eval.makeNew(FLCurry.class.getName(), objArg, eval.classConst(name.javaClassName()), argsArg.getVar())), 
+						makeIt).flush();
+			else
+				makeIt.flush();
 		}
 	}
 

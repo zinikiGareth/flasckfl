@@ -9,9 +9,8 @@ class Item.java extends org.flasck.jvm.fl.FLASEntity {
   }
   static test.golden.Item eval([java.lang.Object args) {
     ret = new test.golden.Item()
-    ret.id = args[0]
-    ret.title = args[1]
-    ret.format = args[2]
+    ret.title = args[0]
+    ret.format = args[1]
     return ret
   }
   void _doFullEval() {

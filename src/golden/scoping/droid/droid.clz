@@ -17,7 +17,7 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
       return new test.golden.f_0$HandleReply(args[0],args[1],args[2])
     }
   }
-  java.lang.Object reply(org.ziniki.ziwsh.postbox.DeliveryAddress _fromDA, java.lang.Object _0) {
+  java.lang.Object reply(java.lang.Object _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {

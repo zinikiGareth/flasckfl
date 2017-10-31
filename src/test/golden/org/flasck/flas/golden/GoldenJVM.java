@@ -82,9 +82,13 @@ public class GoldenJVM {
 	}
 
 	@Test
-	@Ignore
 	public void checkAccount() throws Exception {
 		compare("Account");
+	}
+
+	@Test
+	public void checkLocalHandler() throws Exception {
+		compare("TestCard$LocalHandler");
 	}
 
 	private void compare(final String file) throws FileNotFoundException, Exception {

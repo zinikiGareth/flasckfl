@@ -23,8 +23,11 @@ public class Pass2Visitor implements RepoVisitor {
 	public void visitStructDefn(RWStructDefn sd) {
 		TypeInfo sty = tc.structTypes.get(sd.uniqueName());
 		List<TypeInfo> fs = new ArrayList<>();
-		for (RWStructField f : sd.fields)
+		for (RWStructField f : sd.fields) {
+			if (f.name.equals("id")) // don't try to require the "id" field
+				continue;
 			fs.add(tc.convertType(f.type));
+		}
 		TypeFunc ti = new TypeFunc(sd.location(), fs, sty);
 		tc.gk(sd.uniqueName(), ti);
 		tc.ctors.put(sd.name(), tc.asType(ti));

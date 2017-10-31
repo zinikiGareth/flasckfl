@@ -68,7 +68,7 @@ public class DroidHSIEFormGenerator {
 		gen.returns("java.lang.Object");
 		List<PendingVar> pendingVars = new ArrayList<PendingVar>();
 		if (needDA)
-			gen.argument(J.DELIVERY_ADDRESS, "_fromDA");
+			gen.argument(J.OBJECT, "_context");
 		int j = 0;
 		for (@SuppressWarnings("unused") ScopedVar s : form.scoped)
 			pendingVars.add(gen.argument("java.lang.Object", "_s"+(j++)));

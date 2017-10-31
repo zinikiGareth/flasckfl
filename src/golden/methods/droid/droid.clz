@@ -13,7 +13,7 @@ class f_0$KVHImpl.java extends test.golden.KVH$Impl {
       return new test.golden.f_0$KVHImpl(args[0])
     }
   }
-  java.lang.Object update(org.ziniki.ziwsh.postbox.DeliveryAddress _fromDA, java.lang.Object _0) {
+  java.lang.Object update(java.lang.Object _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {

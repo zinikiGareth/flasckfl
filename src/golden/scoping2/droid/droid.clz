@@ -60,7 +60,7 @@ class scoped_0$MyHc.java extends test.golden.Hc$Impl {
       return new test.golden.scoped_0$MyHc(args[0])
     }
   }
-  java.lang.Object reply(org.ziniki.ziwsh.postbox.DeliveryAddress _fromDA) {
+  java.lang.Object reply(java.lang.Object _context) {
     {
       v0 = new org.flasck.jvm.fl.FLClosure(this.requestObj,new java.lang.Object[0] {})
       return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
