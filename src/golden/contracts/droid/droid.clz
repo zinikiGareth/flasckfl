@@ -35,14 +35,14 @@ class Request$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object ask(java.lang.Object from, test.golden.Handler$Down answer);
 }
 class UsePolyInstance$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object giveList(java.lang.Object from, List l);
+  abstract java.lang.Object giveList(java.lang.Object from, org.flasck.jvm.builtin.List l);
 }
 class UsePolyInstance$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.UsePolyInstance$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object giveList(java.lang.Object from, List l);
+  abstract java.lang.Object giveList(java.lang.Object from, org.flasck.jvm.builtin.List l);
 }
 class UsePolyInstance$Up.java implements org.ziniki.ziwsh.UpContract {
 }

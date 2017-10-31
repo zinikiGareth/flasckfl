@@ -1,21 +1,4 @@
-class Id.java extends org.flasck.jvm.fl.FLASObject {
-  Ljava/lang/Object; id
-
-  void <init>() {
-    super.<init>()
-    return
-  }
-  static test.golden.Id eval([java.lang.Object args) {
-    ret = new test.golden.Id()
-    ret.id = args[0]
-    return ret
-  }
-  void _doFullEval() {
-    this.id = this._fullOf(this.id)
-    return
-  }
-}
-class Item.java extends org.flasck.jvm.fl.FLASObject {
+class Item.java extends org.flasck.jvm.fl.FLASEntity {
   Ljava/lang/Object; id
   Ljava/lang/Object; title
   Ljava/lang/Object; format

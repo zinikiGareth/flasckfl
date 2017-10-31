@@ -1,4 +1,6 @@
 package test.golden
   entity test.golden.Storable @{1:0|entity} @{1:7|Storable}
+    id @{1:7|Storable}
+      Id @{1:7|Storable}
     value @{2:7|value}
       String @{2:0|String}

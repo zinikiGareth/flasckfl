@@ -1,0 +1,29 @@
+	contract DataStore
+	contract Echo
+		up echoIt (String s)
+	contract SetState
+	contract MyHandler
+
+	entity Account
+		
+	card TestCard
+		implements SetState
+		implements Echo e
+		implements DataStore ds
+		
+		handler MyHandler LocalHandler
+		
+		template
+			"hello, world"
+				click => echoHello
+			
+		event echoHello ev
+			<- e.echoIt "hello clicked"
+			
+	id x = x
+	x = 420
+
+	styleIf style b
+		if (b) = style
+		else = ''
+	

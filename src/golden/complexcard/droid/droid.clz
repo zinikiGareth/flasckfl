@@ -386,7 +386,6 @@ class Complex$styleIf.java {
   }
 }
 class Complex.java extends org.flasck.jvm.cards.FlasckCard {
-  Ljava/lang/Object; ds
   Ljava/lang/Object; hello
   Ljava/lang/Object; format
   Ljava/lang/Object; list

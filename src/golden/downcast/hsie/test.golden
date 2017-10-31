@@ -13,4 +13,4 @@ CLOSURE v1 >test.golden.Role                                 #downcast.fl:  4.7
 CLOSURE v2                                                   #downcast.fl:  4.12
   PUSH PackageVar.FLEval.field                               #downcast.fl:  4.12
   PUSH v1:clos1                                              #downcast.fl:  4.7
-  PUSH "id"                                                  #downcast.fl:  4.30
+  PUSH "r"                                                   #downcast.fl:  4.30

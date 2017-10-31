@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.flasck.flas.rewrittenForm.FieldVisitor;
+import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.IFieldInfo;
@@ -22,6 +23,9 @@ public class DroidStructFieldGenerator implements FieldVisitor {
 
 	@Override
 	public void visit(RWStructField sf) {
+		// Don't define contract things here
+		if (sf.type instanceof RWContractImplements)
+			return;
 		IFieldInfo fi = bcc.defineField(false, access, JavaType.object_, sf.name);
 		fields.put(sf.name, fi);
 	}

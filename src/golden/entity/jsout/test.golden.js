@@ -12,6 +12,9 @@ test.golden._Storable = function(v0) {
   "use strict";
   this._ctor = 'test.golden.Storable';
   if (v0) {
+    if (v0.id) {
+      this.id = v0.id;
+    }
     if (v0.value) {
       this.value = v0.value;
     }
@@ -20,9 +23,9 @@ test.golden._Storable = function(v0) {
   }
 }
 
-test.golden.Storable = function(v0) {
+test.golden.Storable = function(v0, v1) {
   "use strict";
-  return new test.golden._Storable({value: v0});
+  return new test.golden._Storable({id: v0, value: v1});
 }
 
 test.golden;

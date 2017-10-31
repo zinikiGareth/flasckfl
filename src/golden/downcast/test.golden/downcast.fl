@@ -1,4 +1,4 @@
 	struct Role
-		String id
+		String r
 	
-	f (Any x) = (downcast Role x).id
+	f (Any x) = (downcast Role x).r

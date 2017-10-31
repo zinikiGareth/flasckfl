@@ -12,8 +12,8 @@ test.golden._Role = function(v0) {
   "use strict";
   this._ctor = 'test.golden.Role';
   if (v0) {
-    if (v0.id) {
-      this.id = v0.id;
+    if (v0.r) {
+      this.r = v0.r;
     }
   }
   else {
@@ -22,7 +22,7 @@ test.golden._Role = function(v0) {
 
 test.golden.Role = function(v0) {
   "use strict";
-  return new test.golden._Role({id: v0});
+  return new test.golden._Role({r: v0});
 }
 
 test.golden.f = function(v0) {
@@ -33,7 +33,7 @@ test.golden.f = function(v0) {
   }
   if (v0) {
     var v1 = FLEval.closure(v0);
-    return FLEval.closure(FLEval.field, v1, 'id');
+    return FLEval.closure(FLEval.field, v1, 'r');
   }
   return FLEval.error("test.golden.f: case not handled");
 }

@@ -5,4 +5,4 @@ function test.golden.f 1
     @
       PackageVar.FLEval.field
       ?? class org.flasck.flas.rewrittenForm.RWCastExpr:(downcast test.golden.Role test.golden.f_0.x)
-      "id"
+      "r"

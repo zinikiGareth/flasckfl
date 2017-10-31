@@ -2,7 +2,7 @@ test.golden.Templates.B2.lvs_0 :: Croset[test.golden.Item]
 test.golden.Templates.B4.contents_1 :: String
 test.golden.Templates.B4.formats_2 :: Cons[String]
 test.golden.Templates.B5.contents_3 :: A
-test.golden.Templates.B5.ctsAssign_4 :: test.golden.Id
+test.golden.Templates.B5.ctsAssign_4 :: Id
 test.golden.Templates.B6.contents_5 :: String
 test.golden.Templates.B7.contents_6 :: A
-test.golden.Templates.B7.ctsAssign_7 :: test.golden.Id
+test.golden.Templates.B7.ctsAssign_7 :: Id

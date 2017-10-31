@@ -8,23 +8,6 @@ if (typeof test.golden === 'undefined') {
   }
 }
 
-test.golden._Id = function(v0) {
-  "use strict";
-  this._ctor = 'test.golden.Id';
-  if (v0) {
-    if (v0.id) {
-      this.id = v0.id;
-    }
-  }
-  else {
-  }
-}
-
-test.golden.Id = function(v0) {
-  "use strict";
-  return new test.golden._Id({id: v0});
-}
-
 test.golden._Item = function(v0) {
   "use strict";
   this._ctor = 'test.golden.Item';

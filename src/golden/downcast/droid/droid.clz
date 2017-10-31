@@ -15,7 +15,7 @@ class PACKAGEFUNCTIONS.java {
           v1 = new org.flasck.jvm.fl.FLClosure(_0,new java.lang.Object[0] {})
           return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
               autobox[v1]
-              autobox["id"]
+              autobox["r"]
             })
         }
       }
@@ -24,7 +24,7 @@ class PACKAGEFUNCTIONS.java {
   }
 }
 class Role.java extends org.flasck.jvm.fl.FLASObject {
-  Ljava/lang/Object; id
+  Ljava/lang/Object; r
 
   void <init>() {
     super.<init>()
@@ -32,11 +32,11 @@ class Role.java extends org.flasck.jvm.fl.FLASObject {
   }
   static test.golden.Role eval([java.lang.Object args) {
     ret = new test.golden.Role()
-    ret.id = args[0]
+    ret.r = args[0]
     return ret
   }
   void _doFullEval() {
-    this.id = this._fullOf(this.id)
+    this.r = this._fullOf(this.r)
     return
   }
 }

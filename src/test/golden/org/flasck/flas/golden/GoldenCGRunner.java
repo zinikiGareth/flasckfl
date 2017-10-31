@@ -100,6 +100,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	static String buildDroidOpt = System.getProperty("org.flasck.golden.buildDroid");
 	private static boolean buildDroid = buildDroidOpt != null && buildDroidOpt.equals("true");
 	
+	public static final File jvmdir = new File("/Users/gareth/Ziniki/Over/FLASJvm");
+
 	public GoldenCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException {
 		super(builder, figureClasses());
 	}
@@ -159,7 +161,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		
 		Main.setLogLevels();
 		FLASCompiler compiler = new FLASCompiler();
-		compiler.unitTestPath(new File("/Users/gareth/Ziniki/ThirdParty/flasjvm/jvm/bin/classes"));
+		compiler.unitTestPath(new File(jvmdir, "jvm/bin/classes"));
 		compiler.unitjs(useJSRunner);
 		compiler.unitjvm(useJVMRunner);
 		File dir = new File(s, "test.golden");
@@ -302,12 +304,17 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	protected static void handleErrors(String s, ErrorResult er) throws FileNotFoundException, IOException {
 		// either way, write the errors to a suitable directory
 		File etmp = new File(s, "errors-tmp"); // may or may not be needed
+		File errors = new File(s, "errors");
+		handleErrors(etmp, er, errors);
+	}
+
+	protected static void handleErrors(File etmp, ErrorResult er, File errors) throws FileNotFoundException, IOException {
+		// either way, write the errors to a suitable directory
 		FileUtils.assertDirectory(etmp);
 		PrintWriter pw = new PrintWriter(new File(etmp, "errors"));
 		er.showTo(pw, 0);
 
-		File errors = new File(s, "errors");
-		if (errors.isDirectory()) {
+		if (errors != null && errors.isDirectory()) {
 			// we expected this, so check the errors are correct ...
 			assertGolden(errors, etmp);
 		} else {
@@ -710,7 +717,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpRecursive(pi, x);
 	}
 
-	private static void assertGolden(File golden, File genned) {
+	static void assertGolden(File golden, File genned) {
 		if (!golden.isDirectory()) {
 			if (!checkEverything)
 				return;
@@ -742,7 +749,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		}
 	}
 
-	private static void clean(File dir) {
+	static void clean(File dir) {
 		FileUtils.cleanDirectory(dir);
 		FileUtils.assertDirectory(dir);
 	}

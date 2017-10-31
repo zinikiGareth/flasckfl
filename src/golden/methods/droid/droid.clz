@@ -41,14 +41,14 @@ class f_0$KVHImpl.java extends test.golden.KVH$Impl {
   }
 }
 class KVH$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object update(java.lang.Object from, Crokeys crokeys);
+  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.Crokeys crokeys);
 }
 class KVH$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KVH$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object update(java.lang.Object from, Crokeys crokeys);
+  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.Crokeys crokeys);
 }
 class KVH$Up.java implements org.ziniki.ziwsh.UpContract {
 }
