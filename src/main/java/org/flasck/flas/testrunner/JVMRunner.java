@@ -31,6 +31,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.ziniki.ziwsh.model.DateClientIDProvider;
+import org.ziniki.ziwsh.virtualconn.DefaultWireEncoder;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.reflection.Reflection;
@@ -44,7 +46,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	public JVMRunner(CompileResult prior) {
 		super(prior);
 		loader = new BCEClassLoader(prior.bce);
-		controller = new JDKFlasckController(this, new JSoupDisplayFactory());
+		DefaultWireEncoder wire = new DefaultWireEncoder(new DateClientIDProvider(420));
+		controller = new JDKFlasckController(wire, this, new JSoupDisplayFactory());
 	}
 
 	public void considerResource(File file) {
