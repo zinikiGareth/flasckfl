@@ -3,7 +3,11 @@ class Storable.java extends org.flasck.jvm.fl.FLASEntity {
   Ljava/lang/Object; value
 
   void <init>() {
-    super.<init>()
+    super.<init>(null)
+    return
+  }
+  void <init>(org.ziniki.ziwsh.model.BackingDocument doc) {
+    super.<init>(doc)
     return
   }
   static test.golden.Storable eval([java.lang.Object args) {

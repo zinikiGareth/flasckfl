@@ -75,12 +75,20 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		sd.visitFields(fg);
 		String base = sd.ty == StructType.STRUCT?J.FLAS_OBJECT:J.FLAS_ENTITY; 
 		bcc.superclass(base);
-		// TODO: I think entity wants two constructors: one to create a new object, and one to populate from a backing document
-		// this is still the right thing for struct
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			NewMethodDefiner ctor = gen.done();
-			ctor.callSuper("void", base, "<init>").flush();
+			IExpr[] args = new IExpr[0];
+			if (sd.ty == StructType.ENTITY)
+				args = new IExpr[] { ctor.as(ctor.aNull(), J.BACKING_DOCUMENT) };
+			ctor.callSuper("void", base, "<init>", args).flush();
+			ctor.returnVoid().flush();
+		}
+		if (sd.ty == StructType.ENTITY) {
+			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar doc = gen.argument(J.BACKING_DOCUMENT, "doc");
+			NewMethodDefiner ctor = gen.done();
+			ctor.callSuper("void", base, "<init>", doc.getVar()).flush();
 			ctor.returnVoid().flush();
 		}
 		

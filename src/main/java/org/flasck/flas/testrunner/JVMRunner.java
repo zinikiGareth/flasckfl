@@ -46,8 +46,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	public JVMRunner(CompileResult prior) {
 		super(prior);
 		loader = new BCEClassLoader(prior.bce);
-		DefaultWireEncoder wire = new DefaultWireEncoder(new DateClientIDProvider(420));
-		controller = new JDKFlasckController(wire, this, new JSoupDisplayFactory());
+		DefaultWireEncoder wire = new DefaultWireEncoder(loader, new DateClientIDProvider(420));
+		controller = new JDKFlasckController(loader, wire, this, new JSoupDisplayFactory());
 	}
 
 	public void considerResource(File file) {
