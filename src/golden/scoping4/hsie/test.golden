@@ -1,0 +1,38 @@
+HSIE for test.golden.Card.ItemHandler.update/1               #scoping4.fl: 11.0
+#Args: 1 #bound: 4
+    externals: [Cons, Nil, Number, Send, test.golden.Card.ds]
+    scoped = []
+    scopedDefns = [test.golden.Card.ItemHandler.update.obj, test.golden.Card.ItemHandler.update.x]
+    all vars = [v1, v2, v3, v4, v5]
+HEAD v1                                                      #scoping4.fl: 11.7
+SWITCH v1 Number                                             #scoping4.fl: 11.7
+  RETURN v5:clos5 [v2:test.golden.Card.ItemHandler.update.x, #scoping4.fl: 12.3
+ERROR                                                        #scoping4.fl: 11.0
+CLOSURE v2 !                                                 #scoping4.fl: 13.0
+  PUSH PackageVar.test.golden.Card.ItemHandler.update.x      #scoping4.fl: 13.0
+  PUSH v1:test.golden.Card.ItemHandler.update.obj            #scoping4.fl: 11.7
+CLOSURE v3                                                   #scoping4.fl: 13.0
+  PUSH PackageVar.Cons                                       #scoping4.fl: 12.3
+  PUSH v2:test.golden.Card.ItemHandler.update.x              #scoping4.fl: 13.0
+  PUSH PackageVar.Nil                                        #scoping4.fl: 12.3
+CLOSURE v4 S                                                 #scoping4.fl: 12.3
+  PUSH PackageVar.Send                                       #scoping4.fl: 12.3
+  PUSH CardMember.CardMember[test.golden.Card.ds]            #scoping4.fl: 12.3
+  PUSH "insert"                                              #scoping4.fl: 12.6
+  PUSH v3:clos3                                              #scoping4.fl: 13.0
+CLOSURE v5                                                   #scoping4.fl: 12.3
+  PUSH PackageVar.Cons                                       #scoping4.fl: 11.0
+  PUSH v4:clos4                                              #scoping4.fl: 12.3
+  PUSH PackageVar.Nil                                        #scoping4.fl: 11.0
+-------
+HSIE for test.golden.Card.ItemHandler.update.x/0             #scoping4.fl: 13.0
+#Args: 0 #bound: 1
+    externals: [+, test.golden.Card.ItemHandler.ck]
+    scoped = [test.golden.Card.ItemHandler.update.obj]
+    scopedDefns = []
+    all vars = [v0]
+RETURN v0:clos0 []                                           #scoping4.fl: 13.4
+CLOSURE v0                                                   #scoping4.fl: 13.4
+  PUSH PackageVar.+                                          #scoping4.fl: 13.7
+  PUSH HandlerLambda.HL[test.golden.Card.ItemHandler.ck]     #scoping4.fl: 10.37
+  PUSH Scoped[test.golden.Card.ItemHandler.update.obj]       #scoping4.fl: 11.7

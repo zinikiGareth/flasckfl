@@ -1,0 +1,13 @@
+	contract KVUpdate
+		down update (Number obj)
+
+	contract DataStore
+		up insert (Number obj)
+		
+	card Card
+		implements DataStore ds
+		
+		handler KVUpdate ItemHandler (Number ck)
+			update obj
+				<- ds.insert x
+					x = ck + obj

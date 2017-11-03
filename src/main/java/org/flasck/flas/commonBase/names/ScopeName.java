@@ -41,7 +41,14 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 
 	@Override
 	public String javaClassName() {
-		throw new NotImplementedException();
+		return inside.javaClassName();
+	}
+
+	public String javaDefiningClassName() {
+		if (inside instanceof HandlerName)
+			return inside.javaClassName();
+		else
+			return inside.javaClassName() + "." + myname;
 	}
 	
 	public int compareTo(ScopeName other) {

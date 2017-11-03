@@ -36,8 +36,8 @@ public class ErrorResult implements ErrorReporter {
 		return message(new FLASError(pos, msg));
 	}
 
-	public void merge(ErrorResult from) {
-		errors.addAll(from.errors);
+	public void merge(ErrorReporter from) {
+		errors.addAll(((ErrorResult)from).errors);
 	}
 	
 	public boolean hasErrors() {

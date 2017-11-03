@@ -44,12 +44,12 @@ import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.PropertyDefn;
-import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
@@ -704,7 +704,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		return sb.toString();
 	}
 
-	private static void dumpScope(Indenter pw, Scope s) {
+	private static void dumpScope(Indenter pw, IScope s) {
 		Indenter pi = pw.indent();
 		for (ScopeEntry k : s) {
 			dumpRecursive(pi, k.getValue());

@@ -28,7 +28,6 @@ public class GatherScopedVars {
 
 	public GatherScopedVars(Set<ScopedVar> scopedVars) {
 		this.scopedVars = scopedVars;
-		// TODO Auto-generated constructor stub
 	}
 
 	public void dispatch(Object expr) {

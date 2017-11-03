@@ -15,5 +15,4 @@ public interface NameOfThing {
 	<T extends NameOfThing> int compareTo(T other);
 
 	String writeToXML(XMLElement xe);
-
 }

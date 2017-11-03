@@ -1,0 +1,29 @@
+package test.golden
+  cdecl test.golden.KVUpdate @{1:0|contract} @{1:9|KVUpdate}
+    required down update @{2:0|down} @{2:5|update}
+      [type] obj @{2:20|obj}
+        Number @{2:13|Number}
+  cdecl test.golden.DataStore @{4:0|contract} @{4:9|DataStore}
+    required up insert @{5:0|up} @{5:3|insert}
+      [type] obj @{5:18|obj}
+        Number @{5:11|Number}
+  card test.golden.Card @{7:0|card} @{7:5|Card}
+    implements DataStore ds @{8:0|implements} @{8:11|DataStore} @{8:21|ds}
+    handler KVUpdate test.golden.Card.ItemHandler (card) @{10:0|handler} @{10:8|KVUpdate} @{10:17|ItemHandler}
+      [type] ck @{10:37|ck}
+        Number @{10:30|Number}
+      method test.golden.Card.ItemHandler.update @{11:0|update}
+        [var] obj @{11:7|obj}
+        invoke @{12:0|<-}
+          <apply> @{12:3|ds.insert x}
+            <apply> @{12:3|ds.insert}
+              . @{12:5|.}
+              ds @{12:3|ds}
+              insert @{12:6|insert}
+            x @{12:13|x}
+        test.golden.Card.ItemHandler.update.x @{13:0|x}
+         =
+          <apply> @{13:4|ck + obj}
+            + @{13:7|+}
+            ck @{13:4|ck}
+            obj @{13:9|obj}

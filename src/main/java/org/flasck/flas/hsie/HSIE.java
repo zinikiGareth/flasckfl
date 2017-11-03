@@ -95,7 +95,7 @@ public class HSIE {
 		GenerateClosures gc = new GenerateClosures(errors, rw, cf, forms, ret);
 		if (defn.nargs() == 0) {
 			if (defn.cases.size() != 1)
-				throw new UtilException("Constants can only have one case");
+				throw new UtilException("Constants can only have one case, not " + defn.cases.size());
 			cf.expressions.addExpr(defn.cases.get(0).expr);
 			gc.generateScopingClosures();
 			gc.generateExprClosures();

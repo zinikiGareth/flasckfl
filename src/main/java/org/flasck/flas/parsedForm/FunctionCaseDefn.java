@@ -24,7 +24,7 @@ public class FunctionCaseDefn implements ContainsScope, Locatable {
 	}
 
 	@Override
-	public Scope innerScope() {
+	public IScope innerScope() {
 		return scope;
 	}
 

@@ -117,6 +117,7 @@ public class Main {
 				break;
 			} catch (Throwable ex) {
 				ex.printStackTrace();
+				failed = true;
 			}
 		}
 		if (!failed && compiler.getBuilder() != null)

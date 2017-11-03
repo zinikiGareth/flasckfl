@@ -376,6 +376,9 @@ public class JSForm {
 				else if (pe.fn instanceof HandlerLambda) {
 					if (form.mytype == CodeType.HANDLER)
 						sb.append("this." + ((HandlerLambda)pe.fn).var);
+					else if (form.mytype == CodeType.HANDLERFUNCTION)
+						// I'm guessing at this right now while working on JVM
+						sb.append("this." + ((HandlerLambda)pe.fn).var);
 					else
 						throw new UtilException("Can't handle " + form.mytype + " with handler lambda");
 				} else

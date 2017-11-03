@@ -18,7 +18,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	private final SolidName name;
 	private final List<PolyType> polys;
 
-	public ObjectDefn(InputPosition location, Scope outer, SolidName tn, boolean generate, List<PolyType> polys) {
+	public ObjectDefn(InputPosition location, IScope outer, SolidName tn, boolean generate, List<PolyType> polys) {
 		this.location = location;
 		this.name = tn;
 		this.generate = generate;
@@ -28,7 +28,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	}
 
 	@Override
-	public Scope innerScope() {
+	public IScope innerScope() {
 		return innerScope;
 	}
 

@@ -42,6 +42,10 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.CARD, card, name);
 	}
 
+	public static FunctionName functionInHandlerContext(InputPosition location, NameOfThing inScope, String name) {
+		return new FunctionName(location, CodeType.HANDLERFUNCTION, inScope, name);
+	}
+
 	public static FunctionName eventTrampoline(InputPosition location, CardName card, String name) {
 		return new FunctionName(location, CodeType.EVENT, card, name);
 	}

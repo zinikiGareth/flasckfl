@@ -61,6 +61,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.FunctionTypeReference;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
@@ -301,7 +302,7 @@ public class Rewriter implements CodeGenRegistry {
 		private final CardName cardName;
 		private final Map<String, Type> members = new TreeMap<String, Type>();
 		private final Map<String, ObjectReference> statics = new TreeMap<String, ObjectReference>();
-		private final Scope innerScope;
+		private final IScope innerScope;
 		private int fnIdx = 0;
 
 		public CardContext(PackageContext cx, CardName name, CardDefinition cd, boolean doAll) {
@@ -526,12 +527,12 @@ public class Rewriter implements CodeGenRegistry {
 	 */
 	class FunctionCaseContext extends NamingContext {
 		protected final Map<String, LocalVar> bound;
-		private final Scope inner;
+		private final IScope inner;
 		private final boolean fromMethod;
 		private final FunctionName funcName;
 		private final ScopeName caseName;
 
-		FunctionCaseContext(NamingContext cx, FunctionName funcName, ScopeName scopeName, Map<String, LocalVar> locals, Scope inner, boolean fromMethod) {
+		FunctionCaseContext(NamingContext cx, FunctionName funcName, ScopeName scopeName, Map<String, LocalVar> locals, IScope inner, boolean fromMethod) {
 			super(cx);
 			this.funcName = funcName;
 			this.caseName = scopeName;
@@ -548,7 +549,7 @@ public class Rewriter implements CodeGenRegistry {
 			if (bound.containsKey(name))
 				return bound.get(name); // a local var
 			if (inner.contains(name)) {
-				VarName vn = new VarName(location, inner.scopeName, name);
+				VarName vn = new VarName(location, inner.name(), name);
 				String full = vn.uniqueName(); // inner.fullName(name);
 				Locatable defn = functions.get(full);
 				if (defn == null)
@@ -564,6 +565,10 @@ public class Rewriter implements CodeGenRegistry {
 				return new ObjectReference(location, (ObjectReference)res, fromMethod);
 			if (res instanceof CardFunction)
 				return new CardFunction(location, (CardFunction)res, fromMethod);
+			if (res instanceof LocalVar) {
+				LocalVar lv = (LocalVar) res;
+				return new ScopedVar(lv.varLoc, lv.var, lv, lv.fnName);
+			}
 			return res;
 		}
 	}
@@ -655,7 +660,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 	
 	// Introduce new Definitions which we might reference with minimal amount of info
-	public void pass1(NamingContext cx, Scope from) {
+	public void pass1(NamingContext cx, IScope from) {
 		String prev = null;
 		for (ScopeEntry x : from) {
 			String name = x.getKey();
@@ -663,7 +668,12 @@ public class Rewriter implements CodeGenRegistry {
 			if (val instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) val;
 				CardGrouping cg = createCard((PackageContext)cx, cd);
-				pass1(new CardContext((PackageContext) cx, cg.getName(), cd, false), cd.fnScope);
+				final CardContext ic = new CardContext((PackageContext) cx, cg.getName(), cd, false);
+				pass1(ic, cd.fnScope);
+				for (HandlerImplements h : cd.handlers) {
+					RWHandlerImplements rw = pass1HI(ic, h);
+					cg.handlers.add(new HandlerGrouping(rw.handlerName, rw));
+				}
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
 				String fn = c.functionName().uniqueName();
@@ -727,8 +737,6 @@ public class Rewriter implements CodeGenRegistry {
 			} else if (val instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements) val;
 				pass1HI(cx, hi);
-				for (MethodCaseDefn c : hi.methods)
-					pass1(cx, c.innerScope());
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -738,7 +746,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	// Fill in definitions as much as we can from just here
-	public void pass2(NamingContext cx, Scope from) {
+	public void pass2(NamingContext cx, IScope from) {
 		for (ScopeEntry x : from) {
 			String name = x.getKey();
 			Object val = x.getValue();
@@ -778,7 +786,7 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	// Resolve things that still need doing & handle nested contexts
-	public void pass3(NamingContext cx, Scope from) {
+	public void pass3(NamingContext cx, IScope from) {
 		for (ScopeEntry x : from) {
 			String name = x.getKey();
 			Object val = x.getValue();
@@ -878,11 +886,7 @@ public class Rewriter implements CodeGenRegistry {
 			templates.add(rewrite(new TemplateContext(c2), cd.templates.iterator().next()));
 		
 		for (HandlerImplements hi : cd.handlers) {
-			RWHandlerImplements rw = pass1HI(c2, hi);
-			if (rw != null) {
-				rewriteHI(c2, hi, cd.innerScope());
-				grp.handlers.add(new HandlerGrouping(rw.handlerName, rw));
-			}
+			rewriteHI(c2, hi, cd.innerScope());
 		}
 		
 		grp.platforms.putAll(cd.platforms);
@@ -1260,6 +1264,9 @@ public class Rewriter implements CodeGenRegistry {
 		RWContractDecl cd = (RWContractDecl) ((PackageVar) av).defn;
 		RWHandlerImplements rw = new RWHandlerImplements(hi.kw, hi.location(), hi.handlerName, cd.getTypeName(), hi.inCard, bvs);
 		callbackHandlers.put(hi.handlerName.uniqueName(), rw);
+		for (MethodCaseDefn c : hi.methods) {
+			pass1(cx, c.innerScope());
+		}
 		return rw;
 	}
 
@@ -1269,7 +1276,7 @@ public class Rewriter implements CodeGenRegistry {
 			return; // presumably it failed in pass1
 	}
 
-	private void rewriteHI(NamingContext cx, HandlerImplements hi, Scope scope) {
+	private void rewriteHI(NamingContext cx, HandlerImplements hi, IScope scope) {
 		try {
 			RWHandlerImplements ret = callbackHandlers.get(hi.handlerName.uniqueName());
 			if (ret == null)
@@ -1283,6 +1290,11 @@ public class Rewriter implements CodeGenRegistry {
 				ret.methods.add(rm);
 				rm.gatherScopedVars();
 				methods.put(c.intro.name().uniqueName(), rm);
+				Map<String, LocalVar> vars = new TreeMap<>();
+				gatherVars(errors, this, hc, rm.name(), rm.name(), vars, c.intro);
+				FunctionCaseContext hfc = new FunctionCaseContext(hc, rm.name(), (ScopeName)c.innerScope().name(), vars, c.innerScope(), true);
+				
+				pass3(hfc, c.innerScope());
 			}
 
 			// Create a struct to store the state.  It feels weird creating a struct in pass3, but we don't creating the bound vars for scoped/lambdas
@@ -1321,7 +1333,7 @@ public class Rewriter implements CodeGenRegistry {
 		ret.gatherScopedVars();
 	}
 
-	private void rewriteStandaloneMethod(NamingContext cx, Scope from, MethodCaseDefn c, HSIEForm.CodeType codeType) {
+	private void rewriteStandaloneMethod(NamingContext cx, IScope from, MethodCaseDefn c, HSIEForm.CodeType codeType) {
 		RWMethodDefinition rm = standalone.get(c.intro.name().uniqueName());
 		rewriteCase(cx, rm, c, false, true);
 		rm.gatherScopedVars();

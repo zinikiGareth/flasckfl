@@ -12,7 +12,7 @@ import org.zinutils.exceptions.UtilException;
 public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope {
 	public final FunctionIntro intro;
 	public final List<MethodMessage> messages = new ArrayList<MethodMessage>();
-	public Scope scope;
+	private Scope scope;
 	private ScopeName caseName;
 
 	public MethodCaseDefn(FunctionIntro fi) {
@@ -26,7 +26,7 @@ public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope
 
 	public void addMessage(MethodMessage mm) {
 		if (scope == null)
-			throw new UtilException("Can't add messages to the one without the scope");
+			throw new UtilException("Can't add messages before the scope is defined");
 		messages.add(mm);
 	}
 	
@@ -53,7 +53,7 @@ public class MethodCaseDefn implements Locatable, MessagesHandler, ContainsScope
 	}
 	
 	@Override
-	public Scope innerScope() {
+	public IScope innerScope() {
 		return scope;
 	}
 	

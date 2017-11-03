@@ -42,7 +42,10 @@ public class VarName implements NameOfThing, Comparable<VarName> {
 
 	@Override
 	public String javaClassName() {
-		return scope.uniqueName() + "$" + var;
+		if (scope instanceof ScopeName)
+			return ((ScopeName)scope).javaDefiningClassName() + "$" + var;
+		else
+			return scope.uniqueName() + "$" + var;
 	}
 
 	public int compareTo(VarName other) {

@@ -29,6 +29,7 @@ import org.flasck.flas.parsedForm.ContractImplements;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.Scope;
@@ -145,7 +146,7 @@ public class RewriterTests {
 	
 	@Test
 	public void testRewritingANestedParameter() {
-		Scope innerScope;
+		IScope innerScope;
 		{
 			ArrayList<Object> args = new ArrayList<Object>();
 			args.add(new VarPattern(posn, "x"));

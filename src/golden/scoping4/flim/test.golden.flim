@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Contract file="scoping4.fl" line="4" name="DataStore" off="9">
+        <Method dir="up" file="scoping4.fl" line="5" name="insert"
+            off="3" required="true">
+            <Typed file="scoping4.fl" line="5" off="11" var="obj"
+                vfile="scoping4.fl" vline="5" voff="18">
+                <SolidName name="Number"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Contract file="scoping4.fl" line="1" name="KVUpdate" off="9">
+        <Method dir="down" file="scoping4.fl" line="2" name="update"
+            off="5" required="true">
+            <Typed file="scoping4.fl" line="2" off="13" var="obj"
+                vfile="scoping4.fl" vline="2" voff="20">
+                <SolidName name="Number"/>
+            </Typed>
+        </Method>
+    </Contract>
+    <Card file="scoping4.fl" line="7" name="Card" off="5">
+        <Implements>
+            <SolidName name="DataStore">
+                <Package name="test.golden"/>
+            </SolidName>
+        </Implements>
+    </Card>
+</FLIM>

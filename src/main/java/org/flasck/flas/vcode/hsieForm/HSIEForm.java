@@ -45,6 +45,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		CONTRACT,	// method on a contract impl
 		SERVICE,	// method on a service impl
 		HANDLER,	// method on a handler impl
+		HANDLERFUNCTION, // function nested within a HANDLER method
 		EVENTHANDLER, // an event handler on a card
 		EVENT,		// a "class" connecting an element to an event handler
 		STANDALONE,	// how does this differ from FUNCTION?

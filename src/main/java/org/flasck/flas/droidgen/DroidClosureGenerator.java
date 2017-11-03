@@ -20,6 +20,7 @@ import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
@@ -129,10 +130,13 @@ public class DroidClosureGenerator {
 				return doEval(ObjectNeeded.NONE, var, closure);
 			} else if (defn instanceof ScopedVar) {
 				ScopedVar sv = (ScopedVar) defn;
+				ObjectNeeded ot = ObjectNeeded.NONE;
+				if (sv.defn instanceof RWFunctionDefinition && ((RWFunctionDefinition)sv.defn).mytype == CodeType.HANDLERFUNCTION)
+					ot = ObjectNeeded.THIS;
 				if (closure != null && closure.justScoping)
-					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+					return doEval(ot, meth.classConst(clz), closure);
 				else
-					return doEval(ObjectNeeded.NONE, vh.getScoped(sv.uniqueName()), closure);
+					return doEval(ot, vh.getScoped(sv.uniqueName()), closure);
 			} else
 				throw new UtilException("Didn't do anything with " + defn + " " + (defn != null ? defn.getClass() : ""));
 		} else if (pr instanceof PushVar) {

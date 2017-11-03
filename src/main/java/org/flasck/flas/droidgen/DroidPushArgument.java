@@ -88,6 +88,8 @@ public final class DroidPushArgument implements PushVisitor {
 		} else if (name instanceof HandlerLambda) {
 			if (form.mytype == CodeType.HANDLER)
 				return meth.getField(((HandlerLambda)name).var);
+			else if (form.mytype == CodeType.HANDLERFUNCTION)
+				return meth.getField(((HandlerLambda)name).var);
 			else
 				throw new UtilException("Can't handle handler lambda with " + form.mytype);
 		} else

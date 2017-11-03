@@ -50,7 +50,7 @@ public class EventCaseDefn implements Locatable, MessagesHandler, ContainsScope 
 		return "ECD[" + intro.name().uniqueName() + "/" + intro.args.size() + "]";
 	}
 
-	public Scope innerScope() {
+	public IScope innerScope() {
 		return scope;
 	}
 }

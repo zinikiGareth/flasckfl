@@ -52,7 +52,7 @@ public class CardDefinition implements ContainsScope, Locatable {
 	}
 
 	@Override
-	public Scope innerScope() {
+	public IScope innerScope() {
 		return fnScope;
 	}
 }

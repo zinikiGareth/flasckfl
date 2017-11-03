@@ -67,6 +67,11 @@ public class Scope implements IScope, Iterable<Scope.ScopeEntry> {
 	public static Scope topScope(String inPkg) {
 		return new Scope(new PackageName(inPkg));
 	}
+
+	@Override
+	public NameOfThing name() {
+		return scopeName;
+	}
 	
 	public boolean contains(String key) {
 		return index.contains(key);

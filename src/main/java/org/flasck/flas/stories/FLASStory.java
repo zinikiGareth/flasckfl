@@ -20,7 +20,7 @@ import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.TemplateName;
 import org.flasck.flas.commonBase.template.TemplateIntro;
-import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.errors.ErrorReporter;
 import org.flasck.flas.errors.FLASError;
 import org.flasck.flas.errors.ScopeDefineException;
 import org.flasck.flas.parsedForm.CardDefinition;
@@ -40,6 +40,7 @@ import org.flasck.flas.parsedForm.FunctionCaseDefn;
 import org.flasck.flas.parsedForm.FunctionClause;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MessagesHandler;
@@ -86,28 +87,28 @@ import org.zinutils.exceptions.UtilException;
 public class FLASStory {
 	public static class State {
 		public final NameOfThing pkgName;
-		public final Scope scope;
+		public final IScope scope;
 		public final HSIEForm.CodeType kind;
 
 		// The top level scope
-		public State(Scope scope, String pkg) {
+		public State(IScope scope, String pkg) {
 			this.scope = scope;
 			this.pkgName = new PackageName(pkg);
 			this.kind = CodeType.FUNCTION;
 		}
 
 		// A nested scope constructor, created via static methods
-		private State(Scope scope, NameOfThing pkg, HSIEForm.CodeType kind) {
+		private State(IScope scope, NameOfThing pkg, HSIEForm.CodeType kind) {
 			this.scope = scope;
 			this.pkgName = pkg;
 			this.kind = kind;
 		}
 
-		public State nest(Scope is, NameOfThing name, CodeType kind) {
+		public State nest(IScope is, NameOfThing name, CodeType kind) {
 			return new State(is, name, kind);
 		}
 
-		public State nestCard(Scope innerScope, CardName cardName) {
+		public State nestCard(IScope innerScope, CardName cardName) {
 			return new State(innerScope, cardName, HSIEForm.CodeType.CARD);
 		}
 
@@ -156,6 +157,8 @@ public class FLASStory {
 				return FunctionName.serviceMethod(vit.location, (CSName) pkgName, vit.text);
 			else if (kind == CodeType.HANDLER)
 				return FunctionName.handlerMethod(vit.location, (HandlerName) pkgName, vit.text);
+			else if (kind == CodeType.HANDLERFUNCTION)
+				return FunctionName.functionInHandlerContext(vit.location, pkgName, vit.text);
 			else if (kind == CodeType.EVENTHANDLER)
 				return FunctionName.eventMethod(vit.location, (CardName) pkgName, vit.text);
 			else
@@ -163,16 +166,16 @@ public class FLASStory {
 		}
 	}
 
-	public void process(String pkg, Scope sc, ErrorResult er, List<Block> blocks, boolean optimism) {
+	public void process(String pkg, Scope sc, ErrorReporter er, List<Block> blocks, boolean optimism) {
 		State s = new State(sc, pkg);
 		doScope(er, s, blocks);
 	}
 
-	private Object doScope(ErrorResult er, State s, List<Block> blocks) {
+	private Object doScope(ErrorReporter er, State s, List<Block> blocks) {
 		if (blocks.isEmpty())
 			return null;
 
-		Scope ret = s.scope;
+		IScope ret = s.scope;
 		for (Block b : blocks) {
 			if (b.isComment())
 				continue;
@@ -183,8 +186,8 @@ public class FLASStory {
 				er.message(new Tokenizable(b), "syntax error");
 				continue;
 			}
-			else if (o instanceof ErrorResult) {
-				er.merge((ErrorResult)o);
+			else if (o instanceof ErrorReporter) {
+				er.merge((ErrorReporter)o);
 				continue;
 			}
 			try {
@@ -260,7 +263,7 @@ public class FLASStory {
 		return ret;
 	}
 
-	private Object[] doCompoundFunction(ErrorResult er, Block b, FunctionIntro fi) {
+	private Object[] doCompoundFunction(ErrorReporter er, Block b, FunctionIntro fi) {
 		// this is a nested-block case
 		// there are two main options:
 		//   the nested block is just the value starting with "="
@@ -274,8 +277,8 @@ public class FLASStory {
 			Object c = fcp.tryParsing(new Tokenizable(bi));
 			if (c == null)
 				er.message(bi, "not a valid clause");
-			else if (c instanceof ErrorResult)
-				er.merge((ErrorResult)c);
+			else if (c instanceof ErrorReporter)
+				er.merge((ErrorReporter)c);
 			else {
 				clauses.add(0, (FunctionClause) c); // assemble in reverse order
 				if (lastBlock != null)
@@ -301,15 +304,15 @@ public class FLASStory {
 		return new Object[] { expr, lastBlock };
 	}
 
-	public void addMethodMessages(ErrorResult er, List<MethodMessage> messages, List<Block> nested) {
+	public void addMethodMessages(ErrorReporter er, List<MethodMessage> messages, List<Block> nested) {
 		MethodMessageParser mmp = new MethodMessageParser();
 		for (Block b : nested) {
 			assertNoNonCommentNestedLines(er, b);
 			Object ibo = mmp.tryParsing(new Tokenizable(b.line));
 			if (ibo == null)
 				er.message(b, "expected method message");
-			else if (ibo instanceof ErrorResult)
-				er.merge((ErrorResult) ibo);
+			else if (ibo instanceof ErrorReporter)
+				er.merge((ErrorReporter) ibo);
 			else if (!(ibo instanceof MethodMessage))
 				er.message(b, "expected method message");
 			else
@@ -317,7 +320,7 @@ public class FLASStory {
 		}
 	}
 
-	private void doStructFields(ErrorResult er, StructDefn sd, List<Block> fields) {
+	private void doStructFields(ErrorReporter er, StructDefn sd, List<Block> fields) {
 		FieldParser fp = new FieldParser(FieldParser.CARD);
 		for (Block b : fields) {
 			if (b.isComment())
@@ -326,15 +329,15 @@ public class FLASStory {
 			Object sf = fp.tryParsing(tkz);
 			if (sf == null)
 				er.message(tkz, "syntax error");
-			else if (sf instanceof ErrorResult)
-				er.merge((ErrorResult) sf);
+			else if (sf instanceof ErrorReporter)
+				er.merge((ErrorReporter) sf);
 			else
 				sd.addField((StructField)sf);
 			assertNoNonCommentNestedLines(er, b);
 		}
 	}
 
-	private void doObjectMembers(ErrorResult er, State s, ObjectDefn sd, List<Block> nested) {
+	private void doObjectMembers(ErrorReporter er, State s, ObjectDefn sd, List<Block> nested) {
 		ObjectMemberParser omp = new ObjectMemberParser(s);
 		FunctionParser fp = new FunctionParser(s);
 		for (Block b : nested) {
@@ -343,8 +346,8 @@ public class FLASStory {
 			Tokenizable tkz = new Tokenizable(b);
 			InputPosition posn = tkz.realinfo();
 			Object om = omp.tryParsing(tkz);
-			if (om instanceof ErrorResult)
-				er.merge((ErrorResult) om);
+			if (om instanceof ErrorReporter)
+				er.merge((ErrorReporter) om);
 			else if ("state".equals(om))
 				doObjectState(er, s, posn, sd, b.nested);
 			else if (om instanceof ObjectMember) {
@@ -383,7 +386,7 @@ public class FLASStory {
 		}
 	}
 
-	private void doContractMethods(ErrorResult er, State s, ContractDecl cd, List<Block> methods) {
+	private void doContractMethods(ErrorReporter er, State s, ContractDecl cd, List<Block> methods) {
 		MethodParser mp = new MethodParser(s);
 		for (Block b : methods) {
 			if (b.isComment())
@@ -392,17 +395,17 @@ public class FLASStory {
 			Object md = mp.tryParsing(tkz);
 			if (md == null)
 				er.message(tkz, "syntax error");
-			else if (md instanceof ErrorResult)
-				er.merge((ErrorResult) md);
+			else if (md instanceof ErrorReporter)
+				er.merge((ErrorReporter) md);
 			else
 				cd.addMethod((ContractMethodDecl)md);
 			assertNoNonCommentNestedLines(er, b);
 		}
 	}
 
-	private void doCardDefinition(ErrorResult er, State s, CardDefinition cd, List<Block> components) {
+	private void doCardDefinition(ErrorReporter er, State s, CardDefinition cd, List<Block> components) {
 		IntroParser ip = new IntroParser(s);
-		Scope inner = cd.innerScope();
+		IScope inner = cd.innerScope();
 		int cs = 0;
 		int ss = 0;
 		Set<LocatedToken> frTemplates = new TreeSet<LocatedToken>();
@@ -419,8 +422,8 @@ public class FLASStory {
 					continue;
 				}
 			}
-			if (o instanceof ErrorResult)
-				er.merge((ErrorResult)o);
+			if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter)o);
 			else if (o instanceof String) {
 				switch ((String)o) {
 				case "state": {
@@ -488,7 +491,7 @@ public class FLASStory {
 			} else if (o instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements)o;
 				cd.addHandlerImplementation(hi);
-				doImplementation(s, er, hi, b.nested, hi.baseName);
+				doImplementation(s.as(CodeType.HANDLER), er, hi, b.nested, hi.baseName);
 			} else if (o instanceof FunctionCaseDefn) {
 				FunctionCaseDefn fcd = (FunctionCaseDefn) o;
 				inner.define(fcd.functionName().name, fcd);
@@ -524,7 +527,7 @@ public class FLASStory {
 		}
 	}
 
-	private void readPlatformSpec(ErrorResult er, List<Block> nested, PlatformSpec ps) {
+	private void readPlatformSpec(ErrorReporter er, List<Block> nested, PlatformSpec ps) {
 		TryParsing inner;
 		if (ps.spec.equals("android"))
 			inner = new PlatformAndroidSpecParser(ps);
@@ -537,35 +540,35 @@ public class FLASStory {
 			Object o = inner.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult) o);
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter) o);
 			else
 				ps.defns.add(o);
 		}
 	}
 
-	private void doCardState(ErrorResult er, State s, InputPosition kwp, CardDefinition cd, List<Block> nested) {
+	private void doCardState(ErrorReporter er, State s, InputPosition kwp, CardDefinition cd, List<Block> nested) {
 		if (cd.state != null)
 			er.message((Block)null, "duplicate state definition in card");
 		StateDefinition os = cd.state = new StateDefinition(kwp);
 		doState(er, new FieldParser(FieldParser.CARD), os, nested);
 	}
 
-	private void doObjectState(ErrorResult er, State s, InputPosition kwp, ObjectDefn od, List<Block> nested) {
+	private void doObjectState(ErrorReporter er, State s, InputPosition kwp, ObjectDefn od, List<Block> nested) {
 		if (od.state != null)
 			er.message((Block)null, "duplicate state definition in card");
 		StateDefinition os = od.state = new StateDefinition(kwp);
 		doState(er, new FieldParser(FieldParser.OBJECT), os, nested);
 	}
 
-	protected void doState(ErrorResult er, FieldParser fp, StateDefinition os, List<Block> nested) {
+	protected void doState(ErrorReporter er, FieldParser fp, StateDefinition os, List<Block> nested) {
 		for (Block q : nested)
 			if (!q.isComment()) {
 				Object o = fp.tryParsing(new Tokenizable(q));
 				if (o == null)
 					er.message(q, "syntax error");
-				else if (o instanceof ErrorResult)
-					er.merge((ErrorResult) o);
+				else if (o instanceof ErrorReporter)
+					er.merge((ErrorReporter) o);
 				else if (o instanceof StructField)
 					os.addField((StructField)o);
 				else
@@ -573,7 +576,7 @@ public class FLASStory {
 			}
 	}
 
-	private TemplateLine doCardTemplate(ErrorResult er, Set<LocatedToken> frTemplates, List<Block> nested) {
+	private TemplateLine doCardTemplate(ErrorReporter er, Set<LocatedToken> frTemplates, List<Block> nested) {
 		TemplateLineParser tlp = new TemplateLineParser();
 		TemplateLine ret = null;
 		for (Block b : nested) {
@@ -586,8 +589,8 @@ public class FLASStory {
 			Object o = tlp.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult) o);
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter) o);
 			else if (o instanceof List) {
 				@SuppressWarnings("unchecked")
 				List<Object> os = (List<Object>) o;
@@ -604,7 +607,7 @@ public class FLASStory {
 		return ret;
 	}
 
-	private TemplateLine doOneLine(ErrorResult er, Set<LocatedToken> frTemplates, Block b, Object o) {
+	private TemplateLine doOneLine(ErrorReporter er, Set<LocatedToken> frTemplates, Block b, Object o) {
 		TemplateLine tl = (TemplateLine)o;
 		if (tl instanceof ContentString || tl instanceof ContentExpr) {
 			TemplateFormatEvents asEH = (TemplateFormatEvents)tl;
@@ -615,8 +618,8 @@ public class FLASStory {
 				Object eh = tlp.tryParsing(new Tokenizable(ib));
 				if (eh == null)
 					er.message(b, "syntax error");
-				else if (eh instanceof ErrorResult)
-					er.merge((ErrorResult) eh);
+				else if (eh instanceof ErrorReporter)
+					er.merge((ErrorReporter) eh);
 				else if (eh instanceof EventHandler)
 					asEH.handlers.add((EventHandler)eh);
 				else
@@ -662,7 +665,7 @@ public class FLASStory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void doCardDiv(ErrorResult er, Set<LocatedToken> frTemplates, TemplateDiv asDiv, List<Block> nested) {
+	private void doCardDiv(ErrorReporter er, Set<LocatedToken> frTemplates, TemplateDiv asDiv, List<Block> nested) {
 		TemplateLineParser tlp = new TemplateLineParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -670,8 +673,8 @@ public class FLASStory {
 			Object o = tlp.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult) o);
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter) o);
 			else if (o instanceof List) {
 				for (Object o1 : ((List<Object>)o)) {
 					TemplateLine item = doOneLine(er, frTemplates, b, o1);
@@ -689,7 +692,7 @@ public class FLASStory {
 		}		
 	}
 
-	private void doCases(ErrorResult er, Set<LocatedToken> frTemplates, Block container, TemplateCases tc) {
+	private void doCases(ErrorReporter er, Set<LocatedToken> frTemplates, Block container, TemplateCases tc) {
 		assertSomeNonCommentNestedLines(er, container);
 		TemplateLineParser tlp = new TemplateLineParser();
 		for (Block b : container.nested) {
@@ -698,8 +701,8 @@ public class FLASStory {
 			Object o = tlp.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult)o);
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter)o);
 			else if (!(o instanceof TemplateOr))
 				er.message(b, "constituents of template cases must be OR items");
 			else {
@@ -712,7 +715,7 @@ public class FLASStory {
 		}
 	}
 
-	private void doD3Pattern(ErrorResult er, List<Block> nested, List<D3PatternBlock> ret) {
+	private void doD3Pattern(ErrorReporter er, List<Block> nested, List<D3PatternBlock> ret) {
 		D3PatternLineParser d3lp = new D3PatternLineParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -720,8 +723,8 @@ public class FLASStory {
 			Object o = d3lp.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult)o);
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter)o);
 			else if (!(o instanceof D3PatternBlock))
 				er.message(b, "constituents of D3 template must be valid d3 line");
 			else {
@@ -732,7 +735,7 @@ public class FLASStory {
 		}
 	}
 	
-	private void doD3Section(ErrorResult er, List<Block> nested, List<D3Section> sections) {
+	private void doD3Section(ErrorReporter er, List<Block> nested, List<D3Section> sections) {
 		D3SectionLineParser d3lp = new D3SectionLineParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -740,8 +743,8 @@ public class FLASStory {
 			Object o = d3lp.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult)o);
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter)o);
 			else if (!(o instanceof D3Section))
 				er.message(b, "constituents of D3 template must be valid d3 line");
 			else {
@@ -763,7 +766,7 @@ public class FLASStory {
 		}
 	}
 
-	private void doD3Methods(ErrorResult er, List<Block> nested, List<MethodMessage> actions) {
+	private void doD3Methods(ErrorReporter er, List<Block> nested, List<MethodMessage> actions) {
 		MethodMessageParser mmp = new MethodMessageParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -771,8 +774,8 @@ public class FLASStory {
 			Object o = mmp.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult)o);
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter)o);
 			else if (!(o instanceof MethodMessage))
 				er.message(b, "constituents of D3 template must be valid d3 line");
 			else {
@@ -782,7 +785,7 @@ public class FLASStory {
 		}
 	}
 
-	private void doD3Layout(ErrorResult er, List<Block> nested, List<PropertyDefn> properties) {
+	private void doD3Layout(ErrorReporter er, List<Block> nested, List<PropertyDefn> properties) {
 		PropertyParser mmp = new PropertyParser();
 		for (Block b : nested) {
 			if (b.isComment())
@@ -790,8 +793,8 @@ public class FLASStory {
 			Object o = mmp.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult)o);
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter)o);
 			else if (!(o instanceof PropertyDefn))
 				er.message(b, "constituents of D3 template must be valid d3 line");
 			else {
@@ -806,7 +809,7 @@ public class FLASStory {
 		}
 	}
 
-	private void doImplementation(State s, ErrorResult er, Implements impl, List<Block> nested, String clz) {
+	private void doImplementation(State s, ErrorReporter er, Implements impl, List<Block> nested, String clz) {
 		FunctionParser fp = new FunctionParser(s.nestImplementation(impl, clz));
 		for (Block b : nested) {
 			if (b.isComment())
@@ -814,30 +817,38 @@ public class FLASStory {
 			Object o = fp.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult) o);
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter) o);
 			else if (o instanceof FunctionIntro) {
 				MethodCaseDefn mcd = new MethodCaseDefn((FunctionIntro)o);
 				mcd.provideCaseName(-1);
 				impl.addMethod(mcd);
-				handleMessageMethods(er, mcd, b.nested);
+				handleMessageMethods(er, s, mcd, b.nested);
 			} else
 				er.message(b, "cannot handle " + o.getClass());
 		}
 	}
 
-	private void handleMessageMethods(ErrorResult er, MessagesHandler mcd, List<Block> nested) {
+	public void handleMessageMethods(ErrorReporter er, State s, MessagesHandler mcd, List<Block> nested) {
 		MethodMessageParser mm = new MethodMessageParser();
+		boolean flag = false;
 		for (Block b : nested) {
 			if (b.isComment())
 				continue;
 			Object o = mm.tryParsing(new Tokenizable(b));
 			if (o == null)
 				er.message(b, "syntax error");
-			else if (o instanceof ErrorResult)
-				er.merge((ErrorResult)o);
-			else if (o instanceof MethodMessage)
+			else if (o instanceof ErrorReporter)
+				er.merge((ErrorReporter)o);
+			else if (o instanceof MethodMessage) {
+				if (flag)
+					throw new RuntimeException("This is not allowed: " + o + " after message with inner block");
 				mcd.addMessage((MethodMessage) o);
+				if (hasNonCommentNestedLines(b)) {
+					doScope(er, s.nest(mcd.innerScope(), mcd.caseName(), CodeType.HANDLERFUNCTION), b.nested);
+					flag = true;
+				}
+			}
 			else
 				throw new UtilException("What is " + o + "?");
 		}
@@ -857,12 +868,12 @@ public class FLASStory {
 		return false;
 	}
 
-	private void assertNoNonCommentNestedLines(ErrorResult er, Block b) {
+	private void assertNoNonCommentNestedLines(ErrorReporter er, Block b) {
 		if (hasNonCommentNestedLines(b))
 			er.message(b, "this line may not have nested declarations");
 	}
 
-	private void assertSomeNonCommentNestedLines(ErrorResult er, Block b) {
+	private void assertSomeNonCommentNestedLines(ErrorReporter er, Block b) {
 		if (!hasNonCommentNestedLines(b))
 			er.message(b, "this line must have at least one nested declaration");
 	}

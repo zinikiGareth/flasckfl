@@ -1,0 +1,22 @@
+handler test.golden.Card.ItemHandler *card*
+  lambda test.golden.Card.ItemHandler ck
+  method test.golden.Card.ItemHandler.update
+    nested test.golden.Card.ItemHandler.update.x test.golden.Card.ItemHandler.update
+    case test.golden.Card.ItemHandler.update
+      var test.golden.Card.ItemHandler.update.obj
+    =
+      <-
+        @
+          @
+            PackageVar.FLEval.field
+            CardMember.CardMember[test.golden.Card.ds]
+            "insert"
+          ScopedVar.Scoped[test.golden.Card.ItemHandler.update.x]
+function test.golden.Card.ItemHandler.update.x test.golden.Card 0
+  nested test.golden.Card.ItemHandler.update.obj test.golden.Card.ItemHandler.update
+  case test.golden.Card.ItemHandler.update.x_0
+  =
+    @
+      PackageVar.+
+      HandlerLambda.HL[test.golden.Card.ItemHandler.ck]
+      ScopedVar.Scoped[test.golden.Card.ItemHandler.update.obj]

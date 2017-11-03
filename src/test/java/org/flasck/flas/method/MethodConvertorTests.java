@@ -30,6 +30,7 @@ import org.flasck.flas.parsedForm.ContractService;
 import org.flasck.flas.parsedForm.EventCaseDefn;
 import org.flasck.flas.parsedForm.FunctionIntro;
 import org.flasck.flas.parsedForm.HandlerImplements;
+import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.Implements;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
@@ -509,7 +510,7 @@ public class MethodConvertorTests {
 		on.methods.add(cs);
 	}
 
-	protected void defineEHMethod(Scope s, String name, MethodMessage... msgs) {
+	protected void defineEHMethod(IScope s, String name, MethodMessage... msgs) {
 		FunctionIntro intro = new FunctionIntro(FunctionName.eventMethod(posn, new CardName(new PackageName("org.foo"), "Card"), name), Arrays.asList((Object)new TypedPattern(posn, new TypeReference(posn, "Thing"), posn, "t"), (Object)new VarPattern(posn, "ev")));
 		EventCaseDefn cs = new EventCaseDefn(posn, intro);
 		cs.provideCaseName(-1);
