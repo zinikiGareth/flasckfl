@@ -23,6 +23,7 @@ import org.flasck.jdk.JDKFlasckController;
 import org.flasck.jdk.ServiceProvider;
 import org.flasck.jsoup.JSoupDisplayFactory;
 import org.flasck.jsoup.JSoupWrapperElement;
+import org.flasck.jvm.EntityHoldingStore;
 import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.display.EventHandler;
@@ -32,6 +33,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.model.DateClientIDProvider;
+import org.ziniki.ziwsh.model.EntityStore;
 import org.ziniki.ziwsh.virtualconn.DefaultWireEncoder;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
@@ -47,7 +49,8 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		super(prior);
 		loader = new BCEClassLoader(prior.bce);
 		DefaultWireEncoder wire = new DefaultWireEncoder(loader, new DateClientIDProvider(420));
-		controller = new JDKFlasckController(loader, wire, this, new JSoupDisplayFactory());
+		EntityStore store = new EntityHoldingStore();
+		controller = new JDKFlasckController(loader, wire, store, this, new JSoupDisplayFactory());
 	}
 
 	public void considerResource(File file) {
