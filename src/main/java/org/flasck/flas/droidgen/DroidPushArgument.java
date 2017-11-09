@@ -66,12 +66,6 @@ public final class DroidPushArgument implements PushVisitor {
 			return vh.getScoped(name.uniqueName());
 		} else if (name instanceof CardFunction) {
 			return meth.classConst(name.myName().javaClassName());
-//			IExpr cardObj;
-//			if (fromHandler())
-//				cardObj = meth.getField("_card");
-//			else
-//				cardObj = meth.myThis();
-//			return meth.makeNew(jnn, cardObj);
 		} else if (name instanceof CardMember) {
 			CardMember cm = (CardMember)name;
 			IExpr card;

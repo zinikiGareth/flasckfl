@@ -12,6 +12,17 @@ import java.util.TreeSet;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.generators.AreaMethodCodeGenerator;
+import org.flasck.flas.generators.CardMethodCodeGenerator;
+import org.flasck.flas.generators.CodeGenerator;
+import org.flasck.flas.generators.ContractMethodCodeGenerator;
+import org.flasck.flas.generators.EventMethodCodeGenerator;
+import org.flasck.flas.generators.EventConnectorCodeGenerator;
+import org.flasck.flas.generators.FunctionInAHandlerContextCodeGenerator;
+import org.flasck.flas.generators.HandlerMethodCodeGenerator;
+import org.flasck.flas.generators.PureFunctionCodeGenerator;
+import org.flasck.flas.generators.ServiceMethodCodeGenerator;
+import org.flasck.flas.generators.StandaloneMethodCodeGenerator;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -22,6 +33,7 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.slf4j.Logger;
 import org.zinutils.collections.SetMap;
+import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.exceptions.UtilException;
 
 // So, basically an HSIE definition consists of
@@ -39,21 +51,91 @@ import org.zinutils.exceptions.UtilException;
 // Each of the Expressions En is modified to be just a simple apply-tree
 public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public enum CodeType {
-		FUNCTION,	// standalone, package-scoped function 
-		CARD, 		// card-scoped function (method)
-		DECL,		// method on a contract declaration (cannot be generated)
-		CONTRACT,	// method on a contract impl
-		SERVICE,	// method on a service impl
-		HANDLER,	// method on a handler impl
-		HANDLERFUNCTION, // function nested within a HANDLER method
-		EVENTHANDLER, // an event handler on a card
-		EVENT,		// a "class" connecting an element to an event handler
-		STANDALONE,	// how does this differ from FUNCTION?
-		AREA;		// a method on an area
+		// standalone, package-scoped function
+		FUNCTION {
+			@Override
+			public CodeGenerator generator() {
+				return new PureFunctionCodeGenerator();
+			}
+		},
+ 		// card-scoped function (method)
+		CARD {
+			@Override
+			public CodeGenerator generator() {
+				return new CardMethodCodeGenerator();
+			}
+		},
+		// method on a contract declaration
+		DECL {
+			@Override
+			public CodeGenerator generator() {
+				// cannot be generated
+				throw new NotImplementedException();
+			}
+		},
+		// method on a contract impl
+		CONTRACT {
+			@Override
+			public CodeGenerator generator() {
+				return new ContractMethodCodeGenerator();
+			}
+		},
+		// method on a service impl
+		SERVICE {
+			@Override
+			public CodeGenerator generator() {
+				return new ServiceMethodCodeGenerator();
+			}
+		},
+		// TODO: as with "HANDLERFUNCTION" below, it would seem possible to define a function in a nested scope of CONTRACT/SERVICE that needs special handling (i.e. it can access card members, but through "_card")
+		// method on a handler impl
+		HANDLER {
+			@Override
+			public CodeGenerator generator() {
+				return new HandlerMethodCodeGenerator();
+			}
+		},
+		// function nested within a HANDLER method
+		HANDLERFUNCTION {
+			@Override
+			public CodeGenerator generator() {
+				return new FunctionInAHandlerContextCodeGenerator();
+			}
+		},
+		// an event handler on a card
+		EVENTHANDLER {
+			@Override
+			public CodeGenerator generator() {
+				return new EventMethodCodeGenerator();
+			}
+		},
+		// a "class" connecting an element to an event handler
+		EVENT {
+			@Override
+			public CodeGenerator generator() {
+				return new EventConnectorCodeGenerator();
+			}
+		},
+		// a standalone method
+		STANDALONE {
+			@Override
+			public CodeGenerator generator() {
+				return new StandaloneMethodCodeGenerator();
+			}
+		},
+		// a method on an area
+		AREA {
+			@Override
+			public CodeGenerator generator() {
+				return new AreaMethodCodeGenerator();
+			}
+		};
 
 		public boolean isHandler() {
 			return this == CONTRACT || this == SERVICE || this == HANDLER || this == AREA;
 		}
+		
+		public abstract CodeGenerator generator();
 	}
 
 	public final CardName inCard;

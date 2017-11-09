@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.flasck.flas.generators.CodeGenerator;
+import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -28,23 +30,24 @@ public class DroidHSIEFormGenerator {
 	}
 
 	public void generate(HSIEForm form) {
-		// TODO: this needs a lot of decrypting with funcNames
-		String fnName = form.funcName.jsName();
 		String inClz;
-		String fn = form.funcName.name;
+		final String fn = form.funcName.name;
 		boolean needTrampolineClass;
 		boolean wantThis = false;
 		boolean needContext = false;
+		System.out.println("function " + fn);
+		GenerationContext cxt = new MethodGenerationContext(bce, form);
+		CodeGenerator cg = form.mytype.generator();
 		if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.SERVICE) {
 			inClz = form.funcName.inContext.javaClassName();
 			needContext = true;
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.HANDLERFUNCTION) {
 			inClz = form.funcName.inContext.javaClassName();
-			needContext = false;
 			needTrampolineClass = true;
 			wantThis = true;
 		} else if (form.mytype == CodeType.AREA) {
+			cg.begin(cxt);
 			inClz = form.funcName.inContext.javaClassName();
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.CARD || form.mytype == CodeType.EVENTHANDLER) {
@@ -66,21 +69,30 @@ public class DroidHSIEFormGenerator {
 			generateEventConnector(form);
 			return;
 		} else
-			throw new UtilException("Can't handle " + fnName + " of code type " + form.mytype);
+			throw new UtilException("Can't handle " + form.funcName + " of code type " + form.mytype);
 		
-		ByteCodeSink bcc = bce.get(inClz);
-		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, needTrampolineClass && !wantThis, fn);
-		gen.returns("java.lang.Object");
-		List<PendingVar> pendingVars = new ArrayList<PendingVar>();
-		if (needContext)
-			gen.argument(J.OBJECT, "_context");
-		int j = 0;
-		for (@SuppressWarnings("unused") ScopedVar s : form.scoped)
-			pendingVars.add(gen.argument("java.lang.Object", "_s"+(j++)));
-		for (int i=0;i<form.nformal;i++)
-			pendingVars.add(gen.argument("java.lang.Object", "_"+i));
-		MethodDefiner meth = gen.done();
-//		meth.lenientMode(true);
+		ByteCodeSink bcc;
+		MethodDefiner meth;
+		List<PendingVar> pendingVars;
+		if (cxt.hasMethod()) {
+			bcc = cxt.getSink();
+			meth = cxt.getMethod();
+			pendingVars = cxt.getVars();
+		} else {
+			bcc = bce.get(inClz);
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, needTrampolineClass && !wantThis, fn);
+			gen.returns("java.lang.Object");
+			pendingVars = new ArrayList<PendingVar>();
+			if (needContext)
+				gen.argument(J.OBJECT, "_context");
+			int j = 0;
+			for (@SuppressWarnings("unused") ScopedVar s : form.scoped)
+				pendingVars.add(gen.argument("java.lang.Object", "_s"+(j++)));
+			for (int i=0;i<form.nformal;i++)
+				pendingVars.add(gen.argument("java.lang.Object", "_"+i));
+			meth = gen.done();
+	//		meth.lenientMode(true);
+		}
 		VarHolder vh = new VarHolder(form, pendingVars);
 		IExpr blk = new DroidHSIGenerator(new DroidClosureGenerator(form, meth, vh), form, meth, vh).generateHSI(form, null);
 		if (blk != null)

@@ -1,0 +1,10 @@
+package org.flasck.flas.generators;
+
+public class PureFunctionCodeGenerator implements CodeGenerator {
+
+	@Override
+	public void begin(GenerationContext cxt) {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+}
