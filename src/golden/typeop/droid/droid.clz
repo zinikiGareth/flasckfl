@@ -6,20 +6,32 @@ class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
 }
 class PACKAGEFUNCTIONS$x.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.x()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.x(cxt)
   }
 }
 class PACKAGEFUNCTIONS$y.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.y()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.y(cxt)
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object x() {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object x(java.lang.Object _context) {
     return org.flasck.jvm.builtin.Number.class
   }
-  static java.lang.Object y() {
+  static java.lang.Object y(java.lang.Object _context) {
     return test.golden$MyCard.class
   }
 }

@@ -102,6 +102,7 @@ public class GenTestsForHandlers {
 	public void checkCreationOfImplCtor(boolean inCard) {
 		context.checking(new Expectations() {{
 			oneOf(bccHandler).createMethod(false, "void", "<init>"); will(returnValue(ctor));
+			oneOf(ctor).argument(J.OBJECT, "cxt");
 			if (inCard) {
 				oneOf(ctor).argument(J.OBJECT, "card"); will(new ReturnNewVar(ctor, J.OBJECT, "card"));
 			}
@@ -121,8 +122,9 @@ public class GenTestsForHandlers {
 	public void checkCreationOfEvalMethod(String container, boolean inCard) {
 		context.checking(new Expectations() {{
 			oneOf(bccHandler).createMethod(true, J.OBJECT, "eval"); will(returnValue(eval));
+			oneOf(eval).argument(J.OBJECT, "cxt"); will(new ReturnNewVar(eval, J.OBJECT, "cxt"));
 			if (inCard) {
-				oneOf(eval).argument(J.OBJECT, "card"); will(new ReturnNewVar(ctor, J.OBJECT, "card"));
+				oneOf(eval).argument(J.OBJECT, "card"); will(new ReturnNewVar(eval, J.OBJECT, "card"));
 			}
 			oneOf(eval).argument("[" + J.OBJECT, "args"); will(new ReturnNewVar(eval, "[" + J.OBJECT, "args"));
 			oneOf(eval).makeNew(with(container + "$MyHandler"), with(any(IExpr[].class)));

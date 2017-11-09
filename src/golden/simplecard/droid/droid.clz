@@ -1,41 +1,38 @@
 class Simple$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Simple; _card
 
-  void <init>(test.golden.Simple cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Simple cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
-    b2 = new test.golden.Simple$B2(cardArg,this)
+    b2 = new test.golden.Simple$B2(cxt,cardArg,this)
     return
   }
 }
 class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Simple; _card
 
-  void <init>(test.golden.Simple cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Simple cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_contentExpr")
-    (void)this._contentExpr()
+    (void)this._contentExpr(cxt)
     return
   }
-  java.lang.Object _contentExpr() {
-    super._assignToText(this.contents_0())
+  java.lang.Object _contentExpr(java.lang.Object cxt) {
+    super._assignToText(this.contents_0(cxt))
     return null
   }
-  java.lang.Object contents_0() {
+  java.lang.Object contents_0(java.lang.Object _context) {
     return this._card.getVar("hello")
   }
 }
 class Simple$f.java {
-  Ltest/golden/Simple; _card
-
-  void <init>(test.golden.Simple card) {
+  void <init>() {
     super.<init>()
-    this._card = card
     return
   }
-  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.Simple)self).f()
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Simple)self).f(cxt)
   }
 }
 class Simple.java extends org.flasck.jvm.cards.FlasckCard {
@@ -44,21 +41,29 @@ class Simple.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  void render(java.lang.String into) {
-    (void)new test.golden.Simple$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+  void render(java.lang.Object cxt, java.lang.String into) {
+    (void)new test.golden.Simple$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object f() {
+  java.lang.Object f(java.lang.Object _context) {
     return java.lang.Integer.valueOf(3)
   }
 }
 class PACKAGEFUNCTIONS$inits_hello.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.Simple.PACKAGEFUNCTIONS.inits_hello()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.Simple.PACKAGEFUNCTIONS.inits_hello(cxt)
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object inits_hello() {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object inits_hello(java.lang.Object _context) {
     return "hello, world"
   }
 }

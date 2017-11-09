@@ -91,6 +91,11 @@ public class GoldenJVM {
 	}
 
 	@Test
+	public void checkH1() throws Exception {
+		compare("TestCard$handlers_1");
+	}
+
+	@Test
 	public void checkB1() throws Exception {
 		compare("TestCard$B1");
 	}
@@ -103,6 +108,31 @@ public class GoldenJVM {
 	@Test
 	public void checkB3() throws Exception {
 		compare("TestCard$B3");
+	}
+	
+	@Test
+	public void checkEcho() throws Exception {
+		compare("TestCard$echoHello");
+	}
+	
+	@Test
+	public void checkPkg() throws Exception {
+		compare("PACKAGEFUNCTIONS");
+	}
+	
+	@Test
+	public void checkId() throws Exception {
+		compare("PACKAGEFUNCTIONS$id");
+	}
+	
+	@Test
+	public void checkStyleIf() throws Exception {
+		compare("PACKAGEFUNCTIONS$styleIf");
+	}
+	
+	@Test
+	public void checkX() throws Exception {
+		compare("PACKAGEFUNCTIONS$x");
 	}
 	
 	private void compare(final String file) throws FileNotFoundException, Exception {

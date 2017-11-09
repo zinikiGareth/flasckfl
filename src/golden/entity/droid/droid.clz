@@ -10,7 +10,7 @@ class Storable.java extends org.flasck.jvm.fl.FLASEntity {
     super.<init>(doc)
     return
   }
-  static test.golden.Storable eval([java.lang.Object args) {
+  static test.golden.Storable eval(java.lang.Object cxt, [java.lang.Object args) {
     ret = new test.golden.Storable()
     ret.value = args[0]
     return ret

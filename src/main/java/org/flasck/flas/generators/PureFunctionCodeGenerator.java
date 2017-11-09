@@ -8,8 +8,10 @@ public class PureFunctionCodeGenerator implements CodeGenerator {
 	public void begin(GenerationContext cxt) {
 		NameOfThing clzContext = cxt.nameContext();
 		final String inClz = clzContext.javaName() + ".PACKAGEFUNCTIONS";
-		cxt.selectClass(inClz);
-		cxt.staticMethod(false);
+		if (cxt.selectClass(inClz)) {
+			cxt.defaultCtor();
+		}
+		cxt.staticMethod();
 		cxt.trampoline(inClz);
 	}
 }

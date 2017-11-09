@@ -108,25 +108,25 @@ class Complex$_S0.java extends test.golden.Offer$Impl {
 class Complex$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Complex; _card
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_setAttr_1")
-    (void)this._setAttr_1()
-    b2 = new test.golden.Complex$B2(cardArg,this)
-    b3 = new test.golden.Complex$B3(cardArg,this)
-    b6 = new test.golden.Complex$B6(cardArg,this)
-    b9 = new test.golden.Complex$B9(cardArg,this)
+    (void)this._setAttr_1(cxt)
+    b2 = new test.golden.Complex$B2(cxt,cardArg,this)
+    b3 = new test.golden.Complex$B3(cxt,cardArg,this)
+    b6 = new test.golden.Complex$B6(cxt,cardArg,this)
+    b9 = new test.golden.Complex$B9(cxt,cardArg,this)
     return
   }
-  java.lang.Object teas_0() {
+  java.lang.Object teas_0(java.lang.Object _context) {
     return this._card.getVar("hello")
   }
 }
 class Complex$B10.java extends org.flasck.jvm.areas.CardSlotArea {
   Ltest/golden/Complex; _card
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     return
@@ -135,44 +135,44 @@ class Complex$B10.java extends org.flasck.jvm.areas.CardSlotArea {
 class Complex$B11.java extends org.flasck.jvm.areas.CardSlotArea {
   Ltest/golden/Complex; _card
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "yoyo", this, "_yoyoExpr")
-    (void)this._yoyoExpr()
+    (void)this._yoyoExpr(cxt)
     return
   }
   java.lang.Object _yoyoExpr() {
     return null
   }
-  java.lang.Object yoyos_8() {
+  java.lang.Object yoyos_8(java.lang.Object _context) {
     return this._card.getVar("yoyo")
   }
 }
 class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Complex; _card
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_contentExpr")
-    (void)this._contentExpr()
+    (void)this._contentExpr(cxt)
     this._card._wrapper.onAssign(this._card, "format", this, "_setVariableFormats")
-    (void)this._setVariableFormats()
+    (void)this._setVariableFormats(cxt)
     return
   }
-  java.lang.Object _contentExpr() {
-    super._assignToText(this.contents_1())
+  java.lang.Object _contentExpr(java.lang.Object cxt) {
+    super._assignToText(this.contents_1(cxt))
     return null
   }
-  java.lang.Object _setVariableFormats() {
-    super._setCSSObj(this.formats_2())
+  java.lang.Object _setVariableFormats(java.lang.Object cxt) {
+    super._setCSSObj(this.formats_2(cxt))
     return null
   }
-  java.lang.Object contents_1() {
+  java.lang.Object contents_1(java.lang.Object _context) {
     return this._card.getVar("hello")
   }
-  java.lang.Object formats_2() {
+  java.lang.Object formats_2(java.lang.Object _context) {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
         autobox[this._card.getVar("format")]
         autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
@@ -182,7 +182,7 @@ class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
 class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/Complex; _card
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "list", this, "_assignToVar")
@@ -193,7 +193,7 @@ class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
     ret.bindVar("_crokey", crokey.id)
     return ret
   }
-  java.lang.Object lvs_3() {
+  java.lang.Object lvs_3(java.lang.Object _context) {
     return this._card.getVar("list")
   }
 }
@@ -202,11 +202,11 @@ class Complex$B4.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Complex$B4; _src_lv
   Ljava/lang/Object; lv
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
     this._src_lv = this
-    b5 = new test.golden.Complex$B5(cardArg,this)
+    b5 = new test.golden.Complex$B5(cxt,cardArg,this)
     return
   }
   java.lang.Object _assignToVar(java.lang.Object obj) {
@@ -224,26 +224,26 @@ class Complex$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Complex; _card
   Ltest/golden/Complex$B4; _src_lv
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._src_lv = ((test.golden.Complex$B4)parent)._src_lv
     this._src_lv._interested(this, "_contentExpr")
-    (void)this._contentExpr()
+    (void)this._contentExpr(cxt)
     return
   }
-  java.lang.Object _contentExpr() {
-    super._assignToText(this.contents_4())
+  java.lang.Object _contentExpr(java.lang.Object cxt) {
+    super._assignToText(this.contents_4(cxt))
     return null
   }
-  java.lang.Object contents_4() {
+  java.lang.Object contents_4(java.lang.Object _context) {
     return this._src_lv.lv
   }
 }
 class Complex$B6.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/Complex; _card
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "list", this, "_assignToVar")
@@ -254,31 +254,31 @@ class Complex$B6.java extends org.flasck.jvm.areas.ListArea {
     ret.bindVar("_crokey", crokey.id)
     return ret
   }
-  java.lang.Object lvs_5() {
+  java.lang.Object lvs_5(java.lang.Object _context) {
     return this._card.getVar("list")
   }
 }
 class Complex$B7.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Complex; _card
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
-    b8 = new test.golden.Complex$B8(cardArg,this)
+    b8 = new test.golden.Complex$B8(cxt,cardArg,this)
     return
   }
 }
 class Complex$B8.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Complex; _card
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("hello")
-    (void)this._add_handlers()
+    (void)this._add_handlers(cxt)
     return
   }
-  java.lang.Object _add_handlers() {
+  java.lang.Object _add_handlers(java.lang.Object cxt) {
     super.addEventHandler(false, "click", test.golden.Complex$handlers_6.class)
     return null
   }
@@ -286,14 +286,14 @@ class Complex$B8.java extends org.flasck.jvm.areas.TextArea {
 class Complex$B9.java extends org.flasck.jvm.areas.CasesArea {
   Ltest/golden/Complex; _card
 
-  void <init>(test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Complex cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "hello", this, "_chooseCase")
-    (void)this._chooseCase()
+    (void)this._chooseCase(cxt)
     return
   }
-  java.lang.Object ors_7() {
+  java.lang.Object ors_7(java.lang.Object _context) {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$==.class,new java.lang.Object[2] {
         autobox[this._card.getVar("hello")]
         autobox["hello"]
@@ -304,17 +304,17 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
   Ltest/golden/Complex; _card
   Ljava/lang/Object; k
 
-  void <init>(java.lang.Object card, java.lang.Object k) {
+  void <init>(java.lang.Object cxt, java.lang.Object card, java.lang.Object k) {
     super.<init>(((test.golden.Complex)org.flasck.jvm.fl.FLEval.full(card)).getDespatcher())
     this._card = ((test.golden.Complex)org.flasck.jvm.fl.FLEval.full(card))
     this.k = org.flasck.jvm.fl.FLEval.head(k)
     return
   }
-  static java.lang.Object eval(java.lang.Object card, [java.lang.Object args) {
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object card, [java.lang.Object args) {
     if (args.length<1) {
       return new org.flasck.jvm.fl.FLCurry(card,test.golden.Complex$FooHandler.class,args)
     } else {
-      return new test.golden.Complex$FooHandler(card,args[0])
+      return new test.golden.Complex$FooHandler(cxt,card,args[0])
     }
   }
   java.lang.Object reply(java.lang.Object _context, java.lang.Object _0) {
@@ -347,42 +347,36 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
 class Complex$handlers_6.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/Complex; _card
 
-  void <init>(java.lang.Object card) {
+  void <init>(java.lang.Object cxt, java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.Complex)card)
     return
   }
-  java.lang.Object handle(java.lang.Object ev) {
-    return new org.flasck.jvm.fl.FLClosure(this._card,this.getHandler(),new java.lang.Object[1] {
+  java.lang.Object handle(java.lang.Object cxt, java.lang.Object ev) {
+    return new org.flasck.jvm.fl.FLClosure(this._card,((java.lang.Class)this.getHandler(cxt)),new java.lang.Object[1] {
 ev
       })
   }
-  java.lang.Object getHandler() {
+  java.lang.Object getHandler(java.lang.Object _context) {
     return test.golden.Complex$sayHello.class
   }
 }
 class Complex$sayHello.java {
-  Ltest/golden/Complex; _card
-
-  void <init>(test.golden.Complex card) {
+  void <init>() {
     super.<init>()
-    this._card = card
     return
   }
-  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.Complex)self).sayHello(args[0])
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Complex)self).sayHello(cxt, args[0])
   }
 }
 class Complex$styleIf.java {
-  Ltest/golden/Complex; _card
-
-  void <init>(test.golden.Complex card) {
+  void <init>() {
     super.<init>()
-    this._card = card
     return
   }
-  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.Complex)self).styleIf(args[0], args[1])
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Complex)self).styleIf(cxt, args[0], args[1])
   }
 }
 class Complex.java extends org.flasck.jvm.cards.FlasckCard {
@@ -396,11 +390,11 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  void render(java.lang.String into) {
-    (void)new test.golden.Complex$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+  void render(java.lang.Object cxt, java.lang.String into) {
+    (void)new test.golden.Complex$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object sayHello(java.lang.Object _0) {
+  java.lang.Object sayHello(java.lang.Object _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -422,7 +416,7 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
       return new org.flasck.jvm.fl.FLError("sayHello: case not handled")
     }
   }
-  java.lang.Object styleIf(java.lang.Object _0, java.lang.Object _1) {
+  java.lang.Object styleIf(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
     {
       if (org.flasck.jvm.fl.FLEval.isTruthy(_1)) {
         return _0
@@ -486,7 +480,7 @@ class Polyed.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  static test.golden.Polyed eval([java.lang.Object args) {
+  static test.golden.Polyed eval(java.lang.Object cxt, [java.lang.Object args) {
     ret = new test.golden.Polyed()
     ret.x = args[0]
     ret.y = args[1]
@@ -514,7 +508,7 @@ class Thing.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  static test.golden.Thing eval([java.lang.Object args) {
+  static test.golden.Thing eval(java.lang.Object cxt, [java.lang.Object args) {
     ret = new test.golden.Thing()
     ret.x = args[0]
     return ret
@@ -531,7 +525,7 @@ class WithInit.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  static test.golden.WithInit eval([java.lang.Object args) {
+  static test.golden.WithInit eval(java.lang.Object cxt, [java.lang.Object args) {
     ret = new test.golden.WithInit()
     ret.x = args[0]
     return ret
@@ -542,30 +536,50 @@ class WithInit.java extends org.flasck.jvm.fl.FLASObject {
   }
 }
 class PACKAGEFUNCTIONS$inits_format.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.Complex.PACKAGEFUNCTIONS.inits_format()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.Complex.PACKAGEFUNCTIONS.inits_format(cxt)
   }
 }
 class PACKAGEFUNCTIONS$inits_hello.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.Complex.PACKAGEFUNCTIONS.inits_hello()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.Complex.PACKAGEFUNCTIONS.inits_hello(cxt)
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object inits_format() {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object inits_format(java.lang.Object _context) {
     return "basic"
   }
-  static java.lang.Object inits_hello() {
+  static java.lang.Object inits_hello(java.lang.Object _context) {
     return "hello, world"
   }
 }
 class PACKAGEFUNCTIONS$inits_x.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.WithInit.PACKAGEFUNCTIONS.inits_x()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.WithInit.PACKAGEFUNCTIONS.inits_x(cxt)
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object inits_x() {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object inits_x(java.lang.Object _context) {
     return "hello"
   }
 }

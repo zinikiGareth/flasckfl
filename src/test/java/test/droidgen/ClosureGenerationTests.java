@@ -16,6 +16,7 @@ import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.droidgen.DroidClosureGenerator;
 import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.flim.BuiltinOperation;
+import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewrittenForm.CardFunction;
@@ -52,14 +53,17 @@ import org.zinutils.bytecode.IntConstExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
 
 public class ClosureGenerationTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
+	GenerationContext genCxt = context.mock(GenerationContext.class);
 	ByteCodeSink bcc = context.mock(ByteCodeSink.class, "bcc");
 	MethodDefiner meth = context.mock(MethodDefiner.class, "meth");
+	Var cxt;
 	IExpr expr = context.mock(IExpr.class, "expr");
 
 	@Before
@@ -69,6 +73,11 @@ public class ClosureGenerationTests {
 			allowing(meth).getBCC(); will(returnValue(bcc));
 			allowing(meth).box(with(any(IExpr.class))); will(returnValue(expr));
 			allowing(meth).nextLocal(); will(returnValue(1));
+		}});
+		cxt = new Var.AVar(meth, "Object", "cxt");
+		context.checking(new Expectations() {{
+			allowing(genCxt).getMethod(); will(returnValue(meth));
+			allowing(genCxt).getCxtArg(); will(returnValue(cxt));
 		}});
 	}
 	
@@ -85,7 +94,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
 		closure.push(loc, hdc1);
@@ -103,7 +116,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
 		PushExternal hdc = new PushExternal(loc, hdc1);
 		dcg.pushReturn(hdc, null);
@@ -119,7 +136,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		SolidName number = new SolidName(null, "Number");
 		PackageVar hdc1 = new PackageVar(loc, number, new PrimitiveType(loc, number));
 		PushExternal hdc = new PushExternal(loc, hdc1);
@@ -136,7 +157,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		PackageVar hdc1 = new PackageVar(loc, cn, new CardGrouping(loc, cn, null));
 		PushExternal hdc = new PushExternal(loc, hdc1);
@@ -156,7 +181,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		ClosureCmd closure = form.createClosure(loc);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		HandlerName hn = new HandlerName(cn, "Handler");
@@ -182,7 +211,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		ClosureCmd closure = form.createClosure(loc);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		CardFunction cf = new CardFunction(loc, cn, "eventHandler");
@@ -206,7 +239,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.CARD, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		PackageVar hdc1 = new PackageVar(loc, cn, new CardMember(loc, cn, "var", new PrimitiveType(loc, new SolidName(null, "String"))));
 		PushExternal hdc = new PushExternal(loc, hdc1);
@@ -224,7 +261,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.AREA, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		PackageVar hdc1 = new PackageVar(loc, cn, new CardMember(loc, cn, "var", new PrimitiveType(loc, new SolidName(null, "String"))));
 		PushExternal hdc = new PushExternal(loc, hdc1);
@@ -244,7 +285,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 1, false));
@@ -260,12 +305,16 @@ public class ClosureGenerationTests {
 		IExpr result = context.mock(IExpr.class, "result");
 		context.checking(new Expectations() {{
 			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
-			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", expr); will(returnValue(expr));
+			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", cxt, expr); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
@@ -280,12 +329,16 @@ public class ClosureGenerationTests {
 		IExpr result = context.mock(IExpr.class, "result");
 		context.checking(new Expectations() {{
 			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
-			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", expr); will(returnValue(result));
+			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", cxt, expr); will(returnValue(result));
 			oneOf(meth).returnObject(result); will(returnValue(result));
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
@@ -299,12 +352,16 @@ public class ClosureGenerationTests {
 		IExpr result = context.mock(IExpr.class, "result");
 		context.checking(new Expectations() {{
 			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
-			oneOf(meth).callStatic(J.BUILTINPKG+".Nil", J.OBJECT, "eval", expr); will(returnValue(result));
+			oneOf(meth).callStatic(J.BUILTINPKG+".Nil", J.OBJECT, "eval", cxt, expr); will(returnValue(result));
 			oneOf(meth).returnObject(result); will(returnValue(result));
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		SolidName fn = new SolidName(null, "Nil");
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWStructDefn(loc, StructType.STRUCT, fn, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
@@ -324,7 +381,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		SolidName fn = new SolidName(null, "Cons");
 		ClosureCmd closure = form.createClosure(loc);
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, fn, false);
@@ -342,12 +403,16 @@ public class ClosureGenerationTests {
 		IExpr result = context.mock(IExpr.class, "result");
 		context.checking(new Expectations() {{
 			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
-			oneOf(meth).callStatic(J.BUILTINPKG+".Croset", J.OBJECT, "eval", expr); will(returnValue(result));
+			oneOf(meth).callStatic(J.BUILTINPKG+".Croset", J.OBJECT, "eval", cxt, expr); will(returnValue(result));
 			oneOf(meth).returnObject(result); will(returnValue(result));
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		SolidName fn = new SolidName(null, "Croset");
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWObjectDefn(loc, fn, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
@@ -367,7 +432,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		SolidName fn = new SolidName(null, "Croset");
 		ClosureCmd closure = form.createClosure(loc);
 		RWObjectDefn od = new RWObjectDefn(loc, fn, false);
@@ -396,7 +465,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		HandlerName hn = new HandlerName(new PackageName("test.golden"), "MyHC");
 		ClosureCmd closure = form.createClosure(loc);
 		HandlerLambda hl = new HandlerLambda(loc, hn, FunctionType.function(loc, new PrimitiveType(loc, new SolidName(null, "String")), new PrimitiveType(loc, new SolidName(null, "Number"))), "length");
@@ -416,7 +489,11 @@ public class ClosureGenerationTests {
 		}});
 		VarFactory vf = new VarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, null);
+		VarHolder vh = new VarHolder(form, new ArrayList<>());
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		HandlerName hn = new HandlerName(new PackageName("test.golden"), "MyHC");
 		HandlerLambda hl = new HandlerLambda(loc, hn, new PrimitiveType(loc, new SolidName(null, "String")), "str");
 		PackageVar hdc1 = new PackageVar(loc, hn, hl);
@@ -446,7 +523,10 @@ public class ClosureGenerationTests {
 		List<PendingVar> pvs = new ArrayList<>();
 		pvs.add(new PendingVar(JavaType.string, "x", 0).apply(meth));
 		VarHolder vh = new VarHolder(form, pvs);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, vh);
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		PackageVar hdc1 = new PackageVar(loc, hn, sv);
 		IExpr out = dcg.pushReturn(new PushExternal(loc, hdc1), null);
 		assertEquals(result, out);
@@ -473,7 +553,10 @@ public class ClosureGenerationTests {
 		List<PendingVar> pvs = new ArrayList<>();
 		pvs.add(new PendingVar(JavaType.string, "x", 0).apply(meth));
 		VarHolder vh = new VarHolder(form, pvs);
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, meth, vh);
+		context.checking(new Expectations() {{
+			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+		}});
+		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		ClosureCmd closure = form.createClosure(loc);
 		closure.justScoping = true;
 		PackageVar hdc1 = new PackageVar(loc, hn, sv);

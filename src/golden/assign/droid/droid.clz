@@ -1,13 +1,10 @@
 class Card$doit.java {
-  Ltest/golden/Card; _card
-
-  void <init>(test.golden.Card card) {
+  void <init>() {
     super.<init>()
-    this._card = card
     return
   }
-  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.Card)self).doit()
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Card)self).doit(cxt)
   }
 }
 class Card.java extends org.flasck.jvm.cards.FlasckCard {
@@ -16,7 +13,7 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  java.lang.Object doit() {
+  java.lang.Object doit(java.lang.Object _context) {
     {
       v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
           autobox[this]
@@ -41,7 +38,7 @@ class Container.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  static test.golden.Container eval([java.lang.Object args) {
+  static test.golden.Container eval(java.lang.Object cxt, [java.lang.Object args) {
     ret = new test.golden.Container()
     ret.value = args[0]
     return ret

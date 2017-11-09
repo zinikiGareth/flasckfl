@@ -8,32 +8,29 @@ class Card$_C0.java extends test.golden.DataStore$Impl {
   }
 }
 class Card$ItemHandler$x.java {
-  Ltest/golden/Card$ItemHandler; _card
-
-  void <init>(test.golden.Card$ItemHandler card) {
+  void <init>() {
     super.<init>()
-    this._card = card
     return
   }
-  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.Card$ItemHandler)self).x(args[0])
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Card$ItemHandler)self).x(cxt, args[0])
   }
 }
 class Card$ItemHandler.java extends test.golden.KVUpdate$Impl {
   Ltest/golden/Card; _card
   Ljava/lang/Object; ck
 
-  void <init>(java.lang.Object card, java.lang.Object ck) {
+  void <init>(java.lang.Object cxt, java.lang.Object card, java.lang.Object ck) {
     super.<init>(((test.golden.Card)org.flasck.jvm.fl.FLEval.full(card)).getDespatcher())
     this._card = ((test.golden.Card)org.flasck.jvm.fl.FLEval.full(card))
     this.ck = org.flasck.jvm.fl.FLEval.head(ck)
     return
   }
-  static java.lang.Object eval(java.lang.Object card, [java.lang.Object args) {
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object card, [java.lang.Object args) {
     if (args.length<1) {
       return new org.flasck.jvm.fl.FLCurry(card,test.golden.Card$ItemHandler.class,args)
     } else {
-      return new test.golden.Card$ItemHandler(card,args[0])
+      return new test.golden.Card$ItemHandler(cxt,card,args[0])
     }
   }
   java.lang.Object update(java.lang.Object _context, java.lang.Object _0) {
@@ -65,7 +62,7 @@ class Card$ItemHandler.java extends test.golden.KVUpdate$Impl {
       return new org.flasck.jvm.fl.FLError("update: case not handled")
     }
   }
-  java.lang.Object x(java.lang.Object _s0) {
+  java.lang.Object x(java.lang.Object _context, java.lang.Object _s0) {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class,new java.lang.Object[2] {
         autobox[this.ck]
         autobox[_s0]

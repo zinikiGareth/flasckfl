@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.flim.BuiltinOperation;
+import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -31,20 +32,23 @@ import org.flasck.jvm.J;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
 public class DroidClosureGenerator {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private final VarHolder vh;
+	private final Var cxtVar;
 	enum ObjectNeeded { NONE, THIS, CARD };
 	private final ObjectNeeded myOn;
 	private final DroidPushArgument dpa;
 	
-	public DroidClosureGenerator(HSIEForm form, NewMethodDefiner meth, VarHolder vh) {
+	public DroidClosureGenerator(HSIEForm form, GenerationContext cxt) {
 		this.form = form;
-		this.meth = meth;
-		this.vh = vh;
+		this.meth = cxt.getMethod();
+		this.vh = cxt.getVarHolder();
+		this.cxtVar = cxt.getCxtArg();
 		dpa = new DroidPushArgument(form, meth, vh);
 		if (form.needsCardMember())
 			myOn = ObjectNeeded.CARD;
@@ -106,7 +110,7 @@ public class DroidClosureGenerator {
 				RWFunctionDefinition rwfn = (RWFunctionDefinition) defn;
 				// a regular function
 				if (rwfn.nargs == 0) { // invoke it as a function using eval
-					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
+					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
 				} else {
 					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 				}
@@ -114,14 +118,14 @@ public class DroidClosureGenerator {
 				// creating a struct is just like calling a static function
 				RWStructDefn sd = (RWStructDefn) defn;
 				if (sd.fields.size() == 0)
-					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
+					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
 				else
 					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof RWObjectDefn) {
 				// creating an object is just like calling a static function
 				RWObjectDefn od = (RWObjectDefn) defn;
 				if (od.ctorArgs.isEmpty())
-					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
+					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
 				else
 					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
 			} else if (defn instanceof HandlerLambda) {

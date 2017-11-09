@@ -11,12 +11,20 @@ class Hc$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.gol
 class Hc$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 class PACKAGEFUNCTIONS$scoped.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.scoped(args[0])
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.scoped(cxt, args[0])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object scoped(java.lang.Object _0) {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object scoped(java.lang.Object _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -48,16 +56,16 @@ class PACKAGEFUNCTIONS.java {
 class scoped_0$MyHc.java extends test.golden.Hc$Impl {
   Ljava/lang/Object; requestObj
 
-  void <init>(java.lang.Object requestObj) {
+  void <init>(java.lang.Object cxt, java.lang.Object requestObj) {
     super.<init>()
     this.requestObj = org.flasck.jvm.fl.FLEval.head(requestObj)
     return
   }
-  static java.lang.Object eval([java.lang.Object args) {
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
     if (args.length<1) {
       return new org.flasck.jvm.fl.FLCurry(null,test.golden.scoped_0$MyHc.class,args)
     } else {
-      return new test.golden.scoped_0$MyHc(args[0])
+      return new test.golden.scoped_0$MyHc(cxt,args[0])
     }
   }
   java.lang.Object reply(java.lang.Object _context) {
@@ -82,17 +90,29 @@ class UpC$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object call(java.lang.Object from, test.golden.Hc$Down handler);
 }
 class PACKAGEFUNCTIONS$request.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.scoped_0.PACKAGEFUNCTIONS.request(args[0], args[1])
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.scoped_0.PACKAGEFUNCTIONS.request(cxt, args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS$requestObj.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.scoped_0.PACKAGEFUNCTIONS.requestObj()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.scoped_0.PACKAGEFUNCTIONS.requestObj(cxt)
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object request(java.lang.Object _s0, java.lang.Object _s1) {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object request(java.lang.Object _context, java.lang.Object _s0, java.lang.Object _s1) {
     {
       v0 = new org.flasck.jvm.fl.FLClosure(_s0,new java.lang.Object[0] {})
       v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
@@ -110,7 +130,7 @@ class PACKAGEFUNCTIONS.java {
         })
     }
   }
-  static java.lang.Object requestObj() {
-    return org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})
+  static java.lang.Object requestObj(java.lang.Object _context) {
+    return org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})
   }
 }

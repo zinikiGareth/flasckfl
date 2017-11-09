@@ -1,40 +1,60 @@
 class PACKAGEFUNCTIONS$bert.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.bert()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.bert(cxt)
   }
 }
 class PACKAGEFUNCTIONS$fred.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.fred(args[0])
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.fred(cxt, args[0])
   }
 }
 class PACKAGEFUNCTIONS$t1.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.t1()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.t1(cxt)
   }
 }
 class PACKAGEFUNCTIONS$t2.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.t2()
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.t2(cxt)
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object bert() {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object bert(java.lang.Object _context) {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
         autobox[java.lang.Integer.valueOf(2)]
         autobox["hello"]
       })
   }
-  static java.lang.Object fred(java.lang.Object _0) {
+  static java.lang.Object fred(java.lang.Object _context, java.lang.Object _0) {
     return java.lang.Integer.valueOf(32)
   }
-  static java.lang.Object t1() {
+  static java.lang.Object t1(java.lang.Object _context) {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
         autobox[test.golden.PACKAGEFUNCTIONS$fred.class]
         autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
       })
   }
-  static java.lang.Object t2() {
+  static java.lang.Object t2(java.lang.Object _context) {
     {
       v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(3)]

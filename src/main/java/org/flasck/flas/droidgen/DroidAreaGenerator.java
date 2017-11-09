@@ -32,13 +32,15 @@ import org.zinutils.bytecode.JavaInfo.Access;
 public class DroidAreaGenerator implements AreaGenerator {
 	final ByteCodeSink bcc;
 	public final NewMethodDefiner ctor;
+	final Var cxt;
 	final Var card;
 	final Var parent;
 	MethodDefiner currentMethod;
 
-	public DroidAreaGenerator(ByteCodeSink bcc, NewMethodDefiner ctor, Var card, Var parent) {
+	public DroidAreaGenerator(ByteCodeSink bcc, NewMethodDefiner ctor, Var cxt, Var card, Var parent) {
 		this.bcc = bcc;
 		this.ctor = ctor;
+		this.cxt = cxt;
 		this.card = card;
 		this.parent = parent;
 	}
@@ -91,7 +93,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	public void addAssign(FunctionName call, String passVar) {
 		if (passVar != null)
 			throw new NotImplementedException("Passed var: " + passVar);
-		ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), call.name)).flush();
+		ctor.voidExpr(ctor.callVirtual("java.lang.Object", ctor.myThis(), call.name, cxt)).flush();
 	}
 
 	@Override
@@ -108,7 +110,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 		} else if (expr instanceof CardMember) {
 			dge = ctor.callVirtual(J.OBJECT, ctor.getField(ctor.myThis(), "_card"), "getVar", ctor.stringConst(((CardMember)expr).var));
 		} else if (expr instanceof ApplyExpr) {
-			dge = ctor.callVirtual(J.OBJECT, ctor.myThis(), changers.get(expr).name);
+			dge = ctor.callVirtual(J.OBJECT, ctor.myThis(), changers.get(expr).name, cxt);
 		} else
 			throw new NotImplementedException();
 
@@ -136,12 +138,13 @@ public class DroidAreaGenerator implements AreaGenerator {
 	@Override
 	public void contentExpr(FunctionName tfn, boolean rawHTML) {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_contentExpr");
+		PendingVar cv = gen.argument(J.OBJECT, "cxt");
 		gen.returns("java.lang.Object");
 		NewMethodDefiner meth = gen.done();
 		
 //		The rest of this code is basically correct, it's just that we used to have an HSIE block here
 		// that we converted into a Var.  Now we have a function to call, so we need to replace "str" with "tfn()"
-		IExpr str = meth.callVirtual(J.OBJECT, meth.myThis(), tfn.name);
+		IExpr str = meth.callVirtual(J.OBJECT, meth.myThis(), tfn.name, cv.getVar());
 		if (rawHTML)
 			meth.callSuper("void", J.TEXT_AREA, "_assignHTML", str).flush();
 		else
@@ -152,6 +155,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	@Override
 	public EventHandlerGenerator needAddHandlers() {
 		GenericAnnotator ah = GenericAnnotator.newMethod(bcc, false, "_add_handlers");
+		ah.argument(J.OBJECT, "cxt");
 		ah.returns("java.lang.Object");
 		MethodDefiner ahMeth = ah.done();
 		currentMethod = ahMeth;
@@ -162,7 +166,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	@Override
 	public void createNested(String v, AreaName nested) {
 		Var storeAs = ctor.avar(nested.javaClassName(), v);
-		ctor.assign(storeAs, (Expr) ctor.makeNew(nested.javaClassName(), card, (Expr)ctor.as(ctor.myThis(), J.AREA))).flush();
+		ctor.assign(storeAs, (Expr) ctor.makeNew(nested.javaClassName(), cxt, card, (Expr)ctor.as(ctor.myThis(), J.AREA))).flush();
 	}
 
 	@Override
@@ -192,11 +196,12 @@ public class DroidAreaGenerator implements AreaGenerator {
 	@Override
 	public void setVarFormats(FunctionName tfn) {
 		GenericAnnotator svf = GenericAnnotator.newMethod(bcc, false, "_setVariableFormats");
+		PendingVar pv = svf.argument(J.OBJECT, "cxt");
 		svf.returns("java.lang.Object");
 		MethodDefiner meth = svf.done();
 		currentMethod = meth;
 //		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to set variable formats"))).flush();
-		meth.callSuper("void", J.AREA, "_setCSSObj", meth.callVirtual(J.OBJECT, meth.myThis(), tfn.name)).flush();
+		meth.callSuper("void", J.AREA, "_setCSSObj", meth.callVirtual(J.OBJECT, meth.myThis(), tfn.name, pv.getVar())).flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
 

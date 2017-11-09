@@ -121,6 +121,7 @@ public class GenTestsForStructs {
 
 	public void checkCreationOfStructEval() {
 		context.checking(new Expectations() {{
+			oneOf(ctor).argument(J.OBJECT, "cxt");
 			oneOf(ctor).nextLocal(); will(returnValue(3));
 			oneOf(ctor).nextLocal(); will(returnValue(4));
 		}});

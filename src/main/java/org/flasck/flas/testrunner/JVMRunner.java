@@ -87,6 +87,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void assertCorrectValue(int exprId) throws Exception {
+		Object cx = null;
 		List<Class<?>> toRun = new ArrayList<>();
 		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$expr" + exprId, false, loader));
 		toRun.add(Class.forName(spkg + ".PACKAGEFUNCTIONS$value" + exprId, false, loader));
@@ -94,7 +95,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		Map<String, Object> evals = new TreeMap<String, Object>();
 		for (Class<?> clz : toRun) {
 			String key = clz.getSimpleName().replaceFirst(".*\\$", "");
-			Object o = Reflection.callStatic(clz, "eval", new Object[] { new Object[] {} });
+			Object o = Reflection.callStatic(clz, "eval", new Object[] { cx, new Object[] {} });
 			o = Reflection.callStatic(FLEval.class, "full", o);
 			evals.put(key, o);
 		}

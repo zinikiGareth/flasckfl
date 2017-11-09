@@ -10,12 +10,20 @@ class DoIt$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object calc(java.lang.Object from, int n);
 }
 class PACKAGEFUNCTIONS$f.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.f(args[0], args[1])
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.f(cxt, args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object f(java.lang.Object _0, java.lang.Object _1) {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object f(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
@@ -42,12 +50,20 @@ class PACKAGEFUNCTIONS.java {
   }
 }
 class PACKAGEFUNCTIONS$m.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.f_0.PACKAGEFUNCTIONS.m(args[0], args[1])
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.f_0.PACKAGEFUNCTIONS.m(cxt, args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object m(java.lang.Object _s0, java.lang.Object _s1) {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object m(java.lang.Object _context, java.lang.Object _s0, java.lang.Object _s1) {
     {
       v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
           autobox[_s1]

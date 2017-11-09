@@ -1,19 +1,19 @@
 class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/NestFunction; _card
 
-  void <init>(test.golden.NestFunction cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.NestFunction cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("hello")
     this._card._wrapper.onAssign(this._card, "sayHello", this, "_setVariableFormats")
-    (void)this._setVariableFormats()
+    (void)this._setVariableFormats(cxt)
     return
   }
-  java.lang.Object _setVariableFormats() {
-    super._setCSSObj(this.formats_0())
+  java.lang.Object _setVariableFormats(java.lang.Object cxt) {
+    super._setCSSObj(this.formats_0(cxt))
     return null
   }
-  java.lang.Object formats_0() {
+  java.lang.Object formats_0(java.lang.Object _context) {
     {
       v2 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.NestFunction$styleIf.class,2,new java.lang.Object[0] {})
       v0 = new org.flasck.jvm.fl.FLClosure(v2,new java.lang.Object[2] {
@@ -28,15 +28,12 @@ class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
   }
 }
 class NestFunction$styleIf.java {
-  Ltest/golden/NestFunction; _card
-
-  void <init>(test.golden.NestFunction card) {
+  void <init>() {
     super.<init>()
-    this._card = card
     return
   }
-  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.NestFunction)self).styleIf(args[0], args[1])
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.NestFunction)self).styleIf(cxt, args[0], args[1])
   }
 }
 class NestFunction.java extends org.flasck.jvm.cards.FlasckCard {
@@ -45,11 +42,11 @@ class NestFunction.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  void render(java.lang.String into) {
-    (void)new test.golden.NestFunction$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+  void render(java.lang.Object cxt, java.lang.String into) {
+    (void)new test.golden.NestFunction$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object styleIf(java.lang.Object _0, java.lang.Object _1) {
+  java.lang.Object styleIf(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
     {
       if (org.flasck.jvm.fl.FLEval.isTruthy(_1)) {
         return _0

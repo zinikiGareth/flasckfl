@@ -9,7 +9,7 @@ public class FunctionInAHandlerContextCodeGenerator implements CodeGenerator {
 		NameOfThing clzContext = cxt.nameContext();
 		final String inClz = clzContext.javaClassName();
 		cxt.selectClass(inClz);
-		cxt.instanceMethod(false);
+		cxt.instanceMethod();
 		cxt.trampolineWithSelf(inClz);
 	}
 

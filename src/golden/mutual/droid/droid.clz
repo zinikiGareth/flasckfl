@@ -1,10 +1,18 @@
 class PACKAGEFUNCTIONS$f.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.f(args[0])
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.f(cxt, args[0])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object f(java.lang.Object _0) {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object f(java.lang.Object _context, java.lang.Object _0) {
     {
       v3 = new org.flasck.jvm.fl.FLCurry(test.golden.f_0$g.class,2,new java.lang.Object[1] {
           autobox[_0]
@@ -16,12 +24,20 @@ class PACKAGEFUNCTIONS.java {
   }
 }
 class PACKAGEFUNCTIONS$g.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.f_0.PACKAGEFUNCTIONS.g(args[0], args[1])
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.f_0.PACKAGEFUNCTIONS.g(cxt, args[0], args[1])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object g(java.lang.Object _s0, java.lang.Object _0) {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object g(java.lang.Object _context, java.lang.Object _s0, java.lang.Object _0) {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
         autobox[_s0]
         autobox[_0]

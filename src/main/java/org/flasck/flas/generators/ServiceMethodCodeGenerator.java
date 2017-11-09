@@ -8,7 +8,7 @@ public class ServiceMethodCodeGenerator implements CodeGenerator {
 	public void begin(GenerationContext cxt) {
 		NameOfThing clzContext = cxt.nameContext();
 		cxt.selectClass(clzContext.javaClassName());
-		cxt.instanceMethod(true);
+		cxt.instanceMethod();
 	}
 
 }

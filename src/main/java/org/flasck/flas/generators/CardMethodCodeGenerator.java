@@ -9,7 +9,7 @@ public class CardMethodCodeGenerator implements CodeGenerator {
 		NameOfThing clzContext = cxt.nameContext();
 		final String inClz = clzContext.javaPackageName();
 		cxt.selectClass(inClz);
-		cxt.instanceMethod(false);
+		cxt.instanceMethod();
 		cxt.trampolineWithSelf(inClz);
 	}
 

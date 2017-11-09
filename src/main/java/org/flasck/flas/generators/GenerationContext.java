@@ -5,20 +5,21 @@ import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.droidgen.VarHolder;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var;
 
 public interface GenerationContext {
 
 	NameOfThing nameContext();
 	FunctionName funcName();
-	void selectClass(String javaClassName);
-	void implementsInterface(String intf);
-	// TODO: withContext should be always true in the long run
-	void instanceMethod(boolean withContext);
-	void staticMethod(boolean withContext);
+	boolean selectClass(String javaClassName);
+	void defaultCtor();
+	void instanceMethod();
+	void staticMethod();
 	void trampoline(String outerClz);
 	void trampolineWithSelf(String outerClz);
 
 	ByteCodeSink getSink();
+	Var getCxtArg();
 	VarHolder getVarHolder();
 	MethodDefiner getMethod();
 }

@@ -5,7 +5,7 @@ class Container.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  static test.golden.Container eval([java.lang.Object args) {
+  static test.golden.Container eval(java.lang.Object cxt, [java.lang.Object args) {
     ret = new test.golden.Container()
     ret.title = args[0]
     return ret
@@ -18,44 +18,44 @@ class Container.java extends org.flasck.jvm.fl.FLASObject {
 class MyCard$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/MyCard; _card
 
-  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
-    b2 = new test.golden.MyCard$B2(cardArg,this)
-    b3 = new test.golden.MyCard$B3(cardArg,this)
+    b2 = new test.golden.MyCard$B2(cxt,cardArg,this)
+    b3 = new test.golden.MyCard$B3(cxt,cardArg,this)
     return
   }
 }
 class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/MyCard; _card
 
-  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "c", this, "_contentExpr")
     this._card._wrapper.onAssign(this._card.getVar("c"), "title", this, "_contentExpr")
-    (void)this._contentExpr()
+    (void)this._contentExpr(cxt)
     this.setCSS("flasck-editable")
     return
   }
-  java.lang.Object _contentExpr() {
-    super._assignToText(this.contents_0())
+  java.lang.Object _contentExpr(java.lang.Object cxt) {
+    super._assignToText(this.contents_0(cxt))
     return null
   }
-  java.lang.Object contents_0() {
+  java.lang.Object contents_0(java.lang.Object _context) {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
         autobox[this._card.getVar("c")]
         autobox["title"]
       })
   }
-  java.lang.Object editcontainer_1() {
+  java.lang.Object editcontainer_1(java.lang.Object _context) {
     return this._card.getVar("c")
   }
 }
 class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/MyCard; _card
 
-  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "set", this, "_assignToVar")
@@ -66,7 +66,7 @@ class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
     ret.bindVar("_crokey", crokey.id)
     return ret
   }
-  java.lang.Object lvs_2() {
+  java.lang.Object lvs_2(java.lang.Object _context) {
     return this._card.getVar("set")
   }
 }
@@ -75,11 +75,11 @@ class MyCard$B4.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/MyCard$B4; _src_q
   Ljava/lang/Object; q
 
-  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, "li")
     this._card = cardArg
     this._src_q = this
-    b5 = new test.golden.MyCard$B5(cardArg,this)
+    b5 = new test.golden.MyCard$B5(cxt,cardArg,this)
     return
   }
   java.lang.Object _assignToVar(java.lang.Object obj) {
@@ -97,27 +97,27 @@ class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/MyCard; _card
   Ltest/golden/MyCard$B4; _src_q
 
-  void <init>(test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.MyCard cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._src_q = ((test.golden.MyCard$B4)parent)._src_q
     this._src_q._interested(this, "_contentExpr")
     this._card._wrapper.onAssign(this._src_q.q, "title", this, "_contentExpr")
-    (void)this._contentExpr()
+    (void)this._contentExpr(cxt)
     this.setCSS("flasck-editable")
     return
   }
-  java.lang.Object _contentExpr() {
-    super._assignToText(this.contents_3())
+  java.lang.Object _contentExpr(java.lang.Object cxt) {
+    super._assignToText(this.contents_3(cxt))
     return null
   }
-  java.lang.Object contents_3() {
+  java.lang.Object contents_3(java.lang.Object _context) {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
         autobox[this._src_q.q]
         autobox["title"]
       })
   }
-  java.lang.Object editcontainer_4() {
+  java.lang.Object editcontainer_4(java.lang.Object _context) {
     return this._src_q.q
   }
 }
@@ -127,8 +127,8 @@ class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  void render(java.lang.String into) {
-    (void)new test.golden.MyCard$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+  void render(java.lang.Object cxt, java.lang.String into) {
+    (void)new test.golden.MyCard$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
 }

@@ -8,7 +8,7 @@ public class EventConnectorCodeGenerator implements CodeGenerator {
 	public void begin(GenerationContext cxt) {
 		FunctionName clzContext = cxt.funcName();
 		cxt.selectClass(clzContext.javaPackageName());
-		cxt.instanceMethod(false);
+		cxt.instanceMethod();
 //		cxt.staticMethod(false);
 	}
 

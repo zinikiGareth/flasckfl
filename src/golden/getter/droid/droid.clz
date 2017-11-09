@@ -1,13 +1,10 @@
 class Getter$choose.java {
-  Ltest/golden/Getter; _card
-
-  void <init>(test.golden.Getter card) {
+  void <init>() {
     super.<init>()
-    this._card = card
     return
   }
-  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.Getter)self).choose(args[0])
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Getter)self).choose(cxt, args[0])
   }
 }
 class Getter.java extends org.flasck.jvm.cards.FlasckCard {
@@ -16,7 +13,7 @@ class Getter.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  java.lang.Object choose(java.lang.Object _0) {
+  java.lang.Object choose(java.lang.Object _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {

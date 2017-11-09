@@ -1,10 +1,18 @@
 class PACKAGEFUNCTIONS$fold.java {
-  static java.lang.Object eval([java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.fold(args[0], args[1], args[2])
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.fold(cxt, args[0], args[1], args[2])
   }
 }
 class PACKAGEFUNCTIONS.java {
-  static java.lang.Object fold(java.lang.Object _0, java.lang.Object _1, java.lang.Object _2) {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object fold(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1, java.lang.Object _2) {
     {
       _2 = org.flasck.jvm.fl.FLEval.head(_2)
       if (_2 instanceof org.flasck.jvm.fl.FLError) {

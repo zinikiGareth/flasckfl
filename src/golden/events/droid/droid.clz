@@ -1,26 +1,26 @@
 class Events$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Events; _card
 
-  void <init>(test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
-    b2 = new test.golden.Events$B2(cardArg,this)
-    b3 = new test.golden.Events$B3(cardArg,this)
+    b2 = new test.golden.Events$B2(cxt,cardArg,this)
+    b3 = new test.golden.Events$B3(cxt,cardArg,this)
     return
   }
 }
 class Events$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Events; _card
 
-  void <init>(test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("OK")
     this.setCSS("button")
-    (void)this._add_handlers()
+    (void)this._add_handlers(cxt)
     return
   }
-  java.lang.Object _add_handlers() {
+  java.lang.Object _add_handlers(java.lang.Object cxt) {
     super.addEventHandler(false, "click", test.golden.Events$handlers_0.class)
     return null
   }
@@ -28,15 +28,15 @@ class Events$B2.java extends org.flasck.jvm.areas.TextArea {
 class Events$B3.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Events; _card
 
-  void <init>(test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
+  void <init>(java.lang.Object cxt, test.golden.Events cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
     this._setText("Set13")
     this.setCSS("button")
-    (void)this._add_handlers()
+    (void)this._add_handlers(cxt)
     return
   }
-  java.lang.Object _add_handlers() {
+  java.lang.Object _add_handlers(java.lang.Object cxt) {
     super.addEventHandler(false, "click", test.golden.Events$handlers_1.class)
     return null
   }
@@ -44,61 +44,55 @@ class Events$B3.java extends org.flasck.jvm.areas.TextArea {
 class Events$handlers_0.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/Events; _card
 
-  void <init>(java.lang.Object card) {
+  void <init>(java.lang.Object cxt, java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.Events)card)
     return
   }
-  java.lang.Object handle(java.lang.Object ev) {
-    return new org.flasck.jvm.fl.FLClosure(this._card,this.getHandler(),new java.lang.Object[1] {
+  java.lang.Object handle(java.lang.Object cxt, java.lang.Object ev) {
+    return new org.flasck.jvm.fl.FLClosure(this._card,((java.lang.Class)this.getHandler(cxt)),new java.lang.Object[1] {
 ev
       })
   }
-  java.lang.Object getHandler() {
+  java.lang.Object getHandler(java.lang.Object _context) {
     return test.golden.Events$okThen.class
   }
 }
 class Events$handlers_1.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/Events; _card
 
-  void <init>(java.lang.Object card) {
+  void <init>(java.lang.Object cxt, java.lang.Object card) {
     super.<init>()
     this._card = ((test.golden.Events)card)
     return
   }
-  java.lang.Object handle(java.lang.Object ev) {
-    return new org.flasck.jvm.fl.FLClosure(this._card,this.getHandler(),new java.lang.Object[1] {
+  java.lang.Object handle(java.lang.Object cxt, java.lang.Object ev) {
+    return new org.flasck.jvm.fl.FLClosure(this._card,((java.lang.Class)this.getHandler(cxt)),new java.lang.Object[1] {
 ev
       })
   }
-  java.lang.Object getHandler() {
+  java.lang.Object getHandler(java.lang.Object _context) {
     return new org.flasck.jvm.fl.FLCurry(this,test.golden.Events$setTo.class,2,new java.lang.Object[1] {
         autobox[java.lang.Integer.valueOf(13)]
       })
   }
 }
 class Events$okThen.java {
-  Ltest/golden/Events; _card
-
-  void <init>(test.golden.Events card) {
+  void <init>() {
     super.<init>()
-    this._card = card
     return
   }
-  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.Events)self).okThen(args[0])
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Events)self).okThen(cxt, args[0])
   }
 }
 class Events$setTo.java {
-  Ltest/golden/Events; _card
-
-  void <init>(test.golden.Events card) {
+  void <init>() {
     super.<init>()
-    this._card = card
     return
   }
-  static java.lang.Object eval(java.lang.Object self, [java.lang.Object args) {
-    return ((test.golden.Events)self).setTo(args[0], args[1])
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Events)self).setTo(cxt, args[0], args[1])
   }
 }
 class Events.java extends org.flasck.jvm.cards.FlasckCard {
@@ -107,11 +101,11 @@ class Events.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
-  void render(java.lang.String into) {
-    (void)new test.golden.Events$B1(this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+  void render(java.lang.Object cxt, java.lang.String into) {
+    (void)new test.golden.Events$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
   }
-  java.lang.Object okThen(java.lang.Object _0) {
+  java.lang.Object okThen(java.lang.Object _context, java.lang.Object _0) {
     {
       v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
           autobox[_0]
@@ -122,7 +116,7 @@ class Events.java extends org.flasck.jvm.cards.FlasckCard {
         })
     }
   }
-  java.lang.Object setTo(java.lang.Object _0, java.lang.Object _1) {
+  java.lang.Object setTo(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
     {
       v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Debug.class,new java.lang.Object[1] {
           autobox[_1]

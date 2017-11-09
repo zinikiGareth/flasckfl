@@ -13,10 +13,9 @@ import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.GenericAnnotator;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
-import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.IExpr;
-import org.zinutils.bytecode.IFieldInfo;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var;
 
 public class MethodGenerationContext implements GenerationContext {
 	private final ByteCodeStorage bce;
@@ -25,6 +24,7 @@ public class MethodGenerationContext implements GenerationContext {
 	private MethodDefiner meth;
 	private List<PendingVar> pendingVars = new ArrayList<PendingVar>();
 	private VarHolder vh;
+	private Var cxtArg;
 
 	public MethodGenerationContext(ByteCodeStorage bce, HSIEForm form) {
 		this.bce = bce;
@@ -42,42 +42,52 @@ public class MethodGenerationContext implements GenerationContext {
 	}
 
 	@Override
-	public void selectClass(String inClz) {
-		if (bce.hasClass(inClz))
+	public boolean selectClass(String inClz) {
+		if (bce.hasClass(inClz)) {
 			bcc = bce.get(inClz);
-		else {
+			return false;
+		} else {
 			bcc = bce.newClass(inClz);
 			bcc.generateAssociatedSourceFile();
-			bcc.superclass("java.lang.Object");
+			bcc.superclass(J.OBJECT);
+			return true;
 		}
 	}
 
 	@Override
-	public void implementsInterface(String intf) {
-		bcc.implementsInterface(intf);
+	public void defaultCtor() {
+		final ByteCodeSink clz = bcc;
+		defaultCtor(clz);
+	}
+
+	private void defaultCtor(final ByteCodeSink clz) {
+		GenericAnnotator ann = GenericAnnotator.newConstructor(clz, false);
+		MethodDefiner ctor = ann.done();
+		ctor.callSuper("void", J.OBJECT, "<init>").flush();
+		ctor.returnVoid().flush();
 	}
 
 	@Override
-	public void instanceMethod(boolean withContext) {
-		doMethod(false, withContext);
+	public void instanceMethod() {
+		doMethod(false);
 	}
 
 	@Override
-	public void staticMethod(boolean withContext) {
-		doMethod(true, withContext);
+	public void staticMethod() {
+		doMethod(true);
 	}
 
-	private void doMethod(boolean isStatic, boolean withContext) {
+	private void doMethod(boolean isStatic) {
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, isStatic, form.funcName.name);
+		PendingVar cxt = gen.argument(J.OBJECT, "_context");
 		gen.returns("java.lang.Object");
-		if (withContext)
-			gen.argument(J.OBJECT, "_context");
 		int j = 0;
 		for (@SuppressWarnings("unused") ScopedVar s : form.scoped)
 			pendingVars.add(gen.argument("java.lang.Object", "_s"+(j++)));
 		for (int i=0;i<form.nformal;i++)
 			pendingVars.add(gen.argument("java.lang.Object", "_"+i));
 		meth = gen.done();
+		cxtArg = cxt.getVar();
 		vh = new VarHolder(form, pendingVars);
 	}
 
@@ -85,14 +95,17 @@ public class MethodGenerationContext implements GenerationContext {
 	public void trampoline(String outerClz) {
 		ByteCodeSink inner = bce.newClass(outerClz + "$" + form.funcName.name);
 		inner.generateAssociatedSourceFile();
-		inner.superclass("java.lang.Object");
+		inner.superclass(J.OBJECT);
+		defaultCtor(inner);
 		GenericAnnotator g2 = GenericAnnotator.newMethod(inner, true, "eval");
+		PendingVar cx = g2.argument(J.OBJECT, "cxt");
 		g2.returns(J.OBJECT);
 		PendingVar args = g2.argument("[" + J.OBJECT, "args");
 		MethodDefiner m2 = g2.done();
-		IExpr[] fnArgs = new IExpr[pendingVars.size()];
+		IExpr[] fnArgs = new IExpr[pendingVars.size()+1];
+		fnArgs[0] = cx.getVar();
 		for (int i=0;i<pendingVars.size();i++) {
-			fnArgs[i] = m2.arrayElt(args.getVar(), m2.intConst(i));
+			fnArgs[i+1] = m2.arrayElt(args.getVar(), m2.intConst(i));
 		}
 		IExpr doCall = m2.callStatic(outerClz, J.OBJECT, form.funcName.name, fnArgs);
 		m2.returnObject(doCall).flush();
@@ -102,28 +115,35 @@ public class MethodGenerationContext implements GenerationContext {
 	public void trampolineWithSelf(String outerClz) {
 		ByteCodeSink inner = bce.newClass(outerClz + "$" + form.funcName.name);
 		inner.generateAssociatedSourceFile();
-		inner.superclass("java.lang.Object");
-		IFieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");
-		GenericAnnotator ctor = GenericAnnotator.newConstructor(inner, false);
-		PendingVar arg = ctor.argument(bcc.getCreatedName(), "card");
-		MethodDefiner c = ctor.done();
-		c.callSuper("void", "java.lang.Object", "<init>").flush();
-		c.assign(fi.asExpr(c), arg.getVar()).flush();
-		c.returnVoid().flush();
+		inner.superclass(J.OBJECT);
+		defaultCtor(inner);
+//		IFieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");
+//		GenericAnnotator ctor = GenericAnnotator.newConstructor(inner, false);
+//		PendingVar arg = ctor.argument(bcc.getCreatedName(), "card");
+//		MethodDefiner c = ctor.done();
+//		c.callSuper("void", "java.lang.Object", "<init>").flush();
+//		c.assign(fi.asExpr(c), arg.getVar()).flush();
+//		c.returnVoid().flush();
 		GenericAnnotator g2 = GenericAnnotator.newMethod(inner, true, "eval");
+		PendingVar cx = g2.argument(J.OBJECT, "cxt");
 		g2.returns(J.OBJECT);
 		PendingVar forThis = g2.argument(J.OBJECT,  "self");
 		PendingVar args = g2.argument("[" + J.OBJECT, "args");
 		MethodDefiner m2 = g2.done();
-		IExpr[] fnArgs = new IExpr[pendingVars.size()];
+		IExpr[] fnArgs = new IExpr[pendingVars.size()+1];
+		fnArgs[0] = cx.getVar();
 		for (int i=0;i<pendingVars.size();i++) {
-			fnArgs[i] = m2.arrayElt(args.getVar(), m2.intConst(i));
+			fnArgs[i+1] = m2.arrayElt(args.getVar(), m2.intConst(i));
 		}
 		IExpr doCall = m2.callVirtual(J.OBJECT, m2.castTo(forThis.getVar(), outerClz), form.funcName.name, fnArgs);
 		m2.returnObject(doCall).flush();
 	}
 
 	// TODO: not sure these are needed at the end of the day
+
+	public Var getCxtArg() {
+		return cxtArg;
+	}
 
 	@Override
 	public ByteCodeSink getSink() {

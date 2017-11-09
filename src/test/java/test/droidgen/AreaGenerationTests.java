@@ -39,6 +39,7 @@ public class AreaGenerationTests {
 	ByteCodeSink bcc = context.mock(ByteCodeSink.class, "bcc");
 	MethodDefiner ctor = context.mock(MethodDefiner.class, "ctor");
 	MethodDefiner ah = context.mock(MethodDefiner.class, "ah");
+	AVar cxt;
 	AVar card;
 	AVar parent;
 	IExpr expr = context.mock(IExpr.class, "expr");
@@ -61,7 +62,7 @@ public class AreaGenerationTests {
 		context.checking(new Expectations() {{
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
-		DroidAreaGenerator gen = new DroidAreaGenerator(bcc, ctor, card, parent);
+		DroidAreaGenerator gen = new DroidAreaGenerator(bcc, ctor, cxt, card, parent);
 		Rewriter rewriter = new Rewriter(null, null, null);
 		TemplateTraversor tt = new TemplateTraversor(rewriter, null);
 		CardName cn = new CardName(new PackageName("test.it"), "MyCard");
@@ -81,6 +82,7 @@ public class AreaGenerationTests {
 		context.checking(new Expectations() {{
 			final States ahGen = context.states("ahGen").startsAs("none");
 			oneOf(bcc).createMethod(false, J.OBJECT, "_add_handlers"); when(ahGen.is("none")); then (ahGen.is("actions")); will(returnValue(ah));
+			oneOf(ah).argument(J.OBJECT, "cxt");
 			oneOf(ah).boolConst(false);	will(returnValue(bf));
 			oneOf(ah).stringConst("click");	will(returnValue(sc));
 			oneOf(ah).classConst("test.it.MyCard$doEcho"); will(returnValue(cc));
@@ -88,11 +90,11 @@ public class AreaGenerationTests {
 			oneOf(ah).aNull(); will(returnValue(expr));
 			oneOf(ah).returnObject(expr); when(ahGen.is("actions")); then (ahGen.is("done")); will(returnValue(expr));
 			oneOf(ctor).myThis(); will(new ReturnNewVar(ctor, "B1", "this"));
-			oneOf(ctor).callVirtual(with(J.OBJECT), with(any(AVar.class)), with("_add_handlers"), with(new IExpr[0])); will(returnValue(expr));
+			oneOf(ctor).callVirtual(with(J.OBJECT), with(any(AVar.class)), with("_add_handlers"), with(new IExpr[1])); will(returnValue(expr));
 			oneOf(ctor).voidExpr(expr); will(returnValue(expr));
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
-		DroidAreaGenerator gen = new DroidAreaGenerator(bcc, ctor, card, parent);
+		DroidAreaGenerator gen = new DroidAreaGenerator(bcc, ctor, cxt, card, parent);
 		Rewriter rewriter = new Rewriter(null, null, null);
 		TemplateTraversor tt = new TemplateTraversor(rewriter, null);
 		CardName cn = new CardName(new PackageName("test.it"), "MyCard");

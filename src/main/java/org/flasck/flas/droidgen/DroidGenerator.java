@@ -96,6 +96,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		
 		if (!sd.fields.isEmpty()) { // generate an arguments constructor
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
+			gen.argument(J.OBJECT, "cxt");
 			PendingVar pv = gen.argument("[java.lang.Object", "args");
 			gen.returns(sd.name());
 			MethodDefiner meth = gen.done();
@@ -332,6 +333,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, name.name.uniqueName(), name.baseName);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			gen.argument(J.OBJECT, "cxt");
 			PendingVar cardArg = null;
 			if (hi.inCard)
 				cardArg = gen.argument("java.lang.Object", "card");
@@ -357,12 +359,14 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		{
 			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "eval");
 			PendingVar cardArg = null;
+			PendingVar cx = gen.argument(J.OBJECT, "cxt");
 			if (hi.inCard)
 				cardArg = gen.argument(J.OBJECT, "card");
 			PendingVar argsArg = gen.argument("[" + J.OBJECT, "args");
 			gen.returns(J.OBJECT);
 			NewMethodDefiner eval = gen.done();
 			List<IExpr> naList = new ArrayList<>();
+			naList.add(cx.getVar());
 			if (hi.inCard)
 				naList.add(cardArg.getVar());
 			for (int k=0;k<hi.boundVars.size();k++)
@@ -393,6 +397,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.defineField(true, Access.PROTECTED, cardClz, "_card");
 		{
 			GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+			ann.argument(J.OBJECT, "cxt");
 			PendingVar card = ann.argument(J.OBJECT, "card");
 			MethodDefiner ctor = ann.done();
 			ctor.callSuper("void", J.OBJECT, "<init>").flush();
@@ -401,10 +406,11 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		}
 		{
 			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "handle");
+			PendingVar cxt = ann.argument(J.OBJECT, "cxt");
 			PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
 			ann.returns(JavaType.object_);
 			NewMethodDefiner meth = ann.done();
-			meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), meth.callVirtual(J.OBJECT, meth.myThis(), "getHandler"), meth.arrayOf(J.OBJECT, Arrays.asList(evP.getVar())))).flush();
+			meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), meth.castTo(meth.callVirtual(J.OBJECT, meth.myThis(), "getHandler", cxt.getVar()), J.CLASS), meth.arrayOf(J.OBJECT, Arrays.asList(evP.getVar())))).flush();
 		}
 	}
 
@@ -414,7 +420,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		CodeGenerator cg = form.mytype.generator();
 		cg.begin(cxt);
 		
-		final DroidClosureGenerator dcg = new DroidClosureGenerator(form, cxt.getMethod(), cxt.getVarHolder());
+		final DroidClosureGenerator dcg = new DroidClosureGenerator(form, cxt);
 		final DroidHSIGenerator hg = new DroidHSIGenerator(dcg, form, cxt.getMethod(), cxt.getVarHolder());
 		IExpr blk = hg.generateHSI(form, null);
 		if (blk != null)
