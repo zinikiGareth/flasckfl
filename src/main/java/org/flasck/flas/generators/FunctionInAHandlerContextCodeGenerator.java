@@ -7,8 +7,10 @@ public class FunctionInAHandlerContextCodeGenerator implements CodeGenerator {
 	@Override
 	public void begin(GenerationContext cxt) {
 		NameOfThing clzContext = cxt.nameContext();
-		cxt.selectClass(clzContext.javaClassName());
+		final String inClz = clzContext.javaClassName();
+		cxt.selectClass(inClz);
 		cxt.instanceMethod(false);
+		cxt.trampolineWithSelf(inClz);
 	}
 
 }

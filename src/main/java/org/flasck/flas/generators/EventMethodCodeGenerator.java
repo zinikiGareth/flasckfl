@@ -7,8 +7,10 @@ public class EventMethodCodeGenerator implements CodeGenerator {
 	@Override
 	public void begin(GenerationContext cxt) {
 		NameOfThing clzContext = cxt.nameContext();
-		cxt.selectClass(clzContext.javaPackageName());
+		final String inClz = clzContext.javaPackageName();
+		cxt.selectClass(inClz);
 		cxt.instanceMethod(false);
+		cxt.trampolineWithSelf(inClz);
 	}
 
 }

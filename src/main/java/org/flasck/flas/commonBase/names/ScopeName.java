@@ -1,6 +1,5 @@
 package org.flasck.flas.commonBase.names;
 
-import org.zinutils.exceptions.NotImplementedException;
 import org.zinutils.xml.XMLElement;
 
 public class ScopeName implements NameOfThing, Comparable<ScopeName> {

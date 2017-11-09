@@ -12,8 +12,11 @@ import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.GenericAnnotator;
-import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.GenericAnnotator.PendingVar;
+import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.IFieldInfo;
+import org.zinutils.bytecode.MethodDefiner;
 
 public class MethodGenerationContext implements GenerationContext {
 	private final ByteCodeStorage bce;
@@ -21,6 +24,7 @@ public class MethodGenerationContext implements GenerationContext {
 	private ByteCodeSink bcc;
 	private MethodDefiner meth;
 	private List<PendingVar> pendingVars = new ArrayList<PendingVar>();
+	private VarHolder vh;
 
 	public MethodGenerationContext(ByteCodeStorage bce, HSIEForm form) {
 		this.bce = bce;
@@ -74,13 +78,52 @@ public class MethodGenerationContext implements GenerationContext {
 		for (int i=0;i<form.nformal;i++)
 			pendingVars.add(gen.argument("java.lang.Object", "_"+i));
 		meth = gen.done();
+		vh = new VarHolder(form, pendingVars);
+	}
+
+	@Override
+	public void trampoline(String outerClz) {
+		ByteCodeSink inner = bce.newClass(outerClz + "$" + form.funcName.name);
+		inner.generateAssociatedSourceFile();
+		inner.superclass("java.lang.Object");
+		GenericAnnotator g2 = GenericAnnotator.newMethod(inner, true, "eval");
+		g2.returns(J.OBJECT);
+		PendingVar args = g2.argument("[" + J.OBJECT, "args");
+		MethodDefiner m2 = g2.done();
+		IExpr[] fnArgs = new IExpr[pendingVars.size()];
+		for (int i=0;i<pendingVars.size();i++) {
+			fnArgs[i] = m2.arrayElt(args.getVar(), m2.intConst(i));
+		}
+		IExpr doCall = m2.callStatic(outerClz, J.OBJECT, form.funcName.name, fnArgs);
+		m2.returnObject(doCall).flush();
+	}
+	
+	@Override
+	public void trampolineWithSelf(String outerClz) {
+		ByteCodeSink inner = bce.newClass(outerClz + "$" + form.funcName.name);
+		inner.generateAssociatedSourceFile();
+		inner.superclass("java.lang.Object");
+		IFieldInfo fi = inner.defineField(true, Access.PRIVATE, bcc.getCreatedName(), "_card");
+		GenericAnnotator ctor = GenericAnnotator.newConstructor(inner, false);
+		PendingVar arg = ctor.argument(bcc.getCreatedName(), "card");
+		MethodDefiner c = ctor.done();
+		c.callSuper("void", "java.lang.Object", "<init>").flush();
+		c.assign(fi.asExpr(c), arg.getVar()).flush();
+		c.returnVoid().flush();
+		GenericAnnotator g2 = GenericAnnotator.newMethod(inner, true, "eval");
+		g2.returns(J.OBJECT);
+		PendingVar forThis = g2.argument(J.OBJECT,  "self");
+		PendingVar args = g2.argument("[" + J.OBJECT, "args");
+		MethodDefiner m2 = g2.done();
+		IExpr[] fnArgs = new IExpr[pendingVars.size()];
+		for (int i=0;i<pendingVars.size();i++) {
+			fnArgs[i] = m2.arrayElt(args.getVar(), m2.intConst(i));
+		}
+		IExpr doCall = m2.callVirtual(J.OBJECT, m2.castTo(forThis.getVar(), outerClz), form.funcName.name, fnArgs);
+		m2.returnObject(doCall).flush();
 	}
 
 	// TODO: not sure these are needed at the end of the day
-	@Override
-	public boolean hasMethod() {
-		return meth != null;
-	}
 
 	@Override
 	public ByteCodeSink getSink() {
@@ -93,8 +136,7 @@ public class MethodGenerationContext implements GenerationContext {
 	}
 
 	@Override
-	public List<PendingVar> getVars() {
-		return pendingVars;
+	public VarHolder getVarHolder() {
+		return vh;
 	}
-
 }
