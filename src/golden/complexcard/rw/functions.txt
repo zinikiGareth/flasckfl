@@ -77,8 +77,8 @@ function test.golden.Complex._S0.get test.golden.Complex 2
         "reply"
         LocalVar.test.golden.Complex._S0.get.x
       PackageVar.Nil
-function test.golden.Complex.handlers_6 test.golden.Complex 0
-  case test.golden.Complex.handlers_6_0
+function test.golden.Complex.handlers_6.getHandler test.golden.Complex 0
+  case test.golden.Complex.handlers_6.getHandler_0
   =
     CardFunction.test.golden.Complex.sayHello
 function test.golden.Complex.inits_format 0

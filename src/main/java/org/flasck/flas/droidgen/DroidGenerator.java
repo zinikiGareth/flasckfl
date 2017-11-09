@@ -1,6 +1,7 @@
 package org.flasck.flas.droidgen;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,6 +23,7 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
+import org.flasck.flas.rewrittenForm.RWEventHandler;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -250,6 +252,9 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			ctor.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			ctor.returnVoid().flush();
 		}
+		for (RWEventHandler action : grp.areaActions)
+			visitEventConnector(action);
+		
 		// TODO: we probably want *a* spec here, but the android one probably wants
 		// to "include" an AndroidActivitySpec defined in JVMBuilder that we can pass straight over
 		PlatformSpec spec = null;
@@ -376,6 +381,30 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 						makeIt).flush();
 			else
 				makeIt.flush();
+		}
+	}
+
+	public void visitEventConnector(RWEventHandler aa) {
+		ByteCodeSink bcc = bce.newClass(aa.handlerFn.javaClassName());
+		bcc.generateAssociatedSourceFile();
+		bcc.superclass("java.lang.Object");
+		bcc.implementsInterface(J.HANDLER);
+		String cardClz = aa.handlerFn.containingCard().javaName();
+		bcc.defineField(true, Access.PROTECTED, cardClz, "_card");
+		{
+			GenericAnnotator ann = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar card = ann.argument(J.OBJECT, "card");
+			MethodDefiner ctor = ann.done();
+			ctor.callSuper("void", J.OBJECT, "<init>").flush();
+			ctor.assign(ctor.getField("_card"), ctor.castTo(card.getVar(), cardClz)).flush();
+			ctor.returnVoid().flush();
+		}
+		{
+			GenericAnnotator ann = GenericAnnotator.newMethod(bcc, false, "handle");
+			PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
+			ann.returns(JavaType.object_);
+			NewMethodDefiner meth = ann.done();
+			meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), meth.callVirtual(J.OBJECT, meth.myThis(), "getHandler"), meth.arrayOf(J.OBJECT, Arrays.asList(evP.getVar())))).flush();
 		}
 	}
 

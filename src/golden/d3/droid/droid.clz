@@ -311,7 +311,7 @@ class TestCard$handlers_0.java implements org.flasck.jvm.display.EventHandler {
 ev
       })
   }
-  java.lang.Class getHandler() {
+  java.lang.Object getHandler() {
     return test.golden.TestCard$rejig.class
   }
 }

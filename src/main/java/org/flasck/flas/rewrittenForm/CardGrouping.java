@@ -55,6 +55,7 @@ public class CardGrouping implements NamedThing {
 	public final List<ServiceGrouping> services = new ArrayList<ServiceGrouping>();
 	public final List<HandlerGrouping> handlers = new ArrayList<HandlerGrouping>();
 	public final Map<String, PlatformSpec> platforms = new TreeMap<String, PlatformSpec>();
+	public final List<RWEventHandler> areaActions = new ArrayList<>();
 	
 	public CardGrouping(InputPosition location, CardName name, RWStructDefn struct) {
 		this.location = location;

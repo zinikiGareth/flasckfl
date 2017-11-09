@@ -41,6 +41,9 @@ public class JSFormGenerator {
 				if (idx == -1) idx = jsname.lastIndexOf("._S");
 			}
 			if (idx != -1) jsname = jsname.substring(0, idx+1) + "_" + jsname.substring(idx+1);
+		} else if (form.mytype == CodeType.EVENT) {
+			int idx = jsname.lastIndexOf(".");
+			jsname = jsname.substring(0, idx);
 		}
 		JSForm ret = JSForm.function(jsname, form.vars, form.scoped, form.nformal);
 		generateBlock(form.funcName, form, ret, form);

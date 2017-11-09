@@ -22,7 +22,6 @@ import org.flasck.flas.generators.FunctionInAHandlerContextCodeGenerator;
 import org.flasck.flas.generators.HandlerMethodCodeGenerator;
 import org.flasck.flas.generators.PureFunctionCodeGenerator;
 import org.flasck.flas.generators.ServiceMethodCodeGenerator;
-import org.flasck.flas.generators.StandaloneMethodCodeGenerator;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -122,7 +121,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		STANDALONE {
 			@Override
 			public CodeGenerator generator() {
-				return new StandaloneMethodCodeGenerator();
+				throw new NotImplementedException("This case is not as yet implemented, but should be very similar to the standalone function case");
 			}
 		},
 		// a method on an area

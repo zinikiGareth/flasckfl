@@ -54,7 +54,7 @@ class Events$handlers_0.java implements org.flasck.jvm.display.EventHandler {
 ev
       })
   }
-  java.lang.Class getHandler() {
+  java.lang.Object getHandler() {
     return test.golden.Events$okThen.class
   }
 }
@@ -71,7 +71,7 @@ class Events$handlers_1.java implements org.flasck.jvm.display.EventHandler {
 ev
       })
   }
-  java.lang.Class getHandler() {
+  java.lang.Object getHandler() {
     return new org.flasck.jvm.fl.FLCurry(this,test.golden.Events$setTo.class,2,new java.lang.Object[1] {
         autobox[java.lang.Integer.valueOf(13)]
       })

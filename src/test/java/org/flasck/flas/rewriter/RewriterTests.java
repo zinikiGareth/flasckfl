@@ -270,7 +270,7 @@ public class RewriterTests {
 		RootContext rc = rw.new RootContext();
 		PackageContext pc = rw.new PackageContext(rc, pn, scope);
 		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
-		CardContext cc = rw.new CardContext(pc, cn, cd, false);
+		CardContext cc = rw.new CardContext(pc, cn, null, cd, false);
 		final AreaName an = new AreaName(cn, "area1");
 		IterVar iv = new IterVar(posn, cn, "e");
 		final TemplateListVar tlv = new TemplateListVar(posn, FunctionName.areaMethod(posn, an, "tlv_0"), iv);
@@ -294,7 +294,7 @@ public class RewriterTests {
 		RootContext rc = rw.new RootContext();
 		PackageContext pc = rw.new PackageContext(rc, pn, scope);
 		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
-		CardContext cc = rw.new CardContext(pc, cn, cd, false);
+		CardContext cc = rw.new CardContext(pc, cn, null, cd, false);
 		final AreaName an = new AreaName(cn, "area1");
 		IterVar iv = new IterVar(posn, cn, "e");
 		final TemplateListVar tlv = new TemplateListVar(posn, FunctionName.areaMethod(posn, an, "tlv_0"), iv);
@@ -320,7 +320,7 @@ public class RewriterTests {
 		RootContext rc = rw.new RootContext();
 		PackageContext pc = rw.new PackageContext(rc, pn, scope);
 		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
-		CardContext cc = rw.new CardContext(pc, cn, cd, false);
+		CardContext cc = rw.new CardContext(pc, cn, null, cd, false);
 		final AreaName an = new AreaName(cn, "area1");
 		IterVar iv = new IterVar(posn, cn, "e");
 		final TemplateListVar tlv = new TemplateListVar(posn, FunctionName.areaMethod(posn, an, "tlv_0"), iv);

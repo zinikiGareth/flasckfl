@@ -357,7 +357,7 @@ class Complex$handlers_6.java implements org.flasck.jvm.display.EventHandler {
 ev
       })
   }
-  java.lang.Class getHandler() {
+  java.lang.Object getHandler() {
     return test.golden.Complex$sayHello.class
   }
 }

@@ -443,7 +443,7 @@ CLOSURE v2                                                   #d3.fl:       35.9
   PUSH 10                                                    #d3.fl:       35.9
   PUSH v1:clos1                                              #d3.fl:       35.12
 -------
-HSIE for test.golden.TestCard.handlers_0/0                   #d3.fl:       11.9
+HSIE for test.golden.TestCard.handlers_0.getHandler/0        #d3.fl:       11.9
 #Args: 0 #bound: 0
     externals: [test.golden.TestCard.rejig]
     scoped = []

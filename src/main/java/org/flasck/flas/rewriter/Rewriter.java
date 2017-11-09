@@ -69,8 +69,8 @@ import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parsedForm.StructDefn;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
 import org.flasck.flas.parsedForm.TemplateCardReference;
@@ -302,12 +302,14 @@ public class Rewriter implements CodeGenRegistry {
 		private final CardName cardName;
 		private final Map<String, Type> members = new TreeMap<String, Type>();
 		private final Map<String, ObjectReference> statics = new TreeMap<String, ObjectReference>();
+		private final List<RWEventHandler> areaActions;
 		private final IScope innerScope;
 		private int fnIdx = 0;
 
-		public CardContext(PackageContext cx, CardName name, CardDefinition cd, boolean doAll) {
+		public CardContext(PackageContext cx, CardName name, List<RWEventHandler> areaActions, CardDefinition cd, boolean doAll) {
 			super(cx);
 			this.cardName = name;
+			this.areaActions = areaActions;
 			this.innerScope = cd.innerScope();
 			if (!doAll)
 				return;
@@ -370,13 +372,17 @@ public class Rewriter implements CodeGenRegistry {
 
 		public FunctionName nextFunction(InputPosition loc, String type, HSIEForm.CodeType kind, AreaName areaName) {
 			if (kind == CodeType.AREA)
-				return FunctionName.areaMethod(loc, areaName, type +"_"+(fnIdx++));
+				return FunctionName.areaMethod(loc, areaName, nextName(type));
 			else if (kind == CodeType.CARD) 
-				return FunctionName.functionInCardContext(loc, cardName, type+"_"+(fnIdx++));
+				return FunctionName.functionInCardContext(loc, cardName, nextName(type));
 			else if (kind == CodeType.EVENT) 
-				return FunctionName.eventTrampoline(loc, cardName, type+"_"+(fnIdx++));
+				return FunctionName.eventTrampoline(loc, cardName, nextName(type));
 			else
 				throw new NotImplementedException("nextFunction of type " + kind);
+		}
+
+		public String nextName(String type) {
+			return type +"_"+(fnIdx++);
 		}
 	}
 
@@ -435,13 +441,17 @@ public class Rewriter implements CodeGenRegistry {
 			this.nextAreaNo = -1;
 		}
 
-		public CardName cardName() {
+		public CardContext cardContext() {
 			if (nested instanceof CardContext) {
-				return ((CardContext)nested).cardName;
+				return (CardContext)nested;
 			} else if (nested instanceof TemplateContext)
-				return ((TemplateContext)nested).cardName();
+				return ((TemplateContext)nested).cardContext();
 			else
 				throw new UtilException("Cannot handle " + nested.getClass());
+		}
+
+		public CardName cardName() {
+			return cardContext().cardName;
 		}
 		
 		@Override
@@ -668,7 +678,7 @@ public class Rewriter implements CodeGenRegistry {
 			if (val instanceof CardDefinition) {
 				CardDefinition cd = (CardDefinition) val;
 				CardGrouping cg = createCard((PackageContext)cx, cd);
-				final CardContext ic = new CardContext((PackageContext) cx, cg.getName(), cd, false);
+				final CardContext ic = new CardContext((PackageContext) cx, cg.getName(), cg.areaActions, cd, false);
 				pass1(ic, cd.fnScope);
 				for (HandlerImplements h : cd.handlers) {
 					RWHandlerImplements rw = pass1HI(ic, h);
@@ -755,7 +765,7 @@ public class Rewriter implements CodeGenRegistry {
 					CardDefinition cd = (CardDefinition) val;
 					CardGrouping cg = pass2Card(cx, cd);
 					if (!errors.hasErrors()) {
-						CardContext c2 = new CardContext((PackageContext) cx, cg.getName(), cd, true);
+						CardContext c2 = new CardContext((PackageContext) cx, cg.getName(), cg.areaActions, cd, true);
 						pass2(c2, cd.innerScope());
 					}
 				} catch (ResolutionException ex) {
@@ -853,7 +863,7 @@ public class Rewriter implements CodeGenRegistry {
 			}
 		}
 		
-		CardContext c2 = new CardContext((PackageContext) cx, grp.getName(), cd, true);
+		CardContext c2 = new CardContext((PackageContext) cx, grp.getName(), grp.areaActions, cd, true);
 		for (ContractImplements ci : cd.contracts) {
 			RWContractImplements rw = cardImplements.get(ci.getRealName());
 
@@ -1141,18 +1151,23 @@ public class Rewriter implements CodeGenRegistry {
 
 	private RWTemplateLine rewriteEventHandlers(TemplateContext cx, AreaName areaName, RWTemplateFormatEvents ret, List<EventHandler> handlers) {
 		// It may or may not be the same array ... copy it to be sure ...
+		CardContext cc = cx.cardContext();
 		handlers = new ArrayList<EventHandler>(handlers);
 		ret.handlers.clear();
 		for (EventHandler h : handlers) {
+			String name = cc.nextName("handlers");
 			InputPosition loc = ((Locatable)h.expr).location();
-			FunctionName fnName = cx.nextFunction(loc, ret.areaName(), "handlers", CodeType.EVENT);
+			SolidName solidName = new SolidName(cc.cardName, name);
+			FunctionName handlerName = FunctionName.eventTrampoline(loc, solidName, "getHandler");
 			Object rwexpr = rewriteExpr(cx, h.expr);
-			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
-			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, rwexpr);
+			RWFunctionDefinition fn = new RWFunctionDefinition(handlerName, 0, true);
+			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, handlerName, new ArrayList<>(), null), 0, rwexpr);
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
-			functions.put(fnName.uniqueName(), fn);
-			ret.handlers.add(new RWEventHandler(loc, h.action, rwexpr, fnName));
+			functions.put(handlerName.uniqueName(), fn);
+			final RWEventHandler eh = new RWEventHandler(loc, h.action, rwexpr, solidName);
+			ret.handlers.add(eh);
+			cc.areaActions.add(eh);
 		}
 		return ret;
 	}

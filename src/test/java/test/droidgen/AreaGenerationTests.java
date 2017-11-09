@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.droidgen.DroidAreaGenerator;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWContentString;
@@ -98,7 +99,7 @@ public class AreaGenerationTests {
 		AreaName areaName = new AreaName(cn, "B1");
 		List<Object> formats = new ArrayList<>();
 		FunctionName dynamicFn = null;
-		FunctionName handlerFn = FunctionName.functionInCardContext(loc, cn, "doEcho");
+		SolidName handlerFn = new SolidName(cn, "handler");
 		Object doCall = null;
 		RWContentString cs = new RWContentString(loc, "hello", areaName, formats, dynamicFn);
 		cs.handlers.add(new RWEventHandler(loc, "click", doCall, handlerFn));

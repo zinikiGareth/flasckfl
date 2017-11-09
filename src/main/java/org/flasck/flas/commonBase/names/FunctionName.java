@@ -46,8 +46,8 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.HANDLERFUNCTION, inScope, name);
 	}
 
-	public static FunctionName eventTrampoline(InputPosition location, CardName card, String name) {
-		return new FunctionName(location, CodeType.EVENT, card, name);
+	public static FunctionName eventTrampoline(InputPosition location, NameOfThing fnName, String name) {
+		return new FunctionName(location, CodeType.EVENT, fnName, name);
 	}
 
 	public static FunctionName eventMethod(InputPosition location, CardName cardName, String name) {
@@ -132,6 +132,11 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	}
 
 	@Override
+	public String javaPackageName() {
+		return inContext.javaClassName();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof FunctionName))
 			return false;
@@ -166,10 +171,5 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	public String writeToXML(XMLElement xe) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public String javaPackageName() {
-		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 }

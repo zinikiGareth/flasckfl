@@ -1,6 +1,6 @@
 package org.flasck.flas.droidgen;
 
-import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.template.EventHandlerGenerator;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.JavaType;
@@ -14,8 +14,8 @@ public class DroidEventHandlerGenerator implements EventHandlerGenerator {
 	}
 
 	@Override
-	public void handle(boolean giveDistinguishedName, String action, FunctionName callFn) {
-		ahMeth.callSuper(JavaType.void_.getActual(), J.AREA, "addEventHandler", ahMeth.boolConst(giveDistinguishedName), ahMeth.stringConst(action), ahMeth.classConst(callFn.javaNameAsNestedClass())).flush();
+	public void handle(boolean giveDistinguishedName, String action, SolidName clz) {
+		ahMeth.callSuper(JavaType.void_.getActual(), J.AREA, "addEventHandler", ahMeth.boolConst(giveDistinguishedName), ahMeth.stringConst(action), ahMeth.classConst(clz.javaClassName())).flush();
 	}
 
 	@Override

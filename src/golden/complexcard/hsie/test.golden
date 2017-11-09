@@ -155,7 +155,7 @@ CLOSURE v4                                                   #complexcard. 71.3
   PUSH v3:clos3                                              #complexcard. 71.3
   PUSH PackageVar.Nil                                        #complexcard. 70.0
 -------
-HSIE for test.golden.Complex.handlers_6/0                    #complexcard. 49.9
+HSIE for test.golden.Complex.handlers_6.getHandler/0         #complexcard. 49.9
 #Args: 0 #bound: 0
     externals: [test.golden.Complex.sayHello]
     scoped = []
