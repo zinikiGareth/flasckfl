@@ -64,4 +64,9 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 		return null;
 	}
 
+	@Override
+	public String javaPackageName() {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
 }

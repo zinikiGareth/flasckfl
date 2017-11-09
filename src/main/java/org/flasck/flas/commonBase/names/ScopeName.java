@@ -36,7 +36,7 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 	
 	@Override
 	public String javaName() {
-		throw new NotImplementedException();
+		return inside.javaClassName() + "." + myname;
 	}
 
 	@Override
@@ -80,6 +80,11 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 	public String writeToXML(XMLElement xe) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String javaPackageName() {
+		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
 }

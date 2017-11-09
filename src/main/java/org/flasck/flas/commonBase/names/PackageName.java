@@ -35,6 +35,11 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	}
 
 	@Override
+	public String javaPackageName() {
+		return name;
+	}
+
+	@Override
 	public String javaClassName() {
 		return name;
 	}

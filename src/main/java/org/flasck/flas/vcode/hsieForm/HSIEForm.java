@@ -110,6 +110,8 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			}
 		},
 		// a "class" connecting an element to an event handler
+		// This really is a very different beast ... has no real HSIE code
+		// Can we extract it?
 		EVENT {
 			@Override
 			public CodeGenerator generator() {

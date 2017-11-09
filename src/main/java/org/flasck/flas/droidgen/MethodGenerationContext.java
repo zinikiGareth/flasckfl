@@ -3,6 +3,7 @@ package org.flasck.flas.droidgen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.rewrittenForm.ScopedVar;
@@ -32,6 +33,11 @@ public class MethodGenerationContext implements GenerationContext {
 	}
 
 	@Override
+	public FunctionName funcName() {
+		return form.funcName;
+	}
+
+	@Override
 	public void selectClass(String inClz) {
 		if (bce.hasClass(inClz))
 			bcc = bce.get(inClz);
@@ -43,8 +49,22 @@ public class MethodGenerationContext implements GenerationContext {
 	}
 
 	@Override
+	public void implementsInterface(String intf) {
+		bcc.implementsInterface(intf);
+	}
+
+	@Override
 	public void instanceMethod(boolean withContext) {
-		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, form.funcName.name);
+		doMethod(false, withContext);
+	}
+
+	@Override
+	public void staticMethod(boolean withContext) {
+		doMethod(true, withContext);
+	}
+
+	private void doMethod(boolean isStatic, boolean withContext) {
+		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, isStatic, form.funcName.name);
 		gen.returns("java.lang.Object");
 		if (withContext)
 			gen.argument(J.OBJECT, "_context");

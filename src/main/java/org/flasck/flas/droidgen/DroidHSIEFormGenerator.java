@@ -39,10 +39,12 @@ public class DroidHSIEFormGenerator {
 		GenerationContext cxt = new MethodGenerationContext(bce, form);
 		CodeGenerator cg = form.mytype.generator();
 		if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.SERVICE) {
+			cg.begin(cxt);
 			inClz = form.funcName.inContext.javaClassName();
 			needContext = true;
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.HANDLERFUNCTION) {
+			cg.begin(cxt);
 			inClz = form.funcName.inContext.javaClassName();
 			needTrampolineClass = true;
 			wantThis = true;
@@ -51,22 +53,20 @@ public class DroidHSIEFormGenerator {
 			inClz = form.funcName.inContext.javaClassName();
 			needTrampolineClass = false;
 		} else if (form.mytype == CodeType.CARD || form.mytype == CodeType.EVENTHANDLER) {
+			cg.begin(cxt);
 			inClz = form.funcName.inContext.uniqueName();
 			needTrampolineClass = true;
 			wantThis = true;
 		} else if (form.mytype == CodeType.FUNCTION || form.mytype == CodeType.STANDALONE) {
+			cg.begin(cxt);
 			inClz = form.funcName.inContext.uniqueName() + ".PACKAGEFUNCTIONS";
-			if (!bce.hasClass(inClz)) {
-				ByteCodeSink bcc = bce.newClass(inClz);
-				bcc.generateAssociatedSourceFile();
-				bcc.superclass("java.lang.Object");
-			}
 			needTrampolineClass = true;
 		} else if (form.mytype == CodeType.EVENT) {
+			cg.begin(cxt);
 			// There may be duplication between what I need here and what I already have,
 			// but everything is in such a mess at the moment I can't deal ...
 			// Refactor later
-			generateEventConnector(form);
+			generateEventConnector(cg, cxt, form);
 			return;
 		} else
 			throw new UtilException("Can't handle " + form.funcName + " of code type " + form.mytype);
@@ -133,12 +133,8 @@ public class DroidHSIEFormGenerator {
 		}
 	}
 
-	private void generateEventConnector(HSIEForm form) {
-		String clzName = form.funcName.javaNameAsNestedClass();
-		ByteCodeSink bcc = bce.newClass(clzName);
-		bcc.generateAssociatedSourceFile();
-		bcc.superclass(J.OBJECT);
-		bcc.implementsInterface(J.HANDLER);
+	private void generateEventConnector(CodeGenerator cg, GenerationContext cxt, HSIEForm form) {
+		ByteCodeSink bcc = cxt.getSink();
 		String cardClz = form.funcName.containingCard().javaName();
 		bcc.defineField(true, Access.PROTECTED, cardClz, "_card");
 		{

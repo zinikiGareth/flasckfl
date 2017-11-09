@@ -76,4 +76,9 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 		return null;
 	}
 
+	@Override
+	public String javaPackageName() {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
 }

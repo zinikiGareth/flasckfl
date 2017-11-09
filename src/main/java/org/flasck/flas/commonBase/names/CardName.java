@@ -21,6 +21,11 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 			return cardName;
 		return pkg.uniqueName() + "." + cardName;
 	}
+
+	@Override
+	public String javaPackageName() {
+		return javaName();
+	}
 	
 	public String javaName() {
 		if (pkg == null || pkg.simpleName() == null)

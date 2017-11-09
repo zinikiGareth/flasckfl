@@ -82,4 +82,9 @@ public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 		return null;
 	}
 
+	@Override
+	public String javaPackageName() {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
 }

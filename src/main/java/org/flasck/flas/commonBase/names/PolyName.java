@@ -71,4 +71,9 @@ public class PolyName implements NameOfThing, Comparable<PolyName> {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String javaPackageName() {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
 }

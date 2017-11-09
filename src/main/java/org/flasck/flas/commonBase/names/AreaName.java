@@ -75,4 +75,9 @@ public class AreaName implements NameOfThing, Comparable<AreaName> {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String javaPackageName() {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
 }
