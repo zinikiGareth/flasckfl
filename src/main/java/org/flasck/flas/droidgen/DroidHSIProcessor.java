@@ -56,7 +56,6 @@ public class DroidHSIProcessor implements HSIEVisitor {
 		}
 		coll.add(meth.ifBoolean(meth.instanceOf(hv, ctor), droidHSIGenerator.generateHSI(sw, assignReturnTo), null));
 	}
-
 	
 	@Override
 	public void visit(IFCmd c) {

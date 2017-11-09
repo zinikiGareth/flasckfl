@@ -12,6 +12,8 @@ import org.flasck.flas.commonBase.names.CSName;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.compiler.HSIEFormGenerator;
+import org.flasck.flas.generators.CodeGenerator;
+import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewriter.CodeGenRegistry;
 import org.flasck.flas.rewriter.RepoVisitor;
@@ -49,13 +51,11 @@ import org.zinutils.bytecode.Var;
 
 public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	private final ByteCodeStorage bce;
-	private final DroidHSIEFormGenerator formGen;
 	private final DroidBuilder builder;
 
 	public DroidGenerator(ByteCodeStorage bce, DroidBuilder builder) {
 		this.bce = bce;
 		this.builder = builder;
-		this.formGen = new DroidHSIEFormGenerator(bce);
 	}
 
 	public void registerWith(CodeGenRegistry rewriter) {
@@ -410,6 +410,14 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 
 	@Override
 	public void generate(HSIEForm form) {
-		formGen.generate(form);
+		GenerationContext cxt = new MethodGenerationContext(bce, form);
+		CodeGenerator cg = form.mytype.generator();
+		cg.begin(cxt);
+		
+		final DroidClosureGenerator dcg = new DroidClosureGenerator(form, cxt.getMethod(), cxt.getVarHolder());
+		final DroidHSIGenerator hg = new DroidHSIGenerator(dcg, form, cxt.getMethod(), cxt.getVarHolder());
+		IExpr blk = hg.generateHSI(form, null);
+		if (blk != null)
+			blk.flush();
 	}
 }
