@@ -99,7 +99,7 @@ public class AreaGenerationTests {
 		AreaName areaName = new AreaName(cn, "B1");
 		List<Object> formats = new ArrayList<>();
 		FunctionName dynamicFn = null;
-		SolidName handlerFn = new SolidName(cn, "handler");
+		SolidName handlerFn = new SolidName(cn, "doEcho");
 		Object doCall = null;
 		RWContentString cs = new RWContentString(loc, "hello", areaName, formats, dynamicFn);
 		cs.handlers.add(new RWEventHandler(loc, "click", doCall, handlerFn));
