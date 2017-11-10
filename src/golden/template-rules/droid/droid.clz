@@ -33,7 +33,7 @@ class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
     super.<init>(parent, null)
     this._card = cardArg
     this._card._wrapper.onAssign(this._card, "c", this, "_contentExpr")
-    this._card._wrapper.onAssign(this._card.getVar("c"), "title", this, "_contentExpr")
+    this._card._wrapper.onAssign(this._card.getVar(cxt, "c"), "title", this, "_contentExpr")
     (void)this._contentExpr(cxt)
     this.setCSS("flasck-editable")
     return
@@ -44,12 +44,12 @@ class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
   }
   java.lang.Object contents_0(java.lang.Object _context) {
     return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
-        autobox[this._card.getVar("c")]
+        autobox[this._card.getVar(_context, "c")]
         autobox["title"]
       })
   }
   java.lang.Object editcontainer_1(java.lang.Object _context) {
-    return this._card.getVar("c")
+    return this._card.getVar(_context, "c")
   }
 }
 class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
@@ -67,7 +67,7 @@ class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
     return ret
   }
   java.lang.Object lvs_2(java.lang.Object _context) {
-    return this._card.getVar("set")
+    return this._card.getVar(_context, "set")
   }
 }
 class MyCard$B4.java extends org.flasck.jvm.areas.DivArea {

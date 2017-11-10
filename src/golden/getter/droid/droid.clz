@@ -22,7 +22,7 @@ class Getter.java extends org.flasck.jvm.cards.FlasckCard {
       if (_0 instanceof java.lang.String) {
         {
           v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
-              autobox[this.getVar("strings")]
+              autobox[this.getVar(_context, "strings")]
               autobox["item"]
             })
           v2 = new org.flasck.jvm.fl.FLClosure(v1,new java.lang.Object[1] {

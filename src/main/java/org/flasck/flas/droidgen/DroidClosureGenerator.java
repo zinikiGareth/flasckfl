@@ -49,7 +49,7 @@ public class DroidClosureGenerator {
 		this.meth = cxt.getMethod();
 		this.vh = cxt.getVarHolder();
 		this.cxtVar = cxt.getCxtArg();
-		dpa = new DroidPushArgument(form, meth, vh);
+		dpa = new DroidPushArgument(form, meth, cxtVar, vh);
 		if (form.needsCardMember())
 			myOn = ObjectNeeded.CARD;
 		else if (form.isCardMethod())
@@ -104,7 +104,7 @@ public class DroidClosureGenerator {
 				if (cm.type instanceof RWContractImplements)
 					fld = meth.getField(card, cm.var);
 				else
-					fld = meth.callVirtual(J.OBJECT, card, "getVar", meth.stringConst(cm.var));
+					fld = meth.callVirtual(J.OBJECT, card, "getVar", cxtVar, meth.stringConst(cm.var));
 				return doEval(myOn, fld, closure);
 			} else if (defn instanceof RWFunctionDefinition) {
 				RWFunctionDefinition rwfn = (RWFunctionDefinition) defn;

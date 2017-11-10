@@ -23,7 +23,7 @@ class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
   java.lang.Object contents_0(java.lang.Object _context) {
-    return this._card.getVar("hello")
+    return this._card.getVar(_context, "hello")
   }
 }
 class Simple$f.java {

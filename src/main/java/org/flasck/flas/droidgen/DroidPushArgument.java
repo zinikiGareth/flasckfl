@@ -25,16 +25,19 @@ import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
+import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
 public final class DroidPushArgument implements PushVisitor {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
+	private final Var cx;
 	private final VarHolder vh;
 
-	public DroidPushArgument(HSIEForm form, NewMethodDefiner meth, VarHolder vh) {
+	public DroidPushArgument(HSIEForm form, NewMethodDefiner meth, Var cx, VarHolder vh) {
 		this.form = form;
 		this.meth = meth;
+		this.cx = cx;
 		this.vh = vh;
 	}
 
@@ -78,7 +81,7 @@ public final class DroidPushArgument implements PushVisitor {
 			if (cm.type instanceof RWContractImplements)
 				return meth.getField(card, cm.var);
 			else
-				return meth.callVirtual(J.OBJECT, card, "getVar", meth.stringConst(cm.var));
+				return meth.callVirtual(J.OBJECT, card, "getVar", cx, meth.stringConst(cm.var));
 		} else if (name instanceof HandlerLambda) {
 			if (form.mytype == CodeType.HANDLER)
 				return meth.getField(((HandlerLambda)name).var);

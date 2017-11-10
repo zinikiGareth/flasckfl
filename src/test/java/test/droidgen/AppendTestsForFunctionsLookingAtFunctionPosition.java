@@ -49,7 +49,8 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 	MethodDefiner meth = context.mock(MethodDefiner.class);
 	private HSIEForm form = null;
 	private VarHolder vh = new VarHolder();
-	DroidPushArgument dpa = new DroidPushArgument(form, meth, vh);
+	private org.zinutils.bytecode.Var cx = null;
+	DroidPushArgument dpa = new DroidPushArgument(form, meth, cx, vh);
 	private FunctionName funcName = FunctionName.function(loc, null, "func");
 
 	@Test

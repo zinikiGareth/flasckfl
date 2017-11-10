@@ -13,12 +13,12 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
       v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
-          autobox[this._card.getVar("c")]
+          autobox[this._card.getVar(_context, "c")]
           autobox["put"]
           autobox[v0]
         })
       v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
-          autobox[this._card.getVar("c")]
+          autobox[this._card.getVar(_context, "c")]
           autobox["clear"]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
