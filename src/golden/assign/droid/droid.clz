@@ -43,8 +43,8 @@ class Container.java extends org.flasck.jvm.fl.FLASObject {
     ret.value = args[0]
     return ret
   }
-  void _doFullEval() {
-    this.value = this._fullOf(this.value)
+  void _doFullEval(java.lang.Object cxt) {
+    this.value = this._fullOf(cxt, this.value)
     return
   }
 }

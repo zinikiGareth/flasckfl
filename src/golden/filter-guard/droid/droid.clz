@@ -23,7 +23,7 @@ class PACKAGEFUNCTIONS.java {
           v4 = new org.flasck.jvm.fl.FLClosure(_0,new java.lang.Object[1] {
               autobox[v1.head]
             })
-          if (org.flasck.jvm.fl.FLEval.isTruthy(v4)) {
+          if (org.flasck.jvm.fl.FLEval.isTruthy(_context, v4)) {
             {
               v5 = new org.flasck.jvm.fl.FLClosure(test.golden.PACKAGEFUNCTIONS$filter.class,new java.lang.Object[2] {
                   autobox[_0]

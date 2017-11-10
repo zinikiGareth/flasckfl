@@ -10,18 +10,20 @@ public class DroidHSIGenerator {
 	private final DroidClosureGenerator closGen;
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
+	private final Var cx;
 	private final VarHolder vh;
 	
-	public DroidHSIGenerator(DroidClosureGenerator closGen, HSIEForm form, NewMethodDefiner meth, VarHolder vh) {
+	public DroidHSIGenerator(DroidClosureGenerator closGen, HSIEForm form, NewMethodDefiner meth, Var cx, VarHolder vh) {
 		this.closGen = closGen;
 		this.form = form;
 		this.meth = meth;
+		this.cx = cx;
 		this.vh = vh;
 	}
 
 	public IExpr generateHSI(HSIEBlock blk, Var assignReturnTo) {
 		StmtCollector coll = new StmtCollector(meth);
-		blk.visit(new DroidHSIProcessor(this, form, meth, coll, closGen, vh, assignReturnTo));
+		blk.visit(new DroidHSIProcessor(this, form, meth, coll, closGen, cx, vh, assignReturnTo));
 		return coll.asBlock();
 	}
 }

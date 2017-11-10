@@ -146,9 +146,9 @@ public class DroidAreaGenerator implements AreaGenerator {
 		// that we converted into a Var.  Now we have a function to call, so we need to replace "str" with "tfn()"
 		IExpr str = meth.callVirtual(J.OBJECT, meth.myThis(), tfn.name, cv.getVar());
 		if (rawHTML)
-			meth.callSuper("void", J.TEXT_AREA, "_assignHTML", str).flush();
+			meth.callSuper("void", J.TEXT_AREA, "_assignHTML", cv.getVar(), str).flush();
 		else
-			meth.callSuper("void", J.TEXT_AREA, "_assignToText", str).flush();
+			meth.callSuper("void", J.TEXT_AREA, "_assignToText", cv.getVar(), str).flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
 
@@ -201,7 +201,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 		MethodDefiner meth = svf.done();
 		currentMethod = meth;
 //		meth.voidExpr(meth.callStatic("android.util.Log", "int", "e", meth.stringConst("FlasckLib"), meth.stringConst("Need to set variable formats"))).flush();
-		meth.callSuper("void", J.AREA, "_setCSSObj", meth.callVirtual(J.OBJECT, meth.myThis(), tfn.name, pv.getVar())).flush();
+		meth.callSuper("void", J.AREA, "_setCSSObj", pv.getVar(), meth.callVirtual(J.OBJECT, meth.myThis(), tfn.name, pv.getVar())).flush();
 		meth.returnObject(meth.aNull()).flush();
 	}
 

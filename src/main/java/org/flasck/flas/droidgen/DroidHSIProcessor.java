@@ -23,16 +23,18 @@ public class DroidHSIProcessor implements HSIEVisitor {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private final StmtCollector coll;
+	private final Var cx;
 	private final VarHolder vh;
 	private final Var assignReturnTo;
 	private final DroidClosureGenerator closGen;
 
-	public DroidHSIProcessor(DroidHSIGenerator droidHSIGenerator, HSIEForm form, NewMethodDefiner meth, StmtCollector coll, DroidClosureGenerator closGen, VarHolder vh, Var assignReturnTo) {
+	public DroidHSIProcessor(DroidHSIGenerator droidHSIGenerator, HSIEForm form, NewMethodDefiner meth, StmtCollector coll, DroidClosureGenerator closGen, Var cx, VarHolder vh, Var assignReturnTo) {
 		this.droidHSIGenerator = droidHSIGenerator;
 		this.form = form;
 		this.meth = meth;
 		this.coll = coll;
 		this.closGen = closGen;
+		this.cx = cx;
 		this.vh = vh;
 		this.assignReturnTo = assignReturnTo;
 	}
@@ -75,7 +77,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 			testVal = meth.box(exprValue(meth, c.value));
 			coll.add(meth.ifEquals(hv, testVal, ifblk, null));
 		} else {
-			coll.add(meth.ifBoolean(isTruthy(meth, hv), ifblk, null));
+			coll.add(meth.ifBoolean(isTruthy(meth, cx, hv), ifblk, null));
 		}
 	}
 	
@@ -126,8 +128,8 @@ public class DroidHSIProcessor implements HSIEVisitor {
 		coll.add(meth.returnObject(meth.makeNew(J.FLERROR, meth.stringConst(meth.getName() + ": case not handled"))));
 	}
 
-	private IExpr isTruthy(NewMethodDefiner meth, Var hv) {
-		return meth.callStatic(J.FLEVAL, J.BOOLEANP.getActual(), "isTruthy", hv);
+	private IExpr isTruthy(NewMethodDefiner meth, Var cx, Var hv) {
+		return meth.callStatic(J.FLEVAL, J.BOOLEANP.getActual(), "isTruthy", cx, hv);
 	}
 
 	private void makeArgBeString(Var v) {

@@ -10,8 +10,8 @@ class Container.java extends org.flasck.jvm.fl.FLASObject {
     ret.title = args[0]
     return ret
   }
-  void _doFullEval() {
-    this.title = this._fullOf(this.title)
+  void _doFullEval(java.lang.Object cxt) {
+    this.title = this._fullOf(cxt, this.title)
     return
   }
 }
@@ -39,7 +39,7 @@ class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
     return
   }
   java.lang.Object _contentExpr(java.lang.Object cxt) {
-    super._assignToText(this.contents_0(cxt))
+    super._assignToText(cxt, this.contents_0(cxt))
     return null
   }
   java.lang.Object contents_0(java.lang.Object _context) {
@@ -108,7 +108,7 @@ class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
     return
   }
   java.lang.Object _contentExpr(java.lang.Object cxt) {
-    super._assignToText(this.contents_3(cxt))
+    super._assignToText(cxt, this.contents_3(cxt))
     return null
   }
   java.lang.Object contents_3(java.lang.Object _context) {

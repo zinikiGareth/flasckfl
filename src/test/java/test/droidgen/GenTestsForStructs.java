@@ -145,6 +145,7 @@ public class GenTestsForStructs {
 	public void checkCreationOfStructDFE() {
 		context.checking(new Expectations() {{
 			oneOf(bccStruct).createMethod(false, "void", "_doFullEval"); will(returnValue(dfe));
+			oneOf(dfe).argument(J.OBJECT, "cxt"); will(new ReturnNewVar(dfe, J.OBJECT, "cxt"));
 			oneOf(dfe).returnVoid(); will(returnValue(expr));
 		}});
 	}
@@ -157,7 +158,7 @@ public class GenTestsForStructs {
 			oneOf(bccStruct).defineField(false, Access.PUBLIC, type, name); will(returnValue(ret));
 			oneOf(ret).asExpr(meth); will(returnValue(fe));
 			oneOf(meth).as(fe, J.OBJECT); will(returnValue(fe));
-			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(new Expr[] { fe })); will(returnValue(expr));
+			oneOf(meth).callVirtual(with(J.OBJECT), with(aNonNull(FieldExpr.class)), with("_fullOf"), with(any(IExpr[].class))); will(returnValue(expr));
 			oneOf(meth).assign(fe, expr); will(returnValue(expr));
 		}});
 	}

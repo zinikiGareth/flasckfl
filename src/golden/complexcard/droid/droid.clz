@@ -3,7 +3,7 @@ class ClickIt.java extends org.flasck.jvm.fl.FLASObject {
     super.<init>()
     return
   }
-  void _doFullEval() {
+  void _doFullEval(java.lang.Object cxt) {
     return
   }
 }
@@ -162,11 +162,11 @@ class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
     return
   }
   java.lang.Object _contentExpr(java.lang.Object cxt) {
-    super._assignToText(this.contents_1(cxt))
+    super._assignToText(cxt, this.contents_1(cxt))
     return null
   }
   java.lang.Object _setVariableFormats(java.lang.Object cxt) {
-    super._setCSSObj(this.formats_2(cxt))
+    super._setCSSObj(cxt, this.formats_2(cxt))
     return null
   }
   java.lang.Object contents_1(java.lang.Object _context) {
@@ -233,7 +233,7 @@ class Complex$B5.java extends org.flasck.jvm.areas.TextArea {
     return
   }
   java.lang.Object _contentExpr(java.lang.Object cxt) {
-    super._assignToText(this.contents_4(cxt))
+    super._assignToText(cxt, this.contents_4(cxt))
     return null
   }
   java.lang.Object contents_4(java.lang.Object _context) {
@@ -305,8 +305,8 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
   Ljava/lang/Object; k
 
   void <init>(java.lang.Object cxt, java.lang.Object card, java.lang.Object k) {
-    super.<init>(((test.golden.Complex)org.flasck.jvm.fl.FLEval.full(card)).getDespatcher())
-    this._card = ((test.golden.Complex)org.flasck.jvm.fl.FLEval.full(card))
+    super.<init>(((test.golden.Complex)org.flasck.jvm.fl.FLEval.full(cxt, card)).getDespatcher())
+    this._card = ((test.golden.Complex)org.flasck.jvm.fl.FLEval.full(cxt, card))
     this.k = org.flasck.jvm.fl.FLEval.head(k)
     return
   }
@@ -418,7 +418,7 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object styleIf(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
     {
-      if (org.flasck.jvm.fl.FLEval.isTruthy(_1)) {
+      if (org.flasck.jvm.fl.FLEval.isTruthy(_context, _1)) {
         return _0
       }
       return ""
@@ -487,10 +487,10 @@ class Polyed.java extends org.flasck.jvm.fl.FLASObject {
     ret.z = args[2]
     return ret
   }
-  void _doFullEval() {
-    this.x = this._fullOf(this.x)
-    this.y = this._fullOf(this.y)
-    this.z = this._fullOf(this.z)
+  void _doFullEval(java.lang.Object cxt) {
+    this.x = this._fullOf(cxt, this.x)
+    this.y = this._fullOf(cxt, this.y)
+    this.z = this._fullOf(cxt, this.z)
     return
   }
 }
@@ -513,8 +513,8 @@ class Thing.java extends org.flasck.jvm.fl.FLASObject {
     ret.x = args[0]
     return ret
   }
-  void _doFullEval() {
-    this.x = this._fullOf(this.x)
+  void _doFullEval(java.lang.Object cxt) {
+    this.x = this._fullOf(cxt, this.x)
     return
   }
 }
@@ -530,8 +530,8 @@ class WithInit.java extends org.flasck.jvm.fl.FLASObject {
     ret.x = args[0]
     return ret
   }
-  void _doFullEval() {
-    this.x = this._fullOf(this.x)
+  void _doFullEval(java.lang.Object cxt) {
+    this.x = this._fullOf(cxt, this.x)
     return
   }
 }

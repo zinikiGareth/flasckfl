@@ -10,7 +10,7 @@ class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
     return
   }
   java.lang.Object _setVariableFormats(java.lang.Object cxt) {
-    super._setCSSObj(this.formats_0(cxt))
+    super._setCSSObj(cxt, this.formats_0(cxt))
     return null
   }
   java.lang.Object formats_0(java.lang.Object _context) {
@@ -48,7 +48,7 @@ class NestFunction.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object styleIf(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
     {
-      if (org.flasck.jvm.fl.FLEval.isTruthy(_1)) {
+      if (org.flasck.jvm.fl.FLEval.isTruthy(_context, _1)) {
         return _0
       }
       return ""

@@ -21,8 +21,8 @@ class Card$ItemHandler.java extends test.golden.KVUpdate$Impl {
   Ljava/lang/Object; ck
 
   void <init>(java.lang.Object cxt, java.lang.Object card, java.lang.Object ck) {
-    super.<init>(((test.golden.Card)org.flasck.jvm.fl.FLEval.full(card)).getDespatcher())
-    this._card = ((test.golden.Card)org.flasck.jvm.fl.FLEval.full(card))
+    super.<init>(((test.golden.Card)org.flasck.jvm.fl.FLEval.full(cxt, card)).getDespatcher())
+    this._card = ((test.golden.Card)org.flasck.jvm.fl.FLEval.full(cxt, card))
     this.ck = org.flasck.jvm.fl.FLEval.head(ck)
     return
   }

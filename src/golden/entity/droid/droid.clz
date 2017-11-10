@@ -15,9 +15,9 @@ class Storable.java extends org.flasck.jvm.fl.FLASEntity {
     ret.value = args[0]
     return ret
   }
-  void _doFullEval() {
-    this.id = this._fullOf(this.id)
-    this.value = this._fullOf(this.value)
+  void _doFullEval(java.lang.Object cxt) {
+    this.id = this._fullOf(cxt, this.id)
+    this.value = this._fullOf(cxt, this.value)
     return
   }
 }

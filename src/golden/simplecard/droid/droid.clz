@@ -19,7 +19,7 @@ class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
     return
   }
   java.lang.Object _contentExpr(java.lang.Object cxt) {
-    super._assignToText(this.contents_0(cxt))
+    super._assignToText(cxt, this.contents_0(cxt))
     return null
   }
   java.lang.Object contents_0(java.lang.Object _context) {

@@ -43,8 +43,8 @@ class Role.java extends org.flasck.jvm.fl.FLASObject {
     ret.r = args[0]
     return ret
   }
-  void _doFullEval() {
-    this.r = this._fullOf(this.r)
+  void _doFullEval(java.lang.Object cxt) {
+    this.r = this._fullOf(cxt, this.r)
     return
   }
 }

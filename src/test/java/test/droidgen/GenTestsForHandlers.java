@@ -102,7 +102,7 @@ public class GenTestsForHandlers {
 	public void checkCreationOfImplCtor(boolean inCard) {
 		context.checking(new Expectations() {{
 			oneOf(bccHandler).createMethod(false, "void", "<init>"); will(returnValue(ctor));
-			oneOf(ctor).argument(J.OBJECT, "cxt");
+			oneOf(ctor).argument(J.OBJECT, "cxt"); will(new ReturnNewVar(ctor, J.OBJECT, "cxt"));
 			if (inCard) {
 				oneOf(ctor).argument(J.OBJECT, "card"); will(new ReturnNewVar(ctor, J.OBJECT, "card"));
 			}

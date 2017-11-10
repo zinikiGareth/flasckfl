@@ -114,9 +114,10 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		}
 		
 		GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "_doFullEval");
+		PendingVar cx = gen.argument(J.OBJECT, "cxt");
 		gen.returns("void");
 		NewMethodDefiner dfe = gen.done();
-		DroidStructFieldInitializer fi = new DroidStructFieldInitializer(dfe, fg.fields);
+		DroidStructFieldInitializer fi = new DroidStructFieldInitializer(dfe, cx.getVar(), fg.fields);
 		sd.visitFields(fi);
 		dfe.returnVoid().flush();
 	}
@@ -333,7 +334,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.addInnerClassReference(Access.PUBLICSTATIC, name.name.uniqueName(), name.baseName);
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
-			gen.argument(J.OBJECT, "cxt");
+			PendingVar cxv = gen.argument(J.OBJECT, "cxt");
 			PendingVar cardArg = null;
 			if (hi.inCard)
 				cardArg = gen.argument("java.lang.Object", "card");
@@ -345,8 +346,8 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			}
 			NewMethodDefiner ctor = gen.done();
 			if (hi.inCard) {
-				ctor.callSuper("void", hi.name(), "<init>", ctor.callVirtual(J.IDESPATCHER, ctor.castTo(ctor.callStatic(J.FLEVAL, J.OBJECT, "full", cardArg.getVar()), name.name.uniqueName()), "getDespatcher")).flush();
-				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic(J.FLEVAL, J.OBJECT, "full", cardArg.getVar()), name.name.uniqueName())).flush();
+				ctor.callSuper("void", hi.name(), "<init>", ctor.callVirtual(J.IDESPATCHER, ctor.castTo(ctor.callStatic(J.FLEVAL, J.OBJECT, "full", cxv.getVar(), cardArg.getVar()), name.name.uniqueName()), "getDespatcher")).flush();
+				ctor.assign(fi.asExpr(ctor), ctor.castTo(ctor.callStatic(J.FLEVAL, J.OBJECT, "full", cxv.getVar(), cardArg.getVar()), name.name.uniqueName())).flush();
 			} else {
 				ctor.callSuper("void", hi.name(), "<init>").flush();
 			}
@@ -421,7 +422,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		cg.begin(cxt);
 		
 		final DroidClosureGenerator dcg = new DroidClosureGenerator(form, cxt);
-		final DroidHSIGenerator hg = new DroidHSIGenerator(dcg, form, cxt.getMethod(), cxt.getVarHolder());
+		final DroidHSIGenerator hg = new DroidHSIGenerator(dcg, form, cxt.getMethod(), cxt.getCxtArg(), cxt.getVarHolder());
 		IExpr blk = hg.generateHSI(form, null);
 		if (blk != null)
 			blk.flush();

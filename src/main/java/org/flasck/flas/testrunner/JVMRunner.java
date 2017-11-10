@@ -96,7 +96,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		for (Class<?> clz : toRun) {
 			String key = clz.getSimpleName().replaceFirst(".*\\$", "");
 			Object o = Reflection.callStatic(clz, "eval", new Object[] { cx, new Object[] {} });
-			o = Reflection.callStatic(FLEval.class, "full", o);
+			o = Reflection.callStatic(FLEval.class, "full", cx, o);
 			evals.put(key, o);
 		}
 		
@@ -145,6 +145,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 
 	@Override
 	public void send(String cardVar, String contractName, String methodName, List<Integer> args) throws Exception {
+		Object cx = null;
 		if (!cdefns.containsKey(cardVar))
 			throw new UtilException("there is no card '" + cardVar + "'");
 
@@ -160,7 +161,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			for (int i : args) {
 				Class<?> clz = Class.forName(spkg + ".PACKAGEFUNCTIONS$arg" + i, false, loader);
 				Object o = Reflection.callStatic(clz, "eval", new Object[] { new Object[] {} });
-				o = Reflection.callStatic(fleval, "full", o);
+				o = Reflection.callStatic(fleval, "full", cx, o);
 				argVals[cnt++] = o;
 			}
 		}
