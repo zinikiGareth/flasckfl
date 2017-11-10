@@ -3,6 +3,7 @@ package org.flasck.flas.vcode.hsieForm;
 public interface PushVisitor {
 	public Object visit(PushVar pv);
 	public Object visit(PushInt pi);
+	public Object visit(PushDouble pd);
 	public Object visit(PushString ps);
 	public Object visit(PushBool pb);
 	public Object visit(PushExternal pe);

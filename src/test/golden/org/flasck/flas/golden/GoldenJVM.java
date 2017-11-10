@@ -53,6 +53,9 @@ public class GoldenJVM {
 			compiler.compile(dir);
 		} catch (ErrorResultException ex) {
 			GoldenCGRunner.handleErrors(errs, ex.errors, null);
+		} catch (Throwable t) {
+			t.printStackTrace();
+			throw t;
 		}
 		
 		droidToClasses = new File(droidTo, "test/runner");

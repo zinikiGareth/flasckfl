@@ -27,6 +27,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
+import org.flasck.flas.vcode.hsieForm.PushDouble;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushFunc;
 import org.flasck.flas.vcode.hsieForm.PushInt;
@@ -324,6 +325,12 @@ public class JSForm {
 			@Override
 			public Object visit(PushInt pi) {
 				sb.append(pi.ival);
+				return null;
+			}
+
+			@Override
+			public Object visit(PushDouble pd) {
+				sb.append(pd.dval);
 				return null;
 			}
 

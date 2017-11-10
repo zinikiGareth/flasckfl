@@ -240,7 +240,10 @@ public class GenerateClosures {
 	}
 
 	public LocatedObject process(NumericLiteral expr) {
-		return new LocatedObject(expr.location, Integer.parseInt(expr.text));
+		if (expr.text.indexOf(".") != -1 || expr.text.indexOf("e") != -1)
+			return new LocatedObject(expr.location, Double.parseDouble(expr.text));
+		else
+			return new LocatedObject(expr.location, Integer.parseInt(expr.text));
 	}
 
 	public LocatedObject process(StringLiteral expr) {

@@ -15,6 +15,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
+import org.flasck.flas.vcode.hsieForm.PushDouble;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushFunc;
 import org.flasck.flas.vcode.hsieForm.PushInt;
@@ -101,6 +102,11 @@ public final class DroidPushArgument implements PushVisitor {
 	@Override
 	public Object visit(PushInt pi) {
 		return meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(pi.ival));
+	}
+
+	@Override
+	public Object visit(PushDouble pd) {
+		return meth.callStatic("java.lang.Double", "java.lang.Double", "valueOf", meth.doubleConst(pd.dval));
 	}
 
 	@Override

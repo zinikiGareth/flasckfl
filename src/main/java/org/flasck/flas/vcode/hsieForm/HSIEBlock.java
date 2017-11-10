@@ -78,6 +78,8 @@ public class HSIEBlock {
 			ret = new PushVar(loc, (VarInSource)o);
 		else if (o instanceof Integer)
 			ret = new PushInt(loc, (Integer)o);
+		else if (o instanceof Double)
+			ret = new PushDouble(loc, (Double)o);
 		else if (o instanceof ExternalRef)
 			ret = new PushExternal(loc, (ExternalRef)o);
 		else if (o instanceof StringLiteral)

@@ -13,20 +13,32 @@ public class NumberToken {
 	}
 
 	public static NumberToken from(Tokenizable line) {
-		// TODO: this should handle all number formats, e.g.
-		// 0
+		// TODO: should we allow qualifiers such as
 		// 0L
-		// 0.3
 		// 0.3f
-		// 3.3e-6
 		line.skipWS();
 		int mark = line.at();
 		InputPosition pos = line.realinfo();
-		if (!Character.isDigit(line.nextChar()))
-			return null;
-		line.advance();
 		while (line.hasMore() && Character.isDigit(line.nextChar()))
 			line.advance();
+		// allow exactly one '.'
+		if (line.hasMore() && line.nextChar() == '.') {
+			line.advance(); // over the '.'
+			// and now allow more numbers
+			while (line.hasMore() && Character.isDigit(line.nextChar()))
+				line.advance();
+		}
+		// allow a trailing exponent
+		int m1 = line.at();
+		if (line.hasMore() && line.nextChar() == 'e') {
+			line.advance(); // over the 'e'
+			if (line.hasMore() && line.nextChar() == '-')
+				line.advance(); // a negative exponent is ok
+			if (!line.hasMore() || !Character.isDigit(line.nextChar()))
+				return new NumberToken(pos, line.fromMark(mark), m1); // only up until before the 'e'
+			while (line.hasMore() && Character.isDigit(line.nextChar()))
+				line.advance();
+		}
 		return new NumberToken(pos, line.fromMark(mark), line.at());
 	}
 

@@ -51,6 +51,7 @@ import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
+import org.flasck.flas.vcode.hsieForm.PushDouble;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushFunc;
 import org.flasck.flas.vcode.hsieForm.PushInt;
@@ -976,7 +977,7 @@ public class TypeChecker2 {
 			if (scoping.containsKey(var))
 				return getTypeOf(form, scoping.get(var));
 			return new TypeVar(cov.loc, var);
-		} else if (cmd instanceof PushInt) {
+		} else if (cmd instanceof PushInt || cmd instanceof PushDouble) {
 			return getTypeOf(cmd.location, "Number");
 		} else if (cmd instanceof PushString) {
 			return getTypeOf(cmd.location, "String");
