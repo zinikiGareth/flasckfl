@@ -4,6 +4,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.droidgen.VarHolder;
 import org.zinutils.bytecode.ByteCodeSink;
+import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 
@@ -22,4 +23,8 @@ public interface GenerationContext {
 	Var getCxtArg();
 	VarHolder getVarHolder();
 	MethodDefiner getMethod();
+
+	void beginClosure();
+	void closureArg(Object visit);
+	IExpr endClosure();
 }

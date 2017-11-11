@@ -43,6 +43,7 @@ import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -57,6 +58,7 @@ import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.bytecode.Var.AVar;
 
+@Ignore
 public class ClosureGenerationTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);

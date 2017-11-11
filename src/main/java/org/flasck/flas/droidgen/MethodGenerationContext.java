@@ -25,6 +25,7 @@ public class MethodGenerationContext implements GenerationContext {
 	private List<PendingVar> pendingVars = new ArrayList<PendingVar>();
 	private VarHolder vh;
 	private Var cxtArg;
+	private List<IExpr> closureArgs;
 
 	public MethodGenerationContext(ByteCodeStorage bce, HSIEForm form) {
 		this.bce = bce;
@@ -139,7 +140,27 @@ public class MethodGenerationContext implements GenerationContext {
 		m2.returnObject(doCall).flush();
 	}
 
+	
 	// TODO: not sure these are needed at the end of the day
+
+	@Override
+	public void beginClosure() {
+		if (closureArgs != null)
+			throw new RuntimeException("Do we need a stack here?");
+		closureArgs = new ArrayList<>();
+	}
+
+	@Override
+	public void closureArg(Object arg) {
+		closureArgs.add(meth.box((IExpr) arg));
+	}
+
+	@Override
+	public IExpr endClosure() {
+		final IExpr ret = meth.arrayOf(J.OBJECT, closureArgs);
+		closureArgs = null;
+		return ret;
+	}
 
 	public Var getCxtArg() {
 		return cxtArg;

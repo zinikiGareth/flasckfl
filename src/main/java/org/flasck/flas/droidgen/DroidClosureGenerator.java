@@ -18,8 +18,7 @@ import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.PrimitiveType;
-import org.flasck.flas.vcode.hsieForm.ClosureCmd;
-import org.flasck.flas.vcode.hsieForm.HSIEBlock;
+import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
@@ -43,9 +42,11 @@ public class DroidClosureGenerator {
 	enum ObjectNeeded { NONE, THIS, CARD };
 	private final ObjectNeeded myOn;
 	private final DroidPushArgument dpa;
+	private final GenerationContext cxt;
 	
 	public DroidClosureGenerator(HSIEForm form, GenerationContext cxt) {
 		this.form = form;
+		this.cxt = cxt;
 		this.meth = cxt.getMethod();
 		this.vh = cxt.getVarHolder();
 		this.cxtVar = cxt.getCxtArg();
@@ -58,11 +59,11 @@ public class DroidClosureGenerator {
 			myOn = ObjectNeeded.NONE;
 	}
 
-	public IExpr closure(ClosureCmd closure) {
+	public IExpr closure(ClosureGenerator closure) {
 		return pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 	}
 
-	public IExpr pushReturn(PushReturn pr, ClosureCmd closure) {
+	public IExpr pushReturn(PushReturn pr, ClosureGenerator closure) {
 		if (pr instanceof PushExternal) {
 			ExternalRef fn = ((PushExternal)pr).fn;
 			Object defn = fn;
@@ -137,7 +138,7 @@ public class DroidClosureGenerator {
 				ObjectNeeded ot = ObjectNeeded.NONE;
 				if (sv.defn instanceof RWFunctionDefinition && ((RWFunctionDefinition)sv.defn).mytype == CodeType.HANDLERFUNCTION)
 					ot = ObjectNeeded.THIS;
-				if (closure != null && closure.justScoping)
+				if (closure != null && closure.justScoping())
 					return doEval(ot, meth.classConst(clz), closure);
 				else
 					return doEval(ot, vh.getScoped(sv.uniqueName()), closure);
@@ -156,11 +157,11 @@ public class DroidClosureGenerator {
 			throw new UtilException("Can't handle " + pr);
 	}
 
-	protected IExpr doEval(ObjectNeeded on, IExpr fnToCall, HSIEBlock closure) {
+	protected IExpr doEval(ObjectNeeded on, IExpr fnToCall, ClosureGenerator closure) {
 		if (closure == null)
 			return meth.returnObject(fnToCall);
 		else
-			return makeClosure(on, fnToCall, arguments(closure, 1));
+			return makeClosure(on, fnToCall, closure.arguments(cxt, dpa, 1));
 	}
 	
 	protected IExpr makeClosure(ObjectNeeded on, IExpr fnToCall, IExpr args) {
@@ -176,14 +177,14 @@ public class DroidClosureGenerator {
 		}
 	}
 
-	private IExpr handleField(HSIEBlock closure) {
+	private IExpr handleField(ClosureGenerator closure) {
 		List<IExpr> al = new ArrayList<>();
 		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(1)).visit(dpa)));
 		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(2)).visit(dpa)));
 		return meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al));
 	}
 
-	private IExpr handleCurry(Object defn, HSIEBlock closure) {
+	private IExpr handleCurry(Object defn, ClosureGenerator closure) {
 		PushExternal curriedFn = (PushExternal)closure.nestedCommands().get(1);
 		PushInt cnt = (PushInt) closure.nestedCommands().get(2);
 		ExternalRef f2 = curriedFn.fn;
@@ -194,18 +195,8 @@ public class DroidClosureGenerator {
 				needsObject = meth.getField("_card");
 			else
 				needsObject = meth.myThis();
-			return meth.makeNew(J.FLCURRY, meth.as(needsObject, J.OBJECT), meth.classConst(clz), meth.intConst(cnt.ival), arguments(closure, 3));
+			return meth.makeNew(J.FLCURRY, meth.as(needsObject, J.OBJECT), meth.classConst(clz), meth.intConst(cnt.ival), closure.arguments(cxt, dpa, 3));
 		} else
-			return meth.makeNew(J.FLCURRY, meth.classConst(clz), meth.intConst(cnt.ival), arguments(closure, 3));
-	}
-
-	protected IExpr arguments(HSIEBlock closure, int from) {
-		// Process all the arguments
-		List<IExpr> al = new ArrayList<>();
-		for (int i=from;i<closure.nestedCommands().size();i++) {
-			PushReturn c = (PushReturn) closure.nestedCommands().get(i);
-			al.add(meth.box((IExpr) c.visit(dpa)));
-		}
-		return meth.arrayOf(J.OBJECT, al);
+			return meth.makeNew(J.FLCURRY, meth.classConst(clz), meth.intConst(cnt.ival), closure.arguments(cxt, dpa, 3));
 	}
 }
