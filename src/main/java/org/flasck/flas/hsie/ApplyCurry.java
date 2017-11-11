@@ -130,12 +130,12 @@ public class ApplyCurry {
 				FunctionType ft = (FunctionType) t;
 				if (ft.arity() > 0) {
 //				System.out.println("need to curry block for type = " + t);
-					oclos.push(pc.location, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
-					oclos.push(pc.location, pc.fn);
-					oclos.push(pc.location, new NumericLiteral(pc.location, ft.arity()));
+					oclos.push(pc.location, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null), null);
+					oclos.push(pc.location, pc.fn, null);
+					oclos.push(pc.location, new NumericLiteral(pc.location, ft.arity()), null);
 				}
 			} else
-				oclos.push(pc.location, pc.fn);
+				oclos.push(pc.location, pc.fn, null);
 			r.inside.nestedCommands().set(r.pos, new PushVar(pc.location, new VarInSource(oclos.var, null, null), null));
 			Var myVar = ((ClosureCmd)r.inside).var;
 			updateAllReturnCommands(h, myVar, oclos.var);

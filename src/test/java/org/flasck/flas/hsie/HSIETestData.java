@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
@@ -537,14 +538,14 @@ public class HSIETestData {
 					for (int j=4;j+1<ps.length;j+=2)
 						deps.add(new VarInSource(ret.var(Integer.parseInt(ps[j])), posn, ps[j+1]));
 				}
-				prev = b.doReturn(posn, tmp, deps);
+				prev = b.push(posn, tmp, deps).asReturn();
 			} else if (ps[0].equals("ERROR")) {
 				b.caseError();
 				prev = null;
 			} else if (ps[0].equals("var") && ps.length == 3) {
-				prev = b.push(posn, analyze(ret, ps, 0));
+				prev = b.push(posn, analyze(ret, ps, 0), null);
 			} else if (Character.isDigit(ps[0].charAt(0))) {
-				prev = b.push(posn, Integer.parseInt(ps[0]));
+				prev = b.push(posn, new NumericLiteral(posn, ps[0], -1), null);
 			} else {
 				String s = ps[0];
 				Object toPush = null;
@@ -559,7 +560,7 @@ public class HSIETestData {
 					System.out.println("No external/scoped defn for " + s);
 					toPush = new PackageVar(posn, figureName(s), null);
 				}
-				prev = b.push(posn, toPush);
+				prev = b.push(posn, toPush, null);
 			}
 			
 		}
@@ -571,7 +572,7 @@ public class HSIETestData {
 		if (s.equals("var"))
 			return new VarInSource(ret.var(Integer.parseInt(ps[from+1])), posn, ps[from+2]);
 		else if (Character.isDigit(s.charAt(0)))
-			return Integer.parseInt(s);
+			return new NumericLiteral(posn, s, -1);
 		else {
 			return new PackageVar(posn, figureName(s), null);
 		}

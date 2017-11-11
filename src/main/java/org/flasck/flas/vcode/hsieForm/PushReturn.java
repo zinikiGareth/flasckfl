@@ -10,8 +10,9 @@ public abstract class PushReturn extends HSIEBlock {
 		super(loc);
 	}
 
-	public void asReturn() {
+	public PushReturn asReturn() {
 		this.cmd = "RETURN";
+		return this;
 	}
 	
 	public Object visit(PushVisitor visitor) {

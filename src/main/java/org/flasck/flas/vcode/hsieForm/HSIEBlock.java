@@ -62,24 +62,13 @@ public class HSIEBlock {
 		commands.remove(pos);
 	}
 
-	public PushReturn push(InputPosition loc, Object o) {
-		return pushAt(loc, commands.size(), o);
-	}
-
-	public PushReturn pushAt(InputPosition loc, int pos, Object o) {
-		PushReturn ret;
-		if (o == null)
-			throw new UtilException("Cannot push null");
-		else if (!(o instanceof Pushable))
-			throw new UtilException("Invalid object to push " + o.getClass() + ": " + o);
-
-		ret = ((Pushable)o).hsie(loc, null);
-		commands.add(pos, ret);
-
+	public PushReturn push(InputPosition loc, Object o, List<VarInSource> list) {
+		PushReturn ret = dopush(loc, o, list);
+		commands.add(ret);
 		return ret;
 	}
 
-	public HSIEBlock doReturn(InputPosition loc, Object o, List<VarInSource> list) {
+	private PushReturn dopush(InputPosition loc, Object o, List<VarInSource> list) {
 		PushReturn ret;
 		if (o == null)
 			throw new UtilException("Cannot push null");
@@ -87,9 +76,12 @@ public class HSIEBlock {
 			throw new UtilException("Invalid object to push " + o.getClass() + ": " + o);
 
 		ret = ((Pushable)o).hsie(loc, list);
-		commands.add(ret);
+		return ret;
+	}
 
-		ret.asReturn();
+	public PushReturn pushAt(InputPosition loc, int pos, Object o) {
+		PushReturn ret = dopush(loc, o, null);
+		commands.add(pos, ret);
 		return ret;
 	}
 

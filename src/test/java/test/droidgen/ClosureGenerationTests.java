@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -101,9 +102,9 @@ public class ClosureGenerationTests {
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
-		closure.push(loc, hdc1);
-		closure.push(loc, 42);
-		closure.push(loc, new StringLiteral(loc, "hello"));
+		closure.push(loc, hdc1, null);
+		closure.push(loc, new NumericLiteral(loc, 42), null);
+		closure.push(loc, new StringLiteral(loc, "hello"), null);
 		dcg.closure(closure);
 	}
 
@@ -190,8 +191,8 @@ public class ClosureGenerationTests {
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		HandlerName hn = new HandlerName(cn, "Handler");
 		PackageVar hdc1 = new PackageVar(loc, hn, new ObjectReference(loc, hn));
-		closure.push(loc, hdc1);
-		closure.push(loc, new StringLiteral(loc, "hello"));
+		closure.push(loc, hdc1, null);
+		closure.push(loc, new StringLiteral(loc, "hello"), null);
 		dcg.closure(closure);
 	}
 
@@ -221,10 +222,10 @@ public class ClosureGenerationTests {
 		CardFunction cf = new CardFunction(loc, cn, "eventHandler");
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "curry"), cf);
 		PackageVar hdc2 = new PackageVar(loc, FunctionName.functionInCardContext(loc, cn, cf.function), cf);
-		closure.push(loc, hdc1);
-		closure.push(loc, hdc2);
-		closure.push(loc, 2);
-		closure.push(loc, new StringLiteral(loc, "hello"));
+		closure.push(loc, hdc1, null);
+		closure.push(loc, hdc2, null);
+		closure.push(loc, new NumericLiteral(loc, 2), null);
+		closure.push(loc, new StringLiteral(loc, "hello"), null);
 		dcg.closure(closure);
 	}
 
@@ -293,8 +294,8 @@ public class ClosureGenerationTests {
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 1, false));
-		closure.push(loc, hdc1);
-		closure.push(loc, new StringLiteral(loc, "hello"));
+		closure.push(loc, hdc1, null);
+		closure.push(loc, new StringLiteral(loc, "hello"), null);
 		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
@@ -318,7 +319,7 @@ public class ClosureGenerationTests {
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
-		closure.push(loc, hdc1);
+		closure.push(loc, hdc1, null);
 		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
@@ -391,8 +392,8 @@ public class ClosureGenerationTests {
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, fn, false);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "String")), "head"));
 		PackageVar hdc1 = new PackageVar(loc, fn, sd);
-		closure.push(loc, hdc1);
-		closure.push(loc, new StringLiteral(loc, "hello"));
+		closure.push(loc, hdc1, null);
+		closure.push(loc, new StringLiteral(loc, "hello"), null);
 		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
@@ -442,8 +443,8 @@ public class ClosureGenerationTests {
 		RWObjectDefn od = new RWObjectDefn(loc, fn, false);
 		od.constructorArg(loc, new PrimitiveType(loc, new SolidName(null, "String")), "init");
 		PackageVar hdc1 = new PackageVar(loc, fn, od);
-		closure.push(loc, hdc1);
-		closure.push(loc, new StringLiteral(loc, "hello"));
+		closure.push(loc, hdc1, null);
+		closure.push(loc, new StringLiteral(loc, "hello"), null);
 		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
@@ -474,8 +475,8 @@ public class ClosureGenerationTests {
 		ClosureCmd closure = form.createClosure(loc);
 		HandlerLambda hl = new HandlerLambda(loc, hn, FunctionType.function(loc, new PrimitiveType(loc, new SolidName(null, "String")), new PrimitiveType(loc, new SolidName(null, "Number"))), "length");
 		PackageVar hdc1 = new PackageVar(loc, hn, hl);
-		closure.push(loc, hdc1);
-		closure.push(loc, new StringLiteral(loc, "hello"));
+		closure.push(loc, hdc1, null);
+		closure.push(loc, new StringLiteral(loc, "hello"), null);
 		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}
@@ -560,8 +561,8 @@ public class ClosureGenerationTests {
 		ClosureCmd closure = form.createClosure(loc);
 		closure.justScoping = true;
 		PackageVar hdc1 = new PackageVar(loc, hn, sv);
-		closure.push(loc, hdc1);
-		closure.push(loc, new StringLiteral(loc, "hello"));
+		closure.push(loc, hdc1, null);
+		closure.push(loc, new StringLiteral(loc, "hello"), null);
 		IExpr out = dcg.closure(closure);
 		assertEquals(result, out);
 	}

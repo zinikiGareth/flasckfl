@@ -82,7 +82,7 @@ public class GenerateClosures {
 			ClosureCmd clos = form.createClosure(sv.location);
 			clos.justScoping = true;
 			String id = sv.id.uniqueName();
-			clos.push(sv.location, new PackageVar(sv.location, sv.id, sv));
+			clos.push(sv.location, new PackageVar(sv.location, sv.id, sv), null);
 			cf.mapVar(id, new VarInSource(clos.var, sv.location, id));
 			map.put(id, clos);
 		}
@@ -119,23 +119,23 @@ public class GenerateClosures {
 		String id = i.id.uniqueName();
 		if (map.containsKey(id)) {
 			VarInSource cov = new VarInSource(map.get(id).var, i.location, id);
-			clos.push(i.location, cov);
+			clos.push(i.location, cov, null);
 			clos.depends.add(cov);
 			return;
 		}
 		if (form.isDefinedByMe(i)) {
 			if (i.defn instanceof LocalVar) {
-				clos.push(i.location, cf.getSubst(((LocalVar)i.defn).uniqueName()));
+				clos.push(i.location, cf.getSubst(((LocalVar)i.defn).uniqueName()), null);
 			} else if (i.defn instanceof RWHandlerImplements) {
 				// if it needs args, it will have been added to "map"
-				clos.push(i.location, new PackageVar(i.location, i.id, null));
+				clos.push(i.location, new PackageVar(i.location, i.id, null), null);
 			}
 			else if (i.defn instanceof RWFunctionDefinition)
-				clos.push(i.location, new PackageVar(i.location, i.id, null));
+				clos.push(i.location, new PackageVar(i.location, i.id, null), null);
 			else
 				throw new UtilException("Cannot handle " + i.defn + " of class " + i.defn.getClass());
 		} else
-			clos.push(i.location, i);
+			clos.push(i.location, i, null);
 	}
 
 	private void generateClosure(Object expr) {
@@ -174,7 +174,7 @@ public class GenerateClosures {
 		ClosureCmd closure = form.createClosure(expr.location);
 		for (int i=0;i<ops.size();i++) {
 			LocatedObject o = ops.get(i);
-			closure.push(o.loc, o.obj);
+			closure.push(o.loc, o.obj, null);
 			if (o.obj instanceof VarInSource) {
 				VarInSource cov = (VarInSource) o.obj;
 				ClosureCmd c2 = form.getClosure(cov.var);
@@ -261,7 +261,7 @@ public class GenerateClosures {
 		ClosureCmd closure = form.getClosure(cv.var);
 		if (closure == null) {
 			closure = form.createClosure(lo.loc);
-			closure.push(lo.loc, cv);
+			closure.push(lo.loc, cv, null);
 			lo = new LocatedObject(lo.loc, new VarInSource(closure.var, lo.loc, "clos" + closure.var.idx));
 		}
 		closure.downcastType = (Type) ((PackageVar)ce.castTo).defn;

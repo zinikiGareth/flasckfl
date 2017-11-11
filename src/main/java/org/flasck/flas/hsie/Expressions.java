@@ -12,6 +12,7 @@ import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,8 @@ public class Expressions {
 		if (!convertedValues.containsKey(expr))
 			throw new UtilException("There is no return value for " + expr);
 		LocatedObject lo = convertedValues.get(expr);
-		writeTo.doReturn(lo.loc, lo.obj, closureDependencies(lo.obj));
+		PushReturn ret = writeTo.push(lo.loc, lo.obj, closureDependencies(lo.obj));
+		ret.asReturn();
 	}
 
 	public List<VarInSource> closureDependencies(Object var) {
