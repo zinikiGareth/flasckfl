@@ -37,12 +37,15 @@ import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.collections.CollectionUtils;
 
 public class TestBasicTypeChecking {
+	public @Rule JUnitRuleMockery context = new JUnitRuleMockery();
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
 	ErrorResult errors = new ErrorResult();
 	Type number = new PrimitiveType(posn, new SolidName(null, "Number"));
@@ -93,7 +96,7 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanTypecheckASimpleFn() throws Exception {
-		HSIEForm fn = HSIETestData.simpleFn();
+		HSIEForm fn = HSIETestData.simpleFn(context);
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -104,7 +107,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanTypecheckID() throws Exception {
-		HSIEForm fn = HSIETestData.idFn();
+		HSIEForm fn = HSIETestData.idFn(context);
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -115,7 +118,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testExternalPlus1HasExpectedType() throws Exception {
-		HSIEForm fn = HSIETestData.returnPlus1();
+		HSIEForm fn = HSIETestData.returnPlus1(context);
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -126,7 +129,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanTypecheckSimpleFunctionApplication() throws Exception {
-		HSIEForm fn = HSIETestData.plus1Of1();
+		HSIEForm fn = HSIETestData.plus1Of1(context);
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -137,7 +140,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanTypecheckAFunctionApplicationWithTwoArguments() throws Exception {
-		HSIEForm fn = HSIETestData.plus2And2();
+		HSIEForm fn = HSIETestData.plus2And2(context);
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -148,7 +151,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanUseIDTwiceWithDifferentInstationsOfItsSchematicVar() throws Exception {
-		HSIEForm fn = HSIETestData.idDecode();
+		HSIEForm fn = HSIETestData.idDecode(context);
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -159,7 +162,7 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanCheckTwoFunctionsAtOnceBecauseTheyAreMutuallyRecursive() throws Exception {
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.rdf1(), HSIETestData.rdf2(3)));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.rdf1(context), HSIETestData.rdf2(context, 3)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		{
@@ -179,7 +182,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanUseSwitchToLimitId() throws Exception {
-		HSIEForm fn = HSIETestData.numberIdFn();
+		HSIEForm fn = HSIETestData.numberIdFn(context);
 		tc.typecheck(CollectionUtils.setOf(fn));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
@@ -190,7 +193,7 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanHandleConstantSwitching() throws Exception {
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.fib()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.fib(context)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		Object te = tc.getExportedType("ME.fib");
@@ -203,7 +206,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanHandleBindForCons() throws Exception {
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.takeConsCase()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.takeConsCase(context)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		Object te = tc.getExportedType("take");
@@ -216,7 +219,7 @@ public class TestBasicTypeChecking {
 	
 	@Test
 	public void testWeCanDoASimpleUnionOfNilAndCons() throws Exception {
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.take()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.take(context)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		Object te = tc.getExportedType("ME.take");
@@ -228,7 +231,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckUnionTypes() throws Exception {
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.unionType()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.unionType(context)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.singleString(), errors.hasErrors());
 		Object te = tc.getExportedType("ME.f");
@@ -239,7 +242,7 @@ public class TestBasicTypeChecking {
 	}
 	@Test
 	public void testWeCanCheckASimpleNestedFunction() throws Exception {
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleG()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleG(context)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		{
@@ -248,7 +251,7 @@ public class TestBasicTypeChecking {
 			assertTrue(mg instanceof Type);
 			assertEquals("Number->Number", mg.toString());
 		}
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleF()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleF(context)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		{
@@ -262,7 +265,7 @@ public class TestBasicTypeChecking {
 	@Test
 	public void testWeCanCheckANestedMutuallyRecursiveFunction() throws Exception {
 		{
-			tc.typecheck(CollectionUtils.setOf(HSIETestData.mutualG()));
+			tc.typecheck(CollectionUtils.setOf(HSIETestData.mutualG(context)));
 			if (errors.hasErrors())
 				errors.showTo(new PrintWriter(System.out), 0);
 			assertFalse(errors.hasErrors());
@@ -274,7 +277,7 @@ public class TestBasicTypeChecking {
 			assertEquals("Number->Number", mg.toString());
 		}
 		{
-			tc.typecheck(CollectionUtils.setOf(HSIETestData.mutualF()));
+			tc.typecheck(CollectionUtils.setOf(HSIETestData.mutualF(context)));
 			if (errors.hasErrors())
 				errors.showTo(new PrintWriter(System.out), 0);
 			assertFalse(errors.hasErrors());
@@ -289,7 +292,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckSimpleIf() throws Exception {
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleIf()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleIf(context)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		{
@@ -302,7 +305,7 @@ public class TestBasicTypeChecking {
 
 	@Test
 	public void testWeCanCheckSimpleIfElse() throws Exception {
-		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleIfElse()));
+		tc.typecheck(CollectionUtils.setOf(HSIETestData.simpleIfElse(context)));
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		{

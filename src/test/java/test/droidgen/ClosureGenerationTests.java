@@ -18,6 +18,7 @@ import org.flasck.flas.droidgen.DroidClosureGenerator;
 import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.generators.GenerationContext;
+import org.flasck.flas.hsie.NextVarFactory;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewrittenForm.CardFunction;
@@ -95,7 +96,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).makeNew(J.FLCLOSURE, expr, expr); will(returnValue(expr));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -117,7 +118,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).classConst(J.FLEVAL + "$Tuple"); will(returnValue(expr));
 			oneOf(meth).returnObject(expr); will(returnValue(expr));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -137,7 +138,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).classConst(J.BUILTINPKG + ".Number"); will(returnValue(expr));
 			oneOf(meth).returnObject(expr); will(returnValue(expr));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -158,7 +159,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).classConst("test.golden$MyCard"); will(returnValue(expr));
 			oneOf(meth).returnObject(expr); will(returnValue(expr));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -182,7 +183,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).makeNew(J.FLCLOSURE, expr, expr); will(returnValue(expr));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -212,7 +213,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).makeNew(J.FLCURRY, expr, ice, expr); will(returnValue(expr));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -240,7 +241,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).callVirtual(with(J.OBJECT), with(any(AVar.class)), with("getVar"), (IExpr[]) with(any(Object[].class))); will(returnValue(expr));
 			oneOf(meth).returnObject(expr); will(returnValue(expr));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.CARD, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -262,7 +263,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).callVirtual(with(J.OBJECT), with(any(FieldExpr.class)), with("getVar"), (IExpr[]) with(any(Object[].class))); will(returnValue(expr));
 			oneOf(meth).returnObject(expr); will(returnValue(expr));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.AREA, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -286,7 +287,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -311,7 +312,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", cxt, expr); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -335,7 +336,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", cxt, expr); will(returnValue(result));
 			oneOf(meth).returnObject(result); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -358,7 +359,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).callStatic(J.BUILTINPKG+".Nil", J.OBJECT, "eval", cxt, expr); will(returnValue(result));
 			oneOf(meth).returnObject(result); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -382,7 +383,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -409,7 +410,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).callStatic(J.BUILTINPKG+".Croset", J.OBJECT, "eval", cxt, expr); will(returnValue(result));
 			oneOf(meth).returnObject(result); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -433,7 +434,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -466,7 +467,7 @@ public class ClosureGenerationTests {
 			exactly(1).of(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(expr))); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(new IExpr[] { fn, expr })); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -490,7 +491,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).getField("str"); will(returnValue(expr));
 			oneOf(meth).returnObject(expr); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
@@ -517,7 +518,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).argument(J.STRING, "x"); will(new ReturnNewVar(meth, J.STRING, "x"));
 			oneOf(meth).returnObject(with(any(AVar.class))); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		FunctionName fn = FunctionName.function(loc, null, "testfn");
 		HSIEForm form = new HSIEForm(loc, fn, 0, CodeType.FUNCTION, null, vf);
 		VarName hn = new VarName(loc, new PackageName("test.golden"), "x");
@@ -547,7 +548,7 @@ public class ClosureGenerationTests {
 			exactly(1).of(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(expr))); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(new IExpr[] { expr, expr })); will(returnValue(result));
 		}});
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		FunctionName fn = FunctionName.function(loc, null, "testfn");
 		HSIEForm form = new HSIEForm(loc, fn, 0, CodeType.FUNCTION, null, vf);
 		VarName hn = new VarName(loc, new PackageName("test.golden"), "x");

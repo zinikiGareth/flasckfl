@@ -14,9 +14,13 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class HSIEFunctionTests {
+	public @Rule JUnitRuleMockery context = new JUnitRuleMockery();
+	
 	private ErrorResult errors = new ErrorResult();
 	
 	@Test
@@ -30,7 +34,7 @@ public class HSIEFunctionTests {
 		rw.rewritePackageScope(null, "ME", s);
 		HSIEForm primesForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.primes"));
 		assertNotNull(primesForm);
-		HSIETestData.assertHSIE(HSIETestData.testPrimes(), primesForm);
+		HSIETestData.assertHSIE(HSIETestData.testPrimes(context), primesForm);
 	}
 
 	@Test
@@ -50,7 +54,7 @@ public class HSIEFunctionTests {
 		rw.rewritePackageScope(null, "ME", s);
 		HSIEForm fibForm = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.fib"));
 		assertNotNull(fibForm);
-		HSIETestData.assertHSIE(HSIETestData.fib(), fibForm);
+		HSIETestData.assertHSIE(HSIETestData.fib(context), fibForm);
 	}
 
 	@Test
@@ -72,6 +76,6 @@ public class HSIEFunctionTests {
 		assertNotNull(takeForm);
 		errors.showTo(new PrintWriter(System.out), 0);
 		assertEquals(0, errors.count());
-		HSIETestData.assertHSIE(HSIETestData.take(), takeForm);
+		HSIETestData.assertHSIE(HSIETestData.take(context), takeForm);
 	}
 }

@@ -16,7 +16,9 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.stories.FLASStory;
 import org.flasck.flas.tokenizers.Tokenizable;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
 // Although these are tests, they are really just to make sure that the data
@@ -24,7 +26,8 @@ import org.junit.Test;
 public class HSIECodeGenerator {
 	private final InputPosition posn = new InputPosition("test", 1, 0, null);
 	private ErrorResult errors = new ErrorResult();
-	
+	public @Rule JUnitRuleMockery context = new JUnitRuleMockery();
+
 	@Test
 	public void testConvertingIdOf1() throws Exception {
 		Scope s = Scope.topScope("ME");
@@ -39,7 +42,7 @@ public class HSIECodeGenerator {
 		assertEquals(0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
 		assertNotNull(form);
-		HSIETestData.assertHSIE(HSIETestData.plus1Of1(), form);
+		HSIETestData.assertHSIE(HSIETestData.plus1Of1(context), form);
 	}
 
 	// This is a pathological case of LET with vars
@@ -58,7 +61,7 @@ public class HSIECodeGenerator {
 		assertEquals(0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
 		assertNotNull(form);
-		HSIETestData.assertHSIE(HSIETestData.idDecode(), form);
+		HSIETestData.assertHSIE(HSIETestData.idDecode(context), form);
 	}
 
 	@Test
@@ -76,7 +79,7 @@ public class HSIECodeGenerator {
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.push"));
 		assertNotNull(form);
 		form.dump(new PrintWriter(System.out));
-		HSIETestData.assertHSIE(HSIETestData.unionType(), form);
+		HSIETestData.assertHSIE(HSIETestData.unionType(context), form);
 	}
 
 	@Test
@@ -93,7 +96,7 @@ public class HSIECodeGenerator {
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
 		assertNotNull(form);
 		form.dump(new PrintWriter(System.out));
-		HSIETestData.assertHSIE(HSIETestData.unionType(), form);
+		HSIETestData.assertHSIE(HSIETestData.unionType(context), form);
 	}
 
 	@Test
@@ -112,7 +115,7 @@ public class HSIECodeGenerator {
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.f"));
 		assertNotNull(form);
-		HSIETestData.assertHSIE(HSIETestData.rdf1(), form);
+		HSIETestData.assertHSIE(HSIETestData.rdf1(context), form);
 	}
 
 	@Test
@@ -131,6 +134,6 @@ public class HSIECodeGenerator {
 		assertEquals(errors.singleString(), 0, errors.count());
 		HSIEForm form = HSIETestData.doHSIE(errors, rw, rw.functions.get("ME.g"));
 		assertNotNull(form);
-		HSIETestData.assertHSIE(HSIETestData.rdf2(0), form);
+		HSIETestData.assertHSIE(HSIETestData.rdf2(context, 0), form);
 	}
 }

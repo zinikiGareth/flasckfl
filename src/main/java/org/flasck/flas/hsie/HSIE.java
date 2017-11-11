@@ -42,7 +42,7 @@ public class HSIE {
 	}
 	
 	public void createForms(Set<RWFunctionDefinition> d) {
-		VarFactory vf = new VarFactory();
+		VarFactory vf = new NextVarFactory();
 		GatherExternals ge = new GatherExternals();
 		for (RWFunctionDefinition fn : d) {
 			HSIEForm hf = new HSIEForm(fn.location, fn.fnName, fn.nargs(), fn.mytype, fn.inCard, vf);

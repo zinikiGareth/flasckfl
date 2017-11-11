@@ -3,9 +3,12 @@ package org.flasck.flas.jsgen;
 import org.flasck.flas.hsie.HSIETestData;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TestGeneratingTake {
+	public @Rule JUnitRuleMockery context = new JUnitRuleMockery();
 
 	/* Input:
 "take" 2/5 [-, Cons, Nil]
@@ -68,7 +71,7 @@ StdLib.take = function(v0, v1) {
 	 */
 	@Test
 	public void test() {
-		HSIEForm input = HSIETestData.take();
+		HSIEForm input = HSIETestData.take(context);
 		new Generator(new JSTarget("ME")).generate(input);
 	}
 }

@@ -35,11 +35,12 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.slf4j.Logger;
 import org.zinutils.exceptions.UtilException;
 
 public class HSIETestData {
-	
 	static InputPosition posn = new InputPosition("test", 1, 1, null);
 
 	static Map<String, PackageVar> ctorTypes = new HashMap<>();
@@ -55,11 +56,11 @@ public class HSIETestData {
 		((RWUnionTypeDefn)list.defn).addCase((RWStructDefn)cons.defn);
 	}
 	
-	public static HSIEForm testPrimes() {
+	public static HSIEForm testPrimes(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("Cons");
 		externals.add("Nil");
-		return thingy(me("primes"), 0, 3, externals,
+		return thingy(context, me("primes"), 0, 3, externals,
 			null,
 			"RETURN var 2 clos2 0 clos0 1 clos1",
 			"CLOSURE 0", "{",
@@ -74,23 +75,23 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm simpleFn() {
+	public static HSIEForm simpleFn(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy(s("simple"), 1, 0, externals,
+		return thingy(context, s("simple"), 1, 0, externals,
 			null, "RETURN 1"
 		);
 	}
 
-	public static HSIEForm idFn() {
+	public static HSIEForm idFn(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy(s("id"), 1, 0, externals,
+		return thingy(context, s("id"), 1, 0, externals,
 			ctorTypes, "RETURN var 0 x"
 		);
 	}
 
-	public static HSIEForm numberIdFn() {
+	public static HSIEForm numberIdFn(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
-		return thingy(s("numberId"), 1, 0, externals,
+		return thingy(context, s("numberId"), 1, 0, externals,
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 Number", "{",
@@ -100,12 +101,12 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm fib() {
+	public static HSIEForm fib(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("-");
 		externals.add("+");
 		externals.add("Number");
-		return thingy(me("fib"), 1, 5, externals,
+		return thingy(context, me("fib"), 1, 5, externals,
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 Number", "{",
@@ -135,13 +136,13 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm take() {
+	public static HSIEForm take(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("Cons");
 		externals.add("-");
 		externals.add("Nil");
 		externals.add("Number");
-		return thingy(me("take"), 2, 5, externals,
+		return thingy(context, me("take"), 2, 5, externals,
 			ctorTypes,
 			"HEAD 1",
 			"SWITCH 1 Cons", "{",
@@ -172,12 +173,12 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm takeConsCase() {
+	public static HSIEForm takeConsCase(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("Cons");
 		externals.add("Nil");
 		externals.add("-");
-		return thingy(s("take"), 2, 5, externals,
+		return thingy(context, s("take"), 2, 5, externals,
 			ctorTypes,
 			"HEAD 1",
 			"SWITCH 1 Cons",
@@ -205,10 +206,10 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm mutualF() {
+	public static HSIEForm mutualF(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 //		externals.add("ME.f_0.g");
-		return thingy(me("f"), 1, 2, externals,
+		return thingy(context, me("f"), 1, 2, externals,
 			null,
 			"RETURN var 2 clos2 1 ME.f_0.g",
 			"CLOSURE 1",
@@ -218,13 +219,13 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm mutualG() {
+	public static HSIEForm mutualG(Mockery context) {
 		ArrayList<Object> externals = new ArrayList<Object>();
 		externals.add("*");
 		FunctionName fn = FunctionName.function(posn, new PackageName("ME"), "f");
 		ScopeName sn = new ScopeName(fn.inContext, "f_0");
 		externals.add(new ScopedVar(posn, new VarName(posn, sn, "x"), new LocalVar(fn, sn, posn, "x", null, null), fn));
-		return thingy(scope("ME", "f_0", "g"), 1, 1, externals,
+		return thingy(context, scope("ME", "f_0", "g"), 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
 			"CLOSURE 1",
@@ -232,10 +233,10 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm simpleF() {
+	public static HSIEForm simpleF(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("ME.f_0.g");
-		return thingy(me("f"), 1, 1, externals,
+		return thingy(context, me("f"), 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
 			"CLOSURE 1",
@@ -244,10 +245,10 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm simpleG() {
+	public static HSIEForm simpleG(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("*");
-		return thingy(scope("ME", "f_0", "g"), 1, 1, externals,
+		return thingy(context, scope("ME", "f_0", "g"), 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
 			"CLOSURE 1",
@@ -256,13 +257,13 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm splitF() {
+	public static HSIEForm splitF(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("ME.f_0.g");
 		externals.add("ME.f_1.g");
 		externals.add("Cons");
 		externals.add("Nil");
-		return thingy(me("f"), 2, 4, externals,
+		return thingy(context, me("f"), 2, 4, externals,
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 Cons",
@@ -281,23 +282,23 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm splitF_G1() {
+	public static HSIEForm splitF_G1(Mockery context) {
 		ArrayList<Object> externals = new ArrayList<Object>();
 		externals.add("*");
 		FunctionName fn = FunctionName.function(posn, new PackageName("ME"), "f");
 		ScopeName caseName = new ScopeName(fn.inContext, "f_0");
 		externals.add(new ScopedVar(posn, new VarName(posn, caseName, "q"), new LocalVar(fn, caseName, posn, "q", null, null), fn));
-		return thingy(scope("ME", "f_0", "g"), 1, 1, externals,
+		return thingy(context, scope("ME", "f_0", "g"), 1, 1, externals,
 			null,
 			"RETURN var 1 clos1",
 			"CLOSURE 1", "{", "*", "var 0 x", "ME.f_0.q", "}"
 		);
 	}
 
-	public static HSIEForm splitF_G2() {
+	public static HSIEForm splitF_G2(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("+");
-		return thingy(scope("ME", "f_1", "g"), 2, 1, externals,
+		return thingy(context, scope("ME", "f_1", "g"), 2, 1, externals,
 			null,
 			"RETURN var 2 clos2",
 			"CLOSURE 2", "{",
@@ -306,18 +307,18 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm returnPlus1() {
+	public static HSIEForm returnPlus1(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("plus1");
-		return thingy(s("f"), 0, 1, externals, null,
+		return thingy(context, s("f"), 0, 1, externals, null,
 			"RETURN plus1"
 		);
 	}
 
-	public static HSIEForm plus1Of1() {
+	public static HSIEForm plus1Of1(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("plus1");
-		return thingy(me("f"), 0, 1, externals, null,
+		return thingy(context, me("f"), 0, 1, externals, null,
 			"RETURN var 0 clos0",
 			"CLOSURE 0", "{",
 				"plus1", "1",
@@ -325,10 +326,10 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm plus2And2() {
+	public static HSIEForm plus2And2(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("+");
-		return thingy(s("f"), 0, 1, externals,
+		return thingy(context, s("f"), 0, 1, externals,
 			null,
 			"RETURN var 0 clos0",
 			"CLOSURE 0", "{",
@@ -337,11 +338,11 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm idDecode() {
+	public static HSIEForm idDecode(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("id1");
 		externals.add("decode");
-		return thingy(me("f"), 0, 3, externals,
+		return thingy(context, me("f"), 0, 3, externals,
 			null,
 			"RETURN var 2 clos2 0 clos0 1 clos1",
 			"CLOSURE 0", "{",
@@ -356,10 +357,10 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm unionType() {
+	public static HSIEForm unionType(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("List");
-		return thingy(me("f"), 1, 0, externals,
+		return thingy(context, me("f"), 1, 0, externals,
 			ctorTypes,
 			"HEAD 0",
 			"SWITCH 0 List",
@@ -370,11 +371,11 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm rdf1() {
+	public static HSIEForm rdf1(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("-");
 		externals.add("ME.g");
-		return thingy(me("f"), 1, 2, externals,
+		return thingy(context, me("f"), 1, 2, externals,
 			null,
 			"RETURN var 2 clos2 1 clos1",
 			"CLOSURE 1", "{",
@@ -386,14 +387,14 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm rdf2(int offset) {
+	public static HSIEForm rdf2(Mockery context, int offset) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("+");
 		externals.add("ME.f");
 		String v0 = "" + (offset + 0);
 		String v1 = "" + (offset + 1);
 		String v2 = "" + (offset + 2);
-		return thingy(offset, me("g"), 1, 2, externals,
+		return thingy(context, offset, me("g"), 1, 2, externals,
 			null,
 			"RETURN var " + v2 +" clos"+v2 + " " + v1 + " clos"+v1,
 			"CLOSURE " + v1, "{",
@@ -405,10 +406,10 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm simpleIf() {
+	public static HSIEForm simpleIf(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("==");
-		return thingy(me("fact"), 1, 1, externals,
+		return thingy(context, me("fact"), 1, 1, externals,
 			null,
 			"IF 1 clos1", "{",
 				"RETURN 1 clos1",
@@ -420,12 +421,12 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm simpleIfElse() {
+	public static HSIEForm simpleIfElse(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("==");
 		externals.add("*");
 		externals.add("-");
-		return thingy(me("fact"), 1, 4, externals,
+		return thingy(context, me("fact"), 1, 4, externals,
 			null,
 			"IF 1 clos1", "{",
 				"RETURN 1",
@@ -446,10 +447,10 @@ public class HSIETestData {
 		);
 	}
 
-	public static HSIEForm directLet() {
+	public static HSIEForm directLet(Mockery context) {
 		ArrayList<String> externals = new ArrayList<String>();
 		externals.add("FLEval.plus");
-		return thingy(me("f"), 0, 2, externals,
+		return thingy(context, me("f"), 0, 2, externals,
 			null,
 			"RETURN var 1 clos1 0 ME.f._x",
 			"CLOSURE 1", "{",
@@ -473,12 +474,13 @@ public class HSIETestData {
 		return FunctionName.function(posn, new ScopeName(new PackageName(pkg), fn), n);
 	}
 	
-	private static HSIEForm thingy(FunctionName name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
-		return thingy(0, name, nformal, nbound, dependsOn, ctorTypes, commands);
+	private static HSIEForm thingy(Mockery context, FunctionName name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
+		return thingy(context, 0, name, nformal, nbound, dependsOn, ctorTypes, commands);
 	}
 	
-	private static HSIEForm thingy(int offset, FunctionName name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
-		HSIEForm ret = new HSIEForm(new InputPosition("thingy", 1, 1, null), name, nformal, CodeType.FUNCTION, null, new VarFactory());
+	private static HSIEForm thingy(Mockery context, int offset, FunctionName name, int nformal, int nbound, List<? extends Object> dependsOn, Map<String, PackageVar> ctorTypes, String... commands) {
+		VarFactory vf = context.mock(VarFactory.class, "vf_" + name.uniqueName());
+		HSIEForm ret = new HSIEForm(new InputPosition("thingy", 1, 1, null), name, nformal, CodeType.FUNCTION, null, vf);
 		for (int i=0;i<nformal;i++)
 			ret.vars.add(new Var(offset + i));
 		for (int i=0;i<nbound;i++)
@@ -491,24 +493,18 @@ public class HSIETestData {
 		HSIEBlock prev = null;
 		for (int i=0;i<commands.length;i++) {
 			String c = commands[i];
-//			System.out.println(c);
 			String[] ps = c.split(" ");
 			if (c.equals("{")) {
 				stack.add(0, b);
 				b = prev;
-//				System.out.println(stack.size());
 			} else if (c.equals("}")) {
 				b = stack.remove(0);
-//				System.out.println(stack.size());
 			} else if (ps[0].equals("HEAD")) {
 				b.head(posn, ret.var(Integer.parseInt(ps[1])));
 				prev = null;
 			} else if (ps[0].equals("SWITCH")) {
 				if (ctorTypes == null)
 					throw new UtilException("need to pass in ctortypes");
-//				AbsoluteVar av = ctorTypes.get(ps[2]);
-//				if (av == null)
-//					throw new UtilException("You need to define the AV for test type " + ps[2]);
 				prev = b.switchCmd(posn, ret.var(Integer.parseInt(ps[1])), ps[2]);
 			} else if (ps[0].equals("IF")) {
 				int vidx = Integer.parseInt(ps[1]);
@@ -526,7 +522,13 @@ public class HSIETestData {
 			} else if (ps[0].equals("BIND")) {
 				prev = b.bindCmd(posn, ret.var(Integer.parseInt(ps[1])), ret.var(Integer.parseInt(ps[2])), ps[3]);
 			} else if (ps[0].equals("CLOSURE")) {
-				prev = ret.closure(posn, ret.var(Integer.parseInt(ps[1])), ps.length == 3 && ps[2].equals("!"));
+				context.checking(new Expectations() {{
+					oneOf(vf).nextVar(); will(returnValue(ret.var(Integer.parseInt(ps[1]))));
+				}});
+				if (ps.length == 3 && ps[2].equals("!"))
+					prev = ret.createScopingClosure(posn);
+				else
+					prev = ret.createClosure(posn);
 			} else if (ps[0].equals("RETURN")) {
 				Object tmp = analyze(ret, ps, 1);
 				List<VarInSource> deps = null;

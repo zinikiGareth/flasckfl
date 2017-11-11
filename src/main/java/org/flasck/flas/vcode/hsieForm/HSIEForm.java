@@ -177,7 +177,9 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	public Var allocateVar() {
 		Var ret = vf.nextVar();
-		vars.add(ret);
+		// In real life, of course, each new var really is "new", but in thingy(), this is not the case, so just check ...
+		if (!vars.contains(ret))
+			vars.add(ret);
 		return ret;
 	}
 
@@ -191,17 +193,6 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public ClosureCmd createScopingClosure(InputPosition loc) {
 		Var var = allocateVar();
 		ClosureCmd ret = new ScopingClosure(loc, var);
-		closures.put(var, ret);
-		return ret;
-	}
-
-	// This is used by tests, in "thingy()", but should otherwise not be used
-	public ClosureCmd closure(InputPosition loc, Var var, boolean scoping) {
-		ClosureCmd ret;
-		if (scoping)
-			ret = new ScopingClosure(loc, var);
-		else
-			ret = new ClosureCmd(loc, var);
 		closures.put(var, ret);
 		return ret;
 	}
