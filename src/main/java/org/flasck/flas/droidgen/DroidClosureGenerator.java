@@ -3,8 +3,10 @@ package org.flasck.flas.droidgen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.generators.GenerationContext;
+import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -19,6 +21,7 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
+import org.flasck.flas.vcode.hsieForm.CurryClosure;
 import org.flasck.flas.vcode.hsieForm.ExprHandler;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -40,7 +43,6 @@ public class DroidClosureGenerator implements ExprHandler {
 	private final NewMethodDefiner meth;
 	private final VarHolder vh;
 	private final Var cxtVar;
-	enum ObjectNeeded { NONE, THIS, CARD };
 	private final ObjectNeeded myOn;
 	private final DroidPushArgument dpa;
 	private final GenerationContext cxt;
@@ -61,7 +63,10 @@ public class DroidClosureGenerator implements ExprHandler {
 	}
 
 	public IExpr closure(ClosureGenerator closure) {
-		return pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+		if (closure instanceof CurryClosure) {
+			return (IExpr) ((CurryClosure)closure).handleCurry(form.needsCardMember(), this);
+		} else
+			return pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
 	}
 
 	public IExpr pushReturn(PushReturn pr, ClosureGenerator closure) {
@@ -72,8 +77,6 @@ public class DroidClosureGenerator implements ExprHandler {
 				defn = ((PackageVar)defn).defn;
 			if (fn.uniqueName().equals("FLEval.field"))
 				return handleField(closure);
-			else if (fn.uniqueName().equals("FLEval.curry"))
-				return handleCurry(defn, closure);
 			String clz = fn.myName().javaClassName();
 			if (defn instanceof BuiltinOperation) {
 				// This covers both Field & Tuple, but Field was handled above
@@ -162,7 +165,7 @@ public class DroidClosureGenerator implements ExprHandler {
 		if (closure == null)
 			return meth.returnObject(fnToCall);
 		else
-			return makeClosure(on, fnToCall, closure.arguments(this, 1));
+			return makeClosure(on, fnToCall, (IExpr) closure.arguments(this, 1));
 	}
 	
 	protected IExpr makeClosure(ObjectNeeded on, IExpr fnToCall, IExpr args) {
@@ -185,22 +188,6 @@ public class DroidClosureGenerator implements ExprHandler {
 		return meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al));
 	}
 
-	private IExpr handleCurry(Object defn, ClosureGenerator closure) {
-		PushExternal curriedFn = (PushExternal)closure.nestedCommands().get(1);
-		PushInt cnt = (PushInt) closure.nestedCommands().get(2);
-		ExternalRef f2 = curriedFn.fn;
-		String clz = f2.myName().javaClassName();
-		if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
-			IExpr needsObject = null;
-			if (form.needsCardMember())
-				needsObject = meth.getField("_card");
-			else
-				needsObject = meth.myThis();
-			return meth.makeNew(J.FLCURRY, meth.as(needsObject, J.OBJECT), meth.classConst(clz), meth.intConst(cnt.ival), closure.arguments(this, 3));
-		} else
-			return meth.makeNew(J.FLCURRY, meth.classConst(clz), meth.intConst(cnt.ival), closure.arguments(this, 3));
-	}
-
 	@Override
 	public void visit(PushReturn expr) {
 		cxt.closureArg(expr.visit(dpa));
@@ -212,7 +199,43 @@ public class DroidClosureGenerator implements ExprHandler {
 	}
 
 	@Override
-	public IExpr endClosure() {
+	public ExprHandler curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
+		return new ExprHandler() {
+			private List<IExpr> al = new ArrayList<>();
+			private List<IExpr> vas = new ArrayList<>();
+			
+			@Override
+			public void beginClosure() {
+				if (on == ObjectNeeded.THIS)
+					al.add(meth.myThis());
+				else if (on == ObjectNeeded.CARD)
+					al.add(meth.getField("_card"));
+				al.add(meth.classConst(clz.javaClassName()));
+				al.add(meth.intConst(arity));
+			}
+			
+			@Override
+			public void visit(PushReturn expr) {
+				vas.add(meth.box((IExpr) expr.visit(dpa)));
+			}
+			
+			@Override
+			public ExprHandler curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
+				throw new org.zinutils.exceptions.NotImplementedException();
+			}
+			
+			@Override
+			public Object endClosure() {
+				al.add(meth.arrayOf(J.OBJECT, vas));
+				IExpr[] args = new IExpr[al.size()];
+				al.toArray(args);
+				return meth.makeNew(J.FLCURRY, args);
+			}
+		};
+	}
+
+	@Override
+	public Object endClosure() {
 		return cxt.endClosure();
 	}
 }

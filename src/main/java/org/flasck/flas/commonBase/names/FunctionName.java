@@ -116,6 +116,13 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		throw new UtilException("I don't think so");
 	}
 
+	public String jsSPname() {
+		String jsname = uniqueName();
+		int idx = jsname.lastIndexOf(".");
+		jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
+		return jsname;
+	}
+
 	public String jsPName() {
 		return inContext.jsUName() + ".prototype." + name;
 	}

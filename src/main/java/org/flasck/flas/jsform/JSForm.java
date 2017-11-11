@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.VarName;
+import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
@@ -21,6 +24,8 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
+import org.flasck.flas.vcode.hsieForm.CurryClosure;
+import org.flasck.flas.vcode.hsieForm.ExprHandler;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -41,6 +46,7 @@ import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.zinutils.exceptions.UtilException;
 
 public class JSForm {
+
 	private static Map<String, String> renamers = new HashMap<>();
 	private final String text;
 	private String endWith = ";";
@@ -266,10 +272,14 @@ public class JSForm {
 	}
 
 	private static String closure(HSIEForm form, ClosureGenerator closure) {
+		if (closure instanceof CurryClosure) {
+			CurryClosure curry = (CurryClosure)closure;
+			return (String) curry.handleCurry(form.needsCardMember(), new CurryHandler(form));
+		}
 		StringBuilder sb;
 		HSIEBlock c0 = closure.nestedCommands().get(0);
 		boolean needsObject = false;
-		boolean fromHandler = form.mytype == CodeType.AREA;
+		boolean fromHandler = false;
 		if (c0 instanceof PushExternal) {
 			ExternalRef fn = ((PushExternal)c0).fn;
 			if (fn instanceof ObjectReference || fn instanceof CardFunction) {
@@ -415,5 +425,70 @@ public class JSForm {
 				return null;
 			}
 		});
+	}
+
+	public static class CurryHandler implements ExprHandler {
+		private final HSIEForm form;
+
+		public CurryHandler(HSIEForm form) {
+			this.form = form;
+		}
+
+		@Override
+		public void beginClosure() {
+			throw new org.zinutils.exceptions.NotImplementedException();
+		}
+
+		@Override
+		public void visit(PushReturn expr) {
+			throw new org.zinutils.exceptions.NotImplementedException();
+		}
+
+		@Override
+		public ExprHandler curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
+			return new ExprHandler() {
+				StringBuilder sb = new StringBuilder();
+				
+				@Override
+				public void beginClosure() {
+					if (on == ObjectNeeded.CARD)
+						sb.append("FLEval.oclosure(this._card, ");
+					else if (on == ObjectNeeded.THIS)
+						sb.append("FLEval.oclosure(this, ");
+					else
+						sb.append("FLEval.closure(");
+					sb.append("FLEval.curry, ");
+					if (clz instanceof FunctionName)
+						sb.append(((FunctionName)clz).jsSPname());
+					else if (clz instanceof VarName)
+						sb.append(clz.uniqueName());
+					sb.append(", ");
+					sb.append(arity);
+				}
+
+				@Override
+				public void visit(PushReturn expr) {
+					sb.append(", ");
+					appendValue(form, sb, expr, -27);
+				}
+				
+				@Override
+				public ExprHandler curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
+					throw new org.zinutils.exceptions.NotImplementedException();
+				}
+				
+				@Override
+				public Object endClosure() {
+					sb.append(")");
+					return sb.toString();
+				}
+			};
+		}
+
+		@Override
+		public Object endClosure() {
+			throw new org.zinutils.exceptions.NotImplementedException();
+		}
+
 	}
 }

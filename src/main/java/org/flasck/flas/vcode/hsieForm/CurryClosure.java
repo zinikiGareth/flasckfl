@@ -6,10 +6,14 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.PackageName;
+import org.flasck.flas.hsie.ObjectNeeded;
+import org.flasck.flas.rewrittenForm.CardFunction;
+import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.slf4j.Logger;
-import org.zinutils.bytecode.IExpr;
 import org.zinutils.utils.Justification;
 
 public class CurryClosure implements ClosureGenerator {
@@ -38,6 +42,15 @@ public class CurryClosure implements ClosureGenerator {
 	// remembering that I ultimately want to do away with this and make it inverted logic ...
 	@Override
 	public List<HSIEBlock> nestedCommands() {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	@Override
+	public boolean justScoping() {
+		throw new org.zinutils.exceptions.NotImplementedException();
+	}
+
+	public List<HSIEBlock> myNestedCommands() {
 		List<HSIEBlock> ret = new ArrayList<>();
 		HSIEBlock pc = pe;
 		if (pe == null)
@@ -53,21 +66,32 @@ public class CurryClosure implements ClosureGenerator {
 	}
 
 	@Override
-	public boolean justScoping() {
-		throw new org.zinutils.exceptions.NotImplementedException();
-	}
-
-	// this is really a visit pattern and we should combine cxt & dpa in a visit(X) method ...
-	@Override
-	public IExpr arguments(ExprHandler h, int from) {
+	public Object arguments(ExprHandler h, int from) {
 		// note that when we come to abolish nestedCommands(), we should just move that logic here ...
 		h.beginClosure();
-		for (int i=from;i<nestedCommands().size();i++) {
-			PushReturn c = (PushReturn) nestedCommands().get(i);
+		for (int i=from;i<myNestedCommands().size();i++) {
+			PushReturn c = (PushReturn) myNestedCommands().get(i);
 			h.visit(c);
 		}
 		return h.endClosure();
 	}
+
+	public Object handleCurry(boolean needsCard, ExprHandler h) {
+		PushExternal curriedFn = (PushExternal)myNestedCommands().get(1);
+		ExternalRef f2 = curriedFn.fn;
+		NameOfThing clz = f2.myName();
+		ExprHandler h1;
+		if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
+			if (needsCard)
+				h1 = h.curry(clz, ObjectNeeded.CARD, arity);
+			else
+				h1 = h.curry(clz, ObjectNeeded.THIS, arity);
+		} else {
+			h1 = h.curry(clz, ObjectNeeded.NONE, arity);
+		}
+		return arguments(h1, 3);
+	}
+
 
 	@Override
 	public List<VarInSource> dependencies() {
@@ -84,7 +108,7 @@ public class CurryClosure implements ClosureGenerator {
 
 	public void dump(PrintWriter pw, int ind) {
 		// When this goes away, change the formatting
-		for (HSIEBlock c : nestedCommands())
+		for (HSIEBlock c : myNestedCommands())
 			c.dumpOne(pw, ind);
 		pw.flush();
 	}

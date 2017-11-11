@@ -25,14 +25,14 @@ public class ClosureCmd extends HSIEBlock implements ClosureGenerator {
 	}
 	
 	@Override
-	public IExpr arguments(ExprHandler h, int from) {
+	public Object arguments(ExprHandler h, int from) {
 		// Process all the arguments
 		h.beginClosure();
 		for (int i=from;i<nestedCommands().size();i++) {
 			PushReturn c = (PushReturn) nestedCommands().get(i);
 			h.visit(c);
 		}
-		return h.endClosure();
+		return (IExpr) h.endClosure();
 	}
 
 	@Override
