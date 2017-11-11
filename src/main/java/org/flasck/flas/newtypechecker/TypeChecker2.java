@@ -247,7 +247,7 @@ public class TypeChecker2 {
 		// 2b. define "scoping" closures as what they really are
 		for (HSIEForm f : forms) {
 			for (ClosureCmd c : f.closuresX()) {
-				if (c.justScoping) {
+				if (c.justScoping()) {
 					scoping.put(c.var, c.nestedCommands().get(0));
 					constraints.removeAll(c.var);
 					for (int i=1;i<c.nestedCommands().size();i++) {
@@ -276,7 +276,7 @@ public class TypeChecker2 {
 
 			// If we generated additional constraints (such as StructWithField) check those constraints now
 			for (ClosureCmd c : f.closuresX()) {
-				if (c.justScoping)
+				if (c.justScoping())
 					continue;
 				checkAdditionalConstraints(f, c);
 			}
@@ -442,7 +442,7 @@ public class TypeChecker2 {
 
 	protected void processClosure(HSIEForm f, ClosureCmd c) throws NeedIndirectionException {
 		List<HSIEBlock> cmds = c.nestedCommands();
-		if (c.justScoping) {
+		if (c.justScoping()) {
 			return;
 		}
 		if (c.downcastType != null)

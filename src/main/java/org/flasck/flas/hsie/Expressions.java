@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.LocatedObject;
-import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;

@@ -14,7 +14,6 @@ public class ClosureCmd extends HSIEBlock implements ClosureGenerator {
 	public boolean typecheckMessages;
 	public boolean checkSend;
 	public Type assertType;
-	public boolean justScoping = false;
 	public final List<VarInSource> depends = new ArrayList<VarInSource>();
 
 	public ClosureCmd(InputPosition loc, Var var) {
@@ -24,7 +23,7 @@ public class ClosureCmd extends HSIEBlock implements ClosureGenerator {
 
 	@Override
 	public boolean justScoping() {
-		return justScoping;
+		return false;
 	}
 	
 	@Override
@@ -45,7 +44,7 @@ public class ClosureCmd extends HSIEBlock implements ClosureGenerator {
 
 	@Override
 	public String toString() {
-		return "CLOSURE " + var + leftpad((justScoping?"!":"") + (typecheckMessages?"M":"") + (checkSend?"S":"")) + (downcastType != null?" >" + downcastType:"") + (assertType != null? " #" + assertType:"");
+		return "CLOSURE " + var + leftpad((justScoping()?"!":"") + (typecheckMessages?"M":"") + (checkSend?"S":"")) + (downcastType != null?" >" + downcastType:"") + (assertType != null? " #" + assertType:"");
 	}
 
 	private String leftpad(String string) {

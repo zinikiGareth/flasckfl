@@ -3,15 +3,11 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flasck.flas.commonBase.NumericLiteral;
-import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
-import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.FunctionType;
@@ -86,7 +82,7 @@ public class ApplyCurry {
 					}
 					continue;
 				}
-				boolean scoping = (c instanceof ClosureCmd) && ((ClosureCmd)c).justScoping;
+				boolean scoping = (c instanceof ClosureCmd) && ((ClosureCmd)c).justScoping();
 				Type t = tc.getTypeAsCtor(pc.location, ex.uniqueName());
 				if (t instanceof FunctionType) {
 					FunctionType ft = (FunctionType) t;

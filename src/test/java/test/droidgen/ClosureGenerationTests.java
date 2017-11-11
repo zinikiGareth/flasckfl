@@ -560,8 +560,7 @@ public class ClosureGenerationTests {
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
-		ClosureCmd closure = form.createClosure(loc);
-		closure.justScoping = true;
+		ClosureCmd closure = form.createScopingClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, hn, sv);
 		closure.push(loc, hdc1, null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);

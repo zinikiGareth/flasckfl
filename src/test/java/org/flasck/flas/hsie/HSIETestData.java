@@ -29,7 +29,6 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.PrimitiveType;
-import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -527,10 +526,7 @@ public class HSIETestData {
 			} else if (ps[0].equals("BIND")) {
 				prev = b.bindCmd(posn, ret.var(Integer.parseInt(ps[1])), ret.var(Integer.parseInt(ps[2])), ps[3]);
 			} else if (ps[0].equals("CLOSURE")) {
-				ClosureCmd tmp = ret.closure(posn, ret.var(Integer.parseInt(ps[1])));
-				if (ps.length == 3 && ps[2].equals("!"))
-					tmp.justScoping = true;
-				prev = tmp;
+				prev = ret.closure(posn, ret.var(Integer.parseInt(ps[1])), ps.length == 3 && ps[2].equals("!"));
 			} else if (ps[0].equals("RETURN")) {
 				Object tmp = analyze(ret, ps, 1);
 				List<VarInSource> deps = null;
