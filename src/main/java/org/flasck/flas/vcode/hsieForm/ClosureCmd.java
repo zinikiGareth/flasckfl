@@ -39,6 +39,11 @@ public class ClosureCmd extends HSIEBlock implements ClosureGenerator {
 	}
 
 	@Override
+	public List<VarInSource> dependencies() {
+		return depends;
+	}
+
+	@Override
 	public String toString() {
 		return "CLOSURE " + var + leftpad((justScoping?"!":"") + (typecheckMessages?"M":"") + (checkSend?"S":"")) + (downcastType != null?" >" + downcastType:"") + (assertType != null? " #" + assertType:"");
 	}

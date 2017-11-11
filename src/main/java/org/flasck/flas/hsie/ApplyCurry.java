@@ -17,6 +17,7 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
+import org.flasck.flas.vcode.hsieForm.CurryClosure;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -46,7 +47,7 @@ public class ApplyCurry {
 		Logger logger = LoggerFactory.getLogger("HSIE");
 		logger.info("--- ApplyCurry to: " + h.funcName.uniqueName());
 		h.dump(logger);
-		for (HSIEBlock c : h.closures()) {
+		for (HSIEBlock c : h.closuresX()) {
 			PushReturn pc = (PushReturn) c.nestedCommands().get(0);
 			if (pc instanceof PushString)
 				continue;
@@ -73,10 +74,12 @@ public class ApplyCurry {
 								RWObjectDefn od = (RWObjectDefn) cm.type;
 								if (od.hasMethod(fld.sval.text)) {
 									FunctionType t = od.getMethodType(fld.sval.text);
-									c.pushAt(pc.location, 0, new PackageVar(pc.location, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
-									c.removeAt(1);
-									c.pushAt(pc.location, 1, new PackageVar(pc.location, FunctionName.function(pc.location, new PackageName("FLEval"), "method"), null));
-									c.pushAt(pc.location, 2, t.arity()+2);
+									h.replaceClosure(c, new CurryClosure(c, t.arity()+2));
+									throw new RuntimeException("This case has not actually been tested");
+//									c.pushAt(pc.location, 0, new PackageVar(pc.location, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
+//									c.removeAt(1);
+//									c.pushAt(pc.location, 1, new PackageVar(pc.location, FunctionName.function(pc.location, new PackageName("FLEval"), "method"), null));
+//									c.pushAt(pc.location, 2, t.arity()+2);
 								}
 							}
 						}
@@ -89,14 +92,16 @@ public class ApplyCurry {
 					FunctionType ft = (FunctionType) t;
 					logger.debug("Considering applying curry to: " + ex + ": " + ft.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
 					if (ft.arity() > c.nestedCommands().size()-1) {
-						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
-						c.pushAt(pc.location, 2, new NumericLiteral(pc.location, ft.arity()));
-						lookFrom  = 2;
+						h.replaceClosure(c, new CurryClosure(c, ft.arity()));
+//						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
+//						c.pushAt(pc.location, 2, new NumericLiteral(pc.location, ft.arity()));
+						lookFrom  = 3;
 					} else if (ft.arity() > 0 && scoping) {
 						int expected = ft.arity() + c.nestedCommands().size()-1;
-						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
-						c.pushAt(pc.location, 2, new NumericLiteral(pc.location, expected));
-						lookFrom = 2;
+						h.replaceClosure(c, new CurryClosure(c, expected));
+//						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
+//						c.pushAt(pc.location, 2, new NumericLiteral(pc.location, expected));
+						lookFrom = 3;
 					} else if (ft.arity() < c.nestedCommands().size()-1 && !scoping) {
 						throw new UtilException("Have too many arguments for the function " + ex + " - error or need to replace f x y with (f x) y?");
 					}
@@ -108,7 +113,7 @@ public class ApplyCurry {
 			}
 			// Go through all the arguments here (including the command) and see if any of them are in fact functions
 			// that should be broken off into separate blocks and curried.
-			// If we curried the function above, don't look again, but do look at the remaining arguments (hence lookFrom = 2)
+			// If we curried the function above, don't look again, but do look at the remaining arguments (hence lookFrom = 3)
 			// To avoid contention, just build a list of things to rewrite here, and do that below ...
 			for (int pos=lookFrom;pos<c.nestedCommands().size();pos++) {
 				PushReturn pc2 = (PushReturn) c.nestedCommands().get(pos);
@@ -130,9 +135,10 @@ public class ApplyCurry {
 				FunctionType ft = (FunctionType) t;
 				if (ft.arity() > 0) {
 //				System.out.println("need to curry block for type = " + t);
-					oclos.push(pc.location, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null), null);
-					oclos.push(pc.location, pc.fn, null);
-					oclos.push(pc.location, new NumericLiteral(pc.location, ft.arity()), null);
+					h.replaceClosure(oclos, new CurryClosure(oclos.var, pc, ft.arity()));
+//					oclos.push(pc.location, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null), null);
+//					oclos.push(pc.location, pc.fn, null);
+//					oclos.push(pc.location, new NumericLiteral(pc.location, ft.arity()), null);
 				}
 			} else
 				oclos.push(pc.location, pc.fn, null);

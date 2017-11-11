@@ -44,6 +44,7 @@ import org.flasck.flas.types.TypeWithMethods;
 import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
+import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -198,7 +199,7 @@ public class TypeChecker2 {
 					nextVar = v.idx+1;
 			}
 			collectVarNames(knownScoped, f, f);
-			for (ClosureCmd c : f.closures())
+			for (ClosureCmd c : f.closuresX())
 				collectVarNames(knownScoped, f, c);
 		}
 		for (Entry<String, VarInSource> e : knownScoped.entrySet()) {
@@ -245,7 +246,7 @@ public class TypeChecker2 {
 
 		// 2b. define "scoping" closures as what they really are
 		for (HSIEForm f : forms) {
-			for (ClosureCmd c : f.closures()) {
+			for (ClosureCmd c : f.closuresX()) {
 				if (c.justScoping) {
 					scoping.put(c.var, c.nestedCommands().get(0));
 					constraints.removeAll(c.var);
@@ -264,7 +265,7 @@ public class TypeChecker2 {
 
 		// 2c. look at all the actual closures
 		for (HSIEForm f : forms) {
-			for (ClosureCmd c : f.closures()) {
+			for (ClosureCmd c : f.closuresX()) {
 				try {
 					processClosure(f, c);
 				} catch (Exception ex) {
@@ -274,7 +275,7 @@ public class TypeChecker2 {
 			}
 
 			// If we generated additional constraints (such as StructWithField) check those constraints now
-			for (ClosureCmd c : f.closures()) {
+			for (ClosureCmd c : f.closuresX()) {
 				if (c.justScoping)
 					continue;
 				checkAdditionalConstraints(f, c);
@@ -388,7 +389,7 @@ public class TypeChecker2 {
 
 		// Now check closures with "Send" tags
 		for (HSIEForm f : forms) {
-			for (ClosureCmd c : f.closures()) {
+			for (ClosureCmd c : f.closuresX()) {
 				if (c.checkSend) {
 					try {
 						checkSendCall(f, c);
@@ -723,7 +724,7 @@ public class TypeChecker2 {
 				errors.message(cmd.location, "too many arguments to method");
 		} else if (cmd instanceof PushVar) {
 			Var cv = ((PushVar)cmd).var.var;
-			ClosureCmd c = f.getClosure(cv);
+			ClosureGenerator c = f.getClosure(cv);
 			List<HSIEBlock> nc = c.nestedCommands();
 			HSIEBlock shouldBeCons = nc.get(0);
 			if (!(shouldBeCons instanceof PushExternal) || !((PushExternal)shouldBeCons).fn.uniqueName().equals("Cons"))

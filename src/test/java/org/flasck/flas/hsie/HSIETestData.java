@@ -30,6 +30,7 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
+import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -603,8 +604,8 @@ public class HSIETestData {
 			assertEquals("incorrect external", ee.next(), ae.next());
 		compareBlocks(expected, actual);
 		for (int i=expected.nformal;i<expected.vars.size();i++) {
-			HSIEBlock ec = expected.getClosure(expected.vars.get(i));
-			HSIEBlock ac = actual.getClosure(actual.vars.get(i));
+			ClosureGenerator ec = expected.getClosure(expected.vars.get(i));
+			ClosureGenerator ac = actual.getClosure(actual.vars.get(i));
 			if (ec == null && ac == null)
 				continue; // it was a bound var
 			assertNotNull("Did not find 'expected' closure " + i, ec);

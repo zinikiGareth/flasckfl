@@ -21,6 +21,7 @@ import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
+import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
@@ -230,7 +231,7 @@ public class JSForm {
 
 	public static List<JSForm> ifCmd(HSIEForm form, IFCmd c) {
 		List<JSForm> ret = new ArrayList<JSForm>();
-		ClosureCmd clos = form.getClosure(c.var.var);
+		ClosureGenerator clos = form.getClosure(c.var.var);
 		if (clos != null)
 			ret.add(new JSForm("var v" + c.var.var.idx + " = " + closure(form, clos)));
 		if (c.value != null)
@@ -265,7 +266,7 @@ public class JSForm {
 		return ret;
 	}
 
-	private static String closure(HSIEForm form, HSIEBlock closure) {
+	private static String closure(HSIEForm form, ClosureGenerator closure) {
 		StringBuilder sb;
 		HSIEBlock c0 = closure.nestedCommands().get(0);
 		boolean needsObject = false;

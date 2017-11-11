@@ -68,7 +68,7 @@ public class HSIEBlock {
 		return ret;
 	}
 
-	private PushReturn dopush(InputPosition loc, Object o, List<VarInSource> list) {
+	public static PushReturn dopush(InputPosition loc, Object o, List<VarInSource> list) {
 		PushReturn ret;
 		if (o == null)
 			throw new UtilException("Cannot push null");

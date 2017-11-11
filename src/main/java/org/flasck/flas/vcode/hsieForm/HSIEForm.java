@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -145,7 +146,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public final CodeType mytype;
 	private final VarFactory vf;
 	public final List<Var> vars = new ArrayList<Var>();
-	private final Map<Var, ClosureCmd> closures = new HashMap<Var, ClosureCmd>();
+	private final Map<Var, ClosureGenerator> closures = new HashMap<>();
 	
 	// This is a set of vars which are defined in our nested scope that we actually use
 	public final Set<ScopedVar> scopedDefinitions = new TreeSet<ScopedVar>();
@@ -194,8 +195,18 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		return ret;
 	}
 
-	public ClosureCmd getClosure(Var v) {
+	public ClosureGenerator getClosure(Var v) {
 		return closures.get(v);
+	}
+
+	public void replaceClosure(HSIEBlock c, ClosureGenerator repl) {
+		for (Entry<Var, ClosureGenerator> e : closures.entrySet()) {
+			if (e.getValue() == c) {
+				closures.put(e.getKey(), repl);
+				return;
+			}
+		}
+		throw new RuntimeException("Cannot do that");
 	}
 
 	public void dump(Logger logTo) {
@@ -208,7 +219,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		logTo.info("    scopedDefns = " + justNames(scopedDefinitions));
 		logTo.info("    all vars = " + vars);
 		dump(logTo, 0);
-		for (HSIEBlock c : closures.values())
+		for (ClosureGenerator c : closures.values())
 			c.dumpOne(logTo, 0);
 	}
 
@@ -220,7 +231,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		pw.println("    scopedDefns = " + justNames(scopedDefinitions));
 		pw.println("    all vars = " + vars);
 		dump(pw, 0);
-		for (HSIEBlock c : closures.values())
+		for (ClosureGenerator c : closures.values())
 			c.dumpOne(pw, 0);
 		pw.flush();
 	}
@@ -277,8 +288,15 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		return false;
 	}
 
-	public Collection<ClosureCmd> closures() {
+	public Collection<ClosureGenerator> closures() {
 		return closures.values();
+	}
+
+	public Collection<ClosureCmd> closuresX() {
+		List<ClosureCmd> ret = new ArrayList<>();
+		for (ClosureGenerator c : closures.values())
+			ret.add((ClosureCmd) c);
+		return ret;
 	}
 
 	// This is supposed to determine if the card is found by using "this"

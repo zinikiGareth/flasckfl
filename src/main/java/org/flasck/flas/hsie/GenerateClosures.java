@@ -177,7 +177,7 @@ public class GenerateClosures {
 			closure.push(o.loc, o.obj, null);
 			if (o.obj instanceof VarInSource) {
 				VarInSource cov = (VarInSource) o.obj;
-				ClosureCmd c2 = form.getClosure(cov.var);
+				ClosureCmd c2 = (ClosureCmd) form.getClosure(cov.var);
 				if (c2 != null) {
 					closure.depends.addAll(c2.depends);
 					closure.depends.add((VarInSource) o.obj);
@@ -258,7 +258,7 @@ public class GenerateClosures {
 	public LocatedObject process(RWCastExpr ce) {
 		LocatedObject lo = dispatch(ce.expr);
 		VarInSource cv = (VarInSource) lo.obj;
-		ClosureCmd closure = form.getClosure(cv.var);
+		ClosureCmd closure = (ClosureCmd) form.getClosure(cv.var);
 		if (closure == null) {
 			closure = form.createClosure(lo.loc);
 			closure.push(lo.loc, cv, null);
@@ -271,7 +271,7 @@ public class GenerateClosures {
 	public LocatedObject process(TypeCheckMessages tcm) {
 		LocatedObject lo = dispatch(tcm.expr);
 		VarInSource cv = (VarInSource) lo.obj;
-		ClosureCmd closure = form.getClosure(cv.var);
+		ClosureCmd closure = (ClosureCmd) form.getClosure(cv.var);
 		closure.typecheckMessages = true;
 		return lo;
 	}
@@ -307,7 +307,7 @@ public class GenerateClosures {
 		ApplyExpr expr = new ApplyExpr(dse.location(), send, dse.sender, dse.method, asList(dse.location(), dse.args));
 		LocatedObject conv = dispatch(expr);
 		VarInSource cv = (VarInSource) conv.obj;
-		ClosureCmd closure = form.getClosure(cv.var);
+		ClosureCmd closure = (ClosureCmd) form.getClosure(cv.var);
 		closure.checkSend = true;
 		return conv;
 	}

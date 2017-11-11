@@ -9,6 +9,7 @@ import java.util.Set;
 import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.LocatedObject;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
+import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -82,7 +83,7 @@ public class Expressions {
 	}
 
 	private void closeDependencies(List<VarInSource> ret, Object var) {
-		ClosureCmd clos = null;
+		ClosureGenerator clos = null;
 		if (var instanceof Var)
 			clos = form.getClosure((Var)var);
 		else if (var instanceof VarInSource)
@@ -91,7 +92,7 @@ public class Expressions {
 		if (clos == null)
 			return;
 
-		for (VarInSource cv : clos.depends)
+		for (VarInSource cv : clos.dependencies())
 			if (!ret.contains(cv)) {
 				closeDependencies(ret, cv);
 				if (ret.contains(cv))
