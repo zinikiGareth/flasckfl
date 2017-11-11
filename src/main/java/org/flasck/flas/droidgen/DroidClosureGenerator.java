@@ -19,6 +19,7 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
+import org.flasck.flas.vcode.hsieForm.ExprHandler;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
@@ -34,7 +35,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
-public class DroidClosureGenerator {
+public class DroidClosureGenerator implements ExprHandler {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private final VarHolder vh;
@@ -161,7 +162,7 @@ public class DroidClosureGenerator {
 		if (closure == null)
 			return meth.returnObject(fnToCall);
 		else
-			return makeClosure(on, fnToCall, closure.arguments(cxt, dpa, 1));
+			return makeClosure(on, fnToCall, closure.arguments(this, 1));
 	}
 	
 	protected IExpr makeClosure(ObjectNeeded on, IExpr fnToCall, IExpr args) {
@@ -195,8 +196,23 @@ public class DroidClosureGenerator {
 				needsObject = meth.getField("_card");
 			else
 				needsObject = meth.myThis();
-			return meth.makeNew(J.FLCURRY, meth.as(needsObject, J.OBJECT), meth.classConst(clz), meth.intConst(cnt.ival), closure.arguments(cxt, dpa, 3));
+			return meth.makeNew(J.FLCURRY, meth.as(needsObject, J.OBJECT), meth.classConst(clz), meth.intConst(cnt.ival), closure.arguments(this, 3));
 		} else
-			return meth.makeNew(J.FLCURRY, meth.classConst(clz), meth.intConst(cnt.ival), closure.arguments(cxt, dpa, 3));
+			return meth.makeNew(J.FLCURRY, meth.classConst(clz), meth.intConst(cnt.ival), closure.arguments(this, 3));
+	}
+
+	@Override
+	public void visit(PushReturn expr) {
+		cxt.closureArg(expr.visit(dpa));
+	}
+
+	@Override
+	public void beginClosure() {
+		cxt.beginClosure();
+	}
+
+	@Override
+	public IExpr endClosure() {
+		return cxt.endClosure();
 	}
 }

@@ -7,8 +7,6 @@ import java.util.List;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
-import org.flasck.flas.droidgen.DroidPushArgument;
-import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.slf4j.Logger;
 import org.zinutils.bytecode.IExpr;
@@ -61,14 +59,14 @@ public class CurryClosure implements ClosureGenerator {
 
 	// this is really a visit pattern and we should combine cxt & dpa in a visit(X) method ...
 	@Override
-	public IExpr arguments(GenerationContext cxt, DroidPushArgument dpa, int from) {
+	public IExpr arguments(ExprHandler h, int from) {
 		// note that when we come to abolish nestedCommands(), we should just move that logic here ...
-		cxt.beginClosure();
+		h.beginClosure();
 		for (int i=from;i<nestedCommands().size();i++) {
 			PushReturn c = (PushReturn) nestedCommands().get(i);
-			cxt.closureArg(c.visit(dpa));
+			h.visit(c);
 		}
-		return cxt.endClosure();
+		return h.endClosure();
 	}
 
 	@Override

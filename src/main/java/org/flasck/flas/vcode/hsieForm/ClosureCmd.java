@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.droidgen.DroidPushArgument;
-import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.types.Type;
 import org.zinutils.bytecode.IExpr;
 
@@ -27,14 +25,14 @@ public class ClosureCmd extends HSIEBlock implements ClosureGenerator {
 	}
 	
 	@Override
-	public IExpr arguments(GenerationContext cxt, DroidPushArgument dpa, int from) {
+	public IExpr arguments(ExprHandler h, int from) {
 		// Process all the arguments
-		cxt.beginClosure();
+		h.beginClosure();
 		for (int i=from;i<nestedCommands().size();i++) {
 			PushReturn c = (PushReturn) nestedCommands().get(i);
-			cxt.closureArg(c.visit(dpa));
+			h.visit(c);
 		}
-		return cxt.endClosure();
+		return h.endClosure();
 	}
 
 	@Override
