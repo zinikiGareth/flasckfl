@@ -8,17 +8,10 @@ public class PushVar extends PushReturn {
 	public final VarInSource var;
 	public final List<VarInSource> deps;
 
-	public PushVar(InputPosition loc, VarInSource var) {
-		super(loc);
-		this.var = var;
-		this.deps = null;
-	}
-
 	public PushVar(InputPosition loc, VarInSource var, List<VarInSource> deps) {
 		super(loc);
 		this.var = var;
 		this.deps = deps;
-		asReturn();
 	}
 
 	protected Object textValue() {

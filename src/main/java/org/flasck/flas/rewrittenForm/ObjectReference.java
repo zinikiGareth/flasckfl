@@ -1,9 +1,14 @@
 package org.flasck.flas.rewrittenForm;
 
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.vcode.hsieForm.PushExternal;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 
 // This should possibly be called "ClassReference"
 // It is intended to be a holder for the "name" of a class (Card, Handler, etc) that can then be used in expressions later
@@ -27,6 +32,12 @@ public class ObjectReference implements Locatable, ExternalRef {
 
 	public InputPosition location() {
 		return location;
+	}
+	
+	@Override
+	public PushReturn hsie(InputPosition loc, List<VarInSource> deps) {
+		// TODO: replace this with something more specific
+		return new PushExternal(location, this);
 	}
 
 	@Override

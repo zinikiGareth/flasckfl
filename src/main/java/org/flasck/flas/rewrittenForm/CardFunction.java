@@ -1,9 +1,14 @@
 package org.flasck.flas.rewrittenForm;
 
+import java.util.List;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.vcode.hsieForm.PushExternal;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 
 public class CardFunction implements ExternalRef {
 	public final InputPosition location;
@@ -35,6 +40,12 @@ public class CardFunction implements ExternalRef {
 
 	public String uniqueName() {
 		return this.clzName.uniqueName() + "." + this.function;
+	}
+
+	@Override
+	public PushReturn hsie(InputPosition loc, List<VarInSource> deps) {
+		// TODO: replace this with something more specific
+		return new PushExternal(location, this);
 	}
 
 	@Override

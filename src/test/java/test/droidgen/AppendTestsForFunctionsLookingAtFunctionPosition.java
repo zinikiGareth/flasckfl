@@ -106,14 +106,14 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 		}});
 		AVar av = new AVar(meth, "12", "x");
 		vh.put(var, av);
-		Object ret = dpa.visit(new PushVar(loc, new VarInSource(var, loc, "x")));
+		Object ret = dpa.visit(new PushVar(loc, new VarInSource(var, loc, "x"), null));
 		assertEquals(av, ret);
 	}
 
 	@Test(expected=UtilException.class)
 	public void testWeCannotPushAVariableWeHaventDefinedYet() {
 		Var var = new Var(1);
-		dpa.visit(new PushVar(loc, new VarInSource(var, loc, "x")));
+		dpa.visit(new PushVar(loc, new VarInSource(var, loc, "x"), null));
 	}
 
 	@Test

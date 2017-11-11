@@ -1,8 +1,14 @@
 package org.flasck.flas.commonBase;
 
-import org.flasck.flas.blockForm.InputPosition;
+import java.util.List;
 
-public class BooleanLiteral implements Expr {
+import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.vcode.hsieForm.PushBool;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.Pushable;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
+
+public class BooleanLiteral implements Expr, Pushable {
 	private final InputPosition location;
 	private final boolean value;
 
@@ -20,6 +26,11 @@ public class BooleanLiteral implements Expr {
 		return value;
 	}
 	
+	@Override
+	public PushReturn hsie(InputPosition loc, List<VarInSource> deps) {
+		return new PushBool(location, this);
+	}
+
 	@Override
 	public String toString() {
 		return Boolean.toString(value);

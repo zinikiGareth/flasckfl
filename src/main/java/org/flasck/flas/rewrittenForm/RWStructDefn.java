@@ -11,6 +11,9 @@ import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.types.TypeWithNameAndPolys;
+import org.flasck.flas.vcode.hsieForm.PushExternal;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.zinutils.exceptions.UtilException;
 
 public class RWStructDefn extends TypeWithNameAndPolys implements AsString, ExternalRef {
@@ -28,6 +31,12 @@ public class RWStructDefn extends TypeWithNameAndPolys implements AsString, Exte
 		this.structName = tn;
 		this.generate = generate;
 		this.ty = ty;
+	}
+	
+	@Override
+	public PushReturn hsie(InputPosition loc, List<VarInSource> deps) {
+		// TODO: replace this with something more specific
+		return new PushExternal(location(), this);
 	}
 
 	public SolidName structName() {

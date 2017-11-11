@@ -3,6 +3,7 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.newtypechecker.TypeChecker2;
@@ -89,12 +90,12 @@ public class ApplyCurry {
 					logger.debug("Considering applying curry to: " + ex + ": " + ft.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
 					if (ft.arity() > c.nestedCommands().size()-1) {
 						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
-						c.pushAt(pc.location, 2, ft.arity());
+						c.pushAt(pc.location, 2, new NumericLiteral(pc.location, ft.arity()));
 						lookFrom  = 2;
 					} else if (ft.arity() > 0 && scoping) {
 						int expected = ft.arity() + c.nestedCommands().size()-1;
 						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
-						c.pushAt(pc.location, 2, expected);
+						c.pushAt(pc.location, 2, new NumericLiteral(pc.location, expected));
 						lookFrom = 2;
 					} else if (ft.arity() < c.nestedCommands().size()-1 && !scoping) {
 						throw new UtilException("Have too many arguments for the function " + ex + " - error or need to replace f x y with (f x) y?");
@@ -131,11 +132,11 @@ public class ApplyCurry {
 //				System.out.println("need to curry block for type = " + t);
 					oclos.push(pc.location, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
 					oclos.push(pc.location, pc.fn);
-					oclos.push(pc.location, ft.arity());
+					oclos.push(pc.location, new NumericLiteral(pc.location, ft.arity()));
 				}
 			} else
 				oclos.push(pc.location, pc.fn);
-			r.inside.nestedCommands().set(r.pos, new PushVar(pc.location, new VarInSource(oclos.var, null, null)));
+			r.inside.nestedCommands().set(r.pos, new PushVar(pc.location, new VarInSource(oclos.var, null, null), null));
 			Var myVar = ((ClosureCmd)r.inside).var;
 			updateAllReturnCommands(h, myVar, oclos.var);
 		}

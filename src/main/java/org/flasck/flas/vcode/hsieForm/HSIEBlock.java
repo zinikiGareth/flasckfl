@@ -5,12 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.BooleanLiteral;
-import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.template.TemplateListVar;
-import org.flasck.flas.rewrittenForm.CardStateRef;
-import org.flasck.flas.rewrittenForm.ExternalRef;
-import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.types.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,50 +68,28 @@ public class HSIEBlock {
 
 	public PushReturn pushAt(InputPosition loc, int pos, Object o) {
 		PushReturn ret;
-		if (o instanceof VarInSource)
-			ret = new PushVar(loc, (VarInSource)o);
-		else if (o instanceof Integer)
-			ret = new PushInt(loc, (Integer)o);
-		else if (o instanceof Double)
-			ret = new PushDouble(loc, (Double)o);
-		else if (o instanceof ExternalRef)
-			ret = new PushExternal(loc, (ExternalRef)o);
-		else if (o instanceof StringLiteral)
-			ret = new PushString(loc, (StringLiteral)o);
-		else if (o instanceof BooleanLiteral)
-			ret = new PushBool(loc, (BooleanLiteral)o);
-		else if (o instanceof TemplateListVar)
-			ret = new PushTLV(loc, (TemplateListVar)o);
-		else if (o instanceof FunctionLiteral)
-			ret = new PushFunc(loc, (FunctionLiteral)o);
-		else if (o instanceof CardStateRef)
-			ret = new PushCSR(loc, (CardStateRef)o);
-		else if (o == null)
+		if (o == null)
 			throw new UtilException("Cannot push null");
-		else
+		else if (!(o instanceof Pushable))
 			throw new UtilException("Invalid object to push " + o.getClass() + ": " + o);
+
+		ret = ((Pushable)o).hsie(loc, null);
 		commands.add(pos, ret);
+
 		return ret;
 	}
 
 	public HSIEBlock doReturn(InputPosition loc, Object o, List<VarInSource> list) {
 		PushReturn ret;
 		if (o == null)
-			throw new UtilException("Attempt to return null");
-		if (o instanceof VarInSource)
-			ret = new PushVar(loc, (VarInSource)o, list);
-		else if (o instanceof Integer)
-			ret = new PushInt(loc, (Integer)o);
-		else if (o instanceof StringLiteral)
-			ret = new PushString(loc, (StringLiteral)o);
-		else if (o instanceof ExternalRef)
-			ret = new PushExternal(loc, (ExternalRef)o);
-		else if (o instanceof TemplateListVar)
-			ret = new PushTLV(loc, (TemplateListVar)o);
-		else
-			throw new UtilException("Invalid object to return: " + o + " of type " + o.getClass());
-		ret.asReturn();
+			throw new UtilException("Cannot push null");
+		else if (!(o instanceof Pushable))
+			throw new UtilException("Invalid object to push " + o.getClass() + ": " + o);
+
+		ret = ((Pushable)o).hsie(loc, list);
 		commands.add(ret);
+
+		ret.asReturn();
 		return ret;
 	}
 
