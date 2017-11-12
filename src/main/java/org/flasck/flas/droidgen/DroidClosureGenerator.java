@@ -21,10 +21,11 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
+import org.flasck.flas.vcode.hsieForm.ClosureHandler;
 import org.flasck.flas.vcode.hsieForm.CurryClosure;
-import org.flasck.flas.vcode.hsieForm.ExprHandler;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
@@ -32,13 +33,12 @@ import org.flasck.flas.vcode.hsieForm.PushString;
 import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.jvm.J;
-import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
-public class DroidClosureGenerator implements ExprHandler {
+public class DroidClosureGenerator implements ClosureHandler<IExpr> {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private final VarHolder vh;
@@ -62,40 +62,42 @@ public class DroidClosureGenerator implements ExprHandler {
 			myOn = ObjectNeeded.NONE;
 	}
 
-	public IExpr closure(ClosureGenerator closure) {
-		if (closure instanceof CurryClosure) {
-			return (IExpr) ((CurryClosure)closure).handleCurry(form.needsCardMember(), this);
-		} else
-			return pushReturn((PushReturn) closure.nestedCommands().get(0), closure);
+	public void closure(ClosureGenerator closure, OutputHandler<IExpr> handler) {
+		if (closure instanceof CurryClosure)
+			((CurryClosure)closure).handleCurry(form.needsCardMember(), this, handler);
+		else
+			pushReturn((PushReturn) closure.nestedCommands().get(0), closure, handler);
 	}
 
-	public IExpr pushReturn(PushReturn pr, ClosureGenerator closure) {
+	public void pushReturn(PushReturn pr, ClosureGenerator closure, OutputHandler<IExpr> handler) {
 		if (pr instanceof PushExternal) {
 			ExternalRef fn = ((PushExternal)pr).fn;
 			Object defn = fn;
 			while (defn instanceof PackageVar)
 				defn = ((PackageVar)defn).defn;
-			if (fn.uniqueName().equals("FLEval.field"))
-				return handleField(closure);
+			if (fn.uniqueName().equals("FLEval.field")) {
+				handleField(closure, handler);
+				return;
+			}
 			String clz = fn.myName().javaClassName();
 			if (defn instanceof BuiltinOperation) {
 				// This covers both Field & Tuple, but Field was handled above
-				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+				doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
 			} else if (defn instanceof PrimitiveType) {
 				// This is for "typeof Number" or "typeof String" and returns the corresponding class object
 				// See typeop.fl for an example
-				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+				doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
 			} else if (defn instanceof CardGrouping) {
 				// This is for "typeof <cardname>" and returns the "class" corresponding to the type
 				// See typeop.fl for an example
 				// TODO: figure out if this should really be "ObjectReference" and if that should be renamed
-				return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+				doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
 			} else if (defn instanceof ObjectReference) {
 				// This case covers at least handling the construction of Object Handlers to pass to service methods
-				return doEval(myOn, meth.classConst(clz), closure);
+				doEval(myOn, meth.classConst(clz), closure, handler);
 			} else if (defn instanceof CardFunction) {
 				// This case covers at least event handlers
-				return doEval(myOn, meth.classConst(clz), closure);
+				doEval(myOn, meth.classConst(clz), closure, handler);
 			} else if (defn instanceof CardMember) {
 				CardMember cm = (CardMember)defn;
 				IExpr card;
@@ -110,87 +112,103 @@ public class DroidClosureGenerator implements ExprHandler {
 					fld = meth.getField(card, cm.var);
 				else
 					fld = meth.callVirtual(J.OBJECT, card, "getVar", cxtVar, meth.stringConst(cm.var));
-				return doEval(myOn, fld, closure);
+				doEval(myOn, fld, closure, handler);
 			} else if (defn instanceof RWFunctionDefinition) {
 				RWFunctionDefinition rwfn = (RWFunctionDefinition) defn;
 				// a regular function
 				if (rwfn.nargs == 0) { // invoke it as a function using eval
-					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
+					doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure, handler);
 				} else {
-					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+					doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
 				}
 			} else if (defn instanceof RWStructDefn) {
 				// creating a struct is just like calling a static function
 				RWStructDefn sd = (RWStructDefn) defn;
 				if (sd.fields.size() == 0)
-					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
+					doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure, handler);
 				else
-					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+					doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
 			} else if (defn instanceof RWObjectDefn) {
 				// creating an object is just like calling a static function
 				RWObjectDefn od = (RWObjectDefn) defn;
 				if (od.ctorArgs.isEmpty())
-					return doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure);
+					doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure, handler);
 				else
-					return doEval(ObjectNeeded.NONE, meth.classConst(clz), closure);
+					doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
 			} else if (defn instanceof HandlerLambda) {
 				HandlerLambda hl = (HandlerLambda) defn;
 				IExpr var = meth.getField(hl.var);
-				return doEval(ObjectNeeded.NONE, var, closure);
+				doEval(ObjectNeeded.NONE, var, closure, handler);
 			} else if (defn instanceof ScopedVar) {
 				ScopedVar sv = (ScopedVar) defn;
 				ObjectNeeded ot = ObjectNeeded.NONE;
 				if (sv.defn instanceof RWFunctionDefinition && ((RWFunctionDefinition)sv.defn).mytype == CodeType.HANDLERFUNCTION)
 					ot = ObjectNeeded.THIS;
 				if (closure != null && closure.justScoping())
-					return doEval(ot, meth.classConst(clz), closure);
+					doEval(ot, meth.classConst(clz), closure, handler);
 				else
-					return doEval(ot, vh.getScoped(sv.uniqueName()), closure);
+					doEval(ot, vh.getScoped(sv.uniqueName()), closure, handler);
 			} else
 				throw new UtilException("Didn't do anything with " + defn + " " + (defn != null ? defn.getClass() : ""));
 		} else if (pr instanceof PushVar) {
-			return doEval(ObjectNeeded.NONE, vh.get(((PushVar)pr).var.var), closure);
+			doEval(ObjectNeeded.NONE, vh.get(((PushVar)pr).var.var), closure, handler);
 		} else if (pr instanceof PushInt) {
-			return doEval(ObjectNeeded.NONE, meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(((PushInt)pr).ival)), closure);
+			doEval(ObjectNeeded.NONE, meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(((PushInt)pr).ival)), closure, handler);
 		} else if (pr instanceof PushString) {
-			return doEval(ObjectNeeded.NONE, meth.stringConst(((PushString)pr).sval.text), closure);
+			doEval(ObjectNeeded.NONE, meth.stringConst(((PushString)pr).sval.text), closure, handler);
 		} else if (pr instanceof PushTLV) {
 			PushTLV pt = (PushTLV) pr;
-			return doEval(ObjectNeeded.NONE, meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName), closure);
+			doEval(ObjectNeeded.NONE, meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName), closure, handler);
 		} else
 			throw new UtilException("Can't handle " + pr);
 	}
 
-	protected IExpr doEval(ObjectNeeded on, IExpr fnToCall, ClosureGenerator closure) {
+	protected void doEval(ObjectNeeded on, IExpr fnToCall, ClosureGenerator closure, OutputHandler<IExpr> handler) {
 		if (closure == null)
-			return meth.returnObject(fnToCall);
-		else
-			return makeClosure(on, fnToCall, (IExpr) closure.arguments(this, 1));
-	}
-	
-	protected IExpr makeClosure(ObjectNeeded on, IExpr fnToCall, IExpr args) {
-		switch (on) {
-		case NONE:
-			return meth.makeNew(J.FLCLOSURE, fnToCall, args);
-		case THIS:
-			return meth.makeNew(J.FLCLOSURE, meth.as(meth.myThis(), J.OBJECT), fnToCall, args);
-		case CARD:
-			return meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), fnToCall, args);
-		default:
-			throw new UtilException("What is " + on);
+			handler.result(meth.returnObject(fnToCall));
+		else {
+			closure.arguments(this, 1, new OutputHandler<IExpr>() {
+				@Override
+				public void result(IExpr expr) {
+					switch (on) {
+					case NONE:
+						handler.result(meth.makeNew(J.FLCLOSURE, fnToCall, expr));
+						break;
+					case THIS:
+						handler.result(meth.makeNew(J.FLCLOSURE, meth.as(meth.myThis(), J.OBJECT), fnToCall, expr));
+						break;
+					case CARD:
+						handler.result(meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), fnToCall, expr));
+						break;
+					default:
+						throw new UtilException("What is " + on);
+					}
+				}
+			});
 		}
 	}
 
-	private IExpr handleField(ClosureGenerator closure) {
+	private void handleField(ClosureGenerator closure, OutputHandler<IExpr> handler) {
 		List<IExpr> al = new ArrayList<>();
-		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(1)).visit(dpa)));
-		al.add(meth.box((Expr) ((PushReturn)closure.nestedCommands().get(2)).visit(dpa)));
-		return meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al));
+		OutputHandler<IExpr> oh = new OutputHandler<IExpr>() {
+			@Override
+			public void result(IExpr expr) {
+				al.add(meth.box(expr));
+			}
+		};
+		((PushReturn)closure.nestedCommands().get(1)).visit(dpa, oh);
+		((PushReturn)closure.nestedCommands().get(2)).visit(dpa, oh);
+		handler.result(meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al)));
 	}
 
 	@Override
 	public void visit(PushReturn expr) {
-		cxt.closureArg(expr.visit(dpa));
+		expr.visit(dpa, new OutputHandler<IExpr>() {
+			@Override
+			public void result(IExpr expr) {
+				cxt.closureArg(expr);
+			}
+		});
 	}
 
 	@Override
@@ -199,8 +217,8 @@ public class DroidClosureGenerator implements ExprHandler {
 	}
 
 	@Override
-	public ExprHandler curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
-		return new ExprHandler() {
+	public ClosureHandler<IExpr> curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
+		return new ClosureHandler<IExpr>() {
 			private List<IExpr> al = new ArrayList<>();
 			private List<IExpr> vas = new ArrayList<>();
 			
@@ -216,26 +234,32 @@ public class DroidClosureGenerator implements ExprHandler {
 			
 			@Override
 			public void visit(PushReturn expr) {
-				vas.add(meth.box((IExpr) expr.visit(dpa)));
+				expr.visit(dpa, new OutputHandler<IExpr>() {
+
+					@Override
+					public void result(IExpr expr) {
+						vas.add(meth.box(expr));
+					}
+				});
 			}
 			
 			@Override
-			public ExprHandler curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
+			public ClosureHandler<IExpr> curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
 				throw new org.zinutils.exceptions.NotImplementedException();
 			}
 			
 			@Override
-			public Object endClosure() {
+			public void endClosure(OutputHandler<IExpr> handler) {
 				al.add(meth.arrayOf(J.OBJECT, vas));
 				IExpr[] args = new IExpr[al.size()];
 				al.toArray(args);
-				return meth.makeNew(J.FLCURRY, args);
+				handler.result(meth.makeNew(J.FLCURRY, args));
 			}
 		};
 	}
 
 	@Override
-	public Object endClosure() {
-		return cxt.endClosure();
+	public void endClosure(OutputHandler<IExpr> handler) {
+		handler.result(cxt.endClosure());
 	}
 }

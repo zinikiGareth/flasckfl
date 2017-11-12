@@ -1,7 +1,5 @@
 package test.droidgen;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,10 +35,11 @@ import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
-import org.flasck.jvm.J;
-import org.hamcrest.Matchers;
+import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.jvm.J;
+import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Before;
@@ -69,6 +68,8 @@ public class ClosureGenerationTests {
 	MethodDefiner meth = context.mock(MethodDefiner.class, "meth");
 	Var cxt;
 	IExpr expr = context.mock(IExpr.class, "expr");
+	@SuppressWarnings("unchecked")
+	OutputHandler<IExpr> op = context.mock(OutputHandler.class);
 
 	@Before
 	public void prepareTest() {
@@ -108,7 +109,7 @@ public class ClosureGenerationTests {
 		closure.push(loc, hdc1, null);
 		closure.push(loc, new NumericLiteral(loc, 42), null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);
-		dcg.closure(closure);
+		dcg.closure(closure, op);
 	}
 
 	// NOT CLEAR: if this is a real case - doesn't it need arguments?  Would they be closures, or would it have to be a closure itself
@@ -127,7 +128,7 @@ public class ClosureGenerationTests {
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
 		PushExternal hdc = new PushExternal(loc, hdc1);
-		dcg.pushReturn(hdc, null);
+		dcg.pushReturn(hdc, null, op);
 	}
 
 	// NOT CLEAR: if this is the correct generated code or not for this case
@@ -148,7 +149,7 @@ public class ClosureGenerationTests {
 		SolidName number = new SolidName(null, "Number");
 		PackageVar hdc1 = new PackageVar(loc, number, new PrimitiveType(loc, number));
 		PushExternal hdc = new PushExternal(loc, hdc1);
-		dcg.pushReturn(hdc, null);
+		dcg.pushReturn(hdc, null, op);
 	}
 
 	// NOT CLEAR: if this is the correct generated code or not for this case
@@ -169,7 +170,7 @@ public class ClosureGenerationTests {
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		PackageVar hdc1 = new PackageVar(loc, cn, new CardGrouping(loc, cn, null));
 		PushExternal hdc = new PushExternal(loc, hdc1);
-		dcg.pushReturn(hdc, null);
+		dcg.pushReturn(hdc, null, op);
 	}
 
 	// This case is where we create an instance of a handler within a card to pass to a method
@@ -196,7 +197,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, hn, new ObjectReference(loc, hn));
 		closure.push(loc, hdc1, null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);
-		dcg.closure(closure);
+		dcg.closure(closure, op);
 	}
 
 	// There are probably a lot of cases where we call methods on cards from other methods on cards,
@@ -229,7 +230,7 @@ public class ClosureGenerationTests {
 		closure.push(loc, hdc2, null);
 		closure.push(loc, new NumericLiteral(loc, 2), null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);
-		dcg.closure(closure);
+		dcg.closure(closure, op);
 	}
 
 	// Card function that returns a card member
@@ -251,7 +252,7 @@ public class ClosureGenerationTests {
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		PackageVar hdc1 = new PackageVar(loc, cn, new CardMember(loc, cn, "var", new PrimitiveType(loc, new SolidName(null, "String"))));
 		PushExternal hdc = new PushExternal(loc, hdc1);
-		dcg.pushReturn(hdc, null);
+		dcg.pushReturn(hdc, null, op);
 	}
 
 	// Function on a Card associate that returns a card member
@@ -273,7 +274,7 @@ public class ClosureGenerationTests {
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		PackageVar hdc1 = new PackageVar(loc, cn, new CardMember(loc, cn, "var", new PrimitiveType(loc, new SolidName(null, "String"))));
 		PushExternal hdc = new PushExternal(loc, hdc1);
-		dcg.pushReturn(hdc, null);
+		dcg.pushReturn(hdc, null, op);
 	}
 	
 	// 3 function cases: closure w args/no args  & no closure w/no args
@@ -292,6 +293,7 @@ public class ClosureGenerationTests {
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+			oneOf(op).result(result);
 		}});
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
@@ -299,8 +301,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 1, false));
 		closure.push(loc, hdc1, null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);
-		IExpr out = dcg.closure(closure);
-		assertEquals(result, out);
+		dcg.closure(closure, op);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -311,6 +312,7 @@ public class ClosureGenerationTests {
 			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", cxt, expr); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
+			oneOf(op).result(result);
 		}});
 		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
@@ -323,8 +325,7 @@ public class ClosureGenerationTests {
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
 		closure.push(loc, hdc1, null);
-		IExpr out = dcg.closure(closure);
-		assertEquals(result, out);
+		dcg.closure(closure, op);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -335,6 +336,7 @@ public class ClosureGenerationTests {
 			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).callStatic("test.golden.PACKAGEFUNCTIONS$callMe", J.OBJECT, "eval", cxt, expr); will(returnValue(result));
 			oneOf(meth).returnObject(result); will(returnValue(result));
+			oneOf(op).result(result);
 		}});
 		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
@@ -346,8 +348,7 @@ public class ClosureGenerationTests {
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
-		IExpr out = dcg.pushReturn(pr, null);
-		assertEquals(result, out);
+		dcg.pushReturn(pr, null, op);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -358,6 +359,7 @@ public class ClosureGenerationTests {
 			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).callStatic(J.BUILTINPKG+".Nil", J.OBJECT, "eval", cxt, expr); will(returnValue(result));
 			oneOf(meth).returnObject(result); will(returnValue(result));
+			oneOf(op).result(result);
 		}});
 		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
@@ -369,8 +371,7 @@ public class ClosureGenerationTests {
 		SolidName fn = new SolidName(null, "Nil");
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWStructDefn(loc, StructType.STRUCT, fn, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
-		IExpr out = dcg.pushReturn(pr, null);
-		assertEquals(result, out);
+		dcg.pushReturn(pr, null, op);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -388,6 +389,7 @@ public class ClosureGenerationTests {
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+			oneOf(op).result(result);
 		}});
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		SolidName fn = new SolidName(null, "Cons");
@@ -397,8 +399,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, fn, sd);
 		closure.push(loc, hdc1, null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);
-		IExpr out = dcg.closure(closure);
-		assertEquals(result, out);
+		dcg.closure(closure, op);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -409,6 +410,7 @@ public class ClosureGenerationTests {
 			allowing(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).callStatic(J.BUILTINPKG+".Croset", J.OBJECT, "eval", cxt, expr); will(returnValue(result));
 			oneOf(meth).returnObject(result); will(returnValue(result));
+			oneOf(op).result(result);
 		}});
 		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
@@ -420,8 +422,7 @@ public class ClosureGenerationTests {
 		SolidName fn = new SolidName(null, "Croset");
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWObjectDefn(loc, fn, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
-		IExpr out = dcg.pushReturn(pr, null);
-		assertEquals(result, out);
+		dcg.pushReturn(pr, null, op);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -433,6 +434,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).stringConst("hello"); will(returnValue(expr));
 			oneOf(meth).arrayOf(with(J.OBJECT), with(any(List.class))); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(any(IExpr[].class))); will(returnValue(result));
+			oneOf(op).result(result);
 		}});
 		VarFactory vf = new NextVarFactory();
 		HSIEForm form = new HSIEForm(loc, FunctionName.function(loc, null, "testfn"), 0, CodeType.FUNCTION, null, vf);
@@ -448,8 +450,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, fn, od);
 		closure.push(loc, hdc1, null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);
-		IExpr out = dcg.closure(closure);
-		assertEquals(result, out);
+		dcg.closure(closure, op);
 	}
 
 
@@ -472,6 +473,7 @@ public class ClosureGenerationTests {
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+			oneOf(op).result(result);
 		}});
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		HandlerName hn = new HandlerName(new PackageName("test.golden"), "MyHC");
@@ -480,8 +482,7 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, hn, hl);
 		closure.push(loc, hdc1, null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);
-		IExpr out = dcg.closure(closure);
-		assertEquals(result, out);
+		dcg.closure(closure, op);
 	}
 
 	@Test
@@ -496,13 +497,13 @@ public class ClosureGenerationTests {
 		VarHolder vh = new VarHolder(form, new ArrayList<>());
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
+			oneOf(op).result(result);
 		}});
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		HandlerName hn = new HandlerName(new PackageName("test.golden"), "MyHC");
 		HandlerLambda hl = new HandlerLambda(loc, hn, new PrimitiveType(loc, new SolidName(null, "String")), "str");
 		PackageVar hdc1 = new PackageVar(loc, hn, hl);
-		IExpr out = dcg.pushReturn(new PushExternal(loc, hdc1), null);
-		assertEquals(result, out);
+		dcg.pushReturn(new PushExternal(loc, hdc1), null, op);
 	}
 
 	// There are a number of cases with regards to scoped vars, and I'm not sure I've covered all of them
@@ -517,6 +518,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			oneOf(meth).argument(J.STRING, "x"); will(new ReturnNewVar(meth, J.STRING, "x"));
 			oneOf(meth).returnObject(with(any(AVar.class))); will(returnValue(result));
+			oneOf(op).result(result);
 		}});
 		VarFactory vf = new NextVarFactory();
 		FunctionName fn = FunctionName.function(loc, null, "testfn");
@@ -532,8 +534,7 @@ public class ClosureGenerationTests {
 		}});
 		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
 		PackageVar hdc1 = new PackageVar(loc, hn, sv);
-		IExpr out = dcg.pushReturn(new PushExternal(loc, hdc1), null);
-		assertEquals(result, out);
+		dcg.pushReturn(new PushExternal(loc, hdc1), null, op);
 	}
 
 	// When used in defining a scoping closure, make sure that it is just the object itself that's used
@@ -547,6 +548,7 @@ public class ClosureGenerationTests {
 			oneOf(meth).stringConst("hello"); will(returnValue(expr));
 			exactly(1).of(meth).arrayOf(with(J.OBJECT), (List<IExpr>) with(Matchers.contains(expr))); will(returnValue(expr));
 			oneOf(meth).makeNew(with(J.FLCLOSURE), with(new IExpr[] { expr, expr })); will(returnValue(result));
+			oneOf(op).result(result);
 		}});
 		VarFactory vf = new NextVarFactory();
 		FunctionName fn = FunctionName.function(loc, null, "testfn");
@@ -565,7 +567,6 @@ public class ClosureGenerationTests {
 		PackageVar hdc1 = new PackageVar(loc, hn, sv);
 		closure.push(loc, hdc1, null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);
-		IExpr out = dcg.closure(closure);
-		assertEquals(result, out);
+		dcg.closure(closure, op);
 	}
 }

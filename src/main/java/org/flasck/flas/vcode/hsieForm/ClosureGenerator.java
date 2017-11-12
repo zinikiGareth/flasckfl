@@ -10,7 +10,7 @@ public interface ClosureGenerator {
 	// I think that is the entire plan here ...
 	public List<HSIEBlock> nestedCommands();
 	public boolean justScoping();
-	public Object arguments(ExprHandler h, int from);
+	public <T> void arguments(ClosureHandler<T> h, int from, OutputHandler<T> handler);
 	public List<VarInSource> dependencies();
 	public void dumpOne(Logger logTo, int i);
 	public void dumpOne(PrintWriter pw, int i);

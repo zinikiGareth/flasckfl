@@ -15,8 +15,11 @@ public abstract class PushReturn extends HSIEBlock {
 		return this;
 	}
 	
-	public Object visit(PushVisitor visitor) {
-		return Reflection.call(visitor, "visit", this);
+	public <T> void visit(PushVisitor<T> visitor, OutputHandler<T> handler) {
+		if (this instanceof PushExternal) {
+			Reflection.call(visitor, "visitExternal", ((PushExternal) this).fn, handler);
+		} else
+			Reflection.call(visitor, "visit", this, handler);
 	}
 
 	protected abstract Object textValue();

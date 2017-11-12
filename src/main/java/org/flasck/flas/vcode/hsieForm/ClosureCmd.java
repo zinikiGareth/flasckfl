@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.types.Type;
-import org.zinutils.bytecode.IExpr;
 
 public class ClosureCmd extends HSIEBlock implements ClosureGenerator {
 	public final Var var;
@@ -25,14 +24,14 @@ public class ClosureCmd extends HSIEBlock implements ClosureGenerator {
 	}
 	
 	@Override
-	public Object arguments(ExprHandler h, int from) {
+	public <T> void arguments(ClosureHandler<T> h, int from, OutputHandler<T> handler) {
 		// Process all the arguments
 		h.beginClosure();
 		for (int i=from;i<nestedCommands().size();i++) {
 			PushReturn c = (PushReturn) nestedCommands().get(i);
 			h.visit(c);
 		}
-		return (IExpr) h.endClosure();
+		h.endClosure(handler);
 	}
 
 	@Override

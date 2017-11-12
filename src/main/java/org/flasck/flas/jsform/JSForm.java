@@ -11,36 +11,20 @@ import java.util.Map;
 import java.util.Set;
 
 import org.flasck.flas.commonBase.names.FunctionName;
-import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.rewrittenForm.CardFunction;
-import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
-import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
-import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.ScopedVar;
-import org.flasck.flas.types.TypeWithName;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.CurryClosure;
-import org.flasck.flas.vcode.hsieForm.ExprHandler;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
-import org.flasck.flas.vcode.hsieForm.PushBool;
-import org.flasck.flas.vcode.hsieForm.PushCSR;
-import org.flasck.flas.vcode.hsieForm.PushDouble;
+import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
-import org.flasck.flas.vcode.hsieForm.PushFunc;
-import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
-import org.flasck.flas.vcode.hsieForm.PushString;
-import org.flasck.flas.vcode.hsieForm.PushTLV;
 import org.flasck.flas.vcode.hsieForm.PushVar;
-import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.zinutils.exceptions.UtilException;
@@ -237,8 +221,14 @@ public class JSForm {
 	public static List<JSForm> ifCmd(HSIEForm form, IFCmd c) {
 		List<JSForm> ret = new ArrayList<JSForm>();
 		ClosureGenerator clos = form.getClosure(c.var.var);
-		if (clos != null)
-			ret.add(new JSForm("var v" + c.var.var.idx + " = " + closure(form, clos)));
+		if (clos != null) {
+			closure(form, clos, new OutputHandler<String>() {
+				@Override
+				public void result(String expr) {
+					ret.add(new JSForm("var v" + c.var.var.idx + " = " + expr));
+				}
+			});
+		}
 		if (c.value != null)
 			ret.add(new JSForm("if (v" + c.var.var.idx + " === " + c.value + ")").needBlock());
 		else
@@ -260,9 +250,19 @@ public class JSForm {
 				ret.add(new JSForm("return " + pv.var.var));
 			} else if (pv.deps != null) {
 				for (VarInSource v : pv.deps) {
-					ret.add(new JSForm("var v" + v.var.idx + " = " + closure(form, form.getClosure(v.var))));
+					closure(form, form.getClosure(v.var), new OutputHandler<String>() {
+						@Override
+						public void result(String expr) {
+							ret.add(new JSForm("var v" + v.var.idx + " = " + expr));
+						}
+					});
 				}
-				ret.add(new JSForm("return " + closure(form, form.getClosure(pv.var.var))));
+				closure(form, form.getClosure(pv.var.var), new OutputHandler<String>() {
+					@Override
+					public void result(String expr) {
+						ret.add(new JSForm("return " + expr));
+					}
+				});
 			}
 		} else {
 			appendValue(form, sb, r, 0);
@@ -271,10 +271,11 @@ public class JSForm {
 		return ret;
 	}
 
-	private static String closure(HSIEForm form, ClosureGenerator closure) {
+	private static void closure(HSIEForm form, ClosureGenerator closure, OutputHandler<String> handler) {
 		if (closure instanceof CurryClosure) {
 			CurryClosure curry = (CurryClosure)closure;
-			return (String) curry.handleCurry(form.needsCardMember(), new CurryHandler(form));
+			curry.handleCurry(form.needsCardMember(), new JSCurryHandler(form), handler);
+			return;
 		}
 		StringBuilder sb;
 		HSIEBlock c0 = closure.nestedCommands().get(0);
@@ -313,7 +314,7 @@ public class JSForm {
 			pos++;
 		}
 		sb.append(")");
-		return sb.toString();
+		handler.result(sb.toString());
 	}
 	
 	public static String rename(String fn) {
@@ -323,172 +324,11 @@ public class JSForm {
 			return fn;
 	}
 
-	private static void appendValue(HSIEForm form, final StringBuilder sb, PushReturn c, int pos) {
-		c.visit(new PushVisitor() {
-
+	static void appendValue(HSIEForm form, final StringBuilder sb, PushReturn c, int pos) {
+		c.visit(new JSPushArgument(form, sb), new OutputHandler<String>() {
 			@Override
-			public Object visit(PushVar pv) {
-				sb.append("v"+ pv.var.var.idx);
-				return null;
-			}
-
-			@Override
-			public Object visit(PushInt pi) {
-				sb.append(pi.ival);
-				return null;
-			}
-
-			@Override
-			public Object visit(PushDouble pd) {
-				sb.append(pd.dval);
-				return null;
-			}
-
-			@Override
-			public Object visit(PushString ps) {
-				sb.append("'" + ps.sval.text + "'");
-				return null;
-			}
-
-			@Override
-			public Object visit(PushBool ps) {
-				sb.append(ps.bval.value());
-				return null;
-			}
-
-			@Override
-			public Object visit(PushExternal pe) {
-				if (pe.fn instanceof PackageVar) {
-					sb.append(rename(pe.fn.uniqueName()));
-				} else if (pe.fn instanceof TypeWithName) {
-					sb.append(((TypeWithName)pe.fn).name());
-				} else if (pe.fn instanceof ScopedVar) {
-					int j = 0;
-					ScopedVar sv = (ScopedVar) pe.fn;
-					if (sv.definedBy.equals(form.funcName)) {
-						return null;
-					}
-					for (ScopedVar s : form.scoped)
-						if (s.uniqueName().equals(pe.fn.uniqueName())) {
-							sb.append("s" + j);
-							return null;
-						} else
-							j++;
-					throw new UtilException("ScopedVar not in scope: " + pe.fn + " in " + form.funcName.uniqueName() + ": we have " + form.scoped);
-				} else if (pe.fn instanceof ObjectReference) {
-					sb.append(pe.fn.uniqueName());
-				} else if (pe.fn instanceof CardFunction) {
-					String jsname = pe.fn.uniqueName();
-					int idx = jsname.lastIndexOf(".");
-					jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
-					sb.append(jsname);
-				} else if (pe.fn instanceof CardMember) {
-					if (form.mytype == CodeType.CARD || form.mytype == CodeType.EVENTHANDLER)
-						sb.append("this." + ((CardMember)pe.fn).var);
-					else if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.AREA)
-						sb.append("this._card." + ((CardMember)pe.fn).var);
-					else
-						throw new UtilException("Can't handle " + form.mytype + " for card member");
-				}
-				else if (pe.fn instanceof HandlerLambda) {
-					if (form.mytype == CodeType.HANDLER)
-						sb.append("this." + ((HandlerLambda)pe.fn).var);
-					else if (form.mytype == CodeType.HANDLERFUNCTION)
-						// I'm guessing at this right now while working on JVM
-						sb.append("this." + ((HandlerLambda)pe.fn).var);
-					else
-						throw new UtilException("Can't handle " + form.mytype + " with handler lambda");
-				} else
-					throw new UtilException("Can't handle " + pe.fn + " of type " + pe.fn.getClass());
-				return null;
-			}
-
-			@Override
-			public Object visit(PushTLV pt) {
-				sb.append("this._src_" + pt.tlv.simpleName + "." + pt.tlv.simpleName);
-				return null;
-			}
-
-			@Override
-			public Object visit(PushCSR pc) {
-				if (pc.csr.fromHandler)
-					sb.append("this._card");
-				else
-					sb.append("this");
-				return null;
-			}
-
-			@Override
-			public Object visit(PushFunc pf) {
-				FunctionName name = pf.func.name;
-				sb.append(name.inContext.jsName() + ".prototype." + name.name);
-				return null;
+			public void result(String expr) {
 			}
 		});
-	}
-
-	public static class CurryHandler implements ExprHandler {
-		private final HSIEForm form;
-
-		public CurryHandler(HSIEForm form) {
-			this.form = form;
-		}
-
-		@Override
-		public void beginClosure() {
-			throw new org.zinutils.exceptions.NotImplementedException();
-		}
-
-		@Override
-		public void visit(PushReturn expr) {
-			throw new org.zinutils.exceptions.NotImplementedException();
-		}
-
-		@Override
-		public ExprHandler curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
-			return new ExprHandler() {
-				StringBuilder sb = new StringBuilder();
-				
-				@Override
-				public void beginClosure() {
-					if (on == ObjectNeeded.CARD)
-						sb.append("FLEval.oclosure(this._card, ");
-					else if (on == ObjectNeeded.THIS)
-						sb.append("FLEval.oclosure(this, ");
-					else
-						sb.append("FLEval.closure(");
-					sb.append("FLEval.curry, ");
-					if (clz instanceof FunctionName)
-						sb.append(((FunctionName)clz).jsSPname());
-					else if (clz instanceof VarName)
-						sb.append(clz.uniqueName());
-					sb.append(", ");
-					sb.append(arity);
-				}
-
-				@Override
-				public void visit(PushReturn expr) {
-					sb.append(", ");
-					appendValue(form, sb, expr, -27);
-				}
-				
-				@Override
-				public ExprHandler curry(NameOfThing clz, ObjectNeeded on, Integer arity) {
-					throw new org.zinutils.exceptions.NotImplementedException();
-				}
-				
-				@Override
-				public Object endClosure() {
-					sb.append(")");
-					return sb.toString();
-				}
-			};
-		}
-
-		@Override
-		public Object endClosure() {
-			throw new org.zinutils.exceptions.NotImplementedException();
-		}
-
 	}
 }

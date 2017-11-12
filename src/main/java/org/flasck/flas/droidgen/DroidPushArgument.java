@@ -13,10 +13,10 @@ import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
+import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushBool;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushDouble;
-import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushFunc;
 import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushString;
@@ -29,7 +29,7 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
-public final class DroidPushArgument implements PushVisitor {
+public final class DroidPushArgument implements PushVisitor<IExpr> {
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private final Var cx;
@@ -43,98 +43,113 @@ public final class DroidPushArgument implements PushVisitor {
 	}
 
 	@Override
-	public Object visit(PushExternal pe) {
-		ExternalRef name = pe.fn;
-		if (name instanceof PackageVar || name instanceof ObjectReference) {
-			boolean needToCallEvalMethod = false;
-			Object defn = null;
-			if (name instanceof PackageVar) {
-				defn = name;
-				while (defn instanceof PackageVar)
-					defn = ((PackageVar)defn).defn;
-				if (defn instanceof RWStructDefn && ((RWStructDefn)defn).fields.isEmpty())
-					needToCallEvalMethod = true;
-			}
-			String clz = name.myName().javaClassName();
-			if (!needToCallEvalMethod) { // handle the simple class case ...
-				return meth.classConst(clz);
-			} else {
-				return meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>()));
-			}
-		} else if (name instanceof ScopedVar) {
-			ScopedVar sv = (ScopedVar) name;
-			if (sv.definedBy.equals(form.funcName)) {
-				// TODO: I'm not quite sure what should happen here, or even what this case represents, but I know it should be something to do with the *actual* function definition
-				return meth.stringConst(name.uniqueName());
-			}
-			return vh.getScoped(name.uniqueName());
-		} else if (name instanceof CardFunction) {
-			return meth.classConst(name.myName().javaClassName());
-		} else if (name instanceof CardMember) {
-			CardMember cm = (CardMember)name;
-			IExpr card;
-			if (form.isCardMethod())
-				card = meth.myThis();
-			else if (form.needsCardMember())
-				card = meth.getField("_card");
-			else
-				throw new UtilException("Can't handle card member with " + form.mytype);
-			if (cm.type instanceof RWContractImplements)
-				return meth.getField(card, cm.var);
-			else
-				return meth.callVirtual(J.OBJECT, card, "getVar", cx, meth.stringConst(cm.var));
-		} else if (name instanceof HandlerLambda) {
-			if (form.mytype == CodeType.HANDLER)
-				return meth.getField(((HandlerLambda)name).var);
-			else if (form.mytype == CodeType.HANDLERFUNCTION)
-				return meth.getField(((HandlerLambda)name).var);
-			else
-				throw new UtilException("Can't handle handler lambda with " + form.mytype);
-		} else
-			throw new UtilException("Can't handle " + name + " of type " + name.getClass());
-	}
-
-	@Override
-	public Object visit(PushVar pv) {
-		return vh.get(pv.var.var);
-	}
-
-	@Override
-	public Object visit(PushInt pi) {
-		return meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(pi.ival));
-	}
-
-	@Override
-	public Object visit(PushDouble pd) {
-		return meth.callStatic("java.lang.Double", "java.lang.Double", "valueOf", meth.doubleConst(pd.dval));
-	}
-
-	@Override
-	public Object visit(PushString ps) {
-		return meth.stringConst(ps.sval.text);
-	}
-
-	@Override
-	public Object visit(PushBool pb) {
-		return meth.boolConst(pb.bval.value());
-	}
-
-	@Override
-	public Object visit(PushTLV pt) {
-		return meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName);
-	}
-
-	@Override
-	public Object visit(PushCSR pc) {
-		if (pc.csr.fromHandler)
-			return meth.getField("_card");
+	public void visitExternal(CardMember cm, OutputHandler<IExpr> handler) {
+		IExpr card;
+		if (form.isCardMethod())
+			card = meth.myThis();
+		else if (form.needsCardMember())
+			card = meth.getField("_card");
 		else
-			return meth.myThis();
+			throw new UtilException("Can't handle card member with " + form.mytype);
+		if (cm.type instanceof RWContractImplements)
+			handler.result(meth.getField(card, cm.var));
+		else
+			handler.result(meth.callVirtual(J.OBJECT, card, "getVar", cx, meth.stringConst(cm.var)));
 	}
 
 	@Override
-	public Object visit(PushFunc pf) {
+	public void visitExternal(CardFunction cf, OutputHandler<IExpr> handler) {
+		handler.result(meth.classConst(cf.myName().javaClassName()));
+	}
+
+	@Override
+	public void visitExternal(HandlerLambda hl, OutputHandler<IExpr> handler) {
+		if (form.mytype == CodeType.HANDLER)
+			handler.result(meth.getField(hl.var));
+		else if (form.mytype == CodeType.HANDLERFUNCTION)
+			handler.result(meth.getField(hl.var));
+		else
+			throw new UtilException("Can't handle handler lambda with " + form.mytype);
+	}
+
+	@Override
+	public void visitExternal(ScopedVar sv, OutputHandler<IExpr> handler) {
+		if (sv.definedBy.equals(form.funcName)) {
+			// TODO: I'm not quite sure what should happen here, or even what this case represents, but I know it should be something to do with the *actual* function definition
+			handler.result(meth.stringConst(sv.uniqueName()));
+		} else
+			handler.result(vh.getScoped(sv.uniqueName()));
+	}
+
+	@Override
+	public void visitExternal(ObjectReference or, OutputHandler<IExpr> handler) {
+		handleNamedThing(or, handler);
+	}
+
+	@Override
+	public void visitExternal(PackageVar pv, OutputHandler<IExpr> handler) {
+		handleNamedThing(pv, handler);
+	}
+
+	private void handleNamedThing(ExternalRef name, OutputHandler<IExpr> handler) {
+		boolean needToCallEvalMethod = false;
+		Object defn = null;
+		if (name instanceof PackageVar) {
+			defn = name;
+			while (defn instanceof PackageVar)
+				defn = ((PackageVar)defn).defn;
+			if (defn instanceof RWStructDefn && ((RWStructDefn)defn).fields.isEmpty())
+				needToCallEvalMethod = true;
+		}
+		String clz = name.myName().javaClassName();
+		if (!needToCallEvalMethod) { // handle the simple class case ...
+			handler.result(meth.classConst(clz));
+		} else {
+			handler.result(meth.callStatic(clz, J.OBJECT, "eval", meth.arrayOf(J.OBJECT, new ArrayList<>())));
+		}
+	}
+
+	@Override
+	public void visit(PushVar pv, OutputHandler<IExpr> handler) {
+		handler.result(vh.get(pv.var.var));
+	}
+
+	@Override
+	public void visit(PushInt pi, OutputHandler<IExpr> handler) {
+		handler.result(meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(pi.ival)));
+	}
+
+	@Override
+	public void visit(PushDouble pd, OutputHandler<IExpr> handler) {
+		handler.result(meth.callStatic("java.lang.Double", "java.lang.Double", "valueOf", meth.doubleConst(pd.dval)));
+	}
+
+	@Override
+	public void visit(PushString ps, OutputHandler<IExpr> handler) {
+		handler.result(meth.stringConst(ps.sval.text));
+	}
+
+	@Override
+	public void visit(PushBool pb, OutputHandler<IExpr> handler) {
+		handler.result(meth.boolConst(pb.bval.value()));
+	}
+
+	@Override
+	public void visit(PushTLV pt, OutputHandler<IExpr> handler) {
+		handler.result(meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName));
+	}
+
+	@Override
+	public void visit(PushCSR pc, OutputHandler<IExpr> handler) {
+		if (pc.csr.fromHandler)
+			handler.result(meth.getField("_card"));
+		else
+			handler.result(meth.myThis());
+	}
+
+	@Override
+	public void visit(PushFunc pf, OutputHandler<IExpr> handler) {
 		// this is clearly wrong, but we need to return a "function" object and I don't have one of those right now, I don't think 
-		return meth.myThis();
+		handler.result(meth.myThis());
 	}
 }

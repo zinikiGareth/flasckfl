@@ -52,7 +52,7 @@ public class CurryClosure implements ClosureGenerator {
 	}
 
 	@Override
-	public Object arguments(ExprHandler h, int from) {
+	public <T> void arguments(ClosureHandler<T> h, int from, OutputHandler<T> handler) {
 		if (from != 3) throw new RuntimeException();
 		h.beginClosure();
 		if (c != null) {
@@ -61,16 +61,16 @@ public class CurryClosure implements ClosureGenerator {
 				h.visit(pc);
 			}
 		}
-		return h.endClosure();
+		h.endClosure(handler);
 	}
 
-	public Object handleCurry(boolean needsCard, ExprHandler h) {
+	public <T> void handleCurry(boolean needsCard, ClosureHandler<T> h, OutputHandler<T> handler) {
 		PushExternal curriedFn = pe;
 		if (pe == null)
 			curriedFn = (PushExternal)c.nestedCommands().get(0);
 		ExternalRef f2 = curriedFn.fn;
 		NameOfThing clz = f2.myName();
-		ExprHandler h1;
+		ClosureHandler<T> h1;
 		if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
 			if (needsCard)
 				h1 = h.curry(clz, ObjectNeeded.CARD, arity);
@@ -79,7 +79,7 @@ public class CurryClosure implements ClosureGenerator {
 		} else {
 			h1 = h.curry(clz, ObjectNeeded.NONE, arity);
 		}
-		return arguments(h1, 3);
+		arguments(h1, 3, handler);
 	}
 
 	@Override

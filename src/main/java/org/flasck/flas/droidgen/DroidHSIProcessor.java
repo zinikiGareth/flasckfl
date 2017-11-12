@@ -2,6 +2,7 @@ package org.flasck.flas.droidgen;
 
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
+import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEVisitor;
 import org.flasck.flas.vcode.hsieForm.Head;
@@ -67,8 +68,12 @@ public class DroidHSIProcessor implements HSIEVisitor {
 		else {
 			hv = meth.avar("java.lang.Object", c.var.var.toString());
 			vh.put(c.var.var, hv);
-			Expr cl = (Expr) closGen.closure(form.getClosure(c.var.var));
-			coll.add(meth.assign(hv, cl));
+			closGen.closure(form.getClosure(c.var.var), new OutputHandler<IExpr>() {
+				@Override
+				public void result(IExpr ret) {
+					coll.add(meth.assign(hv, ret));
+				}
+			});
 		}
 
 		IExpr testVal;
@@ -107,19 +112,32 @@ public class DroidHSIProcessor implements HSIEVisitor {
 							v = meth.avar("java.lang.Object", cov.var.toString());
 							vh.put(cov.var, v);
 						}
-						Expr cl = (Expr) closGen.closure(form.getClosure(cov.var));
-						coll.add(meth.assign(v, cl));
+						closGen.closure(form.getClosure(cov.var), new OutputHandler<IExpr>() {
+							@Override
+							public void result(IExpr ret) {
+								coll.add(meth.assign(v, ret));
+							}
+						});
 					}
 				}
-				Expr cl = (Expr) closGen.closure(form.getClosure(pv.var.var));
-				if (assignReturnTo != null) {
-					makeArgBeString(vh.get(pv.var.var));
-					coll.add(meth.assign(assignReturnTo, cl));
-				} else
-					coll.add(meth.returnObject(cl));
+				closGen.closure(form.getClosure(pv.var.var), new OutputHandler<IExpr>() {
+					@Override
+					public void result(IExpr ret) {
+						if (assignReturnTo != null) {
+							makeArgBeString(vh.get(pv.var.var));
+							coll.add(meth.assign(assignReturnTo, ret));
+						} else
+							coll.add(meth.returnObject(ret));
+					}
+				});
 			}
 		} else {
-			coll.add((Expr) closGen.pushReturn(r, null));
+			closGen.pushReturn(r, null, new OutputHandler<IExpr>() {
+				@Override
+				public void result(IExpr expr) {
+					coll.add(expr);
+				}
+			});
 		}
 	}
 	
