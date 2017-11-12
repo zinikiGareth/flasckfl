@@ -17,14 +17,10 @@ CLOSURE v3                                                   #standalone.f 13.3
   PUSH PackageVar.Cons                                       #standalone.f 12.0
   PUSH v0:clos0                                              #standalone.f 13.3
   PUSH v2:clos2                                              #standalone.f 14.3
-CLOSURE v4                                                   #standalone.f 14.7
-  PUSH PackageVar.FLEval.curry                               #standalone.f 14.7
+CURRY v4 1                                                   #standalone.f 14.7
   PUSH CardFunction.test.golden.Foo.request2                 #standalone.f 14.7
-  PUSH 1                                                     #standalone.f 14.7
-CLOSURE v5                                                   #standalone.f 13.7
-  PUSH PackageVar.FLEval.curry                               #standalone.f 13.7
+CURRY v5 1                                                   #standalone.f 13.7
   PUSH CardFunction.test.golden.Foo.request                  #standalone.f 13.7
-  PUSH 1                                                     #standalone.f 13.7
 CLOSURE v0 M                                                 #standalone.f 13.3
   PUSH PackageVar.map                                        #standalone.f 13.3
   PUSH v5:null                                               #standalone.f 13.7

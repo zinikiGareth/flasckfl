@@ -70,7 +70,7 @@ public class ApplyCurry {
 								RWObjectDefn od = (RWObjectDefn) cm.type;
 								if (od.hasMethod(fld.sval.text)) {
 									FunctionType t = od.getMethodType(fld.sval.text);
-									h.replaceClosure(c, new CurryClosure(c, t.arity()+2));
+									h.replaceClosure(c, new CurryClosure((ClosureCmd) c, t.arity()+2, false));
 									throw new RuntimeException("This case has not actually been tested");
 //									c.pushAt(pc.location, 0, new PackageVar(pc.location, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
 //									c.removeAt(1);
@@ -82,24 +82,23 @@ public class ApplyCurry {
 					}
 					continue;
 				}
-				boolean scoping = (c instanceof ClosureCmd) && ((ClosureCmd)c).justScoping();
-				Type t = tc.getTypeAsCtor(pc.location, ex.uniqueName());
-				if (t instanceof FunctionType) {
-					FunctionType ft = (FunctionType) t;
-					logger.debug("Considering applying curry to: " + ex + ": " + ft.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
-					if (ft.arity() > c.nestedCommands().size()-1) {
-						h.replaceClosure(c, new CurryClosure(c, ft.arity()));
-//						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
-//						c.pushAt(pc.location, 2, new NumericLiteral(pc.location, ft.arity()));
-						lookFrom  = 3;
-					} else if (ft.arity() > 0 && scoping) {
-						int expected = ft.arity() + c.nestedCommands().size()-1;
-						h.replaceClosure(c, new CurryClosure(c, expected));
-//						c.pushAt(pc.location, 0, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null));
-//						c.pushAt(pc.location, 2, new NumericLiteral(pc.location, expected));
-						lookFrom = 3;
-					} else if (ft.arity() < c.nestedCommands().size()-1 && !scoping) {
-						throw new UtilException("Have too many arguments for the function " + ex + " - error or need to replace f x y with (f x) y?");
+				if (c instanceof ClosureCmd) {
+					ClosureCmd cc = (ClosureCmd) c;
+					boolean scoping = cc.justScoping();
+					Type t = tc.getTypeAsCtor(pc.location, ex.uniqueName());
+					if (t instanceof FunctionType) {
+						FunctionType ft = (FunctionType) t;
+						logger.debug("Considering applying curry to: " + ex + ": " + ft.arity() + " " + (c.nestedCommands().size()-1) + (scoping?" with scoping":""));
+						if (ft.arity() > c.nestedCommands().size()-1) {
+							h.replaceClosure(c, new CurryClosure(cc, ft.arity(), scoping));
+							lookFrom  = 3;
+						} else if (ft.arity() > 0 && scoping) {
+							int expected = ft.arity() + c.nestedCommands().size()-1;
+							h.replaceClosure(c, new CurryClosure(cc, expected, scoping));
+							lookFrom = 3;
+						} else if (ft.arity() < c.nestedCommands().size()-1 && !scoping) {
+							throw new UtilException("Have too many arguments for the function " + ex + " - error or need to replace f x y with (f x) y?");
+						}
 					}
 				}
 			} else if (pc instanceof PushVar) { // the closure case, q.v.
@@ -130,11 +129,7 @@ public class ApplyCurry {
 			if (t instanceof FunctionType) {
 				FunctionType ft = (FunctionType) t;
 				if (ft.arity() > 0) {
-//				System.out.println("need to curry block for type = " + t);
 					h.replaceClosure(oclos, new CurryClosure(oclos.var, pc, ft.arity()));
-//					oclos.push(pc.location, new PackageVar(null, FunctionName.function(pc.location, new PackageName("FLEval"), "curry"), null), null);
-//					oclos.push(pc.location, pc.fn, null);
-//					oclos.push(pc.location, new NumericLiteral(pc.location, ft.arity()), null);
 				}
 			} else
 				oclos.push(pc.location, pc.fn, null);
@@ -153,7 +148,6 @@ public class ApplyCurry {
 	}
 
 	protected void addClosureBefore(PushVar rc, Var before, Var newClos) {
-//		System.out.println("Adding " + newClos + " to " + rc + " before " + before);
 		int at = -1;
 		if (rc.var.var == before) {
 			rc.deps.add(new VarInSource(newClos, null, null));

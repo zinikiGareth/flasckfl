@@ -5,10 +5,8 @@ HSIE for test.golden.f/1                                     #mutual.fl:    2.0
     scopedDefns = [test.golden.f_0.g, test.golden.f_0.x]
     all vars = [v2, v3, v4]
 RETURN v4:clos4 [v3:test.golden.f_0.g]                       #mutual.fl:    2.6
-CLOSURE v3 !                                                 #mutual.fl:    3.0
-  PUSH PackageVar.FLEval.curry                               #mutual.fl:    3.0
+CURRY v3 2 !                                                 #mutual.fl:    3.0
   PUSH PackageVar.test.golden.f_0.g                          #mutual.fl:    3.0
-  PUSH 2                                                     #mutual.fl:    3.0
   PUSH v2:test.golden.f_0.x                                  #mutual.fl:    2.2
 CLOSURE v4                                                   #mutual.fl:    2.6
   PUSH v3:test.golden.f_0.g                                  #mutual.fl:    3.0

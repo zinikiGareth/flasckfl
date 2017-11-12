@@ -32,10 +32,8 @@ HEAD v5                                                      #scoping.fl:  16.3
 SWITCH v5 test.golden.Server                                 #scoping.fl:  16.3
   RETURN v11:clos11 [v9:test.golden.f_0.var, v7:test.golden. #scoping.fl:  16.22
 ERROR                                                        #scoping.fl:  16.0
-CLOSURE v7 !                                                 #scoping.fl:  22.14
-  PUSH PackageVar.FLEval.curry                               #scoping.fl:  22.14
+CURRY v7 3 !                                                 #scoping.fl:  22.14
   PUSH PackageVar.test.golden.f_0.HandleReply                #scoping.fl:  22.14
-  PUSH 3                                                     #scoping.fl:  22.14
   PUSH v5:test.golden.f_0.server                             #scoping.fl:  16.10
   PUSH v9:test.golden.f_0.var                                #scoping.fl:  17.0
 CLOSURE v8 !                                                 #scoping.fl:  19.7

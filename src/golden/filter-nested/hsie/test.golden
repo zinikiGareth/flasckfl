@@ -12,10 +12,8 @@ SWITCH v5 Cons                                               #filter.fl:    3.9
 SWITCH v5 Nil                                                #filter.fl:    2.9
   RETURN PackageVar.Nil                                      #filter.fl:    2.14
 ERROR                                                        #filter.fl:    2.0
-CLOSURE v8 !                                                 #filter.fl:    4.0
-  PUSH PackageVar.FLEval.curry                               #filter.fl:    4.0
+CURRY v8 4 !                                                 #filter.fl:    4.0
   PUSH PackageVar.test.golden.filter_1.g                     #filter.fl:    4.0
-  PUSH 4                                                     #filter.fl:    4.0
   PUSH v6:test.golden.filter_1.a                             #filter.fl:    3.10
   PUSH v4:test.golden.filter_1.f                             #filter.fl:    3.7
   PUSH v7:test.golden.filter_1.l                             #filter.fl:    3.12

@@ -13,10 +13,8 @@ HSIE for test.golden.Events.handlers_1.getHandler/0          #events.fl:    7.9
     scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #events.fl:    7.9
-CLOSURE v0                                                   #events.fl:    7.9
-  PUSH PackageVar.FLEval.curry                               #events.fl:    7.9
+CURRY v0 2                                                   #events.fl:    7.9
   PUSH CardFunction.test.golden.Events.setTo                 #events.fl:    7.9
-  PUSH 2                                                     #events.fl:    7.9
   PUSH 13                                                    #events.fl:    7.15
 -------
 HSIE for test.golden.Events.okThen/1                         #events.fl:    9.6

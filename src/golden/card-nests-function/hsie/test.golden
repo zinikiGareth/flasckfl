@@ -9,10 +9,8 @@ CLOSURE v1                                                   #nestedfn.fl:  6.11
   PUSH PackageVar.Cons                                       #nestedfn.fl:  6.0
   PUSH v0:clos0                                              #nestedfn.fl:  6.11
   PUSH PackageVar.Nil                                        #nestedfn.fl:  6.0
-CLOSURE v2                                                   #nestedfn.fl:  6.11
-  PUSH PackageVar.FLEval.curry                               #nestedfn.fl:  6.11
+CURRY v2 2                                                   #nestedfn.fl:  6.11
   PUSH CardFunction.test.golden.NestFunction.styleIf         #nestedfn.fl:  6.11
-  PUSH 2                                                     #nestedfn.fl:  6.11
 CLOSURE v0                                                   #nestedfn.fl:  6.11
   PUSH v2:null                                               #nestedfn.fl:  6.11
   PUSH "show"                                                #nestedfn.fl:  6.19
