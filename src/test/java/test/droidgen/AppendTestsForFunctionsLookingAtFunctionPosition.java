@@ -8,8 +8,9 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
-import org.flasck.flas.droidgen.DroidPushArgument;
+import org.flasck.flas.droidgen.IMethodGenerationContext;
 import org.flasck.flas.droidgen.VarHolder;
+import org.flasck.flas.hsie.PushArgumentTraverser;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.IterVar;
@@ -29,6 +30,8 @@ import org.flasck.flas.vcode.hsieForm.Var;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.zinutils.bytecode.BoolConstExpr;
@@ -42,18 +45,28 @@ import org.zinutils.bytecode.StringConstExpr;
 import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.exceptions.UtilException;
 
+@Ignore
 public class AppendTestsForFunctionsLookingAtFunctionPosition {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	MethodDefiner meth = context.mock(MethodDefiner.class);
 	private HSIEForm form = null;
-	private VarHolder vh = new VarHolder();
-	private org.zinutils.bytecode.Var cx = null;
-	DroidPushArgument dpa = new DroidPushArgument(form, meth, cx, vh);
+	IMethodGenerationContext cxt = context.mock(IMethodGenerationContext.class);
+	private VarHolder vh;
+	PushArgumentTraverser<IExpr> dpa;
 	private FunctionName funcName = FunctionName.function(loc, null, "func");
 	@SuppressWarnings("unchecked")
 	private OutputHandler<IExpr> op = context.mock(OutputHandler.class);
 	
+	@Before
+	public void setup() {
+		 vh = new VarHolder();
+		 context.checking(new Expectations() {{
+			allowing(cxt).getVarHolder(); will(returnValue(vh));
+			allowing(cxt).getMethod(); will(returnValue(meth));
+		 }});
+		 dpa = new PushArgumentTraverser<>(form, cxt);
+	}
 	@Test
 	public void testWeCanPushABoolean() {
 		BoolConstExpr bce = new BoolConstExpr(meth, true);
@@ -129,7 +142,7 @@ public class AppendTestsForFunctionsLookingAtFunctionPosition {
 			oneOf(op).result(fe2);
 		}});
 		IterVar iterVar = new IterVar(loc, new CardName(new PackageName("test"), "Card"), "my_var");
-		dpa.visit(new PushTLV(loc, new TemplateListVar(loc, funcName , iterVar)), op);
+		dpa.visit(new PushTLV(loc, new TemplateListVar(loc, funcName, iterVar)), op);
 	}
 
 	@Test

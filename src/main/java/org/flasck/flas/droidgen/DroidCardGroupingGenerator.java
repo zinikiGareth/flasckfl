@@ -8,9 +8,9 @@ import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.zinutils.bytecode.IExpr;
 
 public class DroidCardGroupingGenerator implements CardGroupingGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 
-	public DroidCardGroupingGenerator(MethodGenerationContext cxt) {
+	public DroidCardGroupingGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 	}
 

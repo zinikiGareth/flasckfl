@@ -10,11 +10,6 @@ import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 
 public class JSCurryHandler implements ClosureHandler<String> {
-	private final HSIEForm form;
-
-	public JSCurryHandler(HSIEForm form) {
-		this.form = form;
-	}
 
 	@Override
 	public void beginClosure() {
@@ -22,7 +17,7 @@ public class JSCurryHandler implements ClosureHandler<String> {
 	}
 
 	@Override
-	public void visit(PushReturn expr) {
+	public void visit(HSIEForm form, PushReturn expr) {
 		throw new org.zinutils.exceptions.NotImplementedException();
 	}
 
@@ -49,7 +44,7 @@ public class JSCurryHandler implements ClosureHandler<String> {
 			}
 
 			@Override
-			public void visit(PushReturn expr) {
+			public void visit(HSIEForm form, PushReturn expr) {
 				sb.append(", ");
 				JSForm.appendValue(form, sb, expr, -27);
 			}

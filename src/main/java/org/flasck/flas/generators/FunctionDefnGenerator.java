@@ -8,4 +8,6 @@ public interface FunctionDefnGenerator<T> {
 
 	void generate(RWFunctionDefinition defn, OutputHandler<T> handler, ClosureGenerator closure);
 
+	void push(RWFunctionDefinition defn, OutputHandler<T> handler);
+
 }

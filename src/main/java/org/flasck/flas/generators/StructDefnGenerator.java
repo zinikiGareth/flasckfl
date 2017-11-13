@@ -8,4 +8,6 @@ public interface StructDefnGenerator<T> {
 
 	void generate(RWStructDefn defn, OutputHandler<T> handler, ClosureGenerator closure);
 
+	void push(RWStructDefn defn, OutputHandler<T> handler);
+
 }

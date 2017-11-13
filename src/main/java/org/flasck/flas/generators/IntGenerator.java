@@ -8,4 +8,6 @@ public interface IntGenerator<T> {
 
 	void generate(PushInt pr, OutputHandler<T> handler, ClosureGenerator closure);
 
+	void push(PushInt pi, OutputHandler<T> handler);
+
 }

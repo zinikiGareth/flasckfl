@@ -8,4 +8,6 @@ public interface StringGenerator<T> {
 
 	void generate(PushString pr, OutputHandler<T> handler, ClosureGenerator closure);
 
+	void push(PushString ps, OutputHandler<T> handler);
+
 }

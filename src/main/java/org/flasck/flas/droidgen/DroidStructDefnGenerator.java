@@ -12,9 +12,9 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 
 public class DroidStructDefnGenerator implements StructDefnGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 
-	public DroidStructDefnGenerator(MethodGenerationContext cxt) {
+	public DroidStructDefnGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 	}
 
@@ -27,5 +27,14 @@ public class DroidStructDefnGenerator implements StructDefnGenerator<IExpr> {
 			cxt.doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxt.getCxtArg(), meth.arrayOf(J.OBJECT, new ArrayList<>())), closure, handler);
 		else
 			cxt.doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
+	}
+
+	public void push(RWStructDefn defn, OutputHandler<IExpr> handler) {
+		String clz = defn.myName().javaClassName();
+		if (defn.fields.isEmpty()) { // invoke a no-args constructor
+			handler.result(cxt.getMethod().callStatic(clz, J.OBJECT, "eval", cxt.getMethod().arrayOf(J.OBJECT, new ArrayList<>())));
+		} else {
+			handler.result(cxt.getMethod().classConst(clz));
+		}
 	}
 }

@@ -52,19 +52,19 @@ public class CurryClosure implements ClosureGenerator {
 	}
 
 	@Override
-	public <T> void arguments(ClosureHandler<T> h, int from, OutputHandler<T> handler) {
+	public <T> void arguments(HSIEForm form, ClosureHandler<T> h, int from, OutputHandler<T> handler) {
 		if (from != 3) throw new RuntimeException();
 		h.beginClosure();
 		if (c != null) {
 			for (int i=1;i<c.nestedCommands().size();i++) {
 				PushReturn pc = (PushReturn) c.nestedCommands().get(i);
-				h.visit(pc);
+				h.visit(form, pc);
 			}
 		}
 		h.endClosure(handler);
 	}
 
-	public <T> void handleCurry(boolean needsCard, ClosureHandler<T> h, OutputHandler<T> handler) {
+	public <T> void handleCurry(HSIEForm form, boolean needsCard, ClosureHandler<T> h, OutputHandler<T> handler) {
 		PushExternal curriedFn = pe;
 		if (pe == null)
 			curriedFn = (PushExternal)c.nestedCommands().get(0);
@@ -79,7 +79,7 @@ public class CurryClosure implements ClosureGenerator {
 		} else {
 			h1 = h.curry(clz, ObjectNeeded.NONE, arity);
 		}
-		arguments(h1, 3, handler);
+		arguments(form, h1, 3, handler);
 	}
 
 	@Override

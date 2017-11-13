@@ -8,4 +8,6 @@ public interface VarGenerator<T> {
 
 	void generate(PushVar pr, OutputHandler<T> handler, @Deprecated ClosureGenerator closure);
 
+	void push(PushVar pv, OutputHandler<T> handler);
+
 }

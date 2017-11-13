@@ -9,10 +9,10 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 
 public class DroidStringGenerator implements StringGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 	private final MethodDefiner meth;
 
-	public DroidStringGenerator(MethodGenerationContext cxt) {
+	public DroidStringGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 		this.meth = cxt.getMethod();
 	}
@@ -20,5 +20,10 @@ public class DroidStringGenerator implements StringGenerator<IExpr> {
 	@Override
 	public void generate(PushString pr, OutputHandler<IExpr> handler, ClosureGenerator closure) {
 		cxt.doEval(ObjectNeeded.NONE, meth.stringConst(((PushString)pr).sval.text), closure, handler);
+	}
+
+	@Override
+	public void push(PushString ps, OutputHandler<IExpr> handler) {
+		handler.result(meth.stringConst(ps.sval.text));
 	}
 }

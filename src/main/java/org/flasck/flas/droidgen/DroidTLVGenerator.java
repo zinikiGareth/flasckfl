@@ -9,10 +9,10 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 
 public class DroidTLVGenerator implements TLVGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 	private final MethodDefiner meth;
 
-	public DroidTLVGenerator(MethodGenerationContext cxt) {
+	public DroidTLVGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 		this.meth = cxt.getMethod();
 	}
@@ -20,5 +20,10 @@ public class DroidTLVGenerator implements TLVGenerator<IExpr> {
 	@Override
 	public void generate(PushTLV pt, OutputHandler<IExpr> handler, ClosureGenerator closure) {
 		cxt.doEval(ObjectNeeded.NONE, meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName), closure, handler);
+	}
+
+	@Override
+	public void push(PushTLV pt, OutputHandler<IExpr> handler) {
+		handler.result(meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName));
 	}
 }

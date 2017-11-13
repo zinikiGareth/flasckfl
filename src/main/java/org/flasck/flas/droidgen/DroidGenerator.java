@@ -14,6 +14,8 @@ import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.compiler.HSIEFormGenerator;
 import org.flasck.flas.generators.CodeGenerator;
 import org.flasck.flas.generators.GenerationContext;
+import org.flasck.flas.hsie.ClosureTraverser;
+import org.flasck.flas.hsie.HSIGenerator;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewriter.CodeGenRegistry;
 import org.flasck.flas.rewriter.RepoVisitor;
@@ -418,12 +420,13 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 	@Override
 	public void generate(HSIEForm form) {
 		GenerationContext<IExpr> cxt = new MethodGenerationContext(bce, form);
+		// form.generate(cxt)
 		CodeGenerator<IExpr> cg = form.mytype.generator();
 		cg.begin(cxt);
 		
-		final DroidClosureGenerator dcg = new DroidClosureGenerator(form, cxt);
-		final DroidHSIGenerator hg = new DroidHSIGenerator(dcg, form, cxt.getMethod(), cxt.getCxtArg(), cxt.getVarHolder());
-		IExpr blk = hg.generateHSI(form, null);
+		final ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, cxt);
+		final HSIGenerator<IExpr> hg = new HSIGenerator<>(dcg, form, cxt);
+		IExpr blk = hg.generateHSI(form);
 		if (blk != null)
 			blk.flush();
 	}

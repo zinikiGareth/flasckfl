@@ -9,4 +9,6 @@ public interface BuiltinOpGenerator<T> {
 
 	void generate(PushBuiltin defn, PushVisitor<T> dpa, OutputHandler<T> handler, ClosureGenerator closure);
 
+	void push(PushBuiltin pb, OutputHandler<T> handler);
+
 }

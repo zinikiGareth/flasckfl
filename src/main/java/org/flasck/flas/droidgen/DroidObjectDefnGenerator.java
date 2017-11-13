@@ -12,9 +12,9 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 
 public class DroidObjectDefnGenerator implements ObjectDefnGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 
-	public DroidObjectDefnGenerator(MethodGenerationContext cxt) {
+	public DroidObjectDefnGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 	}
 

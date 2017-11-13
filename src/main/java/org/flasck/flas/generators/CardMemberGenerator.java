@@ -9,5 +9,6 @@ import org.flasck.flas.vcode.hsieForm.OutputHandler;
 public interface CardMemberGenerator<T> {
 
 	void generate(CardMember cm, HSIEForm form, ObjectNeeded myOn, OutputHandler<T> handler, ClosureGenerator closure);
+	void push(CardMember cm, HSIEForm form, OutputHandler<T> handler);
 
 }

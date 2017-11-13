@@ -24,12 +24,12 @@ public class ClosureCmd extends HSIEBlock implements ClosureGenerator {
 	}
 	
 	@Override
-	public <T> void arguments(ClosureHandler<T> h, int from, OutputHandler<T> handler) {
+	public <T> void arguments(HSIEForm form, ClosureHandler<T> h, int from, OutputHandler<T> handler) {
 		// Process all the arguments
 		h.beginClosure();
 		for (int i=from;i<nestedCommands().size();i++) {
 			PushReturn c = (PushReturn) nestedCommands().get(i);
-			h.visit(c);
+			h.visit(form, c);
 		}
 		h.endClosure(handler);
 	}

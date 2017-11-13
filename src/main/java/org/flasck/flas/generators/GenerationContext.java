@@ -3,6 +3,11 @@ package org.flasck.flas.generators;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.droidgen.VarHolder;
+import org.flasck.flas.hsie.ClosureTraverser;
+import org.flasck.flas.hsie.HSIGenerator;
+import org.flasck.flas.vcode.hsieForm.ClosureHandler;
+import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEVisitor;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
@@ -19,8 +24,13 @@ public interface GenerationContext<T> {
 	void trampoline(String outerClz);
 	void trampolineWithSelf(String outerClz);
 
+	ClosureHandler<T> getClosureHandler();
+	HSIEVisitor<T> hsi(HSIGenerator<T> droidHSIGenerator, HSIEForm form, GenerationContext<T> cxt, ClosureTraverser<T> closGen);
+
 	VarGenerator<T> generateVar();
 	IntGenerator<T> generateInt();
+	BoolGenerator<T> generateBool();
+	DoubleGenerator<T> generateDouble();
 	StringGenerator<T> generateString();
 	TLVGenerator<T> generateTLV();
 	ScopedVarGenerator<T> generateScopedVar();
@@ -34,6 +44,8 @@ public interface GenerationContext<T> {
 	CardFunctionGenerator<T> generateCardFunction();
 	BuiltinOpGenerator<T> generateBuiltinOp();
 	PrimitiveTypeGenerator<T> generatePrimitiveType();
+	CSRGenerator<T> generateCSR();
+	FuncGenerator<T> generateFunc();
 
 	ByteCodeSink getSink();
 	Var getCxtArg();

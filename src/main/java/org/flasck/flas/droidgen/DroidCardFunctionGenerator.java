@@ -8,9 +8,9 @@ import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.zinutils.bytecode.IExpr;
 
 public class DroidCardFunctionGenerator implements CardFunctionGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 
-	public DroidCardFunctionGenerator(MethodGenerationContext cxt) {
+	public DroidCardFunctionGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 	}
 
@@ -20,5 +20,7 @@ public class DroidCardFunctionGenerator implements CardFunctionGenerator<IExpr> 
 		cxt.doEval(myOn, cxt.getMethod().classConst(defn.myName().javaClassName()), closure, handler);
 	}
 
-	
+	public void push(CardFunction cf, OutputHandler<IExpr> handler) {
+		handler.result(cxt.getMethod().classConst(cf.myName().javaClassName()));
+	}
 }

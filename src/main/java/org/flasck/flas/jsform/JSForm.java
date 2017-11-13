@@ -275,7 +275,7 @@ public class JSForm {
 	private static void closure(HSIEForm form, ClosureGenerator closure, OutputHandler<String> handler) {
 		if (closure instanceof CurryClosure) {
 			CurryClosure curry = (CurryClosure)closure;
-			curry.handleCurry(form.needsCardMember(), new JSCurryHandler(form), handler);
+			curry.handleCurry(form, form.needsCardMember(), new JSCurryHandler(), handler);
 			return;
 		}
 		StringBuilder sb;

@@ -1,12 +1,15 @@
 package org.flasck.flas.droidgen;
 
+import org.flasck.flas.generators.GenerationContext;
+import org.flasck.flas.hsie.ClosureTraverser;
+import org.flasck.flas.hsie.HSIGenerator;
 import org.flasck.flas.vcode.hsieForm.BindCmd;
 import org.flasck.flas.vcode.hsieForm.ErrorCmd;
-import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEVisitor;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
+import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushVar;
 import org.flasck.flas.vcode.hsieForm.Switch;
@@ -19,27 +22,25 @@ import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
-public class DroidHSIProcessor implements HSIEVisitor {
-	private final DroidHSIGenerator droidHSIGenerator;
+public class DroidHSIProcessor implements HSIEVisitor<IExpr> {
+	private final HSIGenerator<IExpr> hsiGenerator;
 	private final HSIEForm form;
 	private final NewMethodDefiner meth;
 	private final StmtCollector coll;
 	private final Var cx;
 	private final VarHolder vh;
-	private final Var assignReturnTo;
-	private final DroidClosureGenerator closGen;
+	private final ClosureTraverser<IExpr> closGen;
 
-	public DroidHSIProcessor(DroidHSIGenerator droidHSIGenerator, HSIEForm form, NewMethodDefiner meth, StmtCollector coll, DroidClosureGenerator closGen, Var cx, VarHolder vh, Var assignReturnTo) {
-		this.droidHSIGenerator = droidHSIGenerator;
+	public DroidHSIProcessor(HSIGenerator<IExpr> hsiGenerator, HSIEForm form, GenerationContext<IExpr> cxt, ClosureTraverser<IExpr> closGen) {
+		this.hsiGenerator = hsiGenerator;
 		this.form = form;
-		this.meth = meth;
-		this.coll = coll;
+		this.meth = cxt.getMethod();
+		this.coll = new StmtCollector(cxt.getMethod());
 		this.closGen = closGen;
-		this.cx = cx;
-		this.vh = vh;
-		this.assignReturnTo = assignReturnTo;
+		this.cx = cxt.getCxtArg();
+		this.vh = cxt.getVarHolder();
 	}
-	
+
 	@Override
 	public void visit(Head h) {
 		Var hv = vh.get(h.v);
@@ -57,7 +58,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 			else
 				ctor = J.BUILTINPKG +"." + ctor;
 		}
-		coll.add(meth.ifBoolean(meth.instanceOf(hv, ctor), droidHSIGenerator.generateHSI(sw, assignReturnTo), null));
+		coll.add(meth.ifBoolean(meth.instanceOf(hv, ctor), hsiGenerator.generateHSI(sw), null));
 	}
 	
 	@Override
@@ -77,7 +78,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 		}
 
 		IExpr testVal;
-		IExpr ifblk = droidHSIGenerator.generateHSI(c, assignReturnTo);
+		IExpr ifblk = hsiGenerator.generateHSI(c);
 		if (c.value != null) {
 			testVal = meth.box(exprValue(meth, c.value));
 			coll.add(meth.ifEquals(hv, testVal, ifblk, null));
@@ -97,11 +98,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 			PushVar pv = (PushVar) r;
 			if (pv.var.var.idx < form.nformal) {
 				Var hv = vh.get(pv.var.var);
-				if (assignReturnTo != null) {
-					makeArgBeString(hv);
-					coll.add(meth.assign(assignReturnTo, hv));
-				} else
-					coll.add(meth.returnObject(hv));
+				coll.add(meth.returnObject(hv));
 			} else {
 				if (pv.deps != null) {
 					for (VarInSource cov : pv.deps) {
@@ -123,11 +120,7 @@ public class DroidHSIProcessor implements HSIEVisitor {
 				closGen.closure(form.getClosure(pv.var.var), new OutputHandler<IExpr>() {
 					@Override
 					public void result(IExpr ret) {
-						if (assignReturnTo != null) {
-							makeArgBeString(vh.get(pv.var.var));
-							coll.add(meth.assign(assignReturnTo, ret));
-						} else
-							coll.add(meth.returnObject(ret));
+						coll.add(meth.returnObject(ret));
 					}
 				});
 			}
@@ -146,19 +139,14 @@ public class DroidHSIProcessor implements HSIEVisitor {
 		coll.add(meth.returnObject(meth.makeNew(J.FLERROR, meth.stringConst(meth.getName() + ": case not handled"))));
 	}
 
-	private IExpr isTruthy(NewMethodDefiner meth, Var cx, Var hv) {
-		return meth.callStatic(J.FLEVAL, J.BOOLEANP.getActual(), "isTruthy", cx, hv);
+	
+	@Override
+	public IExpr done() {
+		return coll.asBlock();
 	}
 
-	private void makeArgBeString(Var v) {
-		if (v == null)
-			return;
-		else if (v.getType().equals(J.STRING)) {
-			// nothing to do ...
-		} else if (v.getType().equals(J.INTEGER) || v.getType().equals(J.INTP.getActual())) {
-			coll.add(meth.callStatic(J.INTEGER, J.STRING, J.STRING, v));
-		} else
-			throw new UtilException("Cannot handle " + v.getType());
+	private IExpr isTruthy(NewMethodDefiner meth, Var cx, Var hv) {
+		return meth.callStatic(J.FLEVAL, J.BOOLEANP.getActual(), "isTruthy", cx, hv);
 	}
 
 	private Expr exprValue(NewMethodDefiner meth, Object value) {

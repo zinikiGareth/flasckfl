@@ -5,10 +5,14 @@ import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.generators.BoolGenerator;
 import org.flasck.flas.generators.BuiltinOpGenerator;
+import org.flasck.flas.generators.CSRGenerator;
 import org.flasck.flas.generators.CardFunctionGenerator;
 import org.flasck.flas.generators.CardGroupingGenerator;
 import org.flasck.flas.generators.CardMemberGenerator;
+import org.flasck.flas.generators.DoubleGenerator;
+import org.flasck.flas.generators.FuncGenerator;
 import org.flasck.flas.generators.FunctionDefnGenerator;
 import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.generators.HandlerLambdaGenerator;
@@ -21,11 +25,14 @@ import org.flasck.flas.generators.StringGenerator;
 import org.flasck.flas.generators.StructDefnGenerator;
 import org.flasck.flas.generators.TLVGenerator;
 import org.flasck.flas.generators.VarGenerator;
+import org.flasck.flas.hsie.ClosureTraverser;
+import org.flasck.flas.hsie.HSIGenerator;
 import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.ClosureHandler;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.HSIEVisitor;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
@@ -37,7 +44,7 @@ import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
 
-public class MethodGenerationContext implements GenerationContext<IExpr> {
+public class MethodGenerationContext implements IMethodGenerationContext {
 	private final ByteCodeStorage bce;
 	private final HSIEForm form;
 	private ByteCodeSink bcc;
@@ -46,7 +53,6 @@ public class MethodGenerationContext implements GenerationContext<IExpr> {
 	private VarHolder vh;
 	private Var cxtArg;
 	private List<IExpr> closureArgs;
-	private DroidClosureGenerator dcg;
 
 	public MethodGenerationContext(ByteCodeStorage bce, HSIEForm form) {
 		this.bce = bce;
@@ -154,11 +160,22 @@ public class MethodGenerationContext implements GenerationContext<IExpr> {
 		m2.returnObject(doCall).flush();
 	}
 	
+	@Override
+	public ClosureHandler<IExpr> getClosureHandler() {
+		return new DroidClosureHandler(this);
+	}
+
+	@Override
+	public HSIEVisitor<IExpr> hsi(HSIGenerator<IExpr> droidHSIGenerator, HSIEForm form, GenerationContext<IExpr> cxt, ClosureTraverser<IExpr> closGen) {
+		return new DroidHSIProcessor(droidHSIGenerator, form, cxt, closGen);
+	}
+
+	@Override
 	public void doEval(ObjectNeeded on, IExpr fnToCall, ClosureGenerator closure, OutputHandler<IExpr> handler) {
 		if (closure == null)
 			handler.result(meth.returnObject(fnToCall));
 		else {
-			closure.arguments(getDCG(), 1, new OutputHandler<IExpr>() {
+			closure.arguments(form, new DroidClosureHandler(this), 1, new OutputHandler<IExpr>() {
 				@Override
 				public void result(IExpr expr) {
 					switch (on) {
@@ -187,6 +204,16 @@ public class MethodGenerationContext implements GenerationContext<IExpr> {
 	@Override
 	public IntGenerator<IExpr> generateInt() {
 		return new DroidIntGenerator(this);
+	}
+
+	@Override
+	public BoolGenerator<IExpr> generateBool() {
+		return new DroidBoolGenerator(this);
+	}
+
+	@Override
+	public DoubleGenerator<IExpr> generateDouble() {
+		return new DroidDoubleGenerator(this);
 	}
 
 	@Override
@@ -253,6 +280,16 @@ public class MethodGenerationContext implements GenerationContext<IExpr> {
 	public PrimitiveTypeGenerator<IExpr> generatePrimitiveType() {
 		return new DroidPrimitiveTypeGenerator(this);
 	}
+	
+	@Override
+	public CSRGenerator<IExpr> generateCSR() {
+		return new DroidCSRGenerator(this);
+	}
+
+	@Override
+	public FuncGenerator<IExpr> generateFunc() {
+		return new DroidFuncGenerator(this);
+	}
 
 	@Override
 	public void beginClosure() {
@@ -291,13 +328,5 @@ public class MethodGenerationContext implements GenerationContext<IExpr> {
 	@Override
 	public VarHolder getVarHolder() {
 		return vh;
-	}
-
-	public void setDCG(DroidClosureGenerator dcg) {
-		this.dcg = dcg;
-	}
-
-	public ClosureHandler<IExpr> getDCG() {
-		return dcg;
 	}
 }

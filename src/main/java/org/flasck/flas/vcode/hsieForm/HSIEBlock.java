@@ -94,7 +94,7 @@ public class HSIEBlock {
 		return commands;
 	}
 
-	public void visit(HSIEVisitor v) {
+	public <T> T visit(HSIEVisitor<T> v) {
 		for (HSIEBlock n : commands) {
 			if (n instanceof Head)
 				v.visit((Head)n);
@@ -111,6 +111,7 @@ public class HSIEBlock {
 			else
 				throw new UtilException("Cannot handle " + n.getClass());
 		}
+		return v.done();
 	}
 
 	protected void dump(Logger logTo, int ind) {

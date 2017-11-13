@@ -8,9 +8,9 @@ import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.zinutils.bytecode.IExpr;
 
 public class DroidObjectReferenceGenerator implements ObjectReferenceGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 
-	public DroidObjectReferenceGenerator(MethodGenerationContext cxt) {
+	public DroidObjectReferenceGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 	}
 
@@ -18,6 +18,10 @@ public class DroidObjectReferenceGenerator implements ObjectReferenceGenerator<I
 	public void generate(ObjectReference defn, ObjectNeeded myOn, OutputHandler<IExpr> handler, ClosureGenerator closure) {
 		// This case covers at least handling the construction of Object Handlers to pass to service methods
 		cxt.doEval(myOn, cxt.getMethod().classConst(defn.myName().javaClassName()), closure, handler);
+	}
+
+	public void push(ObjectReference or, OutputHandler<IExpr> handler) {
+		handler.result(cxt.getMethod().classConst(or.myName().javaClassName()));
 	}
 
 }

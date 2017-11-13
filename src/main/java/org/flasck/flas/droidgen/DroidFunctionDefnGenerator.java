@@ -12,9 +12,9 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 
 public class DroidFunctionDefnGenerator implements FunctionDefnGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 
-	public DroidFunctionDefnGenerator(MethodGenerationContext cxt) {
+	public DroidFunctionDefnGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 	}
 
@@ -28,6 +28,10 @@ public class DroidFunctionDefnGenerator implements FunctionDefnGenerator<IExpr> 
 		} else {
 			cxt.doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
 		}
+	}
+
+	public void push(RWFunctionDefinition fn, OutputHandler<IExpr> handler) {
+		handler.result(cxt.getMethod().classConst(fn.getName().javaClassName()));
 	}
 
 }

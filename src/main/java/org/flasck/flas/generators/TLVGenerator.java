@@ -8,4 +8,6 @@ public interface TLVGenerator<T> {
 
 	void generate(PushTLV pt, OutputHandler<T> handler, ClosureGenerator closure);
 
+	void push(PushTLV pt, OutputHandler<T> handler);
+
 }

@@ -13,9 +13,9 @@ import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.exceptions.UtilException;
 
 public class DroidCardMemberGenerator implements CardMemberGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 
-	public DroidCardMemberGenerator(MethodGenerationContext cxt) {
+	public DroidCardMemberGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 	}
 
@@ -35,5 +35,21 @@ public class DroidCardMemberGenerator implements CardMemberGenerator<IExpr> {
 		else
 			fld = meth.callVirtual(J.OBJECT, card, "getVar", cxt.getCxtArg(), meth.stringConst(cm.var));
 		cxt.doEval(myOn, fld, closure, handler);
+	}
+
+	@Override
+	public void push(CardMember cm, HSIEForm form, OutputHandler<IExpr> handler) {
+		MethodDefiner meth = cxt.getMethod();
+		IExpr card;
+		if (form.isCardMethod())
+			card = meth.myThis();
+		else if (form.needsCardMember())
+			card = meth.getField("_card");
+		else
+			throw new UtilException("Can't handle card member with " + form.mytype);
+		if (cm.type instanceof RWContractImplements)
+			handler.result(meth.getField(card, cm.var));
+		else
+			handler.result(meth.callVirtual(J.OBJECT, card, "getVar", cxt.getCxtArg(), meth.stringConst(cm.var)));
 	}
 }

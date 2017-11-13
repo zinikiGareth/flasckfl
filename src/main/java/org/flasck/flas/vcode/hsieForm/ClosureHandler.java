@@ -5,7 +5,7 @@ import org.flasck.flas.hsie.ObjectNeeded;
 
 public interface ClosureHandler<T> {
 	public void beginClosure();
-	public void visit(PushReturn expr);
+	public void visit(HSIEForm form, PushReturn expr);
 	public ClosureHandler<T> curry(NameOfThing clz, ObjectNeeded on, Integer arity);
 	public void endClosure(OutputHandler<T> handler);
 }

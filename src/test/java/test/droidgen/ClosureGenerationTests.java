@@ -12,10 +12,10 @@ import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
-import org.flasck.flas.droidgen.DroidClosureGenerator;
 import org.flasck.flas.droidgen.VarHolder;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.generators.GenerationContext;
+import org.flasck.flas.hsie.ClosureTraverser;
 import org.flasck.flas.hsie.NextVarFactory;
 import org.flasck.flas.hsie.VarFactory;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
@@ -104,7 +104,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
 		closure.push(loc, hdc1, null);
@@ -126,7 +126,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		PackageVar hdc1 = new PackageVar(loc, FunctionName.function(loc, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
 		PushExternal hdc = new PushExternal(loc, hdc1);
 		dcg.pushReturn(hdc, null, op);
@@ -146,7 +146,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		SolidName number = new SolidName(null, "Number");
 		PackageVar hdc1 = new PackageVar(loc, number, new PrimitiveType(loc, number));
 		PushExternal hdc = new PushExternal(loc, hdc1);
@@ -167,7 +167,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		PackageVar hdc1 = new PackageVar(loc, cn, new CardGrouping(loc, cn, null));
 		PushExternal hdc = new PushExternal(loc, hdc1);
@@ -191,7 +191,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		ClosureCmd closure = form.createClosure(loc);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		HandlerName hn = new HandlerName(cn, "Handler");
@@ -221,7 +221,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		ClosureCmd closure = form.createClosure(loc);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		CardFunction cf = new CardFunction(loc, cn, "eventHandler");
@@ -249,7 +249,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		PackageVar hdc1 = new PackageVar(loc, cn, new CardMember(loc, cn, "var", new PrimitiveType(loc, new SolidName(null, "String"))));
 		PushExternal hdc = new PushExternal(loc, hdc1);
@@ -271,7 +271,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		CardName cn = new CardName(new PackageName("test.golden"), "MyCard");
 		PackageVar hdc1 = new PackageVar(loc, cn, new CardMember(loc, cn, "var", new PrimitiveType(loc, new SolidName(null, "String"))));
 		PushExternal hdc = new PushExternal(loc, hdc1);
@@ -296,7 +296,7 @@ public class ClosureGenerationTests {
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 			oneOf(op).result(result);
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 1, false));
@@ -321,7 +321,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
 		ClosureCmd closure = form.createClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
@@ -345,7 +345,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		FunctionName fn = FunctionName.function(loc, new PackageName("test.golden"), "callMe");
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWFunctionDefinition(fn, 0, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
@@ -368,7 +368,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		SolidName fn = new SolidName(null, "Nil");
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWStructDefn(loc, StructType.STRUCT, fn, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
@@ -392,7 +392,7 @@ public class ClosureGenerationTests {
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 			oneOf(op).result(result);
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		SolidName fn = new SolidName(null, "Cons");
 		ClosureCmd closure = form.createClosure(loc);
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, fn, false);
@@ -419,7 +419,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		SolidName fn = new SolidName(null, "Croset");
 		PackageVar hdc1 = new PackageVar(loc, fn, new RWObjectDefn(loc, fn, false));
 		PushReturn pr = new PushExternal(loc, hdc1);
@@ -443,7 +443,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		SolidName fn = new SolidName(null, "Croset");
 		ClosureCmd closure = form.createClosure(loc);
 		RWObjectDefn od = new RWObjectDefn(loc, fn, false);
@@ -476,7 +476,7 @@ public class ClosureGenerationTests {
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 			oneOf(op).result(result);
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		HandlerName hn = new HandlerName(new PackageName("test.golden"), "MyHC");
 		ClosureCmd closure = form.createClosure(loc);
 		HandlerLambda hl = new HandlerLambda(loc, hn, FunctionType.function(loc, new PrimitiveType(loc, new SolidName(null, "String")), new PrimitiveType(loc, new SolidName(null, "Number"))), "length");
@@ -500,7 +500,7 @@ public class ClosureGenerationTests {
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 			oneOf(op).result(result);
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		HandlerName hn = new HandlerName(new PackageName("test.golden"), "MyHC");
 		HandlerLambda hl = new HandlerLambda(loc, hn, new PrimitiveType(loc, new SolidName(null, "String")), "str");
 		PackageVar hdc1 = new PackageVar(loc, hn, hl);
@@ -533,7 +533,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		PackageVar hdc1 = new PackageVar(loc, hn, sv);
 		dcg.pushReturn(new PushExternal(loc, hdc1), null, op);
 	}
@@ -563,7 +563,7 @@ public class ClosureGenerationTests {
 		context.checking(new Expectations() {{
 			allowing(genCxt).getVarHolder(); will(returnValue(vh));
 		}});
-		DroidClosureGenerator dcg = new DroidClosureGenerator(form, genCxt);
+		ClosureTraverser<IExpr> dcg = new ClosureTraverser<>(form, genCxt);
 		ClosureCmd closure = form.createScopingClosure(loc);
 		PackageVar hdc1 = new PackageVar(loc, hn, sv);
 		closure.push(loc, hdc1, null);

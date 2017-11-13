@@ -9,14 +9,18 @@ import org.zinutils.bytecode.IExpr;
 
 public class DroidVarGenerator implements VarGenerator<IExpr> {
 
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 
-	public DroidVarGenerator(MethodGenerationContext cxt) {
+	public DroidVarGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 	}
 
 	@Override
 	public void generate(PushVar pr, OutputHandler<IExpr> handler, ClosureGenerator closure) {
 		cxt.doEval(ObjectNeeded.NONE, cxt.getVarHolder().get(((PushVar)pr).var.var), closure, handler);
+	}
+
+	public void push(PushVar pv, OutputHandler<IExpr> handler) {
+		handler.result(cxt.getVarHolder().get(pv.var.var));
 	}
 }

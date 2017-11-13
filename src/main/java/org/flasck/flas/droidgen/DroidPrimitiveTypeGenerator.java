@@ -8,9 +8,9 @@ import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.zinutils.bytecode.IExpr;
 
 public class DroidPrimitiveTypeGenerator implements PrimitiveTypeGenerator<IExpr> {
-	private final MethodGenerationContext cxt;
+	private final IMethodGenerationContext cxt;
 
-	public DroidPrimitiveTypeGenerator(MethodGenerationContext cxt) {
+	public DroidPrimitiveTypeGenerator(IMethodGenerationContext cxt) {
 		this.cxt = cxt;
 	}
 
