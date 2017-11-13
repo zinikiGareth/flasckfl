@@ -40,7 +40,7 @@ class PACKAGEFUNCTIONS.java {
     return
   }
   static java.lang.Object bert(java.lang.Object _context) {
-    return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
         autobox[java.lang.Integer.valueOf(2)]
         autobox["hello"]
       })
@@ -49,18 +49,18 @@ class PACKAGEFUNCTIONS.java {
     return java.lang.Integer.valueOf(32)
   }
   static java.lang.Object t1(java.lang.Object _context) {
-    return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
         autobox[test.golden.PACKAGEFUNCTIONS$fred.class]
         autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
       })
   }
   static java.lang.Object t2(java.lang.Object _context) {
     {
-      v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(3)]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class,new java.lang.Object[2] {
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
           autobox[test.golden.PACKAGEFUNCTIONS$fred.class]
           autobox[v0]
         })

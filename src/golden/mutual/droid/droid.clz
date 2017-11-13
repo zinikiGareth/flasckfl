@@ -17,7 +17,7 @@ class PACKAGEFUNCTIONS.java {
       v3 = new org.flasck.jvm.fl.FLCurry(test.golden.f_0$g.class,2,new java.lang.Object[1] {
           autobox[_0]
         })
-      return new org.flasck.jvm.fl.FLClosure(v3,new java.lang.Object[1] {
+      return org.flasck.jvm.fl.FLClosure.simple(v3, new java.lang.Object[1] {
           autobox[java.lang.Integer.valueOf(2)]
         })
     }
@@ -38,7 +38,7 @@ class PACKAGEFUNCTIONS.java {
     return
   }
   static java.lang.Object g(java.lang.Object _context, java.lang.Object _s0, java.lang.Object _0) {
-    return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
         autobox[_s0]
         autobox[_0]
       })

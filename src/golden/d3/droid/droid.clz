@@ -253,7 +253,7 @@ class TestCard$handlers_0.java implements org.flasck.jvm.display.EventHandler {
     return
   }
   java.lang.Object handle(java.lang.Object cxt, java.lang.Object ev) {
-    return new org.flasck.jvm.fl.FLClosure(this._card,((java.lang.Class)this.getHandler(cxt)),new java.lang.Object[1] {
+    return org.flasck.jvm.fl.FLClosure.obj(this._card, this.getHandler(cxt), new java.lang.Object[1] {
 ev
       })
   }
@@ -282,15 +282,15 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _d3_chart_enter_rect(java.lang.Object _context) {
     {
-      v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox["rect"]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.D3Action.class,new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.D3Action.class, new java.lang.Object[2] {
           autobox["append"]
           autobox[v0]
         })
-      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v1]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
@@ -298,15 +298,15 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _d3_chart_enter_text(java.lang.Object _context) {
     {
-      v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox["text"]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.D3Action.class,new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.D3Action.class, new java.lang.Object[2] {
           autobox["append"]
           autobox[v0]
         })
-      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v1]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
@@ -314,153 +314,153 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _d3init_chart(java.lang.Object _context) {
     {
-      v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["y"]
           autobox[this]
         })
-      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["x"]
           autobox[this]
         })
-      v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["width"]
           autobox[this]
         })
-      v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["height"]
           autobox[this]
         })
-      v4 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v4 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["fill"]
           autobox[this]
         })
-      v5 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v5 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v4]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v6 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v6 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v3]
           autobox[v5]
         })
-      v7 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v7 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v2]
           autobox[v6]
         })
-      v8 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v8 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v1]
           autobox[v7]
         })
-      v9 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v9 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v0]
           autobox[v8]
         })
-      v10 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v10 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["rect"]
           autobox[v9]
         })
-      v11 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v11 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["y"]
           autobox[this]
         })
-      v12 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v12 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["x"]
           autobox[this]
         })
-      v13 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v13 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["width"]
           autobox[this]
         })
-      v14 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v14 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["textAnchor"]
           autobox[this]
         })
-      v15 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v15 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["text"]
           autobox[this]
         })
-      v16 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v16 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["height"]
           autobox[this]
         })
-      v17 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v17 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["fontSize"]
           autobox[this]
         })
-      v18 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v18 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["fontFamily"]
           autobox[this]
         })
-      v19 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v19 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["fill"]
           autobox[this]
         })
-      v20 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v20 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v19]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v21 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v21 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v18]
           autobox[v20]
         })
-      v22 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v22 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v17]
           autobox[v21]
         })
-      v23 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v23 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v16]
           autobox[v22]
         })
-      v24 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v24 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v15]
           autobox[v23]
         })
-      v25 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v25 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v14]
           autobox[v24]
         })
-      v26 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v26 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v13]
           autobox[v25]
         })
-      v27 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v27 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v12]
           autobox[v26]
         })
-      v28 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v28 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v11]
           autobox[v27]
         })
-      v29 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Tuple.class,new java.lang.Object[2] {
+      v29 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
           autobox["text"]
           autobox[v28]
         })
-      v30 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v30 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v29]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v31 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v31 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v10]
           autobox[v30]
         })
-      v32 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v32 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[this]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v33 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v33 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[this]
           autobox[v32]
         })
-      v34 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Assoc.class,new java.lang.Object[3] {
+      v34 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assoc.class, new java.lang.Object[3] {
           autobox["enter"]
           autobox[v33]
           autobox[org.flasck.jvm.builtin.NilMap.eval(new java.lang.Object[0] {})]
         })
-      v35 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Assoc.class,new java.lang.Object[3] {
+      v35 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assoc.class, new java.lang.Object[3] {
           autobox["layout"]
           autobox[v31]
           autobox[v34]
         })
-      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Assoc.class,new java.lang.Object[3] {
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assoc.class, new java.lang.Object[3] {
           autobox["data"]
           autobox[this]
           autobox[v35]
@@ -469,7 +469,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_1(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
@@ -481,12 +481,12 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_10(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.D3Element) {
-        return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+        return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
             autobox[_0]
             autobox["data"]
           })
@@ -496,7 +496,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_11(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
@@ -508,7 +508,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_12(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
@@ -520,21 +520,21 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_13(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.D3Element) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
               autobox[_0]
               autobox["idx"]
             })
-          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(22)]
               autobox[v1]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class, new java.lang.Object[2] {
               autobox[v2]
               autobox[java.lang.Integer.valueOf(10)]
             })
@@ -545,25 +545,25 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_14(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.D3Element) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
               autobox[_0]
               autobox["data"]
             })
-          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(10)]
               autobox[v1]
             })
-          v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$-.class,new java.lang.Object[2] {
+          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$-.class, new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(200)]
               autobox[v2]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class, new java.lang.Object[2] {
               autobox[v3]
               autobox[java.lang.Integer.valueOf(14)]
             })
@@ -577,17 +577,17 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_2(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.D3Element) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
               autobox[_0]
               autobox["data"]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(10)]
               autobox[v1]
             })
@@ -598,7 +598,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_3(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
@@ -610,17 +610,17 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_4(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.D3Element) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
               autobox[_0]
               autobox["idx"]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(22)]
               autobox[v1]
             })
@@ -631,21 +631,21 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_5(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.D3Element) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
               autobox[_0]
               autobox["data"]
             })
-          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(10)]
               autobox[v1]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$-.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$-.class, new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(200)]
               autobox[v2]
             })
@@ -656,7 +656,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_6(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
@@ -668,7 +668,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_7(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
@@ -680,7 +680,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_8(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
@@ -692,17 +692,17 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object _gen_9(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.D3Element) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
               autobox[_0]
               autobox["data"]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(10)]
               autobox[v1]
             })
@@ -713,28 +713,28 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object rejig(java.lang.Object _context, java.lang.Object _0) {
     {
-      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(9)]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(11)]
           autobox[v1]
         })
-      v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(7)]
           autobox[v2]
         })
-      v4 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v4 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(4)]
           autobox[v3]
         })
-      v5 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
+      v5 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
           autobox[this]
           autobox["data"]
           autobox[v4]
         })
-      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v5]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
@@ -757,19 +757,19 @@ class PACKAGEFUNCTIONS.java {
   }
   static java.lang.Object inits_data(java.lang.Object _context) {
     {
-      v0 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(16)]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(2)]
           autobox[v0]
         })
-      v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(8)]
           autobox[v1]
         })
-      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[java.lang.Integer.valueOf(5)]
           autobox[v2]
         })

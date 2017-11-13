@@ -172,21 +172,22 @@ public class MethodGenerationContext implements IMethodGenerationContext {
 
 	@Override
 	public void doEval(ObjectNeeded on, IExpr fnToCall, ClosureGenerator closure, OutputHandler<IExpr> handler) {
+		IExpr closExpr = meth.as(fnToCall, J.OBJECT);
 		if (closure == null)
-			handler.result(meth.returnObject(fnToCall));
+			handler.result(meth.returnObject(closExpr));
 		else {
 			closure.arguments(form, new DroidClosureHandler(this), 1, new OutputHandler<IExpr>() {
 				@Override
 				public void result(IExpr expr) {
 					switch (on) {
 					case NONE:
-						handler.result(meth.makeNew(J.FLCLOSURE, fnToCall, expr));
+						handler.result(meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", closExpr, expr));
 						break;
 					case THIS:
-						handler.result(meth.makeNew(J.FLCLOSURE, meth.as(meth.myThis(), J.OBJECT), fnToCall, expr));
+						handler.result(meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", meth.as(meth.myThis(), J.OBJECT), closExpr, expr));
 						break;
 					case CARD:
-						handler.result(meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), fnToCall, expr));
+						handler.result(meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", meth.as(meth.getField("_card"), J.OBJECT), closExpr, expr));
 						break;
 					default:
 						throw new UtilException("What is " + on);

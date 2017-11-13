@@ -43,7 +43,7 @@ class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
   java.lang.Object contents_0(java.lang.Object _context) {
-    return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
         autobox[this._card.getVar(_context, "c")]
         autobox["title"]
       })
@@ -112,7 +112,7 @@ class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
   java.lang.Object contents_3(java.lang.Object _context) {
-    return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
         autobox[this._src_q.q]
         autobox["title"]
       })

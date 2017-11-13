@@ -5,9 +5,9 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
 
   void <init>(java.lang.Object cxt, java.lang.Object server, java.lang.Object var, java.lang.Object v) {
     super.<init>()
-    this.server = org.flasck.jvm.fl.FLEval.head(server)
-    this.var = org.flasck.jvm.fl.FLEval.head(var)
-    this.v = org.flasck.jvm.fl.FLEval.head(v)
+    this.server = org.flasck.jvm.fl.FLEval.head(cxt, server)
+    this.var = org.flasck.jvm.fl.FLEval.head(cxt, var)
+    this.v = org.flasck.jvm.fl.FLEval.head(cxt, v)
     return
   }
   static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
@@ -19,26 +19,26 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
   }
   java.lang.Object reply(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.Number) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class, new java.lang.Object[2] {
               autobox[this.var]
               autobox[this.v]
             })
-          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v1]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
               autobox[this.server]
               autobox["put"]
               autobox[v2]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v3]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
@@ -84,22 +84,22 @@ class PACKAGEFUNCTIONS.java {
   }
   static java.lang.Object cna(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof test.golden.NoArg) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[java.lang.Integer.valueOf(42)]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
               autobox[_0]
               autobox["get"]
               autobox[v1]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v2]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
@@ -110,27 +110,27 @@ class PACKAGEFUNCTIONS.java {
   }
   static java.lang.Object f(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof test.golden.Server) {
         {
-          v9 = new org.flasck.jvm.fl.FLClosure(test.golden.f_0$var.class,new java.lang.Object[0] {})
+          v9 = org.flasck.jvm.fl.FLClosure.simple(test.golden.f_0$var.class, new java.lang.Object[0] {})
           v7 = new org.flasck.jvm.fl.FLCurry(test.golden.f_0$HandleReply.class,3,new java.lang.Object[2] {
               autobox[_0]
               autobox[v9]
             })
-          v8 = new org.flasck.jvm.fl.FLClosure(test.golden.f_0$q.class,new java.lang.Object[3] {
+          v8 = org.flasck.jvm.fl.FLClosure.simple(test.golden.f_0$q.class, new java.lang.Object[3] {
               autobox[v7]
               autobox[_0]
               autobox[v9]
             })
-          v10 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v10 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v8]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.MessageWrapper.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.MessageWrapper.class, new java.lang.Object[2] {
               autobox[v9]
               autobox[v10]
             })
@@ -189,23 +189,23 @@ class PACKAGEFUNCTIONS.java {
   }
   static java.lang.Object q(java.lang.Object _context, java.lang.Object _s0, java.lang.Object _s1, java.lang.Object _s2) {
     {
-      v0 = new org.flasck.jvm.fl.FLClosure(_s0,new java.lang.Object[1] {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(_s0, new java.lang.Object[1] {
           autobox[_s2]
         })
-      v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
-      v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[_s2]
           autobox[v1]
         })
-      v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+      v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
           autobox[_s1]
           autobox["get"]
           autobox[v2]
         })
-      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v3]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })

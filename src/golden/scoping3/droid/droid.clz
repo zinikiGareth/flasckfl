@@ -4,8 +4,8 @@ class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
 
   void <init>(java.lang.Object cxt, java.lang.Object set, java.lang.Object ck) {
     super.<init>()
-    this.set = org.flasck.jvm.fl.FLEval.head(set)
-    this.ck = org.flasck.jvm.fl.FLEval.head(ck)
+    this.set = org.flasck.jvm.fl.FLEval.head(cxt, set)
+    this.ck = org.flasck.jvm.fl.FLEval.head(cxt, ck)
     return
   }
   static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
@@ -17,26 +17,26 @@ class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
   }
   java.lang.Object update(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.Any) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[_0]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[this.ck]
               autobox[v1]
             })
-          v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
               autobox[this.set]
               autobox["insert"]
               autobox[v2]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v3]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
@@ -73,7 +73,7 @@ class PACKAGEFUNCTIONS.java {
     return
   }
   static java.lang.Object f(java.lang.Object _context) {
-    return new org.flasck.jvm.fl.FLClosure(test.golden.f_0$set.class,new java.lang.Object[0] {})
+    return org.flasck.jvm.fl.FLClosure.simple(test.golden.f_0$set.class, new java.lang.Object[0] {})
   }
 }
 class PACKAGEFUNCTIONS$set.java {
@@ -91,7 +91,7 @@ class PACKAGEFUNCTIONS.java {
     return
   }
   static java.lang.Object set(java.lang.Object _context) {
-    return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Croset.class,new java.lang.Object[1] {
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Croset.class, new java.lang.Object[1] {
         autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
       })
   }

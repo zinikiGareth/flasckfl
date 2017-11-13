@@ -15,25 +15,25 @@ class Getter.java extends org.flasck.jvm.cards.FlasckCard {
   }
   java.lang.Object choose(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof java.lang.String) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
               autobox[this.getVar(_context, "strings")]
               autobox["item"]
             })
-          v2 = new org.flasck.jvm.fl.FLClosure(v1,new java.lang.Object[1] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(v1, new java.lang.Object[1] {
               autobox[_0]
             })
-          v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
+          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
               autobox[this]
               autobox["curr"]
               autobox[v2]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v3]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })

@@ -16,11 +16,11 @@ class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
   java.lang.Object formats_0(java.lang.Object _context) {
     {
       v2 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.NestFunction$styleIf.class,2,new java.lang.Object[0] {})
-      v0 = new org.flasck.jvm.fl.FLClosure(v2,new java.lang.Object[2] {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(v2, new java.lang.Object[2] {
           autobox["show"]
           autobox[this._card.getVar(_context, "sayHello")]
         })
-      return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v0]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })

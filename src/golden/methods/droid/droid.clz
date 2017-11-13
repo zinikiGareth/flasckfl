@@ -3,7 +3,7 @@ class f_0$KVHImpl.java extends test.golden.KVH$Impl {
 
   void <init>(java.lang.Object cxt, java.lang.Object s) {
     super.<init>()
-    this.s = org.flasck.jvm.fl.FLEval.head(s)
+    this.s = org.flasck.jvm.fl.FLEval.head(cxt, s)
     return
   }
   static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
@@ -15,22 +15,22 @@ class f_0$KVHImpl.java extends test.golden.KVH$Impl {
   }
   java.lang.Object update(java.lang.Object _context, java.lang.Object _0) {
     {
-      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
       if (_0 instanceof org.flasck.jvm.builtin.Crokeys) {
         {
-          v1 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[_0]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
-          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Send.class,new java.lang.Object[3] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
               autobox[this.s]
               autobox["mergeAppend"]
               autobox[v1]
             })
-          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v2]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
@@ -85,7 +85,7 @@ class PACKAGEFUNCTIONS.java {
     return
   }
   static java.lang.Object s(java.lang.Object _context) {
-    return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Croset.class,new java.lang.Object[1] {
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Croset.class, new java.lang.Object[1] {
         autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
       })
   }

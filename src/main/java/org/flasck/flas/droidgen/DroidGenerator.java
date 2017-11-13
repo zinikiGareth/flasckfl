@@ -413,7 +413,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			PendingVar evP = ann.argument(new JavaType(J.OBJECT), "ev");
 			ann.returns(JavaType.object_);
 			NewMethodDefiner meth = ann.done();
-			meth.returnObject(meth.makeNew(J.FLCLOSURE, meth.as(meth.getField("_card"), J.OBJECT), meth.castTo(meth.callVirtual(J.OBJECT, meth.myThis(), "getHandler", cxt.getVar()), J.CLASS), meth.arrayOf(J.OBJECT, Arrays.asList(evP.getVar())))).flush();
+			meth.returnObject(meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", meth.as(meth.getField("_card"), J.OBJECT), meth.callVirtual(J.OBJECT, meth.myThis(), "getHandler", cxt.getVar()), meth.arrayOf(J.OBJECT, Arrays.asList(evP.getVar())))).flush();
 		}
 	}
 
