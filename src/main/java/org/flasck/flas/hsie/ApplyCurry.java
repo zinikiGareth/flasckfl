@@ -17,6 +17,7 @@ import org.flasck.flas.vcode.hsieForm.CurryClosure;
 import org.flasck.flas.vcode.hsieForm.VarInSource;
 import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
+import org.flasck.flas.vcode.hsieForm.PushBuiltin;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushFunc;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
@@ -49,17 +50,9 @@ public class ApplyCurry {
 				continue;
 			// The purpose of this is to stop us rewriting things we've already rewritten
 			int lookFrom = 0;
-			if (pc instanceof PushExternal) {
-				ExternalRef ex = ((PushExternal)pc).fn;
-				if (ex instanceof HandlerLambda)
-					continue;
-				if (ex instanceof CardMember)
-					continue;
-				if (ex instanceof ScopedVar)
-					continue;
-				if (ex.uniqueName().equals("FLEval.tuple"))
-					continue;
-				if (ex.uniqueName().equals("FLEval.field")) {
+			if (pc instanceof PushBuiltin) {
+				PushBuiltin pb = (PushBuiltin) pc;
+				if (pb.isField()) {
 					HSIEBlock c1 = c.nestedCommands().get(1);
 					if (c1 instanceof PushExternal) {
 						PushExternal ofObj = (PushExternal) c1;
@@ -81,7 +74,18 @@ public class ApplyCurry {
 						}
 					}
 					continue;
-				}
+				} else if (pb.isTuple()) {
+					continue;
+				} else
+					throw new RuntimeException("Unhandled builtin case");
+			} else if (pc instanceof PushExternal) {
+				ExternalRef ex = ((PushExternal)pc).fn;
+				if (ex instanceof HandlerLambda)
+					continue;
+				if (ex instanceof CardMember)
+					continue;
+				if (ex instanceof ScopedVar)
+					continue;
 				if (c instanceof ClosureCmd) {
 					ClosureCmd cc = (ClosureCmd) c;
 					boolean scoping = cc.justScoping();

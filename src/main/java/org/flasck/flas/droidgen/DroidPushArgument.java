@@ -15,6 +15,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushBool;
+import org.flasck.flas.vcode.hsieForm.PushBuiltin;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushDouble;
 import org.flasck.flas.vcode.hsieForm.PushFunc;
@@ -28,6 +29,7 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.NewMethodDefiner;
 import org.zinutils.bytecode.Var;
 import org.zinutils.exceptions.UtilException;
+import org.zinutils.utils.StringUtil;
 
 public final class DroidPushArgument implements PushVisitor<IExpr> {
 	private final HSIEForm form;
@@ -89,6 +91,11 @@ public final class DroidPushArgument implements PushVisitor<IExpr> {
 	@Override
 	public void visitExternal(PackageVar pv, OutputHandler<IExpr> handler) {
 		handleNamedThing(pv, handler);
+	}
+
+	@Override
+	public void visit(PushBuiltin pb, OutputHandler<IExpr> handler) {
+		handler.result(meth.classConst(J.FLEVAL+"$" + StringUtil.capitalize(pb.bval.opName)));
 	}
 
 	private void handleNamedThing(ExternalRef name, OutputHandler<IExpr> handler) {

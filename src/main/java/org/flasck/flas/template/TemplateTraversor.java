@@ -14,6 +14,7 @@ import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
+import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardFunction;
@@ -234,7 +235,7 @@ public class TemplateTraversor {
 						area.makeEditable(ce, cm.var);
 				} else if (valExpr instanceof ApplyExpr) {
 					ApplyExpr ae = (ApplyExpr) valExpr;
-					if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
+					if (!(ae.fn instanceof BuiltinOperation) || !((BuiltinOperation)ae.fn).isField())
 						throw new UtilException("Cannot edit: " + ae);
 					for (AreaGenerator area : areas)
 						area.makeEditable(ce, ((StringLiteral)ae.args.get(1)).text);
@@ -377,7 +378,7 @@ public class TemplateTraversor {
 			// nothing to do here, not variable
 		} else if (valExpr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) valExpr;
-			if (ae.fn instanceof PackageVar && ((PackageVar)ae.fn).id.equals("FLEval.field")) {
+			if (ae.fn instanceof BuiltinOperation && ((BuiltinOperation)ae.fn).isField()) {
 				Object expr = ae.args.get(0);
 				String field = ((StringLiteral)ae.args.get(1)).text;
 				if (expr instanceof TemplateListVar) {

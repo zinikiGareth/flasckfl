@@ -1,6 +1,6 @@
 HSIE for test.golden.f/1                                     #downcast.fl:  4.0
 #Args: 1 #bound: 2
-    externals: [Any, FLEval.field]
+    externals: [Any]
     scoped = []
     scopedDefns = []
     all vars = [v0, v1, v2]
@@ -11,6 +11,6 @@ ERROR                                                        #downcast.fl:  4.0
 CLOSURE v1 >test.golden.Role                                 #downcast.fl:  4.7
   PUSH v0:test.golden.f_0.x                                  #downcast.fl:  4.7
 CLOSURE v2                                                   #downcast.fl:  4.12
-  PUSH PackageVar.FLEval.field                               #downcast.fl:  4.12
+  FIELD                                                      #downcast.fl:  4.12
   PUSH v1:clos1                                              #downcast.fl:  4.7
   PUSH "r"                                                   #downcast.fl:  4.30

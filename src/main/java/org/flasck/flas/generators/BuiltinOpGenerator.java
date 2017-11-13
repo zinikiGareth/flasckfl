@@ -1,13 +1,12 @@
 package org.flasck.flas.generators;
 
-import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
-import org.zinutils.bytecode.IExpr;
+import org.flasck.flas.vcode.hsieForm.PushBuiltin;
+import org.flasck.flas.vcode.hsieForm.PushVisitor;
 
 public interface BuiltinOpGenerator<T> {
 
-	void generate(BuiltinOperation defn, NameOfThing name, OutputHandler<IExpr> handler, ClosureGenerator closure);
+	void generate(PushBuiltin defn, PushVisitor<T> dpa, OutputHandler<T> handler, ClosureGenerator closure);
 
 }

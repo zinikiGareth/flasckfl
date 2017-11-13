@@ -8,7 +8,7 @@ handler test.golden.Card.ItemHandler *card*
       <-
         @
           @
-            PackageVar.FLEval.field
+            field
             CardMember.CardMember[test.golden.Card.ds]
             "insert"
           ScopedVar.Scoped[test.golden.Card.ItemHandler.update.x]

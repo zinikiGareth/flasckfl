@@ -8,6 +8,7 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
+import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -78,6 +79,9 @@ public class GatherScopedVars {
 	}
 	
 	public void process(PackageVar pv) {
+	}
+	
+	public void process(BuiltinOperation expr) {
 	}
 	
 	public void process(CardStateRef csr) {

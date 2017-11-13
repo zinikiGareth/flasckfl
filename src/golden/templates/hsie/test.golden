@@ -8,19 +8,19 @@ RETURN CardMember.CardMember[test.golden.Templates.data]     #templates.fl 17.2
 -------
 HSIE for test.golden.Templates.B4.contents_1/0               #templates.fl 19.2
 #Args: 0 #bound: 1
-    externals: [FLEval.field]
+    externals: []
     scoped = []
     scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #templates.fl 19.2
 CLOSURE v0                                                   #templates.fl 19.2
-  PUSH PackageVar.FLEval.field                               #templates.fl 19.2
+  FIELD                                                      #templates.fl 19.2
   PUSH TLV[test.golden.Templates.e<-test.golden.Templates.B2 #templates.fl 17.7
   PUSH "title"                                               #templates.fl 19.2
 -------
 HSIE for test.golden.Templates.B4.formats_2/0                #templates.fl 19.2
 #Args: 0 #bound: 2
-    externals: [Cons, FLEval.field, Nil]
+    externals: [Cons, Nil]
     scoped = []
     scopedDefns = []
     all vars = [v0, v1]
@@ -30,74 +30,74 @@ CLOSURE v1                                                   #templates.fl 19.11
   PUSH v0:clos0                                              #templates.fl 19.11
   PUSH PackageVar.Nil                                        #templates.fl 19.2
 CLOSURE v0                                                   #templates.fl 19.11
-  PUSH PackageVar.FLEval.field                               #templates.fl 19.11
+  FIELD                                                      #templates.fl 19.11
   PUSH TLV[test.golden.Templates.e<-test.golden.Templates.B2 #templates.fl 17.7
   PUSH "format"                                              #templates.fl 19.13
 -------
 HSIE for test.golden.Templates.B5.contents_3/0               #templates.fl 20.5
 #Args: 0 #bound: 2
-    externals: [FLEval.field]
+    externals: []
     scoped = []
     scopedDefns = []
     all vars = [v0, v1]
 RETURN v1:clos1 [v0:clos0]                                   #templates.fl 20.5
 CLOSURE v1                                                   #templates.fl 20.5
-  PUSH PackageVar.FLEval.field                               #templates.fl 20.5
+  FIELD                                                      #templates.fl 20.5
   PUSH v0:clos0                                              #templates.fl 20.2
   PUSH "id"                                                  #templates.fl 20.5
 CLOSURE v0                                                   #templates.fl 20.2
-  PUSH PackageVar.FLEval.field                               #templates.fl 20.2
+  FIELD                                                      #templates.fl 20.2
   PUSH TLV[test.golden.Templates.e<-test.golden.Templates.B2 #templates.fl 17.7
   PUSH "id"                                                  #templates.fl 20.2
 -------
 HSIE for test.golden.Templates.B5.ctsAssign_4/0              #templates.fl 20.2
 #Args: 0 #bound: 1
-    externals: [FLEval.field]
+    externals: []
     scoped = []
     scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #templates.fl 20.2
 CLOSURE v0                                                   #templates.fl 20.2
-  PUSH PackageVar.FLEval.field                               #templates.fl 20.2
+  FIELD                                                      #templates.fl 20.2
   PUSH TLV[test.golden.Templates.e<-test.golden.Templates.B2 #templates.fl 17.7
   PUSH "id"                                                  #templates.fl 20.2
 -------
 HSIE for test.golden.Templates.B6.contents_5/0               #templates.fl 21.7
 #Args: 0 #bound: 1
-    externals: [FLEval.field, test.golden.Templates.header]
+    externals: [test.golden.Templates.header]
     scoped = []
     scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #templates.fl 21.7
 CLOSURE v0                                                   #templates.fl 21.7
-  PUSH PackageVar.FLEval.field                               #templates.fl 21.7
+  FIELD                                                      #templates.fl 21.7
   PUSH CardMember.CardMember[test.golden.Templates.header]   #templates.fl 21.0
   PUSH "title"                                               #templates.fl 21.7
 -------
 HSIE for test.golden.Templates.B7.contents_6/0               #templates.fl 22.10
 #Args: 0 #bound: 2
-    externals: [FLEval.field, test.golden.Templates.header]
+    externals: [test.golden.Templates.header]
     scoped = []
     scopedDefns = []
     all vars = [v0, v1]
 RETURN v1:clos1 [v0:clos0]                                   #templates.fl 22.10
 CLOSURE v1                                                   #templates.fl 22.10
-  PUSH PackageVar.FLEval.field                               #templates.fl 22.10
+  FIELD                                                      #templates.fl 22.10
   PUSH v0:clos0                                              #templates.fl 22.7
   PUSH "id"                                                  #templates.fl 22.10
 CLOSURE v0                                                   #templates.fl 22.7
-  PUSH PackageVar.FLEval.field                               #templates.fl 22.7
+  FIELD                                                      #templates.fl 22.7
   PUSH CardMember.CardMember[test.golden.Templates.header]   #templates.fl 22.0
   PUSH "id"                                                  #templates.fl 22.7
 -------
 HSIE for test.golden.Templates.B7.ctsAssign_7/0              #templates.fl 22.7
 #Args: 0 #bound: 1
-    externals: [FLEval.field, test.golden.Templates.header]
+    externals: [test.golden.Templates.header]
     scoped = []
     scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #templates.fl 22.7
 CLOSURE v0                                                   #templates.fl 22.7
-  PUSH PackageVar.FLEval.field                               #templates.fl 22.7
+  FIELD                                                      #templates.fl 22.7
   PUSH CardMember.CardMember[test.golden.Templates.header]   #templates.fl 22.0
   PUSH "id"                                                  #templates.fl 22.7

@@ -22,6 +22,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEBlock;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
+import org.flasck.flas.vcode.hsieForm.PushBuiltin;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
 import org.flasck.flas.vcode.hsieForm.PushVar;
@@ -304,8 +305,8 @@ public class JSForm {
 			PushReturn c = (PushReturn) b;
 			if (pos > 0)
 				sb.append(", ");
-			if (c instanceof PushExternal && pos == 0) {
-				isField = "FLEval.field".equals(((PushExternal)c).fn.uniqueName());
+			if (c instanceof PushBuiltin && ((PushBuiltin)c).isField() && pos == 0) {
+				isField = true;
 			}
 			if (c instanceof PushExternal && isField && pos == 2)
 				sb.append("'" + ((PushExternal)c).fn + "'");

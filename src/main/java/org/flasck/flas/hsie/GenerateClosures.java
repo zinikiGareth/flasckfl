@@ -18,6 +18,7 @@ import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
@@ -188,6 +189,10 @@ public class GenerateClosures {
 
 	public LocatedObject process(PackageVar pv) {
 		return new LocatedObject(pv.location, pv);
+	}
+
+	public LocatedObject process(BuiltinOperation bo) {
+		return new LocatedObject(bo.location(), bo);
 	}
 
 	public LocatedObject process(LocalVar nl) {

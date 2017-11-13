@@ -10,11 +10,10 @@ import org.flasck.flas.blockForm.LocatedToken;
 import org.flasck.flas.commonBase.ApplyExpr;
 import org.flasck.flas.commonBase.Locatable;
 import org.flasck.flas.commonBase.StringLiteral;
-import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardGrouping;
@@ -250,7 +249,7 @@ public class MethodConvertor {
 				root = (ApplyExpr)root.fn;
 			} else
 				args = new ArrayList<Object>();
-			if (root.fn instanceof PackageVar && ((PackageVar)root.fn).id.equals("FLEval.field")) {
+			if (root.fn instanceof BuiltinOperation && ((BuiltinOperation)root.fn).isField()) {
 				Object sender = root.args.get(0);
 				StringLiteral method = (StringLiteral) root.args.get(1);
 				if (sender instanceof CardMember && ((CardMember)sender).type instanceof TypeWithMethods)
@@ -397,7 +396,7 @@ public class MethodConvertor {
 				}
 				slotType = (TypeWithName) sf.type;
 				if (slotName != null)
-					intoObj = new ApplyExpr(si.location, new PackageVar(si.location, FunctionName.function(si.location, new PackageName("FLEval"), "field"), null), intoObj, slotName);
+					intoObj = new ApplyExpr(si.location, BuiltinOperation.FIELD.at(si.location), intoObj, slotName);
 				slotName = new StringLiteral(si.location, si.text);
 			}
 		} else if (slotName == null) {

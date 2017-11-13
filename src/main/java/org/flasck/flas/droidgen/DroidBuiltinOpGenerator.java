@@ -1,12 +1,18 @@
 package org.flasck.flas.droidgen;
 
-import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.flim.BuiltinOperation;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.flasck.flas.generators.BuiltinOpGenerator;
 import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
+import org.flasck.flas.vcode.hsieForm.PushBuiltin;
+import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.PushVisitor;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
+import org.zinutils.bytecode.MethodDefiner;
 
 public class DroidBuiltinOpGenerator implements BuiltinOpGenerator<IExpr> {
 	private final MethodGenerationContext cxt;
@@ -16,8 +22,22 @@ public class DroidBuiltinOpGenerator implements BuiltinOpGenerator<IExpr> {
 	}
 
 	@Override
-	public void generate(BuiltinOperation defn, NameOfThing name, OutputHandler<IExpr> handler, ClosureGenerator closure) {
-		// This covers both Field & Tuple, but Field was handled above
-		cxt.doEval(ObjectNeeded.NONE, cxt.getMethod().classConst(name.javaClassName()), closure, handler);
+	public void generate(PushBuiltin defn, PushVisitor<IExpr> dpa, OutputHandler<IExpr> handler, ClosureGenerator closure) {
+		final MethodDefiner meth = cxt.getMethod();
+		if (defn.isTuple()) {
+			cxt.doEval(ObjectNeeded.NONE, meth.classConst(J.FLTUPLE), closure, handler);
+		} else if (defn.isField()) {
+			List<IExpr> al = new ArrayList<>();
+			OutputHandler<IExpr> oh = new OutputHandler<IExpr>() {
+				@Override
+				public void result(IExpr expr) {
+					al.add(meth.box(expr));
+				}
+			};
+			((PushReturn)closure.nestedCommands().get(1)).visit(dpa, oh);
+			((PushReturn)closure.nestedCommands().get(2)).visit(dpa, oh);
+			handler.result(meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al)));
+		} else 
+			throw new RuntimeException("not handled " + defn);
 	}
 }

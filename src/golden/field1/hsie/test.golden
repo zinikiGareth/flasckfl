@@ -1,0 +1,27 @@
+HSIE for test.golden.Card.doit/2                             #field1.fl:    8.6
+#Args: 2 #bound: 4
+    externals: [Assign, Cons, Nil, test.golden.Container]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0, v1, v2, v3, v4, v5]
+HEAD v0                                                      #field1.fl:    8.12
+SWITCH v0 test.golden.Container                              #field1.fl:    8.12
+  RETURN v5:clos5 [v2:clos2, v3:clos3, v4:clos4]             #field1.fl:    9.11
+ERROR                                                        #field1.fl:    8.6
+CLOSURE v2                                                   #field1.fl:    9.2
+  FIELD                                                      #field1.fl:    9.2
+  PUSH this                                                  #field1.fl:    9.0
+  PUSH "c"                                                   #field1.fl:    9.0
+CLOSURE v3                                                   #field1.fl:    9.11
+  FIELD                                                      #field1.fl:    9.11
+  PUSH v0:test.golden.Card.doit.g                            #field1.fl:    8.22
+  PUSH "value"                                               #field1.fl:    9.13
+CLOSURE v4                                                   #field1.fl:    9.0
+  PUSH PackageVar.Assign                                     #field1.fl:    9.0
+  PUSH v2:clos2                                              #field1.fl:    9.2
+  PUSH "value"                                               #field1.fl:    9.2
+  PUSH v3:clos3                                              #field1.fl:    9.11
+CLOSURE v5                                                   #field1.fl:    9.11
+  PUSH PackageVar.Cons                                       #field1.fl:    8.6
+  PUSH v4:clos4                                              #field1.fl:    9.0
+  PUSH PackageVar.Nil                                        #field1.fl:    8.6

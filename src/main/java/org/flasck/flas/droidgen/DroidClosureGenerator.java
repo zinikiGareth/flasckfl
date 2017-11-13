@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
-import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.generators.GenerationContext;
 import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.rewrittenForm.CardFunction;
@@ -24,6 +23,7 @@ import org.flasck.flas.vcode.hsieForm.ClosureHandler;
 import org.flasck.flas.vcode.hsieForm.CurryClosure;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
+import org.flasck.flas.vcode.hsieForm.PushBuiltin;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushInt;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
@@ -74,13 +74,7 @@ public class DroidClosureGenerator implements ClosureHandler<IExpr> {
 			Object defn = fn;
 			while (defn instanceof PackageVar)
 				defn = ((PackageVar)defn).defn;
-			if (fn.uniqueName().equals("FLEval.field")) {
-				handleField(closure, handler);
-				return;
-			}
-			if (defn instanceof BuiltinOperation) {
-				cxt.generateBuiltinOp().generate((BuiltinOperation) defn, fn.myName(), handler, closure);
-			} else if (defn instanceof PrimitiveType) {
+			if (defn instanceof PrimitiveType) {
 				cxt.generatePrimitiveType().generate((PrimitiveType) defn, handler, closure);
 			} else if (defn instanceof CardGrouping) {
 				cxt.generateCardGrouping().generate((CardGrouping) defn, handler, closure);
@@ -110,6 +104,8 @@ public class DroidClosureGenerator implements ClosureHandler<IExpr> {
 			cxt.generateString().generate((PushString)pr, handler, closure);
 		} else if (pr instanceof PushTLV) {
 			cxt.generateTLV().generate((PushTLV) pr, handler, closure);
+		} else if (pr instanceof PushBuiltin) {
+			cxt.generateBuiltinOp().generate((PushBuiltin) pr, dpa, handler, closure);
 		} else
 			throw new UtilException("Can't handle " + pr);
 	}
@@ -137,19 +133,6 @@ public class DroidClosureGenerator implements ClosureHandler<IExpr> {
 				}
 			});
 		}
-	}
-
-	private void handleField(ClosureGenerator closure, OutputHandler<IExpr> handler) {
-		List<IExpr> al = new ArrayList<>();
-		OutputHandler<IExpr> oh = new OutputHandler<IExpr>() {
-			@Override
-			public void result(IExpr expr) {
-				al.add(meth.box(expr));
-			}
-		};
-		((PushReturn)closure.nestedCommands().get(1)).visit(dpa, oh);
-		((PushReturn)closure.nestedCommands().get(2)).visit(dpa, oh);
-		handler.result(meth.makeNew(J.FLCLOSURE, meth.classConst(J.FLFIELD), meth.arrayOf(J.OBJECT, al)));
 	}
 
 	@Override
@@ -186,7 +169,6 @@ public class DroidClosureGenerator implements ClosureHandler<IExpr> {
 			@Override
 			public void visit(PushReturn expr) {
 				expr.visit(dpa, new OutputHandler<IExpr>() {
-
 					@Override
 					public void result(IExpr expr) {
 						vas.add(meth.box(expr));

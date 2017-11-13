@@ -8,7 +8,7 @@ handler test.golden.f_0.ItemHandler *function*
       <-
         @
           @
-            PackageVar.FLEval.field
+            field
             HandlerLambda.HL[test.golden.f_0.ItemHandler.set]
             "insert"
           HandlerLambda.HL[test.golden.f_0.ItemHandler.ck]

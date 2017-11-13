@@ -96,7 +96,7 @@ CLOSURE v3                                                   #complexcard. 64.9
 -------
 HSIE for test.golden.Complex._C0.ready/1                     #complexcard. 57.0
 #Args: 1 #bound: 6
-    externals: [Cons, FLEval.field, Nil, Send, test.golden.Complex.FooHandler, test.golden.Complex.ds, test.golden.Thing]
+    externals: [Cons, Nil, Send, test.golden.Complex.FooHandler, test.golden.Complex.ds, test.golden.Thing]
     scoped = []
     scopedDefns = []
     all vars = [v0, v1, v2, v3, v4, v5, v6]
@@ -105,7 +105,7 @@ SWITCH v0 test.golden.Thing                                  #complexcard. 57.7
   RETURN v6:clos6 [v1:clos1, v2:clos2, v3:clos3, v4:clos4, v #complexcard. 58.3
 ERROR                                                        #complexcard. 57.0
 CLOSURE v1                                                   #complexcard. 58.10
-  PUSH PackageVar.FLEval.field                               #complexcard. 58.10
+  FIELD                                                      #complexcard. 58.10
   PUSH v0:test.golden.Complex._C0.ready.obj                  #complexcard. 57.13
   PUSH "x"                                                   #complexcard. 58.14
 CLOSURE v2                                                   #complexcard. 58.16

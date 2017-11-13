@@ -7,7 +7,7 @@ handler test.golden.f_0.KVHImpl *function*
       <-
         @
           @
-            PackageVar.FLEval.field
+            field
             HandlerLambda.HL[test.golden.f_0.KVHImpl.s]
             "mergeAppend"
           LocalVar.test.golden.f_0.KVHImpl.update.crokeys

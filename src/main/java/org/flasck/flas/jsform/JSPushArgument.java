@@ -11,6 +11,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushBool;
+import org.flasck.flas.vcode.hsieForm.PushBuiltin;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushDouble;
 import org.flasck.flas.vcode.hsieForm.PushFunc;
@@ -107,6 +108,16 @@ public final class JSPushArgument implements PushVisitor<String> {
 	@Override
 	public void visitExternal(PackageVar pv, OutputHandler<String> handler) {
 		sb.append(JSForm.rename(pv.uniqueName()));
+	}
+
+	@Override
+	public void visit(PushBuiltin pb, OutputHandler<String> handler) {
+		if (pb.isField())
+			sb.append("FLEval.field");
+		else if (pb.isTuple())
+			sb.append("FLEval.tuple");
+		else
+			throw new RuntimeException("Not handled");
 	}
 
 	@Override

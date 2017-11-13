@@ -223,14 +223,13 @@ public class Rewriter implements CodeGenRegistry {
 
 		@Override
 		public Object resolve(InputPosition location, String name) {
-			// TODO: I think these should possibly just keep on having their "simple" names and let JSOUT handle the rename
 			if (name.equals("."))
-				return new PackageVar(location, FunctionName.function(location, new PackageName("FLEval"), "field"), BuiltinOperation.FIELD);
+				return BuiltinOperation.FIELD.at(location);
 			if (name.equals("()"))
-				return new PackageVar(location, FunctionName.function(location, new PackageName("FLEval"), "tuple"), BuiltinOperation.TUPLE);
+				return BuiltinOperation.TUPLE.at(location);
 			if (name.equals("let")) {
 				throw new UtilException("I don't think let is something I really support");
-//				return new PackageVar(location, "let", null);
+//				return BuiltinOperation.LET.at(location);
 			}
 			if (name.contains(".")) {
 				int idx = name.lastIndexOf(".");
@@ -982,7 +981,7 @@ public class Rewriter implements CodeGenRegistry {
 			FunctionName editFn = null;
 			if (ce.editable() && rwexpr instanceof ApplyExpr) {
 				ApplyExpr ae = (ApplyExpr) rwexpr;
-				if (!(ae.fn instanceof PackageVar) || !((PackageVar)ae.fn).uniqueName().equals("FLEval.field"))
+				if (!(ae.fn instanceof BuiltinOperation) || !((BuiltinOperation)ae.fn).isField())
 					throw new UtilException("Cannot edit: " + ae);
 				editFn = cx.nextFunction(ae.location(), areaName, "editcontainer", CodeType.AREA);
 				RWFunctionDefinition efn = new RWFunctionDefinition(editFn, 0, true);
@@ -1452,7 +1451,7 @@ public class Rewriter implements CodeGenRegistry {
 		PackageVar assoc = (PackageVar) c2.resolve(posn, "Assoc");
 		PackageVar cons = (PackageVar) c2.resolve(posn, "Cons");
 		PackageVar nil = (PackageVar) c2.resolve(posn, "Nil");
-		PackageVar tuple = (PackageVar) c2.resolve(posn, "()");
+		BuiltinOperation tuple = (BuiltinOperation) c2.resolve(posn, "()");
 		RWStructDefn d3Elt = structs.get("D3Element");
 //		PackageVar d3Elt = new PackageVar(posn, "D3Element", null);
 		ListMap<String, Object> byKey = new ListMap<String, Object>();
@@ -1582,14 +1581,11 @@ public class Rewriter implements CodeGenRegistry {
 		if (expr == null)
 			return null;
 		try {
-			if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof BooleanLiteral)
+			if (expr instanceof NumericLiteral || expr instanceof StringLiteral || expr instanceof BooleanLiteral || expr instanceof BuiltinOperation)
 				return expr;
 			else if (expr instanceof PackageVar || expr instanceof LocalVar || expr instanceof ScopedVar || expr instanceof CardMember)
 				return expr;
-			else if (expr instanceof PackageVar) {
-				System.out.println("expr = " + expr);
-				return null;
-			} else if (expr instanceof UnresolvedOperator || expr instanceof UnresolvedVar) {
+			else if (expr instanceof UnresolvedOperator || expr instanceof UnresolvedVar) {
 				String s;
 				InputPosition location;
 				if (expr instanceof UnresolvedOperator) {
@@ -1605,7 +1601,7 @@ public class Rewriter implements CodeGenRegistry {
 				Object ret = cx.resolve(location, s);
 				if (ret == null)
 					ret = cx.resolve(location, s); // debug
-				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat || ret instanceof BooleanLiteral)
+				if (ret instanceof PackageVar || ret instanceof ScopedVar || ret instanceof LocalVar || ret instanceof IterVar || ret instanceof CardMember || ret instanceof ObjectReference || ret instanceof CardFunction || ret instanceof HandlerLambda || ret instanceof TemplateListVar || ret instanceof SpecialFormat || ret instanceof BooleanLiteral || ret instanceof BuiltinOperation)
 					return ret;
 				else
 					throw new UtilException("cannot handle id " + s + ": " + (ret == null ? "null": ret.getClass()));
@@ -1968,6 +1964,8 @@ public class Rewriter implements CodeGenRegistry {
 			pw.println(expr.getClass().getSimpleName()+"."+expr);
 		else if (expr instanceof StringLiteral || expr instanceof NumericLiteral)
 			pw.println("" + expr);
+		else if (expr instanceof BuiltinOperation)
+			pw.println(((BuiltinOperation) expr).opName);
 		else if (expr instanceof ApplyExpr) {
 			ApplyExpr ae = (ApplyExpr) expr;
 			pw.println("@");

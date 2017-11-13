@@ -58,7 +58,7 @@ function test.golden.Complex._C0.ready test.golden.Complex 1
         CardMember.CardMember[test.golden.Complex.ds]
         "get"
         @
-          PackageVar.FLEval.field
+          field
           LocalVar.test.golden.Complex._C0.ready.obj
           "x"
         @

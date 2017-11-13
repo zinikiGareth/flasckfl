@@ -1,12 +1,12 @@
 HSIE for test.golden.MyCard.B2.contents_0/0                  #rules.fl:    11.2
 #Args: 0 #bound: 1
-    externals: [FLEval.field, test.golden.MyCard.c]
+    externals: [test.golden.MyCard.c]
     scoped = []
     scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #rules.fl:    11.2
 CLOSURE v0                                                   #rules.fl:    11.2
-  PUSH PackageVar.FLEval.field                               #rules.fl:    11.2
+  FIELD                                                      #rules.fl:    11.2
   PUSH CardMember.CardMember[test.golden.MyCard.c]           #rules.fl:    11.0
   PUSH "title"                                               #rules.fl:    11.2
 -------
@@ -28,13 +28,13 @@ RETURN CardMember.CardMember[test.golden.MyCard.set]         #rules.fl:    12.2
 -------
 HSIE for test.golden.MyCard.B5.contents_3/0                  #rules.fl:    14.2
 #Args: 0 #bound: 1
-    externals: [FLEval.field]
+    externals: []
     scoped = []
     scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #rules.fl:    14.2
 CLOSURE v0                                                   #rules.fl:    14.2
-  PUSH PackageVar.FLEval.field                               #rules.fl:    14.2
+  FIELD                                                      #rules.fl:    14.2
   PUSH TLV[test.golden.MyCard.q<-test.golden.MyCard.B3.lvs_2 #rules.fl:    12.6
   PUSH "title"                                               #rules.fl:    14.2
 -------

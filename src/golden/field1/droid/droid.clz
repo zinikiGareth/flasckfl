@@ -1,0 +1,63 @@
+class Card$doit.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Card)self).doit(cxt, args[0], args[1])
+  }
+}
+class Card.java extends org.flasck.jvm.cards.FlasckCard {
+  void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
+    super.<init>(despatcher, display)
+    super.ready()
+    return
+  }
+  java.lang.Object doit(java.lang.Object _context, java.lang.Object _0, java.lang.Object _1) {
+    {
+      _0 = org.flasck.jvm.fl.FLEval.head(_0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
+        return _0
+      }
+      if (_0 instanceof test.golden.Container) {
+        {
+          v2 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+              autobox[this]
+              autobox["c"]
+            })
+          v3 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.fl.FLEval$Field.class,new java.lang.Object[2] {
+              autobox[_0]
+              autobox["value"]
+            })
+          v4 = new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Assign.class,new java.lang.Object[3] {
+              autobox[v2]
+              autobox["value"]
+              autobox[v3]
+            })
+          return new org.flasck.jvm.fl.FLClosure(org.flasck.jvm.builtin.Cons.class,new java.lang.Object[2] {
+              autobox[v4]
+              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+            })
+        }
+      }
+      return new org.flasck.jvm.fl.FLError("doit: case not handled")
+    }
+  }
+}
+class Container.java extends org.flasck.jvm.fl.FLASObject {
+  Ljava/lang/Object; value
+
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static test.golden.Container eval(java.lang.Object cxt, [java.lang.Object args) {
+    ret = new test.golden.Container()
+    ret.value = args[0]
+    return ret
+  }
+  void _doFullEval(java.lang.Object cxt) {
+    this.value = this._fullOf(cxt, this.value)
+    return
+  }
+}

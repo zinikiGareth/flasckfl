@@ -15,6 +15,7 @@ import org.flasck.flas.commonBase.IfExpr;
 import org.flasck.flas.commonBase.NumericLiteral;
 import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.commonBase.template.TemplateListVar;
+import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.SendExpr;
@@ -127,6 +128,11 @@ public class GatherExternals {
 			return;
 		}
 		curr.dependsOn(er);
+	}
+	
+	private void process(BuiltinOperation bo) {
+		// I think builtin really means builtin (field, tuple)
+//		curr.dependsOn(bo);
 	}
 	
 	private void process(LocalVar lv) {

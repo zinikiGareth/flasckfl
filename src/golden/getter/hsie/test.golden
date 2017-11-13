@@ -1,6 +1,6 @@
 HSIE for test.golden.Getter.choose/1                         #getter.fl:    6.6
 #Args: 1 #bound: 4
-    externals: [Assign, Cons, FLEval.field, Nil, String, test.golden.Getter.strings]
+    externals: [Assign, Cons, Nil, String, test.golden.Getter.strings]
     scoped = []
     scopedDefns = []
     all vars = [v0, v1, v2, v3, v4]
@@ -9,7 +9,7 @@ SWITCH v0 String                                             #getter.fl:    6.14
   RETURN v4:clos4 [v1:clos1, v2:clos2, v3:clos3]             #getter.fl:    7.8
 ERROR                                                        #getter.fl:    6.6
 CLOSURE v1                                                   #getter.fl:    7.8
-  PUSH PackageVar.FLEval.field                               #getter.fl:    7.8
+  FIELD                                                      #getter.fl:    7.8
   PUSH CardMember.CardMember[test.golden.Getter.strings]     #getter.fl:    7.8
   PUSH "item"                                                #getter.fl:    7.16
 CLOSURE v2                                                   #getter.fl:    7.8

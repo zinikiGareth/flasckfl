@@ -33,96 +33,96 @@ function test.golden.TestCard._d3init_chart test.golden.TestCard 0
         @
           PackageVar.Cons
           @
-            PackageVar.FLEval.tuple
+            tuple
             "rect"
             @
               PackageVar.Cons
               @
-                PackageVar.FLEval.tuple
+                tuple
                 "y"
                 ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_5()
               @
                 PackageVar.Cons
                 @
-                  PackageVar.FLEval.tuple
+                  tuple
                   "x"
                   ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_4()
                 @
                   PackageVar.Cons
                   @
-                    PackageVar.FLEval.tuple
+                    tuple
                     "width"
                     ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_3()
                   @
                     PackageVar.Cons
                     @
-                      PackageVar.FLEval.tuple
+                      tuple
                       "height"
                       ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_2()
                     @
                       PackageVar.Cons
                       @
-                        PackageVar.FLEval.tuple
+                        tuple
                         "fill"
                         ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_1()
                       PackageVar.Nil
           @
             PackageVar.Cons
             @
-              PackageVar.FLEval.tuple
+              tuple
               "text"
               @
                 PackageVar.Cons
                 @
-                  PackageVar.FLEval.tuple
+                  tuple
                   "y"
                   ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_14()
                 @
                   PackageVar.Cons
                   @
-                    PackageVar.FLEval.tuple
+                    tuple
                     "x"
                     ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_13()
                   @
                     PackageVar.Cons
                     @
-                      PackageVar.FLEval.tuple
+                      tuple
                       "width"
                       ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_12()
                     @
                       PackageVar.Cons
                       @
-                        PackageVar.FLEval.tuple
+                        tuple
                         "textAnchor"
                         ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_11()
                       @
                         PackageVar.Cons
                         @
-                          PackageVar.FLEval.tuple
+                          tuple
                           "text"
                           ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_10()
                         @
                           PackageVar.Cons
                           @
-                            PackageVar.FLEval.tuple
+                            tuple
                             "height"
                             ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_9()
                           @
                             PackageVar.Cons
                             @
-                              PackageVar.FLEval.tuple
+                              tuple
                               "fontSize"
                               ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_8()
                             @
                               PackageVar.Cons
                               @
-                                PackageVar.FLEval.tuple
+                                tuple
                                 "fontFamily"
                                 ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_7()
                               @
                                 PackageVar.Cons
                                 @
-                                  PackageVar.FLEval.tuple
+                                  tuple
                                   "fill"
                                   ?? class org.flasck.flas.rewrittenForm.FunctionLiteral:test.golden.TestCard._gen_6()
                                 PackageVar.Nil
@@ -148,7 +148,7 @@ function test.golden.TestCard._gen_10 test.golden.TestCard 1
     typed D3Element[A] test.golden.TestCard.elt
   =
     @
-      PackageVar.FLEval.field
+      field
       ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
       "data"
 function test.golden.TestCard._gen_11 test.golden.TestCard 1
@@ -171,7 +171,7 @@ function test.golden.TestCard._gen_13 test.golden.TestCard 1
         PackageVar.*
         22
         @
-          PackageVar.FLEval.field
+          field
           ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
           "idx"
       10
@@ -188,7 +188,7 @@ function test.golden.TestCard._gen_14 test.golden.TestCard 1
           PackageVar.*
           10
           @
-            PackageVar.FLEval.field
+            field
             ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
             "data"
       14
@@ -204,7 +204,7 @@ function test.golden.TestCard._gen_2 test.golden.TestCard 1
       PackageVar.*
       10
       @
-        PackageVar.FLEval.field
+        field
         ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
         "data"
 function test.golden.TestCard._gen_3 test.golden.TestCard 1
@@ -220,7 +220,7 @@ function test.golden.TestCard._gen_4 test.golden.TestCard 1
       PackageVar.*
       22
       @
-        PackageVar.FLEval.field
+        field
         ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
         "idx"
 function test.golden.TestCard._gen_5 test.golden.TestCard 1
@@ -234,7 +234,7 @@ function test.golden.TestCard._gen_5 test.golden.TestCard 1
         PackageVar.*
         10
         @
-          PackageVar.FLEval.field
+          field
           ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
           "data"
 function test.golden.TestCard._gen_6 test.golden.TestCard 1
@@ -260,7 +260,7 @@ function test.golden.TestCard._gen_9 test.golden.TestCard 1
       PackageVar.*
       10
       @
-        PackageVar.FLEval.field
+        field
         ?? class org.flasck.flas.rewrittenForm.IterVar:test.golden.TestCard.elt
         "data"
 function test.golden.TestCard.handlers_0.getHandler test.golden.TestCard 0

@@ -9,7 +9,7 @@ handler test.golden.f_0.HandleReply *function*
       <-
         @
           @
-            PackageVar.FLEval.field
+            field
             HandlerLambda.HL[test.golden.f_0.HandleReply.server]
             "put"
           @
@@ -23,7 +23,7 @@ method test.golden.cna
     <-
       @
         @
-          PackageVar.FLEval.field
+          field
           LocalVar.test.golden.cna_0.na
           "get"
         42
@@ -36,7 +36,7 @@ method test.golden.f_0.q
     <-
       @
         @
-          PackageVar.FLEval.field
+          field
           ScopedVar.Scoped[test.golden.f_0.server]
           "get"
         ScopedVar.Scoped[test.golden.f_0.var]

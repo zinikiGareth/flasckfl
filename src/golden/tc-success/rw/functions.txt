@@ -2,7 +2,7 @@ function test.golden.bert 0
   case test.golden.bert_0
   =
     @
-      PackageVar.FLEval.tuple
+      tuple
       2
       "hello"
 function test.golden.fred 1

@@ -1,12 +1,12 @@
 HSIE for test.golden.bert/0                                  #checktypes.f  7.0
 #Args: 0 #bound: 1
-    externals: [FLEval.tuple]
+    externals: []
     scoped = []
     scopedDefns = []
     all vars = [v0]
 RETURN v0:clos0 []                                           #checktypes.f  7.10
 CLOSURE v0                                                   #checktypes.f  7.10
-  PUSH PackageVar.FLEval.tuple                               #checktypes.f  7.10
+  TUPLE                                                      #checktypes.f  7.10
   PUSH 2                                                     #checktypes.f  7.8
   PUSH "hello"                                               #checktypes.f  7.11
 -------

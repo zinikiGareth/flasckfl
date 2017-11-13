@@ -8,5 +8,5 @@ function test.golden.Getter.choose test.golden.Getter 1
         PackageVar.Assign
         ?? class org.flasck.flas.rewrittenForm.CardStateRef:this
         "curr"
-        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String ((FLEval.field CardMember[test.golden.Getter.strings] "item") test.golden.Getter.choose.id))
+        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String ((#field CardMember[test.golden.Getter.strings] "item") test.golden.Getter.choose.id))
       PackageVar.Nil

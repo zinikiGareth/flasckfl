@@ -13,7 +13,7 @@ method test.golden.scoped_0.request
     <-
       @
         @
-          PackageVar.FLEval.field
+          field
           ScopedVar.Scoped[test.golden.scoped_0.ctr]
           "call"
         @

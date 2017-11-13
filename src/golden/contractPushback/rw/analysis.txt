@@ -6,7 +6,7 @@ method test.golden.f_0.m
     <-
       @
         @
-          PackageVar.FLEval.field
+          field
           ScopedVar.Scoped[test.golden.f_0.d]
           "calc"
         ScopedVar.Scoped[test.golden.f_0.size]

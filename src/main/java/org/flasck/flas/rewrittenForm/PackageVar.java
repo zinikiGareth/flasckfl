@@ -22,6 +22,8 @@ public class PackageVar implements ExternalRef {
 		this.name = name;
 		this.id = name.uniqueName();
 		this.defn = defn;
+		if (this.id.equals("FLEval.field"))
+			throw new RuntimeException("Can't do that");
 	}
 
 	public InputPosition location() {

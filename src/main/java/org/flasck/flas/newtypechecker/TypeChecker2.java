@@ -51,6 +51,7 @@ import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.flasck.flas.vcode.hsieForm.Head;
 import org.flasck.flas.vcode.hsieForm.IFCmd;
 import org.flasck.flas.vcode.hsieForm.PushBool;
+import org.flasck.flas.vcode.hsieForm.PushBuiltin;
 import org.flasck.flas.vcode.hsieForm.PushCSR;
 import org.flasck.flas.vcode.hsieForm.PushDouble;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
@@ -465,8 +466,9 @@ public class TypeChecker2 {
 				constraints.add(fv, new TypeVar(pc.var.loc, c.var));
 			else
 				constraints.add(fv, new TypeFunc(cmd.location, argtypes, new TypeVar(pc.var.loc, c.var)));
-		} else {
-			if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.field")) {
+		} else if (cmd instanceof PushBuiltin) {
+			PushBuiltin pb = (PushBuiltin) cmd;
+			if (pb.isField()) {
 				TypeInfo ty;
 				String fname = ((PushString)cmds.get(2)).sval.text;
 				if (argtypes.get(0) instanceof TypeVar) {
@@ -486,7 +488,7 @@ public class TypeChecker2 {
 					ty = argtypes.get(0);
 				} else {
 					c.dumpOne(new PrintWriter(System.err), 0);
-					throw new NotImplementedException("FLEval.field(unhandled): " + argtypes.get(0) + " " + argtypes.get(0).getClass());
+					throw new NotImplementedException("field(unhandled): " + argtypes.get(0) + " " + argtypes.get(0).getClass());
 				}
 				if (ty instanceof NamedType) {
 					NamedType nt = (NamedType) ty;
@@ -512,12 +514,14 @@ public class TypeChecker2 {
 						throw new UtilException(sn + " is not a struct; cannot do .");
 					}
 				} else
-					throw new NotImplementedException("FLEval.field(non-named): " + ty);
+					throw new NotImplementedException("field(non-named): " + ty);
 				return;
-			} else if (cmd instanceof PushExternal && ((PushExternal)cmd).fn.uniqueName().equals("FLEval.tuple")) {
+			} else if (pb.isTuple()) {
 				constraints.add(c.var, new TupleInfo(cmd.location, argtypes));
 				return;
-			}
+			} else
+				throw new RuntimeException("Cannot handle builtin " + pb);
+		} else {
 			TypeInfo ti = freshPolys(getTypeOf(f, cmd), new HashMap<>());
 			// TODO: if function is polymorphic, introduce fresh vars NOW
 			logger.debug("In " + c.var + ", cmd = " + cmd + " fi = " + ti);

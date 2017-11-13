@@ -6,7 +6,7 @@ function test.golden.Card.doit test.golden.Card 0
       @
         PackageVar.Assign
         @
-          PackageVar.FLEval.field
+          field
           ?? class org.flasck.flas.rewrittenForm.CardStateRef:this
           "c"
         "value"

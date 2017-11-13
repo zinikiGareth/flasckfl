@@ -16,6 +16,7 @@ public interface PushVisitor<T> {
 	public void visit(PushTLV pt, OutputHandler<T> handler);
 	public void visit(PushCSR pc, OutputHandler<T> handler);
 	public void visit(PushFunc pf, OutputHandler<T> handler);
+	public void visit(PushBuiltin pb, OutputHandler<T> handler);
 
 	public void visitExternal(CardMember cm, OutputHandler<T> handler);
 	public void visitExternal(CardFunction cf, OutputHandler<T> handler);

@@ -1,0 +1,1 @@
+test.golden.Card.doit :: test.golden.Container->A->Cons[Assign]
