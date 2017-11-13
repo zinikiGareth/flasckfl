@@ -14,7 +14,6 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
-import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
@@ -24,7 +23,6 @@ import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.ClosureHandler;
 import org.flasck.flas.vcode.hsieForm.CurryClosure;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
-import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushInt;
@@ -45,11 +43,12 @@ public class DroidClosureGenerator implements ClosureHandler<IExpr> {
 	private final Var cxtVar;
 	private final ObjectNeeded myOn;
 	private final DroidPushArgument dpa;
-	private final GenerationContext cxt;
+	private final GenerationContext<IExpr> cxt;
 	
-	public DroidClosureGenerator(HSIEForm form, GenerationContext cxt) {
+	public DroidClosureGenerator(HSIEForm form, GenerationContext<IExpr> cxt) {
 		this.form = form;
 		this.cxt = cxt;
+		((MethodGenerationContext)cxt).setDCG(this);
 		this.meth = cxt.getMethod();
 		this.vh = cxt.getVarHolder();
 		this.cxtVar = cxt.getCxtArg();
@@ -79,86 +78,38 @@ public class DroidClosureGenerator implements ClosureHandler<IExpr> {
 				handleField(closure, handler);
 				return;
 			}
-			String clz = fn.myName().javaClassName();
 			if (defn instanceof BuiltinOperation) {
-				// This covers both Field & Tuple, but Field was handled above
-				doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
+				cxt.generateBuiltinOp().generate((BuiltinOperation) defn, fn.myName(), handler, closure);
 			} else if (defn instanceof PrimitiveType) {
-				// This is for "typeof Number" or "typeof String" and returns the corresponding class object
-				// See typeop.fl for an example
-				doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
+				cxt.generatePrimitiveType().generate((PrimitiveType) defn, handler, closure);
 			} else if (defn instanceof CardGrouping) {
-				// This is for "typeof <cardname>" and returns the "class" corresponding to the type
-				// See typeop.fl for an example
-				// TODO: figure out if this should really be "ObjectReference" and if that should be renamed
-				doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
+				cxt.generateCardGrouping().generate((CardGrouping) defn, handler, closure);
 			} else if (defn instanceof ObjectReference) {
-				// This case covers at least handling the construction of Object Handlers to pass to service methods
-				doEval(myOn, meth.classConst(clz), closure, handler);
+				cxt.generateObjectReference().generate((ObjectReference) defn, myOn, handler, closure);
 			} else if (defn instanceof CardFunction) {
-				// This case covers at least event handlers
-				doEval(myOn, meth.classConst(clz), closure, handler);
+				cxt.generateCardFunction().generate((CardFunction) defn, myOn, handler, closure);
 			} else if (defn instanceof CardMember) {
-				CardMember cm = (CardMember)defn;
-				IExpr card;
-				if (form.isCardMethod())
-					card = meth.myThis();
-				else if (form.needsCardMember()) {
-					card = meth.getField("_card");
-				} else
-					throw new UtilException("Can't handle card member with " + form.mytype);
-				IExpr fld;
-				if (cm.type instanceof RWContractImplements)
-					fld = meth.getField(card, cm.var);
-				else
-					fld = meth.callVirtual(J.OBJECT, card, "getVar", cxtVar, meth.stringConst(cm.var));
-				doEval(myOn, fld, closure, handler);
+				cxt.generateCardMember().generate((CardMember)defn, form, myOn, handler, closure);
 			} else if (defn instanceof RWFunctionDefinition) {
-				RWFunctionDefinition rwfn = (RWFunctionDefinition) defn;
-				// a regular function
-				if (rwfn.nargs == 0) { // invoke it as a function using eval
-					doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure, handler);
-				} else {
-					doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
-				}
+				cxt.generateFunctionDefn().generate((RWFunctionDefinition) defn, handler, closure);
 			} else if (defn instanceof RWStructDefn) {
-				// creating a struct is just like calling a static function
-				RWStructDefn sd = (RWStructDefn) defn;
-				if (sd.fields.size() == 0)
-					doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure, handler);
-				else
-					doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
+				cxt.generateStructDefn().generate((RWStructDefn) defn, handler, closure);
 			} else if (defn instanceof RWObjectDefn) {
-				// creating an object is just like calling a static function
-				RWObjectDefn od = (RWObjectDefn) defn;
-				if (od.ctorArgs.isEmpty())
-					doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxtVar, meth.arrayOf(J.OBJECT, new ArrayList<>())), closure, handler);
-				else
-					doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
+				cxt.generateObjectDefn().generate((RWObjectDefn) defn, handler, closure);
 			} else if (defn instanceof HandlerLambda) {
-				HandlerLambda hl = (HandlerLambda) defn;
-				IExpr var = meth.getField(hl.var);
-				doEval(ObjectNeeded.NONE, var, closure, handler);
+				cxt.generateHandlerLambda().generate((HandlerLambda) defn, handler, closure);
 			} else if (defn instanceof ScopedVar) {
-				ScopedVar sv = (ScopedVar) defn;
-				ObjectNeeded ot = ObjectNeeded.NONE;
-				if (sv.defn instanceof RWFunctionDefinition && ((RWFunctionDefinition)sv.defn).mytype == CodeType.HANDLERFUNCTION)
-					ot = ObjectNeeded.THIS;
-				if (closure != null && closure.justScoping())
-					doEval(ot, meth.classConst(clz), closure, handler);
-				else
-					doEval(ot, vh.getScoped(sv.uniqueName()), closure, handler);
+				cxt.generateScopedVar().generate((ScopedVar) defn, handler, closure);
 			} else
 				throw new UtilException("Didn't do anything with " + defn + " " + (defn != null ? defn.getClass() : ""));
 		} else if (pr instanceof PushVar) {
-			doEval(ObjectNeeded.NONE, vh.get(((PushVar)pr).var.var), closure, handler);
+			cxt.generateVar().generate((PushVar)pr, handler, closure);
 		} else if (pr instanceof PushInt) {
-			doEval(ObjectNeeded.NONE, meth.callStatic("java.lang.Integer", "java.lang.Integer", "valueOf", meth.intConst(((PushInt)pr).ival)), closure, handler);
+			cxt.generateInt().generate((PushInt)pr, handler, closure);
 		} else if (pr instanceof PushString) {
-			doEval(ObjectNeeded.NONE, meth.stringConst(((PushString)pr).sval.text), closure, handler);
+			cxt.generateString().generate((PushString)pr, handler, closure);
 		} else if (pr instanceof PushTLV) {
-			PushTLV pt = (PushTLV) pr;
-			doEval(ObjectNeeded.NONE, meth.getField(meth.getField("_src_" + pt.tlv.simpleName), pt.tlv.simpleName), closure, handler);
+			cxt.generateTLV().generate((PushTLV) pr, handler, closure);
 		} else
 			throw new UtilException("Can't handle " + pr);
 	}

@@ -417,8 +417,8 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 
 	@Override
 	public void generate(HSIEForm form) {
-		GenerationContext cxt = new MethodGenerationContext(bce, form);
-		CodeGenerator cg = form.mytype.generator();
+		GenerationContext<IExpr> cxt = new MethodGenerationContext(bce, form);
+		CodeGenerator<IExpr> cg = form.mytype.generator();
 		cg.begin(cxt);
 		
 		final DroidClosureGenerator dcg = new DroidClosureGenerator(form, cxt);

@@ -54,21 +54,21 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		// standalone, package-scoped function
 		FUNCTION {
 			@Override
-			public CodeGenerator generator() {
-				return new PureFunctionCodeGenerator();
+			public <T> CodeGenerator<T> generator() {
+				return new PureFunctionCodeGenerator<T>();
 			}
 		},
  		// card-scoped function (method)
 		CARD {
 			@Override
-			public CodeGenerator generator() {
-				return new CardMethodCodeGenerator();
+			public <T> CodeGenerator<T> generator() {
+				return new CardMethodCodeGenerator<T>();
 			}
 		},
 		// method on a contract declaration
 		DECL {
 			@Override
-			public CodeGenerator generator() {
+			public <T> CodeGenerator<T> generator() {
 				// cannot be generated
 				throw new NotImplementedException();
 			}
@@ -76,37 +76,37 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		// method on a contract impl
 		CONTRACT {
 			@Override
-			public CodeGenerator generator() {
-				return new ContractMethodCodeGenerator();
+			public <T> CodeGenerator<T> generator() {
+				return new ContractMethodCodeGenerator<T>();
 			}
 		},
 		// method on a service impl
 		SERVICE {
 			@Override
-			public CodeGenerator generator() {
-				return new ServiceMethodCodeGenerator();
+			public <T> CodeGenerator<T> generator() {
+				return new ServiceMethodCodeGenerator<T>();
 			}
 		},
 		// TODO: as with "HANDLERFUNCTION" below, it would seem possible to define a function in a nested scope of CONTRACT/SERVICE that needs special handling (i.e. it can access card members, but through "_card")
 		// method on a handler impl
 		HANDLER {
 			@Override
-			public CodeGenerator generator() {
-				return new HandlerMethodCodeGenerator();
+			public <T> CodeGenerator<T> generator() {
+				return new HandlerMethodCodeGenerator<T>();
 			}
 		},
 		// function nested within a HANDLER method
 		HANDLERFUNCTION {
 			@Override
-			public CodeGenerator generator() {
-				return new FunctionInAHandlerContextCodeGenerator();
+			public <T> CodeGenerator<T> generator() {
+				return new FunctionInAHandlerContextCodeGenerator<T>();
 			}
 		},
 		// an event handler on a card
 		EVENTHANDLER {
 			@Override
-			public CodeGenerator generator() {
-				return new EventMethodCodeGenerator();
+			public <T> CodeGenerator<T> generator() {
+				return new EventMethodCodeGenerator<T>();
 			}
 		},
 		// a "class" connecting an element to an event handler
@@ -114,22 +114,22 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		// Can we extract it?
 		EVENT {
 			@Override
-			public CodeGenerator generator() {
-				return new EventConnectorCodeGenerator();
+			public <T> CodeGenerator<T> generator() {
+				return new EventConnectorCodeGenerator<T>();
 			}
 		},
 		// a standalone method
 		STANDALONE {
 			@Override
-			public CodeGenerator generator() {
+			public <T> CodeGenerator<T> generator() {
 				throw new NotImplementedException("This case is not as yet implemented, but should be very similar to the standalone function case");
 			}
 		},
 		// a method on an area
 		AREA {
 			@Override
-			public CodeGenerator generator() {
-				return new AreaMethodCodeGenerator();
+			public <T> CodeGenerator<T> generator() {
+				return new AreaMethodCodeGenerator<T>();
 			}
 		};
 
@@ -137,7 +137,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			return this == CONTRACT || this == SERVICE || this == HANDLER || this == AREA;
 		}
 		
-		public abstract CodeGenerator generator();
+		public abstract <T> CodeGenerator<T> generator();
 	}
 
 	public final CardName inCard;

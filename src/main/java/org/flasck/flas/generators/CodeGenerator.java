@@ -1,7 +1,7 @@
 package org.flasck.flas.generators;
 
-public interface CodeGenerator {
+public interface CodeGenerator<T> {
 
-	void begin(GenerationContext cxt);
+	void begin(GenerationContext<T> cxt);
 
 }

@@ -63,7 +63,8 @@ public class ClosureGenerationTests {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 	InputPosition loc = new InputPosition("-", 1, 0, null);
 	ByteCodeStorage bce = context.mock(ByteCodeStorage.class);
-	GenerationContext genCxt = context.mock(GenerationContext.class);
+	@SuppressWarnings("unchecked")
+	GenerationContext<IExpr> genCxt = context.mock(GenerationContext.class);
 	ByteCodeSink bcc = context.mock(ByteCodeSink.class, "bcc");
 	MethodDefiner meth = context.mock(MethodDefiner.class, "meth");
 	Var cxt;
