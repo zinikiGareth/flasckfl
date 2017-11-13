@@ -44,7 +44,7 @@ public class DroidHSIProcessor implements HSIEVisitor<IExpr> {
 	@Override
 	public void visit(Head h) {
 		Var hv = vh.get(h.v);
-		coll.add(meth.assign(hv, meth.callStatic(J.FLEVAL, "java.lang.Object", "head", hv)));
+		coll.add(meth.assign(hv, meth.callStatic(J.FLEVAL, "java.lang.Object", "head", cx, hv)));
 		coll.add(meth.ifBoolean(meth.instanceOf(hv, J.FLERROR), meth.returnObject(hv), null));
 	}
 

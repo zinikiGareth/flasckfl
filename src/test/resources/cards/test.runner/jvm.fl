@@ -29,10 +29,14 @@
 				"hello, world" :  (styleIf 'show' sayHello)
 					click => echoHello
 				acct.id
+					click => echoMessage "fred"
 			
 		event echoHello ev
 			<- e.echoIt "hello clicked"
 			
+		event echoMessage (String msg) ev
+			<- e.echoIt msg
+
 	id x = x
 	x = 420
 

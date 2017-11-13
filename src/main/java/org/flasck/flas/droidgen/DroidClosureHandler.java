@@ -48,9 +48,9 @@ public class DroidClosureHandler implements ClosureHandler<IExpr> {
 			@Override
 			public void beginClosure() {
 				if (on == ObjectNeeded.THIS)
-					al.add(meth.myThis());
+					al.add(meth.as(meth.myThis(), J.OBJECT));
 				else if (on == ObjectNeeded.CARD)
-					al.add(meth.getField("_card"));
+					al.add(meth.as(meth.getField("_card"), J.OBJECT));
 				al.add(meth.classConst(clz.javaClassName()));
 				al.add(meth.intConst(arity));
 			}

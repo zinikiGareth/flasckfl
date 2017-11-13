@@ -99,6 +99,11 @@ public class GoldenJVM {
 	}
 
 	@Test
+	public void checkH3() throws Exception {
+		compare("TestCard$handlers_3");
+	}
+
+	@Test
 	public void checkB1() throws Exception {
 		compare("TestCard$B1");
 	}
@@ -116,6 +121,11 @@ public class GoldenJVM {
 	@Test
 	public void checkEcho() throws Exception {
 		compare("TestCard$echoHello");
+	}
+	
+	@Test
+	public void checkEchoMessage() throws Exception {
+		compare("TestCard$echoMessage");
 	}
 	
 	@Test

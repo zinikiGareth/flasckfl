@@ -355,7 +355,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			}
 			for (Object o : hi.boundVars) {
 				String var = ((HandlerLambda)o).var;
-				ctor.assign(fs.get(var).asExpr(ctor), ctor.callStatic(J.FLEVAL, J.OBJECT, "head", vm.get(var).getVar())).flush();
+				ctor.assign(fs.get(var).asExpr(ctor), ctor.callStatic(J.FLEVAL, J.OBJECT, "head", cxv.getVar(), vm.get(var).getVar())).flush();
 			}
 			ctor.returnVoid().flush();
 		}
