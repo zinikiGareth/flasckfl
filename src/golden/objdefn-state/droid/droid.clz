@@ -1,0 +1,26 @@
+class Entity.java extends org.flasck.jvm.fl.FLASEntity {
+  Ljava/lang/Object; id
+
+  void <init>() {
+    super.<init>(null)
+    return
+  }
+  void <init>(org.ziniki.ziwsh.model.BackingDocument doc) {
+    super.<init>(doc)
+    return
+  }
+  static test.golden.Entity eval(java.lang.Object cxt, [java.lang.Object args) {
+    ret = new test.golden.Entity()
+    return ret
+  }
+  void _doFullEval(java.lang.Object cxt) {
+    this.id = this._fullOf(cxt, this.id)
+    return
+  }
+}
+class WithState.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+}

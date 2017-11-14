@@ -1,0 +1,7 @@
+	entity Entity
+	
+	object WithState
+		state
+			Number n
+			String s
+			Entity e

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Struct file="objdefn-state.fl" line="1" name="Entity" off="7">
+        <Field accessor="false" file="objdefn-state.fl" line="1"
+            name="id" off="7">
+            <SolidName name="Id"/>
+        </Field>
+    </Struct>
+    <Object file="objdefn-state.fl" line="3" name="WithState" off="7"/>
+</FLIM>

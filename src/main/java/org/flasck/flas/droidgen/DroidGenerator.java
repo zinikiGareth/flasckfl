@@ -131,7 +131,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			return;
 		ByteCodeSink bcc = bce.newClass(od.name());
 		bcc.generateAssociatedSourceFile();
-		final String base = J.OBJECT;
+		final String base = J.FLASCK_OBJECT;
 		bcc.superclass(base); // Do we need something special for a FLASObjectObject?
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
@@ -140,6 +140,10 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			IExpr[] args = new IExpr[0];
 			ctor.callSuper("void", base, "<init>", args).flush();
 			ctor.returnVoid().flush();
+		}
+		if (od.state != null) {
+			// amazingly, it seems like we might not have to do anything
+			// just delegate to the base class to handle in getVar using CardMember things
 		}
 	}
 
