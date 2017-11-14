@@ -17,6 +17,7 @@ import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -75,6 +76,13 @@ public class PackageImporter {
 				xe.attributesDone();
 				pkg.define(sd.name(), sd);
 				todos.add(new Pass2(sd, xe));
+			} else if (xe.hasTag("Object")) {
+				List<PolyVar> polys = new ArrayList<>();
+				String baseName = xe.required("name");
+				RWObjectDefn od = new RWObjectDefn(location(xe), new SolidName(packageName, baseName), false, polys);
+				xe.attributesDone();
+				pkg.define(od.name(), od);
+				todos.add(new Pass2(od, xe));
 			} else if (xe.hasTag("Contract")) {
 				String baseName = xe.required("name");
 				RWContractDecl cd = new RWContractDecl(null, location(xe), new SolidName(packageName, baseName), false);
@@ -104,6 +112,8 @@ public class PackageImporter {
 					fe.attributesDone();
 					sd.fields.add(sf);
 				}
+			} else if (p.parent instanceof RWObjectDefn) {
+				// need to read in methods?
 			} else if (p.parent instanceof RWContractDecl) {
 				RWContractDecl cd = (RWContractDecl) p.parent;
 				for (XMLElement cme : p.children) {
@@ -211,6 +221,8 @@ public class PackageImporter {
 			return new PolyVar(loc, name);
 		} else {
 			NameOfThing name = assembleName(te);
+			if (name instanceof SolidName && ((SolidName)name).baseName().equals("Transaction"))
+				System.out.println(name.uniqueName());
 			return (Type)rw.getMe(loc, name).defn;
 		}
 	}

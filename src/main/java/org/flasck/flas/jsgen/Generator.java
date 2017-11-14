@@ -17,6 +17,7 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.ScopedVar;
@@ -74,6 +75,11 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 		JSForm ctor = JSForm.function(sd.name(), vars, new TreeSet<ScopedVar>(), vars.size());
 		ctor.add(new JSForm("return new " + uname + "({" + String.join(", ", fields) + "})"));
 		target.add(ctor);
+	}
+
+	@Override
+	public void visitObjectDefn(RWObjectDefn od) {
+		System.out.println("Don't support object definitions yet");
 	}
 
 	private void generateField(JSForm defass, String field, String tfn) {

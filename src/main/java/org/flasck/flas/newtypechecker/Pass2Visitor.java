@@ -9,6 +9,7 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 
@@ -31,6 +32,11 @@ public class Pass2Visitor implements RepoVisitor {
 		TypeFunc ti = new TypeFunc(sd.location(), fs, sty);
 		tc.gk(sd.uniqueName(), ti);
 		tc.ctors.put(sd.name(), tc.asType(ti));
+	}
+
+	@Override
+	public void visitObjectDefn(RWObjectDefn od) {
+		System.out.println("Pass2 on an object definition");
 	}
 
 	public void visitContractDecl(RWContractDecl cd) {

@@ -9,6 +9,7 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.types.Type;
 
@@ -28,6 +29,11 @@ public class Pass1Visitor implements RepoVisitor {
 				polys.add(tc.convertType(t));
 		}
 		tc.structTypes.put(sd.uniqueName(), new NamedType(sd.location(), sd.getTypeName(), polys));
+	}
+
+	@Override
+	public void visitObjectDefn(RWObjectDefn od) {
+		System.out.println("Pass1 on an object definition");
 	}
 
 	public void visitContractDecl(RWContractDecl cd) {

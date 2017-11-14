@@ -5,11 +5,13 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 
 public interface RepoVisitor {
 
 	void visitStructDefn(RWStructDefn sd);
+	void visitObjectDefn(RWObjectDefn od);
 
 	void visitContractDecl(RWContractDecl cd);
 
@@ -20,4 +22,5 @@ public interface RepoVisitor {
 	void visitServiceImpl(RWContractService cs);
 
 	void visitHandlerImpl(RWHandlerImplements hi);
+
 }

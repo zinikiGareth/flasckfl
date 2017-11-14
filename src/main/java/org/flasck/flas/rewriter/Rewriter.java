@@ -615,10 +615,10 @@ public class Rewriter implements CodeGenRegistry {
 			String name = x.getKey();
 			Object val = x.getValue();
 			if (val instanceof RWStructDefn) {
-//					System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
+//				System.out.println("Adding type for " + name + " => " + val);
 				structs.put(name, (RWStructDefn) val);
 			} else if (val instanceof RWObjectDefn) {
-//					System.out.println("Adding type for " + x.getValue().getKey() + " => " + val);
+//				System.out.println("Adding type for " + name + " => " + val);
 				objects.put(name, (RWObjectDefn) val);
 			} else if (val instanceof RWUnionTypeDefn) {
 				types.put(name, (RWUnionTypeDefn) val);
@@ -629,9 +629,9 @@ public class Rewriter implements CodeGenRegistry {
 			} else if (val instanceof ImportedCard) {
 				ctis.put(name, (ImportedCard)val);
 			} else if (val instanceof CardDefinition || val instanceof ContractDecl) {
-//					System.out.println("Not adding anything for " + x.getValue().getKey() + " " + val);
+//				System.out.println("Not adding anything for " + name + " " + val);
 			} else if (val == null) {
-//					System.out.println("Cannot add type for " + x.getValue().getKey() + " as it is null");
+//				System.out.println("Cannot add type for " + name + " as it is null");
 			} else if (val instanceof Type) {
 				Type ty = (Type) val;
 				if (ty instanceof PrimitiveType)
@@ -2004,6 +2004,12 @@ public class Rewriter implements CodeGenRegistry {
 		for (RWStructDefn sd : structs.values()) {
 			if (sd.generate || visitAll) {
 				v.visitStructDefn(sd);
+			}
+		}
+		
+		for (RWObjectDefn od : objects.values()) {
+			if (od.generate || visitAll) {
+				v.visitObjectDefn(od);
 			}
 		}
 		

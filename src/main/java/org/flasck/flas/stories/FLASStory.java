@@ -366,11 +366,21 @@ public class FLASStory {
 						}
 					}
 					else
-						er.message(b, "syntax error");
+						er.message(b, "syntax error"); // this might be a syntax error, or might not ...
 					break;
 				}
-//					else if (om instanceof MethodCaseDefn)
+				case ObjectMember.ACCESSOR:
 //						methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
+					er.message(b, "accessors not implemented");
+					break;
+				case ObjectMember.METHOD:
+//					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
+				er.message(b, "methods not implemented");
+				break;
+				case ObjectMember.INTERNAL:
+//					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
+				er.message(b, "internals not implemented");
+				break;
 				default: {
 					er.message(b, "syntax error");
 				}

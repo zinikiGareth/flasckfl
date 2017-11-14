@@ -30,6 +30,7 @@ import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWEventHandler;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -122,6 +123,11 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		DroidStructFieldInitializer fi = new DroidStructFieldInitializer(dfe, cx.getVar(), fg.fields);
 		sd.visitFields(fi);
 		dfe.returnVoid().flush();
+	}
+
+	@Override
+	public void visitObjectDefn(RWObjectDefn od) {
+		System.out.println("Don't handle generating object defns");
 	}
 
 	@Override

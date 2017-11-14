@@ -19,6 +19,7 @@ import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -59,6 +60,17 @@ public class KnowledgeWriter implements RepoVisitor {
 		writeStructFields(xe, sd.fields);
 		if (copyToScreen)
 			System.out.println("  struct " + sd.asString());
+	}
+
+	@Override
+	public void visitObjectDefn(RWObjectDefn od) {
+		XMLElement xe = top.addElement("Object");
+		writeLocation(xe, od);
+		xe.setAttribute("name", ((SolidName)od.getTypeName()).baseName());
+		writePolys(xe, od.polys());
+//		writeStructFields(xe, od.fields);
+		if (copyToScreen)
+			System.out.println("  object " + od.asString());
 	}
 
 	protected void writeStructFields(XMLElement xe, List<RWStructField> fs) {
