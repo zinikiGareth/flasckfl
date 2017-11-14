@@ -77,7 +77,7 @@ public class TypeChecker2 {
 	private final ErrorResult errors;
 	private final Rewriter rw;
 	final Map<String, RWStructDefn> structs = new HashMap<String, RWStructDefn>();
-	private final Map<String, RWObjectDefn> objects = new HashMap<String, RWObjectDefn>();
+	final Map<String, RWObjectDefn> objects = new HashMap<String, RWObjectDefn>();
 	final Map<String, TypeInfo> structTypes = new HashMap<String, TypeInfo>();
 	final Map<String, Type> export = new TreeMap<>();
 	final Map<String, Type> ctors = new TreeMap<>();

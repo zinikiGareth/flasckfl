@@ -79,7 +79,10 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 
 	@Override
 	public void visitObjectDefn(RWObjectDefn od) {
-		System.out.println("Don't support object definitions yet");
+		if (!od.generate)
+			return;
+		JSForm ret = JSForm.function(od.myName().jsUName(), Arrays.asList(new Var(0)), new TreeSet<>(), 0);
+		target.add(ret);
 	}
 
 	private void generateField(JSForm defass, String field, String tfn) {

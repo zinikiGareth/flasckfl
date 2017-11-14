@@ -127,7 +127,20 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 
 	@Override
 	public void visitObjectDefn(RWObjectDefn od) {
-		System.out.println("Don't handle generating object defns");
+		if (!od.generate)
+			return;
+		ByteCodeSink bcc = bce.newClass(od.name());
+		bcc.generateAssociatedSourceFile();
+		final String base = J.OBJECT;
+		bcc.superclass(base); // Do we need something special for a FLASObjectObject?
+		{
+			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			NewMethodDefiner ctor = gen.done();
+			ctor.setAccess(Access.PRIVATE);
+			IExpr[] args = new IExpr[0];
+			ctor.callSuper("void", base, "<init>", args).flush();
+			ctor.returnVoid().flush();
+		}
 	}
 
 	@Override

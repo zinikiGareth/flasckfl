@@ -22,6 +22,8 @@ public class Pass2Visitor implements RepoVisitor {
 
 	@Override
 	public void visitStructDefn(RWStructDefn sd) {
+		// I think the purpose of this is to add
+		// the types of the auto-generated struct constructors
 		TypeInfo sty = tc.structTypes.get(sd.uniqueName());
 		List<TypeInfo> fs = new ArrayList<>();
 		for (RWStructField f : sd.fields) {
@@ -36,7 +38,7 @@ public class Pass2Visitor implements RepoVisitor {
 
 	@Override
 	public void visitObjectDefn(RWObjectDefn od) {
-		System.out.println("Pass2 on an object definition");
+		// TODO: add in the constructors we need
 	}
 
 	public void visitContractDecl(RWContractDecl cd) {

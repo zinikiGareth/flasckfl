@@ -87,7 +87,7 @@ public class IntroParser implements TryParsing {
 			}
 			if (er.hasErrors())
 				return er;
-			return new ObjectDefn(tn.location, state.scope, state.solidName(tn.text), true, args);
+			return new ObjectDefn(kw.location, tn.location, state.scope, state.solidName(tn.text), true, args);
 		}
 		case "contract": {
 			TypeNameToken tn = TypeNameToken.unqualified(line);

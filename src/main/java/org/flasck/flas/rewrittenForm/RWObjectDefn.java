@@ -32,6 +32,10 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 		return name();
 	}
 
+	public SolidName myName() {
+		return (SolidName) this.getTypeName();
+	}
+
 	public void constructorArg(InputPosition pos, Type type, String name) {
 		ctorArgs.add(new RWStructField(pos, false, type, name));
 	}

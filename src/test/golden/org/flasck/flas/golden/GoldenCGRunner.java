@@ -48,6 +48,7 @@ import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.LocatedName;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
+import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
@@ -433,13 +434,21 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			dumpList(pw, sd.fields);
 		} else if (obj instanceof StructDefn) {
 			StructDefn sd = (StructDefn) obj;
-			pw.print(sd.structType.name().toLowerCase() + " " + sd.name().uniqueName() + polys(sd));
+			pw.print(sd.structType.name().toLowerCase() + " " + sd.name().uniqueName() + polys(sd.polys()));
 			dumpPosition(pw, sd.kw, false);
 			dumpPosition(pw, sd.location(), false);
 			for (PolyType p : sd.polys())
 				dumpPosition(pw, p.location(), false);
 			pw.println("");
 			dumpList(pw, sd.fields);
+		} else if (obj instanceof ObjectDefn) {
+			ObjectDefn od = (ObjectDefn) obj;
+			pw.print("object " + od.name().uniqueName() + polys(od.polys()));
+			dumpPosition(pw, od.kw, false);
+			dumpPosition(pw, od.location(), false);
+			for (PolyType p : od.polys())
+				dumpPosition(pw, p.location(), false);
+			pw.println("");
 		} else if (obj instanceof StructField) {
 			StructField sf = (StructField) obj;
 			pw.print(sf.name);
@@ -693,11 +702,11 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		return ret.toString();
 	}
 
-	private static String polys(StructDefn sd) {
-		if (sd.polys() == null || sd.polys().isEmpty())
+	private static String polys(final List<PolyType> polys) {
+		if (polys == null || polys.isEmpty())
 			return "";
 		StringBuilder sb = new StringBuilder();
-		for (PolyType tr : sd.polys()) {
+		for (PolyType tr : polys) {
 			sb.append(" ");
 			sb.append(tr.name());
 		}

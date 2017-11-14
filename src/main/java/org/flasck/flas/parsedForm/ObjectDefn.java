@@ -14,11 +14,13 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	public final List<ObjectMethod> methods = new ArrayList<ObjectMethod>();
 	public final transient boolean generate;
 	private final Scope innerScope;
+	public final InputPosition kw;
 	private final InputPosition location;
 	private final SolidName name;
 	private final List<PolyType> polys;
 
-	public ObjectDefn(InputPosition location, IScope outer, SolidName tn, boolean generate, List<PolyType> polys) {
+	public ObjectDefn(InputPosition kw, InputPosition location, IScope outer, SolidName tn, boolean generate, List<PolyType> polys) {
+		this.kw = kw;
 		this.location = location;
 		this.name = tn;
 		this.generate = generate;

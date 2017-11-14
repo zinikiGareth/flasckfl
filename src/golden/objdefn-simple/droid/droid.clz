@@ -1,0 +1,6 @@
+class Simple.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+}

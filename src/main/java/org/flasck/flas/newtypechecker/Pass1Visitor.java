@@ -33,7 +33,13 @@ public class Pass1Visitor implements RepoVisitor {
 
 	@Override
 	public void visitObjectDefn(RWObjectDefn od) {
-		System.out.println("Pass1 on an object definition");
+		tc.objects.put(od.uniqueName(), od);
+		List<TypeInfo> polys = new ArrayList<>();
+		if (od.hasPolys()) {
+			for (Type t : od.polys())
+				polys.add(tc.convertType(t));
+		}
+		tc.structTypes.put(od.uniqueName(), new NamedType(od.location(), od.getTypeName(), polys));
 	}
 
 	public void visitContractDecl(RWContractDecl cd) {
