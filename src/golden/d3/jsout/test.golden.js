@@ -371,7 +371,7 @@ test.golden.TestCard.prototype._gen_9 = function(v0) {
   return FLEval.error("test.golden.TestCard._gen_9: case not handled");
 }
 
-test.golden.TestCard.handlers_0 = function() {
+test.golden.TestCard.handlers_0.prototype.getHandler = function() {
   "use strict";
   return test.golden.TestCard.prototype.rejig;
 }

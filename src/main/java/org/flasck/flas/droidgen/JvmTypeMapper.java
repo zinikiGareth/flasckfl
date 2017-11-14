@@ -14,7 +14,7 @@ public class JvmTypeMapper {
 		if (type instanceof PrimitiveType) {
 			PrimitiveType pt = (PrimitiveType)type;
 			if (pt.name().equals("Number"))
-				return JavaType.int_; // what about floats?
+				return new JavaType("org.flasck.jvm.builtin.FLNumber");
 			else if (pt.name().equals("String"))
 				return JavaType.string;
 			else if (pt.name().equals("Boolean"))

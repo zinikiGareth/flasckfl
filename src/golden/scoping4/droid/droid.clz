@@ -39,7 +39,7 @@ class Card$ItemHandler.java extends test.golden.KVUpdate$Impl {
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
-      if (_0 instanceof org.flasck.jvm.builtin.Number) {
+      if (_0 instanceof org.flasck.jvm.builtin.FLNumber) {
         {
           v2 = org.flasck.jvm.fl.FLClosure.obj(this, test.golden.Card$ItemHandler$x.class, new java.lang.Object[1] {
               autobox[_0]
@@ -89,17 +89,17 @@ class DataStore$Impl.java extends org.flasck.jvm.cards.ContractImpl implements t
   }
 }
 class DataStore$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object insert(java.lang.Object from, int obj);
+  abstract java.lang.Object insert(java.lang.Object from, org.flasck.jvm.builtin.FLNumber obj);
 }
 class KVUpdate$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object update(java.lang.Object from, int obj);
+  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.FLNumber obj);
 }
 class KVUpdate$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KVUpdate$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object update(java.lang.Object from, int obj);
+  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.FLNumber obj);
 }
 class KVUpdate$Up.java implements org.ziniki.ziwsh.UpContract {
 }

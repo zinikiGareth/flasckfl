@@ -23,7 +23,7 @@ class f_0$HandleReply.java extends test.golden.Reply$Impl {
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
-      if (_0 instanceof org.flasck.jvm.builtin.Number) {
+      if (_0 instanceof org.flasck.jvm.builtin.FLNumber) {
         {
           v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class, new java.lang.Object[2] {
               autobox[this.var]
@@ -91,7 +91,7 @@ class PACKAGEFUNCTIONS.java {
       if (_0 instanceof test.golden.NoArg) {
         {
           v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-              autobox[java.lang.Integer.valueOf(42)]
+              autobox[org.flasck.jvm.builtin.FLNumber.fromInt(42)]
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
           v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
@@ -141,14 +141,14 @@ class PACKAGEFUNCTIONS.java {
   }
 }
 class Reply$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object reply(java.lang.Object from, int k);
+  abstract java.lang.Object reply(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k);
 }
 class Reply$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Reply$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object reply(java.lang.Object from, int k);
+  abstract java.lang.Object reply(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k);
 }
 class Reply$Up.java implements org.ziniki.ziwsh.UpContract {
 }
@@ -161,8 +161,8 @@ class Server$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test
   }
 }
 class Server$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object get(java.lang.Object from, int k, test.golden.Reply$Down r);
-  abstract java.lang.Object put(java.lang.Object from, int k);
+  abstract java.lang.Object get(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k, test.golden.Reply$Down r);
+  abstract java.lang.Object put(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k);
 }
 class PACKAGEFUNCTIONS$q.java {
   void <init>() {
@@ -212,6 +212,6 @@ class PACKAGEFUNCTIONS.java {
     }
   }
   static java.lang.Object var(java.lang.Object _context) {
-    return java.lang.Integer.valueOf(32)
+    return org.flasck.jvm.builtin.FLNumber.fromInt(32)
   }
 }

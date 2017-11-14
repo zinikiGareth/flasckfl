@@ -24,14 +24,14 @@ class PACKAGEFUNCTIONS.java {
           if (_0 instanceof org.flasck.jvm.fl.FLError) {
             return _0
           }
-          if (_0 instanceof org.flasck.jvm.builtin.Number) {
+          if (_0 instanceof org.flasck.jvm.builtin.FLNumber) {
             if (equals(_0,autobox[0])) {
               return org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})
             }
           }
           v4 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$-.class, new java.lang.Object[2] {
               autobox[_0]
-              autobox[java.lang.Integer.valueOf(1)]
+              autobox[org.flasck.jvm.builtin.FLNumber.fromInt(1)]
             })
           v5 = org.flasck.jvm.fl.FLClosure.simple(test.golden.PACKAGEFUNCTIONS$take.class, new java.lang.Object[2] {
               autobox[v4]

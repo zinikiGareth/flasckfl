@@ -72,8 +72,8 @@ ev
       })
   }
   java.lang.Object getHandler(java.lang.Object _context) {
-    return new org.flasck.jvm.fl.FLCurry(this,test.golden.Events$setTo.class,2,new java.lang.Object[1] {
-        autobox[java.lang.Integer.valueOf(13)]
+    return new org.flasck.jvm.fl.FLCurry(this._card,test.golden.Events$setTo.class,2,new java.lang.Object[1] {
+        autobox[org.flasck.jvm.builtin.FLNumber.fromInt(13)]
       })
   }
 }

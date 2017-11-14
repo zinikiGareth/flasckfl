@@ -472,7 +472,7 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
   return FLEval.error("test.golden.Complex._S0.get: case not handled");
 }
 
-test.golden.Complex.handlers_6 = function() {
+test.golden.Complex.handlers_6.prototype.getHandler = function() {
   "use strict";
   return test.golden.Complex.prototype.sayHello;
 }

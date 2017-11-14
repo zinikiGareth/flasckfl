@@ -75,14 +75,14 @@ test.golden._Events.B3.prototype._add_handlers = function() {
   }
 }
 
-test.golden.Events.handlers_0 = function() {
+test.golden.Events.handlers_0.prototype.getHandler = function() {
   "use strict";
   return test.golden.Events.prototype.okThen;
 }
 
-test.golden.Events.handlers_1 = function() {
+test.golden.Events.handlers_1.prototype.getHandler = function() {
   "use strict";
-  return FLEval.oclosure(this, FLEval.curry, test.golden.Events.prototype.setTo, 2, 13);
+  return FLEval.oclosure(this._card, FLEval.curry, test.golden.Events.prototype.setTo, 2, 13);
 }
 
 test.golden.Events.prototype.okThen = function(v0) {

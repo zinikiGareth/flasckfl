@@ -44,7 +44,7 @@ class PACKAGEFUNCTIONS.java {
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.MessageWrapper.class, new java.lang.Object[2] {
-              autobox[java.lang.Integer.valueOf(32)]
+              autobox[org.flasck.jvm.builtin.FLNumber.fromInt(32)]
               autobox[v7]
             })
         }

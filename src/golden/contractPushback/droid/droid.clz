@@ -7,7 +7,7 @@ class DoIt$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.g
   }
 }
 class DoIt$Up.java implements org.ziniki.ziwsh.UpContract {
-  abstract java.lang.Object calc(java.lang.Object from, int n);
+  abstract java.lang.Object calc(java.lang.Object from, org.flasck.jvm.builtin.FLNumber n);
 }
 class PACKAGEFUNCTIONS$f.java {
   void <init>() {
@@ -40,7 +40,7 @@ class PACKAGEFUNCTIONS.java {
               autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.MessageWrapper.class, new java.lang.Object[2] {
-              autobox[java.lang.Integer.valueOf(0)]
+              autobox[org.flasck.jvm.builtin.FLNumber.fromInt(0)]
               autobox[v6]
             })
         }

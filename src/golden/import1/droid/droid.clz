@@ -12,7 +12,7 @@ class Foo$_C0.java extends test.import.Fred$Impl {
       if (_0 instanceof org.flasck.jvm.fl.FLError) {
         return _0
       }
-      if (_0 instanceof org.flasck.jvm.builtin.Number) {
+      if (_0 instanceof org.flasck.jvm.builtin.FLNumber) {
         {
           v1 = org.flasck.jvm.fl.FLClosure.simple(test.import.PACKAGEFUNCTIONS$f.class, new java.lang.Object[1] {
               autobox[_0]

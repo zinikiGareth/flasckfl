@@ -1,12 +1,12 @@
 class Foo$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object goodbye(java.lang.Object from, int y);
+  abstract java.lang.Object goodbye(java.lang.Object from, org.flasck.jvm.builtin.FLNumber y);
 }
 class Foo$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Foo$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object goodbye(java.lang.Object from, int y);
+  abstract java.lang.Object goodbye(java.lang.Object from, org.flasck.jvm.builtin.FLNumber y);
 }
 class Foo$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object hello(java.lang.Object from, java.lang.String x);

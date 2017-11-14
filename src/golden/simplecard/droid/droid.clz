@@ -46,7 +46,7 @@ class Simple.java extends org.flasck.jvm.cards.FlasckCard {
     return
   }
   java.lang.Object f(java.lang.Object _context) {
-    return java.lang.Integer.valueOf(3)
+    return org.flasck.jvm.builtin.FLNumber.fromInt(3)
   }
 }
 class PACKAGEFUNCTIONS$inits_hello.java {

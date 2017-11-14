@@ -4,6 +4,7 @@ import org.flasck.flas.generators.DoubleGenerator;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushDouble;
+import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 
@@ -21,7 +22,7 @@ public class DroidDoubleGenerator implements DoubleGenerator<IExpr> {
 
 	public void push(PushDouble pd, OutputHandler<IExpr> handler) {
 		MethodDefiner meth = cxt.getMethod();
-		handler.result(meth.callStatic("java.lang.Double", "java.lang.Double", "valueOf", meth.doubleConst(pd.dval)));
+		handler.result(meth.callStatic(J.NUMBER, J.NUMBER, "fromDouble", meth.doubleConst(pd.dval)));
 	}
 
 }

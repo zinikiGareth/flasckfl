@@ -55,6 +55,8 @@ public class DroidHSIProcessor implements HSIEVisitor<IExpr> {
 		if (ctor.indexOf(".") == -1) {
 			if (ctor.equals("String"))
 				ctor = J.STRING;
+			else if (ctor.equals("Number"))
+				ctor = J.NUMBER;
 			else
 				ctor = J.BUILTINPKG +"." + ctor;
 		}

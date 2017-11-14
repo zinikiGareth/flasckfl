@@ -41,12 +41,12 @@ class PACKAGEFUNCTIONS.java {
   }
   static java.lang.Object bert(java.lang.Object _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Tuple.class, new java.lang.Object[2] {
-        autobox[java.lang.Integer.valueOf(2)]
+        autobox[org.flasck.jvm.builtin.FLNumber.fromInt(2)]
         autobox["hello"]
       })
   }
   static java.lang.Object fred(java.lang.Object _context, java.lang.Object _0) {
-    return java.lang.Integer.valueOf(32)
+    return org.flasck.jvm.builtin.FLNumber.fromInt(32)
   }
   static java.lang.Object t1(java.lang.Object _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
@@ -57,7 +57,7 @@ class PACKAGEFUNCTIONS.java {
   static java.lang.Object t2(java.lang.Object _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-          autobox[java.lang.Integer.valueOf(3)]
+          autobox[org.flasck.jvm.builtin.FLNumber.fromInt(3)]
           autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {

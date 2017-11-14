@@ -18,7 +18,7 @@ class PACKAGEFUNCTIONS.java {
           autobox[_0]
         })
       return org.flasck.jvm.fl.FLClosure.simple(v3, new java.lang.Object[1] {
-          autobox[java.lang.Integer.valueOf(2)]
+          autobox[org.flasck.jvm.builtin.FLNumber.fromInt(2)]
         })
     }
   }

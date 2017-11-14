@@ -15,7 +15,7 @@ class Foo$_C0.java extends test.import.Fred$Impl {
       if (_0 instanceof test.basic.Bert) {
         {
           v1 = org.flasck.jvm.fl.FLClosure.simple(test.import.PACKAGEFUNCTIONS$f.class, new java.lang.Object[1] {
-              autobox[java.lang.Integer.valueOf(16)]
+              autobox[org.flasck.jvm.builtin.FLNumber.fromInt(16)]
             })
           v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
               autobox[this._card]
