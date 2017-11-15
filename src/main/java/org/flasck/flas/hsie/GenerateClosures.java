@@ -301,6 +301,9 @@ public class GenerateClosures {
 				errors.message(ate.location(), "cannot assign a boolean to " + ate.type.name());
 			}
 			return conv;
+		} else if (conv.obj instanceof PackageVar) {
+			System.out.println("Need to check types of packagevars against fields: " + conv.obj + " as " + ate.type.name());
+			return conv;
 		} else
 			throw new UtilException("You haven't covered the case for " + conv.obj + (conv.obj != null ? " of " + conv.obj.getClass() : ""));
 	}

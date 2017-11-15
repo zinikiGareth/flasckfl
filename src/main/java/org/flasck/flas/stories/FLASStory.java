@@ -338,7 +338,7 @@ public class FLASStory {
 		}
 	}
 
-	private void doObjectMembers(ErrorReporter er, State s, ObjectDefn sd, List<Block> nested) {
+	private void doObjectMembers(ErrorReporter er, State s, ObjectDefn od, List<Block> nested) {
 		ObjectMemberParser omp = new ObjectMemberParser(s);
 		FunctionParser fp = new FunctionParser(s);
 		for (Block b : nested) {
@@ -350,7 +350,7 @@ public class FLASStory {
 			if (om instanceof ErrorReporter)
 				er.merge((ErrorReporter) om);
 			else if ("state".equals(om))
-				doObjectState(er, s, posn, sd, b.nested);
+				doObjectState(er, s, posn, od, b.nested);
 			else if (om instanceof ObjectMember) {
 				ObjectMember omm = (ObjectMember) om;
 				switch (omm.type) {
@@ -359,9 +359,9 @@ public class FLASStory {
 						throw new UtilException("Should work, but not implemented: see other FunctionIntro cases in FLASStory and doCompoundFunction, but I think everything is broken");
 					else if (omm.what instanceof FunctionCaseDefn) {
 						FunctionCaseDefn fcd = (FunctionCaseDefn) omm.what;
-						int caseName = sd.innerScope().caseName(fcd.intro.name().uniqueName());
+						int caseName = od.innerScope().caseName(fcd.intro.name().uniqueName());
 						fcd.provideCaseName(caseName);
-						sd.innerScope().define(fcd.functionName().name, fcd);
+						od.innerScope().define(fcd.functionName().name, fcd);
 						if (!b.nested.isEmpty()) {
 							doScope(er, s.nest(fcd.innerScope(), fcd.caseName(), s.kind), b.nested);
 						}
@@ -376,9 +376,9 @@ public class FLASStory {
 					break;
 				case ObjectMember.METHOD: {
 					MethodCaseDefn mcd = (MethodCaseDefn) omm.what;
-					mcd.provideCaseName(sd.caseFor(mcd.intro.name().name));
+					mcd.provideCaseName(od.caseFor(mcd.intro.name().name));
 					addMethodMessages(er, mcd.messages, b.nested);
-					sd.addMethod(new ObjectMethod(mcd));
+					od.addMethod(new ObjectMethod(mcd));
 					break;
 				}
 				case ObjectMember.INTERNAL:

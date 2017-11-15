@@ -412,16 +412,16 @@ public class MethodConvertor {
 		FunctionType methodType = null;
 		if (senderType instanceof RWContractDecl) {
 			proto = cd = (RWContractDecl) senderType;
-			if (proto.hasMethod(method.text))
-				methodType = cd.getMethodType(method.text);
+			if (senderType.hasMethod(method.text))
+				methodType = senderType.getMethodType(method.text);
 		} else if (senderType instanceof RWContractService || senderType instanceof RWContractImplements) {
 			proto = cd = (RWContractDecl) rw.getMe(senderType.location(), senderType.getTypeName()).defn;
 			if (proto.hasMethod(method.text))
 				methodType = cd.getMethodType(method.text);
 		} else if (senderType instanceof RWObjectDefn) {
-			RWObjectDefn od = (RWObjectDefn) senderType;
+			proto = senderType;
 			if (senderType.hasMethod(method.text))
-				methodType = od.getMethodType(method.text);
+				methodType = senderType.getMethodType(method.text);
 		}
 		if (methodType == null) {
 			errors.message(method.location, "there is no method '" + method.text + "' in " + proto.name());

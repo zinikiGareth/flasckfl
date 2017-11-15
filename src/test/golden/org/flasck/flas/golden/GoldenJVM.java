@@ -62,7 +62,11 @@ public class GoldenJVM {
 		assertTrue("JVM was not created", droidToClasses.isDirectory());
 		handdir = new File("/Users/gareth/Ziniki/Over/flasjvm/jvm/bin/classes/test/runner");
 		
-		CGHarnessTestBase.configure(false, 170, true);
+		int width = 170;
+		String wd = System.getProperty("org.zinutils.cg.width");
+		if (wd != null)
+			width = Integer.parseInt(wd);
+		CGHarnessTestBase.configure(false, width, true);
 	}
 	
 	@Test
@@ -126,6 +130,11 @@ public class GoldenJVM {
 	@Test
 	public void checkEchoMessage() throws Exception {
 		compare("TestCard$echoMessage");
+	}
+	
+	@Test
+	public void checkTracker() throws Exception {
+		compare("Tracker");
 	}
 	
 	@Test

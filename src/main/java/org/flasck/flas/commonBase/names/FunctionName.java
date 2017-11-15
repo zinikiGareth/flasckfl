@@ -37,6 +37,11 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.FUNCTION, pkg, name);
 	}
 
+	// struct initializers
+	public static FunctionName initializer(InputPosition location, NameOfThing inStruct, String name) {
+		return new FunctionName(location, CodeType.INITIALIZER, inStruct, name);
+	}
+
 	public static FunctionName functionInCardContext(InputPosition location, CardName card, String name) {
 		return new FunctionName(location, CodeType.CARD, card, name);
 	}
@@ -70,7 +75,7 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	}
 	
 	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {
-		return new FunctionName(location, CodeType.OBJECT, areaName, fnName);
+		return new FunctionName(location, CodeType.AREA, areaName, fnName);
 	}
 
 	public static FunctionName objectMethod(InputPosition location, RWObjectDefn od, String name) {

@@ -21,6 +21,8 @@ import org.flasck.flas.generators.EventMethodCodeGenerator;
 import org.flasck.flas.generators.EventConnectorCodeGenerator;
 import org.flasck.flas.generators.FunctionInAHandlerContextCodeGenerator;
 import org.flasck.flas.generators.HandlerMethodCodeGenerator;
+import org.flasck.flas.generators.InitializerGenerator;
+import org.flasck.flas.generators.ObjectMethodGenerator;
 import org.flasck.flas.generators.PureFunctionCodeGenerator;
 import org.flasck.flas.generators.ServiceMethodCodeGenerator;
 import org.flasck.flas.hsie.VarFactory;
@@ -135,7 +137,13 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		OBJECT {
 			@Override
 			public <T> CodeGenerator<T> generator() {
-				throw new org.zinutils.exceptions.NotImplementedException();
+				return new ObjectMethodGenerator<T>();
+			}
+		},
+		INITIALIZER {
+			@Override
+			public <T> CodeGenerator<T> generator() {
+				return new InitializerGenerator<T>();
 			}
 		};
 

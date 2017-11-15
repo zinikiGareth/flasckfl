@@ -3,7 +3,6 @@ package org.flasck.flas.rewrittenForm;
 import java.util.List;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.VarName;
 import org.flasck.flas.types.Type;
@@ -14,12 +13,12 @@ import org.zinutils.exceptions.UtilException;
 
 public class CardMember implements ExternalRef {
 	public final InputPosition location;
-	public final CardName card;
+	public final NameOfThing card;
 	public final String var;
 	public final Type type;
 	private final VarName name;
 
-	public CardMember(InputPosition location, CardName card, String var, Type type) {
+	public CardMember(InputPosition location, NameOfThing card, String var, Type type) {
 		this.location = location;
 		this.name = new VarName(location, card, var);
 		this.card = card;

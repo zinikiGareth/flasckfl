@@ -65,6 +65,7 @@ import org.flasck.flas.parsedForm.IScope;
 import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PolyType;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
@@ -123,6 +124,7 @@ import org.flasck.flas.rewrittenForm.RWMethodCaseDefn;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodMessage;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTemplate;
@@ -383,6 +385,33 @@ public class Rewriter implements CodeGenRegistry {
 		public String nextName(String type) {
 			return type +"_"+(fnIdx++);
 		}
+	}
+	
+	class ObjectContext extends NamingContext {
+		private final Map<String, Type> members = new TreeMap<String, Type>();
+		private final SolidName objName;
+
+		public ObjectContext(NamingContext cx, ObjectDefn od) {
+			super(cx);
+			objName = od.name();
+			if (od.state != null) {
+				for (StructField sf : od.state.fields) {
+					try {
+						members.put(sf.name, rewrite(cx, sf.type, true));
+					} catch (ResolutionException ex) {
+						errors.message(ex.location, ex.getMessage());
+					}
+				}
+			}
+		}
+
+		@Override
+		public Object resolve(InputPosition location, String name) {
+			if (members.containsKey(name))
+				return new CardMember(location, objName, name, members.get(name));
+			return nested.resolve(location, name);
+		}
+		
 	}
 
 	/** The Handler Context can only be in a Card Context
@@ -743,6 +772,11 @@ public class Rewriter implements CodeGenRegistry {
 				ObjectDefn od = (ObjectDefn)val;
 				RWObjectDefn ret = new RWObjectDefn(od.location(), od.name(), od.generate, rewritePolys(od.polys()));
 				objects.put(name, ret);
+				for (ObjectMethod om : od.methods) {
+					MethodCaseDefn m = om.getMethod();
+					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
+					ret.addMethod(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null)));
+				}
 			} else if (val instanceof HandlerImplements) {
 				HandlerImplements hi = (HandlerImplements) val;
 				pass1HI(cx, hi);
@@ -804,13 +838,13 @@ public class Rewriter implements CodeGenRegistry {
 			else if (val instanceof FunctionCaseDefn)
 				rewrite(cx, (FunctionCaseDefn)val);
 			else if (val instanceof MethodCaseDefn) {
-				rewriteStandaloneMethod(cx, from, (MethodCaseDefn)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE);
+				rewriteStandaloneMethod(cx, (MethodCaseDefn)val, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE);
 			} else if (val instanceof EventCaseDefn)
 				rewrite(cx, (EventCaseDefn)val);
 			else if (val instanceof StructDefn || val instanceof UnionTypeDefn || val instanceof ContractDecl) {
 				// these all got sorted out already in the first two passes
 			} else if (val instanceof ObjectDefn) {
-				// we should probably rewrite the methods now
+				rewriteObject(cx, (ObjectDefn)val);
 			} else if (val instanceof HandlerImplements) {
 				rewriteHI(cx, (HandlerImplements)val, from);
 			} else if (val == null)
@@ -900,6 +934,19 @@ public class Rewriter implements CodeGenRegistry {
 		
 		grp.platforms.putAll(cd.platforms);
 		pass3(c2, cd.fnScope);
+	}
+
+	private void rewriteObject(NamingContext cx, ObjectDefn od) {
+		RWObjectDefn rw = objects.get(od.name().uniqueName());
+		RWStructDefn rwsd = rw.state;
+		if (od.state != null) {
+			for (StructField sf : od.state.fields) {
+				rewriteField(cx, rwsd, sf);
+			}
+		}
+		ObjectContext oc = new ObjectContext(cx, od);
+		for (ObjectMethod m : od.methods)
+			rewriteCase(oc, rw.getMethod(m.getMethod().methodName()), m.getMethod(), false, true);
 	}
 
 	private RWTemplate rewrite(TemplateContext cx, Template template) {
@@ -1193,10 +1240,16 @@ public class Rewriter implements CodeGenRegistry {
 	}
 
 	private RWContractMethodDecl rewriteCMD(NamingContext cx, SolidName name, ContractMethodDecl cmd) {
-		List<Object> args = new ArrayList<Object>();
+		List<Object> outargs = new ArrayList<Object>();
+		final FunctionType type = deriveType(cx, cmd.location(), cmd.args, cmd.name, outargs);
+		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, outargs, type);
+	}
+
+	private FunctionType deriveType(NamingContext cx, final InputPosition loc, final List<Object> inargs, final FunctionName cn, List<Object> outargs) {
 		List<Type> targs = new ArrayList<Type>(); 
-		for (Object o : cmd.args) {
-			args.add(rewritePattern(cx, cmd.name, o));
+		for (Object o : inargs) {
+			if (outargs != null)
+				outargs.add(rewritePattern(cx, cn, o));
 			if (o instanceof TypedPattern) {
 				targs.add(rewrite(cx, ((TypedPattern)o).type, false));
 			} else if (o instanceof ConstructorMatch) { // we can get this instead of a typed patter
@@ -1205,8 +1258,9 @@ public class Rewriter implements CodeGenRegistry {
 			} else
 				throw new UtilException("Unexpected pattern " + o.getClass());
 		}
-		targs.add(typeFrom(cx.resolve(cmd.location(), "Send")));
-		return new RWContractMethodDecl(cmd.location(), cmd.required, cmd.dir, cmd.name, args, new FunctionType(cmd.location(), targs));
+		targs.add(typeFrom(cx.resolve(loc, "Send")));
+		final FunctionType type = new FunctionType(loc, targs);
+		return type;
 	}
 
 	private Type typeFrom(Object resolve) {
@@ -1347,7 +1401,7 @@ public class Rewriter implements CodeGenRegistry {
 		ret.gatherScopedVars();
 	}
 
-	private void rewriteStandaloneMethod(NamingContext cx, IScope from, MethodCaseDefn c, HSIEForm.CodeType codeType) {
+	private void rewriteStandaloneMethod(NamingContext cx, MethodCaseDefn c, HSIEForm.CodeType codeType) {
 		RWMethodDefinition rm = standalone.get(c.intro.name().uniqueName());
 		rewriteCase(cx, rm, c, false, true);
 		rm.gatherScopedVars();
@@ -1385,7 +1439,7 @@ public class Rewriter implements CodeGenRegistry {
 			Object rw = rewriteExpr(sx, sf.init);
 			InputPosition loc = ((Locatable)rw).location();
 			Object expr = new AssertTypeExpr(loc, (TypeWithName) st, rw);
-			fnName = FunctionName.function(loc, sd.structName(), "inits_" + sf.name);
+			fnName = FunctionName.initializer(loc, sd.structName(), "inits_" + sf.name);
 			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(loc, fnName, new ArrayList<>(), null), 0, expr);
 			fn.addCase(fcd0);

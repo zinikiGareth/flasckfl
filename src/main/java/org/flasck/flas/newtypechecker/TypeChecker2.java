@@ -502,8 +502,8 @@ public class TypeChecker2 {
 						constraints.add(c.var, freshPolys(convertType(sf.type), new HashMap<>()));
 					} else if (od != null) {
 						Type ot;
-						if (od.state != null && od.state.hasMember(fname)) {
-							ot = od.state.getMember(fname).type;
+						if (od.state != null && od.state.findField(fname) != null) {
+							ot = od.state.findField(fname).type;
 						} else if (od.hasMethod(fname)) {
 							ot = od.getMethodType(fname);
 						} else

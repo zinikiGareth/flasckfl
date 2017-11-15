@@ -58,7 +58,7 @@ public final class JSPushArgument implements PushVisitor<String> {
 
 	@Override
 	public void visitExternal(CardMember cm, OutputHandler<String> handler) {
-		if (form.mytype == CodeType.CARD || form.mytype == CodeType.EVENTHANDLER)
+		if (form.mytype == CodeType.CARD || form.mytype == CodeType.EVENTHANDLER || form.mytype == CodeType.OBJECT)
 			sb.append("this." + cm.var);
 		else if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.CONTRACT || form.mytype == CodeType.AREA)
 			sb.append("this._card." + cm.var);

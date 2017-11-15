@@ -7,14 +7,16 @@ import java.util.List;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
 import org.flasck.flas.commonBase.Locatable;
+import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeWithMethods;
 
 public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable {
-	public RWStateDefinition state;
+	public final RWStructDefn state;
 	public final List<RWStructField> ctorArgs = new ArrayList<RWStructField>();
 	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();
 	public final transient boolean generate;
@@ -25,6 +27,7 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	
 	public RWObjectDefn(InputPosition location, SolidName tn, boolean generate, List<PolyVar> polys) {
 		super(null, location, tn, polys);
+		this.state = generate?new RWStructDefn(location, StructType.STRUCT, tn, generate, polys):null;
 		this.generate = generate;
 	}
 
@@ -43,7 +46,7 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	@Override
 	public boolean hasMethod(String named) {
 		for (RWObjectMethod m : methods)
-			if (m.name.equals(named))
+			if (m.name.name.equals(named))
 				return true;
 		return false;
 	}
@@ -53,9 +56,16 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 		return this;
 	}
 
+	public RWMethodDefinition getMethod(FunctionName named) {
+		for (RWObjectMethod m : methods)
+			if (m.name.name.equals(named.name))
+				return m.defn;
+		return null;
+	}
+
 	public FunctionType getMethodType(String named) {
 		for (RWObjectMethod m : methods)
-			if (m.name.equals(named))
+			if (m.name.name.equals(named))
 				return m.type;
 		return null;
 	}
