@@ -388,16 +388,19 @@ public class Rewriter implements CodeGenRegistry {
 	}
 	
 	class ObjectContext extends NamingContext {
+		private final Map<String, Type> polys = new TreeMap<String, Type>();
 		private final Map<String, Type> members = new TreeMap<String, Type>();
 		private final SolidName objName;
 
-		public ObjectContext(NamingContext cx, ObjectDefn od) {
+		public ObjectContext(NamingContext cx, ObjectDefn od, List<PolyVar> polys) {
 			super(cx);
 			objName = od.name();
+			for (PolyVar v : polys)
+				this.polys.put(v.name(), v);
 			if (od.state != null) {
 				for (StructField sf : od.state.fields) {
 					try {
-						members.put(sf.name, rewrite(cx, sf.type, true));
+						members.put(sf.name, rewrite(this, sf.type, true));
 					} catch (ResolutionException ex) {
 						errors.message(ex.location, ex.getMessage());
 					}
@@ -409,6 +412,8 @@ public class Rewriter implements CodeGenRegistry {
 		public Object resolve(InputPosition location, String name) {
 			if (members.containsKey(name))
 				return new CardMember(location, objName, name, members.get(name));
+			else if (polys.containsKey(name))
+				return polys.get(name);
 			return nested.resolve(location, name);
 		}
 		
@@ -941,10 +946,10 @@ public class Rewriter implements CodeGenRegistry {
 		RWStructDefn rwsd = rw.state;
 		if (od.state != null) {
 			for (StructField sf : od.state.fields) {
-				rewriteField(cx, rwsd, sf);
+				rewriteField(new ObjectContext(cx, od, rw.polys()), rwsd, sf);
 			}
 		}
-		ObjectContext oc = new ObjectContext(cx, od);
+		ObjectContext oc = new ObjectContext(cx, od, rw.polys());
 		for (ObjectMethod m : od.methods)
 			rewriteCase(oc, rw.getMethod(m.getMethod().methodName()), m.getMethod(), false, true);
 	}

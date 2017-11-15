@@ -1,0 +1,6 @@
+class WithPoly.java extends org.flasck.jvm.objects.FlasckObject {
+  void <init>() {
+    super.<init>()
+    return
+  }
+}

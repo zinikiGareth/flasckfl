@@ -1,0 +1,2 @@
+package test.golden
+  object test.golden.WithPoly A @{1:0|object} @{1:7|WithPoly} @{1:16|A}
