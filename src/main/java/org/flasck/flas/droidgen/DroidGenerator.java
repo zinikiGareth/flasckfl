@@ -87,6 +87,13 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			if (sd.ty == StructType.ENTITY)
 				args = new IExpr[] { ctor.as(ctor.aNull(), J.BACKING_DOCUMENT) };
 			ctor.callSuper("void", base, "<init>", args).flush();
+			for (int i=0;i<sd.fields.size();i++) {
+				RWStructField fld = sd.fields.get(i);
+				if (fld.name.equals("id"))
+					continue;
+				if (fld.init != null)
+					ctor.assign(ctor.getField(ctor.myThis(), fld.name), ctor.makeNew(J.FLCLOSURE, ctor.classConst(fld.init.javaNameAsNestedClass()))).flush();
+			}
 			ctor.returnVoid().flush();
 		}
 		if (sd.ty == StructType.ENTITY) {
@@ -275,6 +282,13 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 					impl = fe;
 				}
 				ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst(x.contractName.uniqueName()), ctor.as(impl, J.CONTRACT_IMPL)).flush();
+			}
+			for (int i=0;i<grp.struct.fields.size();i++) {
+				RWStructField fld = grp.struct.fields.get(i);
+				if (fld.name.equals("id"))
+					continue;
+				if (fld.init != null)
+					ctor.callVirtual("void", ctor.myThis(), "setVar", ctor.stringConst(fld.name), ctor.makeNew(J.FLCLOSURE, ctor.classConst(fld.init.javaNameAsNestedClass()))).flush();
 			}
 			ctor.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			ctor.returnVoid().flush();

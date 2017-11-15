@@ -361,6 +361,24 @@ ev
     return test.golden.Complex$sayHello.class
   }
 }
+class Complex$inits_format.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Complex)self).inits_format(cxt)
+  }
+}
+class Complex$inits_hello.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Complex)self).inits_hello(cxt)
+  }
+}
 class Complex$sayHello.java {
   void <init>() {
     super.<init>()
@@ -387,12 +405,20 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
     this.registerContract("test.golden.Init", new test.golden.Complex$_C0(this))
     this.ds = new test.golden.Complex$_C1(this)
     this.registerContract("test.golden.DataStore", this.ds)
+    this.setVar("hello", new org.flasck.jvm.fl.FLClosure(test.golden.Complex$inits_hello.class))
+    this.setVar("format", new org.flasck.jvm.fl.FLClosure(test.golden.Complex$inits_format.class))
     super.ready()
     return
   }
   void render(java.lang.Object cxt, java.lang.String into) {
     (void)new test.golden.Complex$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return
+  }
+  java.lang.Object inits_format(java.lang.Object _context) {
+    return "basic"
+  }
+  java.lang.Object inits_hello(java.lang.Object _context) {
+    return "hello, world"
   }
   java.lang.Object sayHello(java.lang.Object _context, java.lang.Object _0) {
     {
@@ -518,11 +544,21 @@ class Thing.java extends org.flasck.jvm.fl.FLASObject {
     return
   }
 }
+class WithInit$inits_x.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.WithInit)self).inits_x(cxt)
+  }
+}
 class WithInit.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; x
 
   void <init>() {
     super.<init>()
+    this.x = new org.flasck.jvm.fl.FLClosure(test.golden.WithInit$inits_x.class)
     return
   }
   static test.golden.WithInit eval(java.lang.Object cxt, [java.lang.Object args) {
@@ -534,52 +570,7 @@ class WithInit.java extends org.flasck.jvm.fl.FLASObject {
     this.x = this._fullOf(cxt, this.x)
     return
   }
-}
-class PACKAGEFUNCTIONS$inits_format.java {
-  void <init>() {
-    super.<init>()
-    return
-  }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
-    return test.golden.Complex.PACKAGEFUNCTIONS.inits_format(cxt)
-  }
-}
-class PACKAGEFUNCTIONS$inits_hello.java {
-  void <init>() {
-    super.<init>()
-    return
-  }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
-    return test.golden.Complex.PACKAGEFUNCTIONS.inits_hello(cxt)
-  }
-}
-class PACKAGEFUNCTIONS.java {
-  void <init>() {
-    super.<init>()
-    return
-  }
-  static java.lang.Object inits_format(java.lang.Object _context) {
-    return "basic"
-  }
-  static java.lang.Object inits_hello(java.lang.Object _context) {
-    return "hello, world"
-  }
-}
-class PACKAGEFUNCTIONS$inits_x.java {
-  void <init>() {
-    super.<init>()
-    return
-  }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
-    return test.golden.WithInit.PACKAGEFUNCTIONS.inits_x(cxt)
-  }
-}
-class PACKAGEFUNCTIONS.java {
-  void <init>() {
-    super.<init>()
-    return
-  }
-  static java.lang.Object inits_x(java.lang.Object _context) {
+  java.lang.Object inits_x(java.lang.Object _context) {
     return "hello"
   }
 }

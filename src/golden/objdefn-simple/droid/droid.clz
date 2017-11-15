@@ -1,4 +1,4 @@
-class Simple.java {
+class Simple.java extends org.flasck.jvm.objects.FlasckObject {
   void <init>() {
     super.<init>()
     return

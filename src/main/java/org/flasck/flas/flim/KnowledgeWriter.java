@@ -90,7 +90,9 @@ public class KnowledgeWriter implements RepoVisitor {
 
 	private void writeMethod(XMLElement od, RWObjectMethod m) {
 		XMLElement xe = od.addElement("Method");
-//		xe.setAttribute("name", m.);
+		writeLocation(xe, m.type);
+		xe.setAttribute("name", m.name.name);
+		writeTypeUsage(xe, m.type);
 	}
 
 	// Note: this case is currently untested because we don't have the syntax to introduce these ...

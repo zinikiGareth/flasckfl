@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
-    <Object file="objdefn-method.fl" line="1" name="WithMethod" off="7"/>
+    <Object file="objdefn-method.fl" line="1" name="WithMethod" off="7">
+        <Method file="objdefn-method.fl" line="5" name="highTime" off="7">
+            <Function>
+                <Return>
+                    <SolidName name="Send"/>
+                </Return>
+            </Function>
+        </Method>
+    </Object>
 </FLIM>
