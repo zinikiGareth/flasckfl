@@ -91,13 +91,13 @@ public class GenTestsForStructs {
 	}
 
 	@Test
-	// DROID-TODO: This should generate a call to the "init_f1" function
 	public void testVisitingAStructDefnWithOneInitializedMemberGeneratesASlotWithTheValue() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
 		checkCreationOfStructEval();
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.OBJECTP, "f1");
+		checkAssignToField(ctor, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		gen.visitStructDefn(sd);
@@ -161,4 +161,18 @@ public class GenTestsForStructs {
 			oneOf(meth).assign(fe, expr); will(returnValue(expr));
 		}});
 	}
+	private void checkAssignToField(MethodDefiner meth, final String fld) {
+		context.checking(new Expectations() {{
+			oneOf(meth).nextLocal(); will(returnValue(8));
+		}});
+		Var iv = new AVar(meth, "java.lang.Object", "iv");
+		context.checking(new Expectations() {{
+			oneOf(meth).myThis(); will(returnValue(iv));
+			oneOf(meth).getField(iv, fld); will(returnValue(expr));
+			oneOf(meth).classConst("PACKAGEFUNCTIONS$init_" + fld); will(returnValue(expr));
+			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", expr); will(returnValue(expr));
+			oneOf(meth).assign(expr, expr);
+		}});
+	}
+
 }

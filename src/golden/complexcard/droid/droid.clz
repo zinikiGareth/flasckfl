@@ -405,8 +405,8 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
     this.registerContract("test.golden.Init", new test.golden.Complex$_C0(this))
     this.ds = new test.golden.Complex$_C1(this)
     this.registerContract("test.golden.DataStore", this.ds)
-    this.setVar("hello", new org.flasck.jvm.fl.FLClosure(test.golden.Complex$inits_hello.class))
-    this.setVar("format", new org.flasck.jvm.fl.FLClosure(test.golden.Complex$inits_format.class))
+    this.setVar("hello", org.flasck.jvm.fl.FLClosure.simple(test.golden.Complex$inits_hello.class))
+    this.setVar("format", org.flasck.jvm.fl.FLClosure.simple(test.golden.Complex$inits_format.class))
     super.ready()
     return
   }
@@ -558,7 +558,7 @@ class WithInit.java extends org.flasck.jvm.fl.FLASObject {
 
   void <init>() {
     super.<init>()
-    this.x = new org.flasck.jvm.fl.FLClosure(test.golden.WithInit$inits_x.class)
+    this.x = org.flasck.jvm.fl.FLClosure.simple(test.golden.WithInit$inits_x.class)
     return
   }
   static test.golden.WithInit eval(java.lang.Object cxt, [java.lang.Object args) {

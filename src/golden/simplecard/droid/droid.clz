@@ -47,7 +47,7 @@ class Simple$inits_hello.java {
 class Simple.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
-    this.setVar("hello", new org.flasck.jvm.fl.FLClosure(test.golden.Simple$inits_hello.class))
+    this.setVar("hello", org.flasck.jvm.fl.FLClosure.simple(test.golden.Simple$inits_hello.class))
     super.ready()
     return
   }

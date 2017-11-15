@@ -92,7 +92,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				if (fld.name.equals("id"))
 					continue;
 				if (fld.init != null)
-					ctor.assign(ctor.getField(ctor.myThis(), fld.name), ctor.makeNew(J.FLCLOSURE, ctor.classConst(fld.init.javaNameAsNestedClass()))).flush();
+					ctor.assign(ctor.getField(ctor.myThis(), fld.name), ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", ctor.classConst(fld.init.javaNameAsNestedClass()))).flush();
 			}
 			ctor.returnVoid().flush();
 		}
@@ -288,7 +288,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				if (fld.name.equals("id"))
 					continue;
 				if (fld.init != null)
-					ctor.callVirtual("void", ctor.myThis(), "setVar", ctor.stringConst(fld.name), ctor.makeNew(J.FLCLOSURE, ctor.classConst(fld.init.javaNameAsNestedClass()))).flush();
+					ctor.callVirtual("void", ctor.myThis(), "setVar", ctor.stringConst(fld.name), ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", ctor.classConst(fld.init.javaNameAsNestedClass()))).flush();
 			}
 			ctor.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			ctor.returnVoid().flush();

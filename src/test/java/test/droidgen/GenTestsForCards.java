@@ -29,8 +29,10 @@ import org.zinutils.bytecode.ByteCodeStorage;
 import org.zinutils.bytecode.Expr;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.JavaInfo.Access;
+import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
+import org.zinutils.bytecode.Var;
 
 public class GenTestsForCards {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -73,11 +75,11 @@ public class GenTestsForCards {
 	}
 
 	@Test
-	// DROID-TODO: This should generate a call to the "init_f1" function
 	public void testVisitingACardWithOneInitializedMemberGeneratesASlotWithTheValue() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
 //		checkDefnOfField(J.OBJECTP, "f1");
+		checkAssignToField(ctor, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		CardGrouping card = new CardGrouping(loc, new CardName(null, "Card"), sd);
@@ -164,6 +166,14 @@ public class GenTestsForCards {
 				oneOf(ctor).as(expr, J.CONTRACT_IMPL);  will(returnValue(expr));
 			}
 			oneOf(ctor).callVirtual(with("void"), with(aNonNull(IExpr.class)), with("registerContract"), with(aNonNull(IExpr[].class)));
+		}});
+	}
+	private void checkAssignToField(MethodDefiner meth, final String fld) {
+		context.checking(new Expectations() {{
+			oneOf(meth).stringConst(fld); will(returnValue(expr));
+			oneOf(meth).classConst("PACKAGEFUNCTIONS$init_" + fld); will(returnValue(expr));
+			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", expr); will(returnValue(expr));
+			oneOf(meth).callVirtual(with("void"), with(any(AVar.class)), with("setVar"), with(any(IExpr[].class))); will(returnValue(expr));
 		}});
 	}
 }

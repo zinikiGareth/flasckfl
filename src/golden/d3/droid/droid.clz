@@ -282,7 +282,7 @@ class TestCard$rejig.java {
 class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
-    this.setVar("data", new org.flasck.jvm.fl.FLClosure(test.golden.TestCard$inits_data.class))
+    this.setVar("data", org.flasck.jvm.fl.FLClosure.simple(test.golden.TestCard$inits_data.class))
     super.ready()
     return
   }
