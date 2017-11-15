@@ -131,6 +131,12 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 			public <T> CodeGenerator<T> generator() {
 				return new AreaMethodCodeGenerator<T>();
 			}
+		},
+		OBJECT {
+			@Override
+			public <T> CodeGenerator<T> generator() {
+				throw new org.zinutils.exceptions.NotImplementedException();
+			}
 		};
 
 		public boolean isHandler() {

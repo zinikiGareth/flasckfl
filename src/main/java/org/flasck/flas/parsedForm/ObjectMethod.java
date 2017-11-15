@@ -1,11 +1,13 @@
 package org.flasck.flas.parsedForm;
 
 public class ObjectMethod {
-	public final String name;
-	public final TypeReference type;
+	private final MethodCaseDefn mcd;
 
-	public ObjectMethod(TypeReference type, String name) {
-		this.name = name;
-		this.type = type;
+	public ObjectMethod(MethodCaseDefn mcd) {
+		this.mcd = mcd;
+	}
+
+	public MethodCaseDefn getMethod() {
+		return mcd;
 	}
 }

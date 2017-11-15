@@ -48,6 +48,7 @@ import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.MethodMessage;
 import org.flasck.flas.parsedForm.ObjectDefn;
 import org.flasck.flas.parsedForm.ObjectMember;
+import org.flasck.flas.parsedForm.ObjectMethod;
 import org.flasck.flas.parsedForm.PropertyDefn;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.StateDefinition;
@@ -370,17 +371,20 @@ public class FLASStory {
 					break;
 				}
 				case ObjectMember.ACCESSOR:
-//						methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
+//					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
 					er.message(b, "accessors not implemented");
 					break;
-				case ObjectMember.METHOD:
-//					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
-				er.message(b, "methods not implemented");
-				break;
+				case ObjectMember.METHOD: {
+					MethodCaseDefn mcd = (MethodCaseDefn) omm.what;
+					mcd.provideCaseName(sd.caseFor(mcd.intro.name().name));
+					addMethodMessages(er, mcd.messages, b.nested);
+					sd.addMethod(new ObjectMethod(mcd));
+					break;
+				}
 				case ObjectMember.INTERNAL:
 //					methods.add(new MCDWrapper(b.nested, (MethodCaseDefn) om));
-				er.message(b, "internals not implemented");
-				break;
+					er.message(b, "internals not implemented");
+					break;
 				default: {
 					er.message(b, "syntax error");
 				}

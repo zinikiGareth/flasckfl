@@ -1,6 +1,8 @@
 package org.flasck.flas.parser;
 
 import org.flasck.flas.errors.ErrorResult;
+import org.flasck.flas.parsedForm.FunctionIntro;
+import org.flasck.flas.parsedForm.MethodCaseDefn;
 import org.flasck.flas.parsedForm.ObjectMember;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.KeywordToken;
@@ -34,7 +36,7 @@ public class ObjectMemberParser implements TryParsing {
 			return new ObjectMember(ObjectMember.ACCESSOR, new FunctionParser(state).tryParsing(line));
 		}
 		case "method": {
-			return new ObjectMember(ObjectMember.METHOD, new FunctionParser(state).tryParsing(line));
+			return new ObjectMember(ObjectMember.METHOD, new MethodCaseDefn((FunctionIntro)new FunctionParser(state).tryParsing(line)));
 		}
 		case "internal": {
 			return new ObjectMember(ObjectMember.INTERNAL, new FunctionParser(state).tryParsing(line));

@@ -7,11 +7,19 @@
 		down missing
 
 	entity Account
+	
+	object Tracker
+		state
+			List[Number] cnt <- Nil
+			
+		method push (Number n)
+			cnt <- n:cnt
 		
 	card TestCard
 		state
 			Boolean sayHello
 			Account acct
+			Tracker tracker
 
 		implements SetState
 		implements Echo e
@@ -33,6 +41,7 @@
 			
 		event echoHello ev
 			<- e.echoIt "hello clicked"
+			<- tracker.push x
 			
 		event echoMessage (String msg) ev
 			<- e.echoIt msg

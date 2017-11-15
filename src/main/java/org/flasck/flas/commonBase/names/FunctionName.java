@@ -1,6 +1,7 @@
 package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
@@ -69,7 +70,11 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	}
 	
 	public static FunctionName areaMethod(InputPosition location, AreaName areaName, String fnName) {
-		return new FunctionName(location, CodeType.AREA, areaName, fnName);
+		return new FunctionName(location, CodeType.OBJECT, areaName, fnName);
+	}
+
+	public static FunctionName objectMethod(InputPosition location, RWObjectDefn od, String name) {
+		return new FunctionName(location, CodeType.OBJECT, od.getName(), name);
 	}
 
 	public CardName containingCard() {

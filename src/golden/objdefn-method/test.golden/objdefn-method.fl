@@ -1,0 +1,6 @@
+	object WithMethod
+		state
+			Number x
+		
+		method highTime
+			x <- 420

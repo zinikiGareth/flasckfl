@@ -20,6 +20,7 @@ import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -62,17 +63,6 @@ public class KnowledgeWriter implements RepoVisitor {
 			System.out.println("  struct " + sd.asString());
 	}
 
-	@Override
-	public void visitObjectDefn(RWObjectDefn od) {
-		XMLElement xe = top.addElement("Object");
-		writeLocation(xe, od);
-		xe.setAttribute("name", ((SolidName)od.getTypeName()).baseName());
-		writePolys(xe, od.polys());
-//		writeStructFields(xe, od.fields);
-		if (copyToScreen)
-			System.out.println("  object " + od.asString());
-	}
-
 	protected void writeStructFields(XMLElement xe, List<RWStructField> fs) {
 		for (RWStructField f : fs) {
 			XMLElement sf = xe.addElement("Field");
@@ -83,6 +73,24 @@ public class KnowledgeWriter implements RepoVisitor {
 			// if (f.init != null)
 			// writeValue(sf, f.init);
 		}
+	}
+
+	@Override
+	public void visitObjectDefn(RWObjectDefn od) {
+		XMLElement xe = top.addElement("Object");
+		writeLocation(xe, od);
+		xe.setAttribute("name", ((SolidName)od.getTypeName()).baseName());
+		writePolys(xe, od.polys());
+//		writeStructFields(xe, od.fields);
+		if (copyToScreen)
+			System.out.println("  object " + od.asString());
+		for (RWObjectMethod m : od.methods)
+			writeMethod(xe, m);
+	}
+
+	private void writeMethod(XMLElement od, RWObjectMethod m) {
+		XMLElement xe = od.addElement("Method");
+//		xe.setAttribute("name", m.);
 	}
 
 	// Note: this case is currently untested because we don't have the syntax to introduce these ...

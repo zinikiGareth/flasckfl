@@ -181,16 +181,16 @@ public class Builtin {
 			croset.constructorArg(posn, crokeys, "init");
 			
 			// These are actually accessors ...
-			croset.addMethod(new RWObjectMethod(Type.function(posn, string, varA), "item"));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, any, varA), "member")); // crokey, natural crokey or string as input
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, varA), FunctionName.objectMethod(posn, croset, "item")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, any, varA), FunctionName.objectMethod(posn, croset, "member"))); // crokey, natural crokey or string as input
 
 			// These are real methods
-			croset.addMethod(new RWObjectMethod(Type.function(posn, any, send), "put"));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, list.instance(posn,  any), send), "mergeAppend"));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, string, send), "delete"));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, crokeys, send), "deleteSet"));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, string, any, send), "insert"));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, send), "clear"));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, any, send), FunctionName.objectMethod(posn, croset, "put")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, list.instance(posn,  any), send), FunctionName.objectMethod(posn, croset, "mergeAppend")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, send), FunctionName.objectMethod(posn, croset, "delete")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, crokeys, send), FunctionName.objectMethod(posn, croset, "deleteSet")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, any, send), FunctionName.objectMethod(posn, croset, "insert")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, send), FunctionName.objectMethod(posn, croset, "clear")));
 		}
 		return root;
 	}

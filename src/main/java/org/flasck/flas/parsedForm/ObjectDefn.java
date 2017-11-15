@@ -1,7 +1,9 @@
 package org.flasck.flas.parsedForm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.AsString;
@@ -18,6 +20,7 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	private final InputPosition location;
 	private final SolidName name;
 	private final List<PolyType> polys;
+	private final Map<String, Integer> methodCases = new HashMap<>();
 
 	public ObjectDefn(InputPosition kw, InputPosition location, IScope outer, SolidName tn, boolean generate, List<PolyType> polys) {
 		this.kw = kw;
@@ -78,5 +81,13 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	@Override
 	public InputPosition location() {
 		return location;
+	}
+
+	public int caseFor(String name) {
+		int ret = 0;
+		if (methodCases.containsKey(name))
+			ret = methodCases.get(name);
+		methodCases.put(name, ret+1);
+		return ret;
 	}
 }
