@@ -138,6 +138,11 @@ public class GoldenJVM {
 	}
 	
 	@Test
+	public void checkTrackerInitCnt() throws Exception {
+		compare("Tracker$inits_cnt");
+	}
+	
+	@Test
 	public void checkPkg() throws Exception {
 		compare("PACKAGEFUNCTIONS");
 	}

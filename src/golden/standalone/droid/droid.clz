@@ -32,16 +32,16 @@ class Foo$_C1.java extends test.golden.Bar$Impl {
       v5 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.Foo$request.class,1,new java.lang.Object[0] {})
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
           autobox[v5]
-          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
       v4 = new org.flasck.jvm.fl.FLCurry(this._card,test.golden.Foo$request2.class,1,new java.lang.Object[0] {})
       v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
           autobox[v4]
-          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
       v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v1]
-          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v0]
@@ -89,7 +89,7 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
         {
           v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[_0]
-              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
               autobox[this.kv]
@@ -111,7 +111,7 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
         {
           v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[_0]
-              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
               autobox[this.kv]

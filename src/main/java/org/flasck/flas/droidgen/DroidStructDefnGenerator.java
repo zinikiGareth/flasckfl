@@ -32,7 +32,7 @@ public class DroidStructDefnGenerator implements StructDefnGenerator<IExpr> {
 	public void push(RWStructDefn defn, OutputHandler<IExpr> handler) {
 		String clz = defn.myName().javaClassName();
 		if (defn.fields.isEmpty()) { // invoke a no-args constructor
-			handler.result(cxt.getMethod().callStatic(clz, J.OBJECT, "eval", cxt.getMethod().arrayOf(J.OBJECT, new ArrayList<>())));
+			handler.result(cxt.getMethod().callStatic(clz, J.OBJECT, "eval", cxt.getCxtArg(), cxt.getMethod().arrayOf(J.OBJECT, new ArrayList<>())));
 		} else {
 			handler.result(cxt.getMethod().classConst(clz));
 		}

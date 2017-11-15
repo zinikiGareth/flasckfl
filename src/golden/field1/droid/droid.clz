@@ -36,7 +36,7 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v4]
-              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
         }
       }

@@ -160,7 +160,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			int cnt = 0;
 			for (int i : args) {
 				Class<?> clz = Class.forName(spkg + ".PACKAGEFUNCTIONS$arg" + i, false, loader);
-				Object o = Reflection.callStatic(clz, "eval", new Object[] { new Object[] {} });
+				Object o = Reflection.callStatic(clz, "eval", cx, new Object[] { new Object[] {} });
 				o = Reflection.callStatic(fleval, "full", cx, o);
 				argVals[cnt++] = o;
 			}

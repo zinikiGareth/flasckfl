@@ -10,7 +10,7 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[org.flasck.jvm.builtin.FLNumber.fromInt(42)]
-          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
       v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
           autobox[this._card.getVar(_context, "c")]
@@ -20,11 +20,11 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
       v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
           autobox[this._card.getVar(_context, "c")]
           autobox["clear"]
-          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
       v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v2]
-          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v1]

@@ -32,7 +32,7 @@ class Complex$_C0.java extends test.golden.Init$Impl {
             })
           v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v2]
-              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
           v4 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v1]
@@ -45,7 +45,7 @@ class Complex$_C0.java extends test.golden.Init$Impl {
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v5]
-              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
         }
       }
@@ -86,7 +86,7 @@ class Complex$_S0.java extends test.golden.Offer$Impl {
             {
               v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
                   autobox[_0]
-                  autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+                  autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
                 })
               v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
                   autobox[_1]
@@ -95,7 +95,7 @@ class Complex$_S0.java extends test.golden.Offer$Impl {
                 })
               return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
                   autobox[v3]
-                  autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+                  autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
                 })
             }
           }
@@ -175,7 +175,7 @@ class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
   java.lang.Object formats_2(java.lang.Object _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
         autobox[this._card.getVar(_context, "format")]
-        autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
       })
   }
 }
@@ -336,7 +336,7 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v2]
-              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
         }
       }
@@ -435,7 +435,7 @@ class Complex.java extends org.flasck.jvm.cards.FlasckCard {
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v1]
-              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
         }
       }

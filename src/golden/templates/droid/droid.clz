@@ -116,7 +116,7 @@ class Templates$B4.java extends org.flasck.jvm.areas.TextArea {
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[v0]
-          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
     }
   }

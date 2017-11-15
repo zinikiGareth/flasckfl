@@ -23,7 +23,7 @@ class f_0$KVHImpl.java extends test.golden.KVH$Impl {
         {
           v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[_0]
-              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
           v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
               autobox[this.s]
@@ -32,7 +32,7 @@ class f_0$KVHImpl.java extends test.golden.KVH$Impl {
             })
           return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
               autobox[v2]
-              autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
             })
         }
       }
@@ -86,7 +86,7 @@ class PACKAGEFUNCTIONS.java {
   }
   static java.lang.Object s(java.lang.Object _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Croset.class, new java.lang.Object[1] {
-        autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
       })
   }
 }

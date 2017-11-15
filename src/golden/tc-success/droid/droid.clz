@@ -51,14 +51,14 @@ class PACKAGEFUNCTIONS.java {
   static java.lang.Object t1(java.lang.Object _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
         autobox[test.golden.PACKAGEFUNCTIONS$fred.class]
-        autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+        autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
       })
   }
   static java.lang.Object t2(java.lang.Object _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
           autobox[org.flasck.jvm.builtin.FLNumber.fromInt(3)]
-          autobox[org.flasck.jvm.builtin.Nil.eval(new java.lang.Object[0] {})]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
         })
       return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$map.class, new java.lang.Object[2] {
           autobox[test.golden.PACKAGEFUNCTIONS$fred.class]
