@@ -76,6 +76,9 @@ public class ApplyCurry {
 					continue;
 				} else if (pb.isTuple()) {
 					continue;
+				} else if (pb.isOctor()) {
+					// TODO: I think it's possible that this needs to be handled, but I'm not clear on the case yet ...
+					continue;
 				} else
 					throw new RuntimeException("Unhandled builtin case");
 			} else if (pc instanceof PushExternal) {

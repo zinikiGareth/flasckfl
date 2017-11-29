@@ -19,6 +19,10 @@ public class PushBuiltin extends PushReturn {
 		return this.bval.opName.equals("tuple");
 	}
 
+	public boolean isOctor() {
+		return this.bval.opName.equals("octor");
+	}
+
 	protected Object textValue() {
 		return bval.toString();
 	}

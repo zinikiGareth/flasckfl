@@ -88,6 +88,11 @@ public class GoldenJVM {
 	}
 
 	@Test
+	public void checkTrackerInit() throws Exception {
+		compare("TestCard$inits_tracker");
+	}
+
+	@Test
 	public void checkAccount() throws Exception {
 		compare("Account");
 	}

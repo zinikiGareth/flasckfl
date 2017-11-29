@@ -38,6 +38,8 @@ public class DroidBuiltinOpGenerator implements BuiltinOpGenerator<IExpr> {
 			((PushReturn)closure.nestedCommands().get(1)).visit(dpa, oh);
 			((PushReturn)closure.nestedCommands().get(2)).visit(dpa, oh);
 			handler.result(meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(meth.classConst(J.FLFIELD), J.OBJECT), meth.arrayOf(J.OBJECT, al)));
+		} else if (defn.isOctor()) {
+			// TODO
 		} else 
 			throw new RuntimeException("not handled " + defn);
 	}

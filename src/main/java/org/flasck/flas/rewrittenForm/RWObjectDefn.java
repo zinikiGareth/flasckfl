@@ -12,12 +12,11 @@ import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PolyVar;
-import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeWithMethods;
 
 public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable {
 	public final RWStructDefn state;
-	public final List<RWStructField> ctorArgs = new ArrayList<RWStructField>();
+	public final List<RWObjectMethod> ctors = new ArrayList<RWObjectMethod>();
 	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();
 	public final transient boolean generate;
 
@@ -39,16 +38,24 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 		return (SolidName) this.getTypeName();
 	}
 
-	public void constructorArg(InputPosition pos, Type type, String name) {
-		ctorArgs.add(new RWStructField(pos, false, type, name));
-	}
-	
 	@Override
 	public boolean hasMethod(String named) {
 		for (RWObjectMethod m : methods)
 			if (m.name.name.equals(named))
 				return true;
 		return false;
+	}
+
+	public RWObjectDefn addConstructor(RWObjectMethod ctor) {
+		ctors.add(ctor);
+		return this;
+	}
+
+	public RWObjectMethod getConstructor(String meth) {
+		for (RWObjectMethod m : ctors)
+			if (m.name.name.equals(meth))
+				return m;
+		return null;
 	}
 
 	public RWObjectDefn addMethod(RWObjectMethod m) {

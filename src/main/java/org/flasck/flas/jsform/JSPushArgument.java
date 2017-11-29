@@ -116,6 +116,8 @@ public final class JSPushArgument implements PushVisitor<String> {
 			sb.append("FLEval.field");
 		else if (pb.isTuple())
 			sb.append("FLEval.tuple");
+		else if (pb.isOctor())
+			sb.append("FLEval.octor");
 		else
 			throw new RuntimeException("Not handled");
 	}

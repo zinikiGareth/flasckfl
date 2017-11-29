@@ -777,6 +777,11 @@ public class Rewriter implements CodeGenRegistry {
 				ObjectDefn od = (ObjectDefn)val;
 				RWObjectDefn ret = new RWObjectDefn(od.location(), od.name(), od.generate, rewritePolys(od.polys()));
 				objects.put(name, ret);
+				for (ObjectMethod om : od.ctors) {
+					MethodCaseDefn m = om.getMethod();
+					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
+					ret.addConstructor(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null)));
+				}
 				for (ObjectMethod om : od.methods) {
 					MethodCaseDefn m = om.getMethod();
 					RWMethodDefinition rw = new RWMethodDefinition(m.location(), null, cx.hasCard()?CodeType.CARD:CodeType.STANDALONE, RWMethodDefinition.STANDALONE, m.location(), m.intro.name(), m.intro.args.size());
@@ -1727,7 +1732,10 @@ public class Rewriter implements CodeGenRegistry {
 					if (castTo != null)
 						applyFn = new RWCastExpr(castLoc, castTo, applyFn);
 	
-					return new ApplyExpr(ae.location, cx.resolve(ae.location, "."), applyFn, new StringLiteral(loc, fname));
+					if (applyFn instanceof PackageVar && ((PackageVar)applyFn).defn instanceof RWObjectDefn)
+						return new ApplyExpr(ae.location, BuiltinOperation.OCTOR.at(ae.location), applyFn, new StringLiteral(loc, fname));
+					else
+						return new ApplyExpr(ae.location, BuiltinOperation.FIELD.at(ae.location), applyFn, new StringLiteral(loc, fname));
 				}
 				List<Object> args = new ArrayList<Object>();
 				Object head = rewriteExpr(cx, ae.fn);

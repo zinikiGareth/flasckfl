@@ -32,7 +32,6 @@ import org.zinutils.bytecode.JavaInfo.Access;
 import org.zinutils.bytecode.Var.AVar;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.bytecode.Var;
 
 public class GenTestsForCards {
 	@Rule public JUnitRuleMockery context = new JUnitRuleMockery();

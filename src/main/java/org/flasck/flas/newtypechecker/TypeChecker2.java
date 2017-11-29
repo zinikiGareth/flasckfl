@@ -23,12 +23,14 @@ import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
 import org.flasck.flas.rewrittenForm.RWContractService;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
@@ -136,6 +138,7 @@ public class TypeChecker2 {
 					polys.add(convertType(t));
 			}
 			gk(od.name(), new NamedType(od.location(), od.getTypeName(), polys));
+			/*
 			if (od.ctorArgs != null) {
 				List<Type> args = new ArrayList<>();
 				for (RWStructField sf : od.ctorArgs)
@@ -143,6 +146,7 @@ public class TypeChecker2 {
 				args.add(od);
 				ctors.put(od.name(), new FunctionType(od.location(), args));
 			}
+			*/
 		}
 	}
 	
@@ -516,6 +520,21 @@ public class TypeChecker2 {
 				} else
 					throw new NotImplementedException("field(non-named): " + ty);
 				return;
+			} else if (pb.isOctor()) {
+				PushExternal obj = (PushExternal) cmds.get(1);
+				PackageVar pv = (PackageVar) obj.fn;
+				RWObjectDefn od = (RWObjectDefn) pv.defn;
+				PushString pm = (PushString)cmds.get(2);
+				String meth = pm.sval.text;
+				RWObjectMethod om = od.getConstructor(meth);
+				if (om == null) {
+					errors.message(pm.location, "there is no constructor " + meth);
+					return;
+				}
+				
+				// TODO: we should consider this to be a function with arguments and check them
+				Type ret = om.type.arg(om.type.arity());
+				constraints.add(c.var, convertType(ret));
 			} else if (pb.isTuple()) {
 				constraints.add(c.var, new TupleInfo(cmd.location, argtypes));
 				return;

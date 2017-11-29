@@ -30,7 +30,7 @@ public class ObjectMemberParser implements TryParsing {
 			return "state";
 		}
 		case "ctor": {
-			return new ObjectMember(ObjectMember.CTOR, new FunctionParser(state).tryParsing(line));
+			return new ObjectMember(ObjectMember.CTOR, new MethodCaseDefn((FunctionIntro)new FunctionParser(state).tryParsing(line)));
 		}
 		case "acor": {
 			return new ObjectMember(ObjectMember.ACCESSOR, new FunctionParser(state).tryParsing(line));

@@ -12,8 +12,8 @@ import org.flasck.flas.commonBase.names.SolidName;
 
 public class ObjectDefn implements ContainsScope, AsString, Locatable {
 	public StateDefinition state;
-	public final List<StructField> ctorArgs = new ArrayList<StructField>();
-	public final List<ObjectMethod> methods = new ArrayList<ObjectMethod>();
+	public final List<ObjectMethod> ctors = new ArrayList<>();
+	public final List<ObjectMethod> methods = new ArrayList<>();
 	public final transient boolean generate;
 	private final Scope innerScope;
 	public final InputPosition kw;
@@ -37,12 +37,13 @@ public class ObjectDefn implements ContainsScope, AsString, Locatable {
 		return innerScope;
 	}
 
-	public void constructorArg(InputPosition pos, TypeReference type, String name) {
-		ctorArgs.add(new StructField(pos, false, type, name));
-	}
-	
 	public SolidName name() {
 		return name;
+	}
+
+	public ObjectDefn addCtor(ObjectMethod m) {
+		ctors.add(m);
+		return this;
 	}
 
 	public ObjectDefn addMethod(ObjectMethod m) {

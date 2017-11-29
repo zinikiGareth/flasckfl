@@ -11,7 +11,9 @@
 	object Tracker
 		state
 			List[Number] cnt <- Nil
-			
+		
+		ctor simple
+
 		method push (Number n)
 			cnt <- n:cnt
 		
@@ -19,7 +21,7 @@
 		state
 			Boolean sayHello
 			Account acct
-			Tracker tracker
+			Tracker tracker <- Tracker.simple
 
 		implements SetState
 		implements Echo e

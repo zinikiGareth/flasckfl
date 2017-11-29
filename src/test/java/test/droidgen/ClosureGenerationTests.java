@@ -447,7 +447,7 @@ public class ClosureGenerationTests {
 		SolidName fn = new SolidName(null, "Croset");
 		ClosureCmd closure = form.createClosure(loc);
 		RWObjectDefn od = new RWObjectDefn(loc, fn, false);
-		od.constructorArg(loc, new PrimitiveType(loc, new SolidName(null, "String")), "init");
+//		od.constructorArg(loc, new PrimitiveType(loc, new SolidName(null, "String")), "init");
 		PackageVar hdc1 = new PackageVar(loc, fn, od);
 		closure.push(loc, hdc1, null);
 		closure.push(loc, new StringLiteral(loc, "hello"), null);

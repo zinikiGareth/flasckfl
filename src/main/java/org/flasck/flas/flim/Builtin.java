@@ -111,8 +111,8 @@ public class Builtin {
 		{
 			RWObjectDefn card = new RWObjectDefn(posn, new SolidName(null, "Card"), false);
 			root.define("Card", card);
-			card.constructorArg(posn, string, "explicit");
-			card.constructorArg(posn, string, "loadId");
+//			card.constructorArg(posn, string, "explicit");
+//			card.constructorArg(posn, string, "loadId");
 		}
 		RWStructDefn send = new RWStructDefn(posn, StructType.STRUCT, new SolidName(null, "Send"), false);
 		{ // messaging
@@ -178,7 +178,8 @@ public class Builtin {
 
 			RWObjectDefn croset = new RWObjectDefn(posn, new SolidName(null, "Croset"), false, varA);
 			root.define("Croset", croset);
-			croset.constructorArg(posn, crokeys, "init");
+			croset.addConstructor(new RWObjectMethod(Type.function(posn, list.instance(posn, any)), FunctionName.objectMethod(posn, croset, "from")));
+//			croset.constructorArg(posn, crokeys, "init");
 			
 			// These are actually accessors ...
 			croset.addMethod(new RWObjectMethod(Type.function(posn, string, varA), FunctionName.objectMethod(posn, croset, "item")));
