@@ -31,6 +31,7 @@ import org.flasck.flas.rewrittenForm.RWEventHandler;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -142,15 +143,26 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		bcc.superclass(base); // Do we need something special for a FLASObjectObject?
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
+			PendingVar cx = gen.argument(J.OBJECT, "cx");
+			PendingVar state = gen.argument(J.OBJECT, "state");
 			NewMethodDefiner ctor = gen.done();
 			ctor.setAccess(Access.PRIVATE);
-			IExpr[] args = new IExpr[0];
+			IExpr[] args = new IExpr[] { cx.getVar(), state.getVar() };
 			ctor.callSuper("void", base, "<init>", args).flush();
 			ctor.returnVoid().flush();
 		}
 		if (od.state != null) {
 			// amazingly, it seems like we might not have to do anything
 			// just delegate to the base class to handle in getVar using CardMember things
+		}
+		for (RWObjectMethod c : od.ctors) {
+			System.out.println("c = " + c);
+			String name = "ctor_" + c.name.name;
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "ctor");
+			gen.returns(J.OBJECT);
+			MethodDefiner ctor = gen.done();
+			
+			ByteCodeSink ictor = bce.newClass(bcc.getCreatedName()+"$" + name);
 		}
 	}
 

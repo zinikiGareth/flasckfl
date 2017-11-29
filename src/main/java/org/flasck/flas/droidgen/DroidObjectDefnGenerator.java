@@ -8,6 +8,8 @@ import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
 import org.zinutils.exceptions.NotImplementedException;
 
+// So this would be the code to call an object ctor, if we did it in the
+// same way we do structs
 public class DroidObjectDefnGenerator implements ObjectDefnGenerator<IExpr> {
 	private final IMethodGenerationContext cxt;
 
