@@ -1,15 +1,13 @@
 package org.flasck.flas.droidgen;
 
 import org.flasck.flas.generators.ObjectDefnGenerator;
+import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.zinutils.bytecode.IExpr;
 import org.zinutils.bytecode.MethodDefiner;
-import org.zinutils.exceptions.NotImplementedException;
 
-// So this would be the code to call an object ctor, if we did it in the
-// same way we do structs
 public class DroidObjectDefnGenerator implements ObjectDefnGenerator<IExpr> {
 	private final IMethodGenerationContext cxt;
 
@@ -19,13 +17,10 @@ public class DroidObjectDefnGenerator implements ObjectDefnGenerator<IExpr> {
 
 	@Override
 	public void generate(RWObjectDefn od, OutputHandler<IExpr> handler, ClosureGenerator closure) {
+		// This is the step in which we call the (private) constructor on an object given an
+		// expression which is the state
 		MethodDefiner meth = cxt.getMethod();
 		String clz = od.getName().javaClassName();
-		throw new NotImplementedException("cannot generate object ctor for " + clz + " " + meth);
-		// creating an object is just like calling a static function
-//		if (od.ctorArgs.isEmpty())
-//			cxt.doEval(ObjectNeeded.NONE, meth.callStatic(clz, J.OBJECT, "eval", cxt.getCxtArg(), meth.arrayOf(J.OBJECT, new ArrayList<>())), closure, handler);
-//		else
-//			cxt.doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
+		cxt.doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
 	}
 }

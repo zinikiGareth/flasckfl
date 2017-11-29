@@ -24,6 +24,7 @@ import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.CreateObject;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.IterVar;
@@ -33,9 +34,9 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
+import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
-import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -319,6 +320,17 @@ public class GenerateClosures {
 		return conv;
 	}
 	
+	public LocatedObject process(CreateObject co) {
+		LocatedObject conv = dispatch(co.expr);
+		VarInSource cv = (VarInSource) conv.obj;
+		
+		// This isn't strictly a scoping closure, but it has similar semantics
+		ClosureCmd ret = form.createScopingClosure(co.location());
+		ret.push(conv.loc, rw.getMe(conv.loc, co.name), null);
+		ret.push(conv.loc, cv, null);
+		ret.depends.add(cv);
+		return new LocatedObject(ret.location, new VarInSource(ret.var, ret.location, "clos" + ret.var.idx));
+	}
 
 	private Object asList(InputPosition loc, List<Object> args) {
 		Object ret = rw.getMe(loc, new SolidName(null, "Nil"));

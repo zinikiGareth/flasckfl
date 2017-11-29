@@ -357,7 +357,6 @@ public class FLASStory {
 				ObjectMember omm = (ObjectMember) om;
 				switch (omm.type) {
 				case ObjectMember.CTOR: {
-					System.out.println(omm.what);
 					if (omm.what instanceof MethodCaseDefn) {
 						MethodCaseDefn mcd = (MethodCaseDefn) omm.what;
 						mcd.provideCaseName(od.caseFor(mcd.intro.name().name));

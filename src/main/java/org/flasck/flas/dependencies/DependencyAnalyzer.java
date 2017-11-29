@@ -19,6 +19,7 @@ import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.CreateObject;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -143,6 +144,8 @@ public class DependencyAnalyzer {
 			SendExpr dse = (SendExpr) expr;
 			analyzeExpr(name, locals, dse.sender);
 			analyzeExpr(name, locals, dse.args);
+		} else if (expr instanceof CreateObject) {
+			analyzeExpr(name, locals, ((CreateObject)expr).expr);
 		} else
 			throw new UtilException("Unhandled expr: " + expr + " of class " + expr.getClass() + " at " + ((Locatable)expr).location());
 	}

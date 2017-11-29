@@ -8,6 +8,7 @@ import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
+import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.FunctionType;
@@ -88,6 +89,8 @@ public class ApplyCurry {
 				if (ex instanceof CardMember)
 					continue;
 				if (ex instanceof ScopedVar)
+					continue;
+				if (ex instanceof PackageVar && ((PackageVar)ex).defn instanceof RWObjectDefn)
 					continue;
 				if (c instanceof ClosureCmd) {
 					ClosureCmd cc = (ClosureCmd) c;

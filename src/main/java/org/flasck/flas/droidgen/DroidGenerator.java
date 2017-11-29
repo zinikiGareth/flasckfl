@@ -31,7 +31,6 @@ import org.flasck.flas.rewrittenForm.RWEventHandler;
 import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
-import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -154,15 +153,6 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		if (od.state != null) {
 			// amazingly, it seems like we might not have to do anything
 			// just delegate to the base class to handle in getVar using CardMember things
-		}
-		for (RWObjectMethod c : od.ctors) {
-			System.out.println("c = " + c);
-			String name = "ctor_" + c.name.name;
-			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, true, "ctor");
-			gen.returns(J.OBJECT);
-			MethodDefiner ctor = gen.done();
-			
-			ByteCodeSink ictor = bce.newClass(bcc.getCreatedName()+"$" + name);
 		}
 	}
 

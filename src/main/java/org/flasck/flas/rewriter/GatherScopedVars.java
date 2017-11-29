@@ -13,6 +13,7 @@ import org.flasck.flas.rewrittenForm.AssertTypeExpr;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
+import org.flasck.flas.rewrittenForm.CreateObject;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
@@ -103,6 +104,10 @@ public class GatherScopedVars {
 	}
 	
 	public void process(HandlerLambda hl) {
+	}
+	
+	public void process(CreateObject co) {
+		dispatch(co.expr);
 	}
 	
 	public void process(ScopedVar sv) {

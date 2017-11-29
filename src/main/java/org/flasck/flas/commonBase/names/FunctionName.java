@@ -82,6 +82,10 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.OBJECT, od.getName(), name);
 	}
 
+	public static FunctionName objectCtor(InputPosition location, RWObjectDefn rw, String name) {
+		return new FunctionName(location, CodeType.OCTOR, rw.getName(), "ctor_" + name);
+	}
+
 	public CardName containingCard() {
 		if (inContext == null)
 			return null;

@@ -143,8 +143,8 @@ public class GoldenJVM {
 	}
 	
 	@Test
-	public void checkTrackerInitCnt() throws Exception {
-		compare("Tracker$inits_cnt");
+	public void checkTrackerSimpleCtor() throws Exception {
+		compare("Tracker$ctor_simple");
 	}
 	
 	@Test

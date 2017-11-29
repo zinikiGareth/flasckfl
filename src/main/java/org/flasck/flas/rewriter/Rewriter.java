@@ -97,6 +97,7 @@ import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.HandlerGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ServiceGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
+import org.flasck.flas.rewrittenForm.CreateObject;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.FunctionLiteral;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
@@ -949,14 +950,31 @@ public class Rewriter implements CodeGenRegistry {
 	private void rewriteObject(NamingContext cx, ObjectDefn od) {
 		RWObjectDefn rw = objects.get(od.name().uniqueName());
 		RWStructDefn rwsd = rw.state;
+		Object ret = cx.resolve(od.location(), "NilMap");
+		final ObjectContext ox = new ObjectContext(cx, od, rw.polys());
 		if (od.state != null) {
 			for (StructField sf : od.state.fields) {
-				rewriteField(new ObjectContext(cx, od, rw.polys()), rwsd, sf);
+				Type st = rewrite(ox, sf.type, false);
+				rwsd.addField(new RWStructField(sf.loc, false, st, sf.name, null));
+				if (sf.init != null) {
+					InputPosition loc = ((Locatable)sf.init).location();
+					Object rx = rewriteExpr(ox, sf.init);
+					rx = new AssertTypeExpr(loc, (TypeWithName) st, rx);
+					PackageVar assoc = (PackageVar) cx.resolve(loc, "Assoc");
+					ret = new ApplyExpr(loc, assoc, new StringLiteral(sf.location(), sf.name), rx, ret);
+				}
 			}
 		}
-		ObjectContext oc = new ObjectContext(cx, od, rw.polys());
+		for (ObjectMethod c : od.ctors) {
+			FunctionName fnName = FunctionName.objectCtor(od.location(), rw, c.getMethod().methodName().name);
+			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
+			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(fnName.location, fnName, new ArrayList<>(), null), 0, new CreateObject(fnName.location, od.name(), ret));
+			fn.addCase(fcd0);
+			fn.gatherScopedVars();
+			functions.put(fn.uniqueName(), fn);
+		}
 		for (ObjectMethod m : od.methods)
-			rewriteCase(oc, rw.getMethod(m.getMethod().methodName()), m.getMethod(), false, true);
+			rewriteCase(ox, rw.getMethod(m.getMethod().methodName()), m.getMethod(), false, true);
 	}
 
 	private RWTemplate rewrite(TemplateContext cx, Template template) {
