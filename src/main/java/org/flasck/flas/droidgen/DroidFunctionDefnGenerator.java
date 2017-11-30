@@ -31,7 +31,11 @@ public class DroidFunctionDefnGenerator implements FunctionDefnGenerator<IExpr> 
 	}
 
 	public void push(RWFunctionDefinition fn, OutputHandler<IExpr> handler) {
-		handler.result(cxt.getMethod().classConst(fn.getName().javaClassName()));
+		if (fn.nargs == 0) { // invoke it as a function using eval
+			handler.result(cxt.getMethod().callStatic(fn.getName().javaClassName(), J.OBJECT, "eval", cxt.getCxtArg(), cxt.getMethod().arrayOf(J.OBJECT, new ArrayList<>())));
+		} else {
+			handler.result(cxt.getMethod().classConst(fn.getName().javaClassName()));
+		}
 	}
 
 }

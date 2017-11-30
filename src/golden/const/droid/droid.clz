@@ -22,8 +22,8 @@ class PACKAGEFUNCTIONS.java {
     return
   }
   static java.lang.Object dbl(java.lang.Object _context) {
-    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
-        autobox[test.golden.PACKAGEFUNCTIONS$x.class]
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$mul.class, new java.lang.Object[2] {
+        autobox[test.golden.PACKAGEFUNCTIONS$x.eval(_context, new java.lang.Object[0] {})]
         autobox[org.flasck.jvm.builtin.FLNumber.fromInt(2)]
       })
   }
