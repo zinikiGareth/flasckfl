@@ -3,7 +3,7 @@
 		down update (Crokeys crokeys)
 		
 	f = []
-		s = Croset []
+		s = Croset.from []
 		
 		handler KVH KVHImpl
 			update crokeys

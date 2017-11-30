@@ -19,5 +19,8 @@ function test.golden.f_0.s 0
   case test.golden.f_0.s_0
   =
     @
-      PackageVar.Croset
+      @
+        octor
+        PackageVar.Croset
+        "from"
       PackageVar.Nil

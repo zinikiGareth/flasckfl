@@ -1,0 +1,11 @@
+function test.golden.WithMethod.highTime test.golden.WithMethod 0
+  case test.golden.WithMethod.highTime_0
+  =
+    @
+      PackageVar.Cons
+      @
+        PackageVar.Assign
+        ?? class org.flasck.flas.rewrittenForm.CardStateRef:this
+        "x"
+        ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Number 420)
+      PackageVar.Nil

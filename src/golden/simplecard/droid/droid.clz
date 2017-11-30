@@ -47,9 +47,21 @@ class Simple$inits_hello.java {
 class Simple.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
-    this.setVar("hello", org.flasck.jvm.fl.FLClosure.simple(test.golden.Simple$inits_hello.class))
     super.ready()
     return
+  }
+  java.lang.Object init(java.lang.Object cx) {
+    v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
+this
+"hello"
+        org.flasck.jvm.fl.FLClosure.obj(this, test.golden.Simple$inits_hello.class, new java.lang.Object[0] {})
+
+      })
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+v0
+        org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
+
+      })
   }
   void render(java.lang.Object cxt, java.lang.String into) {
     (void)new test.golden.Simple$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))

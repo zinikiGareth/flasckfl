@@ -282,9 +282,21 @@ class TestCard$rejig.java {
 class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
-    this.setVar("data", org.flasck.jvm.fl.FLClosure.simple(test.golden.TestCard$inits_data.class))
     super.ready()
     return
+  }
+  java.lang.Object init(java.lang.Object cx) {
+    v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
+this
+"data"
+        org.flasck.jvm.fl.FLClosure.obj(this, test.golden.TestCard$inits_data.class, new java.lang.Object[0] {})
+
+      })
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+v0
+        org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
+
+      })
   }
   void render(java.lang.Object cxt, java.lang.String into) {
     (void)new test.golden.TestCard$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
@@ -540,7 +552,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[_0]
               autobox["idx"]
             })
-          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$mul.class, new java.lang.Object[2] {
               autobox[org.flasck.jvm.builtin.FLNumber.fromInt(22)]
               autobox[v1]
             })
@@ -565,7 +577,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[_0]
               autobox["data"]
             })
-          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$mul.class, new java.lang.Object[2] {
               autobox[org.flasck.jvm.builtin.FLNumber.fromInt(10)]
               autobox[v1]
             })
@@ -597,7 +609,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[_0]
               autobox["data"]
             })
-          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$mul.class, new java.lang.Object[2] {
               autobox[org.flasck.jvm.builtin.FLNumber.fromInt(10)]
               autobox[v1]
             })
@@ -630,7 +642,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[_0]
               autobox["idx"]
             })
-          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$mul.class, new java.lang.Object[2] {
               autobox[org.flasck.jvm.builtin.FLNumber.fromInt(22)]
               autobox[v1]
             })
@@ -651,7 +663,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[_0]
               autobox["data"]
             })
-          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$mul.class, new java.lang.Object[2] {
               autobox[org.flasck.jvm.builtin.FLNumber.fromInt(10)]
               autobox[v1]
             })
@@ -712,7 +724,7 @@ class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
               autobox[_0]
               autobox["data"]
             })
-          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$mul.class, new java.lang.Object[2] {
               autobox[org.flasck.jvm.builtin.FLNumber.fromInt(10)]
               autobox[v1]
             })

@@ -37,12 +37,16 @@ CLOSURE v4                                                   #scoping3.fl:  9.3
   PUSH PackageVar.Nil                                        #scoping3.fl:  8.0
 -------
 HSIE for test.golden.f_0.set/0                               #scoping3.fl:  5.0
-#Args: 0 #bound: 1
+#Args: 0 #bound: 2
     externals: [Croset, Nil]
     scoped = []
     scopedDefns = []
-    all vars = [v0]
-RETURN v0:clos0 []                                           #scoping3.fl:  5.6
+    all vars = [v0, v1]
+RETURN v1:clos1 [v0:clos0]                                   #scoping3.fl:  5.6
+CLOSURE v1                                                   #scoping3.fl:  5.6
+  PUSH v0:clos0                                              #scoping3.fl:  5.6
+  PUSH PackageVar.Nil                                        #scoping3.fl:  5.18
 CLOSURE v0                                                   #scoping3.fl:  5.6
+  OCTOR                                                      #scoping3.fl:  5.6
   PUSH PackageVar.Croset                                     #scoping3.fl:  5.6
-  PUSH PackageVar.Nil                                        #scoping3.fl:  5.13
+  PUSH "from"                                                #scoping3.fl:  5.13

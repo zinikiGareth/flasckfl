@@ -85,8 +85,11 @@ class PACKAGEFUNCTIONS.java {
     return
   }
   static java.lang.Object s(java.lang.Object _context) {
-    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Croset.class, new java.lang.Object[1] {
-        autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
-      })
+    {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(Croset$ctor_from.class, new java.lang.Object[0] {})
+      return org.flasck.jvm.fl.FLClosure.simple(v0, new java.lang.Object[1] {
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
+        })
+    }
   }
 }

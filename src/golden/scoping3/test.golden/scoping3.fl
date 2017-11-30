@@ -2,7 +2,7 @@
 		down update (Any obj)
 
 	f = set
-		set = Croset Nil
+		set = Croset.from Nil
 
 		handler KVUpdate ItemHandler ck
 			update obj

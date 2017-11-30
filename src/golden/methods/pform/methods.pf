@@ -8,9 +8,12 @@ package test.golden
     Nil @{5:4|[]}
     test.golden.f_0.s @{6:0|s}
      =
-      <apply> @{6:4|Croset []}
-        Croset @{6:4|Croset}
-        Nil @{6:11|[]}
+      <apply> @{6:4|Croset.from []}
+        <apply> @{6:4|Croset.from}
+          . @{6:10|.}
+          Croset @{6:4|Croset}
+          from @{6:11|from}
+        Nil @{6:16|[]}
     handler KVH test.golden.f_0.KVHImpl (free) @{8:0|handler} @{8:8|KVH} @{8:12|KVHImpl}
       method test.golden.f_0.KVHImpl.update @{9:0|update}
         [var] crokeys @{9:7|crokeys}

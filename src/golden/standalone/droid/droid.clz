@@ -79,6 +79,9 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
+  java.lang.Object init(java.lang.Object cx) {
+    return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
+  }
   java.lang.Object request(java.lang.Object _context, java.lang.Object _0) {
     {
       _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)

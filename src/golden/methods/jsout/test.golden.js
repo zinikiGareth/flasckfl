@@ -52,7 +52,8 @@ test.golden.f_0._KVHImpl.prototype.update = function(v0) {
 
 test.golden.f_0.s = function() {
   "use strict";
-  return FLEval.closure(Croset, Nil);
+  var v0 = FLEval.closure(FLEval.octor, Croset, 'from');
+  return FLEval.closure(v0, Nil);
 }
 
 test.golden;

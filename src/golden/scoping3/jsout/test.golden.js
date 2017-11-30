@@ -54,7 +54,8 @@ test.golden.f_0._ItemHandler.prototype.update = function(v0) {
 
 test.golden.f_0.set = function() {
   "use strict";
-  return FLEval.closure(Croset, Nil);
+  var v0 = FLEval.closure(FLEval.octor, Croset, 'from');
+  return FLEval.closure(v0, Nil);
 }
 
 test.golden;

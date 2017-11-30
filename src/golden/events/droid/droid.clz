@@ -101,6 +101,9 @@ class Events.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
+  java.lang.Object init(java.lang.Object cx) {
+    return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
+  }
   void render(java.lang.Object cxt, java.lang.String into) {
     (void)new test.golden.Events$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
     return

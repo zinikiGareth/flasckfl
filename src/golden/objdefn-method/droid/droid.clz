@@ -1,6 +1,19 @@
 class WithMethod.java extends org.flasck.jvm.objects.FlasckObject {
-  void <init>() {
-    super.<init>()
+  void <init>(java.lang.Object cx, java.lang.Object state) {
+    super.<init>(cx, state)
     return
+  }
+  java.lang.Object highTime(java.lang.Object _context) {
+    {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
+          autobox[this]
+          autobox["x"]
+          autobox[org.flasck.jvm.builtin.FLNumber.fromInt(420)]
+        })
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+          autobox[v0]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
+        })
+    }
   }
 }

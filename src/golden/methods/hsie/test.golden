@@ -31,12 +31,16 @@ CLOSURE v3                                                   #methods.fl:  10.3
   PUSH PackageVar.Nil                                        #methods.fl:   9.0
 -------
 HSIE for test.golden.f_0.s/0                                 #methods.fl:   6.0
-#Args: 0 #bound: 1
+#Args: 0 #bound: 2
     externals: [Croset, Nil]
     scoped = []
     scopedDefns = []
-    all vars = [v0]
-RETURN v0:clos0 []                                           #methods.fl:   6.4
+    all vars = [v0, v1]
+RETURN v1:clos1 [v0:clos0]                                   #methods.fl:   6.4
+CLOSURE v1                                                   #methods.fl:   6.4
+  PUSH v0:clos0                                              #methods.fl:   6.4
+  PUSH PackageVar.Nil                                        #methods.fl:   6.16
 CLOSURE v0                                                   #methods.fl:   6.4
+  OCTOR                                                      #methods.fl:   6.4
   PUSH PackageVar.Croset                                     #methods.fl:   6.4
-  PUSH PackageVar.Nil                                        #methods.fl:   6.11
+  PUSH "from"                                                #methods.fl:   6.11

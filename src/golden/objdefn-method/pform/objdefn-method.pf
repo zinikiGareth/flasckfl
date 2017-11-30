@@ -1,5 +1,5 @@
 package test.golden
   object test.golden.WithMethod @{1:0|object} @{1:7|WithMethod}
-    method test.golden.highTime_0 @{5:7|highTime}
+    method test.golden.WithMethod.highTime_0 @{5:7|highTime}
       assign x <- @{6:0|x} @{6:2|<-}
         # 420 @{6:5|420}

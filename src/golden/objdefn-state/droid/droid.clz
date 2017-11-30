@@ -19,8 +19,8 @@ class Entity.java extends org.flasck.jvm.fl.FLASEntity {
   }
 }
 class WithState.java extends org.flasck.jvm.objects.FlasckObject {
-  void <init>() {
-    super.<init>()
+  void <init>(java.lang.Object cx, java.lang.Object state) {
+    super.<init>(cx, state)
     return
   }
 }

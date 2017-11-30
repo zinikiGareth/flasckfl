@@ -8,9 +8,12 @@ package test.golden
     set @{4:4|set}
     test.golden.f_0.set @{5:0|set}
      =
-      <apply> @{5:6|Croset Nil}
-        Croset @{5:6|Croset}
-        Nil @{5:13|Nil}
+      <apply> @{5:6|Croset.from Nil}
+        <apply> @{5:6|Croset.from}
+          . @{5:12|.}
+          Croset @{5:6|Croset}
+          from @{5:13|from}
+        Nil @{5:18|Nil}
     handler KVUpdate test.golden.f_0.ItemHandler (free) @{7:0|handler} @{7:8|KVUpdate} @{7:17|ItemHandler}
       [var] ck @{7:29|ck}
       method test.golden.f_0.ItemHandler.update @{8:0|update}

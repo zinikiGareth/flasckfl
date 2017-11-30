@@ -13,6 +13,9 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
     super.ready()
     return
   }
+  java.lang.Object init(java.lang.Object cx) {
+    return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
+  }
   java.lang.Object doit(java.lang.Object _context) {
     {
       v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {

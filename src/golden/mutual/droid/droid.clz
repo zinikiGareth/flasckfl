@@ -38,7 +38,7 @@ class PACKAGEFUNCTIONS.java {
     return
   }
   static java.lang.Object g(java.lang.Object _context, java.lang.Object _s0, java.lang.Object _0) {
-    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$*.class, new java.lang.Object[2] {
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$mul.class, new java.lang.Object[2] {
         autobox[_s0]
         autobox[_0]
       })
