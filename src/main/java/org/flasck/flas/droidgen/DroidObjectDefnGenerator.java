@@ -23,4 +23,11 @@ public class DroidObjectDefnGenerator implements ObjectDefnGenerator<IExpr> {
 		String clz = od.getName().javaClassName();
 		cxt.doEval(ObjectNeeded.NONE, meth.classConst(clz), closure, handler);
 	}
+
+	@Override
+	public void push(RWObjectDefn od, OutputHandler<IExpr> handler) {
+		MethodDefiner meth = cxt.getMethod();
+		String clz = od.getName().javaClassName();
+		handler.result(meth.classConst(clz));
+	}
 }

@@ -7,6 +7,7 @@ import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.ObjectReference;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
+import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -63,6 +64,8 @@ public final class PushArgumentTraverser<T> implements PushVisitor<T> {
 			cxt.generateStructDefn().push((RWStructDefn)defn, handler);
 		else if (defn instanceof RWFunctionDefinition)
 			cxt.generateFunctionDefn().push((RWFunctionDefinition)defn, handler);
+		else if (defn instanceof RWObjectDefn)
+			cxt.generateObjectDefn().push((RWObjectDefn)defn, handler);
 		else
 			throw new RuntimeException("Cannot push external with " + defn.getClass());
 	}

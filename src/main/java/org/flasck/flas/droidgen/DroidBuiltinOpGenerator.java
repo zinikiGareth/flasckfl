@@ -1,14 +1,19 @@
 package org.flasck.flas.droidgen;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.generators.BuiltinOpGenerator;
 import org.flasck.flas.hsie.ObjectNeeded;
+import org.flasck.flas.rewrittenForm.ExternalRef;
+import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;
 import org.flasck.flas.vcode.hsieForm.PushBuiltin;
+import org.flasck.flas.vcode.hsieForm.PushExternal;
 import org.flasck.flas.vcode.hsieForm.PushReturn;
+import org.flasck.flas.vcode.hsieForm.PushString;
 import org.flasck.flas.vcode.hsieForm.PushVisitor;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.IExpr;
@@ -39,7 +44,12 @@ public class DroidBuiltinOpGenerator implements BuiltinOpGenerator<IExpr> {
 			((PushReturn)closure.nestedCommands().get(2)).visit(dpa, oh);
 			handler.result(meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(meth.classConst(J.FLFIELD), J.OBJECT), meth.arrayOf(J.OBJECT, al)));
 		} else if (defn.isOctor()) {
-			// TODO
+			// I believe we are guaranteed that this is always a "currying closure"
+			// so we just need to return the class ...
+			PackageVar ctr = (PackageVar) ((PushExternal) closure.nestedCommands().get(1)).fn;
+			PushString ctorName = (PushString)closure.nestedCommands().get(2);
+			String clz = ctr.id + "$ctor_" + ctorName.sval.text;
+			handler.result(meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(meth.classConst(clz), J.OBJECT), meth.arrayOf(J.OBJECT, new ArrayList<>())));
 		} else 
 			throw new RuntimeException("not handled " + defn);
 	}

@@ -270,6 +270,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 		for (HandlerGrouping h : grp.handlers) {
 			bcc.addInnerClassReference(Access.PUBLICSTATIC, bcc.getCreatedName(), h.impl.handlerName.baseName);
 		}
+		// generate the ctor
 		{
 			GenericAnnotator gen = GenericAnnotator.newConstructor(bcc, false);
 			PendingVar despatcher = gen.argument(J.CARD_DESPATCHER, "despatcher");
@@ -285,15 +286,34 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				}
 				ctor.callVirtual("void", ctor.myThis(), "registerContract", ctor.stringConst(x.contractName.uniqueName()), ctor.as(impl, J.CONTRACT_IMPL)).flush();
 			}
-			for (int i=0;i<grp.struct.fields.size();i++) {
-				RWStructField fld = grp.struct.fields.get(i);
-				if (fld.name.equals("id"))
-					continue;
-				if (fld.init != null)
-					ctor.callVirtual("void", ctor.myThis(), "setVar", ctor.stringConst(fld.name), ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", ctor.classConst(fld.init.javaNameAsNestedClass()))).flush();
-			}
+			// TODO: I think this should be moved into central dispatch AFTER we call init()
 			ctor.callSuper("void", J.FLASCK_CARD, "ready").flush();
 			ctor.returnVoid().flush();
+		}
+		// generate the "init" method with a context
+		{
+			GenericAnnotator gen = GenericAnnotator.newMethod(bcc, false, "init");
+			PendingVar cx = gen.argument(J.OBJECT, "cx");
+			gen.returns(J.OBJECT);
+			NewMethodDefiner init = gen.done();
+			IExpr ret = init.callStatic(J.NIL, J.OBJECT, "eval", cx.getVar(), init.arrayOf(J.OBJECT, new ArrayList<>()));
+			for (int i=0;i<grp.struct.fields.size();i++) {
+				RWStructField fld = grp.struct.fields.get(i);
+				if (fld.name.equals("id") || fld.init == null)
+					continue;
+				Var v0 = init.avar(J.OBJECT, "v" + i);
+				List<IExpr> al = new ArrayList<>();
+				al.add(init.myThis());
+				al.add(init.stringConst(fld.name));
+				al.add(init.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", init.as(init.myThis(), J.OBJECT), init.as(init.classConst(bcc.getCreatedName() + "$inits_" +fld.name), J.OBJECT), init.arrayOf(J.OBJECT,  new ArrayList<>())));
+				IExpr a0 = init.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", init.as(init.classConst(J.ASSIGN), J.OBJECT), init.arrayOf(J.OBJECT, al));
+				init.assign(v0, a0).flush();
+				List<IExpr> cl = new ArrayList<>();
+				cl.add(v0);
+				cl.add(ret);
+				ret = init.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", init.as(init.classConst(J.CONS), J.OBJECT), init.arrayOf(J.OBJECT, cl));
+			}
+			init.returnObject(ret).flush();
 		}
 		for (RWEventHandler action : grp.areaActions)
 			visitEventConnector(action);
