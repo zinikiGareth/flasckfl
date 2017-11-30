@@ -52,7 +52,7 @@ public class TemplateName implements NameOfThing, Comparable<TemplateName> {
 	}
 	
 	@Override
-	public CardName containingCard() {
+	public NameOfThing containingCard() {
 		return cardName;
 	}
 	

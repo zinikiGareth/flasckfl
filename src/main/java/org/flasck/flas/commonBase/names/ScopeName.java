@@ -12,7 +12,7 @@ public class ScopeName implements NameOfThing, Comparable<ScopeName> {
 	}
 
 	@Override
-	public CardName containingCard() {
+	public NameOfThing containingCard() {
 		return inside.containingCard();
 	}
 

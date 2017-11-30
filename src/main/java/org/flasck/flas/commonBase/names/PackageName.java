@@ -11,7 +11,7 @@ public class PackageName implements NameOfThing, Comparable<PackageName> {
 	}
 	
 	@Override
-	public CardName containingCard() {
+	public NameOfThing containingCard() {
 		return null;
 	}
 	

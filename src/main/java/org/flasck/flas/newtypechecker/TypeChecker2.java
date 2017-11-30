@@ -330,7 +330,7 @@ public class TypeChecker2 {
 					for (TypeInfo ti : mas) {
 						if (!(ti instanceof TypeVar)) {
 							if (hard != null)
-								throw new UtilException("Need to handle recursive case or something");
+								logger.warn("Need to handle case where we have two different types that may or may not unify: " + hard + " " +ti);
 							else
 								hard = ti;
 							continue;
@@ -532,9 +532,7 @@ public class TypeChecker2 {
 					return;
 				}
 				
-				// TODO: we should consider this to be a function with arguments and check them
-				Type ret = om.type.arg(om.type.arity());
-				constraints.add(c.var, convertType(ret));
+				constraints.add(c.var, convertType(om.type));
 			} else if (pb.isTuple()) {
 				constraints.add(c.var, new TupleInfo(cmd.location, argtypes));
 				return;

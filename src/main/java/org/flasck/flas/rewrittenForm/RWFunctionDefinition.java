@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.commonBase.names.NamedThing;
@@ -20,7 +19,7 @@ public class RWFunctionDefinition implements NamedThing, Comparable<RWFunctionDe
 	public final CodeType mytype;
 	public final FunctionName fnName;
 	public final int nargs;
-	public final CardName inCard;
+	public final NameOfThing inCard;
 	public final List<RWFunctionCaseDefn> cases = new ArrayList<>();
 	public final boolean generate;
 	private Type type;
@@ -44,7 +43,7 @@ public class RWFunctionDefinition implements NamedThing, Comparable<RWFunctionDe
 		return location;
 	}
 
-	public CardName inCard() {
+	public NameOfThing inCard() {
 		return fnName.containingCard();
 	}
 	

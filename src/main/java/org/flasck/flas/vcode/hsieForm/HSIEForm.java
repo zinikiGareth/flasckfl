@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.NameOfThing;
 import org.flasck.flas.generators.AreaMethodCodeGenerator;
 import org.flasck.flas.generators.CardMethodCodeGenerator;
 import org.flasck.flas.generators.CodeGenerator;
@@ -161,7 +161,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 		public abstract <T> CodeGenerator<T> generator();
 	}
 
-	public final CardName inCard;
+	public final NameOfThing inCard;
 	public final FunctionName funcName;
 	public final int nformal;
 	public final CodeType mytype;
@@ -179,7 +179,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	public final Set<ScopedVar> scoped = new TreeSet<ScopedVar>();
 	public final SetMap<VarInSource, Type> varConstraints = new SetMap<>();
 
-	public HSIEForm(InputPosition nameLoc, FunctionName name, int nformal, CodeType mytype, CardName inCard, VarFactory vf) {
+	public HSIEForm(InputPosition nameLoc, FunctionName name, int nformal, CodeType mytype, NameOfThing inCard, VarFactory vf) {
 		super(nameLoc);
 		this.inCard = inCard;
 		this.vf = vf;
@@ -324,7 +324,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	// This is supposed to determine if the card is found by using "this"
 	public boolean isCardMethod() {
-		return mytype == CodeType.CARD || mytype == CodeType.EVENTHANDLER;
+		return mytype == CodeType.CARD || mytype == CodeType.EVENTHANDLER || mytype == CodeType.OBJECT;
 	}
 	
 	// This is supposed to determine if the card is found by using "this._card"

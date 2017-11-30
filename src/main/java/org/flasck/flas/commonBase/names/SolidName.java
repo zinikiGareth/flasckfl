@@ -57,7 +57,7 @@ public class SolidName implements NameOfThing, Comparable<SolidName> {
 	}
 
 	@Override
-	public CardName containingCard() {
+	public NameOfThing containingCard() {
 		return container.containingCard();
 	}
 

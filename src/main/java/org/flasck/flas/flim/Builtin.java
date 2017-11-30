@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.BooleanLiteral;
 import org.flasck.flas.commonBase.names.FunctionName;
+import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
@@ -109,7 +110,7 @@ public class Builtin {
 			d3.addField(new RWStructField(posn, false, number, "idx"));
 		}
 		{
-			RWObjectDefn card = new RWObjectDefn(posn, new SolidName(null, "Card"), false);
+			RWObjectDefn card = new RWObjectDefn(posn, new ObjectName(null, "Card"), false);
 			root.define("Card", card);
 //			card.constructorArg(posn, string, "explicit");
 //			card.constructorArg(posn, string, "loadId");
@@ -176,22 +177,22 @@ public class Builtin {
 			crokeys.addField(new RWStructField(posn, false, string, "keytype"));
 			crokeys.addField(new RWStructField(posn, false, list.instance(posn,  crokey), "keys"));
 
-			RWObjectDefn croset = new RWObjectDefn(posn, new SolidName(null, "Croset"), false, varA);
+			RWObjectDefn croset = new RWObjectDefn(posn, new ObjectName(null, "Croset"), false, varA);
 			root.define("Croset", croset);
-			croset.addConstructor(new RWObjectMethod(Type.function(posn, list.instance(posn, any)), FunctionName.objectMethod(posn, croset, "from")));
+			croset.addConstructor(new RWObjectMethod(Type.function(posn, list.instance(posn, any), croset), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "ctor_from")));
 //			croset.constructorArg(posn, crokeys, "init");
 			
 			// These are actually accessors ...
-			croset.addMethod(new RWObjectMethod(Type.function(posn, string, varA), FunctionName.objectMethod(posn, croset, "item")));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, any, varA), FunctionName.objectMethod(posn, croset, "member"))); // crokey, natural crokey or string as input
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, varA), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "item")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, any, varA), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "member"))); // crokey, natural crokey or string as input
 
 			// These are real methods
-			croset.addMethod(new RWObjectMethod(Type.function(posn, any, send), FunctionName.objectMethod(posn, croset, "put")));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, list.instance(posn,  any), send), FunctionName.objectMethod(posn, croset, "mergeAppend")));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, string, send), FunctionName.objectMethod(posn, croset, "delete")));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, crokeys, send), FunctionName.objectMethod(posn, croset, "deleteSet")));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, string, any, send), FunctionName.objectMethod(posn, croset, "insert")));
-			croset.addMethod(new RWObjectMethod(Type.function(posn, send), FunctionName.objectMethod(posn, croset, "clear")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, any, send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "put")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, list.instance(posn,  any), send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "mergeAppend")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "delete")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, crokeys, send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "deleteSet")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, string, any, send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "insert")));
+			croset.addMethod(new RWObjectMethod(Type.function(posn, send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "clear")));
 		}
 		return root;
 	}

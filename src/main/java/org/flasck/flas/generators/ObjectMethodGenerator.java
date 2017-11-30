@@ -7,10 +7,9 @@ public class ObjectMethodGenerator<T> implements CodeGenerator<T> {
 	@Override
 	public void begin(GenerationContext<T> cxt) {
 		NameOfThing clzContext = cxt.nameContext();
-		final String inClz = clzContext.javaPackageName();
+		final String inClz = clzContext.javaName();
 		cxt.selectClass(inClz);
 		cxt.instanceMethod();
-		cxt.trampolineWithSelf(inClz);
 	}
 
 }

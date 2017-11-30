@@ -13,7 +13,7 @@ import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NamedThing;
 import org.flasck.flas.commonBase.names.SolidName;
 
-public class CardGrouping implements NamedThing {
+public class CardGrouping implements NamedThing, ObjectWithState {
 	public static class ContractGrouping {
 		public final CSName implName;
 		public final String referAsVar;
@@ -74,5 +74,10 @@ public class CardGrouping implements NamedThing {
 
 	public CardName name() {
 		return cardName;
+	}
+
+	@Override
+	public RWStructDefn getState() {
+		return struct;
 	}
 }

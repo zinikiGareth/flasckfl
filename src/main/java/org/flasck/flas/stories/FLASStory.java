@@ -16,6 +16,7 @@ import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.HandlerName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.TemplateName;
@@ -141,6 +142,10 @@ public class FLASStory {
 			return new SolidName(pkgName, text);
 		}
 		
+		public ObjectName objectName(String text) {
+			return new ObjectName(pkgName, text);
+		}
+		
 		public HandlerName handlerName(String text) {
 			return new HandlerName(pkgName, text);
 		}
@@ -162,6 +167,10 @@ public class FLASStory {
 				return FunctionName.functionInHandlerContext(vit.location, pkgName, vit.text);
 			else if (kind == CodeType.EVENTHANDLER)
 				return FunctionName.eventMethod(vit.location, (CardName) pkgName, vit.text);
+			else if (kind == CodeType.OCTOR)
+				return FunctionName.objectCtor(vit.location, (ObjectName)pkgName, vit.text);
+			else if (kind == CodeType.OBJECT)
+				return FunctionName.objectMethod(vit.location, (ObjectName)pkgName, vit.text);
 			else
 				throw new UtilException("Cannot handle method of type " + kind);
 		}
@@ -341,6 +350,7 @@ public class FLASStory {
 	}
 
 	private void doObjectMembers(ErrorReporter er, State s, ObjectDefn od, List<Block> nested) {
+		s = s.nest(null, od.name(), CodeType.OBJECT);
 		ObjectMemberParser omp = new ObjectMemberParser(s);
 		FunctionParser fp = new FunctionParser(s);
 		for (Block b : nested) {

@@ -8,6 +8,7 @@ import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.CardName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.ObjectName;
 import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.names.VarName;
@@ -79,7 +80,7 @@ public class PackageImporter {
 			} else if (xe.hasTag("Object")) {
 				List<PolyVar> polys = new ArrayList<>();
 				String baseName = xe.required("name");
-				RWObjectDefn od = new RWObjectDefn(location(xe), new SolidName(packageName, baseName), false, polys);
+				RWObjectDefn od = new RWObjectDefn(location(xe), new ObjectName(packageName, baseName), false, polys);
 				xe.attributesDone();
 				pkg.define(od.name(), od);
 				todos.add(new Pass2(od, xe));

@@ -16,12 +16,12 @@ import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.AssertTypeExpr;
-import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.CardStateRef;
 import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.LocalVar;
+import org.flasck.flas.rewrittenForm.ObjectWithState;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractImplements;
@@ -92,10 +92,12 @@ public class MethodConvertor {
 		logger.info("Converting " + (m.dir == RWMethodDefinition.DOWN?"down":"up") + " " + m.name().uniqueName());
 		// Get the contract and from that find the method and thus the argument types
 		List<TypeWithName> types;
+		List<TypeWithName> atypes;
 		if (m.fromContract == null) {
-			types = new ArrayList<>();
+			types = null;
+			atypes = new ArrayList<>();
 		} else {
-			types = figureCMD(m);
+			atypes = types = figureCMD(m);
 			if (types == null)
 				return null;
 		}
@@ -109,7 +111,7 @@ public class MethodConvertor {
 		Type ofType = null;
 		for (RWMethodCaseDefn mcd : m.cases) {
 			InputPosition loc = mcd.intro.location;
-			if (mcd.intro.args.size() != types.size()) {
+			if (types != null && mcd.intro.args.size() != types.size()) {
 				if (!mcd.intro.args.isEmpty())
 					loc = ((Locatable)mcd.intro.args.get(0)).location();
 				errors.message(loc, "incorrect number of formal parameters to contract method '" + mcd.intro.fnName.uniqueName() +"': expected " + types.size() + " but was " + mcd.intro.args.size());
@@ -119,14 +121,23 @@ public class MethodConvertor {
 			List<Object> rwargs = new ArrayList<>();
 			for (int i=0;i<mcd.intro.args.size();i++) {
 				Object patt = mcd.intro.args.get(i);
-				TypeWithName ti = types.get(i);
+				TypeWithName ti = null;
+				if (types != null)
+					ti = types.get(i);
 				if (patt instanceof RWVarPattern) {
 					RWVarPattern vp = (RWVarPattern) patt;
 					InputPosition ploc = vp.location();
+					if (ti == null) {
+						ti = rw.types.get("Any");
+						atypes.add(ti);
+					}
 					rwargs.add(new RWTypedPattern(ploc, ti, ploc, vp.var));
 				} else if (patt instanceof RWTypedPattern) {
 					RWTypedPattern tp = (RWTypedPattern) patt;
-					if (tp.type.name().equals(ti.name())) // it's fine as it is
+					if (ti == null) {
+						atypes.add(tp.type); 
+						rwargs.add(tp);
+					} else if (tp.type.name().equals(ti.name())) // it's fine as it is
 						rwargs.add(tp);
 					else if (ti.name().equals("Any")) // it's fine to subclass Any
 						rwargs.add(tp);
@@ -135,7 +146,7 @@ public class MethodConvertor {
 				} else
 					throw new UtilException("Cannot handle pattern " + patt.getClass());
 			}
-			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, types, mcd.messages, m.type.isHandler());
+			TypedObject typedObject = convertMessagesToActionList(rw, loc, mcd.intro.args, atypes, mcd.messages, m.type.isHandler());
 			ret.addCase(new RWFunctionCaseDefn(new RWFunctionIntro(loc,  mcd.intro.fnName, rwargs, mcd.intro.vars), ret.nextCase(), typedObject.expr));
 			if (ofType == null)
 				ofType = typedObject.type;
@@ -329,8 +340,9 @@ public class MethodConvertor {
 		if (slot instanceof CardMember) {
 			CardMember cm = (CardMember) slot;
 			intoObj = new CardStateRef(cm.location(), fromHandler);
-			CardGrouping grp = (CardGrouping) rw.getMe(cm.location(), cm.card).defn;
-			RWStructDefn sd = grp.struct;
+			final Object cd = rw.getMe(cm.location(), cm.card).defn;
+			ObjectWithState grp = (ObjectWithState) cd;
+			RWStructDefn sd = grp.getState();
 			RWStructField sf = sd.findField(cm.var);
 			if (sf == null) {
 				errors.message(cm.location, "there is no card state member " + cm.var);

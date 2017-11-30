@@ -966,15 +966,18 @@ public class Rewriter implements CodeGenRegistry {
 			}
 		}
 		for (ObjectMethod c : od.ctors) {
-			FunctionName fnName = FunctionName.objectCtor(od.location(), rw, c.getMethod().methodName().name);
+			final FunctionName fnName = c.getMethod().methodName();
 			RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
 			RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(fnName.location, fnName, new ArrayList<>(), null), 0, new CreateObject(fnName.location, od.name(), ret));
 			fn.addCase(fcd0);
 			fn.gatherScopedVars();
 			functions.put(fn.uniqueName(), fn);
 		}
-		for (ObjectMethod m : od.methods)
-			rewriteCase(ox, rw.getMethod(m.getMethod().methodName()), m.getMethod(), false, true);
+		for (ObjectMethod m : od.methods) {
+			final RWMethodDefinition rwm = rw.getMethod(m.getMethod().methodName());
+			rewriteCase(ox, rwm, m.getMethod(), false, true);
+			methods.put(m.getMethod().methodName().uniqueName(), rwm);
+		}
 	}
 
 	private RWTemplate rewrite(TemplateContext cx, Template template) {
@@ -1278,7 +1281,9 @@ public class Rewriter implements CodeGenRegistry {
 		for (Object o : inargs) {
 			if (outargs != null)
 				outargs.add(rewritePattern(cx, cn, o));
-			if (o instanceof TypedPattern) {
+			if (o instanceof VarPattern) {
+				targs.add((Type) ((PackageVar)cx.resolve(((VarPattern)o).location(), "Any")).defn);
+			} else if (o instanceof TypedPattern) {
 				targs.add(rewrite(cx, ((TypedPattern)o).type, false));
 			} else if (o instanceof ConstructorMatch) { // we can get this instead of a typed patter
 				ConstructorMatch cm = (ConstructorMatch)o;

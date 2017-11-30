@@ -7,6 +7,7 @@ import org.flasck.flas.parsedForm.ObjectMember;
 import org.flasck.flas.stories.FLASStory.State;
 import org.flasck.flas.tokenizers.KeywordToken;
 import org.flasck.flas.tokenizers.Tokenizable;
+import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 
 public class ObjectMemberParser implements TryParsing {
 	private final State state;
@@ -30,16 +31,18 @@ public class ObjectMemberParser implements TryParsing {
 			return "state";
 		}
 		case "ctor": {
-			return new ObjectMember(ObjectMember.CTOR, new MethodCaseDefn((FunctionIntro)new FunctionParser(state).tryParsing(line)));
+			return new ObjectMember(ObjectMember.CTOR, new MethodCaseDefn((FunctionIntro)new FunctionParser(state.as(CodeType.OCTOR)).tryParsing(line)));
 		}
 		case "acor": {
-			return new ObjectMember(ObjectMember.ACCESSOR, new FunctionParser(state).tryParsing(line));
+			throw new RuntimeException("Need to decide what code type to use");
+//			return new ObjectMember(ObjectMember.ACCESSOR, new FunctionParser(state).tryParsing(line));
 		}
 		case "method": {
-			return new ObjectMember(ObjectMember.METHOD, new MethodCaseDefn((FunctionIntro)new FunctionParser(state).tryParsing(line)));
+			return new ObjectMember(ObjectMember.METHOD, new MethodCaseDefn((FunctionIntro)new FunctionParser(state.as(CodeType.OBJECT)).tryParsing(line)));
 		}
 		case "internal": {
-			return new ObjectMember(ObjectMember.INTERNAL, new FunctionParser(state).tryParsing(line));
+			throw new RuntimeException("Need to decide what code type to use");
+//			return new ObjectMember(ObjectMember.INTERNAL, new FunctionParser(state).tryParsing(line));
 		}
 		default:
 			// we didn't find anything we could handle - "not us"

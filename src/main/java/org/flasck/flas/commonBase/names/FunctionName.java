@@ -1,7 +1,6 @@
 package org.flasck.flas.commonBase.names;
 
 import org.flasck.flas.blockForm.InputPosition;
-import org.flasck.flas.rewrittenForm.RWObjectDefn;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.jvm.J;
 import org.zinutils.exceptions.NotImplementedException;
@@ -42,7 +41,7 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.INITIALIZER, inStruct, name);
 	}
 
-	public static FunctionName functionInCardContext(InputPosition location, CardName card, String name) {
+	public static FunctionName functionInCardContext(InputPosition location, NameOfThing card, String name) {
 		return new FunctionName(location, CodeType.CARD, card, name);
 	}
 
@@ -78,15 +77,15 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 		return new FunctionName(location, CodeType.AREA, areaName, fnName);
 	}
 
-	public static FunctionName objectMethod(InputPosition location, RWObjectDefn od, String name) {
-		return new FunctionName(location, CodeType.OBJECT, od.getName(), name);
+	public static FunctionName objectMethod(InputPosition location, ObjectName on, String name) {
+		return new FunctionName(location, CodeType.OBJECT, on, name);
 	}
 
-	public static FunctionName objectCtor(InputPosition location, RWObjectDefn rw, String name) {
-		return new FunctionName(location, CodeType.OCTOR, rw.getName(), "ctor_" + name);
+	public static FunctionName objectCtor(InputPosition location, ObjectName on, String name) {
+		return new FunctionName(location, CodeType.OCTOR, on, "ctor_" + name);
 	}
 
-	public CardName containingCard() {
+	public NameOfThing containingCard() {
 		if (inContext == null)
 			return null;
 		return inContext.containingCard();

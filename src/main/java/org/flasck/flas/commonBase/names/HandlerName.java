@@ -13,7 +13,7 @@ public class HandlerName implements NameOfThing, Comparable<HandlerName> {
 	}
 
 	@Override
-	public CardName containingCard() {
+	public NameOfThing containingCard() {
 		return name.containingCard();
 	}
 

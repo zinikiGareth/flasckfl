@@ -322,13 +322,13 @@ public class GenerateClosures {
 	
 	public LocatedObject process(CreateObject co) {
 		LocatedObject conv = dispatch(co.expr);
-		VarInSource cv = (VarInSource) conv.obj;
 		
 		// This isn't strictly a scoping closure, but it has similar semantics
 		ClosureCmd ret = form.createScopingClosure(co.location());
 		ret.push(conv.loc, rw.getMe(conv.loc, co.name), null);
-		ret.push(conv.loc, cv, null);
-		ret.depends.add(cv);
+		ret.push(conv.loc, conv.obj, null);
+		if (conv.obj instanceof VarInSource)
+			ret.depends.add((VarInSource)conv.obj);
 		return new LocatedObject(ret.location, new VarInSource(ret.var, ret.location, "clos" + ret.var.idx));
 	}
 

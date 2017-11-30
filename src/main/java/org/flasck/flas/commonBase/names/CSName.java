@@ -12,7 +12,7 @@ public class CSName implements NameOfThing, Comparable<CSName> {
 		this.cname = cname;
 	}
 	
-	public CardName containingCard() {
+	public NameOfThing containingCard() {
 		return card;
 	}
 

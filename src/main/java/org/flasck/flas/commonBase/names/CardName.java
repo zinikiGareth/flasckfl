@@ -12,7 +12,7 @@ public class CardName implements NameOfThing, Comparable<CardName> {
 	}
 	
 	@Override
-	public CardName containingCard() {
+	public NameOfThing containingCard() {
 		return this;
 	}
 

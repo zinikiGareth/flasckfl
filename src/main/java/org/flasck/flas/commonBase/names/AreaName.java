@@ -66,7 +66,7 @@ public class AreaName implements NameOfThing, Comparable<AreaName> {
 	}
 
 	@Override
-	public CardName containingCard() {
+	public NameOfThing containingCard() {
 		return cardName;
 	}
 

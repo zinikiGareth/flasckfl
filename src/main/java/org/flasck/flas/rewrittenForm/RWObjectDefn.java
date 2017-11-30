@@ -14,7 +14,7 @@ import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.TypeWithMethods;
 
-public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable {
+public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable, ObjectWithState {
 	public final RWStructDefn state;
 	public final List<RWObjectMethod> ctors = new ArrayList<RWObjectMethod>();
 	public final List<RWObjectMethod> methods = new ArrayList<RWObjectMethod>();
@@ -39,6 +39,11 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	}
 
 	@Override
+	public RWStructDefn getState() {
+		return state;
+	}
+
+	@Override
 	public boolean hasMethod(String named) {
 		for (RWObjectMethod m : methods)
 			if (m.name.name.equals(named))
@@ -52,8 +57,9 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	}
 
 	public RWObjectMethod getConstructor(String meth) {
+		String ctor = "ctor_" + meth;
 		for (RWObjectMethod m : ctors)
-			if (m.name.name.equals(meth))
+			if (m.name.name.equals(ctor))
 				return m;
 		return null;
 	}
