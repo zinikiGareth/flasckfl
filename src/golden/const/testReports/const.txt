@@ -1,1 +1,2 @@
 PASSED: that x is 32
+PASSED: that dbl is 64

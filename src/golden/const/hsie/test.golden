@@ -1,3 +1,15 @@
+HSIE for test.golden.dbl/0                                   #const.fl:     2.0
+#Args: 0 #bound: 1
+    externals: [*, test.golden.x]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0]
+RETURN v0:clos0 []                                           #const.fl:     2.6
+CLOSURE v0                                                   #const.fl:     2.6
+  PUSH PackageVar.*                                          #const.fl:     2.8
+  PUSH PackageVar.test.golden.x                              #const.fl:     2.6
+  PUSH 2                                                     #const.fl:     2.10
+-------
 HSIE for test.golden.x/0                                     #const.fl:     1.0
 #Args: 0 #bound: 0
     externals: []

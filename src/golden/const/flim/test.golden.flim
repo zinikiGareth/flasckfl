@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <FLIM package="test.golden">
+    <Function file="const.fl" line="2" name="dbl" off="0">
+        <Function>
+            <Return>
+                <SolidName name="Number"/>
+            </Return>
+        </Function>
+    </Function>
     <Function file="const.fl" line="1" name="x" off="0">
         <Function>
             <Return>

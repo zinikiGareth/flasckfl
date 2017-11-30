@@ -21,6 +21,13 @@ public class Block {
 		return line == null || line.lines.isEmpty() || line.lines.get(0).indent == null;
 	}
 	
+	public boolean hasNonCommentNestedLines() {
+		for (Block q : nested)
+			if (!q.isComment())
+				return true;
+		return false;
+	}
+
 	@Override
 	public String toString() {
 		return "Block[" + line + "/"+nested.size()+"]";

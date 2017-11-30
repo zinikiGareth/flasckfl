@@ -8,6 +8,11 @@ if (typeof test.golden === 'undefined') {
   }
 }
 
+test.golden.dbl = function() {
+  "use strict";
+  return FLEval.closure(FLEval.mul, test.golden.x, 2);
+}
+
 test.golden.x = function() {
   "use strict";
   return 32;

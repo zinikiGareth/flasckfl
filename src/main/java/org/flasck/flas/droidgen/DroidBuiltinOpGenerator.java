@@ -1,12 +1,10 @@
 package org.flasck.flas.droidgen;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.flasck.flas.generators.BuiltinOpGenerator;
 import org.flasck.flas.hsie.ObjectNeeded;
-import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.vcode.hsieForm.ClosureGenerator;
 import org.flasck.flas.vcode.hsieForm.OutputHandler;

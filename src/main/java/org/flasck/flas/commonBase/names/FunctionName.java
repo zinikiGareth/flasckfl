@@ -1,5 +1,8 @@
 package org.flasck.flas.commonBase.names;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.vcode.hsieForm.HSIEForm.CodeType;
 import org.flasck.jvm.J;
@@ -24,6 +27,10 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	public final CodeType codeType;
 	public final String name;
 	public final NameOfThing inContext;
+	private final static Map<String, String> bimap = new HashMap<>();
+	{
+		bimap.put("*", "mul");
+	}
 	
 	private FunctionName(InputPosition location, CodeType codeType, NameOfThing cxt, String name) {
 		this.location = location;
@@ -98,9 +105,12 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 
 	@Override
 	public String javaClassName() {
-		if (inContext == null)
-			return J.BUILTINPKG+".PACKAGEFUNCTIONS$"+name;
-		else if (inContext.containingCard() != null)
+		if (inContext == null) {
+			String bi = bimap .get(name);
+			if (bi == null)
+				bi = name;
+			return J.BUILTINPKG+".PACKAGEFUNCTIONS$"+bi;
+		} else if (inContext.containingCard() != null)
 			return inContext.uniqueName()+"$"+name;
 		else
 			return inContext.uniqueName()+".PACKAGEFUNCTIONS$"+name;

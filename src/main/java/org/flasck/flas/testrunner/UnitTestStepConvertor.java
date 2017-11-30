@@ -68,7 +68,7 @@ public class UnitTestStepConvertor {
 				return;
 			}
 			Block valueBlock = nested.get(0);
-			if (!valueBlock.nested.isEmpty()) {
+			if (valueBlock.hasNonCommentNestedLines()) {
 				builder.error(pos, "value block cannot have nested lines");
 				return;
 			}

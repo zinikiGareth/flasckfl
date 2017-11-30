@@ -1,3 +1,7 @@
 	test that x is 32
 		assert x
 			32
+			
+	test that dbl is 64
+		assert dbl
+			64

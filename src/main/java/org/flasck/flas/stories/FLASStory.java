@@ -668,7 +668,7 @@ public class FLASStory {
 		} else if (tl instanceof TemplateList) {
 			ret = tl;
 			TemplateList asList = (TemplateList) ret;
-			if (!hasNonCommentNestedLines(b)) {
+			if (!b.hasNonCommentNestedLines()) {
 				er.message(b, "list must have exactly one nested element");
 				return null;
 			}
@@ -875,7 +875,7 @@ public class FLASStory {
 				if (flag)
 					throw new RuntimeException("This is not allowed: " + o + " after message with inner block");
 				mcd.addMessage((MethodMessage) o);
-				if (hasNonCommentNestedLines(b)) {
+				if (b.hasNonCommentNestedLines()) {
 					doScope(er, s.nest(mcd.innerScope(), mcd.caseName(), CodeType.HANDLERFUNCTION), b.nested);
 					flag = true;
 				}
@@ -892,20 +892,13 @@ public class FLASStory {
 		return null;
 	}
 
-	private boolean hasNonCommentNestedLines(Block b) {
-		for (Block q : b.nested)
-			if (!q.isComment())
-				return true;
-		return false;
-	}
-
 	private void assertNoNonCommentNestedLines(ErrorReporter er, Block b) {
-		if (hasNonCommentNestedLines(b))
+		if (b.hasNonCommentNestedLines())
 			er.message(b, "this line may not have nested declarations");
 	}
 
 	private void assertSomeNonCommentNestedLines(ErrorReporter er, Block b) {
-		if (!hasNonCommentNestedLines(b))
+		if (!b.hasNonCommentNestedLines())
 			er.message(b, "this line must have at least one nested declaration");
 	}
 }

@@ -1,3 +1,10 @@
+function test.golden.dbl 0
+  case test.golden.dbl_0
+  =
+    @
+      PackageVar.*
+      PackageVar.test.golden.x
+      2
 function test.golden.x 0
   case test.golden.x_0
   =

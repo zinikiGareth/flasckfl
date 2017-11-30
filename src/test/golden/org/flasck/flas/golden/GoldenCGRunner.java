@@ -210,6 +210,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 				clean(dependTo);
 				compiler.writeDependsTo(dependTo);
 			}
+			compiler.unitjvm(true);
 			compiler.compile(dir);
 			File errors = new File(s, "errors");
 			if (errors.isDirectory())
