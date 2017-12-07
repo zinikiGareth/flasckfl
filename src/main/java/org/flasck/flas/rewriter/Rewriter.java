@@ -590,7 +590,7 @@ public class Rewriter implements CodeGenRegistry {
 		}
 		
 		public Object resolve(InputPosition location, String name) {
-			if (bound.containsKey(name))
+			if (bound != null && bound.containsKey(name))
 				return bound.get(name); // a local var
 			if (inner.contains(name)) {
 				VarName vn = new VarName(location, inner.name(), name);
@@ -714,10 +714,6 @@ public class Rewriter implements CodeGenRegistry {
 				CardGrouping cg = createCard((PackageContext)cx, cd);
 				final CardContext ic = new CardContext((PackageContext) cx, cg.getName(), cg.areaActions, cd, false);
 				pass1(ic, cd.fnScope);
-				for (HandlerImplements h : cd.handlers) {
-					RWHandlerImplements rw = pass1HI(ic, h);
-					cg.handlers.add(new HandlerGrouping(rw.handlerName, rw));
-				}
 			} else if (val instanceof FunctionCaseDefn) {
 				FunctionCaseDefn c = (FunctionCaseDefn) val;
 				String fn = c.functionName().uniqueName();
@@ -789,8 +785,7 @@ public class Rewriter implements CodeGenRegistry {
 					ret.addMethod(new RWObjectMethod(rw, deriveType(cx, m.location(), m.intro.args, null, null)));
 				}
 			} else if (val instanceof HandlerImplements) {
-				HandlerImplements hi = (HandlerImplements) val;
-				pass1HI(cx, hi);
+				// do nothing here
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -811,6 +806,10 @@ public class Rewriter implements CodeGenRegistry {
 					if (!errors.hasErrors()) {
 						CardContext c2 = new CardContext((PackageContext) cx, cg.getName(), cg.areaActions, cd, true);
 						pass2(c2, cd.innerScope());
+						for (HandlerImplements h : cd.handlers) {
+							RWHandlerImplements rw = pass2HI(c2, h);
+							cg.handlers.add(new HandlerGrouping(rw.handlerName, rw));
+						}
 					}
 				} catch (ResolutionException ex) {
 					errors.message(ex.location, ex.getMessage());
@@ -1337,7 +1336,7 @@ public class Rewriter implements CodeGenRegistry {
 		}
 	}
 
-	private RWHandlerImplements pass1HI(NamingContext cx, HandlerImplements hi) {
+	private RWHandlerImplements pass2HI(NamingContext cx, HandlerImplements hi) {
 		TypeWithName any = (TypeWithName) getObject(cx.nested.resolve(hi.location(), "Any"));
 		Object av = null;
 		try {
@@ -1369,12 +1368,6 @@ public class Rewriter implements CodeGenRegistry {
 			pass1(cx, c.innerScope());
 		}
 		return rw;
-	}
-
-	private void pass2HI(NamingContext cx, HandlerImplements hi) {
-		RWHandlerImplements ret = callbackHandlers.get(hi.handlerName.uniqueName());
-		if (ret == null)
-			return; // presumably it failed in pass1
 	}
 
 	private void rewriteHI(NamingContext cx, HandlerImplements hi, IScope scope) {
