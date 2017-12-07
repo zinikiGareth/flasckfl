@@ -19,6 +19,7 @@ import org.flasck.flas.rewrittenForm.RWContractDecl;
 import org.flasck.flas.rewrittenForm.RWContractMethodDecl;
 import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
@@ -114,7 +115,23 @@ public class PackageImporter {
 					sd.fields.add(sf);
 				}
 			} else if (p.parent instanceof RWObjectDefn) {
-				// need to read in methods?
+				RWObjectDefn od = (RWObjectDefn) p.parent;
+				for (XMLElement c : p.children) {
+					if (c.hasTag("Method")) {
+						XMLElement te = c.elementChildren().get(0);
+						if (!te.hasTag("Function"))
+							throw new UtilException("Type was not a function type");
+						List<Type> args = new ArrayList<Type>();
+						for (XMLElement fe : te.elementChildren()) { 
+							// Then that has n-1 "Arg" objects
+							// and one "Return" object
+							args.add(getUniqueNestedType(rw, location(c), fe));
+						}
+						FunctionType fntype = new FunctionType(location(c), args);
+						RWObjectMethod rwm = new RWObjectMethod(fntype, FunctionName.objectMethod(location(c), (ObjectName) od.getName(), c.get("name")));
+						od.addMethod(rwm);
+					}
+				}
 			} else if (p.parent instanceof RWContractDecl) {
 				RWContractDecl cd = (RWContractDecl) p.parent;
 				for (XMLElement cme : p.children) {
@@ -222,8 +239,6 @@ public class PackageImporter {
 			return new PolyVar(loc, name);
 		} else {
 			NameOfThing name = assembleName(te);
-			if (name instanceof SolidName && ((SolidName)name).baseName().equals("Transaction"))
-				System.out.println(name.uniqueName());
 			return (Type)rw.getMe(loc, name).defn;
 		}
 	}
