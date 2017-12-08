@@ -102,7 +102,18 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	static String buildDroidOpt = System.getProperty("org.flasck.golden.buildDroid");
 	private static boolean buildDroid = buildDroidOpt != null && buildDroidOpt.equals("true");
 	
-	public static final File jvmdir = new File("/Users/gareth/Ziniki/Over/FLASJvm");
+	public static final File jvmdir;
+	static {
+		File jd = new File("/Users/gareth/Ziniki/Over/FLASJvm");
+		if (!jd.exists()) {
+			jd = new File("../FLASJvm");
+			if (!jd.exists()) {
+				System.err.println("There is no directory for the FLASJvm code");
+				jd = null;
+			}
+		}
+		jvmdir = jd;
+	}
 
 	public GoldenCGRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError, IOException, ErrorResultException {
 		super(builder, figureClasses());

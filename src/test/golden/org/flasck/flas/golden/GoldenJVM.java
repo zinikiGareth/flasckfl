@@ -38,6 +38,12 @@ public class GoldenJVM {
 		File droidTo = new File(out, "droid-to");
 		File droid = new File(out, "droid-tmp");
 		
+		File jvmbin = new File(GoldenCGRunner.jvmdir, "jvm/bin");
+		if (!jvmbin.exists())
+			jvmbin = new File(GoldenCGRunner.jvmdir, "jvm/qbout");
+		if (!jvmbin.exists())
+			throw new RuntimeException("No jvm bin directory could be found");
+		
 		GoldenCGRunner.clean(errs);
 		GoldenCGRunner.clean(droidTo);
 		GoldenCGRunner.clean(droid);
@@ -45,7 +51,7 @@ public class GoldenJVM {
 		Main.setLogLevels();
 		FLASCompiler compiler = new FLASCompiler();
 		compiler.searchIn(new File(GoldenCGRunner.jvmdir, "services/flim"));
-		compiler.unitTestPath(new File(GoldenCGRunner.jvmdir, "jvm/bin/classes"));
+		compiler.unitTestPath(new File(jvmbin, "classes"));
 		compiler.unitjs(useJSRunner);
 		compiler.unitjvm(useJVMRunner);
 		try {
@@ -60,7 +66,7 @@ public class GoldenJVM {
 		
 		droidToClasses = new File(droidTo, "test/runner");
 		assertTrue("JVM was not created", droidToClasses.isDirectory());
-		handdir = new File("../flasjvm/jvm/bin/classes/test/runner");
+		handdir = new File(jvmbin, "classes/test/runner");
 		
 		int width = 170;
 		String wd = System.getProperty("org.zinutils.cg.width");
