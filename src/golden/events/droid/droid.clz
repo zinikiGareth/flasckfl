@@ -1,3 +1,4 @@
+src/golden/events/droid-to/test/golden/Events$B1.java
 class Events$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Events; _card
 
@@ -9,6 +10,7 @@ class Events$B1.java extends org.flasck.jvm.areas.DivArea {
     return
   }
 }
+src/golden/events/droid-to/test/golden/Events$B2.java
 class Events$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Events; _card
 
@@ -25,6 +27,7 @@ class Events$B2.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
 }
+src/golden/events/droid-to/test/golden/Events$B3.java
 class Events$B3.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Events; _card
 
@@ -41,6 +44,7 @@ class Events$B3.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
 }
+src/golden/events/droid-to/test/golden/Events$handlers_0.java
 class Events$handlers_0.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/Events; _card
 
@@ -58,6 +62,7 @@ ev
     return test.golden.Events$okThen.class
   }
 }
+src/golden/events/droid-to/test/golden/Events$handlers_1.java
 class Events$handlers_1.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/Events; _card
 
@@ -77,6 +82,7 @@ ev
       })
   }
 }
+src/golden/events/droid-to/test/golden/Events$okThen.java
 class Events$okThen.java {
   void <init>() {
     super.<init>()
@@ -86,6 +92,7 @@ class Events$okThen.java {
     return ((test.golden.Events)self).okThen(cxt, args[0])
   }
 }
+src/golden/events/droid-to/test/golden/Events$setTo.java
 class Events$setTo.java {
   void <init>() {
     super.<init>()
@@ -95,6 +102,7 @@ class Events$setTo.java {
     return ((test.golden.Events)self).setTo(cxt, args[0], args[1])
   }
 }
+src/golden/events/droid-to/test/golden/Events.java
 class Events.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

@@ -1,6 +1,8 @@
+src/golden/scoping3/droid-to/test/golden/KVUpdate$Down.java
 class KVUpdate$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object update(java.lang.Object from, java.lang.Object obj);
 }
+src/golden/scoping3/droid-to/test/golden/KVUpdate$Impl.java
 class KVUpdate$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KVUpdate$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -8,8 +10,10 @@ class KVUpdate$Impl.java extends org.flasck.jvm.cards.ContractImpl implements te
   }
   abstract java.lang.Object update(java.lang.Object from, java.lang.Object obj);
 }
+src/golden/scoping3/droid-to/test/golden/KVUpdate$Up.java
 class KVUpdate$Up.java implements org.ziniki.ziwsh.UpContract {
 }
+src/golden/scoping3/droid-to/test/golden/PACKAGEFUNCTIONS$f.java
 class PACKAGEFUNCTIONS$f.java {
   void <init>() {
     super.<init>()
@@ -19,6 +23,7 @@ class PACKAGEFUNCTIONS$f.java {
     return test.golden.PACKAGEFUNCTIONS.f(cxt)
   }
 }
+src/golden/scoping3/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()
@@ -28,6 +33,7 @@ class PACKAGEFUNCTIONS.java {
     return org.flasck.jvm.fl.FLClosure.simple(test.golden.f_0$set.class, new java.lang.Object[0] {})
   }
 }
+src/golden/scoping3/droid-to/test/golden/f_0$ItemHandler.java
 class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
   Ljava/lang/Object; set
   Ljava/lang/Object; ck
@@ -76,6 +82,7 @@ class f_0$ItemHandler.java extends test.golden.KVUpdate$Impl {
     }
   }
 }
+src/golden/scoping3/droid-to/test/golden/f_0/PACKAGEFUNCTIONS$set.java
 class PACKAGEFUNCTIONS$set.java {
   void <init>() {
     super.<init>()
@@ -85,6 +92,7 @@ class PACKAGEFUNCTIONS$set.java {
     return test.golden.f_0.PACKAGEFUNCTIONS.set(cxt)
   }
 }
+src/golden/scoping3/droid-to/test/golden/f_0/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

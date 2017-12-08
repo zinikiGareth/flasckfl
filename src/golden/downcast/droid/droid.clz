@@ -1,3 +1,4 @@
+src/golden/downcast/droid-to/test/golden/PACKAGEFUNCTIONS$f.java
 class PACKAGEFUNCTIONS$f.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$f.java {
     return test.golden.PACKAGEFUNCTIONS.f(cxt, args[0])
   }
 }
+src/golden/downcast/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()
@@ -31,6 +33,7 @@ class PACKAGEFUNCTIONS.java {
     }
   }
 }
+src/golden/downcast/droid-to/test/golden/Role.java
 class Role.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; r
 

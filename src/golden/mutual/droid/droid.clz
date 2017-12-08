@@ -1,3 +1,4 @@
+src/golden/mutual/droid-to/test/golden/PACKAGEFUNCTIONS$f.java
 class PACKAGEFUNCTIONS$f.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$f.java {
     return test.golden.PACKAGEFUNCTIONS.f(cxt, args[0])
   }
 }
+src/golden/mutual/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()
@@ -23,6 +25,7 @@ class PACKAGEFUNCTIONS.java {
     }
   }
 }
+src/golden/mutual/droid-to/test/golden/f_0/PACKAGEFUNCTIONS$g.java
 class PACKAGEFUNCTIONS$g.java {
   void <init>() {
     super.<init>()
@@ -32,6 +35,7 @@ class PACKAGEFUNCTIONS$g.java {
     return test.golden.f_0.PACKAGEFUNCTIONS.g(cxt, args[0], args[1])
   }
 }
+src/golden/mutual/droid-to/test/golden/f_0/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

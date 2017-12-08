@@ -1,6 +1,8 @@
+src/golden/handler/droid-to/test/golden/HandlerCtr$Down.java
 class HandlerCtr$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object handle(java.lang.Object from, org.flasck.jvm.builtin.FLNumber x);
 }
+src/golden/handler/droid-to/test/golden/HandlerCtr$Impl.java
 class HandlerCtr$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.HandlerCtr$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -8,5 +10,6 @@ class HandlerCtr$Impl.java extends org.flasck.jvm.cards.ContractImpl implements 
   }
   abstract java.lang.Object handle(java.lang.Object from, org.flasck.jvm.builtin.FLNumber x);
 }
+src/golden/handler/droid-to/test/golden/HandlerCtr$Up.java
 class HandlerCtr$Up.java implements org.ziniki.ziwsh.UpContract {
 }

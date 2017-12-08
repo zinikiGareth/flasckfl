@@ -1,6 +1,8 @@
+src/golden/standalone/droid-to/test/golden/Bar$Down.java
 class Bar$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object go(java.lang.Object from);
 }
+src/golden/standalone/droid-to/test/golden/Bar$Impl.java
 class Bar$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Bar$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -8,8 +10,10 @@ class Bar$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.go
   }
   abstract java.lang.Object go(java.lang.Object from);
 }
+src/golden/standalone/droid-to/test/golden/Bar$Up.java
 class Bar$Up.java implements org.ziniki.ziwsh.UpContract {
 }
+src/golden/standalone/droid-to/test/golden/Foo$_C0.java
 class Foo$_C0.java extends test.golden.KeyValue$Impl {
   Ltest/golden/Foo; _card
 
@@ -19,6 +23,7 @@ class Foo$_C0.java extends test.golden.KeyValue$Impl {
     return
   }
 }
+src/golden/standalone/droid-to/test/golden/Foo$_C1.java
 class Foo$_C1.java extends test.golden.Bar$Impl {
   Ltest/golden/Foo; _card
 
@@ -50,6 +55,7 @@ class Foo$_C1.java extends test.golden.Bar$Impl {
     }
   }
 }
+src/golden/standalone/droid-to/test/golden/Foo$request.java
 class Foo$request.java {
   void <init>() {
     super.<init>()
@@ -59,6 +65,7 @@ class Foo$request.java {
     return ((test.golden.Foo)self).request(cxt, args[0])
   }
 }
+src/golden/standalone/droid-to/test/golden/Foo$request2.java
 class Foo$request2.java {
   void <init>() {
     super.<init>()
@@ -68,6 +75,7 @@ class Foo$request2.java {
     return ((test.golden.Foo)self).request2(cxt, args[0])
   }
 }
+src/golden/standalone/droid-to/test/golden/Foo.java
 class Foo.java extends org.flasck.jvm.cards.FlasckCard {
   Ltest/golden/Foo$_C0; kv
 
@@ -127,14 +135,17 @@ class Foo.java extends org.flasck.jvm.cards.FlasckCard {
     }
   }
 }
+src/golden/standalone/droid-to/test/golden/KeyValue$Down.java
 class KeyValue$Down.java implements org.ziniki.ziwsh.DownContract {
 }
+src/golden/standalone/droid-to/test/golden/KeyValue$Impl.java
 class KeyValue$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KeyValue$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
 }
+src/golden/standalone/droid-to/test/golden/KeyValue$Up.java
 class KeyValue$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object typed(java.lang.Object from);
   abstract java.lang.Object mine(java.lang.Object from);

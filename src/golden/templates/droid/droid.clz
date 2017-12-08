@@ -1,3 +1,4 @@
+src/golden/templates/droid-to/test/golden/Item.java
 class Item.java extends org.flasck.jvm.fl.FLASEntity {
   Ljava/lang/Object; id
   Ljava/lang/Object; title
@@ -24,6 +25,7 @@ class Item.java extends org.flasck.jvm.fl.FLASEntity {
     return
   }
 }
+src/golden/templates/droid-to/test/golden/Templates$B1.java
 class Templates$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Templates; _card
 
@@ -36,6 +38,7 @@ class Templates$B1.java extends org.flasck.jvm.areas.DivArea {
     return
   }
 }
+src/golden/templates/droid-to/test/golden/Templates$B2.java
 class Templates$B2.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/Templates; _card
 
@@ -54,6 +57,7 @@ class Templates$B2.java extends org.flasck.jvm.areas.ListArea {
     return this._card.getVar(_context, "data")
   }
 }
+src/golden/templates/droid-to/test/golden/Templates$B3.java
 class Templates$B3.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Templates; _card
   Ltest/golden/Templates$B3; _src_e
@@ -78,6 +82,7 @@ class Templates$B3.java extends org.flasck.jvm.areas.DivArea {
     return null
   }
 }
+src/golden/templates/droid-to/test/golden/Templates$B4.java
 class Templates$B4.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Templates; _card
   Ltest/golden/Templates$B3; _src_e
@@ -121,6 +126,7 @@ class Templates$B4.java extends org.flasck.jvm.areas.TextArea {
     }
   }
 }
+src/golden/templates/droid-to/test/golden/Templates$B5.java
 class Templates$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Templates; _card
   Ltest/golden/Templates$B3; _src_e
@@ -158,6 +164,7 @@ class Templates$B5.java extends org.flasck.jvm.areas.TextArea {
       })
   }
 }
+src/golden/templates/droid-to/test/golden/Templates$B6.java
 class Templates$B6.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Templates; _card
 
@@ -180,6 +187,7 @@ class Templates$B6.java extends org.flasck.jvm.areas.TextArea {
       })
   }
 }
+src/golden/templates/droid-to/test/golden/Templates$B7.java
 class Templates$B7.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Templates; _card
 
@@ -215,6 +223,7 @@ class Templates$B7.java extends org.flasck.jvm.areas.TextArea {
       })
   }
 }
+src/golden/templates/droid-to/test/golden/Templates.java
 class Templates.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

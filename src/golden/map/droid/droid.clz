@@ -1,3 +1,4 @@
+src/golden/map/droid-to/test/golden/PACKAGEFUNCTIONS$map1.java
 class PACKAGEFUNCTIONS$map1.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$map1.java {
     return test.golden.PACKAGEFUNCTIONS.map1(cxt, args[0], args[1])
   }
 }
+src/golden/map/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

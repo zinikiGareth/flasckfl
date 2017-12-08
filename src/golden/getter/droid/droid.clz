@@ -1,3 +1,4 @@
+src/golden/getter/droid-to/test/golden/Getter$choose.java
 class Getter$choose.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class Getter$choose.java {
     return ((test.golden.Getter)self).choose(cxt, args[0])
   }
 }
+src/golden/getter/droid-to/test/golden/Getter.java
 class Getter.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

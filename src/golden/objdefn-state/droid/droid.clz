@@ -1,3 +1,4 @@
+src/golden/objdefn-state/droid-to/test/golden/Entity.java
 class Entity.java extends org.flasck.jvm.fl.FLASEntity {
   Ljava/lang/Object; id
 
@@ -18,6 +19,7 @@ class Entity.java extends org.flasck.jvm.fl.FLASEntity {
     return
   }
 }
+src/golden/objdefn-state/droid-to/test/golden/WithState.java
 class WithState.java extends org.flasck.jvm.objects.FlasckObject {
   void <init>(java.lang.Object cx, java.lang.Object state) {
     super.<init>(cx, state)

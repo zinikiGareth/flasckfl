@@ -1,3 +1,4 @@
+src/golden/filter-guard/droid-to/test/golden/PACKAGEFUNCTIONS$filter.java
 class PACKAGEFUNCTIONS$filter.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$filter.java {
     return test.golden.PACKAGEFUNCTIONS.filter(cxt, args[0], args[1])
   }
 }
+src/golden/filter-guard/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

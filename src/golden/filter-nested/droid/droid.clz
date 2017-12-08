@@ -1,3 +1,4 @@
+src/golden/filter-nested/droid-to/test/golden/PACKAGEFUNCTIONS$filter.java
 class PACKAGEFUNCTIONS$filter.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$filter.java {
     return test.golden.PACKAGEFUNCTIONS.filter(cxt, args[0], args[1])
   }
 }
+src/golden/filter-nested/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()
@@ -40,6 +42,7 @@ class PACKAGEFUNCTIONS.java {
     }
   }
 }
+src/golden/filter-nested/droid-to/test/golden/filter_1/PACKAGEFUNCTIONS$g.java
 class PACKAGEFUNCTIONS$g.java {
   void <init>() {
     super.<init>()
@@ -49,6 +52,7 @@ class PACKAGEFUNCTIONS$g.java {
     return test.golden.filter_1.PACKAGEFUNCTIONS.g(cxt, args[0], args[1], args[2], args[3])
   }
 }
+src/golden/filter-nested/droid-to/test/golden/filter_1/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

@@ -1,3 +1,4 @@
+src/golden/const/droid-to/test/golden/PACKAGEFUNCTIONS$dbl.java
 class PACKAGEFUNCTIONS$dbl.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$dbl.java {
     return test.golden.PACKAGEFUNCTIONS.dbl(cxt)
   }
 }
+src/golden/const/droid-to/test/golden/PACKAGEFUNCTIONS$x.java
 class PACKAGEFUNCTIONS$x.java {
   void <init>() {
     super.<init>()
@@ -16,6 +18,7 @@ class PACKAGEFUNCTIONS$x.java {
     return test.golden.PACKAGEFUNCTIONS.x(cxt)
   }
 }
+src/golden/const/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

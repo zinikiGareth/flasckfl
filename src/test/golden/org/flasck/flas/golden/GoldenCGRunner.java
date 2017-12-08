@@ -222,7 +222,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		File droidToClasses = new File(droidTo, "test/golden");
 		if (droidToClasses.isDirectory()) {
 			FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
-			for (File f : FileUtils.findFilesMatching(droidToClasses, "*.java")) {
+			List<File> files = FileUtils.findFilesMatching(droidToClasses, "*.java");
+			files.sort(FileUtils.pathComparator);
+			for (File f : files) {
+				fos.write((f.getPath()+"\n").getBytes());
 				FileUtils.copyFileToStream(f, fos);
 			}
 			fos.close();

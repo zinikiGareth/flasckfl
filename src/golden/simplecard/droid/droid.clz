@@ -1,3 +1,4 @@
+src/golden/simplecard/droid-to/test/golden/Simple$B1.java
 class Simple$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Simple; _card
 
@@ -8,6 +9,7 @@ class Simple$B1.java extends org.flasck.jvm.areas.DivArea {
     return
   }
 }
+src/golden/simplecard/droid-to/test/golden/Simple$B2.java
 class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Simple; _card
 
@@ -26,6 +28,7 @@ class Simple$B2.java extends org.flasck.jvm.areas.TextArea {
     return this._card.getVar(_context, "hello")
   }
 }
+src/golden/simplecard/droid-to/test/golden/Simple$f.java
 class Simple$f.java {
   void <init>() {
     super.<init>()
@@ -35,6 +38,7 @@ class Simple$f.java {
     return ((test.golden.Simple)self).f(cxt)
   }
 }
+src/golden/simplecard/droid-to/test/golden/Simple$inits_hello.java
 class Simple$inits_hello.java {
   void <init>() {
     super.<init>()
@@ -44,6 +48,7 @@ class Simple$inits_hello.java {
     return ((test.golden.Simple)self).inits_hello(cxt)
   }
 }
+src/golden/simplecard/droid-to/test/golden/Simple.java
 class Simple.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

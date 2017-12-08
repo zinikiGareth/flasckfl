@@ -1,3 +1,4 @@
+src/golden/unroll/droid-to/test/golden/Unroll$B1.java
 class Unroll$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Unroll; _card
 
@@ -9,6 +10,7 @@ class Unroll$B1.java extends org.flasck.jvm.areas.DivArea {
     return
   }
 }
+src/golden/unroll/droid-to/test/golden/Unroll$B2.java
 class Unroll$B2.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Unroll; _card
 
@@ -24,6 +26,7 @@ class Unroll$B2.java extends org.flasck.jvm.areas.DivArea {
     return "hello"
   }
 }
+src/golden/unroll/droid-to/test/golden/Unroll$B3.java
 class Unroll$B3.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Unroll; _card
 
@@ -34,6 +37,7 @@ class Unroll$B3.java extends org.flasck.jvm.areas.TextArea {
     return
   }
 }
+src/golden/unroll/droid-to/test/golden/Unroll$B4.java
 class Unroll$B4.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Unroll; _card
 
@@ -49,6 +53,7 @@ class Unroll$B4.java extends org.flasck.jvm.areas.DivArea {
     return "goodbye"
   }
 }
+src/golden/unroll/droid-to/test/golden/Unroll$B5.java
 class Unroll$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Unroll; _card
 
@@ -59,6 +64,7 @@ class Unroll$B5.java extends org.flasck.jvm.areas.TextArea {
     return
   }
 }
+src/golden/unroll/droid-to/test/golden/Unroll.java
 class Unroll.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

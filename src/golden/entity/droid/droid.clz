@@ -1,3 +1,4 @@
+src/golden/entity/droid-to/test/golden/Storable.java
 class Storable.java extends org.flasck.jvm.fl.FLASEntity {
   Ljava/lang/Object; id
   Ljava/lang/Object; value

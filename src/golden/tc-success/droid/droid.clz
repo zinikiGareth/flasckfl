@@ -1,3 +1,4 @@
+src/golden/tc-success/droid-to/test/golden/PACKAGEFUNCTIONS$bert.java
 class PACKAGEFUNCTIONS$bert.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$bert.java {
     return test.golden.PACKAGEFUNCTIONS.bert(cxt)
   }
 }
+src/golden/tc-success/droid-to/test/golden/PACKAGEFUNCTIONS$fred.java
 class PACKAGEFUNCTIONS$fred.java {
   void <init>() {
     super.<init>()
@@ -16,6 +18,7 @@ class PACKAGEFUNCTIONS$fred.java {
     return test.golden.PACKAGEFUNCTIONS.fred(cxt, args[0])
   }
 }
+src/golden/tc-success/droid-to/test/golden/PACKAGEFUNCTIONS$t1.java
 class PACKAGEFUNCTIONS$t1.java {
   void <init>() {
     super.<init>()
@@ -25,6 +28,7 @@ class PACKAGEFUNCTIONS$t1.java {
     return test.golden.PACKAGEFUNCTIONS.t1(cxt)
   }
 }
+src/golden/tc-success/droid-to/test/golden/PACKAGEFUNCTIONS$t2.java
 class PACKAGEFUNCTIONS$t2.java {
   void <init>() {
     super.<init>()
@@ -34,6 +38,7 @@ class PACKAGEFUNCTIONS$t2.java {
     return test.golden.PACKAGEFUNCTIONS.t2(cxt)
   }
 }
+src/golden/tc-success/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

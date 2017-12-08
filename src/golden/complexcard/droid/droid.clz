@@ -1,3 +1,4 @@
+src/golden/complexcard/droid-to/test/golden/ClickIt.java
 class ClickIt.java extends org.flasck.jvm.fl.FLASObject {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class ClickIt.java extends org.flasck.jvm.fl.FLASObject {
     return
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B1.java
 class Complex$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Complex; _card
 
@@ -25,6 +27,7 @@ class Complex$B1.java extends org.flasck.jvm.areas.DivArea {
     return this._card.getVar(_context, "hello")
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B10.java
 class Complex$B10.java extends org.flasck.jvm.areas.CardSlotArea {
   Ltest/golden/Complex; _card
 
@@ -34,6 +37,7 @@ class Complex$B10.java extends org.flasck.jvm.areas.CardSlotArea {
     return
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B11.java
 class Complex$B11.java extends org.flasck.jvm.areas.CardSlotArea {
   Ltest/golden/Complex; _card
 
@@ -51,6 +55,7 @@ class Complex$B11.java extends org.flasck.jvm.areas.CardSlotArea {
     return this._card.getVar(_context, "yoyo")
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B2.java
 class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Complex; _card
 
@@ -81,6 +86,7 @@ class Complex$B2.java extends org.flasck.jvm.areas.TextArea {
       })
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B3.java
 class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/Complex; _card
 
@@ -99,6 +105,7 @@ class Complex$B3.java extends org.flasck.jvm.areas.ListArea {
     return this._card.getVar(_context, "list")
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B4.java
 class Complex$B4.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Complex; _card
   Ltest/golden/Complex$B4; _src_lv
@@ -122,6 +129,7 @@ class Complex$B4.java extends org.flasck.jvm.areas.DivArea {
     return null
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B5.java
 class Complex$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Complex; _card
   Ltest/golden/Complex$B4; _src_lv
@@ -142,6 +150,7 @@ class Complex$B5.java extends org.flasck.jvm.areas.TextArea {
     return this._src_lv.lv
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B6.java
 class Complex$B6.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/Complex; _card
 
@@ -160,6 +169,7 @@ class Complex$B6.java extends org.flasck.jvm.areas.ListArea {
     return this._card.getVar(_context, "list")
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B7.java
 class Complex$B7.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Complex; _card
 
@@ -170,6 +180,7 @@ class Complex$B7.java extends org.flasck.jvm.areas.DivArea {
     return
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B8.java
 class Complex$B8.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Complex; _card
 
@@ -185,6 +196,7 @@ class Complex$B8.java extends org.flasck.jvm.areas.TextArea {
     return null
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$B9.java
 class Complex$B9.java extends org.flasck.jvm.areas.CasesArea {
   Ltest/golden/Complex; _card
 
@@ -202,6 +214,7 @@ class Complex$B9.java extends org.flasck.jvm.areas.CasesArea {
       })
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$FooHandler.java
 class Complex$FooHandler.java extends test.golden.Handler$Impl {
   Ltest/golden/Complex; _card
   Ljava/lang/Object; k
@@ -246,6 +259,7 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
     }
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$_C0.java
 class Complex$_C0.java extends test.golden.Init$Impl {
   Ltest/golden/Complex; _card
 
@@ -292,6 +306,7 @@ class Complex$_C0.java extends test.golden.Init$Impl {
     }
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$_C1.java
 class Complex$_C1.java extends test.golden.DataStore$Impl {
   Ltest/golden/Complex; _card
 
@@ -301,6 +316,7 @@ class Complex$_C1.java extends test.golden.DataStore$Impl {
     return
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$_S0.java
 class Complex$_S0.java extends test.golden.Offer$Impl {
   Ltest/golden/Complex; _card
 
@@ -344,6 +360,7 @@ class Complex$_S0.java extends test.golden.Offer$Impl {
     }
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$handlers_6.java
 class Complex$handlers_6.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/Complex; _card
 
@@ -361,6 +378,7 @@ ev
     return test.golden.Complex$sayHello.class
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$inits_format.java
 class Complex$inits_format.java {
   void <init>() {
     super.<init>()
@@ -370,6 +388,7 @@ class Complex$inits_format.java {
     return ((test.golden.Complex)self).inits_format(cxt)
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$inits_hello.java
 class Complex$inits_hello.java {
   void <init>() {
     super.<init>()
@@ -379,6 +398,7 @@ class Complex$inits_hello.java {
     return ((test.golden.Complex)self).inits_hello(cxt)
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$sayHello.java
 class Complex$sayHello.java {
   void <init>() {
     super.<init>()
@@ -388,6 +408,7 @@ class Complex$sayHello.java {
     return ((test.golden.Complex)self).sayHello(cxt, args[0])
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex$styleIf.java
 class Complex$styleIf.java {
   void <init>() {
     super.<init>()
@@ -397,6 +418,7 @@ class Complex$styleIf.java {
     return ((test.golden.Complex)self).styleIf(cxt, args[0], args[1])
   }
 }
+src/golden/complexcard/droid-to/test/golden/Complex.java
 class Complex.java extends org.flasck.jvm.cards.FlasckCard {
   Ltest/golden/Complex$_C1; ds
 
@@ -472,20 +494,25 @@ v1
     }
   }
 }
+src/golden/complexcard/droid-to/test/golden/DataStore$Down.java
 class DataStore$Down.java implements org.ziniki.ziwsh.DownContract {
 }
+src/golden/complexcard/droid-to/test/golden/DataStore$Impl.java
 class DataStore$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.DataStore$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
 }
+src/golden/complexcard/droid-to/test/golden/DataStore$Up.java
 class DataStore$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object get(java.lang.Object from, java.lang.String x, test.golden.Handler$Down h);
 }
+src/golden/complexcard/droid-to/test/golden/Handler$Down.java
 class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
 }
+src/golden/complexcard/droid-to/test/golden/Handler$Impl.java
 class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Handler$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -493,11 +520,14 @@ class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements tes
   }
   abstract java.lang.Object reply(java.lang.Object from, java.lang.String s);
 }
+src/golden/complexcard/droid-to/test/golden/Handler$Up.java
 class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
 }
+src/golden/complexcard/droid-to/test/golden/Init$Down.java
 class Init$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
 }
+src/golden/complexcard/droid-to/test/golden/Init$Impl.java
 class Init$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Init$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -505,19 +535,24 @@ class Init$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.g
   }
   abstract java.lang.Object ready(java.lang.Object from, java.lang.Object obj);
 }
+src/golden/complexcard/droid-to/test/golden/Init$Up.java
 class Init$Up.java implements org.ziniki.ziwsh.UpContract {
 }
+src/golden/complexcard/droid-to/test/golden/Offer$Down.java
 class Offer$Down.java implements org.ziniki.ziwsh.DownContract {
 }
+src/golden/complexcard/droid-to/test/golden/Offer$Impl.java
 class Offer$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Offer$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
 }
+src/golden/complexcard/droid-to/test/golden/Offer$Up.java
 class Offer$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object get(java.lang.Object from, java.lang.String x, test.golden.Handler$Down h);
 }
+src/golden/complexcard/droid-to/test/golden/Polyed.java
 class Polyed.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; x
   Ljava/lang/Object; y
@@ -541,6 +576,7 @@ class Polyed.java extends org.flasck.jvm.fl.FLASObject {
     return
   }
 }
+src/golden/complexcard/droid-to/test/golden/SubCard.java
 class SubCard.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
@@ -551,6 +587,7 @@ class SubCard.java extends org.flasck.jvm.cards.FlasckCard {
     return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
   }
 }
+src/golden/complexcard/droid-to/test/golden/Thing.java
 class Thing.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; x
 
@@ -568,6 +605,7 @@ class Thing.java extends org.flasck.jvm.fl.FLASObject {
     return
   }
 }
+src/golden/complexcard/droid-to/test/golden/WithInit$inits_x.java
 class WithInit$inits_x.java {
   void <init>() {
     super.<init>()
@@ -577,6 +615,7 @@ class WithInit$inits_x.java {
     return ((test.golden.WithInit)self).inits_x(cxt)
   }
 }
+src/golden/complexcard/droid-to/test/golden/WithInit.java
 class WithInit.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; x
 

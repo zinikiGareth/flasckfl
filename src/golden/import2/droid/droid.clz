@@ -1,3 +1,4 @@
+src/golden/import2/droid-to/test/golden/Foo$_C0.java
 class Foo$_C0.java extends test.import.Fred$Impl {
   Ltest/golden/Foo; _card
 
@@ -32,6 +33,7 @@ class Foo$_C0.java extends test.import.Fred$Impl {
     }
   }
 }
+src/golden/import2/droid-to/test/golden/Foo.java
 class Foo.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

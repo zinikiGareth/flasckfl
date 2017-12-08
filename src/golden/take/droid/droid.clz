@@ -1,3 +1,4 @@
+src/golden/take/droid-to/test/golden/PACKAGEFUNCTIONS$take.java
 class PACKAGEFUNCTIONS$take.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$take.java {
     return test.golden.PACKAGEFUNCTIONS.take(cxt, args[0], args[1])
   }
 }
+src/golden/take/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

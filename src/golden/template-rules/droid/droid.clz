@@ -1,3 +1,4 @@
+src/golden/template-rules/droid-to/test/golden/Container.java
 class Container.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; title
 
@@ -15,6 +16,7 @@ class Container.java extends org.flasck.jvm.fl.FLASObject {
     return
   }
 }
+src/golden/template-rules/droid-to/test/golden/MyCard$B1.java
 class MyCard$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/MyCard; _card
 
@@ -26,6 +28,7 @@ class MyCard$B1.java extends org.flasck.jvm.areas.DivArea {
     return
   }
 }
+src/golden/template-rules/droid-to/test/golden/MyCard$B2.java
 class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/MyCard; _card
 
@@ -52,6 +55,7 @@ class MyCard$B2.java extends org.flasck.jvm.areas.TextArea {
     return this._card.getVar(_context, "c")
   }
 }
+src/golden/template-rules/droid-to/test/golden/MyCard$B3.java
 class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/MyCard; _card
 
@@ -70,6 +74,7 @@ class MyCard$B3.java extends org.flasck.jvm.areas.ListArea {
     return this._card.getVar(_context, "set")
   }
 }
+src/golden/template-rules/droid-to/test/golden/MyCard$B4.java
 class MyCard$B4.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/MyCard; _card
   Ltest/golden/MyCard$B4; _src_q
@@ -93,6 +98,7 @@ class MyCard$B4.java extends org.flasck.jvm.areas.DivArea {
     return null
   }
 }
+src/golden/template-rules/droid-to/test/golden/MyCard$B5.java
 class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/MyCard; _card
   Ltest/golden/MyCard$B4; _src_q
@@ -121,6 +127,7 @@ class MyCard$B5.java extends org.flasck.jvm.areas.TextArea {
     return this._src_q.q
   }
 }
+src/golden/template-rules/droid-to/test/golden/MyCard.java
 class MyCard.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

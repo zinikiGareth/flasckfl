@@ -1,3 +1,4 @@
+src/golden/assign/droid-to/test/golden/Card$doit.java
 class Card$doit.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class Card$doit.java {
     return ((test.golden.Card)self).doit(cxt)
   }
 }
+src/golden/assign/droid-to/test/golden/Card.java
 class Card.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
@@ -34,6 +36,7 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
     }
   }
 }
+src/golden/assign/droid-to/test/golden/Container.java
 class Container.java extends org.flasck.jvm.fl.FLASObject {
   Ljava/lang/Object; value
 

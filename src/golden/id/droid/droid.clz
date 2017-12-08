@@ -1,3 +1,4 @@
+src/golden/id/droid-to/test/golden/PACKAGEFUNCTIONS$id.java
 class PACKAGEFUNCTIONS$id.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$id.java {
     return test.golden.PACKAGEFUNCTIONS.id(cxt, args[0])
   }
 }
+src/golden/id/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

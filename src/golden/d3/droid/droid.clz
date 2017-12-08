@@ -1,3 +1,4 @@
+src/golden/d3/droid-to/test/golden/TestCard$B1.java
 class TestCard$B1.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
@@ -9,6 +10,7 @@ class TestCard$B1.java extends org.flasck.jvm.areas.DivArea {
     return
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$B2.java
 class TestCard$B2.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
@@ -19,6 +21,7 @@ class TestCard$B2.java extends org.flasck.jvm.areas.DivArea {
     return
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$B3.java
 class TestCard$B3.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
@@ -34,6 +37,7 @@ class TestCard$B3.java extends org.flasck.jvm.areas.DivArea {
     return null
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$B4.java
 class TestCard$B4.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/TestCard; _card
 
@@ -44,6 +48,7 @@ class TestCard$B4.java extends org.flasck.jvm.areas.TextArea {
     return
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$B5.java
 class TestCard$B5.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
@@ -54,6 +59,7 @@ class TestCard$B5.java extends org.flasck.jvm.areas.DivArea {
     return
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$B6.java
 class TestCard$B6.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/TestCard; _card
 
@@ -72,6 +78,7 @@ class TestCard$B6.java extends org.flasck.jvm.areas.DivArea {
     return "250"
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$B7.java
 class TestCard$B7.java extends org.flasck.jvm.areas.D3Area {
   Ltest/golden/TestCard; _card
 
@@ -82,6 +89,7 @@ class TestCard$B7.java extends org.flasck.jvm.areas.D3Area {
     return
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_d3_chart_enter_rect.java
 class TestCard$_d3_chart_enter_rect.java {
   void <init>() {
     super.<init>()
@@ -91,6 +99,7 @@ class TestCard$_d3_chart_enter_rect.java {
     return ((test.golden.TestCard)self)._d3_chart_enter_rect(cxt)
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_d3_chart_enter_text.java
 class TestCard$_d3_chart_enter_text.java {
   void <init>() {
     super.<init>()
@@ -100,6 +109,7 @@ class TestCard$_d3_chart_enter_text.java {
     return ((test.golden.TestCard)self)._d3_chart_enter_text(cxt)
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_d3init_chart.java
 class TestCard$_d3init_chart.java {
   void <init>() {
     super.<init>()
@@ -109,6 +119,7 @@ class TestCard$_d3init_chart.java {
     return ((test.golden.TestCard)self)._d3init_chart(cxt)
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_1.java
 class TestCard$_gen_1.java {
   void <init>() {
     super.<init>()
@@ -118,6 +129,7 @@ class TestCard$_gen_1.java {
     return ((test.golden.TestCard)self)._gen_1(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_10.java
 class TestCard$_gen_10.java {
   void <init>() {
     super.<init>()
@@ -127,6 +139,7 @@ class TestCard$_gen_10.java {
     return ((test.golden.TestCard)self)._gen_10(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_11.java
 class TestCard$_gen_11.java {
   void <init>() {
     super.<init>()
@@ -136,6 +149,7 @@ class TestCard$_gen_11.java {
     return ((test.golden.TestCard)self)._gen_11(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_12.java
 class TestCard$_gen_12.java {
   void <init>() {
     super.<init>()
@@ -145,6 +159,7 @@ class TestCard$_gen_12.java {
     return ((test.golden.TestCard)self)._gen_12(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_13.java
 class TestCard$_gen_13.java {
   void <init>() {
     super.<init>()
@@ -154,6 +169,7 @@ class TestCard$_gen_13.java {
     return ((test.golden.TestCard)self)._gen_13(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_14.java
 class TestCard$_gen_14.java {
   void <init>() {
     super.<init>()
@@ -163,6 +179,7 @@ class TestCard$_gen_14.java {
     return ((test.golden.TestCard)self)._gen_14(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_15.java
 class TestCard$_gen_15.java {
   void <init>() {
     super.<init>()
@@ -172,6 +189,7 @@ class TestCard$_gen_15.java {
     return ((test.golden.TestCard)self)._gen_15(cxt)
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_2.java
 class TestCard$_gen_2.java {
   void <init>() {
     super.<init>()
@@ -181,6 +199,7 @@ class TestCard$_gen_2.java {
     return ((test.golden.TestCard)self)._gen_2(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_3.java
 class TestCard$_gen_3.java {
   void <init>() {
     super.<init>()
@@ -190,6 +209,7 @@ class TestCard$_gen_3.java {
     return ((test.golden.TestCard)self)._gen_3(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_4.java
 class TestCard$_gen_4.java {
   void <init>() {
     super.<init>()
@@ -199,6 +219,7 @@ class TestCard$_gen_4.java {
     return ((test.golden.TestCard)self)._gen_4(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_5.java
 class TestCard$_gen_5.java {
   void <init>() {
     super.<init>()
@@ -208,6 +229,7 @@ class TestCard$_gen_5.java {
     return ((test.golden.TestCard)self)._gen_5(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_6.java
 class TestCard$_gen_6.java {
   void <init>() {
     super.<init>()
@@ -217,6 +239,7 @@ class TestCard$_gen_6.java {
     return ((test.golden.TestCard)self)._gen_6(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_7.java
 class TestCard$_gen_7.java {
   void <init>() {
     super.<init>()
@@ -226,6 +249,7 @@ class TestCard$_gen_7.java {
     return ((test.golden.TestCard)self)._gen_7(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_8.java
 class TestCard$_gen_8.java {
   void <init>() {
     super.<init>()
@@ -235,6 +259,7 @@ class TestCard$_gen_8.java {
     return ((test.golden.TestCard)self)._gen_8(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$_gen_9.java
 class TestCard$_gen_9.java {
   void <init>() {
     super.<init>()
@@ -244,6 +269,7 @@ class TestCard$_gen_9.java {
     return ((test.golden.TestCard)self)._gen_9(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$handlers_0.java
 class TestCard$handlers_0.java implements org.flasck.jvm.display.EventHandler {
   Ltest/golden/TestCard; _card
 
@@ -261,6 +287,7 @@ ev
     return test.golden.TestCard$rejig.class
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$inits_data.java
 class TestCard$inits_data.java {
   void <init>() {
     super.<init>()
@@ -270,6 +297,7 @@ class TestCard$inits_data.java {
     return ((test.golden.TestCard)self).inits_data(cxt)
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard$rejig.java
 class TestCard$rejig.java {
   void <init>() {
     super.<init>()
@@ -279,6 +307,7 @@ class TestCard$rejig.java {
     return ((test.golden.TestCard)self).rejig(cxt, args[0])
   }
 }
+src/golden/d3/droid-to/test/golden/TestCard.java
 class TestCard.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)

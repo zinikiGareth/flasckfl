@@ -1,6 +1,8 @@
+src/golden/scoping2/droid-to/test/golden/Hc$Down.java
 class Hc$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object reply(java.lang.Object from);
 }
+src/golden/scoping2/droid-to/test/golden/Hc$Impl.java
 class Hc$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Hc$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -8,8 +10,10 @@ class Hc$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.gol
   }
   abstract java.lang.Object reply(java.lang.Object from);
 }
+src/golden/scoping2/droid-to/test/golden/Hc$Up.java
 class Hc$Up.java implements org.ziniki.ziwsh.UpContract {
 }
+src/golden/scoping2/droid-to/test/golden/PACKAGEFUNCTIONS$scoped.java
 class PACKAGEFUNCTIONS$scoped.java {
   void <init>() {
     super.<init>()
@@ -19,6 +23,7 @@ class PACKAGEFUNCTIONS$scoped.java {
     return test.golden.PACKAGEFUNCTIONS.scoped(cxt, args[0])
   }
 }
+src/golden/scoping2/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()
@@ -53,17 +58,21 @@ class PACKAGEFUNCTIONS.java {
     }
   }
 }
+src/golden/scoping2/droid-to/test/golden/UpC$Down.java
 class UpC$Down.java implements org.ziniki.ziwsh.DownContract {
 }
+src/golden/scoping2/droid-to/test/golden/UpC$Impl.java
 class UpC$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.UpC$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
 }
+src/golden/scoping2/droid-to/test/golden/UpC$Up.java
 class UpC$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object call(java.lang.Object from, test.golden.Hc$Down handler);
 }
+src/golden/scoping2/droid-to/test/golden/scoped_0$MyHc.java
 class scoped_0$MyHc.java extends test.golden.Hc$Impl {
   Ljava/lang/Object; requestObj
 
@@ -89,6 +98,7 @@ class scoped_0$MyHc.java extends test.golden.Hc$Impl {
     }
   }
 }
+src/golden/scoping2/droid-to/test/golden/scoped_0/PACKAGEFUNCTIONS$request.java
 class PACKAGEFUNCTIONS$request.java {
   void <init>() {
     super.<init>()
@@ -98,6 +108,7 @@ class PACKAGEFUNCTIONS$request.java {
     return test.golden.scoped_0.PACKAGEFUNCTIONS.request(cxt, args[0], args[1])
   }
 }
+src/golden/scoping2/droid-to/test/golden/scoped_0/PACKAGEFUNCTIONS$requestObj.java
 class PACKAGEFUNCTIONS$requestObj.java {
   void <init>() {
     super.<init>()
@@ -107,6 +118,7 @@ class PACKAGEFUNCTIONS$requestObj.java {
     return test.golden.scoped_0.PACKAGEFUNCTIONS.requestObj(cxt)
   }
 }
+src/golden/scoping2/droid-to/test/golden/scoped_0/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

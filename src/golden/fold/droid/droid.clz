@@ -1,3 +1,4 @@
+src/golden/fold/droid-to/test/golden/PACKAGEFUNCTIONS$fold.java
 class PACKAGEFUNCTIONS$fold.java {
   void <init>() {
     super.<init>()
@@ -7,6 +8,7 @@ class PACKAGEFUNCTIONS$fold.java {
     return test.golden.PACKAGEFUNCTIONS.fold(cxt, args[0], args[1], args[2])
   }
 }
+src/golden/fold/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

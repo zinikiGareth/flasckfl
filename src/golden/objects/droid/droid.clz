@@ -1,3 +1,4 @@
+src/golden/objects/droid-to/test/golden/Card$_C0.java
 class Card$_C0.java extends test.golden.Ctr$Impl {
   Ltest/golden/Card; _card
 
@@ -33,6 +34,7 @@ class Card$_C0.java extends test.golden.Ctr$Impl {
     }
   }
 }
+src/golden/objects/droid-to/test/golden/Card.java
 class Card.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
@@ -44,9 +46,11 @@ class Card.java extends org.flasck.jvm.cards.FlasckCard {
     return org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
   }
 }
+src/golden/objects/droid-to/test/golden/Ctr$Down.java
 class Ctr$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object go(java.lang.Object from);
 }
+src/golden/objects/droid-to/test/golden/Ctr$Impl.java
 class Ctr$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Ctr$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -54,5 +58,6 @@ class Ctr$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.go
   }
   abstract java.lang.Object go(java.lang.Object from);
 }
+src/golden/objects/droid-to/test/golden/Ctr$Up.java
 class Ctr$Up.java implements org.ziniki.ziwsh.UpContract {
 }

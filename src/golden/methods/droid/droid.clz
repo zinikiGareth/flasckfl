@@ -1,6 +1,8 @@
+src/golden/methods/droid-to/test/golden/KVH$Down.java
 class KVH$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.Crokeys crokeys);
 }
+src/golden/methods/droid-to/test/golden/KVH$Impl.java
 class KVH$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KVH$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -8,8 +10,10 @@ class KVH$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.go
   }
   abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.Crokeys crokeys);
 }
+src/golden/methods/droid-to/test/golden/KVH$Up.java
 class KVH$Up.java implements org.ziniki.ziwsh.UpContract {
 }
+src/golden/methods/droid-to/test/golden/PACKAGEFUNCTIONS$f.java
 class PACKAGEFUNCTIONS$f.java {
   void <init>() {
     super.<init>()
@@ -19,6 +23,7 @@ class PACKAGEFUNCTIONS$f.java {
     return test.golden.PACKAGEFUNCTIONS.f(cxt)
   }
 }
+src/golden/methods/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()
@@ -28,6 +33,7 @@ class PACKAGEFUNCTIONS.java {
     return org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})
   }
 }
+src/golden/methods/droid-to/test/golden/f_0$KVHImpl.java
 class f_0$KVHImpl.java extends test.golden.KVH$Impl {
   Ljava/lang/Object; s
 
@@ -70,6 +76,7 @@ class f_0$KVHImpl.java extends test.golden.KVH$Impl {
     }
   }
 }
+src/golden/methods/droid-to/test/golden/f_0/PACKAGEFUNCTIONS$s.java
 class PACKAGEFUNCTIONS$s.java {
   void <init>() {
     super.<init>()
@@ -79,6 +86,7 @@ class PACKAGEFUNCTIONS$s.java {
     return test.golden.f_0.PACKAGEFUNCTIONS.s(cxt)
   }
 }
+src/golden/methods/droid-to/test/golden/f_0/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

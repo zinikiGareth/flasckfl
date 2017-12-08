@@ -1,6 +1,8 @@
+src/golden/contracts/droid-to/test/golden/Foo$Down.java
 class Foo$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object goodbye(java.lang.Object from, org.flasck.jvm.builtin.FLNumber y);
 }
+src/golden/contracts/droid-to/test/golden/Foo$Impl.java
 class Foo$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Foo$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -8,12 +10,15 @@ class Foo$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.go
   }
   abstract java.lang.Object goodbye(java.lang.Object from, org.flasck.jvm.builtin.FLNumber y);
 }
+src/golden/contracts/droid-to/test/golden/Foo$Up.java
 class Foo$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object hello(java.lang.Object from, java.lang.String x);
 }
+src/golden/contracts/droid-to/test/golden/Handler$Down.java
 class Handler$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object feedback(java.lang.Object from, java.lang.String answer);
 }
+src/golden/contracts/droid-to/test/golden/Handler$Impl.java
 class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Handler$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -21,22 +26,28 @@ class Handler$Impl.java extends org.flasck.jvm.cards.ContractImpl implements tes
   }
   abstract java.lang.Object feedback(java.lang.Object from, java.lang.String answer);
 }
+src/golden/contracts/droid-to/test/golden/Handler$Up.java
 class Handler$Up.java implements org.ziniki.ziwsh.UpContract {
 }
+src/golden/contracts/droid-to/test/golden/Request$Down.java
 class Request$Down.java implements org.ziniki.ziwsh.DownContract {
 }
+src/golden/contracts/droid-to/test/golden/Request$Impl.java
 class Request$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.Request$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
 }
+src/golden/contracts/droid-to/test/golden/Request$Up.java
 class Request$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object ask(java.lang.Object from, test.golden.Handler$Down answer);
 }
+src/golden/contracts/droid-to/test/golden/UsePolyInstance$Down.java
 class UsePolyInstance$Down.java implements org.ziniki.ziwsh.DownContract {
   abstract java.lang.Object giveList(java.lang.Object from, org.flasck.jvm.builtin.List l);
 }
+src/golden/contracts/droid-to/test/golden/UsePolyInstance$Impl.java
 class UsePolyInstance$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.UsePolyInstance$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
@@ -44,5 +55,6 @@ class UsePolyInstance$Impl.java extends org.flasck.jvm.cards.ContractImpl implem
   }
   abstract java.lang.Object giveList(java.lang.Object from, org.flasck.jvm.builtin.List l);
 }
+src/golden/contracts/droid-to/test/golden/UsePolyInstance$Up.java
 class UsePolyInstance$Up.java implements org.ziniki.ziwsh.UpContract {
 }

@@ -1,3 +1,4 @@
+src/golden/objdefn-simple/droid-to/test/golden/Simple.java
 class Simple.java extends org.flasck.jvm.objects.FlasckObject {
   void <init>(java.lang.Object cx, java.lang.Object state) {
     super.<init>(cx, state)

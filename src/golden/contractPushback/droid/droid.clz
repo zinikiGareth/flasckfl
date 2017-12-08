@@ -1,14 +1,18 @@
+src/golden/contractPushback/droid-to/test/golden/DoIt$Down.java
 class DoIt$Down.java implements org.ziniki.ziwsh.DownContract {
 }
+src/golden/contractPushback/droid-to/test/golden/DoIt$Impl.java
 class DoIt$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.DoIt$Down {
   void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
     super.<init>(despatcher)
     return
   }
 }
+src/golden/contractPushback/droid-to/test/golden/DoIt$Up.java
 class DoIt$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object calc(java.lang.Object from, org.flasck.jvm.builtin.FLNumber n);
 }
+src/golden/contractPushback/droid-to/test/golden/PACKAGEFUNCTIONS$f.java
 class PACKAGEFUNCTIONS$f.java {
   void <init>() {
     super.<init>()
@@ -18,6 +22,7 @@ class PACKAGEFUNCTIONS$f.java {
     return test.golden.PACKAGEFUNCTIONS.f(cxt, args[0], args[1])
   }
 }
+src/golden/contractPushback/droid-to/test/golden/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()
@@ -49,6 +54,7 @@ class PACKAGEFUNCTIONS.java {
     }
   }
 }
+src/golden/contractPushback/droid-to/test/golden/f_0/PACKAGEFUNCTIONS$m.java
 class PACKAGEFUNCTIONS$m.java {
   void <init>() {
     super.<init>()
@@ -58,6 +64,7 @@ class PACKAGEFUNCTIONS$m.java {
     return test.golden.f_0.PACKAGEFUNCTIONS.m(cxt, args[0], args[1])
   }
 }
+src/golden/contractPushback/droid-to/test/golden/f_0/PACKAGEFUNCTIONS.java
 class PACKAGEFUNCTIONS.java {
   void <init>() {
     super.<init>()

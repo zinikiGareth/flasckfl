@@ -1,3 +1,4 @@
+src/golden/card-nests-function/droid-to/test/golden/NestFunction$B1.java
 class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/NestFunction; _card
 
@@ -27,6 +28,7 @@ class NestFunction$B1.java extends org.flasck.jvm.areas.TextArea {
     }
   }
 }
+src/golden/card-nests-function/droid-to/test/golden/NestFunction$styleIf.java
 class NestFunction$styleIf.java {
   void <init>() {
     super.<init>()
@@ -36,6 +38,7 @@ class NestFunction$styleIf.java {
     return ((test.golden.NestFunction)self).styleIf(cxt, args[0], args[1])
   }
 }
+src/golden/card-nests-function/droid-to/test/golden/NestFunction.java
 class NestFunction.java extends org.flasck.jvm.cards.FlasckCard {
   void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
     super.<init>(despatcher, display)
