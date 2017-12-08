@@ -172,9 +172,16 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		clean(droid);
 		clean(tc2);
 		
+		File jvmbin = new File(GoldenCGRunner.jvmdir, "jvm/bin");
+		if (!jvmbin.exists())
+			jvmbin = new File(GoldenCGRunner.jvmdir, "jvm/qbout");
+		if (!jvmbin.exists())
+			throw new RuntimeException("No jvm bin directory could be found");
+		
+
 		Main.setLogLevels();
 		FLASCompiler compiler = new FLASCompiler();
-		compiler.unitTestPath(new File(jvmdir, "jvm/bin/classes"));
+		compiler.unitTestPath(new File(jvmbin, "classes"));
 		compiler.unitjs(useJSRunner);
 		compiler.unitjvm(useJVMRunner);
 		File dir = new File(s, "test.golden");
