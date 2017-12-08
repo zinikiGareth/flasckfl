@@ -808,7 +808,8 @@ public class Rewriter implements CodeGenRegistry {
 						pass2(c2, cd.innerScope());
 						for (HandlerImplements h : cd.handlers) {
 							RWHandlerImplements rw = pass2HI(c2, h);
-							cg.handlers.add(new HandlerGrouping(rw.handlerName, rw));
+							if (rw != null)
+								cg.handlers.add(new HandlerGrouping(rw.handlerName, rw));
 						}
 					}
 				} catch (ResolutionException ex) {

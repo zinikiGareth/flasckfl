@@ -5,6 +5,7 @@ import org.flasck.flas.types.PolyVar;
 import org.flasck.flas.types.PrimitiveType;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.types.TypeWithName;
+import org.flasck.jvm.builtin.FLList;
 import org.zinutils.bytecode.JavaType;
 import org.zinutils.exceptions.UtilException;
 
@@ -31,6 +32,8 @@ public class JvmTypeMapper {
 			String name = ((TypeWithName)type).getName().javaClassName();
 			if (name.equals("org.flasck.jvm.builtin.Any"))
 				return JavaType.object_;
+			else if (name.equals("org.flasck.jvm.builtin.List"))
+				return new JavaType(FLList.class.getName());
 			else
 				return new JavaType(name);
 		} else

@@ -45,7 +45,7 @@ class Request$Up.java implements org.ziniki.ziwsh.UpContract {
 }
 src/golden/contracts/droid-to/test/golden/UsePolyInstance$Down.java
 class UsePolyInstance$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object giveList(java.lang.Object from, org.flasck.jvm.builtin.List l);
+  abstract java.lang.Object giveList(java.lang.Object from, org.flasck.jvm.builtin.FLList l);
 }
 src/golden/contracts/droid-to/test/golden/UsePolyInstance$Impl.java
 class UsePolyInstance$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.UsePolyInstance$Down {
@@ -53,7 +53,7 @@ class UsePolyInstance$Impl.java extends org.flasck.jvm.cards.ContractImpl implem
     super.<init>(despatcher)
     return
   }
-  abstract java.lang.Object giveList(java.lang.Object from, org.flasck.jvm.builtin.List l);
+  abstract java.lang.Object giveList(java.lang.Object from, org.flasck.jvm.builtin.FLList l);
 }
 src/golden/contracts/droid-to/test/golden/UsePolyInstance$Up.java
 class UsePolyInstance$Up.java implements org.ziniki.ziwsh.UpContract {
