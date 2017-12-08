@@ -1,6 +1,7 @@
 package test.droidgen;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.blockForm.InputPosition;
@@ -58,6 +59,7 @@ public class GenTestsForCards {
 	public void testVisitingAnEmptyCardGeneratesTheCorrectMinimumCode() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
+		checkCreationOfCardInit(null);
 		CardGrouping sd = new CardGrouping(loc, new CardName(null, "Card"), new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Card"), true));
 		gen.visitCardGrouping(sd);
 	}
@@ -66,7 +68,7 @@ public class GenTestsForCards {
 	public void testVisitingACardWithOneDataMemberAndNoInitGeneratesAnEmptySlot() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-//		checkDefnOfField(J.OBJECTP, "f1");
+		checkCreationOfCardInit(null);
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Boolean")), "f1"));
 		CardGrouping card = new CardGrouping(loc, new CardName(null, "Card"), sd);
@@ -77,8 +79,7 @@ public class GenTestsForCards {
 	public void testVisitingACardWithOneInitializedMemberGeneratesASlotWithTheValue() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
-//		checkDefnOfField(J.OBJECTP, "f1");
-		checkAssignToField(ctor, "f1");
+		checkCreationOfCardInit("f1");
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Card"), true);
 		sd.addField(new RWStructField(loc, false, new PrimitiveType(loc, new SolidName(null, "Number")), "f1", FunctionName.function(loc, null, "init_f1")));
 		CardGrouping card = new CardGrouping(loc, new CardName(null, "Card"), sd);
@@ -89,6 +90,7 @@ public class GenTestsForCards {
 	public void testCorrectGenerationOfContractWithNoVar() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
+		checkCreationOfCardInit(null);
 		checkDefnOfContract("_C0", null);
 		checkRegisterOfContract("_C0", null);
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Card"), true);
@@ -102,6 +104,7 @@ public class GenTestsForCards {
 	public void testCorrectGenerationOfContractWithVar() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
+		checkCreationOfCardInit(null);
 		checkDefnOfContract("_C0", "ce");
 		checkRegisterOfContract("_C0", "ce");
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Card"), true);
@@ -115,6 +118,7 @@ public class GenTestsForCards {
 	public void testCorrectGenerationOfHandler() {
 		checkCreationOfCard();
 		checkCreationOfCardCtor();
+		checkCreationOfCardInit(null);
 		checkDefnOfContract("ActualHandler", null);
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Card"), true);
 		CardName cdName = new CardName(null, "Card");
@@ -145,6 +149,35 @@ public class GenTestsForCards {
 		}});
 	}
 
+	@SuppressWarnings("unchecked")
+	public void checkCreationOfCardInit(String withVar) {
+		context.checking(new Expectations() {{
+			oneOf(bccCard).createMethod(false, J.OBJECT, "init"); will(returnValue(ctor));
+			oneOf(ctor).argument(J.OBJECT, "cx"); will(new ReturnNewVar(ctor, J.OBJECT, "cx"));
+			oneOf(ctor).arrayOf(with(J.OBJECT), (List<IExpr>) with(aNonNull(List.class))); will(returnValue(expr));
+			oneOf(ctor).callStatic(with(J.NIL), with(J.OBJECT), with("eval"), with(aNonNull(IExpr[].class))); will(returnValue(expr));
+			oneOf(ctor).returnObject(expr); will(returnValue(expr));
+			if (withVar != null) {
+				oneOf(ctor).avar(J.OBJECT, "v0"); will(new ReturnNewVar(ctor, J.OBJECT, "v0"));
+				oneOf(ctor).stringConst(withVar); will(returnValue(expr));
+				oneOf(ctor).as(with(aNonNull(AVar.class)), with(J.OBJECT)); will(returnValue(expr));
+				oneOf(ctor).classConst("Card$inits_f1"); will(returnValue(expr));
+				oneOf(ctor).as(expr, J.OBJECT); will(returnValue(expr));
+				oneOf(ctor).arrayOf(with(J.OBJECT), (List<IExpr>) with(aNonNull(List.class))); will(returnValue(expr));
+				oneOf(ctor).callStatic(with(J.FLCLOSURE), with(J.FLCLOSURE), with("obj"), with(aNonNull(IExpr[].class))); will(returnValue(expr));
+				oneOf(ctor).classConst(J.ASSIGN); will(returnValue(expr));
+				oneOf(ctor).as(expr, J.OBJECT); will(returnValue(expr));
+				oneOf(ctor).arrayOf(with(J.OBJECT), (List<IExpr>) with(aNonNull(List.class))); will(returnValue(expr));
+				oneOf(ctor).callStatic(with(J.FLCLOSURE), with(J.FLCLOSURE), with("simple"), with(aNonNull(IExpr[].class))); will(returnValue(expr));
+				oneOf(ctor).assign(with(aNonNull(AVar.class)), with(expr)); will(returnValue(expr));
+				oneOf(ctor).classConst(J.CONS); will(returnValue(expr));
+				oneOf(ctor).as(expr, J.OBJECT); will(returnValue(expr));
+				oneOf(ctor).arrayOf(with(J.OBJECT), (List<IExpr>) with(aNonNull(List.class))); will(returnValue(expr));
+				oneOf(ctor).callStatic(with(J.FLCLOSURE), with(J.FLCLOSURE), with("simple"), with(aNonNull(IExpr[].class))); will(returnValue(expr));
+			}
+		}});
+	}
+
 	private void checkDefnOfContract(String ctrName, String called) {
 		context.checking(new Expectations() {{
 			oneOf(bccCard).addInnerClassReference(Access.PUBLICSTATIC, "Card", ctrName);
@@ -165,14 +198,6 @@ public class GenTestsForCards {
 				oneOf(ctor).as(expr, J.CONTRACT_IMPL);  will(returnValue(expr));
 			}
 			oneOf(ctor).callVirtual(with("void"), with(aNonNull(IExpr.class)), with("registerContract"), with(aNonNull(IExpr[].class)));
-		}});
-	}
-	private void checkAssignToField(MethodDefiner meth, final String fld) {
-		context.checking(new Expectations() {{
-			oneOf(meth).stringConst(fld); will(returnValue(expr));
-			oneOf(meth).classConst("PACKAGEFUNCTIONS$init_" + fld); will(returnValue(expr));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", expr); will(returnValue(expr));
-			oneOf(meth).callVirtual(with("void"), with(any(AVar.class)), with("setVar"), with(any(IExpr[].class))); will(returnValue(expr));
 		}});
 	}
 }
