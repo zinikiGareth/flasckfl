@@ -60,7 +60,7 @@ public class GoldenJVM {
 		
 		droidToClasses = new File(droidTo, "test/runner");
 		assertTrue("JVM was not created", droidToClasses.isDirectory());
-		handdir = new File("/Users/gareth/Ziniki/Over/flasjvm/jvm/bin/classes/test/runner");
+		handdir = new File("../flasjvm/jvm/bin/classes/test/runner");
 		
 		int width = 170;
 		String wd = System.getProperty("org.zinutils.cg.width");
