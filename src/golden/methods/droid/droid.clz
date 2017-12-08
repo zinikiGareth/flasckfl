@@ -1,3 +1,33 @@
+class KVH$Down.java implements org.ziniki.ziwsh.DownContract {
+  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.Crokeys crokeys);
+}
+class KVH$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KVH$Down {
+  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
+    super.<init>(despatcher)
+    return
+  }
+  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.Crokeys crokeys);
+}
+class KVH$Up.java implements org.ziniki.ziwsh.UpContract {
+}
+class PACKAGEFUNCTIONS$f.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    return test.golden.PACKAGEFUNCTIONS.f(cxt)
+  }
+}
+class PACKAGEFUNCTIONS.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object f(java.lang.Object _context) {
+    return org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})
+  }
+}
 class f_0$KVHImpl.java extends test.golden.KVH$Impl {
   Ljava/lang/Object; s
 
@@ -38,36 +68,6 @@ class f_0$KVHImpl.java extends test.golden.KVH$Impl {
       }
       return new org.flasck.jvm.fl.FLError("update: case not handled")
     }
-  }
-}
-class KVH$Down.java implements org.ziniki.ziwsh.DownContract {
-  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.Crokeys crokeys);
-}
-class KVH$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.KVH$Down {
-  void <init>(org.ziniki.ziwsh.postbox.IDespatcher despatcher) {
-    super.<init>(despatcher)
-    return
-  }
-  abstract java.lang.Object update(java.lang.Object from, org.flasck.jvm.builtin.Crokeys crokeys);
-}
-class KVH$Up.java implements org.ziniki.ziwsh.UpContract {
-}
-class PACKAGEFUNCTIONS$f.java {
-  void <init>() {
-    super.<init>()
-    return
-  }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
-    return test.golden.PACKAGEFUNCTIONS.f(cxt)
-  }
-}
-class PACKAGEFUNCTIONS.java {
-  void <init>() {
-    super.<init>()
-    return
-  }
-  static java.lang.Object f(java.lang.Object _context) {
-    return org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})
   }
 }
 class PACKAGEFUNCTIONS$s.java {

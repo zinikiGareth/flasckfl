@@ -1,53 +1,3 @@
-class f_0$HandleReply.java extends test.golden.Reply$Impl {
-  Ljava/lang/Object; server
-  Ljava/lang/Object; var
-  Ljava/lang/Object; v
-
-  void <init>(java.lang.Object cxt, java.lang.Object server, java.lang.Object var, java.lang.Object v) {
-    super.<init>()
-    this.server = org.flasck.jvm.fl.FLEval.head(cxt, server)
-    this.var = org.flasck.jvm.fl.FLEval.head(cxt, var)
-    this.v = org.flasck.jvm.fl.FLEval.head(cxt, v)
-    return
-  }
-  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
-    if (args.length<3) {
-      return new org.flasck.jvm.fl.FLCurry(null,test.golden.f_0$HandleReply.class,args)
-    } else {
-      return new test.golden.f_0$HandleReply(cxt,args[0],args[1],args[2])
-    }
-  }
-  java.lang.Object reply(java.lang.Object _context, java.lang.Object _0) {
-    {
-      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
-      if (_0 instanceof org.flasck.jvm.fl.FLError) {
-        return _0
-      }
-      if (_0 instanceof org.flasck.jvm.builtin.FLNumber) {
-        {
-          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class, new java.lang.Object[2] {
-              autobox[this.var]
-              autobox[this.v]
-            })
-          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-              autobox[v1]
-              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
-            })
-          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
-              autobox[this.server]
-              autobox["put"]
-              autobox[v2]
-            })
-          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
-              autobox[v3]
-              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
-            })
-        }
-      }
-      return new org.flasck.jvm.fl.FLError("reply: case not handled")
-    }
-  }
-}
 class NoArg$Down.java implements org.ziniki.ziwsh.DownContract {
 }
 class NoArg$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test.golden.NoArg$Down {
@@ -163,6 +113,56 @@ class Server$Impl.java extends org.flasck.jvm.cards.ContractImpl implements test
 class Server$Up.java implements org.ziniki.ziwsh.UpContract {
   abstract java.lang.Object get(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k, test.golden.Reply$Down r);
   abstract java.lang.Object put(java.lang.Object from, org.flasck.jvm.builtin.FLNumber k);
+}
+class f_0$HandleReply.java extends test.golden.Reply$Impl {
+  Ljava/lang/Object; server
+  Ljava/lang/Object; var
+  Ljava/lang/Object; v
+
+  void <init>(java.lang.Object cxt, java.lang.Object server, java.lang.Object var, java.lang.Object v) {
+    super.<init>()
+    this.server = org.flasck.jvm.fl.FLEval.head(cxt, server)
+    this.var = org.flasck.jvm.fl.FLEval.head(cxt, var)
+    this.v = org.flasck.jvm.fl.FLEval.head(cxt, v)
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, [java.lang.Object args) {
+    if (args.length<3) {
+      return new org.flasck.jvm.fl.FLCurry(null,test.golden.f_0$HandleReply.class,args)
+    } else {
+      return new test.golden.f_0$HandleReply(cxt,args[0],args[1],args[2])
+    }
+  }
+  java.lang.Object reply(java.lang.Object _context, java.lang.Object _0) {
+    {
+      _0 = org.flasck.jvm.fl.FLEval.head(_context, _0)
+      if (_0 instanceof org.flasck.jvm.fl.FLError) {
+        return _0
+      }
+      if (_0 instanceof org.flasck.jvm.builtin.FLNumber) {
+        {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$+.class, new java.lang.Object[2] {
+              autobox[this.var]
+              autobox[this.v]
+            })
+          v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+              autobox[v1]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
+            })
+          v3 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+              autobox[this.server]
+              autobox["put"]
+              autobox[v2]
+            })
+          return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+              autobox[v3]
+              autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
+            })
+        }
+      }
+      return new org.flasck.jvm.fl.FLError("reply: case not handled")
+    }
+  }
 }
 class PACKAGEFUNCTIONS$q.java {
   void <init>() {

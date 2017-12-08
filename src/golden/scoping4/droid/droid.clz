@@ -1,12 +1,3 @@
-class Card$_C0.java extends test.golden.DataStore$Impl {
-  Ltest/golden/Card; _card
-
-  void <init>(test.golden.Card card) {
-    super.<init>(card.getDespatcher())
-    this._card = card
-    return
-  }
-}
 class Card$ItemHandler$x.java {
   void <init>() {
     super.<init>()
@@ -67,6 +58,15 @@ class Card$ItemHandler.java extends test.golden.KVUpdate$Impl {
         autobox[this.ck]
         autobox[_s0]
       })
+  }
+}
+class Card$_C0.java extends test.golden.DataStore$Impl {
+  Ltest/golden/Card; _card
+
+  void <init>(test.golden.Card card) {
+    super.<init>(card.getDespatcher())
+    this._card = card
+    return
   }
 }
 class Card.java extends org.flasck.jvm.cards.FlasckCard {

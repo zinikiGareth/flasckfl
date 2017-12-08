@@ -1,3 +1,87 @@
+class TestCard$B1.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
+  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    b2 = new test.golden.TestCard$B2(cxt,cardArg,this)
+    b5 = new test.golden.TestCard$B5(cxt,cardArg,this)
+    return
+  }
+}
+class TestCard$B2.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
+  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    b3 = new test.golden.TestCard$B3(cxt,cardArg,this)
+    return
+  }
+}
+class TestCard$B3.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
+  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, "a")
+    this._card = cardArg
+    b4 = new test.golden.TestCard$B4(cxt,cardArg,this)
+    (void)this._add_handlers(cxt)
+    return
+  }
+  java.lang.Object _add_handlers(java.lang.Object cxt) {
+    super.addEventHandler(false, "click", test.golden.TestCard$handlers_0.class)
+    return null
+  }
+}
+class TestCard$B4.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/TestCard; _card
+
+  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._setText("click here")
+    return
+  }
+}
+class TestCard$B5.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
+  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    b6 = new test.golden.TestCard$B6(cxt,cardArg,this)
+    return
+  }
+}
+class TestCard$B6.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/TestCard; _card
+
+  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, "svg")
+    this._card = cardArg
+    (void)this._setAttr_1(cxt)
+    (void)this._setAttr_2(cxt)
+    b7 = new test.golden.TestCard$B7(cxt,cardArg,this)
+    return
+  }
+  java.lang.Object teas_1(java.lang.Object _context) {
+    return "400"
+  }
+  java.lang.Object teas_2(java.lang.Object _context) {
+    return "250"
+  }
+}
+class TestCard$B7.java extends org.flasck.jvm.areas.D3Area {
+  Ltest/golden/TestCard; _card
+
+  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._card._wrapper.onAssign(this._card, "data", this, "_onUpdate")
+    return
+  }
+}
 class TestCard$_d3_chart_enter_rect.java {
   void <init>() {
     super.<init>()
@@ -158,90 +242,6 @@ class TestCard$_gen_9.java {
   }
   static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
     return ((test.golden.TestCard)self)._gen_9(cxt, args[0])
-  }
-}
-class TestCard$B1.java extends org.flasck.jvm.areas.DivArea {
-  Ltest/golden/TestCard; _card
-
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, null)
-    this._card = cardArg
-    b2 = new test.golden.TestCard$B2(cxt,cardArg,this)
-    b5 = new test.golden.TestCard$B5(cxt,cardArg,this)
-    return
-  }
-}
-class TestCard$B2.java extends org.flasck.jvm.areas.DivArea {
-  Ltest/golden/TestCard; _card
-
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, null)
-    this._card = cardArg
-    b3 = new test.golden.TestCard$B3(cxt,cardArg,this)
-    return
-  }
-}
-class TestCard$B3.java extends org.flasck.jvm.areas.DivArea {
-  Ltest/golden/TestCard; _card
-
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, "a")
-    this._card = cardArg
-    b4 = new test.golden.TestCard$B4(cxt,cardArg,this)
-    (void)this._add_handlers(cxt)
-    return
-  }
-  java.lang.Object _add_handlers(java.lang.Object cxt) {
-    super.addEventHandler(false, "click", test.golden.TestCard$handlers_0.class)
-    return null
-  }
-}
-class TestCard$B4.java extends org.flasck.jvm.areas.TextArea {
-  Ltest/golden/TestCard; _card
-
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, null)
-    this._card = cardArg
-    this._setText("click here")
-    return
-  }
-}
-class TestCard$B5.java extends org.flasck.jvm.areas.DivArea {
-  Ltest/golden/TestCard; _card
-
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, null)
-    this._card = cardArg
-    b6 = new test.golden.TestCard$B6(cxt,cardArg,this)
-    return
-  }
-}
-class TestCard$B6.java extends org.flasck.jvm.areas.DivArea {
-  Ltest/golden/TestCard; _card
-
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, "svg")
-    this._card = cardArg
-    (void)this._setAttr_1(cxt)
-    (void)this._setAttr_2(cxt)
-    b7 = new test.golden.TestCard$B7(cxt,cardArg,this)
-    return
-  }
-  java.lang.Object teas_1(java.lang.Object _context) {
-    return "400"
-  }
-  java.lang.Object teas_2(java.lang.Object _context) {
-    return "250"
-  }
-}
-class TestCard$B7.java extends org.flasck.jvm.areas.D3Area {
-  Ltest/golden/TestCard; _card
-
-  void <init>(java.lang.Object cxt, test.golden.TestCard cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, null)
-    this._card = cardArg
-    this._card._wrapper.onAssign(this._card, "data", this, "_onUpdate")
-    return
   }
 }
 class TestCard$handlers_0.java implements org.flasck.jvm.display.EventHandler {
