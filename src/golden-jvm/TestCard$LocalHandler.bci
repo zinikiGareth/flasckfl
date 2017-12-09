@@ -1,0 +1,174 @@
+class test/runner/TestCard$LocalHandler
+  extends test/runner/MyHandler$Impl
+Field private Ltest/runner/TestCard; _card
+Method public <init> (Ljava/lang/Object;Ljava/lang/Object;)V
+  maxStack = 3 maxLocals = 3 codeLen = 28
+  {
+    0000: aload_0
+    0001: aload_1
+    0002: aload_2
+    0003: invokestatic MClass[org/flasck/jvm/fl/FLEval].full (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    0006: checkcast Class[test/runner/TestCard]
+    0009: invokevirtual MClass[test/runner/TestCard].getDespatcher ()Lorg/ziniki/ziwsh/postbox/IDespatcher;
+    000C: invokespecial MClass[test/runner/MyHandler$Impl].<init> (Lorg/ziniki/ziwsh/postbox/IDespatcher;)V
+    000F: aload_0
+    0010: aload_1
+    0011: aload_2
+    0012: invokestatic MClass[org/flasck/jvm/fl/FLEval].full (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    0015: checkcast Class[test/runner/TestCard]
+    0018: putfield FClass[test/runner/TestCard$LocalHandler]._card{Ltest/runner/TestCard;}
+    001B: return
+  }
+3 Line Number Entries
+Line 137: 0
+Line 138: 15
+Line 139: 27
+Ltest/runner/TestCard$LocalHandler; this (var #0 from 0 to 28)
+Ljava/lang/Object; cx (var #1 from 0 to 28)
+Ljava/lang/Object; card (var #2 from 0 to 28)
+Method public missing (Ljava/lang/Object;)Ljava/lang/Object;
+  maxStack = 6 maxLocals = 9 codeLen = 172
+  {
+    0000: ldc Class[test/runner/Account]
+    0002: iconst_0
+    0003: anewarray Class[java/lang/Object]
+    0006: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    0009: astore_2
+    000A: ldc Class[org/flasck/jvm/builtin/Assign]
+    000C: iconst_3
+    000D: anewarray Class[java/lang/Object]
+    0010: dup
+    0011: iconst_0
+    0012: aload_0
+    0013: getfield FClass[test/runner/TestCard$LocalHandler]._card{Ltest/runner/TestCard;}
+    0016: aastore
+    0017: dup
+    0018: iconst_1
+    0019: ldc "acct"
+    001B: aastore
+    001C: dup
+    001D: iconst_2
+    001E: aload_2
+    001F: aastore
+    0020: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    0023: astore_3
+    0024: ldc Class[test/runner/Account]
+    0026: iconst_0
+    0027: anewarray Class[java/lang/Object]
+    002A: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    002D: astore 4
+    002F: ldc Class[org/flasck/jvm/builtin/Cons]
+    0031: iconst_2
+    0032: anewarray Class[java/lang/Object]
+    0035: dup
+    0036: iconst_0
+    0037: aload 4
+    0039: aastore
+    003A: dup
+    003B: iconst_1
+    003C: aload_1
+    003D: iconst_0
+    003E: anewarray Class[java/lang/Object]
+    0041: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    0044: aastore
+    0045: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    0048: astore 5
+    004A: ldc Class[org/flasck/jvm/builtin/Cons]
+    004C: iconst_2
+    004D: anewarray Class[java/lang/Object]
+    0050: dup
+    0051: iconst_0
+    0052: ldc Class[test/runner/Account]
+    0054: aastore
+    0055: dup
+    0056: iconst_1
+    0057: aload 5
+    0059: aastore
+    005A: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    005D: astore 6
+    005F: ldc Class[org/flasck/jvm/builtin/Send]
+    0061: iconst_3
+    0062: anewarray Class[java/lang/Object]
+    0065: dup
+    0066: iconst_0
+    0067: aload_0
+    0068: getfield FClass[test/runner/TestCard$LocalHandler]._card{Ltest/runner/TestCard;}
+    006B: getfield FClass[test/runner/TestCard].ds{Ltest/runner/TestCard$_C2;}
+    006E: aastore
+    006F: dup
+    0070: iconst_1
+    0071: ldc "pushMy"
+    0073: aastore
+    0074: dup
+    0075: iconst_2
+    0076: aload 6
+    0078: aastore
+    0079: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    007C: astore 7
+    007E: ldc Class[org/flasck/jvm/builtin/Cons]
+    0080: iconst_2
+    0081: anewarray Class[java/lang/Object]
+    0084: dup
+    0085: iconst_0
+    0086: aload 7
+    0088: aastore
+    0089: dup
+    008A: iconst_1
+    008B: aload_1
+    008C: iconst_0
+    008D: anewarray Class[java/lang/Object]
+    0090: invokestatic MClass[org/flasck/jvm/builtin/Nil].eval (Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+    0093: aastore
+    0094: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    0097: astore 8
+    0099: ldc Class[org/flasck/jvm/builtin/Cons]
+    009B: iconst_2
+    009C: anewarray Class[java/lang/Object]
+    009F: dup
+    00A0: iconst_0
+    00A1: aload_3
+    00A2: aastore
+    00A3: dup
+    00A4: iconst_1
+    00A5: aload 8
+    00A7: aastore
+    00A8: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
+    00AB: areturn
+  }
+8 Line Number Entries
+Line 142: 0
+Line 143: 10
+Line 144: 36
+Line 145: 47
+Line 146: 74
+Line 147: 95
+Line 148: 126
+Line 149: 153
+Ltest/runner/TestCard$LocalHandler; this (var #0 from 0 to 172)
+Ljava/lang/Object; cx (var #1 from 0 to 172)
+Lorg/flasck/jvm/fl/FLClosure; v0 (var #2 from 10 to 172)
+Lorg/flasck/jvm/fl/FLClosure; v1 (var #3 from 36 to 172)
+Lorg/flasck/jvm/fl/FLClosure; v2 (var #4 from 47 to 172)
+Lorg/flasck/jvm/fl/FLClosure; v3 (var #5 from 74 to 172)
+Lorg/flasck/jvm/fl/FLClosure; v4 (var #6 from 95 to 172)
+Lorg/flasck/jvm/fl/FLClosure; v5 (var #7 from 126 to 172)
+Lorg/flasck/jvm/fl/FLClosure; v6 (var #8 from 153 to 172)
+Method public static eval (Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+  maxStack = 4 maxLocals = 3 codeLen = 10
+  {
+    0000: new Class[test/runner/TestCard$LocalHandler]
+    0003: dup
+    0004: aload_0
+    0005: aload_1
+    0006: invokespecial MClass[test/runner/TestCard$LocalHandler].<init> (Ljava/lang/Object;Ljava/lang/Object;)V
+    0009: areturn
+  }
+1 Line Number Entries
+Line 153: 0
+Ljava/lang/Object; cx (var #0 from 0 to 10)
+Ljava/lang/Object; card (var #1 from 0 to 10)
+[Ljava/lang/Object; args (var #2 from 0 to 10)
+[Class SourceFile]: TestCard.java
+2 inner classes
+Ref public static Class[test/runner/MyHandler$Impl] <= Class[test/runner/MyHandler].Impl
+Ref public static Class[test/runner/TestCard$LocalHandler] <= Class[test/runner/TestCard].LocalHandler

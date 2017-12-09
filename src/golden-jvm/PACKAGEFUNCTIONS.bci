@@ -1,0 +1,58 @@
+class test/runner/PACKAGEFUNCTIONS
+  extends java/lang/Object
+Method public <init> ()V
+  maxStack = 1 maxLocals = 1 codeLen = 5
+  {
+    0000: aload_0
+    0001: invokespecial MClass[java/lang/Object].<init> ()V
+    0004: return
+  }
+1 Line Number Entries
+Line 6: 0
+Ltest/runner/PACKAGEFUNCTIONS; this (var #0 from 0 to 5)
+Method public static x (Ljava/lang/Object;)Ljava/lang/Object;
+  maxStack = 1 maxLocals = 1 codeLen = 7
+  {
+    0000: sipush 420
+    0003: invokestatic MClass[org/flasck/jvm/builtin/FLNumber].fromInt (I)Lorg/flasck/jvm/builtin/FLNumber;
+    0006: areturn
+  }
+1 Line Number Entries
+Line 27: 0
+Ljava/lang/Object; cxt (var #0 from 0 to 7)
+Method public static id (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  maxStack = 1 maxLocals = 2 codeLen = 2
+  {
+    0000: aload_1
+    0001: areturn
+  }
+1 Line Number Entries
+Line 31: 0
+Ljava/lang/Object; cxt (var #0 from 0 to 2)
+Ljava/lang/Object; val (var #1 from 0 to 2)
+Method public static styleIf (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+  maxStack = 2 maxLocals = 3 codeLen = 13
+  {
+    0000: aload_0
+    0001: aload_2
+    0002: invokestatic MClass[org/flasck/jvm/fl/FLEval].isTruthy (Ljava/lang/Object;Ljava/lang/Object;)Z
+    0005: ifeq 000A
+    0008: aload_1
+    0009: areturn
+    000A: ldc ""
+    000C: areturn
+  }
+3 Line Number Entries
+Line 35: 0
+Line 36: 8
+Line 38: 10
+Ljava/lang/Object; cx (var #0 from 0 to 13)
+Ljava/lang/Object; a1 (var #1 from 0 to 13)
+Ljava/lang/Object; a2 (var #2 from 0 to 13)
+1 stack map entries
+  same_frame; offset = 0A
+[Class SourceFile]: PACKAGEFUNCTIONS.java
+3 inner classes
+Ref public static Class[test/runner/PACKAGEFUNCTIONS$id] <= Class[test/runner/PACKAGEFUNCTIONS].id
+Ref public static Class[test/runner/PACKAGEFUNCTIONS$styleIf] <= Class[test/runner/PACKAGEFUNCTIONS].styleIf
+Ref public static Class[test/runner/PACKAGEFUNCTIONS$x] <= Class[test/runner/PACKAGEFUNCTIONS].x

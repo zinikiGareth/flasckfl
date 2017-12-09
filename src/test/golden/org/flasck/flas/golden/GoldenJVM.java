@@ -1,6 +1,7 @@
 package org.flasck.flas.golden;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -8,16 +9,20 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.compiler.FLASCompiler;
 import org.flasck.flas.errors.ErrorResultException;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zinutils.cgharness.CGHarnessTestBase;
 import org.zinutils.utils.FileUtils;
 
 public class GoldenJVM {
+	static Logger logger = LoggerFactory.getLogger("HSIE");
 	static String checkEverythingS = System.getProperty("org.flasck.golden.check");
 	static boolean checkEverything = checkEverythingS == null || !checkEverythingS.equalsIgnoreCase("false");
 	static String stripNumbersS = System.getProperty("org.flasck.golden.strip"); 
@@ -29,20 +34,36 @@ public class GoldenJVM {
 	static String buildDroidOpt = System.getProperty("org.flasck.golden.buildDroid");
 	private static File droidToClasses;
 	private static File handdir;
+	private static File goldenDir;
 
 	@BeforeClass
 	public static void compileGolden() throws Exception {
 		File dir = new File("src/test/resources/cards/test.runner");
+		goldenDir = new File("src/golden-jvm");
 		File out = new File("bin/jvmtest");
 		File errs = new File(out, "errors");
 		File droidTo = new File(out, "droid-to");
 		File droid = new File(out, "droid-tmp");
-		
-		File jvmbin = new File(GoldenCGRunner.jvmdir, "jvm/bin");
-		if (!jvmbin.exists())
-			jvmbin = new File(GoldenCGRunner.jvmdir, "jvm/qbout");
-		if (!jvmbin.exists())
-			throw new RuntimeException("No jvm bin directory could be found");
+
+		File utpath;
+		{
+			assertNotNull("There was no jvm dir", GoldenCGRunner.jvmdir);
+			File jvmbin = new File(GoldenCGRunner.jvmdir, "jvm/bin");
+			if (jvmbin.exists()) {
+				utpath = new File(jvmbin, "classes");
+				FileUtils.cleanDirectory(goldenDir);
+				FileUtils.assertDirectory(goldenDir);
+				handdir = new File(jvmbin, "classes/test/runner");
+				for (File f : FileUtils.findFilesMatching(handdir, "*.class")) {
+					String golden = CGHarnessTestBase.inspect(FileUtils.readAllStream(new FileInputStream(f)));
+					final File bci = new File(goldenDir, FileUtils.ensureExtension(f.getName(), ".bci"));
+					FileUtils.writeFile(bci, golden);
+				}
+			} else {
+				logger.warn("No jvm/bin dir found, using repository golden files");
+				utpath = new File(new File(GoldenCGRunner.jvmdir, "jvm/qbout"), "classes");
+			}
+		}
 		
 		GoldenCGRunner.clean(errs);
 		GoldenCGRunner.clean(droidTo);
@@ -51,7 +72,7 @@ public class GoldenJVM {
 		Main.setLogLevels();
 		FLASCompiler compiler = new FLASCompiler();
 		compiler.searchIn(new File(GoldenCGRunner.jvmdir, "services/flim"));
-		compiler.unitTestPath(new File(jvmbin, "classes"));
+		compiler.unitTestPath(utpath);
 		compiler.unitjs(useJSRunner);
 		compiler.unitjvm(useJVMRunner);
 		try {
@@ -66,7 +87,6 @@ public class GoldenJVM {
 		
 		droidToClasses = new File(droidTo, "test/runner");
 		assertTrue("JVM was not created", droidToClasses.isDirectory());
-		handdir = new File(jvmbin, "classes/test/runner");
 		
 		int width = 170;
 		String wd = System.getProperty("org.zinutils.cg.width");
@@ -74,16 +94,16 @@ public class GoldenJVM {
 			width = Integer.parseInt(wd);
 		CGHarnessTestBase.configure(false, width, true);
 	}
-	
+
 	@Test
 	public void checkTheTotalNumberOfFiles() {
-		final List<File> g1 = FileUtils.findFilesUnderMatching(droidToClasses, "*.class");
-		TreeSet<File> genned = new TreeSet<File>(g1);
+		final TreeSet<File> genned = FileUtils.findFilesUnderMatching(droidToClasses, "*.class").stream().map(f -> FileUtils.ensureExtension(f, ".bci")).collect(Collectors.toCollection(TreeSet::new));
 		System.out.println(genned);
-		TreeSet<File> written = new TreeSet<File>(FileUtils.findFilesUnderMatching(handdir, "*.class"));
+		final List<File> w1 = FileUtils.findFilesUnderMatching(goldenDir, "*.bci");
+		TreeSet<File> written = new TreeSet<>(w1);
 		System.out.println(written);
-		genned.removeAll(written);
-		written.removeAll(g1);
+		written.removeAll(genned);
+		genned.removeAll(w1);
 		assertEquals("there were " + genned.size() + " generated files that were not hand-written: " + genned, 0, genned.size());
 		assertEquals("there were " + written.size() + " files written by hand that were not generated: " + written, 0, written.size());
 	}
@@ -174,8 +194,8 @@ public class GoldenJVM {
 	}
 	
 	private void compare(final String file) throws FileNotFoundException, Exception {
-		byte[] hbs = FileUtils.readAllStream(new FileInputStream(new File(handdir, file + ".class")));
+		String golden = FileUtils.readFile(new File(goldenDir, file + ".bci"));
 		byte[] gbs = FileUtils.readAllStream(new FileInputStream(new File(droidToClasses, file + ".class")));
-		CGHarnessTestBase.compare(file, hbs, gbs);
+		CGHarnessTestBase.compareToGolden(file, golden, gbs);
 	}
 }

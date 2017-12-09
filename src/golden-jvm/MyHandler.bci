@@ -1,0 +1,17 @@
+class test/runner/MyHandler
+  extends java/lang/Object
+Method public <init> ()V
+  maxStack = 1 maxLocals = 1 codeLen = 5
+  {
+    0000: aload_0
+    0001: invokespecial MClass[java/lang/Object].<init> ()V
+    0004: return
+  }
+1 Line Number Entries
+Line 8: 0
+Ltest/runner/MyHandler; this (var #0 from 0 to 5)
+[Class SourceFile]: MyHandler.java
+3 inner classes
+Ref abstract public static Class[test/runner/MyHandler$Down] <= Class[test/runner/MyHandler].Down
+Ref abstract public static Class[test/runner/MyHandler$Up] <= Class[test/runner/MyHandler].Up
+Ref public static Class[test/runner/MyHandler$Impl] <= Class[test/runner/MyHandler].Impl

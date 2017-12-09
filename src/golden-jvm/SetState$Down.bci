@@ -1,0 +1,5 @@
+interface test/runner/SetState$Down
+  extends java/lang/Object
+[Class SourceFile]: SetState.java
+1 inner classes
+Ref abstract interface public static Class[test/runner/SetState$Down] <= Class[test/runner/SetState].Down

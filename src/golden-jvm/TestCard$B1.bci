@@ -1,0 +1,46 @@
+class test/runner/TestCard$B1
+  extends org/flasck/jvm/areas/DivArea
+Field final private Ltest/runner/TestCard; _card
+Method public <init> (Ljava/lang/Object;Ltest/runner/TestCard;Lorg/flasck/jvm/areas/Area;)V
+  maxStack = 5 maxLocals = 6 codeLen = 36
+  {
+    0000: aload_0
+    0001: aload_3
+    0002: aconst_null
+    0003: invokespecial MClass[org/flasck/jvm/areas/DivArea].<init> (Lorg/flasck/jvm/areas/Area;Ljava/lang/String;)V
+    0006: aload_0
+    0007: aload_2
+    0008: putfield FClass[test/runner/TestCard$B1]._card{Ltest/runner/TestCard;}
+    000B: new Class[test/runner/TestCard$B2]
+    000E: dup
+    000F: aload_1
+    0010: aload_2
+    0011: aload_0
+    0012: invokespecial MClass[test/runner/TestCard$B2].<init> (Ljava/lang/Object;Ltest/runner/TestCard;Lorg/flasck/jvm/areas/Area;)V
+    0015: astore 4
+    0017: new Class[test/runner/TestCard$B3]
+    001A: dup
+    001B: aload_1
+    001C: aload_2
+    001D: aload_0
+    001E: invokespecial MClass[test/runner/TestCard$B3].<init> (Ljava/lang/Object;Ltest/runner/TestCard;Lorg/flasck/jvm/areas/Area;)V
+    0021: astore 5
+    0023: return
+  }
+5 Line Number Entries
+Line 162: 0
+Line 163: 6
+Line 164: 11
+Line 165: 23
+Line 166: 35
+Ltest/runner/TestCard$B1; this (var #0 from 0 to 36)
+Ljava/lang/Object; cx (var #1 from 0 to 36)
+Ltest/runner/TestCard; card (var #2 from 0 to 36)
+Lorg/flasck/jvm/areas/Area; parent (var #3 from 0 to 36)
+Ltest/runner/TestCard$B2; b2 (var #4 from 23 to 36)
+Ltest/runner/TestCard$B3; b3 (var #5 from 35 to 36)
+[Class SourceFile]: TestCard.java
+3 inner classes
+Ref public static Class[test/runner/TestCard$B1] <= Class[test/runner/TestCard].B1
+Ref public static Class[test/runner/TestCard$B2] <= Class[test/runner/TestCard].B2
+Ref public static Class[test/runner/TestCard$B3] <= Class[test/runner/TestCard].B3
