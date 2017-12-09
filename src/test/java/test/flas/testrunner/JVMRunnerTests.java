@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.flasck.flas.errors.ErrorResultException;
-import org.flasck.flas.golden.GoldenCGRunner;
 import org.flasck.flas.testrunner.JVMRunner;
 
 public class JVMRunnerTests extends BaseRunnerTests {
@@ -20,9 +19,20 @@ public class JVMRunnerTests extends BaseRunnerTests {
 	}
 	
 	private File jvmClasses() {
-		File jvmbin = new File(GoldenCGRunner.jvmdir, "jvm/bin");
+		File jvmdir;
+		File jd = new File("/Users/gareth/Ziniki/Over/FLASJvm");
+		if (!jd.exists()) {
+			jd = new File("../FLASJvm");
+			if (!jd.exists()) {
+				System.err.println("There is no directory for the FLASJvm code");
+				jd = null;
+			}
+		}
+		jvmdir = jd;
+
+		File jvmbin = new File(jvmdir, "jvm/bin");
 		if (!jvmbin.exists())
-			jvmbin = new File(GoldenCGRunner.jvmdir, "jvm/qbout");
+			jvmbin = new File(jvmdir, "jvm/qbout");
 		if (!jvmbin.exists())
 			throw new RuntimeException("No jvm bin directory could be found");
 		return jvmbin;
