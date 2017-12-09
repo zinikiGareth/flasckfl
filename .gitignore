@@ -4,6 +4,7 @@ src/main/resources/jvm/
 src/test/resources/**/*.js
 src/test/resources/**/*.flim
 !src/test/resources/flasck/*.js
+!src/test/resources/jsrunner/**/*.js
 parser-tmp/
 rw-tmp/
 errors-tmp/
