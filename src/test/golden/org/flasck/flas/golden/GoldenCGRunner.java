@@ -241,7 +241,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		if (droidToClasses.isDirectory()) {
 			FileOutputStream fos = new FileOutputStream(new File(droid, "droid.clz"));
 			List<File> files = FileUtils.findFilesMatching(droidToClasses, "*.java");
-			files.sort(FileUtils.filePathComparator);
+			files.sort(FileUtils.pathNameComparator);
 			for (File f : files) {
 				fos.write((f.getPath()+"\n").getBytes());
 				FileUtils.copyFileToStream(f, fos);
