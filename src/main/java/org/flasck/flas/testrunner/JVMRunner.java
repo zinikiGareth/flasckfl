@@ -34,6 +34,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.ziniki.ziwsh.model.DateClientIDProvider;
 import org.ziniki.ziwsh.model.EntityStore;
+import org.ziniki.ziwsh.postbox.ErrorAdmin;
+import org.ziniki.ziwsh.postbox.SyserrErrorAdmin;
 import org.ziniki.ziwsh.virtualconn.DefaultWireEncoder;
 import org.zinutils.bytecode.BCEClassLoader;
 import org.zinutils.exceptions.UtilException;
@@ -48,9 +50,10 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 	public JVMRunner(CompileResult prior) {
 		super(prior);
 		loader = new BCEClassLoader(prior.bce);
+		ErrorAdmin errorAdmin = new SyserrErrorAdmin();
 		DefaultWireEncoder wire = new DefaultWireEncoder(loader, new DateClientIDProvider(420));
 		EntityStore store = new EntityHoldingStore();
-		controller = new JDKFlasckController(loader, wire, store, this, new JSoupDisplayFactory());
+		controller = new JDKFlasckController(loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
 	}
 
 	public void considerResource(File file) {

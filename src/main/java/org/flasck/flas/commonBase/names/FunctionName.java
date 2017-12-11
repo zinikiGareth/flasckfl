@@ -30,6 +30,7 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	private final static Map<String, String> bimap = new HashMap<>();
 	{
 		bimap.put("*", "mul");
+		bimap.put("++", "strAppend");
 	}
 	
 	private FunctionName(InputPosition location, CodeType codeType, NameOfThing cxt, String name) {

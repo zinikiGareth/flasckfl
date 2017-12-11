@@ -240,7 +240,7 @@ class Complex$FooHandler.java extends test.golden.Handler$Impl {
       }
       if (_0 instanceof java.lang.String) {
         {
-          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$++.class, new java.lang.Object[2] {
+          v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.PACKAGEFUNCTIONS$strAppend.class, new java.lang.Object[2] {
               autobox[this.k]
               autobox[_0]
             })
