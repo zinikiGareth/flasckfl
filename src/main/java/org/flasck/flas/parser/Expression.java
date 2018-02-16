@@ -355,7 +355,7 @@ public class Expression implements TryParsing {
 		return new UnresolvedOperator(null, ((UnresolvedOperator)o).op+"_");
 	}
 
-	private Object parseParenthetical(Tokenizable line, InputPosition orb, String endsWith) {
+	private Object parseParenthetical(Tokenizable line, InputPosition ob, String endsWith) {
 		List<Object> objs = new ArrayList<Object>();
 		while (true) {
 			// TODO: I'm not sure about this way of doing it
@@ -366,18 +366,18 @@ public class Expression implements TryParsing {
 				return expr;
 			if (expr != null)
 				objs.add(expr);
-			ExprToken crb = ExprToken.from(line);
-			if (crb == null)
+			ExprToken cb = ExprToken.from(line);
+			if (cb == null)
 				return null;
-			if (crb.type == ExprToken.PUNC) {
-				if (crb.text.equals(endsWith)) {
+			if (cb.type == ExprToken.PUNC) {
+				if (cb.text.equals(endsWith)) {
 					if (endsWith.equals(")")) {
 						if (objs.size() == 0) {
 							System.out.println("()?");
 							return null;
 						}
 						else if (objs.size() == 1)
-							return new ParenExpr(orb.copySetEnd(line.at()), objs.get(0));
+							return new ParenExpr(ob.copySetEnd(line.at()).fakeToken(), objs.get(0));
 						else {
 							// The tuple case
 							return new ApplyExpr(startsAt, ItemExpr.from(new ExprToken(startsAt, ExprToken.SYMBOL, "()")), objs);
@@ -386,9 +386,10 @@ public class Expression implements TryParsing {
 					else if (endsWith.equals("]")) {
 						InputPosition tmp;
 						if (objs.isEmpty())
-							tmp = orb.copySetEnd(crb.location.pastEnd());
+							tmp = ob;
 						else
-							tmp = startsAt.copySetEnd(crb.location.pastEnd());
+							tmp = startsAt;
+						tmp = tmp.copySetEnd(cb.location.pastEnd()).fakeToken();
 						Object base = ItemExpr.from(new ExprToken(tmp, ExprToken.IDENTIFIER, "Nil"));
 						for (int i=objs.size()-1;i>=0;i--) {
 							Locatable o = (Locatable) objs.get(i);
@@ -399,7 +400,7 @@ public class Expression implements TryParsing {
 						System.out.println("huh?");
 						return null;
 					}
-				} else if (crb.text.equals(",")) {
+				} else if (cb.text.equals(",")) {
 				} else {
 					System.out.println("this is an error");
 					return null;

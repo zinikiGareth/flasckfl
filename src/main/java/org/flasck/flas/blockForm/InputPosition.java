@@ -9,6 +9,7 @@ public class InputPosition implements Comparable<InputPosition> {
 	public final int off;
 	private int endPos = -1;
 	public transient final String text;
+	private boolean isFakeToken;
 
 	public InputPosition(String file, int lineNo, int off, String text) {
 		this.file = file;
@@ -26,6 +27,7 @@ public class InputPosition implements Comparable<InputPosition> {
 	public InputPosition copySetEnd(int at) {
 		InputPosition ret = new InputPosition(file, lineNo, off, text);
 		ret.endAt(at);
+		ret.isFakeToken = isFakeToken;
 		return ret;
 	}
 
@@ -47,7 +49,7 @@ public class InputPosition implements Comparable<InputPosition> {
 	
 	@Override
 	public String toString() {
-		return (file != null ? Justification.LEFT.format(file + ": ", 12) : "") + Justification.PADLEFT.format(Integer.toString(lineNo), 3) +"." + off;
+		return (file != null ? Justification.LEFT.format(file + ": ", 12) : "") + Justification.PADLEFT.format(Integer.toString(lineNo), 3) +"." + off/* + "  " + pastEnd() + " " + isFakeToken*/; 
 	}
 
 	@Override
@@ -68,5 +70,14 @@ public class InputPosition implements Comparable<InputPosition> {
 		if (p == null || this.compareTo(p) <= 0)
 			return this;
 		return p;
+	}
+
+	public InputPosition fakeToken() {
+		this.isFakeToken = true;
+		return this;
+	}
+	
+	public boolean isFake() {
+		return isFakeToken;
 	}
 }
