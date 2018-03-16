@@ -2277,15 +2277,15 @@ ListArea.prototype._assignToVar = function(croset) {
 	this._clear();
 	if (croset && !(croset instanceof FLError)) {
    		if (croset._ctor !== 'Croset') throw new Error('ListArea logic only handles Crosets right now');
-    	var off = 0;
-    	for (var pos=0;pos<10;pos++) {
-    		if (pos+off >= croset.length())
-    			break;
-    		var v = croset.index(pos+off);
-    		var child = this._newChild();
-    		child._crokey = v;
-    		this._insertItem(child);
-    		child._assignToVar(croset.memberOrId(v));
+    		var off = 0;
+    		for (var pos=0;pos<10;pos++) {
+    			if (pos+off >= croset.length())
+    				break;
+    			var v = croset.index(pos+off);
+    			var child = this._newChild();
+    			child._crokey = v;
+    			this._insertItem(child);
+    			child._assignToVar(croset.memberOrId(v));
   		}
   		this._wrapper.onUpdate("croset", croset, null, this);
 	}
