@@ -20,9 +20,9 @@ public class MultiSink implements Sink {
 	}
 
 	@Override
-	public void hole(int from, int to) {
+	public void hole(String called, int from, int to) {
 		for (Sink s : sinks)
-			s.hole(from, to);
+			s.hole(called, from, to);
 	}
 
 	@Override

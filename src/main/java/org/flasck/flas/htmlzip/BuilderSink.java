@@ -39,10 +39,10 @@ public class BuilderSink implements Sink {
 	}
 
 	@Override
-	public void hole(int from, int to) {
+	public void hole(String called, int from, int to) {
 		Block b = findBlockContaining(from, to, true);
 		if (b != null)
-			b.addHole(from, to);
+			b.addHole(called, from, to);
 	}
 
 	@Override

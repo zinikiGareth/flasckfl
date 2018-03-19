@@ -68,11 +68,11 @@ public class Block {
 		this.to = to;
 	}
 
-	public void addHole(int hs, int ht) {
+	public void addHole(String called, int hs, int ht) {
 		if (hs < from || ht > to) {
 			System.err.println("Hole from " + hs + " to " + ht + " is not inside " + this);
 		} else
-			holes.add(new Hole(hs, ht, null));
+			holes.add(new Hole(hs, ht, called));
 	}
 
 	public void identify(String called, int is, int it) {
@@ -115,7 +115,8 @@ public class Block {
 	}
 	
 	public void generate(PrintWriter pw, File inf) throws IOException {
-		pw.println("function block_" + tag.replaceAll("-", "_") + "() {");
+		String name = "Block_" + tag.replaceAll("-", "_");
+		pw.println("function " + name + "(indiv) {");
 		ZipInputStream zis = new ZipInputStream(new FileInputStream(inf));
 		try {
 			ZipEntry ze = null;
@@ -126,19 +127,26 @@ public class Block {
 				throw new RuntimeException("Could not find entry " + file);
 			int at = 0;
 			int from = this.from;
+			pw.println("  this.holes = {};");
 			for (Hole h : holes) {
 				at = genit(pw, zis, at, from, h.from);
 				if (h.identity != null) {
 					pw.println("  sb += 'id=\\\'id_';");
-					pw.println("  sb += nextId();");
+					pw.println("  var id = nextId();");
+					pw.println("  sb += id;");
+					pw.println("  this.holes['" + h.identity + "'] = id;");
 					pw.println("  sb += '\\\'';");
 				}
 				from = h.to;
 			}
 			genit(pw, zis, at, from, this.to);
-		} finally {
+			pw.println("  indiv.innerHTML = sb;");
 			pw.println("  return sb;");
 			pw.println("}");
+			pw.println(name + ".prototype.hole = function(name) {");
+			pw.println("  return document.getElementById('id_' + this.holes[name]);");
+			pw.println("}");
+		} finally {
 			zis.close();
 		}
 	}
