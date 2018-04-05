@@ -53,10 +53,10 @@ public class BuilderSink implements Sink {
 	}
 
 	@Override
-	public void dodgyAttr(String attr, String value, int from, int to) {
+	public void dodgyAttr(int from, int to) {
 		Block b = findBlockContaining(from, to, true);
 		if (b != null)
-			b.removeAttr(from, to, attr.equals("id")?value:null);
+			b.removeAttr(from, to);
 	}
 
 	@Override

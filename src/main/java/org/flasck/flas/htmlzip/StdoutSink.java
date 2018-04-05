@@ -25,8 +25,8 @@ public class StdoutSink implements Sink {
 	}
 
 	@Override
-	public void dodgyAttr(String attr, String value, int from, int to) {
-		System.out.println("    attr " + attr + " identified from " + from + " to " + to);
+	public void dodgyAttr(int from, int to) {
+		System.out.println("    attr removed from " + from + " to " + to);
 	}
 
 	@Override

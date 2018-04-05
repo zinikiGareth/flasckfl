@@ -62,25 +62,25 @@ public class Splitter {
 			for (Attribute a : elt.attributes()) {
 				if (a.getKey().equals("data-flas-card")) {
 					sink.card(a.getValue(), elt.range().from(), elt.range().to());
-					sink.dodgyAttr(a.getKey(), null, a.range().from(), a.range().to());
+					sink.dodgyAttr(a.range().from(), a.range().to());
 				}
 				if (a.getKey().equals("data-flas-hole")) {
 					sink.hole(a.getValue(), elt.innerRange().from(), elt.innerRange().to());
-					sink.dodgyAttr(a.getKey(), null, a.range().from(), a.range().to());
+					sink.dodgyAttr(a.range().from(), a.range().to());
 				}
 				if (a.getKey().equals("id")) {
 					sink.identifyElement(a.getValue(), elt.innerRange().from(), elt.innerRange().to());
-					sink.dodgyAttr("id", a.getValue(), a.range().from(), a.range().to());
+					sink.dodgyAttr(a.range().from(), a.range().to());
 				}
 				if (a.getKey().equals("data-flas-remove")) {
 					String val = a.getValue();
-					sink.dodgyAttr("data-flas-remove", val, a.range().from(), a.range().to());
+					sink.dodgyAttr(a.range().from(), a.range().to());
 					if (val != null && val.length() > 0) {
 						String[] ras = val.split("\\s");
 						for (String s : ras) {
 							for (Attribute as : elt.attributes()) {
 								if (as.getKey().equals(s))
-									sink.dodgyAttr(s, as.getValue(), as.range().from(), as.range().to());
+									sink.dodgyAttr(as.range().from(), as.range().to());
 							}
 						}
 					}

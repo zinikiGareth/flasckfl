@@ -43,11 +43,11 @@ public class Block {
 		}
 	}
 
-	public class Attr {
+	public class RemovedAttr {
 		private final int from;
 		private final int to;
 
-		public Attr(int from, int to) {
+		public RemovedAttr(int from, int to) {
 			this.from = from;
 			this.to = to;
 		}
@@ -58,7 +58,7 @@ public class Block {
 	private final int from;
 	private final int to;
 	private final Set<Hole> holes = new TreeSet<>();
-	private final List<Attr> attrs = new ArrayList<>();
+	private final List<RemovedAttr> removedAttrs = new ArrayList<>();
 	private final Map<String, Hole> ids = new TreeMap<String, Hole>();
 
 	public Block(String file, String tag, int from, int to) {
@@ -84,12 +84,11 @@ public class Block {
 		}
 	}
 
-	public void removeAttr(int as, int at, String asId) {
+	public void removeAttr(int as, int at) {
 		if (as < from || at > to) {
 			System.err.println("Attribute from " + as + " to " + at + " is not inside " + this);
 		} else {
-			attrs.add(new Attr(as, at));
-			holes.add(new Hole(as, at, asId));
+			removedAttrs.add(new RemovedAttr(as, at));
 		}
 	}
 

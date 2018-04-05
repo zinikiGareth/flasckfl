@@ -32,9 +32,9 @@ public class MultiSink implements Sink {
 	}
 
 	@Override
-	public void dodgyAttr(String attr, String value, int from, int to) {
+	public void dodgyAttr(int from, int to) {
 		for (Sink s : sinks)
-			s.dodgyAttr(attr, value, from, to);
+			s.dodgyAttr(from, to);
 	}
 
 	@Override
