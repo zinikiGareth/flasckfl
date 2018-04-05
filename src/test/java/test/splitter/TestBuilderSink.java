@@ -54,6 +54,7 @@ public class TestBuilderSink {
 		context.checking(new Expectations() {{
 			oneOf(mock).consider("foo"); inSequence(order);
 			oneOf(mock).render(25, 31); inSequence(order);
+			oneOf(mock).renderIntoHole("bar"); inSequence(order);
 			oneOf(mock).render(50, 55); inSequence(order);
 			oneOf(mock).done(); inSequence(order);
 		}});
@@ -80,6 +81,63 @@ public class TestBuilderSink {
 		sink.beginFile("foo");
 		sink.card("hello", 25, 105);
 		sink.identityAttr("div_1", 37, 42);
+		sink.fileEnd();
+		sink.dump();
+		sink.visitCard("hello", mock);
+	}
+
+	@Test
+	public void randomAttrsCanBeRemoved() {
+		Sequence order = context.sequence("order");
+		context.checking(new Expectations() {{
+			oneOf(mock).consider("foo"); inSequence(order);
+			oneOf(mock).render(25, 37); inSequence(order);
+			oneOf(mock).render(42, 105); inSequence(order);
+			oneOf(mock).done(); inSequence(order);
+		}});
+		BuilderSink sink = new BuilderSink();
+		sink.beginFile("foo");
+		sink.card("hello", 25, 105);
+		sink.dodgyAttr(37, 42);
+		sink.fileEnd();
+		sink.dump();
+		sink.visitCard("hello", mock);
+	}
+
+	@Test
+	public void adjacentAttrRemovalsAreCoalesced() {
+		Sequence order = context.sequence("order");
+		context.checking(new Expectations() {{
+			oneOf(mock).consider("foo"); inSequence(order);
+			oneOf(mock).render(25, 37); inSequence(order);
+			oneOf(mock).render(49, 105); inSequence(order);
+			oneOf(mock).done(); inSequence(order);
+		}});
+		BuilderSink sink = new BuilderSink();
+		sink.beginFile("foo");
+		sink.card("hello", 25, 105);
+		sink.dodgyAttr(37, 42);
+		sink.dodgyAttr(42, 49);
+		sink.fileEnd();
+		sink.dump();
+		sink.visitCard("hello", mock);
+	}
+
+	@Test
+	public void adjacentHolesAndAttrRemovalsAreCoalesced() {
+		Sequence order = context.sequence("order");
+		context.checking(new Expectations() {{
+			oneOf(mock).consider("foo"); inSequence(order);
+			oneOf(mock).render(25, 37); inSequence(order);
+			oneOf(mock).renderIntoHole("hole");
+			oneOf(mock).render(49, 105); inSequence(order);
+			oneOf(mock).done(); inSequence(order);
+		}});
+		BuilderSink sink = new BuilderSink();
+		sink.beginFile("foo");
+		sink.card("hello", 25, 105);
+		sink.hole("hole", 37, 42);
+		sink.dodgyAttr(42, 49);
 		sink.fileEnd();
 		sink.dump();
 		sink.visitCard("hello", mock);

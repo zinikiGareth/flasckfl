@@ -8,12 +8,14 @@ public class Block {
 	public class Hole implements Comparable<Hole> {
 		private final int from;
 		private final int to;
-		private final String identity;
+		private final String holeName;
+		private final String idAttr;
 
-		public Hole(int from, int to, String identity) {
+		public Hole(int from, int to, String holeName, String idAttr) {
 			this.from = from;
 			this.to = to;
-			this.identity = identity;
+			this.holeName = holeName;
+			this.idAttr = idAttr;
 		}
 
 		@Override
@@ -49,14 +51,14 @@ public class Block {
 		if (hs < from || ht > to) {
 			System.err.println("Hole from " + hs + " to " + ht + " is not inside " + this);
 		} else
-			holes.add(new Hole(hs, ht, null));
+			holes.add(new Hole(hs, ht, called, null));
 	}
 
 	public void identityAttr(String called, int is, int it) {
 		if (is < from || it > to)
 			System.err.println("Cannot identify element with " + called + " because it is outside " + this);
 		else {
-			holes.add(new Hole(is, it, called));
+			holes.add(new Hole(is, it, null, called));
 		}
 	}
 
@@ -64,7 +66,7 @@ public class Block {
 		if (as < from || at > to) {
 			System.err.println("Attribute from " + as + " to " + at + " is not inside " + this);
 		} else {
-			holes.add(new Hole(as, at, null));
+			holes.add(new Hole(as, at, null, null));
 		}
 	}
 
@@ -82,9 +84,12 @@ public class Block {
 		visitor.consider(file);
 		int from = this.from;
 		for (Hole h : holes) {
-			visitor.render(from, h.from);
-			if (h.identity != null)
-				visitor.id(h.identity);
+			if (h.from > from)
+				visitor.render(from, h.from);
+			if (h.holeName != null)
+				visitor.renderIntoHole(h.holeName);
+			else if (h.idAttr != null)
+				visitor.id(h.idAttr);
 			from = h.to;
 		}
 		visitor.render(from, this.to);
@@ -104,8 +109,13 @@ public class Block {
 			}
 			
 			@Override
+			public void renderIntoHole(String holeName) {
+				System.out.println("    hole " + holeName);
+			}
+
+			@Override
 			public void id(String id) {
-				System.out.println("    " + id);
+				System.out.println("    id attr " + id);
 			}
 
 			@Override
