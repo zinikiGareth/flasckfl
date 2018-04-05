@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -100,6 +99,12 @@ public class Block {
 				return false;
 		}
 		return true;
+	}
+
+	public void visit(CardVisitor visitor) {
+		visitor.consider(file);
+		visitor.render(this.from, this.to);
+		visitor.done();
 	}
 	
 	public void dump() {
