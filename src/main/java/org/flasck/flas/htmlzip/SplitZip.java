@@ -17,9 +17,6 @@ public class SplitZip {
 		final File inf = new File("/Users/gareth/Downloads/expensesdemo.webflow.zip");
 		sz.split(sink, inf);
 		builder.dump();
-		final File jsf = new File("foo.js");
-		builder.generate(inf, jsf);
-//		FileUtils.cat(jsf);
 	}
 	
 	public void split(Sink sink, File fromZip) throws IOException {

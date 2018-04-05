@@ -69,14 +69,6 @@ public class BuilderSink implements Sink {
 		}
 	}
 
-	public void generate(File inf, File jsf) throws IOException {
-		PrintWriter pw = new PrintWriter(new FileOutputStream(jsf));
-		for (Entry<String, Block> e : blocks.entrySet()) {
-			e.getValue().generate(pw, inf);
-		}
-		pw.close();
-	}
-	
 	private Block findBlockContaining(int from, int to) {
 		List<Block> options = new ArrayList<>();
 		for (Block b : fileBlocks) {

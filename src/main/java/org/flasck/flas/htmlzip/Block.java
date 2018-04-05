@@ -130,62 +130,6 @@ public class Block {
 		});
 	}
 	
-	public void generate(PrintWriter pw, File inf) throws IOException {
-		String name = "Block_" + tag.replaceAll("-", "_");
-		pw.println("function " + name + "(indiv) {");
-		ZipInputStream zis = new ZipInputStream(new FileInputStream(inf));
-		try {
-			ZipEntry ze = null;
-			while ((ze = zis.getNextEntry()) != null)
-				if (ze.getName().equals(file))
-					break;
-			if (ze == null)
-				throw new RuntimeException("Could not find entry " + file);
-			int at = 0;
-			int from = this.from;
-			pw.println("  this.holes = {};");
-			for (Hole h : holes) {
-				at = genit(pw, zis, at, from, h.from);
-				if (h.identity != null) {
-					pw.println("  sb += 'id=\\\'id_';");
-					pw.println("  var id = nextId();");
-					pw.println("  sb += id;");
-					pw.println("  this.holes['" + h.identity + "'] = id;");
-					pw.println("  sb += '\\\'';");
-				}
-				from = h.to;
-			}
-			genit(pw, zis, at, from, this.to);
-			pw.println("  indiv.innerHTML = sb;");
-			pw.println("  return sb;");
-			pw.println("}");
-			pw.println(name + ".prototype.hole = function(name) {");
-			pw.println("  return document.getElementById('id_' + this.holes[name]);");
-			pw.println("}");
-		} finally {
-			zis.close();
-		}
-	}
-
-	private int genit(PrintWriter pw, ZipInputStream zis, int at, int from, final int upto) throws IOException {
-		if (at == 0)
-			pw.print("  var sb = '");
-		else
-			pw.print("  sb += '");
-		zis.skip(from-at);
-		for (at = from;at<upto;at++) {
-			char r = (char)zis.read();
-			if (r == '\n')
-				pw.print("\\n");
-			else if (r == '\'')
-				pw.print("&apos;");
-			else
-				pw.print(r);
-		}
-		pw.println("';");
-		return at;
-	}
-	
 	@Override
 	public String toString() {
 		return "Block [" + tag + " " + from + ":" + to + "]";
