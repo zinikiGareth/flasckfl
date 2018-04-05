@@ -14,9 +14,9 @@ public class MultiSink implements Sink {
 	}
 
 	@Override
-	public void block(String tag, int from, int to) {
+	public void card(String tag, int from, int to) {
 		for (Sink s : sinks)
-			s.block(tag, from, to);
+			s.card(tag, from, to);
 	}
 
 	@Override

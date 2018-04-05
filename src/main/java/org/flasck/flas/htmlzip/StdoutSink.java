@@ -10,7 +10,7 @@ public class StdoutSink implements Sink {
 	}
 
 	@Override
-	public void block(String tag, int from, int to) {
+	public void card(String tag, int from, int to) {
 		System.out.println("  block called " + tag + " from " + file + " pos " + from + " to " + to);
 	}
 

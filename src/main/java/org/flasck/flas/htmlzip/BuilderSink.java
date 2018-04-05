@@ -24,7 +24,7 @@ public class BuilderSink implements Sink {
 	}
 
 	@Override
-	public void block(String tag, int from, int to) {
+	public void card(String tag, int from, int to) {
 		if (file == null)
 			System.err.println("No current file to handle block " + tag);
 		Block curr = findBlockContaining(from, to, false);
