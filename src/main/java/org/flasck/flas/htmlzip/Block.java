@@ -103,19 +103,31 @@ public class Block {
 
 	public void visit(CardVisitor visitor) {
 		visitor.consider(file);
-		visitor.render(this.from, this.to);
+		int from = this.from;
+		for (Hole h : holes) {
+			visitor.render(from, h.from);
+			from = h.to;
+		}
+		visitor.render(from, this.to);
 		visitor.done();
 	}
 	
 	public void dump() {
-		System.out.println("  extracting from " + file);
-		int from = this.from;
-		for (Hole h : holes) {
-			System.out.println("    " + from + "-" + h.from);
-			from = h.to;
-		}
-		System.out.println("    " + from + "-" + this.to);
-		
+		visit(new CardVisitor() {
+			@Override
+			public void consider(String file) {
+				System.out.println("  extracting from " + file);
+			}
+			
+			@Override
+			public void render(int from, int to) {
+				System.out.println("    " + from + "-" + to);
+			}
+			
+			@Override
+			public void done() {
+			}
+		});
 	}
 	
 	public void generate(PrintWriter pw, File inf) throws IOException {

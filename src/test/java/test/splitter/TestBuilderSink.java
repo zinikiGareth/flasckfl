@@ -47,4 +47,22 @@ public class TestBuilderSink {
 		sink.fileEnd();
 		sink.visitCard("hello", mock);
 	}
+
+	@Test
+	public void aCardWithAHoleCanBeCreatedInAnActiveFile() {
+		Sequence order = context.sequence("order");
+		context.checking(new Expectations() {{
+			oneOf(mock).consider("foo"); inSequence(order);
+			oneOf(mock).render(25, 31); inSequence(order);
+			oneOf(mock).render(50, 55); inSequence(order);
+			oneOf(mock).done(); inSequence(order);
+		}});
+		BuilderSink sink = new BuilderSink();
+		sink.beginFile("foo");
+		sink.card("hello", 25, 55);
+		sink.hole("bar", 31, 50);
+		sink.fileEnd();
+		sink.dump();
+		sink.visitCard("hello", mock);
+	}
 }
