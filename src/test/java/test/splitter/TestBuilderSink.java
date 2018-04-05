@@ -65,4 +65,23 @@ public class TestBuilderSink {
 		sink.dump();
 		sink.visitCard("hello", mock);
 	}
+
+	@Test
+	public void anIdCanBeIdentifiedAndInserted() {
+		Sequence order = context.sequence("order");
+		context.checking(new Expectations() {{
+			oneOf(mock).consider("foo"); inSequence(order);
+			oneOf(mock).render(25, 37); inSequence(order);
+			oneOf(mock).id("div_1");
+			oneOf(mock).render(42, 105); inSequence(order);
+			oneOf(mock).done(); inSequence(order);
+		}});
+		BuilderSink sink = new BuilderSink();
+		sink.beginFile("foo");
+		sink.card("hello", 25, 105);
+		sink.identityAttr("div_1", 37, 42);
+		sink.fileEnd();
+		sink.dump();
+		sink.visitCard("hello", mock);
+	}
 }

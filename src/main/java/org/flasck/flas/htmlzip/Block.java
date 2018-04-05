@@ -1,17 +1,7 @@
 package org.flasck.flas.htmlzip;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class Block {
 
@@ -42,23 +32,11 @@ public class Block {
 		}
 	}
 
-	public class RemovedAttr {
-		private final int from;
-		private final int to;
-
-		public RemovedAttr(int from, int to) {
-			this.from = from;
-			this.to = to;
-		}
-	}
-
 	private final String file;
 	private final String tag;
 	private final int from;
 	private final int to;
 	private final Set<Hole> holes = new TreeSet<>();
-	private final List<RemovedAttr> removedAttrs = new ArrayList<>();
-	private final Map<String, Hole> ids = new TreeMap<String, Hole>();
 
 	public Block(String file, String tag, int from, int to) {
 		this.file = file;
@@ -71,15 +49,14 @@ public class Block {
 		if (hs < from || ht > to) {
 			System.err.println("Hole from " + hs + " to " + ht + " is not inside " + this);
 		} else
-			holes.add(new Hole(hs, ht, called));
+			holes.add(new Hole(hs, ht, null));
 	}
 
-	public void identify(String called, int is, int it) {
+	public void identityAttr(String called, int is, int it) {
 		if (is < from || it > to)
 			System.err.println("Cannot identify element with " + called + " because it is outside " + this);
 		else {
-			ids.put(called, new Hole(is, it, null));
-			holes.add(new Hole(is, it, null));
+			holes.add(new Hole(is, it, called));
 		}
 	}
 
@@ -87,7 +64,7 @@ public class Block {
 		if (as < from || at > to) {
 			System.err.println("Attribute from " + as + " to " + at + " is not inside " + this);
 		} else {
-			removedAttrs.add(new RemovedAttr(as, at));
+			holes.add(new Hole(as, at, null));
 		}
 	}
 
@@ -106,6 +83,8 @@ public class Block {
 		int from = this.from;
 		for (Hole h : holes) {
 			visitor.render(from, h.from);
+			if (h.identity != null)
+				visitor.id(h.identity);
 			from = h.to;
 		}
 		visitor.render(from, this.to);
@@ -124,6 +103,11 @@ public class Block {
 				System.out.println("    " + from + "-" + to);
 			}
 			
+			@Override
+			public void id(String id) {
+				System.out.println("    " + id);
+			}
+
 			@Override
 			public void done() {
 			}

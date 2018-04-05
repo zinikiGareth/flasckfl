@@ -69,8 +69,7 @@ public class Splitter {
 					sink.dodgyAttr(a.range().from(), a.range().to());
 				}
 				if (a.getKey().equals("id")) {
-					sink.identifyElement(a.getValue(), elt.innerRange().from(), elt.innerRange().to());
-					sink.dodgyAttr(a.range().from(), a.range().to());
+					sink.identityAttr(a.getValue(), a.range().from(), a.range().to());
 				}
 				if (a.getKey().equals("data-flas-remove")) {
 					String val = a.getValue();

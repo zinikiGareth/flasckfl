@@ -75,8 +75,7 @@ public class TestSplittingHTML {
 		context.checking(new Expectations() {{
 			oneOf(mock).card("foo", 0, 55);
 			oneOf(mock).dodgyAttr(5, 25);
-			oneOf(mock).identifyElement("mercy", 40, 45);
-			oneOf(mock).dodgyAttr(29, 39);
+			oneOf(mock).identityAttr("mercy", 29, 39);
 		}});
 		go("<div data-flas-card='foo'><p id='mercy'>hello</p></div>");
 	}

@@ -26,9 +26,9 @@ public class MultiSink implements Sink {
 	}
 
 	@Override
-	public void identifyElement(String called, int from, int to) {
+	public void identityAttr(String called, int from, int to) {
 		for (Sink s : sinks)
-			s.identifyElement(called, from, to);
+			s.identityAttr(called, from, to);
 	}
 
 	@Override

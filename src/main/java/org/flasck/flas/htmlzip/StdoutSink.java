@@ -20,8 +20,8 @@ public class StdoutSink implements Sink {
 	}
 
 	@Override
-	public void identifyElement(String called, int from, int to) {
-		System.out.println("    element " + called + " at " + from + "-" + to);
+	public void identityAttr(String called, int from, int to) {
+		System.out.println("    id attr '" + called + "' at " + from + "-" + to);
 	}
 
 	@Override
