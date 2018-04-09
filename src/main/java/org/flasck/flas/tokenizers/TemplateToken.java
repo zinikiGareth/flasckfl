@@ -21,6 +21,7 @@ public class TemplateToken {
 	public static final int OR = 16;
 	public static final int CASES = 17;
 	public static final int EDITABLE = 18;
+	public static final int WEBZIP = 19;
 
 	public final InputPosition location;
 	public final int type;
@@ -69,6 +70,9 @@ public class TemplateToken {
 		} else if (c == '@') {
 			line.advance();
 			return new TemplateToken(loc, ATTR, "@", line.at());
+		} else if (c == '%') {
+			line.advance();
+			return new TemplateToken(loc, WEBZIP, "%", line.at());
 		} else if (c == '$') {
 			line.advance();
 			line.skipWS();

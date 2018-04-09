@@ -140,7 +140,7 @@ public class SugarDetox {
 				List<Object> attrs = new ArrayList<Object>();
 				for (Object o : td.attrs)
 					attrs.add(substituteMacroParameters(er, map, o, subst));
-				TemplateDiv ret = new TemplateDiv(td.kw, td.customTagLoc, td.customTag, td.customTagVarLoc, td.customTagVar, attrs, formats);
+				TemplateDiv ret = new TemplateDiv(td.kw, td.webzip, td.customTagLoc, td.customTag, td.customTagVarLoc, td.customTagVar, attrs, formats);
 				for (TemplateLine x : td.nested)
 					ret.nested.add(unroll(er, map, x, subst));
 				for (EventHandler y : td.handlers)

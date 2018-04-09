@@ -35,6 +35,7 @@ public class TemplateLineParser implements TryParsing{
 	@Override
 	public Object tryParsing(Tokenizable line) {
 		List<TemplateLine> contents = new ArrayList<TemplateLine>();
+		String webzip = null;
 		TemplateLine cmd = null;
 		TemplateList list = null;
 		InputPosition seenDiv = null;
@@ -70,6 +71,14 @@ public class TemplateLineParser implements TryParsing{
 					return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
 				}
 				seenDiv = tt.location;
+			} else if (tt.type == TemplateToken.WEBZIP) {
+				if (!contents.isEmpty())
+					return ErrorResult.oneMessage(line.realinfo(), "webzip div must be only item on line");
+				TemplateToken ref = TemplateToken.from(line);
+				if (ref == null || ref.type != TemplateToken.IDENTIFIER)
+					return ErrorResult.oneMessage(line.realinfo(), "webzip div must be an identifier");
+				seenDiv = tt.location;
+				webzip = ref.text;
 			} else if (tt.type == TemplateToken.LIST) {
 				if (!contents.isEmpty())
 					return ErrorResult.oneMessage(line.realinfo(), "div or list must be only item on line");
@@ -339,7 +348,7 @@ public class TemplateLineParser implements TryParsing{
 //		if (line.hasMore())
 //			return ErrorResult.oneMessage(line, "unparsed tokens at end of line");
 		if (seenDiv != null)
-			return new TemplateDiv(seenDiv, customTag != null ? customTag.location : null, customTag != null ? customTag.text : null, customTagVar != null ? customTagVar.location : null, customTagVar != null ? customTagVar.text : null, attrs, formats);
+			return new TemplateDiv(seenDiv, webzip, customTag != null ? customTag.location : null, customTag != null ? customTag.text : null, customTagVar != null ? customTagVar.location : null, customTagVar != null ? customTagVar.text : null, attrs, formats);
 		else if (list != null) {
 			if (!formats.isEmpty() || customTag != null || customTagVar != null)
 				return new TemplateList(list.kw, list.listLoc, list.listExpr, list.iterLoc, list.iterVar, customTag != null ? customTag.location : null, customTag != null ? customTag.text : null, customTagVar != null ? customTagVar.location : null, customTagVar != null ? customTagVar.text : null, formats, false);

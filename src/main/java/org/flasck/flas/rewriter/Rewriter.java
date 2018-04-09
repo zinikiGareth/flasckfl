@@ -1125,7 +1125,7 @@ public class Rewriter implements CodeGenRegistry {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			RWTemplateDiv ret = new RWTemplateDiv(td.kw, td.customTag, td.customTagVar, attrs, areaName, formats, makeFn(cx, td, areaName, dynamicExpr));
+			RWTemplateDiv ret = new RWTemplateDiv(td.kw, td.webzip, td.customTag, td.customTagVar, attrs, areaName, formats, makeFn(cx, td, areaName, dynamicExpr));
 			for (TemplateLine i : td.nested)
 				ret.nested.add(rewrite(new TemplateContext(cx, ret.areaName()), i));
 			rewriteEventHandlers(cx, areaName, ret, td.handlers);

@@ -37,6 +37,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parsedForm.StructField;
+import org.flasck.flas.parsedForm.TemplateDiv;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.UnresolvedOperator;
 import org.flasck.flas.parsedForm.UnresolvedVar;
@@ -56,6 +57,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWMethodDefinition;
 import org.flasck.flas.rewrittenForm.RWStructDefn;
 import org.flasck.flas.rewrittenForm.RWStructField;
+import org.flasck.flas.rewrittenForm.RWTemplateDiv;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.InstanceType;
 import org.flasck.flas.types.PrimitiveType;
@@ -334,5 +336,23 @@ public class RewriterTests {
 		assertTrue("expr was " + rwce.expr.getClass(), rwce.expr instanceof ApplyExpr);
 		assertTrue("inner expr was " + rwce.expr.getClass(), ((ApplyExpr)rwce.expr).args.get(0) instanceof ApplyExpr);
 		assertTrue("double inner expr was " + rwce.expr.getClass(), ((ApplyExpr)(((ApplyExpr)rwce.expr).args.get(0))).args.get(0) instanceof TemplateListVar);
+	}
+
+	@Test
+	public void testRewritingAWebzipDiv() throws Exception {
+		final PackageName pn = new PackageName("foo");
+		final CardName cn = new CardName(pn, "Card");
+		RootContext rc = rw.new RootContext();
+		PackageContext pc = rw.new PackageContext(rc, pn, scope);
+		CardDefinition cd = new CardDefinition(posn, posn, scope, cn);
+		CardContext cc = rw.new CardContext(pc, cn, null, cd, false);
+		TemplateContext cx = rw.new TemplateContext(cc);
+		TemplateDiv div = new TemplateDiv(posn, "card", null, null, null, null, new ArrayList<>(), new ArrayList<>());
+		RWTemplateDiv rwdiv = (RWTemplateDiv) rw.rewrite(cx, div);
+		if (errors.hasErrors())
+			errors.showTo(new PrintWriter(System.out), 0);
+		assertFalse(errors.hasErrors());
+		assertNotNull(rwdiv);
+		assertEquals("card", rwdiv.webzip);
 	}
 }

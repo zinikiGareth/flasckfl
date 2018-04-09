@@ -327,6 +327,13 @@ public class TemplateLineParsingTests {
 	}
 
 	@Test
+	public void testDivCanReferenceAWebzipCard() throws Exception {
+		TemplateDiv tl = parseDiv("%webzip");
+		assertNotNull(tl);
+		assertEquals("webzip", tl.webzip);
+	}
+
+	@Test
 	public void testWeCanHaveAnExpressionInATemplate() throws Exception {
 		List<TemplateLine> tls = parseContent("(fnCall 'hello' 3 x)");
 		assertEquals(1, tls.size());
