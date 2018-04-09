@@ -9,17 +9,15 @@ import java.util.zip.ZipFile;
 public class SplitZip {
 	public static void main(String[] argv) throws IOException {
 		SplitZip sz = new SplitZip();
-//		Sink sink = new BuilderSink();
-//		Sink sink = new StdoutSink();
 		final BuilderSink builder = new BuilderSink();
 		MultiSink sink = new MultiSink(new StdoutSink(), builder);
 		final File inf = new File("/Users/gareth/Downloads/expensesdemo.webflow.zip");
+//		final File inf = new File("/Users/gareth/Downloads/demokratizatsiya.webflow.zip");
 		sz.split(sink, inf);
 		builder.dump();
 	}
 	
 	public void split(Sink sink, File fromZip) throws IOException {
-		System.out.println("Unzipping " + fromZip + " to " + sink + " at " + new Date());
 		Splitter splitter = new Splitter(sink);
 		ZipFile zf = null;
 		try {
