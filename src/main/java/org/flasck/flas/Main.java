@@ -68,6 +68,24 @@ public class Main {
 							System.exit(1);
 						}
 						compiler.writeJVMTo(new File(args[++i]));
+					} else if (arg.equals("--webzipdownloads")) {
+						if (hasMore == 0) {
+							System.out.println("--webzipdownloads <download-dir>");
+							System.exit(1);
+						}
+						compiler.webZipDownloads(new File(args[++i]));
+					} else if (arg.equals("--webzipdir")) {
+						if (hasMore == 0) {
+							System.out.println("--webzipdir <dir>");
+							System.exit(1);
+						}
+						compiler.webZipDir(new File(args[++i]));
+					} else if (arg.equals("--webzip")) {
+						if (hasMore == 0) {
+							System.out.println("--webzip <name>");
+							System.exit(1);
+						}
+						argError |= compiler.useWebZip(args[++i]);
 					} else {
 						boolean matched = false;
 						DroidBuilder builder = compiler.getBuilder();
@@ -92,12 +110,12 @@ public class Main {
 			System.err.println(ex.getMessage());
 			argError = true;
 		}
+		if (argError) {
+			return;
+		}
 		if (inputs.isEmpty()) {
 			System.err.println("No input directories specified");
-			argError = true;
-		}
-		if (argError) {
-			System.exit(1);
+			return;
 		}
 		if (unitjs || !unitjvm)
 			compiler.unitjs(true);

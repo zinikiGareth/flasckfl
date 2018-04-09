@@ -29,6 +29,10 @@ import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.flim.PackageImporter;
 import org.flasck.flas.hsie.ApplyCurry;
 import org.flasck.flas.hsie.HSIE;
+import org.flasck.flas.htmlzip.BuilderSink;
+import org.flasck.flas.htmlzip.MultiSink;
+import org.flasck.flas.htmlzip.Sink;
+import org.flasck.flas.htmlzip.SplitZip;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.jsgen.Generator;
 import org.flasck.flas.method.MethodConvertor;
@@ -69,6 +73,9 @@ public class FLASCompiler implements ScriptCompiler {
 	private File writeTestReports;
 	private final List<CompileResult> priors = new ArrayList<>();
 	private final List<File> utpaths = new ArrayList<File>();
+	private File webzipdir;
+	private File webdownloaddir;
+	private BuilderSink sink = new BuilderSink();
 
 	public void searchIn(File file) {
 		pkgdirs.add(file);
@@ -524,4 +531,74 @@ public class FLASCompiler implements ScriptCompiler {
 	public void unitjvm(boolean b) {
 		this.unitjvm = b;
 	}
+
+	public void webZipDownloads(File file) {
+		this.webdownloaddir = file;
+	}
+
+	public void webZipDir(File file) {
+		this.webzipdir = file;
+	}
+
+	public boolean useWebZip(String called) {
+		if (webzipdir == null) {
+			System.err.println("Must specify webzipdir before adding zips");
+			return true;
+		}
+		File f = new File(webzipdir, called);
+		if (webdownloaddir != null) {
+			File dl = new File(webdownloaddir, called);
+			if (dl.exists()) {
+				System.out.println("Moving download file " + dl + " to " + f);
+				FileUtils.copy(dl, f);
+				FileUtils.deleteDirectoryTree(dl);
+			}
+		}
+		if (!f.exists()) {
+			System.err.println("There is no webzip " + f);
+			return true;
+		}
+		SplitZip sz = new SplitZip();
+		try {
+			sz.split(new MultiSink(sink, new ShowCardSink()), f);
+		} catch (IOException ex) {
+			System.err.println("Failed to read " + f);
+			System.err.println(ex);
+			return false;
+		}
+//		sink.dump();
+		return false;
+	}
 }
+
+class ShowCardSink implements Sink {
+
+	private String currentFile;
+
+	@Override
+	public void beginFile(String file) {
+		this.currentFile = file;
+	}
+
+	@Override
+	public void card(String tag, int from, int to) {
+		System.out.println("Recovered webzip card " + tag + " from " + currentFile);
+	}
+
+	@Override
+	public void hole(String called, int from, int to) {
+	}
+
+	@Override
+	public void identityAttr(String called, int from, int to) {
+	}
+
+	@Override
+	public void dodgyAttr(int from, int to) {
+	}
+
+	@Override
+	public void fileEnd() {
+	}
+}
+

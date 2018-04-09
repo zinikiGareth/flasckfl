@@ -84,6 +84,8 @@ public class Splitter {
 						}
 					}
 				}
+				if (a.getKey().startsWith("data-splitter"))
+					System.err.println("Use of " + a.getKey() + " in file " + fileName + " at " + a.range().from());
 			}
 			dealWithHTMLNodes(fileName, elt.children(), depth + 1);
 		}

@@ -20,9 +20,7 @@ public class BuilderSink implements Sink {
 	public void card(String tag, int from, int to) {
 		if (file == null)
 			throw new SplitterException("No current file to handle block " + tag);
-		Block curr = checkNoBlockContaining(from, to);
-		if (curr != null)
-			System.err.println("Cannot define block " + tag + " within " + curr);
+		checkNoBlockContaining(tag, from, to);
 		Block b = new Block(file, tag, from, to);
 		if (blocks.containsKey(tag))
 			System.err.println("Multiple definitions for block called " + tag);
@@ -33,21 +31,21 @@ public class BuilderSink implements Sink {
 
 	@Override
 	public void hole(String called, int from, int to) {
-		Block b = findBlockContaining(from, to);
+		Block b = findUniqueBlockContaining(from, to);
 		if (b != null)
 			b.addHole(called, from, to);
 	}
 
 	@Override
 	public void identityAttr(String called, int from, int to) {
-		Block b = findBlockContaining(from, to);
-		if (b != null)
+		List<Block> bs = findBlocksContaining(from, to);
+		for (Block b : bs)
 			b.identityAttr(called, from, to);
 	}
 
 	@Override
 	public void dodgyAttr(int from, int to) {
-		Block b = findBlockContaining(from, to);
+		Block b = findUniqueBlockContaining(from, to);
 		if (b != null)
 			b.removeAttr(from, to);
 	}
@@ -65,12 +63,8 @@ public class BuilderSink implements Sink {
 		}
 	}
 
-	private Block findBlockContaining(int from, int to) {
-		List<Block> options = new ArrayList<>();
-		for (Block b : fileBlocks) {
-			if (b.has(from, to))
-				options.add(b);
-		}
+	private Block findUniqueBlockContaining(int from, int to) {
+		List<Block> options = findBlocksContaining(from, to);
 		if (options.size() == 1)
 			return options.get(0);
 		else if (options.size() > 1)
@@ -79,16 +73,19 @@ public class BuilderSink implements Sink {
 			throw new SplitterException("There is no block containing " + from + "-" + to);
 	}
 
-	private Block checkNoBlockContaining(int from, int to) {
+	private List<Block> findBlocksContaining(int from, int to) {
 		List<Block> options = new ArrayList<>();
 		for (Block b : fileBlocks) {
 			if (b.has(from, to))
 				options.add(b);
 		}
-		if (options.size() == 0)
-			return null;
-		else
-			return options.get(0);
+		return options;
+	}
+
+	private void checkNoBlockContaining(String tag, int from, int to) {
+		List<Block> options = findBlocksContaining(from, to);
+		if (options.size() > 0)
+			throw new SplitterException("Cannot define block " + tag + " within " + options.get(0));
 	}
 
 	public void visitCard(String string, CardVisitor visitor) {
