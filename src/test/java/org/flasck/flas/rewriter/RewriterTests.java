@@ -23,6 +23,8 @@ import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.errors.ErrorResult;
 import org.flasck.flas.flim.Builtin;
 import org.flasck.flas.flim.ImportPackage;
+import org.flasck.flas.htmlzip.Block;
+import org.flasck.flas.htmlzip.BuilderSink;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.ContentExpr;
 import org.flasck.flas.parsedForm.ContractImplements;
@@ -70,12 +72,13 @@ public class RewriterTests {
 	private final ErrorResult errors = new ErrorResult();
 	private Rewriter rw;
 	private final Scope scope = Scope.topScope("ME");
+	private BuilderSink webzipBlocks = new BuilderSink();
 	
 	@Before
 	public void setup() {
 		ImportPackage builtins = Builtin.builtins();
 		builtins.define("Timer", new RWContractDecl(posn, posn, new SolidName(null, "Timer"), false));
-		rw = new Rewriter(errors, null, builtins);
+		rw = new Rewriter(errors, null, builtins, webzipBlocks);
 	}
 
 	@Test
@@ -340,6 +343,8 @@ public class RewriterTests {
 
 	@Test
 	public void testRewritingAWebzipDiv() throws Exception {
+		webzipBlocks.beginFile("foo");
+		webzipBlocks.card("card", 25, 95);
 		final PackageName pn = new PackageName("foo");
 		final CardName cn = new CardName(pn, "Card");
 		RootContext rc = rw.new RootContext();
@@ -353,6 +358,6 @@ public class RewriterTests {
 			errors.showTo(new PrintWriter(System.out), 0);
 		assertFalse(errors.hasErrors());
 		assertNotNull(rwdiv);
-		assertEquals("card", rwdiv.webzip);
+		assertTrue(rwdiv.webzip instanceof Block);
 	}
 }

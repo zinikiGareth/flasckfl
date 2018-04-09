@@ -124,6 +124,10 @@ public class Block {
 		});
 	}
 	
+	public boolean isCalled(String webzip) {
+		return this.tag.equals(webzip);
+	}
+	
 	@Override
 	public String toString() {
 		return "Block [" + tag + " " + from + ":" + to + "]";

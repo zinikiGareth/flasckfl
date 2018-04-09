@@ -42,6 +42,8 @@ import org.flasck.flas.flim.BuiltinOperation;
 import org.flasck.flas.flim.ImportPackage;
 import org.flasck.flas.flim.ImportedCard;
 import org.flasck.flas.flim.PackageFinder;
+import org.flasck.flas.htmlzip.Block;
+import org.flasck.flas.htmlzip.BuilderSink;
 import org.flasck.flas.parsedForm.CardDefinition;
 import org.flasck.flas.parsedForm.CastExpr;
 import org.flasck.flas.parsedForm.ConstructorMatch;
@@ -173,6 +175,7 @@ import org.zinutils.utils.Indenter;
 public class Rewriter implements CodeGenRegistry {
 	static final Logger logger = LoggerFactory.getLogger("Rewriter");
 	private final ErrorResult errors;
+	private final BuilderSink webzipBlocks;
 	public final PackageFinder pkgFinder;
 	public final Map<String, PrimitiveType> primitives = new TreeMap<>();
 	private final Map<String, Expr> constants = new TreeMap<>();
@@ -635,8 +638,9 @@ public class Rewriter implements CodeGenRegistry {
 
 	}
 
-	public Rewriter(ErrorResult errors, List<File> pkgdirs, ImportPackage rootPkg) {
+	public Rewriter(ErrorResult errors, List<File> pkgdirs, ImportPackage rootPkg, BuilderSink webzipBlocks) {
 		this.errors = errors;
+		this.webzipBlocks = webzipBlocks;
 		if (rootPkg != null) {
 			this.pkgFinder = new PackageFinder(this, pkgdirs, rootPkg);
 			importPackage1(rootPkg);
@@ -1125,7 +1129,15 @@ public class Rewriter implements CodeGenRegistry {
 				} else
 					errors.message(tt.location(), "Cannot handle special format " + tt.name);
 			}
-			RWTemplateDiv ret = new RWTemplateDiv(td.kw, td.webzip, td.customTag, td.customTagVar, attrs, areaName, formats, makeFn(cx, td, areaName, dynamicExpr));
+			Block webzip = null;
+			if (td.webzip != null) {
+				webzip = webzipBlocks.getBlock(td.webzip);
+				if (webzip == null) {
+					errors.message(td.kw, "no block called " + td.webzip + " has been defined");
+					return null;
+				}
+			}
+			RWTemplateDiv ret = new RWTemplateDiv(td.kw, webzip, td.customTag, td.customTagVar, attrs, areaName, formats, makeFn(cx, td, areaName, dynamicExpr));
 			for (TemplateLine i : td.nested)
 				ret.nested.add(rewrite(new TemplateContext(cx, ret.areaName()), i));
 			rewriteEventHandlers(cx, areaName, ret, td.handlers);

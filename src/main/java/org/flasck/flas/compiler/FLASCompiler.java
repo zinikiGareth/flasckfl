@@ -259,7 +259,7 @@ public class FLASCompiler implements ScriptCompiler {
 		PrintWriter tcPW = null;
 		try {
 			ImportPackage rootPkg = Builtin.builtins();
-			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg);
+			final Rewriter rewriter = new Rewriter(errors, pkgdirs, rootPkg, sink);
 			final ApplyCurry curry = new ApplyCurry();
 			final HSIE hsie = new HSIE(errors, rewriter);
 			final ByteCodeEnvironment bce = new ByteCodeEnvironment();

@@ -63,7 +63,7 @@ public class AreaGenerationTests {
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
 		DroidAreaGenerator gen = new DroidAreaGenerator(bcc, ctor, cxt, card, parent);
-		Rewriter rewriter = new Rewriter(null, null, null);
+		Rewriter rewriter = new Rewriter(null, null, null, null);
 		TemplateTraversor tt = new TemplateTraversor(rewriter, null);
 		CardName cn = new CardName(new PackageName("test.it"), "MyCard");
 		AreaName areaName = new AreaName(cn, "B1");
@@ -95,7 +95,7 @@ public class AreaGenerationTests {
 			oneOf(ctor).returnVoid(); will(returnValue(expr));
 		}});
 		DroidAreaGenerator gen = new DroidAreaGenerator(bcc, ctor, cxt, card, parent);
-		Rewriter rewriter = new Rewriter(null, null, null);
+		Rewriter rewriter = new Rewriter(null, null, null, null);
 		TemplateTraversor tt = new TemplateTraversor(rewriter, null);
 		CardName cn = new CardName(new PackageName("test.it"), "MyCard");
 		AreaName areaName = new AreaName(cn, "B1");

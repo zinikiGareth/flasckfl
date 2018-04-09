@@ -93,4 +93,11 @@ public class BuilderSink implements Sink {
 			throw new SplitterException("There is no block " + string);
 		blocks.get(string).visit(visitor);
 	}
+
+	public Block getBlock(String webzip) {
+		for (Block b : fileBlocks)
+			if (b.isCalled(webzip))
+				return b;
+		return null;
+	}
 }

@@ -18,7 +18,7 @@ import org.junit.Test;
 public class TestDependencyAnalysis {
 	private final ErrorResult errors = new ErrorResult();
 	private final DependencyAnalyzer analyzer = new DependencyAnalyzer();
-	private final Rewriter rewriter = new Rewriter(errors, null, null);
+	private final Rewriter rewriter = new Rewriter(errors, null, null, null);
 
 	@Test
 	public void testMutualFandG() throws ErrorResultException {
