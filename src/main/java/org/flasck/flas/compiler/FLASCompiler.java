@@ -572,8 +572,11 @@ public class FLASCompiler implements ScriptCompiler {
 }
 
 class ShowCardSink implements Sink {
-
 	private String currentFile;
+
+	@Override
+	public void zipLocation(File fromZip) {
+	}
 
 	@Override
 	public void beginFile(String file) {

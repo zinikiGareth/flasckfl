@@ -1,7 +1,14 @@
 package org.flasck.flas.htmlzip;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import org.zinutils.utils.FileUtils;
 
 public class Block {
 
@@ -34,13 +41,15 @@ public class Block {
 		}
 	}
 
+	private final File fromZip;
 	private final String file;
 	private final String tag;
 	private final int from;
 	private final int to;
 	private final Set<Hole> holes = new TreeSet<>();
 
-	public Block(String file, String tag, int from, int to) {
+	public Block(File fromZip, String file, String tag, int from, int to) {
+		this.fromZip = fromZip;
 		this.file = file;
 		this.tag = tag;
 		this.from = from;
@@ -126,6 +135,22 @@ public class Block {
 	
 	public boolean isCalled(String webzip) {
 		return this.tag.equals(webzip);
+	}
+
+	public String range(int from, int to) throws IOException {
+		ZipInputStream zis = new ZipInputStream(new FileInputStream(fromZip));
+		try {
+			ZipEntry ze;
+			while ((ze = zis.getNextEntry()) != null) {
+				if (ze.getName().equals(file)) {
+					zis.skip(from);
+					return FileUtils.readNStream(to-from, zis);
+				}
+			}
+		} finally {
+			try { zis.close(); } catch (IOException ex) { }
+		}
+		return null;
 	}
 	
 	@Override

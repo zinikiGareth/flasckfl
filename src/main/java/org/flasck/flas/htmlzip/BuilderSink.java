@@ -1,5 +1,6 @@
 package org.flasck.flas.htmlzip;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,13 @@ import java.util.TreeMap;
 public class BuilderSink implements Sink {
 	private final Map<String, Block> blocks = new TreeMap<>();
 	private final List<Block> fileBlocks = new ArrayList<>();
+	private File fromZip;
 	private String file;
+
+	@Override
+	public void zipLocation(File fromZip) {
+		this.fromZip = fromZip;
+	}
 
 	@Override
 	public void beginFile(String file) {
@@ -21,7 +28,7 @@ public class BuilderSink implements Sink {
 		if (file == null)
 			throw new SplitterException("No current file to handle block " + tag);
 		checkNoBlockContaining(tag, from, to);
-		Block b = new Block(file, tag, from, to);
+		Block b = new Block(fromZip, file, tag, from, to);
 		if (blocks.containsKey(tag))
 			System.err.println("Multiple definitions for block called " + tag);
 		else

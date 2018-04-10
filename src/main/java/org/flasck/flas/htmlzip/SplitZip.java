@@ -19,6 +19,7 @@ public class SplitZip {
 	
 	public void split(Sink sink, File fromZip) throws IOException {
 		Splitter splitter = new Splitter(sink);
+		sink.zipLocation(fromZip);
 		ZipFile zf = null;
 		try {
 			zf = new ZipFile(fromZip);

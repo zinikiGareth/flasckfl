@@ -1,7 +1,14 @@
 package org.flasck.flas.htmlzip;
 
+import java.io.File;
+
 public class StdoutSink implements Sink {
 	private String file;
+
+	@Override
+	public void zipLocation(File fromZip) {
+		System.out.println("Zip file is " + fromZip);
+	}
 
 	@Override
 	public void beginFile(String file) {

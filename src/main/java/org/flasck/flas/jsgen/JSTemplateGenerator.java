@@ -1,10 +1,13 @@
 package org.flasck.flas.jsgen;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.flasck.flas.commonBase.names.AreaName;
 import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.TemplateName;
+import org.flasck.flas.htmlzip.Block;
+import org.flasck.flas.htmlzip.CardVisitor;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.template.AreaGenerator;
@@ -27,7 +30,7 @@ public class JSTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public AreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo, String webzip) {
+	public AreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo, Block webzip) {
 		JSForm fn = JSForm.flex(areaName.jsName() +" = function(parent)").needBlock();
 		target.add(fn);
 		target.add(JSForm.flex(areaName.jsName() +".prototype = new " + base + "()"));
@@ -42,8 +45,48 @@ public class JSTemplateGenerator implements TemplateGenerator {
 			if (nsTag != null)
 				moreArgs = moreArgs + ", " + nsTag;
 		} else if (webzip != null) {
-			// TODO: need to do some kind of escaping for quotes and newlines at least
-			moreArgs = ", null, null, '" + webzip + "'";
+			webzip.visit(new CardVisitor() {
+				boolean first = true;
+//				String file;
+				
+				@Override
+				public void consider(String file) {
+//					this.file = file;
+				}
+
+				@Override
+				public void render(int from, int to) {
+					String s;
+					if (first) {
+						s = "var d ";
+						first = false;
+					} else {
+						s = "d +";
+					}
+					try {
+						// TODO: need to do some kind of escaping for quotes and newlines at least
+						fn.add(JSForm.flex(s + "= '" + webzip.range(from, to).replaceAll("\n", "\\\\n") + "'"));
+					} catch (IOException ex) {
+						// do we have access to an Errors object?
+						ex.printStackTrace();
+					}
+				}
+
+				@Override
+				public void id(String id) {
+					fn.add(JSForm.flex("var id = '" + id + "'"));
+				}
+
+				@Override
+				public void renderIntoHole(String holeName) {
+					fn.add(JSForm.flex("var hole = '" + holeName + "'"));
+				}
+
+				@Override
+				public void done() {
+				}
+			});
+			moreArgs = ", null, null, d";
 		}
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
 		fn.add(JSForm.flex("if (!parent) return"));

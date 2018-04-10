@@ -115,7 +115,6 @@ public class TemplateTraversor {
 		String customTag = null;
 		String nsTag = null;
 		Block webzipCard = null;
-		String webzipContent = null;
 		Object wantCard = null;
 		Object wantYoyo = null;
 		if (tl instanceof RWTemplateDiv) {
@@ -123,7 +122,6 @@ public class TemplateTraversor {
 			base = "DivArea";
 			if (td.webzip != null) {
 				webzipCard = td.webzip;
-				webzipContent = "<div>hello, world!</div>";
 			} else if (td.customTag != null) {
 				customTag = td.customTag;
 				if (td.customTag.equals("svg"))
@@ -160,7 +158,7 @@ public class TemplateTraversor {
 		}
 		List<AreaGenerator> areas = new ArrayList<AreaGenerator>();
 		for (TemplateGenerator tg : tgs) {
-			AreaGenerator area = tg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo, webzipContent);
+			AreaGenerator area = tg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo, webzipCard);
 			if (area != null)
 				areas.add(area);
 		}

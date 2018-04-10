@@ -1,10 +1,18 @@
 package org.flasck.flas.htmlzip;
 
+import java.io.File;
+
 public class MultiSink implements Sink {
 	private final Sink[] sinks;
 
 	public MultiSink(Sink...sinks) {
 		this.sinks = sinks;
+	}
+
+	@Override
+	public void zipLocation(File fromZip) {
+		for (Sink s : sinks)
+			s.zipLocation(fromZip);
 	}
 
 	@Override
