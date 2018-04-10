@@ -1,6 +1,7 @@
 package org.flasck.flas.golden;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -13,6 +14,8 @@ import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.flasck.flas.Main;
 import org.flasck.flas.blockForm.InputPosition;
@@ -151,6 +154,18 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	public static void runGolden(String s) throws Exception {
 		System.out.println("Run golden test for " + s);
 		File importFrom = new File(s, "import");
+		File webzip = new File(s, "webzip");
+		File zip = null;
+		if (webzip.exists()) {
+			zip = new File(webzip, "webzip.zip");
+			ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip));
+			for (File f : webzip.listFiles(f -> f.getPath().endsWith(".html"))) {
+				zos.putNextEntry(new ZipEntry(f.getName()));
+				FileUtils.copyFileToStream(f, zos);
+				zos.closeEntry();
+			}
+			zos.close();
+		}
 		File pform = new File(s, "parser-tmp");
 		File rwform = new File(s, "rw-tmp");
 		File jsto = new File(s, "jsout-tmp");
@@ -184,6 +199,10 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		compiler.unitTestPath(new File(jvmbin, "classes"));
 		compiler.unitjs(useJSRunner);
 		compiler.unitjvm(useJVMRunner);
+		if (zip != null) {
+			compiler.webZipDir(zip.getParentFile());
+			assertFalse("there was an error reading the webzip files", compiler.useWebZip(zip.getName()));
+		}
 		File dir = new File(s, "test.golden");
 		ErrorResult er = new ErrorResult();
 		for (File input : FileUtils.findFilesMatching(dir, "*.fl")) {
