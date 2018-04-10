@@ -15,6 +15,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.commonBase.names.SolidName;
 import org.flasck.flas.commonBase.template.TemplateListVar;
 import org.flasck.flas.flim.BuiltinOperation;
+import org.flasck.flas.htmlzip.Block;
 import org.flasck.flas.jsform.JSTarget;
 import org.flasck.flas.rewriter.Rewriter;
 import org.flasck.flas.rewrittenForm.CardFunction;
@@ -113,12 +114,17 @@ public class TemplateTraversor {
 		boolean isEditable = false;
 		String customTag = null;
 		String nsTag = null;
+		Block webzipCard = null;
+		String webzipContent = null;
 		Object wantCard = null;
 		Object wantYoyo = null;
 		if (tl instanceof RWTemplateDiv) {
 			RWTemplateDiv td = (RWTemplateDiv) tl;
 			base = "DivArea";
-			if (td.customTag != null) {
+			if (td.webzip != null) {
+				webzipCard = td.webzip;
+				webzipContent = "<div>hello, world!</div>";
+			} else if (td.customTag != null) {
 				customTag = td.customTag;
 				if (td.customTag.equals("svg"))
 					nsTag = "'http://www.w3.org/2000/svg'";
@@ -154,7 +160,7 @@ public class TemplateTraversor {
 		}
 		List<AreaGenerator> areas = new ArrayList<AreaGenerator>();
 		for (TemplateGenerator tg : tgs) {
-			AreaGenerator area = tg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo);
+			AreaGenerator area = tg.area(areaName, base, customTag, nsTag, wantCard, wantYoyo, webzipContent);
 			if (area != null)
 				areas.add(area);
 		}

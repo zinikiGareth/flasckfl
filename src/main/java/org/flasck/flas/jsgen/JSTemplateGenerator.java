@@ -27,7 +27,7 @@ public class JSTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public AreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo) {
+	public AreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo, String webzip) {
 		JSForm fn = JSForm.flex(areaName.jsName() +" = function(parent)").needBlock();
 		target.add(fn);
 		target.add(JSForm.flex(areaName.jsName() +".prototype = new " + base + "()"));
@@ -41,6 +41,9 @@ public class JSTemplateGenerator implements TemplateGenerator {
 			moreArgs = ", '" + customTag + "'";
 			if (nsTag != null)
 				moreArgs = moreArgs + ", " + nsTag;
+		} else if (webzip != null) {
+			// TODO: need to do some kind of escaping for quotes and newlines at least
+			moreArgs = ", null, null, '" + webzip + "'";
 		}
 		fn.add(JSForm.flex(base +".call(this, parent" + moreArgs + ")"));
 		fn.add(JSForm.flex("if (!parent) return"));

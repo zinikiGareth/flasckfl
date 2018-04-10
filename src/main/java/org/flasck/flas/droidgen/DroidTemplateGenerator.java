@@ -41,7 +41,7 @@ public class DroidTemplateGenerator implements TemplateGenerator {
 	}
 
 	@Override
-	public DroidAreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo) {
+	public DroidAreaGenerator area(AreaName areaName, String base, String customTag, String nsTag, Object wantCard, Object wantYoyo, String webzip) {
 		ByteCodeSink bcc = bce.newClass(areaName.javaClassName());
 		bcc.generateAssociatedSourceFile();
 		String baseClz = J.AREAPKG + base;

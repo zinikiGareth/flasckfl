@@ -94,10 +94,7 @@ public class BuilderSink implements Sink {
 		blocks.get(string).visit(visitor);
 	}
 
-	public Block getBlock(String webzip) {
-		for (Block b : fileBlocks)
-			if (b.isCalled(webzip))
-				return b;
-		return null;
+	public Block getBlock(String called) {
+		return blocks.get(called);
 	}
 }
