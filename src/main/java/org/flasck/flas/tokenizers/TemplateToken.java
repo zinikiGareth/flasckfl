@@ -22,6 +22,7 @@ public class TemplateToken {
 	public static final int CASES = 17;
 	public static final int EDITABLE = 18;
 	public static final int WEBZIP = 19;
+	public static final int ASSIGN = 20;
 
 	public final InputPosition location;
 	public final int type;
@@ -96,6 +97,16 @@ public class TemplateToken {
 				return new TemplateToken(loc, ARROW, "=>", line.at());
 			} else
 				return new TemplateToken(loc, EQUALS, "=", line.at());
+		} else if (c == '<') {
+			int pos = line.at();
+			line.advance();
+			if (line.nextChar() == '-') {
+				line.advance();
+				return new TemplateToken(loc, ASSIGN, "<-", line.at());
+			} else {
+				line.reset(pos);
+				return null;
+			}
 		} else if (c == '?') {
 			line.advance();
 			return new TemplateToken(loc, EDITABLE, "?", line.at());

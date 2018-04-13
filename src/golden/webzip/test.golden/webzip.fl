@@ -1,4 +1,18 @@
 	card Webzip
 	
+		state
+			String name <- 'Mr. Smith'
+			Croset[String] list <- ['hello','world']
+			
 		template
 			%block
+
+. a comment line
+
+				content1 <-
+					"Dear" name
+				listitems <-
+					+ list e
+. this should be a %licard
+						.
+							e

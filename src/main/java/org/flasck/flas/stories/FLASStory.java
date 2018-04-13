@@ -56,6 +56,7 @@ import org.flasck.flas.parsedForm.StateDefinition;
 import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBlockIntro;
 import org.flasck.flas.parsedForm.TemplateCardReference;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
@@ -77,6 +78,7 @@ import org.flasck.flas.parser.MethodParser;
 import org.flasck.flas.parser.ObjectMemberParser;
 import org.flasck.flas.parser.PlatformAndroidSpecParser;
 import org.flasck.flas.parser.PropertyParser;
+import org.flasck.flas.parser.TemplateBlockIntroParser;
 import org.flasck.flas.parser.TemplateLineParser;
 import org.flasck.flas.parser.TryParsing;
 import org.flasck.flas.parser.TupleDeclarationParser;
@@ -686,7 +688,24 @@ public class FLASStory {
 		} else if (tl instanceof TemplateDiv) { 
 			ret = tl;
 			TemplateDiv asDiv = (TemplateDiv) ret;
-			doCardDiv(er, frTemplates, asDiv, b.nested);
+			if (asDiv.webzip != null) {
+				for (Block ib : b.nested) {
+					if (!ib.isComment()) {
+						TemplateBlockIntroParser tbip = new TemplateBlockIntroParser();
+						Object bi = tbip.tryParsing(new Tokenizable(ib.line));
+						if (bi == null)
+							er.message(ib, "expected template block intro");
+						else if (bi instanceof ErrorReporter)
+							er.merge((ErrorReporter) bi);
+						else {
+							final TemplateBlockIntro tbi = (TemplateBlockIntro)bi;
+							asDiv.webzipBlocks.add(tbi);
+							doCardDiv(er, frTemplates, tbi, ib.nested);
+						}
+					}
+				}
+			} else
+				doCardDiv(er, frTemplates, asDiv, b.nested);
 		} else if (tl instanceof TemplateCases) {
 			ret = tl;
 			doCases(er, frTemplates, b, (TemplateCases)ret);
@@ -696,9 +715,9 @@ public class FLASStory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void doCardDiv(ErrorReporter er, Set<LocatedToken> frTemplates, TemplateDiv asDiv, List<Block> nested) {
+	private void doCardDiv(ErrorReporter er, Set<LocatedToken> frTemplates, TemplateDiv div, List<Block> blocks) {
 		TemplateLineParser tlp = new TemplateLineParser();
-		for (Block b : nested) {
+		for (Block b : blocks) {
 			if (b.isComment())
 				continue;
 			Object o = tlp.tryParsing(new Tokenizable(b));
@@ -710,14 +729,14 @@ public class FLASStory {
 				for (Object o1 : ((List<Object>)o)) {
 					TemplateLine item = doOneLine(er, frTemplates, b, o1);
 					if (item != null)
-						asDiv.nested.add(item);
+						div.nested.add(item);
 				}
 			} else if (o instanceof TemplateLine) {
 				TemplateLine item = doOneLine(er, frTemplates, b, o);
 				if (item != null)
-					asDiv.nested.add(item);
+					div.nested.add(item);
 			} else if (o instanceof EventHandler)
-				asDiv.handlers.add((EventHandler)o);
+				div.handlers.add((EventHandler)o);
 			else
 				er.message(b, "not a valid template line");
 		}		

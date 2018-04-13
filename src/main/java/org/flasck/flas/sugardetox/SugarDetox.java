@@ -18,6 +18,7 @@ import org.flasck.flas.parsedForm.D3Thing;
 import org.flasck.flas.parsedForm.EventHandler;
 import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBlockIntro;
 import org.flasck.flas.parsedForm.TemplateCardReference;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
@@ -140,9 +141,15 @@ public class SugarDetox {
 				List<Object> attrs = new ArrayList<Object>();
 				for (Object o : td.attrs)
 					attrs.add(substituteMacroParameters(er, map, o, subst));
-				TemplateDiv ret = new TemplateDiv(td.kw, td.webzip, td.customTagLoc, td.customTag, td.customTagVarLoc, td.customTagVar, attrs, formats);
+				TemplateDiv ret;
+				if (td instanceof TemplateBlockIntro)
+					ret = new TemplateBlockIntro(td.location(), ((TemplateBlockIntro)td).forHole);
+				else
+					ret = new TemplateDiv(td.kw, td.webzip, td.customTagLoc, td.customTag, td.customTagVarLoc, td.customTagVar, attrs, formats);
 				for (TemplateLine x : td.nested)
 					ret.nested.add(unroll(er, map, x, subst));
+				for (TemplateBlockIntro tbi : td.webzipBlocks)
+					ret.webzipBlocks.add((TemplateBlockIntro) unroll(er, map, tbi, subst));
 				for (EventHandler y : td.handlers)
 					ret.handlers.add(new EventHandler(y.kw, y.actionPos, y.action, substituteMacroParameters(er, map, y.expr, subst)));
 				return ret;

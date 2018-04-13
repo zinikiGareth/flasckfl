@@ -14,6 +14,7 @@ public class TemplateDiv extends TemplateFormatEvents {
 	public final List<Object> attrs;
 	public final List<TemplateLine> nested = new ArrayList<TemplateLine>();
 	public List<String> droppables;
+	public List<TemplateBlockIntro> webzipBlocks = new ArrayList<>();
 
 	public TemplateDiv(InputPosition kw, String webzip, InputPosition ctLoc, String customTag, InputPosition ctvLoc, String customTagVar, List<Object> attrs, List<Object> formats) {
 		super(kw, formats);
