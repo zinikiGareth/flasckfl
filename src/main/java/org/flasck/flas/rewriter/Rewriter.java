@@ -76,6 +76,7 @@ import org.flasck.flas.parsedForm.StructDefn;
 import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.parsedForm.StructField;
 import org.flasck.flas.parsedForm.Template;
+import org.flasck.flas.parsedForm.TemplateBlockIntro;
 import org.flasck.flas.parsedForm.TemplateCardReference;
 import org.flasck.flas.parsedForm.TemplateCases;
 import org.flasck.flas.parsedForm.TemplateDiv;
@@ -1137,9 +1138,17 @@ public class Rewriter implements CodeGenRegistry {
 					return null;
 				}
 			}
-			RWTemplateDiv ret = new RWTemplateDiv(td.kw, webzip, td.customTag, td.customTagVar, attrs, areaName, formats, makeFn(cx, td, areaName, dynamicExpr));
+			String wzblock = null;
+			if (td instanceof TemplateBlockIntro)
+				wzblock = ((TemplateBlockIntro)td).forHole;
+			RWTemplateDiv ret = new RWTemplateDiv(td.kw, webzip, td.customTag, td.customTagVar, attrs, areaName, formats, makeFn(cx, td, areaName, dynamicExpr), wzblock);
+			TemplateContext c2 = new TemplateContext(cx, ret.areaName());
 			for (TemplateLine i : td.nested)
-				ret.nested.add(rewrite(new TemplateContext(cx, ret.areaName()), i));
+				ret.nested.add(rewrite(c2, i));
+			for (TemplateBlockIntro tbi : td.webzipBlocks) {
+				final RWTemplateDiv div = (RWTemplateDiv) rewrite(c2, tbi);
+				ret.nested.add(div);
+			}
 			rewriteEventHandlers(cx, areaName, ret, td.handlers);
 			ret.droppables = droppables;
 			return ret;

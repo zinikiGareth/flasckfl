@@ -79,7 +79,8 @@ public class JSTemplateGenerator implements TemplateGenerator {
 
 				@Override
 				public void renderIntoHole(String holeName) {
-					fn.add(JSForm.flex("var hole = '" + holeName + "'"));
+					fn.add(JSForm.flex("var " + holeName + "_id = parent._wrapper.cardId+'_'+(uniqid++)"));
+					fn.add(JSForm.flex("d += 'id=\\'' + " + holeName + "_id + '\\' '"));
 				}
 
 				@Override

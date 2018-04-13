@@ -164,7 +164,7 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void createNested(String v, AreaName nested) {
+	public void createNested(String v, AreaName nested, String holeName) {
 		Var storeAs = ctor.avar(nested.javaClassName(), v);
 		ctor.assign(storeAs, (Expr) ctor.makeNew(nested.javaClassName(), cxt, card, (Expr)ctor.as(ctor.myThis(), J.AREA))).flush();
 	}

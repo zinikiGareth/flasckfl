@@ -194,8 +194,12 @@ public class TemplateTraversor {
 				AreaName cn = c.areaName();
 				int idx = cn.jsName().lastIndexOf(".B")+2;
 				String v = 'b'+cn.jsName().substring(idx);
-				for (AreaGenerator area : areas)
-					area.createNested(v, cn);
+				for (AreaGenerator area : areas) {
+					String hn = null;
+					if (c instanceof RWTemplateDiv)
+						hn = ((RWTemplateDiv)c).holeName;
+					area.createNested(v, cn, hn);
+				}
 				recurse(cx, cn, c, areaName);
 			}
 		} else if (tl instanceof RWTemplateList) {

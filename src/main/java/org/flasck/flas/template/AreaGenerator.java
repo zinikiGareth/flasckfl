@@ -31,7 +31,7 @@ public interface AreaGenerator {
 
 	EventHandlerGenerator needAddHandlers();
 
-	void createNested(String v, AreaName nestedArea);
+	void createNested(String v, AreaName nestedArea, String holeName);
 
 	void yoyoExpr(String tfn);
 

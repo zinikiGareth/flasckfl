@@ -22,6 +22,11 @@ public class StdoutSink implements Sink {
 	}
 
 	@Override
+	public void holeid(String called, int from, int to) {
+		System.out.println("    hole id " + called + " from " + from + " to " + to);
+	}
+
+	@Override
 	public void hole(String called, int from, int to) {
 		System.out.println("    hole " + called + " from " + from + " to " + to);
 	}

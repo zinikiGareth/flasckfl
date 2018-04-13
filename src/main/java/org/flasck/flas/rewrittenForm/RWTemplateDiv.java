@@ -15,12 +15,14 @@ public class RWTemplateDiv extends RWTemplateFormatEvents {
 	public final List<RWTemplateLine> nested = new ArrayList<RWTemplateLine>();
 	public List<String> droppables;
 	public final Block webzip;
+	public final String holeName;
 
-	public RWTemplateDiv(InputPosition kw, Block webzip, String customTag, String customTagVar, List<Object> attrs, AreaName areaName, List<Object> formats, FunctionName dynamicFn) {
+	public RWTemplateDiv(InputPosition kw, Block webzip, String customTag, String customTagVar, List<Object> attrs, AreaName areaName, List<Object> formats, FunctionName dynamicFn, String wzblock) {
 		super(kw, areaName, formats, dynamicFn);
 		this.webzip = webzip;
 		this.customTag = customTag;
 		this.customTagVar = customTagVar;
 		this.attrs = attrs;
+		this.holeName = wzblock;
 	}
 }

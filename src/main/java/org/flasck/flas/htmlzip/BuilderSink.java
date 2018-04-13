@@ -37,6 +37,13 @@ public class BuilderSink implements Sink {
 	}
 
 	@Override
+	public void holeid(String called, int from, int to) {
+		Block b = findUniqueBlockContaining(from, to);
+		if (b != null)
+			b.addHoleId(called, from, to);
+	}
+
+	@Override
 	public void hole(String called, int from, int to) {
 		Block b = findUniqueBlockContaining(from, to);
 		if (b != null)

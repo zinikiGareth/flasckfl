@@ -65,8 +65,8 @@ public class Splitter {
 					sink.dodgyAttr(a.range().from(), a.range().to());
 				}
 				if (a.getKey().equals("data-flas-hole")) {
+					sink.holeid(a.getValue(), a.range().from(), a.range().to());
 					sink.hole(a.getValue(), elt.innerRange().from(), elt.innerRange().to());
-					sink.dodgyAttr(a.range().from(), a.range().to());
 				}
 				if (a.getKey().equals("id")) {
 					sink.identityAttr(a.getValue(), a.range().from(), a.range().to());

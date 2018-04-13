@@ -136,8 +136,13 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void createNested(String v, AreaName nested) {
-		fn.add(JSForm.flex("var " + v + " = new " + nested.jsName() + "(this)"));
+	public void createNested(String v, AreaName nested, String holeName) {
+		String parent = "this";
+		if (holeName != null) {
+			fn.add(JSForm.flex("var " + v + "_parent = new DivArea(parent, null, null, null, this._doc.getElementById(" + holeName + "_id))"));
+			parent = v + "_parent";
+		}
+		fn.add(JSForm.flex("var " + v + " = new " + nested.jsName() + "(" + parent + ")"));
 	}
 
 	@Override

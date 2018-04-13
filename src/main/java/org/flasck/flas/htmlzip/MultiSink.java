@@ -28,6 +28,12 @@ public class MultiSink implements Sink {
 	}
 
 	@Override
+	public void holeid(String called, int from, int to) {
+		for (Sink s : sinks)
+			s.holeid(called, from, to);
+	}
+
+	@Override
 	public void hole(String called, int from, int to) {
 		for (Sink s : sinks)
 			s.hole(called, from, to);
