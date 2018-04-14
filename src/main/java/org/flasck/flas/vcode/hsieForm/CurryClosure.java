@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.NameOfThing;
+import org.flasck.flas.commonBase.names.PackageName;
 import org.flasck.flas.hsie.ObjectNeeded;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.ExternalRef;
@@ -14,7 +15,7 @@ import org.zinutils.utils.Justification;
 public class CurryClosure implements ClosureGenerator {
 	private final HSIEBlock c;
 	private final Var v;
-	private final PushExternal pe;
+	private final PushReturn pe;
 	private final int arity;
 	private final boolean scoping;
 
@@ -22,7 +23,7 @@ public class CurryClosure implements ClosureGenerator {
 		this.c = c;
 		this.scoping = scoping;
 		this.v = c.var;
-		this.pe = (PushExternal) c.nestedCommands().get(0);
+		this.pe = (PushReturn)c.nestedCommands().get(0);
 		this.arity = arity;
 	}
 
@@ -65,13 +66,21 @@ public class CurryClosure implements ClosureGenerator {
 	}
 
 	public <T> void handleCurry(HSIEForm form, boolean needsCard, ClosureHandler<T> h, OutputHandler<T> handler) {
-		PushExternal curriedFn = pe;
+		PushExternal curriedFn = null;
 		if (pe == null)
 			curriedFn = (PushExternal)c.nestedCommands().get(0);
-		ExternalRef f2 = curriedFn.fn;
-		NameOfThing clz = f2.myName();
+		else if (pe instanceof PushExternal)
+			curriedFn = (PushExternal) pe;
+		boolean isOrCf = false;
+		NameOfThing clz = null;
+		if (curriedFn != null) {
+			ExternalRef f2 = curriedFn.fn;
+			clz = f2.myName();
+			isOrCf = f2 instanceof ObjectReference || f2 instanceof CardFunction;
+		} else if (pe instanceof PushBuiltin)
+			clz = new PackageName(((PushBuiltin)pe).bval.opName);
 		ClosureHandler<T> h1;
-		if (f2 instanceof ObjectReference || f2 instanceof CardFunction) {
+		if (isOrCf) {
 			if (needsCard)
 				h1 = h.curry(clz, ObjectNeeded.CARD, arity);
 			else

@@ -2,7 +2,7 @@
 	
 		state
 			String name <- 'Mr. Smith'
-			Croset[String] list <- Croset.from ['hello','world']
+			Croset[String] list <- Croset.from [Crokey 'hello', Crokey 'world']
 			
 		template
 			%block

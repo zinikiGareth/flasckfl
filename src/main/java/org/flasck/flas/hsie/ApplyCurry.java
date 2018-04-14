@@ -10,6 +10,7 @@ import org.flasck.flas.rewrittenForm.ExternalRef;
 import org.flasck.flas.rewrittenForm.HandlerLambda;
 import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWObjectDefn;
+import org.flasck.flas.rewrittenForm.RWObjectMethod;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.types.FunctionType;
 import org.flasck.flas.types.Type;
@@ -78,7 +79,25 @@ public class ApplyCurry {
 				} else if (pb.isTuple()) {
 					continue;
 				} else if (pb.isOctor()) {
-					// TODO: I think it's possible that this needs to be handled, but I'm not clear on the case yet ...
+					if (c.nestedCommands().size() < 3)
+						throw new RuntimeException("I was expecting #octor class meth");
+					PushExternal c1 = (PushExternal) c.nestedCommands().get(1);
+					RWObjectDefn defn = (RWObjectDefn) ((PackageVar)c1.fn).defn;
+					PushString c2 = (PushString) c.nestedCommands().get(2);
+					String meth = c2.sval.text;
+					int nargs = -1;
+					for (RWObjectMethod m : defn.ctors) {
+						if (m.name.name.equals("ctor_" + meth))
+							nargs = m.type.arity();
+					}
+					if (nargs == -1)
+						throw new RuntimeException("Did not find method " + meth);
+					ClosureCmd cc = (ClosureCmd) c;
+					ClosureCmd repl = new ClosureCmd(cc.location, cc.var);
+					repl.push(pb.location, pb.bval, null);
+					repl.push(c1.location, c1.fn, null);
+					repl.push(c2.location, c2.sval, null);
+					h.replaceClosure(c, new CurryClosure(repl, nargs+2, true));
 					continue;
 				} else
 					throw new RuntimeException("Unhandled builtin case");

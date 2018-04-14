@@ -117,7 +117,9 @@ public final class JSPushArgument implements PushVisitor<String> {
 		else if (pb.isTuple())
 			sb.append("FLEval.tuple");
 		else if (pb.isOctor())
-			sb.append("FLEval.octor");
+			// possibly not if we have a zero-arg ("default") object ctor ... then what?
+			// sb.append("FLEval.octor");
+			throw new RuntimeException("Octor should be curried away, I think");
 		else
 			throw new RuntimeException("Not handled");
 	}
