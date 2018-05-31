@@ -3967,8 +3967,8 @@ FlasckServices.provideAll = function(document, postbox, services) {
 	Flasck.provideService(postbox, services, "org.flasck.Render", new FlasckServices.RenderService(postbox));
 	Flasck.provideService(postbox, services, "org.ziniki.Credentials", new FlasckServices.CredentialsService(document, postbox));
 	Flasck.provideService(postbox, services, "org.ziniki.KeyValue", new FlasckServices.KeyValueService(postbox));
-	Flasck.provideService(postbox, services, "org.ziniki.CrosetContract", new FlasckServices.CrosetService(postbox));
-	Flasck.provideService(postbox, services, "org.ziniki.ContentContract", new FlasckServices.ContentService(postbox));
+	Flasck.provideService(postbox, services, "org.ziniki.CrosetService", new FlasckServices.CrosetService(postbox));
+	Flasck.provideService(postbox, services, "org.ziniki.ContentService", new FlasckServices.ContentService(postbox));
 	Flasck.provideService(postbox, services, "org.ziniki.Persona", new FlasckServices.PersonaService(postbox));
 	Flasck.provideService(postbox, services, "org.ziniki.Query", new FlasckServices.QueryService(postbox));
 	Flasck.provideService(postbox, services, "org.ziniki.Yoyo", new FlasckServices.YoyoService(postbox));

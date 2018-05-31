@@ -12,6 +12,11 @@ FLClosure.prototype.toString = function() {
 	return "Closure[" + this._closure +"]";
 }
 
+function FLRequireObject(refc) {
+	this.refc = refc;
+	console.log("Will need to recover " + refc.id + " of " + refc._ctor);
+}
+
 function FLEval() {
 }
 
@@ -99,7 +104,45 @@ FLEval.method = function(obj, methodName) {
 }
 
 FLEval.tuple = function() { // need to use arguments because it's varargs
-	return new _Tuple(arguments); // defined in builtin
+  "use strict";
+  return new _Tuple(arguments); // defined in builtin
+}
+
+FLEval.octor = function(obj, meth) {
+  "use strict";
+  var args = [];
+  for (var i=2;i<arguments.length;i++)
+	args[i-2] = arguments[i];
+  return obj[meth].apply(obj, args);  
+}
+
+/* length is a reserved word in Javascript,
+  so we call it _length instead, and need map it appropriately
+  in code generation
+ */
+FLEval._length = function(list) {
+    list = FLEval.head(list);
+	if (list == Nil || list == NilMap)
+	    return 0;
+	else if (list instanceof _Cons) {
+		if (list._arr)
+			return list._arr.length;
+			
+		var tl = FLEval._length(list.tail);
+		if (tl instanceof FLError)
+			return tl;
+	    return 1 + tl;
+	} else if (list instanceof _Assoc) {
+		if (list._map)
+			return Object.keys(list._map).length;
+		var len = FLEval._length(_Assoc.rest);
+		if (tl instanceof FLError)
+			return tl;
+	    return 1 + tl;
+	} else {
+		debugger;
+		return new FLError("Not a valid list");
+	}
 }
 
 FLEval.flattenList = function(list) {
@@ -139,71 +182,67 @@ FLEval.fromWireService = function(addr, obj) {
 	return ret;
 }
 
-// Something coming in off the wire must be one of the following things:
-// A primitive (number, string, etc)
-// An array of strings
-// A flat-ish object (must have _ctor; fields must be primitives; references are via ID - go fetch)
-// [Note: it may also be possible to pass 'handlers' and other specials in a similar way; but this doesn't happen in this direction YET]
-// A crokeys definition
-// A hash (from string to any of the above) 
-// An array of (any of the above including hash)
+/* fromWire has been reworked, but toWire has not (yet).
+ * The definitions are all tested in testWireFormat.html along with the corresponding data/.../....json files
+ * Check there for documentation
+ */
 
-FLEval.fromWire = function(obj, denyOthers) {
+FLEval.fromWire = function(obj) {
 	"use strict"
 	if (!(obj instanceof Object))
 		return obj; // it's a primitive
 	if (obj._ctor) {
-		if (obj._ctor === 'Crokeys') { // an array of crokey hashes - map to a Crokeys object of Crokey objects
-			return FLEval.makeCrokeys(obj.id, obj.keytype, obj.keys); 
-		} else { // a flat-ish object
-			var ret = { _ctor: obj._ctor };
-			for (var x in obj) {
-				if (x[0] === '_')
-					continue;
-				if (obj.hasOwnProperty(x) && obj[x] instanceof Object) {
-					if (obj[x] instanceof Array) {
-						// This is OK if they are all strings
-						var tmp = Nil;
-						var list = obj[x];
-						for (var k=list.length-1;k>=0;k--) {
-							var s = list[k];
-							if (typeof s !== 'string')
-								throw new Error("Field " + x + " is an array that should only contain strings, not " + s);
-							tmp = Cons(s, tmp);
-						}
-						ret[x] = tmp;
-					} else
-						throw new Error("I claim " + x + " is in violation of the wire protocol: " + obj[x]);
-				} else
-					ret[x] = obj[x];
-			}
-			return obj;
+		// handle structs, entities, objects, etc.
+		var spl = obj._ctor.split('.');
+		if (spl.length == 0)
+			return new FLError('no such class ' + obj._ctor);
+			
+		// remove the constructor field
+		delete obj['_ctor'];
+		
+		// get the real class, not the wrapper
+		var pkg = window;
+		for (var i=0;i<spl.length-1;i++) {
+			pkg = pkg[spl[i]];
 		}
-	}
-	if (denyOthers)
-		throw new Error("Wire protocol violation - nested complex objects at " + obj);
-	if (obj instanceof Array) {
-		var ret = Nil;
-		for (var k=list.length-1;k>=0;k--)
-			ret = Cons(FLEval.fromWire(obj[k], true), ret);
-		return ret;
+		var bn = spl[spl.length-1];
+		var clz = pkg[bn];
+		if (clz && clz._fromWire)
+			return clz._fromWire(obj);
+		clz = pkg['_' + bn];
+		if (clz && clz instanceof Function) {
+			// turn any nested reference objects into closures to get that object
+			for (var k in obj) {
+				if (obj.hasOwnProperty(k)) {
+					if (obj[k] instanceof Object) {
+						obj[k] = new FLClosure(undefined, FLEval.recoverObject, [obj[k]]);
+					}
+				}
+			}
+			
+			return new clz(obj);
+		}
+		return new FLError('not implemented');
+	} else if (obj instanceof Array) {
+		return Cons.fromArray(obj);
 	} else {
-		for (var k in obj)
-			obj = FLEval.fromWire(obj[k]);
-		return obj;
+		// If the object has any members, return a lazy extractor
+		for (var k in obj) {
+			if (obj.hasOwnProperty(k))
+				return Assoc.fromObject(obj); 
+		}
+		
+		// return an empty map
+		return NilMap;
 	}
 }
 
-FLEval.makeCrokeys = function(id, keytype, keys) {
-	var ret = [];
-	for (var i=0;i<keys.length;i++) {
-		if (keytype === 'natural')
-			ret.push(new NaturalCrokey(keys[i].key, keys[i].id));
-		else
-			ret.push(new Crokey(keys[i].key, keys[i].id));
-	}
+FLEval.recoverObject = function(refc) {
+	// We need to do a lot of hard work to get all of this to work,
+	// but the key thing is that we need the system to come to a halt
+	// and go off and recover this object
 	
-	return new Crokeys(id, keytype, ret);
+	return new FLRequireObject(refc);
 }
 
 FLEval.toWire = function(wrapper, obj, dontLoop) {
@@ -394,50 +433,6 @@ FLEval.makeEvent = function(ev) {
 	return null;
 }
 
-// should this be in Stdlib?
-
-StdLib = {}
-StdLib.concat = function(l) {
-	var ret = "";
-	while (true) {
-		l = FLEval.head(l);
-		if (l._ctor == 'Cons') {
-			var head = FLEval.full(l.head);
-			ret += head;
-			l = l.tail;
-		} else
-			break;
-	}
-	return ret;
-}
-
-asString = function(any) {
-	if (!any) return "";
-	return any.toString();
-}
-
-append = function(s1, s2) {
-	return FLEval.full(s1) + FLEval.full(s2);
-}
-
-join = function(l, isep) {
-	var ret = "";
-	var sep = "";
-	while (true) {
-		l = FLEval.head(l);
-		if (l._ctor == 'Cons') {
-			var head = FLEval.full(l.head);
-			if (head) {
-				ret += sep + head;
-				sep = isep;
-			}
-			l = l.tail;
-		} else
-			break;
-	}
-	return ret;
-}
-
 FLEval;
 /** A postbox is intended to be a mechanism for
  * delivering messages wherever they need to go,
@@ -621,11 +616,12 @@ _Nil.prototype.toString = function() {
 Nil = new _Nil();
 
 // Define a cons node by providing (possible closures for) head and tail and setting "_ctor" to "cons"
-_Cons = function(a, l) {
+_Cons = function(a, l, arr) {
 	"use strict"
 	this._ctor = 'Cons';
 	this.head = a;
 	this.tail = l;
+	this._arr = arr;
 	return this;
 }
 
@@ -634,7 +630,34 @@ _Cons.prototype.toString = function() {
 	return 'Cons';
 }
 
-Cons = function(a,b) { return new _Cons(a,b); }
+Cons = function(a,b) { return new _Cons(a,b,undefined); }
+
+Cons.fromArray = function(arr) {
+	"use strict";
+	if (arr.length == 0)
+		return Nil;
+	var ret = new _Cons(undefined, undefined, arr);
+	ret.head = new FLClosure(ret, Cons._extractHead, [ret, 0]);
+	ret.tail = new FLClosure(ret, Cons._extractTail, [ret, 1]);
+	return ret;
+}
+
+Cons._extractHead = function(node, offset) {
+	"use strict";
+	return node.head = this._arr[offset];
+}
+
+Cons._extractTail = function(node, offset) {
+	"use strict";
+	if (offset == this._arr.length)
+		return node.tail = Nil;
+	else {
+		var tail = new _Cons(undefined, undefined, undefined);
+		tail.head = new FLClosure(this, Cons._extractHead, [tail, offset]);
+		tail.tail = new FLClosure(this, Cons._extractTail, [tail, offset+1]);
+		return node.tail = tail;
+	} 
+}
 
 _StackPush = function(h, t) {
 	"use strict";
@@ -700,12 +723,13 @@ _NilMap.prototype.toString = function() {
 
 NilMap = new _NilMap();
 
-_Assoc = function(k,v,r) {
+_Assoc = function(k,v,r,obj) {
 	"use strict"
 	this._ctor = 'Assoc';
 	this.key = k;
 	this.value = v;
 	this.rest = r;
+	this._map = obj;
 	return this;
 }
 
@@ -716,588 +740,29 @@ _Assoc.prototype.toString = function() {
 
 Assoc = function(k,v,r) { return new _Assoc(k,v,r); }
 
-// Cunning Crosets
-
-/* This may seem like overkill - why not just use a list for the ordering?
- * The answer is that on the server, you can't be guaranteed that you are seeing "the entire list"
- * and operations such as "insert" into a list of a million rows can be expensive.
- * Moreover, server-side operations can run into "collisions" where multiple people do updates and it
- * is unclear which should win.  Truth to tell, this can happen client-side too.  So, a CROSET with
- * a dedicated CROKEY which can be resolved is a better bet.
- */
-
-var crokeyRange = 62;
-var crokeyFirst = 12;
-var crokeyLast = crokeyRange-crokeyFirst;
-var crokeyMid = Math.floor((crokeyFirst+crokeyLast)/2);
-
-function _Crokey(from, id) {
+Assoc.fromObject = function(obj) {
 	"use strict"
-	if (typeof id !== 'string' && typeof id !== 'undefined')
-		throw new Error("id must be a string");
-	this._ctor = 'Crokey';
-	this.id = id;
-	if (from instanceof Array) {
-		// (assume) it's an array of numbers ...
-		this.key = from;
-	} else if (typeof from === 'string') {
-		// it's a hex string
-		this.key = [];
-		for (var i=0;i<from.length;i++) {
-			var c = from.charCodeAt(i);
-			if (c >= 48 && c <= 57)
-				this.key[i] = c - 48;
-			else if (c >= 65 && c <= 90)
-				this.key[i] = c - 55;
-			else if (c >= 97 && c <= 122)
-				this.key[i] = c - 61;
-			else
-				throw new Error("Invalid char in crokey " + c + " " + from);
-		}
-	} else if (typeof from === 'object' && (from._ctor === 'Crokey' || from._ctor === 'NaturalCrokey')) {
-		// it's another Crokey
-		this.key = from.key;
-	} else
-		throw new Error("Cannot create a Crokey like that");
-}
-
-_Crokey.prototype.atStart = function(id) {
-	"use strict"
-	var next = this.key[this.key.length-1] - 1;
-	var tmp = null;
-	if (next >= crokeyFirst) {
-		tmp = this.key.slice(0);
-		tmp[tmp.length-1] = next;
-	} else {
-		for (var i=this.key.length-1;i>=0;i--) {
-			if (this.key[i]-1 > crokeyFirst) {
-				tmp = this.key.slice(0);
-				tmp[i]--;
-				for (var j=i+1;j<this.key.length;j++)
-					tmp[j] = crokeyLast;
-				break;
-			}
-			if (tmp == null) {
-				next = this.key[0]-1;
-				if (next < 0)
-					throw new Error("An actual overflow case");
-				tmp = this.key.slice(0);
-				tmp[0] = next;
-				for (var i=1;i<this.key.length;i++)
-					tmp[i] = crokeyLast;
-				tmp[tmp.length] = crokeyLast;
-			}
-		}
-	}
-	return new Crokey(tmp, id);
-}
-
-_Crokey.prototype.atEnd = function(id) {
-	"use strict"
-	var next = this.key[this.key.length-1] + 1;
-	var tmp = null;
-	if (next < crokeyLast) {
-		tmp = this.key.slice(0);
-		tmp[tmp.length-1] = next;
-	} else {
-		for (var i=this.key.length-1;i>=0;i--) {
-			if (this.key[i]+1 < crokeyLast) {
-				tmp = this.key.slice(0);
-				tmp[i]++;
-				for (var j=i+1;j<this.key.length;j++)
-					tmp[j] = crokeyFirst;
-				break;
-			}
-		}
-		if (tmp == null) {
-			next = this.key[0] + 1;
-			if (next >= crokeyRange)
-				throw new Error("An actual overflow case");
-			tmp = this.key.slice(0);
-			tmp[0] = next;
-			for (var i=1;i<tmp.length;i++)
-				tmp[i] = crokeyFirst;
-			tmp[tmp.length] = crokeyFirst;
-		}
-	}
-	return new Crokey(tmp, id);
-}
-
-_Crokey.prototype.before = function(before, id) {
-	"use strict"
-	var i=0;
-	var b1 = this.key;
-	var b2 = before.key;
-	for (;i<b1.length && i<b2.length;i++) {
-		if (b1[i] > b2[i])
-			throw new Error("b1 seems bigger than b2");
-		else if (b1[i] < b2[i])
-			break;
-	}
-	var nck;
-	if (i >= b1.length) {
-		if (b2[i] == crokeyFirst)
-			throw new Error("overflow-underflow case");
-		nck = b1.slice(0);
-		nck[i] = Math.floor((crokeyFirst + b2[i])/2);
-	} else if (b2[i] > b1[i]+1) {
-		nck = b1.slice(0);
-		nck[i] = Math.floor((b1[i]+b2[i])/2);
-	} else if (b1.length == i+1 && b2.length == i+1) {
-		nck = b1.slice(0);
-		nck[i+1] = crokeyMid;
-	} else if (b1.length > b2.length) {
-		if (b1[b1.length-1] == crokeyLast)
-			throw new Error("overflow-underflow case");
-		nck = b1.slice(0);
-		nck[b1.length-1] = Math.ceil((b1[b1.length-1]+crokeyLast)/2);
-	} else
-		throw new Error("Create one between " + this + " and " + before + " at " + i);
-	return new Crokey(nck, id);
-}
-
-// return 1 if other is AFTER this, -1 if other is BEFORE this and 0 if they are the same key
-_Crokey.prototype.compare = function(other) {
-	"use strict"
-	if (other._ctor !== 'Crokey')
-		throw new Error("Cannot compare crokey to non-Crokey");
-	for (var i=0;i<this.key.length;i++) {
-		if (this.key[i] > other.key[i]) return 1;
-		if (this.key[i] < other.key[i]) return -1;
-	}
-	if (this.key.length == other.key.length) return 0; // they are the same key
-	if (this.key.length > other.key.length) return 1; // this.key is a subkey of other.key and thus after it
-	if (this.key.length < other.key.length) return -1; // this.key is a prefix of other.key and thus before it
-	throw new Error("You should never get here");
-}
-
-_Crokey.prototype.toString = function() {
-	var ret = "";
-	for (var i=0;i<this.key.length;i++) {
-		var hx = this.key[i];
-		if (hx < 10)
-			hx = hx + 48;
-		else if (hx < 36)
-			hx = hx + 55;
-		else
-			hx = hx + 61;
-		ret += String.fromCharCode(hx);
-	}
+	var ret = new _Assoc(undefined, undefined, undefined, obj);
 	return ret;
 }
 
-function Crokey(from, id) { return new _Crokey(from, id); }
+assoc = function(map, key) {
+	if (map == NilMap)
+		return new FLError(key + " not in map");
+	else if (!(map instanceof _Assoc))
+		return new FLError("not a map");
 
-Crokey.onlyKey = function(id) {
-	"use strict"
-	return new Crokey([crokeyFirst], id);
-}
-
-function _NaturalCrokey(key, id) {
-	this._ctor = 'NaturalCrokey';
-	if (typeof key === 'string')
-		this.key = key;
-	else if (typeof key === 'object' && key instanceof _NaturalCrokey)
-		this.key = key.key;
-	else
-		throw new Error("Cannot handle " + this.key);
-	this.id = id;
-}
-
-_NaturalCrokey.prototype.compare = function(other) {
-	"use strict"
-	if (other._ctor !== 'NaturalCrokey')
-		throw new Error("Cannot compare nCrokey to non-nCrokey");
-	return this.key.localeCompare(other.key);
-}
-
-_NaturalCrokey.prototype.toString = function() {
-	return this.key;
-}
-
-function NaturalCrokey(key, id) { return new _NaturalCrokey(key, id); }
-
-function _Crokeys(id, keytype, listKeys) {
-	this._ctor = 'Crokeys';
-	this.id = id;
-	this.keytype = keytype;
-	this.keys = listKeys;
-}
-
-function Crokeys(id, type, l) { return new _Crokeys(id, type, l); }
-
-function _Croset(crokeys) {
-	"use strict"
-	
-	// initialize "blank" fields
-	this._ctor = 'Croset';
-	this._special = 'object';
-	this.members = [];
-	this.hash = {};
-
-	// Now try and merge in a default set of crokeys
-	crokeys = FLEval.full(crokeys);
-	if (crokeys === null || crokeys === undefined || crokeys._ctor === 'Nil')
-		return;
-	if (crokeys instanceof Array || crokeys._ctor === 'Cons')
-		crokeys = Crokeys("arr-id", 'crindex', crokeys);
-	else if (crokeys._ctor !== 'Crokeys')
-		throw new Error("Cannot create a croset with " + crokeys);
-	if (crokeys.keys._ctor === 'Cons' || crokeys.keys._ctor === 'Nil')
-		crokeys.keys = FLEval.flattenList(crokeys.keys);
-	if (!crokeys.keytype)
-		throw new Error("crokeys.keytype was not defined"); 
-	this.keytype = crokeys.keytype;
-	this.mergeAppend(crokeys);
-}
-
-_Croset.prototype.length = function() {
-	return this.members.length;
-}
-
-_Croset.prototype.insert = function(k, obj) {
-	"use strict"
-	var msgs = [];
-	if (!obj.id)
-		return msgs;
-	var rk = this._hasId(obj.id);
-	if (rk === undefined) {
-		rk = this.keytype === 'natural' ? new NaturalCrokey(k, obj.id) : new Crokey(k, obj.id);
-		this._insert(rk);
-		msgs = [new CrosetInsert(this, rk)];
-	} else
-		msgs = [new CrosetReplace(this, rk)];
-	if (obj._ctor)
-		this.hash[obj.id] = obj;
-	return msgs;
-}
-
-_Croset.prototype._append = function(id) {
-	"use strict"
-	var key;
-	if (this.members.length === 0) {
-		// the initial case
-		key = Crokey.onlyKey(id);
-	} else {
-		// at end
-		key = this.members[this.members.length-1].atEnd(id);
-	}
-	this.members.push(key);
-	return key;
-}
-
-_Croset.prototype._insert = function(ck) {
-	"use strict"
-	for (var i=0;i<this.members.length;i++) {
-		var m = this.members[i];
-		if (m.compare(ck) === 1) {
-			this.members.splice(i, 0, ck);
-			return;
+	if (map._map) {
+		if (map._map[key] === undefined)
+			return new FLError(key + " not in map");
+		else {
+			// TODO: we need to spot objects and arrays and unpack them 
+			return map._map[key];
 		}
-	}
-	this.members.push(ck);
-}
-
-// The goal here is that after this operation, this[pos] === id
-_Croset.prototype._insertAt = function(pos, id) {
-	"use strict"
-	if (pos < 0 || pos > this.members.length)
-		throw new Error("Cannot insert into croset at position" + pos);
-	var k;
-	if (pos == 0) {
-		if (this.members.length == 0)
-			k = Crokey.onlyKey(id);
-		else
-			k = this.members[0].atStart(id);
-	} else if (pos == this.members.length) {
-		k = this.members[this.members.length-1].atEnd(id);
-	} else
-		k = this.members[pos-1].before(this.members[pos], id);
-	
-	this.members.splice(pos, 0, k);
-	return k;
-}
-
-_Croset.prototype.get = function(k) {
-	"use strict"
-	console.log("use member instead");
+	}	
 	debugger;
-	return this.member(k);
+	return new FLError("not implemented")
 }
-
-_Croset.prototype.member = function(k) {
-	"use strict"
-	if (typeof k === 'string') {
-		if (this.keytype === 'natural')
-			k = new NaturalCrokey(k);
-		else if (this.keytype === 'crindex')
-			k = new Crokey(k);
-		else
-			throw new Error("Cannot handle compare with strings for keytype: " + this.keytype);
-	}
-	for (var i=0;i<this.members.length;i++) {
-		var m = this.members[i];
-		if (m.compare(k) === 0)
-			return this.hash[m.id];
-	}
-	debugger;
-	throw new Error("No key " + k + " in" + this);
-}
-
-_Croset.prototype.item = function(id) {
-	"use strict"
-	return this.hash[id];
-}
-
-_Croset.prototype.memberOrId = function(k) {
-	"use strict"
-	for (var i=0;i<this.members.length;i++) {
-		var m = this.members[i];
-		if (m.compare(k) === 0) {
-			var x = this.hash[m.id];
-			if (x) 
-				return x;
-			// otherwise return "just the id"
-			return { _ctor: 'org.ziniki.ID', id: m.id };
-		} else if (m.compare(k) === 0) // surely this should be >
-			break;
-	}
-	throw new Error("No key" + k + "in" + this);
-}
-
-_Croset.prototype.index = function(idx) {
-	"use strict"
-	if (idx >= 0 && idx < this.members.length)
-		return this.members[idx];
-	throw new Error("No index" + idx + "in" + this);
-}
-
-_Croset.prototype.range = function(from, to) {
-	"use strict"
-	var ret = Nil;
-	for (var k=to-1;k>=from;k--) {
-		if (k<this.members.length) {
-			var v = this.members[k].id;
-			if (this.hash[v])
-				ret = Cons(this.hash[v], ret);
-		}
-	}
-	return ret;
-}
-
-_Croset.prototype.mergeAppend = function(crokeys) {
-	"use strict"
-	crokeys = FLEval.full(crokeys);
-	if (crokeys._ctor !== 'Crokeys')
-		throw new Error("MergeAppend only accepts Crokeys objects");
-	if (crokeys.keys._ctor === 'Nil')
-		return;
-	if (!crokeys.id)
-		throw new Error("Incoming crokeys must have a Croset ID");
-	if (!this.crosetId) {
-		this.crosetId = crokeys.id;
-	} else if (this.crosetId != crokeys.id)
-		throw new Error("Cannot apply changes from a different croset");
-	var l = crokeys.keys;
-	if (!(l instanceof Array))
-		throw new Error("keys should be an array");
-	var msgs = [];
-	for (var i=0;i<l.length;i++) {
-//		console.log("handle", l.head);
-		if (l[i]._ctor !== 'Crokey' && l[i]._ctor !== 'NaturalCrokey')
-			throw new Error("Needs to be a Crokey");
-		if (!this._hasId(l[i].id)) { // only insert if it's not in the list
-			this._insert(l[i]);
-			msgs.push(new CrosetInsert(this, l[i]));
-		}
-	}
-	return msgs;
-}
-
-_Croset.prototype.put = function(obj) {
-	"use strict"
-	obj = FLEval.head(obj);
-	if (!obj.id) {
-		debugger;
-		throw new Error(obj + " does not have field 'id'");
-	}
-	if (!obj._ctor) {
-		debugger;
-		throw new Error(obj + " does not have _ctor");
-	}
-	obj.id = FLEval.full(obj.id);
-	var msgs;
-	var key = this._hasId(obj.id);
-	if (!key) {
-		key = this._append(obj.id);
-		msgs = [new CrosetInsert(this, key)];
-	} else
-		msgs = [new CrosetReplace(this, key)];
-	if (obj._ctor)
-		this.hash[obj.id] = obj;
-	return msgs;
-}
-
-_Croset.prototype.delete = function(id) {
-	"use strict"
-	if (!id)
-		return; // part of our "be nice to nulls" policy
-	if (!this.hash[id])
-		throw new Error("There isn't an entry", id);
-	delete this.hash[id];
-	var msgs = [];
-	for (var i=0;i<this.members.length;) {
-		if (this.members[i].id === id) {
-			msgs.push(new CrosetRemove(this, this.members[i], true));
-			this.members.splice(i, 1);
-		} else
-			i++;
-	}
-	return msgs;
-}
-
-_Croset.prototype.deleteSet = function(crokeys) {
-	"use strict"
-	var msgs = [];
-	for (var j=0;j<crokeys.keys.length;j++) {
-		var ck = crokeys.keys[j];
-		for (var i=0;i<this.members.length;) {
-			var m = this.members[i];
-			var x = m.compare(ck);
-			if (x === 0) {
-				delete this.hash[m.id];
-				msgs.push(new CrosetRemove(this, m, true));
-				this.members.splice(i, 1);
-			} else if (x > 0)
-				break;
-			else
-				i++;
-		}
-	}
-	return msgs;
-}
-
-_Croset.prototype.clear = function() {
-	"use strict"
-	var msgs = [];
-	while (this.members.length>0) {
-		var m = this.members[0];
-		delete this.hash[m.id];
-		msgs.push(new CrosetRemove(this, m, false));
-		this.members.splice(0, 1);
-	}
-	delete this.crosetId;
-	return msgs;
-}
-
-// Can't we just ask if it's in the hash?
-// Not if it hasn't been loaded
-_Croset.prototype._hasId = function(id) {
-	"use strict"
-	for (var i=0;i<this.members.length;i++) {
-		if (this.members[i].id === id)
-			return this.members[i];
-	}
-	return undefined;
-}
-
-_Croset.prototype.findLocation = function(id) {
-	"use strict"
-	if (typeof id === 'string') {
-		for (var i=0;i<this.members.length;i++) {
-			if (this.members[i].id === id)
-				return i;
-		}
-		/* I think this was supposed to be a key comparison, but I don't think it would have worked ...
-	} else if (id instanceof Array) {
-		for (var i=0;i<this.members.length;i++) {
-			if (this.members[i].key === id)
-				return i;
-		}
-		*/
-	} else if (id instanceof _Crokey) {
-		for (var i=0;i<this.members.length;i++) {
-			var cmp = this.members[i].compare(id);
-			if (cmp === 0)
-				return i;
-			else if (cmp > 0)
-				return -1;
-		}
-	} else
-		throw new Error("What is this?" + id);
-	return -1;
-}
-
-_Croset.prototype.moveBefore = function(toMove, placeBefore) {
-//	console.log(toMove + " has moved before " + placeBefore);
-	var moverLoc = this.findLocation(toMove);
-	if (moverLoc === -1) throw new Error("Did not find " + toMove);
-	var oldKey = this.members[moverLoc];
-	var mover = this.members.splice(moverLoc, 1)[0]; // remove the item at moverLoc
-	var newKey;
-	if (!placeBefore) { // moving to the end is the simplest case
-		newKey = this._append(mover.id);
-//		console.log("moved to end:", this);
-	} else {
-		// This location is the location AFTER removing the element we're going to move
-		var beforeLoc = this.findLocation(placeBefore);
-		if (moverLoc === -1) throw new Error("Did not find " + placeBefore);
-		newKey = this._insertAt(beforeLoc, mover.id);
-//		console.log("moved to", beforeLoc, ":", this);
-	}
-	return [new CrosetMove(this, oldKey, newKey)];
-}
-
-// Native drag-n-drop support
-
-var findContainer = function(ev, div) {
-	var t = ev.target;
-	while (t) {
-		if (t === div && t._area._croset)
-    		return t;
-    	t = t.parentElement;
-    }
-    return null;
-}
-
-_Croset.listDrag = function(ev) {
-    ev.dataTransfer.setData("application/json", JSON.stringify({id: ev.target.id, y: ev.y}));
-}
-
-_Croset.listDragOver = function(ev, into) {
-	var c = findContainer(ev, into);
-	if (c)
-   		ev.preventDefault();
-}
-
-_Croset.listDrop = function(ev, into) {
-	var c = findContainer(ev, into);
-	if (c) {
-//		console.log("container croset is", c._area._croset);
-		var doc = into.ownerDocument;
-	    ev.preventDefault();
-	    var data = JSON.parse(ev.dataTransfer.getData("application/json"));
-	    var elt = doc.getElementById(data.id);
-	    var moved = ev.y-data.y;
-	    var newY = elt.offsetTop-c.offsetTop+moved;
-	    var prev;
-	    for (var idx=0;idx<c.children.length;idx++) {
-	    	var child = c.children[idx];
-	    	var chtop = child.offsetTop - c.offsetTop;
-	    	if (newY < chtop) {
-	    		if (child.id !== data.id && (prev == null || prev.id != data.id)) {
-	    			return c._area._croset.moveBefore(doc.getElementById(data.id)._area._crokey, child._area._crokey);
-	    		}
-	    		// else not moved in fact ... nothing to do
-	    		return [];
-	    	}
-	    	prev = child;
-	    }
-		return c._area._croset.moveBefore(doc.getElementById(data.id)._area._crokey, null);
-	}
-}
-
-Croset = function(list) { "use strict"; return new _Croset(list); }
 
 // Message passing
 
@@ -1932,7 +1397,7 @@ FlasckWrapper.prototype.processOne = function(msg, todo) {
 			return new FLError("don't handle" + msg);
 		}
 		if (meth)
-			this.postbox.deliver(this.services['org.ziniki.CrosetContract'], {from: this.contractInfo['org.ziniki.CrosetContract'].service._myaddr, method: meth, args: args });
+			this.postbox.deliver(this.services['org.ziniki.CrosetService'], {from: this.contractInfo['org.ziniki.CrosetService'].service._myaddr, method: meth, args: args });
 		todo.push(msg);
 	} else if (msg._ctor === 'CreateCard') {
 		// If the user requests that we make a new card in response to some action, we need to know where to place it
@@ -2167,21 +1632,31 @@ var CardArea = function(pdiv, wrapper, card) {
 
 var uniqid = 1;
 
-var Area = function(parent, tag, ns) {
+var Area = function(parent, tag, ns, myhtml, mydiv) {
 	"use strict";
 	if (parent) {
 		this._parent = parent;
 		this._wrapper = parent._wrapper;
 		this._doc = parent._doc;
 		this._indiv = parent._mydiv;
-		if (tag) {
+		if (myhtml) {
+			var t = document.createElement('template');
+			t.innerHTML = myhtml.trim(); 
+		    this._mydiv = t.content.firstChild;
+		} else if (mydiv) {
+			this._mydiv = mydiv;
+		} else if (tag) {
 			if (ns)
 				this._mydiv = this._doc.createElementNS(ns, tag);
 			else
 				this._mydiv = this._doc.createElement(tag);
-			this._mydiv.setAttribute('id', this._wrapper.cardId+'_'+(uniqid++));
+		}
+		if (this._mydiv) {
 			this._mydiv._area = this;
-			this._indiv.appendChild(this._mydiv);
+			if (!mydiv) {
+				this._mydiv.setAttribute('id', this._wrapper.cardId+'_'+(uniqid++));
+				this._indiv.appendChild(this._mydiv);
+			}
 		}
 		this._card = parent._card;
 	}
@@ -2196,9 +1671,11 @@ Area.prototype._onAssign = function(obj, field, fn) {
 	this._wrapper.onUpdate("assign", obj, field, this, fn);
 }
 
-var DivArea = function(parent, tag, ns) {
+var DivArea = function(parent, tag, ns, myhtml, mydiv) {
 	"use strict";
-	Area.call(this, parent, tag || 'div', ns);
+	if (!tag && !myhtml && !mydiv)
+		tag = 'div';
+	Area.call(this, parent, tag, ns, myhtml, mydiv);
 	this._interests = [];
 }
 
@@ -2498,6 +1975,47 @@ D3Area.prototype._onUpdate = function() {
 // The Standard Library, exported under the "package" StdLib
 
 function StdLib() {
+}
+
+StdLib.concat = function(l) {
+	var ret = "";
+	while (true) {
+		l = FLEval.head(l);
+		if (l._ctor == 'Cons') {
+			var head = FLEval.full(l.head);
+			ret += head;
+			l = l.tail;
+		} else
+			break;
+	}
+	return ret;
+}
+
+asString = function(any) {
+	if (!any) return "";
+	return any.toString();
+}
+
+append = function(s1, s2) {
+	return FLEval.full(s1) + FLEval.full(s2);
+}
+
+join = function(l, isep) {
+	var ret = "";
+	var sep = "";
+	while (true) {
+		l = FLEval.head(l);
+		if (l._ctor == 'Cons') {
+			var head = FLEval.full(l.head);
+			if (head) {
+				ret += sep + head;
+				sep = isep;
+			}
+			l = l.tail;
+		} else
+			break;
+	}
+	return ret;
 }
 
 // The standard library "filter" function, which can be imagined as:
