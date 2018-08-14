@@ -15,14 +15,12 @@ public class Block {
 	public class Hole implements Comparable<Hole> {
 		private final int from;
 		private final int to;
-//		private final String holeName;
 		private final String idAttr;
 		private final String holeId;
 
-		public Hole(int from, int to, String holeId, String holeName, String idAttr) {
+		public Hole(int from, int to, String holeId, String idAttr) {
 			this.from = from;
 			this.to = to;
-//			this.holeName = holeName;
 			this.idAttr = idAttr;
 			this.holeId = holeId;
 		}
@@ -62,21 +60,21 @@ public class Block {
 		if (hs < from || ht > to) {
 			System.err.println("Hole from " + hs + " to " + ht + " is not inside " + this);
 		} else
-			holes.add(new Hole(hs, ht, called, null, null));
+			holes.add(new Hole(hs, ht, called, null));
 	}
 
-	public void addHole(String called, int hs, int ht) {
+	public void addHole(int hs, int ht) {
 		if (hs < from || ht > to) {
 			System.err.println("Hole from " + hs + " to " + ht + " is not inside " + this);
 		} else
-			holes.add(new Hole(hs, ht, null, called, null));
+			holes.add(new Hole(hs, ht, null, null));
 	}
 
 	public void identityAttr(String called, int is, int it) {
 		if (is < from || it > to)
 			System.err.println("Cannot identify element with " + called + " because it is outside " + this);
 		else {
-			holes.add(new Hole(is, it, null, null, called));
+			holes.add(new Hole(is, it, null, called));
 		}
 	}
 
@@ -84,7 +82,7 @@ public class Block {
 		if (as < from || at > to) {
 			System.err.println("Attribute from " + as + " to " + at + " is not inside " + this);
 		} else {
-			holes.add(new Hole(as, at, null, null, null));
+			holes.add(new Hole(as, at, null, null));
 		}
 	}
 

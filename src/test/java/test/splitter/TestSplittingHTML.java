@@ -48,25 +48,23 @@ public class TestSplittingHTML {
 	}
 	
 	@Test
-	@Ignore
 	public void aCardCanHaveAHole() throws IOException {
 		context.checking(new Expectations() {{
 			oneOf(mock).card("foo", 0, 69);
 			oneOf(mock).dodgyAttr(5, 25);
-			oneOf(mock).hole("bar", 52, 57);
-			oneOf(mock).dodgyAttr(31, 51);
+			oneOf(mock).holeid("bar", 31, 51);
+			oneOf(mock).hole(52, 57);
 		}});
 		go("<div data-flas-card='foo'><div data-flas-hole='bar'>hello</div></div>");
 	}
 	
 	@Test
-	@Ignore
 	public void aHoleCanInTurnHaveANestedCardDefinition() throws IOException {
 		context.checking(new Expectations() {{
 			oneOf(mock).card("foo", 0, 109);
 			oneOf(mock).dodgyAttr(5, 25);
-			oneOf(mock).hole("bar", 52, 97);
-			oneOf(mock).dodgyAttr(31, 51);
+			oneOf(mock).holeid("bar", 31, 51);
+			oneOf(mock).hole(52, 97);
 			oneOf(mock).card("zeb", 56, 93);
 			oneOf(mock).dodgyAttr(61, 81);
 		}});

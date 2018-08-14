@@ -593,7 +593,7 @@ class ShowCardSink implements Sink {
 	}
 
 	@Override
-	public void hole(String called, int from, int to) {
+	public void hole(int from, int to) {
 	}
 
 	@Override

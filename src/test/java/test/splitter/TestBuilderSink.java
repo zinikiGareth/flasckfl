@@ -6,7 +6,6 @@ import org.flasck.flas.htmlzip.SplitterException;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -50,8 +49,13 @@ public class TestBuilderSink {
 	}
 
 	@Test
-	@Ignore
 	public void aCardWithAHoleCanBeCreatedInAnActiveFile() {
+		BuilderSink sink = new BuilderSink();
+		sink.beginFile("foo");
+		sink.card("hello", 25, 55);
+		sink.holeid("bar", 31, 50);
+		sink.fileEnd();
+		sink.dump();
 		Sequence order = context.sequence("order");
 		context.checking(new Expectations() {{
 			oneOf(mock).consider("foo"); inSequence(order);
@@ -60,12 +64,6 @@ public class TestBuilderSink {
 			oneOf(mock).render(50, 55); inSequence(order);
 			oneOf(mock).done(); inSequence(order);
 		}});
-		BuilderSink sink = new BuilderSink();
-		sink.beginFile("foo");
-		sink.card("hello", 25, 55);
-		sink.hole("bar", 31, 50);
-		sink.fileEnd();
-		sink.dump();
 		sink.visitCard("hello", mock);
 	}
 
@@ -126,20 +124,19 @@ public class TestBuilderSink {
 	}
 
 	@Test
-	@Ignore
 	public void adjacentHolesAndAttrRemovalsAreCoalesced() {
 		Sequence order = context.sequence("order");
 		context.checking(new Expectations() {{
 			oneOf(mock).consider("foo"); inSequence(order);
 			oneOf(mock).render(25, 37); inSequence(order);
-			oneOf(mock).renderIntoHole("hole");
+			oneOf(mock).renderIntoHole("hole"); inSequence(order);
 			oneOf(mock).render(49, 105); inSequence(order);
 			oneOf(mock).done(); inSequence(order);
 		}});
 		BuilderSink sink = new BuilderSink();
 		sink.beginFile("foo");
 		sink.card("hello", 25, 105);
-		sink.hole("hole", 37, 42);
+		sink.holeid("hole", 37, 42);
 		sink.dodgyAttr(42, 49);
 		sink.fileEnd();
 		sink.dump();

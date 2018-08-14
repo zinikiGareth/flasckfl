@@ -44,10 +44,10 @@ public class BuilderSink implements Sink {
 	}
 
 	@Override
-	public void hole(String called, int from, int to) {
+	public void hole(int from, int to) {
 		Block b = findUniqueBlockContaining(from, to);
 		if (b != null)
-			b.addHole(called, from, to);
+			b.addHole(from, to);
 	}
 
 	@Override
