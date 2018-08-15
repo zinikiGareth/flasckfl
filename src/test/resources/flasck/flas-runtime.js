@@ -1758,11 +1758,11 @@ ListArea.prototype._assignToVar = function(croset) {
     		for (var pos=0;pos<10;pos++) {
     			if (pos+off >= croset.length())
     				break;
-    			var v = croset.index(pos+off);
+    			var ck = croset.key(pos+off);
     			var child = this._newChild();
-    			child._crokey = v;
+    			child._crokey = ck;
     			this._insertItem(child);
-    			child._assignToVar(croset.memberOrId(v));
+    			child._assignToVar(croset.at(pos+off));
   		}
   		this._wrapper.onUpdate("croset", croset, null, this);
 	}
@@ -1774,7 +1774,7 @@ ListArea.prototype._insertItem = function(child) {
 		throw new Error("Cannot handle null _crokey in " + child);
 	for (var i=0;i<this._mydiv.children.length;i++) {
 		var a = this._mydiv.children[i];
-		if (child._crokey.compare(a._area._crokey) < 0) {
+		if (this._croset.before(child._crokey, a._area._crokey)) {
 			this._mydiv.insertBefore(child._mydiv, a);
 			return;
 		}
