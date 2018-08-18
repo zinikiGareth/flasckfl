@@ -14,9 +14,15 @@ test.golden._TestCard = function(v0) {
   this._ctor = 'test.golden.TestCard';
   this._wrapper = v0.wrapper;
   this._special = 'card';
-  this.data = FLEval.full(test.golden.TestCard.inits_data());
   this._services = {};
   this._contracts = {};
+}
+
+test.golden._TestCard.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  this.data = FLEval.full(test.golden._TestCard.prototype.inits_data.apply(this, [msgs]));
+  return msgs.curr;
 }
 
 test.golden.TestCard = function(v0) {
@@ -371,17 +377,21 @@ test.golden.TestCard.prototype._gen_9 = function(v0) {
   return FLEval.error("test.golden.TestCard._gen_9: case not handled");
 }
 
-test.golden.TestCard.handlers_0.prototype.getHandler = function() {
+test.golden.TestCard.handlers_0 = function() {
   "use strict";
   return test.golden.TestCard.prototype.rejig;
 }
 
-test.golden.TestCard.inits_data = function() {
+test.golden._TestCard.prototype.inits_data = function(msgs) {
   "use strict";
   var v0 = FLEval.closure(Cons, 16, Nil);
   var v1 = FLEval.closure(Cons, 2, v0);
   var v2 = FLEval.closure(Cons, 8, v1);
-  return FLEval.closure(Cons, 5, v2);
+  var ret = FLEval.closure(Cons, 5, v2);
+  var fld = FLEval.closure(FLEval.field, this, 'data');
+  var init = FLEval.closure(Send, fld, '_init', Nil);
+  msgs.curr = FLEval.closure(Cons, init, msgs.curr);
+  return ret;
 }
 
 test.golden.TestCard.prototype.rejig = function(v0) {

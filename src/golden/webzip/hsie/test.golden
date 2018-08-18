@@ -1,0 +1,86 @@
+HSIE for test.golden.Webzip.B4.contents_0/0                  #webzip.fl:   18.7
+#Args: 0 #bound: 0
+    externals: [test.golden.Webzip.name]
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN CardMember.CardMember[test.golden.Webzip.name]        #webzip.fl:   18.7
+-------
+HSIE for test.golden.Webzip.B6.lvs_1/0                       #webzip.fl:   20.2
+#Args: 0 #bound: 0
+    externals: [test.golden.Webzip.list]
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN CardMember.CardMember[test.golden.Webzip.list]        #webzip.fl:   20.2
+-------
+HSIE for test.golden.Webzip.B8.contents_2/0                  #webzip.fl:   23.0
+#Args: 0 #bound: 0
+    externals: []
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN TLV[test.golden.Webzip.e<-test.golden.Webzip.B6.lvs_1 #webzip.fl:   20.7
+-------
+HSIE for test.golden.Webzip._C1.onready/0                    #webzip.fl:   27.0
+#Args: 0 #bound: 8
+    externals: [Cons, Nil, Send, test.golden.Item, test.golden.Webzip.list]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0, v1, v2, v3, v4, v5, v6, v7]
+RETURN v7:clos7 [v0:clos0, v1:clos1, v2:clos2, v3:clos3, v4: #webzip.fl:   28.3
+CLOSURE v1                                                   #webzip.fl:   28.15
+  PUSH PackageVar.Cons                                       #webzip.fl:   28.3
+  PUSH v0:clos0                                              #webzip.fl:   28.15
+  PUSH PackageVar.Nil                                        #webzip.fl:   28.3
+CLOSURE v2 S                                                 #webzip.fl:   28.3
+  PUSH PackageVar.Send                                       #webzip.fl:   28.3
+  PUSH CardMember.CardMember[test.golden.Webzip.list]        #webzip.fl:   28.3
+  PUSH "append"                                              #webzip.fl:   28.8
+  PUSH v1:clos1                                              #webzip.fl:   28.15
+CLOSURE v3                                                   #webzip.fl:   29.15
+  PUSH PackageVar.test.golden.Item                           #webzip.fl:   29.16
+  PUSH "watch rugby"                                         #webzip.fl:   29.21
+CLOSURE v4                                                   #webzip.fl:   29.15
+  PUSH PackageVar.Cons                                       #webzip.fl:   29.3
+  PUSH v3:clos3                                              #webzip.fl:   29.15
+  PUSH PackageVar.Nil                                        #webzip.fl:   29.3
+CLOSURE v5 S                                                 #webzip.fl:   29.3
+  PUSH PackageVar.Send                                       #webzip.fl:   29.3
+  PUSH CardMember.CardMember[test.golden.Webzip.list]        #webzip.fl:   29.3
+  PUSH "append"                                              #webzip.fl:   29.8
+  PUSH v4:clos4                                              #webzip.fl:   29.15
+CLOSURE v6                                                   #webzip.fl:   29.3
+  PUSH PackageVar.Cons                                       #webzip.fl:   27.0
+  PUSH v5:clos5                                              #webzip.fl:   29.3
+  PUSH PackageVar.Nil                                        #webzip.fl:   27.0
+CLOSURE v7                                                   #webzip.fl:   28.3
+  PUSH PackageVar.Cons                                       #webzip.fl:   27.0
+  PUSH v2:clos2                                              #webzip.fl:   28.3
+  PUSH v6:clos6                                              #webzip.fl:   29.3
+CLOSURE v0                                                   #webzip.fl:   28.15
+  PUSH PackageVar.test.golden.Item                           #webzip.fl:   28.16
+  PUSH "do some work"                                        #webzip.fl:   28.21
+-------
+HSIE for test.golden.Webzip.inits_list/0                     #webzip.fl:    8.21
+#Args: 0 #bound: 2
+    externals: [Croset, test.golden.Webzip.cs]
+    scoped = []
+    scopedDefns = []
+    all vars = [v0, v1]
+RETURN v1:clos1 [v0:clos0]                                   #webzip.fl:    8.21
+CLOSURE v1                                                   #webzip.fl:    8.21
+  PUSH v0:clos0                                              #webzip.fl:    8.21
+  PUSH CardMember.CardMember[test.golden.Webzip.cs]          #webzip.fl:    8.35
+CURRY v0 3 !                                                 #webzip.fl:    8.21
+  OCTOR                                                      #webzip.fl:    8.21
+  PUSH PackageVar.Croset                                     #webzip.fl:    8.21
+  PUSH "_ctor_create"                                        #webzip.fl:    8.28
+-------
+HSIE for test.golden.Webzip.inits_name/0                     #webzip.fl:    7.15
+#Args: 0 #bound: 0
+    externals: []
+    scoped = []
+    scopedDefns = []
+    all vars = []
+RETURN "Mr. Smith"                                           #webzip.fl:    7.15

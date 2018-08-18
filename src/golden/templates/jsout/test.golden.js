@@ -41,6 +41,12 @@ test.golden._Templates = function(v0) {
   this._contracts = {};
 }
 
+test.golden._Templates.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  return msgs.curr;
+}
+
 test.golden.Templates = function(v0) {
   "use strict";
   return new test.golden._Templates(v0);

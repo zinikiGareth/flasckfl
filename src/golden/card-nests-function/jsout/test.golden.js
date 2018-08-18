@@ -18,6 +18,12 @@ test.golden._NestFunction = function(v0) {
   this._contracts = {};
 }
 
+test.golden._NestFunction.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  return msgs.curr;
+}
+
 test.golden.NestFunction = function(v0) {
   "use strict";
   return new test.golden._NestFunction(v0);

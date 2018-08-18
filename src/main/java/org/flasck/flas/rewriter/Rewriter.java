@@ -906,13 +906,13 @@ public class Rewriter implements CodeGenRegistry {
 			throw new UtilException("Cannot have card in nested scope: " + cx.getClass());
 		CardGrouping grp = cards.get(cd.cardName.uniqueName());
 		RWStructDefn sd = grp.struct;
+		CardContext c2 = new CardContext((PackageContext) cx, grp.getName(), grp.areaActions, cd, true);
 		if (cd.state != null) {
 			for (StructField sf : cd.state.fields) {
-				rewriteField(cx, sd, sf);
+				rewriteField(c2, sd, sf);
 			}
 		}
 		
-		CardContext c2 = new CardContext((PackageContext) cx, grp.getName(), grp.areaActions, cd, true);
 		for (ContractImplements ci : cd.contracts) {
 			RWContractImplements rw = cardImplements.get(ci.getRealName());
 

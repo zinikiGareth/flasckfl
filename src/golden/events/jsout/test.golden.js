@@ -18,6 +18,12 @@ test.golden._Events = function(v0) {
   this._contracts = {};
 }
 
+test.golden._Events.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  return msgs.curr;
+}
+
 test.golden.Events = function(v0) {
   "use strict";
   return new test.golden._Events(v0);
@@ -75,12 +81,12 @@ test.golden._Events.B3.prototype._add_handlers = function() {
   }
 }
 
-test.golden.Events.handlers_0.prototype.getHandler = function() {
+test.golden.Events.handlers_0 = function() {
   "use strict";
   return test.golden.Events.prototype.okThen;
 }
 
-test.golden.Events.handlers_1.prototype.getHandler = function() {
+test.golden.Events.handlers_1 = function() {
   "use strict";
   return FLEval.oclosure(this._card, FLEval.curry, test.golden.Events.prototype.setTo, 2, 13);
 }

@@ -228,6 +228,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 		}
 		assertGolden(golden, pform);
 		
+		compiler.searchIn(new File("../FLASJvm/services/flim"));
 		if (importFrom.isDirectory())
 			compiler.searchIn(importFrom);
 

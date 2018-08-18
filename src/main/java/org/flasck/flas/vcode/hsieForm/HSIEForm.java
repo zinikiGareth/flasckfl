@@ -324,7 +324,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 
 	// This is supposed to determine if the card is found by using "this"
 	public boolean isCardMethod() {
-		return mytype == CodeType.CARD || mytype == CodeType.EVENTHANDLER || mytype == CodeType.OBJECT;
+		return mytype == CodeType.CARD || mytype == CodeType.EVENTHANDLER || mytype == CodeType.OBJECT || mytype == CodeType.INITIALIZER;
 	}
 	
 	// This is supposed to determine if the card is found by using "this._card"

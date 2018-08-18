@@ -43,7 +43,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 			return;
 		int idx = sd.name().lastIndexOf(".");
 		String uname = sd.name().substring(0, idx+1) + "_" + sd.name().substring(idx+1);
-		JSForm ret = JSForm.function(uname, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm ret = JSForm.function(uname, null, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		ret.add(new JSForm("this._ctor = '" + sd.name() + "'"));
 		if (!sd.fields.isEmpty()) {
 			JSForm ifBlock = new JSForm("if (v0)");
@@ -72,7 +72,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 			vars.add(v);
 			fields.add(sf.name+": "+ v);
 		}
-		JSForm ctor = JSForm.function(sd.name(), vars, new TreeSet<ScopedVar>(), vars.size());
+		JSForm ctor = JSForm.function(sd.name(), null, vars, new TreeSet<ScopedVar>(), vars.size());
 		ctor.add(new JSForm("return new " + uname + "({" + String.join(", ", fields) + "})"));
 		target.add(ctor);
 	}
@@ -81,15 +81,16 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	public void visitObjectDefn(RWObjectDefn od) {
 		if (!od.generate)
 			return;
-		JSForm ret = JSForm.function(od.myName().jsUName(), Arrays.asList(new Var(0)), new TreeSet<>(), 0);
+		JSForm ret = JSForm.function(od.myName().jsUName(), null, Arrays.asList(new Var(0)), new TreeSet<>(), 0);
 		target.add(ret);
 	}
 
 	private void generateField(JSForm defass, String field, String tfn) {
 		if (tfn == null)
 			defass.add(new JSForm("this."+ field + " = undefined"));
-		else
-			defass.add(JSForm.flex("this." + field + " = FLEval.full(" + tfn + "())"));
+		else {
+			defass.add(JSForm.flex("this." + field + " = FLEval.full(" + tfn + ".apply(this, [msgs]))"));
+		}
 	}
 
 	@Override
@@ -99,15 +100,11 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	public void visitCardGrouping(CardGrouping card) {
 		String name = card.getName().jsName();
 		String lname = card.getName().jsUName();
-		JSForm cf = JSForm.function(lname, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm cf = JSForm.function(lname, null, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		cf.add(new JSForm("var _self = this"));
 		cf.add(new JSForm("this._ctor = '" + name + "'"));
 		cf.add(new JSForm("this._wrapper = v0.wrapper"));
 		cf.add(new JSForm("this._special = 'card'"));
-		for (RWStructField x : card.struct.fields) {
-			if (x.init != null)
-				generateField(cf, x.name, x.init.jsName());
-		}
 		cf.add(new JSForm("this._services = {}"));
 		for (ServiceGrouping cs : card.services) {
 			cf.add(new JSForm("this._services['" + cs.type + "'] = " + cs.implName.jsName() + ".apply(this)"));
@@ -121,7 +118,15 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 				cf.add(new JSForm("this." + ci.referAsVar + " = this._contracts['" + ci.contractName.uniqueName() + "']"));
 		}
 		target.add(cf);
-		JSForm ci = JSForm.function(name, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm cr = JSForm.function(lname + ".prototype._onReady", null, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		cr.add(new JSForm("var msgs = {curr: Nil}"));
+		for (RWStructField x : card.struct.fields) {
+			if (x.init != null) 
+				generateField(cr, x.name, x.init.jsPName());
+		}
+		cr.add(new JSForm("return msgs.curr"));
+		target.add(cr);
+		JSForm ci = JSForm.function(name, null, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		ci.add(new JSForm("return new " + lname + "(v0)"));
 		target.add(ci);
 	}
@@ -130,14 +135,14 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	public void visitContractImpl(RWContractImplements ci) {
 		String ctorName = ci.realName.jsName();
 		String clzname = ctorName.replace("._C", ".__C");
-		JSForm clz = JSForm.function(clzname, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm clz = JSForm.function(clzname, null, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'contract'"));
 		clz.add(new JSForm("this._contract = '" + ci.name() + "'"));
 		target.add(clz);
 
-		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), new TreeSet<ScopedVar>(), 0);
+		JSForm ctor = JSForm.function(ctorName, null, new ArrayList<Var>(), new TreeSet<ScopedVar>(), 0);
 		ctor.add(new JSForm("return new " + clzname + "(this)"));
 		target.add(ctor);
 	}
@@ -145,14 +150,14 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 	public void visitServiceImpl(RWContractService cs) {
 		String ctorName = cs.realName.uniqueName();
 		String clzname = ctorName.replace("._S", ".__S");
-		JSForm clz = JSForm.function(clzname, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
+		JSForm clz = JSForm.function(clzname, null, Arrays.asList(new Var(0)), new TreeSet<ScopedVar>(), 1);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		clz.add(new JSForm("this._card = v0"));
 		clz.add(new JSForm("this._special = 'service'"));
 		clz.add(new JSForm("this._contract = '" + cs.name() + "'"));
 		target.add(clz);
 
-		JSForm ctor = JSForm.function(ctorName, new ArrayList<Var>(), new TreeSet<ScopedVar>(), 0);
+		JSForm ctor = JSForm.function(ctorName, null, new ArrayList<Var>(), new TreeSet<ScopedVar>(), 0);
 		ctor.add(new JSForm("return new " + clzname + "(this)"));
 		target.add(ctor);
 	}
@@ -166,7 +171,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 			vars.add(new Var(i));
 		
 		int v = hi.inCard?1:0;
-		JSForm clz = JSForm.function(clzname, vars, new TreeSet<ScopedVar>(), hi.boundVars.size() + v);
+		JSForm clz = JSForm.function(clzname, null, vars, new TreeSet<ScopedVar>(), hi.boundVars.size() + v);
 		clz.add(new JSForm("this._ctor = '" + ctorName + "'"));
 		if (hi.inCard)
 			clz.add(new JSForm("this._card = v0"));
@@ -176,7 +181,7 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 			clz.add(new JSForm("this." + s.var + " = v" + v++));
 		target.add(clz);
 
-		JSForm ctor = JSForm.function(ctorName, vars, new TreeSet<ScopedVar>(), hi.boundVars.size());
+		JSForm ctor = JSForm.function(ctorName, null, vars, new TreeSet<ScopedVar>(), hi.boundVars.size());
 		StringBuffer sb = new StringBuffer();
 		String sep = "";
 		if (hi.inCard) {

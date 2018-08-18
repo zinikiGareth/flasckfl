@@ -1,0 +1,45 @@
+package test.golden
+  entity test.golden.Item @{1:0|entity} @{1:7|Item}
+    id @{1:7|Item}
+      Id @{1:7|Item}
+    desc @{2:7|desc}
+      String @{2:0|String}
+  card test.golden.Webzip @{4:0|card} @{4:5|Webzip}
+    state @{6:0|state}
+      name @{7:7|name}
+        String @{7:0|String}
+       <- @{7:12|<-}
+        '' Mr. Smith @{7:15|'Mr. Smith'}
+      list @{8:13|list}
+        Croset @{8:0|Croset}
+          Item @{8:7|Item}
+       <- @{8:18|<-}
+        <apply> @{8:21|Croset.create cs}
+          <apply> @{8:21|Croset.create}
+            . @{8:27|.}
+            Croset @{8:21|Croset}
+            create @{8:28|create}
+          cs @{8:35|cs}
+    template @{12:0|template} @{null}
+      . @{13:0|%}
+    implements org.ziniki.CrosetService cs @{10:0|implements} @{10:11|org.ziniki.CrosetService} @{10:36|cs}
+    implements org.flasck.Init @{26:0|implements} @{26:11|org.flasck.Init}
+      method test.golden.Webzip._C1.onready @{27:0|onready}
+        invoke @{28:0|<-}
+          <apply> @{28:3|list.append (Item "do some work")}
+            <apply> @{28:3|list.append}
+              . @{28:7|.}
+              list @{28:3|list}
+              append @{28:8|append}
+            <apply> @{28:15|(Item "do some work")}
+              Item @{28:16|Item}
+              '' do some work @{28:21|"do some work"}
+        invoke @{29:0|<-}
+          <apply> @{29:3|list.append (Item "watch rugby")}
+            <apply> @{29:3|list.append}
+              . @{29:7|.}
+              list @{29:3|list}
+              append @{29:8|append}
+            <apply> @{29:15|(Item "watch rugby")}
+              Item @{29:16|Item}
+              '' watch rugby @{29:21|"watch rugby"}

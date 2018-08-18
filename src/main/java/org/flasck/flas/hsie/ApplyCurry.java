@@ -3,6 +3,7 @@ package org.flasck.flas.hsie;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flasck.flas.commonBase.StringLiteral;
 import org.flasck.flas.newtypechecker.TypeChecker2;
 import org.flasck.flas.rewrittenForm.CardFunction;
 import org.flasck.flas.rewrittenForm.CardMember;
@@ -87,7 +88,7 @@ public class ApplyCurry {
 					String meth = c2.sval.text;
 					int nargs = -1;
 					for (RWObjectMethod m : defn.ctors) {
-						if (m.name.name.equals("ctor_" + meth))
+						if (m.name.name.equals("_ctor_" + meth))
 							nargs = m.type.arity();
 					}
 					if (nargs == -1)
@@ -96,7 +97,7 @@ public class ApplyCurry {
 					ClosureCmd repl = new ClosureCmd(cc.location, cc.var);
 					repl.push(pb.location, pb.bval, null);
 					repl.push(c1.location, c1.fn, null);
-					repl.push(c2.location, c2.sval, null);
+					repl.push(c2.location, new StringLiteral(c2.location, "_ctor_" + c2.sval.text), null);
 					h.replaceClosure(c, new CurryClosure(repl, nargs+2, true));
 					continue;
 				} else

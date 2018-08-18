@@ -1,5 +1,6 @@
 package org.flasck.flas.jsgen;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -29,10 +30,13 @@ public class JSFormGenerator {
 	public void generate() {
 		form.dump(LoggerFactory.getLogger("Generator"));
 		String jsname = form.funcName.jsName();
-		if (form.isMethod()) { // TODO: we should have jsPName() or something ...
+		if (form.mytype == CodeType.EVENT) {
+			int idx = jsname.lastIndexOf(".");
+			jsname = jsname.substring(0, idx);
+		} else if (form.isMethod()) { // TODO: we should have jsPName() or something ...
 			int idx = jsname.lastIndexOf(".");
 			jsname = jsname.substring(0, idx+1) + "prototype" + jsname.substring(idx);
-			if (form.mytype == CodeType.HANDLER) {
+			if (form.mytype == CodeType.HANDLER || form.mytype == CodeType.INITIALIZER) {
 				idx = jsname.lastIndexOf('.', idx-1);
 			} else if (form.mytype == CodeType.AREA) {
 				idx = -1;
@@ -41,11 +45,11 @@ public class JSFormGenerator {
 				if (idx == -1) idx = jsname.lastIndexOf("._S");
 			}
 			if (idx != -1) jsname = jsname.substring(0, idx+1) + "_" + jsname.substring(idx+1);
-		} else if (form.mytype == CodeType.EVENT) {
-			int idx = jsname.lastIndexOf(".");
-			jsname = jsname.substring(0, idx);
 		}
-		JSForm ret = JSForm.function(jsname, form.vars, form.scoped, form.nformal);
+		List<String> imsgs = null;
+		if (form.mytype == CodeType.INITIALIZER)
+			imsgs = Arrays.asList("msgs");
+		JSForm ret = JSForm.function(jsname, imsgs, form.vars, form.scoped, form.nformal);
 		generateBlock(form.funcName, form, ret, form);
 		target.add(ret);
 	}

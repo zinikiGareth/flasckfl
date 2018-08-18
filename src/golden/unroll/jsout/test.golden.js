@@ -18,6 +18,12 @@ test.golden._Unroll = function(v0) {
   this._contracts = {};
 }
 
+test.golden._Unroll.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  return msgs.curr;
+}
+
 test.golden.Unroll = function(v0) {
   "use strict";
   return new test.golden._Unroll(v0);

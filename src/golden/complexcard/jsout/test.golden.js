@@ -85,14 +85,20 @@ test.golden._Complex = function(v0) {
   this._ctor = 'test.golden.Complex';
   this._wrapper = v0.wrapper;
   this._special = 'card';
-  this.hello = FLEval.full(test.golden.Complex.inits_hello());
-  this.format = FLEval.full(test.golden.Complex.inits_format());
   this._services = {};
   this._services['test.golden.Offer'] = test.golden.Complex._S0.apply(this);
   this._contracts = {};
   this._contracts['test.golden.Init'] = test.golden.Complex._C0.apply(this);
   this._contracts['test.golden.DataStore'] = test.golden.Complex._C1.apply(this);
   this.ds = this._contracts['test.golden.DataStore'];
+}
+
+test.golden._Complex.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  this.hello = FLEval.full(test.golden._Complex.prototype.inits_hello.apply(this, [msgs]));
+  this.format = FLEval.full(test.golden._Complex.prototype.inits_format.apply(this, [msgs]));
+  return msgs.curr;
 }
 
 test.golden.Complex = function(v0) {
@@ -108,6 +114,12 @@ test.golden._SubCard = function(v0) {
   this._special = 'card';
   this._services = {};
   this._contracts = {};
+}
+
+test.golden._SubCard.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  return msgs.curr;
 }
 
 test.golden.SubCard = function(v0) {
@@ -472,17 +484,17 @@ test.golden.Complex.__S0.prototype.get = function(v0, v1) {
   return FLEval.error("test.golden.Complex._S0.get: case not handled");
 }
 
-test.golden.Complex.handlers_6.prototype.getHandler = function() {
+test.golden.Complex.handlers_6 = function() {
   "use strict";
   return test.golden.Complex.prototype.sayHello;
 }
 
-test.golden.Complex.inits_format = function() {
+test.golden._Complex.prototype.inits_format = function(msgs) {
   "use strict";
   return 'basic';
 }
 
-test.golden.Complex.inits_hello = function() {
+test.golden._Complex.prototype.inits_hello = function(msgs) {
   "use strict";
   return 'hello, world';
 }
@@ -508,7 +520,7 @@ test.golden.Complex.prototype.styleIf = function(v0, v1) {
   return '';
 }
 
-test.golden.WithInit.inits_x = function() {
+test.golden._WithInit.prototype.inits_x = function(msgs) {
   "use strict";
   return 'hello';
 }

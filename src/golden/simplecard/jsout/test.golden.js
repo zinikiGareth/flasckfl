@@ -14,9 +14,15 @@ test.golden._Simple = function(v0) {
   this._ctor = 'test.golden.Simple';
   this._wrapper = v0.wrapper;
   this._special = 'card';
-  this.hello = FLEval.full(test.golden.Simple.inits_hello());
   this._services = {};
   this._contracts = {};
+}
+
+test.golden._Simple.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  this.hello = FLEval.full(test.golden._Simple.prototype.inits_hello.apply(this, [msgs]));
+  return msgs.curr;
 }
 
 test.golden.Simple = function(v0) {
@@ -64,7 +70,7 @@ test.golden.Simple.prototype.f = function() {
   return 3;
 }
 
-test.golden.Simple.inits_hello = function() {
+test.golden._Simple.prototype.inits_hello = function(msgs) {
   "use strict";
   return 'hello, world';
 }

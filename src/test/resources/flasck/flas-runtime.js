@@ -113,6 +113,8 @@ FLEval.octor = function(obj, meth) {
   var args = [];
   for (var i=2;i<arguments.length;i++)
 	args[i-2] = arguments[i];
+  if (!obj[meth])
+    throw new Error(obj + " does not have a constructor method " + meth);
   return obj[meth].apply(obj, args);  
 }
 
@@ -175,8 +177,8 @@ FLEval.flattenMap = function(obj) {
 
 // This may or may not be valuable
 // The idea behind this is to try and track where something came from when we want to save it
-FLEval.fromWireService = function(addr, obj) {
-	var ret = FLEval.fromWire(obj);
+FLEval.fromWireService = function(addr, obj, env) {
+	var ret = FLEval.fromWire(obj, env);
 	if (ret instanceof Object && ret._ctor)
 		ret._fromService = addr;
 	return ret;
@@ -187,7 +189,7 @@ FLEval.fromWireService = function(addr, obj) {
  * Check there for documentation
  */
 
-FLEval.fromWire = function(obj) {
+FLEval.fromWire = function(obj, env) {
 	"use strict"
 	if (!(obj instanceof Object))
 		return obj; // it's a primitive
@@ -208,7 +210,7 @@ FLEval.fromWire = function(obj) {
 		var bn = spl[spl.length-1];
 		var clz = pkg[bn];
 		if (clz && clz._fromWire)
-			return clz._fromWire(obj);
+			return clz._fromWire(env, obj);
 		clz = pkg['_' + bn];
 		if (clz && clz instanceof Function) {
 			// turn any nested reference objects into closures to get that object
@@ -263,8 +265,8 @@ FLEval.toWire = function(wrapper, obj, dontLoop) {
 		}
 		return ret;
 	}
-	if (obj._ctor === 'Crokeys')
-		throw new Error("Crokeys is special and we should handle it");
+	if (obj._ctor === 'Croset')
+		return obj.toWire();
 	if (obj._ctor === 'Assoc' || obj._ctor === 'NilMap') {
 		if (dontLoop)
 			throw new Error("Found map in a field and don't know what to do");
@@ -1069,7 +1071,7 @@ FlasckWrapper.Processor.prototype.process = function(message) {
 		throw new Error("There is no method '" + message.method +"'");
 	var args = [];
 	for (var i=0;i<message.args.length;i++)
-		args.push(FLEval.fromWireService(message.from, message.args[i]));
+		args.push(FLEval.fromWireService(message.from, message.args[i], this.wrapper));
 	var clos = meth.apply(this.service, args);
 	if (clos) {
 		this.wrapper.messageEventLoop(FLEval.full(clos));
@@ -1194,9 +1196,21 @@ FlasckWrapper.prototype.cardCreated = function(card) {
 					card._contracts[ctr]._addr = serviceMap[ctr];
 			}
 		},
-		state: function(from) {
+		state: function(from, state) {
 			"use strict";
 //			console.log("Setting state");
+			var clos;
+			if (state)
+				; // restore it somehow
+			else
+				// If there is no existing state, call initializers
+				clos = card._onReady();
+				
+			// process anything that comes back
+			if (clos) {
+				self.messageEventLoop(FLEval.full(clos));
+			}
+				
 			// OK ... I claim it's ready now
 			if (userInit && userInit.service.onready) {
 				userInit.process({from: from, method: 'onready', args: []});
@@ -1308,7 +1322,7 @@ FlasckWrapper.prototype.processMessages = function(msgs, todo) {
 	for (var i=0;i<msgs.length;i++) {
 		var hd = msgs[i];
 		var mo = null;
-//		console.log("Processing message", hd);
+		console.log("Processing message", hd);
 		if (hd._ctor === 'Nil')
 			;
 		else if (hd._ctor === 'Cons')

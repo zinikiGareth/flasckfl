@@ -173,8 +173,10 @@ public class JSForm {
 		return ret;
 	}
 
-	public static JSForm function(String fnName, List<Var> hsvs, Set<ScopedVar> scoped, int nformal) {
+	public static JSForm function(String fnName, List<String> custom, List<Var> hsvs, Set<ScopedVar> scoped, int nformal) {
 		List<String> vars = new ArrayList<String>();
+		if (custom != null)
+			vars.addAll(custom);
 		for (int j=0;j<scoped.size();j++)
 			vars.add("s"+j);
 		for (int i=0;i<nformal;i++)
@@ -247,8 +249,28 @@ public class JSForm {
 		sb.append("return ");
 		if (r instanceof PushVar) {
 			PushVar pv = (PushVar)r;
+			String fname = null;
+			String n = form.funcName.name;
+			if (n.startsWith("inits_")) {
+				fname = n.substring(6); 
+				sb.delete(0, sb.length());
+				sb.append("var ret = ");
+			}
+			/*
+			ClosureGenerator cmd1 = form.getClosure(pv.var.var);
+			if (cmd1.nestedCommands().get(0) instanceof PushVar) {
+				ClosureGenerator cmd2 = form.getClosure(((PushVar)cmd1.nestedCommands().get(0)).var.var);
+				if (cmd2.nestedCommands().size() > 0 && cmd2.nestedCommands().get(0) instanceof PushBuiltin && ((PushBuiltin)cmd2.nestedCommands().get(0)).isOctor()) {
+					isOctorInit = true;
+					sb.delete(0, sb.length());
+					sb.append("var ret = ");
+				}
+			}
+			*/
+//			if (cmd.nestedCommands().get(0) instanceof Octor)
 			if (pv.var.var.idx < form.nformal) {
-				ret.add(new JSForm("return " + pv.var.var));
+				sb.append(pv.var.var);
+				ret.add(new JSForm(sb.toString()));
 			} else if (pv.deps != null) {
 				for (VarInSource v : pv.deps) {
 					closure(form, form.getClosure(v.var), new OutputHandler<String>() {
@@ -261,9 +283,16 @@ public class JSForm {
 				closure(form, form.getClosure(pv.var.var), new OutputHandler<String>() {
 					@Override
 					public void result(String expr) {
-						ret.add(new JSForm("return " + expr));
+						sb.append(expr);
+						ret.add(new JSForm(sb.toString()));
 					}
 				});
+			}
+			if (fname != null) {
+				ret.add(new JSForm("var fld = FLEval.closure(FLEval.field, this, '" + fname +"')"));
+				ret.add(new JSForm("var init = FLEval.closure(Send, fld, '_init', Nil)"));
+				ret.add(new JSForm("msgs.curr = FLEval.closure(Cons, init, msgs.curr)"));
+				ret.add(new JSForm("return ret"));
 			}
 		} else {
 			appendValue(form, sb, r, 0);

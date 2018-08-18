@@ -15,7 +15,7 @@ Line 17: 6
 Ltest/runner/Tracker; this (var #0 from 0 to 7)
 Ljava/lang/Object; cx (var #1 from 0 to 7)
 Ljava/lang/Object; obj (var #2 from 0 to 7)
-Method public static ctor_simple (Ljava/lang/Object;)Ljava/lang/Object;
+Method public static _ctor_simple (Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 6 maxLocals = 2 codeLen = 51
   {
     0000: ldc Class[org/flasck/jvm/builtin/Assoc]
@@ -161,4 +161,4 @@ Ljava/lang/Object; cx (var #0 from 0 to 12)
 [Ljava/lang/Object; args (var #1 from 0 to 12)
 [Class SourceFile]: Tracker.java
 1 inner classes
-Ref public static Class[test/runner/Tracker$ctor_simple] <= Class[test/runner/Tracker].ctor_simple
+Ref public static Class[test/runner/Tracker$_ctor_simple] <= Class[test/runner/Tracker]._ctor_simple

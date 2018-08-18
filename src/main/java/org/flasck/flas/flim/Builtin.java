@@ -179,7 +179,7 @@ public class Builtin {
 
 			RWObjectDefn croset = new RWObjectDefn(posn, new ObjectName(null, "Croset"), false, varA);
 			root.define("Croset", croset);
-			croset.addConstructor(new RWObjectMethod(Type.function(posn, list.instance(posn, any), croset), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "ctor_from")));
+			croset.addConstructor(new RWObjectMethod(Type.function(posn, /*CrosetService*/any, croset), FunctionName.objectCtor(posn, (ObjectName) croset.getName(), "create")));
 //			croset.constructorArg(posn, crokeys, "init");
 			
 			// These are actually accessors ...
@@ -187,6 +187,7 @@ public class Builtin {
 			croset.addMethod(new RWObjectMethod(Type.function(posn, any, varA), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "member"))); // crokey, natural crokey or string as input
 
 			// These are real methods
+			croset.addMethod(new RWObjectMethod(Type.function(posn, any, send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "append")));
 			croset.addMethod(new RWObjectMethod(Type.function(posn, any, send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "put")));
 			croset.addMethod(new RWObjectMethod(Type.function(posn, list.instance(posn,  any), send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "mergeAppend")));
 			croset.addMethod(new RWObjectMethod(Type.function(posn, string, send), FunctionName.objectMethod(posn, (ObjectName) croset.getName(), "delete")));

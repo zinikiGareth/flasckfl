@@ -1,0 +1,6 @@
+test.golden.Webzip.B4.contents_0 :: String
+test.golden.Webzip.B6.lvs_1 :: Croset[test.golden.Item]
+test.golden.Webzip.B8.contents_2 :: test.golden.Item
+test.golden.Webzip._C1.onready :: Cons[Send]
+test.golden.Webzip.inits_list :: Croset[A]
+test.golden.Webzip.inits_name :: String

@@ -57,7 +57,7 @@ public class RWObjectDefn extends TypeWithMethods implements AsString, Locatable
 	}
 
 	public RWObjectMethod getConstructor(String meth) {
-		String ctor = "ctor_" + meth;
+		String ctor = "_ctor_" + meth;
 		for (RWObjectMethod m : ctors)
 			if (m.name.name.equals(ctor))
 				return m;

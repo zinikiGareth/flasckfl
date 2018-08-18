@@ -38,7 +38,7 @@ public class CurryClosure implements ClosureGenerator {
 	// remembering that I ultimately want to do away with this and make it inverted logic ...
 	@Override
 	public List<HSIEBlock> nestedCommands() {
-		throw new org.zinutils.exceptions.NotImplementedException();
+		return c.nestedCommands();
 	}
 
 	@Override

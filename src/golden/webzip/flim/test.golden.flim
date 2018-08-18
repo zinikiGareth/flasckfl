@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<FLIM package="test.golden">
+    <Import package="org.flasck"/>
+    <Import package="org.ziniki"/>
+    <Struct file="webzip.fl" line="1" name="Item" off="7">
+        <Field accessor="false" file="webzip.fl" line="1" name="id" off="7">
+            <SolidName name="Id"/>
+        </Field>
+        <Field accessor="false" file="webzip.fl" line="2" name="desc" off="7">
+            <SolidName name="String"/>
+        </Field>
+    </Struct>
+    <Card file="webzip.fl" line="4" name="Webzip" off="5">
+        <Implements>
+            <SolidName name="CrosetService">
+                <Package name="org.ziniki"/>
+            </SolidName>
+        </Implements>
+        <Implements>
+            <SolidName name="Init">
+                <Package name="org.flasck"/>
+            </SolidName>
+        </Implements>
+    </Card>
+</FLIM>

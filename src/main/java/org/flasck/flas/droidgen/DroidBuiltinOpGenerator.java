@@ -46,7 +46,7 @@ public class DroidBuiltinOpGenerator implements BuiltinOpGenerator<IExpr> {
 			// so we just need to return the class ...
 			PackageVar ctr = (PackageVar) ((PushExternal) closure.nestedCommands().get(1)).fn;
 			PushString ctorName = (PushString)closure.nestedCommands().get(2);
-			String clz = ctr.id + "$ctor_" + ctorName.sval.text;
+			String clz = ctr.id + "$_ctor_" + ctorName.sval.text;
 			handler.result(meth.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", meth.as(meth.classConst(clz), J.OBJECT), meth.arrayOf(J.OBJECT, new ArrayList<>())));
 		} else 
 			throw new RuntimeException("not handled " + defn);

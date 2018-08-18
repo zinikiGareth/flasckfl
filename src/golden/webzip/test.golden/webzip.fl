@@ -1,9 +1,14 @@
+	entity Item
+		String desc
+			
 	card Webzip
 	
 		state
 			String name <- 'Mr. Smith'
-			Croset[String] list <- Croset.from [Crokey 'hello', Crokey 'world']
-			
+			Croset[Item] list <- Croset.create cs
+
+		implements org.ziniki.CrosetService cs
+		
 		template
 			%block
 
@@ -16,3 +21,9 @@
 . this should be a %licard
 						.
 							e
+
+
+		implements org.flasck.Init
+			onready
+				<- list.append (Item "do some work")
+				<- list.append (Item "watch rugby")

@@ -172,7 +172,7 @@ public class GoldenJVM {
 	
 	@Test
 	public void checkTrackerSimpleCtor() throws Exception {
-		compare("Tracker$ctor_simple");
+		compare("Tracker$_ctor_simple");
 	}
 	
 	@Test

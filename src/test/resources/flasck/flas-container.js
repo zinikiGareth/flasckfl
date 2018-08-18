@@ -3651,6 +3651,21 @@ FlasckServices.CrosetService.prototype.process = function(message) {
 	meth.apply(this, message.args);
 }
 
+// interactions with the server
+FlasckServices.CrosetService.prototype.create = function(handler) {
+	"use strict";
+	var self = this;
+	console.log("create called with", handler);
+}
+
+FlasckServices.CrosetService.prototype.load = function(id, loadHandler) {
+	"use strict";
+	var self = this;
+	console.log("load called with", id, loadHandler);
+	var cro = Croset.cro(this);
+	self.postbox.deliver(loadHandler.chan, { from: self._myAddr, method: 'loaded', args: [FLEval.toWire(null, cro, false)] });
+}
+
 FlasckServices.CrosetService.prototype.get = function(crosetId, after, count, handler) {
 	"use strict";
 	var self = this;
@@ -3667,6 +3682,7 @@ FlasckServices.CrosetService.prototype.get = function(crosetId, after, count, ha
 	};
 	ZinikiConn.req.subscribe("croset/" + crosetId + "/get/" + after + "/" + count, zinchandler).send();
 }
+
 
 FlasckServices.CrosetService.prototype.insert = function(crosetId, key, objId) {
 	"use strict";

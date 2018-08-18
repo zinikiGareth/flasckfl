@@ -30,6 +30,11 @@ test.runner.TestCard = function(v0) {
   return new test.runner._TestCard(v0);
 }
 
+test.runner._TestCard.prototype._onReady = function(v0) {
+  "use strict";
+  return null;
+}
+
 test.runner.TestCard.__C0 = function(v0) {
   "use strict";
   this._ctor = 'test.runner.TestCard._C0';

@@ -1,0 +1,283 @@
+src/golden/webzip/droid-to/test/golden/Item.java
+class Item.java extends org.flasck.jvm.fl.FLASEntity {
+  Ljava/lang/Object; id
+  Ljava/lang/Object; desc
+
+  void <init>() {
+    super.<init>(null)
+    return
+  }
+  void <init>(org.ziniki.ziwsh.model.BackingDocument doc) {
+    super.<init>(doc)
+    return
+  }
+  static test.golden.Item eval(java.lang.Object cxt, [java.lang.Object args) {
+    ret = new test.golden.Item()
+    ret.desc = args[0]
+    return ret
+  }
+  void _doFullEval(java.lang.Object cxt) {
+    this.id = this._fullOf(cxt, this.id)
+    this.desc = this._fullOf(cxt, this.desc)
+    return
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B1.java
+class Webzip$B1.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Webzip; _card
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    b2 = new test.golden.Webzip$B2(cxt,cardArg,this)
+    b5 = new test.golden.Webzip$B5(cxt,cardArg,this)
+    return
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B2.java
+class Webzip$B2.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Webzip; _card
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    b3 = new test.golden.Webzip$B3(cxt,cardArg,this)
+    b4 = new test.golden.Webzip$B4(cxt,cardArg,this)
+    return
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B3.java
+class Webzip$B3.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Webzip; _card
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._setText("Dear")
+    return
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B4.java
+class Webzip$B4.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Webzip; _card
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._card._wrapper.onAssign(this._card, "name", this, "_contentExpr")
+    (void)this._contentExpr(cxt)
+    return
+  }
+  java.lang.Object _contentExpr(java.lang.Object cxt) {
+    super._assignToText(cxt, this.contents_0(cxt))
+    return null
+  }
+  java.lang.Object contents_0(java.lang.Object _context) {
+    return this._card.getVar(_context, "name")
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B5.java
+class Webzip$B5.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Webzip; _card
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    b6 = new test.golden.Webzip$B6(cxt,cardArg,this)
+    return
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B6.java
+class Webzip$B6.java extends org.flasck.jvm.areas.ListArea {
+  Ltest/golden/Webzip; _card
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._card._wrapper.onAssign(this._card, "list", this, "_assignToVar")
+    return
+  }
+  org.flasck.jvm.areas.Area _newChild(org.flasck.jvm.builtin.Crokey crokey) {
+    ret = new test.golden.Webzip$B7(this._card,this)
+    ret.bindVar("_crokey", crokey.id)
+    return ret
+  }
+  java.lang.Object lvs_1(java.lang.Object _context) {
+    return this._card.getVar(_context, "list")
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B7.java
+class Webzip$B7.java extends org.flasck.jvm.areas.DivArea {
+  Ltest/golden/Webzip; _card
+  Ltest/golden/Webzip$B7; _src_e
+  Ljava/lang/Object; e
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, "li")
+    this._card = cardArg
+    this._src_e = this
+    b8 = new test.golden.Webzip$B8(cxt,cardArg,this)
+    return
+  }
+  java.lang.Object _assignToVar(java.lang.Object obj) {
+    if (this.e==obj) {
+      return null
+    }
+    this._wrapper.removeOnCrosetReplace(((org.flasck.jvm.areas.ListArea)this._parent)._current, this, this.e)
+    this.e = obj
+    this._wrapper.onCrosetReplace(((org.flasck.jvm.areas.ListArea)this._parent)._current, this, this.e)
+    this._fireInterests()
+    return null
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B8.java
+class Webzip$B8.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Webzip; _card
+  Ltest/golden/Webzip$B7; _src_e
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._src_e = ((test.golden.Webzip$B7)parent)._src_e
+    this._src_e._interested(this, "_contentExpr")
+    (void)this._contentExpr(cxt)
+    return
+  }
+  java.lang.Object _contentExpr(java.lang.Object cxt) {
+    super._assignToText(cxt, this.contents_2(cxt))
+    return null
+  }
+  java.lang.Object contents_2(java.lang.Object _context) {
+    return this._src_e.e
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$_C0.java
+class Webzip$_C0.java extends org.ziniki.CrosetService$Impl {
+  Ltest/golden/Webzip; _card
+
+  void <init>(test.golden.Webzip card) {
+    super.<init>(card.getDespatcher())
+    this._card = card
+    return
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$_C1.java
+class Webzip$_C1.java extends org.flasck.Init$Impl {
+  Ltest/golden/Webzip; _card
+
+  void <init>(test.golden.Webzip card) {
+    super.<init>(card.getDespatcher())
+    this._card = card
+    return
+  }
+  java.lang.Object onready(java.lang.Object _context) {
+    {
+      v0 = org.flasck.jvm.fl.FLClosure.simple(test.golden.Item.class, new java.lang.Object[1] {
+          autobox["do some work"]
+        })
+      v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+          autobox[v0]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
+        })
+      v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+          autobox[this._card.getVar(_context, "list")]
+          autobox["append"]
+          autobox[v1]
+        })
+      v3 = org.flasck.jvm.fl.FLClosure.simple(test.golden.Item.class, new java.lang.Object[1] {
+          autobox["watch rugby"]
+        })
+      v4 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+          autobox[v3]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
+        })
+      v5 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Send.class, new java.lang.Object[3] {
+          autobox[this._card.getVar(_context, "list")]
+          autobox["append"]
+          autobox[v4]
+        })
+      v6 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+          autobox[v5]
+          autobox[org.flasck.jvm.builtin.Nil.eval(_context, new java.lang.Object[0] {})]
+        })
+      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+          autobox[v2]
+          autobox[v6]
+        })
+    }
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$inits_list.java
+class Webzip$inits_list.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Webzip)self).inits_list(cxt)
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$inits_name.java
+class Webzip$inits_name.java {
+  void <init>() {
+    super.<init>()
+    return
+  }
+  static java.lang.Object eval(java.lang.Object cxt, java.lang.Object self, [java.lang.Object args) {
+    return ((test.golden.Webzip)self).inits_name(cxt)
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip.java
+class Webzip.java extends org.flasck.jvm.cards.FlasckCard {
+  Ltest/golden/Webzip$_C0; cs
+
+  void <init>(org.flasck.jvm.cards.CardDespatcher despatcher, org.flasck.jvm.display.DisplayEngine display) {
+    super.<init>(despatcher, display)
+    this.cs = new test.golden.Webzip$_C0(this)
+    this.registerContract("org.ziniki.CrosetService", this.cs)
+    this.registerContract("org.flasck.Init", new test.golden.Webzip$_C1(this))
+    super.ready()
+    return
+  }
+  java.lang.Object init(java.lang.Object cx) {
+    v1 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
+this
+"name"
+        org.flasck.jvm.fl.FLClosure.obj(this, test.golden.Webzip$inits_name.class, new java.lang.Object[0] {})
+
+      })
+    v2 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Assign.class, new java.lang.Object[3] {
+this
+"list"
+        org.flasck.jvm.fl.FLClosure.obj(this, test.golden.Webzip$inits_list.class, new java.lang.Object[0] {})
+
+      })
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+v2
+        org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.builtin.Cons.class, new java.lang.Object[2] {
+v1
+            org.flasck.jvm.builtin.Nil.eval(cx, new java.lang.Object[0] {})
+
+          })
+
+      })
+  }
+  void render(java.lang.Object cxt, java.lang.String into) {
+    (void)new test.golden.Webzip$B1(cxt,this,new org.flasck.jvm.areas.CardArea(this._wrapper,this._display,into))
+    return
+  }
+  java.lang.Object inits_list(java.lang.Object _context) {
+    {
+      v0 = new org.flasck.jvm.fl.FLCurry(octor.class,3,new java.lang.Object[2] {
+          autobox[org.flasck.jvm.builtin.Croset.class]
+          autobox["_ctor_create"]
+        })
+      return org.flasck.jvm.fl.FLClosure.simple(v0, new java.lang.Object[1] {
+          autobox[this.cs]
+        })
+    }
+  }
+  java.lang.Object inits_name(java.lang.Object _context) {
+    return "Mr. Smith"
+  }
+}

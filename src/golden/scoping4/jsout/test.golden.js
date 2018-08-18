@@ -20,6 +20,12 @@ test.golden._Card = function(v0) {
   this.ds = this._contracts['test.golden.DataStore'];
 }
 
+test.golden._Card.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  return msgs.curr;
+}
+
 test.golden.Card = function(v0) {
   "use strict";
   return new test.golden._Card(v0);

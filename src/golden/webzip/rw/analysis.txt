@@ -1,0 +1,20 @@
+function test.golden.Webzip.B4.contents_0 test.golden.Webzip 0
+  case test.golden.Webzip.B4.contents_0_0
+  =
+    CardMember.CardMember[test.golden.Webzip.name]
+function test.golden.Webzip.B6.lvs_1 test.golden.Webzip 0
+  case test.golden.Webzip.B6.lvs_1_0
+  =
+    CardMember.CardMember[test.golden.Webzip.list]
+function test.golden.Webzip.B8.contents_2 test.golden.Webzip 0
+  case test.golden.Webzip.B8.contents_2_0
+  =
+    TLV[test.golden.Webzip.e<-test.golden.Webzip.B6.lvs_1]
+function test.golden.Webzip.inits_list 0
+  case test.golden.Webzip.inits_list_0
+  =
+    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType Croset[test.golden.Item] ((#octor Croset "create") CardMember[test.golden.Webzip.cs]))
+function test.golden.Webzip.inits_name 0
+  case test.golden.Webzip.inits_name_0
+  =
+    ?? class org.flasck.flas.rewrittenForm.AssertTypeExpr:(#assertType String "Mr. Smith")

@@ -90,7 +90,7 @@ public class FunctionName implements NameOfThing, Comparable<FunctionName> {
 	}
 
 	public static FunctionName objectCtor(InputPosition location, ObjectName on, String name) {
-		return new FunctionName(location, CodeType.OCTOR, on, "ctor_" + name);
+		return new FunctionName(location, CodeType.OCTOR, on, "_ctor_" + name);
 	}
 
 	public NameOfThing containingCard() {

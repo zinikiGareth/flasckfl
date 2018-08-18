@@ -547,8 +547,14 @@ public class TypeChecker2 {
 				return;
 			}
 			if (!(ti instanceof TypeFunc)) {
-				// There is a caveat here, in which we could have ti be polymorphic (or "Any") 
-				errors.message(cmd.location, "can only call functions, not " + ti + " for " + cmd);
+				// There is a caveat here, in which we could have ti be polymorphic (or "Any")
+				Type ty = asType(ti);
+				while (ty instanceof InstanceType)
+					ty = ((InstanceType)ty).innerType();
+				if (ty instanceof RWObjectDefn)
+					errors.message(cmd.location, "cannot create object by name, must use constructor function");
+				else
+					errors.message(cmd.location, "can only call functions, not " + ty + " for " + cmd);
 				return;
 			}
 			TypeFunc called = (TypeFunc) ti;
@@ -1122,6 +1128,10 @@ public class TypeChecker2 {
 			// This shouldn't happen in types we care about, but in HandlerLambdas
 			// I don't think we actually test this ever
 			return new PrimitiveType(((TypeIndirect) ti).location(), new SolidName(null, "Any"));
+		} else if (ti instanceof TypeVar) {
+			// shouldn't come up once we've resolved things (should get PolyVar)
+			// but can arise in debugging
+			return new PolyVar(((TypeVar) ti).location(), "*");
 		} else
 			throw new UtilException("Have computed type " + ti.getClass() + " but can't convert back to real Type");
 	}

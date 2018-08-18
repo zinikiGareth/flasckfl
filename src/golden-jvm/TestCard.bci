@@ -104,7 +104,7 @@ Ljava/lang/Object; v0 (var #2 from 32 to 57)
 Method public inits_tracker (Ljava/lang/Object;)Ljava/lang/Object;
   maxStack = 2 maxLocals = 2 codeLen = 10
   {
-    0000: ldc Class[test/runner/Tracker$ctor_simple]
+    0000: ldc Class[test/runner/Tracker$_ctor_simple]
     0002: iconst_0
     0003: anewarray Class[java/lang/Object]
     0006: invokestatic MClass[org/flasck/jvm/fl/FLClosure].simple (Ljava/lang/Object;[Ljava/lang/Object;)Lorg/flasck/jvm/fl/FLClosure;
@@ -362,4 +362,4 @@ Ref public static Class[test/runner/TestCard$echoMessage] <= Class[test/runner/T
 Ref public static Class[test/runner/TestCard$handlers_1] <= Class[test/runner/TestCard].handlers_1
 Ref public static Class[test/runner/TestCard$handlers_3] <= Class[test/runner/TestCard].handlers_3
 Ref public static Class[test/runner/TestCard$inits_tracker] <= Class[test/runner/TestCard].inits_tracker
-Ref public static Class[test/runner/Tracker$ctor_simple] <= Class[test/runner/Tracker].ctor_simple
+Ref public static Class[test/runner/Tracker$_ctor_simple] <= Class[test/runner/Tracker]._ctor_simple

@@ -18,6 +18,12 @@ test.golden._Getter = function(v0) {
   this._contracts = {};
 }
 
+test.golden._Getter.prototype._onReady = function(v0) {
+  "use strict";
+  var msgs = {curr: Nil};
+  return msgs.curr;
+}
+
 test.golden.Getter = function(v0) {
   "use strict";
   return new test.golden._Getter(v0);
