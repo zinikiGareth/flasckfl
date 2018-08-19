@@ -96,7 +96,7 @@ public class PatternParser implements TryParsing {
 					if (retArr.size() == 1)
 						return retArr.get(0);
 					else if (tupleCase)
-						return new TuplePattern(retArr);
+						return new TuplePattern(tok.location.copySetEnd(sep.location.pastEnd()), retArr);
 					else if (listCase) {
 						return buildListFromPatterns(tok.location.copySetEnd(sep.location.pastEnd()), retArr, false);
 					}

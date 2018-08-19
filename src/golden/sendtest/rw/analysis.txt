@@ -8,8 +8,8 @@ function test.golden.ControlledCard.B1.formats_0 test.golden.ControlledCard 0
         "show"
         CardMember.CardMember[test.golden.ControlledCard.sayHello]
       PackageVar.Nil
-function test.golden.ControlledCard.handlers_1 test.golden.ControlledCard 0
-  case test.golden.ControlledCard.handlers_1_0
+function test.golden.ControlledCard.handlers_1.getHandler test.golden.ControlledCard 0
+  case test.golden.ControlledCard.handlers_1.getHandler_0
   =
     CardFunction.test.golden.ControlledCard.echoHello
 function test.golden.ControlledCard.styleIf test.golden.ControlledCard 2

@@ -39,7 +39,7 @@ Node test.golden.ControlledCard.echoHello depends on:
   test.golden.ControlledCard.echoHello.ev
 Node test.golden.ControlledCard.echoHello.ev depends on:
   test.golden.ControlledCard.echoHello
-Node test.golden.ControlledCard.handlers_1 depends on:
+Node test.golden.ControlledCard.handlers_1.getHandler depends on:
   test.golden.ControlledCard.echoHello
 Node test.golden.ControlledCard.sayHello depends on:
 Node test.golden.ControlledCard.styleIf depends on:
@@ -60,7 +60,7 @@ test.golden.ControlledCard.echoHello
 -----
 test.golden.ControlledCard.styleIf
 -----
-test.golden.ControlledCard.handlers_1
+test.golden.ControlledCard.handlers_1.getHandler
 -----
 test.golden.ControlledCard.B1.formats_0
 -----

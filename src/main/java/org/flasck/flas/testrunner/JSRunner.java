@@ -221,11 +221,7 @@ public class JSRunner extends CommonTestRunner {
 				args.add(page.executeScript("FLEval.full(" + spkg + ".arg" + i + "())"));
 			}
 		card.call("send", args.toArray());
-		while (pendingAsyncs.get() != 0) {
-			throw new RuntimeException("Do this some other way");
-//			if (!SyncUtils.waitFor(pendingAsyncs, 1000))
-//				throw new UtilException("timed out waiting for pending async");
-		}
+		processEvents();
 		assertNoErrors();
 		assertAllInvocationsCalled();
 	}
@@ -263,10 +259,25 @@ public class JSRunner extends CommonTestRunner {
 		if (!e.hasAttribute("onclick"))
 			throw new UtilException("There is no 'onclick' attribute on " + e.getOuterHTML());
 		e.click();
-		while (pendingAsyncs.get() != 0)
-			throw new RuntimeException("Do this some other way");
-//			if (!SyncUtils.waitFor(pendingAsyncs, 1000))
-//				throw new UtilException("timed out waiting for pending async");
+		processEvents();
 		assertAllInvocationsCalled();
+	}
+
+	/* There was an exception here telling me to do this some other way,
+	 * but I'm not sure what the problem was - although the code didn't compile.
+	 * I fixed the compilation problems, but kept the same logic.
+	 * 
+	 * If that's good enough, sobeit. Otherwise, fix this when it breaks or at
+	 * least add a really good comment.
+	 */
+	private void processEvents() {
+		while (pendingAsyncs.get() != 0)
+			try {
+				synchronized (pendingAsyncs) {
+					pendingAsyncs.wait(1000);
+				}
+			} catch (InterruptedException ex) {
+				throw new UtilException("timed out waiting for pending async");
+			}
 	}
 }

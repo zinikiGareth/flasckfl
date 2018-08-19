@@ -20,7 +20,7 @@ package test.golden
         Nil @{5:15|3]}
   test.golden.bert @{7:0|bert}
    =
-    <apply> @{7:10|null}
+    <apply> @{7:10| "hello")}
       () @{7:10|null}
       # 2 @{7:8|2}
       '' hello @{7:11|"hello"}

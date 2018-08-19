@@ -9,10 +9,8 @@ CLOSURE v1                                                   #card.fl:     14.11
   PUSH PackageVar.Cons                                       #card.fl:     14.0
   PUSH v0:clos0                                              #card.fl:     14.11
   PUSH PackageVar.Nil                                        #card.fl:     14.0
-CLOSURE v2                                                   #card.fl:     14.11
-  PUSH PackageVar.FLEval.curry                               #card.fl:     14.11
+CURRY v2 2                                                   #card.fl:     14.11
   PUSH CardFunction.test.golden.ControlledCard.styleIf       #card.fl:     14.11
-  PUSH 2                                                     #card.fl:     14.11
 CLOSURE v0                                                   #card.fl:     14.11
   PUSH v2:null                                               #card.fl:     14.11
   PUSH "show"                                                #card.fl:     14.19
@@ -97,7 +95,7 @@ CLOSURE v3                                                   #card.fl:     28.3
   PUSH v2:clos2                                              #card.fl:     28.3
   PUSH PackageVar.Nil                                        #card.fl:     27.6
 -------
-HSIE for test.golden.ControlledCard.handlers_1/0             #card.fl:     15.9
+HSIE for test.golden.ControlledCard.handlers_1.getHandler/0  #card.fl:     15.9
 #Args: 0 #bound: 0
     externals: [test.golden.ControlledCard.echoHello]
     scoped = []

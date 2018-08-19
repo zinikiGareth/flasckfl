@@ -1,3 +1,0 @@
-test.golden.f :: ->Nil
-test.golden.f_0.s :: Croset[A]
-test.golden.f_0.KVHImpl.update :: Any->Cons[Send]

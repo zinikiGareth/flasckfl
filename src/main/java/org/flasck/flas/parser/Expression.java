@@ -380,7 +380,7 @@ public class Expression implements TryParsing {
 							return new ParenExpr(ob.copySetEnd(line.at()).fakeToken(), objs.get(0));
 						else {
 							// The tuple case
-							return new ApplyExpr(startsAt, ItemExpr.from(new ExprToken(startsAt, ExprToken.SYMBOL, "()")), objs);
+							return new ApplyExpr(startsAt.copySetEnd(line.at()), ItemExpr.from(new ExprToken(startsAt, ExprToken.SYMBOL, "()")), objs);
 						}
 					}
 					else if (endsWith.equals("]")) {

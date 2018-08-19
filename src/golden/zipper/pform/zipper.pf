@@ -1,56 +1,68 @@
 package test.golden
-  test.golden.unzip
-    Nil
+  test.golden.zip @{1:0|zip}
+    [ctor] Cons @{1:4|(a:l)}
+      head @{1:5|a}
+        [var] a @{1:5|a}
+      tail @{1:7|l}
+        [var] l @{1:7|l}
+    [ctor] Cons @{1:10|(b:m)}
+      head @{1:11|b}
+        [var] b @{1:11|b}
+      tail @{1:13|m}
+        [var] m @{1:13|m}
    =
-    ()
-      Nil
-      Nil
-  test.golden.unzip
-    Cons
-      head
-          a
-          b
-      tail
-        l
+    <apply> @{1:21|b):zip l m}
+      Cons @{1:23|:}
+      <apply> @{1:21|b)}
+        () @{1:21|null}
+        a @{1:19|a}
+        b @{1:21|b}
+      <apply> @{1:24|zip l m}
+        zip @{1:24|zip}
+        l @{1:28|l}
+        m @{1:30|m}
+  test.golden.zip @{2:0|zip}
+    [var] x @{2:4|x}
+    [var] y @{2:6|y}
    =
-    ()
-      Cons
-        a
-        m
-      Cons
-        b
-        n
+    Nil @{2:10|[]}
+  test.golden.unzip @{4:0|unzip}
+    [ctor] Nil @{4:6|[]}
+   =
+    <apply> @{4:15| [])}
+      () @{4:15|null}
+      Nil @{4:12|[]}
+      Nil @{4:16|[]}
+  test.golden.unzip @{5:0|unzip}
+    [ctor] Cons @{5:6|((a,b):l)}
+      head @{5:7|(a,b)}
+        [tuple]
+          [var] a @{5:8|a}
+          [var] b @{5:10|b}
+      tail @{5:13|l}
+        [var] l @{5:13|l}
+   =
+    <apply> @{5:23| b:n)}
+      () @{5:23|null}
+      <apply> @{5:19|a:m}
+        Cons @{5:20|:}
+        a @{5:19|a}
+        m @{5:21|m}
+      <apply> @{5:24|b:n}
+        Cons @{5:25|:}
+        b @{5:24|b}
+        n @{5:26|n}
     m
       ([m, n])
-        =
-          unzip
-            l
+        <apply> @{6:6|= unzip l}
+          = @{6:6|=}
+          <apply> @{6:8|unzip l}
+            unzip @{6:8|unzip}
+            l @{6:14|l}
     n
       ([m, n])
-        =
-          unzip
-            l
-  test.golden.zip
-    Cons
-      head
-        a
-      tail
-        l
-    Cons
-      head
-        b
-      tail
-        m
-   =
-    Cons
-      ()
-        a
-        b
-      zip
-        l
-        m
-  test.golden.zip
-    x
-    y
-   =
-    Nil
+        <apply> @{6:6|= unzip l}
+          = @{6:6|=}
+          <apply> @{6:8|unzip l}
+            unzip @{6:8|unzip}
+            l @{6:14|l}

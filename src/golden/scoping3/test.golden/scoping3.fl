@@ -1,9 +1,0 @@
-	contract KVUpdate
-		down update (Any obj)
-
-	f = set
-		set = Croset.from Nil
-
-		handler KVUpdate ItemHandler ck
-			update obj
-				<- set.insert ck obj

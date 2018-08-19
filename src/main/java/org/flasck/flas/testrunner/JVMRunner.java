@@ -24,6 +24,7 @@ import org.flasck.jdk.ServiceProvider;
 import org.flasck.jsoup.JSoupDisplayFactory;
 import org.flasck.jsoup.JSoupWrapperElement;
 import org.flasck.jvm.EntityHoldingStore;
+import org.flasck.jvm.J;
 import org.flasck.jvm.cards.FlasckCard;
 import org.flasck.jvm.container.FlasckService;
 import org.flasck.jvm.display.EventHandler;
@@ -159,7 +160,7 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 			argVals = new Object[0];
 		else {
 			argVals = new Object[args.size()];
-			Class<?> fleval = Class.forName("org.flasck.jvm.FLEval", false, loader);
+			Class<?> fleval = Class.forName(J.FLEVAL, false, loader);
 			int cnt = 0;
 			for (int i : args) {
 				Class<?> clz = Class.forName(spkg + ".PACKAGEFUNCTIONS$arg" + i, false, loader);

@@ -86,6 +86,7 @@ import org.flasck.flas.parsedForm.TemplateFormatEvents;
 import org.flasck.flas.parsedForm.TemplateLine;
 import org.flasck.flas.parsedForm.TemplateList;
 import org.flasck.flas.parsedForm.TemplateOr;
+import org.flasck.flas.parsedForm.TupleMember;
 import org.flasck.flas.parsedForm.TypeReference;
 import org.flasck.flas.parsedForm.TypedPattern;
 import org.flasck.flas.parsedForm.UnionTypeDefn;
@@ -791,6 +792,8 @@ public class Rewriter implements CodeGenRegistry {
 				}
 			} else if (val instanceof HandlerImplements) {
 				// do nothing here
+			} else if (val instanceof TupleMember) {
+				// do nothing here
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -835,6 +838,8 @@ public class Rewriter implements CodeGenRegistry {
 				rewrite(cx, (ContractDecl)val);
 			} else if (val instanceof HandlerImplements) {
 				pass2HI(cx, (HandlerImplements) val);
+			} else if (val instanceof TupleMember) {
+				// do nothing here
 			} else if (val instanceof ObjectDefn) {
 				; // we should probably rewrite the fields portion
 			} else if (val == null)
@@ -863,6 +868,8 @@ public class Rewriter implements CodeGenRegistry {
 				rewriteObject(cx, (ObjectDefn)val);
 			} else if (val instanceof HandlerImplements) {
 				rewriteHI(cx, (HandlerImplements)val, from);
+			} else if (val instanceof TupleMember) {
+				rewrite(cx, (TupleMember)val);
 			} else if (val == null)
 				logger.warn("Did you know " + name + " does not have a definition?");
 			else
@@ -1446,6 +1453,28 @@ public class Rewriter implements CodeGenRegistry {
 		if (rwc == null)
 			return;
 		ret.addCase(rwc);
+		ret.gatherScopedVars();
+	}
+
+	/** A tuple member is one of a set of values to be assigned to the result
+	 * of the same function call.  So basically, we just ignore all but case 0
+	 * and then rewrite case 0 to the overall function.
+	 * Somebody somewhere needs to do the work to unpack the results - probably
+	 * we need to rewrite expressions that involve the tuple members.
+	 * @param cx
+	 * @param c
+	 */
+	public void rewrite(NamingContext cx, TupleMember c) {
+		if (c.which != 0)
+			return; // only do it for the first one
+		RWFunctionDefinition ret = functions.get(c.ta.vars.get(0).text /*functionName().uniqueName()*/);
+//		final Map<String, LocalVar> vars = new HashMap<>();
+//		gatherVars(errors, this, cx, c.functionName(), c.caseName(), vars, c.intro);
+//		FunctionCaseContext fccx = new FunctionCaseContext(cx, c.functionName(), c.caseName(), vars, c.innerScope(), false);
+//		RWFunctionCaseDefn rwc = rewrite(fccx, c, ret.cases.size(), vars);
+//		if (rwc == null)
+//			return;
+//		ret.addCase(rwc);
 		ret.gatherScopedVars();
 	}
 
