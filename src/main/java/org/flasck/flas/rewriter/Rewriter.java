@@ -146,6 +146,7 @@ import org.flasck.flas.rewrittenForm.RWUnionTypeDefn;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
+import org.flasck.flas.rewrittenForm.TypeCheckStringable;
 import org.flasck.flas.tokenizers.ExprToken;
 import org.flasck.flas.tokenizers.TemplateToken;
 import org.flasck.flas.types.FunctionType;
@@ -1203,7 +1204,7 @@ public class Rewriter implements CodeGenRegistry {
 
 	private RWFunctionDefinition generateExprFunction(final InputPosition posn, FunctionName fnName, Object rwexpr) {
 		RWFunctionDefinition fn = new RWFunctionDefinition(fnName, 0, true);
-		RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(posn, fnName, new ArrayList<>(), null), 0, rwexpr);
+		RWFunctionCaseDefn fcd0 = new RWFunctionCaseDefn(new RWFunctionIntro(posn, fnName, new ArrayList<>(), null), 0, new TypeCheckStringable(posn, rwexpr));
 		fn.addCase(fcd0);
 		functions.put(fnName.uniqueName(), fn);
 		return fn;

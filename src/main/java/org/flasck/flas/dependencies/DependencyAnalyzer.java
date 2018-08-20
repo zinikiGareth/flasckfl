@@ -33,6 +33,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
+import org.flasck.flas.rewrittenForm.TypeCheckStringable;
 import org.zinutils.exceptions.UtilException;
 import org.zinutils.graphs.DirectedCyclicGraph;
 
@@ -141,6 +142,9 @@ public class DependencyAnalyzer {
 		} else if (expr instanceof TypeCheckMessages) {
 			TypeCheckMessages tcm = (TypeCheckMessages) expr;
 			analyzeExpr(name, locals, tcm.expr);
+		} else if (expr instanceof TypeCheckStringable) {
+			TypeCheckStringable tcs = (TypeCheckStringable) expr;
+			analyzeExpr(name, locals, tcs.expr);
 		} else if (expr instanceof AssertTypeExpr) {
 			AssertTypeExpr tcm = (AssertTypeExpr) expr;
 			analyzeExpr(name, locals, tcm.expr);

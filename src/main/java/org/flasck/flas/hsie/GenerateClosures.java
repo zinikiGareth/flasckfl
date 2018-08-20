@@ -37,6 +37,7 @@ import org.flasck.flas.rewrittenForm.RWHandlerImplements;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
+import org.flasck.flas.rewrittenForm.TypeCheckStringable;
 import org.flasck.flas.types.Type;
 import org.flasck.flas.vcode.hsieForm.ClosureCmd;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
@@ -278,6 +279,12 @@ public class GenerateClosures {
 		VarInSource cv = (VarInSource) lo.obj;
 		ClosureCmd closure = (ClosureCmd) form.getClosure(cv.var);
 		closure.typecheckMessages = true;
+		return lo;
+	}
+	
+	public LocatedObject process(TypeCheckStringable tcs) {
+		LocatedObject lo = dispatch(tcs.expr);
+		form.typecheckStringable = true;
 		return lo;
 	}
 	

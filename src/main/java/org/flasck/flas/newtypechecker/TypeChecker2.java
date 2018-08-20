@@ -392,16 +392,16 @@ public class TypeChecker2 {
 			}
 		}
 
-		// Now check closures with "Send" tags
+		// Now check closures with "Send" constraints
 		for (HSIEForm f : forms) {
-			for (ClosureCmd c : f.closuresX()) {
-				if (c.checkSend) {
-					try {
+			try {
+				for (ClosureCmd c : f.closuresX()) {
+					if (c.checkSend) {
 						checkSendCall(f, c);
-					} catch (NeedIndirectionException ex) {
-						throw new UtilException("this should have been handled", ex);
 					}
 				}
+			} catch (NeedIndirectionException ex) {
+				throw new UtilException("this should have been handled", ex);
 			}
 		}
 		
@@ -416,6 +416,9 @@ public class TypeChecker2 {
 			logger.info("Concluded that " + f.funcName.uniqueName() + " has type " + nt);
 			gk(f.funcName.uniqueName(), nt);
 			FunctionType ty = (FunctionType) asType(nt);
+			if (f.typecheckStringable) {
+				checkStringable(f, ty);
+			}
 			export.put(f.funcName.uniqueName(), ty);
 			if (trackTo != null) {
 				Type t1 = ty;
@@ -702,6 +705,18 @@ public class TypeChecker2 {
 			}
 		} else 
 			logger.info("Handle " + c);
+	}
+
+	private void checkStringable(HSIEForm f, FunctionType ty) {
+		if (ty.arity() != 0) {
+			errors.message(f.location, "this expression must return a stringable item, not " + ty);
+			return;
+		}
+		Type r = ty.arg(0);
+		if (!(r instanceof PrimitiveType)) {
+			errors.message(f.location, "this expression must return a stringable item, not " + r);
+			return;
+		}
 	}
 
 	private void checkSendCall(HSIEForm f, ClosureCmd c) throws NeedIndirectionException {

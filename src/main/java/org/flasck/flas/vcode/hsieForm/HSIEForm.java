@@ -178,6 +178,7 @@ public class HSIEForm extends HSIEBlock implements Comparable<HSIEForm> {
 	// Variables defined in an enclosing scope which we reference
 	public final Set<ScopedVar> scoped = new TreeSet<ScopedVar>();
 	public final SetMap<VarInSource, Type> varConstraints = new SetMap<>();
+	public boolean typecheckStringable;
 
 	public HSIEForm(InputPosition nameLoc, FunctionName name, int nformal, CodeType mytype, NameOfThing inCard, VarFactory vf) {
 		super(nameLoc);

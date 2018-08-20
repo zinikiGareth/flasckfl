@@ -22,6 +22,7 @@ import org.flasck.flas.rewrittenForm.PackageVar;
 import org.flasck.flas.rewrittenForm.RWCastExpr;
 import org.flasck.flas.rewrittenForm.SendExpr;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
+import org.flasck.flas.rewrittenForm.TypeCheckStringable;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.zinutils.reflection.Reflection;
 
@@ -56,6 +57,10 @@ public class GatherScopedVars {
 	}
 	
 	public void process(TypeCheckMessages expr) {
+		dispatch(expr.expr);
+	}
+	
+	public void process(TypeCheckStringable expr) {
 		dispatch(expr.expr);
 	}
 	

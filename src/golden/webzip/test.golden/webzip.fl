@@ -17,7 +17,7 @@
 					+ list e
 						%licard
 							name <-
-								e
+								e.desc
 
 		implements org.flasck.Init
 			onready

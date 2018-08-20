@@ -33,6 +33,7 @@ import org.flasck.flas.rewrittenForm.RWFunctionDefinition;
 import org.flasck.flas.rewrittenForm.RWTypedPattern;
 import org.flasck.flas.rewrittenForm.RWVarPattern;
 import org.flasck.flas.rewrittenForm.TypeCheckMessages;
+import org.flasck.flas.rewrittenForm.TypeCheckStringable;
 import org.flasck.flas.rewrittenForm.ScopedVar;
 import org.flasck.flas.vcode.hsieForm.HSIEForm;
 import org.zinutils.exceptions.UtilException;
@@ -116,6 +117,10 @@ public class GatherExternals {
 	}
 	
 	private void process(TypeCheckMessages expr) {
+		dispatch(expr.expr);
+	}
+	
+	private void process(TypeCheckStringable expr) {
 		dispatch(expr.expr);
 	}
 	
