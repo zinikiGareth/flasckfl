@@ -13,6 +13,7 @@ import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
 import org.flasck.flas.template.EventHandlerGenerator;
+import org.flasck.flas.template.TemplateTraversor.DefinedVar;
 import org.flasck.jvm.J;
 import org.zinutils.bytecode.ByteCodeSink;
 import org.zinutils.bytecode.Expr;
@@ -164,8 +165,12 @@ public class DroidAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void createNested(String v, AreaName nested, String holeName) {
+	public void createNested(String v, AreaName nested, String holeName, List<DefinedVar> varsToCopy) {
 		Var storeAs = ctor.avar(nested.javaClassName(), v);
+		if (holeName != null) {
+			// TODO: handle hole case (cf JSAreaGenerator)
+			System.out.println("DAG: handleHoleCase");
+		}
 		ctor.assign(storeAs, (Expr) ctor.makeNew(nested.javaClassName(), cxt, card, (Expr)ctor.as(ctor.myThis(), J.AREA))).flush();
 	}
 

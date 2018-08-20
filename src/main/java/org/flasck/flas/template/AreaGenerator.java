@@ -9,6 +9,7 @@ import org.flasck.flas.commonBase.names.FunctionName;
 import org.flasck.flas.rewrittenForm.CardMember;
 import org.flasck.flas.rewrittenForm.RWContentExpr;
 import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
+import org.flasck.flas.template.TemplateTraversor.DefinedVar;
 
 public interface AreaGenerator {
 	void done();
@@ -31,7 +32,7 @@ public interface AreaGenerator {
 
 	EventHandlerGenerator needAddHandlers();
 
-	void createNested(String v, AreaName nestedArea, String holeName);
+	void createNested(String v, AreaName nestedArea, String holeName, List<DefinedVar> varsToCopy);
 
 	void yoyoExpr(String tfn);
 

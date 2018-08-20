@@ -44,7 +44,7 @@ import org.zinutils.exceptions.UtilException;
 
 public class TemplateTraversor {
 	public class DefinedVar {
-		final String name;
+		public final String name;
 		final AreaName definedIn;
 		
 		public DefinedVar(String name, AreaName area) {
@@ -198,7 +198,7 @@ public class TemplateTraversor {
 					String hn = null;
 					if (c instanceof RWTemplateDiv)
 						hn = ((RWTemplateDiv)c).holeName;
-					area.createNested(v, cn, hn);
+					area.createNested(v, cn, hn, cx.varsToCopy);
 				}
 				recurse(cx, cn, c, areaName);
 			}

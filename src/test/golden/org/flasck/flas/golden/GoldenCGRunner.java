@@ -94,8 +94,9 @@ import org.zinutils.utils.Indenter;
 import org.zinutils.utils.StringUtil;
 
 public class GoldenCGRunner extends CGHarnessRunner {
-	static String checkEverythingS = System.getProperty("org.flasck.golden.check");
-	static boolean checkEverything = checkEverythingS == null || !checkEverythingS.equalsIgnoreCase("false");
+	static String checkOption = System.getProperty("org.flasck.golden.check");
+	static boolean checkEverything = checkOption == null || !checkOption.equalsIgnoreCase("false");
+	static boolean checkNothing = checkOption != null && checkOption.equalsIgnoreCase("nothing");
 	static String stripNumbersS = System.getProperty("org.flasck.golden.strip"); 
 	static boolean stripNumbers = stripNumbersS != null && stripNumbersS.equalsIgnoreCase("true");
 	static String useRunner = System.getProperty("org.flasck.golden.runner");
@@ -584,6 +585,7 @@ public class GoldenCGRunner extends CGHarnessRunner {
 			pw.newline();
 			dumpList(pw, td.attrs);
 			dumpList(pw, td.nested);
+			dumpList(pw, td.webzipBlocks);
 		} else if (obj instanceof TemplateExplicitAttr) {
 			TemplateExplicitAttr attr = (TemplateExplicitAttr) obj;
 			pw.print("attr " + attr.attr);
@@ -772,6 +774,8 @@ public class GoldenCGRunner extends CGHarnessRunner {
 	}
 
 	static void assertGolden(File golden, File genned) {
+		if (checkNothing)
+			return;
 		if (!golden.isDirectory()) {
 			if (!checkEverything)
 				return;

@@ -684,6 +684,7 @@ public class FLASStory {
 				asList.template = new TemplateDiv(td.kw, td.webzip, td.customTagLoc, "li", td.customTagVarLoc, null, td.attrs, td.formats);
 				((TemplateDiv)asList.template).nested.addAll(td.nested);
 				((TemplateDiv)asList.template).handlers.addAll(td.handlers);
+				((TemplateDiv)asList.template).webzipBlocks.addAll(td.webzipBlocks);
 			}
 		} else if (tl instanceof TemplateDiv) { 
 			ret = tl;

@@ -11,17 +11,13 @@
 		
 		template
 			%block
-
-. a comment line
-
 				content1 <-
-					"Dear" name
+					"Dear " "" name
 				listitems <-
 					+ list e
-. this should be a %licard
-						.
-							e
-
+						%licard
+							name <-
+								e
 
 		implements org.flasck.Init
 			onready

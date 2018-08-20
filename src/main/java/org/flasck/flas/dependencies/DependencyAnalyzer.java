@@ -104,7 +104,11 @@ public class DependencyAnalyzer {
 			dcg.ensure(un);
 			dcg.ensureLink(name, un);
 		} else if (expr instanceof TemplateListVar) {
-			String un = ((TemplateListVar)expr).realName;
+			final TemplateListVar tlvExpr = (TemplateListVar)expr;
+			final String list = tlvExpr.dataFunc.uniqueName();
+			dcg.ensure(list);
+			dcg.ensureLink(name, list);
+			String un = tlvExpr.realName;
 			dcg.ensure(un);
 			dcg.ensureLink(name, un);
 		} else if (expr instanceof IterVar) {

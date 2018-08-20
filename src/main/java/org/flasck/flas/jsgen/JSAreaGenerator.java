@@ -16,6 +16,7 @@ import org.flasck.flas.rewrittenForm.RWTemplateExplicitAttr;
 import org.flasck.flas.template.AreaGenerator;
 import org.flasck.flas.template.CaseChooser;
 import org.flasck.flas.template.EventHandlerGenerator;
+import org.flasck.flas.template.TemplateTraversor.DefinedVar;
 import org.zinutils.exceptions.NotImplementedException;
 
 public class JSAreaGenerator implements AreaGenerator {
@@ -136,11 +137,14 @@ public class JSAreaGenerator implements AreaGenerator {
 	}
 
 	@Override
-	public void createNested(String v, AreaName nested, String holeName) {
+	public void createNested(String v, AreaName nested, String holeName, List<DefinedVar> varsToCopy) {
 		String parent = "this";
 		if (holeName != null) {
 			fn.add(JSForm.flex("var " + v + "_parent = new DivArea(parent, null, null, null, this._doc.getElementById(" + holeName + "_id))"));
 			parent = v + "_parent";
+			for (DefinedVar cv : varsToCopy) {
+				fn.add(JSForm.flex(parent + "._src_"+cv.name+ " = this._src_"+cv.name));
+			}
 		}
 		fn.add(JSForm.flex("var " + v + " = new " + nested.jsName() + "(" + parent + ")"));
 	}
