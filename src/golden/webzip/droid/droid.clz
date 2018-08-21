@@ -30,8 +30,33 @@ class Webzip$B1.java extends org.flasck.jvm.areas.DivArea {
     super.<init>(parent, null)
     this._card = cardArg
     b2 = new test.golden.Webzip$B2(cxt,cardArg,this)
-    b5 = new test.golden.Webzip$B5(cxt,cardArg,this)
+    b6 = new test.golden.Webzip$B6(cxt,cardArg,this)
     return
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B10.java
+class Webzip$B10.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Webzip; _card
+  Ltest/golden/Webzip$B8; _src_e
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._src_e = ((test.golden.Webzip$B9)parent)._src_e
+    this._src_e._interested(this, "_contentExpr")
+    this._card._wrapper.onAssign(this._src_e.e, "desc", this, "_contentExpr")
+    (void)this._contentExpr(cxt)
+    return
+  }
+  java.lang.Object _contentExpr(java.lang.Object cxt) {
+    super._assignToText(cxt, this.contents_2(cxt))
+    return null
+  }
+  java.lang.Object contents_2(java.lang.Object _context) {
+    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
+        autobox[this._src_e.e]
+        autobox["desc"]
+      })
   }
 }
 src/golden/webzip/droid-to/test/golden/Webzip$B2.java
@@ -43,6 +68,7 @@ class Webzip$B2.java extends org.flasck.jvm.areas.DivArea {
     this._card = cardArg
     b3 = new test.golden.Webzip$B3(cxt,cardArg,this)
     b4 = new test.golden.Webzip$B4(cxt,cardArg,this)
+    b5 = new test.golden.Webzip$B5(cxt,cardArg,this)
     return
   }
 }
@@ -53,12 +79,23 @@ class Webzip$B3.java extends org.flasck.jvm.areas.TextArea {
   void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
-    this._setText("Dear")
+    this._setText("Dear ")
     return
   }
 }
 src/golden/webzip/droid-to/test/golden/Webzip$B4.java
 class Webzip$B4.java extends org.flasck.jvm.areas.TextArea {
+  Ltest/golden/Webzip; _card
+
+  void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
+    super.<init>(parent, null)
+    this._card = cardArg
+    this._setText("")
+    return
+  }
+}
+src/golden/webzip/droid-to/test/golden/Webzip$B5.java
+class Webzip$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Webzip; _card
 
   void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
@@ -76,19 +113,19 @@ class Webzip$B4.java extends org.flasck.jvm.areas.TextArea {
     return this._card.getVar(_context, "name")
   }
 }
-src/golden/webzip/droid-to/test/golden/Webzip$B5.java
-class Webzip$B5.java extends org.flasck.jvm.areas.DivArea {
+src/golden/webzip/droid-to/test/golden/Webzip$B6.java
+class Webzip$B6.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Webzip; _card
 
   void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
-    b6 = new test.golden.Webzip$B6(cxt,cardArg,this)
+    b7 = new test.golden.Webzip$B7(cxt,cardArg,this)
     return
   }
 }
-src/golden/webzip/droid-to/test/golden/Webzip$B6.java
-class Webzip$B6.java extends org.flasck.jvm.areas.ListArea {
+src/golden/webzip/droid-to/test/golden/Webzip$B7.java
+class Webzip$B7.java extends org.flasck.jvm.areas.ListArea {
   Ltest/golden/Webzip; _card
 
   void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
@@ -98,7 +135,7 @@ class Webzip$B6.java extends org.flasck.jvm.areas.ListArea {
     return
   }
   org.flasck.jvm.areas.Area _newChild(org.flasck.jvm.builtin.Crokey crokey) {
-    ret = new test.golden.Webzip$B7(this._card,this)
+    ret = new test.golden.Webzip$B8(this._card,this)
     ret.bindVar("_crokey", crokey.id)
     return ret
   }
@@ -106,17 +143,17 @@ class Webzip$B6.java extends org.flasck.jvm.areas.ListArea {
     return this._card.getVar(_context, "list")
   }
 }
-src/golden/webzip/droid-to/test/golden/Webzip$B7.java
-class Webzip$B7.java extends org.flasck.jvm.areas.DivArea {
+src/golden/webzip/droid-to/test/golden/Webzip$B8.java
+class Webzip$B8.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Webzip; _card
-  Ltest/golden/Webzip$B7; _src_e
+  Ltest/golden/Webzip$B8; _src_e
   Ljava/lang/Object; e
 
   void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, "li")
+    super.<init>(parent, null)
     this._card = cardArg
     this._src_e = this
-    b8 = new test.golden.Webzip$B8(cxt,cardArg,this)
+    b9 = new test.golden.Webzip$B9(cxt,cardArg,this)
     return
   }
   java.lang.Object _assignToVar(java.lang.Object obj) {
@@ -130,25 +167,17 @@ class Webzip$B7.java extends org.flasck.jvm.areas.DivArea {
     return null
   }
 }
-src/golden/webzip/droid-to/test/golden/Webzip$B8.java
-class Webzip$B8.java extends org.flasck.jvm.areas.TextArea {
+src/golden/webzip/droid-to/test/golden/Webzip$B9.java
+class Webzip$B9.java extends org.flasck.jvm.areas.DivArea {
   Ltest/golden/Webzip; _card
-  Ltest/golden/Webzip$B7; _src_e
+  Ltest/golden/Webzip$B8; _src_e
 
   void <init>(java.lang.Object cxt, test.golden.Webzip cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
     this._card = cardArg
-    this._src_e = ((test.golden.Webzip$B7)parent)._src_e
-    this._src_e._interested(this, "_contentExpr")
-    (void)this._contentExpr(cxt)
+    this._src_e = ((test.golden.Webzip$B8)parent)._src_e
+    b10 = new test.golden.Webzip$B10(cxt,cardArg,this)
     return
-  }
-  java.lang.Object _contentExpr(java.lang.Object cxt) {
-    super._assignToText(cxt, this.contents_2(cxt))
-    return null
-  }
-  java.lang.Object contents_2(java.lang.Object _context) {
-    return this._src_e.e
   }
 }
 src/golden/webzip/droid-to/test/golden/Webzip$_C0.java

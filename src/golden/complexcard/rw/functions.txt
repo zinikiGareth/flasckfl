@@ -9,7 +9,8 @@ function test.golden.Complex.B11.yoyos_8 test.golden.Complex 0
 function test.golden.Complex.B2.contents_1 test.golden.Complex 0
   case test.golden.Complex.B2.contents_1_0
   =
-    CardMember.CardMember[test.golden.Complex.hello]
+    CheckStringable
+      CardMember.CardMember[test.golden.Complex.hello]
 function test.golden.Complex.B2.formats_2 test.golden.Complex 0
   case test.golden.Complex.B2.formats_2_0
   =
@@ -24,7 +25,8 @@ function test.golden.Complex.B3.lvs_3 test.golden.Complex 0
 function test.golden.Complex.B5.contents_4 test.golden.Complex 0
   case test.golden.Complex.B5.contents_4_0
   =
-    TLV[test.golden.Complex.lv<-test.golden.Complex.B3.lvs_3]
+    CheckStringable
+      TLV[test.golden.Complex.lv<-test.golden.Complex.B3.lvs_3]
 function test.golden.Complex.B6.lvs_5 test.golden.Complex 0
   case test.golden.Complex.B6.lvs_5_0
   =

@@ -1,7 +1,8 @@
 function test.golden.Simple.B2.contents_0 test.golden.Simple 0
   case test.golden.Simple.B2.contents_0_0
   =
-    CardMember.CardMember[test.golden.Simple.hello]
+    CheckStringable
+      CardMember.CardMember[test.golden.Simple.hello]
 function test.golden.Simple.f test.golden.Simple 0
   case test.golden.Simple.f_0
   =

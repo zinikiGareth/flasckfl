@@ -3,7 +3,6 @@ test.golden.Complex.B11.yoyos_8 :: Card
 test.golden.Complex.B2.contents_1 :: String
 test.golden.Complex.B2.formats_2 :: Cons[String]
 test.golden.Complex.B3.lvs_3 :: Croset[String]
-test.golden.Complex.B5.contents_4 :: String
 test.golden.Complex.B6.lvs_5 :: Croset[String]
 test.golden.Complex.B9.ors_7 :: Boolean
 test.golden.Complex.FooHandler.reply :: String->Cons[Assign]
@@ -14,4 +13,5 @@ test.golden.Complex.inits_hello :: String
 test.golden.Complex.sayHello :: test.golden.ClickIt->Cons[Assign]
 test.golden.Complex.styleIf :: String->A->String
 test.golden.WithInit.inits_x :: String
+test.golden.Complex.B5.contents_4 :: String
 test.golden.Complex.handlers_6.getHandler :: test.golden.ClickIt->Cons[Assign]

@@ -33,8 +33,7 @@ class Templates$B1.java extends org.flasck.jvm.areas.DivArea {
     super.<init>(parent, null)
     this._card = cardArg
     b2 = new test.golden.Templates$B2(cxt,cardArg,this)
-    b6 = new test.golden.Templates$B6(cxt,cardArg,this)
-    b7 = new test.golden.Templates$B7(cxt,cardArg,this)
+    b5 = new test.golden.Templates$B5(cxt,cardArg,this)
     return
   }
 }
@@ -68,7 +67,6 @@ class Templates$B3.java extends org.flasck.jvm.areas.DivArea {
     this._card = cardArg
     this._src_e = this
     b4 = new test.golden.Templates$B4(cxt,cardArg,this)
-    b5 = new test.golden.Templates$B5(cxt,cardArg,this)
     return
   }
   java.lang.Object _assignToVar(java.lang.Object obj) {
@@ -129,44 +127,6 @@ class Templates$B4.java extends org.flasck.jvm.areas.TextArea {
 src/golden/templates/droid-to/test/golden/Templates$B5.java
 class Templates$B5.java extends org.flasck.jvm.areas.TextArea {
   Ltest/golden/Templates; _card
-  Ltest/golden/Templates$B3; _src_e
-
-  void <init>(java.lang.Object cxt, test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, null)
-    this._card = cardArg
-    this._src_e = ((test.golden.Templates$B3)parent)._src_e
-    this._src_e._interested(this, "_contentExpr")
-    this._card._wrapper.onAssign(this._src_e.e, "id", this, "_contentExpr")
-    this._card._wrapper.onAssign(this.ctsAssign_4(cxt), "id", this, "_contentExpr")
-    (void)this._contentExpr(cxt)
-    return
-  }
-  java.lang.Object _contentExpr(java.lang.Object cxt) {
-    super._assignToText(cxt, this.contents_3(cxt))
-    return null
-  }
-  java.lang.Object contents_3(java.lang.Object _context) {
-    {
-      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
-          autobox[this._src_e.e]
-          autobox["id"]
-        })
-      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
-          autobox[v0]
-          autobox["id"]
-        })
-    }
-  }
-  java.lang.Object ctsAssign_4(java.lang.Object _context) {
-    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
-        autobox[this._src_e.e]
-        autobox["id"]
-      })
-  }
-}
-src/golden/templates/droid-to/test/golden/Templates$B6.java
-class Templates$B6.java extends org.flasck.jvm.areas.TextArea {
-  Ltest/golden/Templates; _card
 
   void <init>(java.lang.Object cxt, test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
     super.<init>(parent, null)
@@ -177,49 +137,13 @@ class Templates$B6.java extends org.flasck.jvm.areas.TextArea {
     return
   }
   java.lang.Object _contentExpr(java.lang.Object cxt) {
-    super._assignToText(cxt, this.contents_5(cxt))
+    super._assignToText(cxt, this.contents_3(cxt))
     return null
   }
-  java.lang.Object contents_5(java.lang.Object _context) {
+  java.lang.Object contents_3(java.lang.Object _context) {
     return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
         autobox[this._card.getVar(_context, "header")]
         autobox["title"]
-      })
-  }
-}
-src/golden/templates/droid-to/test/golden/Templates$B7.java
-class Templates$B7.java extends org.flasck.jvm.areas.TextArea {
-  Ltest/golden/Templates; _card
-
-  void <init>(java.lang.Object cxt, test.golden.Templates cardArg, org.flasck.jvm.areas.Area parent) {
-    super.<init>(parent, null)
-    this._card = cardArg
-    this._card._wrapper.onAssign(this._card, "header", this, "_contentExpr")
-    this._card._wrapper.onAssign(this._card.getVar(cxt, "header"), "id", this, "_contentExpr")
-    this._card._wrapper.onAssign(this.ctsAssign_7(cxt), "id", this, "_contentExpr")
-    (void)this._contentExpr(cxt)
-    return
-  }
-  java.lang.Object _contentExpr(java.lang.Object cxt) {
-    super._assignToText(cxt, this.contents_6(cxt))
-    return null
-  }
-  java.lang.Object contents_6(java.lang.Object _context) {
-    {
-      v0 = org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
-          autobox[this._card.getVar(_context, "header")]
-          autobox["id"]
-        })
-      return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
-          autobox[v0]
-          autobox["id"]
-        })
-    }
-  }
-  java.lang.Object ctsAssign_7(java.lang.Object _context) {
-    return org.flasck.jvm.fl.FLClosure.simple(org.flasck.jvm.fl.FLEval$Field.class, new java.lang.Object[2] {
-        autobox[this._card.getVar(_context, "header")]
-        autobox["id"]
       })
   }
 }

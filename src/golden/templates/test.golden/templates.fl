@@ -17,6 +17,4 @@ We should probably also have a list example that uses a function to get its data
 				+ data e
 					.
 						e.title : (e.format)
-						e.id.id
 				header.title
-				header.id.id

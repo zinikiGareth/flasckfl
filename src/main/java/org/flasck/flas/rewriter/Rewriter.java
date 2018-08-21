@@ -2125,6 +2125,9 @@ public class Rewriter implements CodeGenRegistry {
 			writeExpr(pw.indent(), ie.elseExpr);
 		} else if (expr instanceof TemplateListVar) {
 			pw.println(expr.toString());
+		} else if (expr instanceof TypeCheckStringable) {
+			pw.println("CheckStringable");
+			writeExpr(pw.indent(), ((TypeCheckStringable)expr).expr);
 		}
 		else
 			pw.println("?? " + expr.getClass() + ":" + expr);

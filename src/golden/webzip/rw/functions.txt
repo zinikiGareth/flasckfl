@@ -1,15 +1,20 @@
-function test.golden.Webzip.B4.contents_0 test.golden.Webzip 0
-  case test.golden.Webzip.B4.contents_0_0
+function test.golden.Webzip.B10.contents_2 test.golden.Webzip 0
+  case test.golden.Webzip.B10.contents_2_0
   =
-    CardMember.CardMember[test.golden.Webzip.name]
-function test.golden.Webzip.B6.lvs_1 test.golden.Webzip 0
-  case test.golden.Webzip.B6.lvs_1_0
+    CheckStringable
+      @
+        field
+        TLV[test.golden.Webzip.e<-test.golden.Webzip.B7.lvs_1]
+        "desc"
+function test.golden.Webzip.B5.contents_0 test.golden.Webzip 0
+  case test.golden.Webzip.B5.contents_0_0
+  =
+    CheckStringable
+      CardMember.CardMember[test.golden.Webzip.name]
+function test.golden.Webzip.B7.lvs_1 test.golden.Webzip 0
+  case test.golden.Webzip.B7.lvs_1_0
   =
     CardMember.CardMember[test.golden.Webzip.list]
-function test.golden.Webzip.B8.contents_2 test.golden.Webzip 0
-  case test.golden.Webzip.B8.contents_2_0
-  =
-    TLV[test.golden.Webzip.e<-test.golden.Webzip.B6.lvs_1]
 function test.golden.Webzip._C1.onready test.golden.Webzip 0
   case test.golden.Webzip._C1.onready_0
   =

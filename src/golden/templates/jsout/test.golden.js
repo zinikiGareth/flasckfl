@@ -61,8 +61,7 @@ test.golden._Templates.B1 = function(parent) {
   DivArea.call(this, parent);
   if (!parent) return;
   var b2 = new test.golden._Templates.B2(this);
-  var b6 = new test.golden._Templates.B6(this);
-  var b7 = new test.golden._Templates.B7(this);
+  var b5 = new test.golden._Templates.B5(this);
 }
 
 test.golden._Templates.B1.prototype = new DivArea();
@@ -89,7 +88,6 @@ test.golden._Templates.B3 = function(parent) {
   if (!parent) return;
   this._src_e = this;
   var b4 = new test.golden._Templates.B4(this);
-  var b5 = new test.golden._Templates.B5(this);
 }
 
 test.golden._Templates.B3.prototype = new DivArea();
@@ -132,13 +130,16 @@ test.golden._Templates.B4.prototype._setVariableFormats = function() {
   this._mydiv.setAttribute('class', join(FLEval.full(this.formats_2()), ' '));
 }
 
+test.golden._Templates.B2.prototype._assignToVar = function() {
+  var lv = FLEval.full(this.lvs_0());
+  ListArea.prototype._assignToVar.call(this, lv);
+}
+
 test.golden._Templates.B5 = function(parent) {
   TextArea.call(this, parent);
   if (!parent) return;
-  this._src_e = parent._src_e;
-  this._src_e._interested(this, test.golden._Templates.B5.prototype._contentExpr);
-  this._onAssign(this._src_e.e, 'id', test.golden._Templates.B5.prototype._contentExpr);
-  this._onAssign(this.ctsAssign_4(), 'id', test.golden._Templates.B5.prototype._contentExpr);
+  this._onAssign(this._card, 'header', test.golden._Templates.B5.prototype._contentExpr);
+  this._onAssign(this._card.header, 'title', test.golden._Templates.B5.prototype._contentExpr);
   test.golden._Templates.B5.prototype._contentExpr.call(this);
 }
 
@@ -148,44 +149,6 @@ test.golden._Templates.B5.prototype.constructor = test.golden._Templates.B5;
 
 test.golden._Templates.B5.prototype._contentExpr = function() {
   this._assignToText(this.contents_3());
-}
-
-test.golden._Templates.B2.prototype._assignToVar = function() {
-  var lv = FLEval.full(this.lvs_0());
-  ListArea.prototype._assignToVar.call(this, lv);
-}
-
-test.golden._Templates.B6 = function(parent) {
-  TextArea.call(this, parent);
-  if (!parent) return;
-  this._onAssign(this._card, 'header', test.golden._Templates.B6.prototype._contentExpr);
-  this._onAssign(this._card.header, 'title', test.golden._Templates.B6.prototype._contentExpr);
-  test.golden._Templates.B6.prototype._contentExpr.call(this);
-}
-
-test.golden._Templates.B6.prototype = new TextArea();
-
-test.golden._Templates.B6.prototype.constructor = test.golden._Templates.B6;
-
-test.golden._Templates.B6.prototype._contentExpr = function() {
-  this._assignToText(this.contents_5());
-}
-
-test.golden._Templates.B7 = function(parent) {
-  TextArea.call(this, parent);
-  if (!parent) return;
-  this._onAssign(this._card, 'header', test.golden._Templates.B7.prototype._contentExpr);
-  this._onAssign(this._card.header, 'id', test.golden._Templates.B7.prototype._contentExpr);
-  this._onAssign(this.ctsAssign_7(), 'id', test.golden._Templates.B7.prototype._contentExpr);
-  test.golden._Templates.B7.prototype._contentExpr.call(this);
-}
-
-test.golden._Templates.B7.prototype = new TextArea();
-
-test.golden._Templates.B7.prototype.constructor = test.golden._Templates.B7;
-
-test.golden._Templates.B7.prototype._contentExpr = function() {
-  this._assignToText(this.contents_6());
 }
 
 test.golden._Templates.B2.prototype.lvs_0 = function() {
@@ -206,29 +169,7 @@ test.golden._Templates.B4.prototype.formats_2 = function() {
 
 test.golden._Templates.B5.prototype.contents_3 = function() {
   "use strict";
-  var v0 = FLEval.closure(FLEval.field, this._src_e.e, 'id');
-  return FLEval.closure(FLEval.field, v0, 'id');
-}
-
-test.golden._Templates.B5.prototype.ctsAssign_4 = function() {
-  "use strict";
-  return FLEval.closure(FLEval.field, this._src_e.e, 'id');
-}
-
-test.golden._Templates.B6.prototype.contents_5 = function() {
-  "use strict";
   return FLEval.closure(FLEval.field, this._card.header, 'title');
-}
-
-test.golden._Templates.B7.prototype.contents_6 = function() {
-  "use strict";
-  var v0 = FLEval.closure(FLEval.field, this._card.header, 'id');
-  return FLEval.closure(FLEval.field, v0, 'id');
-}
-
-test.golden._Templates.B7.prototype.ctsAssign_7 = function() {
-  "use strict";
-  return FLEval.closure(FLEval.field, this._card.header, 'id');
 }
 
 test.golden;

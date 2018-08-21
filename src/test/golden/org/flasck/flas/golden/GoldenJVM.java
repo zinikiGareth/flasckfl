@@ -66,9 +66,10 @@ public class GoldenJVM {
 			}
 		}
 		
-		GoldenCGRunner.clean(errs);
-		GoldenCGRunner.clean(droidTo);
-		GoldenCGRunner.clean(droid);
+		TestEnvironment.clean(errs);
+		TestEnvironment.clean(droidTo);
+		TestEnvironment.clean(droid);
+		TestEnvironment te = new TestEnvironment(GoldenCGRunner.jvmdir, out.getPath(), true, useJSRunner, useJVMRunner, false, checkEverything, stripNumbers);
 		
 		Main.setLogLevels();
 		FLASCompiler compiler = new FLASCompiler();
@@ -80,7 +81,7 @@ public class GoldenJVM {
 			compiler.writeJVMTo(droidTo);
 			compiler.compile(dir);
 		} catch (ErrorResultException ex) {
-			GoldenCGRunner.handleErrors(errs, ex.errors, null);
+			GoldenCGRunner.handleErrors(te, errs, ex.errors, null);
 		} catch (Throwable t) {
 			t.printStackTrace();
 			throw t;

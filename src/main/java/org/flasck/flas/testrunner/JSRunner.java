@@ -24,7 +24,6 @@ import org.flasck.flas.parsedForm.Scope;
 import org.flasck.flas.parsedForm.Scope.ScopeEntry;
 import org.flasck.ui4j.UI4JWrapperElement;
 import org.zinutils.exceptions.UtilException;
-import org.zinutils.utils.FileUtils;
 
 import com.ui4j.api.browser.BrowserEngine;
 import com.ui4j.api.browser.BrowserFactory;
@@ -125,7 +124,6 @@ public class JSRunner extends CommonTestRunner {
 			pw.println("</html>");
 			pw.close();
 			spkg = tcr.getPackage().uniqueName();
-			FileUtils.cat(html);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw new UtilException("Failed", ex);

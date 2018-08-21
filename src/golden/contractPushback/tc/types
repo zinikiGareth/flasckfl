@@ -1,2 +1,2 @@
-test.golden.f_0.m :: Cons[Send]
 test.golden.f :: test.golden.DoIt->Number->MessageWrapper[Number]
+test.golden.f_0.m :: Cons[Send]

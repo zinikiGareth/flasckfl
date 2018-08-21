@@ -411,6 +411,7 @@ public class TypeChecker2 {
 			merged.put(k, mergeDown(k, constraints.get(k)));
 
 		// 6. Deduce actual function types
+		TreeSet<String> newTypes = new TreeSet<>();
 		for (HSIEForm f : forms) {
 			TypeInfo nt = deduceType(renames, merged, f);
 			logger.info("Concluded that " + f.funcName.uniqueName() + " has type " + nt);
@@ -420,11 +421,14 @@ public class TypeChecker2 {
 				checkStringable(f, ty);
 			}
 			export.put(f.funcName.uniqueName(), ty);
-			if (trackTo != null) {
-				Type t1 = ty;
-				if (ty.arity() == 0)
-					t1 = ty.arg(0);
-				trackTo.println(f.funcName.uniqueName() + " :: " + t1);
+			newTypes.add(f.funcName.uniqueName());
+		}
+		if (trackTo != null) {
+			for (String n : newTypes) {
+				Type ty = export.get(n);
+				if (ty instanceof FunctionType && ((FunctionType)ty).arity() == 0)
+					ty = ((FunctionType)ty).arg(0);
+				trackTo.println(n + " :: " + ty);
 			}
 		}
 	}
@@ -590,6 +594,11 @@ public class TypeChecker2 {
 			if (called.args.size() == argtypes.size()+1) {
 				constraints.add(c.var, ret);
 			} else {
+				String name;
+				if ((name = isStructCtor(f, cmd)) != null) {
+					errors.message(cmd.location, "insufficient arguments to constructor of " + name);
+					return;
+				}
 				List<TypeInfo> args = new ArrayList<TypeInfo>();
 				for (int i=argtypes.size();i+1<called.args.size();i++)
 					args.add(called.args.get(i));
@@ -597,6 +606,16 @@ public class TypeChecker2 {
 				constraints.add(c.var, tf);
 			}
 		}
+	}
+
+	private String isStructCtor(HSIEForm f, HSIEBlock cmd) {
+		if (cmd instanceof PushExternal) {
+			PushExternal pe = (PushExternal) cmd;
+			String name = pe.fn.uniqueName();
+			if (structTypes.containsKey(name))
+				return name;
+		}
+		return null;
 	}
 
 	protected void checkAdditionalConstraints(HSIEForm f, ClosureCmd c) {

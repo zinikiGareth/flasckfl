@@ -22,24 +22,38 @@ package test.golden
           cs @{8:35|cs}
     template @{12:0|template} @{null}
       . @{13:0|%}
+        . @{14:0|content1}
+          '' Dear  @{15:0|"Dear "}
+          ''  @{15:8|""}
+          <cexpr> @{15:11|name}
+            name @{15:11|name}
+        . @{16:0|listitems}
+          + list e @{17:0|+} @{17:2|list} @{17:7|e}
+            . @{18:0|%}
+              . @{19:0|name}
+                <cexpr> @{20:2|desc}
+                  <apply> @{20:2|desc}
+                    . @{20:2|desc}
+                    e @{20:0|e}
+                    desc @{20:2|desc}
     implements org.ziniki.CrosetService cs @{10:0|implements} @{10:11|org.ziniki.CrosetService} @{10:36|cs}
-    implements org.flasck.Init @{26:0|implements} @{26:11|org.flasck.Init}
-      method test.golden.Webzip._C1.onready @{27:0|onready}
-        invoke @{28:0|<-}
-          <apply> @{28:3|list.append (Item "do some work")}
-            <apply> @{28:3|list.append}
-              . @{28:7|.}
-              list @{28:3|list}
-              append @{28:8|append}
-            <apply> @{28:15|(Item "do some work")}
-              Item @{28:16|Item}
-              '' do some work @{28:21|"do some work"}
-        invoke @{29:0|<-}
-          <apply> @{29:3|list.append (Item "watch rugby")}
-            <apply> @{29:3|list.append}
-              . @{29:7|.}
-              list @{29:3|list}
-              append @{29:8|append}
-            <apply> @{29:15|(Item "watch rugby")}
-              Item @{29:16|Item}
-              '' watch rugby @{29:21|"watch rugby"}
+    implements org.flasck.Init @{22:0|implements} @{22:11|org.flasck.Init}
+      method test.golden.Webzip._C1.onready @{23:0|onready}
+        invoke @{24:0|<-}
+          <apply> @{24:3|list.append (Item "do some work")}
+            <apply> @{24:3|list.append}
+              . @{24:7|.}
+              list @{24:3|list}
+              append @{24:8|append}
+            <apply> @{24:15|(Item "do some work")}
+              Item @{24:16|Item}
+              '' do some work @{24:21|"do some work"}
+        invoke @{25:0|<-}
+          <apply> @{25:3|list.append (Item "watch rugby")}
+            <apply> @{25:3|list.append}
+              . @{25:7|.}
+              list @{25:3|list}
+              append @{25:8|append}
+            <apply> @{25:15|(Item "watch rugby")}
+              Item @{25:16|Item}
+              '' watch rugby @{25:21|"watch rugby"}

@@ -1,0 +1,3 @@
+	test that x has the right value
+		assert x
+			42
