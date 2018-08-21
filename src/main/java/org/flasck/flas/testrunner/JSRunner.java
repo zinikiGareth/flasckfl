@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -136,14 +137,22 @@ public class JSRunner extends CommonTestRunner {
 		pw.println("<script src='file:" + f.getPath() + "' type='text/javascript'></script>");
 	}
 
-	
 	@Override
 	public void prepareCase() {
 		page = browser.navigate("file:" + html.getPath());
 		page.executeScript("window.console = {};");
 		page.executeScript("window.console.log = function() { var ret = ''; var sep = ''; for (var i=0;i<arguments.length;i++) { ret += sep + arguments[i]; sep = ' '; } callJava.log(ret); };");
-		JSObject win = (JSObject)page.executeScript("window");
-		win.setMember("callJava", st);
+		AtomicBoolean choke = new AtomicBoolean(false);
+		Platform.runLater(() -> {
+			JSObject win = (JSObject)page.executeScript("window");
+			win.setMember("callJava", st);
+			choke.set(true);
+		});
+		for (int i=0;!choke.get() && i<100;i++) {
+			try { Thread.sleep(10); } catch (InterruptedException ex) {}
+		}
+		if (!choke.get())
+			fail("did not manage to run platform code");
 		
 		// Do I need to do more cleanup than this?
 		// Also, should there be an "endCase" to do cleanup?
