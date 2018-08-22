@@ -1,0 +1,5 @@
+
+	entity Account
+		String name
+		
+	acct = Account "hello"

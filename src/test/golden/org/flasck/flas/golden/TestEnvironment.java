@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -180,6 +181,7 @@ public class TestEnvironment {
 
 	public void checkTestResults() {
 		if (haveTests() && (useJSRunner || useJVMRunner)) {
+			FileUtils.assertDirectory(testReports);
 			assertGolden(testReports, testReportTo);
 		}
 	}
@@ -197,8 +199,17 @@ public class TestEnvironment {
 				return;
 			fail("There is no generated directory " + genned);
 		}
-		for (File f : genned.listFiles())
-			assertTrue("There is no golden file for the generated " + f, new File(golden, f.getName()).exists());
+		List<File> missing = new ArrayList<>();
+		for (File f : genned.listFiles()) {
+			if (!new File(golden, f.getName()).exists()) {
+				System.out.println("--- missing " + f);
+				FileUtils.cat(f);
+				System.out.println("---");
+				missing.add(f);
+			}
+		}
+		if (!missing.isEmpty())
+			fail("There is no golden file for the generated " + missing);
 		for (File f : golden.listFiles()) {
 			File gen = new File(genned, f.getName());
 			assertTrue("There is no generated file for the golden " + f, gen.exists());

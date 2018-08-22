@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import org.flasck.flas.compiler.HSIEFormGenerator;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
+import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -68,6 +69,8 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 		List<String> fields = new ArrayList<String>();
 		int vi = 0;
 		for (RWStructField sf : sd.fields) {
+			if (sf.name.equals("id"))
+				continue;
 			Var v = new Var(vi++);
 			vars.add(v);
 			fields.add(sf.name+": "+ v);

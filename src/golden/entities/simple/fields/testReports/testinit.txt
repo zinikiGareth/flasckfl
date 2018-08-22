@@ -1,0 +1,2 @@
+PASSED: that the name field should be set
+PASSED: that the name field should be set
