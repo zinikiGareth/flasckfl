@@ -148,11 +148,7 @@ public class JSRunner extends CommonTestRunner {
 			win.setMember("callJava", st);
 			choke.set(true);
 		});
-		for (int i=0;!choke.get() && i<100;i++) {
-			try { Thread.sleep(10); } catch (InterruptedException ex) {}
-		}
-		if (!choke.get())
-			fail("did not manage to run platform code");
+		waitForChoke(choke);
 		
 		// Do I need to do more cleanup than this?
 		// Also, should there be an "endCase" to do cleanup?
@@ -183,33 +179,39 @@ public class JSRunner extends CommonTestRunner {
 			throw new UtilException("There is no definition for card '" + cardType.cardName + "' in scope");
 		if (se.getValue() == null || !(se.getValue() instanceof CardDefinition))
 			throw new UtilException(cardType.cardName + " is not a card");
-		CardDefinition cd = (CardDefinition) se.getValue();
-
-		// this first line probably should be earlier
-		String l0 = "_tmp_postbox = new Postbox('main', window);";
-
-		String l1 = "_tmp_body = document.getElementsByTagName('body')[0];";
-		String l2 = "_tmp_div = document.createElement('div');";
-		String l3 = "_tmp_body.appendChild(_tmp_div);";
-		// _tmp_services needs to be a map of service name to port to listen on
-		String l4 = "_tmp_services = {};";
-		execute(l0+l1+l2+l3+l4);
-		for (ContractImplements ctr : cd.contracts) {
-			String fullName = fullName(ctr.name());
-			JSObject win = (JSObject)page.executeScript("window");
-			MockServiceWrapper ms = new MockServiceWrapper(fullName);
-			// TODO: need to wire ms up in some way to have expectations ...
-			win.setMember("_tmp_svc", ms);
-			execute("Flasck.provideService(_tmp_postbox, _tmp_services, '" + fullName + "', _tmp_svc)");
-			System.out.println("Binding " + fullName + " to " + ms._myAddr);
-		}
-		String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType.jsName() + ", mode: 'local' }, _tmp_services)";
-		execute(l5);
 		
-		JSObject card = (JSObject) page.executeScript("_tmp_handle");
-		cdefns.put(bindVar, cd);
-		cards.put(bindVar, card);
-		assertNoErrors();
+		AtomicBoolean choke = new AtomicBoolean(false);
+		Platform.runLater(() -> {
+			CardDefinition cd = (CardDefinition) se.getValue();
+	
+			// this first line probably should be earlier
+			String l0 = "_tmp_postbox = new Postbox('main', window);";
+	
+			String l1 = "_tmp_body = document.getElementsByTagName('body')[0];";
+			String l2 = "_tmp_div = document.createElement('div');";
+			String l3 = "_tmp_body.appendChild(_tmp_div);";
+			// _tmp_services needs to be a map of service name to port to listen on
+			String l4 = "_tmp_services = {};";
+			execute(l0+l1+l2+l3+l4);
+			for (ContractImplements ctr : cd.contracts) {
+				String fullName = fullName(ctr.name());
+				JSObject win = (JSObject)page.executeScript("window");
+				MockServiceWrapper ms = new MockServiceWrapper(fullName);
+				// TODO: need to wire ms up in some way to have expectations ...
+				win.setMember("_tmp_svc", ms);
+				execute("Flasck.provideService(_tmp_postbox, _tmp_services, '" + fullName + "', _tmp_svc)");
+				System.out.println("Binding " + fullName + " to " + ms._myAddr);
+			}
+			String l5 = "_tmp_handle = Flasck.createCard(_tmp_postbox, _tmp_div, { explicit: " + cardType.jsName() + ", mode: 'local' }, _tmp_services)";
+			execute(l5);
+			
+			JSObject card = (JSObject) page.executeScript("_tmp_handle");
+			cdefns.put(bindVar, cd);
+			cards.put(bindVar, card);
+			assertNoErrors();
+			choke.set(true);
+		});
+		waitForChoke(choke);
 	}
 
 	@Override
@@ -219,15 +221,20 @@ public class JSRunner extends CommonTestRunner {
 
 		String fullName = getFullContractNameForCard(cardVar, contractName, methodName);
 		JSObject card = cards.get(cardVar);
-		
-		List<Object> args = new ArrayList<Object>();
-		args.add(fullName);
-		args.add(methodName);
-		if (posns != null)
-			for (int i : posns) {
-				args.add(page.executeScript("FLEval.full(" + spkg + ".arg" + i + "())"));
-			}
-		card.call("send", args.toArray());
+
+		AtomicBoolean choke = new AtomicBoolean(false);
+		Platform.runLater(() -> {
+			List<Object> args = new ArrayList<Object>();
+			args.add(fullName);
+			args.add(methodName);
+			if (posns != null)
+				for (int i : posns) {
+					args.add(page.executeScript("FLEval.full(" + spkg + ".arg" + i + "())"));
+				}
+			card.call("send", args.toArray());
+			choke.set(true);
+		});
+		waitForChoke(choke);
 		processEvents();
 		assertNoErrors();
 		assertAllInvocationsCalled();
@@ -286,5 +293,13 @@ public class JSRunner extends CommonTestRunner {
 			} catch (InterruptedException ex) {
 				throw new UtilException("timed out waiting for pending async");
 			}
+	}
+
+	private void waitForChoke(AtomicBoolean choke) {
+		for (int i=0;!choke.get() && i<100;i++) {
+			try { Thread.sleep(10); } catch (InterruptedException ex) {}
+		}
+		if (!choke.get())
+			fail("did not manage to run platform code");
 	}
 }
