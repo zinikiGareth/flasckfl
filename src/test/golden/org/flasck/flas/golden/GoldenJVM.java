@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.zinutils.cgharness.CGHarnessTestBase;
 import org.zinutils.utils.FileUtils;
 
+@Ignore
 public class GoldenJVM {
 	static Logger logger = LoggerFactory.getLogger("HSIE");
 	static String checkEverythingS = System.getProperty("org.flasck.golden.check");

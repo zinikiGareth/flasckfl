@@ -243,7 +243,7 @@ public class JSRunner extends CommonTestRunner {
 	@Override
 	public void match(HTMLMatcher matcher, String selector) throws NotMatched {
 //		System.out.println(page.getDocument().getBody().getOuterHTML());
-		matcher.match(selector, page.getDocument().queryAll(selector).stream().map(e -> new UI4JWrapperElement(e)).collect(Collectors.toList()));
+		matcher.match(selector, page.getDocument().queryAll(selector).stream().map(e -> new UI4JWrapperElement(page, e)).collect(Collectors.toList()));
 		assertNoErrors();
 	}
 
@@ -270,8 +270,15 @@ public class JSRunner extends CommonTestRunner {
 		else if (elts.size() > 1)
 			throw new UtilException("Multiple elements matched " + selector);
 		Element e = elts.get(0);
-		if (!e.hasAttribute("onclick"))
-			throw new UtilException("There is no 'onclick' attribute on " + e.getOuterHTML());
+		if (!e.hasAttribute("onclick")) {
+			String html;
+			try {
+				html = e.getOuterHTML();
+			} catch (Throwable t) {
+				html = "";
+			}
+			throw new UtilException("There is no 'onclick' attribute on " + selector + html);
+		}
 		e.click();
 		processEvents();
 		assertAllInvocationsCalled();

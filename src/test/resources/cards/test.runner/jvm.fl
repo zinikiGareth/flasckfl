@@ -7,6 +7,7 @@
 		down missing
 
 	entity Account
+		String name <- "hello"
 	
 	object Tracker
 		state
@@ -29,8 +30,8 @@
 		
 		handler MyHandler LocalHandler
 			missing
-				acct <- Account
-				<- ds.pushMy (type Account) Account
+				acct <- (Account "hi")
+				<- ds.pushMy (type Account) (Account "yo")
 # TODO: we should be able to share the "Account" here by defining it in a nested scope
 #					a = Account
 		
@@ -38,7 +39,7 @@
 			.
 				"hello, world" :  (styleIf 'show' sayHello)
 					click => echoHello
-				acct.id
+				acct.name
 					click => echoMessage "fred"
 			
 		event echoHello ev

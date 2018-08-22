@@ -81,7 +81,11 @@ public class BuilderSink implements Sink {
 		List<Block> options = findBlocksContaining(from, to);
 		if (options.size() == 1)
 			return options.get(0);
-		else if (options.size() > 1)
+		
+		System.out.println("Error processing " + fromZip + " " + file);
+		System.out.println("Found blocks at " + from + "-" + to + ": " + options);
+		System.out.println("All blocks: " + blocks);
+		if (options.size() > 1)
 			throw new SplitterException("There are multiple blocks containing " + from + "-" + to + ":" + options);
 		else
 			throw new SplitterException("There is no block containing " + from + "-" + to);
