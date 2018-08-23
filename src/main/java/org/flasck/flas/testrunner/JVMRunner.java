@@ -57,6 +57,11 @@ public class JVMRunner extends CommonTestRunner implements ServiceProvider {
 		controller = new JDKFlasckController(loader, errorAdmin, wire, store, this, new JSoupDisplayFactory());
 	}
 
+	@Override
+	public String name() {
+		return "jvm";
+	}
+
 	public void considerResource(File file) {
 		loader.addClassesFrom(file);
 	}

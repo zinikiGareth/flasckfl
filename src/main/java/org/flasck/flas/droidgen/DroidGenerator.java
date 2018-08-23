@@ -92,7 +92,7 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 				if (fld.name.equals("id"))
 					continue;
 				if (fld.init != null)
-					ctor.assign(ctor.getField(ctor.myThis(), fld.name), ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", ctor.classConst(fld.init.javaNameAsNestedClass()))).flush();
+					ctor.assign(ctor.getField(ctor.myThis(), fld.name), ctor.callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", ctor.as(ctor.myThis(), J.OBJECT), ctor.as(ctor.classConst(fld.init.javaNameAsNestedClass()), J.OBJECT), ctor.arrayOf(J.OBJECT, new ArrayList<>()))).flush();
 			}
 			ctor.returnVoid().flush();
 		}
@@ -117,6 +117,8 @@ public class DroidGenerator implements RepoVisitor, HSIEFormGenerator {
 			for (int i=0;i<sd.fields.size();i++) {
 				RWStructField fld = sd.fields.get(i);
 				if (fld.name.equals("id"))
+					continue;
+				if (fld.init != null)
 					continue;
 				meth.assign(meth.getField(ret, fld.name), meth.arrayElt(v, meth.intConst(ap++))).flush();
 			}

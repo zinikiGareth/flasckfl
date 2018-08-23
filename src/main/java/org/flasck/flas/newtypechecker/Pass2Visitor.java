@@ -29,6 +29,8 @@ public class Pass2Visitor implements RepoVisitor {
 		for (RWStructField f : sd.fields) {
 			if (f.name.equals("id")) // don't try to require the "id" field
 				continue;
+			if (f.init != null) // don't by default have parameters for items with default values.
+				continue;
 			fs.add(tc.convertType(f.type));
 		}
 		TypeFunc ti = new TypeFunc(sd.location(), fs, sty);

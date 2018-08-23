@@ -1,0 +1,23 @@
+
+	entity OnlyDefault
+		String name <- "default"
+		
+	only = OnlyDefault
+	
+	entity OneDefault
+		String name <- "hasDefault"
+		String other
+	
+	def = OneDefault "other"
+	
+	entity OtherDefault
+		String name
+		String other <- "hasDefault"
+	
+	other = OtherDefault "other"
+	
+	entity TwoDefault
+		String name <- "first"
+		String other <- "second"
+		
+	two = TwoDefault

@@ -1,4 +1,4 @@
 
 	test that the name field should be set
-		assert acct.name
+		assert ns.name
 			"hello"

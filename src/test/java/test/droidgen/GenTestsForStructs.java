@@ -1,5 +1,7 @@
 package test.droidgen;
 
+import java.util.ArrayList;
+
 import org.flasck.builder.droid.DroidBuilder;
 import org.flasck.flas.blockForm.InputPosition;
 import org.flasck.flas.commonBase.names.FunctionName;
@@ -82,7 +84,7 @@ public class GenTestsForStructs {
 	public void testVisitingAStructDefnWithOneMemberAndNoInitGeneratesAnEmptySlot() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
-		checkCreationOfStructEval();
+		checkCreationOfStructEval(true);
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.OBJECTP, "f1");
 		RWStructDefn sd = new RWStructDefn(loc, StructType.STRUCT, new SolidName(null, "Struct"), true);
@@ -94,7 +96,7 @@ public class GenTestsForStructs {
 	public void testVisitingAStructDefnWithOneInitializedMemberGeneratesASlotWithTheValue() {
 		checkCreationOfStruct();
 		checkCreationOfStructCtor();
-		checkCreationOfStructEval();
+		checkCreationOfStructEval(false);
 		checkCreationOfStructDFE();
 		checkDefnOfField(dfe, J.OBJECTP, "f1");
 		checkAssignToField(ctor, "f1");
@@ -118,7 +120,7 @@ public class GenTestsForStructs {
 		}});
 	}
 
-	public void checkCreationOfStructEval() {
+	public void checkCreationOfStructEval(boolean withArg) {
 		context.checking(new Expectations() {{
 			oneOf(ctor).argument(J.OBJECT, "cxt");
 			oneOf(ctor).nextLocal(); will(returnValue(3));
@@ -133,10 +135,12 @@ public class GenTestsForStructs {
 			oneOf(ctor).avar("Struct", "ret"); will(returnValue(ret));
 			oneOf(ctor).makeNew("Struct"); will(returnValue(expr));
 			oneOf(ctor).assign(ret, expr);
-			oneOf(ctor).getField(ret, "f1"); will(returnValue(expr));
-			oneOf(ctor).intConst(0); will(returnValue(ice0));
-			oneOf(ctor).arrayElt(av, ice0); will(returnValue(expr));
-			oneOf(ctor).assign(expr, expr); will(returnValue(expr));
+			if (withArg) {
+				oneOf(ctor).getField(ret, "f1"); will(returnValue(expr));
+				oneOf(ctor).intConst(0); will(returnValue(ice0));
+				oneOf(ctor).arrayElt(av, ice0); will(returnValue(expr));
+				oneOf(ctor).assign(expr, expr); will(returnValue(expr));
+			}
 			oneOf(ctor).returnObject(ret); will(returnValue(expr));
 		}});
 	}
@@ -167,10 +171,13 @@ public class GenTestsForStructs {
 		}});
 		Var iv = new AVar(meth, "java.lang.Object", "iv");
 		context.checking(new Expectations() {{
-			oneOf(meth).myThis(); will(returnValue(iv));
+			exactly(2).of(meth).myThis(); will(returnValue(iv));
+			oneOf(meth).as(iv, J.OBJECT); will(returnValue(expr));
+			oneOf(meth).as(expr, J.OBJECT); will(returnValue(expr));
+			oneOf(meth).arrayOf(J.OBJECT, new ArrayList<>()); will(returnValue(expr));
 			oneOf(meth).getField(iv, fld); will(returnValue(expr));
 			oneOf(meth).classConst("PACKAGEFUNCTIONS$init_" + fld); will(returnValue(expr));
-			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "simple", expr); will(returnValue(expr));
+			oneOf(meth).callStatic(J.FLCLOSURE, J.FLCLOSURE, "obj", new IExpr[] { expr, expr, expr }); will(returnValue(expr));
 			oneOf(meth).assign(expr, expr);
 		}});
 	}

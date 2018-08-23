@@ -46,16 +46,16 @@ public class UnitTestRunner {
 				} catch (AssertFailed ex) {
 					logger.error("AssertFailed: " + ex.getMessage());
 					for (UnitTestResultHandler h : handlers)
-						h.testFailed(tc.getDescription(), ex.expected, ex.actual);
+						h.testFailed(tc.getDescription(), runner.name(), ex.expected, ex.actual);
 				} catch (MultiException ex) {
 					logger.error("Exceptions raised: " + ex.getMessage());
 					for (String s : ex.allErrors())
 						for (UnitTestResultHandler h : handlers)
-							h.testError(tc.getDescription(), s);
+							h.testError(tc.getDescription(), runner.name(), s);
 				} catch (Exception ex) {
 					logger.error("Exceptions thrown: " + ex.getMessage());
 					for (UnitTestResultHandler h : handlers)
-						h.testError(tc.getDescription(), ex);
+						h.testError(tc.getDescription(), runner.name(), ex);
 				}
 			}
 		});
@@ -65,7 +65,7 @@ public class UnitTestRunner {
 		logger.info("Running case " + tc.getDescription());
 		tc.run(runner);
 		for (UnitTestResultHandler h : handlers) {
-			h.testPassed(tc.getDescription());
+			h.testPassed(tc.getDescription(), runner.name());
 		}
 	}
 

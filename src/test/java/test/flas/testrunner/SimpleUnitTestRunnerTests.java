@@ -49,6 +49,9 @@ public class SimpleUnitTestRunnerTests {
 	}
 
 	private void go(Setup setup) {
+		context.checking(new Expectations() {{
+			allowing(runner).name(); will(returnValue("runner"));
+		}});
 		prior = new CompileResult(setup.scope, bce, tc);
 		sc.includePrior(prior);
 	}
@@ -63,7 +66,7 @@ public class SimpleUnitTestRunnerTests {
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
 			oneOf(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
-			oneOf(resultHandler).testPassed("a simple test");
+			oneOf(resultHandler).testPassed("a simple test", runner.name());
 		}});
 
 		runTestScript("\ttest a simple test\n", "\t\tassert x", "\t\t\t32");
@@ -80,7 +83,7 @@ public class SimpleUnitTestRunnerTests {
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
 			oneOf(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
-			oneOf(resultHandler).testPassed("a test of id");
+			oneOf(resultHandler).testPassed("a test of id", runner.name());
 		}});
 
 		runTestScript("\ttest a test of id\n", "\t\tassert (id 'hello')", "\t\t\t'hello'");
@@ -98,8 +101,8 @@ public class SimpleUnitTestRunnerTests {
 			exactly(2).of(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(runner).assertCorrectValue(2);
-			oneOf(resultHandler).testPassed("test id with a string");
-			oneOf(resultHandler).testPassed("test id with a number");
+			oneOf(resultHandler).testPassed("test id with a string", runner.name());
+			oneOf(resultHandler).testPassed("test id with a number", runner.name());
 		}});
 
 		runTestScript(
@@ -118,7 +121,7 @@ public class SimpleUnitTestRunnerTests {
 			oneOf(runner).prepareScript(with(any(FLASCompiler.class)), with(any(Scope.class)));
 			oneOf(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1); will(throwException(new AssertFailed(420, 32)));
-			oneOf(resultHandler).testFailed("a simple test", 420, 32);
+			oneOf(resultHandler).testFailed("a simple test", runner.name(), 420, 32);
 		}});
 
 		runTestScript("\ttest a simple test\n", "\t\tassert x", "\t\t\t420");
@@ -136,8 +139,8 @@ public class SimpleUnitTestRunnerTests {
 			exactly(2).of(runner).prepareCase();
 			oneOf(runner).assertCorrectValue(1);
 			oneOf(runner).assertCorrectValue(2); will(throwException(new AssertFailed(420, 32)));
-			oneOf(resultHandler).testPassed("test id with a string");
-			oneOf(resultHandler).testFailed("test id with a number", 420, 32);
+			oneOf(resultHandler).testPassed("test id with a string", runner.name());
+			oneOf(resultHandler).testFailed("test id with a number", runner.name(), 420, 32);
 		}});
 
 		runTestScript(

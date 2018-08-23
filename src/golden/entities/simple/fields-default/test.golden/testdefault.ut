@@ -1,0 +1,4 @@
+
+	test that the name field should be set by default
+		assert only.name
+			"default"

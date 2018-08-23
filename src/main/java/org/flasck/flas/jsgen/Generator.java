@@ -8,7 +8,6 @@ import java.util.TreeSet;
 import org.flasck.flas.compiler.HSIEFormGenerator;
 import org.flasck.flas.jsform.JSForm;
 import org.flasck.flas.jsform.JSTarget;
-import org.flasck.flas.parsedForm.StructDefn.StructType;
 import org.flasck.flas.rewriter.RepoVisitor;
 import org.flasck.flas.rewrittenForm.CardGrouping;
 import org.flasck.flas.rewrittenForm.CardGrouping.ContractGrouping;
@@ -58,8 +57,8 @@ public class Generator implements RepoVisitor, HSIEFormGenerator {
 				if (x.init != null) {
 					JSForm defass = new JSForm("else");
 					ifBlock.add(defass);
-					defass.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + x.init.jsName() + "())"));
-					elseBlock.add(JSForm.flex("this." + x.name+ " = FLEval.full(" + x.init.jsName() + "())"));
+					defass.add(JSForm.flex("this." + x.name+ " = FLEval.full(this." + x.init.name + "())"));
+					elseBlock.add(JSForm.flex("this." + x.name+ " = FLEval.full(this." + x.init.name + "())"));
 				}
 			}
 		}

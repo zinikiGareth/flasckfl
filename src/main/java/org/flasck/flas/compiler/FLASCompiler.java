@@ -338,6 +338,8 @@ public class FLASCompiler implements ScriptCompiler {
 				
 				// 8b. Typecheck all the methods together
 				tc2.typecheck(forms);
+				
+				// TODO: this is over-eager.  We should check if we depend on any of the failures are required by subsequent steps.
 				abortIfErrors(errors);
 			}
 			// 9. Check whether functions are curried and add in the appropriate indications if so

@@ -1,5 +1,5 @@
 
-	entity Account
+	entity NameStruct
 		String name
 		
-	acct = Account "hello"
+	ns = NameStruct "hello"

@@ -94,6 +94,11 @@ public class JSRunner extends CommonTestRunner {
 	}
 
 	@Override
+	public String name() {
+		return "js";
+	}
+	
+	@Override
 	public void prepareScript(ScriptCompiler compiler, Scope scope) {
 		CompileResult tcr = null;
 		File scriptDir = null;

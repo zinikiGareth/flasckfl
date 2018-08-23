@@ -10,23 +10,23 @@ public class FileUnitTestResultHandler implements UnitTestResultHandler {
 	}
 
 	@Override
-	public void testPassed(String caseName) {
-		results.println("PASSED: " + caseName);
+	public void testPassed(String caseName, String runner) {
+		results.println("PASSED: " + caseName + " (" + runner + ")");
 	}
 
 	@Override
-	public void testFailed(String caseName, Object expected, Object actual) {
-		results.println("FAILED: " + caseName);
+	public void testFailed(String caseName, String runner, Object expected, Object actual) {
+		results.println("FAILED: " + caseName + " (" + runner + ")");
 	}
 
 	@Override
-	public void testError(String caseName, Exception ex) {
-		results.println("ERROR:  " + caseName);
+	public void testError(String caseName, String runner, Exception ex) {
+		results.println("ERROR:  " + caseName + " (" + runner + ")");
 		results.showException(ex);
 	}
 
 	@Override
-	public void testError(String caseName, String s) {
+	public void testError(String caseName, String runner, String s) {
 		results.println("ERROR:  " + caseName);
 		results.println("  " + s);
 	}

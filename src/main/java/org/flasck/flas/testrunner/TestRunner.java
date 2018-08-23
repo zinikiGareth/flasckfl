@@ -7,6 +7,7 @@ import org.flasck.flas.compiler.ScriptCompiler;
 import org.flasck.flas.parsedForm.Scope;
 
 public interface TestRunner {
+	String name();
 	void prepareScript(ScriptCompiler compiler, Scope scope);
 	void prepareCase();
 	void assertCorrectValue(int exprId) throws Exception;
