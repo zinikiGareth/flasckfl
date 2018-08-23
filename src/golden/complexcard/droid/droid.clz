@@ -621,12 +621,11 @@ class WithInit.java extends org.flasck.jvm.fl.FLASObject {
 
   void <init>() {
     super.<init>()
-    this.x = org.flasck.jvm.fl.FLClosure.simple(test.golden.WithInit$inits_x.class)
+    this.x = org.flasck.jvm.fl.FLClosure.obj(this, test.golden.WithInit$inits_x.class, new java.lang.Object[0] {})
     return
   }
   static test.golden.WithInit eval(java.lang.Object cxt, [java.lang.Object args) {
     ret = new test.golden.WithInit()
-    ret.x = args[0]
     return ret
   }
   void _doFullEval(java.lang.Object cxt) {

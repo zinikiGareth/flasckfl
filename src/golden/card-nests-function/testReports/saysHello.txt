@@ -1,2 +1,2 @@
-PASSED: that we can create the card
-PASSED: that we can create the card
+PASSED: that we can create the card (jvm)
+PASSED: that we can create the card (js)

@@ -23,9 +23,9 @@ test.golden._Item = function(v0) {
   }
 }
 
-test.golden.Item = function(v0, v1) {
+test.golden.Item = function(v0) {
   "use strict";
-  return new test.golden._Item({id: v0, desc: v1});
+  return new test.golden._Item({desc: v0});
 }
 
 test.golden._Webzip = function(v0) {

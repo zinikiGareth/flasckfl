@@ -66,11 +66,11 @@ test.golden._WithInit = function(v0) {
       this.x = v0.x;
     }
     else {
-      this.x = FLEval.full(test.golden.WithInit.inits_x());
+      this.x = FLEval.full(this.inits_x());
     }
   }
   else {
-    this.x = FLEval.full(test.golden.WithInit.inits_x());
+    this.x = FLEval.full(this.inits_x());
   }
 }
 

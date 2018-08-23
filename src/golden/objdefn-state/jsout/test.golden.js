@@ -20,9 +20,9 @@ test.golden._Entity = function(v0) {
   }
 }
 
-test.golden.Entity = function(v0) {
+test.golden.Entity = function() {
   "use strict";
-  return new test.golden._Entity({id: v0});
+  return new test.golden._Entity({});
 }
 
 test.golden._WithState = function() {

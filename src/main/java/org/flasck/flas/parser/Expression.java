@@ -90,28 +90,43 @@ public class Expression implements TryParsing {
 					args.add(pp);
 				}
 			}
-			while (line.hasMore()) {
+			boolean brklp = false;
+			while (!brklp && line.hasMore()) {
 				mark = line.at();
 				s = ExprToken.from(line);
 				if (s == null)
 					return null;
-				if (s.type == ExprToken.PUNC && s.text.equals("(")) {
-					Object pp = parseParenthetical(line, s.location, ")");
-					if (pp == null || pp instanceof ErrorResult) return pp;
-					args.add(pp);
-				} else if (s.type == ExprToken.PUNC && s.text.equals("[")) {
-					Object pp = parseParenthetical(line, s.location, "]");
-					if (pp == null || pp instanceof ErrorResult) return pp;
-					args.add(pp);
-				} else if (s.type == ExprToken.PUNC && (s.text.equals(")") || s.text.equals(",") || s.text.equals("]"))) {
-					line.reset(mark);
-					break;
-				} else if (s.type == ExprToken.PUNC) {
-					if (s.text.equals("."))
+				else if (s.type == ExprToken.PUNC) {
+					switch (s.text) {
+					case "(": {
+						Object pp = parseParenthetical(line, s.location, ")");
+						if (pp == null || pp instanceof ErrorResult) return pp;
+						args.add(pp);
+						break;
+					}
+					case "[": {
+						Object pp = parseParenthetical(line, s.location, "]");
+						if (pp == null || pp instanceof ErrorResult) return pp;
+						args.add(pp);
+						break;
+					}
+					case "{": {
+						return ErrorResult.oneMessage(s.location, "the syntax Type { vars } is not yet supported");
+					}
+					case ")":
+					case ",":
+					case "]": {
+						brklp = true;
+						line.reset(mark);
+						break;
+					}
+					case ".": {
 						args.add(ItemExpr.from(s));
-					else {
-						System.out.println("Random PUNC");
-						return ErrorResult.oneMessage(line, "unrecognized punctuation");
+						break;
+					}
+					default: {
+						return ErrorResult.oneMessage(s.location, "unrecognized punctuation");
+					}
 					}
 				} else
 					args.add(promoteConstructors(ItemExpr.from(s)));

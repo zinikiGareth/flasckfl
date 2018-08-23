@@ -23,9 +23,9 @@ test.golden._Storable = function(v0) {
   }
 }
 
-test.golden.Storable = function(v0, v1) {
+test.golden.Storable = function(v0) {
   "use strict";
-  return new test.golden._Storable({id: v0, value: v1});
+  return new test.golden._Storable({value: v0});
 }
 
 test.golden;

@@ -26,9 +26,9 @@ test.golden._Item = function(v0) {
   }
 }
 
-test.golden.Item = function(v0, v1, v2) {
+test.golden.Item = function(v0, v1) {
   "use strict";
-  return new test.golden._Item({id: v0, title: v1, format: v2});
+  return new test.golden._Item({title: v0, format: v1});
 }
 
 test.golden._Templates = function(v0) {
